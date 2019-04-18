@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.InteropServices;
-    using System.Runtime.Serialization;
 
     [ComVisible(true)]
     [Serializable]
@@ -15,11 +14,6 @@
         {
             Data.Add("Operation", operation.Name);
             Data.Add("Group", string.Join("\n", group.Select(x => x.ToDebugString())));
-        }
-
-        protected AggregationOperationExecutionException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
         }
     }
 }

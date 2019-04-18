@@ -10,12 +10,12 @@
 
         public override void Apply(IRow row)
         {
-            var result = If == null || If.Invoke(row);
-            if (result != true) return;
+            var result = If?.Invoke(row) != false;
+            if (!result) return;
 
             Stat.IncrementCounter("executed", 1);
 
-            if (ErrorIf(row) == true)
+            if (ErrorIf(row))
             {
                 row.SetValue(Column, new EtlRowError()
                 {
@@ -29,8 +29,8 @@
 
         public override void Prepare()
         {
-            if (string.IsNullOrEmpty(Column)) throw new InvalidOperationParameterException(this, nameof(Column), Column, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (ErrorIf == null) throw new InvalidOperationParameterException(this, nameof(ErrorIf), ErrorIf, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (string.IsNullOrEmpty(Column)) throw new OperationParameterNullException(this, nameof(Column));
+            if (ErrorIf == null) throw new OperationParameterNullException(this, nameof(ErrorIf));
         }
     }
 }

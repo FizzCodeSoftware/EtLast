@@ -13,8 +13,8 @@
 
         public override void Apply(IRow row)
         {
-            var result = If == null || If.Invoke(row);
-            if (result != true) return;
+            var result = If?.Invoke(row) != false;
+            if (!result) return;
 
             foreach (var (CurrentName, NewName) in Names)
             {
@@ -43,7 +43,7 @@
 
         public override void Prepare()
         {
-            if (Names == null) throw new InvalidOperationParameterException(this, nameof(Names), Names, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (Names == null) throw new OperationParameterNullException(this, nameof(Names));
         }
     }
 }

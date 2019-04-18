@@ -8,7 +8,7 @@
 
     public class JobProcess : IJobProcess
     {
-        private List<IJob> _jobs = new List<IJob>();
+        private readonly List<IJob> _jobs = new List<IJob>();
         public IFinalProcess InputProcess { get; set; }
 
         public IEtlContext Context { get; }
@@ -19,7 +19,7 @@
 
         public JobProcess(IEtlContext context, string name)
         {
-            Context = context ?? throw new InvalidProcessParameterException(this, nameof(context), context, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
             Name = name;
         }
 

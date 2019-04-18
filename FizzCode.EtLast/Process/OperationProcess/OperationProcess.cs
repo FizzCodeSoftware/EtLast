@@ -22,11 +22,11 @@
         {
             Caller = caller;
 
-            if (Configuration == null) throw new InvalidProcessParameterException(this, nameof(Configuration), Configuration, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (Configuration == null) throw new ProcessParameterNullException(this, nameof(Configuration));
             if (Configuration.WorkerCount <= 0) throw new InvalidProcessParameterException(this, nameof(Configuration.WorkerCount), Configuration.WorkerCount, "value must be greater than 0");
-            if (Configuration.WorkerType == null) throw new InvalidProcessParameterException(this, nameof(Configuration.WorkerType), Configuration.WorkerType, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (Configuration.RowQueueType == null) throw new InvalidProcessParameterException(this, nameof(Configuration.RowQueueType), Configuration.RowQueueType, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (InputProcess == null) throw new InvalidProcessParameterException(this, nameof(InputProcess), InputProcess, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (Configuration.WorkerType == null) throw new ProcessParameterNullException(this, nameof(Configuration.WorkerType));
+            if (Configuration.RowQueueType == null) throw new ProcessParameterNullException(this, nameof(Configuration.RowQueueType));
+            if (InputProcess == null) throw new ProcessParameterNullException(this, nameof(InputProcess));
 
             Context.Log(LogSeverity.Debug, this, "started using worker: {WorkerCount} of {WorkerType}, queue: {RowQueueType}, order: {KeepOrder}, input buffer: {InputBufferSize}, loop delay: {MainLoopDelay}", Configuration.WorkerCount, Configuration.WorkerType.Name, Configuration.RowQueueType.Name, Configuration.KeepOrder ? "keep" : "ignore", Configuration.InputBufferSize, Configuration.MainLoopDelay);
             var sw = Stopwatch.StartNew();
@@ -169,11 +169,11 @@
         {
             Caller = caller;
 
-            if (Configuration == null) throw new InvalidProcessParameterException(this, nameof(Configuration), Configuration, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (Configuration == null) throw new ProcessParameterNullException(this, nameof(Configuration));
             if (Configuration.WorkerCount <= 0) throw new InvalidProcessParameterException(this, nameof(Configuration.WorkerCount), Configuration.WorkerCount, "value must be greater than 0");
-            if (Configuration.WorkerType == null) throw new InvalidProcessParameterException(this, nameof(Configuration.WorkerType), Configuration.WorkerType, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (Configuration.RowQueueType == null) throw new InvalidProcessParameterException(this, nameof(Configuration.RowQueueType), Configuration.RowQueueType, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (InputProcess == null) throw new InvalidProcessParameterException(this, nameof(InputProcess), InputProcess, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (Configuration.WorkerType == null) throw new ProcessParameterNullException(this, nameof(Configuration.WorkerType));
+            if (Configuration.RowQueueType == null) throw new ProcessParameterNullException(this, nameof(Configuration.RowQueueType));
+            if (InputProcess == null) throw new ProcessParameterNullException(this, nameof(InputProcess));
 
             Context.Log(LogSeverity.Debug, this, "settings: worker count: {WorkerCount} of {WorkerType}, queue: {RowQueueType}, order: {KeepOrder}, input buffer: {InputBufferSize}, loop delay: {MainLoopDelay}", Configuration.WorkerCount, Configuration.WorkerType.Name, Configuration.RowQueueType.Name, Configuration.KeepOrder ? "keep" : "ignore", Configuration.InputBufferSize, Configuration.MainLoopDelay);
 

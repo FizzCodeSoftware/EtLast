@@ -13,7 +13,7 @@
         public override IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
             Caller = caller;
-            if (string.IsNullOrEmpty(Sql)) throw new InvalidProcessParameterException(this, nameof(Sql), Sql, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (string.IsNullOrEmpty(Sql)) throw new ProcessParameterNullException(this, nameof(Sql));
 
             return base.Evaluate(caller);
         }

@@ -43,8 +43,8 @@
 
         public override void Apply(IRow row)
         {
-            var result = If == null || If.Invoke(row);
-            if (result != true) return;
+            var result = If?.Invoke(row) != false;
+            if (!result) return;
 
             lock (_lock)
             {
@@ -155,7 +155,7 @@
 
         public override void Prepare()
         {
-            if (string.IsNullOrEmpty(ConnectionStringKey)) throw new InvalidOperationParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (string.IsNullOrEmpty(ConnectionStringKey)) throw new OperationParameterNullException(this, nameof(ConnectionStringKey));
 
             _connectionStringSettings = Process.Context.GetConnectionStringSettings(ConnectionStringKey);
             if (_connectionStringSettings == null) throw new InvalidOperationParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");

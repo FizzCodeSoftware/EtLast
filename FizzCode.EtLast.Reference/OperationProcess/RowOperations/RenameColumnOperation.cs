@@ -12,8 +12,8 @@
 
         public override void Apply(IRow row)
         {
-            var result = If == null || If.Invoke(row);
-            if (result != true) return;
+            var result = If?.Invoke(row) != false;
+            if (!result) return;
 
             if (row.Exists(NewName))
             {
@@ -39,8 +39,8 @@
 
         public override void Prepare()
         {
-            if (string.IsNullOrEmpty(CurrentName)) throw new InvalidOperationParameterException(this, nameof(CurrentName), CurrentName, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (string.IsNullOrEmpty(NewName)) throw new InvalidOperationParameterException(this, nameof(NewName), NewName, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (string.IsNullOrEmpty(CurrentName)) throw new OperationParameterNullException(this, nameof(CurrentName));
+            if (string.IsNullOrEmpty(NewName)) throw new OperationParameterNullException(this, nameof(NewName));
         }
     }
 }

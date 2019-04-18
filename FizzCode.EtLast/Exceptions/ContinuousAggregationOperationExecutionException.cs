@@ -2,7 +2,6 @@
 {
     using System;
     using System.Runtime.InteropServices;
-    using System.Runtime.Serialization;
 
     [ComVisible(true)]
     [Serializable]
@@ -14,11 +13,6 @@
             Data.Add("Operation", operation.Name);
             Data.Add("AggregateRow", aggregateRow.ToDebugString());
             Data.Add("Row", row.ToDebugString());
-        }
-
-        protected ContinuousAggregationOperationExecutionException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
         }
     }
 }

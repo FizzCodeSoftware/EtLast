@@ -11,8 +11,8 @@
 
         public override void Apply(IRow row)
         {
-            var result = If == null || If.Invoke(row);
-            if (result != true) return;
+            var result = If?.Invoke(row) != false;
+            if (!result) return;
 
             if (row[Column] == null)
             {
@@ -22,8 +22,8 @@
 
         public override void Prepare()
         {
-            if (Column == null) throw new InvalidOperationParameterException(this, nameof(Column), Column, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (Value == null) throw new InvalidOperationParameterException(this, nameof(Value), Value, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (Column == null) throw new OperationParameterNullException(this, nameof(Column));
+            if (Value == null) throw new OperationParameterNullException(this, nameof(Value));
         }
     }
 }

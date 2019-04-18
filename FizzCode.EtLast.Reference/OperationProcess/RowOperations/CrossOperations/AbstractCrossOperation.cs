@@ -6,7 +6,7 @@
 
         public override void Prepare()
         {
-            if (RightProcess == null) throw new InvalidOperationParameterException(this, nameof(RightProcess), RightProcess, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (RightProcess == null) throw new OperationParameterNullException(this, nameof(RightProcess));
         }
 
         public override void Shutdown()

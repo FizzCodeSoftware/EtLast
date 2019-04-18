@@ -13,8 +13,8 @@
 
         public override void Prepare()
         {
-            if (string.IsNullOrEmpty(Column)) throw new InvalidOperationParameterException(this, nameof(Column), Column, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (string.IsNullOrEmpty(ParameterName)) throw new InvalidOperationParameterException(this, nameof(ParameterName), ParameterName, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (string.IsNullOrEmpty(Column)) throw new OperationParameterNullException(this, nameof(Column));
+            if (string.IsNullOrEmpty(ParameterName)) throw new OperationParameterNullException(this, nameof(ParameterName));
 
             if (!Process.Context.GetParameter(ParameterName, out _value)) throw new InvalidOperationParameterException(this, nameof(ParameterName), ParameterName, "key doesn't exists");
         }

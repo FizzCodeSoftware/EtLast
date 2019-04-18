@@ -15,7 +15,7 @@
             if (If != null)
             {
                 var result = If.Invoke(row);
-                if (result == true)
+                if (result)
                 {
                     Then.Invoke(this, row);
                     Stat.IncrementCounter("then executed", 1);
@@ -38,8 +38,8 @@
 
         public override void Prepare()
         {
-            if (Then == null) throw new InvalidOperationParameterException(this, nameof(Then), Then, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (Else != null && If == null) throw new InvalidOperationParameterException(this, nameof(If), If, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (Then == null) throw new OperationParameterNullException(this, nameof(Then));
+            if (Else != null && If == null) throw new OperationParameterNullException(this, nameof(If));
         }
     }
 }

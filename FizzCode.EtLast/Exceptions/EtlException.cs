@@ -2,7 +2,6 @@
 {
     using System;
     using System.Runtime.InteropServices;
-    using System.Runtime.Serialization;
 
     [ComVisible(true)]
     [Serializable]
@@ -22,11 +21,6 @@
         {
             Data.Add("Process", process.Name);
             Data.Add("CallChain", GetCallChain(process));
-        }
-
-        protected EtlException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
         }
 
         private static string GetCallChain(IProcess process)

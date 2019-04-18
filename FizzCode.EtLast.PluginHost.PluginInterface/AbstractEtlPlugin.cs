@@ -186,7 +186,7 @@
                 path = Path.Combine(exeFolder, path.Substring(2));
             }
 
-            if (subFolders != null && subFolders.Length > 0)
+            if (subFolders?.Length > 0)
             {
                 var l = new List<string>() { path };
                 l.AddRange(subFolders);

@@ -11,7 +11,7 @@
 
         protected AbstractBaseProducerProcess(IEtlContext context, string name = null)
         {
-            Context = context ?? throw new InvalidProcessParameterException(this, nameof(context), context, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
             Name = name;
         }
 

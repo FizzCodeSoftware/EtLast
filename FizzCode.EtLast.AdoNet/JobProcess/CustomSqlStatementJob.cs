@@ -14,8 +14,8 @@
 
         public override void Execute(IProcess process, CancellationTokenSource cancellationTokenSource)
         {
-            if (string.IsNullOrEmpty(ConnectionStringKey)) throw new InvalidJobParameterException(process, this, nameof(ConnectionStringKey), ConnectionStringKey, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (string.IsNullOrEmpty(SqlStatement)) throw new InvalidJobParameterException(process, this, nameof(SqlStatement), SqlStatement, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (string.IsNullOrEmpty(ConnectionStringKey)) throw new JobParameterNullException(process, this, nameof(ConnectionStringKey));
+            if (string.IsNullOrEmpty(SqlStatement)) throw new JobParameterNullException(process, this, nameof(SqlStatement));
 
             var sw = Stopwatch.StartNew();
             var connectionStringSettings = process.Context.GetConnectionStringSettings(ConnectionStringKey);

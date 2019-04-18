@@ -4,7 +4,6 @@
     using System.Globalization;
     using System.Linq;
     using System.Runtime.InteropServices;
-    using System.Runtime.Serialization;
 
     [ComVisible(true)]
     [Serializable]
@@ -45,11 +44,6 @@
             }
 
             Data.Add("Row", row.ToDebugString());
-        }
-
-        protected InvalidValueException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
         }
     }
 }

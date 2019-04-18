@@ -101,7 +101,7 @@
         public override void Prepare()
         {
             if (RowCount <= 0) throw new InvalidOperationParameterException(this, nameof(RowCount), RowCount, "value must be greater than 0");
-            if (Columns == null || Columns.Length == 0) throw new InvalidOperationParameterException(this, nameof(Columns), Columns, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (Columns == null || Columns.Length == 0) throw new OperationParameterNullException(this, nameof(Columns));
         }
     }
 }

@@ -17,7 +17,7 @@
         {
             if (If != null)
             {
-                if (If.Invoke(row) == false)
+                if (!If.Invoke(row))
                 {
                     Stat.IncrementCounter("ignored", 1);
                     return;

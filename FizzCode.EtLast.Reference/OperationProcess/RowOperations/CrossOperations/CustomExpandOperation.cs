@@ -22,7 +22,7 @@
         {
             if (If != null)
             {
-                if (If.Invoke(row) == false)
+                if (!If.Invoke(row))
                 {
                     Stat.IncrementCounter("ignored", 1);
                     return;
@@ -59,9 +59,9 @@
         public override void Prepare()
         {
             base.Prepare();
-            if (MatchingRowSelector == null) throw new InvalidOperationParameterException(this, nameof(MatchingRowSelector), MatchingRowSelector, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (RightKeySelector == null) throw new InvalidOperationParameterException(this, nameof(RightKeySelector), RightKeySelector, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (ColumnMap == null) throw new InvalidOperationParameterException(this, nameof(ColumnMap), ColumnMap, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (MatchingRowSelector == null) throw new OperationParameterNullException(this, nameof(MatchingRowSelector));
+            if (RightKeySelector == null) throw new OperationParameterNullException(this, nameof(RightKeySelector));
+            if (ColumnMap == null) throw new OperationParameterNullException(this, nameof(ColumnMap));
 
             foreach (var (LeftColumn, RightColumn) in ColumnMap)
             {
