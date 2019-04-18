@@ -8,7 +8,7 @@
 
     public class JobProcess : IJobProcess
     {
-        private List<IJob> _jobs = new List<IJob>();
+        private readonly List<IJob> _jobs = new List<IJob>();
         public IFinalProcess InputProcess { get; set; }
 
         public IEtlContext Context { get; }

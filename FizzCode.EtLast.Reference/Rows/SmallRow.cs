@@ -5,7 +5,7 @@
     using System.Diagnostics;
     using System.Linq;
 
-    [DebuggerDisplay("{ToDebugString()}")]
+    [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
     public class SmallRow : AbstractBaseRow, IRow
     {
         private struct Entry

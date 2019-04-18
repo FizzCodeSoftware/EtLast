@@ -8,10 +8,5 @@
         {
             if (RightProcess == null) throw new InvalidOperationParameterException(this, nameof(RightProcess), RightProcess, InvalidOperationParameterException.ValueCannotBeNullMessage);
         }
-
-        public override void Shutdown()
-        {
-            base.Shutdown();
-        }
     }
 }

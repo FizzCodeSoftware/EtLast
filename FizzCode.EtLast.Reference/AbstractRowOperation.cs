@@ -2,7 +2,7 @@
 {
     using System.Diagnostics;
 
-    [DebuggerDisplay("{Name}")]
+    [DebuggerDisplay("{" + nameof(Name) + "}")]
     public abstract class AbstractRowOperation : IRowOperation
     {
         public IOperationProcess Process { get; private set; }

@@ -36,7 +36,7 @@
                 Context.Log(LogSeverity.Debug, this, "fetched and returned {RowCount} rows from {InputProcess} in {Elapsed}", rowCount, InputProcess.Name, sw.Elapsed);
             }
 
-            Context.Log(LogSeverity.Debug, this, "returnig pre-defined rows");
+            Context.Log(LogSeverity.Debug, this, "returning pre-defined rows");
 
             var resultCount = 0;
             foreach (var inputRow in InputRows)

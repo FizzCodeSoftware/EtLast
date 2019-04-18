@@ -15,10 +15,5 @@
         public override void Prepare()
         {
         }
-
-        public override void Shutdown()
-        {
-            base.Shutdown();
-        }
     }
 }
