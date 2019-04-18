@@ -19,7 +19,7 @@
         {
             if (If != null)
             {
-                if (If.Invoke(row) == false)
+                if (!If.Invoke(row))
                 {
                     Stat.IncrementCounter("ignored", 1);
                     return;
@@ -57,7 +57,7 @@
         public override void Prepare()
         {
             base.Prepare();
-            if (ColumnMap == null) throw new InvalidOperationParameterException(this, nameof(ColumnMap), ColumnMap, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (ColumnMap == null) throw new OperationParameterNullException(this, nameof(ColumnMap));
 
             foreach (var (leftColumn, rightColumn) in ColumnMap)
             {

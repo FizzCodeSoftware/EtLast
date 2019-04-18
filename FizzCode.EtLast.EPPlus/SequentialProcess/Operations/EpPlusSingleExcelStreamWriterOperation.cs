@@ -38,8 +38,8 @@
 
         public override void Prepare()
         {
-            if (Stream == null) throw new InvalidOperationParameterException(this, nameof(Stream), Stream, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (Action == null) throw new InvalidOperationParameterException(this, nameof(Action), Action, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (Stream == null) throw new OperationParameterNullException(this, nameof(Stream));
+            if (Action == null) throw new OperationParameterNullException(this, nameof(Action));
 
             _state = new TState();
         }

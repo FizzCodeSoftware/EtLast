@@ -6,8 +6,8 @@
 
         public override void Apply(IRow row)
         {
-            var result = If == null || If.Invoke(row);
-            if (result != true) return;
+            var result = If?.Invoke(row) != false;
+            if (!result) return;
 
             row.Flagged = true;
         }

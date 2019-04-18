@@ -37,7 +37,7 @@
                             var rows = inputProcess.Evaluate(this);
                             resultSets.Add(rows);
 
-                            if (ts != null) ts.Complete();
+                            ts?.Complete();
                         }
                     }
                     finally

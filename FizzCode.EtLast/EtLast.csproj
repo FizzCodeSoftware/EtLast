@@ -67,7 +67,10 @@
     <Compile Include="EtlRowError.cs" />
     <Compile Include="Exceptions\AggregationOperationExecutionException.cs" />
     <Compile Include="Exceptions\EtlException.cs" />
+    <Compile Include="Exceptions\JobParameterNullException.cs" />
     <Compile Include="Exceptions\InvalidJobParameterException.cs" />
+    <Compile Include="Exceptions\OperationParameterNullException.cs" />
+    <Compile Include="Exceptions\ProcessParameterNullException.cs" />
     <Compile Include="Exceptions\InvalidProcessParameterException.cs" />
     <Compile Include="Exceptions\JobExecutionException.cs" />
     <Compile Include="Exceptions\ContinuousAggregationOperationExecutionException.cs" />

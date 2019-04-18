@@ -50,16 +50,16 @@
 
         public EpPlusExcelReaderProcess(IEtlContext context, string name)
         {
-            Context = context ?? throw new InvalidProcessParameterException(this, nameof(context), context, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
             Name = name;
         }
 
         public IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
             Caller = caller;
-            if (string.IsNullOrEmpty(FileName)) throw new InvalidProcessParameterException(this, nameof(FileName), FileName, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (string.IsNullOrEmpty(SheetName) && SheetIndex == -1) throw new InvalidProcessParameterException(this, nameof(SheetName), SheetName, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (ColumnMap == null) throw new InvalidProcessParameterException(this, nameof(ColumnMap), ColumnMap, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (string.IsNullOrEmpty(FileName)) throw new ProcessParameterNullException(this, nameof(FileName));
+            if (string.IsNullOrEmpty(SheetName) && SheetIndex == -1) throw new ProcessParameterNullException(this, nameof(SheetName));
+            if (ColumnMap == null) throw new ProcessParameterNullException(this, nameof(ColumnMap));
 
             var sw = Stopwatch.StartNew();
 

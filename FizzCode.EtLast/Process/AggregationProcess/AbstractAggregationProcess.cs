@@ -17,7 +17,7 @@
 
         protected AbstractAggregationProcess(IEtlContext context, string name)
         {
-            Context = context ?? throw new InvalidProcessParameterException(this, nameof(context), context, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
             Name = name;
         }
 

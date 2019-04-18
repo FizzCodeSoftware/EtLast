@@ -18,7 +18,7 @@
         {
             Caller = caller;
 
-            if (InputProcess == null) throw new InvalidProcessParameterException(this, nameof(InputProcess), InputProcess, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (InputProcess == null) throw new ProcessParameterNullException(this, nameof(InputProcess));
 
             var sw = Stopwatch.StartNew();
             var resultCount = 0;

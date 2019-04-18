@@ -10,8 +10,8 @@
         public override void Prepare()
         {
             base.Prepare();
-            if (LeftKeySelector == null) throw new InvalidOperationParameterException(this, nameof(LeftKeySelector), LeftKeySelector, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (RightKeySelector == null) throw new InvalidOperationParameterException(this, nameof(RightKeySelector), RightKeySelector, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (LeftKeySelector == null) throw new OperationParameterNullException(this, nameof(LeftKeySelector));
+            if (RightKeySelector == null) throw new OperationParameterNullException(this, nameof(RightKeySelector));
         }
 
         protected string GetLeftKey(IProcess process, IRow row)

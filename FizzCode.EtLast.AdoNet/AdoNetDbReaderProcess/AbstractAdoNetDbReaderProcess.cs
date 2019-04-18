@@ -27,10 +27,10 @@
 
         public override IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
-            if (string.IsNullOrEmpty(ConnectionStringKey)) throw new InvalidProcessParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (string.IsNullOrEmpty(ConnectionStringKey)) throw new ProcessParameterNullException(this, nameof(ConnectionStringKey));
             ConnectionStringSettings = Context.GetConnectionStringSettings(ConnectionStringKey);
             if (ConnectionStringSettings == null) throw new InvalidProcessParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
-            if (ConnectionStringSettings.ProviderName == null) throw new InvalidProcessParameterException(this, "ConnectionString", nameof(ConnectionStringSettings.ProviderName), InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (ConnectionStringSettings.ProviderName == null) throw new ProcessParameterNullException(this, "ConnectionString");
 
             var usedSqlValueProcessors = SqlValueProcessors.Where(x => x.Init(ConnectionStringSettings)).ToList();
             if (usedSqlValueProcessors.Count == 0) usedSqlValueProcessors = null;
@@ -135,7 +135,7 @@
                 reader.Dispose();
             }
 
-            if (cmd != null) cmd.Dispose();
+            cmd?.Dispose();
 
             ConnectionManager.ReleaseConnection(ref connection);
 

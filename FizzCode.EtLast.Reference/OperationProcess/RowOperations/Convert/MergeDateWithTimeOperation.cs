@@ -13,8 +13,8 @@
 
         public override void Apply(IRow row)
         {
-            var result = If == null || If.Invoke(row);
-            if (result != true) return;
+            var result = If?.Invoke(row) != false;
+            if (!result) return;
 
             var sourceDate = row[SourceDateColumn];
             var sourceTime = row[SourceTimeColumn];
@@ -52,10 +52,10 @@
 
         public override void Prepare()
         {
-            if (string.IsNullOrEmpty(TargetColumn)) throw new InvalidOperationParameterException(this, nameof(TargetColumn), TargetColumn, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (string.IsNullOrEmpty(SourceDateColumn)) throw new InvalidOperationParameterException(this, nameof(SourceDateColumn), SourceDateColumn, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (string.IsNullOrEmpty(SourceTimeColumn)) throw new InvalidOperationParameterException(this, nameof(SourceTimeColumn), SourceTimeColumn, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (ActionIfInvalid != InvalidValueAction.SetSpecialValue && SpecialValueIfInvalid != null) throw new InvalidOperationParameterException(this, nameof(SpecialValueIfInvalid), SpecialValueIfInvalid, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (string.IsNullOrEmpty(TargetColumn)) throw new OperationParameterNullException(this, nameof(TargetColumn));
+            if (string.IsNullOrEmpty(SourceDateColumn)) throw new OperationParameterNullException(this, nameof(SourceDateColumn));
+            if (string.IsNullOrEmpty(SourceTimeColumn)) throw new OperationParameterNullException(this, nameof(SourceTimeColumn));
+            if (ActionIfInvalid != InvalidValueAction.SetSpecialValue && SpecialValueIfInvalid != null) throw new OperationParameterNullException(this, nameof(SpecialValueIfInvalid));
         }
     }
 }

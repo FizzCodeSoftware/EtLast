@@ -27,9 +27,9 @@
 
         public void Prepare(AdoNetWriteToTableOperation operation, IProcess process)
         {
-            if (string.IsNullOrEmpty(TableName)) throw new InvalidOperationParameterException(operation, nameof(TableName), TableName, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (KeyColumns == null) throw new InvalidOperationParameterException(operation, nameof(KeyColumns), KeyColumns, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (ValueColumns == null) throw new InvalidOperationParameterException(operation, nameof(ValueColumns), ValueColumns, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (string.IsNullOrEmpty(TableName)) throw new OperationParameterNullException(operation, nameof(TableName));
+            if (KeyColumns == null) throw new OperationParameterNullException(operation, nameof(KeyColumns));
+            if (ValueColumns == null) throw new OperationParameterNullException(operation, nameof(ValueColumns));
             _allColumns = KeyColumns.Concat(ValueColumns).ToArray();
             _allColumnsConvertedAndJoined = string.Join(", ", _allColumns.Select(x => GetColumnName(x)));
             _valueColumnsConvertedAndJoinedInsert = string.Join(", ", ValueColumns.Select(x => "source." + GetColumnName(x)));
@@ -65,7 +65,7 @@
 
         public string GetColumnName(string rowColumnName)
         {
-            var name = (_map != null && _map.Count > 0 && _map.TryGetValue(rowColumnName, out string mappedColumnName)) ? mappedColumnName : rowColumnName;
+            var name = (_map?.Count > 0 && _map.TryGetValue(rowColumnName, out string mappedColumnName)) ? mappedColumnName : rowColumnName;
             if (!name.StartsWith("["))
             {
                 return "[" + name + "]";

@@ -18,7 +18,7 @@
         public override IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
             Caller = caller;
-            if (InputRows == null) throw new InvalidProcessParameterException(this, nameof(InputRows), InputRows, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (InputRows == null) throw new ProcessParameterNullException(this, nameof(InputRows));
             var sw = Stopwatch.StartNew();
 
             if (InputProcess != null)
