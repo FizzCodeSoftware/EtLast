@@ -70,10 +70,7 @@
             _active = true;
         }
 
-        public override int Depth
-        {
-            get { return 0; }
-        }
+        public override int Depth => 0;
 
         public override DataTable GetSchemaTable()
         {
@@ -85,13 +82,7 @@
             Shutdown();
         }
 
-        public override bool HasRows
-        {
-            get
-            {
-                return _active;
-            }
-        }
+        public override bool HasRows => _active;
 
         public override bool NextResult()
         {
@@ -112,10 +103,7 @@
             return false;
         }
 
-        public override int RecordsAffected
-        {
-            get { return 0; }
-        }
+        public override int RecordsAffected => 0;
 
         protected override void Dispose(bool disposing)
         {
@@ -129,18 +117,9 @@
             Reset();
         }
 
-        public override int FieldCount
-        {
-            get { return _columns.Length; }
-        }
+        public override int FieldCount => _columns.Length;
 
-        public override bool IsClosed
-        {
-            get
-            {
-                return !_active;
-            }
-        }
+        public override bool IsClosed => !_active;
 
         public override bool GetBoolean(int i)
         {
@@ -168,14 +147,14 @@
             return (char)this[i];
         }
 
-        public override long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
+        public override long GetChars(int i, long fieldOffset, char[] buffer, int bufferOffset, int length)
         {
             var value = (string)this[i];
-            var remaining = value.Length - (int)fieldoffset;
+            var remaining = value.Length - (int)fieldOffset;
             if (remaining <= 0) return 0;
 
             var count = Math.Min(length, remaining);
-            value.CopyTo((int)fieldoffset, buffer, bufferoffset, count);
+            value.CopyTo((int)fieldOffset, buffer, bufferOffset, count);
             return count;
         }
 

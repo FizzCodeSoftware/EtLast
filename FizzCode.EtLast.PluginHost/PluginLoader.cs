@@ -23,9 +23,9 @@
             if (Debugger.IsAttached)
             {
                 logger.Write(LogEventLevel.Information, "loading plugins directly from AppDomain where namespace ends with {NameSpaceEnding}", subFolder);
-                foreach (var assemby in domain.GetAssemblies())
+                foreach (var assembly in domain.GetAssemblies())
                 {
-                    foreach (var foundType in assemby.GetTypes().Where(x => pluginInterfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract && x.Namespace.EndsWith(subFolder, StringComparison.OrdinalIgnoreCase)))
+                    foreach (var foundType in assembly.GetTypes().Where(x => pluginInterfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract && x.Namespace.EndsWith(subFolder, StringComparison.OrdinalIgnoreCase)))
                     {
                         var plugin = (IEtlPlugin)Activator.CreateInstance(foundType, new object[] { });
                         if (plugin != null)

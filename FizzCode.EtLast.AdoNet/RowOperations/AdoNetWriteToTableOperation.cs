@@ -135,7 +135,7 @@
             _statements.Clear();
         }
 
-        private static readonly DbType[] quotedParameterTypes = new DbType[] { DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength };
+        private static readonly DbType[] QuotedParameterTypes = { DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength };
 
         private string CompileSql(IDbCommand command)
         {
@@ -147,7 +147,7 @@
             foreach (var p in arrParams.OrderByDescending(p => p.ParameterName.Length))
             {
                 var value = p.Value != null ? Convert.ToString(p.Value, CultureInfo.InvariantCulture) : "NULL";
-                if (quotedParameterTypes.Contains(p.DbType))
+                if (QuotedParameterTypes.Contains(p.DbType))
                 {
                     value = "'" + value + "'";
                 }

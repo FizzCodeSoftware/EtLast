@@ -12,8 +12,8 @@
     {
         private readonly Type _rowType;
         private readonly Dictionary<string, object> _parameters = new Dictionary<string, object>();
-        private ConcurrentBag<Exception> _exceptions { get; } = new ConcurrentBag<Exception>();
-        private static readonly Dictionary<LogSeverity, ConsoleColor> SeverityColors = new Dictionary<LogSeverity, ConsoleColor>()
+        private ConcurrentBag<Exception> Exceptions { get; } = new ConcurrentBag<Exception>();
+        private static readonly Dictionary<LogSeverity, ConsoleColor> SeverityColors = new Dictionary<LogSeverity, ConsoleColor>
         {
             [LogSeverity.Debug] = ConsoleColor.DarkGray,
             [LogSeverity.Information] = ConsoleColor.Gray,
@@ -106,7 +106,7 @@
 
         public void AddException(IProcess process, Exception ex)
         {
-            _exceptions.Add(ex);
+            Exceptions.Add(ex);
             OnException?.Invoke(this, new ContextExceptionEventArgs()
             {
                 Process = process,
@@ -118,7 +118,7 @@
 
         public List<Exception> GetExceptions()
         {
-            return new List<Exception>(_exceptions);
+            return new List<Exception>(Exceptions);
         }
 
         public ConnectionStringSettings GetConnectionStringSettings(string key)

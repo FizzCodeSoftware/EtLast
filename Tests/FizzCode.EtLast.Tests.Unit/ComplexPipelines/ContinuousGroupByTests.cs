@@ -6,8 +6,8 @@
     [TestClass]
     public class ContinuousGroupByTests
     {
-        protected string[] SampleColumns { get; } = new[] { "id", "name", "age", "height" };
-        protected object[][] SampleRows { get; } = new object[][] {
+        protected string[] SampleColumns { get; } = { "id", "name", "age", "height" };
+        protected object[][] SampleRows { get; } = {
                 new object[] { 0, "A", 7, 160 },
                 new object[] { 1, "B", 8, 190 },
                 new object[] { 2, "C", 7, 170 },
@@ -21,7 +21,7 @@
         {
             var context = new EtlContext<SmallRow>();
 
-            var groupingColumns = new string[] { "name" };
+            var groupingColumns = new[] { "name" };
             var groupByOperation = new ContinuousGroupByOperation();
             groupByOperation.AddIntAverage("height");
 

@@ -11,7 +11,7 @@
 
     internal static class ConnectionManager
     {
-        private static readonly Dictionary<string, DatabaseConnection> _connections = new Dictionary<string, DatabaseConnection>();
+        private static readonly Dictionary<string, DatabaseConnection> Connections = new Dictionary<string, DatabaseConnection>();
 
         internal static DatabaseConnection GetConnection(ConnectionStringSettings connectionStringSettings, IProcess process, int maxRetryCount = 1, int retryDelayMilliseconds = 10000)
         {
@@ -28,9 +28,9 @@
 
             for (int retry = 0; retry <= maxRetryCount; retry++)
             {
-                lock (_connections)
+                lock (Connections)
                 {
-                    if (_connections.TryGetValue(key, out DatabaseConnection connection))
+                    if (Connections.TryGetValue(key, out DatabaseConnection connection))
                     {
                         connection.ReferenceCount++;
                         return connection;
@@ -72,7 +72,7 @@
                             TransactionWhenCreated = Transaction.Current,
                         };
 
-                        _connections.Add(key, connection);
+                        Connections.Add(key, connection);
 
                         return connection;
                     }
@@ -97,12 +97,12 @@
         public static void ReleaseConnection(ref DatabaseConnection connection)
         {
             if (connection == null) return;
-            lock (_connections)
+            lock (Connections)
             {
                 connection.ReferenceCount--;
                 if (connection.ReferenceCount == 0)
                 {
-                    _connections.Remove(connection.Key);
+                    Connections.Remove(connection.Key);
 
                     if (connection != null)
                     {
@@ -117,12 +117,12 @@
 
         public static void ConnectionFailed(ref DatabaseConnection connection)
         {
-            lock (_connections)
+            lock (Connections)
             {
                 connection.ReferenceCount--;
                 connection.Failed = true;
 
-                _connections.Remove(connection.Key);
+                Connections.Remove(connection.Key);
 
                 if (connection.ReferenceCount == 0)
                 {

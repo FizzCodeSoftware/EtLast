@@ -7,8 +7,8 @@
     [TestClass]
     public class JoinTests
     {
-        protected string[] SampleColumnsA { get; } = new[] { "id", "name", "age", "height" };
-        protected object[][] SampleRowsA { get; } = new object[][] {
+        protected string[] SampleColumnsA { get; } = { "id", "name", "age", "height" };
+        protected object[][] SampleRowsA { get; } = {
                 new object[] { 0, "A", 7, 160 },
                 new object[] { 1, "B", 8, 190 },
                 new object[] { 2, "C", 7, 170 },
@@ -17,8 +17,8 @@
                 new object[] { 5, "B", 11, 140 },
         };
 
-        protected string[] SampleColumnsB { get; } = new[] { "id", "fk", "color" };
-        protected object[][] SampleRowsB { get; } = new object[][] {
+        protected string[] SampleColumnsB { get; } = { "id", "fk", "color" };
+        protected object[][] SampleRowsB { get; } = {
                 new object[] { 0, 0, "yellow" },
                 new object[] { 1, 0, "red" },
                 new object[] { 2, 0, "green" },

@@ -72,7 +72,7 @@
                 row.State = RowState.Finished;
             }
 
-            if (operation != null) operation.Stat.IncrementCounter("rows added", 1);
+            operation?.Stat.IncrementCounter("rows added", 1);
         }
 
         public void AddRows(ICollection<IRow> rows, IRowOperation operation)

@@ -5,7 +5,7 @@
 
     public abstract class AbstractBaseTestUsingSeed
     {
-        public string[] SeedColumnNames { get; } = new[] { "id", "name", "age", "fkid", "date", "time", "datetime" };
+        public string[] SeedColumnNames { get; } = { "id", "name", "age", "fkid", "date", "time", "datetime" };
 
         public IOperationProcess CreateProcess(IEtlContext context = null)
         {

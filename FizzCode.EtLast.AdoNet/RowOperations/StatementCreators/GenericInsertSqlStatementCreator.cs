@@ -46,7 +46,7 @@
 
         public string CreateStatement(ConnectionStringSettings settings, List<string> rowStatements)
         {
-            return "INSERT BULk INTO " + TableName + " (" + _allColumnsConvertedAndJoined + ") VALUES \n" + string.Join(",\n", rowStatements) + ";";
+            return "INSERT BULK INTO " + TableName + " (" + _allColumnsConvertedAndJoined + ") VALUES \n" + string.Join(",\n", rowStatements) + ";";
         }
 
         public string GetDbColumnName(string rowColumnName)

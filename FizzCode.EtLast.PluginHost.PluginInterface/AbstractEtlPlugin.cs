@@ -13,13 +13,13 @@
         public Configuration Configuration { get; private set; }
         public EtlPluginResult PluginResult { get; private set; }
         public string PluginFolder { get; private set; }
-        private static readonly Dictionary<LogSeverity, LogEventLevel> _logEventLevelMap;
+        private static readonly Dictionary<LogSeverity, LogEventLevel> LogEventLevelMap;
         public ILogger Logger { get; private set; }
         public ILogger OpsLogger { get; private set; }
 
         static AbstractEtlPlugin()
         {
-            _logEventLevelMap = new Dictionary<LogSeverity, LogEventLevel>()
+            LogEventLevelMap = new Dictionary<LogSeverity, LogEventLevel>()
             {
                 [LogSeverity.Verbose] = LogEventLevel.Verbose,
                 [LogSeverity.Debug] = LogEventLevel.Debug,
@@ -78,7 +78,7 @@
             var valuesArray = values.ToArray();
 
             var logger = args.ForOps ? OpsLogger : Logger;
-            logger.Write(_logEventLevelMap[args.Severity], "{@Plugin}" + ident + (args.Process != null ? "{@Process} " : "") + args.Text, valuesArray);
+            logger.Write(LogEventLevelMap[args.Severity], "{@Plugin}" + ident + (args.Process != null ? "{@Process} " : "") + args.Text, valuesArray);
         }
 
         protected virtual void OnException(object sender, ContextExceptionEventArgs args)
@@ -96,7 +96,7 @@
                 });
             }
 
-            Logger.Write(_logEventLevelMap[LogSeverity.Error], args.Exception,
+            Logger.Write(LogEventLevelMap[LogSeverity.Error], args.Exception,
                 "{Plugin}, " + (args.Process != null ? "{Process} " : "") + "{Message}",
                 GetType().Name,
                 args.Process?.Name,
