@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F2769C23-F41B-40D6-B549-3CBD84E009A9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FizzCode.EtLast</RootNamespace>
+    <AssemblyName>FizzCode.EtLast.Reference</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Global\AssemblyInfo.Global.cs">
+      <Link>Properties\AssemblyInfo.Global.cs</Link>
+    </Compile>
+    <Compile Include="AggregationProcess\Operations\Continuous\AbstractContinuousAggregationOperation.cs" />
+    <Compile Include="AggregationProcess\Operations\Continuous\ContinuousGroupByOperation.cs" />
+    <Compile Include="AggregationProcess\Operations\Continuous\ContinuousRemoveDuplicatesOperation.cs" />
+    <Compile Include="AggregationProcess\Operations\Regular\AbstractAggregationOperation.cs" />
+    <Compile Include="AggregationProcess\Operations\Regular\GroupByOperation.cs" />
+    <Compile Include="JobProcess\Jobs\AbstractJob.cs" />
+    <Compile Include="JobProcess\Jobs\DeleteFileJob.cs" />
+    <Compile Include="JobProcess\Jobs\EvaluateProcessWithoutResultJob.cs" />
+    <Compile Include="JobProcess\Jobs\DownloadFileJob.cs" />
+    <Compile Include="MergeProcess\RowSetMergers\UnionMerger.cs" />
+    <Compile Include="AbstractRowOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TrimStringOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\ReplaceEmptyStringWithNullOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\InPlaceConvertOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\InvalidValueException.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\ITypeConverter.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\BoolConverterAuto.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\BoolConverter.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\DateConverterAuto.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\DateConverter.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\DateTimeConverterAuto.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\DateTimeConverter.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\DecimalConverterAuto.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\DecimalConverter.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\DoubleConverterAuto.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\DoubleConverter.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\IntConverterAuto.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\IntConverter.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\LongConverterAuto.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\LongConverter.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\StringConverter.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\TimeConverterAuto.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\TimeConverter.cs" />
+    <Compile Include="OperationProcess\RowOperations\CrossOperations\EnumsAndDelegates\MatchingRowSelector.cs" />
+    <Compile Include="OperationProcess\RowOperations\CrossOperations\EnumsAndDelegates\KeySelector.cs" />
+    <Compile Include="OperationProcess\RowOperations\CrossOperations\AbstractKeyBasedCrossOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\CrossOperations\CustomExpandOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\CrossOperations\AbstractCrossOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\CrossOperations\ExpandOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\CrossOperations\EnumsAndDelegates\NoMatchMode.cs" />
+    <Compile Include="OperationProcess\RowOperations\CrossOperations\EnumsAndDelegates\ForeignKeyValidationMode.cs" />
+    <Compile Include="OperationProcess\RowOperations\CrossOperations\ValidateForeignKeyOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\ColumnValidationOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\DebugFlagRowsOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\DebugLogRowsOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\ThrowExceptionOnRowErrorOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\CustomOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\MergeStringColumnsOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\OperationGroup.cs" />
+    <Compile Include="OperationProcess\RowOperations\HierarchyParentIdCalculatorOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\AddIncrementalIdSequantialOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\InvalidOperationAction.cs" />
+    <Compile Include="OperationProcess\RowOperations\RenameColumnsOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\RenameColumnOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\ReplaceNullWithValueOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\Transformation\UnpivotOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\RemoveRowOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\InvalidValueAction.cs" />
+    <Compile Include="OperationProcess\RowOperations\CrossOperations\JoinOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\Convert\MergeDateWithTimeOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\RemoveColumnsOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\SeedRowsOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\SetColumnToParameterOperation.cs" />
+    <Compile Include="OperationProcess\Queues\BlockingCollectionRowQueue.cs" />
+    <Compile Include="OperationProcess\Workers\BalancedInProcessWorker.cs" />
+    <Compile Include="ProducerProcesses\AbstractBaseProducerProcess.cs" />
+    <Compile Include="ProducerProcesses\CreateRowsProcess.cs" />
+    <Compile Include="ProducerProcesses\MemoryCacheProcess.cs" />
+    <Compile Include="ProducerProcesses\EnumerableImportProcess.cs" />
+    <Compile Include="ProducerProcesses\SeedRowsProcess.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rows\DictionaryRow.cs" />
+    <Compile Include="Rows\AbstractBaseRow.cs" />
+    <Compile Include="Rows\SmallRow.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FizzCode.EtLast\EtLast.csproj">
+      <Project>{85A7FA9F-CFD1-4DA6-9737-ED5E4A975462}</Project>
+      <Name>EtLast</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
