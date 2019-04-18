@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public class GroupByOperation : AbstractAggreagtionOperation
+    public class GroupByOperation : AbstractAggregationOperation
     {
         public Dictionary<string, Func<List<IRow>, string, object>> ColumnAggregators { get; set; } = new Dictionary<string, Func<List<IRow>, string, object>>();
 

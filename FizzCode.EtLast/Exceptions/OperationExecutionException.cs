@@ -2,7 +2,6 @@
 {
     using System;
     using System.Runtime.InteropServices;
-    using System.Runtime.Serialization;
 
     [ComVisible(true)]
     [Serializable]
@@ -26,11 +25,6 @@
             : base(process, message, innerException)
         {
             Data.Add("Operation", operation.Name);
-        }
-
-        protected OperationExecutionException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
         }
     }
 }

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Runtime.InteropServices;
-    using System.Runtime.Serialization;
 
     [ComVisible(true)]
     [Serializable]
@@ -24,11 +23,6 @@
             : base(process, message, innerException)
         {
             Data.Add("Job", job.Name);
-        }
-
-        protected JobExecutionException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
         }
     }
 }
