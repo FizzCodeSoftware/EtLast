@@ -24,7 +24,7 @@
                 if (_mysqlDateTimeIsValidProp == null) _mysqlDateTimeIsValidProp = value.GetType().GetProperty("IsValidDateTime");
                 if (_mySqlDateTimeValueProp == null) _mySqlDateTimeValueProp = value.GetType().GetProperty("Value");
 
-                if ((bool)_mysqlDateTimeIsNullProp.GetValue(value) != true && (bool)_mysqlDateTimeIsValidProp.GetValue(value) == true)
+                if (!(bool)_mysqlDateTimeIsNullProp.GetValue(value) && (bool)_mysqlDateTimeIsValidProp.GetValue(value))
                 {
                     return (DateTime)_mySqlDateTimeValueProp.GetValue(value);
                 }

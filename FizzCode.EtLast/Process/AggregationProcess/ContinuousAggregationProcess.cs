@@ -33,8 +33,8 @@
 
             Operation.Prepare();
 
-            if (GroupingColumns == null || GroupingColumns.Length == 0) throw new InvalidProcessParameterException(this, nameof(GroupingColumns), GroupingColumns, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (Operation == null) throw new InvalidProcessParameterException(this, nameof(Operation), Operation, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (GroupingColumns == null || GroupingColumns.Length == 0) throw new ProcessParameterNullException(this, nameof(GroupingColumns));
+            if (Operation == null) throw new ProcessParameterNullException(this, nameof(Operation));
 
             Context.Log(LogSeverity.Information, this, "started");
 

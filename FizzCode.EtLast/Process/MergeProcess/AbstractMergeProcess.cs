@@ -13,7 +13,7 @@
 
         protected AbstractMergeProcess(IEtlContext context, IRowSetMerger merger, string name = null)
         {
-            Context = context ?? throw new InvalidProcessParameterException(this, nameof(context), context, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
             Merger = merger;
             Name = name ?? GetType().Name;
         }

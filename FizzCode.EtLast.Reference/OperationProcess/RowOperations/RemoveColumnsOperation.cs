@@ -10,8 +10,8 @@
 
         public override void Apply(IRow row)
         {
-            var result = If == null || If.Invoke(row);
-            if (result != true) return;
+            var result = If?.Invoke(row) != false;
+            if (!result) return;
 
             foreach (var column in Columns)
             {
@@ -21,7 +21,7 @@
 
         public override void Prepare()
         {
-            if (Columns == null || Columns.Length == 0) throw new InvalidOperationParameterException(this, nameof(Columns), Columns, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (Columns == null || Columns.Length == 0) throw new OperationParameterNullException(this, nameof(Columns));
         }
     }
 }

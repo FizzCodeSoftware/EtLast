@@ -8,9 +8,7 @@
 
     public abstract class AbstractOperationProcess : IOperationProcess
     {
-        private List<IRow> _rows = new List<IRow>();
-        protected List<IRow> Rows => _rows;
-
+        protected List<IRow> Rows { get; private set; } = new List<IRow>();
         protected int RowsAdded { get; private set; }
 
         private readonly ReaderWriterLockSlim _rowsLock = new ReaderWriterLockSlim();
@@ -30,7 +28,7 @@
 
         protected AbstractOperationProcess(IEtlContext context, string name = null)
         {
-            Context = context ?? throw new InvalidProcessParameterException(this, nameof(context), context, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
             Name = name ?? nameof(OperationProcess);
         }
 
@@ -56,7 +54,7 @@
             {
                 try
                 {
-                    _rows.Add(row);
+                    Rows.Add(row);
                     RowsAdded++;
                 }
                 finally { _rowsLock.ExitWriteLock(); }
@@ -83,7 +81,7 @@
             {
                 try
                 {
-                    _rows.AddRange(rows);
+                    Rows.AddRange(rows);
                     RowsAdded += rows.Count;
                 }
                 finally { _rowsLock.ExitWriteLock(); }
@@ -137,7 +135,7 @@
 
         protected bool TestDone()
         {
-            var done = Interlocked.Read(ref _activeRowCount) == 0;
+            var done = ActiveRowCount == 0;
             var terminated = Context.CancellationTokenSource.IsCancellationRequested;
             if (done || terminated)
             {
@@ -157,31 +155,31 @@
                     if (!keepOrder)
                     {
                         var sw = Stopwatch.StartNew();
-                        var hs = new HashSet<IRow>(_rows.Where(x => x.State == RowState.Finished));
+                        var hs = new HashSet<IRow>(Rows.Where(x => x.State == RowState.Finished));
                         if (hs.Count > 0)
                         {
                             finishedCollection.AddRange(hs);
 
-                            var count = _rows.Count;
-                            _rows = _rows.Where(x => !hs.Contains(x) && x.State != RowState.Removed).ToList();
-                            if (_rows.Count != count)
+                            var count = Rows.Count;
+                            Rows = Rows.Where(x => !hs.Contains(x) && x.State != RowState.Removed).ToList();
+                            if (Rows.Count != count)
                             {
-                                wipedRowCount += count - _rows.Count;
-                                Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} of {AllRowCount} rows without keeping order in {Elapsed}, average speed is {AvgWipeSpeed} msec/Krow", count - _rows.Count, count, sw.Elapsed, Math.Round(swProcessing.ElapsedMilliseconds * 1000 / (double)wipedRowCount, 1));
+                                wipedRowCount += count - Rows.Count;
+                                Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} of {AllRowCount} rows without keeping order in {Elapsed}, average speed is {AvgWipeSpeed} msec/Krow", count - Rows.Count, count, sw.Elapsed, Math.Round(swProcessing.ElapsedMilliseconds * 1000 / (double)wipedRowCount, 1));
                             }
                         }
                     }
                     else
                     {
                         var lastRemoveableIndex = -1;
-                        for (int i = 0; i < _rows.Count; i++)
+                        for (int i = 0; i < Rows.Count; i++)
                         {
-                            if (_rows[i].State == RowState.Finished)
+                            if (Rows[i].State == RowState.Finished)
                             {
                                 lastRemoveableIndex = i;
-                                finishedCollection.Add(_rows[i]);
+                                finishedCollection.Add(Rows[i]);
                             }
-                            else if (_rows[i].State == RowState.Removed)
+                            else if (Rows[i].State == RowState.Removed)
                             {
                                 lastRemoveableIndex = i;
                             }
@@ -190,8 +188,8 @@
 
                         if (lastRemoveableIndex > -1)
                         {
-                            Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} of {AllRowCount} rows while keeping order, average speed is {AvgWipeSpeed} msec/Krow", lastRemoveableIndex + 1, _rows.Count, Math.Round(swProcessing.ElapsedMilliseconds * 1000 / (double)wipedRowCount, 1));
-                            _rows.RemoveRange(0, lastRemoveableIndex + 1);
+                            Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} of {AllRowCount} rows while keeping order, average speed is {AvgWipeSpeed} msec/Krow", lastRemoveableIndex + 1, Rows.Count, Math.Round(swProcessing.ElapsedMilliseconds * 1000 / (double)wipedRowCount, 1));
+                            Rows.RemoveRange(0, lastRemoveableIndex + 1);
                         }
                     }
                 }
@@ -208,12 +206,12 @@
             {
                 try
                 {
-                    var count = _rows.Count;
-                    _rows = _rows.Where(x => x.State == RowState.Normal).ToList();
-                    if (_rows.Count != count)
+                    var count = Rows.Count;
+                    Rows = Rows.Where(x => x.State == RowState.Normal).ToList();
+                    if (Rows.Count != count)
                     {
-                        wipedRowCount += count - _rows.Count;
-                        Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} rows, average speed is {AvgWipeSpeed} msec/Krow", count - _rows.Count, Math.Round(swProcessing.ElapsedMilliseconds * 1000 / (double)wipedRowCount, 1));
+                        wipedRowCount += count - Rows.Count;
+                        Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} rows, average speed is {AvgWipeSpeed} msec/Krow", count - Rows.Count, Math.Round(swProcessing.ElapsedMilliseconds * 1000 / (double)wipedRowCount, 1));
                     }
                 }
                 finally

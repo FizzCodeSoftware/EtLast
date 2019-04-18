@@ -15,7 +15,7 @@
             if (If != null)
             {
                 var result = If.Invoke(row);
-                if (result == true)
+                if (result)
                 {
                     foreach (var operation in Then)
                     {
@@ -66,8 +66,8 @@
 
         public override void Prepare()
         {
-            if (Then.Count == 0) throw new InvalidOperationParameterException(this, nameof(Then), Then, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (Else.Count > 0 && If == null) throw new InvalidOperationParameterException(this, nameof(If), If, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (Then.Count == 0) throw new OperationParameterNullException(this, nameof(Then));
+            if (Else.Count > 0 && If == null) throw new OperationParameterNullException(this, nameof(If));
         }
     }
 }

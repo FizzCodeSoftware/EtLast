@@ -22,9 +22,9 @@
         {
             Caller = caller;
 
-            if (Configuration == null) throw new InvalidProcessParameterException(this, nameof(Configuration), Configuration, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (Configuration.RowQueueType == null) throw new InvalidProcessParameterException(this, nameof(Configuration.RowQueueType), Configuration.RowQueueType, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (InputProcess == null) throw new InvalidProcessParameterException(this, nameof(InputProcess), InputProcess, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (Configuration == null) throw new ProcessParameterNullException(this, nameof(Configuration));
+            if (Configuration.RowQueueType == null) throw new ProcessParameterNullException(this, nameof(Configuration.RowQueueType));
+            if (InputProcess == null) throw new ProcessParameterNullException(this, nameof(InputProcess));
 
             Context.Log(LogSeverity.Debug, this, "started using queue: {RowQueueType}, input buffer: {InputBufferSize}, loop delay: {MainLoopDelay}", Configuration.RowQueueType.Name, Configuration.InputBufferSize, Configuration.MainLoopDelay);
             var sw = Stopwatch.StartNew();
@@ -167,9 +167,9 @@
         {
             Caller = caller;
 
-            if (Configuration == null) throw new InvalidProcessParameterException(this, nameof(Configuration), Configuration, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (Configuration.RowQueueType == null) throw new InvalidProcessParameterException(this, nameof(Configuration.RowQueueType), Configuration.RowQueueType, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (InputProcess == null) throw new InvalidProcessParameterException(this, nameof(InputProcess), InputProcess, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (Configuration == null) throw new ProcessParameterNullException(this, nameof(Configuration));
+            if (Configuration.RowQueueType == null) throw new ProcessParameterNullException(this, nameof(Configuration.RowQueueType));
+            if (InputProcess == null) throw new ProcessParameterNullException(this, nameof(InputProcess));
 
             Context.Log(LogSeverity.Debug, this, "started using queue: {RowQueueType}, input buffer: {InputBufferSize}, loop delay: {MainLoopDelay}", Configuration.RowQueueType.Name, Configuration.InputBufferSize, Configuration.MainLoopDelay);
 

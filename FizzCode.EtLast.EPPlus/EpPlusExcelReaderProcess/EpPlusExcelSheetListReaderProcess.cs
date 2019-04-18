@@ -17,14 +17,14 @@
 
         public EpPlusExcelSheetListReaderProcess(IEtlContext context, string name)
         {
-            Context = context ?? throw new InvalidProcessParameterException(this, nameof(context), context, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
             Name = name;
         }
 
         public IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
             Caller = caller;
-            if (string.IsNullOrEmpty(FileName)) throw new InvalidProcessParameterException(this, nameof(FileName), FileName, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (string.IsNullOrEmpty(FileName)) throw new ProcessParameterNullException(this, nameof(FileName));
 
             var sw = Stopwatch.StartNew();
 

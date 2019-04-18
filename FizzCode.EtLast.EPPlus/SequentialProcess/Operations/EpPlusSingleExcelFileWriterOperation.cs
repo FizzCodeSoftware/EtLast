@@ -39,8 +39,8 @@
 
         public override void Prepare()
         {
-            if (string.IsNullOrEmpty(FileName)) throw new InvalidOperationParameterException(this, nameof(FileName), FileName, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (Action == null) throw new InvalidOperationParameterException(this, nameof(Action), Action, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (string.IsNullOrEmpty(FileName)) throw new OperationParameterNullException(this, nameof(FileName));
+            if (Action == null) throw new OperationParameterNullException(this, nameof(Action));
 
             _state = new TState();
         }

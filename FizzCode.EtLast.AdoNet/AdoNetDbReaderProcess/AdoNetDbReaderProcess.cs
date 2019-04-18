@@ -30,7 +30,7 @@
         public override IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
             Caller = caller;
-            if (string.IsNullOrEmpty(TableName)) throw new InvalidProcessParameterException(this, nameof(TableName), TableName, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (string.IsNullOrEmpty(TableName)) throw new ProcessParameterNullException(this, nameof(TableName));
 
             return base.Evaluate(caller);
         }
@@ -57,7 +57,7 @@
 
             var tableName = GetTransformedTableName();
 
-            var columnList = columns != null && columns.Count > 0
+            var columnList = columns?.Count > 0
                 ? string.Join(", ", columns)
                 : "*";
 

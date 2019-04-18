@@ -18,8 +18,8 @@
 
         public void Prepare(AdoNetWriteToTableOperation operation, IProcess process)
         {
-            if (string.IsNullOrEmpty(TableName)) throw new InvalidOperationParameterException(operation, nameof(TableName), TableName, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (Columns == null) throw new InvalidOperationParameterException(operation, nameof(Columns), Columns, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (string.IsNullOrEmpty(TableName)) throw new OperationParameterNullException(operation, nameof(TableName));
+            if (Columns == null) throw new OperationParameterNullException(operation, nameof(Columns));
             _allColumnsConvertedAndJoined = string.Join(", ", Columns.Select(GetDbColumnName));
 
             if (ColumnMap != null)

@@ -9,8 +9,8 @@
 
         public override void Apply(IRow row)
         {
-            var result = If == null || If.Invoke(row);
-            if (result != true) return;
+            var result = If?.Invoke(row) != false;
+            if (!result) return;
 
             string newValue = null;
 
@@ -30,8 +30,8 @@
 
         public override void Prepare()
         {
-            if (string.IsNullOrEmpty(TargetColumn)) throw new InvalidOperationParameterException(this, nameof(TargetColumn), TargetColumn, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (ColumnsToMerge == null || ColumnsToMerge.Length == 0) throw new InvalidOperationParameterException(this, nameof(ColumnsToMerge), ColumnsToMerge, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (string.IsNullOrEmpty(TargetColumn)) throw new OperationParameterNullException(this, nameof(TargetColumn));
+            if (ColumnsToMerge == null || ColumnsToMerge.Length == 0) throw new OperationParameterNullException(this, nameof(ColumnsToMerge));
         }
     }
 }

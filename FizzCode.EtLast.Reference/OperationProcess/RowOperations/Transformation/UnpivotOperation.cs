@@ -32,7 +32,7 @@
             {
                 if (cell.Value == null && IgnoreIfValueIsNull) continue;
 
-                if (_fixColumns != null && _fixColumns.Contains(cell.Key)) continue;
+                if (_fixColumns?.Contains(cell.Key) == true) continue;
 
                 var newRow = Process.Context.CreateRow(FixColumns.Length + 2);
                 newRow.CurrentOperation = row.CurrentOperation;
@@ -53,9 +53,9 @@
 
         public override void Prepare()
         {
-            if (FixColumns == null) throw new InvalidOperationParameterException(this, nameof(FixColumns), FixColumns, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (NewColumnForValue == null) throw new InvalidOperationParameterException(this, nameof(NewColumnForValue), NewColumnForValue, InvalidOperationParameterException.ValueCannotBeNullMessage);
-            if (NewColumnForDimension == null) throw new InvalidOperationParameterException(this, nameof(NewColumnForDimension), NewColumnForDimension, InvalidOperationParameterException.ValueCannotBeNullMessage);
+            if (FixColumns == null) throw new OperationParameterNullException(this, nameof(FixColumns));
+            if (NewColumnForValue == null) throw new OperationParameterNullException(this, nameof(NewColumnForValue));
+            if (NewColumnForDimension == null) throw new OperationParameterNullException(this, nameof(NewColumnForDimension));
 
             if (FixColumns.Length > 0)
             {
