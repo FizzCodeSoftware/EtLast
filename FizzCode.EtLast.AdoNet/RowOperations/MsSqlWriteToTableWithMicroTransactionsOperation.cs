@@ -151,8 +151,6 @@
             }
         }
 
-        private static readonly DbType[] quotedParameterTypes = new DbType[] { DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength };
-
         public override void Prepare()
         {
             if (string.IsNullOrEmpty(ConnectionStringKey)) throw new OperationParameterNullException(this, nameof(ConnectionStringKey));
