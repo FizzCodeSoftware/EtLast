@@ -56,7 +56,7 @@
             Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} random generated rows in {Elapsed}", resultCount, sw.Elapsed);
         }
 
-        private static readonly Random _rnd = new Random();
+        private static readonly Random Rnd = new Random();
 
         public static object CreateRandomObject(int id, string column)
         {
@@ -67,22 +67,22 @@
 
             if (column.EndsWith("id", StringComparison.OrdinalIgnoreCase))
             {
-                return _rnd.Next(1, 10000);
+                return Rnd.Next(1, 10000);
             }
 
             if (column.EndsWith("datetime", StringComparison.OrdinalIgnoreCase))
             {
-                return new DateTime(2000, 1, 1).AddDays(_rnd.Next(1, 365 * 30)).AddHours(_rnd.Next(25)).AddMinutes(_rnd.Next(60)).AddSeconds(_rnd.Next(60));
+                return new DateTime(2000, 1, 1).AddDays(Rnd.Next(1, 365 * 30)).AddHours(Rnd.Next(25)).AddMinutes(Rnd.Next(60)).AddSeconds(Rnd.Next(60));
             }
 
             if (column.EndsWith("date", StringComparison.OrdinalIgnoreCase))
             {
-                return new DateTime(2000, 1, 1).AddDays(_rnd.Next(1, 365 * 30));
+                return new DateTime(2000, 1, 1).AddDays(Rnd.Next(1, 365 * 30));
             }
 
             if (column.EndsWith("time", StringComparison.OrdinalIgnoreCase))
             {
-                return new TimeSpan(0, _rnd.Next(24), _rnd.Next(60), _rnd.Next(60), _rnd.Next(1000));
+                return new TimeSpan(0, Rnd.Next(24), Rnd.Next(60), Rnd.Next(60), Rnd.Next(1000));
             }
 
             if (column.EndsWith("code2", StringComparison.OrdinalIgnoreCase))
@@ -90,7 +90,7 @@
                 var text = string.Empty;
                 for (int i = 0; i < 2; i++)
                 {
-                    text += (char)(65 + _rnd.Next(26));
+                    text += (char)(65 + Rnd.Next(26));
                 }
 
                 return text;
@@ -98,11 +98,11 @@
 
             if (column.EndsWith("name", StringComparison.OrdinalIgnoreCase))
             {
-                var n = _rnd.Next(3, 10);
+                var n = Rnd.Next(3, 10);
                 var text = string.Empty;
                 for (int i = 0; i < n; i++)
                 {
-                    text += (char)(65 + _rnd.Next(26));
+                    text += (char)(65 + Rnd.Next(26));
                 }
 
                 return text;
@@ -111,18 +111,18 @@
             switch (column.GetHashCode() % 10)
             {
                 case 8:
-                    return new DateTime(2000, 1, 1).AddDays(_rnd.Next(1, 365 * 30));
+                    return new DateTime(2000, 1, 1).AddDays(Rnd.Next(1, 365 * 30));
                 case 9:
-                    var n = _rnd.Next(3, 10);
+                    var n = Rnd.Next(3, 10);
                     var text = string.Empty;
                     for (int i = 0; i < n; i++)
                     {
-                        text += (char)(65 + _rnd.Next(26));
+                        text += (char)(65 + Rnd.Next(26));
                     }
 
                     return text;
                 default:
-                    return _rnd.Next(1, 100000);
+                    return Rnd.Next(1, 100000);
             }
         }
     }

@@ -8,10 +8,5 @@
         {
             if (RightProcess == null) throw new OperationParameterNullException(this, nameof(RightProcess));
         }
-
-        public override void Shutdown()
-        {
-            base.Shutdown();
-        }
     }
 }

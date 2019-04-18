@@ -26,7 +26,7 @@
             var value = row[column];
             Data.Add("Operation", row.CurrentOperation?.Name);
             Data.Add("Column", column);
-            Data.Add("Value", value != null ? value.ToString() + "(" + value.GetType().Name + ")" : "NULL");
+            Data.Add("Value", value != null ? value + "(" + value.GetType().Name + ")" : "NULL");
             Data.Add("Row", row.ToDebugString());
         }
 
@@ -39,7 +39,7 @@
                 var error = kvp.Value as EtlRowError;
                 Data.Add("Operation" + index.ToString("D", CultureInfo.InvariantCulture), error.Operation?.Name);
                 Data.Add("Column" + index.ToString("D", CultureInfo.InvariantCulture), kvp.Key);
-                Data.Add("Value" + index.ToString("D", CultureInfo.InvariantCulture), error.OriginalValue != null ? error.OriginalValue.ToString() + "(" + error.OriginalValue.GetType().Name + ")" : "NULL");
+                Data.Add("Value" + index.ToString("D", CultureInfo.InvariantCulture), error.OriginalValue != null ? error.OriginalValue + "(" + error.OriginalValue.GetType().Name + ")" : "NULL");
                 index++;
             }
 

@@ -16,9 +16,9 @@
             var result = If?.Invoke(row) != false;
             if (!result) return;
 
-            foreach (var (CurrentName, NewName) in Names)
+            foreach (var (currentName, newName) in Names)
             {
-                if (row.Exists(NewName))
+                if (row.Exists(newName))
                 {
                     switch (ActionIfInvalid)
                     {
@@ -29,15 +29,15 @@
                             return;
                         default:
                             var exception = new OperationExecutionException(Process, this, row, "specified target column already exists");
-                            exception.Data.Add("CurrentName", CurrentName);
-                            exception.Data.Add("NewName", NewName);
+                            exception.Data.Add("CurrentName", currentName);
+                            exception.Data.Add("NewName", newName);
                             throw exception;
                     }
                 }
 
-                var value = row[CurrentName];
-                row.RemoveColumn(CurrentName, this);
-                row.SetValue(NewName, value, this);
+                var value = row[currentName];
+                row.RemoveColumn(currentName, this);
+                row.SetValue(newName, value, this);
             }
         }
 

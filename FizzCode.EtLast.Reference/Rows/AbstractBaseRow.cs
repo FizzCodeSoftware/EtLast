@@ -6,7 +6,7 @@
     using System.Globalization;
     using System.Linq;
 
-    [DebuggerDisplay("{ToDebugString()}")]
+    [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
     public abstract class AbstractBaseRow
     {
         public IEtlContext Context { get; protected set; }

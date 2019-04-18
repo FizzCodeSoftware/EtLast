@@ -103,9 +103,9 @@
             base.Prepare();
             if (ColumnMap == null) throw new OperationParameterNullException(this, nameof(ColumnMap));
 
-            foreach (var (LeftColumn, RightColumn) in ColumnMap)
+            foreach (var (leftColumn, rightColumn) in ColumnMap)
             {
-                _map[RightColumn] = LeftColumn;
+                _map[rightColumn] = leftColumn;
             }
 
             Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, RightProcess.Name);

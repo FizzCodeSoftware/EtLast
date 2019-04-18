@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
 
-    [DebuggerDisplay("{ToDebugString()}")]
+    [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
     public class DictionaryRow : AbstractBaseRow, IRow
     {
         private Dictionary<string, object> _values;

@@ -41,9 +41,9 @@
             if (ColumnMap != null)
             {
                 _map = new Dictionary<string, string>();
-                foreach (var (DbColumn, RowColumn) in ColumnMap)
+                foreach (var (dbColumn, rowColumn) in ColumnMap)
                 {
-                    _map[RowColumn] = DbColumn;
+                    _map[rowColumn] = dbColumn;
                 }
             }
         }
