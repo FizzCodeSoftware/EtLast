@@ -1,8 +1,9 @@
 ﻿namespace FizzCode.EtLast.Tests.Unit
 {
+    using System.Collections.Generic;
     using System.Linq;
-    using FizzCode.EtLast.Tests.Base;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using FizzCode.EtLast.Tests.Base;
 
     [TestClass]
     public class UnpivotTests
@@ -41,14 +42,8 @@
                 NewColumnForValue = "Value"
             });
 
-            System.Collections.Generic.List<IRow> result = unpivotProcess.Evaluate().ToList();
+            List<IRow> result = unpivotProcess.Evaluate().ToList();
             Assert.AreEqual(6, result.Count);
-            Assert.AreEqual(1, result[0]["Id"]);
-            Assert.AreEqual("A", result[0]["Name"]);
-            Assert.AreEqual("Cars", result[0]["InventoryItem"]);
-            Assert.AreEqual(1, result[0]["Value"]);
-
-            Assert.That.Equals(result[0], new object[] { "Id", 1, "Name", "A", "InventoryItem", "Cars",  "Value", 1});
             Assert.That.Equals(result,
                 new object[] { "Id", 1, "Name", "A", "InventoryItem", "Cars", "Value", 1 },
                 new object[] { "Id", 1, "Name", "A", "InventoryItem", "Houses", "Value", 1 },

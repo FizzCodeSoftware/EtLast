@@ -75,6 +75,7 @@
     <Compile Include="AbstractBaseTestUsingSample.cs" />
     <Compile Include="AbstractBaseTestUsingSeed.cs" />
     <Compile Include="ComplexPipelines\ContinuousGroupByTests.cs" />
+    <Compile Include="Operations\HierarchyParentIdCalculatorTests.cs" />
     <Compile Include="Operations\UnpivotTests.cs" />
     <Compile Include="Operations\JoinTests.cs" />
     <Compile Include="ComplexPipelines\GroupByTests.cs" />

@@ -30,11 +30,14 @@
 
         public override void Prepare()
         {
-            if (Process is IOperationProcess) throw new InvalidOperationParameterException(this, nameof(Process), null, nameof(HierarchyParentIdCalculatorOperation) + " is not compatible with " + nameof(IOperationProcess));
-
-            if (string.IsNullOrEmpty(NewColumnWithParentId)) throw new OperationParameterNullException(this, nameof(NewColumnWithParentId));
-            if (string.IsNullOrEmpty(IntegerIdColumn)) throw new OperationParameterNullException(this, nameof(IntegerIdColumn));
-            if (LevelColumns == null || LevelColumns.Length == 0) throw new OperationParameterNullException(this, nameof(LevelColumns));
+            if (!(Process is OrderedOperationProcess))
+                throw new InvalidOperationParameterException(this, nameof(Process), null, nameof(HierarchyParentIdCalculatorOperation) + " is not compatible with " + nameof(OrderedOperationProcess));
+            if (string.IsNullOrEmpty(NewColumnWithParentId))
+                throw new OperationParameterNullException(this, nameof(NewColumnWithParentId));
+            if (string.IsNullOrEmpty(IntegerIdColumn))
+                throw new OperationParameterNullException(this, nameof(IntegerIdColumn));
+            if (LevelColumns == null || LevelColumns.Length == 0)
+                throw new OperationParameterNullException(this, nameof(LevelColumns));
 
             _lastIdOfLevel = new int[LevelColumns.Length];
         }

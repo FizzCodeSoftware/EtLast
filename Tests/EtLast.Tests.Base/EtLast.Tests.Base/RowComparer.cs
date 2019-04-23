@@ -15,6 +15,9 @@
 
             foreach(var kvp in row1.Values)
             {
+                if (kvp.Value == null && row2[kvp.Key] == null)
+                    continue;
+
                 if (!kvp.Value.Equals(row2[kvp.Key]))
                     return false;
             }
