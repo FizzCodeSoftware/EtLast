@@ -4,6 +4,7 @@
     using System.Text;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using FizzCode.EtLast;
+    using System.Linq;
 
     public static class AssertExtensions
     {
@@ -19,23 +20,25 @@
 
         public static void Equals(this Assert assert, IRow expected, object[] rowElements)
         {
-            assert.Equals(expected, RowComparerHelper.CreateRow(rowElements));
+            assert.Equals(expected, RowHelper.CreateRow(rowElements));
         }
 
-        public static void Equals(this Assert assert, IList<IRow> expecteds, params object[][] actualParams)
+        public static void Equals(this Assert assert, List<IRow> expecteds, params object[][] actualParams)
         {
             List<IRow> actuals = new List<IRow>();
             foreach (object[] rowElements in actualParams)
             {
-                actuals.Add(RowComparerHelper.CreateRow(rowElements));
+                actuals.Add(RowHelper.CreateRow(rowElements));
             }
 
-            Equals(assert, expecteds, actuals);
-            
+            assert.Equals(expecteds, actuals);
         }
 
-        public static void Equals(this Assert assert, IList<IRow> expecteds, IList<IRow> actuals)
+        public static void Equals(this Assert assert, List<IRow> expecteds, List<IRow> actuals)
         {
+            expecteds = RowHelper.OrderRows(expecteds);
+            actuals = RowHelper.OrderRows(actuals);
+
             bool equals = true;
             int i = 0;
             StringBuilder comparisonResult = new StringBuilder();

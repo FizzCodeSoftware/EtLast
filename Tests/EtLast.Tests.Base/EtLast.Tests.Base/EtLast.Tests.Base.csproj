@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssertExtensions.cs" />
+    <Compile Include="RowHelper.cs" />
     <Compile Include="RowComparerHelper.cs" />
     <Compile Include="RowComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

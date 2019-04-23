@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast.Tests.Base
 {
-    using System.Collections.Generic;
     using System.Text;
     using FizzCode.EtLast;
     
@@ -29,41 +28,6 @@
             }
 
             return sb.ToString();
-        }
-
-        public static IRow CreateRow(object[] rowElements)
-        {
-            DictionaryRow row = new DictionaryRow();
-            row.Init(null, -1, rowElements.Length);
-
-            for (int i = 0; i < rowElements.Length; i += 2)
-            {
-                row[rowElements[i] as string] = rowElements[i + 1];
-            }
-
-            return row;
-        }
-
-        public static List<IRow> CreateRows(string[] columns, object[][] data)
-        {
-            List<IRow> rows = new List<IRow>();
-
-            for (int i = 0; i < data.Length; i++)
-            {
-                DictionaryRow row = new DictionaryRow();
-                row.Init(null, -1, columns.Length);
-
-                int columnNumber = 0;
-                foreach (var column in columns)
-                {
-                    if (data[i].Length <= columnNumber)
-                        break;
-
-                    row[column] = data[i][columnNumber++];
-                }
-            }
-
-            return rows;
         }
     }
 }

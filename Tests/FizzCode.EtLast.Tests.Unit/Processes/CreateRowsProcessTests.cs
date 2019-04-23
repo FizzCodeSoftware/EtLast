@@ -26,7 +26,7 @@ namespace FizzCode.EtLast.Tests.Unit
 
             var result = RunEtl(process);
 
-            var expected = RowComparerHelper.CreateRows(SampleColumns, SampleRows);
+            var expected = RowHelper.CreateRows(SampleColumns, SampleRows);
 
             Assert.That.Equals(expected, result);
         }

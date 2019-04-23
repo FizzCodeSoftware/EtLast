@@ -37,7 +37,7 @@
             };
 
             var result = process.Evaluate().ToList();
-            Assert.IsTrue(result.Count == 3);
+            Assert.AreEqual(3, result.Count);
             Assert.IsTrue(result.Any(x => x.GetAs<string>("name") == "A" && x.GetAs<double>("height") == 160));
             Assert.IsTrue(result.Any(x => x.GetAs<string>("name") == "B" && x.GetAs<double>("height") == 165));
             Assert.IsTrue(result.Any(x => x.GetAs<string>("name") == "C" && x.GetAs<double>("height") == 170));
