@@ -76,7 +76,7 @@
 
             Assert.AreEqual(6, result.Count);
             Assert.AreEqual(0, exceptions.Count);
-            Assert.That.Equals(result,
+            Assert.That.RowsAreEqual(result,
                 new object[] { "id", 0, "name", "A", "parentId", null, "level1", "AAA" },
                 new object[] { "id", 1, "name", "B", "parentId", 0, "level1", null, "level2", "BBB" },
                 new object[] { "id", 2, "name", "C", "parentId", 1, "level1", null, "level2", null, "level3", "CCC" },

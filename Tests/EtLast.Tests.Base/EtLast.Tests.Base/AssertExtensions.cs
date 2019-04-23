@@ -7,7 +7,7 @@
 
     public static class AssertExtensions
     {
-        public static void Equals(this Assert assert, IRow expected, IRow actual)
+        public static void RowsAreEqual(this Assert assert, IRow expected, IRow actual)
         {
             if (!RowComparer.Equals(expected, actual))
             {
@@ -17,12 +17,12 @@
             }
         }
 
-        public static void Equals(this Assert assert, IRow expected, object[] rowElements)
+        public static void RowsAreEqual(this Assert assert, IRow expected, object[] rowElements)
         {
-            Equals(assert, expected, RowHelper.CreateRow(rowElements));
+            assert.RowsAreEqual(expected, RowHelper.CreateRow(rowElements));
         }
 
-        public static void Equals(this Assert assert, List<IRow> expecteds, params object[][] actualParams)
+        public static void RowsAreEqual(this Assert assert, List<IRow> expecteds, params object[][] actualParams)
         {
             List<IRow> actuals = new List<IRow>();
             foreach (object[] rowElements in actualParams)
@@ -30,10 +30,10 @@
                 actuals.Add(RowHelper.CreateRow(rowElements));
             }
 
-            Equals(assert, expecteds, actuals);
+            assert.RowsAreEqual(expecteds, actuals);
         }
 
-        public static void Equals(this Assert assert, List<IRow> expecteds, List<IRow> actuals)
+        public static void RowsAreEqual(this Assert assert, List<IRow> expecteds, List<IRow> actuals)
         {
             expecteds = RowHelper.OrderRows(expecteds);
             actuals = RowHelper.OrderRows(actuals);

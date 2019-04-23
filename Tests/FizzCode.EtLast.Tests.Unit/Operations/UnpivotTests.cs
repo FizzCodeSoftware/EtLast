@@ -44,7 +44,7 @@
 
             List<IRow> result = unpivotProcess.Evaluate().ToList();
             Assert.AreEqual(6, result.Count);
-            Assert.That.Equals(result,
+            Assert.That.RowsAreEqual(result,
                 new object[] { "Id", 1, "Name", "A", "InventoryItem", "Cars", "Value", 1 },
                 new object[] { "Id", 1, "Name", "A", "InventoryItem", "Houses", "Value", 1 },
                 new object[] { "Id", 1, "Name", "A", "InventoryItem", "Kids", "Value", 2 },
