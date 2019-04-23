@@ -12,7 +12,7 @@ namespace FizzCode.EtLast.Tests.Unit
             var rowCount = 1000;
 
             var process = CreateProcess();
-            process.AddOperation(new RemoveRowOperation()
+            process.AddOperation(new RemoveRowOperation
             {
                 If = row => true,
             });
@@ -30,7 +30,7 @@ namespace FizzCode.EtLast.Tests.Unit
             var rowCount = 1000;
 
             var process = CreateProcess();
-            process.AddOperation(new RemoveRowOperation()
+            process.AddOperation(new RemoveRowOperation
             {
                 If = row => false,
             });
