@@ -185,6 +185,25 @@
                 for (int rowIndex = FirstDataRow; rowIndex <= endRow; rowIndex++)
                 {
                     var row = Context.CreateRow(columnIndexes.Count);
+
+                    if (IgnoreNullOrEmptyRows)
+                    {
+                        var empty = true;
+                        foreach (var kvp in columnIndexes)
+                        {
+                            var ri = !Transpose ? rowIndex : kvp.Value.Index;
+                            var ci = !Transpose ? kvp.Value.Index : rowIndex;
+
+                            if (sheet.Cells[ri, ci].Value != null)
+                            {
+                                empty = false;
+                                break;
+                            }
+                        }
+
+                        if (empty) continue;
+                    }
+
                     foreach (var kvp in columnIndexes)
                     {
                         var ri = !Transpose ? rowIndex : kvp.Value.Index;
