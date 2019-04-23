@@ -4,7 +4,6 @@
     using System.Text;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using FizzCode.EtLast;
-    using System.Linq;
 
     public static class AssertExtensions
     {

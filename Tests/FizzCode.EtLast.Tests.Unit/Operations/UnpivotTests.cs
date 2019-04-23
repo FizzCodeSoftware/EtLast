@@ -57,7 +57,6 @@
                 new object[] { "Id", 2, "Name", "B", "InventoryItem", "Houses", "Value", 1 },
                 new object[] { "Id", 2, "Name", "B", "InventoryItem", "Kids", "Value", 3 }
                 );
-
         }
     }
 }

@@ -41,7 +41,6 @@
             return rows;
         }
 
-        // TODO MOVE
         public static List<IRow> OrderRows(List<IRow> rows)
         {
             var resultArray = new IRow[rows.Count];
