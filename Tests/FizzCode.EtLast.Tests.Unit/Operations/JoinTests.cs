@@ -64,7 +64,7 @@
             });
 
             var result = leftProcess.Evaluate().ToList();
-            Assert.IsTrue(result.Count == 6);
+            Assert.AreEqual(6, result.Count);
             Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "A") == 3);
             Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "B") == 2);
             Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "C") == 1);

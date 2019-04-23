@@ -1,7 +1,8 @@
 namespace FizzCode.EtLast.Tests.Unit
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Linq;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using FizzCode.EtLast.Tests.Base;
 
     [TestClass]
     public class CreateRowsProcessTests : AbstractBaseTestUsingSample
@@ -23,17 +24,11 @@ namespace FizzCode.EtLast.Tests.Unit
         {
             var process = CreateProcess();
 
-            var etl = RunEtl(process);
+            var result = RunEtl(process);
 
-            var result = etl.FirstOrDefault()[SampleColumns[1]];
-            var expected = SampleRows.FirstOrDefault()[1];
+            var expected = RowComparerHelper.CreateRows(SampleColumns, SampleRows);
 
-            Assert.AreEqual(expected, result);
-
-            result = etl.Skip(1).FirstOrDefault()[SampleColumns[3]];
-            expected = SampleRows.Skip(1).FirstOrDefault()[3];
-
-            Assert.AreEqual(expected, result);
+            Assert.That.Equals(expected, result);
         }
     }
 }

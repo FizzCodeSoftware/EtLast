@@ -75,6 +75,7 @@
     <Compile Include="AbstractBaseTestUsingSample.cs" />
     <Compile Include="AbstractBaseTestUsingSeed.cs" />
     <Compile Include="ComplexPipelines\ContinuousGroupByTests.cs" />
+    <Compile Include="Operations\UnpivotTests.cs" />
     <Compile Include="Operations\JoinTests.cs" />
     <Compile Include="ComplexPipelines\GroupByTests.cs" />
     <Compile Include="Operations\RemoveRowOperationTests.cs" />
@@ -96,6 +97,10 @@
     <ProjectReference Include="..\..\FizzCode.EtLast\EtLast.csproj">
       <Project>{85a7fa9f-cfd1-4da6-9737-ed5e4a975462}</Project>
       <Name>EtLast</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EtLast.Tests.Base\EtLast.Tests.Base\EtLast.Tests.Base.csproj">
+      <Project>{aceeb6cd-21a5-4626-8e69-09068334ec81}</Project>
+      <Name>EtLast.Tests.Base</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
