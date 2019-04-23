@@ -19,7 +19,7 @@
 
         public static void Equals(this Assert assert, IRow expected, object[] rowElements)
         {
-            assert.Equals(expected, RowHelper.CreateRow(rowElements));
+            Equals(assert, expected, RowHelper.CreateRow(rowElements));
         }
 
         public static void Equals(this Assert assert, List<IRow> expecteds, params object[][] actualParams)
@@ -30,7 +30,7 @@
                 actuals.Add(RowHelper.CreateRow(rowElements));
             }
 
-            assert.Equals(expecteds, actuals);
+            Equals(assert, expecteds, actuals);
         }
 
         public static void Equals(this Assert assert, List<IRow> expecteds, List<IRow> actuals)
