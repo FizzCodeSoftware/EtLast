@@ -28,7 +28,8 @@ namespace FizzCode.EtLast.Tests.Unit
 
             var expected = RowHelper.CreateRows(SampleColumns, SampleRows);
 
-            Assert.That.Equals(expected, result);
+            // Assert.That.Equals(expected, result);
+            AssertExtensions.Equals(null, expected, result);
         }
     }
 }
