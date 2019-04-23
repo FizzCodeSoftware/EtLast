@@ -10,24 +10,16 @@
     public class EtlContext<TRow> : IEtlContext
         where TRow : IRow, new()
     {
-        private readonly Type _rowType;
         private readonly Dictionary<string, object> _parameters = new Dictionary<string, object>();
         private ConcurrentBag<Exception> Exceptions { get; } = new ConcurrentBag<Exception>();
-        private static readonly Dictionary<LogSeverity, ConsoleColor> SeverityColors = new Dictionary<LogSeverity, ConsoleColor>
-        {
-            [LogSeverity.Debug] = ConsoleColor.DarkGray,
-            [LogSeverity.Information] = ConsoleColor.Gray,
-            [LogSeverity.Warning] = ConsoleColor.Magenta,
-            [LogSeverity.Error] = ConsoleColor.Red,
-        };
 
         public Configuration Configuration { get; }
-        public CancellationTokenSource CancellationTokenSource { get; private set; }
+        public CancellationTokenSource CancellationTokenSource { get; }
 
         public EventHandler<ContextExceptionEventArgs> OnException { get; set; }
         public EventHandler<ContextLogEventArgs> OnLog { get; set; }
 
-        private int _nextUid = 0;
+        private int _nextUid;
 
         public EtlContext()
             : this(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None))
@@ -36,7 +28,6 @@
 
         public EtlContext(Configuration configuration)
         {
-            _rowType = typeof(TRow);
             CancellationTokenSource = new CancellationTokenSource();
 
             Configuration = configuration;
@@ -123,13 +114,7 @@
 
         public ConnectionStringSettings GetConnectionStringSettings(string key)
         {
-            var connectionStringSettings = Configuration.ConnectionStrings.ConnectionStrings[key + "-" + Environment.MachineName];
-            if (connectionStringSettings == null)
-            {
-                connectionStringSettings = Configuration.ConnectionStrings.ConnectionStrings[key];
-            }
-
-            return connectionStringSettings;
+            return Configuration.ConnectionStrings.ConnectionStrings[key + "-" + Environment.MachineName] ?? Configuration.ConnectionStrings.ConnectionStrings[key];
         }
     }
 }
