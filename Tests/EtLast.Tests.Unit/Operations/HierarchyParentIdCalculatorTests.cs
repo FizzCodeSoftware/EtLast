@@ -76,14 +76,13 @@
 
             Assert.AreEqual(6, result.Count);
             Assert.AreEqual(0, exceptions.Count);
-            Assert.That.RowsAreEqual(result,
+            Assert.That.RowsAreEqual(RowHelper.CreateRows(
                 new object[] { "id", 0, "name", "A", "parentId", null, "level1", "AAA" },
                 new object[] { "id", 1, "name", "B", "parentId", 0, "level1", null, "level2", "BBB" },
                 new object[] { "id", 2, "name", "C", "parentId", 1, "level1", null, "level2", null, "level3", "CCC" },
                 new object[] { "id", 3, "name", "D", "parentId", 1, "level1", null, "level2", null, "level3", "DDD" },
                 new object[] { "id", 4, "name", "E", "parentId", 0, "level1", null, "level2", "EEE" },
-                new object[] { "id", 5, "name", "F", "parentId", 0, "level1", null, "level2", "FFF" }
-                );
+                new object[] { "id", 5, "name", "F", "parentId", 0, "level1", null, "level2", "FFF" }), result);
         }
 
         private static void AddOperation(IOperationProcess operationProcess)

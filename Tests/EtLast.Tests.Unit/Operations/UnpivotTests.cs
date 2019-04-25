@@ -44,14 +44,14 @@
 
             List<IRow> result = unpivotProcess.Evaluate().ToList();
             Assert.AreEqual(6, result.Count);
-            Assert.That.RowsAreEqual(result,
+            Assert.That.RowsAreEqual(RowHelper.CreateRows(
                 new object[] { "Id", 1, "Name", "A", "InventoryItem", "Cars", "Value", 1 },
                 new object[] { "Id", 1, "Name", "A", "InventoryItem", "Houses", "Value", 1 },
                 new object[] { "Id", 1, "Name", "A", "InventoryItem", "Kids", "Value", 2 },
                 new object[] { "Id", 2, "Name", "B", "InventoryItem", "Cars", "Value", 2 },
                 new object[] { "Id", 2, "Name", "B", "InventoryItem", "Houses", "Value", 1 },
-                new object[] { "Id", 2, "Name", "B", "InventoryItem", "Kids", "Value", 3 }
-                );
+                new object[] { "Id", 2, "Name", "B", "InventoryItem", "Kids", "Value", 3 })
+                , result);
         }
     }
 }

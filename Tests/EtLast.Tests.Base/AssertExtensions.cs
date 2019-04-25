@@ -17,12 +17,12 @@
             }
         }
 
-        public static void RowsAreEqual(this Assert assert, IRow expected, object[] rowElements)
+        public static void RowsAreEqual(this Assert assert, object[] expectedrowElements, IRow actual)
         {
-            assert.RowsAreEqual(expected, RowHelper.CreateRow(rowElements));
+            assert.RowsAreEqual(RowHelper.CreateRow(expectedrowElements), actual);
         }
 
-        public static void RowsAreEqual(this Assert assert, List<IRow> expecteds, params object[][] actualParams)
+        public static void RowsAreEqual1(this Assert assert, List<IRow> expecteds, params object[][] actualParams)
         {
             List<IRow> actuals = new List<IRow>();
             foreach (object[] rowElements in actualParams)

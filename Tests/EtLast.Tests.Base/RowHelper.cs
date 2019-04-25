@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using FizzCode.EtLast;
-    
+
     public static class RowHelper
     {
         public static IRow CreateRow(object[] rowElements)
@@ -59,6 +59,17 @@
             }
 
             return order.ToList();
+        }
+
+        public static List<IRow> CreateRows(params object[][] rowsData)
+        {
+            List<IRow> rows = new List<IRow>();
+            foreach (object[] rowElements in rowsData)
+            {
+                rows.Add(CreateRow(rowElements));
+            }
+
+            return rows;
         }
     }
 }

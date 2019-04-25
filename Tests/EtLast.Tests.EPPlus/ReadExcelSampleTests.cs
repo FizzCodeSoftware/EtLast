@@ -1,10 +1,11 @@
 ﻿namespace EtLast.Tests.EPPlus
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using FizzCode.EtLast;
     using FizzCode.EtLast.EPPlus;
-    using System.Collections.Generic;
-    using System.Linq;
+    using FizzCode.EtLast.Tests.Base;
 
     [TestClass]
     public class ReadExcelSampleTests
@@ -62,6 +63,20 @@
 
             List<IRow> result = _process.Evaluate().ToList();
             Assert.AreEqual(2, result.Count);
+        }
+
+        [TestMethod]
+        public void CheckContent()
+        {
+            _epPlusExcelReaderProcess.SheetName = "Sheet1";
+
+            List<IRow> result = _process.Evaluate().ToList();
+            Assert.AreEqual(2, result.Count);
+
+            Assert.That.RowsAreEqual(RowHelper.CreateRows(
+                new object[] { "Id", 0, "Name", "A", "ValueString", "AAA", "ValueInt", -1, "ValueDate", null })
+                , result
+            );
         }
     }
 }
