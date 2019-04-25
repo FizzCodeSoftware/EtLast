@@ -3,30 +3,30 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast", "FizzCode.EtLast\EtLast.csproj", "{85A7FA9F-CFD1-4DA6-9737-ED5E4A975462}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast", "EtLast\EtLast.csproj", "{85A7FA9F-CFD1-4DA6-9737-ED5E4A975462}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.Reference", "FizzCode.EtLast.Reference\EtLast.Reference.csproj", "{F2769C23-F41B-40D6-B549-3CBD84E009A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.Reference", "EtLast.Reference\EtLast.Reference.csproj", "{F2769C23-F41B-40D6-B549-3CBD84E009A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.EPPlus", "FizzCode.EtLast.EPPlus\EtLast.EPPlus.csproj", "{C65C709F-7BCC-4E40-8D7F-9218C7C521F8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.EPPlus", "EtLast.EPPlus\EtLast.EPPlus.csproj", "{C65C709F-7BCC-4E40-8D7F-9218C7C521F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.AdoNet", "FizzCode.EtLast.AdoNet\EtLast.AdoNet.csproj", "{2E3DC33F-CD9F-4277-8EA6-259586E6E9FC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.AdoNet", "EtLast.AdoNet\EtLast.AdoNet.csproj", "{2E3DC33F-CD9F-4277-8EA6-259586E6E9FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.Tests.Unit.AdoNet", "Tests\FizzCode.EtLast.Tests.Unit.AdoNet\EtLast.Tests.Unit.AdoNet.csproj", "{10D75CC0-D33F-48FF-9A43-6CAFAF513FDF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.Tests.Unit.AdoNet", "Tests\EtLast.Tests.Unit.AdoNet\EtLast.Tests.Unit.AdoNet.csproj", "{10D75CC0-D33F-48FF-9A43-6CAFAF513FDF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.Tests.Unit", "Tests\FizzCode.EtLast.Tests.Unit\EtLast.Tests.Unit.csproj", "{ABC2478C-3774-427D-B279-4ADB4D555056}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.Tests.Unit", "Tests\EtLast.Tests.Unit\EtLast.Tests.Unit.csproj", "{ABC2478C-3774-427D-B279-4ADB4D555056}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Global", "Global", "{9BB9529D-3AA4-406E-8104-FE6DB4293000}"
 	ProjectSection(SolutionItems) = preProject
 		AssemblyInfo.Global.cs = AssemblyInfo.Global.cs
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.PluginHost.PluginInterface", "FizzCode.EtLast.PluginHost.PluginInterface\EtLast.PluginHost.PluginInterface.csproj", "{184A3C73-AA4B-4021-A598-3BBD4EAB762C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.PluginHost.PluginInterface", "EtLast.PluginHost.PluginInterface\EtLast.PluginHost.PluginInterface.csproj", "{184A3C73-AA4B-4021-A598-3BBD4EAB762C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.PluginHost", "FizzCode.EtLast.PluginHost\EtLast.PluginHost.csproj", "{69E54337-E74B-41E5-925F-BEADDE7CF40E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.PluginHost", "EtLast.PluginHost\EtLast.PluginHost.csproj", "{69E54337-E74B-41E5-925F-BEADDE7CF40E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{12C64FCC-1280-4E87-95B6-9371C30D7BE0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.Tests.Base", "Tests\EtLast.Tests.Base\EtLast.Tests.Base\EtLast.Tests.Base.csproj", "{ACEEB6CD-21A5-4626-8E69-09068334EC81}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.Tests.Base", "Tests\EtLast.Tests.Base\EtLast.Tests.Base.csproj", "{ACEEB6CD-21A5-4626-8E69-09068334EC81}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.Tests.EPPlus", "Tests\EtLast.Tests.EPPlus\EtLast.Tests.EPPlus.csproj", "{572054F2-4C91-42C3-B83E-CB92FF5CECC9}"
 EndProject

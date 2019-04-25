@@ -56,15 +56,15 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\FizzCode.EtLast.EPPlus\EtLast.EPPlus.csproj">
+    <ProjectReference Include="..\..\EtLast.EPPlus\EtLast.EPPlus.csproj">
       <Project>{c65c709f-7bcc-4e40-8d7f-9218c7c521f8}</Project>
       <Name>EtLast.EPPlus</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\FizzCode.EtLast.Reference\EtLast.Reference.csproj">
+    <ProjectReference Include="..\..\EtLast.Reference\EtLast.Reference.csproj">
       <Project>{f2769c23-f41b-40d6-b549-3cbd84e009a9}</Project>
       <Name>EtLast.Reference</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\FizzCode.EtLast\EtLast.csproj">
+    <ProjectReference Include="..\..\EtLast\EtLast.csproj">
       <Project>{85a7fa9f-cfd1-4da6-9737-ed5e4a975462}</Project>
       <Name>EtLast</Name>
     </ProjectReference>

@@ -5,11 +5,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{10D75CC0-D33F-48FF-9A43-6CAFAF513FDF}</ProjectGuid>
+    <ProjectGuid>{ABC2478C-3774-427D-B279-4ADB4D555056}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FizzCode.EtLast.Tests.Unit.AdoNet</RootNamespace>
-    <AssemblyName>FizzCode.EtLast.Tests.Unit.AdoNet</AssemblyName>
+    <RootNamespace>FizzCode.EtLast.Tests.Unit</RootNamespace>
+    <AssemblyName>FizzCode.EtLast.Tests.Unit</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -20,6 +20,7 @@
     <TestProjectType>UnitTest</TestProjectType>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -65,36 +66,43 @@
       <HintPath>..\..\packages\MSTest.TestFramework.1.4.0\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Global\AssemblyInfo.Global.cs">
       <Link>Properties\AssemblyInfo.Global.cs</Link>
     </Compile>
-    <Compile Include="AdoNetWriteToTableOperationTests.cs" />
+    <Compile Include="AbstractBaseTestUsingSample.cs" />
+    <Compile Include="AbstractBaseTestUsingSeed.cs" />
+    <Compile Include="ComplexPipelines\ContinuousGroupByTests.cs" />
+    <Compile Include="Operations\HierarchyParentIdCalculatorTests.cs" />
+    <Compile Include="Operations\UnpivotTests.cs" />
+    <Compile Include="Operations\JoinTests.cs" />
+    <Compile Include="ComplexPipelines\GroupByTests.cs" />
+    <Compile Include="Operations\RemoveRowOperationTests.cs" />
+    <Compile Include="Operations\RemoveColumnsOperationTests.cs" />
+    <Compile Include="Processes\OperationProcessTests.cs" />
+    <Compile Include="Processes\CreateRowsProcessTests.cs" />
+    <Compile Include="Processes\SeedRowsProcessTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\FizzCode.EtLast.AdoNet\EtLast.AdoNet.csproj">
-      <Project>{2e3dc33f-cd9f-4277-8ea6-259586e6e9fc}</Project>
-      <Name>EtLast.AdoNet</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\FizzCode.EtLast.Reference\EtLast.Reference.csproj">
-      <Project>{f2769c23-f41b-40d6-b549-3cbd84e009a9}</Project>
-      <Name>EtLast.Reference</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FizzCode.EtLast.Tests.Unit\EtLast.Tests.Unit.csproj">
-      <Project>{abc2478c-3774-427d-b279-4adb4d555056}</Project>
-      <Name>EtLast.Tests.Unit</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\FizzCode.EtLast\EtLast.csproj">
-      <Project>{85a7fa9f-cfd1-4da6-9737-ed5e4a975462}</Project>
-      <Name>EtLast</Name>
-    </ProjectReference>
+    <Compile Include="Transactions\ErrorHandlingTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\EtLast.Reference\EtLast.Reference.csproj">
+      <Project>{f2769c23-f41b-40d6-b549-3cbd84e009a9}</Project>
+      <Name>EtLast.Reference</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\EtLast\EtLast.csproj">
+      <Project>{85a7fa9f-cfd1-4da6-9737-ed5e4a975462}</Project>
+      <Name>EtLast</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EtLast.Tests.Base\EtLast.Tests.Base.csproj">
+      <Project>{aceeb6cd-21a5-4626-8e69-09068334ec81}</Project>
+      <Name>EtLast.Tests.Base</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

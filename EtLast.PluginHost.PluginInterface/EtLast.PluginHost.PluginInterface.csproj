@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2E3DC33F-CD9F-4277-8EA6-259586E6E9FC}</ProjectGuid>
+    <ProjectGuid>{184A3C73-AA4B-4021-A598-3BBD4EAB762C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FizzCode.EtLast.AdoNet</RootNamespace>
-    <AssemblyName>FizzCode.EtLast.AdoNet</AssemblyName>
+    <RootNamespace>FizzCode.EtLast</RootNamespace>
+    <AssemblyName>FizzCode.EtLast.PluginHost.PluginInterface</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -39,8 +39,6 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <NoWarn>
-    </NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>bin\Release\</OutputPath>
@@ -50,52 +48,54 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <NoWarn>
-    </NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.2.8.0\lib\net46\Serilog.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.Enrichers.Thread, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Enrichers.Thread.3.0.0\lib\net45\Serilog.Enrichers.Thread.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.Exceptions, Version=5.0.0.0, Culture=neutral, PublicKeyToken=fc5550082a9c642c, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Exceptions.5.0.0\lib\net46\Serilog.Exceptions.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.Formatting.Compact, Version=1.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Formatting.Compact.1.0.0\lib\net45\Serilog.Formatting.Compact.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.Sinks.Console, Version=3.1.1.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Sinks.Console.3.1.1\lib\net45\Serilog.Sinks.Console.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.Sinks.File, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Sinks.File.4.0.0\lib\net45\Serilog.Sinks.File.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.Sinks.PeriodicBatching, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Sinks.PeriodicBatching.2.1.1\lib\net45\Serilog.Sinks.PeriodicBatching.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.Sinks.RollingFile, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Sinks.RollingFile.3.3.0\lib\net45\Serilog.Sinks.RollingFile.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.Sinks.Seq, Version=4.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Sinks.Seq.4.0.0\lib\net45\Serilog.Sinks.Seq.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Global\AssemblyInfo.Global.cs">
       <Link>Properties\AssemblyInfo.Global.cs</Link>
     </Compile>
-    <Compile Include="AdoNetDbReaderProcess\ValueProcessors\MySqlValueProcessor.cs" />
-    <Compile Include="AdoNetDbReaderProcess\ValueProcessors\ISqlValueProcessor.cs" />
-    <Compile Include="AdoNetDbReaderProcess\AbstractAdoNetDbReaderProcess.cs" />
-    <Compile Include="AdoNetDbReaderProcess\AdoNetDbReaderProcess.cs" />
-    <Compile Include="AdoNetDbReaderProcess\CustomSqlDbReaderProcess.cs" />
-    <Compile Include="DatabaseConnection.cs" />
-    <Compile Include="DbConnectionHelper.cs" />
-    <Compile Include="JobProcess\CustomSqlStatementJob.cs" />
-    <Compile Include="JobProcess\CopyTableIntoExistingTableJob.cs" />
-    <Compile Include="JobProcess\CopyTableStructureJob.cs" />
-    <Compile Include="JobProcess\TruncateTableJob.cs" />
-    <Compile Include="JobProcess\DropTableJob.cs" />
-    <Compile Include="JobProcess\CopyTableIntoNewTableJob.cs" />
-    <Compile Include="JobProcess\DeleteTableJob.cs" />
-    <Compile Include="RowOperations\StatementCreators\IAdoNetWriteToTableSqlStatementCreator.cs" />
-    <Compile Include="RowOperations\MsSqlWriteToTableWithMicroTransactionsOperation.cs" />
-    <Compile Include="RowOperations\MsSqlWriteToTableOperation.cs" />
-    <Compile Include="RowOperations\AdoNetWriteToTableOperation.cs" />
-    <Compile Include="RowOperations\StatementCreators\GenericInsertSqlStatementCreator.cs" />
-    <Compile Include="RowOperations\StatementCreators\MsSqlServerMergeSqlStatementCreator.cs" />
-    <Compile Include="RowOperations\RowShadowReader.cs" />
+    <Compile Include="AbstractEtlPlugin.cs" />
+    <Compile Include="EtlPluginResult.cs" />
+    <Compile Include="IEtlPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FizzCode.EtLast.Reference\EtLast.Reference.csproj">
-      <Project>{f2769c23-f41b-40d6-b549-3cbd84e009a9}</Project>
-      <Name>EtLast.Reference</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FizzCode.EtLast\EtLast.csproj">
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EtLast\EtLast.csproj">
       <Project>{85a7fa9f-cfd1-4da6-9737-ed5e4a975462}</Project>
       <Name>EtLast</Name>
     </ProjectReference>

@@ -135,7 +135,7 @@
     <Compile Include="Rows\SmallRow.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FizzCode.EtLast\EtLast.csproj">
+    <ProjectReference Include="..\EtLast\EtLast.csproj">
       <Project>{85A7FA9F-CFD1-4DA6-9737-ED5E4A975462}</Project>
       <Name>EtLast</Name>
     </ProjectReference>
