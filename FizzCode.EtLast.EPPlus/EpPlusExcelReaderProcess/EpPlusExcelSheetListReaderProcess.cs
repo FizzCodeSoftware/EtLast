@@ -6,22 +6,15 @@
     using System.Diagnostics;
     using System.IO;
 
-    public class EpPlusExcelSheetListReaderProcess : IProcess
+    public class EpPlusExcelSheetListReaderProcess : AbstractBaseProducerProcess
     {
-        public IEtlContext Context { get; }
-        public string Name { get; }
-
-        public IProcess Caller { get; private set; }
-        public IProcess InputProcess { get; set; }
         public string FileName { get; set; }
 
-        public EpPlusExcelSheetListReaderProcess(IEtlContext context, string name)
+        public EpPlusExcelSheetListReaderProcess(IEtlContext context, string name) : base(context, name)
         {
-            Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
-            Name = name;
         }
 
-        public IEnumerable<IRow> Evaluate(IProcess caller = null)
+        public override IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
             Caller = caller;
             if (string.IsNullOrEmpty(FileName)) throw new ProcessParameterNullException(this, nameof(FileName));

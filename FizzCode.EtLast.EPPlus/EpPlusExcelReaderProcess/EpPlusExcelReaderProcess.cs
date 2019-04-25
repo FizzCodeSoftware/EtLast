@@ -7,14 +7,8 @@
     using System.IO;
     using System.Linq;
 
-    public class EpPlusExcelReaderProcess : IEpPlusExcelReaderProcess
+    public class EpPlusExcelReaderProcess : AbstractBaseProducerProcess, IEpPlusExcelReaderProcess
     {
-        public IEtlContext Context { get; }
-        public string Name { get; }
-
-        public IProcess Caller { get; private set; }
-        public IProcess InputProcess { get; set; }
-
         public string FileName { get; set; }
         public string SheetName { get; set; }
         public int SheetIndex { get; set; } = -1;
@@ -49,12 +43,10 @@
         public int FirstDataColumn { get; set; } = 1;
 
         public EpPlusExcelReaderProcess(IEtlContext context, string name)
-        {
-            Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
-            Name = name;
-        }
+            : base(context, name)
+        { }
 
-        public IEnumerable<IRow> Evaluate(IProcess caller = null)
+        public override IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
             Caller = caller;
             if (string.IsNullOrEmpty(FileName)) throw new ProcessParameterNullException(this, nameof(FileName));
