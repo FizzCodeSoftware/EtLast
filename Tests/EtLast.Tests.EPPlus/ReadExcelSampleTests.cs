@@ -1,11 +1,13 @@
 ﻿namespace EtLast.Tests.EPPlus
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using FizzCode.EtLast;
     using FizzCode.EtLast.EPPlus;
     using FizzCode.EtLast.Tests.Base;
+    
 
     [TestClass]
     public class ReadExcelSampleTests
@@ -29,7 +31,7 @@
                 FileName = @"..\..\TestData\Sample.xlsx",
                 ColumnMap = new List<(string ExcelColumn, string RowColumn, ITypeConverter Converter, object ValueIfNull)>
                     {
-                        ("Id", "Id", new StringConverter(), string.Empty),
+                        ("Id", "Id", new IntConverter(), string.Empty),
                         ("Name", "Name", new StringConverter(), string.Empty),
                         ("Value1", "ValueString", new StringConverter(), string.Empty),
                         ("Value2", "ValueInt", new IntConverter(), null),
@@ -74,7 +76,8 @@
             Assert.AreEqual(2, result.Count);
 
             Assert.That.RowsAreEqual(RowHelper.CreateRows(
-                new object[] { "Id", 0, "Name", "A", "ValueString", "AAA", "ValueInt", -1, "ValueDate", null })
+                new object[] { "Id", 0, "Name", "A", "ValueString", "AAA", "ValueInt", -1, "ValueDate", null },
+                new object[] { "Id", 1, "Name", "B", "ValueString", string.Empty, "ValueInt", 3, "ValueDate", new DateTime(2019, 04, 25), "ValueDouble", 1.234D })
                 , result
             );
         }
