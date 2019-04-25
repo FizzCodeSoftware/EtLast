@@ -24,7 +24,7 @@
                 InputProcess = new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess")
                 {
                     FileName = "1.xlsx",
-                    ColumnMap
+                    // ColumnMap
                 }
             };
         }
