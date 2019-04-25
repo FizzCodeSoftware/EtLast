@@ -34,35 +34,32 @@
                         ("Value2", "ValueInt", new IntConverter(), null),
                         ("Value3", "ValueDate", new DateConverter(), null),
                         ("Value4", "ValueDouble", new DoubleConverter(), null)
-                    },
-                SheetName = "Sheet1"
+                    }
             };
 
             _process = new OperationProcess(context, "EpPlusProcess")
             {
                 Configuration = operationProcessConfiguration,
-                InputProcess = new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess")
-                {
-                    FileName = @"..\..\TestData\Sample.xlsx",
-                    ColumnMap = new List<(string ExcelColumn, string RowColumn, ITypeConverter Converter, object ValueIfNull)>
-                    {
-                        ("Id", "Id", new StringConverter(), string.Empty),
-                        ("Name", "Name", new StringConverter(), string.Empty),
-                        ("Value1", "ValueString", new StringConverter(), string.Empty),
-                        ("Value2", "ValueInt", new IntConverter(), null),
-                        ("Value3", "ValueDate", new DateConverter(), null),
-                        ("Value4", "ValueDouble", new DoubleConverter(), null)
-                    },
-                    SheetName = "Sheet1"
-                }
+                InputProcess = _epPlusExcelReaderProcess
             };
 
             _process.AddOperation(new ThrowExceptionOnRowErrorOperation());
         }
 
         [TestMethod]
-        public void ReadExcelSample()
+        public void SheetName()
         {
+            _epPlusExcelReaderProcess.SheetName = "Sheet1";
+
+            List<IRow> result = _process.Evaluate().ToList();
+            Assert.AreEqual(2, result.Count);
+        }
+
+        [TestMethod]
+        public void SheetIndex()
+        {
+            _epPlusExcelReaderProcess.SheetIndex = 0;
+
             List<IRow> result = _process.Evaluate().ToList();
             Assert.AreEqual(2, result.Count);
         }
