@@ -109,7 +109,7 @@
     <Compile Include="OperationProcess\RowOperations\MergeStringColumnsOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\OperationGroup.cs" />
     <Compile Include="OperationProcess\RowOperations\HierarchyParentIdCalculatorOperation.cs" />
-    <Compile Include="OperationProcess\RowOperations\AddIncrementalIdSequantialOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\AddIncrementalIdOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\InvalidOperationAction.cs" />
     <Compile Include="OperationProcess\RowOperations\RenameColumnsOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\RenameColumnOperation.cs" />

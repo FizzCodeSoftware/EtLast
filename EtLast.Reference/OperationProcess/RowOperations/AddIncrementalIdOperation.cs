@@ -2,9 +2,13 @@
 {
     using System.Threading;
 
-    public class AddIncrementalIdSequentialOperation : AbstractRowOperation
+    public class AddIncrementalIdOperation : AbstractRowOperation
     {
         public string Column { get; set; }
+
+        /// <summary>
+        /// Default value is 0.
+        /// </summary>
         public int FirstId { get; set; } = 0;
 
         private int _nextId;
