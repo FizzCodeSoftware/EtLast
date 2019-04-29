@@ -1,4 +1,4 @@
 ﻿using System.Reflection;
 
-[assembly: AssemblyTitle("EtLast Core")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("EtLast")]
+[assembly: AssemblyDescription("EtLast ETL (Extract, Transform and Load) library for .Net")]
