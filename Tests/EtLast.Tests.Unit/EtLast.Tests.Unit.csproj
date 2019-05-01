@@ -91,6 +91,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="TestData\Sample.csv" />
+    <None Include="TestData\SampleInvalidConversion.csv" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\EtLast.Reference\EtLast.Reference.csproj">
