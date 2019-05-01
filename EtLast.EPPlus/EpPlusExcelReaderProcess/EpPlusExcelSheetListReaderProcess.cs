@@ -21,22 +21,8 @@
 
             var sw = Stopwatch.StartNew();
 
-            var index = 0;
-            if (InputProcess != null)
-            {
-                Context.Log(LogSeverity.Information, this, "evaluating {InputProcess}", InputProcess.Name);
-
-                var inputRows = InputProcess.Evaluate(this);
-                var rowCount = 0;
-                foreach (var row in inputRows)
-                {
-                    rowCount++;
-                    index++;
-                    yield return row;
-                }
-
-                Context.Log(LogSeverity.Debug, this, "fetched and returned {RowCount} rows from {InputProcess} in {Elapsed}", rowCount, InputProcess.Name, sw.Elapsed);
-            }
+            foreach (var row in EvaluateInputProcess(sw))
+                yield return row;
 
             var resultCount = 0;
             Context.Log(LogSeverity.Information, this, "reading from {FileName}", FileName);

@@ -18,20 +18,8 @@
             if (InputGenerator == null) throw new ProcessParameterNullException(this, nameof(InputGenerator));
             var sw = Stopwatch.StartNew();
 
-            if (InputProcess != null)
-            {
-                Context.Log(LogSeverity.Information, this, "evaluating {InputProcess}", InputProcess.Name);
-
-                var rows = InputProcess.Evaluate(this);
-                var count = 0;
-                foreach (var row in rows)
-                {
-                    count++;
-                    yield return row;
-                }
-
-                Context.Log(LogSeverity.Debug, this, "fetched and returned {RowCount} rows from {InputProcess} in {Elapsed}", count, InputProcess.Name, sw.Elapsed);
-            }
+            foreach (var row in EvaluateInputProcess(sw))
+                yield return row;
 
             Context.Log(LogSeverity.Information, this, "evaluating input generator");
 

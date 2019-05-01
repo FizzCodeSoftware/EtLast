@@ -8,7 +8,6 @@
     using FizzCode.EtLast.EPPlus;
     using FizzCode.EtLast.Tests.Base;
     
-
     [TestClass]
     public class ReadExcelSampleTests
     {

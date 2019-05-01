@@ -22,20 +22,8 @@
             Context.Log(LogSeverity.Information, this, "started");
             var sw = Stopwatch.StartNew();
 
-            if (InputProcess != null)
-            {
-                Context.Log(LogSeverity.Information, this, "evaluating {InputProcess}", InputProcess.Name);
-
-                var inputRows = InputProcess.Evaluate(this);
-                var rowCount = 0;
-                foreach (var row in inputRows)
-                {
-                    rowCount++;
-                    yield return row;
-                }
-
-                Context.Log(LogSeverity.Debug, this, "fetched and returned {RowCount} rows from {InputProcess} in {Elapsed}", rowCount, InputProcess.Name, sw.Elapsed);
-            }
+            foreach (var row in EvaluateInputProcess(sw))
+                yield return row;
 
             Context.Log(LogSeverity.Debug, this, "returning generated random rows");
             var resultCount = 0;

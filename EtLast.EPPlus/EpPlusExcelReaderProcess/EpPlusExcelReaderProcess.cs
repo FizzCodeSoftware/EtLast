@@ -55,22 +55,16 @@
 
             var sw = Stopwatch.StartNew();
 
-            var index = 0;
-            if (InputProcess != null)
+            var evaluateInputProcess = EvaluateInputProcess(sw, (row, rowCount, process) =>
             {
-                Context.Log(LogSeverity.Information, this, "evaluating {InputProcess}", InputProcess.Name);
+                if (AddRowIndexToColumn != null) row.SetValue(AddRowIndexToColumn, rowCount, process);
+            });
 
-                var inputRows = InputProcess.Evaluate(this);
-                var rowCount = 0;
-                foreach (var row in inputRows)
-                {
-                    rowCount++;
-                    index++;
-                    if (AddRowIndexToColumn != null) row.SetValue(AddRowIndexToColumn, index, this);
-                    yield return row;
-                }
-
-                Context.Log(LogSeverity.Debug, this, "fetched and returned {RowCount} rows from {InputProcess} in {Elapsed}", rowCount, InputProcess.Name, sw.Elapsed);
+            var index = 0;
+            foreach (var row in evaluateInputProcess)
+            {
+                index++;
+                yield return row;
             }
 
             if (!File.Exists(FileName))
