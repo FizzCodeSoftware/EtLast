@@ -81,11 +81,13 @@
     <Compile Include="ComplexPipelines\GroupByTests.cs" />
     <Compile Include="Operations\RemoveRowOperationTests.cs" />
     <Compile Include="Operations\RemoveColumnsOperationTests.cs" />
+    <Compile Include="Processes\DelimitedFileReaderProcessTests.cs" />
     <Compile Include="Processes\OperationProcessTests.cs" />
     <Compile Include="Processes\CreateRowsProcessTests.cs" />
     <Compile Include="Processes\SeedRowsProcessTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Transactions\ErrorHandlingTests.cs" />
+    <Compile Include="TypeConverters\StringConverterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

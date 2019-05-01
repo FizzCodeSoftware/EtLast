@@ -49,6 +49,10 @@
             return "row " + UID.ToString("D", CultureInfo.InvariantCulture) + (Flagged ? " (flagged)" : string.Empty) + " // " + string.Join(Environment.NewLine, Values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? "(" + kvp.Value.GetType().Name + ") " + kvp.Value.ToString() : "NULL")));
         }
 
+        /// <summary>
+        /// Returns true if any value is <see cref="EtlRowError"/>.
+        /// </summary>
+        /// <returns>True if any value is <see cref="EtlRowError"/>.</returns>
         public bool HasError() => Values.Any(x => x.Value is EtlRowError);
 
         public T GetAs<T>(string column)

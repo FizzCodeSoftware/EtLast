@@ -7,6 +7,8 @@
 
     public static class AssertExtensions
     {
+        private static RowComparer RowComparer = new RowComparer(RowComparer.RowComparerMode.Test);
+
         public static void RowsAreEqual(this Assert assert, IRow expected, IRow actual)
         {
             if (!RowComparer.Equals(expected, actual))
@@ -45,6 +47,7 @@
             foreach (var expected in expecteds)
             {
                 var actual = actuals[i++];
+
                 if (!RowComparer.Equals(expected, actual))
                 {
                     equals = false;

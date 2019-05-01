@@ -52,10 +52,16 @@
                 return rows;
 
             var first = rows[0];
-            IOrderedEnumerable<IRow> order = result.OrderBy(r => r[first.Values.First().Key]);
-            foreach (var kvp in first.Values.Skip(1))
+            IOrderedEnumerable<IRow> order = null;
+            foreach (var kvp in first.Values)
             {
-                order = order.ThenBy(r => r[kvp.Key]);
+                if (!(kvp.Value is EtlRowError))
+                {
+                    if(order is null)
+                        order = result.OrderBy(r => r[kvp.Key]);
+                    else
+                        order = order.ThenBy(r => r[kvp.Key]);
+                }
             }
 
             return order.ToList();
