@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.Tests.Unit
+﻿namespace FizzCode.EtLast.Tests.Unit.TypeConverters
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 

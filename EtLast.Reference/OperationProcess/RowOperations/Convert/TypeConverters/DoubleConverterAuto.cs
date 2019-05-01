@@ -8,16 +8,22 @@
         public IFormatProvider FormatProviderHint { get; }
         public NumberStyles NumberStylesHint { get; }
 
-        public DoubleConverterAuto(IFormatProvider formatProviderHint, NumberStyles numberStylesHint = NumberStyles.None)
+        public bool UseOnlyProvidedHints { get; }
+
+        public DoubleConverterAuto(IFormatProvider formatProviderHint, NumberStyles numberStylesHint = NumberStyles.None, bool useOnlyProvidedHints = false)
         {
             FormatProviderHint = formatProviderHint;
             NumberStylesHint = numberStylesHint;
+            UseOnlyProvidedHints = useOnlyProvidedHints;
         }
 
         public override object Convert(object source)
         {
-            var baseResult = base.Convert(source);
-            if (baseResult != null) return baseResult;
+            if (!UseOnlyProvidedHints)
+            {
+                var baseResult = base.Convert(source);
+                if (baseResult != null) return baseResult;
+            }
 
             if (source is string str)
             {

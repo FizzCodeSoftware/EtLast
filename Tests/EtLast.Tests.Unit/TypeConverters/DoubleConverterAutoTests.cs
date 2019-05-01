@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.Tests.Unit
+﻿namespace FizzCode.EtLast.Tests.Unit.TypeConverters
 {
     using System.Globalization;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -11,7 +11,7 @@
         {
             var numberFormatInfo = CultureInfo.InvariantCulture.NumberFormat;
 
-            var converter = new DoubleConverterAuto(numberFormatInfo, NumberStyles.Number);
+            var converter = new DoubleConverterAuto(numberFormatInfo, NumberStyles.Number, true);
             string value = "1.234";
             var result = converter.Convert(value);
 
@@ -23,7 +23,7 @@
         {
             var numberFormatInfo = new CultureInfo("hu-HU");
 
-            var converter = new DoubleConverterAuto(numberFormatInfo, NumberStyles.Number);
+            var converter = new DoubleConverterAuto(numberFormatInfo, NumberStyles.Number, true);
             string value = "1.234";
             var result = converter.Convert(value);
 
@@ -36,7 +36,7 @@
         {
             var numberFormatInfo = new CultureInfo("hu-HU");
 
-            var converter = new DoubleConverterAuto(numberFormatInfo, NumberStyles.Number);
+            var converter = new DoubleConverterAuto(numberFormatInfo, NumberStyles.Number, true);
             string value = "1,234";
             var result = converter.Convert(value);
 

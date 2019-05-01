@@ -5,7 +5,7 @@
     public class DecimalConverter : ITypeConverter
     {
         public string[] RemoveSubString { get; set; }
-        public bool UseInvariantCluture { get; set; }
+        public bool UseInvariantCluture { get; }
 
         public DecimalConverter(bool useInvariantCluture = false)
         {

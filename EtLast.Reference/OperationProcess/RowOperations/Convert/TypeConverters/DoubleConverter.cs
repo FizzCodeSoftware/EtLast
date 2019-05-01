@@ -4,7 +4,7 @@
 
     public class DoubleConverter : ITypeConverter
     {
-        public bool UseInvariantCluture { get; set; }
+        public bool UseInvariantCluture { get; }
 
         public DoubleConverter(bool useInvariantCluture = false)
         {
