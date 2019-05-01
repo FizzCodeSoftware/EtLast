@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.Tests.Unit.Processes
+﻿namespace FizzCode.EtLast.Tests.Unit
 {
     using System;
     using System.Collections.Generic;
