@@ -1,7 +1,8 @@
 namespace FizzCode.EtLast.Tests.Unit
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Linq;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using FizzCode.EtLast.Tests.Base;
 
     [TestClass]
     public class RemoveRowOperationTests : AbstractBaseTestUsingSeed

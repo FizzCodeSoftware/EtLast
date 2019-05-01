@@ -84,13 +84,13 @@
       <Project>{f2769c23-f41b-40d6-b549-3cbd84e009a9}</Project>
       <Name>EtLast.Reference</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EtLast.Tests.Unit\EtLast.Tests.Unit.csproj">
-      <Project>{abc2478c-3774-427d-b279-4adb4d555056}</Project>
-      <Name>EtLast.Tests.Unit</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\EtLast\EtLast.csproj">
       <Project>{85a7fa9f-cfd1-4da6-9737-ed5e4a975462}</Project>
       <Name>EtLast</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EtLast.Tests.Base\EtLast.Tests.Base.csproj">
+      <Project>{aceeb6cd-21a5-4626-8e69-09068334ec81}</Project>
+      <Name>EtLast.Tests.Base</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -72,8 +72,6 @@
     <Compile Include="..\..\Global\AssemblyInfo.Global.cs">
       <Link>Properties\AssemblyInfo.Global.cs</Link>
     </Compile>
-    <Compile Include="AbstractBaseTestUsingSample.cs" />
-    <Compile Include="AbstractBaseTestUsingSeed.cs" />
     <Compile Include="ComplexPipelines\ContinuousGroupByTests.cs" />
     <Compile Include="Operations\HierarchyParentIdCalculatorTests.cs" />
     <Compile Include="Operations\UnpivotTests.cs" />
@@ -123,6 +121,7 @@
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>xcopy /E /Y "$(ProjectDir)TestData" "$(TargetDir)TestData\*"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

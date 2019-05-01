@@ -7,7 +7,7 @@
 
     public static class AssertExtensions
     {
-        private static RowComparer RowComparer = new RowComparer(RowComparer.RowComparerMode.Test);
+        private static readonly RowComparer RowComparer = new RowComparer(RowComparer.RowComparerMode.Test);
 
         public static void RowsAreEqual(this Assert assert, IRow expected, IRow actual)
         {

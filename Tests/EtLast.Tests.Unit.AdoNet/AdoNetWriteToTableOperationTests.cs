@@ -1,6 +1,7 @@
 namespace FizzCode.EtLast.Tests.Unit.AdoNet
 {
     using FizzCode.EtLast.AdoNet;
+    using FizzCode.EtLast.Tests.Base;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Configuration;
     using System.Linq;
