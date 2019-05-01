@@ -8,9 +8,9 @@
         [TestMethod]
         public void ConverObject()
         {
-            var stringConverter = new StringConverter();
+            var converter = new StringConverter();
             object value = (object)"fizzcode";
-            var result = stringConverter.Convert(value);
+            var result = converter.Convert(value);
 
             Assert.AreEqual("fizzcode", result);
         }

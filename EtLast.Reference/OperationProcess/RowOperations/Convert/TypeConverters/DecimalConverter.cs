@@ -1,8 +1,16 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System.Globalization;
+
     public class DecimalConverter : ITypeConverter
     {
         public string[] RemoveSubString { get; set; }
+        public bool UseInvariantCluture { get; set; }
+
+        public DecimalConverter(bool useInvariantCluture = false)
+        {
+            UseInvariantCluture = useInvariantCluture;
+        }
 
         public virtual object Convert(object source)
         {
@@ -21,10 +29,14 @@
                     }
                 }
 
-                if (decimal.TryParse(str, out decimal value)) return value;
-                else if (double.TryParse(str, out double dfv)) return dfv;
-                else if (float.TryParse(str, out float sfv)) return System.Convert.ToDouble(sfv);
-                else if (int.TryParse(str, out int siv)) return System.Convert.ToDouble(siv);
+                var numberFormatInfo = NumberFormatInfo.CurrentInfo;
+                if (UseInvariantCluture)
+                    numberFormatInfo = CultureInfo.InvariantCulture.NumberFormat;
+
+                if (decimal.TryParse(str, NumberStyles.Number, numberFormatInfo, out decimal value)) return value;
+                else if (double.TryParse(str, NumberStyles.Number, numberFormatInfo, out double dfv)) return dfv;
+                else if (float.TryParse(str, NumberStyles.Number, numberFormatInfo, out float sfv)) return System.Convert.ToDouble(sfv);
+                else if (int.TryParse(str, NumberStyles.Number, numberFormatInfo, out int siv)) return System.Convert.ToDouble(siv);
             }
 
             return null;

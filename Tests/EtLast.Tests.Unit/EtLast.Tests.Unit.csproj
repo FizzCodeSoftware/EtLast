@@ -85,6 +85,8 @@
     <Compile Include="Processes\SeedRowsProcessTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Transactions\ErrorHandlingTests.cs" />
+    <Compile Include="TypeConverters\DoubleConverterTests.cs" />
+    <Compile Include="TypeConverters\DecimalConverterTests.cs" />
     <Compile Include="TypeConverters\StringConverterTest.cs" />
   </ItemGroup>
   <ItemGroup>

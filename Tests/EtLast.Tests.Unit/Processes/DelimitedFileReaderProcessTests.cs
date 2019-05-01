@@ -33,7 +33,7 @@
                         ("Value1", "ValueString", new StringConverter(), string.Empty),
                         ("Value2", "ValueInt", new IntConverter(), null),
                         ("Value3", "ValueDate", new DateConverter(), null),
-                        ("Value4", "ValueDouble", new DoubleConverter(), null)
+                        ("Value4", "ValueDouble", new DoubleConverter(true), null)
                     },
                 HasHeaderRow = true
             };
