@@ -25,7 +25,7 @@
 
             _delimitedFileReaderProcess = new DelimitedFileReaderProcess(context, "DelimitedFileReaderProcess")
             {
-                FileName = @"..\..\TestData\Sample.csv",
+                FileName = @".\TestData\Sample.csv",
                 ColumnMap = new List<(string ExcelColumn, string RowColumn, ITypeConverter Converter, object ValueIfNull)>
                     {
                         ("Id", "Id", new IntConverter(), string.Empty),
@@ -67,7 +67,7 @@
         [TestMethod]
         public void InvalidConversion()
         {
-            _delimitedFileReaderProcess.FileName = @"..\..\TestData\SampleInvalidConversion.csv";
+            _delimitedFileReaderProcess.FileName = @".\TestData\SampleInvalidConversion.csv";
             List<IRow> result = _process.Evaluate().ToList();
 
             // TODO check exception

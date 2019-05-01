@@ -27,7 +27,7 @@
 
             _epPlusExcelReaderProcess = new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess")
             {
-                FileName = @"..\..\TestData\SampleErrors.xlsx",
+                FileName = @".\TestData\SampleErrors.xlsx",
                 ColumnMap = new List<(string ExcelColumn, string RowColumn, ITypeConverter Converter, object ValueIfNull)>
                     {
                         ("Id", "Id", new IntConverter(), string.Empty),
