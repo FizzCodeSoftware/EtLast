@@ -226,7 +226,7 @@
             }
             finally
             {
-                if (PreLoadedFile != null)
+                if (PreLoadedFile == null)
                 {
                     package.Dispose();
                     package = null;
