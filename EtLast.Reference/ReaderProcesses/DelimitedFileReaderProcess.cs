@@ -9,7 +9,7 @@
         public string FileName { get; set; }
 
         public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
-        public ReaderColumnConfiguration DefaultConfiguration { get; set; }
+        public ReaderDefaultColumnConfiguration DefaultConfiguration { get; set; }
 
         public bool TreatEmptyStringAsNull { get; set; }
 

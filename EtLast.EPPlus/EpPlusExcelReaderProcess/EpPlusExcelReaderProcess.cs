@@ -28,7 +28,7 @@
         public bool IgnoreNullOrEmptyRows { get; set; } = true;
 
         public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
-        public ReaderColumnConfiguration DefaultColumnConfiguration { get; set; }
+        public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
 
         public bool Transpose { get; set; }
 
@@ -89,7 +89,7 @@
                 throw new NotImplementedException("Transpose is not finished yet, must be tested before used");
             }
 
-            var columnIndexes = new Dictionary<string, (int Index, ReaderColumnConfiguration Configuration)>();
+            var columnIndexes = new Dictionary<string, (int Index, ReaderDefaultColumnConfiguration Configuration)>();
 
             var package = PreLoadedFile;
             if (package == null)

@@ -17,7 +17,7 @@
         string AddRowIndexToColumn { get; set; }
         bool TreatEmptyStringAsNull { get; set; }
         List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
-        ReaderColumnConfiguration DefaultColumnConfiguration { get; set; }
+        ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
         bool Transpose { get; set; }
 
         EpPlusExcelHeaderCellMode HeaderCellMode { get; set; }

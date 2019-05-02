@@ -2,7 +2,7 @@
 {
     public static class ReaderProcessHelper
     {
-        public static object HandleConverter(IProcess process, object value, int rowIndex, string column, ReaderColumnConfiguration configuration, IRow row, out bool failed)
+        public static object HandleConverter(IProcess process, object value, int rowIndex, string column, ReaderDefaultColumnConfiguration configuration, IRow row, out bool failed)
         {
             failed = false;
 
