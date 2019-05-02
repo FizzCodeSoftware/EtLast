@@ -154,7 +154,7 @@
                 var pluginNamesToExecute = GetAppSetting(config, "PluginsToExecute");
 
                 plugins = pluginNamesToExecute.Split(',')
-                            .Select(name => plugins.FirstOrDefault(plugin => plugin.GetType().Name == name))
+                            .Select(name => plugins.Find(plugin => plugin.GetType().Name == name))
                             .Where(plugin => plugin != null)
                             .ToList();
 

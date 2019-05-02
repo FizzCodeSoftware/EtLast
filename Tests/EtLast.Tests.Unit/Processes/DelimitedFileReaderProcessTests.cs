@@ -1,10 +1,10 @@
 ﻿namespace FizzCode.EtLast.Tests.Unit
 {
+    using FizzCode.EtLast.Tests.Base;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using FizzCode.EtLast.Tests.Base;
 
     [TestClass]
     public class DelimitedFileReaderProcessTests
@@ -26,16 +26,16 @@
             _delimitedFileReaderProcess = new DelimitedFileReaderProcess(context, "DelimitedFileReaderProcess")
             {
                 FileName = @"..\..\TestData\Sample.csv",
-                ColumnMap = new List<(string ExcelColumn, string RowColumn, ITypeConverter Converter, object ValueIfNull)>
+                ColumnConfiguration = new List<ReaderColumnConfiguration>()
                     {
-                        ("Id", "Id", new IntConverter(), string.Empty),
-                        ("Name", "Name", new StringConverter(), string.Empty),
-                        ("Value1", "ValueString", new StringConverter(), string.Empty),
-                        ("Value2", "ValueInt", new IntConverter(), null),
-                        ("Value3", "ValueDate", new DateConverter(), null),
-                        ("Value4", "ValueDouble", new DoubleConverter(true), null)
+                        new ReaderColumnConfiguration("Id", new IntConverter(), string.Empty),
+                        new ReaderColumnConfiguration("Name", new StringConverter(), string.Empty),
+                        new ReaderColumnConfiguration("Value1", "ValueString", new StringConverter(), string.Empty),
+                        new ReaderColumnConfiguration("Value2", "ValueInt", new IntConverter(), null),
+                        new ReaderColumnConfiguration("Value3", "ValueDate", new DateConverter(), null),
+                        new ReaderColumnConfiguration("Value4", "ValueDouble", new DoubleConverter(true), null)
                     },
-                HasHeaderRow = true
+                HasHeaderRow = true,
             };
 
             _process = new OperationProcess(context, "DelimitedFileReaderOperationProcess")

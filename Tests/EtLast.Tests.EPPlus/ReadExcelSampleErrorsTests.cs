@@ -1,13 +1,13 @@
 ﻿namespace EtLast.Tests.EPPlus
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using FizzCode.EtLast;
     using FizzCode.EtLast.EPPlus;
     using FizzCode.EtLast.Tests.Base;
-    
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     [TestClass]
     public class ReadExcelSampleErrorsTests
     {
@@ -28,10 +28,10 @@
             _epPlusExcelReaderProcess = new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess")
             {
                 FileName = @"..\..\TestData\SampleErrors.xlsx",
-                ColumnMap = new List<(string ExcelColumn, string RowColumn, ITypeConverter Converter, object ValueIfNull)>
+                ColumnConfiguration = new List<ReaderColumnConfiguration>()
                     {
-                        ("Id", "Id", new IntConverter(), string.Empty),
-                        ("Date", "Date", new DateConverter(), null)
+                        new ReaderColumnConfiguration("Id", new IntConverter(), string.Empty),
+                        new ReaderColumnConfiguration("Date", new DateConverter())
                     }
             };
 
@@ -45,7 +45,7 @@
         [TestMethod]
         public void CheckContent()
         {
-             _epPlusExcelReaderProcess.SheetName = "Date0";
+            _epPlusExcelReaderProcess.SheetName = "Date0";
 
             List<IRow> result = _process.Evaluate().ToList();
             Assert.AreEqual(2, result.Count);

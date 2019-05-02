@@ -2,39 +2,39 @@
 {
     public static class ReaderProcessHelper
     {
-        public static object HandleConverter(IProcess process, object value, string rowColumn, (int RowIndex, ITypeConverter Converter, object ValueIfNull) columnIndex, IRow row, out bool shouldContinue)
+        public static object HandleConverter(IProcess process, object value, int rowIndex, string column, ReaderColumnConfiguration configuration, IRow row, out bool failed)
         {
-            shouldContinue = false;
-            // Converting if has value
-            if (value == null || columnIndex.Converter == null)
+            failed = false;
+
+            if (value == null && configuration.ValueIfSourceIsNull != null)
             {
-                if (value == null && columnIndex.ValueIfNull != null)
-                {
-                    value = columnIndex.ValueIfNull;
-                }
+                return configuration.ValueIfSourceIsNull;
             }
-            else
+
+            if (value != null && configuration.Converter != null)
             {
-                var newValue = columnIndex.Converter.Convert(value);
-                if (newValue != null)
+                var newValue = configuration.Converter.Convert(value);
+                if (newValue != null) return newValue;
+
+                process.Context.Log(LogSeverity.Debug, process, "failed converting '{OriginalColumn}' in row #{RowIndex}: '{ValueAsString}' ({ValueType}) using {ConverterType}", column, rowIndex, value.ToString(), value.GetType().Name, configuration.Converter.GetType().Name);
+
+                if (configuration.ValueIfConversionFailed == null)
                 {
-                    value = newValue;
-                }
-                else
-                {
-                    process.Context.Log(LogSeverity.Debug, process, "failed converting '{OriginalColumn}' in row #{RowIndex}: '{ValueAsString}' ({ValueType}) using {ConverterType}", rowColumn, columnIndex.RowIndex, value.ToString(), value.GetType().Name, columnIndex.Converter.GetType().Name);
-                    
-                    row.SetValue(rowColumn, new EtlRowError()
+                    row.SetValue(column, new EtlRowError()
                     {
                         Process = process,
                         Operation = null,
                         OriginalValue = value,
-                        Message = string.Format("failed to convert by {0}", columnIndex.Converter.GetType().Name),
+                        Message = string.Format("failed to convert by {0}", configuration.Converter.GetType().Name),
                     }, process);
-
-                    shouldContinue = true;
-                    return value;
                 }
+                else
+                {
+                    row.SetValue(column, configuration.ValueIfConversionFailed, process);
+                }
+
+                failed = true;
+                return value;
             }
 
             return value;

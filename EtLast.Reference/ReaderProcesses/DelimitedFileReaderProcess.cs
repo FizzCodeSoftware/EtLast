@@ -3,17 +3,22 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
-    using System.Linq;
 
     public class DelimitedFileReaderProcess : AbstractBaseProducerProcess
     {
         public string FileName { get; set; }
 
-        public List<(string SourceColumnName, string RowColumnName, ITypeConverter Converter, object ValueIfNull)> ColumnMap { get; set; }
-        public ITypeConverter DefaultConverter { get; set; }
-        public object DefaultValueIfNull { get; set; }
+        public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
+        public ReaderColumnConfiguration DefaultConfiguration { get; set; }
+
+        public bool TreatEmptyStringAsNull { get; set; }
 
         public bool HasHeaderRow { get; set; }
+        public string[] ColumnNames { get; set; }
+
+        /// <summary>
+        /// Default value is ';'
+        /// </summary>
         public char Delimiter { get; set; } = ';';
 
         public DelimitedFileReaderProcess(IEtlContext context, string name)
@@ -24,11 +29,15 @@
         {
             Caller = caller;
             if (string.IsNullOrEmpty(FileName)) throw new ProcessParameterNullException(this, nameof(FileName));
+            if (!HasHeaderRow && (ColumnNames == null || ColumnNames.Length == 0)) throw new ProcessParameterNullException(this, nameof(ColumnNames));
 
             var sw = Stopwatch.StartNew();
 
-            foreach (var row in EvaluateInputProcess(sw))
+            var rows = EvaluateInputProcess(sw);
+            foreach (var row in rows)
+            {
                 yield return row;
+            }
 
             Context.Log(LogSeverity.Information, this, "reading from {FileName}", FileName);
 
@@ -36,53 +45,58 @@
 
             using (var reader = new StreamReader(FileName))
             {
-                string[] fileColumnNames = null;
+                var columnNames = ColumnNames;
                 string line;
-                int rowNumber = 0;
+                var rowNumber = 0;
                 while ((line = reader.ReadLine()) != null)
                 {
                     if (line.EndsWith(Delimiter.ToString()))
+                    {
                         line = line.Substring(0, line.Length - 1);
+                    }
 
-                    string[] array = line.Split(Delimiter);
+                    var parts = line.Split(Delimiter);
                     if (rowNumber == 0 && HasHeaderRow)
                     {
-                        List<string> headers = new List<string>(array.Length);
-                        foreach (var header in array)
-                            headers.Add(header);
-                        fileColumnNames = headers.ToArray();
+                        columnNames = parts;
                         rowNumber++;
                         continue;
                     }
-                    if(rowNumber == 0 && !HasHeaderRow)
-                        // TODO default column names
-                        fileColumnNames = new string[] { "Column1", "Column2" };
 
-                    //var row = Context.CreateRow(reader.FieldCount);
-                    var row = Context.CreateRow(array.Length);
-
-                    for (int i = 0; i < array.Length; i++)
+                    var row = Context.CreateRow(parts.Length);
+                    for (var i = 0; i < parts.Length; i++)
                     {
-                        string valueString = array[i];
+                        var valueString = parts[i];
                         if (valueString.StartsWith("\"") && valueString.EndsWith("\""))
+                        {
                             valueString = valueString.Substring(1, valueString.Length - 2);
+                        }
 
                         object value = valueString;
 
-                        // map excel column name to ColumnMap name, and convert
-                        var givenColumn = ColumnMap.FirstOrDefault(x => string.Compare(x.SourceColumnName, fileColumnNames[i], true) == 0);
-
-                        if (givenColumn.RowColumnName == null && DefaultConverter != null)
+                        if (value != null && TreatEmptyStringAsNull && (value is string str) && str == string.Empty)
                         {
-                            givenColumn.Converter = DefaultConverter;
-                            givenColumn.ValueIfNull = DefaultValueIfNull;
+                            value = null;
                         }
 
-                        value = ReaderProcessHelper.HandleConverter(this, value, givenColumn.RowColumnName, (rowNumber, givenColumn.Converter, givenColumn.ValueIfNull), row, out bool shouldContinue);
-                        if (shouldContinue)
-                            continue;
+                        var columnConfiguration = ColumnConfiguration.Find(x => string.Compare(x.SourceColumn, columnNames[i], true) == 0);
 
-                        row[givenColumn.RowColumnName] = value;
+                        if (columnConfiguration != null || DefaultConfiguration == null)
+                        {
+                            var column = columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn;
+                            value = ReaderProcessHelper.HandleConverter(this, value, rowNumber, column, columnConfiguration, row, out var error);
+                            if (error) continue;
+
+                            row.SetValue(column, value, this);
+                        }
+                        else
+                        {
+                            var column = columnNames[i];
+                            value = ReaderProcessHelper.HandleConverter(this, value, rowNumber, column, DefaultConfiguration, row, out var error);
+                            if (error) continue;
+
+                            row.SetValue(column, value, this);
+                        }
                     }
 
                     rowNumber++;

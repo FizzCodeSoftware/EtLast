@@ -132,6 +132,7 @@
     <Compile Include="ProducerProcesses\SeedRowsProcess.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReaderProcesses\DelimitedFileReaderProcess.cs" />
+    <Compile Include="ReaderProcesses\ReaderColumnConfiguration.cs" />
     <Compile Include="ReaderProcesses\ReaderProcessHelper.cs" />
     <Compile Include="Rows\DictionaryRow.cs" />
     <Compile Include="Rows\AbstractBaseRow.cs" />

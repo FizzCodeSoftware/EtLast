@@ -1,13 +1,13 @@
 ﻿namespace EtLast.Tests.EPPlus
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using FizzCode.EtLast;
     using FizzCode.EtLast.EPPlus;
     using FizzCode.EtLast.Tests.Base;
-    
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     [TestClass]
     public class ReadExcelSampleTests
     {
@@ -28,14 +28,14 @@
             _epPlusExcelReaderProcess = new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess")
             {
                 FileName = @"..\..\TestData\Sample.xlsx",
-                ColumnMap = new List<(string ExcelColumn, string RowColumn, ITypeConverter Converter, object ValueIfNull)>
+                ColumnConfiguration = new List<ReaderColumnConfiguration>()
                     {
-                        ("Id", "Id", new IntConverter(), string.Empty),
-                        ("Name", "Name", new StringConverter(), string.Empty),
-                        ("Value1", "ValueString", new StringConverter(), string.Empty),
-                        ("Value2", "ValueInt", new IntConverter(), null),
-                        ("Value3", "ValueDate", new DateConverter(), null),
-                        ("Value4", "ValueDouble", new DoubleConverter(), null)
+                        new ReaderColumnConfiguration("Id", new IntConverter(), string.Empty),
+                        new ReaderColumnConfiguration("Name", new StringConverter(), string.Empty),
+                        new ReaderColumnConfiguration("Value1", "ValueString", new StringConverter(), string.Empty),
+                        new ReaderColumnConfiguration("Value2", "ValueInt", new IntConverter()),
+                        new ReaderColumnConfiguration("Value3", "ValueDate", new DateConverter()),
+                        new ReaderColumnConfiguration("Value4", "ValueDouble", new DoubleConverter())
                     }
             };
 

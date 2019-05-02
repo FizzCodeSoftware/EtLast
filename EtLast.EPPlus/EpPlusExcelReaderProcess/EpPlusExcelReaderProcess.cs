@@ -14,6 +14,12 @@
         public int SheetIndex { get; set; } = -1;
 
         /// <summary>
+        /// Optional, preloaded Excel file. In case this property is provided, the FileName property is used only for logging purposes.
+        /// Usage example: reader.PreLoadedFile = new ExcelPackage(new FileInfo(fileName));
+        /// </summary>
+        public ExcelPackage PreLoadedFile { get; set; }
+
+        /// <summary>
         /// First row index is (integer) 1
         /// </summary>
         public string AddRowIndexToColumn { get; set; }
@@ -21,11 +27,10 @@
         public bool TreatEmptyStringAsNull { get; set; }
         public bool IgnoreNullOrEmptyRows { get; set; } = true;
 
-        public List<(string ExcelColumn, string RowColumn, ITypeConverter Converter, object ValueIfNull)> ColumnMap { get; set; }
-        public ITypeConverter DefaultConverter { get; set; }
-        public object DefaultValueIfNull { get; set; }
+        public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
+        public ReaderColumnConfiguration DefaultColumnConfiguration { get; set; }
 
-        public bool Transpose { get; set; } = false;
+        public bool Transpose { get; set; }
 
         public int[] HeaderRows { get; set; } = new[] { 1 };
 
@@ -51,7 +56,7 @@
             Caller = caller;
             if (string.IsNullOrEmpty(FileName)) throw new ProcessParameterNullException(this, nameof(FileName));
             if (string.IsNullOrEmpty(SheetName) && SheetIndex == -1) throw new ProcessParameterNullException(this, nameof(SheetName));
-            if (ColumnMap == null) throw new ProcessParameterNullException(this, nameof(ColumnMap));
+            if (ColumnConfiguration == null) throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
 
             var sw = Stopwatch.StartNew();
 
@@ -84,22 +89,25 @@
                 throw new NotImplementedException("Transpose is not finished yet, must be tested before used");
             }
 
-            var columnIndexes = new Dictionary<string, (int Index, ITypeConverter Converter, object ValueIfNull)>();
+            var columnIndexes = new Dictionary<string, (int Index, ReaderColumnConfiguration Configuration)>();
 
-            ExcelPackage package = null;
+            var package = PreLoadedFile;
+            if (package == null)
+            {
+                try
+                {
+                    package = new ExcelPackage(new FileInfo(FileName));
+                }
+                catch (Exception ex)
+                {
+                    var exception = new EtlException(this, "excel file read failed", ex);
+                    exception.AddOpsMessage(string.Format("excel file read failed, file name: {0}, message {1}", FileName, ex.Message));
+                    exception.Data.Add("FileName", FileName);
+                    throw exception;
+                }
+            }
+
             try
-            {
-                package = new ExcelPackage(new FileInfo(FileName));
-            }
-            catch (Exception ex)
-            {
-                var exception = new EtlException(this, "excel file read failed", ex);
-                exception.AddOpsMessage(string.Format("excel file read failed, file name: {0}, message {1}", FileName, ex.Message));
-                exception.Data.Add("FileName", FileName);
-                throw exception;
-            }
-
-            using (package)
             {
                 package.Compatibility.IsWorksheets1Based = false;
                 var workbook = package.Workbook;
@@ -157,14 +165,15 @@
 
                     if (string.IsNullOrEmpty(excelColumn)) continue;
 
-                    var givenColumn = ColumnMap.FirstOrDefault(x => string.Compare(x.ExcelColumn, excelColumn, true) == 0);
-                    if (givenColumn.RowColumn != null)
+                    var columnConfiguration = ColumnConfiguration.Find(x => string.Compare(x.SourceColumn, excelColumn, true) == 0);
+                    if (columnConfiguration != null)
                     {
-                        columnIndexes.Add(givenColumn.RowColumn, (colIndex, givenColumn.Converter, givenColumn.ValueIfNull));
+                        var column = columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn;
+                        columnIndexes.Add(column, (colIndex, columnConfiguration));
                     }
-                    else if (DefaultConverter != null)
+                    else if (DefaultColumnConfiguration != null)
                     {
-                        columnIndexes.Add(excelColumn, (colIndex, DefaultConverter, DefaultValueIfNull));
+                        columnIndexes.Add(excelColumn, (colIndex, DefaultColumnConfiguration));
                     }
                 }
 
@@ -201,35 +210,8 @@
                             value = null;
                         }
 
-                        if (value != null && kvp.Value.Converter != null)
-                        {
-                            var newValue = kvp.Value.Converter.Convert(value);
-                            if (newValue != null)
-                            {
-                                value = newValue;
-                            }
-                            else
-                            {
-                                Context.Log(LogSeverity.Debug, this, "failed converting '{OriginalColumn}' in row #{RowIndex}: '{ValueAsString}' ({ValueType}) using {ConverterType}", kvp.Key, ri, value.ToString(), value.GetType().Name, kvp.Value.Converter.GetType().Name);
-
-                                row.SetValue(kvp.Key, new EtlRowError()
-                                {
-                                    Process = this,
-                                    Operation = null,
-                                    OriginalValue = value,
-                                    Message = string.Format("failed to convert by {0}", kvp.Value.Converter.GetType().Name),
-                                }, this);
-
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            if (value == null && kvp.Value.ValueIfNull != null)
-                            {
-                                value = kvp.Value.ValueIfNull;
-                            }
-                        }
+                        value = ReaderProcessHelper.HandleConverter(this, value, ri, kvp.Key, kvp.Value.Configuration, row, out var error);
+                        if (error) continue;
 
                         row.SetValue(kvp.Key, value, this);
                     }
@@ -240,6 +222,14 @@
                     index++;
                     if (AddRowIndexToColumn != null) row.SetValue(AddRowIndexToColumn, index, this);
                     yield return row;
+                }
+            }
+            finally
+            {
+                if (PreLoadedFile != null)
+                {
+                    package.Dispose();
+                    package = null;
                 }
             }
 
