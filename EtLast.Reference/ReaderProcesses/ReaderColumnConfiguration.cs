@@ -8,10 +8,16 @@
         public object ValueIfSourceIsNull { get; set; }
         public object ValueIfConversionFailed { get; set; }
 
+        public ReaderColumnConfiguration(ITypeConverter converter, object valueIfSourceIsNull = null, object valueIfConversionFailed = null)
+        {
+            Converter = converter;
+            ValueIfSourceIsNull = valueIfSourceIsNull;
+            ValueIfConversionFailed = valueIfConversionFailed;
+        }
+
         public ReaderColumnConfiguration(string sourceColumn, ITypeConverter converter, object valueIfSourceIsNull = null, object valueIfConversionFailed = null)
         {
             SourceColumn = sourceColumn;
-            RowColumn = null;
             Converter = converter;
             ValueIfSourceIsNull = valueIfSourceIsNull;
             ValueIfConversionFailed = valueIfConversionFailed;
