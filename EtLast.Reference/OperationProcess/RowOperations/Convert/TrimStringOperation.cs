@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast
+﻿using System.Linq;
+
+namespace FizzCode.EtLast
 {
     public class TrimStringOperation : AbstractRowOperation
     {
@@ -10,25 +12,17 @@
             var result = If?.Invoke(row) != false;
             if (!result) return;
 
-            if (Columns != null)
+            var columns = Columns ?? row.Values.Select(x => x.Key).ToArray();
+
+            foreach (var column in Columns)
             {
-                foreach (var column in Columns)
+                var source = row[column];
+                if (source is string str && !string.IsNullOrEmpty(str))
                 {
-                    var source = row[column];
-                    if (source is string str && !string.IsNullOrEmpty(str))
+                    var trimmed = str.Trim();
+                    if (trimmed != str)
                     {
-                        row.SetValue(column, str.Trim(), this);
-                    }
-                }
-            }
-            else
-            {
-                foreach (var kvp in row.Values)
-                {
-                    var source = row[kvp.Key];
-                    if (source is string str && !string.IsNullOrEmpty(str))
-                    {
-                        row.SetValue(kvp.Key, str.Trim(), this);
+                        row.SetValue(column, trimmed, this);
                     }
                 }
             }
