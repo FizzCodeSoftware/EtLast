@@ -117,8 +117,6 @@
 
             while (true)
             {
-                Thread.Sleep(Configuration.MainLoopDelay);
-
                 WipeAndGet(finished, swProcessing, true, ref wipedRowCount);
 
                 if (finished.Count > 0)
@@ -135,6 +133,8 @@
                 }
 
                 if (TestDone()) break;
+
+                Thread.Sleep(Configuration.MainLoopDelay);
             }
 
             // safely ignore Configuration.KeepOrder because _rows is already ordered
@@ -244,11 +244,11 @@
 
             while (true)
             {
-                Thread.Sleep(Configuration.MainLoopDelay);
-
                 Wipe(swProcessing, ref wipedRowCount);
 
                 if (TestDone()) break;
+
+                Thread.Sleep(Configuration.MainLoopDelay);
             }
 
             WaitForWorkerThread();

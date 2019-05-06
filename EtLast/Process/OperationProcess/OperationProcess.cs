@@ -82,19 +82,22 @@
                                     yield return finishedRow;
                                 }
 
-                                Context.Log(LogSeverity.Debug, this, "returned {RowCount} rows of {OutputRowCount} in total, read input rows: {InputRowCount}, active rows: {ActiveRowCount}",
-                                    finished.Count, resultCount, inputRowCount, ActiveRowCount);
+                                Context.Log(LogSeverity.Debug, this, "returned {RowCount} rows of {OutputRowCount} in total, read input rows: {InputRowCount}, active rows: {ActiveRowCount}", finished.Count, resultCount, inputRowCount, ActiveRowCount);
 
                                 finished.Clear();
                             }
                         }
 
                         if (ActiveRowCount <= Configuration.ThrottlingLimit) break;
+
                         if (swSleep.IsRunning)
                         {
                             if (swSleep.ElapsedMilliseconds >= Configuration.ThrottlingMaxSleep) break;
                         }
-                        else swSleep.Restart();
+                        else
+                        {
+                            swSleep.Restart();
+                        }
 
                         Thread.Sleep(Configuration.ThrottlingSleepResolution);
                     }
@@ -119,8 +122,6 @@
 
             while (true)
             {
-                Thread.Sleep(Configuration.MainLoopDelay);
-
                 WipeAndGet(finished, swProcessing, Configuration.KeepOrder, ref wipedRowCount);
 
                 if (finished.Count > 0)
@@ -137,6 +138,8 @@
                 }
 
                 if (TestDone()) break;
+
+                Thread.Sleep(Configuration.MainLoopDelay);
             }
 
             // safely ignore Configuration.KeepOrder because _rows is already ordered
@@ -220,11 +223,15 @@
                         }
 
                         if (ActiveRowCount <= Configuration.ThrottlingLimit) break;
+
                         if (swSleep != null)
                         {
                             if (swSleep.ElapsedMilliseconds >= Configuration.ThrottlingMaxSleep) break;
                         }
-                        else swSleep = Stopwatch.StartNew();
+                        else
+                        {
+                            swSleep = Stopwatch.StartNew();
+                        }
 
                         Thread.Sleep(Configuration.ThrottlingSleepResolution);
                     }
@@ -248,11 +255,11 @@
 
             while (true)
             {
-                Thread.Sleep(Configuration.MainLoopDelay);
-
                 Wipe(swProcessing, ref wipedRowCount);
 
                 if (TestDone()) break;
+
+                Thread.Sleep(Configuration.MainLoopDelay);
             }
 
             WaitForWorkerThreads();
