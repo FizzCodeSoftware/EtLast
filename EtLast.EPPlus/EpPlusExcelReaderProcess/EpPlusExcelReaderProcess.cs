@@ -32,6 +32,8 @@
 
         public bool Transpose { get; set; }
 
+        public bool Unmerge { get; set; } = true;
+
         public int[] HeaderRows { get; set; } = new[] { 1 };
 
         /// <summary>
@@ -143,7 +145,7 @@
                         {
                             var ri = HeaderRows[headerRowIndex];
 
-                            var c = sheet.Cells[ri, colIndex].Value?.ToString();
+                            var c = GetCellUnmerged(sheet, ri, colIndex)?.Value?.ToString();
                             if (!string.IsNullOrEmpty(c))
                             {
                                 if (HeaderCellMode == EpPlusExcelHeaderCellMode.Join)
@@ -154,7 +156,10 @@
                                 {
                                     if (string.IsNullOrEmpty(excelColumn)) excelColumn = c;
                                 }
-                                else excelColumn = c;
+                                else
+                                {
+                                    excelColumn = c;
+                                }
                             }
                         }
                     }
@@ -189,7 +194,7 @@
                             var ri = !Transpose ? rowIndex : kvp.Value.Index;
                             var ci = !Transpose ? kvp.Value.Index : rowIndex;
 
-                            if (sheet.Cells[ri, ci].Value != null)
+                            if (GetCellUnmerged(sheet, ri, ci)?.Value != null)
                             {
                                 empty = false;
                                 break;
@@ -204,7 +209,7 @@
                         var ri = !Transpose ? rowIndex : kvp.Value.Index;
                         var ci = !Transpose ? kvp.Value.Index : rowIndex;
 
-                        var value = sheet.Cells[ri, ci].Value;
+                        var value = GetCellUnmerged(sheet, ri, ci)?.Value;
                         if (value != null && TreatEmptyStringAsNull && (value is string str) && str == string.Empty)
                         {
                             value = null;
@@ -234,6 +239,17 @@
             }
 
             Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, sw.Elapsed);
+        }
+
+        private ExcelRange GetCellUnmerged(ExcelWorksheet sheet, int row, int col)
+        {
+            if (!Unmerge) return sheet.Cells[row, col];
+
+            var mergedCellAddress = sheet.MergedCells[row, col];
+            if (mergedCellAddress == null) return sheet.Cells[row, col];
+
+            var address = new ExcelAddress(mergedCellAddress);
+            return sheet.Cells[address.Start.Address];
         }
     }
 }

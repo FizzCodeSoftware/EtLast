@@ -50,11 +50,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ReadExcelSampleErrorsTests.cs" />
+    <Compile Include="ReadExcelMergeTests.cs" />
     <Compile Include="ReadExcelSampleTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="TestData\Merge.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestData\Sample.xlsx" />
     <None Include="TestData\SampleErrors.xlsx" />
   </ItemGroup>

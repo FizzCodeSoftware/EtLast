@@ -9,7 +9,7 @@
     using System.Linq;
 
     [TestClass]
-    public class ReadExcelSampleTests
+    public class ReadExcelMergeTests
     {
         private IOperationProcess _process;
         private EpPlusExcelReaderProcess _epPlusExcelReaderProcess;
@@ -27,7 +27,7 @@
 
             _epPlusExcelReaderProcess = new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess")
             {
-                FileName = @"..\..\TestData\Sample.xlsx",
+                FileName = @"TestData\Merge.xlsx",
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
                     {
                         new ReaderColumnConfiguration("Id", new IntConverter(), string.Empty),
@@ -54,7 +54,7 @@
             _epPlusExcelReaderProcess.SheetName = "Sheet1";
 
             var result = _process.Evaluate().ToList();
-            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(3, result.Count);
         }
 
         [TestMethod]
@@ -63,7 +63,7 @@
             _epPlusExcelReaderProcess.SheetIndex = 0;
 
             var result = _process.Evaluate().ToList();
-            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(3, result.Count);
         }
 
         [TestMethod]
@@ -72,12 +72,13 @@
             _epPlusExcelReaderProcess.SheetName = "Sheet1";
 
             var result = _process.Evaluate().ToList();
-            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(3, result.Count);
 
             Assert.That.RowsAreEqual(RowHelper.CreateRows(
                 new object[] { "Id", 0, "Name", "A", "ValueString", "AAA", "ValueInt", -1, "ValueDate", null },
-                new object[] { "Id", 1, "Name", "B", "ValueString", string.Empty, "ValueInt", 3, "ValueDate", new DateTime(2019, 04, 25), "ValueDouble", 1.234D })
-                , result
+                new object[] { "Id", 1, "Name", "B", "ValueString", "AAA", "ValueInt", 3, "ValueDate", new DateTime(2019, 04, 25), "ValueDouble", 1.234D },
+                new object[] { "Id", 2, "Name", "C", "ValueString", "C", "ValueInt", 3, "ValueDate", new DateTime(2019, 04, 25), "ValueDouble", 1.234D }
+                ), result
             );
         }
     }

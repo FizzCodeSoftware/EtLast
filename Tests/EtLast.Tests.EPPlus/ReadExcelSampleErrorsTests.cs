@@ -47,7 +47,7 @@
         {
             _epPlusExcelReaderProcess.SheetName = "Date0";
 
-            List<IRow> result = _process.Evaluate().ToList();
+            var result = _process.Evaluate().ToList();
             Assert.AreEqual(2, result.Count);
 
             Assert.That.RowsAreEqual(RowHelper.CreateRows(
