@@ -6,6 +6,7 @@
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
 
     public class EpPlusExcelReaderProcess : AbstractBaseProducerProcess, IEpPlusExcelReaderProcess
     {
@@ -60,6 +61,10 @@
             if (string.IsNullOrEmpty(SheetName) && SheetIndex == -1) throw new ProcessParameterNullException(this, nameof(SheetName));
             if (ColumnConfiguration == null) throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
 
+            var baseFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            if (!baseFolder.EndsWith(Path.DirectorySeparatorChar.ToString())) baseFolder += Path.DirectorySeparatorChar;
+            var relativeFileName = new Uri(baseFolder).MakeRelativeUri(new Uri(FileName)).OriginalString.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+
             var sw = Stopwatch.StartNew();
 
             var evaluateInputProcess = EvaluateInputProcess(sw, (row, rowCount, process) =>
@@ -83,8 +88,8 @@
             }
 
             var resultCount = 0;
-            if (!string.IsNullOrEmpty(SheetName)) Context.Log(LogSeverity.Information, this, "reading from {FileName}/{SheetName}", FileName, SheetName);
-            else Context.Log(LogSeverity.Information, this, "reading from {FileName}/#{SheetIndex}", FileName, SheetIndex);
+            if (!string.IsNullOrEmpty(SheetName)) Context.Log(LogSeverity.Information, this, "reading from {RelativeFileName}/{SheetName}", relativeFileName, SheetName);
+            else Context.Log(LogSeverity.Information, this, "reading from {RelativeFileName}/#{SheetIndex}", relativeFileName, SheetIndex);
 
             if (Transpose)
             {

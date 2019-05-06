@@ -51,6 +51,7 @@
 
             var resultCount = 0;
 
+            LogAction();
             var statement = CreateSqlStatement();
 
             DatabaseConnection connection = null;
@@ -64,7 +65,7 @@
                 cmd = connection.Connection.CreateCommand();
                 cmd.CommandTimeout = CommandTimeout;
                 cmd.CommandText = statement;
-                Context.Log(LogSeverity.Information, this, "reading from {ConnectionStringKey} using query {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionStringKey, cmd.CommandText, cmd.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+                Context.Log(LogSeverity.Debug, this, "executing query {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionStringKey, cmd.CommandText, cmd.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
 
                 swQuery = Stopwatch.StartNew();
                 try
@@ -127,15 +128,21 @@
             {
                 reader.Close();
                 reader.Dispose();
+                reader = null;
             }
 
-            cmd?.Dispose();
+            if (cmd != null)
+            {
+                cmd.Dispose();
+                cmd = null;
+            }
 
             ConnectionManager.ReleaseConnection(ref connection);
 
             Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, sw.Elapsed);
         }
 
+        protected abstract void LogAction();
         protected abstract string CreateSqlStatement();
     }
 }

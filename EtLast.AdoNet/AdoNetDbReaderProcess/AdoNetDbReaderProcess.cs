@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Transactions;
 
     public class AdoNetDbReaderProcess : AbstractAdoNetDbReaderProcess
     {
@@ -92,6 +93,11 @@
             }
 
             return "SELECT " + (!string.IsNullOrEmpty(prefix) ? prefix + " " : "") + columnList + " FROM " + tableName + (!string.IsNullOrEmpty(postfix) ? " " + postfix : "");
+        }
+
+        protected override void LogAction()
+        {
+            Context.Log(LogSeverity.Information, this, "reading from {ConnectionStringKey}/{TableName}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionStringKey, TableName, CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
         }
     }
 }

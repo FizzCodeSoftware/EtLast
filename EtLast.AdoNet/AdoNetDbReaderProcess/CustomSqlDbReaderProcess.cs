@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System.Collections.Generic;
+    using System.Transactions;
 
     public class CustomSqlAdoNetDbReaderProcess : AbstractAdoNetDbReaderProcess
     {
@@ -21,6 +22,11 @@
         protected override string CreateSqlStatement()
         {
             return Sql;
+        }
+
+        protected override void LogAction()
+        {
+            Context.Log(LogSeverity.Information, this, "reading from {ConnectionStringKey} using custom query, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionStringKey, CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
         }
     }
 }
