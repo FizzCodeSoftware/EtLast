@@ -23,7 +23,27 @@
         public string Name { get; }
         public IEtlContext Context { get; }
         public IProcess Caller { get; protected set; }
-        public IReadOnlyList<IRowOperation> Operations => _operations;
+        public IEnumerable<IRowOperation> Operations
+        {
+            get => _operations;
+            set => SetOperations(value);
+        }
+
+        private void SetOperations(IEnumerable<IRowOperation> operations)
+        {
+            foreach (var op in _operations)
+            {
+                op.SetParentGroup(null, null, 0);
+            }
+
+            _operations.Clear();
+
+            foreach (var op in operations)
+            {
+                AddOperation(op);
+            }
+        }
+
         public IProcess InputProcess { get; set; }
 
         protected AbstractOperationProcess(IEtlContext context, string name = null)
@@ -35,7 +55,7 @@
         public T AddOperation<T>(T operation)
             where T : IRowOperation
         {
-            operation.SetParent(this, Operations.Count);
+            operation.SetParent(this, _operations.Count);
 
             if (_operations.Count > 0)
             {
@@ -120,14 +140,14 @@
             IRowOperation nextOp = null;
             if (row.CurrentOperation != null)
             {
-                if (row.CurrentOperation.Index < Operations.Count - 1)
+                if (row.CurrentOperation.Index < _operations.Count - 1)
                 {
-                    nextOp = Operations[row.CurrentOperation.Index + 1];
+                    nextOp = _operations[row.CurrentOperation.Index + 1];
                 }
             }
             else
             {
-                nextOp = Operations.FirstOrDefault();
+                nextOp = _operations.FirstOrDefault();
             }
 
             return nextOp;
