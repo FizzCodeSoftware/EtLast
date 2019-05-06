@@ -8,7 +8,7 @@
     public class RenameColumnsOperation : AbstractRowOperation
     {
         public IfDelegate If { get; set; }
-        public List<(string CurrentName, string NewName)> Names { get; set; }
+        public List<ColumnRenameConfiguration> ColumnConfiguration { get; set; }
         public InvalidOperationAction ActionIfInvalid { get; set; } = InvalidOperationAction.Throw;
 
         public override void Apply(IRow row)
@@ -16,9 +16,9 @@
             var result = If?.Invoke(row) != false;
             if (!result) return;
 
-            foreach (var (currentName, newName) in Names)
+            foreach (var config in ColumnConfiguration)
             {
-                if (row.Exists(newName))
+                if (row.Exists(config.NewName))
                 {
                     switch (ActionIfInvalid)
                     {
@@ -29,21 +29,21 @@
                             return;
                         default:
                             var exception = new OperationExecutionException(Process, this, row, "specified target column already exists");
-                            exception.Data.Add("CurrentName", currentName);
-                            exception.Data.Add("NewName", newName);
+                            exception.Data.Add("CurrentName", config.CurrentName);
+                            exception.Data.Add("NewName", config.NewName);
                             throw exception;
                     }
                 }
 
-                var value = row[currentName];
-                row.RemoveColumn(currentName, this);
-                row.SetValue(newName, value, this);
+                var value = row[config.CurrentName];
+                row.RemoveColumn(config.CurrentName, this);
+                row.SetValue(config.NewName, value, this);
             }
         }
 
         public override void Prepare()
         {
-            if (Names == null) throw new OperationParameterNullException(this, nameof(Names));
+            if (ColumnConfiguration == null) throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
         }
     }
 }

@@ -10,7 +10,7 @@
 
         public override void Apply(IRow row)
         {
-            for (int level = LevelColumns.Length - 1; level >= 0; level--)
+            for (var level = LevelColumns.Length - 1; level >= 0; level--)
             {
                 var levelColumn = LevelColumns[level];
 

@@ -26,7 +26,7 @@
         protected string GenerateKey(IRow row)
         {
             _keyBuilder.Clear();
-            for (int i = 0; i < GroupingColumns.Length; i++)
+            for (var i = 0; i < GroupingColumns.Length; i++)
             {
                 var v = row[GroupingColumns[i]];
                 _keyBuilder.Append(v != null ? v.ToString() : "NULL");

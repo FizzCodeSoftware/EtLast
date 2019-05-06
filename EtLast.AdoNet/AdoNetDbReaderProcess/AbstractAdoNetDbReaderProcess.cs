@@ -98,7 +98,7 @@
                     LastDataRead = DateTime.Now;
 
                     var row = Context.CreateRow(reader.FieldCount);
-                    for (int i = 0; i < reader.FieldCount; i++)
+                    for (var i = 0; i < reader.FieldCount; i++)
                     {
                         var column = string.Intern(reader.GetName(i));
                         var value = reader.GetValue(i);

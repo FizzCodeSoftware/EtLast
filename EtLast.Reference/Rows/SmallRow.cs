@@ -20,7 +20,7 @@
         {
             get
             {
-                for (int i = 0; i < ColumnCount; i++) yield return new KeyValuePair<string, object>(_items[i].Name, _items[i].Value);
+                for (var i = 0; i < ColumnCount; i++) yield return new KeyValuePair<string, object>(_items[i].Name, _items[i].Value);
             }
         }
 
@@ -38,7 +38,7 @@
 
         protected override object InternalGetValue(string column)
         {
-            for (int i = 0; i < ColumnCount; i++)
+            for (var i = 0; i < ColumnCount; i++)
                 if (_items[i].Name == column) return _items[i].Value;
 
             return null;
@@ -72,7 +72,7 @@
                 }
             }
 
-            for (int i = 0; i < ColumnCount; i++)
+            for (var i = 0; i < ColumnCount; i++)
             {
                 if (_items[i].Name == column)
                 {
@@ -95,7 +95,7 @@
 
         protected override void InternalRemoveColumn(string column, IProcess process, IBaseOperation operation)
         {
-            for (int i = 0; i < _items.Length; i++)
+            for (var i = 0; i < _items.Length; i++)
             {
                 if (_items[i].Name == column)
                 {

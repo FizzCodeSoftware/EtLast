@@ -135,7 +135,7 @@
                 var endColumn = !Transpose ? sheet.Dimension.End.Column : sheet.Dimension.End.Row;
                 var endRow = !Transpose ? sheet.Dimension.End.Row : sheet.Dimension.End.Column;
 
-                for (int colIndex = FirstDataColumn; colIndex <= endColumn; colIndex++)
+                for (var colIndex = FirstDataColumn; colIndex <= endColumn; colIndex++)
                 {
                     var excelColumn = string.Empty;
 
@@ -182,7 +182,7 @@
                     }
                 }
 
-                for (int rowIndex = FirstDataRow; rowIndex <= endRow; rowIndex++)
+                for (var rowIndex = FirstDataRow; rowIndex <= endRow; rowIndex++)
                 {
                     var row = Context.CreateRow(columnIndexes.Count);
 

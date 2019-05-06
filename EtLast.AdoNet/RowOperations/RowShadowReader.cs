@@ -46,7 +46,7 @@
             };
 
             var rowData = new object[5];
-            for (int i = 0; i < _columns.Length; i++)
+            for (var i = 0; i < _columns.Length; i++)
             {
                 rowData[0] = i;
                 rowData[1] = _columns[i];
@@ -240,7 +240,7 @@
             var rows = Rows; // cache on stack
 
             var count = Math.Min(values.Length, _columns.Length);
-            for (int i = 0; i < count; i++) values[i] = rows[_currentIndex, i] ?? DBNull.Value;
+            for (var i = 0; i < count; i++) values[i] = rows[_currentIndex, i] ?? DBNull.Value;
 
             return count;
         }

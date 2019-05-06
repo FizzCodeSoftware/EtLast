@@ -37,7 +37,7 @@
             var value = GetAppSetting(key);
             if (string.IsNullOrEmpty(value)) return defaultValue;
 
-            if (int.TryParse(value, out int iv)) return iv;
+            if (int.TryParse(value, out var iv)) return iv;
             return defaultValue;
         }
 

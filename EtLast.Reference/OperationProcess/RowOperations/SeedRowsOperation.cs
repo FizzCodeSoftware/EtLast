@@ -14,13 +14,13 @@
             var rnd = new Random();
 
             var buffer = new List<IRow>();
-            for (int id = 0; id < RowCount; id++)
+            for (var id = 0; id < RowCount; id++)
             {
                 var newRow = Process.Context.CreateRow();
                 newRow.CurrentOperation = this;
 
                 var inputRow = Columns.Select(col => CreateRandomObject(id, col, rnd)).ToArray();
-                for (int i = 0; i < Math.Min(Columns.Length, inputRow.Length); i++)
+                for (var i = 0; i < Math.Min(Columns.Length, inputRow.Length); i++)
                 {
                     newRow.SetValue(Columns[i], inputRow[i], this);
                 }
@@ -72,7 +72,7 @@
             {
                 var n = rnd.Next(3, 10);
                 var text = string.Empty;
-                for (int i = 0; i < n; i++)
+                for (var i = 0; i < n; i++)
                 {
                     text += (char)(65 + rnd.Next(26));
                 }
@@ -87,7 +87,7 @@
                 case 9:
                     var n = rnd.Next(3, 10);
                     var text = string.Empty;
-                    for (int i = 0; i < n; i++)
+                    for (var i = 0; i < n; i++)
                     {
                         text += (char)(65 + rnd.Next(26));
                     }

@@ -54,7 +54,7 @@
                 Value = null
             });
 
-            List<IRow> result = _process.Evaluate().ToList();
+            var result = _process.Evaluate().ToList();
             Assert.AreEqual(2, result.Count);
 
             Assert.That.RowsAreEqual(RowHelper.CreateRows(
@@ -68,7 +68,7 @@
         public void InvalidConversion()
         {
             _delimitedFileReaderProcess.FileName = @"..\..\TestData\SampleInvalidConversion.csv";
-            List<IRow> result = _process.Evaluate().ToList();
+            var result = _process.Evaluate().ToList();
 
             // TODO check exception
 

@@ -51,7 +51,7 @@
 
         public string GetDbColumnName(string rowColumnName)
         {
-            return (_map != null && _map.TryGetValue(rowColumnName, out string dbColumnName)) ? dbColumnName : rowColumnName;
+            return (_map != null && _map.TryGetValue(rowColumnName, out var dbColumnName)) ? dbColumnName : rowColumnName;
         }
     }
 }

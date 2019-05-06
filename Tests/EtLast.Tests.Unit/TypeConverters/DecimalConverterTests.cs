@@ -10,7 +10,7 @@
         {
             // CultureInfo.InvariantCulture uses . as a decimal separator, and , as a thousands separator. 
             var converter = new DecimalConverter(true);
-            string value = "1.234";
+            var value = "1.234";
             var result = converter.Convert(value);
 
             Assert.AreEqual(1.234m, result);

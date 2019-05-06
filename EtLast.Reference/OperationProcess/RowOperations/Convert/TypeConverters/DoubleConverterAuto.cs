@@ -27,7 +27,7 @@
 
             if (source is string str)
             {
-                if (double.TryParse(str, NumberStylesHint, FormatProviderHint, out double value))
+                if (double.TryParse(str, NumberStylesHint, FormatProviderHint, out var value))
                 {
                     return value;
                 }

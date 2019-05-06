@@ -10,7 +10,7 @@
         {
             // CultureInfo.InvariantCulture uses . as a decimal separator, and , as a thousands separator. 
             var converter = new DoubleConverter(true);
-            string value = "1.234";
+            var value = "1.234";
             var result = converter.Convert(value);
 
             Assert.AreEqual(1.234D, result);
@@ -21,7 +21,7 @@
         {
             // CultureInfo.InvariantCulture uses . as a decimal separator, and , as a thousands separator. 
             var converter = new DoubleConverter(true);
-            string value = "1x234";
+            var value = "1x234";
             var result = converter.Convert(value);
 
             // Failed conversion expected, defaulting to null

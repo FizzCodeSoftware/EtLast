@@ -23,13 +23,14 @@
         public string Name { get; }
         public IEtlContext Context { get; }
         public IProcess Caller { get; protected set; }
-        public IEnumerable<IRowOperation> Operations
+
+        public List<IRowOperation> Operations
         {
             get => _operations;
             set => SetOperations(value);
         }
 
-        private void SetOperations(IEnumerable<IRowOperation> operations)
+        private void SetOperations(List<IRowOperation> operations)
         {
             foreach (var op in _operations)
             {
@@ -192,7 +193,7 @@
                     else
                     {
                         var lastRemoveableIndex = -1;
-                        for (int i = 0; i < Rows.Count; i++)
+                        for (var i = 0; i < Rows.Count; i++)
                         {
                             if (Rows[i].State == RowState.Finished)
                             {

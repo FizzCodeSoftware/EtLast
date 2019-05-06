@@ -35,12 +35,12 @@
             {
                 if (FormatProviderHint != null)
                 {
-                    if (TimeSpan.TryParse(str, FormatProviderHint, out TimeSpan tsValue))
+                    if (TimeSpan.TryParse(str, FormatProviderHint, out var tsValue))
                     {
                         return tsValue;
                     }
 
-                    if (DateTime.TryParse(str, FormatProviderHint, DateTimeStyles.AllowWhiteSpaces, out DateTime dtValue))
+                    if (DateTime.TryParse(str, FormatProviderHint, DateTimeStyles.AllowWhiteSpaces, out var dtValue))
                     {
                         return new TimeSpan(0, dtValue.Hour, dtValue.Minute, dtValue.Second, dtValue.Millisecond);
                     }
@@ -58,7 +58,7 @@
 
                 if (FormatHint != null)
                 {
-                    if (DateTime.TryParseExact(str, FormatHint, FormatProviderHint, DateTimeStyles.None, out DateTime dtValue))
+                    if (DateTime.TryParseExact(str, FormatHint, FormatProviderHint, DateTimeStyles.None, out var dtValue))
                     {
                         return new TimeSpan(0, dtValue.Hour, dtValue.Minute, dtValue.Second, dtValue.Millisecond);
                     }

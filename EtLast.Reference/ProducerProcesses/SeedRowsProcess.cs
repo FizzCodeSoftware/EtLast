@@ -32,7 +32,7 @@
                 var row = Context.CreateRow();
 
                 var inputRow = Columns.Select(col => CreateRandomObject(id, col)).ToArray();
-                for (int i = 0; i < Math.Min(Columns.Length, inputRow.Length); i++)
+                for (var i = 0; i < Math.Min(Columns.Length, inputRow.Length); i++)
                 {
                     row.SetValue(Columns[i], inputRow[i], this);
                 }
@@ -76,7 +76,7 @@
             if (column.EndsWith("code2", StringComparison.OrdinalIgnoreCase))
             {
                 var text = string.Empty;
-                for (int i = 0; i < 2; i++)
+                for (var i = 0; i < 2; i++)
                 {
                     text += (char)(65 + Rnd.Next(26));
                 }
@@ -88,7 +88,7 @@
             {
                 var n = Rnd.Next(3, 10);
                 var text = string.Empty;
-                for (int i = 0; i < n; i++)
+                for (var i = 0; i < n; i++)
                 {
                     text += (char)(65 + Rnd.Next(26));
                 }
@@ -103,7 +103,7 @@
                 case 9:
                     var n = Rnd.Next(3, 10);
                     var text = string.Empty;
-                    for (int i = 0; i < n; i++)
+                    for (var i = 0; i < n; i++)
                     {
                         text += (char)(65 + Rnd.Next(26));
                     }

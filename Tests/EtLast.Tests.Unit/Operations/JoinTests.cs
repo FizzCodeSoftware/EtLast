@@ -57,9 +57,9 @@
                 },
                 LeftKeySelector = row => row.GetAs<int>("id").ToString(),
                 RightKeySelector = row => row.GetAs<int>("fk").ToString(),
-                ColumnMap = new List<(string ColumnOnRightSide, string ColumnOnLeftSide)>
+                ColumnConfiguration = new List<ColumnCopyConfiguration>
                 {
-                    ("color", "color"),
+                    new ColumnCopyConfiguration("color"),
                 }
             });
 

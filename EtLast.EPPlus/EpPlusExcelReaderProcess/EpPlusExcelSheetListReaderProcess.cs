@@ -46,7 +46,7 @@
                 var workbook = package.Workbook;
                 if (workbook == null || workbook.Worksheets.Count == 0) yield break;
 
-                for (int i = 0; i < workbook.Worksheets.Count; i++)
+                for (var i = 0; i < workbook.Worksheets.Count; i++)
                 {
                     var row = Context.CreateRow(4);
                     row.SetValue("Index", i, this);

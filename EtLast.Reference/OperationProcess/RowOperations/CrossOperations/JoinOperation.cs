@@ -10,8 +10,8 @@
         public NoMatchMode Mode { get; set; }
         public IfDelegate If { get; set; }
         public JoinRightRowFilterDelegate RightRowFilter { get; set; }
-        public List<(string LeftColumn, string RightColumn)> ColumnMap { get; set; }
-        private readonly Dictionary<string, string> _map = new Dictionary<string, string>();
+        public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
+        private readonly Dictionary<string, ColumnCopyConfiguration> _map = new Dictionary<string, ColumnCopyConfiguration>();
         private readonly Dictionary<string, List<IRow>> _lookup = new Dictionary<string, List<IRow>>();
 
         public JoinOperation(NoMatchMode mode)
@@ -21,19 +21,16 @@
 
         public override void Apply(IRow row)
         {
-            if (If != null)
+            if (If?.Invoke(row) == false)
             {
-                if (!If.Invoke(row))
-                {
-                    Stat.IncrementCounter("ignored", 1);
-                    return;
-                }
+                Stat.IncrementCounter("ignored", 1);
+                return;
             }
 
             Stat.IncrementCounter("processed", 1);
 
             var leftKey = GetLeftKey(Process, row);
-            if (leftKey == null || !_lookup.TryGetValue(leftKey, out List<IRow> rightRows) || rightRows.Count == 0)
+            if (leftKey == null || !_lookup.TryGetValue(leftKey, out var rightRows) || rightRows.Count == 0)
             {
                 if (Mode == NoMatchMode.RemoveIfNoMatch)
                 {
@@ -74,7 +71,7 @@
                 if (rightRows.Count > 2)
                 {
                     var newRows = new List<IRow>();
-                    for (int i = 1; i < rightRows.Count; i++)
+                    for (var i = 1; i < rightRows.Count; i++)
                     {
                         var newRow = DupeRow(Process, row, rightRows[i]);
                         newRows.Add(newRow);
@@ -91,9 +88,9 @@
 
             foreach (var kvp in rightRows[0].Values)
             {
-                if (_map.TryGetValue(kvp.Key, out string column))
+                if (_map.TryGetValue(kvp.Key, out var config))
                 {
-                    row.SetValue(column, kvp.Value, this);
+                    row.SetValue(config.ToColumn, kvp.Value, this);
                 }
             }
         }
@@ -101,11 +98,11 @@
         public override void Prepare()
         {
             base.Prepare();
-            if (ColumnMap == null) throw new OperationParameterNullException(this, nameof(ColumnMap));
+            if (ColumnConfiguration == null) throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
 
-            foreach (var (leftColumn, rightColumn) in ColumnMap)
+            foreach (var config in ColumnConfiguration)
             {
-                _map[rightColumn] = leftColumn;
+                _map[config.FromColumn] = config;
             }
 
             Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, RightProcess.Name);
@@ -118,7 +115,7 @@
                 var key = GetRightKey(Process, row);
                 if (string.IsNullOrEmpty(key)) continue;
 
-                if (!_lookup.TryGetValue(key, out List<IRow> list))
+                if (!_lookup.TryGetValue(key, out var list))
                 {
                     list = new List<IRow>();
                     _lookup.Add(key, list);
@@ -152,9 +149,9 @@
 
             foreach (var kvp in rightRow.Values)
             {
-                if (_map.TryGetValue(kvp.Key, out string column))
+                if (_map.TryGetValue(kvp.Key, out var column))
                 {
-                    newRow.SetValue(column, kvp.Value, this);
+                    newRow.SetValue(column.ToColumn, kvp.Value, this);
                 }
             }
 

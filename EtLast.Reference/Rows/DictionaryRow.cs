@@ -21,7 +21,7 @@
 
         protected override object InternalGetValue(string column)
         {
-            if (_values.TryGetValue(column, out object value)) return value;
+            if (_values.TryGetValue(column, out var value)) return value;
             return null;
         }
 

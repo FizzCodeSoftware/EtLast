@@ -33,10 +33,10 @@
                 if (UseInvariantCluture)
                     numberFormatInfo = CultureInfo.InvariantCulture.NumberFormat;
 
-                if (decimal.TryParse(str, NumberStyles.Number, numberFormatInfo, out decimal value)) return value;
-                else if (double.TryParse(str, NumberStyles.Number, numberFormatInfo, out double dfv)) return dfv;
-                else if (float.TryParse(str, NumberStyles.Number, numberFormatInfo, out float sfv)) return System.Convert.ToDouble(sfv);
-                else if (int.TryParse(str, NumberStyles.Number, numberFormatInfo, out int siv)) return System.Convert.ToDouble(siv);
+                if (decimal.TryParse(str, NumberStyles.Number, numberFormatInfo, out var value)) return value;
+                else if (double.TryParse(str, NumberStyles.Number, numberFormatInfo, out var dfv)) return dfv;
+                else if (float.TryParse(str, NumberStyles.Number, numberFormatInfo, out var sfv)) return System.Convert.ToDouble(sfv);
+                else if (int.TryParse(str, NumberStyles.Number, numberFormatInfo, out var siv)) return System.Convert.ToDouble(siv);
             }
 
             return null;

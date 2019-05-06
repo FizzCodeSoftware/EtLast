@@ -272,7 +272,7 @@
 
         private void CreateWorkerThreads()
         {
-            for (int i = 1; i <= Configuration.WorkerCount; i++)
+            for (var i = 1; i <= Configuration.WorkerCount; i++)
             {
                 var worker = (IOperationProcessWorker)Activator.CreateInstance(Configuration.WorkerType);
                 CreateWorkerThread(worker);

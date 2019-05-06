@@ -26,11 +26,11 @@
             var key = connectionStringSettings.Name + "/" + connectionStringSettings.ProviderName + "/" + (Transaction.Current != null ? Transaction.Current.TransactionInformation.CreationTime.ToString() : "-");
             Exception lastException = null;
 
-            for (int retry = 0; retry <= maxRetryCount; retry++)
+            for (var retry = 0; retry <= maxRetryCount; retry++)
             {
                 lock (Connections)
                 {
-                    if (Connections.TryGetValue(key, out DatabaseConnection connection))
+                    if (Connections.TryGetValue(key, out var connection))
                     {
                         connection.ReferenceCount++;
                         return connection;

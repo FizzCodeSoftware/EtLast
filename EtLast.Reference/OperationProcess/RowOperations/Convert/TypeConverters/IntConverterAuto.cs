@@ -29,7 +29,7 @@
                     }
                 }
 
-                if (int.TryParse(str, NumberStylesHint, FormatProviderHint, out int value))
+                if (int.TryParse(str, NumberStylesHint, FormatProviderHint, out var value))
                 {
                     return value;
                 }

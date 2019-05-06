@@ -48,7 +48,7 @@
 
             lock (_lock)
             {
-                for (int i = 0; i < Columns.Length; i++)
+                for (var i = 0; i < Columns.Length; i++)
                 {
                     _reader.Rows[_reader.RowCount, i] = row[Columns[i]];
                 }
@@ -67,7 +67,7 @@
             var recordCount = _reader.RowCount;
             _timer.Restart();
 
-            for (int retry = 0; retry <= MaxRetryCount; retry++)
+            for (var retry = 0; retry <= MaxRetryCount; retry++)
             {
                 using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew))
                 {
@@ -163,7 +163,7 @@
             _timer = new Stopwatch();
 
             var columnIndexes = new Dictionary<string, int>();
-            for (int i = 0; i < Columns.Length; i++)
+            for (var i = 0; i < Columns.Length; i++)
             {
                 columnIndexes[Columns[i]] = i;
             }

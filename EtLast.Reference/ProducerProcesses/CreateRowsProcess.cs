@@ -31,7 +31,7 @@
             {
                 var row = Context.CreateRow();
 
-                for (int i = 0; i < Math.Min(Columns.Length, inputRow.Length); i++)
+                for (var i = 0; i < Math.Min(Columns.Length, inputRow.Length); i++)
                 {
                     row.SetValue(Columns[i], inputRow[i], this);
                 }

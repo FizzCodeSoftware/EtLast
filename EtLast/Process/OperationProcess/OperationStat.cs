@@ -27,7 +27,7 @@
         {
             lock (_counters)
             {
-                _counters.TryGetValue(name, out long value);
+                _counters.TryGetValue(name, out var value);
                 _counters[name] = value += n;
             }
         }

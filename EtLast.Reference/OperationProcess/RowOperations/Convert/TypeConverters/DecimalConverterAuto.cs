@@ -29,7 +29,7 @@
                     }
                 }
 
-                if (decimal.TryParse(str, NumberStylesHint, FormatProviderHint, out decimal value))
+                if (decimal.TryParse(str, NumberStylesHint, FormatProviderHint, out var value))
                 {
                     return value;
                 }

@@ -9,7 +9,7 @@
         public void ConverObject()
         {
             var converter = new StringConverter();
-            object value = (object)"fizzcode";
+            var value = (object)"fizzcode";
             var result = converter.Convert(value);
 
             Assert.AreEqual("fizzcode", result);
