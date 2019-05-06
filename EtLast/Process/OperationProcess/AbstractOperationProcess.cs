@@ -406,6 +406,8 @@
 
             var sw = Stopwatch.StartNew();
 
+            Context.Log(LogSeverity.Information, this, "started");
+
             CreateRowQueue(BasicConfiguration.RowQueueType);
             if (Context.CancellationTokenSource.IsCancellationRequested) return;
 
@@ -510,6 +512,8 @@
             if (Context.CancellationTokenSource.IsCancellationRequested) yield break;
 
             var sw = Stopwatch.StartNew();
+
+            Context.Log(LogSeverity.Information, this, "started");
 
             CreateRowQueue(BasicConfiguration.RowQueueType);
             if (Context.CancellationTokenSource.IsCancellationRequested) yield break;
