@@ -61,9 +61,17 @@
             if (string.IsNullOrEmpty(SheetName) && SheetIndex == -1) throw new ProcessParameterNullException(this, nameof(SheetName));
             if (ColumnConfiguration == null) throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
 
-            var baseFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            if (!baseFolder.EndsWith(Path.DirectorySeparatorChar.ToString())) baseFolder += Path.DirectorySeparatorChar;
-            var relativeFileName = new Uri(baseFolder).MakeRelativeUri(new Uri(FileName)).OriginalString.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            var relativeFileName = FileName;
+            if (!FileName.StartsWith(".") && !FileName.StartsWith(Path.DirectorySeparatorChar.ToString()))
+            {
+                try
+                {
+                    var baseFolder = Path.GetDirectoryName((Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly()).Location);
+                    if (!baseFolder.EndsWith(Path.DirectorySeparatorChar.ToString())) baseFolder += Path.DirectorySeparatorChar;
+                    relativeFileName = new Uri(baseFolder).MakeRelativeUri(new Uri(FileName)).OriginalString.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+                }
+                catch (Exception) { }
+            }
 
             var sw = Stopwatch.StartNew();
 
