@@ -8,6 +8,10 @@
     public interface IEtlContext
     {
         Configuration Configuration { get; }
+
+        DateTimeOffset CreatedOnUtc { get; }
+        DateTimeOffset CreatedOnLocal { get; }
+
         CancellationTokenSource CancellationTokenSource { get; }
         ConnectionStringSettings GetConnectionStringSettings(string key);
 

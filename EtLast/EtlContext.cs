@@ -14,6 +14,10 @@
         private ConcurrentBag<Exception> Exceptions { get; } = new ConcurrentBag<Exception>();
 
         public Configuration Configuration { get; }
+
+        public DateTimeOffset CreatedOnUtc { get; }
+        public DateTimeOffset CreatedOnLocal { get; }
+
         public CancellationTokenSource CancellationTokenSource { get; }
 
         public EventHandler<ContextExceptionEventArgs> OnException { get; set; }
@@ -24,6 +28,9 @@
         public EtlContext()
             : this(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None))
         {
+            var utcNow = DateTimeOffset.UtcNow;
+            CreatedOnUtc = utcNow;
+            CreatedOnLocal = utcNow.ToLocalTime();
         }
 
         public EtlContext(Configuration configuration)
