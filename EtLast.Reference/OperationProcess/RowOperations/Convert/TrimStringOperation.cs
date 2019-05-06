@@ -13,8 +13,7 @@ namespace FizzCode.EtLast
             if (!result) return;
 
             var columns = Columns ?? row.Values.Select(x => x.Key).ToArray();
-
-            foreach (var column in Columns)
+            foreach (var column in columns)
             {
                 var source = row[column];
                 if (source is string str && !string.IsNullOrEmpty(str))
