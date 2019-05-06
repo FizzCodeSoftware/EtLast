@@ -26,7 +26,10 @@
             {
                 _map = ColumnMap.ToDictionary(x => x.RowColumn, x => x.DbColumn);
             }
-            else _map = null;
+            else
+            {
+                _map = null;
+            }
         }
 
         public string CreateRowStatement(ConnectionStringSettings settings, IRow row, AdoNetWriteToTableOperation op)

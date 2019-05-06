@@ -102,7 +102,7 @@
     <Compile Include="Process\OperationProcess\IOperationProcess.cs" />
     <Compile Include="Process\OperationProcess\IOperationProcessWorker.cs" />
     <Compile Include="Process\OperationProcess\OperationProcessConfiguration.cs" />
-    <Compile Include="Process\OperationProcess\OrderedOperationProcessConfiguration.cs" />
+    <Compile Include="Process\OperationProcess\BasicOperationProcessConfiguration.cs" />
     <Compile Include="Process\OperationProcess\OrderedOperationProcess.cs" />
     <Compile Include="Process\JobProcess\JobProcess.cs" />
     <Compile Include="EtlContext.cs" />

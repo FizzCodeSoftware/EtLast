@@ -52,7 +52,7 @@
         [TestMethod]
         public void HierarchyParentIdCalculatorTest()
         {
-            var operationProcessConfiguration = new OrderedOperationProcessConfiguration()
+            var operationProcessConfiguration = new BasicOperationProcessConfiguration()
             {
                 MainLoopDelay = 10
             };

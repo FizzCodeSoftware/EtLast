@@ -28,7 +28,10 @@
                 {
                     return (DateTime)_mySqlDateTimeValueProp.GetValue(value);
                 }
-                else return null;
+                else
+                {
+                    return null;
+                }
             }
 
             return value;

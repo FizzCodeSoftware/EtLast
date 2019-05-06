@@ -49,7 +49,10 @@
                         var parts = column.Split(new[] { "=>" }, StringSplitOptions.RemoveEmptyEntries);
                         trCol = GetTransformedColumn(parts[0].Trim()) + " AS " + parts[1].Trim() + ""; // removed automatic [x] escaping because it works only for MsSql
                     }
-                    else trCol = GetTransformedColumn(column);
+                    else
+                    {
+                        trCol = GetTransformedColumn(column);
+                    }
 
                     columns.Add(trCol);
                 }
