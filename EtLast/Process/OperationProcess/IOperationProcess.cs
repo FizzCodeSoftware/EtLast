@@ -6,7 +6,7 @@
     {
         IProcess InputProcess { get; set; }
 
-        IReadOnlyList<IRowOperation> Operations { get; }
+        List<IRowOperation> Operations { get; set; }
         T AddOperation<T>(T operation) where T : IRowOperation;
 
         void AddRow(IRow row, IRowOperation operation);

@@ -1,61 +1,46 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System;
+    using System.Configuration;
+    using System.Data;
     using System.Diagnostics;
-    using System.Threading;
     using System.Transactions;
 
-    public class CustomSqlStatementJob : AbstractJob
+    public class CustomSqlStatementJob : AbstractSqlStatementJob
     {
-        public string ConnectionStringKey { get; set; }
-        public int CommandTimeout { get; set; } = 300;
-        public bool SuppressExistingTransactionScope { get; set; } = false;
         public string SqlStatement { get; set; }
 
-        public override void Execute(IProcess process, CancellationTokenSource cancellationTokenSource)
+        protected override void Validate(IProcess process)
         {
-            if (string.IsNullOrEmpty(ConnectionStringKey)) throw new JobParameterNullException(process, this, nameof(ConnectionStringKey));
             if (string.IsNullOrEmpty(SqlStatement)) throw new JobParameterNullException(process, this, nameof(SqlStatement));
+        }
 
-            var sw = Stopwatch.StartNew();
-            var connectionStringSettings = process.Context.GetConnectionStringSettings(ConnectionStringKey);
+        protected override string CreateSqlStatement(IProcess process, ConnectionStringSettings settings)
+        {
+            return SqlStatement;
+        }
 
-            using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
+        protected override void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn)
+        {
+            process.Context.Log(LogSeverity.Debug, process, "executing custom sql statement {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}",
+                command.CommandText, ConnectionStringKey, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+
+            try
             {
-                var connection = ConnectionManager.GetConnection(connectionStringSettings, process);
-                try
-                {
-                    lock (connection.Lock)
-                    {
-                        using (var cmd = connection.Connection.CreateCommand())
-                        {
-                            cmd.CommandTimeout = CommandTimeout;
-                            cmd.CommandText = SqlStatement;
+                var recordCount = command.ExecuteNonQuery();
+                process.Context.Log(LogSeverity.Information, process, "{RecordCount} records affected in {Elapsed}", recordCount, startedOn.Elapsed);
+            }
+            catch (Exception ex)
+            {
+                var exception = new JobExecutionException(process, this, "custom sql statement failed", ex);
+                exception.AddOpsMessage(string.Format("custom sql statement failed, connection string key: {0}, message {1}, command: {2}, timeout: {3}",
+                    ConnectionStringKey, ex.Message, SqlStatement, CommandTimeout));
 
-                            process.Context.Log(LogSeverity.Debug, process, "executing custom sql statement {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}", cmd.CommandText, ConnectionStringKey, cmd.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
-
-                            try
-                            {
-                                var recordCount = cmd.ExecuteNonQuery();
-                                process.Context.Log(LogSeverity.Information, process, "{RecordCount} records affected in {Elapsed}", recordCount, sw.Elapsed);
-                            }
-                            catch (Exception ex)
-                            {
-                                var exception = new JobExecutionException(process, this, "custom sql statement failed", ex);
-                                exception.AddOpsMessage(string.Format("custom sql statement failed, connection string key: {0}, message {1}, command: {2}, timeout: {3}", ConnectionStringKey, ex.Message, SqlStatement, CommandTimeout));
-                                exception.Data.Add("ConnectionStringKey", ConnectionStringKey);
-                                exception.Data.Add("Statement", SqlStatement);
-                                exception.Data.Add("Timeout", CommandTimeout);
-                                exception.Data.Add("Elapsed", sw.Elapsed);
-                                throw exception;
-                            }
-                        }
-                    }
-                }
-                finally
-                {
-                    ConnectionManager.ReleaseConnection(ref connection);
-                }
+                exception.Data.Add("ConnectionStringKey", ConnectionStringKey);
+                exception.Data.Add("Statement", SqlStatement);
+                exception.Data.Add("Timeout", CommandTimeout);
+                exception.Data.Add("Elapsed", startedOn.Elapsed);
+                throw exception;
             }
         }
     }

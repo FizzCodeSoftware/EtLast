@@ -9,8 +9,8 @@
         public IfDelegate If { get; set; }
         public MatchingRowSelector MatchingRowSelector { get; set; }
         public KeySelector RightKeySelector { get; set; }
-        public List<(string LeftColumn, string RightColumn)> ColumnMap { get; set; }
-        private readonly Dictionary<string, string> _map = new Dictionary<string, string>();
+        public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
+        private readonly Dictionary<string, ColumnCopyConfiguration> _map = new Dictionary<string, ColumnCopyConfiguration>();
         private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();
 
         public CustomExpandOperation(NoMatchMode mode)
@@ -20,13 +20,10 @@
 
         public override void Apply(IRow row)
         {
-            if (If != null)
+            if (If?.Invoke(row) == false)
             {
-                if (!If.Invoke(row))
-                {
-                    Stat.IncrementCounter("ignored", 1);
-                    return;
-                }
+                Stat.IncrementCounter("ignored", 1);
+                return;
             }
 
             Stat.IncrementCounter("processed", 1);
@@ -49,9 +46,9 @@
 
             foreach (var kvp in rightRow.Values)
             {
-                if (_map.TryGetValue(kvp.Key, out string column))
+                if (_map.TryGetValue(kvp.Key, out var config))
                 {
-                    row.SetValue(column, kvp.Value, this);
+                    row.SetValue(config.ToColumn, kvp.Value, this);
                 }
             }
         }
@@ -61,11 +58,11 @@
             base.Prepare();
             if (MatchingRowSelector == null) throw new OperationParameterNullException(this, nameof(MatchingRowSelector));
             if (RightKeySelector == null) throw new OperationParameterNullException(this, nameof(RightKeySelector));
-            if (ColumnMap == null) throw new OperationParameterNullException(this, nameof(ColumnMap));
+            if (ColumnConfiguration == null) throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
 
-            foreach (var (leftColumn, rightColumn) in ColumnMap)
+            foreach (var config in ColumnConfiguration)
             {
-                _map[rightColumn] = leftColumn;
+                _map[config.FromColumn] = config;
             }
 
             Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, RightProcess.Name);

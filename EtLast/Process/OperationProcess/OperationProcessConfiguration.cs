@@ -2,21 +2,11 @@
 {
     using System;
 
-    public class OperationProcessConfiguration
+    public class OperationProcessConfiguration : BasicOperationProcessConfiguration
     {
         public int WorkerCount { get; set; } = Math.Max(1, MachineCpuCoreCount.Value - 1);
         public Type WorkerType { get; set; } = typeof(DefaultInProcessWorker);
-        public Type RowQueueType { get; set; } = typeof(DefaultRowQueue);
         public bool KeepOrder { get; set; } = false;
-
-        public int InputBufferSize { get; set; } = 250;
-
-        public int MainLoopDelay { get; set; } = 250;
-
-        public int ThrottlingLimit { get; set; } = 1000;
-        public int ThrottlingMaxSleep { get; set; } = 1000;
-
-        public int ThrottlingSleepResolution { get; set; } = 10;
 
         public static Lazy<int> MachineCpuCoreCount = new Lazy<int>(() =>
         {

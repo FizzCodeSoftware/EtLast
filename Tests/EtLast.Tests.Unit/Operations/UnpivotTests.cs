@@ -42,7 +42,7 @@
                 NewColumnForValue = "Value"
             });
 
-            List<IRow> result = unpivotProcess.Evaluate().ToList();
+            var result = unpivotProcess.Evaluate().ToList();
             Assert.AreEqual(6, result.Count);
             Assert.That.RowsAreEqual(RowHelper.CreateRows(
                 new object[] { "Id", 1, "Name", "A", "InventoryItem", "Cars", "Value", 1 },

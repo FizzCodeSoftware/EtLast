@@ -11,7 +11,7 @@
 
             if (source is string str)
             {
-                if (long.TryParse(str, out long value)) return value == 1;
+                if (long.TryParse(str, out var value)) return value == 1;
             }
 
             return null;

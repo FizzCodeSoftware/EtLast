@@ -6,6 +6,7 @@
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
 
     public class EpPlusExcelReaderProcess : AbstractBaseProducerProcess, IEpPlusExcelReaderProcess
     {
@@ -60,6 +61,18 @@
             if (string.IsNullOrEmpty(SheetName) && SheetIndex == -1) throw new ProcessParameterNullException(this, nameof(SheetName));
             if (ColumnConfiguration == null) throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
 
+            var relativeFileName = FileName;
+            if (!FileName.StartsWith(".") && !FileName.StartsWith(Path.DirectorySeparatorChar.ToString()))
+            {
+                try
+                {
+                    var baseFolder = Path.GetDirectoryName((Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly()).Location);
+                    if (!baseFolder.EndsWith(Path.DirectorySeparatorChar.ToString())) baseFolder += Path.DirectorySeparatorChar;
+                    relativeFileName = new Uri(baseFolder).MakeRelativeUri(new Uri(FileName)).OriginalString.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+                }
+                catch (Exception) { }
+            }
+
             var sw = Stopwatch.StartNew();
 
             var evaluateInputProcess = EvaluateInputProcess(sw, (row, rowCount, process) =>
@@ -83,8 +96,8 @@
             }
 
             var resultCount = 0;
-            if (!string.IsNullOrEmpty(SheetName)) Context.Log(LogSeverity.Information, this, "reading from {FileName}/{SheetName}", FileName, SheetName);
-            else Context.Log(LogSeverity.Information, this, "reading from {FileName}/#{SheetIndex}", FileName, SheetIndex);
+            if (!string.IsNullOrEmpty(SheetName)) Context.Log(LogSeverity.Information, this, "reading from {RelativeFileName}/{SheetName}", relativeFileName, SheetName);
+            else Context.Log(LogSeverity.Information, this, "reading from {RelativeFileName}/#{SheetIndex}", relativeFileName, SheetIndex);
 
             if (Transpose)
             {
@@ -135,7 +148,7 @@
                 var endColumn = !Transpose ? sheet.Dimension.End.Column : sheet.Dimension.End.Row;
                 var endRow = !Transpose ? sheet.Dimension.End.Row : sheet.Dimension.End.Column;
 
-                for (int colIndex = FirstDataColumn; colIndex <= endColumn; colIndex++)
+                for (var colIndex = FirstDataColumn; colIndex <= endColumn; colIndex++)
                 {
                     var excelColumn = string.Empty;
 
@@ -182,7 +195,7 @@
                     }
                 }
 
-                for (int rowIndex = FirstDataRow; rowIndex <= endRow; rowIndex++)
+                for (var rowIndex = FirstDataRow; rowIndex <= endRow; rowIndex++)
                 {
                     var row = Context.CreateRow(columnIndexes.Count);
 

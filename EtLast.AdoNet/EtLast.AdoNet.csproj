@@ -77,6 +77,7 @@
     <Compile Include="JobProcess\CustomSqlStatementJob.cs" />
     <Compile Include="JobProcess\CopyTableIntoExistingTableJob.cs" />
     <Compile Include="JobProcess\CopyTableStructureJob.cs" />
+    <Compile Include="JobProcess\AbstractSqlStatementJob.cs" />
     <Compile Include="JobProcess\TruncateTableJob.cs" />
     <Compile Include="JobProcess\DropTableJob.cs" />
     <Compile Include="JobProcess\CopyTableIntoNewTableJob.cs" />

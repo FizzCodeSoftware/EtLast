@@ -42,8 +42,8 @@
 
             AddOperation(hierarchyParentIdCalculatorProcess);
 
-            List<IRow> result = hierarchyParentIdCalculatorProcess.Evaluate().ToList();
-            List<Exception> exceptions = hierarchyParentIdCalculatorProcess.Context.GetExceptions();
+            var result = hierarchyParentIdCalculatorProcess.Evaluate().ToList();
+            var exceptions = hierarchyParentIdCalculatorProcess.Context.GetExceptions();
 
             Assert.IsTrue(exceptions[0] is InvalidOperationParameterException);
             Assert.AreEqual(0, result.Count);
@@ -52,7 +52,7 @@
         [TestMethod]
         public void HierarchyParentIdCalculatorTest()
         {
-            var operationProcessConfiguration = new OrderedOperationProcessConfiguration()
+            var operationProcessConfiguration = new BasicOperationProcessConfiguration()
             {
                 MainLoopDelay = 10
             };
@@ -71,8 +71,8 @@
 
             AddOperation(hierarchyParentIdCalculatorProcess);
 
-            List<IRow> result = hierarchyParentIdCalculatorProcess.Evaluate().ToList();
-            List<Exception> exceptions = hierarchyParentIdCalculatorProcess.Context.GetExceptions();
+            var result = hierarchyParentIdCalculatorProcess.Evaluate().ToList();
+            var exceptions = hierarchyParentIdCalculatorProcess.Context.GetExceptions();
 
             Assert.AreEqual(6, result.Count);
             Assert.AreEqual(0, exceptions.Count);

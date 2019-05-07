@@ -23,9 +23,9 @@
                 if (UseInvariantCluture)
                     numberFormatInfo = CultureInfo.InvariantCulture.NumberFormat;
 
-                if (double.TryParse(str, NumberStyles.Number, numberFormatInfo, out double value)) return value;
-                if (float.TryParse(str, NumberStyles.Number, numberFormatInfo, out float sfv)) return System.Convert.ToDouble(sfv);
-                else if (int.TryParse(str, NumberStyles.Number, numberFormatInfo, out int siv)) return System.Convert.ToDouble(siv);
+                if (double.TryParse(str, NumberStyles.Number, numberFormatInfo, out var value)) return value;
+                if (float.TryParse(str, NumberStyles.Number, numberFormatInfo, out var sfv)) return System.Convert.ToDouble(sfv);
+                else if (int.TryParse(str, NumberStyles.Number, numberFormatInfo, out var siv)) return System.Convert.ToDouble(siv);
             }
 
             return null;

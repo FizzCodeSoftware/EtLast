@@ -101,7 +101,7 @@
                         logger.Write(LogEventLevel.Information, "plugin execution finished in {Elapsed}", sw.Elapsed);
                     }
 
-                    for (int i = 0; i < Math.Min(plugins.Count, pluginResults.Count); i++)
+                    for (var i = 0; i < Math.Min(plugins.Count, pluginResults.Count); i++)
                     {
                         var plugin = plugins[i];
                         var result = pluginResults[i];

@@ -15,13 +15,10 @@
 
         public override void Apply(IRow row)
         {
-            if (If != null)
+            if (If?.Invoke(row) == false)
             {
-                if (!If.Invoke(row))
-                {
-                    Stat.IncrementCounter("ignored", 1);
-                    return;
-                }
+                Stat.IncrementCounter("ignored", 1);
+                return;
             }
 
             Stat.IncrementCounter("processed", 1);

@@ -12,14 +12,14 @@
 
             if (source is string str)
             {
-                if (DateTime.TryParse(str, out DateTime value))
+                if (DateTime.TryParse(str, out var value))
                 {
                     return value;
                 }
 
                 if (EpochDate != null)
                 {
-                    if (double.TryParse(str, out double dv))
+                    if (double.TryParse(str, out var dv))
                     {
                         source = dv;
                     }

@@ -17,18 +17,18 @@
 
             if (source is string str)
             {
-                if (DateTime.TryParse(str, out DateTime value))
+                if (DateTime.TryParse(str, out var value))
                 {
                     return value.Date;
                 }
 
                 if (EpochDate != null)
                 {
-                    if (double.TryParse(str, out double dv))
+                    if (double.TryParse(str, out var dv))
                     {
                         source = dv;
                     }
-                    else if (int.TryParse(str, out int iv))
+                    else if (int.TryParse(str, out var iv))
                     {
                         source = iv;
                     }

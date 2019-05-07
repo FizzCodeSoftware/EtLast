@@ -5,6 +5,6 @@
 
     public interface IOperationProcessWorker
     {
-        void Process(IEnumerable<IRow> rows, OperationProcess process, CancellationToken token);
+        void Process(IEnumerable<IRow> rows, AbstractOperationProcess process, CancellationToken token);
     }
 }

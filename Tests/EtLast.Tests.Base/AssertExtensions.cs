@@ -13,7 +13,7 @@
         {
             if (!RowComparer.Equals(expected, actual))
             {
-                string comparisonString = RowComparerHelper.CompareMessage(expected, actual);
+                var comparisonString = RowComparerHelper.CompareMessage(expected, actual);
 
                 throw new AssertFailedException($"Assert.That.Equals failed.\r\n\r\nExpected | Actual:\r\n{comparisonString}");
             }
@@ -26,8 +26,8 @@
 
         public static void RowsAreEqual1(this Assert assert, List<IRow> expecteds, params object[][] actualParams)
         {
-            List<IRow> actuals = new List<IRow>();
-            foreach (object[] rowElements in actualParams)
+            var actuals = new List<IRow>();
+            foreach (var rowElements in actualParams)
             {
                 actuals.Add(RowHelper.CreateRow(rowElements));
             }
@@ -40,9 +40,9 @@
             expecteds = RowHelper.OrderRows(expecteds);
             actuals = RowHelper.OrderRows(actuals);
 
-            bool equals = true;
-            int i = 0;
-            StringBuilder comparisonResult = new StringBuilder();
+            var equals = true;
+            var i = 0;
+            var comparisonResult = new StringBuilder();
 
             foreach (var expected in expecteds)
             {

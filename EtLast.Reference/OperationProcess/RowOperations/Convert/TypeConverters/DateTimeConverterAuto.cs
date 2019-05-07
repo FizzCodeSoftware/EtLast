@@ -37,7 +37,7 @@
             {
                 if (FormatProviderHint != null)
                 {
-                    if (DateTime.TryParse(str, FormatProviderHint, DateTimeStyles.AllowWhiteSpaces, out DateTime value))
+                    if (DateTime.TryParse(str, FormatProviderHint, DateTimeStyles.AllowWhiteSpaces, out var value))
                     {
                         return value;
                     }
@@ -45,7 +45,7 @@
 
                 if (FormatHint != null)
                 {
-                    if (DateTime.TryParseExact(str, FormatHint, FormatProviderHint, DateTimeStyles.None, out DateTime value))
+                    if (DateTime.TryParseExact(str, FormatHint, FormatProviderHint, DateTimeStyles.None, out var value))
                     {
                         return value;
                     }

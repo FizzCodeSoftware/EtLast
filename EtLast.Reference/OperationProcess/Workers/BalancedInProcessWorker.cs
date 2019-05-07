@@ -6,7 +6,7 @@
 
     public class BalancedInProcessWorker : IOperationProcessWorker
     {
-        public void Process(IEnumerable<IRow> rows, OperationProcess process, CancellationToken token)
+        public void Process(IEnumerable<IRow> rows, AbstractOperationProcess process, CancellationToken token)
         {
             foreach (var row in rows)
             {

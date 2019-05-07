@@ -38,7 +38,7 @@
 
             lock (_lock)
             {
-                for (int i = 0; i < Columns.Length; i++)
+                for (var i = 0; i < Columns.Length; i++)
                 {
                     _reader.Rows[_reader.RowCount, i] = row[Columns[i]];
                 }
@@ -108,7 +108,7 @@
             _timer = new Stopwatch();
 
             var columnIndexes = new Dictionary<string, int>();
-            for (int i = 0; i < Columns.Length; i++)
+            for (var i = 0; i < Columns.Length; i++)
             {
                 columnIndexes[Columns[i]] = i;
             }

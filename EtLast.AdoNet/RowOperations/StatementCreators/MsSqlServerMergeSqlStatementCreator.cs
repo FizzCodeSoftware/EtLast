@@ -64,7 +64,7 @@
 
         public string GetColumnName(string rowColumnName)
         {
-            var name = (_map?.Count > 0 && _map.TryGetValue(rowColumnName, out string mappedColumnName)) ? mappedColumnName : rowColumnName;
+            var name = (_map?.Count > 0 && _map.TryGetValue(rowColumnName, out var mappedColumnName)) ? mappedColumnName : rowColumnName;
             if (!name.StartsWith("["))
             {
                 return "[" + name + "]";

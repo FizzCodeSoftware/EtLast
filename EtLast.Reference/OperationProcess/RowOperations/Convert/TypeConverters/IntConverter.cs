@@ -24,9 +24,9 @@
                     }
                 }
 
-                if (int.TryParse(str, out int value)) return value;
-                if (float.TryParse(str, out float sfv)) return System.Convert.ToInt32(sfv);
-                else if (double.TryParse(str, out double sdv)) return System.Convert.ToInt32(sdv);
+                if (int.TryParse(str, out var value)) return value;
+                if (float.TryParse(str, out var sfv)) return System.Convert.ToInt32(sfv);
+                else if (double.TryParse(str, out var sdv)) return System.Convert.ToInt32(sdv);
             }
 
             return null;

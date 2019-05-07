@@ -64,6 +64,7 @@
     <Compile Include="AggregationProcess\Operations\Continuous\ContinuousRemoveDuplicatesOperation.cs" />
     <Compile Include="AggregationProcess\Operations\Regular\AbstractAggregationOperation.cs" />
     <Compile Include="AggregationProcess\Operations\Regular\GroupByOperation.cs" />
+    <Compile Include="ColumnRenameConfiguration.cs" />
     <Compile Include="JobProcess\Jobs\AbstractJob.cs" />
     <Compile Include="JobProcess\Jobs\DeleteFileJob.cs" />
     <Compile Include="JobProcess\Jobs\EvaluateProcessWithoutResultJob.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\StringConverter.cs" />
     <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\TimeConverterAuto.cs" />
     <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\TimeConverter.cs" />
+    <Compile Include="ColumnCopyConfiguration.cs" />
     <Compile Include="OperationProcess\RowOperations\CrossOperations\EnumsAndDelegates\MatchingRowSelector.cs" />
     <Compile Include="OperationProcess\RowOperations\CrossOperations\EnumsAndDelegates\KeySelector.cs" />
     <Compile Include="OperationProcess\RowOperations\CrossOperations\AbstractKeyBasedCrossOperation.cs" />

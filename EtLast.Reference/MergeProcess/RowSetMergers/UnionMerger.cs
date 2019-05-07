@@ -13,7 +13,7 @@
             }
 
             var x = input[0];
-            for (int i = 1; i < input.Count; i++)
+            for (var i = 1; i < input.Count; i++)
             {
                 x = x.Union(input[i]);
             }

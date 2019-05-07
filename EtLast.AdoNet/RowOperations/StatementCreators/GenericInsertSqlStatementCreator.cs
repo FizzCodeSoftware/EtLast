@@ -26,7 +26,10 @@
             {
                 _map = ColumnMap.ToDictionary(x => x.RowColumn, x => x.DbColumn);
             }
-            else _map = null;
+            else
+            {
+                _map = null;
+            }
         }
 
         public string CreateRowStatement(ConnectionStringSettings settings, IRow row, AdoNetWriteToTableOperation op)
@@ -51,7 +54,7 @@
 
         public string GetDbColumnName(string rowColumnName)
         {
-            return (_map != null && _map.TryGetValue(rowColumnName, out string dbColumnName)) ? dbColumnName : rowColumnName;
+            return (_map != null && _map.TryGetValue(rowColumnName, out var dbColumnName)) ? dbColumnName : rowColumnName;
         }
     }
 }

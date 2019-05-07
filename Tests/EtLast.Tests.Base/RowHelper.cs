@@ -8,10 +8,10 @@
     {
         public static IRow CreateRow(object[] rowElements)
         {
-            DictionaryRow row = new DictionaryRow();
+            var row = new DictionaryRow();
             row.Init(null, -1, rowElements.Length);
 
-            for (int i = 0; i < rowElements.Length; i += 2)
+            for (var i = 0; i < rowElements.Length; i += 2)
             {
                 row[rowElements[i] as string] = rowElements[i + 1];
             }
@@ -21,14 +21,14 @@
 
         public static List<IRow> CreateRows(string[] columns, object[][] data)
         {
-            List<IRow> rows = new List<IRow>();
+            var rows = new List<IRow>();
 
-            for (int i = 0; i < data.Length; i++)
+            for (var i = 0; i < data.Length; i++)
             {
-                DictionaryRow row = new DictionaryRow();
+                var row = new DictionaryRow();
                 row.Init(null, -1, columns.Length);
 
-                int columnNumber = 0;
+                var columnNumber = 0;
                 foreach (var column in columns)
                 {
                     if (data[i].Length <= columnNumber)
@@ -45,7 +45,7 @@
         {
             var resultArray = new IRow[rows.Count];
             rows.CopyTo(resultArray);
-            List<IRow> result = resultArray.ToList();
+            var result = resultArray.ToList();
 
             if (rows == null
                 || rows.Count < 2)
@@ -69,8 +69,8 @@
 
         public static List<IRow> CreateRows(params object[][] rowsData)
         {
-            List<IRow> rows = new List<IRow>();
-            foreach (object[] rowElements in rowsData)
+            var rows = new List<IRow>();
+            foreach (var rowElements in rowsData)
             {
                 rows.Add(CreateRow(rowElements));
             }

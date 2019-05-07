@@ -22,11 +22,11 @@
                     }
                 }
 
-                if (long.TryParse(str, out long value)) return value;
-                if (float.TryParse(str, out float sfv)) return System.Convert.ToInt64(sfv);
-                else if (double.TryParse(str, out double sdv)) return System.Convert.ToInt64(sdv);
-                else if (int.TryParse(str, out int siv)) return System.Convert.ToInt64(siv);
-                else if (uint.TryParse(str, out uint suiv)) return System.Convert.ToInt64(suiv);
+                if (long.TryParse(str, out var value)) return value;
+                if (float.TryParse(str, out var sfv)) return System.Convert.ToInt64(sfv);
+                else if (double.TryParse(str, out var sdv)) return System.Convert.ToInt64(sdv);
+                else if (int.TryParse(str, out var siv)) return System.Convert.ToInt64(siv);
+                else if (uint.TryParse(str, out var suiv)) return System.Convert.ToInt64(suiv);
             }
 
             return null;

@@ -43,7 +43,7 @@
                 var key = GenerateKey(row);
                 if (row.Flagged) Context.LogRow(this, row, "aggregation group key generated: {GroupKey}", key);
 
-                if (!groups.TryGetValue(key, out List<IRow> list))
+                if (!groups.TryGetValue(key, out var list))
                 {
                     list = new List<IRow>();
                     groups.Add(key, list);

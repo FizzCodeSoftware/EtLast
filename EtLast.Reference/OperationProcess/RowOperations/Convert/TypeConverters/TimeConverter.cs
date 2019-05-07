@@ -15,21 +15,21 @@
 
             if (source is string str)
             {
-                if (TimeSpan.TryParse(str, out TimeSpan tsValue))
+                if (TimeSpan.TryParse(str, out var tsValue))
                 {
                     return tsValue;
                 }
 
-                if (DateTime.TryParse(str, out DateTime dtValue))
+                if (DateTime.TryParse(str, out var dtValue))
                 {
                     return new TimeSpan(dtValue.Hour, dtValue.Minute, dtValue.Second, dtValue.Millisecond);
                 }
 
-                if (int.TryParse(str, out int iv))
+                if (int.TryParse(str, out var iv))
                 {
                     source = iv;
                 }
-                else if (double.TryParse(str, out double dv))
+                else if (double.TryParse(str, out var dv))
                 {
                     source = dv;
                 }

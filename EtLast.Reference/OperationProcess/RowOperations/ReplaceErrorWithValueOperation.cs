@@ -16,7 +16,7 @@
             var result = If?.Invoke(row) != false;
             if (!result) return;
 
-            string[] columns = Columns;
+            var columns = Columns;
 
             if (columns == null)
                 columns = row.Values.Select(kvp => kvp.Key).ToArray();

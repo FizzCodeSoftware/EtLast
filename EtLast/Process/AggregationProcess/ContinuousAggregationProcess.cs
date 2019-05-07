@@ -49,7 +49,7 @@
                 var key = GenerateKey(row);
                 if (row.Flagged) Context.LogRow(this, row, "aggregation group key generated: {GroupKey}", key);
 
-                if (!groups.TryGetValue(key, out AggregateRow aggregateRow))
+                if (!groups.TryGetValue(key, out var aggregateRow))
                 {
                     aggregateRow = new AggregateRow { Row = Context.CreateRow(row.ColumnCount) };
                     foreach (var column in GroupingColumns)

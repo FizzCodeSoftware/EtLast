@@ -11,8 +11,8 @@
                 || row1 != null && row2 == null)
                 return null;
 
-            StringBuilder sb = new StringBuilder();
-            RowComparer rowComparer = new RowComparer(rowComparerMode);
+            var sb = new StringBuilder();
+            var rowComparer = new RowComparer(rowComparerMode);
 
             foreach (var kvp in row1.Values)
             {

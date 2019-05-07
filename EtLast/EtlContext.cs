@@ -28,16 +28,16 @@
         public EtlContext()
             : this(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None))
         {
-            var utcNow = DateTimeOffset.UtcNow;
-            CreatedOnUtc = utcNow;
-            CreatedOnLocal = utcNow.ToLocalTime();
         }
 
         public EtlContext(Configuration configuration)
         {
             CancellationTokenSource = new CancellationTokenSource();
-
             Configuration = configuration;
+
+            var utcNow = DateTimeOffset.UtcNow;
+            CreatedOnUtc = utcNow;
+            CreatedOnLocal = utcNow.ToLocalTime();
         }
 
         public bool GetParameter(string name, out object value)

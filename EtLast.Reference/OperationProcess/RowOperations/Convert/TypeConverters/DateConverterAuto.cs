@@ -52,7 +52,7 @@
             {
                 if (FormatHints != null && FormatProviderHint != null)
                 {
-                    if (DateTime.TryParseExact(str, FormatHints, FormatProviderHint, DateTimeStyles.None, out DateTime value))
+                    if (DateTime.TryParseExact(str, FormatHints, FormatProviderHint, DateTimeStyles.None, out var value))
                     {
                         return value;
                     }
@@ -60,7 +60,7 @@
 
                 if (FormatHints != null && FormatProviderHint == null)
                 {
-                    if (DateTime.TryParseExact(str, FormatHints, null, DateTimeStyles.None, out DateTime value))
+                    if (DateTime.TryParseExact(str, FormatHints, null, DateTimeStyles.None, out var value))
                     {
                         return value;
                     }
@@ -68,7 +68,7 @@
 
                 if (FormatProviderHint != null)
                 {
-                    if (DateTime.TryParse(str, FormatProviderHint, DateTimeStyles.AllowWhiteSpaces, out DateTime value))
+                    if (DateTime.TryParse(str, FormatProviderHint, DateTimeStyles.AllowWhiteSpaces, out var value))
                     {
                         return value;
                     }

@@ -56,7 +56,7 @@
             Process = process;
             ParentGroup = parentGroup;
             Index = index;
-            Name = ParentGroup.Name + "|" + Index.ToString("D2") + "." + (InstanceName != null ? InstanceName + "(" + GetType().Name + ")" : GetType().Name);
+            Name = (ParentGroup != null ? ParentGroup.Name + "|" : "") + Index.ToString("D2") + "." + (InstanceName != null ? InstanceName + "(" + GetType().Name + ")" : GetType().Name);
             _hash = Name.GetHashCode();
         }
 
