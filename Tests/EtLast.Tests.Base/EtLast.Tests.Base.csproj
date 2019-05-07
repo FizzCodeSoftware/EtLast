@@ -41,6 +41,9 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Global\AssemblyInfo.Global.cs">
+      <Link>Properties\AssemblyInfo.Global.cs</Link>
+    </Compile>
     <Compile Include="AbstractBaseTestUsingSample.cs" />
     <Compile Include="AbstractBaseTestUsingSeed.cs" />
     <Compile Include="AssertExtensions.cs" />

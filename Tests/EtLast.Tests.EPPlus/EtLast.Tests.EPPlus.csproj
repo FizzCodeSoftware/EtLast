@@ -49,6 +49,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Global\AssemblyInfo.Global.cs">
+      <Link>Properties\AssemblyInfo.Global.cs</Link>
+    </Compile>
     <Compile Include="ReadExcelSampleErrorsTests.cs" />
     <Compile Include="ReadExcelMergeTests.cs" />
     <Compile Include="ReadExcelSampleTests.cs" />
