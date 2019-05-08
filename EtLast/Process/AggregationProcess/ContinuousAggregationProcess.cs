@@ -33,8 +33,10 @@
 
             Operation.Prepare();
 
-            if (GroupingColumns == null || GroupingColumns.Length == 0) throw new ProcessParameterNullException(this, nameof(GroupingColumns));
-            if (Operation == null) throw new ProcessParameterNullException(this, nameof(Operation));
+            if (GroupingColumns == null || GroupingColumns.Length == 0)
+                throw new ProcessParameterNullException(this, nameof(GroupingColumns));
+            if (Operation == null)
+                throw new ProcessParameterNullException(this, nameof(Operation));
 
             Context.Log(LogSeverity.Information, this, "started");
 
@@ -47,7 +49,8 @@
             {
                 rowCount++;
                 var key = GenerateKey(row);
-                if (row.Flagged) Context.LogRow(this, row, "aggregation group key generated: {GroupKey}", key);
+                if (row.Flagged)
+                    Context.LogRow(this, row, "aggregation group key generated: {GroupKey}", key);
 
                 if (!groups.TryGetValue(key, out var aggregateRow))
                 {

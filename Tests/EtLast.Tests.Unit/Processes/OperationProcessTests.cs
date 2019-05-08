@@ -1,7 +1,7 @@
-namespace FizzCode.EtLast.Tests.Unit
+﻿namespace FizzCode.EtLast.Tests.Unit
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Threading;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class OperationProcessTests
@@ -78,10 +78,7 @@ namespace FizzCode.EtLast.Tests.Unit
                 If = row => row.GetAs<int>("id") % 100 == 0,
 
                 // this must be way higher than MainLoopDelay so this row won't be returned in order
-                Then = (op, row) =>
-                {
-                    Thread.Sleep(50);
-                },
+                Then = (op, row) => Thread.Sleep(50),
             });
 
             return process;

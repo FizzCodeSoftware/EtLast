@@ -1,12 +1,12 @@
 ﻿namespace FizzCode.EtLast
 {
-    using Serilog;
-    using Serilog.Events;
     using System;
     using System.Collections.Generic;
     using System.Configuration;
     using System.IO;
     using System.Reflection;
+    using Serilog;
+    using Serilog.Events;
 
     public abstract class AbstractEtlPlugin : IEtlPlugin
     {
@@ -65,15 +65,18 @@
                 }
             }
 
-            if (string.IsNullOrEmpty(ident)) ident = " ";
+            if (string.IsNullOrEmpty(ident))
+                ident = " ";
 
             var values = new List<object>
             {
                 GetType().Name,
             };
 
-            if (args.Process != null) values.Add(args.Process.Name);
-            if (args.Arguments != null) values.AddRange(args.Arguments);
+            if (args.Process != null)
+                values.Add(args.Process.Name);
+            if (args.Arguments != null)
+                values.AddRange(args.Arguments);
 
             var valuesArray = values.ToArray();
 
@@ -121,7 +124,8 @@
                 }
             }
 
-            if (ex.InnerException != null) GetOpsMessages(ex.InnerException, messages);
+            if (ex.InnerException != null)
+                GetOpsMessages(ex.InnerException, messages);
 
             if (ex is AggregateException aex)
             {
@@ -139,21 +143,18 @@
                 action.Invoke();
 
                 var exceptions = context.GetExceptions();
-                if (exceptions.Count > 0)
-                {
-                    return new EtlPluginResult()
+                return exceptions.Count > 0
+                    ? new EtlPluginResult()
                     {
                         Success = false,
                         TerminatePluginScope = terminatePluginScopeOnFail,
                         TerminateGlobalScope = terminateGlobalScopeOnFail,
                         Exceptions = new List<Exception>(exceptions),
+                    }
+                    : new EtlPluginResult()
+                    {
+                        Success = true,
                     };
-                }
-
-                return new EtlPluginResult()
-                {
-                    Success = true,
-                };
             }
             catch (Exception unhandledException)
             {
@@ -178,7 +179,8 @@
         protected string GetPathFromConfiguration(string appSettingName, params string[] subFolders)
         {
             var path = Configuration.AppSettings.Settings[appSettingName].Value;
-            if (string.IsNullOrEmpty(path)) return null;
+            if (string.IsNullOrEmpty(path))
+                return null;
 
             if (path.StartsWith(@".\"))
             {

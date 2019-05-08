@@ -8,7 +8,8 @@
 
         public override void Execute(IProcess process, CancellationTokenSource cancellationTokenSource)
         {
-            if (Process == null) throw new JobParameterNullException(process, this, nameof(Process));
+            if (Process == null)
+                throw new JobParameterNullException(process, this, nameof(Process));
 
             Process.EvaluateWithoutResult(process);
         }

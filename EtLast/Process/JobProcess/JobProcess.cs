@@ -77,7 +77,8 @@
         {
             foreach (var job in _jobs)
             {
-                if (Context.CancellationTokenSource.IsCancellationRequested) break;
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    break;
 
                 var sw = Stopwatch.StartNew();
                 Context.Log(LogSeverity.Debug, this, "job '{JobName}' started", job.GetType().Name);

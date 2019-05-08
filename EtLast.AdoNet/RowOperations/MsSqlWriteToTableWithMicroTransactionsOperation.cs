@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Configuration;
-    using System.Data;
     using System.Data.SqlClient;
     using System.Diagnostics;
     using System.Threading;
@@ -43,8 +42,8 @@
 
         public override void Apply(IRow row)
         {
-            var result = If?.Invoke(row) != false;
-            if (!result) return;
+            if (If?.Invoke(row) == false)
+                return;
 
             lock (_lock)
             {
@@ -153,11 +152,14 @@
 
         public override void Prepare()
         {
-            if (string.IsNullOrEmpty(ConnectionStringKey)) throw new OperationParameterNullException(this, nameof(ConnectionStringKey));
+            if (string.IsNullOrEmpty(ConnectionStringKey))
+                throw new OperationParameterNullException(this, nameof(ConnectionStringKey));
 
             _connectionStringSettings = Process.Context.GetConnectionStringSettings(ConnectionStringKey);
-            if (_connectionStringSettings == null) throw new InvalidOperationParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
-            if (_connectionStringSettings.ProviderName != "System.Data.SqlClient") throw new InvalidOperationParameterException(this, "ConnectionString", nameof(_connectionStringSettings.ProviderName), "provider name must be System.Data.SqlClient");
+            if (_connectionStringSettings == null)
+                throw new InvalidOperationParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
+            if (_connectionStringSettings.ProviderName != "System.Data.SqlClient")
+                throw new InvalidOperationParameterException(this, "ConnectionString", nameof(_connectionStringSettings.ProviderName), "provider name must be System.Data.SqlClient");
 
             _rowsWritten = 0;
             _timer = new Stopwatch();

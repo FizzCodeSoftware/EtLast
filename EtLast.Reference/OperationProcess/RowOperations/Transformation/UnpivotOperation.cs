@@ -30,9 +30,11 @@
         {
             foreach (var cell in row.Values)
             {
-                if (cell.Value == null && IgnoreIfValueIsNull) continue;
+                if (cell.Value == null && IgnoreIfValueIsNull)
+                    continue;
 
-                if (_fixColumns?.Contains(cell.Key) == true) continue;
+                if (_fixColumns?.Contains(cell.Key) == true)
+                    continue;
 
                 var newRow = Process.Context.CreateRow(FixColumns.Length + 2);
                 newRow.CurrentOperation = row.CurrentOperation;
@@ -53,9 +55,12 @@
 
         public override void Prepare()
         {
-            if (FixColumns == null) throw new OperationParameterNullException(this, nameof(FixColumns));
-            if (NewColumnForValue == null) throw new OperationParameterNullException(this, nameof(NewColumnForValue));
-            if (NewColumnForDimension == null) throw new OperationParameterNullException(this, nameof(NewColumnForDimension));
+            if (FixColumns == null)
+                throw new OperationParameterNullException(this, nameof(FixColumns));
+            if (NewColumnForValue == null)
+                throw new OperationParameterNullException(this, nameof(NewColumnForValue));
+            if (NewColumnForDimension == null)
+                throw new OperationParameterNullException(this, nameof(NewColumnForDimension));
 
             if (FixColumns.Length > 0)
             {

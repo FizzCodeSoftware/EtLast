@@ -10,7 +10,8 @@ namespace FizzCode.EtLast
         public override object Convert(object source)
         {
             var baseResult = base.Convert(source);
-            if (baseResult != null) return baseResult;
+            if (baseResult != null)
+                return baseResult;
 
             if (source is string str)
             {
@@ -24,8 +25,10 @@ namespace FizzCode.EtLast
                         return false;
                 }
 
-                if (KnownTrueString != null && string.Compare(str, KnownTrueString, StringComparison.InvariantCultureIgnoreCase) == 0) return true;
-                if (KnownFalseString != null && string.Compare(str, KnownFalseString, StringComparison.InvariantCultureIgnoreCase) == 0) return false;
+                if (KnownTrueString != null && string.Compare(str, KnownTrueString, StringComparison.InvariantCultureIgnoreCase) == 0)
+                    return true;
+                if (KnownFalseString != null && string.Compare(str, KnownFalseString, StringComparison.InvariantCultureIgnoreCase) == 0)
+                    return false;
             }
 
             return null;

@@ -17,7 +17,8 @@
         public override object Convert(object source)
         {
             var baseResult = base.Convert(source);
-            if (baseResult != null) return baseResult;
+            if (baseResult != null)
+                return baseResult;
 
             if (source is string str)
             {

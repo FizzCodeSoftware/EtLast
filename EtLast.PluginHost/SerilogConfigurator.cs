@@ -1,12 +1,12 @@
 ﻿namespace FizzCode.EtLast.PluginHost
 {
+    using System.IO;
+    using System.Reflection;
     using Serilog;
     using Serilog.Events;
     using Serilog.Exceptions;
     using Serilog.Formatting.Compact;
     using Serilog.Sinks.SystemConsole.Themes;
-    using System.IO;
-    using System.Reflection;
 
     internal class SerilogConfigurator
     {

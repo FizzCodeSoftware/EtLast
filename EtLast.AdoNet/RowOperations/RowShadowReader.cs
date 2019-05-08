@@ -95,8 +95,10 @@
             if (_active)
             {
                 _currentIndex++;
-                if (_currentIndex < RowCount) return true;
-                else _active = false;
+                if (_currentIndex < RowCount)
+                    return true;
+                else
+                    _active = false;
             }
 
             _currentIndex = -1;
@@ -108,7 +110,8 @@
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            if (disposing) Shutdown();
+            if (disposing)
+                Shutdown();
         }
 
         private void Shutdown()
@@ -121,101 +124,103 @@
 
         public override bool IsClosed => !_active;
 
-        public override bool GetBoolean(int i)
+        public override bool GetBoolean(int ordinal)
         {
-            return (bool)this[i];
+            return (bool)this[ordinal];
         }
 
-        public override byte GetByte(int i)
+        public override byte GetByte(int ordinal)
         {
-            return (byte)this[i];
+            return (byte)this[ordinal];
         }
 
-        public override long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
+        public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
         {
-            var value = (byte[])this[i];
-            var remaining = value.Length - (int)fieldOffset;
-            if (remaining <= 0) return 0;
+            var value = (byte[])this[ordinal];
+            var remaining = value.Length - (int)dataOffset;
+            if (remaining <= 0)
+                return 0;
 
             var count = Math.Min(length, remaining);
-            Buffer.BlockCopy(value, (int)fieldOffset, buffer, bufferoffset, count);
+            Buffer.BlockCopy(value, (int)dataOffset, buffer, bufferOffset, count);
             return count;
         }
 
-        public override char GetChar(int i)
+        public override char GetChar(int ordinal)
         {
-            return (char)this[i];
+            return (char)this[ordinal];
         }
 
-        public override long GetChars(int i, long fieldOffset, char[] buffer, int bufferOffset, int length)
+        public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
         {
-            var value = (string)this[i];
-            var remaining = value.Length - (int)fieldOffset;
-            if (remaining <= 0) return 0;
+            var value = (string)this[ordinal];
+            var remaining = value.Length - (int)dataOffset;
+            if (remaining <= 0)
+                return 0;
 
             var count = Math.Min(length, remaining);
-            value.CopyTo((int)fieldOffset, buffer, bufferOffset, count);
+            value.CopyTo((int)dataOffset, buffer, bufferOffset, count);
             return count;
         }
 
-        protected override DbDataReader GetDbDataReader(int i)
+        protected override DbDataReader GetDbDataReader(int ordinal)
         {
             throw new NotSupportedException();
         }
 
-        public override string GetDataTypeName(int i)
+        public override string GetDataTypeName(int ordinal)
         {
             return typeof(object).Name;
         }
 
-        public override DateTime GetDateTime(int i)
+        public override DateTime GetDateTime(int ordinal)
         {
-            return (DateTime)this[i];
+            return (DateTime)this[ordinal];
         }
 
-        public override decimal GetDecimal(int i)
+        public override decimal GetDecimal(int ordinal)
         {
-            return (decimal)this[i];
+            return (decimal)this[ordinal];
         }
 
-        public override double GetDouble(int i)
+        public override double GetDouble(int ordinal)
         {
-            return (double)this[i];
+            return (double)this[ordinal];
         }
 
-        public override Type GetFieldType(int i)
+        public override Type GetFieldType(int ordinal)
         {
             return typeof(object);
         }
 
-        public override float GetFloat(int i)
+        public override float GetFloat(int ordinal)
         {
-            return (float)this[i];
+            return (float)this[ordinal];
         }
 
-        public override Guid GetGuid(int i)
+        public override Guid GetGuid(int ordinal)
         {
-            return (Guid)this[i];
+            return (Guid)this[ordinal];
         }
 
-        public override short GetInt16(int i)
+        public override short GetInt16(int ordinal)
         {
-            return (short)this[i];
+            return (short)this[ordinal];
         }
 
-        public override int GetInt32(int i)
+        public override int GetInt32(int ordinal)
         {
-            return (int)this[i];
+            return (int)this[ordinal];
         }
 
-        public override long GetInt64(int i)
+        public override long GetInt64(int ordinal)
         {
-            return (long)this[i];
+            return (long)this[ordinal];
         }
 
-        public override string GetName(int i)
+        public override string GetName(int ordinal)
         {
-            return _columns[i];
+            return _columns[ordinal];
         }
 
         public override int GetOrdinal(string name)
@@ -223,48 +228,39 @@
             return _columnIndexes[name];
         }
 
-        public override string GetString(int i)
+        public override string GetString(int ordinal)
         {
-            return (string)this[i];
+            return (string)this[ordinal];
         }
 
-        public override object GetValue(int i)
+        public override object GetValue(int ordinal)
         {
-            return this[i];
+            return this[ordinal];
         }
 
-        public override IEnumerator GetEnumerator() => new DbEnumerator(this);
+        public override IEnumerator GetEnumerator()
+        {
+            return new DbEnumerator(this);
+        }
 
         public override int GetValues(object[] values)
         {
             var rows = Rows; // cache on stack
 
             var count = Math.Min(values.Length, _columns.Length);
-            for (var i = 0; i < count; i++) values[i] = rows[_currentIndex, i] ?? DBNull.Value;
+            for (var i = 0; i < count; i++)
+                values[i] = rows[_currentIndex, i] ?? DBNull.Value;
 
             return count;
         }
 
-        public override bool IsDBNull(int i)
+        public override bool IsDBNull(int ordinal)
         {
-            return this[i] is DBNull;
+            return this[ordinal] is DBNull;
         }
 
-        public override object this[string name]
-        {
-            get
-            {
-                return Rows[_currentIndex, _columnIndexes[name]] ?? DBNull.Value;
-            }
+        public override object this[string name] => Rows[_currentIndex, _columnIndexes[name]] ?? DBNull.Value;
 
-        }
-
-        public override object this[int i]
-        {
-            get
-            {
-                return Rows[_currentIndex, i] ?? DBNull.Value;
-            }
-        }
+        public override object this[int ordinal] => Rows[_currentIndex, ordinal] ?? DBNull.Value;
     }
 }

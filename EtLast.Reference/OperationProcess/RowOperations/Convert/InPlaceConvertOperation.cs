@@ -23,8 +23,8 @@
 
         public override void Apply(IRow row)
         {
-            var result = If?.Invoke(row) != false;
-            if (!result) return;
+            if (If?.Invoke(row) == false)
+                return;
 
             foreach (var column in Columns)
             {
@@ -40,7 +40,8 @@
                 }
                 else
                 {
-                    if (IgnoreNullValues) continue;
+                    if (IgnoreNullValues)
+                        continue;
                 }
 
                 switch (ActionIfInvalid)
@@ -68,9 +69,12 @@
 
         public override void Prepare()
         {
-            if (TypeConverter == null) throw new OperationParameterNullException(this, nameof(TypeConverter));
-            if (Columns.Length == 0) throw new OperationParameterNullException(this, nameof(Columns));
-            if (ActionIfInvalid != InvalidValueAction.SetSpecialValue && SpecialValueIfInvalid != null) throw new OperationParameterNullException(this, nameof(SpecialValueIfInvalid));
+            if (TypeConverter == null)
+                throw new OperationParameterNullException(this, nameof(TypeConverter));
+            if (Columns.Length == 0)
+                throw new OperationParameterNullException(this, nameof(Columns));
+            if (ActionIfInvalid != InvalidValueAction.SetSpecialValue && SpecialValueIfInvalid != null)
+                throw new OperationParameterNullException(this, nameof(SpecialValueIfInvalid));
         }
     }
 }

@@ -31,7 +31,8 @@
         public override IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
             Caller = caller;
-            if (string.IsNullOrEmpty(TableName)) throw new ProcessParameterNullException(this, nameof(TableName));
+            if (string.IsNullOrEmpty(TableName))
+                throw new ProcessParameterNullException(this, nameof(TableName));
 
             return base.Evaluate(caller);
         }

@@ -58,7 +58,7 @@
 
             _queue.SignalNoMoreRows();
 
-            _queue = default(TRowQueue);
+            _queue = default;
             _feederThread = null;
         }
     }

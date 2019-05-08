@@ -7,6 +7,7 @@
     public abstract class AbstractBaseTestUsingSample
     {
         protected string[] SampleColumns { get; } = { "id", "name", "age", "fkid", "date", "time", "datetime" };
+
         protected object[][] SampleRows { get; } = {
                 new object[] { 0, "A", 1, "7", new DateTime(2018,1,1), new TimeSpan(8,0,0), new DateTime(2018,2,11,12,0,0) },
                 new object[] { 1, "B", 2, null } };

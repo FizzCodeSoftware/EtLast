@@ -1,8 +1,8 @@
 ﻿namespace FizzCode.EtLast.EPPlus
 {
-    using OfficeOpenXml;
     using System;
     using System.IO;
+    using OfficeOpenXml;
 
     public class EpPlusSingleExcelStreamWriterOperation<TState> : AbstractRowOperation
         where TState : new()
@@ -38,8 +38,10 @@
 
         public override void Prepare()
         {
-            if (Stream == null) throw new OperationParameterNullException(this, nameof(Stream));
-            if (Action == null) throw new OperationParameterNullException(this, nameof(Action));
+            if (Stream == null)
+                throw new OperationParameterNullException(this, nameof(Stream));
+            if (Action == null)
+                throw new OperationParameterNullException(this, nameof(Action));
 
             _state = new TState();
         }
@@ -50,7 +52,7 @@
 
             base.Shutdown();
 
-            _state = default(TState);
+            _state = default;
 
             _excelPackage.Save();
             _excelPackage.Dispose();

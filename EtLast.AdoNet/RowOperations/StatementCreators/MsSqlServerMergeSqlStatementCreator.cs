@@ -26,9 +26,12 @@
 
         public void Prepare(AdoNetWriteToTableOperation operation, IProcess process)
         {
-            if (string.IsNullOrEmpty(TableName)) throw new OperationParameterNullException(operation, nameof(TableName));
-            if (KeyColumns == null) throw new OperationParameterNullException(operation, nameof(KeyColumns));
-            if (ValueColumns == null) throw new OperationParameterNullException(operation, nameof(ValueColumns));
+            if (string.IsNullOrEmpty(TableName))
+                throw new OperationParameterNullException(operation, nameof(TableName));
+            if (KeyColumns == null)
+                throw new OperationParameterNullException(operation, nameof(KeyColumns));
+            if (ValueColumns == null)
+                throw new OperationParameterNullException(operation, nameof(ValueColumns));
             _allColumns = KeyColumns.Concat(ValueColumns).ToArray();
             _allColumnsConvertedAndJoined = string.Join(", ", _allColumns.Select(x => GetColumnName(x)));
             _valueColumnsConvertedAndJoinedInsert = string.Join(", ", ValueColumns.Select(x => "source." + GetColumnName(x)));
@@ -55,9 +58,10 @@
                 op.CreateParameter(column, row[column]);
             }
 
-            var statement = "(" + string.Join(", ", _allColumns.Select(x => "@" + (startIndex++).ToString("D", CultureInfo.InvariantCulture))) + ")";
+            var statement = "(" + string.Join(", ", _allColumns.Select(x => "@" + startIndex++.ToString("D", CultureInfo.InvariantCulture))) + ")";
 
-            if (row.Flagged) op.Process.Context.LogRow(op.Process, row, "sql statement generated: {SqlStatement}", statement);
+            if (row.Flagged)
+                op.Process.Context.LogRow(op.Process, row, "sql statement generated: {SqlStatement}", statement);
 
             return statement;
         }
@@ -65,12 +69,7 @@
         public string GetColumnName(string rowColumnName)
         {
             var name = (_map?.Count > 0 && _map.TryGetValue(rowColumnName, out var mappedColumnName)) ? mappedColumnName : rowColumnName;
-            if (!name.StartsWith("["))
-            {
-                return "[" + name + "]";
-            }
-
-            return name;
+            return !name.StartsWith("[") ? "[" + name + "]" : name;
         }
 
         public string CreateStatement(ConnectionStringSettings settings, List<string> rowStatements)

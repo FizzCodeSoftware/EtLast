@@ -1,12 +1,12 @@
 ﻿namespace EtLast.Tests.EPPlus
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using FizzCode.EtLast;
     using FizzCode.EtLast.EPPlus;
     using FizzCode.EtLast.Tests.Base;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
 
     [TestClass]
     public class ReadExcelSampleErrorsTests

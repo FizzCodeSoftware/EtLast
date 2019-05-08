@@ -1,8 +1,7 @@
-namespace FizzCode.EtLast.Tests.Unit
+﻿namespace FizzCode.EtLast.Tests.Unit
 {
-    using System.Linq;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using FizzCode.EtLast.Tests.Base;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class CreateRowsProcessTests : AbstractBaseTestUsingSample
@@ -13,7 +12,7 @@ namespace FizzCode.EtLast.Tests.Unit
             var process = CreateProcess();
 
             var etl = RunEtl(process);
-            var result = etl.Count();
+            var result = etl.Count;
             var expected = SampleRows.Length;
 
             Assert.AreEqual(expected, result);

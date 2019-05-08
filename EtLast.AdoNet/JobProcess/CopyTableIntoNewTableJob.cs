@@ -25,8 +25,10 @@
 
         protected override void Validate(IProcess process)
         {
-            if (string.IsNullOrEmpty(SourceTableName)) throw new JobParameterNullException(process, this, nameof(SourceTableName));
-            if (string.IsNullOrEmpty(TargetTableName)) throw new JobParameterNullException(process, this, nameof(TargetTableName));
+            if (string.IsNullOrEmpty(SourceTableName))
+                throw new JobParameterNullException(process, this, nameof(SourceTableName));
+            if (string.IsNullOrEmpty(TargetTableName))
+                throw new JobParameterNullException(process, this, nameof(TargetTableName));
         }
 
         protected override string CreateSqlStatement(IProcess process, ConnectionStringSettings settings)

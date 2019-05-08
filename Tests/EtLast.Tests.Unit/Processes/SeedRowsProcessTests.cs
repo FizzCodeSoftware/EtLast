@@ -1,9 +1,9 @@
-namespace FizzCode.EtLast.Tests.Unit
+﻿namespace FizzCode.EtLast.Tests.Unit
 {
     using System;
     using System.Linq;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using FizzCode.EtLast.Tests.Base;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class SeedRowsProcessTests : AbstractBaseTestUsingSeed
@@ -11,7 +11,7 @@ namespace FizzCode.EtLast.Tests.Unit
         [TestMethod]
         public void PrimaryKeyColumnIsSequentialInteger()
         {
-            var rowCount = 100;
+            const int rowCount = 100;
 
             var process = CreateProcess();
 
@@ -25,7 +25,7 @@ namespace FizzCode.EtLast.Tests.Unit
         [TestMethod]
         public void ForeignKeyColumnIsInteger()
         {
-            var rowCount = 100;
+            const int rowCount = 100;
 
             var process = CreateProcess();
 
@@ -39,7 +39,7 @@ namespace FizzCode.EtLast.Tests.Unit
         [TestMethod]
         public void NameColumnIsString()
         {
-            var rowCount = 100;
+            const int rowCount = 100;
 
             var process = CreateProcess();
 
@@ -53,7 +53,7 @@ namespace FizzCode.EtLast.Tests.Unit
         [TestMethod]
         public void DateColumnIsDate()
         {
-            var rowCount = 100;
+            const int rowCount = 100;
 
             var process = CreateProcess();
 
@@ -67,7 +67,7 @@ namespace FizzCode.EtLast.Tests.Unit
         [TestMethod]
         public void DateTimeColumnIsDateTime()
         {
-            var rowCount = 100;
+            const int rowCount = 100;
 
             var process = CreateProcess();
 
@@ -81,7 +81,7 @@ namespace FizzCode.EtLast.Tests.Unit
         [TestMethod]
         public void TimeColumnIsTimeSpan()
         {
-            var rowCount = 100;
+            const int rowCount = 100;
 
             var process = CreateProcess();
 
@@ -95,12 +95,12 @@ namespace FizzCode.EtLast.Tests.Unit
         [TestMethod]
         public void RowCount()
         {
-            var rowCount = 100;
+            const int rowCount = 100;
 
             var process = CreateProcess();
 
             var etl = RunEtl(process, rowCount);
-            var result = etl.Count();
+            var result = etl.Count;
             var expected = rowCount;
 
             Assert.AreEqual(expected, result);

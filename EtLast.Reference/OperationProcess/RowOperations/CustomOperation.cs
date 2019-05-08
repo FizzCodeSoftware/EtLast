@@ -38,8 +38,10 @@
 
         public override void Prepare()
         {
-            if (Then == null) throw new OperationParameterNullException(this, nameof(Then));
-            if (Else != null && If == null) throw new OperationParameterNullException(this, nameof(If));
+            if (Then == null)
+                throw new OperationParameterNullException(this, nameof(Then));
+            if (Else != null && If == null)
+                throw new OperationParameterNullException(this, nameof(If));
         }
     }
 }

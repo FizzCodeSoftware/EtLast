@@ -1,10 +1,10 @@
 ﻿namespace FizzCode.EtLast.EPPlus
 {
-    using OfficeOpenXml;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using OfficeOpenXml;
 
     public class EpPlusExcelSheetListReaderProcess : AbstractBaseProducerProcess
     {
@@ -17,7 +17,8 @@
         public override IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
             Caller = caller;
-            if (string.IsNullOrEmpty(FileName)) throw new ProcessParameterNullException(this, nameof(FileName));
+            if (string.IsNullOrEmpty(FileName))
+                throw new ProcessParameterNullException(this, nameof(FileName));
 
             var sw = Stopwatch.StartNew();
 
@@ -27,7 +28,7 @@
             var resultCount = 0;
             Context.Log(LogSeverity.Information, this, "reading from {FileName}", FileName);
 
-            ExcelPackage package = null;
+            ExcelPackage package;
             try
             {
                 package = new ExcelPackage(new FileInfo(FileName));
@@ -44,7 +45,8 @@
             {
                 package.Compatibility.IsWorksheets1Based = false;
                 var workbook = package.Workbook;
-                if (workbook == null || workbook.Worksheets.Count == 0) yield break;
+                if (workbook == null || workbook.Worksheets.Count == 0)
+                    yield break;
 
                 for (var i = 0; i < workbook.Worksheets.Count; i++)
                 {
@@ -54,6 +56,7 @@
                     row.SetValue("Color", workbook.Worksheets[i].TabColor, this);
                     row.SetValue("Visible", workbook.Worksheets[i].Hidden == eWorkSheetHidden.Visible, this);
                     yield return row;
+                    resultCount++;
                 }
             }
 

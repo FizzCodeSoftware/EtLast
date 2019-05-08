@@ -1,12 +1,12 @@
 ﻿namespace FizzCode.EtLast.EPPlus
 {
-    using OfficeOpenXml;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using OfficeOpenXml;
 
     public class EpPlusExcelReaderProcess : AbstractBaseProducerProcess, IEpPlusExcelReaderProcess
     {
@@ -57,9 +57,12 @@
         public override IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
             Caller = caller;
-            if (string.IsNullOrEmpty(FileName)) throw new ProcessParameterNullException(this, nameof(FileName));
-            if (string.IsNullOrEmpty(SheetName) && SheetIndex == -1) throw new ProcessParameterNullException(this, nameof(SheetName));
-            if (ColumnConfiguration == null) throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
+            if (string.IsNullOrEmpty(FileName))
+                throw new ProcessParameterNullException(this, nameof(FileName));
+            if (string.IsNullOrEmpty(SheetName) && SheetIndex == -1)
+                throw new ProcessParameterNullException(this, nameof(SheetName));
+            if (ColumnConfiguration == null)
+                throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
 
             var relativeFileName = FileName;
             if (!FileName.StartsWith(".") && !FileName.StartsWith(Path.DirectorySeparatorChar.ToString()))
@@ -67,17 +70,21 @@
                 try
                 {
                     var baseFolder = Path.GetDirectoryName((Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly()).Location);
-                    if (!baseFolder.EndsWith(Path.DirectorySeparatorChar.ToString())) baseFolder += Path.DirectorySeparatorChar;
+                    if (!baseFolder.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                        baseFolder += Path.DirectorySeparatorChar;
                     relativeFileName = new Uri(baseFolder).MakeRelativeUri(new Uri(FileName)).OriginalString.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
                 }
+#pragma warning disable RCS1075 // Avoid empty catch clause that catches System.Exception.
                 catch (Exception) { }
+#pragma warning restore RCS1075 // Avoid empty catch clause that catches System.Exception.
             }
 
             var sw = Stopwatch.StartNew();
 
             var evaluateInputProcess = EvaluateInputProcess(sw, (row, rowCount, process) =>
             {
-                if (AddRowIndexToColumn != null) row.SetValue(AddRowIndexToColumn, rowCount, process);
+                if (AddRowIndexToColumn != null)
+                    row.SetValue(AddRowIndexToColumn, rowCount, process);
             });
 
             var index = 0;
@@ -96,8 +103,10 @@
             }
 
             var resultCount = 0;
-            if (!string.IsNullOrEmpty(SheetName)) Context.Log(LogSeverity.Information, this, "reading from {RelativeFileName}/{SheetName}", relativeFileName, SheetName);
-            else Context.Log(LogSeverity.Information, this, "reading from {RelativeFileName}/#{SheetIndex}", relativeFileName, SheetIndex);
+            if (!string.IsNullOrEmpty(SheetName))
+                Context.Log(LogSeverity.Information, this, "reading from {RelativeFileName}/{SheetName}", relativeFileName, SheetName);
+            else
+                Context.Log(LogSeverity.Information, this, "reading from {RelativeFileName}/#{SheetIndex}", relativeFileName, SheetIndex);
 
             if (Transpose)
             {
@@ -126,7 +135,8 @@
             {
                 package.Compatibility.IsWorksheets1Based = false;
                 var workbook = package.Workbook;
-                if (workbook == null || workbook.Worksheets.Count == 0) yield break;
+                if (workbook == null || workbook.Worksheets.Count == 0)
+                    yield break;
                 var sheet = !string.IsNullOrEmpty(SheetName) ? workbook.Worksheets[SheetName] : workbook.Worksheets[SheetIndex];
                 if (sheet == null)
                 {
@@ -167,7 +177,8 @@
                                 }
                                 else if (HeaderCellMode == EpPlusExcelHeaderCellMode.KeepFirst)
                                 {
-                                    if (string.IsNullOrEmpty(excelColumn)) excelColumn = c;
+                                    if (string.IsNullOrEmpty(excelColumn))
+                                        excelColumn = c;
                                 }
                                 else
                                 {
@@ -181,7 +192,8 @@
                         // support transpose here...
                     }
 
-                    if (string.IsNullOrEmpty(excelColumn)) continue;
+                    if (string.IsNullOrEmpty(excelColumn))
+                        continue;
 
                     var columnConfiguration = ColumnConfiguration.Find(x => string.Compare(x.SourceColumn, excelColumn, true) == 0);
                     if (columnConfiguration != null)
@@ -214,7 +226,8 @@
                             }
                         }
 
-                        if (empty) continue;
+                        if (empty)
+                            continue;
                     }
 
                     foreach (var kvp in columnIndexes)
@@ -229,16 +242,19 @@
                         }
 
                         value = ReaderProcessHelper.HandleConverter(this, value, ri, kvp.Key, kvp.Value.Configuration, row, out var error);
-                        if (error) continue;
+                        if (error)
+                            continue;
 
                         row.SetValue(kvp.Key, value, this);
                     }
 
-                    if (IgnoreNullOrEmptyRows && row.IsNullOrEmpty()) continue;
+                    if (IgnoreNullOrEmptyRows && row.IsNullOrEmpty())
+                        continue;
 
                     resultCount++;
                     index++;
-                    if (AddRowIndexToColumn != null) row.SetValue(AddRowIndexToColumn, index, this);
+                    if (AddRowIndexToColumn != null)
+                        row.SetValue(AddRowIndexToColumn, index, this);
                     yield return row;
                 }
             }
@@ -256,10 +272,12 @@
 
         private ExcelRange GetCellUnmerged(ExcelWorksheet sheet, int row, int col)
         {
-            if (!Unmerge) return sheet.Cells[row, col];
+            if (!Unmerge)
+                return sheet.Cells[row, col];
 
             var mergedCellAddress = sheet.MergedCells[row, col];
-            if (mergedCellAddress == null) return sheet.Cells[row, col];
+            if (mergedCellAddress == null)
+                return sheet.Cells[row, col];
 
             var address = new ExcelAddress(mergedCellAddress);
             return sheet.Cells[address.Start.Address];

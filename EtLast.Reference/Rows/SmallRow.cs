@@ -20,11 +20,15 @@
         {
             get
             {
-                for (var i = 0; i < ColumnCount; i++) yield return new KeyValuePair<string, object>(_items[i].Name, _items[i].Value);
+                for (var i = 0; i < ColumnCount; i++)
+                    yield return new KeyValuePair<string, object>(_items[i].Name, _items[i].Value);
             }
         }
 
-        public bool Exists(string column) => _items.Any(x => x.Name == column);
+        public bool Exists(string column)
+        {
+            return _items.Any(x => x.Name == column);
+        }
 
         public int ColumnCount { get; private set; } = 0;
 
@@ -39,7 +43,10 @@
         protected override object InternalGetValue(string column)
         {
             for (var i = 0; i < ColumnCount; i++)
-                if (_items[i].Name == column) return _items[i].Value;
+            {
+                if (_items[i].Name == column)
+                    return _items[i].Value;
+            }
 
             return null;
         }

@@ -14,7 +14,8 @@
 
         public override void Execute(IProcess process, CancellationTokenSource cancellationTokenSource)
         {
-            if (string.IsNullOrEmpty(ConnectionStringKey)) throw new JobParameterNullException(process, this, nameof(ConnectionStringKey));
+            if (string.IsNullOrEmpty(ConnectionStringKey))
+                throw new JobParameterNullException(process, this, nameof(ConnectionStringKey));
 
             Validate(process);
 

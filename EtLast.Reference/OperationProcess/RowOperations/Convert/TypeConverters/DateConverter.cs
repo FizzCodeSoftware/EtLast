@@ -12,8 +12,10 @@
 
         public virtual object Convert(object source)
         {
-            if (source is DateTime) return source;
-            if (source is DateTimeOffset dto) return dto.DateTime;
+            if (source is DateTime)
+                return source;
+            if (source is DateTimeOffset dto)
+                return dto.DateTime;
 
             if (source is string str)
             {

@@ -1,13 +1,14 @@
 ﻿namespace FizzCode.EtLast.Tests.Unit
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Collections.Generic;
     using System.Linq;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class JoinTests
     {
         protected string[] SampleColumnsA { get; } = { "id", "name", "age", "height" };
+
         protected object[][] SampleRowsA { get; } = {
                 new object[] { 0, "A", 7, 160 },
                 new object[] { 1, "B", 8, 190 },
@@ -18,6 +19,7 @@
         };
 
         protected string[] SampleColumnsB { get; } = { "id", "fk", "color" };
+
         protected object[][] SampleRowsB { get; } = {
                 new object[] { 0, 0, "yellow" },
                 new object[] { 1, 0, "red" },

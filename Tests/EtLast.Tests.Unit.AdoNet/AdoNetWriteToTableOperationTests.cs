@@ -1,10 +1,10 @@
-namespace FizzCode.EtLast.Tests.Unit.AdoNet
+﻿namespace FizzCode.EtLast.Tests.Unit.AdoNet
 {
+    using System.Configuration;
+    using System.Linq;
     using FizzCode.EtLast.AdoNet;
     using FizzCode.EtLast.Tests.Base;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using System.Configuration;
-    using System.Linq;
 
     [TestClass]
     public class AdoNetWriteToTableOperationTests : AbstractBaseTestUsingSeed

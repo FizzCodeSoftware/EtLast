@@ -11,8 +11,10 @@
 
         public override void Execute(IProcess process, CancellationTokenSource cancellationTokenSource)
         {
-            if (string.IsNullOrEmpty(Url)) throw new JobParameterNullException(process, this, nameof(Url));
-            if (string.IsNullOrEmpty(FileName)) throw new JobParameterNullException(process, this, nameof(FileName));
+            if (string.IsNullOrEmpty(Url))
+                throw new JobParameterNullException(process, this, nameof(Url));
+            if (string.IsNullOrEmpty(FileName))
+                throw new JobParameterNullException(process, this, nameof(FileName));
 
             process.Context.Log(LogSeverity.Information, process, "downloading file from '{Url}' to '{FileName}'", Url, FileName);
 

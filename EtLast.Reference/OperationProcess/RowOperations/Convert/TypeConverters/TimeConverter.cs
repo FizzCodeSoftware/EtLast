@@ -10,8 +10,10 @@
 
         public virtual object Convert(object source)
         {
-            if (source is TimeSpan) return source;
-            if (source is DateTime dt) return new TimeSpan(0, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
+            if (source is TimeSpan)
+                return source;
+            if (source is DateTime dt)
+                return new TimeSpan(0, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
 
             if (source is string str)
             {

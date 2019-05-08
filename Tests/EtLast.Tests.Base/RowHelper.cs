@@ -47,8 +47,7 @@
             rows.CopyTo(resultArray);
             var result = resultArray.ToList();
 
-            if (rows == null
-                || rows.Count < 2)
+            if (rows == null || rows.Count < 2)
                 return rows;
 
             var first = rows[0];
@@ -57,10 +56,7 @@
             {
                 if (!(kvp.Value is EtlRowError))
                 {
-                    if(order is null)
-                        order = result.OrderBy(r => r[kvp.Key]);
-                    else
-                        order = order.ThenBy(r => r[kvp.Key]);
+                    order = order is null ? result.OrderBy(r => r[kvp.Key]) : order.ThenBy(r => r[kvp.Key]);
                 }
             }
 

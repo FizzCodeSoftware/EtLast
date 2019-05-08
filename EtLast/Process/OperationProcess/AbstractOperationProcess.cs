@@ -134,15 +134,18 @@
                 }
             }
 
-            if (addedCount > 0) RowQueue.Signal();
+            if (addedCount > 0)
+                RowQueue.Signal();
 
             Interlocked.Add(ref _activeRowCount, addedCount);
-            if (operation != null) operation.Stat.IncrementCounter("rows added", rowCount);
+            if (operation != null)
+                operation.Stat.IncrementCounter("rows added", rowCount);
         }
 
         public IRowOperation GetNextOp(IRow row)
         {
-            if (row.State != RowState.Normal) return null;
+            if (row.State != RowState.Normal)
+                return null;
 
             IRowOperation nextOp = null;
             if (row.CurrentOperation != null)
@@ -377,7 +380,8 @@
         private void LogOpStat(IRowOperation op, System.Text.StringBuilder sb)
         {
             var counters = op.Stat.Counters.OrderBy(x => x.Key).ToList();
-            if (counters.Count == 0) return;
+            if (counters.Count == 0)
+                return;
 
             sb.Append("stats of " + op.Name);
             foreach (var kvp in counters)
@@ -402,20 +406,24 @@
             Caller = caller;
 
             Validate();
-            if (Context.CancellationTokenSource.IsCancellationRequested) return;
+            if (Context.CancellationTokenSource.IsCancellationRequested)
+                return;
 
             var sw = Stopwatch.StartNew();
 
             Context.Log(LogSeverity.Information, this, "started");
 
             CreateRowQueue(BasicConfiguration.RowQueueType);
-            if (Context.CancellationTokenSource.IsCancellationRequested) return;
+            if (Context.CancellationTokenSource.IsCancellationRequested)
+                return;
 
             PrepareOperations();
-            if (Context.CancellationTokenSource.IsCancellationRequested) return;
+            if (Context.CancellationTokenSource.IsCancellationRequested)
+                return;
 
             CreateWorkers();
-            if (Context.CancellationTokenSource.IsCancellationRequested) return;
+            if (Context.CancellationTokenSource.IsCancellationRequested)
+                return;
 
             Context.Log(LogSeverity.Information, this, "evaluating {InputProcess}", InputProcess.Name);
 
@@ -448,11 +456,13 @@
                             swLoop.Restart();
                         }
 
-                        if (ActiveRowCount <= BasicConfiguration.ThrottlingLimit) break;
+                        if (ActiveRowCount <= BasicConfiguration.ThrottlingLimit)
+                            break;
 
                         if (swSleep != null)
                         {
-                            if (swSleep.ElapsedMilliseconds >= BasicConfiguration.ThrottlingMaxSleep) break;
+                            if (swSleep.ElapsedMilliseconds >= BasicConfiguration.ThrottlingMaxSleep)
+                                break;
                         }
                         else
                         {
@@ -468,7 +478,8 @@
                     }
                 }
 
-                if (Context.CancellationTokenSource.IsCancellationRequested) break;
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    break;
             }
 
             if (buffer.Count > 0)
@@ -484,7 +495,8 @@
             {
                 Wipe(swProcessing, ref wipedRowCount);
 
-                if (TestDone()) break;
+                if (TestDone())
+                    break;
 
                 if (loopIndex > 100)
                 {
@@ -509,20 +521,24 @@
             Caller = caller;
 
             Validate();
-            if (Context.CancellationTokenSource.IsCancellationRequested) yield break;
+            if (Context.CancellationTokenSource.IsCancellationRequested)
+                yield break;
 
             var sw = Stopwatch.StartNew();
 
             Context.Log(LogSeverity.Information, this, "started");
 
             CreateRowQueue(BasicConfiguration.RowQueueType);
-            if (Context.CancellationTokenSource.IsCancellationRequested) yield break;
+            if (Context.CancellationTokenSource.IsCancellationRequested)
+                yield break;
 
             PrepareOperations();
-            if (Context.CancellationTokenSource.IsCancellationRequested) yield break;
+            if (Context.CancellationTokenSource.IsCancellationRequested)
+                yield break;
 
             CreateWorkers();
-            if (Context.CancellationTokenSource.IsCancellationRequested) yield break;
+            if (Context.CancellationTokenSource.IsCancellationRequested)
+                yield break;
 
             var resultCount = 0;
             Context.Log(LogSeverity.Information, this, "evaluating {InputProcess}", InputProcess.Name);
@@ -572,11 +588,13 @@
                             }
                         }
 
-                        if (ActiveRowCount <= BasicConfiguration.ThrottlingLimit) break;
+                        if (ActiveRowCount <= BasicConfiguration.ThrottlingLimit)
+                            break;
 
                         if (swSleep.IsRunning)
                         {
-                            if (swSleep.ElapsedMilliseconds >= BasicConfiguration.ThrottlingMaxSleep) break;
+                            if (swSleep.ElapsedMilliseconds >= BasicConfiguration.ThrottlingMaxSleep)
+                                break;
                         }
                         else
                         {
@@ -593,7 +611,8 @@
                     }
                 }
 
-                if (Context.CancellationTokenSource.IsCancellationRequested) break;
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    break;
             }
 
             if (buffer.Count > 0)
@@ -622,7 +641,8 @@
                     finished.Clear();
                 }
 
-                if (TestDone()) break;
+                if (TestDone())
+                    break;
 
                 if (loopIndex > 100)
                 {

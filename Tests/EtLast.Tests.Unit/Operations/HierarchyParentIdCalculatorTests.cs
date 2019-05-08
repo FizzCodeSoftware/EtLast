@@ -1,16 +1,14 @@
 ﻿namespace FizzCode.EtLast.Tests.Unit
 {
-    using System;
-    using System.Collections.Generic;
     using System.Linq;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using FizzCode.EtLast.Tests.Base;
-    
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class HierarchyParentIdCalculatorTests
     {
         protected string[] SampleColumns { get; } = { "id", "name", "level1", "level2", "level3" };
+
         protected object[][] SampleRows { get; } = {
                 new object[] { 0, "A", "AAA" },
                 new object[] { 1, "B", null, "BBB" },

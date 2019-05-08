@@ -124,7 +124,6 @@
     <Compile Include="OperationProcess\RowOperations\Convert\MergeDateWithTimeOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\RemoveColumnsOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\SeedRowsOperation.cs" />
-    <Compile Include="OperationProcess\RowOperations\SetColumnToParameterOperation.cs" />
     <Compile Include="OperationProcess\Queues\BlockingCollectionRowQueue.cs" />
     <Compile Include="OperationProcess\Workers\BalancedInProcessWorker.cs" />
     <Compile Include="ProducerProcesses\AbstractBaseProducerProcess.cs" />

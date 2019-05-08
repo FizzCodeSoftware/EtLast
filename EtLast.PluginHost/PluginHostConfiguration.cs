@@ -1,8 +1,8 @@
 ﻿namespace FizzCode.EtLast.PluginHost
 {
-    using Serilog.Events;
     using System;
     using System.Configuration;
+    using Serilog.Events;
 
     public class PluginHostConfiguration
     {
@@ -35,10 +35,11 @@
         public static int GetAppSettingAsInt(string key, int defaultValue)
         {
             var value = GetAppSetting(key);
-            if (string.IsNullOrEmpty(value)) return defaultValue;
-
-            if (int.TryParse(value, out var iv)) return iv;
-            return defaultValue;
+            return string.IsNullOrEmpty(value)
+                ? defaultValue
+                : int.TryParse(value, out var iv)
+                    ? iv
+                    : defaultValue;
         }
 
         public static string GetAppSetting(string key)

@@ -10,7 +10,6 @@
     public class EtlContext<TRow> : IEtlContext
         where TRow : IRow, new()
     {
-        private readonly Dictionary<string, object> _parameters = new Dictionary<string, object>();
         private ConcurrentBag<Exception> Exceptions { get; } = new ConcurrentBag<Exception>();
 
         public Configuration Configuration { get; }
@@ -38,17 +37,6 @@
             var utcNow = DateTimeOffset.UtcNow;
             CreatedOnUtc = utcNow;
             CreatedOnLocal = utcNow.ToLocalTime();
-        }
-
-        public bool GetParameter(string name, out object value)
-        {
-            if (_parameters.TryGetValue(name, out value)) return true;
-            return false;
-        }
-
-        public void SetParameter(string name, object value)
-        {
-            _parameters[name] = value;
         }
 
         public void Log(LogSeverity severity, IProcess process, string text, params object[] args)

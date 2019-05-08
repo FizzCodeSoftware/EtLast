@@ -13,8 +13,8 @@
 
         public override void Apply(IRow row)
         {
-            var result = If?.Invoke(row) != false;
-            if (!result) return;
+            if (If?.Invoke(row) == false)
+                return;
 
             var sourceDate = row[SourceDateColumn];
             var sourceTime = row[SourceTimeColumn];
@@ -52,10 +52,14 @@
 
         public override void Prepare()
         {
-            if (string.IsNullOrEmpty(TargetColumn)) throw new OperationParameterNullException(this, nameof(TargetColumn));
-            if (string.IsNullOrEmpty(SourceDateColumn)) throw new OperationParameterNullException(this, nameof(SourceDateColumn));
-            if (string.IsNullOrEmpty(SourceTimeColumn)) throw new OperationParameterNullException(this, nameof(SourceTimeColumn));
-            if (ActionIfInvalid != InvalidValueAction.SetSpecialValue && SpecialValueIfInvalid != null) throw new OperationParameterNullException(this, nameof(SpecialValueIfInvalid));
+            if (string.IsNullOrEmpty(TargetColumn))
+                throw new OperationParameterNullException(this, nameof(TargetColumn));
+            if (string.IsNullOrEmpty(SourceDateColumn))
+                throw new OperationParameterNullException(this, nameof(SourceDateColumn));
+            if (string.IsNullOrEmpty(SourceTimeColumn))
+                throw new OperationParameterNullException(this, nameof(SourceTimeColumn));
+            if (ActionIfInvalid != InvalidValueAction.SetSpecialValue && SpecialValueIfInvalid != null)
+                throw new OperationParameterNullException(this, nameof(SpecialValueIfInvalid));
         }
     }
 }

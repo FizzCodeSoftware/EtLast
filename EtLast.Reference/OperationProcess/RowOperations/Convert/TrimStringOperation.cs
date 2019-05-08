@@ -9,8 +9,8 @@ namespace FizzCode.EtLast
 
         public override void Apply(IRow row)
         {
-            var result = If?.Invoke(row) != false;
-            if (!result) return;
+            if (If?.Invoke(row) == false)
+                return;
 
             var columns = Columns ?? row.Values.Select(x => x.Key).ToArray();
             foreach (var column in columns)

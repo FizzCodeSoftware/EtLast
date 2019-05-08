@@ -20,18 +20,16 @@
         {
             if (value.GetType().Name == "MySqlDateTime")
             {
-                if (_mysqlDateTimeIsNullProp == null) _mysqlDateTimeIsNullProp = value.GetType().GetProperty("IsNull");
-                if (_mysqlDateTimeIsValidProp == null) _mysqlDateTimeIsValidProp = value.GetType().GetProperty("IsValidDateTime");
-                if (_mySqlDateTimeValueProp == null) _mySqlDateTimeValueProp = value.GetType().GetProperty("Value");
+                if (_mysqlDateTimeIsNullProp == null)
+                    _mysqlDateTimeIsNullProp = value.GetType().GetProperty("IsNull");
+                if (_mysqlDateTimeIsValidProp == null)
+                    _mysqlDateTimeIsValidProp = value.GetType().GetProperty("IsValidDateTime");
+                if (_mySqlDateTimeValueProp == null)
+                    _mySqlDateTimeValueProp = value.GetType().GetProperty("Value");
 
-                if (!(bool)_mysqlDateTimeIsNullProp.GetValue(value) && (bool)_mysqlDateTimeIsValidProp.GetValue(value))
-                {
-                    return (DateTime)_mySqlDateTimeValueProp.GetValue(value);
-                }
-                else
-                {
-                    return null;
-                }
+                return !(bool)_mysqlDateTimeIsNullProp.GetValue(value) && (bool)_mysqlDateTimeIsValidProp.GetValue(value)
+                    ? (DateTime)_mySqlDateTimeValueProp.GetValue(value)
+                    : (object)null;
             }
 
             return value;

@@ -53,7 +53,10 @@
         /// Returns true if any value is <see cref="EtlRowError"/>.
         /// </summary>
         /// <returns>True if any value is <see cref="EtlRowError"/>.</returns>
-        public bool HasError() => Values.Any(x => x.Value is EtlRowError);
+        public bool HasError()
+        {
+            return Values.Any(x => x.Value is EtlRowError);
+        }
 
         public T GetAs<T>(string column)
         {
@@ -76,7 +79,8 @@
         public T GetAs<T>(string column, T defaultValueIfNull)
         {
             var value = InternalGetValue(column);
-            if (value == null) return defaultValueIfNull;
+            if (value == null)
+                return defaultValueIfNull;
             try
             {
                 return (T)value;
@@ -96,37 +100,48 @@
         public bool IsNullOrEmpty(string column)
         {
             var value = InternalGetValue(column);
-            if (value == null) return true;
-            if (value is string str)
-            {
-                return string.IsNullOrEmpty(str);
-            }
-
-            return false;
+            return value == null || (value is string str && string.IsNullOrEmpty(str));
         }
 
         public bool IsNullOrEmpty()
         {
             foreach (var kvp in Values)
             {
-                if (kvp.Value != null) return false;
+                if (kvp.Value != null)
+                    return false;
                 if (kvp.Value is string str)
                 {
-                    if (!string.IsNullOrEmpty(str)) return false;
+                    if (!string.IsNullOrEmpty(str))
+                        return false;
                 }
             }
 
             return true;
         }
 
-        public bool IsInt(string column) => InternalGetValue(column) is int;
+        public bool IsInt(string column)
+        {
+            return InternalGetValue(column) is int;
+        }
 
-        public bool IsLong(string column) => InternalGetValue(column) is long;
+        public bool IsLong(string column)
+        {
+            return InternalGetValue(column) is long;
+        }
 
-        public bool IsFloat(string column) => InternalGetValue(column) is float;
+        public bool IsFloat(string column)
+        {
+            return InternalGetValue(column) is float;
+        }
 
-        public bool IsDouble(string column) => InternalGetValue(column) is double;
+        public bool IsDouble(string column)
+        {
+            return InternalGetValue(column) is double;
+        }
 
-        public bool IsDecimal(string column) => InternalGetValue(column) is decimal;
+        public bool IsDecimal(string column)
+        {
+            return InternalGetValue(column) is decimal;
+        }
     }
 }

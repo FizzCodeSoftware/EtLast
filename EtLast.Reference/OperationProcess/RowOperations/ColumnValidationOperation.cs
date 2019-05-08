@@ -10,8 +10,8 @@
 
         public override void Apply(IRow row)
         {
-            var result = If?.Invoke(row) != false;
-            if (!result) return;
+            if (If?.Invoke(row) == false)
+                return;
 
             Stat.IncrementCounter("executed", 1);
 
@@ -29,8 +29,10 @@
 
         public override void Prepare()
         {
-            if (string.IsNullOrEmpty(Column)) throw new OperationParameterNullException(this, nameof(Column));
-            if (ErrorIf == null) throw new OperationParameterNullException(this, nameof(ErrorIf));
+            if (string.IsNullOrEmpty(Column))
+                throw new OperationParameterNullException(this, nameof(Column));
+            if (ErrorIf == null)
+                throw new OperationParameterNullException(this, nameof(ErrorIf));
         }
     }
 }

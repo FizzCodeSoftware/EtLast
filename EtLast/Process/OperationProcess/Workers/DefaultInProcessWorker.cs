@@ -30,7 +30,8 @@
                     }
 
                     operation = process.GetNextOp(row);
-                    if (operation == null) break;
+                    if (operation == null)
+                        break;
 
                     row.CurrentOperation = operation;
                 }

@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
-    using Serilog;
     using System.Configuration;
+    using Serilog;
 
     public interface IEtlPlugin
     {

@@ -14,7 +14,8 @@
             if (value != null && configuration.Converter != null)
             {
                 var newValue = configuration.Converter.Convert(value);
-                if (newValue != null) return newValue;
+                if (newValue != null)
+                    return newValue;
 
                 process.Context.Log(LogSeverity.Debug, process, "failed converting '{OriginalColumn}' in row #{RowIndex}: '{ValueAsString}' ({ValueType}) using {ConverterType}", column, rowIndex, value.ToString(), value.GetType().Name, configuration.Converter.GetType().Name);
 

@@ -13,8 +13,8 @@
 
         public override void Apply(IRow row)
         {
-            var result = If?.Invoke(row) != false;
-            if (!result) return;
+            if (If?.Invoke(row) == false)
+                return;
 
             foreach (var config in ColumnConfiguration)
             {
@@ -43,7 +43,8 @@
 
         public override void Prepare()
         {
-            if (ColumnConfiguration == null) throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
+            if (ColumnConfiguration == null)
+                throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
         }
     }
 }

@@ -18,7 +18,8 @@
         {
             Caller = caller;
 
-            if (InputProcess == null) throw new ProcessParameterNullException(this, nameof(InputProcess));
+            if (InputProcess == null)
+                throw new ProcessParameterNullException(this, nameof(InputProcess));
 
             var sw = Stopwatch.StartNew();
             var resultCount = 0;

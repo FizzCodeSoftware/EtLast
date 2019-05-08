@@ -1,13 +1,13 @@
 ﻿namespace FizzCode.EtLast.PluginHost
 {
-    using FizzCode.EtLast;
-    using Serilog;
-    using Serilog.Events;
     using System;
     using System.Collections.Generic;
     using System.Configuration;
     using System.Diagnostics;
     using System.Transactions;
+    using FizzCode.EtLast;
+    using Serilog;
+    using Serilog.Events;
 
     internal class PluginExecuter
     {

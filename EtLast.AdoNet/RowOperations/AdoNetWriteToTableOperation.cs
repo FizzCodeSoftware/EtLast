@@ -32,8 +32,8 @@
 
         public override void Apply(IRow row)
         {
-            var result = If?.Invoke(row) != false;
-            if (!result) return;
+            if (If?.Invoke(row) == false)
+                return;
 
             lock (_lock)
             {
@@ -60,7 +60,8 @@
 
         private void InitConnection(IProcess process)
         {
-            if (_connection != null) return;
+            if (_connection != null)
+                return;
             try
             {
                 _connection = ConnectionManager.GetConnection(_connectionStringSettings, process);
@@ -168,14 +169,19 @@
 
         public override void Prepare()
         {
-            if (string.IsNullOrEmpty(ConnectionStringKey)) throw new OperationParameterNullException(this, nameof(ConnectionStringKey));
-            if (MaximumParameterCount <= 0) throw new InvalidOperationParameterException(this, nameof(MaximumParameterCount), MaximumParameterCount, "value must be greater than 0");
-            if (SqlStatementCreator == null) throw new OperationParameterNullException(this, nameof(SqlStatementCreator));
+            if (string.IsNullOrEmpty(ConnectionStringKey))
+                throw new OperationParameterNullException(this, nameof(ConnectionStringKey));
+            if (MaximumParameterCount <= 0)
+                throw new InvalidOperationParameterException(this, nameof(MaximumParameterCount), MaximumParameterCount, "value must be greater than 0");
+            if (SqlStatementCreator == null)
+                throw new OperationParameterNullException(this, nameof(SqlStatementCreator));
             SqlStatementCreator.Prepare(this, Process);
 
             _connectionStringSettings = Process.Context.GetConnectionStringSettings(ConnectionStringKey);
-            if (_connectionStringSettings == null) throw new InvalidOperationParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
-            if (_connectionStringSettings.ProviderName == null) throw new OperationParameterNullException(this, "ConnectionString");
+            if (_connectionStringSettings == null)
+                throw new InvalidOperationParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
+            if (_connectionStringSettings.ProviderName == null)
+                throw new OperationParameterNullException(this, "ConnectionString");
 
             _rowsWritten = 0;
             _fullTime = new Stopwatch();

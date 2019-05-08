@@ -8,7 +8,8 @@
 
         public virtual object Convert(object source)
         {
-            if (source is DateTime) return source;
+            if (source is DateTime)
+                return source;
 
             if (source is string str)
             {

@@ -1,14 +1,14 @@
 ﻿namespace FizzCode.EtLast.Tests.Unit
 {
-    using System.Collections.Generic;
     using System.Linq;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using FizzCode.EtLast.Tests.Base;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class UnpivotTests
     {
         protected string[] SampleColumns { get; } = { "Id", "Name", "Cars", "Houses", "Kids" };
+
         protected object[][] SampleRows { get; } = {
                 new object[] { 1, "A", 1, 1, 2 },
                 new object[] { 2, "B", 2, 1, 3 },

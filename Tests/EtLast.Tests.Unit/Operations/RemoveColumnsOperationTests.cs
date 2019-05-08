@@ -1,8 +1,8 @@
-namespace FizzCode.EtLast.Tests.Unit
+﻿namespace FizzCode.EtLast.Tests.Unit
 {
     using System.Linq;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using FizzCode.EtLast.Tests.Base;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class RemoveColumnsOperationTests : AbstractBaseTestUsingSeed
@@ -10,7 +10,7 @@ namespace FizzCode.EtLast.Tests.Unit
         [TestMethod]
         public void RemoveAll()
         {
-            var rowCount = 100;
+            const int rowCount = 100;
 
             var process = CreateProcess();
             process.AddOperation(new RemoveColumnsOperation()
@@ -20,7 +20,7 @@ namespace FizzCode.EtLast.Tests.Unit
 
             var etl = RunEtl(process, rowCount);
             var result = etl.Sum(x => x.ColumnCount);
-            var expected = 0;
+            const int expected = 0;
 
             Assert.AreEqual(expected, result);
         }
@@ -28,7 +28,7 @@ namespace FizzCode.EtLast.Tests.Unit
         [TestMethod]
         public void RemoveSome()
         {
-            var rowCount = 100;
+            const int rowCount = 100;
 
             var process = CreateProcess();
             process.AddOperation(new RemoveColumnsOperation()
@@ -46,7 +46,7 @@ namespace FizzCode.EtLast.Tests.Unit
         [TestMethod]
         public void RemovePrimaryKey()
         {
-            var rowCount = 100;
+            const int rowCount = 100;
 
             var process = CreateProcess();
             process.AddOperation(new RemoveColumnsOperation()

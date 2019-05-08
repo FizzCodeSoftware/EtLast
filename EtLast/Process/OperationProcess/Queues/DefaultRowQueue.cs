@@ -45,17 +45,16 @@
                 }
 
                 IRow row;
-                while (true)
+                while (!_queue.TryDequeue(out row))
                 {
-                    if (_queue.TryDequeue(out row)) break;
-
                     WaitHandle.WaitAny(waitHandles);
                     if (token.IsCancellationRequested)
                     {
                         yield break;
                     }
 
-                    if (_noMoreRows) yield break;
+                    if (_noMoreRows)
+                        yield break;
                 }
 
                 yield return row;

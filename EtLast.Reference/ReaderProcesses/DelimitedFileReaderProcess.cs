@@ -28,8 +28,10 @@
         public override IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
             Caller = caller;
-            if (string.IsNullOrEmpty(FileName)) throw new ProcessParameterNullException(this, nameof(FileName));
-            if (!HasHeaderRow && (ColumnNames == null || ColumnNames.Length == 0)) throw new ProcessParameterNullException(this, nameof(ColumnNames));
+            if (string.IsNullOrEmpty(FileName))
+                throw new ProcessParameterNullException(this, nameof(FileName));
+            if (!HasHeaderRow && (ColumnNames == null || ColumnNames.Length == 0))
+                throw new ProcessParameterNullException(this, nameof(ColumnNames));
 
             var sw = Stopwatch.StartNew();
 
@@ -85,7 +87,8 @@
                         {
                             var column = columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn;
                             value = ReaderProcessHelper.HandleConverter(this, value, rowNumber, column, columnConfiguration, row, out var error);
-                            if (error) continue;
+                            if (error)
+                                continue;
 
                             row.SetValue(column, value, this);
                         }
@@ -93,7 +96,8 @@
                         {
                             var column = columnNames[i];
                             value = ReaderProcessHelper.HandleConverter(this, value, rowNumber, column, DefaultConfiguration, row, out var error);
-                            if (error) continue;
+                            if (error)
+                                continue;
 
                             row.SetValue(column, value, this);
                         }

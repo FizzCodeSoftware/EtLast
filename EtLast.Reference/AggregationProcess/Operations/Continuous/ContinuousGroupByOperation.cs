@@ -31,7 +31,7 @@
         /// </summary>
         public static ContinuousGroupByOperation AddIntAverage(this ContinuousGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRow, rowsInGroup, row, col) => (groupRow.GetAs(col, 0.0d) * rowsInGroup + row.GetAs<int>(col)) / (rowsInGroup + 1.0d));
+            return op.AddColumnAggregator(column, (groupRow, rowsInGroup, row, col) => ((groupRow.GetAs(col, 0.0d) * rowsInGroup) + row.GetAs<int>(col)) / (rowsInGroup + 1.0d));
         }
 
         /// <summary>
@@ -39,7 +39,7 @@
         /// </summary>
         public static ContinuousGroupByOperation AddLongAverage(this ContinuousGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRow, rowsInGroup, row, col) => (groupRow.GetAs(col, 0.0d) * rowsInGroup + row.GetAs<long>(col)) / (rowsInGroup + 1.0d));
+            return op.AddColumnAggregator(column, (groupRow, rowsInGroup, row, col) => ((groupRow.GetAs(col, 0.0d) * rowsInGroup) + row.GetAs<long>(col)) / (rowsInGroup + 1.0d));
         }
 
         /// <summary>
@@ -47,7 +47,7 @@
         /// </summary>
         public static ContinuousGroupByOperation AddDoubleAverage(this ContinuousGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRow, rowsInGroup, row, col) => (groupRow.GetAs(col, 0.0d) * rowsInGroup + row.GetAs<double>(col)) / (rowsInGroup + 1.0d));
+            return op.AddColumnAggregator(column, (groupRow, rowsInGroup, row, col) => ((groupRow.GetAs(col, 0.0d) * rowsInGroup) + row.GetAs<double>(col)) / (rowsInGroup + 1.0d));
         }
 
         /// <summary>
@@ -55,7 +55,7 @@
         /// </summary>
         public static ContinuousGroupByOperation AddDecimalAverage(this ContinuousGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRow, rowsInGroup, row, col) => (groupRow.GetAs<decimal>(col, 0) * rowsInGroup + row.GetAs<decimal>(col)) / (rowsInGroup + 1));
+            return op.AddColumnAggregator(column, (groupRow, rowsInGroup, row, col) => ((groupRow.GetAs<decimal>(col, 0) * rowsInGroup) + row.GetAs<decimal>(col)) / (rowsInGroup + 1));
         }
 
         /// <summary>

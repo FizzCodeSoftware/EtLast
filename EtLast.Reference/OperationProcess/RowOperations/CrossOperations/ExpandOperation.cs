@@ -54,7 +54,8 @@
         public override void Prepare()
         {
             base.Prepare();
-            if (ColumnConfiguration == null) throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
+            if (ColumnConfiguration == null)
+                throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
 
             foreach (var config in ColumnConfiguration)
             {
@@ -69,7 +70,8 @@
             {
                 rowCount++;
                 var key = GetRightKey(Process, row);
-                if (string.IsNullOrEmpty(key)) continue;
+                if (string.IsNullOrEmpty(key))
+                    continue;
 
                 _lookup[key] = row;
             }

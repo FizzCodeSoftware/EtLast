@@ -10,7 +10,8 @@
 
         public override void Execute(IProcess process, CancellationTokenSource cancellationTokenSource)
         {
-            if (string.IsNullOrEmpty(FileName)) throw new JobParameterNullException(process, this, nameof(FileName));
+            if (string.IsNullOrEmpty(FileName))
+                throw new JobParameterNullException(process, this, nameof(FileName));
 
             if (File.Exists(FileName))
             {

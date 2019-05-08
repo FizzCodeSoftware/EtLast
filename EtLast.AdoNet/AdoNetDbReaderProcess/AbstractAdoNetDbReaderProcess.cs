@@ -27,19 +27,31 @@
 
         public override IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
-            if (string.IsNullOrEmpty(ConnectionStringKey)) throw new ProcessParameterNullException(this, nameof(ConnectionStringKey));
-            ConnectionStringSettings = Context.GetConnectionStringSettings(ConnectionStringKey);
-            if (ConnectionStringSettings == null) throw new InvalidProcessParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
-            if (ConnectionStringSettings.ProviderName == null) throw new ProcessParameterNullException(this, "ConnectionString");
+            if (string.IsNullOrEmpty(ConnectionStringKey))
+                throw new ProcessParameterNullException(this, nameof(ConnectionStringKey));
 
+            ConnectionStringSettings = Context.GetConnectionStringSettings(ConnectionStringKey);
+            if (ConnectionStringSettings == null)
+                throw new InvalidProcessParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
+
+            if (ConnectionStringSettings.ProviderName == null)
+                throw new ProcessParameterNullException(this, "ConnectionString");
+
+            return EvaluateImplementation();
+        }
+
+        private IEnumerable<IRow> EvaluateImplementation()
+        {
             var usedSqlValueProcessors = SqlValueProcessors.Where(x => x.Init(ConnectionStringSettings)).ToList();
-            if (usedSqlValueProcessors.Count == 0) usedSqlValueProcessors = null;
+            if (usedSqlValueProcessors.Count == 0)
+                usedSqlValueProcessors = null;
 
             var sw = Stopwatch.StartNew();
 
             var evaluateInputProcess = EvaluateInputProcess(sw, (row, rowCount, process) =>
             {
-                if (AddRowIndexToColumn != null) row.SetValue(AddRowIndexToColumn, rowCount, process);
+                if (AddRowIndexToColumn != null)
+                    row.SetValue(AddRowIndexToColumn, rowCount, process);
             });
 
             var index = 0;
@@ -86,7 +98,8 @@
                 {
                     try
                     {
-                        if (!reader.Read()) break;
+                        if (!reader.Read())
+                            break;
                     }
                     catch (Exception ex)
                     {
@@ -119,7 +132,8 @@
 
                     resultCount++;
                     index++;
-                    if (AddRowIndexToColumn != null) row.SetValue(AddRowIndexToColumn, index, this);
+                    if (AddRowIndexToColumn != null)
+                        row.SetValue(AddRowIndexToColumn, index, this);
                     yield return row;
                 }
             }

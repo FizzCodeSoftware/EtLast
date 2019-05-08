@@ -12,7 +12,7 @@
             var numberFormatInfo = CultureInfo.InvariantCulture.NumberFormat;
 
             var converter = new DoubleConverterAuto(numberFormatInfo, NumberStyles.Number, true);
-            var value = "1.234";
+            const string value = "1.234";
             var result = converter.Convert(value);
 
             Assert.AreEqual(1.234D, result);
@@ -24,7 +24,7 @@
             var numberFormatInfo = new CultureInfo("hu-HU");
 
             var converter = new DoubleConverterAuto(numberFormatInfo, NumberStyles.Number, true);
-            var value = "1.234";
+            const string value = "1.234";
             var result = converter.Convert(value);
 
             // Failed conversion expected, defaulting to null
@@ -37,7 +37,7 @@
             var numberFormatInfo = new CultureInfo("hu-HU");
 
             var converter = new DoubleConverterAuto(numberFormatInfo, NumberStyles.Number, true);
-            var value = "1,234";
+            const string value = "1,234";
             var result = converter.Convert(value);
 
             Assert.AreEqual(1.234D, result);

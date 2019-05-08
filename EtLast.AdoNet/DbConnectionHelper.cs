@@ -96,7 +96,8 @@
 
         public static void ReleaseConnection(ref DatabaseConnection connection)
         {
-            if (connection == null) return;
+            if (connection == null)
+                return;
             lock (Connections)
             {
                 connection.ReferenceCount--;

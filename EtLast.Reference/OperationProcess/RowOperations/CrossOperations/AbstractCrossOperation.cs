@@ -6,7 +6,8 @@
 
         public override void Prepare()
         {
-            if (RightProcess == null) throw new OperationParameterNullException(this, nameof(RightProcess));
+            if (RightProcess == null)
+                throw new OperationParameterNullException(this, nameof(RightProcess));
         }
     }
 }

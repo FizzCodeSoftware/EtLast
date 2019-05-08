@@ -21,7 +21,8 @@
             var resultSets = new List<IEnumerable<IRow>>();
             foreach (var inputProcess in InputProcesses)
             {
-                if (Context.CancellationTokenSource.IsCancellationRequested) return Enumerable.Empty<IRow>();
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    return Enumerable.Empty<IRow>();
 
                 resultSets.Add(inputProcess.Evaluate(this));
             }

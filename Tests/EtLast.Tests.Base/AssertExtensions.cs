@@ -2,8 +2,8 @@
 {
     using System.Collections.Generic;
     using System.Text;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using FizzCode.EtLast;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     public static class AssertExtensions
     {
@@ -11,6 +11,9 @@
 
         public static void RowsAreEqual(this Assert assert, IRow expected, IRow actual)
         {
+            if (assert == null)
+                throw new System.ArgumentNullException(nameof(assert));
+
             if (!RowComparer.Equals(expected, actual))
             {
                 var comparisonString = RowComparerHelper.CompareMessage(expected, actual);
@@ -37,6 +40,9 @@
 
         public static void RowsAreEqual(this Assert assert, List<IRow> expecteds, List<IRow> actuals)
         {
+            if (assert == null)
+                throw new System.ArgumentNullException(nameof(assert));
+
             expecteds = RowHelper.OrderRows(expecteds);
             actuals = RowHelper.OrderRows(actuals);
 
@@ -55,7 +61,7 @@
                 }
             }
 
-            if(!equals)
+            if (!equals)
                 throw new AssertFailedException($"Assert.That.Equals failed.\r\n\r\nDiffering rows, Expected | Actual:\r\n{comparisonResult}");
         }
     }

@@ -1,8 +1,8 @@
-namespace FizzCode.EtLast.Tests.Unit
+﻿namespace FizzCode.EtLast.Tests.Unit
 {
     using System.Linq;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using FizzCode.EtLast.Tests.Base;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class RemoveRowOperationTests : AbstractBaseTestUsingSeed
@@ -10,7 +10,7 @@ namespace FizzCode.EtLast.Tests.Unit
         [TestMethod]
         public void RemoveAll()
         {
-            var rowCount = 1000;
+            const int rowCount = 1000;
 
             var process = CreateProcess();
             process.AddOperation(new RemoveRowOperation
@@ -19,8 +19,8 @@ namespace FizzCode.EtLast.Tests.Unit
             });
 
             var etl = RunEtl(process, rowCount);
-            var result = etl.Count();
-            var expected = 0;
+            var result = etl.Count;
+            const int expected = 0;
 
             Assert.AreEqual(expected, result);
         }
@@ -28,7 +28,7 @@ namespace FizzCode.EtLast.Tests.Unit
         [TestMethod]
         public void RemoveNone()
         {
-            var rowCount = 1000;
+            const int rowCount = 1000;
 
             var process = CreateProcess();
             process.AddOperation(new RemoveRowOperation
@@ -37,7 +37,7 @@ namespace FizzCode.EtLast.Tests.Unit
             });
 
             var etl = RunEtl(process, rowCount);
-            var result = etl.Count();
+            var result = etl.Count;
             var expected = rowCount;
 
             Assert.AreEqual(expected, result);
@@ -46,8 +46,8 @@ namespace FizzCode.EtLast.Tests.Unit
         [TestMethod]
         public void RemoveSome()
         {
-            var rowCount = 1000;
-            var keepAbove = 200;
+            const int rowCount = 1000;
+            const int keepAbove = 200;
 
             var process = CreateProcess();
 
@@ -57,7 +57,7 @@ namespace FizzCode.EtLast.Tests.Unit
             });
 
             var etl = RunEtl(process, rowCount);
-            var result = etl.Count();
+            var result = etl.Count;
             var expected = rowCount - keepAbove;
 
             Assert.AreEqual(expected, result);

@@ -55,7 +55,8 @@
             {
                 rowCount++;
                 var key = GetRightKey(Process, row);
-                if (string.IsNullOrEmpty(key)) continue;
+                if (string.IsNullOrEmpty(key))
+                    continue;
 
                 _lookup.Add(key);
             }

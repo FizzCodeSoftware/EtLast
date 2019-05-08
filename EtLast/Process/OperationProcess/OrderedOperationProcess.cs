@@ -14,15 +14,19 @@
 
         protected override void Validate()
         {
-            if (Configuration == null) throw new ProcessParameterNullException(this, nameof(Configuration));
-            if (Configuration.RowQueueType == null) throw new ProcessParameterNullException(this, nameof(Configuration.RowQueueType));
-            if (InputProcess == null) throw new ProcessParameterNullException(this, nameof(InputProcess));
+            if (Configuration == null)
+                throw new ProcessParameterNullException(this, nameof(Configuration));
+            if (Configuration.RowQueueType == null)
+                throw new ProcessParameterNullException(this, nameof(Configuration.RowQueueType));
+            if (InputProcess == null)
+                throw new ProcessParameterNullException(this, nameof(InputProcess));
         }
 
         protected override void CreateWorkers()
         {
             CreateWorkerThreads(1, typeof(DefaultInProcessWorker));
-            if (Context.CancellationTokenSource.IsCancellationRequested) return;
+            if (Context.CancellationTokenSource.IsCancellationRequested)
+                return;
         }
     }
 }

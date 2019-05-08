@@ -1,10 +1,10 @@
 ﻿namespace FizzCode.EtLast.Tests.Unit
 {
-    using FizzCode.EtLast.Tests.Base;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using FizzCode.EtLast.Tests.Base;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class DelimitedFileReaderProcessTests
@@ -78,7 +78,6 @@
                 new object[] { "Id", 1, "Name", "B", "ValueString", string.Empty, "ValueInt", 3, "ValueDate", new DateTime(2019, 04, 25), "ValueDouble", 1.234D })
                 , result
             );
-
         }
     }
 }

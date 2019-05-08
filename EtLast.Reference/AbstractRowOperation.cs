@@ -47,7 +47,8 @@
 
         public void SetParent(IProcess process, int index)
         {
-            if (!(process is IOperationProcess pr)) throw new InvalidOperationParameterException(this, "parent process", process, "parent process must be an IOperationProcess");
+            if (!(process is IOperationProcess pr))
+                throw new InvalidOperationParameterException(this, "parent process", process, "parent process must be an IOperationProcess");
             SetParent(pr, index);
         }
 
@@ -63,11 +64,6 @@
         public override int GetHashCode()
         {
             return _hash;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return base.Equals(obj);
         }
 
         public abstract void Apply(IRow row);

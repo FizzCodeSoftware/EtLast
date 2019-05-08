@@ -15,9 +15,6 @@
         CancellationTokenSource CancellationTokenSource { get; }
         ConnectionStringSettings GetConnectionStringSettings(string key);
 
-        bool GetParameter(string name, out object value);
-        void SetParameter(string name, object value);
-
         IRow CreateRow(int columnCountHint = 0);
         void Log(LogSeverity severity, IProcess process, string text, params object[] args);
         void LogOps(LogSeverity severity, IProcess process, string text, params object[] args);

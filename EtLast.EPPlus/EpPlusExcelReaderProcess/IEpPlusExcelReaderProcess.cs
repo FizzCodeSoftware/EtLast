@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast.EPPlus
 {
-    using OfficeOpenXml;
     using System.Collections.Generic;
+    using OfficeOpenXml;
 
     public enum EpPlusExcelHeaderCellMode { Join, KeepFirst, KeepLast }
 

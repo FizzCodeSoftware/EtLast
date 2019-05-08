@@ -8,7 +8,11 @@
     {
         private Dictionary<string, object> _values;
         public override IEnumerable<KeyValuePair<string, object>> Values => _values;
-        public bool Exists(string column) => _values.ContainsKey(column);
+
+        public bool Exists(string column)
+        {
+            return _values.ContainsKey(column);
+        }
 
         public int ColumnCount => _values.Count;
 
@@ -21,8 +25,7 @@
 
         protected override object InternalGetValue(string column)
         {
-            if (_values.TryGetValue(column, out var value)) return value;
-            return null;
+            return _values.TryGetValue(column, out var value) ? value : null;
         }
 
         protected override void InternalSetValue(string column, object value, IProcess process, IBaseOperation operation)

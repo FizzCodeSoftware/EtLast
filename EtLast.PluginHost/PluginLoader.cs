@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast.PluginHost
 {
-    using FizzCode.EtLast;
-    using Serilog;
-    using Serilog.Events;
     using System;
     using System.CodeDom.Compiler;
     using System.Collections.Generic;
@@ -10,6 +7,9 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using FizzCode.EtLast;
+    using Serilog;
+    using Serilog.Events;
 
     internal class PluginLoader
     {
@@ -66,8 +66,10 @@
             var dllFileNames = Directory.GetFiles(selfFolder, "*.dll", SearchOption.TopDirectoryOnly);
             foreach (var dllFileName in dllFileNames)
             {
-                if (dllFileName.IndexOf("Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll", StringComparison.InvariantCultureIgnoreCase) > -1) continue;
-                if (dllFileName.IndexOf("Serilog", StringComparison.InvariantCultureIgnoreCase) > -1) continue;
+                if (dllFileName.IndexOf("Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll", StringComparison.InvariantCultureIgnoreCase) > -1)
+                    continue;
+                if (dllFileName.IndexOf("Serilog", StringComparison.InvariantCultureIgnoreCase) > -1)
+                    continue;
 
                 parameters.ReferencedAssemblies.Add(dllFileName);
             }

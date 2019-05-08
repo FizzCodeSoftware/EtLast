@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast.PluginHost
 {
-    using Serilog;
-    using Serilog.Events;
     using System;
     using System.Configuration;
     using System.Diagnostics;
@@ -9,6 +7,8 @@
     using System.Linq;
     using System.Reflection;
     using System.Xml.Linq;
+    using Serilog;
+    using Serilog.Events;
 
     public class EtlPluginExecuter
     {
@@ -28,14 +28,9 @@
         {
             using (var eventLog = new EventLog("Application"))
             {
-                if (_configuration.CommandLineArguments.Length > 0)
-                {
-                    eventLog.Source = "EtlPluginExecuter+" + _configuration.CommandLineArguments[0].ToLowerInvariant();
-                }
-                else
-                {
-                    eventLog.Source = "EtlPluginExecuter";
-                }
+                eventLog.Source = _configuration.CommandLineArguments.Length > 0
+                    ? "EtlPluginExecuter+" + _configuration.CommandLineArguments[0].ToLowerInvariant()
+                    : "EtlPluginExecuter";
 
                 switch (exitCode)
                 {
@@ -76,8 +71,7 @@
 
             typeof(ConfigurationManager).GetField("s_initState", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, 0);
             typeof(ConfigurationManager).GetField("s_configSystem", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, null);
-            typeof(ConfigurationManager).Assembly.GetTypes().Where(x => x.FullName == "System.Configuration.ClientConfigPaths")
-                .First()
+            typeof(ConfigurationManager).Assembly.GetTypes().First(x => x.FullName == "System.Configuration.ClientConfigPaths")
                 .GetField("s_current", BindingFlags.NonPublic | BindingFlags.Static)
                 .SetValue(null, null);
 
@@ -92,7 +86,7 @@
             if (_logger != null)
             {
                 _logger.Error(e.ExceptionObject as Exception, "unexpected error during execution");
-                _opsLogger.Error("unexpected error during execution: {Message}", (e.ExceptionObject as Exception).Message);
+                _opsLogger.Error("unexpected error during execution: {Message}", (e.ExceptionObject as Exception)?.Message);
             }
             else
             {
@@ -167,8 +161,10 @@
                 var executer = new PluginExecuter();
                 executer.ExecutePlugins(_configuration, plugins, globalScopeRequired, pluginScopeRequired, _logger, _opsLogger, config, pluginFolder);
 
-                if (executer.GlobalScopeFailed) return ExitCodes.ERR_GLOBAL_SCOPE_FAILED;
-                if (executer.AtLeastOnePluginFailed) return ExitCodes.ERR_AT_LEAST_ONE_PLUGIN_SCOPE_FAILED;
+                if (executer.GlobalScopeFailed)
+                    return ExitCodes.ERR_GLOBAL_SCOPE_FAILED;
+                if (executer.AtLeastOnePluginFailed)
+                    return ExitCodes.ERR_AT_LEAST_ONE_PLUGIN_SCOPE_FAILED;
             }
             finally
             {

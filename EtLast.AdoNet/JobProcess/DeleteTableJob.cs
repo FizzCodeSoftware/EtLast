@@ -13,19 +13,15 @@
 
         protected override void Validate(IProcess process)
         {
-            if (string.IsNullOrEmpty(TableName)) throw new JobParameterNullException(process, this, nameof(TableName));
+            if (string.IsNullOrEmpty(TableName))
+                throw new JobParameterNullException(process, this, nameof(TableName));
         }
 
         protected override string CreateSqlStatement(IProcess process, ConnectionStringSettings settings)
         {
-            if (string.IsNullOrEmpty(CustomWhereClause))
-            {
-                return "DELETE FROM " + TableName;
-            }
-            else
-            {
-                return "DELETE FROM " + TableName + " WHERE " + CustomWhereClause;
-            }
+            return string.IsNullOrEmpty(CustomWhereClause)
+                ? "DELETE FROM " + TableName
+                : "DELETE FROM " + TableName + " WHERE " + CustomWhereClause;
         }
 
         protected override void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn)
