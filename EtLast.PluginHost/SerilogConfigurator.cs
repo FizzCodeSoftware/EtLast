@@ -23,20 +23,15 @@
                     theme: AnsiConsoleTheme.Literate,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u4}] {Message:lj} {Properties}{NewLine}{Exception}")
 
-                .WriteTo.File(Path.Combine(logsFolder, "debug-.txt"),
+                .WriteTo.File(new CompactJsonFormatter(), Path.Combine(logsFolder, "debug-.json"),
+                    restrictedToMinimumLevel: LogEventLevel.Debug,
+                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
+                    rollingInterval: RollingInterval.Day)
+
+                    .WriteTo.File(Path.Combine(logsFolder, "debug-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Debug,
                     retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u4}] {Message:lj} {NewLine}{Exception}",
-                    rollingInterval: RollingInterval.Day)
-
-                .WriteTo.File(new RenderedCompactJsonFormatter(), Path.Combine(logsFolder, "debug-.json"),
-                    restrictedToMinimumLevel: LogEventLevel.Debug,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
-                    rollingInterval: RollingInterval.Day)
-
-                .WriteTo.File(new CompactJsonFormatter(), Path.Combine(logsFolder, "debug-.structured.json"),
-                    restrictedToMinimumLevel: LogEventLevel.Debug,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
                     rollingInterval: RollingInterval.Day)
 
                 .WriteTo.File(Path.Combine(logsFolder, "info-.txt"),
@@ -45,36 +40,16 @@
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u4}] {Message:lj} {NewLine}{Exception}",
                     rollingInterval: RollingInterval.Day)
 
-                .WriteTo.File(new RenderedCompactJsonFormatter(), Path.Combine(logsFolder, "info-.json"),
-                    restrictedToMinimumLevel: LogEventLevel.Information,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
-                    rollingInterval: RollingInterval.Day)
-
-                .WriteTo.File(new CompactJsonFormatter(), Path.Combine(logsFolder, "info-.structured.json"),
-                    restrictedToMinimumLevel: LogEventLevel.Information,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
-                    rollingInterval: RollingInterval.Day)
-
                 .WriteTo.File(Path.Combine(logsFolder, "warnings-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Warning,
                     retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u4}] {Message:lj} {NewLine}{Exception}",
                     rollingInterval: RollingInterval.Day)
 
-                .WriteTo.File(new RenderedCompactJsonFormatter(), Path.Combine(logsFolder, "warnings-.json"),
-                    restrictedToMinimumLevel: LogEventLevel.Warning,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
-                    rollingInterval: RollingInterval.Day)
-
                 .WriteTo.File(Path.Combine(logsFolder, "errors-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Error,
                     retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u4}] {Message:lj} {NewLine}{Exception}",
-                    rollingInterval: RollingInterval.Day)
-
-                .WriteTo.File(new RenderedCompactJsonFormatter(), Path.Combine(logsFolder, "exceptions-.json"),
-                    restrictedToMinimumLevel: LogEventLevel.Error,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
                     rollingInterval: RollingInterval.Day);
 
             loggerConfig = loggerConfig.MinimumLevel.Is(System.Diagnostics.Debugger.IsAttached ? LogEventLevel.Verbose : LogEventLevel.Debug);
