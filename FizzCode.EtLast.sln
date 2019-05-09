@@ -19,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Global", "Global", "{9BB952
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		AssemblyInfo.Global.cs = AssemblyInfo.Global.cs
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.PluginHost.PluginInterface", "EtLast.PluginHost.PluginInterface\EtLast.PluginHost.PluginInterface.csproj", "{184A3C73-AA4B-4021-A598-3BBD4EAB762C}"
