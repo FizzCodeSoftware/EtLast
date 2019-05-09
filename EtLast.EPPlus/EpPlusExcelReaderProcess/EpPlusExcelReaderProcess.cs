@@ -74,9 +74,7 @@
                         baseFolder += Path.DirectorySeparatorChar;
                     relativeFileName = new Uri(baseFolder).MakeRelativeUri(new Uri(FileName)).OriginalString.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
                 }
-#pragma warning disable RCS1075 // Avoid empty catch clause that catches System.Exception.
                 catch (Exception) { }
-#pragma warning restore RCS1075 // Avoid empty catch clause that catches System.Exception.
             }
 
             var sw = Stopwatch.StartNew();
@@ -84,7 +82,9 @@
             var evaluateInputProcess = EvaluateInputProcess(sw, (row, rowCount, process) =>
             {
                 if (AddRowIndexToColumn != null)
+                {
                     row.SetValue(AddRowIndexToColumn, rowCount, process);
+                }
             });
 
             var index = 0;

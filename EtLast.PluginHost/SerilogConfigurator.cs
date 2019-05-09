@@ -21,51 +21,61 @@
                 .WriteTo.Console(
                     restrictedToMinimumLevel: configuration.MinimumLogLevelOnConsole,
                     theme: AnsiConsoleTheme.Literate,
-                    outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {Properties}{NewLine}{Exception}")
+                    outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u4}] {Message:lj} {Properties}{NewLine}{Exception}")
 
-                .WriteTo.RollingFile(Path.Combine(logsFolder, "debug-{Date}.txt"),
+                .WriteTo.File(Path.Combine(logsFolder, "debug-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Debug,
                     retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
-                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {NewLine}{Exception}")
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u4}] {Message:lj} {NewLine}{Exception}",
+                    rollingInterval: RollingInterval.Day)
 
-                .WriteTo.RollingFile(new RenderedCompactJsonFormatter(), Path.Combine(logsFolder, "debug-{Date}.json"),
+                .WriteTo.File(new RenderedCompactJsonFormatter(), Path.Combine(logsFolder, "debug-.json"),
                     restrictedToMinimumLevel: LogEventLevel.Debug,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit)
+                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
+                    rollingInterval: RollingInterval.Day)
 
-                .WriteTo.RollingFile(new CompactJsonFormatter(), Path.Combine(logsFolder, "debug-{Date}.structured.json"),
+                .WriteTo.File(new CompactJsonFormatter(), Path.Combine(logsFolder, "debug-.structured.json"),
                     restrictedToMinimumLevel: LogEventLevel.Debug,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit)
+                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
+                    rollingInterval: RollingInterval.Day)
 
-                .WriteTo.RollingFile(Path.Combine(logsFolder, "info-{Date}.txt"),
+                .WriteTo.File(Path.Combine(logsFolder, "info-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Information,
                     retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
-                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {NewLine}{Exception}")
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u4}] {Message:lj} {NewLine}{Exception}",
+                    rollingInterval: RollingInterval.Day)
 
-                .WriteTo.RollingFile(new RenderedCompactJsonFormatter(), Path.Combine(logsFolder, "info-{Date}.json"),
+                .WriteTo.File(new RenderedCompactJsonFormatter(), Path.Combine(logsFolder, "info-.json"),
                     restrictedToMinimumLevel: LogEventLevel.Information,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit)
+                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
+                    rollingInterval: RollingInterval.Day)
 
-                .WriteTo.RollingFile(new CompactJsonFormatter(), Path.Combine(logsFolder, "info-{Date}.structured.json"),
+                .WriteTo.File(new CompactJsonFormatter(), Path.Combine(logsFolder, "info-.structured.json"),
                     restrictedToMinimumLevel: LogEventLevel.Information,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit)
+                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
+                    rollingInterval: RollingInterval.Day)
 
-                .WriteTo.RollingFile(Path.Combine(logsFolder, "warnings-{Date}.txt"),
+                .WriteTo.File(Path.Combine(logsFolder, "warnings-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Warning,
                     retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
-                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {NewLine}{Exception}")
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u4}] {Message:lj} {NewLine}{Exception}",
+                    rollingInterval: RollingInterval.Day)
 
-                .WriteTo.RollingFile(new RenderedCompactJsonFormatter(), Path.Combine(logsFolder, "warnings-{Date}.json"),
+                .WriteTo.File(new RenderedCompactJsonFormatter(), Path.Combine(logsFolder, "warnings-.json"),
                     restrictedToMinimumLevel: LogEventLevel.Warning,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit)
+                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
+                    rollingInterval: RollingInterval.Day)
 
-                .WriteTo.RollingFile(Path.Combine(logsFolder, "errors-{Date}.txt"),
+                .WriteTo.File(Path.Combine(logsFolder, "errors-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Error,
                     retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
-                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {NewLine}{Exception}")
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u4}] {Message:lj} {NewLine}{Exception}",
+                    rollingInterval: RollingInterval.Day)
 
-                .WriteTo.RollingFile(new RenderedCompactJsonFormatter(), Path.Combine(logsFolder, "exceptions-{Date}.json"),
+                .WriteTo.File(new RenderedCompactJsonFormatter(), Path.Combine(logsFolder, "exceptions-.json"),
                     restrictedToMinimumLevel: LogEventLevel.Error,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit);
+                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
+                    rollingInterval: RollingInterval.Day);
 
             loggerConfig = loggerConfig.MinimumLevel.Is(System.Diagnostics.Debugger.IsAttached ? LogEventLevel.Verbose : LogEventLevel.Debug);
 
@@ -85,20 +95,23 @@
                 .Enrich.WithThreadId()
                 .Enrich.WithExceptionDetails()
 
-                .WriteTo.RollingFile(Path.Combine(logsFolder, "info-{Date}.txt"),
+                .WriteTo.File(Path.Combine(logsFolder, "info-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Information,
                     retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
-                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {NewLine}{Exception}")
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u4}] {Message:lj} {NewLine}{Exception}",
+                    rollingInterval: RollingInterval.Day)
 
-                .WriteTo.RollingFile(Path.Combine(logsFolder, "warnings-{Date}.txt"),
+                .WriteTo.File(Path.Combine(logsFolder, "warnings-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Warning,
                     retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
-                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {NewLine}{Exception}")
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u4}] {Message:lj} {NewLine}{Exception}",
+                    rollingInterval: RollingInterval.Day)
 
-                .WriteTo.RollingFile(Path.Combine(logsFolder, "errors-{Date}.txt"),
+                .WriteTo.File(Path.Combine(logsFolder, "errors-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Error,
                     retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
-                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {NewLine}{Exception}");
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u4}] {Message:lj} {NewLine}{Exception}",
+                    rollingInterval: RollingInterval.Day);
 
             loggerConfig = loggerConfig.MinimumLevel.Is(LogEventLevel.Information);
 
