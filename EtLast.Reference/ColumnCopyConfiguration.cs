@@ -11,10 +11,19 @@
             FromColumn = fromColumn;
         }
 
-        public ColumnCopyConfiguration(string copyFromColumn)
+        public ColumnCopyConfiguration(string fromColumn)
         {
-            ToColumn = copyFromColumn;
-            FromColumn = copyFromColumn;
+            ToColumn = fromColumn;
+            FromColumn = fromColumn;
+        }
+
+        public void Copy(IBaseOperation operation, IRow sourceRow, IRow targetRow)
+        {
+            var value = sourceRow[FromColumn];
+            if (value != null)
+            {
+                targetRow.SetValue(ToColumn, value, operation);
+            }
         }
     }
 }

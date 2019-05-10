@@ -11,7 +11,6 @@
         public IfDelegate If { get; set; }
         public JoinRightRowFilterDelegate RightRowFilter { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
-        private readonly Dictionary<string, ColumnCopyConfiguration> _map = new Dictionary<string, ColumnCopyConfiguration>();
         private readonly Dictionary<string, List<IRow>> _lookup = new Dictionary<string, List<IRow>>();
 
         public JoinOperation(NoMatchMode mode)
@@ -86,12 +85,9 @@
                 }
             }
 
-            foreach (var kvp in rightRows[0].Values)
+            foreach (var config in ColumnConfiguration)
             {
-                if (_map.TryGetValue(kvp.Key, out var config))
-                {
-                    row.SetValue(config.ToColumn, kvp.Value, this);
-                }
+                config.Copy(this, rightRows[0], row);
             }
         }
 
@@ -100,11 +96,6 @@
             base.Prepare();
             if (ColumnConfiguration == null)
                 throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
-
-            foreach (var config in ColumnConfiguration)
-            {
-                _map[config.FromColumn] = config;
-            }
 
             Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, RightProcess.Name);
             _lookup.Clear();
@@ -133,7 +124,6 @@
         {
             base.Shutdown();
             _lookup.Clear();
-            _map.Clear();
         }
 
         private IRow DupeRow(IProcess process, IRow row, IRow rightRow)
@@ -149,12 +139,9 @@
 
             // join right[1..N-1] row to [1..N-1]
 
-            foreach (var kvp in rightRow.Values)
+            foreach (var config in ColumnConfiguration)
             {
-                if (_map.TryGetValue(kvp.Key, out var column))
-                {
-                    newRow.SetValue(column.ToColumn, kvp.Value, this);
-                }
+                config.Copy(this, rightRow, newRow);
             }
 
             return newRow;

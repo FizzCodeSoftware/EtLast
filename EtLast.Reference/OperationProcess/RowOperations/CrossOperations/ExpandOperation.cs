@@ -7,7 +7,6 @@
         public NoMatchMode Mode { get; set; }
         public IfDelegate If { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
-        private readonly Dictionary<string, ColumnCopyConfiguration> _map = new Dictionary<string, ColumnCopyConfiguration>();
         private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();
 
         public ExpandOperation(NoMatchMode mode)
@@ -42,12 +41,9 @@
                 return;
             }
 
-            foreach (var kvp in rightRow.Values)
+            foreach (var config in ColumnConfiguration)
             {
-                if (_map.TryGetValue(kvp.Key, out var config))
-                {
-                    row.SetValue(config.ToColumn, kvp.Value, this);
-                }
+                config.Copy(this, rightRow, row);
             }
         }
 
@@ -56,11 +52,6 @@
             base.Prepare();
             if (ColumnConfiguration == null)
                 throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
-
-            foreach (var config in ColumnConfiguration)
-            {
-                _map[config.FromColumn] = config;
-            }
 
             Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, RightProcess.Name);
             _lookup.Clear();
@@ -83,7 +74,6 @@
         {
             base.Shutdown();
             _lookup.Clear();
-            _map.Clear();
         }
     }
 }
