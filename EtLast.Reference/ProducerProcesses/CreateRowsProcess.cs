@@ -4,6 +4,11 @@
     using System.Collections.Generic;
     using System.Diagnostics;
 
+    /// <summary>
+    /// Creates <see cref="IRow"/>s from <see cref="InputRows"/>.
+    /// Use to create test input rows, or to inject litaral-like data.
+    /// </summary>
+    /// <remarks>Do not use to read into <see cref="InputRows"/> from a data source.</remarks>
     public class CreateRowsProcess : AbstractBaseProducerProcess
     {
         public string[] Columns { get; set; }

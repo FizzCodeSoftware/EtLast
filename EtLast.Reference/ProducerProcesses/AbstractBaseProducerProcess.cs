@@ -4,11 +4,18 @@
     using System.Collections.Generic;
     using System.Diagnostics;
 
+    /// <summary>
+    /// Producer processes create rows. They may create or generate, read from different sources, copy from existing rows.
+    /// </summary>
     public abstract class AbstractBaseProducerProcess : IProcess
     {
         public IEtlContext Context { get; }
         public string Name { get; }
         public IProcess Caller { get; protected set; }
+
+        /// <summary>
+        /// The process evaluates and yields the rows from the input process.
+        /// </summary>
         public IProcess InputProcess { get; set; }
 
         protected AbstractBaseProducerProcess(IEtlContext context, string name = null)
