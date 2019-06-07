@@ -16,6 +16,11 @@
         public string[] Columns { get; set; }
 
         /// <summary>
+        /// Sets <see cref="SqlBulkCopyOptions.CheckConstraints"/>.
+        /// </summary>
+        public bool BulkCopyOptionCheckConstraints { get; set; }
+
+        /// <summary>
         /// Default value is 10000
         /// </summary>
         public int BatchSize { get; set; } = 10000;
@@ -124,6 +129,11 @@
                 return;
 
             _connection = ConnectionManager.GetConnection(_connectionStringSettings, process);
+
+
+            var sqlBulkCopyOptions = SqlBulkCopyOptions.KeepIdentity;
+            if (BulkCopyOptionCheckConstraints)
+                sqlBulkCopyOptions = sqlBulkCopyOptions | SqlBulkCopyOptions.CheckConstraints;
 
             _bulkCopy = new SqlBulkCopy(_connection.Connection as SqlConnection, SqlBulkCopyOptions.KeepIdentity, null)
             {
