@@ -10,6 +10,10 @@
     {
         public string ConnectionStringKey { get; set; }
         public int CommandTimeout { get; set; } = 300;
+        /// <summary>
+        /// If true, this job will execute out of ambient transaction scope.
+        /// See <see cref="TransactionScopeOption.Suppress"/>>.
+        /// </summary>
         public bool SuppressExistingTransactionScope { get; set; } = false;
 
         public override void Execute(IProcess process, CancellationTokenSource cancellationTokenSource)

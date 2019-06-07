@@ -12,6 +12,11 @@
     {
         public string ConnectionStringKey { get; set; }
         public string AddRowIndexToColumn { get; set; }
+
+        /// <summary>
+        /// If true, this process will execute out of ambient transaction scope.
+        /// See <see cref="TransactionScopeOption.Suppress"/>>.
+        /// </summary>
         public bool SuppressExistingTransactionScope { get; set; } = false;
         public int CommandTimeout { get; set; } = 3600;
         public DateTime LastDataRead { get; set; }
