@@ -69,9 +69,6 @@
     <Reference Include="Serilog.Formatting.Compact, Version=1.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <HintPath>..\packages\Serilog.Formatting.Compact.1.0.0\lib\net45\Serilog.Formatting.Compact.dll</HintPath>
     </Reference>
-    <Reference Include="Serilog.Sinks.Console, Version=3.1.1.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
-      <HintPath>..\packages\Serilog.Sinks.Console.3.1.1\lib\net45\Serilog.Sinks.Console.dll</HintPath>
-    </Reference>
     <Reference Include="Serilog.Sinks.File, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <HintPath>..\packages\Serilog.Sinks.File.4.0.0\lib\net45\Serilog.Sinks.File.dll</HintPath>
     </Reference>
@@ -96,6 +93,7 @@
     <Compile Include="..\Global\AssemblyInfo.Global.cs">
       <Link>Properties\AssemblyInfo.Global.cs</Link>
     </Compile>
+    <Compile Include="Hacks\EnableVirtualTerminalProcessingHack.cs" />
     <Compile Include="PluginHostConfiguration.cs" />
     <Compile Include="ExitCodes.cs" />
     <Compile Include="PluginExecuter.cs" />
@@ -103,7 +101,13 @@
     <Compile Include="EtlPluginExecuter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerilogConfigurator.cs" />
-    <Compile Include="TransactionScopeTimeoutHack.cs" />
+    <Compile Include="SerilogSink\ConsoleSink.cs" />
+    <Compile Include="SerilogSink\DefaultValueFormatter.cs" />
+    <Compile Include="SerilogSink\JsonValueFormatter.cs" />
+    <Compile Include="SerilogSink\AbstractValueFormatter.cs" />
+    <Compile Include="SerilogSink\ColorCode.cs" />
+    <Compile Include="SerilogSink\ColorCodeContext.cs" />
+    <Compile Include="Hacks\TransactionScopeTimeoutHack.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -118,6 +122,7 @@
       <Name>EtLast</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
