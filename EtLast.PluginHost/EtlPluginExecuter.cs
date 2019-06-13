@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast.PluginHost
 {
     using System;
+    using System.Collections.Generic;
     using System.Configuration;
     using System.Diagnostics;
     using System.IO;
@@ -147,13 +148,8 @@
                 var globalScopeRequired = string.Compare(pluginConfiguration.AppSettings.Settings["GlobalScopeRequired"].Value, "true", true) == 0;
                 var pluginScopeRequired = string.Compare(pluginConfiguration.AppSettings.Settings["PluginScopeRequired"].Value, "true", true) == 0;
 
-                var plugins = new PluginLoader().LoadPlugins(_logger, _opsLogger, AppDomain.CurrentDomain, pluginFolder, _hostConfiguration.CommandLineArguments[0]);
-                var pluginNamesToExecute = GetAppSetting(pluginConfiguration, "PluginsToExecute");
-
-                plugins = pluginNamesToExecute.Split(',')
-                            .Select(name => plugins.Find(plugin => plugin.GetType().Name == name))
-                            .Where(plugin => plugin != null)
-                            .ToList();
+                var plugins = new PluginLoader().LoadPlugins(_logger, _opsLogger, pluginFolder, _hostConfiguration.CommandLineArguments[0]);
+                plugins = FilterExecutablePlugins(pluginConfiguration, plugins);
 
                 _logger.Write(LogEventLevel.Information, "{PluginCount} plugin(s) found: {PluginNames}", plugins.Count, plugins.Select(x => x.GetType().Name));
                 if (plugins == null || plugins.Count == 0)
@@ -166,6 +162,7 @@
 
                 if (executer.GlobalScopeFailed)
                     return ExitCodes.ERR_GLOBAL_SCOPE_FAILED;
+
                 if (executer.AtLeastOnePluginFailed)
                     return ExitCodes.ERR_AT_LEAST_ONE_PLUGIN_SCOPE_FAILED;
             }
@@ -175,6 +172,16 @@
             }
 
             return ExitCodes.ERR_NO_ERROR;
+        }
+
+        private List<IEtlPlugin> FilterExecutablePlugins(Configuration pluginConfiguration, List<IEtlPlugin> plugins)
+        {
+            var pluginNamesToExecute = GetAppSetting(pluginConfiguration, "PluginsToExecute");
+
+            return pluginNamesToExecute.Split(',')
+                        .Select(name => plugins.Find(plugin => plugin.GetType().Name == name))
+                        .Where(plugin => plugin != null)
+                        .ToList();
         }
 
         private void FullPluginConfigAppSettings(Configuration pluginConfiguration)

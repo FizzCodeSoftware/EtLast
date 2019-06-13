@@ -13,36 +13,21 @@
 
     internal class PluginLoader
     {
-        public List<IEtlPlugin> LoadPlugins(ILogger logger, ILogger opsLogger, AppDomain domain, string folder, string subFolder)
+        public List<IEtlPlugin> LoadPlugins(ILogger logger, ILogger opsLogger, string folder, string nameSpaceEnding)
         {
             var sw = Stopwatch.StartNew();
 
-            var pluginInterfaceType = typeof(IEtlPlugin);
-            var result = new List<IEtlPlugin>();
-
             if (Debugger.IsAttached)
             {
-                logger.Write(LogEventLevel.Information, "loading plugins directly from AppDomain where namespace ends with {NameSpaceEnding}", subFolder);
-                foreach (var assembly in domain.GetAssemblies())
-                {
-                    foreach (var foundType in assembly.GetTypes().Where(x => pluginInterfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract && x.Namespace.EndsWith(subFolder, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        var plugin = (IEtlPlugin)Activator.CreateInstance(foundType, new object[] { });
-                        if (plugin != null)
-                        {
-                            result.Add(plugin);
-                        }
-                    }
-                }
-
+                logger.Write(LogEventLevel.Information, "loading plugins directly from AppDomain where namespace ends with {NameSpaceEnding}", nameSpaceEnding);
+                var appDomainPlugins = LoadPluginsFromAppDomain(nameSpaceEnding);
                 logger.Write(LogEventLevel.Information, "finished in {Elapsed}", sw.Elapsed);
-                return result;
+                return appDomainPlugins;
             }
 
             logger.Write(LogEventLevel.Information, "compiling plugins from {FolderName}", folder);
             var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            // var provider = new CSharpCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v4.0" } });
             var provider = new Microsoft.CodeDom.Providers.DotNetCompilerPlatform.CSharpCodeProvider();
             var parameters = new CompilerParameters();
             parameters.ReferencedAssemblies.Add("System.dll");
@@ -74,12 +59,6 @@
                 parameters.ReferencedAssemblies.Add(dllFileName);
             }
 
-            /*parameters.ReferencedAssemblies.Add(Path.Combine(selfFolder, "EPPlus.dll"));
-            parameters.ReferencedAssemblies.Add(Path.Combine(selfFolder, "FizzCode.EtLast.dll"));
-            parameters.ReferencedAssemblies.Add(Path.Combine(selfFolder, "FizzCode.EtLast.Reference.dll"));
-            parameters.ReferencedAssemblies.Add(Path.Combine(selfFolder, "FizzCode.EtLast.AdoNet.dll"));
-            parameters.ReferencedAssemblies.Add(Path.Combine(selfFolder, "FizzCode.EtLast.EPPlus.dll"));
-            parameters.ReferencedAssemblies.Add(Path.Combine(selfFolder, "FizzCode.EtLast.PluginHost.PluginInterface.dll"));*/
             parameters.GenerateExecutable = false;
             parameters.GenerateInMemory = true;
 
@@ -97,7 +76,17 @@
                 return null;
             }
 
-            foreach (var foundType in results.CompiledAssembly.GetTypes().Where(x => pluginInterfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract))
+            var compiledPlugins = LoadPluginsFromAssembly(results.CompiledAssembly);
+
+            logger.Write(LogEventLevel.Information, "finished in {Elapsed}", sw.Elapsed);
+            return compiledPlugins;
+        }
+
+        private static List<IEtlPlugin> LoadPluginsFromAssembly(Assembly assembly)
+        {
+            var result = new List<IEtlPlugin>();
+            var pluginInterfaceType = typeof(IEtlPlugin);
+            foreach (var foundType in assembly.GetTypes().Where(x => pluginInterfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract))
             {
                 if (pluginInterfaceType.IsAssignableFrom(foundType) && foundType.IsClass && !foundType.IsAbstract)
                 {
@@ -109,7 +98,25 @@
                 }
             }
 
-            logger.Write(LogEventLevel.Information, "finished in {Elapsed}", sw.Elapsed);
+            return result;
+        }
+
+        private static List<IEtlPlugin> LoadPluginsFromAppDomain(string subFolder)
+        {
+            var result = new List<IEtlPlugin>();
+            var pluginInterfaceType = typeof(IEtlPlugin);
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                foreach (var foundType in assembly.GetTypes().Where(x => pluginInterfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract && x.Namespace.EndsWith(subFolder, StringComparison.OrdinalIgnoreCase)))
+                {
+                    var plugin = (IEtlPlugin)Activator.CreateInstance(foundType, new object[] { });
+                    if (plugin != null)
+                    {
+                        result.Add(plugin);
+                    }
+                }
+            }
+
             return result;
         }
     }
