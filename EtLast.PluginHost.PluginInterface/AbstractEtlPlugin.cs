@@ -176,6 +176,13 @@
             return GetPathFromConfiguration("StorageFolder", subFolders);
         }
 
+        protected string GetAppSetting(string key)
+        {
+            return Configuration.AppSettings.Settings[key + "-" + Environment.MachineName] != null
+                ? Configuration.AppSettings.Settings[key + "-" + Environment.MachineName].Value
+                : Configuration.AppSettings.Settings[key]?.Value;
+        }
+
         protected string GetPathFromConfiguration(string appSettingName, params string[] subFolders)
         {
             var path = Configuration.AppSettings.Settings[appSettingName].Value;

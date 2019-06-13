@@ -3,6 +3,7 @@
     using System;
     using System.Configuration;
     using System.Diagnostics;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -14,11 +15,11 @@
     {
         private ILogger _logger;
         private ILogger _opsLogger;
-        private PluginHostConfiguration _configuration;
+        private PluginHostConfiguration _hostConfiguration;
 
         public int Execute(PluginHostConfiguration configuration)
         {
-            _configuration = configuration;
+            _hostConfiguration = configuration;
 
             var exitCode = Run();
             return exitCode;
@@ -28,8 +29,8 @@
         {
             using (var eventLog = new EventLog("Application"))
             {
-                eventLog.Source = _configuration.CommandLineArguments.Length > 0
-                    ? "EtlPluginExecuter+" + _configuration.CommandLineArguments[0].ToLowerInvariant()
+                eventLog.Source = _hostConfiguration.CommandLineArguments.Length > 0
+                    ? "EtlPluginExecuter+" + _hostConfiguration.CommandLineArguments[0].ToLowerInvariant()
                     : "EtlPluginExecuter";
 
                 switch (exitCode)
@@ -101,20 +102,20 @@
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
             try
             {
-                _logger = new SerilogConfigurator().CreateLogger(_configuration);
-                _opsLogger = new SerilogConfigurator().CreateOpsLogger(_configuration);
+                _logger = new SerilogConfigurator().CreateLogger(_hostConfiguration);
+                _opsLogger = new SerilogConfigurator().CreateOpsLogger(_hostConfiguration);
 
-                new TransactionScopeTimeoutHack().ApplyHack(_configuration.TransactionScopeTimeout);
+                new TransactionScopeTimeoutHack().ApplyHack(_hostConfiguration.TransactionScopeTimeout);
                 new EnableVirtualTerminalProcessingHack().ApplyHack();
 
-                if (_configuration.CommandLineArguments.Length == 0)
+                if (_hostConfiguration.CommandLineArguments.Length == 0)
                 {
                     _logger.Write(LogEventLevel.Error, "plugin folder command line argument is not defined");
                     _opsLogger.Write(LogEventLevel.Error, "plugin folder command line argument is not defined");
                     return ExitCodes.ERR_WRONG_ARGUMENTS;
                 }
 
-                var pluginFolder = _configuration.PluginFolder;
+                var pluginFolder = _hostConfiguration.PluginFolder;
                 if (pluginFolder.StartsWith(@".\"))
                 {
                     pluginFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), pluginFolder.Substring(2));
@@ -127,26 +128,28 @@
                     return ExitCodes.ERR_NOTHING_TO_EXECUTE;
                 }
 
-                pluginFolder = Path.Combine(pluginFolder, _configuration.CommandLineArguments[0]);
+                pluginFolder = Path.Combine(pluginFolder, _hostConfiguration.CommandLineArguments[0]);
 
-                var configFilePath = Path.Combine(pluginFolder, "plugin.config");
-                Configuration config = null;
-                if (!File.Exists(configFilePath))
+                var pluginConfigFilePath = Path.Combine(pluginFolder, "plugin.config");
+                Configuration pluginConfiguration = null;
+                if (!File.Exists(pluginConfigFilePath))
                 {
-                    _logger.Write(LogEventLevel.Error, "can't find plugin configuration file: {ConfigurationFilePath}", configFilePath);
-                    _opsLogger.Write(LogEventLevel.Error, "can't find plugin configuration file: {ConfigurationFilePath}", configFilePath);
+                    _logger.Write(LogEventLevel.Error, "can't find plugin configuration file: {ConfigurationFilePath}", pluginConfigFilePath);
+                    _opsLogger.Write(LogEventLevel.Error, "can't find plugin configuration file: {ConfigurationFilePath}", pluginConfigFilePath);
                     return ExitCodes.ERR_NO_CONFIG;
                 }
 
-                _logger.Write(LogEventLevel.Information, "loading plugin configuration file from {ConfigurationFilePath}", configFilePath);
-                var configFileMap = new ConfigurationFileMap(configFilePath);
-                config = ConfigurationManager.OpenMappedMachineConfiguration(configFileMap);
+                _logger.Write(LogEventLevel.Information, "loading plugin configuration file from {ConfigurationFilePath}", pluginConfigFilePath);
+                var configFileMap = new ConfigurationFileMap(pluginConfigFilePath);
+                pluginConfiguration = ConfigurationManager.OpenMappedMachineConfiguration(configFileMap);
 
-                var globalScopeRequired = string.Compare(config.AppSettings.Settings["GlobalScopeRequired"].Value, "true", true) == 0;
-                var pluginScopeRequired = string.Compare(config.AppSettings.Settings["PluginScopeRequired"].Value, "true", true) == 0;
+                FullPluginConfigAppSettings(pluginConfiguration);
 
-                var plugins = new PluginLoader().LoadPlugins(_logger, _opsLogger, AppDomain.CurrentDomain, pluginFolder, _configuration.CommandLineArguments[0]);
-                var pluginNamesToExecute = GetAppSetting(config, "PluginsToExecute");
+                var globalScopeRequired = string.Compare(pluginConfiguration.AppSettings.Settings["GlobalScopeRequired"].Value, "true", true) == 0;
+                var pluginScopeRequired = string.Compare(pluginConfiguration.AppSettings.Settings["PluginScopeRequired"].Value, "true", true) == 0;
+
+                var plugins = new PluginLoader().LoadPlugins(_logger, _opsLogger, AppDomain.CurrentDomain, pluginFolder, _hostConfiguration.CommandLineArguments[0]);
+                var pluginNamesToExecute = GetAppSetting(pluginConfiguration, "PluginsToExecute");
 
                 plugins = pluginNamesToExecute.Split(',')
                             .Select(name => plugins.Find(plugin => plugin.GetType().Name == name))
@@ -160,7 +163,7 @@
                 }
 
                 var executer = new PluginExecuter();
-                executer.ExecutePlugins(_configuration, plugins, globalScopeRequired, pluginScopeRequired, _logger, _opsLogger, config, pluginFolder);
+                executer.ExecutePlugins(_hostConfiguration, plugins, globalScopeRequired, pluginScopeRequired, _logger, _opsLogger, pluginConfiguration, pluginFolder);
 
                 if (executer.GlobalScopeFailed)
                     return ExitCodes.ERR_GLOBAL_SCOPE_FAILED;
@@ -175,9 +178,38 @@
             return ExitCodes.ERR_NO_ERROR;
         }
 
+        private void FullPluginConfigAppSettings(Configuration pluginConfiguration)
+        {
+            if (_hostConfiguration.CommandLineArguments.Length > 1)
+            {
+                for (var i = 1; i < _hostConfiguration.CommandLineArguments.Length; i++)
+                {
+                    var arg = _hostConfiguration.CommandLineArguments[i].Trim();
+                    var idx = arg.IndexOf('=');
+                    if (idx == -1)
+                    {
+                        if (pluginConfiguration.AppSettings.Settings[arg] == null)
+                        {
+                            pluginConfiguration.AppSettings.Settings.Add(arg, i.ToString("D", CultureInfo.InvariantCulture));
+                        }
+                    }
+                    else
+                    {
+                        var key = arg.Substring(0, idx).Trim();
+                        if (pluginConfiguration.AppSettings.Settings[key] == null)
+                        {
+                            pluginConfiguration.AppSettings.Settings.Add(key, arg.Substring(idx + 1).Trim());
+                        }
+                    }
+                }
+            }
+        }
+
         private string GetAppSetting(Configuration config, string key)
         {
-            return config.AppSettings.Settings[key + "-" + Environment.MachineName] != null ? config.AppSettings.Settings[key + "-" + Environment.MachineName].Value : config.AppSettings.Settings[key].Value;
+            return config.AppSettings.Settings[key + "-" + Environment.MachineName] != null
+                ? config.AppSettings.Settings[key + "-" + Environment.MachineName].Value
+                : config.AppSettings.Settings[key].Value;
         }
     }
 }
