@@ -3,7 +3,6 @@
     using System;
     using System.Configuration;
     using System.Diagnostics;
-    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -188,18 +187,19 @@
                     var idx = arg.IndexOf('=');
                     if (idx == -1)
                     {
-                        if (pluginConfiguration.AppSettings.Settings[arg] == null)
-                        {
-                            pluginConfiguration.AppSettings.Settings.Add(arg, i.ToString("D", CultureInfo.InvariantCulture));
-                        }
+                        var key = arg;
+                        if (pluginConfiguration.AppSettings.Settings[key] != null)
+                            pluginConfiguration.AppSettings.Settings.Remove(key);
+
+                        pluginConfiguration.AppSettings.Settings.Add(key, string.Empty);
                     }
                     else
                     {
                         var key = arg.Substring(0, idx).Trim();
-                        if (pluginConfiguration.AppSettings.Settings[key] == null)
-                        {
-                            pluginConfiguration.AppSettings.Settings.Add(key, arg.Substring(idx + 1).Trim());
-                        }
+                        if (pluginConfiguration.AppSettings.Settings[key] != null)
+                            pluginConfiguration.AppSettings.Settings.Remove(key);
+
+                        pluginConfiguration.AppSettings.Settings.Add(key, arg.Substring(idx + 1).Trim());
                     }
                 }
             }
