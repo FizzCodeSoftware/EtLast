@@ -95,7 +95,6 @@
             var text = GetLevelNameAbbreviation();
             var colorCode = GetLevelColorCode();
 
-            ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.Value, "[");
             ColorCodeContext.Write(builder, colorCode, text);
 
             string GetLevelNameAbbreviation()
