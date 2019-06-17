@@ -4,7 +4,7 @@
 
     public class OperationGroup : AbstractRowOperation, IOperationGroup
     {
-        public IfDelegate If { get; set; }
+        public IfRowDelegate If { get; set; }
         public List<IRowOperation> Then { get; } = new List<IRowOperation>();
         public List<IRowOperation> Else { get; } = new List<IRowOperation>();
 

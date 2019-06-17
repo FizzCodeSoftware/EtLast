@@ -8,7 +8,7 @@
     public class JoinOperation : AbstractKeyBasedCrossOperation
     {
         public NoMatchMode Mode { get; set; }
-        public IfDelegate If { get; set; }
+        public IfRowDelegate If { get; set; }
         public JoinRightRowFilterDelegate RightRowFilter { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         private readonly Dictionary<string, List<IRow>> _lookup = new Dictionary<string, List<IRow>>();

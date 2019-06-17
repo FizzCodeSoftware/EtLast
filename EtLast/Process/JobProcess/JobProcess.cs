@@ -135,6 +135,16 @@
         {
             try
             {
+                if (job.If != null)
+                {
+                    var ok = job.If.Invoke(this, job);
+                    if (!ok)
+                    {
+                        Context.Log(LogSeverity.Debug, this, "job '{JobName}' is skipped due to 'If' condition is evaluated as false", job.GetType().Name);
+                        return;
+                    }
+                }
+
                 job.Execute(this, Context.CancellationTokenSource);
             }
             catch (OperationCanceledException) { }

@@ -82,12 +82,13 @@
     <Compile Include="Process\IRowOperation.cs" />
     <Compile Include="Process\IFinalProcess.cs" />
     <Compile Include="Process\IBaseOperation.cs" />
+    <Compile Include="Process\JobProcess\EnumsAndDelegates\IfJobDelegate.cs" />
     <Compile Include="Process\JobProcess\IJobProcess.cs" />
     <Compile Include="Process\MergeProcess\AbstractMergeProcess.cs" />
     <Compile Include="Process\MergeProcess\IMergeProcess.cs" />
     <Compile Include="Process\MergeProcess\ParallelMergeProcess.cs" />
     <Compile Include="Process\MergeProcess\SequentialMergeProcess.cs" />
-    <Compile Include="Process\OperationProcess\EnumsAndDelegates\IfDelegate.cs" />
+    <Compile Include="Process\OperationProcess\EnumsAndDelegates\IfRowDelegate.cs" />
     <Compile Include="Process\OperationProcess\IOperationGroup.cs" />
     <Compile Include="Process\OperationProcess\AbstractOperationProcess.cs" />
     <Compile Include="Process\OperationProcess\OperationStat.cs" />

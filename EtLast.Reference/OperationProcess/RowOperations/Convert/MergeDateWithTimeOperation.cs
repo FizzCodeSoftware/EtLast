@@ -4,7 +4,7 @@
 
     public class MergeDateWithTimeOperation : AbstractRowOperation
     {
-        public IfDelegate If { get; set; }
+        public IfRowDelegate If { get; set; }
         public string TargetColumn { get; set; }
         public string SourceDateColumn { get; set; }
         public string SourceTimeColumn { get; set; }

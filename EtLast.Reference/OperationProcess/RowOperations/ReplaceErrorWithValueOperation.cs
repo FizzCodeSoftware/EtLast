@@ -7,7 +7,7 @@
     /// </summary>
     public class ReplaceErrorWithValueOperation : AbstractRowOperation
     {
-        public IfDelegate If { get; set; }
+        public IfRowDelegate If { get; set; }
         public string[] Columns { get; set; }
         public object Value { get; set; }
 

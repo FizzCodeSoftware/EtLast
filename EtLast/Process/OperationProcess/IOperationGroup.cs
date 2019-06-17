@@ -4,7 +4,7 @@
 
     public interface IOperationGroup : IRowOperation
     {
-        IfDelegate If { get; set; }
+        IfRowDelegate If { get; set; }
 
         List<IRowOperation> Then { get; }
         List<IRowOperation> Else { get; }

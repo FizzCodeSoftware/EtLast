@@ -2,7 +2,7 @@
 {
     public class MergeStringColumnsOperation : AbstractRowOperation
     {
-        public IfDelegate If { get; set; }
+        public IfRowDelegate If { get; set; }
         public string[] ColumnsToMerge { get; set; }
         public string TargetColumn { get; set; }
         public string Separator { get; set; }

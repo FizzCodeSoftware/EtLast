@@ -5,7 +5,7 @@
     public class ValidateForeignKeyOperation : AbstractKeyBasedCrossOperation
     {
         public ForeignKeyValidationMode Mode { get; set; }
-        public IfDelegate If { get; set; }
+        public IfRowDelegate If { get; set; }
         private readonly HashSet<string> _lookup = new HashSet<string>();
 
         public ValidateForeignKeyOperation(ForeignKeyValidationMode mode)

@@ -5,6 +5,7 @@
     public abstract class AbstractJob : IJob
     {
         public string Name { get; }
+        public IfJobDelegate If { get; set; }
 
         protected AbstractJob()
         {

@@ -6,7 +6,7 @@
     public class CustomExpandOperation : AbstractCrossOperation
     {
         public NoMatchMode Mode { get; set; }
-        public IfDelegate If { get; set; }
+        public IfRowDelegate If { get; set; }
         public MatchingRowSelector MatchingRowSelector { get; set; }
         public KeySelector RightKeySelector { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }

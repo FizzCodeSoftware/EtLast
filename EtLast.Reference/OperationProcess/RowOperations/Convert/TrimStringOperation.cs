@@ -4,7 +4,7 @@ namespace FizzCode.EtLast
 {
     public class TrimStringOperation : AbstractRowOperation
     {
-        public IfDelegate If { get; set; }
+        public IfRowDelegate If { get; set; }
         public string[] Columns { get; set; }
 
         public override void Apply(IRow row)

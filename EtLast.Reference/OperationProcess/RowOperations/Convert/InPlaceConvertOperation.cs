@@ -2,7 +2,7 @@
 {
     public class InPlaceConvertOperation : AbstractRowOperation
     {
-        public IfDelegate If { get; set; }
+        public IfRowDelegate If { get; set; }
         public string[] Columns { get; set; }
         public ITypeConverter TypeConverter { get; set; }
 

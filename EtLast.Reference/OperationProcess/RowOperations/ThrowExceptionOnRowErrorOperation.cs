@@ -2,7 +2,7 @@
 {
     public class ThrowExceptionOnRowErrorOperation : AbstractRowOperation
     {
-        public IfDelegate If { get; set; }
+        public IfRowDelegate If { get; set; }
 
         public override void Apply(IRow row)
         {

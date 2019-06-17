@@ -4,7 +4,7 @@
 
     public class ColumnValidationOperation : AbstractRowOperation
     {
-        public IfDelegate If { get; set; }
+        public IfRowDelegate If { get; set; }
         public string Column { get; set; }
         public Func<IRow, bool> ErrorIf { get; set; }
 

@@ -7,7 +7,7 @@
     /// </summary>
     public class RenameColumnsOperation : AbstractRowOperation
     {
-        public IfDelegate If { get; set; }
+        public IfRowDelegate If { get; set; }
         public List<ColumnRenameConfiguration> ColumnConfiguration { get; set; }
         public InvalidOperationAction ActionIfInvalid { get; set; } = InvalidOperationAction.Throw;
 

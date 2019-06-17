@@ -8,7 +8,7 @@
 
     public class MsSqlWriteToTableOperation : AbstractRowOperation
     {
-        public IfDelegate If { get; set; }
+        public IfRowDelegate If { get; set; }
         public string ConnectionStringKey { get; set; }
         public int CommandTimeout { get; set; } = 30;
 
