@@ -158,6 +158,8 @@
                 var endColumn = !Transpose ? sheet.Dimension.End.Column : sheet.Dimension.End.Row;
                 var endRow = !Transpose ? sheet.Dimension.End.Row : sheet.Dimension.End.Column;
 
+                var excelColumns = new List<string>();
+
                 for (var colIndex = FirstDataColumn; colIndex <= endColumn; colIndex++)
                 {
                     var excelColumn = string.Empty;
@@ -194,6 +196,8 @@
 
                     if (string.IsNullOrEmpty(excelColumn))
                         continue;
+
+                    excelColumn = EnsureDistinctColumnNames(excelColumns, excelColumn);
 
                     var columnConfiguration = ColumnConfiguration.Find(x => string.Compare(x.SourceColumn, excelColumn, true) == 0);
                     if (columnConfiguration != null)
@@ -268,6 +272,18 @@
             }
 
             Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, sw.Elapsed);
+        }
+
+        private static string EnsureDistinctColumnNames(List<string> excelColumns, string excelColumn)
+        {
+            var i = 1;
+            while (excelColumns.Contains(excelColumn))
+            {
+                excelColumn = excelColumn + i++.ToString();
+            }
+
+            excelColumns.Add(excelColumn);
+            return excelColumn;
         }
 
         private ExcelRange GetCellUnmerged(ExcelWorksheet sheet, int row, int col)
