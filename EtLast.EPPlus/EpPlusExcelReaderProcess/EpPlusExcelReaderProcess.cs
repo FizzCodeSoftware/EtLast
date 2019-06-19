@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -276,14 +277,16 @@
 
         private static string EnsureDistinctColumnNames(List<string> excelColumns, string excelColumn)
         {
+            var col = excelColumn;
             var i = 1;
-            while (excelColumns.Contains(excelColumn))
+            while (excelColumns.Contains(col))
             {
-                excelColumn = excelColumn + i++.ToString();
+                col = excelColumn + i.ToString("D", CultureInfo.InvariantCulture);
+                i++;
             }
 
-            excelColumns.Add(excelColumn);
-            return excelColumn;
+            excelColumns.Add(col);
+            return col;
         }
 
         private ExcelRange GetCellUnmerged(ExcelWorksheet sheet, int row, int col)
