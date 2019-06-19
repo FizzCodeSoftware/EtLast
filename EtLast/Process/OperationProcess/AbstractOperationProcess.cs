@@ -40,7 +40,7 @@
         {
             foreach (var op in _operations)
             {
-                op.SetParentGroup(null, null, 0);
+                op.SetParentGroup(null, 0);
             }
 
             _operations.Clear();
@@ -62,7 +62,8 @@
         public T AddOperation<T>(T operation)
             where T : IRowOperation
         {
-            operation.SetParent(this, _operations.Count);
+            operation.SetProcess(this);
+            operation.SetParent(_operations.Count);
 
             if (_operations.Count > 0)
             {

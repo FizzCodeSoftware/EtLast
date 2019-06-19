@@ -11,19 +11,19 @@
         public object[,] Rows { get; }
         public int RowCount { get; set; }
 
-        private readonly string[] _columns;
+        private readonly string[] _dbColumns;
         private readonly Dictionary<string, int> _columnIndexes;
 
         private DataTable _schemaTable;
         private int _currentIndex;
         private bool _active = true;
 
-        public RowShadowReader(int batchSize, string[] columns, Dictionary<string, int> columnIndexes)
+        public RowShadowReader(int batchSize, string[] dbColumns, Dictionary<string, int> columnIndexes)
         {
-            _columns = columns;
+            _dbColumns = dbColumns;
             _columnIndexes = columnIndexes;
 
-            Rows = new object[batchSize, columns.Length];
+            Rows = new object[batchSize, dbColumns.Length];
             RowCount = 0;
 
             CreateSchemaTable();
@@ -46,10 +46,10 @@
             };
 
             var rowData = new object[5];
-            for (var i = 0; i < _columns.Length; i++)
+            for (var i = 0; i < _dbColumns.Length; i++)
             {
                 rowData[0] = i;
-                rowData[1] = _columns[i];
+                rowData[1] = _dbColumns[i];
                 rowData[2] = typeof(object);
                 rowData[3] = -1;
                 rowData[4] = true;
@@ -120,7 +120,7 @@
             Reset();
         }
 
-        public override int FieldCount => _columns.Length;
+        public override int FieldCount => _dbColumns.Length;
 
         public override bool IsClosed => !_active;
 
@@ -220,7 +220,7 @@
 
         public override string GetName(int ordinal)
         {
-            return _columns[ordinal];
+            return _dbColumns[ordinal];
         }
 
         public override int GetOrdinal(string name)
@@ -247,7 +247,7 @@
         {
             var rows = Rows; // cache on stack
 
-            var count = Math.Min(values.Length, _columns.Length);
+            var count = Math.Min(values.Length, _dbColumns.Length);
             for (var i = 0; i < count; i++)
                 values[i] = rows[_currentIndex, i] ?? DBNull.Value;
 

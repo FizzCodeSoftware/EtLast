@@ -7,7 +7,9 @@
         int Index { get; }
 
         IProcess Process { get; }
-        void SetParent(IProcess process, int index);
+
+        void SetProcess(IProcess process);
+        void SetParent(int index);
 
         void Prepare();
         void Shutdown();

@@ -18,6 +18,9 @@
 
         public object ProcessValue(object value, string column)
         {
+            if (value == null)
+                return null;
+
             if (value.GetType().Name == "MySqlDateTime")
             {
                 if (_mysqlDateTimeIsNullProp == null)

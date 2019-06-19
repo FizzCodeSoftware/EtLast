@@ -8,30 +8,21 @@
     public class AdoNetDbReaderProcess : AbstractAdoNetDbReaderProcess
     {
         public string TableName { get; set; }
+
         public string CustomWhereClause { get; set; }
         public string CustomOrderByClause { get; set; }
-        public string[] Columns { get; set; }
-        public int RecordCountLimit { get; set; } = 0;
+        public int RecordCountLimit { get; set; }
 
         public AdoNetDbReaderProcess(IEtlContext context, string name)
             : base(context, name)
         {
         }
 
-        protected virtual string GetTransformedTableName()
-        {
-            return TableName;
-        }
-
-        protected virtual string GetTransformedColumn(string column)
-        {
-            return column;
-        }
-
         public override IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
             Caller = caller;
-            if (string.IsNullOrEmpty(TableName))
+
+            if (TableName == null)
                 throw new ProcessParameterNullException(this, nameof(TableName));
 
             return base.Evaluate(caller);
@@ -39,31 +30,18 @@
 
         protected override string CreateSqlStatement()
         {
-            List<string> columns = null;
-            if (Columns != null)
+            List<string> dbColumns = null;
+            if (ColumnConfiguration != null)
             {
-                columns = new List<string>();
-                foreach (var column in Columns)
+                dbColumns = new List<string>();
+                foreach (var column in ColumnConfiguration)
                 {
-                    string trCol;
-                    if (column.Contains("=>"))
-                    {
-                        var parts = column.Split(new[] { "=>" }, StringSplitOptions.RemoveEmptyEntries);
-                        trCol = GetTransformedColumn(parts[0].Trim()) + " AS " + parts[1].Trim() + ""; // removed automatic [x] escaping because it works only for MsSql
-                    }
-                    else
-                    {
-                        trCol = GetTransformedColumn(column);
-                    }
-
-                    columns.Add(trCol);
+                    dbColumns.Add(column.SourceColumn);
                 }
             }
 
-            var tableName = GetTransformedTableName();
-
-            var columnList = columns?.Count > 0
-                ? string.Join(", ", columns)
+            var columnList = dbColumns?.Count > 0
+                ? string.Join(", ", dbColumns)
                 : "*";
 
             var prefix = string.Empty;
@@ -93,7 +71,7 @@
                 // todo: support Oracle Syntax: https://www.w3schools.com/sql/sql_top.asp
             }
 
-            return "SELECT " + (!string.IsNullOrEmpty(prefix) ? prefix + " " : "") + columnList + " FROM " + tableName + (!string.IsNullOrEmpty(postfix) ? " " + postfix : "");
+            return "SELECT " + (!string.IsNullOrEmpty(prefix) ? prefix + " " : "") + columnList + " FROM " + TableName + (!string.IsNullOrEmpty(postfix) ? " " + postfix : "");
         }
 
         protected override void LogAction()

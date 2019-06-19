@@ -36,25 +36,29 @@
             PrevOperation = operation;
         }
 
-        public void SetParent(IOperationProcess process, int index)
+        public virtual void SetProcess(IOperationProcess process)
         {
             Process = process;
+        }
+
+        public void SetProcess(IProcess process)
+        {
+            if (!(process is IOperationProcess operationProcess))
+                throw new InvalidOperationParameterException(this, "parent process", process, "parent process must be an IOperationProcess");
+
+            SetProcess(operationProcess);
+        }
+
+        public void SetParent(int index)
+        {
             ParentGroup = null;
             Index = index;
             Name = Index.ToString("D2") + "." + (InstanceName != null ? InstanceName + "(" + GetType().Name + ")" : GetType().Name);
             _hash = Name.GetHashCode();
         }
 
-        public void SetParent(IProcess process, int index)
+        public void SetParentGroup(IOperationGroup parentGroup, int index)
         {
-            if (!(process is IOperationProcess pr))
-                throw new InvalidOperationParameterException(this, "parent process", process, "parent process must be an IOperationProcess");
-            SetParent(pr, index);
-        }
-
-        public void SetParentGroup(IOperationProcess process, IOperationGroup parentGroup, int index)
-        {
-            Process = process;
             ParentGroup = parentGroup;
             Index = index;
             Name = (ParentGroup != null ? ParentGroup.Name + "|" : "") + Index.ToString("D2") + "." + (InstanceName != null ? InstanceName + "(" + GetType().Name + ")" : GetType().Name);

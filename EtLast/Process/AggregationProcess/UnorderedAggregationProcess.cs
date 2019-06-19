@@ -14,7 +14,17 @@
     public class UnorderedAggregationProcess : AbstractAggregationProcess
     {
         private IAggregationOperation _operation;
-        public IAggregationOperation Operation { get => _operation; set { _operation = value; _operation.SetParent(this, 0); } }
+
+        public IAggregationOperation Operation
+        {
+            get => _operation;
+            set
+            {
+                _operation = value;
+                _operation.SetProcess(this);
+                _operation.SetParent(0);
+            }
+        }
 
         public UnorderedAggregationProcess(IEtlContext context, string name)
             : base(context, name)

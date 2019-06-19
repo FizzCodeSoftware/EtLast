@@ -14,9 +14,13 @@
 
         public abstract void TransformGroup(string[] groupingColumns, IProcess process, IRow row, IRow aggregateRow, int rowsInGroup);
 
-        public void SetParent(IProcess process, int index)
+        public void SetProcess(IProcess process)
         {
             Process = process;
+        }
+
+        public void SetParent(int index)
+        {
             Index = index;
         }
 

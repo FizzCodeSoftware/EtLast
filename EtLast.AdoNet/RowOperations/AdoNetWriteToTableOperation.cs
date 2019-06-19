@@ -17,6 +17,8 @@
         public int MaximumParameterCount { get; set; } = 30;
         public IDictionary<string, DbType> ColumnTypes { get; set; }
 
+        public DbTableDefinition TableDefinition { get; set; }
+
         public IAdoNetWriteToTableSqlStatementCreator SqlStatementCreator { get; set; }
 
         private DatabaseConnection _connection;
@@ -75,19 +77,12 @@
 
         public int ParameterCount => _command?.Parameters.Count ?? 0;
 
-        public void CreateParameter(string column, object value)
+        public void CreateParameter(DbColumnDefinition dbColumnDefinition, object value)
         {
             var parameter = _command.CreateParameter();
             parameter.ParameterName = "@" + _command.Parameters.Count.ToString("D", CultureInfo.InvariantCulture);
-            if (ColumnTypes != null && ColumnTypes.TryGetValue(column, out var dbType))
-            {
-                parameter.Value = value;
-                parameter.DbType = dbType;
-            }
-            else
-            {
-                SetParameter(parameter, value, _connectionStringSettings);
-            }
+
+            SetParameter(parameter, value, dbColumnDefinition.DbType, _connectionStringSettings);
 
             _command.Parameters.Add(parameter);
         }
@@ -114,16 +109,17 @@
 
                 if (shutdown || (_rowsWritten / 10000 != (_rowsWritten - recordCount) / 10000))
                 {
-                    process.Context.Log(shutdown ? LogSeverity.Information : LogSeverity.Debug, process, "{TotalRowCount} rows written to {TableName}, average speed is {AvgSpeed} msec/Krow)", _rowsWritten, SqlStatementCreator.TableName, Math.Round(_fullTime.ElapsedMilliseconds * 1000 / (double)_rowsWritten, 1));
+                    var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
+                    process.Context.Log(severity, process, "{TotalRowCount} rows written to {TableName}, average speed is {AvgSpeed} msec/Krow)", _rowsWritten, TableDefinition.TableName, Math.Round(_fullTime.ElapsedMilliseconds * 1000 / (double)_rowsWritten, 1));
                 }
             }
             catch (Exception ex)
             {
                 var exception = new OperationExecutionException(process, this, "database write failed", ex);
-                exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message: {2}, command: {3}", ConnectionStringKey, SqlStatementCreator.TableName, ex.Message, statement));
+                exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message: {2}, command: {3}", ConnectionStringKey, TableDefinition.TableName, ex.Message, statement));
                 exception.Data.Add("ConnectionStringKey", ConnectionStringKey);
-                exception.Data.Add("TableName", SqlStatementCreator.TableName);
-                exception.Data.Add("Columns", string.Join(",", SqlStatementCreator.AllColumns));
+                exception.Data.Add("TableName", TableDefinition.TableName);
+                exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + x.DbColumn)));
                 exception.Data.Add("CompiledSql", CompileSql(_command));
                 exception.Data.Add("Timeout", CommandTimeout);
                 exception.Data.Add("Elapsed", sw.Elapsed);
@@ -175,7 +171,10 @@
                 throw new InvalidOperationParameterException(this, nameof(MaximumParameterCount), MaximumParameterCount, "value must be greater than 0");
             if (SqlStatementCreator == null)
                 throw new OperationParameterNullException(this, nameof(SqlStatementCreator));
-            SqlStatementCreator.Prepare(this, Process);
+            if (TableDefinition == null)
+                throw new OperationParameterNullException(this, nameof(TableDefinition));
+
+            SqlStatementCreator.Prepare(this, Process, TableDefinition);
 
             _connectionStringSettings = Process.Context.GetConnectionStringSettings(ConnectionStringKey);
             if (_connectionStringSettings == null)
@@ -204,24 +203,34 @@
             ConnectionManager.ReleaseConnection(ref _connection);
         }
 
-        public virtual void SetParameter(IDbDataParameter parameter, object value, ConnectionStringSettings connectionStringSettings)
+        public virtual void SetParameter(IDbDataParameter parameter, object value, DbType? dbType, ConnectionStringSettings connectionStringSettings)
         {
             if (value == null)
             {
+                if (dbType != null)
+                    parameter.DbType = dbType.Value;
+
                 parameter.Value = DBNull.Value;
                 return;
             }
 
-            if (value is DateTime)
+            if (dbType == null)
             {
-                parameter.DbType = DbType.DateTime2;
-            }
+                if (value is DateTime)
+                {
+                    parameter.DbType = DbType.DateTime2;
+                }
 
-            if (value is double)
+                if (value is double)
+                {
+                    parameter.DbType = DbType.Decimal;
+                    parameter.Precision = 38;
+                    parameter.Scale = 18;
+                }
+            }
+            else
             {
-                parameter.DbType = DbType.Decimal;
-                parameter.Precision = 38;
-                parameter.Scale = 18;
+                parameter.DbType = dbType.Value;
             }
 
             parameter.Value = value;

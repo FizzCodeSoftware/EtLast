@@ -13,13 +13,16 @@
         public string ConnectionStringKey { get; set; }
         public string AddRowIndexToColumn { get; set; }
 
+        public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
+        public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
+
         /// <summary>
         /// If true, this process will execute out of ambient transaction scope.
         /// See <see cref="TransactionScopeOption.Suppress"/>>.
         /// </summary>
         public bool SuppressExistingTransactionScope { get; set; } = false;
         public int CommandTimeout { get; set; } = 3600;
-        public DateTime LastDataRead { get; set; }
+        public DateTime LastDataRead { get; private set; }
         public List<ISqlValueProcessor> SqlValueProcessors { get; } = new List<ISqlValueProcessor>();
 
         protected ConnectionStringSettings ConnectionStringSettings { get; private set; }
@@ -97,6 +100,8 @@
 
             LastDataRead = DateTime.Now;
 
+            var map = ColumnConfiguration?.ToDictionary(x => x.SourceColumn);
+
             if (reader != null && !Context.CancellationTokenSource.IsCancellationRequested)
             {
                 while (!Context.CancellationTokenSource.IsCancellationRequested)
@@ -119,26 +124,45 @@
                     var row = Context.CreateRow(reader.FieldCount);
                     for (var i = 0; i < reader.FieldCount; i++)
                     {
-                        var column = string.Intern(reader.GetName(i));
-                        var value = reader.GetValue(i);
-                        if (!(value is DBNull))
-                        {
-                            if (usedSqlValueProcessors != null)
-                            {
-                                foreach (var processor in usedSqlValueProcessors)
-                                {
-                                    value = processor.ProcessValue(value, column);
-                                }
-                            }
+                        var dbColumn = string.Intern(reader.GetName(i));
+                        var rowColumn = dbColumn;
 
-                            row.SetValue(column, value, this);
+                        ReaderColumnConfiguration columnConfig = null;
+                        if (map != null && map.TryGetValue(dbColumn, out columnConfig))
+                        {
+                            rowColumn = columnConfig.RowColumn ?? columnConfig.SourceColumn;
                         }
+
+                        var config = columnConfig ?? DefaultColumnConfiguration;
+
+                        var value = reader.GetValue(i);
+                        if (value is DBNull)
+                            value = null;
+
+                        if (usedSqlValueProcessors != null)
+                        {
+                            foreach (var processor in usedSqlValueProcessors)
+                            {
+                                value = processor.ProcessValue(value, dbColumn);
+                            }
+                        }
+
+                        if (config != null)
+                        {
+                            value = ReaderProcessHelper.HandleConverter(this, value, index, rowColumn, config, row, out var error);
+                            if (error)
+                                continue;
+                        }
+
+                        row.SetValue(rowColumn, value, this);
                     }
 
                     resultCount++;
                     index++;
+
                     if (AddRowIndexToColumn != null)
                         row.SetValue(AddRowIndexToColumn, index, this);
+
                     yield return row;
                 }
             }

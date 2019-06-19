@@ -5,6 +5,7 @@
     using System.Configuration;
     using System.Data.SqlClient;
     using System.Diagnostics;
+    using System.Linq;
 
     public class MsSqlWriteToTableOperation : AbstractRowOperation
     {
@@ -12,13 +13,12 @@
         public string ConnectionStringKey { get; set; }
         public int CommandTimeout { get; set; } = 30;
 
-        public string TableName { get; set; }
-        public string[] Columns { get; set; }
+        public DbTableDefinition TableDefinition { get; set; }
 
         /// <summary>
-        /// Sets <see cref="SqlBulkCopyOptions.CheckConstraints"/>.
+        /// Default value is <see cref="SqlBulkCopyOptions.KeepIdentity"/>.
         /// </summary>
-        public bool BulkCopyOptionCheckConstraints { get; set; }
+        public SqlBulkCopyOptions BulkCopyOptions { get; set; } = SqlBulkCopyOptions.KeepIdentity;
 
         /// <summary>
         /// Default value is 10000
@@ -42,14 +42,16 @@
 
             lock (_lock)
             {
-                for (var i = 0; i < Columns.Length; i++)
+                var rc = _reader.RowCount;
+                for (var i = 0; i < TableDefinition.Columns.Length; i++)
                 {
-                    _reader.Rows[_reader.RowCount, i] = row[Columns[i]];
+                    _reader.Rows[rc, i] = row[TableDefinition.Columns[i].RowColumn];
                 }
 
-                _reader.RowCount++;
+                rc++;
+                _reader.RowCount = rc;
 
-                if (_reader.RowCount >= BatchSize)
+                if (rc >= BatchSize)
                 {
                     InitConnection(Process);
                     lock (_connection.Lock)
@@ -78,7 +80,8 @@
 
                 _rowsWritten += recordCount;
 
-                process.Context.Log(shutdown ? LogSeverity.Information : LogSeverity.Debug, process, "{TotalRowCount} rows written to {TableName}, average speed is {AvgSpeed} msec/Krow), batch time: {BatchElapsed}", _rowsWritten, TableName, Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
+                var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
+                process.Context.Log(severity, process, "{TotalRowCount} rows written to {TableName}, average speed is {AvgSpeed} msec/Krow), batch time: {BatchElapsed}", _rowsWritten, TableDefinition.TableName, Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
             }
             catch (Exception ex)
             {
@@ -87,10 +90,10 @@
                 _bulkCopy = null;
 
                 var exception = new OperationExecutionException(process, this, "database write failed", ex);
-                exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message {2}", ConnectionStringKey, TableName, ex.Message));
+                exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message {2}", ConnectionStringKey, TableDefinition.TableName, ex.Message));
                 exception.Data.Add("ConnectionStringKey", ConnectionStringKey);
-                exception.Data.Add("TableName", TableName);
-                exception.Data.Add("Columns", string.Join(",", Columns));
+                exception.Data.Add("TableName", TableDefinition.TableName);
+                exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + x.DbColumn)));
                 exception.Data.Add("Timeout", CommandTimeout);
                 exception.Data.Add("Elapsed", _timer.Elapsed);
                 exception.Data.Add("TotalRowsWritten", _rowsWritten);
@@ -104,6 +107,8 @@
         {
             if (string.IsNullOrEmpty(ConnectionStringKey))
                 throw new OperationParameterNullException(this, nameof(ConnectionStringKey));
+            if (TableDefinition == null)
+                throw new OperationParameterNullException(this, nameof(TableDefinition));
 
             _connectionStringSettings = Process.Context.GetConnectionStringSettings(ConnectionStringKey);
             if (_connectionStringSettings == null)
@@ -115,12 +120,12 @@
             _timer = new Stopwatch();
 
             var columnIndexes = new Dictionary<string, int>();
-            for (var i = 0; i < Columns.Length; i++)
+            for (var i = 0; i < TableDefinition.Columns.Length; i++)
             {
-                columnIndexes[Columns[i]] = i;
+                columnIndexes[TableDefinition.Columns[i].RowColumn] = i;
             }
 
-            _reader = new RowShadowReader(BatchSize, Columns, columnIndexes);
+            _reader = new RowShadowReader(BatchSize, TableDefinition.Columns.Select(x => x.DbColumn).ToArray(), columnIndexes);
         }
 
         private void InitConnection(IProcess process)
@@ -130,20 +135,15 @@
 
             _connection = ConnectionManager.GetConnection(_connectionStringSettings, process);
 
-
-            var sqlBulkCopyOptions = SqlBulkCopyOptions.KeepIdentity;
-            if (BulkCopyOptionCheckConstraints)
-                sqlBulkCopyOptions = sqlBulkCopyOptions | SqlBulkCopyOptions.CheckConstraints;
-
-            _bulkCopy = new SqlBulkCopy(_connection.Connection as SqlConnection, SqlBulkCopyOptions.KeepIdentity, null)
+            _bulkCopy = new SqlBulkCopy(_connection.Connection as SqlConnection, BulkCopyOptions, null)
             {
-                DestinationTableName = TableName,
+                DestinationTableName = TableDefinition.TableName,
                 BulkCopyTimeout = CommandTimeout,
             };
 
-            foreach (var column in Columns)
+            foreach (var column in TableDefinition.Columns)
             {
-                _bulkCopy.ColumnMappings.Add(column, column);
+                _bulkCopy.ColumnMappings.Add(column.RowColumn, column.DbColumn);
             }
         }
 

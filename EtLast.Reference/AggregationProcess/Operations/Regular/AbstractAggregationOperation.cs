@@ -16,9 +16,13 @@
 
         public abstract IEnumerable<IRow> TransformGroup(string[] groupingColumns, IProcess process, List<IRow> rows);
 
-        public void SetParent(IProcess process, int index)
+        public void SetProcess(IProcess process)
         {
             Process = process;
+        }
+
+        public void SetParent(int index)
+        {
             Index = index;
         }
 

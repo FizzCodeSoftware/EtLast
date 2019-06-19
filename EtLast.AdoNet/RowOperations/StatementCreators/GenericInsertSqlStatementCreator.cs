@@ -7,50 +7,36 @@
 
     public class GenericInsertSqlStatementCreator : IAdoNetWriteToTableSqlStatementCreator
     {
-        public string TableName { get; set; }
-        public string[] Columns { get; set; }
-        public IEnumerable<string> AllColumns => Columns;
+        private string _dbColumns;
+        private DbTableDefinition _tableDefinition;
+        private DbColumnDefinition[] _columns;
 
-        public List<(string DbColumn, string RowColumn)> ColumnMap { get; set; }
-        private Dictionary<string, string> _map;
-
-        private string _allColumnsConvertedAndJoined;
-
-        public void Prepare(AdoNetWriteToTableOperation operation, IProcess process)
+        public void Prepare(AdoNetWriteToTableOperation operation, IProcess process, DbTableDefinition tableDefinition)
         {
-            if (string.IsNullOrEmpty(TableName))
-                throw new OperationParameterNullException(operation, nameof(TableName));
-            if (Columns == null)
-                throw new OperationParameterNullException(operation, nameof(Columns));
-            _allColumnsConvertedAndJoined = string.Join(", ", Columns.Select(GetDbColumnName));
-
-            _map = ColumnMap?.ToDictionary(x => x.RowColumn, x => x.DbColumn);
+            _tableDefinition = tableDefinition;
+            _columns = _tableDefinition.Columns.Where(x => x.Insert).ToArray();
+            _dbColumns = string.Join(", ", _columns.Select(x => x.DbColumn));
         }
 
-        public string CreateRowStatement(ConnectionStringSettings settings, IRow row, AdoNetWriteToTableOperation op)
+        public string CreateRowStatement(ConnectionStringSettings settings, IRow row, AdoNetWriteToTableOperation operation)
         {
-            var startIndex = op.ParameterCount;
-            foreach (var column in Columns)
+            var startIndex = operation.ParameterCount;
+            foreach (var column in _columns)
             {
-                op.CreateParameter(column, row[column]);
+                operation.CreateParameter(column, row[column.RowColumn]);
             }
 
-            var statement = "(" + string.Join(", ", Columns.Select(x => "@" + startIndex++.ToString("D", CultureInfo.InvariantCulture))) + ")";
+            var statement = "(" + string.Join(", ", _columns.Select(_ => "@" + startIndex++.ToString("D", CultureInfo.InvariantCulture))) + ")";
 
             if (row.Flagged)
-                op.Process.Context.LogRow(op.Process, row, "sql statement generated: {SqlStatement}", statement);
+                operation.Process.Context.LogRow(operation.Process, row, "sql statement generated: {SqlStatement}", statement);
 
             return statement;
         }
 
         public string CreateStatement(ConnectionStringSettings settings, List<string> rowStatements)
         {
-            return "INSERT INTO " + TableName + " (" + _allColumnsConvertedAndJoined + ") VALUES \n" + string.Join(",\n", rowStatements) + ";";
-        }
-
-        public string GetDbColumnName(string rowColumnName)
-        {
-            return (_map != null && _map.TryGetValue(rowColumnName, out var dbColumnName)) ? dbColumnName : rowColumnName;
+            return "INSERT INTO " + _tableDefinition.TableName + " (" + _dbColumns + ") VALUES \n" + string.Join(",\n", rowStatements) + ";";
         }
     }
 }

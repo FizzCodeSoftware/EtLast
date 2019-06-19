@@ -50,20 +50,33 @@
 
         public void AddThenOperation(IRowOperation operation)
         {
-            if (Process == null)
-                throw new InvalidOperationParameterException(this, nameof(Then), Then, "cannot call " + nameof(AddThenOperation) + " before " + nameof(OperationGroup) + " is added to the parent process");
-
-            operation.SetParentGroup(Process, this, Then.Count);
+            operation.SetParentGroup(this, Then.Count);
             Then.Add(operation);
         }
 
         public void AddElseOperation(IRowOperation operation)
         {
-            if (Process == null)
-                throw new InvalidOperationParameterException(this, nameof(Then), Then, "cannot call " + nameof(AddElseOperation) + " before " + nameof(OperationGroup) + " is added to the parent process");
-
-            operation.SetParentGroup(Process, this, Else.Count);
+            operation.SetParentGroup(this, Else.Count);
             Else.Add(operation);
+        }
+
+        public override void SetProcess(IOperationProcess process)
+        {
+            base.SetProcess(process);
+
+            var idx = 0;
+            foreach (var op in Then)
+            {
+                op.SetProcess(Process);
+                idx++;
+            }
+
+            idx = 0;
+            foreach (var op in Else)
+            {
+                op.SetProcess(Process);
+                idx++;
+            }
         }
 
         public override void Prepare()

@@ -15,6 +15,7 @@
         public override IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
             Caller = caller;
+
             if (string.IsNullOrEmpty(Sql))
                 throw new ProcessParameterNullException(this, nameof(Sql));
 

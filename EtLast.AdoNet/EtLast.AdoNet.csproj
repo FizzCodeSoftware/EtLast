@@ -74,6 +74,8 @@
     <Compile Include="AdoNetDbReaderProcess\CustomSqlDbReaderProcess.cs" />
     <Compile Include="DatabaseConnection.cs" />
     <Compile Include="DbConnectionHelper.cs" />
+    <Compile Include="DbTableDescriptor\DbColumnDefinition.cs" />
+    <Compile Include="DbTableDescriptor\DbTableDefinition.cs" />
     <Compile Include="JobProcess\CustomSqlStatementJob.cs" />
     <Compile Include="JobProcess\CopyTableIntoExistingTableJob.cs" />
     <Compile Include="JobProcess\CopyTableStructureJob.cs" />

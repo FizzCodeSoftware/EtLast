@@ -20,11 +20,15 @@
             {
                 ConnectionStringKey = "fake",
                 MaximumParameterCount = 1000,  // write will occur on Shutdown due to not enough parameters
-                SqlStatementCreator = new GenericInsertSqlStatementCreator()
+                TableDefinition = new DbTableDefinition()
                 {
                     TableName = "temp",
-                    Columns = SeedColumnNames,
+                    Columns = new[]
+                    {
+                         new DbColumnDefinition(SeedColumnNames[0], SeedColumnNames[0]),
+                    }
                 },
+                SqlStatementCreator = new GenericInsertSqlStatementCreator(),
             });
 
             RunEtl(process, 1); // only 1 row to force write on Shutdown
@@ -39,18 +43,22 @@
         public void NoConnectionStringProviderNameOnWorker()
         {
             var context = new EtlContext<DictionaryRow>();
-            context.Configuration.ConnectionStrings.ConnectionStrings.Add(new System.Configuration.ConnectionStringSettings("fake", "wontwork"));
+            context.Configuration.ConnectionStrings.ConnectionStrings.Add(new ConnectionStringSettings("fake", "wontwork"));
 
             var process = CreateProcess(context);
             process.AddOperation(new AdoNetWriteToTableOperation()
             {
                 ConnectionStringKey = "fake",
                 MaximumParameterCount = 10, // write will occur on worker
-                SqlStatementCreator = new GenericInsertSqlStatementCreator()
+                TableDefinition = new DbTableDefinition()
                 {
                     TableName = "temp",
-                    Columns = SeedColumnNames,
+                    Columns = new[]
+                    {
+                         new DbColumnDefinition(SeedColumnNames[0], SeedColumnNames[0]),
+                    }
                 },
+                SqlStatementCreator = new GenericInsertSqlStatementCreator(),
             });
 
             RunEtl(process, 100); // 100 rows to force write on worker
