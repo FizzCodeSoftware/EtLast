@@ -16,9 +16,14 @@
         public DbTableDefinition TableDefinition { get; set; }
 
         /// <summary>
-        /// Default value is <see cref="SqlBulkCopyOptions.KeepIdentity"/>.
+        /// Default value is true <see cref="SqlBulkCopyOptions.KeepIdentity"/>.
         /// </summary>
-        public SqlBulkCopyOptions BulkCopyOptions { get; set; } = SqlBulkCopyOptions.KeepIdentity;
+        public bool BulkCopyKeepIdentity { get; set; } = true;
+
+        /// <summary>
+        /// Default value is false <see cref="SqlBulkCopyOptions.CheckConstraints"/>.
+        /// </summary>
+        public bool BulkCopyCheckConstraints { get; set; }
 
         /// <summary>
         /// Default value is 10000
@@ -135,7 +140,15 @@
 
             _connection = ConnectionManager.GetConnection(_connectionStringSettings, process);
 
-            _bulkCopy = new SqlBulkCopy(_connection.Connection as SqlConnection, BulkCopyOptions, null)
+            var options = SqlBulkCopyOptions.Default;
+
+            if (BulkCopyKeepIdentity)
+                options |= SqlBulkCopyOptions.KeepIdentity;
+
+            if (BulkCopyCheckConstraints)
+                options |= SqlBulkCopyOptions.CheckConstraints;
+
+            _bulkCopy = new SqlBulkCopy(_connection.Connection as SqlConnection, options, null)
             {
                 DestinationTableName = TableDefinition.TableName,
                 BulkCopyTimeout = CommandTimeout,
