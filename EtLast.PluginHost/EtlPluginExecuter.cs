@@ -43,8 +43,8 @@
                     case ExitCodes.ERR_WRONG_ARGUMENTS:
                         eventLog.WriteEntry("ETL Plugin Executer failed due to configuration errors", EventLogEntryType.Information, exitCode);
                         break;
-                    case ExitCodes.ERR_AT_LEAST_ONE_PLUGIN_SCOPE_FAILED:
-                    case ExitCodes.ERR_GLOBAL_SCOPE_FAILED:
+                    case ExitCodes.ERR_AT_LEAST_ONE_PLUGIN_FAILED:
+                    case ExitCodes.ERR_EXECUTION_TERMINATED:
                         eventLog.WriteEntry("ETL Plugin Executer failed due to plugin errors", EventLogEntryType.Information, exitCode);
                         break;
                 }
@@ -145,9 +145,6 @@
 
                 FullPluginConfigAppSettings(pluginConfiguration);
 
-                var globalScopeRequired = string.Compare(pluginConfiguration.AppSettings.Settings["GlobalScopeRequired"].Value, "true", true) == 0;
-                var pluginScopeRequired = string.Compare(pluginConfiguration.AppSettings.Settings["PluginScopeRequired"].Value, "true", true) == 0;
-
                 var plugins = new PluginLoader().LoadPlugins(_logger, _opsLogger, pluginFolder, _hostConfiguration.CommandLineArguments[0]);
                 plugins = FilterExecutablePlugins(pluginConfiguration, plugins);
 
@@ -158,13 +155,13 @@
                 }
 
                 var executer = new PluginExecuter();
-                executer.ExecutePlugins(_hostConfiguration, plugins, globalScopeRequired, pluginScopeRequired, _logger, _opsLogger, pluginConfiguration, pluginFolder);
+                executer.ExecutePlugins(_hostConfiguration, plugins, _logger, _opsLogger, pluginConfiguration, pluginFolder);
 
-                if (executer.GlobalScopeFailed)
-                    return ExitCodes.ERR_GLOBAL_SCOPE_FAILED;
+                if (executer.ExecutionTerminated)
+                    return ExitCodes.ERR_EXECUTION_TERMINATED;
 
                 if (executer.AtLeastOnePluginFailed)
-                    return ExitCodes.ERR_AT_LEAST_ONE_PLUGIN_SCOPE_FAILED;
+                    return ExitCodes.ERR_AT_LEAST_ONE_PLUGIN_FAILED;
             }
             finally
             {

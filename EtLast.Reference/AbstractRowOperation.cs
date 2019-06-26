@@ -49,7 +49,7 @@
             SetProcess(operationProcess);
         }
 
-        public void SetParent(int index)
+        public virtual void SetParent(int index)
         {
             ParentGroup = null;
             Index = index;

@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Configuration;
     using System.IO;
+    using System.Linq;
     using System.Reflection;
     using Serilog;
     using Serilog.Events;
@@ -16,6 +17,7 @@
         private static readonly Dictionary<LogSeverity, LogEventLevel> LogEventLevelMap;
         public ILogger Logger { get; private set; }
         public ILogger OpsLogger { get; private set; }
+        public TimeSpan TransactionScopeTimeout { get; private set; }
 
         static AbstractEtlPlugin()
         {
@@ -29,13 +31,14 @@
             };
         }
 
-        public void Init(ILogger logger, ILogger opsLogger, Configuration configuration, EtlPluginResult pluginResult, string pluginFolder)
+        public void Init(ILogger logger, ILogger opsLogger, Configuration configuration, EtlPluginResult pluginResult, string pluginFolder, TimeSpan transactionScopeTimeout)
         {
             Logger = logger;
             OpsLogger = opsLogger;
             Configuration = configuration;
             PluginResult = pluginResult;
             PluginFolder = pluginFolder;
+            TransactionScopeTimeout = transactionScopeTimeout;
         }
 
         public abstract void Execute();
@@ -104,13 +107,6 @@
                 GetType().Name,
                 args.Process?.Name,
                 args.Exception.Message);
-            // append exception to regular log file
-            /*OnLog(sender, new ContextLogEventArgs()
-            {
-                Severity = LogSeverity.Error,
-                Process = args.Process,
-                Text = args.Exception.ToString(),
-            });*/
         }
 
         public void GetOpsMessages(Exception ex, List<string> messages)
@@ -136,37 +132,45 @@
             }
         }
 
-        protected EtlPluginResult ExecuteWrapper(IEtlContext context, Action action, bool terminatePluginScopeOnFail, bool terminateGlobalScopeOnFail)
+        protected EtlPluginResult Execute(IEtlContext context, bool terminateHostOnFail, IEtlWrapper wrapper)
         {
+            var initialExceptionCount = context.GetExceptions().Count;
+
             try
             {
-                action.Invoke();
+                wrapper.Execute(context, TransactionScopeTimeout);
 
                 var exceptions = context.GetExceptions();
-                return exceptions.Count > 0
+                var result = exceptions.Count > initialExceptionCount
                     ? new EtlPluginResult()
                     {
                         Success = false,
-                        TerminatePluginScope = terminatePluginScopeOnFail,
-                        TerminateGlobalScope = terminateGlobalScopeOnFail,
-                        Exceptions = new List<Exception>(exceptions),
+                        TerminateHost = terminateHostOnFail,
+                        Exceptions = new List<Exception>(exceptions.Skip(initialExceptionCount)),
                     }
                     : new EtlPluginResult()
                     {
                         Success = true,
                     };
+
+                PluginResult.MergeWith(result);
+
+                return result;
             }
             catch (Exception unhandledException)
             {
+                var exceptions = context.GetExceptions();
                 var result = new EtlPluginResult()
                 {
                     Success = false,
-                    TerminatePluginScope = terminatePluginScopeOnFail,
-                    TerminateGlobalScope = terminateGlobalScopeOnFail,
-                    Exceptions = new List<Exception>(context.GetExceptions()),
+                    TerminateHost = terminateHostOnFail,
+                    Exceptions = new List<Exception>(exceptions.Skip(initialExceptionCount)),
                 };
 
                 result.Exceptions.Add(unhandledException);
+
+                PluginResult.MergeWith(result);
+
                 return result;
             }
         }

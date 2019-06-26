@@ -64,17 +64,32 @@
         {
             base.SetProcess(process);
 
-            var idx = 0;
             foreach (var op in Then)
             {
                 op.SetProcess(Process);
+            }
+
+            foreach (var op in Else)
+            {
+                op.SetProcess(Process);
+            }
+        }
+
+        public override void SetParent(int index)
+        {
+            base.SetParent(index);
+
+            var idx = 0;
+            foreach (var op in Then)
+            {
+                op.SetParentGroup(this, idx);
                 idx++;
             }
 
             idx = 0;
             foreach (var op in Else)
             {
-                op.SetProcess(Process);
+                op.SetParentGroup(this, idx);
                 idx++;
             }
         }

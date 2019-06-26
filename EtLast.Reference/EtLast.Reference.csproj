@@ -65,6 +65,7 @@
     <Compile Include="AggregationProcess\Operations\Regular\AbstractAggregationOperation.cs" />
     <Compile Include="AggregationProcess\Operations\Regular\GroupByOperation.cs" />
     <Compile Include="ColumnRenameConfiguration.cs" />
+    <Compile Include="JobProcess\Jobs\CustomActionJob.cs" />
     <Compile Include="JobProcess\Jobs\AbstractJob.cs" />
     <Compile Include="JobProcess\Jobs\DeleteFileJob.cs" />
     <Compile Include="JobProcess\Jobs\EvaluateProcessWithoutResultJob.cs" />

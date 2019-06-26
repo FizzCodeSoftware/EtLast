@@ -5,8 +5,8 @@
         public const int ERR_NO_ERROR = 0;
 
         // plugin errors: 100 < x < 200
-        public const int ERR_AT_LEAST_ONE_PLUGIN_SCOPE_FAILED = 101;
-        public const int ERR_GLOBAL_SCOPE_FAILED = 102;
+        public const int ERR_AT_LEAST_ONE_PLUGIN_FAILED = 101;
+        public const int ERR_EXECUTION_TERMINATED = 102;
 
         // configuration errors, no retry should happen. 1000 < x < 2000
         public const int ERR_NO_CONFIG = 1001;

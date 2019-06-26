@@ -85,7 +85,7 @@
                 cmd = connection.Connection.CreateCommand();
                 cmd.CommandTimeout = CommandTimeout;
                 cmd.CommandText = statement;
-                Context.Log(LogSeverity.Debug, this, "executing query {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionStringKey, cmd.CommandText, cmd.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+                Context.Log(LogSeverity.Debug, this, "executing query {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}", cmd.CommandText, ConnectionStringKey, cmd.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
 
                 swQuery = Stopwatch.StartNew();
                 try

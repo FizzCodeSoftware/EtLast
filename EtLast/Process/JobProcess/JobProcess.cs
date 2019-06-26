@@ -9,6 +9,12 @@
     public class JobProcess : IJobProcess
     {
         private readonly List<IJob> _jobs = new List<IJob>();
+        public List<IJob> Jobs
+        {
+            get => _jobs;
+            set => SetJobs(value);
+        }
+
         public IFinalProcess InputProcess { get; set; }
 
         public IEtlContext Context { get; }
@@ -155,6 +161,12 @@
         public void AddJob(IJob job)
         {
             _jobs.Add(job);
+        }
+
+        private void SetJobs(List<IJob> job)
+        {
+            _jobs.Clear();
+            _jobs.AddRange(job);
         }
     }
 }
