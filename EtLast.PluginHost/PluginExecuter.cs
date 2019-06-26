@@ -92,7 +92,7 @@
                 {
                     var plugin = plugins[i];
                     var result = pluginResults[i];
-                    if (!result.Success)
+                    if (result.Success)
                     {
                         logger.Write(LogEventLevel.Information, "run-time of {PluginName} is {Elapsed}, status is {Status}", plugin.GetType().Name, runTimes[i], "success");
                     }
