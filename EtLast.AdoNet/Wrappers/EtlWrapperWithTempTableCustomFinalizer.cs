@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Transactions;
 
-    public delegate Tuple<IFinalProcess, List<IJob>> EtlWrapperWithTempTableCustomFinalizerDelegate(IEtlContext context, string tableName, string targetTableName);
+    public delegate Tuple<IFinalProcess, List<IJob>> EtlWrapperWithTempTableCustomFinalizerDelegate(IEtlContext context, string tableName, string tempTableName);
 
     /// <summary>
     /// The ADO.Net implementation of the <see cref="IEtlWrapper"/> interface, optionally supporting transaction scopes.

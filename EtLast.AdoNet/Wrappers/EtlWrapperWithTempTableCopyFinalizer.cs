@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Transactions;
 
-    public delegate IFinalProcess EtlWrapperWithTempTableCopyFinalizerDelegate(IEtlContext context, string targetTableName);
+    public delegate IFinalProcess EtlWrapperWithTempTableCopyFinalizerDelegate(IEtlContext context, string tempTableName);
 
     /// <summary>
     /// The ADO.Net implementation of the <see cref="IEtlWrapper"/> interface, optionally supporting transaction scopes.
