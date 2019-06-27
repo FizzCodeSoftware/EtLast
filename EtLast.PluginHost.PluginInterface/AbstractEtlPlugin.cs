@@ -132,21 +132,36 @@
             }
         }
 
-        protected EtlPluginResult Execute(IEtlContext context, bool terminateHostOnFail, IEtlWrapper wrapper)
+        /// <summary>
+        /// Sequentially executes the specified wrappers in the specified order.
+        /// If a wrapper fails then the execution will stop and return to the caller.
+        /// </summary>
+        /// <param name="context">The context to be used.</param>
+        /// <param name="terminateHostOnFail">If true, then a failed wrapper will set the <see cref="EtlPluginResult.TerminateHost"/> field to true in the result object.</param>
+        /// <param name="wrappers">The wrappers to be executed.</param>
+        /// <returns></returns>
+        protected EtlPluginResult Execute(IEtlContext context, bool terminateHostOnFail, params IEtlWrapper[] wrappers)
         {
             var initialExceptionCount = context.GetExceptions().Count;
 
             try
             {
-                wrapper.Execute(context, TransactionScopeTimeout);
+                foreach (var wrapper in wrappers)
+                {
+                    wrapper.Execute(context, TransactionScopeTimeout);
 
-                var exceptions = context.GetExceptions();
-                var result = exceptions.Count > initialExceptionCount
+                    var exceptions = context.GetExceptions();
+                    if (exceptions.Count > initialExceptionCount)
+                        break;
+                }
+
+                var finalExceptions = context.GetExceptions();
+                var result = finalExceptions.Count > initialExceptionCount
                     ? new EtlPluginResult()
                     {
                         Success = false,
                         TerminateHost = terminateHostOnFail,
-                        Exceptions = new List<Exception>(exceptions.Skip(initialExceptionCount)),
+                        Exceptions = new List<Exception>(finalExceptions.Skip(initialExceptionCount)),
                     }
                     : new EtlPluginResult()
                     {
