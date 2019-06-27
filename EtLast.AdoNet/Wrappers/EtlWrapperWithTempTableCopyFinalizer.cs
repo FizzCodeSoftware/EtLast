@@ -94,7 +94,7 @@
                         SourceTableName = _tableName,
                         TargetTableName = _tempTableName,
                         SuppressExistingTransactionScope = true,
-                        ColumnMap = _columns?.Select(x => (x, x)).ToList(),
+                        ColumnConfiguration = _columns?.Select(x => new ColumnCopyConfiguration(x)).ToList(),
                     });
 
                     var index = 0;
@@ -127,7 +127,7 @@
                         ConnectionStringKey = _connectionStringKey,
                         SourceTableName = _tempTableName,
                         TargetTableName = _tableName,
-                        ColumnMap = _columns?.Select(x => (x, x)).ToList(),
+                        ColumnConfiguration = _columns?.Select(x => new ColumnCopyConfiguration(x)).ToList(),
                         CommandTimeout = 60 * 60,
                     });
 

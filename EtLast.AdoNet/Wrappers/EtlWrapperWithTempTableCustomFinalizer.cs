@@ -68,7 +68,7 @@
                         SourceTableName = _tableName,
                         TargetTableName = _tempTableName,
                         SuppressExistingTransactionScope = true,
-                        ColumnMap = _columns?.Select(x => (x, x)).ToList(),
+                        ColumnConfiguration = _columns?.Select(x => new ColumnCopyConfiguration(x)).ToList(),
                     });
 
                     var created = _mainProcessCreator.Invoke(context, _tableName, _tempTableName);

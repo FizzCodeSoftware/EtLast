@@ -14,9 +14,9 @@
         public string TargetTableName { get; set; }
 
         /// <summary>
-        /// Optional. In case of NULL all columns will be available in the target table.
+        /// Optional. In case of NULL all columns will be copied to the target table.
         /// </summary>
-        public List<(string SourceColumn, string TargetColumn)> ColumnMap { get; set; }
+        public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
 
         /// <summary>
         /// Optional. Default is NULL which means everything will be transferred from the old table to the new table.
@@ -33,9 +33,9 @@
 
         protected override string CreateSqlStatement(IProcess process, ConnectionStringSettings settings)
         {
-            var columnList = (ColumnMap == null || ColumnMap.Count == 0)
+            var columnList = (ColumnConfiguration == null || ColumnConfiguration.Count == 0)
                  ? "*"
-                 : string.Join(", ", ColumnMap.Select(x => x.SourceColumn + " AS " + x.TargetColumn));
+                 : string.Join(", ", ColumnConfiguration.Select(x => x.FromColumn + " AS " + x.ToColumn));
 
             var statement = "DROP TABLE IF EXISTS " + TargetTableName + "; SELECT " + columnList + " INTO " + TargetTableName + " FROM " + SourceTableName;
 
@@ -61,15 +61,15 @@
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(process, this, "database table creation and copy failed", ex);
-                exception.AddOpsMessage(string.Format("database table creation and copy failed, connection string key: {0}, source table: {1}, target table: {2}, columns: {3}, message {4}, command: {5}, timeout: {6}",
-                    ConnectionStringKey, SourceTableName, TargetTableName, ColumnMap != null ? string.Join(",", ColumnMap.Select(x => x.SourceColumn)) : "all", ex.Message, command.CommandText, CommandTimeout));
+                exception.AddOpsMessage(string.Format("database table creation and copy failed, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message {4}, command: {5}, timeout: {6}",
+                    ConnectionStringKey, SourceTableName, TargetTableName, ColumnConfiguration != null ? string.Join(",", ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionStringKey);
                 exception.Data.Add("SourceTableName", SourceTableName);
                 exception.Data.Add("TargetTableName", TargetTableName);
-                if (ColumnMap != null)
+                if (ColumnConfiguration != null)
                 {
-                    exception.Data.Add("Columns", string.Join(",", ColumnMap.Select(x => x.SourceColumn)));
+                    exception.Data.Add("SourceColumns", string.Join(",", ColumnConfiguration.Select(x => x.FromColumn)));
                 }
 
                 exception.Data.Add("Statement", command.CommandText);
