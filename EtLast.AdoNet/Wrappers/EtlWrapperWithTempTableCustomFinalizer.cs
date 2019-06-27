@@ -26,7 +26,7 @@
         private readonly bool _suppressTransactionScopeForCreator;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="EtlWrapperWithTempTableCustomFinalizer"/> using a <paramref name="mainProcessCreator"/> delegate which takes an <see cref="IEtlContext"/> and the target table name (which is the <paramref name="tempTableName"/>) and returns a tuple with single new <see cref="IFinalProcess"/> and a list of finalizer jobs to be executed by the wrapper.
+        /// Initializes a new instance of <see cref="EtlWrapperWithTempTableCustomFinalizer"/> using a process creator delegate which takes an <see cref="IEtlContext"/> and the target table name (which is the <paramref name="tempTableName"/>) and returns a tuple with single new <see cref="IFinalProcess"/> and a list of finalizer jobs to be executed by the wrapper.
         /// </summary>
         /// <param name="connectionStringKey">The connection string key used by the database operations.</param>
         /// <param name="tableName">The name of the target table.</param>
@@ -34,7 +34,7 @@
         /// <param name="columns">The columns to be used in the temp table from the target table when it is created.</param>
         /// <param name="mainProcessCreator">The delegate which returns the main process and the list of finalizer jobs.</param>
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
-        /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the <paramref name="processCreator"/> delegate.</param>
+        /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the process creator delegate.</param>
         public EtlWrapperWithTempTableCustomFinalizer(string connectionStringKey, string tableName, string tempTableName, string[] columns, EtlWrapperWithTempTableCustomFinalizerDelegate mainProcessCreator, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
         {
             _connectionStringKey = connectionStringKey;

@@ -50,8 +50,8 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <NoWarn>
-    </NoWarn>
+    <NoWarn>CS1591</NoWarn>
+    <DocumentationFile>bin\Release\FizzCode.EtLast.AdoNet.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

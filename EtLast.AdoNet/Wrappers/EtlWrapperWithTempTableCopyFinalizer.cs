@@ -26,7 +26,7 @@
         private readonly bool _suppressTransactionScopeForCreator;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="EtlWrapperWithTempTableCopyFinalizer"/> using a <paramref name="mainProcessCreator"/> delegate which takes an <see cref="IEtlContext"/> and the target table name (which is the <paramref name="tempTableName"/>) and returns a single new <see cref="IFinalProcess"/> to be executed by the wrapper.
+        /// Initializes a new instance of <see cref="EtlWrapperWithTempTableCopyFinalizer"/> using a process creator delegate which takes an <see cref="IEtlContext"/> and the target table name (which is the <paramref name="tempTableName"/>) and returns a single new <see cref="IFinalProcess"/> to be executed by the wrapper.
         /// </summary>
         /// <param name="connectionStringKey">The connection string key used by the database operations.</param>
         /// <param name="deleteExistingTableContents">If set to true, then the contents of the <paramref name="tableName"/> will be deleted by the wrapper be before it copy the temp table to the target table.</param>
@@ -35,7 +35,7 @@
         /// <param name="columns">The columns to be copied from the temp table to the target table. If null then all columns will be copied. Also this column list specifies the list of columns used in the temp table from the target table when it is created.</param>
         /// <param name="mainProcessCreator">The delegate which returns the process.</param>
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
-        /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the <paramref name="processCreator"/> delegate.</param>
+        /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the process creator delegate.</param>
         public EtlWrapperWithTempTableCopyFinalizer(string connectionStringKey, bool deleteExistingTableContents, string tableName, string tempTableName, string[] columns, EtlWrapperWithTempTableCopyFinalizerDelegate mainProcessCreator, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
         {
             _connectionStringKey = connectionStringKey;
@@ -49,17 +49,17 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="EtlWrapperWithTempTableCopyFinalizer"/> using one or more <paramref name="mainProcessCreator"/> delegates whose take an <see cref="IEtlContext"/> and the target table name (which is the <paramref name="tempTableName"/>) and returns a single new <see cref="IFinalProcess"/> each to be executed by the wrapper.
+        /// Initializes a new instance of <see cref="EtlWrapperWithTempTableCopyFinalizer"/> using one or more process creator delegates whose take an <see cref="IEtlContext"/> and the target table name (which is the <paramref name="tempTableName"/>) and returns a single new <see cref="IFinalProcess"/> each to be executed by the wrapper.
         /// If <paramref name="evaluationTransactionScopeKind"/> is set to anything but <see cref="TransactionScopeKind.None"/> then all created processes will be executed in the same transaction scope.
         /// </summary>
         /// <param name="connectionStringKey">The connection string key used by the database operations.</param>
         /// <param name="deleteExistingTableContents">If set to true, then the contents of the <paramref name="tableName"/> will be deleted by the wrapper be before it copy the temp table to the target table.</param>
         /// <param name="tableName">The name of the target table.</param>
-        /// <param name="tempTableName">The name of the temp table. This value will be passed to the <paramref name="mainProcessCreator"/> so the main process will write the records directly to the temp table.</param>
+        /// <param name="tempTableName">The name of the temp table. This value will be passed to the main process creators so the main process will write the records directly to the temp table.</param>
         /// <param name="columns">The columns to be copied from the temp table to the target table. If null then all columns will be copied. Also this column list specifies the list of columns used in the temp table from the target table when it is created.</param>
         /// <param name="mainProcessCreators">The delegates whose return one process each.</param>
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
-        /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the <paramref name="processCreator"/> delegate.</param>
+        /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the process creator delegate.</param>
         public EtlWrapperWithTempTableCopyFinalizer(string connectionStringKey, bool deleteExistingTableContents, string tableName, string tempTableName, string[] columns, EtlWrapperWithTempTableCopyFinalizerDelegate[] mainProcessCreators, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
         {
             _connectionStringKey = connectionStringKey;

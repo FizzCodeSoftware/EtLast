@@ -15,11 +15,11 @@
         private readonly bool _suppressTransactionScopeForCreator;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="BasicEtlWrapper"/> using a <paramref name="processCreator"/> delegate which takes an <see cref="IEtlContext"/> and returns a single new <see cref="IFinalProcess"/> to be executed by the wrapper.
+        /// Initializes a new instance of <see cref="BasicEtlWrapper"/> using a process creator delegate which takes an <see cref="IEtlContext"/> and returns a single new <see cref="IFinalProcess"/> to be executed by the wrapper.
         /// </summary>
         /// <param name="processCreator">The delegate which returns the process.</param>
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
-        /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the <paramref name="processCreator"/> delegate.</param>
+        /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the process creator delegate.</param>
         public BasicEtlWrapper(Func<IEtlContext, IFinalProcess> processCreator, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
         {
             _processCreators = new[] { processCreator };
@@ -28,12 +28,12 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="BasicEtlWrapper"/> using one or more <paramref name="processCreator"/>, each take an <see cref="IEtlContext"/> and returns a single new <see cref="IFinalProcess"/> to be executed by the wrapper.
+        /// Initializes a new instance of <see cref="BasicEtlWrapper"/> using one or more process creators, each take an <see cref="IEtlContext"/> and returns a single new <see cref="IFinalProcess"/> to be executed by the wrapper.
         /// If <paramref name="evaluationTransactionScopeKind"/> is set to anything but <see cref="TransactionScopeKind.None"/> then all created processes will be executed in the same transaction scope.
         /// </summary>
         /// <param name="processCreators">The delegates whose return one single process (one per delegate).</param>
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
-        /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the <paramref name="processCreators"/> delegates.</param>
+        /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the process creator delegates.</param>
         public BasicEtlWrapper(Func<IEtlContext, IFinalProcess>[] processCreators, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
         {
             _processCreators = processCreators;
@@ -42,12 +42,12 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="BasicEtlWrapper"/> using one a <paramref name="multipleProcessCreator"/> delegate which takes an <see cref="IEtlContext"/> and returns one or more new <see cref="IFinalProcess"/> to be executed by the wrapper.
+        /// Initializes a new instance of <see cref="BasicEtlWrapper"/> using one a process creator delegate which takes an <see cref="IEtlContext"/> and returns one or more new <see cref="IFinalProcess"/> to be executed by the wrapper.
         /// If <paramref name="evaluationTransactionScopeKind"/> is set to anything but <see cref="TransactionScopeKind.None"/> then all created processes will be executed in the same transaction scope.
         /// </summary>
         /// <param name="multipleProcessCreator">The delegate which returns one or more processes.</param>
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
-        /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the <paramref name="multipleProcessCreator"/> delegate.</param>
+        /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the process creator delegate.</param>
         public BasicEtlWrapper(Func<IEtlContext, IFinalProcess[]> multipleProcessCreator, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
         {
             _multipleProcessCreator = multipleProcessCreator;
