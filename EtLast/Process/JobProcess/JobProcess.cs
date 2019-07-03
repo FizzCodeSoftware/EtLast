@@ -9,6 +9,7 @@
     public class JobProcess : IJobProcess
     {
         private readonly List<IJob> _jobs = new List<IJob>();
+
         public List<IJob> Jobs
         {
             get => _jobs;

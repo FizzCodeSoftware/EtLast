@@ -41,11 +41,13 @@
 
         public bool Equals(KeyValuePair<string, object> kvp, IRow row2)
         {
+#pragma warning disable RCS1104 // Simplify conditional expression.
             return kvp.Value == null && row2[kvp.Key] == null
                 ? true
                 : kvp.Value == null && row2[kvp.Key] != null
                     ? false
                     : kvp.Value.Equals(row2[kvp.Key]) || (_rowComparerMode == RowComparerMode.Default ? false : AreEqualEtlRowErrors(kvp, row2));
+#pragma warning restore RCS1104 // Simplify conditional expression.
         }
 
         private bool AreEqualEtlRowErrors(KeyValuePair<string, object> kvp, IRow row2)

@@ -157,7 +157,18 @@
 
             foreach (var p in arrParams)
             {
-                sb.AppendLine("-- " + p.ParameterName + " (DB: " + p.DbType + ") = " + (p.Value != null ? Convert.ToString(p.Value, CultureInfo.InvariantCulture) + " (" + p.Value.GetType().Name + ")" : "NULL") + ", prec: " + p.Precision + ", scale: " + p.Scale);
+                sb
+                    .Append("-- ")
+                    .Append(p.ParameterName)
+                    .Append(" (DB: ")
+                    .Append(p.DbType)
+                    .Append(") = ")
+                    .Append(p.Value != null ? Convert.ToString(p.Value, CultureInfo.InvariantCulture) + " (" + p.Value.GetType().Name + ")" : "NULL")
+                    .Append(", prec: ")
+                    .Append(p.Precision)
+                    .Append(", scale: ")
+                    .Append(p.Scale)
+                    .AppendLine();
             }
 
             return sb.ToString();

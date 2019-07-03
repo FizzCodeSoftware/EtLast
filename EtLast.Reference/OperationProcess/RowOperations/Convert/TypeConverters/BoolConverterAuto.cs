@@ -25,9 +25,10 @@ namespace FizzCode.EtLast
                         return false;
                 }
 
-                if (KnownTrueString != null && string.Compare(str, KnownTrueString, StringComparison.InvariantCultureIgnoreCase) == 0)
+                if (KnownTrueString != null && string.Equals(str, KnownTrueString, StringComparison.InvariantCultureIgnoreCase))
                     return true;
-                if (KnownFalseString != null && string.Compare(str, KnownFalseString, StringComparison.InvariantCultureIgnoreCase) == 0)
+
+                if (KnownFalseString != null && string.Equals(str, KnownFalseString, StringComparison.InvariantCultureIgnoreCase))
                     return false;
             }
 

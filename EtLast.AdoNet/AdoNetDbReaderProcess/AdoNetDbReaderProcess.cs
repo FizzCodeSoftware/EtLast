@@ -59,7 +59,7 @@
 
             if (RecordCountLimit > 0)
             {
-                var isMySql = string.Compare(ConnectionStringSettings.ProviderName, "MySql.Data.MySqlClient", StringComparison.InvariantCultureIgnoreCase) == 0;
+                var isMySql = string.Equals(ConnectionStringSettings.ProviderName, "MySql.Data.MySqlClient", StringComparison.InvariantCultureIgnoreCase);
                 if (isMySql)
                 {
                     postfix += (string.IsNullOrEmpty(postfix) ? "" : " ") + "LIMIT " + RecordCountLimit.ToString("D", CultureInfo.InvariantCulture);

@@ -12,7 +12,7 @@
 
         public bool Init(ConnectionStringSettings connectionStringSettings)
         {
-            var isMySql = string.Compare(connectionStringSettings.ProviderName, "MySql.Data.MySqlClient", StringComparison.InvariantCultureIgnoreCase) == 0;
+            var isMySql = string.Equals(connectionStringSettings.ProviderName, "MySql.Data.MySqlClient", StringComparison.InvariantCultureIgnoreCase);
             return isMySql;
         }
 

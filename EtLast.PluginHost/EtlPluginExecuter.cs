@@ -64,7 +64,7 @@
             var doc = XDocument.Load(configFileName);
             var appSettingsNode = doc.Descendants("appSettings").FirstOrDefault();
 
-            var element = appSettingsNode.Descendants("add").FirstOrDefault(x => string.Compare(x.Attribute("key").Value, "aspnet:RoslynCompilerLocation", StringComparison.InvariantCultureIgnoreCase) == 0);
+            var element = appSettingsNode.Descendants("add").FirstOrDefault(x => string.Equals(x.Attribute("key").Value, "aspnet:RoslynCompilerLocation", StringComparison.InvariantCultureIgnoreCase));
             element.SetAttributeValue("value", Path.Combine(appDir, "roslyn"));
             doc.Save(configFileName);
 

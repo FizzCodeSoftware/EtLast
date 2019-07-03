@@ -101,65 +101,65 @@
             return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Sum(x => x.GetAs<decimal>(col)));
         }
 
-        /// <Maxmary>
+        /// <summary>
         /// New value will be int.
-        /// </Maxmary>
+        /// </summary>
         public static GroupByOperation AddIntMax(this GroupByOperation op, string column)
         {
             return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Max(x => x.GetAs<int>(col)));
         }
 
-        /// <Maxmary>
+        /// <summary>
         /// New value will be long.
-        /// </Maxmary>
+        /// </summary>
         public static GroupByOperation AddLongMax(this GroupByOperation op, string column)
         {
             return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Max(x => x.GetAs<long>(col)));
         }
 
-        /// <Maxmary>
+        /// <summary>
         /// New value will be double.
-        /// </Maxmary>
+        /// </summary>
         public static GroupByOperation AddDoubleMax(this GroupByOperation op, string column)
         {
             return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Max(x => x.GetAs<double>(col)));
         }
 
-        /// <Maxmary>
+        /// <summary>
         /// New value will be decimal.
-        /// </Maxmary>
+        /// </summary>
         public static GroupByOperation AddDecimalMax(this GroupByOperation op, string column)
         {
             return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Max(x => x.GetAs<decimal>(col)));
         }
 
-        /// <Minmary>
+        /// <summary>
         /// New value will be int.
-        /// </Minmary>
+        /// </summary>
         public static GroupByOperation AddIntMin(this GroupByOperation op, string column)
         {
             return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Min(x => x.GetAs<int>(col)));
         }
 
-        /// <Minmary>
+        /// <summary>
         /// New value will be long.
-        /// </Minmary>
+        /// </summary>
         public static GroupByOperation AddLongMin(this GroupByOperation op, string column)
         {
             return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Min(x => x.GetAs<long>(col)));
         }
 
-        /// <Minmary>
+        /// <summary>
         /// New value will be double.
-        /// </Minmary>
+        /// </summary>
         public static GroupByOperation AddDoubleMin(this GroupByOperation op, string column)
         {
             return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Min(x => x.GetAs<double>(col)));
         }
 
-        /// <Minmary>
+        /// <summary>
         /// New value will be decimal.
-        /// </Minmary>
+        /// </summary>
         public static GroupByOperation AddDecimalMin(this GroupByOperation op, string column)
         {
             return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Min(x => x.GetAs<decimal>(col)));

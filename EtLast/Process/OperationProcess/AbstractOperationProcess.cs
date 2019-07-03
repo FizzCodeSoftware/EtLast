@@ -384,10 +384,16 @@
             if (counters.Count == 0)
                 return;
 
-            sb.Append("stats of " + op.Name);
+            sb.Append("stats of ")
+                .Append(op.Name);
+
             foreach (var kvp in counters)
             {
-                sb.Append(" [" + kvp.Key + " = {" + kvp.Key.Replace(" ", "_") + "}]");
+                sb.Append(" [")
+                    .Append(kvp.Key)
+                    .Append(" = {")
+                    .Append(kvp.Key.Replace(" ", "_"))
+                    .Append("}]");
             }
 
             Context.Log(LogSeverity.Debug, this, sb.ToString(), counters.Select(x => (object)x.Value).ToArray());
