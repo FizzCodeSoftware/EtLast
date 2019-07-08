@@ -69,11 +69,13 @@
     <Rule Id="RCS1079" Action="None" />
     <Rule Id="RCS1080" Action="None" />
     <Rule Id="RCS1118" Action="None" />
+    <Rule Id="RCS1124" Action="None" />
     <Rule Id="RCS1135" Action="None" />
     <Rule Id="RCS1156" Action="None" />
     <Rule Id="RCS1163" Action="None" />
     <Rule Id="RCS1191" Action="None" />
     <Rule Id="RCS1194" Action="None" />
+    <Rule Id="RCS1201" Action="Info" />
     <Rule Id="RCS1213" Action="None" />
   </Rules>
 </RuleSet>
