@@ -90,6 +90,7 @@
         private void WriteToSql(IProcess process, bool shutdown)
         {
             var sqlStatement = SqlStatementCreator.CreateStatement(_connectionStringSettings, _statements);
+            var recordCount = _statements.Count;
 
             var sw = Stopwatch.StartNew();
             _fullTime.Start();
@@ -108,11 +109,11 @@
 
             try
             {
-                var recordCount = _command.ExecuteNonQuery();
+                _command.ExecuteNonQuery();
                 var time = sw.ElapsedMilliseconds;
                 _fullTime.Stop();
 
-                Stat.IncrementCounter("records written", recordCount);
+                Stat.IncrementCounter("records", recordCount);
                 Stat.IncrementCounter("write time", time);
 
                 _rowsWritten += recordCount;
