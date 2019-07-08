@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Configuration;
     using System.IO;
-    using System.Linq;
     using System.Reflection;
     using Serilog;
     using Serilog.Events;
@@ -12,7 +11,7 @@
     public abstract class AbstractEtlPlugin : IEtlPlugin
     {
         public Configuration Configuration { get; private set; }
-        public EtlPluginResult PluginResult { get; private set; }
+        public IEtlContext Context { get; private set; }
         public string PluginFolder { get; private set; }
         private static readonly Dictionary<LogSeverity, LogEventLevel> LogEventLevelMap;
         public ILogger Logger { get; private set; }
@@ -31,26 +30,85 @@
             };
         }
 
-        public void Init(ILogger logger, ILogger opsLogger, Configuration configuration, EtlPluginResult pluginResult, string pluginFolder, TimeSpan transactionScopeTimeout)
+        public void Init(ILogger logger, ILogger opsLogger, Configuration configuration, string pluginFolder, TimeSpan transactionScopeTimeout)
         {
             Logger = logger;
             OpsLogger = opsLogger;
             Configuration = configuration;
-            PluginResult = pluginResult;
+            Context = CreateContext<DictionaryRow>(transactionScopeTimeout);
             PluginFolder = pluginFolder;
             TransactionScopeTimeout = transactionScopeTimeout;
         }
 
+        public void BeforeExecute()
+        {
+            CustomBeforeExecute();
+        }
+
+        protected virtual void CustomBeforeExecute()
+        {
+        }
+
+        public void AfterExecute()
+        {
+            CustomAfterExecute();
+            LogExceptions();
+            LogStats();
+        }
+
+        private void LogStats()
+        {
+            var counters = Context.Stat.GetCountersOrdered();
+            if (counters.Count == 0)
+                return;
+
+            foreach (var kvp in counters)
+            {
+                Context.Log(LogSeverity.Information, null, "stat {StatName} = {StatValue}", kvp.Key, kvp.Value);
+            }
+        }
+
+        private void LogExceptions()
+        {
+            if (Context.Result.Exceptions.Count > 0)
+            {
+                Logger.Write(LogEventLevel.Error, "{ExceptionCount} exceptions raised during plugin execution", Context.Result.Exceptions.Count);
+                OpsLogger.Write(LogEventLevel.Error, "{ExceptionCount} exceptions raised during plugin execution", Context.Result.Exceptions.Count);
+
+                var index = 0;
+                foreach (var ex in Context.Result.Exceptions)
+                {
+                    Logger.Write(LogEventLevel.Error, ex, "exception #{ExceptionIndex}", index++);
+
+                    var opsMsg = ex.Message;
+                    if (ex.Data.Contains(EtlException.OpsMessageDataKey) && (ex.Data[EtlException.OpsMessageDataKey] != null))
+                    {
+                        opsMsg = ex.Data[EtlException.OpsMessageDataKey].ToString();
+                    }
+
+                    OpsLogger.Write(LogEventLevel.Error, "exception #{ExceptionIndex}: {Message}", index++, opsMsg);
+                }
+            }
+        }
+
+        protected virtual void CustomAfterExecute()
+        {
+        }
+
         public abstract void Execute();
 
-        public IEtlContext CreateContext<TRow>()
+        private IEtlContext CreateContext<TRow>(TimeSpan tansactionScopeTimeout)
             where TRow : IRow, new()
         {
-            var context = new EtlContext<TRow>(Configuration);
+            var context = new EtlContext<TRow>(Configuration)
+            {
+                TransactionScopeTimeout = tansactionScopeTimeout
+            };
+
             context.OnException += OnException;
             context.OnLog += OnLog;
 
-            context.Log(LogSeverity.Information, null, "ETL context created by {UserName}", !string.IsNullOrWhiteSpace(Environment.UserDomainName) ? $@"{Environment.UserDomainName}\{Environment.UserName}" : Environment.UserName);
+            //context.Log(LogSeverity.Information, null, "ETL context created by {UserName}", !string.IsNullOrWhiteSpace(Environment.UserDomainName) ? $@"{Environment.UserDomainName}\{Environment.UserName}" : Environment.UserName);
 
             return context;
         }
@@ -129,64 +187,6 @@
                 {
                     GetOpsMessages(iex, messages);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Sequentially executes the specified wrappers in the specified order.
-        /// If a wrapper fails then the execution will stop and return to the caller.
-        /// </summary>
-        /// <param name="context">The context to be used.</param>
-        /// <param name="terminateHostOnFail">If true, then a failed wrapper will set the <see cref="EtlPluginResult.TerminateHost"/> field to true in the result object.</param>
-        /// <param name="wrappers">The wrappers to be executed.</param>
-        /// <returns></returns>
-        protected EtlPluginResult Execute(IEtlContext context, bool terminateHostOnFail, params IEtlWrapper[] wrappers)
-        {
-            var initialExceptionCount = context.GetExceptions().Count;
-
-            try
-            {
-                foreach (var wrapper in wrappers)
-                {
-                    wrapper.Execute(context, TransactionScopeTimeout);
-
-                    var exceptions = context.GetExceptions();
-                    if (exceptions.Count > initialExceptionCount)
-                        break;
-                }
-
-                var finalExceptions = context.GetExceptions();
-                var result = finalExceptions.Count > initialExceptionCount
-                    ? new EtlPluginResult()
-                    {
-                        Success = false,
-                        TerminateHost = terminateHostOnFail,
-                        Exceptions = new List<Exception>(finalExceptions.Skip(initialExceptionCount)),
-                    }
-                    : new EtlPluginResult()
-                    {
-                        Success = true,
-                    };
-
-                PluginResult.MergeWith(result);
-
-                return result;
-            }
-            catch (Exception unhandledException)
-            {
-                var exceptions = context.GetExceptions();
-                var result = new EtlPluginResult()
-                {
-                    Success = false,
-                    TerminateHost = terminateHostOnFail,
-                    Exceptions = new List<Exception>(exceptions.Skip(initialExceptionCount)),
-                };
-
-                result.Exceptions.Add(unhandledException);
-
-                PluginResult.MergeWith(result);
-
-                return result;
             }
         }
 

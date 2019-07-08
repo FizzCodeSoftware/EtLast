@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Text;
     using System.Threading;
     using System.Transactions;
 
@@ -371,16 +372,16 @@
 
         private void LogStats()
         {
-            var sb = new System.Text.StringBuilder();
+            var sb = new StringBuilder();
             foreach (var op in Operations)
             {
                 LogOpStat(op, sb);
             }
         }
 
-        private void LogOpStat(IRowOperation op, System.Text.StringBuilder sb)
+        private void LogOpStat(IRowOperation op, StringBuilder sb)
         {
-            var counters = op.Stat.Counters.OrderBy(x => x.Key).ToList();
+            var counters = op.Stat.GetCountersOrdered();
             if (counters.Count == 0)
                 return;
 

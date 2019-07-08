@@ -68,6 +68,7 @@
     </Compile>
     <Compile Include="ContextExceptionEventArgs.cs" />
     <Compile Include="ContextLogEventArgs.cs" />
+    <Compile Include="EtlContextResult.cs" />
     <Compile Include="EtlRowError.cs" />
     <Compile Include="Exceptions\AggregationOperationExecutionException.cs" />
     <Compile Include="Exceptions\EtlException.cs" />
@@ -97,7 +98,7 @@
     <Compile Include="Process\OperationProcess\EnumsAndDelegates\IfRowDelegate.cs" />
     <Compile Include="Process\OperationProcess\IOperationGroup.cs" />
     <Compile Include="Process\OperationProcess\AbstractOperationProcess.cs" />
-    <Compile Include="Process\OperationProcess\OperationStat.cs" />
+    <Compile Include="Process\StatCounterCollection.cs" />
     <Compile Include="Interfaces\IEtlContext.cs" />
     <Compile Include="Interfaces\IRow.cs" />
     <Compile Include="Interfaces\IRowQueue.cs" />
@@ -120,6 +121,8 @@
     <Compile Include="Process\SplitProcess\ISplitProcess.cs" />
     <Compile Include="Process\SplitProcess\SplitProcess.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rows\AbstractBaseRow.cs" />
+    <Compile Include="Rows\DictionaryRow.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

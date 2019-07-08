@@ -29,8 +29,9 @@
             for (var i = 0; i < GroupingColumns.Length; i++)
             {
                 var v = row[GroupingColumns[i]];
-                _keyBuilder.Append(v != null ? v.ToString() : "NULL");
-                _keyBuilder.Append("|");
+                _keyBuilder
+                    .Append(v != null ? v.ToString() : "NULL")
+                    .Append("|");
             }
 
             return _keyBuilder.ToString();

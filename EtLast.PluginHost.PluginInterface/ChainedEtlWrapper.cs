@@ -51,8 +51,6 @@
 
         public void Execute(IEtlContext context, TimeSpan transactionScopeTimeout)
         {
-            var initialExceptionCount = context.GetExceptions().Count;
-
             using (var scope = _evaluationTransactionScopeKind != TransactionScopeKind.None
                 ? new TransactionScope((TransactionScopeOption)_evaluationTransactionScopeKind, transactionScopeTimeout)
                 : null)
@@ -70,6 +68,8 @@
                             if (process == null)
                                 continue;
                         }
+
+                        var initialExceptionCount = context.GetExceptions().Count;
 
                         process.EvaluateWithoutResult();
 
@@ -93,6 +93,8 @@
 
                     foreach (var process in processes)
                     {
+                        var initialExceptionCount = context.GetExceptions().Count;
+
                         process.EvaluateWithoutResult();
 
                         if (context.GetExceptions().Count != initialExceptionCount)

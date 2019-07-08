@@ -16,7 +16,7 @@
         public IRowOperation NextOperation { get; private set; }
         public IRowOperation PrevOperation { get; private set; }
 
-        public OperationStat Stat { get; } = new OperationStat();
+        public StatCounterCollection Stat { get; } = new StatCounterCollection();
 
         private int _hash;
 

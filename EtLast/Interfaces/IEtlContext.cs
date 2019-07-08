@@ -8,12 +8,18 @@
     public interface IEtlContext
     {
         Configuration Configuration { get; }
+        StatCounterCollection Stat { get; }
+        EtlContextResult Result { get; }
 
         DateTimeOffset CreatedOnUtc { get; }
         DateTimeOffset CreatedOnLocal { get; }
 
+        TimeSpan TransactionScopeTimeout { get; }
         CancellationTokenSource CancellationTokenSource { get; }
         ConnectionStringSettings GetConnectionStringSettings(string key);
+
+        void ExecuteOne(bool terminateHostOnFail, IEtlWrapper wrapper);
+        void ExecuteSequence(bool terminateHostOnFail, params IEtlWrapper[] wrappers);
 
         IRow CreateRow(int columnCountHint = 0);
         void Log(LogSeverity severity, IProcess process, string text, params object[] args);

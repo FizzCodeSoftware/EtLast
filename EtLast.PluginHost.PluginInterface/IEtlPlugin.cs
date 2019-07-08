@@ -6,7 +6,10 @@
 
     public interface IEtlPlugin
     {
-        void Init(ILogger logger, ILogger opsLogger, Configuration configuration, EtlPluginResult pluginResult, string pluginFolder, TimeSpan transactionScopeTimeout);
+        IEtlContext Context { get; }
+        void Init(ILogger logger, ILogger opsLogger, Configuration configuration, string pluginFolder, TimeSpan transactionScopeTimeout);
+        void BeforeExecute();
+        void AfterExecute();
         void Execute();
     }
 }

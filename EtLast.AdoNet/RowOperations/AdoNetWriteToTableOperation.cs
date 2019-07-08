@@ -113,8 +113,13 @@
                 var time = sw.ElapsedMilliseconds;
                 _fullTime.Stop();
 
-                Stat.IncrementCounter("records", recordCount);
+                Stat.IncrementCounter("records written", recordCount);
                 Stat.IncrementCounter("write time", time);
+
+                process.Context.Stat.IncrementCounter("database records written / " + _connectionStringSettings.Name, recordCount);
+                process.Context.Stat.IncrementCounter("database records written / " + _connectionStringSettings.Name + " / " + TableDefinition.TableName, recordCount);
+                process.Context.Stat.IncrementCounter("database write time / " + _connectionStringSettings.Name, time);
+                process.Context.Stat.IncrementCounter("database write time / " + _connectionStringSettings.Name + " / " + TableDefinition.TableName, time);
 
                 _rowsWritten += recordCount;
 

@@ -7,7 +7,7 @@ namespace FizzCode.EtLast
         IOperationGroup ParentGroup { get; }
         IRowOperation NextOperation { get; }
         IRowOperation PrevOperation { get; }
-        OperationStat Stat { get; }
+        StatCounterCollection Stat { get; }
 
         new IOperationProcess Process { get; }
 

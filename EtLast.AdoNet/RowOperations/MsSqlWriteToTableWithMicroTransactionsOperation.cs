@@ -116,7 +116,13 @@
                         _fullTime += time.TotalMilliseconds;
 
                         Stat.IncrementCounter("records written", recordCount);
-                        Stat.IncrementCounter("write time", Convert.ToInt64(time.TotalMilliseconds));
+                        var writeTime = Convert.ToInt64(time.TotalMilliseconds);
+                        Stat.IncrementCounter("write time", writeTime);
+
+                        process.Context.Stat.IncrementCounter("database records written / " + _connectionStringSettings.Name, recordCount);
+                        process.Context.Stat.IncrementCounter("database records written / " + _connectionStringSettings.Name + " / " + TableDefinition.TableName, recordCount);
+                        process.Context.Stat.IncrementCounter("database write time / " + _connectionStringSettings.Name, writeTime);
+                        process.Context.Stat.IncrementCounter("database write time / " + _connectionStringSettings.Name + " / " + TableDefinition.TableName, writeTime);
 
                         _rowsWritten += recordCount;
                         _reader.Reset();

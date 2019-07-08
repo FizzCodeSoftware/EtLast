@@ -126,6 +126,7 @@
                     }
 
                     LastDataRead = DateTime.Now;
+                    IncrementCounter();
 
                     var row = Context.CreateRow(reader.FieldCount);
                     for (var i = 0; i < reader.FieldCount; i++)
@@ -193,5 +194,6 @@
 
         protected abstract void LogAction();
         protected abstract string CreateSqlStatement();
+        protected abstract void IncrementCounter();
     }
 }

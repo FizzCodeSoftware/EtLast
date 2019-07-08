@@ -20,11 +20,11 @@
                 else
                     sb.Append("! ");
 
-                sb.Append(kvp.Key);
-                sb.Append(": ");
-                sb.Append(kvp.Value);
-                sb.Append(" | ");
-                sb.AppendLine(row2[kvp.Key]?.ToString());
+                sb.Append(kvp.Key)
+                    .Append(": ")
+                    .Append(kvp.Value)
+                    .Append(" | ")
+                    .AppendLine(row2[kvp.Key]?.ToString());
             }
 
             return sb.ToString();

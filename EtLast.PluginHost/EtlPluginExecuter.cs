@@ -148,8 +148,8 @@
                 var plugins = new PluginLoader().LoadPlugins(_logger, _opsLogger, pluginFolder, _hostConfiguration.CommandLineArguments[0]);
                 plugins = FilterExecutablePlugins(pluginConfiguration, plugins);
 
-                _logger.Write(LogEventLevel.Information, "{PluginCount} plugin(s) found: {PluginNames}", plugins.Count, plugins.Select(x => x.GetType().Name));
-                if (plugins == null || plugins.Count == 0)
+                _logger.Write(LogEventLevel.Information, "{PluginCount} plugin(s) found: {PluginNames}", plugins.Count, plugins.Select(x => x.GetType().Name).ToArray());
+                if (plugins.Count == 0)
                 {
                     return ExitCodes.ERR_NOTHING_TO_EXECUTE;
                 }
@@ -173,6 +173,9 @@
 
         private List<IEtlPlugin> FilterExecutablePlugins(Configuration pluginConfiguration, List<IEtlPlugin> plugins)
         {
+            if (plugins == null || plugins.Count == 0)
+                return new List<IEtlPlugin>();
+
             var pluginNamesToExecute = GetAppSetting(pluginConfiguration, "PluginsToExecute");
 
             return pluginNamesToExecute.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)

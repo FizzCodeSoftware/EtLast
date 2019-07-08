@@ -58,6 +58,9 @@
                             conn = DbProviderFactories.GetFactory(providerName).CreateConnection();
                         }
 
+                        process.Context.Stat.IncrementCounter("database connections opened", 1);
+                        process.Context.Stat.IncrementCounter("database connections opened / " + connectionStringSettings.Name, 1);
+
                         conn.ConnectionString = connectionStringSettings.ConnectionString;
                         conn.Open();
 
@@ -81,6 +84,8 @@
                         lastException = ex;
                     }
                 } // lock released
+
+                process.Context.Stat.IncrementCounter("database connections failed / " + connectionStringSettings.Name, 1);
 
                 process.Context.Log(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", connectionStringSettings.Name, connectionStringSettings.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
                 process.Context.LogOps(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", connectionStringSettings.Name, connectionStringSettings.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);

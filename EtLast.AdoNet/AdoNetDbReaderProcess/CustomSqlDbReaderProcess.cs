@@ -31,5 +31,11 @@
         {
             Context.Log(LogSeverity.Information, this, "reading from {ConnectionStringKey} using custom query, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionStringKey, CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
         }
+
+        protected override void IncrementCounter()
+        {
+            Context.Stat.IncrementCounter("database records read / " + ConnectionStringKey, 1);
+            Context.Stat.IncrementCounter("database records read / " + ConnectionStringKey + " / custom query / " + Name, 1);
+        }
     }
 }

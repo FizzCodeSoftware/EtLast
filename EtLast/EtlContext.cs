@@ -11,11 +11,18 @@
         where TRow : IRow, new()
     {
         private ConcurrentBag<Exception> Exceptions { get; } = new ConcurrentBag<Exception>();
+        public StatCounterCollection Stat { get; } = new StatCounterCollection();
+        public EtlContextResult Result { get; } = new EtlContextResult();
 
         public Configuration Configuration { get; }
 
         public DateTimeOffset CreatedOnUtc { get; }
         public DateTimeOffset CreatedOnLocal { get; }
+
+        /// <summary>
+        /// Default value: 10 minutes.
+        /// </summary>
+        public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromMinutes(10);
 
         public CancellationTokenSource CancellationTokenSource { get; }
 
@@ -37,6 +44,68 @@
             var utcNow = DateTimeOffset.UtcNow;
             CreatedOnUtc = utcNow;
             CreatedOnLocal = utcNow.ToLocalTime();
+        }
+
+        /// <summary>
+        /// Executes the specified wrapper.
+        /// </summary>
+        /// <param name="terminateHostOnFail">If true, then a failed wrapper will set the <see cref="EtlContextResult.TerminateHost"/> field to true in the result object.</param>
+        /// <param name="wrapper">The wrapper to be executed.</param>
+        public void ExecuteOne(bool terminateHostOnFail, IEtlWrapper wrapper)
+        {
+            var initialExceptionCount = GetExceptions().Count;
+
+            try
+            {
+                wrapper.Execute(this, TransactionScopeTimeout);
+
+                if (GetExceptions().Count > initialExceptionCount)
+                {
+                    Result.Success = false;
+                    Result.TerminateHost = terminateHostOnFail;
+                }
+            }
+            catch (Exception unhandledException)
+            {
+                Result.Success = false;
+                Result.TerminateHost = terminateHostOnFail;
+                Result.Exceptions.Add(unhandledException);
+            }
+        }
+
+        /// <summary>
+        /// Sequentially executes the specified wrappers in the specified order.
+        /// If a wrapper fails then the execution will stop and return to the caller.
+        /// </summary>
+        /// <param name="terminateHostOnFail">If true, then a failed wrapper will set the <see cref="EtlContextResult.TerminateHost"/> field to true in the result object.</param>
+        /// <param name="wrappers">The wrappers to be executed.</param>
+        public void ExecuteSequence(bool terminateHostOnFail, params IEtlWrapper[] wrappers)
+        {
+            var initialExceptionCount = GetExceptions().Count;
+
+            try
+            {
+                foreach (var wrapper in wrappers)
+                {
+                    wrapper.Execute(this, TransactionScopeTimeout);
+
+                    var exceptions = GetExceptions();
+                    if (exceptions.Count > initialExceptionCount)
+                        break;
+                }
+
+                if (GetExceptions().Count > initialExceptionCount)
+                {
+                    Result.Success = false;
+                    Result.TerminateHost = terminateHostOnFail;
+                }
+            }
+            catch (Exception unhandledException)
+            {
+                Result.Success = false;
+                Result.TerminateHost = terminateHostOnFail;
+                Result.Exceptions.Add(unhandledException);
+            }
         }
 
         public void Log(LogSeverity severity, IProcess process, string text, params object[] args)
@@ -87,6 +156,9 @@
         {
             var row = new TRow();
             row.Init(this, Interlocked.Increment(ref _nextUid) - 1, columnCountHint);
+
+            Stat.IncrementCounter("rows created", 1);
+
             return row;
         }
 
@@ -98,6 +170,8 @@
                 Process = process,
                 Exception = ex,
             });
+
+            Stat.IncrementCounter("exceptions", 1);
 
             CancellationTokenSource.Cancel();
         }

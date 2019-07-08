@@ -18,8 +18,9 @@
         {
             try
             {
+                var globalStat = new StatCounterCollection();
                 var runTimes = new List<TimeSpan>();
-                var pluginResults = new List<EtlPluginResult>();
+                var pluginResults = new List<EtlContextResult>();
                 foreach (var plugin in plugins)
                 {
                     var sw = Stopwatch.StartNew();
@@ -29,32 +30,16 @@
                     {
                         try
                         {
-                            var result = new EtlPluginResult();
-                            pluginResults.Add(result);
-                            plugin.Init(logger, opsLogger, pluginConfiguration, result, pluginFolder, hostConfiguration.TransactionScopeTimeout);
+                            plugin.Init(logger, opsLogger, pluginConfiguration, pluginFolder, hostConfiguration.TransactionScopeTimeout);
+                            pluginResults.Add(plugin.Context.Result);
+
+                            plugin.BeforeExecute();
                             plugin.Execute();
+                            plugin.AfterExecute();
 
-                            if (result.Exceptions.Count > 0)
-                            {
-                                logger.Write(LogEventLevel.Error, "{ExceptionCount} exceptions raised during execution after {Elapsed}", result.Exceptions.Count, sw.Elapsed);
-                                opsLogger.Write(LogEventLevel.Error, "{ExceptionCount} exceptions raised during execution after {Elapsed}", result.Exceptions.Count, sw.Elapsed);
+                            AppendGlobalStat(globalStat, plugin.Context.Stat);
 
-                                var index = 0;
-                                foreach (var ex in result.Exceptions)
-                                {
-                                    logger.Write(LogEventLevel.Error, ex, "exception #{ExceptionIndex}", index++);
-
-                                    var opsMsg = ex.Message;
-                                    if (ex.Data.Contains(EtlException.OpsMessageDataKey) && (ex.Data[EtlException.OpsMessageDataKey] != null))
-                                    {
-                                        opsMsg = ex.Data[EtlException.OpsMessageDataKey].ToString();
-                                    }
-
-                                    opsLogger.Write(LogEventLevel.Error, "exception #{ExceptionIndex}: {Message}", index++, opsMsg);
-                                }
-                            }
-
-                            if (result.TerminateHost)
+                            if (plugin.Context.Result.TerminateHost)
                             {
                                 logger.Write(LogEventLevel.Error, "plugin requested to terminate the execution");
                                 ExecutionTerminated = true;
@@ -64,7 +49,7 @@
                                 break; // stop processing plugins
                             }
 
-                            if (!result.Success)
+                            if (!plugin.Context.Result.Success)
                             {
                                 AtLeastOnePluginFailed = true;
                             }
@@ -88,6 +73,8 @@
                     logger.Write(LogEventLevel.Information, "plugin execution finished in {Elapsed}", sw.Elapsed);
                 }
 
+                LogStats(globalStat, logger);
+
                 for (var i = 0; i < Math.Min(plugins.Count, pluginResults.Count); i++)
                 {
                     var plugin = plugins[i];
@@ -103,6 +90,26 @@
                 }
             }
             catch (TransactionAbortedException) { }
+        }
+
+        private static void AppendGlobalStat(StatCounterCollection globalStat, StatCounterCollection stat)
+        {
+            foreach (var kvp in stat.GetCountersOrdered())
+            {
+                globalStat.IncrementCounter(kvp.Key, kvp.Value);
+            }
+        }
+
+        private void LogStats(StatCounterCollection stats, ILogger logger)
+        {
+            var counters = stats.GetCountersOrdered();
+            if (counters.Count == 0)
+                return;
+
+            foreach (var kvp in counters)
+            {
+                logger.Write(LogEventLevel.Information, "global stat {StatName} = {StatValue}", kvp.Key, kvp.Value);
+            }
         }
     }
 }

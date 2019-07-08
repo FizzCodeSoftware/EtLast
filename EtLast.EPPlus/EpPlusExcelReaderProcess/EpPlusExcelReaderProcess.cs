@@ -122,6 +122,7 @@
                 try
                 {
                     package = new ExcelPackage(new FileInfo(FileName));
+                    Context.Stat.IncrementCounter("excel files opened", 1);
                 }
                 catch (Exception ex)
                 {
@@ -214,6 +215,8 @@
 
                 for (var rowIndex = FirstDataRow; rowIndex <= endRow; rowIndex++)
                 {
+                    Context.Stat.IncrementCounter("excel rows read", 1);
+
                     var row = Context.CreateRow(columnIndexes.Count);
 
                     if (IgnoreNullOrEmptyRows)
