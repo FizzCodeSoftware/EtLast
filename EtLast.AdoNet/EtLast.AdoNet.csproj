@@ -72,6 +72,8 @@
     <Compile Include="AdoNetDbReaderProcess\AbstractAdoNetDbReaderProcess.cs" />
     <Compile Include="AdoNetDbReaderProcess\AdoNetDbReaderProcess.cs" />
     <Compile Include="AdoNetDbReaderProcess\CustomSqlDbReaderProcess.cs" />
+    <Compile Include="AdoNetSqlStatementDebugEventListener.cs" />
+    <Compile Include="AdoNetSqlStatementDebugEvent.cs" />
     <Compile Include="DatabaseConnection.cs" />
     <Compile Include="DbConnectionHelper.cs" />
     <Compile Include="DbTableDescriptor\DbColumnDefinition.cs" />

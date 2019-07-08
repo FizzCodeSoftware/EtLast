@@ -72,7 +72,13 @@
             var resultCount = 0;
 
             LogAction();
-            var statement = CreateSqlStatement();
+            var sqlStatement = CreateSqlStatement();
+
+            AdoNetSqlStatementDebugEventListener.GenerateEvent(this, () => new AdoNetSqlStatementDebugEvent()
+            {
+                ConnectionStringSettings = ConnectionStringSettings,
+                SqlStatement = sqlStatement,
+            });
 
             DatabaseConnection connection = null;
             IDataReader reader = null;
@@ -84,7 +90,7 @@
                 connection = ConnectionManager.GetConnection(ConnectionStringSettings, this);
                 cmd = connection.Connection.CreateCommand();
                 cmd.CommandTimeout = CommandTimeout;
-                cmd.CommandText = statement;
+                cmd.CommandText = sqlStatement;
                 Context.Log(LogSeverity.Debug, this, "executing query {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}", cmd.CommandText, ConnectionStringKey, cmd.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
 
                 swQuery = Stopwatch.StartNew();
@@ -93,7 +99,7 @@
                     reader = cmd.ExecuteReader();
                 }
                 catch (EtlException ex) { Context.AddException(this, ex); yield break; }
-                catch (Exception ex) { Context.AddException(this, new EtlException(this, string.Format("error during executing query: " + statement), ex)); yield break; }
+                catch (Exception ex) { Context.AddException(this, new EtlException(this, string.Format("error during executing query: " + sqlStatement), ex)); yield break; }
             }
 
             Context.Log(LogSeverity.Debug, this, "query executed in {Elapsed}", swQuery.Elapsed);
@@ -115,7 +121,7 @@
                     {
                         var now = DateTime.Now;
                         var exception = new EtlException(this, string.Format("error while reading data at row index {0}, {1} after last read", resultCount, LastDataRead.Subtract(now)), ex);
-                        exception.AddOpsMessage(string.Format("error while executing query after successfully reading {0} rows, message: {1}, connection string key: {2}, SQL statement: {3}", resultCount, ex.Message, ConnectionStringKey, statement));
+                        exception.AddOpsMessage(string.Format("error while executing query after successfully reading {0} rows, message: {1}, connection string key: {2}, SQL statement: {3}", resultCount, ex.Message, ConnectionStringKey, sqlStatement));
                         throw exception;
                     }
 

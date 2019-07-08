@@ -96,6 +96,14 @@
 
             _command.CommandText = sqlStatement;
 
+            AdoNetSqlStatementDebugEventListener.GenerateEvent(process, () => new AdoNetSqlStatementDebugEvent()
+            {
+                Operation = this,
+                ConnectionStringSettings = _connectionStringSettings,
+                SqlStatement = sqlStatement,
+                CompiledSqlStatement = CompileSql(_command),
+            });
+
             Process.Context.Log(LogSeverity.Verbose, Process, "executing SQL statement: {SqlStatement}", sqlStatement);
 
             try

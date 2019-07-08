@@ -28,6 +28,13 @@
             var connectionStringSettings = process.Context.GetConnectionStringSettings(ConnectionStringKey);
             var statement = CreateSqlStatement(process, connectionStringSettings);
 
+            AdoNetSqlStatementDebugEventListener.GenerateEvent(process, () => new AdoNetSqlStatementDebugEvent()
+            {
+                Job = this,
+                ConnectionStringSettings = connectionStringSettings,
+                SqlStatement = statement,
+            });
+
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
                 var connection = ConnectionManager.GetConnection(connectionStringSettings, process);
