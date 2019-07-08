@@ -68,21 +68,21 @@
         protected override void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn)
         {
             process.Context.Log(LogSeverity.Debug, process, "copying records from {ConnectionStringKey}/{SourceTableName} to {TargetTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionStringKey, SourceTableName, TargetTableName, command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+                ConnectionStringSettings.Name, SourceTableName, TargetTableName, command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
 
             try
             {
                 var recordCount = command.ExecuteNonQuery();
                 process.Context.Log(LogSeverity.Information, process, "{RecordCount} records copied to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} in {Elapsed}",
-                    recordCount, ConnectionStringKey, TargetTableName, SourceTableName, startedOn.Elapsed);
+                    recordCount, ConnectionStringSettings.Name, TargetTableName, SourceTableName, startedOn.Elapsed);
             }
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(process, this, "database table copy failed", ex);
                 exception.AddOpsMessage(string.Format("database table copy failed, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message {4}, command: {5}, timeout: {6}",
-                    ConnectionStringKey, SourceTableName, TargetTableName, ColumnConfiguration != null ? string.Join(",", ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, CommandTimeout));
+                    ConnectionStringSettings.Name, SourceTableName, TargetTableName, ColumnConfiguration != null ? string.Join(",", ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, CommandTimeout));
 
-                exception.Data.Add("ConnectionStringKey", ConnectionStringKey);
+                exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);
                 exception.Data.Add("SourceTableName", SourceTableName);
                 exception.Data.Add("TargetTableName", TargetTableName);
                 if (ColumnConfiguration != null)

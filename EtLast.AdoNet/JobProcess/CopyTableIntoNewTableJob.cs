@@ -50,21 +50,21 @@
         protected override void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn)
         {
             process.Context.Log(LogSeverity.Debug, process, "creating new table {ConnectionStringKey}/{TargetTableName} and copying records from {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionStringKey, TargetTableName, SourceTableName, command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+                ConnectionStringSettings.Name, TargetTableName, SourceTableName, command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
 
             try
             {
                 var recordCount = command.ExecuteNonQuery();
                 process.Context.Log(LogSeverity.Information, process, "table {ConnectionStringKey}/{TargetTableName} created and {RecordCount} records copied from {SourceTableName} in {Elapsed}",
-                    ConnectionStringKey, TargetTableName, recordCount, SourceTableName, startedOn.Elapsed);
+                    ConnectionStringSettings.Name, TargetTableName, recordCount, SourceTableName, startedOn.Elapsed);
             }
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(process, this, "database table creation and copy failed", ex);
                 exception.AddOpsMessage(string.Format("database table creation and copy failed, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message {4}, command: {5}, timeout: {6}",
-                    ConnectionStringKey, SourceTableName, TargetTableName, ColumnConfiguration != null ? string.Join(",", ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, CommandTimeout));
+                    ConnectionStringSettings.Name, SourceTableName, TargetTableName, ColumnConfiguration != null ? string.Join(",", ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, CommandTimeout));
 
-                exception.Data.Add("ConnectionStringKey", ConnectionStringKey);
+                exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);
                 exception.Data.Add("SourceTableName", SourceTableName);
                 exception.Data.Add("TargetTableName", TargetTableName);
                 if (ColumnConfiguration != null)

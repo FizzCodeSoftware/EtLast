@@ -24,7 +24,7 @@
         protected override void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn)
         {
             process.Context.Log(LogSeverity.Debug, process, "executing custom SQL statement {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}",
-                command.CommandText, ConnectionStringKey, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+                command.CommandText, ConnectionStringSettings.Name, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
 
             try
             {
@@ -35,9 +35,9 @@
             {
                 var exception = new JobExecutionException(process, this, "custom SQL statement failed", ex);
                 exception.AddOpsMessage(string.Format("custom SQL statement failed, connection string key: {0}, message {1}, command: {2}, timeout: {3}",
-                    ConnectionStringKey, ex.Message, SqlStatement, CommandTimeout));
+                    ConnectionStringSettings.Name, ex.Message, SqlStatement, CommandTimeout));
 
-                exception.Data.Add("ConnectionStringKey", ConnectionStringKey);
+                exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);
                 exception.Data.Add("Statement", SqlStatement);
                 exception.Data.Add("Timeout", CommandTimeout);
                 exception.Data.Add("Elapsed", startedOn.Elapsed);

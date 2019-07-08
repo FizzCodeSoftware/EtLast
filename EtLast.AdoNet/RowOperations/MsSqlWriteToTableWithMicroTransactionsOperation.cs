@@ -146,8 +146,8 @@
                         else
                         {
                             var exception = new OperationExecutionException(process, this, "database write failed", ex);
-                            exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message {2}", ConnectionStringKey, TableDefinition.TableName, ex.Message));
-                            exception.Data.Add("ConnectionStringKey", ConnectionStringKey);
+                            exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message {2}", _connectionStringSettings.Name, TableDefinition.TableName, ex.Message));
+                            exception.Data.Add("ConnectionStringKey", _connectionStringSettings.Name);
                             exception.Data.Add("TableName", TableDefinition.TableName);
                             exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + x.DbColumn)));
                             exception.Data.Add("Timeout", CommandTimeout);
@@ -162,8 +162,8 @@
                         bulkCopy.Close();
 
                         var exception = new OperationExecutionException(process, this, "database write failed", ex);
-                        exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message {2}", ConnectionStringKey, TableDefinition.TableName, ex.Message));
-                        exception.Data.Add("ConnectionStringKey", ConnectionStringKey);
+                        exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message {2}", _connectionStringSettings.Name, TableDefinition.TableName, ex.Message));
+                        exception.Data.Add("ConnectionStringKey", _connectionStringSettings.Name);
                         exception.Data.Add("TableName", TableDefinition.TableName);
                         exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + x.DbColumn)));
                         exception.Data.Add("Timeout", CommandTimeout);

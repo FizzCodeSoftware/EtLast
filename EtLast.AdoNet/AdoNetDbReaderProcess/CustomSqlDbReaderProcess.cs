@@ -29,13 +29,13 @@
 
         protected override void LogAction()
         {
-            Context.Log(LogSeverity.Information, this, "reading from {ConnectionStringKey} using custom query, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionStringKey, CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+            Context.Log(LogSeverity.Information, this, "reading from {ConnectionStringKey} using custom query, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionStringSettings.Name, CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
         }
 
         protected override void IncrementCounter()
         {
-            Context.Stat.IncrementCounter("database records read / " + ConnectionStringKey, 1);
-            Context.Stat.IncrementCounter("database records read / " + ConnectionStringKey + " / custom query / " + Name, 1);
+            Context.Stat.IncrementCounter("database records read / " + ConnectionStringSettings.Name, 1);
+            Context.Stat.IncrementCounter("database records read / " + ConnectionStringSettings.Name + " / custom query / " + Name, 1);
         }
     }
 }

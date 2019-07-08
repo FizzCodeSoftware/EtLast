@@ -9,6 +9,7 @@
     public abstract class AbstractSqlStatementJob : AbstractJob
     {
         public string ConnectionStringKey { get; set; }
+        protected ConnectionStringSettings ConnectionStringSettings { get; private set; }
         public int CommandTimeout { get; set; } = 300;
 
         /// <summary>
@@ -25,19 +26,19 @@
             Validate(process);
 
             var sw = Stopwatch.StartNew();
-            var connectionStringSettings = process.Context.GetConnectionStringSettings(ConnectionStringKey);
-            var statement = CreateSqlStatement(process, connectionStringSettings);
+            ConnectionStringSettings = process.Context.GetConnectionStringSettings(ConnectionStringKey);
+            var statement = CreateSqlStatement(process, ConnectionStringSettings);
 
             AdoNetSqlStatementDebugEventListener.GenerateEvent(process, () => new AdoNetSqlStatementDebugEvent()
             {
                 Job = this,
-                ConnectionStringSettings = connectionStringSettings,
+                ConnectionStringSettings = ConnectionStringSettings,
                 SqlStatement = statement,
             });
 
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
-                var connection = ConnectionManager.GetConnection(connectionStringSettings, process);
+                var connection = ConnectionManager.GetConnection(ConnectionStringSettings, process);
                 try
                 {
                     lock (connection.Lock)

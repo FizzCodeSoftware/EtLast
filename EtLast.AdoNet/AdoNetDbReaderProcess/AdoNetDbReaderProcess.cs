@@ -76,13 +76,13 @@
 
         protected override void LogAction()
         {
-            Context.Log(LogSeverity.Information, this, "reading from {ConnectionStringKey}/{TableName}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionStringKey, TableName, CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+            Context.Log(LogSeverity.Information, this, "reading from {ConnectionStringKey}/{TableName}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionStringSettings.Name, TableName, CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
         }
 
         protected override void IncrementCounter()
         {
-            Context.Stat.IncrementCounter("database records read / " + ConnectionStringKey, 1);
-            Context.Stat.IncrementCounter("database records read / " + ConnectionStringKey + " / " + TableName, 1);
+            Context.Stat.IncrementCounter("database records read / " + ConnectionStringSettings.Name, 1);
+            Context.Stat.IncrementCounter("database records read / " + ConnectionStringSettings.Name + " / " + TableName, 1);
         }
     }
 }
