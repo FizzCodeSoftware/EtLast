@@ -87,6 +87,7 @@
       <Link>Properties\AssemblyInfo.Global.cs</Link>
     </Compile>
     <Compile Include="AbstractEtlPlugin.cs" />
+    <Compile Include="ChainedEtlWrapper.cs" />
     <Compile Include="EtlPluginResult.cs" />
     <Compile Include="IEtlPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
