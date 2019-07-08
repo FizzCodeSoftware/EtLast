@@ -3,14 +3,17 @@
     using System;
     using System.Transactions;
 
+    public delegate IFinalProcess BasicEtlWrapperSingleCreatorDelegate(IEtlContext context);
+    public delegate IFinalProcess[] BasicEtlWrapperMultipleCreatorDelegate(IEtlContext context);
+
     /// <summary>
     /// The default implementation of the <see cref="IEtlWrapper"/> interface, optionally supporting transaction scopes.
     /// </summary>
     public class BasicEtlWrapper : IEtlWrapper
     {
-        private readonly Func<IEtlContext, IFinalProcess>[] _processCreators;
+        private readonly BasicEtlWrapperSingleCreatorDelegate[] _processCreators;
+        private readonly BasicEtlWrapperMultipleCreatorDelegate _multipleProcessCreator;
         private readonly bool _stopOnError = true;
-        private readonly Func<IEtlContext, IFinalProcess[]> _multipleProcessCreator;
 
         private readonly TransactionScopeKind _evaluationTransactionScopeKind;
         private readonly bool _suppressTransactionScopeForCreator;
@@ -21,7 +24,7 @@
         /// <param name="processCreator">The delegate which returns the process.</param>
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
         /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the process creator delegate.</param>
-        public BasicEtlWrapper(Func<IEtlContext, IFinalProcess> processCreator, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
+        public BasicEtlWrapper(BasicEtlWrapperSingleCreatorDelegate processCreator, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
         {
             _processCreators = new[] { processCreator };
             _evaluationTransactionScopeKind = evaluationTransactionScopeKind;
@@ -36,7 +39,7 @@
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
         /// <param name="stopOnError">If a process fails then stops the execution, otherwise continue executing the next process.</param>
         /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the process creator delegates.</param>
-        public BasicEtlWrapper(Func<IEtlContext, IFinalProcess>[] processCreators, TransactionScopeKind evaluationTransactionScopeKind, bool stopOnError = true, bool suppressTransactionScopeForCreator = false)
+        public BasicEtlWrapper(BasicEtlWrapperSingleCreatorDelegate[] processCreators, TransactionScopeKind evaluationTransactionScopeKind, bool stopOnError = true, bool suppressTransactionScopeForCreator = false)
         {
             _processCreators = processCreators;
             _evaluationTransactionScopeKind = evaluationTransactionScopeKind;
@@ -52,7 +55,7 @@
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
         /// <param name="stopOnError">If a process fails then stops the execution, otherwise continue executing the next process.</param>
         /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the process creator delegate.</param>
-        public BasicEtlWrapper(Func<IEtlContext, IFinalProcess[]> multipleProcessCreator, TransactionScopeKind evaluationTransactionScopeKind, bool stopOnError = true, bool suppressTransactionScopeForCreator = false)
+        public BasicEtlWrapper(BasicEtlWrapperMultipleCreatorDelegate multipleProcessCreator, TransactionScopeKind evaluationTransactionScopeKind, bool stopOnError = true, bool suppressTransactionScopeForCreator = false)
         {
             _multipleProcessCreator = multipleProcessCreator;
             _evaluationTransactionScopeKind = evaluationTransactionScopeKind;
