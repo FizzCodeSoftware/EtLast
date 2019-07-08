@@ -89,12 +89,14 @@
 
         private void WriteToSql(IProcess process, bool shutdown)
         {
-            var statement = SqlStatementCreator.CreateStatement(_connectionStringSettings, _statements);
+            var sqlStatement = SqlStatementCreator.CreateStatement(_connectionStringSettings, _statements);
 
             var sw = Stopwatch.StartNew();
             _fullTime.Start();
 
-            _command.CommandText = statement;
+            _command.CommandText = sqlStatement;
+
+            Process.Context.Log(LogSeverity.Verbose, Process, "executing SQL statement: {SqlStatement}", sqlStatement);
 
             try
             {
@@ -116,11 +118,12 @@
             catch (Exception ex)
             {
                 var exception = new OperationExecutionException(process, this, "database write failed", ex);
-                exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message: {2}, command: {3}", ConnectionStringKey, TableDefinition.TableName, ex.Message, statement));
+                exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}", ConnectionStringKey, TableDefinition.TableName, ex.Message, sqlStatement));
                 exception.Data.Add("ConnectionStringKey", ConnectionStringKey);
                 exception.Data.Add("TableName", TableDefinition.TableName);
                 exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + x.DbColumn)));
-                exception.Data.Add("CompiledSql", CompileSql(_command));
+                exception.Data.Add("SqlStatement", sqlStatement);
+                exception.Data.Add("SqlStatementCompiled", CompileSql(_command));
                 exception.Data.Add("Timeout", CommandTimeout);
                 exception.Data.Add("Elapsed", sw.Elapsed);
                 exception.Data.Add("SqlStatementCreator", SqlStatementCreator.GetType().Name);

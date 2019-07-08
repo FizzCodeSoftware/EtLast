@@ -67,7 +67,7 @@
 
         protected override void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn)
         {
-            process.Context.Log(LogSeverity.Debug, process, "copying records from {ConnectionStringKey}/{SourceTableName} to {TargetTableName} with query {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            process.Context.Log(LogSeverity.Debug, process, "copying records from {ConnectionStringKey}/{SourceTableName} to {TargetTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 ConnectionStringKey, SourceTableName, TargetTableName, command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
 
             try

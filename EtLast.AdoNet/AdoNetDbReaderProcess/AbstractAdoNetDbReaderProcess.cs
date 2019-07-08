@@ -115,7 +115,7 @@
                     {
                         var now = DateTime.Now;
                         var exception = new EtlException(this, string.Format("error while reading data at row index {0}, {1} after last read", resultCount, LastDataRead.Subtract(now)), ex);
-                        exception.AddOpsMessage(string.Format("error while executing query after successfully reading {0} rows, message: {1}, connection string key: {2}, sql statement: {3}", resultCount, ex.Message, ConnectionStringKey, statement));
+                        exception.AddOpsMessage(string.Format("error while executing query after successfully reading {0} rows, message: {1}, connection string key: {2}, SQL statement: {3}", resultCount, ex.Message, ConnectionStringKey, statement));
                         throw exception;
                     }
 

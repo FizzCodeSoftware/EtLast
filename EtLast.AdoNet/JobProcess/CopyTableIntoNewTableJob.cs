@@ -49,7 +49,7 @@
 
         protected override void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn)
         {
-            process.Context.Log(LogSeverity.Debug, process, "creating new table {ConnectionStringKey}/{TargetTableName} and copying records from {SourceTableName} with query {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            process.Context.Log(LogSeverity.Debug, process, "creating new table {ConnectionStringKey}/{TargetTableName} and copying records from {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 ConnectionStringKey, TargetTableName, SourceTableName, command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
 
             try

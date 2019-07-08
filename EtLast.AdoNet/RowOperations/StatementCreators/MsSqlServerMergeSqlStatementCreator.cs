@@ -36,7 +36,7 @@
             var statement = "(" + string.Join(", ", _tableDefinition.Columns.Select(_ => "@" + startIndex++.ToString("D", CultureInfo.InvariantCulture))) + ")";
 
             if (row.Flagged)
-                adoNetWriteToTableOperation.Process.Context.LogRow(adoNetWriteToTableOperation.Process, row, "sql statement generated: {SqlStatement}", statement);
+                adoNetWriteToTableOperation.Process.Context.LogRow(adoNetWriteToTableOperation.Process, row, "SQL statement generated: {SqlStatement}", statement);
 
             return statement;
         }

@@ -26,7 +26,7 @@
 
         protected override void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn)
         {
-            process.Context.Log(LogSeverity.Debug, process, "deleting records from {ConnectionStringKey}/{TableName} with query {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            process.Context.Log(LogSeverity.Debug, process, "deleting records from {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 ConnectionStringKey, TableName, command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
 
             try
