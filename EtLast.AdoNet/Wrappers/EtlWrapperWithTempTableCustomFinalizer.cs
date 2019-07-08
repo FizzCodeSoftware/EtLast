@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Transactions;
 
-    public delegate Tuple<IFinalProcess, List<IJob>> EtlWrapperWithTempTableCustomFinalizerDelegate(IEtlContext context, string tableName, string tempTableName);
+    public delegate Tuple<IFinalProcess, List<IJob>> EtlWrapperWithTempTableCustomFinalizerDelegate(string tableName, string tempTableName);
 
     /// <summary>
     /// The ADO.Net implementation of the <see cref="IEtlWrapper"/> interface, optionally supporting transaction scopes.
@@ -26,7 +26,7 @@
         private readonly bool _suppressTransactionScopeForCreator;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="EtlWrapperWithTempTableCustomFinalizer"/> using a process creator delegate which takes an <see cref="IEtlContext"/> and the target table name (which is the <paramref name="tempTableName"/>) and returns a tuple with single new <see cref="IFinalProcess"/> and a list of finalizer jobs to be executed by the wrapper.
+        /// Initializes a new instance of <see cref="EtlWrapperWithTempTableCustomFinalizer"/> using a process creator delegate which takes the target table name (which is the <paramref name="tempTableName"/>) and returns a tuple with single new <see cref="IFinalProcess"/> and a list of finalizer jobs to be executed by the wrapper.
         /// </summary>
         /// <param name="connectionStringKey">The connection string key used by the database operations.</param>
         /// <param name="tableName">The name of the target table.</param>
@@ -71,7 +71,7 @@
                         ColumnConfiguration = _columns?.Select(x => new ColumnCopyConfiguration(x)).ToList(),
                     });
 
-                    var created = _mainProcessCreator.Invoke(context, _tableName, _tempTableName);
+                    var created = _mainProcessCreator.Invoke(_tableName, _tempTableName);
 
                     process.AddJob(new EvaluateProcessWithoutResultJob()
                     {

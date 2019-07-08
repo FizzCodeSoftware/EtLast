@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Transactions;
 
-    public delegate IFinalProcess EtlWrapperWithTempTableCopyFinalizerDelegate(IEtlContext context, string tempTableName);
+    public delegate IFinalProcess EtlWrapperWithTempTableCopyFinalizerDelegate(string tempTableName);
 
     /// <summary>
     /// The ADO.Net implementation of the <see cref="IEtlWrapper"/> interface, optionally supporting transaction scopes.
@@ -26,7 +26,7 @@
         private readonly bool _suppressTransactionScopeForCreator;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="EtlWrapperWithTempTableCopyFinalizer"/> using a process creator delegate which takes an <see cref="IEtlContext"/> and the target table name (which is the <paramref name="tempTableName"/>) and returns a single new <see cref="IFinalProcess"/> to be executed by the wrapper.
+        /// Initializes a new instance of <see cref="EtlWrapperWithTempTableCopyFinalizer"/> using a process creator delegate which takes the target table name (which is the <paramref name="tempTableName"/>) and returns a single new <see cref="IFinalProcess"/> to be executed by the wrapper.
         /// </summary>
         /// <param name="connectionStringKey">The connection string key used by the database operations.</param>
         /// <param name="deleteExistingTableContents">If set to true, then the contents of the <paramref name="tableName"/> will be deleted by the wrapper be before it copy the temp table to the target table.</param>
@@ -49,7 +49,7 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="EtlWrapperWithTempTableCopyFinalizer"/> using one or more process creator delegates whose take an <see cref="IEtlContext"/> and the target table name (which is the <paramref name="tempTableName"/>) and returns a single new <see cref="IFinalProcess"/> each to be executed by the wrapper.
+        /// Initializes a new instance of <see cref="EtlWrapperWithTempTableCopyFinalizer"/> using one or more process creator delegates whose take the target table name (which is the <paramref name="tempTableName"/>) and returns a single new <see cref="IFinalProcess"/> each to be executed by the wrapper.
         /// If <paramref name="evaluationTransactionScopeKind"/> is set to anything but <see cref="TransactionScopeKind.None"/> then all created processes will be executed in the same transaction scope.
         /// </summary>
         /// <param name="connectionStringKey">The connection string key used by the database operations.</param>
@@ -105,7 +105,7 @@
                             Name = _mainProcessCreators.Length == 1
                                 ? "FillTempTable"
                                 : "FillTempTable-" + index.ToString("D", CultureInfo.InvariantCulture),
-                            Process = creator.Invoke(context, _tempTableName),
+                            Process = creator.Invoke(_tempTableName),
                         });
 
                         index++;

@@ -3,7 +3,7 @@
     using System;
     using System.Transactions;
 
-    public delegate IFinalProcess BasicEtlWrapperSingleCreatorDelegate(IEtlContext context);
+    public delegate IFinalProcess BasicEtlWrapperSingleCreatorDelegate();
 
     /// <summary>
     /// The default implementation of the <see cref="IEtlWrapper"/> interface, optionally supporting transaction scopes.
@@ -15,7 +15,7 @@
         private readonly bool _suppressTransactionScopeForCreator;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="BasicEtlWrapper"/> using a process creator delegate which takes an <see cref="IEtlContext"/> and returns a single new <see cref="IFinalProcess"/> to be executed by the wrapper.
+        /// Initializes a new instance of <see cref="BasicEtlWrapper"/> using a process creator delegate which returns a single new <see cref="IFinalProcess"/> to be executed by the wrapper.
         /// </summary>
         /// <param name="processCreator">The delegate which returns the process.</param>
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
@@ -38,7 +38,7 @@
                 IFinalProcess process = null;
                 using (var creatorScope = _suppressTransactionScopeForCreator ? new TransactionScope(TransactionScopeOption.Suppress) : null)
                 {
-                    process = _processCreator.Invoke(context);
+                    process = _processCreator.Invoke();
                     if (process == null)
                         return;
                 }
