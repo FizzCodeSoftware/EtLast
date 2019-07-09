@@ -177,6 +177,8 @@
                 return new List<IEtlPlugin>();
 
             var pluginNamesToExecute = GetAppSetting(pluginConfiguration, "PluginsToExecute");
+            if (pluginNamesToExecute.Trim() == "*")
+                return plugins.ToList();
 
             return pluginNamesToExecute.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(name => name.Trim())
