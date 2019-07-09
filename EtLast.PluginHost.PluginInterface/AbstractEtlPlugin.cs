@@ -204,7 +204,7 @@
 
         protected string GetPathFromConfiguration(string appSettingName, params string[] subFolders)
         {
-            var path = Configuration.AppSettings.Settings[appSettingName].Value;
+            var path = GetAppSetting(appSettingName);
             if (string.IsNullOrEmpty(path))
                 return null;
 
