@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast
 {
-    using System;
-    using System.Transactions;
-
     public delegate IFinalProcess[] BasicEtlStrategyMultipleCreatorDelegate();
 
     /// <summary>
@@ -49,11 +46,9 @@
             _suppressTransactionScopeForCreator = suppressTransactionScopeForCreator;
         }
 
-        public void Execute(IEtlContext context, TimeSpan transactionScopeTimeout)
+        public void Execute(IEtlContext context)
         {
-            using (var scope = _evaluationTransactionScopeKind != TransactionScopeKind.None
-                ? new TransactionScope((TransactionScopeOption)_evaluationTransactionScopeKind, transactionScopeTimeout)
-                : null)
+            using (var scope = context.BeginScope(_evaluationTransactionScopeKind))
             {
                 var failed = false;
 
@@ -62,7 +57,7 @@
                     foreach (var creator in _processCreators)
                     {
                         IFinalProcess process = null;
-                        using (var creatorScope = _suppressTransactionScopeForCreator ? new TransactionScope(TransactionScopeOption.Suppress) : null)
+                        using (var creatorScope = context.BeginScope(_suppressTransactionScopeForCreator ? TransactionScopeKind.Suppress : TransactionScopeKind.None))
                         {
                             process = creator.Invoke();
                             if (process == null)
@@ -86,7 +81,7 @@
                 else
                 {
                     IFinalProcess[] processes = null;
-                    using (var creatorScope = _suppressTransactionScopeForCreator ? new TransactionScope(TransactionScopeOption.Suppress) : null)
+                    using (var creatorScope = context.BeginScope(_suppressTransactionScopeForCreator ? TransactionScopeKind.Suppress : TransactionScopeKind.None))
                     {
                         processes = _multipleProcessCreator.Invoke();
                     }

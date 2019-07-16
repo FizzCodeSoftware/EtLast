@@ -6,6 +6,7 @@
     using System.Configuration;
     using System.Linq;
     using System.Threading;
+    using System.Transactions;
 
     public class EtlContext<TRow> : IEtlContext
         where TRow : IRow, new()
@@ -57,7 +58,7 @@
 
             try
             {
-                strategy.Execute(this, TransactionScopeTimeout);
+                strategy.Execute(this);
 
                 if (GetExceptions().Count > initialExceptionCount)
                 {
@@ -87,7 +88,7 @@
             {
                 foreach (var strategy in strategies)
                 {
-                    strategy.Execute(this, TransactionScopeTimeout);
+                    strategy.Execute(this);
 
                     var exceptions = GetExceptions();
                     if (exceptions.Count > initialExceptionCount)
@@ -184,6 +185,13 @@
         public ConnectionStringSettings GetConnectionStringSettings(string key)
         {
             return Configuration.ConnectionStrings.ConnectionStrings[key + "-" + Environment.MachineName] ?? Configuration.ConnectionStrings.ConnectionStrings[key];
+        }
+
+        public TransactionScope BeginScope(TransactionScopeKind kind)
+        {
+            return kind == TransactionScopeKind.None
+                ? null
+                : new TransactionScope((TransactionScopeOption)kind, TransactionScopeTimeout);
         }
     }
 }

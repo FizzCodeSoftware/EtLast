@@ -7,7 +7,6 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Threading;
-    using System.Transactions;
 
     public class MsSqlWriteToTableWithMicroTransactionsOperation : AbstractRowOperation
     {
@@ -80,7 +79,7 @@
 
             for (var retry = 0; retry <= MaxRetryCount; retry++)
             {
-                using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew))
+                using (var scope = process.Context.BeginScope(TransactionScopeKind.RequiresNew))
                 {
                     var connection = ConnectionManager.GetConnection(_connectionStringSettings, process);
 
@@ -107,7 +106,7 @@
                     {
                         bulkCopy.WriteToServer(_reader);
                         bulkCopy.Close();
-                        ConnectionManager.ReleaseConnection(ref connection);
+                        ConnectionManager.ReleaseConnection(Process, ref connection);
 
                         scope.Complete();
 
@@ -158,7 +157,7 @@
                     }
                     catch (Exception ex)
                     {
-                        ConnectionManager.ReleaseConnection(ref connection);
+                        ConnectionManager.ReleaseConnection(Process, ref connection);
                         bulkCopy.Close();
 
                         var exception = new OperationExecutionException(process, this, "database write failed", ex);

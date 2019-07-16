@@ -96,7 +96,7 @@
             }
             catch (Exception ex)
             {
-                ConnectionManager.ReleaseConnection(ref _connection);
+                ConnectionManager.ReleaseConnection(Process, ref _connection);
                 _bulkCopy.Close();
                 _bulkCopy = null;
 
@@ -188,7 +188,7 @@
                 _bulkCopy = null;
             }
 
-            ConnectionManager.ReleaseConnection(ref _connection);
+            ConnectionManager.ReleaseConnection(Process, ref _connection);
         }
     }
 }

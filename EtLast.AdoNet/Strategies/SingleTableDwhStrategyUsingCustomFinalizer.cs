@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
-    using System.Transactions;
 
     public delegate Tuple<IFinalProcess, List<IJob>> ManyProcessAndFinalizerGeneratorWithTableNameDelegate(string tableName, string tempTableName);
 
@@ -46,18 +45,14 @@
             _suppressTransactionScopeForCreator = suppressTransactionScopeForCreator;
         }
 
-        public void Execute(IEtlContext context, TimeSpan transactionScopeTimeout)
+        public void Execute(IEtlContext context)
         {
             var initialExceptionCount = context.GetExceptions().Count;
 
-            using (var scope = _evaluationTransactionScopeKind != TransactionScopeKind.None
-                ? new TransactionScope((TransactionScopeOption)_evaluationTransactionScopeKind, transactionScopeTimeout)
-                : null)
+            using (var scope = context.BeginScope(_evaluationTransactionScopeKind))
             {
                 JobProcess process = null;
-                using (var creatorScope = _suppressTransactionScopeForCreator
-                    ? new TransactionScope(TransactionScopeOption.Suppress)
-                    : null)
+                using (var creatorScope = context.BeginScope(_suppressTransactionScopeForCreator ? TransactionScopeKind.Suppress : TransactionScopeKind.None))
                 {
                     process = new JobProcess(context, "TempTableStrategy-" + _tableName.Replace("[", "").Replace("]", ""));
 

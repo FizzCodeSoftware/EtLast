@@ -228,7 +228,7 @@
             _fullTime.Stop();
             _fullTime = null;
 
-            ConnectionManager.ReleaseConnection(ref _connection);
+            ConnectionManager.ReleaseConnection(Process, ref _connection);
         }
 
         public virtual void SetParameter(IDbDataParameter parameter, object value, DbType? dbType, ConnectionStringSettings connectionStringSettings)

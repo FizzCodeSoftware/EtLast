@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Configuration;
     using System.Threading;
+    using System.Transactions;
 
     public interface IEtlContext
     {
@@ -15,6 +16,8 @@
         DateTimeOffset CreatedOnLocal { get; }
 
         TimeSpan TransactionScopeTimeout { get; }
+        TransactionScope BeginScope(TransactionScopeKind kind);
+
         CancellationTokenSource CancellationTokenSource { get; }
         ConnectionStringSettings GetConnectionStringSettings(string key);
 

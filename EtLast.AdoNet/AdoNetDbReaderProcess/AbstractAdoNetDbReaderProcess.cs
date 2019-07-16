@@ -8,6 +8,8 @@
     using System.Linq;
     using System.Transactions;
 
+    public delegate DatabaseConnection ConnectionCreatorDelegate(ConnectionStringSettings connectionStringSettings, IProcess process);
+
     public abstract class AbstractAdoNetDbReaderProcess : AbstractBaseProducerProcess
     {
         public string ConnectionStringKey { get; set; }
@@ -22,7 +24,7 @@
         /// </summary>
         public bool SuppressExistingTransactionScope { get; set; }
 
-        public Func<DatabaseConnection> CustomConnectionCreator { get; set; }
+        public ConnectionCreatorDelegate CustomConnectionCreator { get; set; }
 
         public int CommandTimeout { get; set; } = 3600;
         public DateTime LastDataRead { get; private set; }
@@ -91,7 +93,7 @@
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
                 connection = CustomConnectionCreator != null
-                    ? CustomConnectionCreator.Invoke()
+                    ? CustomConnectionCreator.Invoke(ConnectionStringSettings, this)
                     : ConnectionManager.GetConnection(ConnectionStringSettings, this);
 
                 cmd = connection.Connection.CreateCommand();
@@ -200,7 +202,7 @@
 
             if (CustomConnectionCreator == null)
             {
-                ConnectionManager.ReleaseConnection(ref connection);
+                ConnectionManager.ReleaseConnection(this, ref connection);
             }
 
             Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, sw.Elapsed);

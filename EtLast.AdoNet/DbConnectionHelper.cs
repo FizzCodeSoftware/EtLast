@@ -9,7 +9,7 @@
     using System.Threading;
     using System.Transactions;
 
-    internal static class ConnectionManager
+    public static class ConnectionManager
     {
         private static readonly Dictionary<string, DatabaseConnection> Connections = new Dictionary<string, DatabaseConnection>();
 
@@ -181,16 +181,21 @@
             throw exception;
         }
 
-        public static void ReleaseConnection(ref DatabaseConnection connection)
+        public static void ReleaseConnection(IProcess process, ref DatabaseConnection connection)
         {
             if (connection == null)
                 return;
             lock (Connections)
             {
                 connection.ReferenceCount--;
+
+                process.Context.Log(LogSeverity.Debug, process, "database connection reference count decreased to {ReferenceCount}: {ConnectionStringKey} using {ProviderName} provider", connection.ReferenceCount, connection.Settings.Name, connection.Settings.ProviderName);
+
                 if (connection.ReferenceCount == 0)
                 {
                     Connections.Remove(connection.Key);
+
+                    process.Context.Log(LogSeverity.Debug, process, "database connection closed: {ConnectionStringKey} using {ProviderName} provider", connection.Settings.Name, connection.Settings.ProviderName);
 
                     if (connection != null)
                     {

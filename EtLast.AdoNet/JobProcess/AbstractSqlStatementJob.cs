@@ -54,7 +54,7 @@
                 }
                 finally
                 {
-                    ConnectionManager.ReleaseConnection(ref connection);
+                    ConnectionManager.ReleaseConnection(process, ref connection);
                 }
             }
         }
