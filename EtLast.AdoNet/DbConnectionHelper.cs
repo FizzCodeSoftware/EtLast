@@ -13,7 +13,7 @@
     {
         private static readonly Dictionary<string, DatabaseConnection> Connections = new Dictionary<string, DatabaseConnection>();
 
-        internal static DatabaseConnection GetConnection(ConnectionStringSettings connectionStringSettings, IProcess process, IDbTransaction customTransaction = null, int maxRetryCount = 1, int retryDelayMilliseconds = 10000)
+        internal static DatabaseConnection GetConnection(ConnectionStringSettings connectionStringSettings, IProcess process, bool ignorePool = false, int maxRetryCount = 1, int retryDelayMilliseconds = 10000)
         {
             if (string.IsNullOrEmpty(connectionStringSettings.ProviderName))
             {
@@ -25,15 +25,13 @@
 
             var key = connectionStringSettings.Name + "/" + connectionStringSettings.ProviderName + "/";
 
-            if (customTransaction == null)
+            key += Transaction.Current != null
+                ? Transaction.Current.TransactionInformation.CreationTime.ToString()
+                : "-";
+
+            if (ignorePool)
             {
-                key += Transaction.Current != null
-                    ? Transaction.Current.TransactionInformation.CreationTime.ToString()
-                    : "-";
-            }
-            else
-            {
-                key += customTransaction.GetHashCode();
+                key += Guid.NewGuid().ToString();
             }
 
             Exception lastException = null;
@@ -96,6 +94,78 @@
                         lastException = ex;
                     }
                 } // lock released
+
+                process.Context.Stat.IncrementCounter("database connections failed / " + connectionStringSettings.Name, 1);
+
+                process.Context.Log(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", connectionStringSettings.Name, connectionStringSettings.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
+                process.Context.LogOps(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", connectionStringSettings.Name, connectionStringSettings.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
+                Thread.Sleep(retryDelayMilliseconds * (retry + 1));
+            }
+
+            var exception = new EtlException(process, "can't connect to database", lastException);
+            exception.AddOpsMessage(string.Format("can't connect to database, connection string key: {0}, message: {1}", connectionStringSettings.Name, lastException.Message));
+            exception.Data.Add("ConnectionStringKey", connectionStringSettings.Name);
+            exception.Data.Add("ProviderName", connectionStringSettings.ProviderName);
+            throw exception;
+        }
+
+        internal static DatabaseConnection GetNewConnection(ConnectionStringSettings connectionStringSettings, IProcess process, int maxRetryCount = 1, int retryDelayMilliseconds = 10000)
+        {
+            if (string.IsNullOrEmpty(connectionStringSettings.ProviderName))
+            {
+                var ex = new EtlException(process, "missing provider name for connection string");
+                ex.Data["ConnectionStringKey"] = connectionStringSettings.Name;
+                ex.AddOpsMessage("missing provider name for connection string key: " + connectionStringSettings.Name);
+                throw ex;
+            }
+
+            Exception lastException = null;
+
+            for (var retry = 0; retry <= maxRetryCount; retry++)
+            {
+                var sw = Stopwatch.StartNew();
+                process.Context.Log(LogSeverity.Debug, process, "opening database connection to {ConnectionStringKey} using {ProviderName} provider, transaction: {Transaction}", connectionStringSettings.Name, connectionStringSettings.ProviderName, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+
+                try
+                {
+                    IDbConnection conn = null;
+
+                    var providerName = connectionStringSettings.ProviderName;
+                    if (providerName != null)
+                    {
+                        var connectionType = Type.GetType(providerName);
+                        if (connectionType != null)
+                        {
+                            conn = Activator.CreateInstance(connectionType) as IDbConnection;
+                        }
+                    }
+
+                    if (conn == null)
+                    {
+                        conn = DbProviderFactories.GetFactory(providerName).CreateConnection();
+                    }
+
+                    process.Context.Stat.IncrementCounter("database connections opened", 1);
+                    process.Context.Stat.IncrementCounter("database connections opened / " + connectionStringSettings.Name, 1);
+
+                    conn.ConnectionString = connectionStringSettings.ConnectionString;
+                    conn.Open();
+
+                    process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringKey} using {ProviderName} provider in {Elapsed}", connectionStringSettings.Name, connectionStringSettings.ProviderName, sw.Elapsed);
+
+                    return new DatabaseConnection()
+                    {
+                        Key = null,
+                        Settings = connectionStringSettings,
+                        Connection = conn,
+                        ReferenceCount = 1,
+                        TransactionWhenCreated = Transaction.Current,
+                    };
+                }
+                catch (Exception ex)
+                {
+                    lastException = ex;
+                }
 
                 process.Context.Stat.IncrementCounter("database connections failed / " + connectionStringSettings.Name, 1);
 

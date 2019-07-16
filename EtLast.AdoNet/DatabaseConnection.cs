@@ -4,7 +4,7 @@
     using System.Data;
     using System.Transactions;
 
-    internal class DatabaseConnection
+    public class DatabaseConnection
     {
         public string Key { get; set; }
         public ConnectionStringSettings Settings { get; set; }

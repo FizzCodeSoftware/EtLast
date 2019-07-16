@@ -22,7 +22,7 @@
         /// </summary>
         public bool SuppressExistingTransactionScope { get; set; }
 
-        public Func<IDbTransaction> CustomTransactionCreator { get; set; }
+        public Func<DatabaseConnection> CustomConnectionCreator { get; set; }
 
         public int CommandTimeout { get; set; } = 3600;
         public DateTime LastDataRead { get; private set; }
@@ -88,31 +88,19 @@
             IDbCommand cmd = null;
             Stopwatch swQuery;
 
-            IDbTransaction customTransaction = null;
-            if (CustomTransactionCreator != null)
+            using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
-                customTransaction = CustomTransactionCreator.Invoke();
-            }
+                connection = CustomConnectionCreator != null
+                    ? CustomConnectionCreator.Invoke()
+                    : ConnectionManager.GetConnection(ConnectionStringSettings, this);
 
-            var suppressScope = SuppressExistingTransactionScope && (customTransaction != null);
-
-            using (var scope = suppressScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
-            {
-                connection = ConnectionManager.GetConnection(ConnectionStringSettings, this, customTransaction);
                 cmd = connection.Connection.CreateCommand();
                 cmd.CommandTimeout = CommandTimeout;
                 cmd.CommandText = sqlStatement;
 
-                string transactionName;
-                if (customTransaction != null)
-                {
-                    cmd.Transaction = customTransaction;
-                    transactionName = "custom (" + cmd.Transaction.IsolationLevel.ToString() + ")";
-                }
-                else
-                {
-                    transactionName = Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL";
-                }
+                var transactionName = (CustomConnectionCreator != null && cmd.Transaction != null)
+                    ? "custom (" + cmd.Transaction.IsolationLevel.ToString() + ")"
+                    : Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL";
 
                 Context.Log(LogSeverity.Debug, this, "executing query {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}", cmd.CommandText, ConnectionStringSettings.Name, cmd.CommandTimeout, transactionName);
 
@@ -210,7 +198,10 @@
                 cmd = null;
             }
 
-            ConnectionManager.ReleaseConnection(ref connection);
+            if (CustomConnectionCreator == null)
+            {
+                ConnectionManager.ReleaseConnection(ref connection);
+            }
 
             Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, sw.Elapsed);
         }
