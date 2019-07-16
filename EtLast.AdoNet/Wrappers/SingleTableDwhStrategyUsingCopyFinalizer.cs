@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Transactions;
 
-    public delegate IFinalProcess EtlStrategyWithTempTableCopyFinalizerDelegate(string tempTableName);
+    public delegate IFinalProcess OneProcessGeneratorWithTempTableNameDelegate(string tempTableName);
 
     /// <summary>
     /// The ADO.Net implementation of the <see cref="IEtlStrategy"/> interface, optionally supporting transaction scopes.
@@ -20,7 +20,7 @@
         private readonly string _tableName;
         private readonly string _tempTableName;
         private readonly string[] _columns;
-        private readonly EtlStrategyWithTempTableCopyFinalizerDelegate[] _mainProcessCreators;
+        private readonly OneProcessGeneratorWithTempTableNameDelegate[] _mainProcessCreators;
 
         private readonly TransactionScopeKind _evaluationTransactionScopeKind;
         private readonly bool _suppressTransactionScopeForCreator;
@@ -36,7 +36,7 @@
         /// <param name="mainProcessCreator">The delegate which returns the process.</param>
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
         /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the process creator delegate.</param>
-        public SingleTableDwhStrategyUsingCopyFinalizer(string connectionStringKey, bool deleteExistingTableContents, string tableName, string tempTableName, string[] columns, EtlStrategyWithTempTableCopyFinalizerDelegate mainProcessCreator, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
+        public SingleTableDwhStrategyUsingCopyFinalizer(string connectionStringKey, bool deleteExistingTableContents, string tableName, string tempTableName, string[] columns, OneProcessGeneratorWithTempTableNameDelegate mainProcessCreator, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
         {
             _connectionStringKey = connectionStringKey;
             _deleteExistingTableContents = deleteExistingTableContents;
@@ -60,7 +60,7 @@
         /// <param name="mainProcessCreators">The delegates whose return one process each.</param>
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
         /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the process creator delegate.</param>
-        public SingleTableDwhStrategyUsingCopyFinalizer(string connectionStringKey, bool deleteExistingTableContents, string tableName, string tempTableName, string[] columns, EtlStrategyWithTempTableCopyFinalizerDelegate[] mainProcessCreators, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
+        public SingleTableDwhStrategyUsingCopyFinalizer(string connectionStringKey, bool deleteExistingTableContents, string tableName, string tempTableName, string[] columns, OneProcessGeneratorWithTempTableNameDelegate[] mainProcessCreators, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
         {
             _connectionStringKey = connectionStringKey;
             _deleteExistingTableContents = deleteExistingTableContents;

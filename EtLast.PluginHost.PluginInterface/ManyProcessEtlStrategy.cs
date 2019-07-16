@@ -10,7 +10,7 @@
     /// </summary>
     public class ManyProcessEtlStrategy : IEtlStrategy
     {
-        private readonly BasicEtlStrategySingleCreatorDelegate[] _processCreators;
+        private readonly OneProcessGeneratorDelegate[] _processCreators;
         private readonly BasicEtlStrategyMultipleCreatorDelegate _multipleProcessCreator;
         private readonly bool _stopOnError = true;
 
@@ -25,7 +25,7 @@
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
         /// <param name="stopOnError">If a process fails then stops the execution, otherwise continue executing the next process.</param>
         /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the process creator delegates.</param>
-        public ManyProcessEtlStrategy(BasicEtlStrategySingleCreatorDelegate[] processCreators, TransactionScopeKind evaluationTransactionScopeKind, bool stopOnError = true, bool suppressTransactionScopeForCreator = false)
+        public ManyProcessEtlStrategy(OneProcessGeneratorDelegate[] processCreators, TransactionScopeKind evaluationTransactionScopeKind, bool stopOnError = true, bool suppressTransactionScopeForCreator = false)
         {
             _processCreators = processCreators;
             _evaluationTransactionScopeKind = evaluationTransactionScopeKind;

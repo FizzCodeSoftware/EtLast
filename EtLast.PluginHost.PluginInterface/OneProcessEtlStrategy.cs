@@ -3,14 +3,14 @@
     using System;
     using System.Transactions;
 
-    public delegate IFinalProcess BasicEtlStrategySingleCreatorDelegate();
+    public delegate IFinalProcess OneProcessGeneratorDelegate();
 
     /// <summary>
     /// The default implementation of the <see cref="IEtlStrategy"/> interface, optionally supporting transaction scopes.
     /// </summary>
     public class OneProcessEtlStrategy : IEtlStrategy
     {
-        private readonly BasicEtlStrategySingleCreatorDelegate _processCreator;
+        private readonly OneProcessGeneratorDelegate _processCreator;
         private readonly TransactionScopeKind _evaluationTransactionScopeKind;
         private readonly bool _suppressTransactionScopeForCreator;
 
@@ -20,7 +20,7 @@
         /// <param name="processCreator">The delegate which returns the process.</param>
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
         /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the process creator delegate.</param>
-        public OneProcessEtlStrategy(BasicEtlStrategySingleCreatorDelegate processCreator, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
+        public OneProcessEtlStrategy(OneProcessGeneratorDelegate processCreator, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
         {
             _processCreator = processCreator;
             _evaluationTransactionScopeKind = evaluationTransactionScopeKind;

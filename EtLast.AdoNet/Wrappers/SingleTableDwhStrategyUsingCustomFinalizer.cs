@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Transactions;
 
-    public delegate Tuple<IFinalProcess, List<IJob>> EtlStrategyWithTempTableCustomFinalizerDelegate(string tableName, string tempTableName);
+    public delegate Tuple<IFinalProcess, List<IJob>> ManyProcessAndFinalizerGeneratorWithTableNameDelegate(string tableName, string tempTableName);
 
     /// <summary>
     /// The ADO.Net implementation of the <see cref="IEtlStrategy"/> interface, optionally supporting transaction scopes.
@@ -20,7 +20,7 @@
         private readonly string _tableName;
         private readonly string _tempTableName;
         private readonly string[] _columns;
-        private readonly EtlStrategyWithTempTableCustomFinalizerDelegate _mainProcessCreator;
+        private readonly ManyProcessAndFinalizerGeneratorWithTableNameDelegate _mainProcessCreator;
 
         private readonly TransactionScopeKind _evaluationTransactionScopeKind;
         private readonly bool _suppressTransactionScopeForCreator;
@@ -35,7 +35,7 @@
         /// <param name="mainProcessCreator">The delegate which returns the main process and the list of finalizer jobs.</param>
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
         /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the process creator delegate.</param>
-        public SingleTableDwhStrategyUsingCustomFinalizer(string connectionStringKey, string tableName, string tempTableName, string[] columns, EtlStrategyWithTempTableCustomFinalizerDelegate mainProcessCreator, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
+        public SingleTableDwhStrategyUsingCustomFinalizer(string connectionStringKey, string tableName, string tempTableName, string[] columns, ManyProcessAndFinalizerGeneratorWithTableNameDelegate mainProcessCreator, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
         {
             _connectionStringKey = connectionStringKey;
             _tableName = tableName;
