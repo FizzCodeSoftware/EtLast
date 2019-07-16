@@ -94,8 +94,8 @@
     <Compile Include="RowOperations\StatementCreators\MsSqlServerMergeSqlStatementCreator.cs" />
     <Compile Include="RowOperations\RowShadowReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Wrappers\SingleTableDwhStrategyUsingCustomFinalizer.cs" />
-    <Compile Include="Wrappers\SingleTableDwhStrategyUsingCopyFinalizer.cs" />
+    <Compile Include="Strategies\SingleTableDwhStrategyUsingCustomFinalizer.cs" />
+    <Compile Include="Strategies\SingleTableDwhStrategyUsingCopyFinalizer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EtLast.Reference\EtLast.Reference.csproj">

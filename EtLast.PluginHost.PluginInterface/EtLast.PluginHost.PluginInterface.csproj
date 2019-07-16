@@ -87,10 +87,10 @@
       <Link>Properties\AssemblyInfo.Global.cs</Link>
     </Compile>
     <Compile Include="AbstractEtlPlugin.cs" />
-    <Compile Include="ManyProcessEtlStrategy.cs" />
+    <Compile Include="Strategies\ManyProcessEtlStrategy.cs" />
     <Compile Include="IEtlPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="OneProcessEtlStrategy.cs" />
+    <Compile Include="Strategies\OneProcessEtlStrategy.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
