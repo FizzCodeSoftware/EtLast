@@ -109,7 +109,7 @@
             throw exception;
         }
 
-        internal static DatabaseConnection GetNewConnection(ConnectionStringSettings connectionStringSettings, IProcess process, int maxRetryCount = 1, int retryDelayMilliseconds = 10000)
+        public static DatabaseConnection GetNewConnection(ConnectionStringSettings connectionStringSettings, IProcess process, int maxRetryCount = 1, int retryDelayMilliseconds = 10000)
         {
             if (string.IsNullOrEmpty(connectionStringSettings.ProviderName))
             {
