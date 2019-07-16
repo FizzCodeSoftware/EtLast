@@ -2,7 +2,7 @@
 {
     using System;
 
-    public interface IEtlWrapper
+    public interface IEtlStrategy
     {
         void Execute(IEtlContext context, TimeSpan transactionScopeTimeout);
     }

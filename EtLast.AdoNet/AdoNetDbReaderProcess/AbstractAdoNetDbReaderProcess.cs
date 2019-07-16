@@ -17,10 +17,13 @@
         public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
 
         /// <summary>
-        /// If true, this process will execute out of ambient transaction scope.
-        /// See <see cref="TransactionScopeOption.Suppress"/>>.
+        /// If true, this process will execute out of ambient transaction scope. Default value is false.
+        /// See <see cref="TransactionScopeOption.Suppress"/>.
         /// </summary>
-        public bool SuppressExistingTransactionScope { get; set; } = false;
+        public bool SuppressExistingTransactionScope { get; set; }
+
+        public Func<IDbTransaction> CustomTransactionCreator { get; set; }
+
         public int CommandTimeout { get; set; } = 3600;
         public DateTime LastDataRead { get; private set; }
         public List<ISqlValueProcessor> SqlValueProcessors { get; } = new List<ISqlValueProcessor>();
@@ -85,13 +88,33 @@
             IDbCommand cmd = null;
             Stopwatch swQuery;
 
-            using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
+            IDbTransaction customTransaction = null;
+            if (CustomTransactionCreator != null)
             {
-                connection = ConnectionManager.GetConnection(ConnectionStringSettings, this);
+                customTransaction = CustomTransactionCreator.Invoke();
+            }
+
+            var suppressScope = SuppressExistingTransactionScope && (customTransaction != null);
+
+            using (var scope = suppressScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
+            {
+                connection = ConnectionManager.GetConnection(ConnectionStringSettings, this, customTransaction);
                 cmd = connection.Connection.CreateCommand();
                 cmd.CommandTimeout = CommandTimeout;
                 cmd.CommandText = sqlStatement;
-                Context.Log(LogSeverity.Debug, this, "executing query {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}", cmd.CommandText, ConnectionStringSettings.Name, cmd.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+
+                string transactionName;
+                if (customTransaction != null)
+                {
+                    cmd.Transaction = customTransaction;
+                    transactionName = "custom (" + cmd.Transaction.IsolationLevel.ToString() + ")";
+                }
+                else
+                {
+                    transactionName = Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL";
+                }
+
+                Context.Log(LogSeverity.Debug, this, "executing query {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}", cmd.CommandText, ConnectionStringSettings.Name, cmd.CommandTimeout, transactionName);
 
                 swQuery = Stopwatch.StartNew();
                 try

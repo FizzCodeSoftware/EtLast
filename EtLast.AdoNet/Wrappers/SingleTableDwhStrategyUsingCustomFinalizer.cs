@@ -6,27 +6,27 @@
     using System.Linq;
     using System.Transactions;
 
-    public delegate Tuple<IFinalProcess, List<IJob>> EtlWrapperWithTempTableCustomFinalizerDelegate(string tableName, string tempTableName);
+    public delegate Tuple<IFinalProcess, List<IJob>> EtlStrategyWithTempTableCustomFinalizerDelegate(string tableName, string tempTableName);
 
     /// <summary>
-    /// The ADO.Net implementation of the <see cref="IEtlWrapper"/> interface, optionally supporting transaction scopes.
-    /// A temp database table will be created by the wrapper, and filled by the main process.
-    /// Then the finalizer jobs will be executed, and at the end the temp table will be dropped by the wrapper.
+    /// The ADO.Net implementation of the <see cref="IEtlStrategy"/> interface, optionally supporting transaction scopes.
+    /// A temp database table will be created by the strategy, and filled by the main process.
+    /// Then the finalizer jobs will be executed, and at the end the temp table will be dropped by the strategy.
     /// Usually used in conjunction with <see cref="MsSqlWriteToTableWithMicroTransactionsOperation"/> to fill the temp tables because that operation creates a separate transaction scope for each write batch.
     /// </summary>
-    public class EtlWrapperWithTempTableCustomFinalizer : IEtlWrapper
+    public class SingleTableDwhStrategyUsingCustomFinalizer : IEtlStrategy
     {
         private readonly string _connectionStringKey;
         private readonly string _tableName;
         private readonly string _tempTableName;
         private readonly string[] _columns;
-        private readonly EtlWrapperWithTempTableCustomFinalizerDelegate _mainProcessCreator;
+        private readonly EtlStrategyWithTempTableCustomFinalizerDelegate _mainProcessCreator;
 
         private readonly TransactionScopeKind _evaluationTransactionScopeKind;
         private readonly bool _suppressTransactionScopeForCreator;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="EtlWrapperWithTempTableCustomFinalizer"/> using a process creator delegate which takes the target table name (which is the <paramref name="tempTableName"/>) and returns a tuple with single new <see cref="IFinalProcess"/> and a list of finalizer jobs to be executed by the wrapper.
+        /// Initializes a new instance of <see cref="SingleTableDwhStrategyUsingCustomFinalizer"/> using a process creator delegate which takes the target table name (which is the <paramref name="tempTableName"/>) and returns a tuple with single new <see cref="IFinalProcess"/> and a list of finalizer jobs to be executed by the strategy.
         /// </summary>
         /// <param name="connectionStringKey">The connection string key used by the database operations.</param>
         /// <param name="tableName">The name of the target table.</param>
@@ -35,7 +35,7 @@
         /// <param name="mainProcessCreator">The delegate which returns the main process and the list of finalizer jobs.</param>
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
         /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the process creator delegate.</param>
-        public EtlWrapperWithTempTableCustomFinalizer(string connectionStringKey, string tableName, string tempTableName, string[] columns, EtlWrapperWithTempTableCustomFinalizerDelegate mainProcessCreator, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
+        public SingleTableDwhStrategyUsingCustomFinalizer(string connectionStringKey, string tableName, string tempTableName, string[] columns, EtlStrategyWithTempTableCustomFinalizerDelegate mainProcessCreator, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
         {
             _connectionStringKey = connectionStringKey;
             _tableName = tableName;
@@ -59,11 +59,11 @@
                     ? new TransactionScope(TransactionScopeOption.Suppress)
                     : null)
                 {
-                    process = new JobProcess(context, "TempTableWrapper-" + _tableName.Replace("[", "").Replace("]", ""));
+                    process = new JobProcess(context, "TempTableStrategy-" + _tableName.Replace("[", "").Replace("]", ""));
 
                     process.AddJob(new CopyTableStructureJob
                     {
-                        Name = "CreateTempTable",
+                        Name = "DropCreateTempTable",
                         ConnectionStringKey = _connectionStringKey,
                         SourceTableName = _tableName,
                         TargetTableName = _tempTableName,

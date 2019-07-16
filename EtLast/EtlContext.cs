@@ -47,17 +47,17 @@
         }
 
         /// <summary>
-        /// Executes the specified wrapper.
+        /// Executes the specified strategy.
         /// </summary>
-        /// <param name="terminateHostOnFail">If true, then a failed wrapper will set the <see cref="EtlContextResult.TerminateHost"/> field to true in the result object.</param>
-        /// <param name="wrapper">The wrapper to be executed.</param>
-        public void ExecuteOne(bool terminateHostOnFail, IEtlWrapper wrapper)
+        /// <param name="terminateHostOnFail">If true, then a failed strategy will set the <see cref="EtlContextResult.TerminateHost"/> field to true in the result object.</param>
+        /// <param name="strategy">The strategy to be executed.</param>
+        public void ExecuteOne(bool terminateHostOnFail, IEtlStrategy strategy)
         {
             var initialExceptionCount = GetExceptions().Count;
 
             try
             {
-                wrapper.Execute(this, TransactionScopeTimeout);
+                strategy.Execute(this, TransactionScopeTimeout);
 
                 if (GetExceptions().Count > initialExceptionCount)
                 {
@@ -74,20 +74,20 @@
         }
 
         /// <summary>
-        /// Sequentially executes the specified wrappers in the specified order.
-        /// If a wrapper fails then the execution will stop and return to the caller.
+        /// Sequentially executes the specified strategies in the specified order.
+        /// If a strategy fails then the execution will stop and return to the caller.
         /// </summary>
-        /// <param name="terminateHostOnFail">If true, then a failed wrapper will set the <see cref="EtlContextResult.TerminateHost"/> field to true in the result object.</param>
-        /// <param name="wrappers">The wrappers to be executed.</param>
-        public void ExecuteSequence(bool terminateHostOnFail, params IEtlWrapper[] wrappers)
+        /// <param name="terminateHostOnFail">If true, then a failed strategy will set the <see cref="EtlContextResult.TerminateHost"/> field to true in the result object.</param>
+        /// <param name="strategies">The strategies to be executed.</param>
+        public void ExecuteSequence(bool terminateHostOnFail, params IEtlStrategy[] strategies)
         {
             var initialExceptionCount = GetExceptions().Count;
 
             try
             {
-                foreach (var wrapper in wrappers)
+                foreach (var strategy in strategies)
                 {
-                    wrapper.Execute(this, TransactionScopeTimeout);
+                    strategy.Execute(this, TransactionScopeTimeout);
 
                     var exceptions = GetExceptions();
                     if (exceptions.Count > initialExceptionCount)

@@ -13,7 +13,7 @@
     {
         private static readonly Dictionary<string, DatabaseConnection> Connections = new Dictionary<string, DatabaseConnection>();
 
-        internal static DatabaseConnection GetConnection(ConnectionStringSettings connectionStringSettings, IProcess process, int maxRetryCount = 1, int retryDelayMilliseconds = 10000)
+        internal static DatabaseConnection GetConnection(ConnectionStringSettings connectionStringSettings, IProcess process, IDbTransaction customTransaction = null, int maxRetryCount = 1, int retryDelayMilliseconds = 10000)
         {
             if (string.IsNullOrEmpty(connectionStringSettings.ProviderName))
             {
@@ -23,7 +23,19 @@
                 throw ex;
             }
 
-            var key = connectionStringSettings.Name + "/" + connectionStringSettings.ProviderName + "/" + (Transaction.Current != null ? Transaction.Current.TransactionInformation.CreationTime.ToString() : "-");
+            var key = connectionStringSettings.Name + "/" + connectionStringSettings.ProviderName + "/";
+
+            if (customTransaction == null)
+            {
+                key += Transaction.Current != null
+                    ? Transaction.Current.TransactionInformation.CreationTime.ToString()
+                    : "-";
+            }
+            else
+            {
+                key += customTransaction.GetHashCode();
+            }
+
             Exception lastException = null;
 
             for (var retry = 0; retry <= maxRetryCount; retry++)

@@ -18,8 +18,8 @@
         CancellationTokenSource CancellationTokenSource { get; }
         ConnectionStringSettings GetConnectionStringSettings(string key);
 
-        void ExecuteOne(bool terminateHostOnFail, IEtlWrapper wrapper);
-        void ExecuteSequence(bool terminateHostOnFail, params IEtlWrapper[] wrappers);
+        void ExecuteOne(bool terminateHostOnFail, IEtlStrategy strategy);
+        void ExecuteSequence(bool terminateHostOnFail, params IEtlStrategy[] strategies);
 
         IRow CreateRow(int columnCountHint = 0);
         void Log(LogSeverity severity, IProcess process, string text, params object[] args);

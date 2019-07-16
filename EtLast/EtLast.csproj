@@ -81,7 +81,7 @@
     <Compile Include="Exceptions\ContinuousAggregationOperationExecutionException.cs" />
     <Compile Include="Exceptions\OperationExecutionException.cs" />
     <Compile Include="Exceptions\InvalidOperationParameterException.cs" />
-    <Compile Include="Interfaces\IEtlWrapper.cs" />
+    <Compile Include="Interfaces\IEtlStrategy.cs" />
     <Compile Include="Interfaces\TransactionScopeKind.cs" />
     <Compile Include="Process\AggregationProcess\AbstractAggregationProcess.cs" />
     <Compile Include="Process\AggregationProcess\IContinuousAggregationOperation.cs" />

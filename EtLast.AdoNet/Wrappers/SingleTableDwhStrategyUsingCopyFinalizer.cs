@@ -5,38 +5,38 @@
     using System.Linq;
     using System.Transactions;
 
-    public delegate IFinalProcess EtlWrapperWithTempTableCopyFinalizerDelegate(string tempTableName);
+    public delegate IFinalProcess EtlStrategyWithTempTableCopyFinalizerDelegate(string tempTableName);
 
     /// <summary>
-    /// The ADO.Net implementation of the <see cref="IEtlWrapper"/> interface, optionally supporting transaction scopes.
-    /// A temp database table will be created by the wrapper, filled by the process(es) created by the supplied delegates.
-    /// The contents of the temp table will be copied to the target table and it will be dropped by the wrapper at the end.
+    /// The ADO.Net implementation of the <see cref="IEtlStrategy"/> interface, optionally supporting transaction scopes.
+    /// A temp database table will be created by the strategy, filled by the process(es) created by the supplied delegates.
+    /// The contents of the temp table will be copied to the target table and it will be dropped by the strategy at the end.
     /// Usually used in conjunction with <see cref="MsSqlWriteToTableWithMicroTransactionsOperation"/> to fill the temp tables because that operation creates a separate transaction scope for each write batch.
     /// </summary>
-    public class EtlWrapperWithTempTableCopyFinalizer : IEtlWrapper
+    public class SingleTableDwhStrategyUsingCopyFinalizer : IEtlStrategy
     {
         private readonly string _connectionStringKey;
         private readonly bool _deleteExistingTableContents;
         private readonly string _tableName;
         private readonly string _tempTableName;
         private readonly string[] _columns;
-        private readonly EtlWrapperWithTempTableCopyFinalizerDelegate[] _mainProcessCreators;
+        private readonly EtlStrategyWithTempTableCopyFinalizerDelegate[] _mainProcessCreators;
 
         private readonly TransactionScopeKind _evaluationTransactionScopeKind;
         private readonly bool _suppressTransactionScopeForCreator;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="EtlWrapperWithTempTableCopyFinalizer"/> using a process creator delegate which takes the target table name (which is the <paramref name="tempTableName"/>) and returns a single new <see cref="IFinalProcess"/> to be executed by the wrapper.
+        /// Initializes a new instance of <see cref="SingleTableDwhStrategyUsingCopyFinalizer"/> using a process creator delegate which takes the target table name (which is the <paramref name="tempTableName"/>) and returns a single new <see cref="IFinalProcess"/> to be executed by the strategy.
         /// </summary>
         /// <param name="connectionStringKey">The connection string key used by the database operations.</param>
-        /// <param name="deleteExistingTableContents">If set to true, then the contents of the <paramref name="tableName"/> will be deleted by the wrapper be before it copy the temp table to the target table.</param>
+        /// <param name="deleteExistingTableContents">If set to true, then the contents of the <paramref name="tableName"/> will be deleted by the strategy be before it copy the temp table to the target table.</param>
         /// <param name="tableName">The name of the target table.</param>
         /// <param name="tempTableName">The name of the temp table. This value will be passed to the <paramref name="mainProcessCreator"/> so the main process will write the records directly to the temp table.</param>
         /// <param name="columns">The columns to be copied from the temp table to the target table. If null then all columns will be copied. Also this column list specifies the list of columns used in the temp table from the target table when it is created.</param>
         /// <param name="mainProcessCreator">The delegate which returns the process.</param>
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
         /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the process creator delegate.</param>
-        public EtlWrapperWithTempTableCopyFinalizer(string connectionStringKey, bool deleteExistingTableContents, string tableName, string tempTableName, string[] columns, EtlWrapperWithTempTableCopyFinalizerDelegate mainProcessCreator, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
+        public SingleTableDwhStrategyUsingCopyFinalizer(string connectionStringKey, bool deleteExistingTableContents, string tableName, string tempTableName, string[] columns, EtlStrategyWithTempTableCopyFinalizerDelegate mainProcessCreator, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
         {
             _connectionStringKey = connectionStringKey;
             _deleteExistingTableContents = deleteExistingTableContents;
@@ -49,18 +49,18 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="EtlWrapperWithTempTableCopyFinalizer"/> using one or more process creator delegates whose take the target table name (which is the <paramref name="tempTableName"/>) and returns a single new <see cref="IFinalProcess"/> each to be executed by the wrapper.
+        /// Initializes a new instance of <see cref="SingleTableDwhStrategyUsingCopyFinalizer"/> using one or more process creator delegates whose take the target table name (which is the <paramref name="tempTableName"/>) and returns a single new <see cref="IFinalProcess"/> each to be executed by the strategy.
         /// If <paramref name="evaluationTransactionScopeKind"/> is set to anything but <see cref="TransactionScopeKind.None"/> then all created processes will be executed in the same transaction scope.
         /// </summary>
         /// <param name="connectionStringKey">The connection string key used by the database operations.</param>
-        /// <param name="deleteExistingTableContents">If set to true, then the contents of the <paramref name="tableName"/> will be deleted by the wrapper be before it copy the temp table to the target table.</param>
+        /// <param name="deleteExistingTableContents">If set to true, then the contents of the <paramref name="tableName"/> will be deleted by the strategy be before it copy the temp table to the target table.</param>
         /// <param name="tableName">The name of the target table.</param>
         /// <param name="tempTableName">The name of the temp table. This value will be passed to the main process creators so the main process will write the records directly to the temp table.</param>
         /// <param name="columns">The columns to be copied from the temp table to the target table. If null then all columns will be copied. Also this column list specifies the list of columns used in the temp table from the target table when it is created.</param>
         /// <param name="mainProcessCreators">The delegates whose return one process each.</param>
         /// <param name="evaluationTransactionScopeKind">The settings for an ambient transaction scope.</param>
         /// <param name="suppressTransactionScopeForCreator">If set to true, then the ambient transaction scope will be suppressed while executing the process creator delegate.</param>
-        public EtlWrapperWithTempTableCopyFinalizer(string connectionStringKey, bool deleteExistingTableContents, string tableName, string tempTableName, string[] columns, EtlWrapperWithTempTableCopyFinalizerDelegate[] mainProcessCreators, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
+        public SingleTableDwhStrategyUsingCopyFinalizer(string connectionStringKey, bool deleteExistingTableContents, string tableName, string tempTableName, string[] columns, EtlStrategyWithTempTableCopyFinalizerDelegate[] mainProcessCreators, TransactionScopeKind evaluationTransactionScopeKind, bool suppressTransactionScopeForCreator = false)
         {
             _connectionStringKey = connectionStringKey;
             _deleteExistingTableContents = deleteExistingTableContents;
@@ -85,11 +85,11 @@
                     ? new TransactionScope(TransactionScopeOption.Suppress)
                     : null)
                 {
-                    process = new JobProcess(context, "TempTableWrapper-" + _tableName.Replace("[", "").Replace("]", ""));
+                    process = new JobProcess(context, "TempTableStrategy-" + _tableName.Replace("[", "").Replace("]", ""));
 
                     process.AddJob(new CopyTableStructureJob
                     {
-                        Name = "CreateTempTable",
+                        Name = "DropAndCreateTempTable",
                         ConnectionStringKey = _connectionStringKey,
                         SourceTableName = _tableName,
                         TargetTableName = _tempTableName,
