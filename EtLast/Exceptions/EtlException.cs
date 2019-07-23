@@ -9,6 +9,16 @@
     {
         public static readonly string OpsMessageDataKey = "OpsMessage";
 
+        public EtlException(string message)
+            : base(message)
+        {
+        }
+
+        public EtlException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+
         public EtlException(IProcess process, string message)
             : base(message)
         {

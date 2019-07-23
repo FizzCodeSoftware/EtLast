@@ -4,7 +4,7 @@
 
     public abstract class AbstractMergeProcess : IMergeProcess
     {
-        public string Name { get; }
+        public string Name { get; set; }
         public IEtlContext Context { get; }
         public IRowSetMerger Merger { get; }
         public IProcess Caller { get; protected set; }

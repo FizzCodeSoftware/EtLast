@@ -19,7 +19,7 @@
         public IFinalProcess InputProcess { get; set; }
 
         public IEtlContext Context { get; }
-        public string Name { get; }
+        public string Name { get; set; }
         public IProcess Caller { get; private set; }
 
         public JobProcessConfiguration Configuration { get; set; } = new JobProcessConfiguration();
@@ -88,7 +88,7 @@
                     break;
 
                 var sw = Stopwatch.StartNew();
-                Context.Log(LogSeverity.Debug, this, "job '{JobName}' started", job.GetType().Name);
+                Context.Log(LogSeverity.Information, this, "job {JobName} started", job.Name);
 
                 try
                 {
@@ -100,7 +100,7 @@
                     break;
                 }
 
-                Context.Log(LogSeverity.Debug, this, "job '{JobName}' finished in {Elapsed}", job.GetType().Name, sw.Elapsed);
+                Context.Log(LogSeverity.Debug, this, "job {JobName} finished in {Elapsed}", job.Name, sw.Elapsed);
             }
         }
 
@@ -114,7 +114,7 @@
                 {
                     var swJob = Stopwatch.StartNew();
                     Transaction.Current = tran as Transaction;
-                    Context.Log(LogSeverity.Debug, this, "job '{JobName}' started", job.GetType().Name);
+                    Context.Log(LogSeverity.Information, this, "job {JobName} started", job.Name);
 
                     try
                     {
@@ -125,7 +125,7 @@
                         Context.AddException(this, ex);
                     }
 
-                    Context.Log(LogSeverity.Debug, this, "job '{JobName}' finished in {Elapsed}", job.GetType().Name, swJob.Elapsed);
+                    Context.Log(LogSeverity.Debug, this, "job {JobName} finished in {Elapsed}", job.Name, swJob.Elapsed);
                 });
 
                 thread.Start(Transaction.Current);
@@ -147,7 +147,7 @@
                     var ok = job.If.Invoke(this, job);
                     if (!ok)
                     {
-                        Context.Log(LogSeverity.Debug, this, "job '{JobName}' is skipped due to 'If' condition is evaluated as false", job.GetType().Name);
+                        Context.Log(LogSeverity.Debug, this, "job {JobName} is skipped due to 'If' condition is evaluated as false", job.Name);
                         return;
                     }
                 }

@@ -22,7 +22,7 @@
         protected readonly CancellationTokenSource WorkerCancellationTokenSource = new CancellationTokenSource();
         private readonly List<IRowOperation> _operations = new List<IRowOperation>();
 
-        public string Name { get; }
+        public string Name { get; set; }
         public IEtlContext Context { get; }
         public IProcess Caller { get; protected set; }
 
@@ -720,7 +720,7 @@
                         Context.AddException(this, ex);
                     }
 
-                    Context.Log(LogSeverity.Debug, this, "worker thread ended");
+                    Context.Log(LogSeverity.Verbose, this, "worker thread ended");
                 });
 
                 thread.Start(Transaction.Current);

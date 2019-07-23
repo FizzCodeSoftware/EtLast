@@ -189,11 +189,12 @@
             {
                 connection.ReferenceCount--;
 
-                process.Context.Log(LogSeverity.Debug, process, "database connection reference count decreased to {ReferenceCount}: {ConnectionStringKey} using {ProviderName} provider", connection.ReferenceCount, connection.Settings.Name, connection.Settings.ProviderName);
-
                 if (connection.ReferenceCount == 0)
                 {
-                    Connections.Remove(connection.Key);
+                    if (connection.Key != null)
+                    {
+                        Connections.Remove(connection.Key);
+                    }
 
                     process.Context.Log(LogSeverity.Debug, process, "database connection closed: {ConnectionStringKey} using {ProviderName} provider", connection.Settings.Name, connection.Settings.ProviderName);
 
@@ -202,6 +203,10 @@
                         connection.Connection.Close();
                         connection.Connection.Dispose();
                     }
+                }
+                else
+                {
+                    process.Context.Log(LogSeverity.Debug, process, "database connection reference count decreased to {ReferenceCount}: {ConnectionStringKey} using {ProviderName} provider", connection.ReferenceCount, connection.Settings.Name, connection.Settings.ProviderName);
                 }
             }
 
@@ -215,7 +220,10 @@
                 connection.ReferenceCount--;
                 connection.Failed = true;
 
-                Connections.Remove(connection.Key);
+                if (connection.Key != null)
+                {
+                    Connections.Remove(connection.Key);
+                }
 
                 if (connection.ReferenceCount == 0)
                 {

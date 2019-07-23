@@ -6,7 +6,7 @@
     public abstract class AbstractAggregationProcess : IProcess
     {
         public IEtlContext Context { get; }
-        public string Name { get; }
+        public string Name { get; set; }
 
         public IProcess Caller { get; protected set; }
         public IProcess InputProcess { get; set; }

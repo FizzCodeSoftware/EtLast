@@ -82,6 +82,7 @@
     <Compile Include="JobProcess\CopyTableIntoExistingTableJob.cs" />
     <Compile Include="JobProcess\CopyTableStructureJob.cs" />
     <Compile Include="JobProcess\AbstractSqlStatementJob.cs" />
+    <Compile Include="JobProcess\DropTablesJob.cs" />
     <Compile Include="JobProcess\TruncateTableJob.cs" />
     <Compile Include="JobProcess\DropTableJob.cs" />
     <Compile Include="JobProcess\CopyTableIntoNewTableJob.cs" />
@@ -94,8 +95,9 @@
     <Compile Include="RowOperations\StatementCreators\MsSqlServerMergeSqlStatementCreator.cs" />
     <Compile Include="RowOperations\RowShadowReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Strategies\SingleTableDwhStrategyUsingCustomFinalizer.cs" />
-    <Compile Include="Strategies\SingleTableDwhStrategyUsingCopyFinalizer.cs" />
+    <Compile Include="Strategies\DwhStrategy\DwhStrategyTableConfiguration.cs" />
+    <Compile Include="Strategies\DwhStrategy\DwhStrategyConfiguration.cs" />
+    <Compile Include="Strategies\DwhStrategy\DwhStrategy.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EtLast.Reference\EtLast.Reference.csproj">

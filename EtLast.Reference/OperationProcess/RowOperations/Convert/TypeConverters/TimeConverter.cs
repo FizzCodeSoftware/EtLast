@@ -4,10 +4,6 @@
 
     public class TimeConverter : ITypeConverter
     {
-        public TimeConverter()
-        {
-        }
-
         public virtual object Convert(object source)
         {
             if (source is TimeSpan)

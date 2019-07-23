@@ -10,7 +10,7 @@
     public abstract class AbstractBaseProducerProcess : IProcess
     {
         public IEtlContext Context { get; }
-        public string Name { get; }
+        public string Name { get; set; }
         public IProcess Caller { get; protected set; }
 
         /// <summary>

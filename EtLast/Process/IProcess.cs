@@ -6,7 +6,7 @@
 
     public interface IProcess
     {
-        string Name { get; }
+        string Name { get; set; }
         IEtlContext Context { get; }
         IProcess Caller { get; }
 
