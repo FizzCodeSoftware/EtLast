@@ -137,9 +137,12 @@
             {
                 Name = "CopyTempToTargetTable",
                 ConnectionStringKey = connectionStringKey,
-                SourceTableName = tableConfiguration.TempTableName,
-                TargetTableName = tableConfiguration.TableName,
-                ColumnConfiguration = tableConfiguration.Columns?.Select(x => new ColumnCopyConfiguration(x)).ToList(),
+                Configuration = new TableCopyConfiguration()
+                {
+                    SourceTableName = tableConfiguration.TempTableName,
+                    TargetTableName = tableConfiguration.TableName,
+                    ColumnConfiguration = tableConfiguration.Columns?.Select(x => new ColumnCopyConfiguration(x)).ToList(),
+                },
                 CommandTimeout = commandTimeout,
                 CopyIdentityColumns = copyIdentityColumns,
             };
@@ -147,16 +150,13 @@
 
         private void CreateTempTables(IEtlContext context)
         {
-            var process = new JobProcess(context, "CreateTempTablesProcess");
+            var config = new List<TableCopyConfiguration>();
             foreach (var table in Configuration.Tables)
             {
-                process.AddJob(new CopyTableStructureJob
+                config.Add(new TableCopyConfiguration()
                 {
-                    Name = "DropCreateTempTable-" + table.TableName.Replace("[", "").Replace("]", ""),
-                    ConnectionStringKey = Configuration.ConnectionStringKey,
                     SourceTableName = table.TableName,
                     TargetTableName = table.TempTableName,
-                    SuppressExistingTransactionScope = true,
                     ColumnConfiguration = table.Columns?.Select(x => new ColumnCopyConfiguration(x)).ToList(),
                 });
 
@@ -164,18 +164,23 @@
                 {
                     foreach (var additionalTable in table.AdditionalTables.Values)
                     {
-                        process.AddJob(new CopyTableStructureJob
+                        config.Add(new TableCopyConfiguration()
                         {
-                            Name = "DropCreateTempTable-" + additionalTable.TableName.Replace("[", "").Replace("]", ""),
-                            ConnectionStringKey = Configuration.ConnectionStringKey,
                             SourceTableName = additionalTable.TableName,
                             TargetTableName = additionalTable.TempTableName,
-                            SuppressExistingTransactionScope = true,
                             ColumnConfiguration = additionalTable.Columns?.Select(x => new ColumnCopyConfiguration(x)).ToList(),
                         });
                     }
                 }
             }
+
+            var process = new JobProcess(context, "DropCreateTempTables");
+            process.AddJob(new CopyTableStructureJob
+            {
+                ConnectionStringKey = Configuration.ConnectionStringKey,
+                SuppressExistingTransactionScope = true,
+                Configuration = config,
+            });
 
             process.EvaluateWithoutResult();
         }

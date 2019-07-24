@@ -6,7 +6,7 @@
     {
         public int WorkerCount { get; set; } = Math.Max(1, MachineCpuCoreCount.Value - 1);
         public Type WorkerType { get; set; } = typeof(DefaultInProcessWorker);
-        public bool KeepOrder { get; set; } = false;
+        public bool KeepOrder { get; set; }
 
         public static Lazy<int> MachineCpuCoreCount = new Lazy<int>(() =>
         {

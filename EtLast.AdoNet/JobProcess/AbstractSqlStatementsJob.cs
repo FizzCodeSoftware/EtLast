@@ -1,12 +1,13 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
+    using System.Collections.Generic;
     using System.Configuration;
     using System.Data;
     using System.Diagnostics;
     using System.Threading;
     using System.Transactions;
 
-    public abstract class AbstractSqlStatementJob : AbstractJob
+    public abstract class AbstractSqlStatementsJob : AbstractJob
     {
         public string ConnectionStringKey { get; set; }
         protected ConnectionStringSettings ConnectionStringSettings { get; private set; }
@@ -27,14 +28,17 @@
 
             var sw = Stopwatch.StartNew();
             ConnectionStringSettings = process.Context.GetConnectionStringSettings(ConnectionStringKey);
-            var statement = CreateSqlStatement(process, ConnectionStringSettings);
+            var statements = CreateSqlStatements(process, ConnectionStringSettings);
 
-            AdoNetSqlStatementDebugEventListener.GenerateEvent(process, () => new AdoNetSqlStatementDebugEvent()
+            foreach (var statement in statements)
             {
-                Job = this,
-                ConnectionStringSettings = ConnectionStringSettings,
-                SqlStatement = statement,
-            });
+                AdoNetSqlStatementDebugEventListener.GenerateEvent(process, () => new AdoNetSqlStatementDebugEvent()
+                {
+                    Job = this,
+                    ConnectionStringSettings = ConnectionStringSettings,
+                    SqlStatement = statement,
+                });
+            }
 
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
@@ -46,9 +50,12 @@
                         using (var cmd = connection.Connection.CreateCommand())
                         {
                             cmd.CommandTimeout = CommandTimeout;
-                            cmd.CommandText = statement;
 
-                            RunCommand(process, cmd, sw);
+                            for (var i = 0; i < statements.Count; i++)
+                            {
+                                cmd.CommandText = statements[i];
+                                RunCommand(process, cmd, i, sw);
+                            }
                         }
                     }
                 }
@@ -61,8 +68,8 @@
 
         protected abstract void Validate(IProcess process);
 
-        protected abstract string CreateSqlStatement(IProcess process, ConnectionStringSettings settings);
+        protected abstract List<string> CreateSqlStatements(IProcess process, ConnectionStringSettings settings);
 
-        protected abstract void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn);
+        protected abstract void RunCommand(IProcess process, IDbCommand command, int statementIndex, Stopwatch startedOn);
     }
 }

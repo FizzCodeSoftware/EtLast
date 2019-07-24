@@ -6,61 +6,78 @@
     using System.Data;
     using System.Diagnostics;
     using System.Linq;
+    using System.Text;
     using System.Transactions;
 
-    public class CopyTableStructureJob : AbstractSqlStatementJob
+    public class CopyTableStructureJob : AbstractSqlStatementsJob
     {
-        public string SourceTableName { get; set; }
-        public string TargetTableName { get; set; }
-
-        /// <summary>
-        /// Optional. In case of NULL all columns will be copied to the target table.
-        /// </summary>
-        public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
+        public List<TableCopyConfiguration> Configuration { get; set; }
 
         protected override void Validate(IProcess process)
         {
-            if (string.IsNullOrEmpty(SourceTableName))
-                throw new JobParameterNullException(process, this, nameof(SourceTableName));
-            if (string.IsNullOrEmpty(TargetTableName))
-                throw new JobParameterNullException(process, this, nameof(TargetTableName));
+            if (Configuration == null)
+                throw new JobParameterNullException(process, this, nameof(Configuration));
+
+            if (Configuration.Any(x => string.IsNullOrEmpty(x.SourceTableName)))
+                throw new JobParameterNullException(process, this, nameof(TableCopyConfiguration.SourceTableName));
+            if (Configuration.Any(x => string.IsNullOrEmpty(x.TargetTableName)))
+                throw new JobParameterNullException(process, this, nameof(TableCopyConfiguration.TargetTableName));
         }
 
-        protected override string CreateSqlStatement(IProcess process, ConnectionStringSettings settings)
+        protected override List<string> CreateSqlStatements(IProcess process, ConnectionStringSettings settings)
         {
-            var columnList = (ColumnConfiguration == null || ColumnConfiguration.Count == 0)
-                ? "*"
-                : string.Join(", ", ColumnConfiguration.Select(x => x.FromColumn + " AS " + x.ToColumn));
+            var statements = new List<string>();
+            var sb = new StringBuilder();
 
-            var statement = "DROP TABLE IF EXISTS " + TargetTableName + "; SELECT " + columnList + " INTO " + TargetTableName + " FROM " + SourceTableName;
-            statement += " WHERE 1=0";
+            foreach (var config in Configuration)
+            {
+                var columnList = (config.ColumnConfiguration == null || config.ColumnConfiguration.Count == 0)
+                    ? "*"
+                    : string.Join(", ", config.ColumnConfiguration.Select(x => x.FromColumn + " AS " + x.ToColumn));
 
-            return statement;
+                sb.Append("DROP TABLE IF EXISTS ")
+                    .Append(config.TargetTableName)
+                    .Append("; SELECT ")
+                    .Append(columnList)
+                    .Append(" INTO ")
+                    .Append(config.TargetTableName)
+                    .Append(" FROM ")
+                    .Append(config.SourceTableName)
+                    .AppendLine(" WHERE 1=0");
+
+                statements.Add(sb.ToString());
+                sb.Clear();
+            }
+
+            return statements;
         }
 
-        protected override void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn)
+        protected override void RunCommand(IProcess process, IDbCommand command, int statementIndex, Stopwatch startedOn)
         {
+            var config = Configuration[statementIndex];
+
             process.Context.Log(LogSeverity.Debug, process, "creating new table {ConnectionStringKey}/{TargetTableName} based on {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionStringSettings.Name, TargetTableName, SourceTableName, command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+                ConnectionStringSettings.Name, config.TargetTableName, config.SourceTableName, command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
 
             try
             {
                 command.ExecuteNonQuery();
+
                 process.Context.Log(LogSeverity.Information, process, "table {ConnectionStringKey}/{TargetTableName} created from {SourceTableName} in {Elapsed}",
-                    ConnectionStringSettings.Name, TargetTableName, SourceTableName, startedOn.Elapsed);
+                    ConnectionStringSettings.Name, config.TargetTableName, config.SourceTableName, startedOn.Elapsed);
             }
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(process, this, "database table structure copy failed", ex);
                 exception.AddOpsMessage(string.Format("database table structure copy failed, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message {4}, command: {5}, timeout: {6}",
-                    ConnectionStringSettings.Name, SourceTableName, TargetTableName, ColumnConfiguration != null ? string.Join(",", ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, CommandTimeout));
+                    ConnectionStringSettings.Name, config.SourceTableName, config.TargetTableName, config.ColumnConfiguration != null ? string.Join(",", config.ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);
-                exception.Data.Add("SourceTableName", SourceTableName);
-                exception.Data.Add("TargetTableName", TargetTableName);
-                if (ColumnConfiguration != null)
+                exception.Data.Add("SourceTableName", config.SourceTableName);
+                exception.Data.Add("TargetTableName", config.TargetTableName);
+                if (config.ColumnConfiguration != null)
                 {
-                    exception.Data.Add("SourceColumns", string.Join(",", ColumnConfiguration.Select(x => x.FromColumn)));
+                    exception.Data.Add("SourceColumns", string.Join(",", config.ColumnConfiguration.Select(x => x.FromColumn)));
                 }
 
                 exception.Data.Add("Statement", command.CommandText);

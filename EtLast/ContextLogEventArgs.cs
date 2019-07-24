@@ -10,6 +10,6 @@
         public string Text { get; set; }
         public object[] Arguments { get; set; }
         public LogSeverity Severity { get; set; }
-        public bool ForOps { get; set; } = false;
+        public bool ForOps { get; set; }
     }
 }

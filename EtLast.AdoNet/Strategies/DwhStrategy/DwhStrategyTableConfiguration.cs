@@ -18,7 +18,7 @@
         /// <summary>
         /// Setting this to true will case the main process created and evaluated multiple times - until there are no more rows. Default value is false.
         /// </summary>
-        public bool MainProcessUsesBatches { get; set; } = false;
+        public bool MainProcessUsesBatches { get; set; }
 
         public Dictionary<string, DwhStrategyTableConfigurationBase> AdditionalTables { get; set; }
     }

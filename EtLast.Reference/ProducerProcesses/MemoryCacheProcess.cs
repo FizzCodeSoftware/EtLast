@@ -5,7 +5,7 @@
 
     public class MemoryCacheProcess : AbstractBaseProducerProcess
     {
-        public bool CloneRows { get; set; } = false;
+        public bool CloneRows { get; set; }
 
         private List<IRow> _cache;
 

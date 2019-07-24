@@ -2,6 +2,6 @@
 {
     public class JobProcessConfiguration
     {
-        public bool AllowParallelExecution { get; set; } = false;
+        public bool AllowParallelExecution { get; set; }
     }
 }

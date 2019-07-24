@@ -8,11 +8,11 @@
     {
         public string[] CommandLineArguments { get; set; }
         public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromMinutes(120);
-        public string SeqUrl { get; set; } = null;
-        public string SeqApiKey { get; set; } = null;
+        public string SeqUrl { get; set; }
+        public string SeqApiKey { get; set; }
         public int RetainedLogFileCountLimit { get; set; } = 14;
         public string PluginFolder { get; set; } = @".\plugins";
-        public LogEventLevel MinimumLogLevelOnConsole { get; set; } = LogEventLevel.Verbose;
+        public LogEventLevel MinimumLogLevelOnConsole { get; set; }
 
         public void LoadFromStandardAppSettings()
         {

@@ -7,7 +7,7 @@ namespace FizzCode.EtLast.AdoNet
         /// <summary>
         /// Disabled by default.
         /// </summary>
-        public static bool Enabled { get; set; } = false;
+        public static bool Enabled { get; set; }
 
         public static EventHandler<AdoNetSqlStatementDebugEvent> OnEvent { get; set; }
 

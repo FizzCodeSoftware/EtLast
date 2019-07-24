@@ -9,7 +9,7 @@
         /// <summary>
         /// Default value is 0.
         /// </summary>
-        public int FirstId { get; set; } = 0;
+        public int FirstId { get; set; }
 
         private int _nextId;
 
