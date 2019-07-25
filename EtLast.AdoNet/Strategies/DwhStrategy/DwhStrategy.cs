@@ -33,8 +33,7 @@
 
                 foreach (var table in Configuration.Tables)
                 {
-                    var totalRowCount = 0;
-                    for (var batchCounter = 0; ; batchCounter++)
+                    for (var partitionIndex = 0; ; partitionIndex++)
                     {
                         IFinalProcess mainProcess;
 
@@ -42,29 +41,36 @@
                             ? TransactionScopeKind.Suppress
                             : TransactionScopeKind.None;
 
+                        var processSupportsPartitions = false;
                         using (var creatorScope = context.BeginScope(creatorScopeKind))
                         {
-                            mainProcess = table.MainProcessCreator.Invoke(Configuration.ConnectionStringKey, table);
+                            mainProcess = table.MainProcessCreator.Invoke(Configuration.ConnectionStringKey, table, partitionIndex, out processSupportsPartitions);
                         }
 
-                        if (table.MainProcessUsesBatches)
+                        if (processSupportsPartitions)
                         {
-                            mainProcess.Name += "-batch#" + (batchCounter + 1).ToString("D", CultureInfo.InvariantCulture);
-                        }
+                            mainProcess.Name += "-#" + (partitionIndex + 1).ToString("D", CultureInfo.InvariantCulture);
+                            var rowCount = 0;
+                            foreach (var row in mainProcess.Evaluate()) // must enumerate through all rows
+                            {
+                                rowCount++;
+                            }
 
-                        var rowCount = 0;
-                        foreach (var row in mainProcess.Evaluate()) // must enumerate through all rows
+                            if (context.GetExceptions().Count > initialExceptionCount)
+                                return;
+
+                            if (rowCount == 0)
+                                break;
+                        }
+                        else
                         {
-                            rowCount++;
-                        }
+                            mainProcess.EvaluateWithoutResult();
 
-                        if (context.GetExceptions().Count > initialExceptionCount)
-                            return;
+                            if (context.GetExceptions().Count > initialExceptionCount)
+                                return;
 
-                        totalRowCount += rowCount;
-
-                        if (rowCount == 0 || !table.MainProcessUsesBatches)
                             break;
+                        }
                     }
                 }
 

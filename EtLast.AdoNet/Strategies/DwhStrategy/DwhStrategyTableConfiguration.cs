@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public delegate IFinalProcess DwhMainProcessCreatorDelegate(string connectionStringKey, DwhStrategyTableConfiguration tableConfiguration);
+    public delegate IFinalProcess DwhMainProcessCreatorDelegate(string connectionStringKey, DwhStrategyTableConfiguration tableConfiguration, int partitionIndex, out bool processSupportsPartitions);
     public delegate List<IJob> DwhFinalizerJobsCreatorDelegate(string connectionStringKey, DwhStrategyTableConfiguration tableConfiguration);
 
     public class DwhStrategyTableConfiguration : DwhStrategyTableConfigurationBase
@@ -14,11 +14,6 @@
 
         public DwhMainProcessCreatorDelegate MainProcessCreator { get; set; }
         public DwhFinalizerJobsCreatorDelegate FinalizerJobsCreator { get; set; }
-
-        /// <summary>
-        /// Setting this to true will case the main process created and evaluated multiple times - until there are no more rows. Default value is false.
-        /// </summary>
-        public bool MainProcessUsesBatches { get; set; }
 
         public Dictionary<string, DwhStrategyTableConfigurationBase> AdditionalTables { get; set; }
     }
