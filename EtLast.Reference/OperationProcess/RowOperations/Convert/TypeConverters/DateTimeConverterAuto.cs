@@ -9,20 +9,17 @@
         public IFormatProvider FormatProviderHint { get; }
 
         public DateTimeConverterAuto(string formatHint)
-            : base()
         {
             FormatHint = formatHint;
         }
 
         public DateTimeConverterAuto(IFormatProvider formatProviderHint)
-            : base()
         {
             FormatHint = null;
             FormatProviderHint = formatProviderHint;
         }
 
         public DateTimeConverterAuto(string formatHint, IFormatProvider formatProviderHint)
-            : base()
         {
             FormatHint = formatHint;
             FormatProviderHint = formatProviderHint;

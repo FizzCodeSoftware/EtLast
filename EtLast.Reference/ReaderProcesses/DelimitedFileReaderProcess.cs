@@ -23,7 +23,8 @@
 
         public DelimitedFileReaderProcess(IEtlContext context, string name)
             : base(context, name)
-        { }
+        {
+        }
 
         public override IEnumerable<IRow> Evaluate(IProcess caller = null)
         {

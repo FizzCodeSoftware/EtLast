@@ -20,13 +20,10 @@
                     Then.Invoke(this, row);
                     Stat.IncrementCounter("then executed", 1);
                 }
-                else
+                else if (Else != null)
                 {
-                    if (Else != null)
-                    {
-                        Else.Invoke(this, row);
-                        Stat.IncrementCounter("else executed", 1);
-                    }
+                    Else.Invoke(this, row);
+                    Stat.IncrementCounter("else executed", 1);
                 }
             }
             else

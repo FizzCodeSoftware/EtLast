@@ -45,7 +45,9 @@
                     var value = new TimeSpan(System.Convert.ToInt64(60d * 60d * 24d * 10000000d * doubleValue));
                     return value;
                 }
-                catch { }
+                catch
+                {
+                }
             }
 
             if (source is float floatValue)
@@ -55,7 +57,9 @@
                     var value = new TimeSpan(System.Convert.ToInt64(60d * 60d * 24d * 10000000d * floatValue));
                     return value;
                 }
-                catch { }
+                catch
+                {
+                }
             }
 
             return null;

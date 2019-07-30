@@ -45,7 +45,9 @@
                     {
                         return EpochDate.Value.AddDays(doubleValue);
                     }
-                    catch { }
+                    catch
+                    {
+                    }
                 }
                 else if (source is int intValue)
                 {
@@ -53,7 +55,9 @@
                     {
                         return EpochDate.Value.AddDays(intValue);
                     }
-                    catch { }
+                    catch
+                    {
+                    }
                 }
             }
 

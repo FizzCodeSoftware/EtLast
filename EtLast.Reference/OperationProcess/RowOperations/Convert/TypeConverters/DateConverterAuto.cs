@@ -9,35 +9,30 @@
         public IFormatProvider FormatProviderHint { get; }
 
         public DateConverterAuto(IFormatProvider formatProviderHint)
-            : base()
         {
             FormatHints = null;
             FormatProviderHint = formatProviderHint;
         }
 
         public DateConverterAuto(string formatHint)
-            : base()
         {
             FormatHints = new[] { formatHint };
             FormatProviderHint = null;
         }
 
         public DateConverterAuto(string[] formatHints)
-            : base()
         {
             FormatHints = formatHints;
             FormatProviderHint = null;
         }
 
         public DateConverterAuto(string formatHint, IFormatProvider formatProviderHint)
-            : base()
         {
             FormatHints = new[] { formatHint };
             FormatProviderHint = formatProviderHint;
         }
 
         public DateConverterAuto(string[] formatHints, IFormatProvider formatProviderHint)
-            : base()
         {
             FormatHints = formatHints;
             FormatProviderHint = formatProviderHint;

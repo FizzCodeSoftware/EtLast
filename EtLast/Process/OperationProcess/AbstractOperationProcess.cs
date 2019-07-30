@@ -714,7 +714,9 @@
                     {
                         worker.Process(rowsConsumer, this, WorkerCancellationTokenSource.Token);
                     }
-                    catch (OperationCanceledException) { }
+                    catch (OperationCanceledException)
+                    {
+                    }
                     catch (Exception ex)
                     {
                         Context.AddException(this, ex);

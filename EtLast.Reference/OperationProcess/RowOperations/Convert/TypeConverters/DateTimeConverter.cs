@@ -35,7 +35,9 @@
                     {
                         return EpochDate.Value.AddDays(doubleValue);
                     }
-                    catch { }
+                    catch
+                    {
+                    }
                 }
 
                 if (source is long longValue)
@@ -44,7 +46,9 @@
                     {
                         return EpochDate.Value.AddSeconds(longValue);
                     }
-                    catch { }
+                    catch
+                    {
+                    }
                 }
             }
 

@@ -154,7 +154,9 @@
 
                 job.Execute(this, Context.CancellationTokenSource);
             }
-            catch (OperationCanceledException) { }
+            catch (OperationCanceledException)
+            {
+            }
             catch (EtlException) { throw; }
             catch (Exception ex) { throw new JobExecutionException(this, job, ex); }
         }

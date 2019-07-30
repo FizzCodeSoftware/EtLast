@@ -65,7 +65,9 @@
                             break; // stop processing plugins
                         }
                     }
-                    catch (TransactionAbortedException) { }
+                    catch (TransactionAbortedException)
+                    {
+                    }
 
                     sw.Stop();
                     runTimes.Add(sw.Elapsed);
@@ -89,7 +91,9 @@
                     }
                 }
             }
-            catch (TransactionAbortedException) { }
+            catch (TransactionAbortedException)
+            {
+            }
         }
 
         private static void AppendGlobalStat(StatCounterCollection globalStat, StatCounterCollection stat)

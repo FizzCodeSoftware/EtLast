@@ -24,17 +24,14 @@
 
                     Stat.IncrementCounter("then executed", 1);
                 }
-                else
+                else if (Else.Count > 0)
                 {
-                    if (Else.Count > 0)
+                    foreach (var operation in Else)
                     {
-                        foreach (var operation in Else)
-                        {
-                            operation.Apply(row);
-                        }
-
-                        Stat.IncrementCounter("else executed", 1);
+                        operation.Apply(row);
                     }
+
+                    Stat.IncrementCounter("else executed", 1);
                 }
             }
             else

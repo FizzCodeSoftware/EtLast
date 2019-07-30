@@ -53,7 +53,8 @@
 
         public EpPlusExcelReaderProcess(IEtlContext context, string name)
             : base(context, name)
-        { }
+        {
+        }
 
         public override IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
@@ -75,7 +76,9 @@
                         baseFolder += Path.DirectorySeparatorChar;
                     relativeFileName = new Uri(baseFolder).MakeRelativeUri(new Uri(FileName)).OriginalString.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
                 }
-                catch (Exception) { }
+                catch (Exception)
+                {
+                }
             }
 
             var sw = Stopwatch.StartNew();

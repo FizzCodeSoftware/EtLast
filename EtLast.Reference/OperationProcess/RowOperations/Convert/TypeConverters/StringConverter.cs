@@ -32,7 +32,9 @@
                         : (FormatHint != null ? intValue.ToString(FormatHint) : intValue.ToString(CultureInfo.InvariantCulture));
                     return value;
                 }
-                catch { }
+                catch
+                {
+                }
             }
 
             if (source is long longValue)
@@ -44,7 +46,9 @@
                         : (FormatHint != null ? longValue.ToString(FormatHint) : longValue.ToString(CultureInfo.InvariantCulture));
                     return value;
                 }
-                catch { }
+                catch
+                {
+                }
             }
 
             if (source is double dblValue)
@@ -56,7 +60,9 @@
                         : (FormatHint != null ? dblValue.ToString(FormatHint) : dblValue.ToString(CultureInfo.InvariantCulture));
                     return value;
                 }
-                catch { }
+                catch
+                {
+                }
             }
 
             if (source is float fltValue)
@@ -68,7 +74,9 @@
                         : (FormatHint != null ? fltValue.ToString(FormatHint) : fltValue.ToString(CultureInfo.InvariantCulture));
                     return value;
                 }
-                catch { }
+                catch
+                {
+                }
             }
 
             try
@@ -76,14 +84,18 @@
                 var asGenericConvertedString = FormatProviderHint != null ? System.Convert.ToString(source, FormatProviderHint) : System.Convert.ToString(source);
                 return asGenericConvertedString;
             }
-            catch { }
+            catch
+            {
+            }
 
             try
             {
                 var asToString = source.ToString();
                 return asToString;
             }
-            catch { }
+            catch
+            {
+            }
 
             return null;
         }

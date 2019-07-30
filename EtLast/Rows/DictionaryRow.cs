@@ -43,16 +43,13 @@
                         Context.LogRow(process, this, "column {Column} set to ({ValueType}) {Value}", column, value.GetType().Name, value);
                     }
                 }
+                else if (operation != null)
+                {
+                    Context.LogRow(process, this, "column {Column} set to NULL by {OperationName}", column, operation.Name);
+                }
                 else
                 {
-                    if (operation != null)
-                    {
-                        Context.LogRow(process, this, "column {Column} set to NULL by {OperationName}", column, operation.Name);
-                    }
-                    else
-                    {
-                        Context.LogRow(process, this, "column {Column} set to NULL", column);
-                    }
+                    Context.LogRow(process, this, "column {Column} set to NULL", column);
                 }
             }
 

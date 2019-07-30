@@ -38,11 +38,8 @@
                         continue;
                     }
                 }
-                else
-                {
-                    if (IgnoreNullValues)
-                        continue;
-                }
+                else if (IgnoreNullValues)
+                    continue;
 
                 switch (ActionIfInvalid)
                 {

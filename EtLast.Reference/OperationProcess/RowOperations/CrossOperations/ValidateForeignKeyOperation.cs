@@ -34,12 +34,9 @@
 
                 Process.RemoveRow(row, this);
             }
-            else
+            else if (leftKey != null && _lookup.Contains(leftKey))
             {
-                if (leftKey != null && _lookup.Contains(leftKey))
-                {
-                    Process.RemoveRow(row, this);
-                }
+                Process.RemoveRow(row, this);
             }
         }
 
