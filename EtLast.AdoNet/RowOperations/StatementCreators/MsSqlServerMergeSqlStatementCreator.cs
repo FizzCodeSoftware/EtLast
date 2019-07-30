@@ -25,18 +25,18 @@
             _insertDbColumnsSource = string.Join(", ", _tableDefinition.Columns.Where(x => x.Insert).Select(x => "source." + x.DbColumn));
         }
 
-        public string CreateRowStatement(ConnectionStringSettings settings, IRow row, AdoNetWriteToTableOperation adoNetWriteToTableOperation)
+        public string CreateRowStatement(ConnectionStringSettings settings, IRow row, AdoNetWriteToTableOperation operation)
         {
-            var startIndex = adoNetWriteToTableOperation.ParameterCount;
+            var startIndex = operation.ParameterCount;
             foreach (var column in _tableDefinition.Columns)
             {
-                adoNetWriteToTableOperation.CreateParameter(column, row[column.RowColumn]);
+                operation.CreateParameter(column, row[column.RowColumn]);
             }
 
             var statement = "(" + string.Join(", ", _tableDefinition.Columns.Select(_ => "@" + startIndex++.ToString("D", CultureInfo.InvariantCulture))) + ")";
 
             if (row.Flagged)
-                adoNetWriteToTableOperation.Process.Context.LogRow(adoNetWriteToTableOperation.Process, row, "SQL statement generated: {SqlStatement}", statement);
+                operation.Process.Context.LogRow(operation.Process, row, "SQL statement generated: {SqlStatement}", statement);
 
             return statement;
         }

@@ -39,7 +39,9 @@
                     }
                 }
                 else if (IgnoreNullValues)
+                {
                     continue;
+                }
 
                 switch (ActionIfInvalid)
                 {

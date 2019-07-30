@@ -97,8 +97,8 @@
                 _currentIndex++;
                 if (_currentIndex < RowCount)
                     return true;
-                else
-                    _active = false;
+
+                _active = false;
             }
 
             _currentIndex = -1;
