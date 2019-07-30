@@ -64,6 +64,10 @@
     <Rule Id="CA2241" Action="Warning" />
     <Rule Id="CA2242" Action="Warning" />
   </Rules>
+  <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp.Features" RuleNamespace="Microsoft.CodeAnalysis.CSharp.Features">
+    <Rule Id="IDE0046" Action="None" />
+    <Rule Id="IDE0046WithoutSuggestion" Action="None" />
+  </Rules>
   <Rules AnalyzerId="Roslynator.CSharp.Analyzers" RuleNamespace="Roslynator.CSharp.Analyzers">
     <Rule Id="RCS1075" Action="None" />
     <Rule Id="RCS1079" Action="None" />
@@ -71,11 +75,13 @@
     <Rule Id="RCS1118" Action="None" />
     <Rule Id="RCS1124" Action="None" />
     <Rule Id="RCS1135" Action="None" />
+    <Rule Id="RCS1145" Action="Warning" />
     <Rule Id="RCS1156" Action="None" />
     <Rule Id="RCS1163" Action="None" />
     <Rule Id="RCS1191" Action="None" />
     <Rule Id="RCS1194" Action="None" />
     <Rule Id="RCS1201" Action="Info" />
+    <Rule Id="RCS1202" Action="Hidden" />
     <Rule Id="RCS1213" Action="None" />
   </Rules>
 </RuleSet>
