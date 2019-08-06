@@ -34,9 +34,9 @@
             if (!HasHeaderRow && (ColumnNames == null || ColumnNames.Length == 0))
                 throw new ProcessParameterNullException(this, nameof(ColumnNames));
 
-            var sw = Stopwatch.StartNew();
+            var startedOn = Stopwatch.StartNew();
 
-            var rows = EvaluateInputProcess(sw);
+            var rows = EvaluateInputProcess(startedOn);
             foreach (var row in rows)
             {
                 yield return row;
@@ -104,13 +104,16 @@
                         }
                     }
 
+                    if (IgnoreRowsWithError && row.HasError())
+                        continue;
+
                     rowNumber++;
                     resultCount++;
                     yield return row;
                 }
             }
 
-            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, sw.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, startedOn.Elapsed);
         }
     }
 }

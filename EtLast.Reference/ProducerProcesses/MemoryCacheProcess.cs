@@ -21,7 +21,7 @@
             if (InputProcess == null)
                 throw new ProcessParameterNullException(this, nameof(InputProcess));
 
-            var sw = Stopwatch.StartNew();
+            var startedOn = Stopwatch.StartNew();
             var resultCount = 0;
 
             if (_cache != null)
@@ -50,7 +50,7 @@
                     }
                 }
 
-                Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows from {InputProcess} in {Elapsed}", resultCount, "cache", sw.Elapsed);
+                Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows from {InputProcess} in {Elapsed}", resultCount, "cache", startedOn.Elapsed);
                 yield break;
             }
             else
@@ -63,6 +63,9 @@
                 {
                     foreach (var row in inputRows)
                     {
+                        if (IgnoreRowsWithError && row.HasError())
+                            continue;
+
                         _cache.Add(row);
                         var newRow = Context.CreateRow(row.ColumnCount);
                         foreach (var kvp in row.Values)
@@ -78,13 +81,16 @@
                 {
                     foreach (var row in inputRows)
                     {
+                        if (IgnoreRowsWithError && row.HasError())
+                            continue;
+
                         _cache.Add(row);
                         resultCount++;
                         yield return row;
                     }
                 }
 
-                Context.Log(LogSeverity.Debug, this, "fetched and returned {RowCount} rows from {InputProcess} in {Elapsed}", resultCount, InputProcess.Name, sw.Elapsed);
+                Context.Log(LogSeverity.Debug, this, "fetched and returned {RowCount} rows from {InputProcess} in {Elapsed}", resultCount, InputProcess.Name, startedOn.Elapsed);
             }
         }
     }

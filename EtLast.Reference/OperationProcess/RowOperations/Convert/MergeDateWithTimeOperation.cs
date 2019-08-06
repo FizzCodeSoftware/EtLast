@@ -8,7 +8,7 @@
         public string TargetColumn { get; set; }
         public string SourceDateColumn { get; set; }
         public string SourceTimeColumn { get; set; }
-        public InvalidValueAction ActionIfInvalid { get; set; } = InvalidValueAction.Throw;
+        public InvalidValueAction ActionIfInvalid { get; set; } = InvalidValueAction.WrapError;
         public object SpecialValueIfInvalid { get; set; }
 
         public override void Apply(IRow row)

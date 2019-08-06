@@ -17,17 +17,14 @@
         [TestMethod]
         public void UnpivotTest()
         {
-            var operationProcessConfiguration = new OperationProcessConfiguration()
-            {
-                WorkerCount = 2,
-                MainLoopDelay = 10,
-            };
-
             var context = new EtlContext<DictionaryRow>();
 
             var unpivotProcess = new OperationProcess(context, "UnpivotProcess")
             {
-                Configuration = operationProcessConfiguration,
+                Configuration = new OperationProcessConfiguration()
+                {
+                    MainLoopDelay = 10,
+                },
                 InputProcess = new CreateRowsProcess(context, "UnpivotGenerator")
                 {
                     Columns = SampleColumns,

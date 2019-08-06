@@ -11,6 +11,7 @@
         public string Name { get; set; }
         public IProcess Caller { get; set; }
         public IProcess InputProcess { get; set; }
+        public bool ConsumerShouldNotBuffer => false;
 
         private TRowQueue _queue;
         private Thread _feederThread;

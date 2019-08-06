@@ -23,7 +23,7 @@
                 var pluginResults = new List<EtlContextResult>();
                 foreach (var plugin in plugins)
                 {
-                    var sw = Stopwatch.StartNew();
+                    var startedOn = Stopwatch.StartNew();
                     logger.Write(LogEventLevel.Information, "executing {PluginTypeName}", plugin.GetType().Name);
 
                     try
@@ -44,8 +44,8 @@
                                 logger.Write(LogEventLevel.Error, "plugin requested to terminate the execution");
                                 ExecutionTerminated = true;
 
-                                sw.Stop();
-                                runTimes.Add(sw.Elapsed);
+                                startedOn.Stop();
+                                runTimes.Add(startedOn.Elapsed);
                                 break; // stop processing plugins
                             }
 
@@ -57,11 +57,11 @@
                         catch (Exception ex)
                         {
                             ExecutionTerminated = true;
-                            logger.Write(LogEventLevel.Error, ex, "unhandled error during execution after {Elapsed}", sw.Elapsed);
-                            opsLogger.Write(LogEventLevel.Error, "unhandled error during execution after {Elapsed}: {Message}", sw.Elapsed, ex.Message);
+                            logger.Write(LogEventLevel.Error, ex, "unhandled error during execution after {Elapsed}", startedOn.Elapsed);
+                            opsLogger.Write(LogEventLevel.Error, "unhandled error during execution after {Elapsed}: {Message}", startedOn.Elapsed, ex.Message);
 
-                            sw.Stop();
-                            runTimes.Add(sw.Elapsed);
+                            startedOn.Stop();
+                            runTimes.Add(startedOn.Elapsed);
                             break; // stop processing plugins
                         }
                     }
@@ -69,10 +69,10 @@
                     {
                     }
 
-                    sw.Stop();
-                    runTimes.Add(sw.Elapsed);
+                    startedOn.Stop();
+                    runTimes.Add(startedOn.Elapsed);
 
-                    logger.Write(LogEventLevel.Information, "plugin execution finished in {Elapsed}", sw.Elapsed);
+                    logger.Write(LogEventLevel.Information, "plugin execution finished in {Elapsed}", startedOn.Elapsed);
                 }
 
                 LogStats(globalStat, logger);

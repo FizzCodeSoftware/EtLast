@@ -46,7 +46,7 @@
                         return connection;
                     }
 
-                    var sw = Stopwatch.StartNew();
+                    var startedOn = Stopwatch.StartNew();
                     process.Context.Log(LogSeverity.Debug, process, "opening database connection to {ConnectionStringKey} using {ProviderName} provider, transaction: {Transaction}", connectionStringSettings.Name, connectionStringSettings.ProviderName, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
 
                     try
@@ -74,7 +74,7 @@
                         conn.ConnectionString = connectionStringSettings.ConnectionString;
                         conn.Open();
 
-                        process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringKey} using {ProviderName} provider in {Elapsed}", connectionStringSettings.Name, connectionStringSettings.ProviderName, sw.Elapsed);
+                        process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringKey} using {ProviderName} provider in {Elapsed}", connectionStringSettings.Name, connectionStringSettings.ProviderName, startedOn.Elapsed);
 
                         connection = new DatabaseConnection()
                         {
@@ -123,7 +123,7 @@
 
             for (var retry = 0; retry <= maxRetryCount; retry++)
             {
-                var sw = Stopwatch.StartNew();
+                var startedOn = Stopwatch.StartNew();
                 process.Context.Log(LogSeverity.Debug, process, "opening database connection to {ConnectionStringKey} using {ProviderName} provider, transaction: {Transaction}", connectionStringSettings.Name, connectionStringSettings.ProviderName, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
 
                 try
@@ -151,7 +151,7 @@
                     conn.ConnectionString = connectionStringSettings.ConnectionString;
                     conn.Open();
 
-                    process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringKey} using {ProviderName} provider in {Elapsed}", connectionStringSettings.Name, connectionStringSettings.ProviderName, sw.Elapsed);
+                    process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringKey} using {ProviderName} provider in {Elapsed}", connectionStringSettings.Name, connectionStringSettings.ProviderName, startedOn.Elapsed);
 
                     return new DatabaseConnection()
                     {

@@ -12,6 +12,8 @@
         public IEtlContext Context { get; }
         public string Name { get; set; }
         public IProcess Caller { get; protected set; }
+        public bool IgnoreRowsWithError { get; set; } = false;
+        public virtual bool ConsumerShouldNotBuffer { get; } = false;
 
         /// <summary>
         /// The process evaluates and yields the rows from the input process.

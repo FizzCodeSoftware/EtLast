@@ -17,9 +17,9 @@
             Caller = caller;
             if (InputGenerator == null)
                 throw new ProcessParameterNullException(this, nameof(InputGenerator));
-            var sw = Stopwatch.StartNew();
+            var startedOn = Stopwatch.StartNew();
 
-            foreach (var row in EvaluateInputProcess(sw))
+            foreach (var row in EvaluateInputProcess(startedOn))
                 yield return row;
 
             Context.Log(LogSeverity.Information, this, "evaluating input generator");
@@ -28,11 +28,14 @@
             var rowCount = 0;
             foreach (var row in inputRows)
             {
+                if (IgnoreRowsWithError && row.HasError())
+                    continue;
+
                 rowCount++;
                 yield return row;
             }
 
-            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", rowCount, sw.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", rowCount, startedOn.Elapsed);
         }
     }
 }

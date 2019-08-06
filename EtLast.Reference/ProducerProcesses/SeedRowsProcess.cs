@@ -20,9 +20,9 @@
             Caller = caller;
 
             Context.Log(LogSeverity.Information, this, "started");
-            var sw = Stopwatch.StartNew();
+            var startedOn = Stopwatch.StartNew();
 
-            foreach (var row in EvaluateInputProcess(sw))
+            foreach (var row in EvaluateInputProcess(startedOn))
                 yield return row;
 
             Context.Log(LogSeverity.Debug, this, "returning generated random rows");
@@ -41,7 +41,7 @@
                 yield return row;
             }
 
-            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} random generated rows in {Elapsed}", resultCount, sw.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} random generated rows in {Elapsed}", resultCount, startedOn.Elapsed);
         }
 
         private static readonly Random Rnd = new Random();

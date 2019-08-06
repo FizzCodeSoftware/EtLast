@@ -9,17 +9,22 @@
         /// <summary>
         /// Default value is <see cref="InvalidValueAction.RemoveRow"/>
         /// </summary>
-        public InvalidValueAction ActionIfInvalid { get; set; } = InvalidValueAction.RemoveRow;
+        public InvalidValueAction ActionIfNull { get; set; } = InvalidValueAction.SetSpecialValue;
+
+        /// <summary>
+        /// Default value is null,
+        /// </summary>
+        public object SpecialValueIfNull { get; set; }
+
+        /// <summary>
+        /// Default value is <see cref="InvalidValueAction.WrapError"/>
+        /// </summary>
+        public InvalidValueAction ActionIfInvalid { get; set; } = InvalidValueAction.WrapError;
 
         /// <summary>
         /// Default value is null,
         /// </summary>
         public object SpecialValueIfInvalid { get; set; }
-
-        /// <summary>
-        /// Default value is true
-        /// </summary>
-        public bool IgnoreNullValues { get; set; } = true;
 
         public override void Apply(IRow row)
         {
@@ -38,8 +43,29 @@
                         continue;
                     }
                 }
-                else if (IgnoreNullValues)
+                else
                 {
+                    switch (ActionIfNull)
+                    {
+                        case InvalidValueAction.SetSpecialValue:
+                            row.SetValue(column, SpecialValueIfNull, this);
+                            break;
+                        case InvalidValueAction.Throw:
+                            throw new InvalidValueException(Process, TypeConverter, row, column);
+                        case InvalidValueAction.RemoveRow:
+                            Process.RemoveRow(row, this);
+                            return;
+                        case InvalidValueAction.WrapError:
+                            row.SetValue(column, new EtlRowError
+                            {
+                                Process = Process,
+                                Operation = this,
+                                OriginalValue = source,
+                                Message = string.Format("null source detected by {0}", Name),
+                            }, this);
+                            break;
+                    }
+
                     continue;
                 }
 
@@ -59,7 +85,7 @@
                             Process = Process,
                             Operation = this,
                             OriginalValue = source,
-                            Message = string.Format("failed to convert by {0}", TypeConverter.GetType().Name),
+                            Message = string.Format("invalid source detected by {0}", Name),
                         }, this);
                         break;
                 }

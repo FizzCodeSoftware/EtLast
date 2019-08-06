@@ -16,7 +16,7 @@
             Caller = caller;
 
             Context.Log(LogSeverity.Information, this, "started over {InputCount} processes", InputProcesses.Count);
-            var sw = Stopwatch.StartNew();
+            var startedOn = Stopwatch.StartNew();
 
             var resultSets = new List<IEnumerable<IRow>>();
             foreach (var inputProcess in InputProcesses)
@@ -29,7 +29,7 @@
 
             var result = Merger.Merge(resultSets);
 
-            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", sw.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", startedOn.Elapsed);
 
             return result;
         }

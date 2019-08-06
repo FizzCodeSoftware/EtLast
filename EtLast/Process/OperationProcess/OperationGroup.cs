@@ -47,12 +47,18 @@
 
         public void AddThenOperation(IRowOperation operation)
         {
+            if (operation is IDeferredRowOperation)
+                throw new InvalidOperationParameterException(this, nameof(operation), operation, "deferred operations are not supported in " + nameof(OperationGroup));
+
             operation.SetParentGroup(this, Then.Count);
             Then.Add(operation);
         }
 
         public void AddElseOperation(IRowOperation operation)
         {
+            if (operation is IDeferredRowOperation)
+                throw new InvalidOperationParameterException(this, nameof(operation), operation, "deferred operations are not supported in " + nameof(OperationGroup));
+
             operation.SetParentGroup(this, Else.Count);
             Else.Add(operation);
         }

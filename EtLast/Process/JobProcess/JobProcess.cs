@@ -21,6 +21,7 @@
         public IEtlContext Context { get; }
         public string Name { get; set; }
         public IProcess Caller { get; private set; }
+        public bool ConsumerShouldNotBuffer => false;
 
         public JobProcessConfiguration Configuration { get; set; } = new JobProcessConfiguration();
 
@@ -33,7 +34,7 @@
         public IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
             Caller = caller;
-            var sw = Stopwatch.StartNew();
+            var startedOn = Stopwatch.StartNew();
 
             if (InputProcess != null)
             {
@@ -54,13 +55,13 @@
                 ExecuteJobsSequential();
             }
 
-            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", sw.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", startedOn.Elapsed);
         }
 
         public void EvaluateWithoutResult(IProcess caller = null)
         {
             Caller = caller;
-            var sw = Stopwatch.StartNew();
+            var startedOn = Stopwatch.StartNew();
 
             if (InputProcess != null)
             {
@@ -77,7 +78,7 @@
                 ExecuteJobsSequential();
             }
 
-            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", sw.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", startedOn.Elapsed);
         }
 
         private void ExecuteJobsSequential()
@@ -87,7 +88,7 @@
                 if (Context.CancellationTokenSource.IsCancellationRequested)
                     break;
 
-                var sw = Stopwatch.StartNew();
+                var startedOn = Stopwatch.StartNew();
                 Context.Log(LogSeverity.Information, this, "job {JobName} started", job.Name);
 
                 try
@@ -100,7 +101,7 @@
                     break;
                 }
 
-                Context.Log(LogSeverity.Debug, this, "job {JobName} finished in {Elapsed}", job.Name, sw.Elapsed);
+                Context.Log(LogSeverity.Debug, this, "job {JobName} finished in {Elapsed}", job.Name, startedOn.Elapsed);
             }
         }
 

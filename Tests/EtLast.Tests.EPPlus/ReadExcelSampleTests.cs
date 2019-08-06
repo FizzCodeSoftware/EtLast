@@ -17,12 +17,6 @@
         [TestInitialize]
         public void Initialize()
         {
-            var operationProcessConfiguration = new OperationProcessConfiguration()
-            {
-                WorkerCount = 2,
-                MainLoopDelay = 10,
-            };
-
             var context = new EtlContext<DictionaryRow>();
 
             _epPlusExcelReaderProcess = new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess")
@@ -30,9 +24,9 @@
                 FileName = @"..\..\TestData\Sample.xlsx",
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
                     {
-                        new ReaderColumnConfiguration("Id", new IntConverter(), string.Empty),
-                        new ReaderColumnConfiguration("Name", new StringConverter(), string.Empty),
-                        new ReaderColumnConfiguration("Value1", "ValueString", new StringConverter(), string.Empty),
+                        new ReaderColumnConfiguration("Id", new IntConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
+                        new ReaderColumnConfiguration("Name", new StringConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
+                        new ReaderColumnConfiguration("Value1", "ValueString", new StringConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
                         new ReaderColumnConfiguration("Value2", "ValueInt", new IntConverter()),
                         new ReaderColumnConfiguration("Value3", "ValueDate", new DateConverter()),
                         new ReaderColumnConfiguration("Value4", "ValueDouble", new DoubleConverter())
@@ -41,7 +35,10 @@
 
             _process = new OperationProcess(context, "EpPlusProcess")
             {
-                Configuration = operationProcessConfiguration,
+                Configuration = new OperationProcessConfiguration()
+                {
+                    MainLoopDelay = 10,
+                },
                 InputProcess = _epPlusExcelReaderProcess
             };
 

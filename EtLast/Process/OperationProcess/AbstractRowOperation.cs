@@ -72,7 +72,9 @@
 
         public abstract void Apply(IRow row);
 
-        public abstract void Prepare();
+        public virtual void Prepare()
+        {
+        }
 
         public virtual void Shutdown()
         {

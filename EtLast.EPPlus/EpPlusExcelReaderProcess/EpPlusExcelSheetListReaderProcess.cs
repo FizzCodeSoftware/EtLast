@@ -20,9 +20,9 @@
             if (string.IsNullOrEmpty(FileName))
                 throw new ProcessParameterNullException(this, nameof(FileName));
 
-            var sw = Stopwatch.StartNew();
+            var startedOn = Stopwatch.StartNew();
 
-            foreach (var row in EvaluateInputProcess(sw))
+            foreach (var row in EvaluateInputProcess(startedOn))
                 yield return row;
 
             var resultCount = 0;
@@ -60,7 +60,7 @@
                 }
             }
 
-            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, sw.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, startedOn.Elapsed);
         }
     }
 }

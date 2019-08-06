@@ -25,9 +25,10 @@
             Caller = caller;
             if (InputRows == null)
                 throw new ProcessParameterNullException(this, nameof(InputRows));
-            var sw = Stopwatch.StartNew();
 
-            foreach (var row in EvaluateInputProcess(sw))
+            var startedOn = Stopwatch.StartNew();
+
+            foreach (var row in EvaluateInputProcess(startedOn))
                 yield return row;
 
             Context.Log(LogSeverity.Debug, this, "returning pre-defined rows");
@@ -46,7 +47,7 @@
                 yield return row;
             }
 
-            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, sw.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, startedOn.Elapsed);
         }
     }
 }

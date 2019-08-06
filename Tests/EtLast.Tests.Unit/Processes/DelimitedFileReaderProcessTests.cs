@@ -15,32 +15,29 @@
         [TestInitialize]
         public void Initialize()
         {
-            var operationProcessConfiguration = new OperationProcessConfiguration()
-            {
-                WorkerCount = 2,
-                MainLoopDelay = 10,
-            };
-
             var context = new EtlContext<DictionaryRow>();
 
             _delimitedFileReaderProcess = new DelimitedFileReaderProcess(context, "DelimitedFileReaderProcess")
             {
                 FileName = @"..\..\TestData\Sample.csv",
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
-                    {
-                        new ReaderColumnConfiguration("Id", new IntConverter(), string.Empty),
-                        new ReaderColumnConfiguration("Name", new StringConverter(), string.Empty),
-                        new ReaderColumnConfiguration("Value1", "ValueString", new StringConverter(), string.Empty),
-                        new ReaderColumnConfiguration("Value2", "ValueInt", new IntConverter(), null),
-                        new ReaderColumnConfiguration("Value3", "ValueDate", new DateConverter(), null),
-                        new ReaderColumnConfiguration("Value4", "ValueDouble", new DoubleConverter(true), null)
-                    },
+                {
+                    new ReaderColumnConfiguration("Id", new IntConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
+                    new ReaderColumnConfiguration("Name", new StringConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
+                    new ReaderColumnConfiguration("Value1", "ValueString", new StringConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
+                    new ReaderColumnConfiguration("Value2", "ValueInt", new IntConverter()),
+                    new ReaderColumnConfiguration("Value3", "ValueDate", new DateConverter()),
+                    new ReaderColumnConfiguration("Value4", "ValueDouble", new DoubleConverter(true))
+                },
                 HasHeaderRow = true,
             };
 
             _process = new OperationProcess(context, "DelimitedFileReaderOperationProcess")
             {
-                Configuration = operationProcessConfiguration,
+                Configuration = new OperationProcessConfiguration()
+                {
+                    MainLoopDelay = 10,
+                },
                 InputProcess = _delimitedFileReaderProcess
             };
         }

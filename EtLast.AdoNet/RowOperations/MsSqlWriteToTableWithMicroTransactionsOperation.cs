@@ -42,7 +42,6 @@
         public int BatchSize { get; set; } = 10000;
 
         private ConnectionStringSettings _connectionStringSettings;
-        private readonly object _lock = new object();
 
         private int _rowsWritten;
         private Stopwatch _timer;
@@ -54,21 +53,18 @@
             if (If?.Invoke(row) == false)
                 return;
 
-            lock (_lock)
+            var rc = _reader.RowCount;
+            for (var i = 0; i < TableDefinition.Columns.Length; i++)
             {
-                var rc = _reader.RowCount;
-                for (var i = 0; i < TableDefinition.Columns.Length; i++)
-                {
-                    _reader.Rows[rc, i] = row[TableDefinition.Columns[i].RowColumn];
-                }
+                _reader.Rows[rc, i] = row[TableDefinition.Columns[i].RowColumn];
+            }
 
-                rc++;
-                _reader.RowCount = rc;
+            rc++;
+            _reader.RowCount = rc;
 
-                if (rc >= BatchSize)
-                {
-                    WriteToSql(Process, false);
-                }
+            if (rc >= BatchSize)
+            {
+                WriteToSql(Process, false);
             }
         }
 

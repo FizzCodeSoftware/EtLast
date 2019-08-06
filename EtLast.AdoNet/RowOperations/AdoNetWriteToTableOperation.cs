@@ -23,7 +23,6 @@
 
         private DatabaseConnection _connection;
         private ConnectionStringSettings _connectionStringSettings;
-        private readonly object _lock = new object();
 
         private List<string> _statements;
 
@@ -37,25 +36,22 @@
             if (If?.Invoke(row) == false)
                 return;
 
-            lock (_lock)
+            InitConnection(Process);
+
+            lock (_connection.Lock)
             {
-                InitConnection(Process);
-
-                lock (_connection.Lock)
+                if (_command == null)
                 {
-                    if (_command == null)
-                    {
-                        _command = _connection.Connection.CreateCommand();
-                        _command.CommandTimeout = CommandTimeout;
-                    }
+                    _command = _connection.Connection.CreateCommand();
+                    _command.CommandTimeout = CommandTimeout;
+                }
 
-                    var statement = SqlStatementCreator.CreateRowStatement(_connectionStringSettings, row, this);
-                    _statements.Add(statement);
+                var statement = SqlStatementCreator.CreateRowStatement(_connectionStringSettings, row, this);
+                _statements.Add(statement);
 
-                    if (_command.Parameters.Count >= MaximumParameterCount - 1)
-                    {
-                        WriteToSql(Process, false);
-                    }
+                if (_command.Parameters.Count >= MaximumParameterCount - 1)
+                {
+                    WriteToSql(Process, false);
                 }
             }
         }
@@ -92,7 +88,7 @@
             var sqlStatement = SqlStatementCreator.CreateStatement(_connectionStringSettings, _statements);
             var recordCount = _statements.Count;
 
-            var sw = Stopwatch.StartNew();
+            var startedOn = Stopwatch.StartNew();
             _fullTime.Start();
 
             _command.CommandText = sqlStatement;
@@ -110,7 +106,7 @@
             try
             {
                 _command.ExecuteNonQuery();
-                var time = sw.ElapsedMilliseconds;
+                var time = startedOn.ElapsedMilliseconds;
                 _fullTime.Stop();
 
                 Stat.IncrementCounter("records written", recordCount);
@@ -139,7 +135,7 @@
                 exception.Data.Add("SqlStatement", sqlStatement);
                 exception.Data.Add("SqlStatementCompiled", CompileSql(_command));
                 exception.Data.Add("Timeout", CommandTimeout);
-                exception.Data.Add("Elapsed", sw.Elapsed);
+                exception.Data.Add("Elapsed", startedOn.Elapsed);
                 exception.Data.Add("SqlStatementCreator", SqlStatementCreator.GetType().Name);
                 exception.Data.Add("TotalRowsWritten", _rowsWritten);
                 throw exception;

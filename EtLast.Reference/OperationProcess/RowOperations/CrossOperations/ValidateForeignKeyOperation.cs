@@ -28,9 +28,7 @@
             if (Mode == ForeignKeyValidationMode.KeepIfExists)
             {
                 if (leftKey != null && _lookup.Contains(leftKey))
-                {
                     return;
-                }
 
                 Process.RemoveRow(row, this);
             }

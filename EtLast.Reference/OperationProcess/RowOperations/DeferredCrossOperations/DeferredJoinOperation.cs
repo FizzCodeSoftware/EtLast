@@ -3,31 +3,89 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public delegate bool JoinRightRowFilterDelegate(IRow leftRow, IRow rightRow);
-
-    public class JoinOperation : AbstractKeyBasedCrossOperation
+    public class DeferredJoinOperation : AbstractDeferredKeyBasedCrossOperation
     {
         public NoMatchMode Mode { get; set; }
-        public IfRowDelegate If { get; set; }
         public JoinRightRowFilterDelegate RightRowFilter { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
+
+        /// <summary>
+        /// The amount of rows processed in a batch. Default value is 200.
+        /// </summary>
+        public override int BatchSize { get; set; } = 200;
+
         private readonly Dictionary<string, List<IRow>> _lookup = new Dictionary<string, List<IRow>>();
 
-        public JoinOperation(NoMatchMode mode)
+        public DeferredJoinOperation(NoMatchMode mode)
         {
             Mode = mode;
         }
 
-        public override void Apply(IRow row)
+        public override void Prepare()
         {
-            if (If?.Invoke(row) == false)
+            base.Prepare();
+            if (ColumnConfiguration == null)
+                throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
+        }
+
+        private IRow DupeRow(IProcess process, IRow row, IRow rightRow)
+        {
+            var newRow = process.Context.CreateRow(row.ColumnCount + rightRow.ColumnCount);
+            newRow.CurrentOperation = row.CurrentOperation;
+
+            // duplicate left row
+            foreach (var kvp in row.Values)
             {
-                Stat.IncrementCounter("ignored", 1);
-                return;
+                newRow.SetValue(kvp.Key, kvp.Value, this);
             }
 
-            Stat.IncrementCounter("processed", 1);
+            // join right[1..N-1] row to [1..N-1]
 
+            foreach (var config in ColumnConfiguration)
+            {
+                config.Copy(this, rightRow, newRow);
+            }
+
+            return newRow;
+        }
+
+        protected override void ProcessRows(IRow[] rows)
+        {
+            Stat.IncrementCounter("processed", rows.Length);
+
+            var rightProcess = RightProcessCreator.Invoke(rows);
+
+            Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, rightProcess.Name);
+            var rightRows = rightProcess.Evaluate(Process);
+            var rightRowCount = 0;
+            foreach (var row in rightRows)
+            {
+                rightRowCount++;
+                var key = GetRightKey(Process, row);
+                if (string.IsNullOrEmpty(key))
+                    continue;
+
+                if (!_lookup.TryGetValue(key, out var list))
+                {
+                    list = new List<IRow>();
+                    _lookup.Add(key, list);
+                }
+
+                list.Add(row);
+            }
+
+            Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} fetched {RowCount} rows, lookup size is {LookupSize}", Name, rightRowCount, _lookup.Count);
+
+            foreach (var row in rows)
+            {
+                ProcessRow(row);
+            }
+
+            _lookup.Clear();
+        }
+
+        private void ProcessRow(IRow row)
+        {
             var leftKey = GetLeftKey(Process, row);
             if (leftKey == null || !_lookup.TryGetValue(leftKey, out var rightRows) || rightRows.Count == 0)
             {
@@ -89,62 +147,6 @@
             {
                 config.Copy(this, rightRows[0], row);
             }
-        }
-
-        public override void Prepare()
-        {
-            base.Prepare();
-            if (ColumnConfiguration == null)
-                throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
-
-            Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, RightProcess.Name);
-            _lookup.Clear();
-            var rows = RightProcess.Evaluate(Process);
-            var rowCount = 0;
-            foreach (var row in rows)
-            {
-                rowCount++;
-                var key = GetRightKey(Process, row);
-                if (string.IsNullOrEmpty(key))
-                    continue;
-
-                if (!_lookup.TryGetValue(key, out var list))
-                {
-                    list = new List<IRow>();
-                    _lookup.Add(key, list);
-                }
-
-                list.Add(row);
-            }
-
-            Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} fetched {RowCount} rows, lookup size is {LookupSize}", Name, rowCount, _lookup.Count);
-        }
-
-        public override void Shutdown()
-        {
-            base.Shutdown();
-            _lookup.Clear();
-        }
-
-        private IRow DupeRow(IProcess process, IRow row, IRow rightRow)
-        {
-            var newRow = process.Context.CreateRow(row.ColumnCount + rightRow.ColumnCount);
-            newRow.CurrentOperation = row.CurrentOperation;
-
-            // duplicate left row
-            foreach (var kvp in row.Values)
-            {
-                newRow.SetValue(kvp.Key, kvp.Value, this);
-            }
-
-            // join right[1..N-1] row to [1..N-1]
-
-            foreach (var config in ColumnConfiguration)
-            {
-                config.Copy(this, rightRow, newRow);
-            }
-
-            return newRow;
         }
     }
 }

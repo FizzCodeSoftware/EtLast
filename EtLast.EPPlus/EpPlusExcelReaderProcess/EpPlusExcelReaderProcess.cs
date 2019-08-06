@@ -81,9 +81,9 @@
                 }
             }
 
-            var sw = Stopwatch.StartNew();
+            var startedOn = Stopwatch.StartNew();
 
-            var evaluateInputProcess = EvaluateInputProcess(sw, (row, rowCount, process) =>
+            var evaluateInputProcess = EvaluateInputProcess(startedOn, (row, rowCount, process) =>
             {
                 if (AddRowIndexToColumn != null)
                 {
@@ -262,10 +262,14 @@
                     if (IgnoreNullOrEmptyRows && row.IsNullOrEmpty())
                         continue;
 
+                    if (IgnoreRowsWithError && row.HasError())
+                        continue;
+
                     resultCount++;
                     index++;
                     if (AddRowIndexToColumn != null)
                         row.SetValue(AddRowIndexToColumn, index, this);
+
                     yield return row;
                 }
             }
@@ -278,7 +282,7 @@
                 }
             }
 
-            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, sw.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, startedOn.Elapsed);
         }
 
         private static string EnsureDistinctColumnNames(List<string> excelColumns, string excelColumn)

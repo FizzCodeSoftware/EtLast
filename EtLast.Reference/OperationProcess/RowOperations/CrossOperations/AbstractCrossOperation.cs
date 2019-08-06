@@ -6,6 +6,7 @@
 
         public override void Prepare()
         {
+            base.Prepare();
             if (RightProcess == null)
                 throw new OperationParameterNullException(this, nameof(RightProcess));
         }

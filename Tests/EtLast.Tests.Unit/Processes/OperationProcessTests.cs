@@ -24,30 +24,6 @@
             }
         }
 
-        [TestMethod]
-        public void KeepOrderFalse()
-        {
-            var process = CreateKeepOrderProcess(false);
-            var rows = process.Evaluate();
-
-            var allInOrder = true;
-            IRow prevRow = null;
-            foreach (var row in rows)
-            {
-                if (prevRow != null)
-                {
-                    if (prevRow.GetAs<int>("id") >= row.GetAs<int>("id"))
-                    {
-                        allInOrder = false;
-                    }
-                }
-
-                prevRow = row;
-            }
-
-            Assert.IsFalse(allInOrder);
-        }
-
         private static OperationProcess CreateKeepOrderProcess(bool keepOrder)
         {
             var context = new EtlContext<DictionaryRow>();
@@ -56,9 +32,7 @@
             {
                 Configuration = new OperationProcessConfiguration()
                 {
-                    WorkerType = typeof(BalancedInProcessWorker), // not allowing batching which reduces re-queueing
                     KeepOrder = keepOrder,
-                    WorkerCount = 4, // high amount of workers for strong concurrency
                     InputBufferSize = 1, // low buffering for strong concurrency
                     MainLoopDelay = 1, // low delay cause returning finished rows almost immediately
                 },

@@ -15,13 +15,13 @@
     {
         public List<IEtlPlugin> LoadPlugins(ILogger logger, ILogger opsLogger, string folder, string nameSpaceEnding)
         {
-            var sw = Stopwatch.StartNew();
+            var startedOn = Stopwatch.StartNew();
 
             if (Debugger.IsAttached)
             {
                 logger.Write(LogEventLevel.Information, "loading plugins directly from AppDomain where namespace ends with {NameSpaceEnding}", nameSpaceEnding);
                 var appDomainPlugins = LoadPluginsFromAppDomain(nameSpaceEnding);
-                logger.Write(LogEventLevel.Information, "finished in {Elapsed}", sw.Elapsed);
+                logger.Write(LogEventLevel.Information, "finished in {Elapsed}", startedOn.Elapsed);
                 return appDomainPlugins;
             }
 
@@ -78,7 +78,7 @@
 
             var compiledPlugins = LoadPluginsFromAssembly(results.CompiledAssembly);
 
-            logger.Write(LogEventLevel.Information, "finished in {Elapsed}", sw.Elapsed);
+            logger.Write(LogEventLevel.Information, "finished in {Elapsed}", startedOn.Elapsed);
             return compiledPlugins;
         }
 

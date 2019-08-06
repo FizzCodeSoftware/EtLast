@@ -17,12 +17,6 @@
         [TestInitialize]
         public void Initialize()
         {
-            var operationProcessConfiguration = new OperationProcessConfiguration()
-            {
-                WorkerCount = 2,
-                MainLoopDelay = 10,
-            };
-
             var context = new EtlContext<DictionaryRow>();
 
             _epPlusExcelReaderProcess = new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess")
@@ -30,14 +24,17 @@
                 FileName = @"..\..\TestData\SampleErrors.xlsx",
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
                     {
-                        new ReaderColumnConfiguration("Id", new IntConverter(), string.Empty),
-                        new ReaderColumnConfiguration("Date", new DateConverter())
+                        new ReaderColumnConfiguration("Id", new IntConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
+                        new ReaderColumnConfiguration("Date", new DateConverter()),
                     }
             };
 
             _process = new OperationProcess(context, "EpPlusProcess")
             {
-                Configuration = operationProcessConfiguration,
+                Configuration = new OperationProcessConfiguration()
+                {
+                    MainLoopDelay = 10,
+                },
                 InputProcess = _epPlusExcelReaderProcess
             };
         }

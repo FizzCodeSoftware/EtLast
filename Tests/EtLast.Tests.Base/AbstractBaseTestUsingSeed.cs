@@ -15,7 +15,6 @@
             {
                 Configuration = new OperationProcessConfiguration()
                 {
-                    WorkerCount = 2,
                     MainLoopDelay = 10,
                     InputBufferSize = 10,
                 }

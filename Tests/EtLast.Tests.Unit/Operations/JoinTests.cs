@@ -32,17 +32,14 @@
         [TestMethod]
         public void InnerJoinTest()
         {
-            var operationProcessConfiguration = new OperationProcessConfiguration()
-            {
-                WorkerCount = 2,
-                MainLoopDelay = 10,
-            };
-
             var context = new EtlContext<DictionaryRow>();
 
             var leftProcess = new OperationProcess(context, "LeftProcess")
             {
-                Configuration = operationProcessConfiguration,
+                Configuration = new OperationProcessConfiguration()
+                {
+                    MainLoopDelay = 10,
+                },
                 InputProcess = new CreateRowsProcess(context, "LeftGenerator")
                 {
                     Columns = SampleColumnsA,

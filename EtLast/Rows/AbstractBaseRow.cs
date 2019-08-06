@@ -15,6 +15,7 @@
 
         public IRowOperation CurrentOperation { get; set; }
         public RowState State { get; set; }
+        public DeferState DeferState { get; set; }
 
         public virtual IEnumerable<KeyValuePair<string, object>> Values { get; }
 

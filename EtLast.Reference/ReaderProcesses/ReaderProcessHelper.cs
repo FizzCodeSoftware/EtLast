@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast
+﻿using System;
+
+namespace FizzCode.EtLast
 {
     public static class ReaderProcessHelper
     {
@@ -6,9 +8,27 @@
         {
             failed = false;
 
-            if (value == null && configuration.ValueIfSourceIsNull != null)
+            if (value == null)
             {
-                return configuration.ValueIfSourceIsNull;
+                switch (configuration.NullSourceHandler)
+                {
+                    case NullSourceHandler.WrapError:
+                        row.SetValue(rowColumn, new EtlRowError()
+                        {
+                            Process = process,
+                            Operation = null,
+                            OriginalValue = null,
+                            Message = string.Format("failed to convert by {0}", configuration.Converter.GetType().Name),
+                        }, process);
+                        failed = true;
+                        return value;
+                    case NullSourceHandler.SetSpecialValue:
+                        return configuration.SpecialValueIfSourceIsNull;
+                    case NullSourceHandler.Throw:
+                        throw new InvalidValueException(process, row, rowColumn);
+                    default:
+                        throw new NotImplementedException(configuration.NullSourceHandler.ToString() + " is not supported yet");
+                }
             }
 
             if (value != null && configuration.Converter != null)
@@ -17,21 +37,26 @@
                 if (newValue != null)
                     return newValue;
 
-                process.Context.Log(LogSeverity.Debug, process, "failed converting '{OriginalColumn}' in row #{RowIndex}: '{ValueAsString}' ({ValueType}) using {ConverterType}", rowColumn, rowIndex, value.ToString(), value.GetType().Name, configuration.Converter.GetType().Name);
+                //process.Context.Log(LogSeverity.Debug, process, "failed converting '{OriginalColumn}' in row #{RowIndex}: '{ValueAsString}' ({ValueType}) using {ConverterType}", rowColumn, rowIndex, value.ToString(), value.GetType().Name, configuration.Converter.GetType().Name);
 
-                if (configuration.ValueIfConversionFailed != null)
+                switch (configuration.InvalidSourceHandler)
                 {
-                    row.SetValue(rowColumn, configuration.ValueIfConversionFailed, process);
-                }
-                else
-                {
-                    row.SetValue(rowColumn, new EtlRowError()
-                    {
-                        Process = process,
-                        Operation = null,
-                        OriginalValue = value,
-                        Message = string.Format("failed to convert by {0}", configuration.Converter.GetType().Name),
-                    }, process);
+                    case InvalidSourceHandler.WrapError:
+                        row.SetValue(rowColumn, new EtlRowError()
+                        {
+                            Process = process,
+                            Operation = null,
+                            OriginalValue = value,
+                            Message = string.Format("failed to convert by {0}", configuration.Converter.GetType().Name),
+                        }, process);
+                        break;
+                    case InvalidSourceHandler.SetSpecialValue:
+                        row.SetValue(rowColumn, configuration.SpecialValueIfSourceIsInvalid, process);
+                        break;
+                    case InvalidSourceHandler.Throw:
+                        throw new InvalidValueException(process, row, rowColumn);
+                    default:
+                        throw new NotImplementedException(configuration.NullSourceHandler.ToString() + " is not supported yet");
                 }
 
                 failed = true;

@@ -5,6 +5,7 @@
     public interface IOperationProcess : IFinalProcess
     {
         IProcess InputProcess { get; set; }
+        OperationProcessConfiguration Configuration { get; }
 
         List<IRowOperation> Operations { get; set; }
         T AddOperation<T>(T operation) where T : IRowOperation;

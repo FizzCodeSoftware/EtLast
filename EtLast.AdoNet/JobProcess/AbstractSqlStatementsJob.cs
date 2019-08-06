@@ -26,7 +26,7 @@
 
             Validate(process);
 
-            var sw = Stopwatch.StartNew();
+            var startedOn = Stopwatch.StartNew();
             ConnectionStringSettings = process.Context.GetConnectionStringSettings(ConnectionStringKey);
             var statements = CreateSqlStatements(process, ConnectionStringSettings);
 
@@ -54,7 +54,7 @@
                             for (var i = 0; i < statements.Count; i++)
                             {
                                 cmd.CommandText = statements[i];
-                                RunCommand(process, cmd, i, sw);
+                                RunCommand(process, cmd, i, startedOn);
                             }
                         }
                     }

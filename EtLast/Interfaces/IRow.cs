@@ -3,6 +3,7 @@
     using System.Collections.Generic;
 
     public enum RowState { Normal, Removed, Finished }
+    public enum DeferState { None, DeferWait, DeferDone }
 
     public interface IRow
     {
@@ -45,5 +46,6 @@
 
         IRowOperation CurrentOperation { get; set; }
         RowState State { get; set; }
+        DeferState DeferState { get; set; }
     }
 }

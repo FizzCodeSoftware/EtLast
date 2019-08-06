@@ -44,7 +44,7 @@
 
             Context.Log(LogSeverity.Information, this, "started");
 
-            var sw = Stopwatch.StartNew();
+            var startedOn = Stopwatch.StartNew();
             var groups = new Dictionary<string, List<IRow>>();
             var rows = InputProcess.Evaluate(this);
 
@@ -65,7 +65,7 @@
                 list.Add(row);
             }
 
-            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}", rowCount, groups.Count, sw.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}", rowCount, groups.Count, startedOn.Elapsed);
 
             var terminated = Context.CancellationTokenSource.IsCancellationRequested;
             if (terminated)
@@ -96,7 +96,7 @@
 
             Operation.Shutdown();
 
-            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, sw.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, startedOn.Elapsed);
         }
 
         private IEnumerable<IRow> TransformGroup(List<IRow> group)

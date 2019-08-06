@@ -40,18 +40,14 @@
             while (true)
             {
                 if (token.IsCancellationRequested)
-                {
                     yield break;
-                }
 
                 IRow row;
                 while (!_queue.TryDequeue(out row))
                 {
                     WaitHandle.WaitAny(waitHandles);
                     if (token.IsCancellationRequested)
-                    {
                         yield break;
-                    }
 
                     if (_noMoreRows)
                         yield break;

@@ -21,16 +21,14 @@
         [TestMethod]
         public void OnlyOrderedOperationProcess()
         {
-            var operationProcessConfiguration = new OperationProcessConfiguration()
-            {
-                WorkerCount = 2,
-                MainLoopDelay = 10,
-            };
             var context = new EtlContext<DictionaryRow>();
 
             var hierarchyParentIdCalculatorProcess = new OperationProcess(context, "HierarchyParentIdCalculatorProcess")
             {
-                Configuration = operationProcessConfiguration,
+                Configuration = new OperationProcessConfiguration()
+                {
+                    MainLoopDelay = 10,
+                },
                 InputProcess = new CreateRowsProcess(context, "HierarchyParentIdCalculatorGenerator")
                 {
                     Columns = SampleColumns,
@@ -50,16 +48,15 @@
         [TestMethod]
         public void HierarchyParentIdCalculatorTest()
         {
-            var operationProcessConfiguration = new BasicOperationProcessConfiguration()
-            {
-                MainLoopDelay = 10
-            };
-
             var context = new EtlContext<DictionaryRow>();
 
-            var hierarchyParentIdCalculatorProcess = new OrderedOperationProcess(context, "HierarchyParentIdCalculatorProcess")
+            var hierarchyParentIdCalculatorProcess = new OperationProcess(context, "HierarchyParentIdCalculatorProcess")
             {
-                Configuration = operationProcessConfiguration,
+                Configuration = new OperationProcessConfiguration()
+                {
+                    MainLoopDelay = 10,
+                    KeepOrder = true,
+                },
                 InputProcess = new CreateRowsProcess(context, "HierarchyParentIdCalculatorGenerator")
                 {
                     Columns = SampleColumns,
