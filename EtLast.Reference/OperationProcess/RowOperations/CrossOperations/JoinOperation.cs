@@ -31,7 +31,7 @@
             var leftKey = GetLeftKey(Process, row);
             if (leftKey == null || !_lookup.TryGetValue(leftKey, out var rightRows) || rightRows.Count == 0)
             {
-                if (Mode == NoMatchMode.RemoveIfNoMatch)
+                if (Mode == NoMatchMode.Remove)
                 {
                     Process.RemoveRow(row, this);
                 }
@@ -50,7 +50,7 @@
                 rightRows = rightRows.Where(rightRow => RightRowFilter.Invoke(row, rightRow)).ToList();
                 if (rightRows.Count == 0)
                 {
-                    if (Mode == NoMatchMode.RemoveIfNoMatch)
+                    if (Mode == NoMatchMode.Remove)
                     {
                         Process.RemoveRow(row, this);
                     }

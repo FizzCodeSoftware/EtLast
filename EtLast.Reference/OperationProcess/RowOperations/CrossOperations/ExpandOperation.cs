@@ -27,7 +27,7 @@
             var leftKey = GetLeftKey(Process, row);
             if (leftKey == null || !_lookup.TryGetValue(leftKey, out var rightRow))
             {
-                if (Mode == NoMatchMode.RemoveIfNoMatch)
+                if (Mode == NoMatchMode.Remove)
                 {
                     Process.RemoveRow(row, this);
                 }

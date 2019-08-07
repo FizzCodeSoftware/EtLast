@@ -73,6 +73,7 @@
     <Compile Include="JobProcess\Jobs\EvaluateProcessWithoutResultJob.cs" />
     <Compile Include="JobProcess\Jobs\DownloadFileJob.cs" />
     <Compile Include="MergeProcess\RowSetMergers\UnionMerger.cs" />
+    <Compile Include="OperationProcess\RowOperations\CrossOperations\EnumsAndDelegates\MatchMode.cs" />
     <Compile Include="OperationProcess\RowOperations\DeferredCrossOperations\AbstractDeferredCrossOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\DeferredCrossOperations\AbstractDeferredKeyBasedCrossOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\DeferredCrossOperations\DeferredCustomExpandOperation.cs" />

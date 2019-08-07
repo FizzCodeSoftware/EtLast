@@ -47,7 +47,7 @@
                 },
             };
 
-            leftProcess.AddOperation(new JoinOperation(NoMatchMode.RemoveIfNoMatch)
+            leftProcess.AddOperation(new JoinOperation(NoMatchMode.Remove)
             {
                 RightProcess = new CreateRowsProcess(context, "RightGenerator")
                 {

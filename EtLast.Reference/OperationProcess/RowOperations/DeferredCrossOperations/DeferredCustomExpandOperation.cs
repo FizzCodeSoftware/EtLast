@@ -83,7 +83,7 @@
             var rightRow = MatchingRowSelector(row, _lookup);
             if (rightRow == null)
             {
-                if (Mode == NoMatchMode.RemoveIfNoMatch)
+                if (Mode == NoMatchMode.Remove)
                 {
                     Process.RemoveRow(row, this);
                 }
