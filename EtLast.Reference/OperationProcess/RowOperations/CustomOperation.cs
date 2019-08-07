@@ -2,11 +2,9 @@
 {
     public class CustomOperation : AbstractRowOperation
     {
-        public delegate void CustomOperationWithConditionDelegate(CustomOperation operation, IRow row);
-
         public RowTestDelegate If { get; set; }
-        public CustomOperationWithConditionDelegate Then { get; set; }
-        public CustomOperationWithConditionDelegate Else { get; set; }
+        public RowActionDelegate Then { get; set; }
+        public RowActionDelegate Else { get; set; }
 
         public override void Apply(IRow row)
         {

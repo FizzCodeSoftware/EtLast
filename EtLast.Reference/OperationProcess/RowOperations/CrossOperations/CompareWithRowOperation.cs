@@ -2,17 +2,14 @@
 {
     using System.Collections.Generic;
 
-    public class DeferredValidateForeignKeyOperation : AbstractDeferredKeyBasedCrossOperation
+    public class CompareWithRowOperation : AbstractKeyBasedCrossOperation
     {
+        public RowTestDelegate If { get; set; }
         public MatchAction NoMatchAction { get; set; }
         public MatchAction MatchAction { get; set; }
+        public IRowEqualityComparer EqualityComparer { get; set; }
 
-        /// <summary>
-        /// The amount of rows processed in a batch. Default value is 1000.
-        /// </summary>
-        public override int BatchSize { get; set; } = 1000;
-
-        private readonly HashSet<string> _lookup = new HashSet<string>();
+        private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();
 
         public override void Prepare()
         {
@@ -25,48 +22,44 @@
                 throw new OperationParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));
             if (NoMatchAction != null && MatchAction != null && ((NoMatchAction.Mode == MatchMode.Remove && MatchAction.Mode == MatchMode.Remove) || (NoMatchAction.Mode == MatchMode.Throw && MatchAction.Mode == MatchMode.Throw)))
                 throw new InvalidOperationParameterException(this, nameof(MatchAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must use a different action moode: " + nameof(MatchAction) + " or " + nameof(NoMatchAction));
-        }
+            if (EqualityComparer == null)
+                throw new OperationParameterNullException(this, nameof(EqualityComparer));
 
-        protected override void ProcessRows(IRow[] rows)
-        {
-            Stat.IncrementCounter("processed", rows.Length);
+            Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, RightProcess.Name);
 
-            var rightProcess = RightProcessCreator.Invoke(rows);
-
-            Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, rightProcess.Name);
-
-            var rightRows = rightProcess.Evaluate(Process);
-            var rightRowCount = 0;
+            var rightRows = RightProcess.Evaluate(Process);
+            var rowCount = 0;
             foreach (var row in rightRows)
             {
-                rightRowCount++;
+                rowCount++;
                 var key = GetRightKey(Process, row);
                 if (string.IsNullOrEmpty(key))
                     continue;
 
-                _lookup.Add(key);
+                _lookup[key] = row;
             }
 
-            Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} fetched {RowCount} rows, lookup size is {LookupSize}", Name, rightRowCount, _lookup.Count);
-
-            try
-            {
-                foreach (var row in rows)
-                {
-                    ProcessRow(row);
-                }
-            }
-            finally
-            {
-                _lookup.Clear();
-            }
+            Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} fetched {RowCount} rows, lookup size is {LookupSize}", Name, rowCount, _lookup.Count);
         }
 
-        private void ProcessRow(IRow row)
+        public override void Shutdown()
         {
-            var leftKey = GetLeftKey(Process, row);
+            base.Shutdown();
+            _lookup.Clear();
+        }
 
-            if (leftKey == null || !_lookup.Contains(leftKey))
+        public override void Apply(IRow row)
+        {
+            if (If?.Invoke(row) == false)
+            {
+                Stat.IncrementCounter("ignored", 1);
+                return;
+            }
+
+            Stat.IncrementCounter("processed", 1);
+
+            var leftKey = GetLeftKey(Process, row);
+            if (leftKey == null || !_lookup.TryGetValue(leftKey, out var rightRow))
             {
                 if (NoMatchAction != null)
                 {
@@ -83,6 +76,26 @@
                             NoMatchAction.CustomAction.Invoke(this, row);
                             break;
                     }
+                }
+
+                return;
+            }
+
+            var match = EqualityComparer.Compare(row, rightRow);
+            if (!match)
+            {
+                switch (NoMatchAction.Mode)
+                {
+                    case MatchMode.Remove:
+                        Process.RemoveRow(row, this);
+                        break;
+                    case MatchMode.Throw:
+                        var exception = new OperationExecutionException(Process, this, row, "no match");
+                        exception.Data.Add("LeftKey", leftKey);
+                        throw exception;
+                    case MatchMode.Custom:
+                        NoMatchAction.CustomAction.Invoke(this, row);
+                        break;
                 }
             }
             else

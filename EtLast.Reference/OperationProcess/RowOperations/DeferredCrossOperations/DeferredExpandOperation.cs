@@ -4,8 +4,8 @@
 
     public class DeferredExpandOperation : AbstractDeferredKeyBasedCrossOperation
     {
-        public NoMatchMode Mode { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
+        public MatchAction NoMatchAction { get; set; }
 
         /// <summary>
         /// The amount of rows processed in a batch. Default value is 1000.
@@ -14,16 +14,13 @@
 
         private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();
 
-        public DeferredExpandOperation(NoMatchMode mode)
-        {
-            Mode = mode;
-        }
-
         public override void Prepare()
         {
             base.Prepare();
             if (ColumnConfiguration == null)
                 throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
+            if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
+                throw new OperationParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));
         }
 
         protected override void ProcessRows(IRow[] rows)
@@ -33,7 +30,7 @@
             var rightProcess = RightProcessCreator.Invoke(rows);
 
             Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, rightProcess.Name);
-            _lookup.Clear();
+
             var rightRows = rightProcess.Evaluate(Process);
             var rightRowCount = 0;
             foreach (var row in rightRows)
@@ -66,15 +63,21 @@
             var leftKey = GetLeftKey(Process, row);
             if (leftKey == null || !_lookup.TryGetValue(leftKey, out var rightRow))
             {
-                if (Mode == NoMatchMode.Remove)
+                if (NoMatchAction != null)
                 {
-                    Process.RemoveRow(row, this);
-                }
-                else if (Mode == NoMatchMode.Throw)
-                {
-                    var exception = new OperationExecutionException(Process, this, row, "no right row found");
-                    exception.Data.Add("LeftKey", leftKey);
-                    throw exception;
+                    switch (NoMatchAction.Mode)
+                    {
+                        case MatchMode.Remove:
+                            Process.RemoveRow(row, this);
+                            break;
+                        case MatchMode.Throw:
+                            var exception = new OperationExecutionException(Process, this, row, "no match");
+                            exception.Data.Add("LeftKey", leftKey);
+                            throw exception;
+                        case MatchMode.Custom:
+                            NoMatchAction.CustomAction.Invoke(this, row);
+                            break;
+                    }
                 }
 
                 return;

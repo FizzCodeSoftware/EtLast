@@ -68,6 +68,7 @@
     </Compile>
     <Compile Include="ContextExceptionEventArgs.cs" />
     <Compile Include="ContextLogEventArgs.cs" />
+    <Compile Include="EnumsAndDelegates\RowActionDelegate.cs" />
     <Compile Include="EtlContextResult.cs" />
     <Compile Include="EtlRowError.cs" />
     <Compile Include="Exceptions\AggregationOperationExecutionException.cs" />

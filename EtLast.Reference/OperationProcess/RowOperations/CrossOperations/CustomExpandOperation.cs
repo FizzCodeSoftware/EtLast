@@ -5,17 +5,12 @@
 
     public class CustomExpandOperation : AbstractCrossOperation
     {
-        public NoMatchMode Mode { get; set; }
         public RowTestDelegate If { get; set; }
         public MatchingRowSelector MatchingRowSelector { get; set; }
         public KeySelector RightKeySelector { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
+        public MatchAction NoMatchAction { get; set; }
         private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();
-
-        public CustomExpandOperation(NoMatchMode mode)
-        {
-            Mode = mode;
-        }
 
         public override void Apply(IRow row)
         {
@@ -30,14 +25,20 @@
             var rightRow = MatchingRowSelector(row, _lookup);
             if (rightRow == null)
             {
-                if (Mode == NoMatchMode.Remove)
+                if (NoMatchAction != null)
                 {
-                    Process.RemoveRow(row, this);
-                }
-                else if (Mode == NoMatchMode.Throw)
-                {
-                    var exception = new OperationExecutionException(Process, this, row, "no right found");
-                    throw exception;
+                    switch (NoMatchAction.Mode)
+                    {
+                        case MatchMode.Remove:
+                            Process.RemoveRow(row, this);
+                            break;
+                        case MatchMode.Throw:
+                            var exception = new OperationExecutionException(Process, this, row, "no match");
+                            throw exception;
+                        case MatchMode.Custom:
+                            NoMatchAction.CustomAction.Invoke(this, row);
+                            break;
+                    }
                 }
 
                 return;
@@ -59,6 +60,8 @@
                 throw new OperationParameterNullException(this, nameof(RightKeySelector));
             if (ColumnConfiguration == null)
                 throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
+            if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
+                throw new OperationParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));
 
             Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, RightProcess.Name);
             _lookup.Clear();

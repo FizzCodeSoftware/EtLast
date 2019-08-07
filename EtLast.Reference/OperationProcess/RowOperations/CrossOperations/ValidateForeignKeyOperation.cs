@@ -4,14 +4,11 @@
 
     public class ValidateForeignKeyOperation : AbstractKeyBasedCrossOperation
     {
-        public ForeignKeyValidationMode Mode { get; set; }
         public RowTestDelegate If { get; set; }
-        private readonly HashSet<string> _lookup = new HashSet<string>();
+        public MatchAction NoMatchAction { get; set; }
+        public MatchAction MatchAction { get; set; }
 
-        public ValidateForeignKeyOperation(ForeignKeyValidationMode mode)
-        {
-            Mode = mode;
-        }
+        private readonly HashSet<string> _lookup = new HashSet<string>();
 
         public override void Apply(IRow row)
         {
@@ -25,22 +22,54 @@
 
             var leftKey = GetLeftKey(Process, row);
 
-            if (Mode == ForeignKeyValidationMode.KeepIfExists)
+            if (leftKey == null || !_lookup.Contains(leftKey))
             {
-                if (leftKey != null && _lookup.Contains(leftKey))
-                    return;
-
-                Process.RemoveRow(row, this);
+                if (NoMatchAction != null)
+                {
+                    switch (NoMatchAction.Mode)
+                    {
+                        case MatchMode.Remove:
+                            Process.RemoveRow(row, this);
+                            break;
+                        case MatchMode.Throw:
+                            var exception = new OperationExecutionException(Process, this, row, "no match");
+                            exception.Data.Add("LeftKey", leftKey);
+                            throw exception;
+                        case MatchMode.Custom:
+                            NoMatchAction.CustomAction.Invoke(this, row);
+                            break;
+                    }
+                }
             }
-            else if (leftKey != null && _lookup.Contains(leftKey))
+            else
             {
-                Process.RemoveRow(row, this);
+                switch (MatchAction.Mode)
+                {
+                    case MatchMode.Remove:
+                        Process.RemoveRow(row, this);
+                        break;
+                    case MatchMode.Throw:
+                        var exception = new OperationExecutionException(Process, this, row, "match");
+                        exception.Data.Add("LeftKey", leftKey);
+                        throw exception;
+                    case MatchMode.Custom:
+                        MatchAction.CustomAction.Invoke(this, row);
+                        break;
+                }
             }
         }
 
         public override void Prepare()
         {
             base.Prepare();
+            if (MatchAction == null && NoMatchAction == null)
+                throw new InvalidOperationParameterException(this, nameof(MatchAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must be specified: " + nameof(MatchAction) + " or " + nameof(NoMatchAction));
+            if (MatchAction?.Mode == MatchMode.Custom && MatchAction.CustomAction == null)
+                throw new OperationParameterNullException(this, nameof(MatchAction) + "." + nameof(MatchAction.CustomAction));
+            if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
+                throw new OperationParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));
+            if (NoMatchAction != null && MatchAction != null && ((NoMatchAction.Mode == MatchMode.Remove && MatchAction.Mode == MatchMode.Remove) || (NoMatchAction.Mode == MatchMode.Throw && MatchAction.Mode == MatchMode.Throw)))
+                throw new InvalidOperationParameterException(this, nameof(MatchAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must use a different action moode: " + nameof(MatchAction) + " or " + nameof(NoMatchAction));
 
             Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, RightProcess.Name);
             _lookup.Clear();

@@ -73,9 +73,10 @@
     <Compile Include="JobProcess\Jobs\EvaluateProcessWithoutResultJob.cs" />
     <Compile Include="JobProcess\Jobs\DownloadFileJob.cs" />
     <Compile Include="MergeProcess\RowSetMergers\UnionMerger.cs" />
-    <Compile Include="OperationProcess\RowOperations\CrossOperations\EnumsAndDelegates\MatchMode.cs" />
+    <Compile Include="OperationProcess\RowOperations\CrossOperations\CompareWithRowOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\DeferredCrossOperations\AbstractDeferredCrossOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\DeferredCrossOperations\AbstractDeferredKeyBasedCrossOperation.cs" />
+    <Compile Include="OperationProcess\RowOperations\DeferredCrossOperations\DeferredCompareWithRowOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\DeferredCrossOperations\DeferredCustomExpandOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\DeferredCrossOperations\DeferredExpandOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\DeferredCrossOperations\DeferredValidateForeignKeyOperation.cs" />
@@ -108,8 +109,7 @@
     <Compile Include="OperationProcess\RowOperations\CrossOperations\CustomExpandOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\CrossOperations\AbstractCrossOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\CrossOperations\ExpandOperation.cs" />
-    <Compile Include="OperationProcess\RowOperations\CrossOperations\EnumsAndDelegates\NoMatchMode.cs" />
-    <Compile Include="OperationProcess\RowOperations\CrossOperations\EnumsAndDelegates\ForeignKeyValidationMode.cs" />
+    <Compile Include="OperationProcess\RowOperations\CrossOperations\EnumsAndDelegates\MatchAction.cs" />
     <Compile Include="OperationProcess\RowOperations\DeferredCrossOperations\DeferredJoinOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\CrossOperations\ValidateForeignKeyOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\ColumnValidationOperation.cs" />

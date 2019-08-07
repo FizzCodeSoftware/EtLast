@@ -47,8 +47,9 @@
                 },
             };
 
-            leftProcess.AddOperation(new JoinOperation(NoMatchMode.Remove)
+            leftProcess.AddOperation(new JoinOperation()
             {
+                NoMatchAction = new MatchAction(MatchMode.Remove),
                 RightProcess = new CreateRowsProcess(context, "RightGenerator")
                 {
                     Columns = SampleColumnsB,
