@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.Rows
+﻿namespace FizzCode.EtLast
 {
     using System;
     using System.Collections.Generic;
@@ -13,9 +13,7 @@
             if (Columns != null)
             {
                 if (ColumnsToIgnore != null)
-                {
                     throw new ArgumentException(nameof(ColumnsToIgnore) + " can not be set if " + nameof(Columns) + " is set");
-                }
 
                 foreach (var column in Columns)
                 {

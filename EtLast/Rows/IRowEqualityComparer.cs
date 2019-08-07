@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.Rows
+﻿namespace FizzCode.EtLast
 {
     public interface IRowEqualityComparer
     {
