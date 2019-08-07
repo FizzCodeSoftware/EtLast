@@ -10,9 +10,9 @@
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
 
         /// <summary>
-        /// The amount of rows processed in a batch. Default value is 200.
+        /// The amount of rows processed in a batch. Default value is 1000.
         /// </summary>
-        public override int BatchSize { get; set; } = 200;
+        public override int BatchSize { get; set; } = 1000;
 
         private readonly Dictionary<string, List<IRow>> _lookup = new Dictionary<string, List<IRow>>();
 
