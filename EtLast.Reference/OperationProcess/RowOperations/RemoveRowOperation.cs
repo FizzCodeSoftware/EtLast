@@ -2,7 +2,7 @@
 {
     public class RemoveRowOperation : AbstractRowOperation
     {
-        public IfRowDelegate If { get; set; }
+        public RowTestDelegate If { get; set; }
 
         public override void Apply(IRow row)
         {

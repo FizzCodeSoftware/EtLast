@@ -5,7 +5,7 @@
     public class ExpandOperation : AbstractKeyBasedCrossOperation
     {
         public NoMatchMode Mode { get; set; }
-        public IfRowDelegate If { get; set; }
+        public RowTestDelegate If { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();
 

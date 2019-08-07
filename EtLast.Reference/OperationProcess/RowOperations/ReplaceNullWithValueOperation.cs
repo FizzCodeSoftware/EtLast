@@ -5,7 +5,7 @@
     /// </summary>
     public class ReplaceNullWithValueOperation : AbstractRowOperation
     {
-        public IfRowDelegate If { get; set; }
+        public RowTestDelegate If { get; set; }
         public string Column { get; set; }
         public object Value { get; set; }
 

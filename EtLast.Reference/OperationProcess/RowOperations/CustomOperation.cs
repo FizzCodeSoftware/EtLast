@@ -4,7 +4,7 @@
     {
         public delegate void CustomOperationWithConditionDelegate(CustomOperation operation, IRow row);
 
-        public IfRowDelegate If { get; set; }
+        public RowTestDelegate If { get; set; }
         public CustomOperationWithConditionDelegate Then { get; set; }
         public CustomOperationWithConditionDelegate Else { get; set; }
 

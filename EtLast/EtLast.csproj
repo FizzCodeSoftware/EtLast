@@ -99,7 +99,7 @@
     <Compile Include="Process\MergeProcess\SequentialMergeProcess.cs" />
     <Compile Include="Process\OperationProcess\AbstractDeferredRowOperation.cs" />
     <Compile Include="Process\OperationProcess\AbstractRowOperation.cs" />
-    <Compile Include="Process\OperationProcess\EnumsAndDelegates\IfRowDelegate.cs" />
+    <Compile Include="EnumsAndDelegates\RowTestDelegate.cs" />
     <Compile Include="Process\OperationProcess\IOperationGroup.cs" />
     <Compile Include="Process\OperationProcess\OperationGroup.cs" />
     <Compile Include="Process\OperationProcess\OperationProcess.cs" />
@@ -122,7 +122,9 @@
     <Compile Include="Process\SplitProcess\SplitProcess.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rows\AbstractBaseRow.cs" />
+    <Compile Include="EnumsAndDelegates\RowEqualsDelegate.cs" />
     <Compile Include="Rows\DictionaryRow.cs" />
+    <Compile Include="Rows\IRowEqualityComparer.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

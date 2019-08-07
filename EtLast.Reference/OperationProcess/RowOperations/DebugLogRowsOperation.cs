@@ -2,7 +2,7 @@
 {
     public class DebugLogRowsOperation : AbstractRowOperation
     {
-        public IfRowDelegate If { get; set; }
+        public RowTestDelegate If { get; set; }
         public LogSeverity Severity { get; set; }
 
         public override void Apply(IRow row)

@@ -11,7 +11,7 @@
 
     public class AdoNetWriteToTableOperation : AbstractRowOperation
     {
-        public IfRowDelegate If { get; set; }
+        public RowTestDelegate If { get; set; }
         public string ConnectionStringKey { get; set; }
         public int CommandTimeout { get; set; } = 30;
         public int MaximumParameterCount { get; set; } = 30;

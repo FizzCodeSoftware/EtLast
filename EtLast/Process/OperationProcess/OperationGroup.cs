@@ -4,7 +4,7 @@
 
     public class OperationGroup : AbstractRowOperation, IOperationGroup
     {
-        public IfRowDelegate If { get; set; }
+        public RowTestDelegate If { get; set; }
         public List<IRowOperation> Then { get; } = new List<IRowOperation>();
         public List<IRowOperation> Else { get; } = new List<IRowOperation>();
 

@@ -143,6 +143,8 @@
     <Compile Include="ReaderProcesses\DelimitedFileReaderProcess.cs" />
     <Compile Include="ReaderProcesses\ReaderColumnConfiguration.cs" />
     <Compile Include="ReaderProcesses\ReaderProcessHelper.cs" />
+    <Compile Include="Rows\CustomRowEqualityComparer.cs" />
+    <Compile Include="Rows\ColumnBasedRowEqualityComparer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EtLast\EtLast.csproj">

@@ -9,7 +9,7 @@
 
     public class MsSqlWriteToTableOperation : AbstractRowOperation
     {
-        public IfRowDelegate If { get; set; }
+        public RowTestDelegate If { get; set; }
         public string ConnectionStringKey { get; set; }
         public int CommandTimeout { get; set; } = 30;
 

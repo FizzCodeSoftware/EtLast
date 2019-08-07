@@ -6,7 +6,7 @@
     [DebuggerDisplay("{" + nameof(Name) + "}")]
     public abstract class AbstractDeferredRowOperation : AbstractRowOperation, IDeferredRowOperation
     {
-        public IfRowDelegate If { get; set; }
+        public RowTestDelegate If { get; set; }
         public abstract int BatchSize { get; set; }
 
         /// <summary>

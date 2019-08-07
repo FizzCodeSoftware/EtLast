@@ -5,7 +5,7 @@
     /// </summary>
     public class RemoveColumnsOperation : AbstractRowOperation
     {
-        public IfRowDelegate If { get; set; }
+        public RowTestDelegate If { get; set; }
         public string[] Columns { get; set; }
 
         public override void Apply(IRow row)
