@@ -1,13 +1,22 @@
 ﻿namespace FizzCode.EtLast.Rows
 {
+    using System;
+    using System.Collections.Generic;
+
     public class ColumnBasedRowEqualityComparer : IRowEqualityComparer
     {
         public string[] Columns { get; set; }
+        public HashSet<string> ColumnsToIgnore { get; set; }
 
         public bool Compare(IRow leftRow, IRow rightRow)
         {
             if (Columns != null)
             {
+                if (ColumnsToIgnore != null)
+                {
+                    throw new ArgumentException(nameof(ColumnsToIgnore) + " can not be set if " + nameof(Columns) + " is set");
+                }
+
                 foreach (var column in Columns)
                 {
                     var leftValue = leftRow[column];
@@ -25,11 +34,11 @@
             }
             else
             {
-                if (leftRow.ColumnCount != rightRow.ColumnCount)
-                    return false;
-
                 foreach (var kvp in leftRow.Values)
                 {
+                    if (ColumnsToIgnore?.Contains(kvp.Key) == true)
+                        continue;
+
                     var leftValue = kvp.Value;
                     var rightValue = rightRow[kvp.Key];
                     if (leftValue != null && rightValue != null)
