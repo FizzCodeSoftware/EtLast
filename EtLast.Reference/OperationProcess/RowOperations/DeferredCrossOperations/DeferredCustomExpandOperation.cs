@@ -70,12 +70,17 @@
 
             Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} fetched {RowCount} rows, lookup size is {LookupSize}", Name, rowCount, _lookup.Count);
 
-            foreach (var row in rows)
+            try
             {
-                ProcessRow(row);
+                foreach (var row in rows)
+                {
+                    ProcessRow(row);
+                }
             }
-
-            _lookup.Clear();
+            finally
+            {
+                _lookup.Clear();
+            }
         }
 
         private void ProcessRow(IRow row)

@@ -28,27 +28,6 @@
                 throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
         }
 
-        private IRow DupeRow(IProcess process, IRow row, IRow rightRow)
-        {
-            var newRow = process.Context.CreateRow(row.ColumnCount + rightRow.ColumnCount);
-            newRow.CurrentOperation = row.CurrentOperation;
-
-            // duplicate left row
-            foreach (var kvp in row.Values)
-            {
-                newRow.SetValue(kvp.Key, kvp.Value, this);
-            }
-
-            // join right[1..N-1] row to [1..N-1]
-
-            foreach (var config in ColumnConfiguration)
-            {
-                config.Copy(this, rightRow, newRow);
-            }
-
-            return newRow;
-        }
-
         protected override void ProcessRows(IRow[] rows)
         {
             Stat.IncrementCounter("processed", rows.Length);
@@ -76,12 +55,38 @@
 
             Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} fetched {RowCount} rows, lookup size is {LookupSize}", Name, rightRowCount, _lookup.Count);
 
-            foreach (var row in rows)
+            try
             {
-                ProcessRow(row);
+                foreach (var row in rows)
+                {
+                    ProcessRow(row);
+                }
+            }
+            finally
+            {
+                _lookup.Clear();
+            }
+        }
+
+        private IRow DupeRow(IProcess process, IRow row, IRow rightRow)
+        {
+            var newRow = process.Context.CreateRow(row.ColumnCount + rightRow.ColumnCount);
+            newRow.CurrentOperation = row.CurrentOperation;
+
+            // duplicate left row
+            foreach (var kvp in row.Values)
+            {
+                newRow.SetValue(kvp.Key, kvp.Value, this);
             }
 
-            _lookup.Clear();
+            // join right[1..N-1] row to [1..N-1]
+
+            foreach (var config in ColumnConfiguration)
+            {
+                config.Copy(this, rightRow, newRow);
+            }
+
+            return newRow;
         }
 
         private void ProcessRow(IRow row)

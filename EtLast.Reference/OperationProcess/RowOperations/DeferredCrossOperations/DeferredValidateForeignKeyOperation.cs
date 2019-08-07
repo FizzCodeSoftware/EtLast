@@ -39,12 +39,17 @@
 
             Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} fetched {RowCount} rows, lookup size is {LookupSize}", Name, rightRowCount, _lookup.Count);
 
-            foreach (var row in rows)
+            try
             {
-                ProcessRow(row);
+                foreach (var row in rows)
+                {
+                    ProcessRow(row);
+                }
             }
-
-            _lookup.Clear();
+            finally
+            {
+                _lookup.Clear();
+            }
         }
 
         private void ProcessRow(IRow row)
@@ -53,10 +58,10 @@
 
             if (Mode == ForeignKeyValidationMode.KeepIfExists)
             {
-                if (leftKey != null && _lookup.Contains(leftKey))
-                    return;
-
-                Process.RemoveRow(row, this);
+                if (leftKey == null || !_lookup.Contains(leftKey))
+                {
+                    Process.RemoveRow(row, this);
+                }
             }
             else if (leftKey != null && _lookup.Contains(leftKey))
             {
