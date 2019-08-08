@@ -13,7 +13,7 @@
 
     internal class PluginLoader
     {
-        public List<IEtlPlugin> LoadPlugins(ILogger logger, ILogger opsLogger, string folder, string nameSpaceEnding)
+        public List<IEtlPlugin> LoadPlugins(ILogger logger, ILogger opsLogger, string folder, string sharedFolder, string nameSpaceEnding)
         {
             var startedOn = Stopwatch.StartNew();
 
@@ -25,7 +25,7 @@
                 return appDomainPlugins;
             }
 
-            logger.Write(LogEventLevel.Information, "compiling plugins from {FolderName}", folder);
+            logger.Write(LogEventLevel.Information, "compiling plugins from {FolderName} using shared files in {SharedFolderName}", folder, sharedFolder);
             var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             var provider = new Microsoft.CodeDom.Providers.DotNetCompilerPlatform.CSharpCodeProvider();
@@ -63,6 +63,13 @@
             parameters.GenerateInMemory = true;
 
             var fileNames = Directory.GetFiles(folder, "*.cs", SearchOption.AllDirectories);
+
+            if (Directory.Exists(sharedFolder))
+            {
+                fileNames = fileNames
+                    .Concat(Directory.GetFiles(sharedFolder, "*.cs", SearchOption.AllDirectories))
+                    .ToArray();
+            }
 
             var results = provider.CompileAssemblyFromFile(parameters, fileNames);
             if (results.Errors.Count > 0)

@@ -128,6 +128,7 @@
                     return ExitCodes.ERR_NOTHING_TO_EXECUTE;
                 }
 
+                var sharedPluginFolder = Path.Combine(pluginFolder, "Shared");
                 pluginFolder = Path.Combine(pluginFolder, _hostConfiguration.CommandLineArguments[0]);
 
                 var pluginConfigFilePath = Path.Combine(pluginFolder, "plugin.config");
@@ -145,7 +146,7 @@
 
                 FullPluginConfigAppSettings(pluginConfiguration);
 
-                var plugins = new PluginLoader().LoadPlugins(_logger, _opsLogger, pluginFolder, _hostConfiguration.CommandLineArguments[0]);
+                var plugins = new PluginLoader().LoadPlugins(_logger, _opsLogger, pluginFolder, sharedPluginFolder, _hostConfiguration.CommandLineArguments[0]);
                 plugins = FilterExecutablePlugins(pluginConfiguration, plugins);
 
                 _logger.Write(LogEventLevel.Information, "{PluginCount} plugin(s) found: {PluginNames}", plugins.Count, plugins.Select(x => x.GetType().Name).ToArray());
