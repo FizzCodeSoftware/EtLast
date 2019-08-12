@@ -110,53 +110,53 @@
 
                 if (_hostConfiguration.CommandLineArguments.Length == 0)
                 {
-                    _logger.Write(LogEventLevel.Error, "plugin folder command line argument is not defined");
-                    _opsLogger.Write(LogEventLevel.Error, "plugin folder command line argument is not defined");
+                    _logger.Write(LogEventLevel.Error, "modules name command line argument is not defined");
+                    _opsLogger.Write(LogEventLevel.Error, "module name command line argument is not defined");
                     return ExitCodes.ERR_WRONG_ARGUMENTS;
                 }
 
-                var pluginFolder = _hostConfiguration.PluginFolder;
-                if (pluginFolder.StartsWith(@".\"))
+                var modulesFolder = _hostConfiguration.ModulesFolder;
+                if (modulesFolder.StartsWith(@".\"))
                 {
-                    pluginFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), pluginFolder.Substring(2));
+                    modulesFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), modulesFolder.Substring(2));
                 }
 
-                if (!Directory.Exists(pluginFolder))
+                if (!Directory.Exists(modulesFolder))
                 {
-                    _logger.Write(LogEventLevel.Error, "can't find the specified plugin folder: {PluginFolder}", pluginFolder);
-                    _opsLogger.Write(LogEventLevel.Error, "can't find the specified plugin folder: {PluginFolder}", pluginFolder);
+                    _logger.Write(LogEventLevel.Error, "can't find the specified modules folder: {PluginFolder}", modulesFolder);
+                    _opsLogger.Write(LogEventLevel.Error, "can't find the specified modules folder: {PluginFolder}", modulesFolder);
                     return ExitCodes.ERR_NOTHING_TO_EXECUTE;
                 }
 
-                var sharedPluginFolder = Path.Combine(pluginFolder, "Shared");
-                pluginFolder = Path.Combine(pluginFolder, _hostConfiguration.CommandLineArguments[0]);
+                var sharedModuleFolder = Path.Combine(modulesFolder, "Shared");
+                var moduleFolder = Path.Combine(modulesFolder, _hostConfiguration.CommandLineArguments[0]);
 
-                var pluginConfigFilePath = Path.Combine(pluginFolder, "plugin.config");
-                Configuration pluginConfiguration = null;
-                if (!File.Exists(pluginConfigFilePath))
+                var moduleConfigFilePath = Path.Combine(moduleFolder, "module.config");
+                Configuration moduleConfiguration = null;
+                if (!File.Exists(moduleConfigFilePath))
                 {
-                    _logger.Write(LogEventLevel.Error, "can't find plugin configuration file: {ConfigurationFilePath}", pluginConfigFilePath);
-                    _opsLogger.Write(LogEventLevel.Error, "can't find plugin configuration file: {ConfigurationFilePath}", pluginConfigFilePath);
+                    _logger.Write(LogEventLevel.Error, "can't find plugin configuration file: {ConfigurationFilePath}", moduleConfigFilePath);
+                    _opsLogger.Write(LogEventLevel.Error, "can't find plugin configuration file: {ConfigurationFilePath}", moduleConfigFilePath);
                     return ExitCodes.ERR_NO_CONFIG;
                 }
 
-                _logger.Write(LogEventLevel.Information, "loading plugin configuration file from {ConfigurationFilePath}", pluginConfigFilePath);
-                var configFileMap = new ConfigurationFileMap(pluginConfigFilePath);
-                pluginConfiguration = ConfigurationManager.OpenMappedMachineConfiguration(configFileMap);
+                _logger.Write(LogEventLevel.Information, "loading module configuration file from {ConfigurationFilePath}", moduleConfigFilePath);
+                var configFileMap = new ConfigurationFileMap(moduleConfigFilePath);
+                moduleConfiguration = ConfigurationManager.OpenMappedMachineConfiguration(configFileMap);
 
-                FullPluginConfigAppSettings(pluginConfiguration);
+                FillModuleConfigAppSettings(moduleConfiguration);
 
-                var plugins = new PluginLoader().LoadPlugins(_logger, _opsLogger, pluginFolder, sharedPluginFolder, _hostConfiguration.CommandLineArguments[0]);
-                plugins = FilterExecutablePlugins(pluginConfiguration, plugins);
+                var modulePlugins = new ModuleLoader().LoadModule(_logger, _opsLogger, moduleFolder, sharedModuleFolder, _hostConfiguration.CommandLineArguments[0]);
+                modulePlugins = FilterExecutablePlugins(moduleConfiguration, modulePlugins);
 
-                _logger.Write(LogEventLevel.Information, "{PluginCount} plugin(s) found: {PluginNames}", plugins.Count, plugins.Select(x => x.GetType().Name).ToArray());
-                if (plugins.Count == 0)
+                _logger.Write(LogEventLevel.Information, "{PluginCount} plugin(s) found: {PluginNames}", modulePlugins.Count, modulePlugins.Select(x => x.GetType().Name).ToArray());
+                if (modulePlugins.Count == 0)
                 {
                     return ExitCodes.ERR_NOTHING_TO_EXECUTE;
                 }
 
-                var executer = new PluginExecuter();
-                executer.ExecutePlugins(_hostConfiguration, plugins, _logger, _opsLogger, pluginConfiguration, pluginFolder);
+                var executer = new ModuleExecuter();
+                executer.ExecuteModule(_hostConfiguration, modulePlugins, _logger, _opsLogger, moduleConfiguration, moduleFolder);
 
                 if (executer.ExecutionTerminated)
                     return ExitCodes.ERR_EXECUTION_TERMINATED;
@@ -172,12 +172,12 @@
             return ExitCodes.ERR_NO_ERROR;
         }
 
-        private List<IEtlPlugin> FilterExecutablePlugins(Configuration pluginConfiguration, List<IEtlPlugin> plugins)
+        private List<IEtlPlugin> FilterExecutablePlugins(Configuration moduleConfiguration, List<IEtlPlugin> plugins)
         {
             if (plugins == null || plugins.Count == 0)
                 return new List<IEtlPlugin>();
 
-            var pluginNamesToExecute = GetAppSetting(pluginConfiguration, "PluginsToExecute");
+            var pluginNamesToExecute = GetAppSetting(moduleConfiguration, "PluginsToExecute");
             return pluginNamesToExecute.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(name => name.Trim())
                 .Where(name => !name.StartsWith("!"))
@@ -186,7 +186,7 @@
                 .ToList();
         }
 
-        private void FullPluginConfigAppSettings(Configuration pluginConfiguration)
+        private void FillModuleConfigAppSettings(Configuration moduleConfiguration)
         {
             if (_hostConfiguration.CommandLineArguments.Length > 1)
             {
@@ -197,18 +197,18 @@
                     if (idx == -1)
                     {
                         var key = arg;
-                        if (pluginConfiguration.AppSettings.Settings[key] != null)
-                            pluginConfiguration.AppSettings.Settings.Remove(key);
+                        if (moduleConfiguration.AppSettings.Settings[key] != null)
+                            moduleConfiguration.AppSettings.Settings.Remove(key);
 
-                        pluginConfiguration.AppSettings.Settings.Add(key, string.Empty);
+                        moduleConfiguration.AppSettings.Settings.Add(key, string.Empty);
                     }
                     else
                     {
                         var key = arg.Substring(0, idx).Trim();
-                        if (pluginConfiguration.AppSettings.Settings[key] != null)
-                            pluginConfiguration.AppSettings.Settings.Remove(key);
+                        if (moduleConfiguration.AppSettings.Settings[key] != null)
+                            moduleConfiguration.AppSettings.Settings.Remove(key);
 
-                        pluginConfiguration.AppSettings.Settings.Add(key, arg.Substring(idx + 1).Trim());
+                        moduleConfiguration.AppSettings.Settings.Add(key, arg.Substring(idx + 1).Trim());
                     }
                 }
             }

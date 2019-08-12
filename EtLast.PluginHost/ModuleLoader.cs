@@ -11,9 +11,9 @@
     using Serilog;
     using Serilog.Events;
 
-    internal class PluginLoader
+    internal class ModuleLoader
     {
-        public List<IEtlPlugin> LoadPlugins(ILogger logger, ILogger opsLogger, string folder, string sharedFolder, string nameSpaceEnding)
+        public List<IEtlPlugin> LoadModule(ILogger logger, ILogger opsLogger, string moduleFolder, string sharedFolder, string nameSpaceEnding)
         {
             var startedOn = Stopwatch.StartNew();
 
@@ -25,7 +25,7 @@
                 return appDomainPlugins;
             }
 
-            logger.Write(LogEventLevel.Information, "compiling plugins from {FolderName} using shared files in {SharedFolderName}", folder, sharedFolder);
+            logger.Write(LogEventLevel.Information, "compiling plugins from {FolderName} using shared files in {SharedFolderName}", moduleFolder, sharedFolder);
             var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             var provider = new Microsoft.CodeDom.Providers.DotNetCompilerPlatform.CSharpCodeProvider();
@@ -62,7 +62,7 @@
             parameters.GenerateExecutable = false;
             parameters.GenerateInMemory = true;
 
-            var fileNames = Directory.GetFiles(folder, "*.cs", SearchOption.AllDirectories);
+            var fileNames = Directory.GetFiles(moduleFolder, "*.cs", SearchOption.AllDirectories);
 
             if (Directory.Exists(sharedFolder))
             {

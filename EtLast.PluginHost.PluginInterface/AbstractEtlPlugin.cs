@@ -12,7 +12,7 @@
     {
         public Configuration Configuration { get; private set; }
         public IEtlContext Context { get; private set; }
-        public string PluginFolder { get; private set; }
+        public string ModuleFolder { get; private set; }
         private static readonly Dictionary<LogSeverity, LogEventLevel> LogEventLevelMap;
         public ILogger Logger { get; private set; }
         public ILogger OpsLogger { get; private set; }
@@ -30,13 +30,13 @@
             };
         }
 
-        public void Init(ILogger logger, ILogger opsLogger, Configuration configuration, string pluginFolder, TimeSpan transactionScopeTimeout)
+        public void Init(ILogger logger, ILogger opsLogger, Configuration configuration, string moduleFolder, TimeSpan transactionScopeTimeout)
         {
             Logger = logger;
             OpsLogger = opsLogger;
             Configuration = configuration;
             Context = CreateContext<DictionaryRow>(transactionScopeTimeout);
-            PluginFolder = pluginFolder;
+            ModuleFolder = moduleFolder;
             TransactionScopeTimeout = transactionScopeTimeout;
         }
 

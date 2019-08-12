@@ -9,19 +9,19 @@
     using Serilog;
     using Serilog.Events;
 
-    internal class PluginExecuter
+    internal class ModuleExecuter
     {
         public bool ExecutionTerminated { get; private set; }
         public bool AtLeastOnePluginFailed { get; private set; }
 
-        public void ExecutePlugins(PluginHostConfiguration hostConfiguration, List<IEtlPlugin> plugins, ILogger logger, ILogger opsLogger, Configuration pluginConfiguration, string pluginFolder)
+        public void ExecuteModule(PluginHostConfiguration hostConfiguration, List<IEtlPlugin> modulePlugins, ILogger logger, ILogger opsLogger, Configuration pluginConfiguration, string moduleFolder)
         {
             try
             {
                 var globalStat = new StatCounterCollection();
                 var runTimes = new List<TimeSpan>();
                 var pluginResults = new List<EtlContextResult>();
-                foreach (var plugin in plugins)
+                foreach (var plugin in modulePlugins)
                 {
                     var startedOn = Stopwatch.StartNew();
                     logger.Write(LogEventLevel.Information, "executing {PluginTypeName}", plugin.GetType().Name);
@@ -30,7 +30,7 @@
                     {
                         try
                         {
-                            plugin.Init(logger, opsLogger, pluginConfiguration, pluginFolder, hostConfiguration.TransactionScopeTimeout);
+                            plugin.Init(logger, opsLogger, pluginConfiguration, moduleFolder, hostConfiguration.TransactionScopeTimeout);
                             pluginResults.Add(plugin.Context.Result);
 
                             plugin.BeforeExecute();
@@ -77,9 +77,9 @@
 
                 LogStats(globalStat, logger);
 
-                for (var i = 0; i < Math.Min(plugins.Count, pluginResults.Count); i++)
+                for (var i = 0; i < Math.Min(modulePlugins.Count, pluginResults.Count); i++)
                 {
-                    var plugin = plugins[i];
+                    var plugin = modulePlugins[i];
                     var result = pluginResults[i];
                     if (result.Success)
                     {

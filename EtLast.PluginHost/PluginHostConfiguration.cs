@@ -11,7 +11,7 @@
         public string SeqUrl { get; set; }
         public string SeqApiKey { get; set; }
         public int RetainedLogFileCountLimit { get; set; } = 14;
-        public string PluginFolder { get; set; } = @".\plugins";
+        public string ModulesFolder { get; set; } = @".\modules";
         public LogEventLevel MinimumLogLevelOnConsole { get; set; }
 
         public void LoadFromStandardAppSettings()
@@ -20,7 +20,7 @@
             SeqApiKey = GetAppSetting("seq:ApiKey");
             RetainedLogFileCountLimit = GetAppSettingAsInt("RetainedLogFileCountLimit", 14);
             TransactionScopeTimeout = TimeSpan.FromMinutes(GetAppSettingAsInt("TransactionScopeTimeoutMinutes", 120));
-            PluginFolder = GetAppSetting("PluginFolder");
+            ModulesFolder = GetAppSetting("ModulesFolder");
 
             var v = GetAppSetting("MinimumLogLevelOnConsole");
             if (!string.IsNullOrEmpty(v))

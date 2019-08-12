@@ -98,8 +98,8 @@
     <Compile Include="Hacks\EnableVirtualTerminalProcessingHack.cs" />
     <Compile Include="PluginHostConfiguration.cs" />
     <Compile Include="ExitCodes.cs" />
-    <Compile Include="PluginExecuter.cs" />
-    <Compile Include="PluginLoader.cs" />
+    <Compile Include="ModuleExecuter.cs" />
+    <Compile Include="ModuleLoader.cs" />
     <Compile Include="EtlPluginExecuter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerilogConfigurator.cs" />
