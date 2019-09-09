@@ -46,7 +46,8 @@
 
             foreach (var op in operations)
             {
-                AddOperation(op);
+                if (op != null)
+                    AddOperation(op);
             }
         }
 

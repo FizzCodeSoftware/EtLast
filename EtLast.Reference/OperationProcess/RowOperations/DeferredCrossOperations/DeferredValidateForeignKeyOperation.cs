@@ -85,7 +85,7 @@
                     }
                 }
             }
-            else
+            else if (MatchAction != null)
             {
                 switch (MatchAction.Mode)
                 {
