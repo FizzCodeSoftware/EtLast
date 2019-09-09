@@ -77,6 +77,7 @@
     <Compile Include="Exceptions\JobParameterNullException.cs" />
     <Compile Include="Exceptions\InvalidJobParameterException.cs" />
     <Compile Include="Exceptions\OperationParameterNullException.cs" />
+    <Compile Include="Exceptions\StrategyParameterNullException.cs" />
     <Compile Include="Exceptions\ProcessParameterNullException.cs" />
     <Compile Include="Exceptions\InvalidProcessParameterException.cs" />
     <Compile Include="Exceptions\JobExecutionException.cs" />

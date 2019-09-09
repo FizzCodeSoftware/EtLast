@@ -15,14 +15,38 @@
 
         public void Execute(IEtlContext context)
         {
+            if (Configuration.Tables == null)
+                throw new StrategyParameterNullException(this, nameof(Configuration.Tables));
+
+            if (Configuration.ConnectionStringKey == null)
+                throw new StrategyParameterNullException(this, nameof(Configuration.ConnectionStringKey));
+
             var maxRetryCount = Configuration.FinalizerRetryCount;
             if (Configuration.FinalizerTransactionScopeKind != TransactionScopeKind.RequiresNew && maxRetryCount > 0)
-            {
                 throw new InvalidStrategyParameterException(this, nameof(Configuration.FinalizerRetryCount), null, "retrying finalizers can be possible only if the " + nameof(Configuration.FinalizerTransactionScopeKind) + " is set to " + nameof(TransactionScopeKind.RequiresNew));
-            }
 
             var initialExceptionCount = context.GetExceptions().Count;
             var success = false;
+
+            foreach (var table in Configuration.Tables)
+            {
+                if (string.IsNullOrEmpty(table.TempTableName))
+                {
+                    if (string.IsNullOrEmpty(Configuration.AutoTempTablePrefix) && string.IsNullOrEmpty(Configuration.AutoTempTablePostfix))
+                        throw new InvalidStrategyParameterException(this, nameof(table.TempTableName), null, nameof(DwhStrategyTableConfiguration) + "." + nameof(DwhStrategyTableConfigurationBase.TempTableName) + " must be specified if there is no " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePrefix) + " or " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePostfix) + " specified (table name: " + table.TableName + ")");
+
+                    table.TempTableName = Configuration.AutoTempTablePrefix + table.TableName + Configuration.AutoTempTablePostfix;
+                }
+
+                if (string.IsNullOrEmpty(table.TableName))
+                    throw new StrategyParameterNullException(this, nameof(DwhStrategyTableConfigurationBase.TableName));
+
+                if (table.MainProcessCreator == null)
+                    throw new StrategyParameterNullException(this, nameof(DwhStrategyTableConfiguration.MainProcessCreator));
+
+                if (table.FinalizerJobsCreator == null)
+                    throw new StrategyParameterNullException(this, nameof(DwhStrategyTableConfiguration.FinalizerJobsCreator));
+            }
 
             try
             {

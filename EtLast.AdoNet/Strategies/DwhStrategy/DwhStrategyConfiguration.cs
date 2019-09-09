@@ -22,5 +22,17 @@
         public string ConnectionStringKey { get; set; }
 
         public List<DwhStrategyTableConfiguration> Tables { get; set; }
+
+        /// <summary>
+        /// Used for table configurations where <see cref="DwhStrategyTableConfigurationBase.TempTableName"/> is null.
+        /// Temp table name will be: AutoTempTablePrefix + TableName + AutoTempTablePostfix
+        /// </summary>
+        public string AutoTempTablePrefix { get; set; }
+
+        /// <summary>
+        /// Used for table configurations where <see cref="DwhStrategyTableConfigurationBase.TempTableName"/> is null.
+        /// Temp table name will be: AutoTempTablePrefix + TableName + AutoTempTablePostfix
+        /// </summary>
+        public string AutoTempTablePostfix { get; set; }
     }
 }

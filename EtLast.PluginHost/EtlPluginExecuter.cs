@@ -156,7 +156,6 @@
                     FillModuleConfigFromSharedConfig(moduleConfiguration, sharedConfiguration);
                 }
 
-
                 var modulePlugins = new ModuleLoader().LoadModule(_logger, _opsLogger, moduleFolder, sharedFolder, _hostConfiguration.CommandLineArguments[0]);
                 modulePlugins = FilterExecutablePlugins(moduleConfiguration, modulePlugins);
 
