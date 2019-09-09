@@ -2,6 +2,8 @@
 {
     using System.Collections.Generic;
 
+    public delegate List<IJob> DwhBeforeAfterFinalizerJobsCreatorDelegate(string connectionStringKey, DwhStrategyConfiguration configuration);
+
     public class DwhStrategyConfiguration
     {
         /// <summary>
@@ -20,6 +22,16 @@
         public bool AlwaysDropTempTables { get; set; }
 
         public string ConnectionStringKey { get; set; }
+
+        /// <summary>
+        /// Allows the execution of jobs BEFORE the individual table finalizers are created and executed.
+        /// </summary>
+        public DwhBeforeAfterFinalizerJobsCreatorDelegate BeforeFinalizersJobCreator { get; set; }
+
+        /// <summary>
+        /// Allows the execution of jobs AFTER the individual table finalizers are created and executed.
+        /// </summary>
+        public DwhBeforeAfterFinalizerJobsCreatorDelegate AfterFinalizersJobCreator { get; set; }
 
         public List<DwhStrategyTableConfiguration> Tables { get; set; }
 

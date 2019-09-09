@@ -102,6 +102,30 @@
                 {
                     using (var scope = context.BeginScope(Configuration.FinalizerTransactionScopeKind))
                     {
+                        if (Configuration.BeforeFinalizersJobCreator != null)
+                        {
+                            List<IJob> beforeFinalizerJobs;
+
+                            using (var creatorScope = context.BeginScope(TransactionScopeKind.Suppress))
+                            {
+                                beforeFinalizerJobs = Configuration.BeforeFinalizersJobCreator.Invoke(Configuration.ConnectionStringKey, Configuration);
+                            }
+
+                            var process = new JobProcess(context, "BeforeFinalizer");
+                            var index = 0;
+                            foreach (var job in beforeFinalizerJobs)
+                            {
+                                job.Name = beforeFinalizerJobs.Count == 1
+                                    ? "BeforeFinalizer-" + job.Name
+                                    : "BeforeFinalizer-" + index.ToString("D", CultureInfo.InvariantCulture) + "-" + job.Name;
+                                process.AddJob(job);
+
+                                index++;
+                            }
+
+                            process.EvaluateWithoutResult();
+                        }
+
                         foreach (var table in Configuration.Tables)
                         {
                             var creatorScopeKind = table.SuppressTransactionScopeForCreators
@@ -121,6 +145,30 @@
                                 job.Name = finalizerJobs.Count == 1
                                     ? "Finalizer-" + table.TableName.Replace("[", "").Replace("]", "") + "-" + job.Name
                                     : "Finalizer-" + table.TableName.Replace("[", "").Replace("]", "") + "-" + index.ToString("D", CultureInfo.InvariantCulture) + "-" + job.Name;
+                                process.AddJob(job);
+
+                                index++;
+                            }
+
+                            process.EvaluateWithoutResult();
+                        }
+
+                        if (Configuration.AfterFinalizersJobCreator != null)
+                        {
+                            List<IJob> afterFinalizerJobs;
+
+                            using (var creatorScope = context.BeginScope(TransactionScopeKind.Suppress))
+                            {
+                                afterFinalizerJobs = Configuration.AfterFinalizersJobCreator.Invoke(Configuration.ConnectionStringKey, Configuration);
+                            }
+
+                            var process = new JobProcess(context, "AfterFinalizer");
+                            var index = 0;
+                            foreach (var job in afterFinalizerJobs)
+                            {
+                                job.Name = afterFinalizerJobs.Count == 1
+                                    ? "AfterFinalizer-" + job.Name
+                                    : "AfterFinalizer-" + index.ToString("D", CultureInfo.InvariantCulture) + "-" + job.Name;
                                 process.AddJob(job);
 
                                 index++;
