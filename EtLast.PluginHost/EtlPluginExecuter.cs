@@ -128,7 +128,7 @@
                     return ExitCodes.ERR_NOTHING_TO_EXECUTE;
                 }
 
-                var sharedModuleFolder = Path.Combine(modulesFolder, "Shared");
+                var sharedFolder = Path.Combine(modulesFolder, "Shared");
                 var moduleFolder = Path.Combine(modulesFolder, _hostConfiguration.CommandLineArguments[0]);
 
                 var moduleConfigFilePath = Path.Combine(moduleFolder, "module.config");
@@ -146,7 +146,18 @@
 
                 FillModuleConfigAppSettings(moduleConfiguration);
 
-                var modulePlugins = new ModuleLoader().LoadModule(_logger, _opsLogger, moduleFolder, sharedModuleFolder, _hostConfiguration.CommandLineArguments[0]);
+                var sharedConfigFilePath = Path.Combine(sharedFolder, "shared.config");
+                if (!File.Exists(sharedConfigFilePath))
+                {
+                    _logger.Write(LogEventLevel.Information, "loading shared configuration file from {ConfigurationFilePath}", sharedConfigFilePath);
+
+                    var sharedConfigFileMap = new ConfigurationFileMap(sharedConfigFilePath);
+                    var sharedConfiguration = ConfigurationManager.OpenMappedMachineConfiguration(sharedConfigFileMap);
+                    FillModuleConfigFromSharedConfig(moduleConfiguration, sharedConfiguration);
+                }
+
+
+                var modulePlugins = new ModuleLoader().LoadModule(_logger, _opsLogger, moduleFolder, sharedFolder, _hostConfiguration.CommandLineArguments[0]);
                 modulePlugins = FilterExecutablePlugins(moduleConfiguration, modulePlugins);
 
                 _logger.Write(LogEventLevel.Information, "{PluginCount} plugin(s) found: {PluginNames}", modulePlugins.Count, modulePlugins.Select(x => x.GetType().Name).ToArray());
@@ -188,29 +199,50 @@
 
         private void FillModuleConfigAppSettings(Configuration moduleConfiguration)
         {
-            if (_hostConfiguration.CommandLineArguments.Length > 1)
+            if (_hostConfiguration.CommandLineArguments.Length <= 1)
+                return;
+
+            for (var i = 1; i < _hostConfiguration.CommandLineArguments.Length; i++)
             {
-                for (var i = 1; i < _hostConfiguration.CommandLineArguments.Length; i++)
+                var arg = _hostConfiguration.CommandLineArguments[i].Trim();
+                var idx = arg.IndexOf('=');
+                if (idx == -1)
                 {
-                    var arg = _hostConfiguration.CommandLineArguments[i].Trim();
-                    var idx = arg.IndexOf('=');
-                    if (idx == -1)
-                    {
-                        var key = arg;
-                        if (moduleConfiguration.AppSettings.Settings[key] != null)
-                            moduleConfiguration.AppSettings.Settings.Remove(key);
+                    var key = arg;
+                    if (moduleConfiguration.AppSettings.Settings[key] != null)
+                        moduleConfiguration.AppSettings.Settings.Remove(key);
 
-                        moduleConfiguration.AppSettings.Settings.Add(key, string.Empty);
-                    }
-                    else
-                    {
-                        var key = arg.Substring(0, idx).Trim();
-                        if (moduleConfiguration.AppSettings.Settings[key] != null)
-                            moduleConfiguration.AppSettings.Settings.Remove(key);
-
-                        moduleConfiguration.AppSettings.Settings.Add(key, arg.Substring(idx + 1).Trim());
-                    }
+                    moduleConfiguration.AppSettings.Settings.Add(key, string.Empty);
                 }
+                else
+                {
+                    var key = arg.Substring(0, idx).Trim();
+                    if (moduleConfiguration.AppSettings.Settings[key] != null)
+                        moduleConfiguration.AppSettings.Settings.Remove(key);
+
+                    moduleConfiguration.AppSettings.Settings.Add(key, arg.Substring(idx + 1).Trim());
+                }
+            }
+        }
+
+        private void FillModuleConfigFromSharedConfig(Configuration moduleConfiguration, Configuration sharedConfiguration)
+        {
+            foreach (var key in sharedConfiguration.AppSettings.Settings.AllKeys)
+            {
+                if (moduleConfiguration.AppSettings.Settings[key] != null)
+                    continue;
+
+                var value = sharedConfiguration.AppSettings.Settings[key].Value;
+                moduleConfiguration.AppSettings.Settings.Add(key, value);
+            }
+
+            foreach (ConnectionStringSettings connectionStringSettings in sharedConfiguration.ConnectionStrings.ConnectionStrings)
+            {
+                if (moduleConfiguration.ConnectionStrings.ConnectionStrings[connectionStringSettings.Name] != null)
+                    continue;
+
+                var newSettings = new ConnectionStringSettings(connectionStringSettings.Name, connectionStringSettings.ConnectionString, connectionStringSettings.ProviderName);
+                moduleConfiguration.ConnectionStrings.ConnectionStrings.Add(newSettings);
             }
         }
 
