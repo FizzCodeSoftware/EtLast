@@ -27,11 +27,16 @@
 
         public void AddExitCodeToEventLog(int exitCode)
         {
-            using (var eventLog = new EventLog("Application"))
-            {
-                eventLog.Source = _hostConfiguration.CommandLineArguments.Length > 0
+            var sourceName = _hostConfiguration.CommandLineArguments.Length > 0
                     ? "EtlPluginExecuter+" + _hostConfiguration.CommandLineArguments[0].ToLowerInvariant()
                     : "EtlPluginExecuter";
+
+            if (!EventLog.SourceExists(sourceName))
+                EventLog.CreateEventSource(sourceName, "Application");
+
+            using (var eventLog = new EventLog("Application"))
+            {
+                eventLog.Source = sourceName;
 
                 switch (exitCode)
                 {
