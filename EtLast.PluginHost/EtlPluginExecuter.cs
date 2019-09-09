@@ -147,7 +147,7 @@
                 FillModuleConfigAppSettings(moduleConfiguration);
 
                 var sharedConfigFilePath = Path.Combine(sharedFolder, "shared.config");
-                if (!File.Exists(sharedConfigFilePath))
+                if (File.Exists(sharedConfigFilePath))
                 {
                     _logger.Write(LogEventLevel.Information, "loading shared configuration file from {ConfigurationFilePath}", sharedConfigFilePath);
 
