@@ -14,6 +14,7 @@
         private ConcurrentBag<Exception> Exceptions { get; } = new ConcurrentBag<Exception>();
         public StatCounterCollection Stat { get; } = new StatCounterCollection();
         public EtlContextResult Result { get; } = new EtlContextResult();
+        public AdditionalData AdditionalData { get; }
 
         public Configuration Configuration { get; }
 
@@ -41,6 +42,10 @@
         {
             CancellationTokenSource = new CancellationTokenSource();
             Configuration = configuration;
+            AdditionalData = new AdditionalData()
+            {
+                Dictionary = new Dictionary<string, object>(),
+            };
 
             var utcNow = DateTimeOffset.UtcNow;
             CreatedOnUtc = utcNow;

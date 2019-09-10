@@ -11,6 +11,7 @@
         Configuration Configuration { get; }
         StatCounterCollection Stat { get; }
         EtlContextResult Result { get; }
+        AdditionalData AdditionalData { get; }
 
         DateTimeOffset CreatedOnUtc { get; }
         DateTimeOffset CreatedOnLocal { get; }

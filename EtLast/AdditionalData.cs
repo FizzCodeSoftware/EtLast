@@ -4,11 +4,11 @@
 
     public class AdditionalData
     {
-        public Dictionary<string, object> Data { get; set; }
+        public Dictionary<string, object> Dictionary { get; set; }
 
-        public T ByKey<T>(string key)
+        public T GetData<T>(string key)
         {
-            Data.TryGetValue(key, out var value);
+            Dictionary.TryGetValue(key, out var value);
             return (T)value;
         }
     }
