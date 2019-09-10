@@ -46,5 +46,7 @@
         /// Temp table name will be: AutoTempTablePrefix + TableName + AutoTempTablePostfix
         /// </summary>
         public string AutoTempTablePostfix { get; set; }
+
+        public AdditionalData AdditionalData { get; set; }
     }
 }

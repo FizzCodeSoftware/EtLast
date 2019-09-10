@@ -8,7 +8,7 @@
     using System.Linq;
     using System.Transactions;
 
-    public class DropTablesJob : AbstractSqlStatementsJob
+    public class MsSqlEnableConstraintCheckJob : AbstractSqlStatementsJob
     {
         public string[] TableNames { get; set; }
 
@@ -20,26 +20,26 @@
 
         protected override List<string> CreateSqlStatements(IProcess process, ConnectionStringSettings settings)
         {
-            return TableNames.Select(tableName => "DROP TABLE IF EXISTS " + tableName + ";").ToList();
+            return TableNames.Select(tableName => "ALTER TABLE " + tableName + " WITH CHECK CHECK CONSTRAINT ALL;").ToList();
         }
 
         protected override void RunCommand(IProcess process, IDbCommand command, int statementIndex, Stopwatch startedOn)
         {
             var tableName = TableNames[statementIndex];
 
-            process.Context.Log(LogSeverity.Debug, process, "drop table {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            process.Context.Log(LogSeverity.Debug, process, "enable constraint check on {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 ConnectionStringSettings.Name, tableName, command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
 
             try
             {
                 command.ExecuteNonQuery();
-                process.Context.Log(LogSeverity.Information, process, "table {ConnectionStringKey}/{TableName} is dropped in {Elapsed}",
+                process.Context.Log(LogSeverity.Information, process, "constraint check on {ConnectionStringKey}/{TableName} is enabled in {Elapsed}",
                     ConnectionStringSettings.Name, tableName, startedOn.Elapsed);
             }
             catch (Exception ex)
             {
-                var exception = new JobExecutionException(process, this, "failed to drop table", ex);
-                exception.AddOpsMessage(string.Format("failed to drop table, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
+                var exception = new JobExecutionException(process, this, "failed to enable constraint check", ex);
+                exception.AddOpsMessage(string.Format("failed to enable constraint check, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionStringSettings.Name, tableName, ex.Message, command.CommandText, CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);

@@ -56,20 +56,20 @@
         {
             var config = Configuration[statementIndex];
 
-            process.Context.Log(LogSeverity.Debug, process, "creating new table {ConnectionStringKey}/{TargetTableName} based on {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            process.Context.Log(LogSeverity.Debug, process, "create new table {ConnectionStringKey}/{TargetTableName} based on {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 ConnectionStringSettings.Name, config.TargetTableName, config.SourceTableName, command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
 
             try
             {
                 command.ExecuteNonQuery();
 
-                process.Context.Log(LogSeverity.Information, process, "table {ConnectionStringKey}/{TargetTableName} created from {SourceTableName} in {Elapsed}",
+                process.Context.Log(LogSeverity.Information, process, "table {ConnectionStringKey}/{TargetTableName} is created from {SourceTableName} in {Elapsed}",
                     ConnectionStringSettings.Name, config.TargetTableName, config.SourceTableName, startedOn.Elapsed);
             }
             catch (Exception ex)
             {
-                var exception = new JobExecutionException(process, this, "database table structure copy failed", ex);
-                exception.AddOpsMessage(string.Format("database table structure copy failed, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message {4}, command: {5}, timeout: {6}",
+                var exception = new JobExecutionException(process, this, "failed to copy table structure", ex);
+                exception.AddOpsMessage(string.Format("failed to copy table structure, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message {4}, command: {5}, timeout: {6}",
                     ConnectionStringSettings.Name, config.SourceTableName, config.TargetTableName, config.ColumnConfiguration != null ? string.Join(",", config.ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);

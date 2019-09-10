@@ -16,6 +16,8 @@
         public DwhFinalizerJobsCreatorDelegate FinalizerJobsCreator { get; set; }
 
         public Dictionary<string, DwhStrategyTableConfigurationBase> AdditionalTables { get; set; }
+
+        public AdditionalData AdditionalData { get; set; }
     }
 
     public class DwhStrategyTableConfigurationBase
