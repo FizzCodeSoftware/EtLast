@@ -7,7 +7,9 @@
 
     internal struct ColorCodeContext : IDisposable
     {
+#pragma warning disable IDE0069 // Disposable fields should be disposed
         private readonly TextWriter _builder;
+#pragma warning restore IDE0069 // Disposable fields should be disposed
 
         private static readonly IDictionary<ColorCode, string> _colorCodeValues = new Dictionary<ColorCode, string>
         {

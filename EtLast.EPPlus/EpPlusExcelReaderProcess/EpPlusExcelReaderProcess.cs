@@ -124,8 +124,10 @@
             {
                 try
                 {
-                    package = new ExcelPackage(new FileInfo(FileName));
                     Context.Stat.IncrementCounter("excel files opened", 1);
+#pragma warning disable IDE0068 // Use recommended dispose pattern
+                    package = new ExcelPackage(new FileInfo(FileName));
+#pragma warning restore IDE0068 // Use recommended dispose pattern
                 }
                 catch (Exception ex)
                 {

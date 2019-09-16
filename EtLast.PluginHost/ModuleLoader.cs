@@ -28,7 +28,6 @@
             logger.Write(LogEventLevel.Information, "compiling plugins from {FolderName} using shared files in {SharedFolderName}", moduleFolder, sharedFolder);
             var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            var provider = new Microsoft.CodeDom.Providers.DotNetCompilerPlatform.CSharpCodeProvider();
             var parameters = new CompilerParameters();
             parameters.ReferencedAssemblies.Add("System.dll");
             parameters.ReferencedAssemblies.Add("System.Core.dll");
@@ -71,7 +70,12 @@
                     .ToArray();
             }
 
-            var results = provider.CompileAssemblyFromFile(parameters, fileNames);
+            CompilerResults results;
+            using (var provider = new Microsoft.CodeDom.Providers.DotNetCompilerPlatform.CSharpCodeProvider())
+            {
+                results = provider.CompileAssemblyFromFile(parameters, fileNames);
+            }
+
             if (results.Errors.Count > 0)
             {
                 foreach (CompilerError error in results.Errors)

@@ -117,6 +117,7 @@
         private void Shutdown()
         {
             _active = false;
+            _schemaTable.Dispose();
             Reset();
         }
 

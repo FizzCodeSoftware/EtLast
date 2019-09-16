@@ -72,16 +72,18 @@
             if (logEvent == null)
                 return;
 
-            var builder = new StringWriter(new StringBuilder(1024));
-            foreach (var writer in _writers)
+            using (var builder = new StringWriter(new StringBuilder(1024)))
             {
-                writer.Invoke(logEvent, builder);
-            }
+                foreach (var writer in _writers)
+                {
+                    writer.Invoke(logEvent, builder);
+                }
 
-            lock (_lock)
-            {
-                Console.Out.Write(builder.ToString());
-                Console.Out.Flush();
+                lock (_lock)
+                {
+                    Console.Out.Write(builder.ToString());
+                    Console.Out.Flush();
+                }
             }
         }
 
