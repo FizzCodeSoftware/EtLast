@@ -26,9 +26,12 @@
         void ExecuteSequence(bool terminateHostOnFail, params IEtlStrategy[] strategies);
 
         IRow CreateRow(int columnCountHint = 0);
+
         void Log(LogSeverity severity, IProcess process, string text, params object[] args);
         void LogOps(LogSeverity severity, IProcess process, string text, params object[] args);
         void LogRow(IProcess process, IRow row, string text, params object[] args);
+        void LogCustom(string fileName, IProcess process, string text, params object[] args);
+        void LogCustomOps(string fileName, IProcess process, string text, params object[] args);
 
         void AddException(IProcess process, Exception ex);
         List<Exception> GetExceptions();

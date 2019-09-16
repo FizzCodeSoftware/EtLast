@@ -17,6 +17,7 @@
         public ILogger Logger { get; private set; }
         public ILogger OpsLogger { get; private set; }
         public TimeSpan TransactionScopeTimeout { get; private set; }
+        private readonly object _dataLock = new object();
 
         static AbstractEtlPlugin()
         {
@@ -107,6 +108,7 @@
 
             context.OnException += OnException;
             context.OnLog += OnLog;
+            context.OnCustomLog += OnCustomLog;
 
             //context.Log(LogSeverity.Information, null, "ETL context created by {UserName}", !string.IsNullOrWhiteSpace(Environment.UserDomainName) ? $@"{Environment.UserDomainName}\{Environment.UserName}" : Environment.UserName);
 
@@ -143,6 +145,31 @@
 
             var logger = args.ForOps ? OpsLogger : Logger;
             logger.Write(LogEventLevelMap[args.Severity], "{@Plugin}" + ident + (args.Process != null ? "{@Process} " : "") + args.Text, valuesArray);
+        }
+
+        private void OnCustomLog(object sender, ContextCustomLogEventArgs args)
+        {
+            var subFolder = args.ForOps ? "log-ops" : "log-dev";
+            var logsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), subFolder);
+            if (!Directory.Exists(logsFolder))
+            {
+                try
+                {
+                    Directory.CreateDirectory(logsFolder);
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            var fileName = Path.Combine(logsFolder, args.FileName);
+
+            var line = string.Format(GetType().Name + "\t" + (args.Process != null ? args.Process.Name + "\t" : "") + args.Text, args.Arguments);
+
+            lock (_dataLock)
+            {
+                File.AppendAllText(fileName, line);
+            }
         }
 
         protected virtual void OnException(object sender, ContextExceptionEventArgs args)

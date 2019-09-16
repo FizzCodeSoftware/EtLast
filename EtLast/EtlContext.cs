@@ -30,6 +30,7 @@
 
         public EventHandler<ContextExceptionEventArgs> OnException { get; set; }
         public EventHandler<ContextLogEventArgs> OnLog { get; set; }
+        public EventHandler<ContextCustomLogEventArgs> OnCustomLog { get; set; }
 
         private int _nextUid;
 
@@ -156,6 +157,30 @@
             }
 
             Log(LogSeverity.Warning, null, text + " // " + rowTemplate, args.Concat(rowArgs).ToArray());
+        }
+
+        public void LogCustom(string fileName, IProcess process, string text, params object[] args)
+        {
+            OnCustomLog?.Invoke(this, new ContextCustomLogEventArgs()
+            {
+                FileName = fileName,
+                Process = process,
+                Text = text,
+                Arguments = args,
+                ForOps = false,
+            });
+        }
+
+        public void LogCustomOps(string fileName, IProcess process, string text, params object[] args)
+        {
+            OnCustomLog?.Invoke(this, new ContextCustomLogEventArgs()
+            {
+                FileName = fileName,
+                Process = process,
+                Text = text,
+                Arguments = args,
+                ForOps = true,
+            });
         }
 
         public IRow CreateRow(int columnCountHint)

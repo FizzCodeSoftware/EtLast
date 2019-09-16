@@ -67,6 +67,7 @@
       <Link>Properties\AssemblyInfo.Global.cs</Link>
     </Compile>
     <Compile Include="ContextExceptionEventArgs.cs" />
+    <Compile Include="ContextLogDataEventArgs.cs" />
     <Compile Include="ContextLogEventArgs.cs" />
     <Compile Include="AdditionalData.cs" />
     <Compile Include="EnumsAndDelegates\RowActionDelegate.cs" />
