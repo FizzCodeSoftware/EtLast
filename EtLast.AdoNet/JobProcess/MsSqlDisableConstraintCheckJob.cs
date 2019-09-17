@@ -31,7 +31,7 @@
             try
             {
                 command.ExecuteNonQuery();
-                process.Context.Log(LogSeverity.Information, process, "constraint check on {ConnectionStringKey}/{TableName} is disabled", ConnectionStringSettings.Name, TableNames[statementIndex]);
+                process.Context.Log(LogSeverity.Debug, process, "constraint check on {ConnectionStringKey}/{TableName} is disabled", ConnectionStringSettings.Name, TableNames[statementIndex]);
             }
             catch (Exception ex)
             {
@@ -46,6 +46,15 @@
                 exception.Data.Add("Elapsed", startedOn.Elapsed);
                 throw exception;
             }
+        }
+
+        protected override void LogSucceeded(IProcess process, int lastSucceededIndex, Stopwatch startedOn)
+        {
+            if (lastSucceededIndex == -1)
+                return;
+
+            process.Context.Log(LogSeverity.Information, process, "constraint check successfully disabled on {ConnectionStringKey}/{TableNames}",
+                 ConnectionStringSettings.Name, startedOn.Elapsed, TableNames.Take(lastSucceededIndex + 1).ToArray());
         }
     }
 }

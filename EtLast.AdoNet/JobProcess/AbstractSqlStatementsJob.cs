@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
+    using System;
     using System.Collections.Generic;
     using System.Configuration;
     using System.Data;
@@ -54,8 +55,18 @@
                             for (var i = 0; i < statements.Count; i++)
                             {
                                 cmd.CommandText = statements[i];
-                                RunCommand(process, cmd, i, startedOn);
+                                try
+                                {
+                                    RunCommand(process, cmd, i, startedOn);
+                                }
+                                catch (Exception)
+                                {
+                                    LogSucceeded(process, i - 1, startedOn);
+                                    throw;
+                                }
                             }
+
+                            LogSucceeded(process, statements.Count - 1, startedOn);
                         }
                     }
                 }
@@ -71,5 +82,6 @@
         protected abstract List<string> CreateSqlStatements(IProcess process, ConnectionStringSettings settings);
 
         protected abstract void RunCommand(IProcess process, IDbCommand command, int statementIndex, Stopwatch startedOn);
+        protected abstract void LogSucceeded(IProcess process, int lastSucceededIndex, Stopwatch startedOn);
     }
 }

@@ -63,7 +63,7 @@
             {
                 command.ExecuteNonQuery();
 
-                process.Context.Log(LogSeverity.Information, process, "table {ConnectionStringKey}/{TargetTableName} is created from {SourceTableName} in {Elapsed}",
+                process.Context.Log(LogSeverity.Debug, process, "table {ConnectionStringKey}/{TargetTableName} is created from {SourceTableName} in {Elapsed}",
                     ConnectionStringSettings.Name, config.TargetTableName, config.SourceTableName, startedOn.Elapsed);
             }
             catch (Exception ex)
@@ -85,6 +85,15 @@
                 exception.Data.Add("Elapsed", startedOn.Elapsed);
                 throw exception;
             }
+        }
+
+        protected override void LogSucceeded(IProcess process, int lastSucceededIndex, Stopwatch startedOn)
+        {
+            if (lastSucceededIndex == -1)
+                return;
+
+            process.Context.Log(LogSeverity.Information, process, "table(s) successfully created on {ConnectionStringKey} in {Elapsed}: {TableNames}",
+                ConnectionStringSettings.Name, startedOn.Elapsed, Configuration.Take(lastSucceededIndex + 1).Select(config => config.SourceTableName + "->" + config.TargetTableName).ToArray());
         }
     }
 }

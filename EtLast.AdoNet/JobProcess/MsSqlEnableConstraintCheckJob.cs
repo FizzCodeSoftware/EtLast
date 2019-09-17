@@ -33,7 +33,7 @@
             try
             {
                 command.ExecuteNonQuery();
-                process.Context.Log(LogSeverity.Information, process, "constraint check on {ConnectionStringKey}/{TableName} is enabled in {Elapsed}",
+                process.Context.Log(LogSeverity.Debug, process, "constraint check on {ConnectionStringKey}/{TableName} is enabled in {Elapsed}",
                     ConnectionStringSettings.Name, tableName, startedOn.Elapsed);
             }
             catch (Exception ex)
@@ -49,6 +49,15 @@
                 exception.Data.Add("Elapsed", startedOn.Elapsed);
                 throw exception;
             }
+        }
+
+        protected override void LogSucceeded(IProcess process, int lastSucceededIndex, Stopwatch startedOn)
+        {
+            if (lastSucceededIndex == -1)
+                return;
+
+            process.Context.Log(LogSeverity.Information, process, "constraint check successfully enabled on {ConnectionStringKey}/{TableNames}",
+                 ConnectionStringSettings.Name, startedOn.Elapsed, TableNames.Take(lastSucceededIndex + 1).ToArray());
         }
     }
 }

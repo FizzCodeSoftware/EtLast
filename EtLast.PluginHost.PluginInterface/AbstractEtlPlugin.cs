@@ -164,7 +164,7 @@
 
             var fileName = Path.Combine(logsFolder, args.FileName);
 
-            var line = string.Format(GetType().Name + "\t" + (args.Process != null ? args.Process.Name + "\t" : "") + args.Text, args.Arguments);
+            var line = GetType().Name + "\t" + (args.Process != null ? args.Process.Name + "\t" : "") + string.Format(args.Text, args.Arguments);
 
             lock (_dataLock)
             {
