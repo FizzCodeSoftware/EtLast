@@ -14,11 +14,11 @@
         {
             if (If?.Invoke(row) == false)
             {
-                Stat.IncrementCounter("ignored", 1);
+                Stat.IncrementDebugCounter("ignored", 1);
                 return;
             }
 
-            Stat.IncrementCounter("processed", 1);
+            Stat.IncrementDebugCounter("processed", 1);
 
             var leftKey = GetLeftKey(Process, row);
 
@@ -73,11 +73,11 @@
 
             Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, RightProcess.Name);
             _lookup.Clear();
-            var rows = RightProcess.Evaluate(Process);
-            var rowCount = 0;
-            foreach (var row in rows)
+            var rightRows = RightProcess.Evaluate(Process);
+            var rightRowCount = 0;
+            foreach (var row in rightRows)
             {
-                rowCount++;
+                rightRowCount++;
                 var key = GetRightKey(Process, row);
                 if (string.IsNullOrEmpty(key))
                     continue;
@@ -85,7 +85,8 @@
                 _lookup.Add(key);
             }
 
-            Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} fetched {RowCount} rows, lookup size is {LookupSize}", Name, rowCount, _lookup.Count);
+            Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} fetched {RowCount} rows, lookup size is {LookupSize}", Name, rightRowCount, _lookup.Count);
+            Stat.IncrementCounter("right rows loaded", rightRowCount);
         }
 
         public override void Shutdown()

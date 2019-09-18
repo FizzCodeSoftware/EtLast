@@ -5,6 +5,8 @@
 
     public class StatCounterCollection
     {
+        public static string DebugNamePrefix { get; } = "debug-";
+
         public IDictionary<string, long> GetCountersOrdered()
         {
             lock (_counters)
@@ -23,6 +25,17 @@
 
         public void IncrementCounter(string name, long n)
         {
+            lock (_counters)
+            {
+                _counters.TryGetValue(name, out var value);
+                _counters[name] = value += n;
+            }
+        }
+
+        public void IncrementDebugCounter(string name, long n)
+        {
+            name = DebugNamePrefix + name;
+
             lock (_counters)
             {
                 _counters.TryGetValue(name, out var value);

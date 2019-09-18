@@ -10,7 +10,7 @@
 
         public override void Apply(IRow row)
         {
-            Stat.IncrementCounter("processed", 1);
+            Stat.IncrementDebugCounter("executed", 1);
 
             if (If != null)
             {
@@ -22,7 +22,7 @@
                         operation.Apply(row);
                     }
 
-                    Stat.IncrementCounter("then executed", 1);
+                    Stat.IncrementDebugCounter("then executed", 1);
                 }
                 else if (Else.Count > 0)
                 {
@@ -31,7 +31,7 @@
                         operation.Apply(row);
                     }
 
-                    Stat.IncrementCounter("else executed", 1);
+                    Stat.IncrementDebugCounter("else executed", 1);
                 }
             }
             else
@@ -41,7 +41,7 @@
                     operation.Apply(row);
                 }
 
-                Stat.IncrementCounter("then executed", 1);
+                Stat.IncrementDebugCounter("then executed", 1);
             }
         }
 

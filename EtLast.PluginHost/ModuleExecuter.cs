@@ -100,7 +100,10 @@
         {
             foreach (var kvp in stat.GetCountersOrdered())
             {
-                globalStat.IncrementCounter(kvp.Key, kvp.Value);
+                if (!kvp.Key.StartsWith(StatCounterCollection.DebugNamePrefix))
+                {
+                    globalStat.IncrementCounter(kvp.Key, kvp.Value);
+                }
             }
         }
 

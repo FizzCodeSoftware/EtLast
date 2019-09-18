@@ -60,12 +60,13 @@
         private void LogStats()
         {
             var counters = Context.Stat.GetCountersOrdered();
-            if (counters.Count == 0)
-                return;
-
             foreach (var kvp in counters)
             {
-                Context.Log(LogSeverity.Information, null, "stat {StatName} = {StatValue}", kvp.Key, kvp.Value);
+                var severity = kvp.Key.StartsWith(StatCounterCollection.DebugNamePrefix)
+                    ? LogSeverity.Debug
+                    : LogSeverity.Information;
+
+                Context.Log(severity, null, "stat {StatName} = {StatValue}", kvp.Key, kvp.Value);
             }
         }
 

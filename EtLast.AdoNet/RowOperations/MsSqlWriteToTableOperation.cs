@@ -81,14 +81,15 @@
                 Stat.IncrementCounter("write time", writeTime);
 
                 process.Context.Stat.IncrementCounter("database records written / " + _connectionStringSettings.Name, recordCount);
-                process.Context.Stat.IncrementCounter("database records written / " + _connectionStringSettings.Name + " / " + TableDefinition.TableName, recordCount);
+                process.Context.Stat.IncrementDebugCounter("database records written / " + _connectionStringSettings.Name + " / " + Helpers.UnEscapeTableName(TableDefinition.TableName), recordCount);
                 process.Context.Stat.IncrementCounter("database write time / " + _connectionStringSettings.Name, writeTime);
-                process.Context.Stat.IncrementCounter("database write time / " + _connectionStringSettings.Name + " / " + TableDefinition.TableName, writeTime);
+                process.Context.Stat.IncrementDebugCounter("database write time / " + _connectionStringSettings.Name + " / " + Helpers.UnEscapeTableName(TableDefinition.TableName), writeTime);
 
                 _rowsWritten += recordCount;
 
                 var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
-                process.Context.Log(severity, process, "{TotalRowCount} rows written to {TableName}, average speed is {AvgSpeed} msec/Krow), batch time: {BatchElapsed}", _rowsWritten, TableDefinition.TableName, Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
+                process.Context.Log(severity, process, "{TotalRowCount} rows written to {TableName}, average speed is {AvgSpeed} msec/Krow), batch time: {BatchElapsed}",
+                    _rowsWritten, Helpers.UnEscapeTableName(TableDefinition.TableName), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
             }
             catch (Exception ex)
             {
@@ -97,7 +98,8 @@
                 _bulkCopy = null;
 
                 var exception = new OperationExecutionException(process, this, "database write failed", ex);
-                exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message {2}", _connectionStringSettings.Name, TableDefinition.TableName, ex.Message));
+                exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message {2}",
+                    _connectionStringSettings.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), ex.Message));
                 exception.Data.Add("ConnectionStringKey", _connectionStringSettings.Name);
                 exception.Data.Add("TableName", TableDefinition.TableName);
                 exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + x.DbColumn)));

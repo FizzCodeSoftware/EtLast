@@ -13,7 +13,7 @@
             if (If?.Invoke(row) == false)
                 return;
 
-            Stat.IncrementCounter("executed", 1);
+            Stat.IncrementDebugCounter("executed", 1);
 
             if (ErrorIf(row))
             {

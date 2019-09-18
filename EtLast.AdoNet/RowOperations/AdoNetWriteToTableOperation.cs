@@ -30,6 +30,7 @@
         private Stopwatch _fullTime;
 
         private IDbCommand _command;
+        private static readonly DbType[] _quotedParameterTypes = { DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength };
 
         public override void Apply(IRow row)
         {
@@ -113,22 +114,24 @@
                 Stat.IncrementCounter("write time", time);
 
                 process.Context.Stat.IncrementCounter("database records written / " + _connectionStringSettings.Name, recordCount);
-                process.Context.Stat.IncrementCounter("database records written / " + _connectionStringSettings.Name + " / " + TableDefinition.TableName, recordCount);
+                process.Context.Stat.IncrementDebugCounter("database records written / " + _connectionStringSettings.Name + " / " + Helpers.UnEscapeTableName(TableDefinition.TableName), recordCount);
                 process.Context.Stat.IncrementCounter("database write time / " + _connectionStringSettings.Name, time);
-                process.Context.Stat.IncrementCounter("database write time / " + _connectionStringSettings.Name + " / " + TableDefinition.TableName, time);
+                process.Context.Stat.IncrementDebugCounter("database write time / " + _connectionStringSettings.Name + " / " + Helpers.UnEscapeTableName(TableDefinition.TableName), time);
 
                 _rowsWritten += recordCount;
 
                 if (shutdown || (_rowsWritten / 10000 != (_rowsWritten - recordCount) / 10000))
                 {
                     var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
-                    process.Context.Log(severity, process, "{TotalRowCount} rows written to {TableName}, average speed is {AvgSpeed} msec/Krow)", _rowsWritten, TableDefinition.TableName, Math.Round(_fullTime.ElapsedMilliseconds * 1000 / (double)_rowsWritten, 1));
+                    process.Context.Log(severity, process, "{TotalRowCount} rows written to {TableName}, average speed is {AvgSpeed} msec/Krow)",
+                        _rowsWritten, Helpers.UnEscapeTableName(TableDefinition.TableName), Math.Round(_fullTime.ElapsedMilliseconds * 1000 / (double)_rowsWritten, 1));
                 }
             }
             catch (Exception ex)
             {
                 var exception = new OperationExecutionException(process, this, "database write failed", ex);
-                exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}", _connectionStringSettings.Name, TableDefinition.TableName, ex.Message, sqlStatement));
+                exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",
+                    _connectionStringSettings.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), ex.Message, sqlStatement));
                 exception.Data.Add("ConnectionStringKey", _connectionStringSettings.Name);
                 exception.Data.Add("TableName", TableDefinition.TableName);
                 exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + x.DbColumn)));
@@ -145,8 +148,6 @@
             _statements.Clear();
         }
 
-        private static readonly DbType[] QuotedParameterTypes = { DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength };
-
         private string CompileSql(IDbCommand command)
         {
             var cmd = command.CommandText;
@@ -157,7 +158,7 @@
             foreach (var p in arrParams.OrderByDescending(p => p.ParameterName.Length))
             {
                 var value = p.Value != null ? Convert.ToString(p.Value, CultureInfo.InvariantCulture) : "NULL";
-                if (QuotedParameterTypes.Contains(p.DbType))
+                if (_quotedParameterTypes.Contains(p.DbType))
                 {
                     value = "'" + value + "'";
                 }

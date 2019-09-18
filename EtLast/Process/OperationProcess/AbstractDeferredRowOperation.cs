@@ -21,7 +21,7 @@
         {
             if (If?.Invoke(row) == false)
             {
-                Stat.IncrementCounter("ignored", 1);
+                Stat.IncrementDebugCounter("ignored", 1);
                 return;
             }
 

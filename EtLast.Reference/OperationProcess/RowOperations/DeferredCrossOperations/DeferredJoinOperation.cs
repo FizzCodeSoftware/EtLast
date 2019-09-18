@@ -52,6 +52,7 @@
             }
 
             Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} fetched {RowCount} rows, lookup size is {LookupSize}", Name, rightRowCount, _lookup.Count);
+            Stat.IncrementCounter("right rows loaded", rightRowCount);
 
             try
             {
