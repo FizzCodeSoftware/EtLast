@@ -2,7 +2,8 @@
 {
     using System.Collections.Generic;
 
-    public delegate IFinalProcess DwhMainProcessCreatorDelegate(string connectionStringKey, DwhStrategyTableConfiguration tableConfiguration, int partitionIndex, out bool processSupportsPartitions);
+    public delegate IFinalProcess DwhPartitionedMainProcessCreatorDelegate(string connectionStringKey, DwhStrategyTableConfiguration tableConfiguration, int partitionIndex);
+    public delegate IFinalProcess DwhMainProcessCreatorDelegate(string connectionStringKey, DwhStrategyTableConfiguration tableConfiguration);
     public delegate List<IJob> DwhFinalizerJobsCreatorDelegate(string connectionStringKey, DwhStrategyTableConfiguration tableConfiguration);
 
     public class DwhStrategyTableConfiguration : DwhStrategyTableConfigurationBase
@@ -12,6 +13,7 @@
         /// </summary>
         public bool SuppressTransactionScopeForCreators { get; set; }
 
+        public DwhPartitionedMainProcessCreatorDelegate PartitionedMainProcessCreator { get; set; }
         public DwhMainProcessCreatorDelegate MainProcessCreator { get; set; }
         public DwhFinalizerJobsCreatorDelegate FinalizerJobsCreator { get; set; }
 

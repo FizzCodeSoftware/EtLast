@@ -41,8 +41,11 @@
                 if (string.IsNullOrEmpty(table.TableName))
                     throw new StrategyParameterNullException(this, nameof(DwhStrategyTableConfigurationBase.TableName));
 
-                if (table.MainProcessCreator == null)
-                    throw new StrategyParameterNullException(this, nameof(DwhStrategyTableConfiguration.MainProcessCreator));
+                if (table.MainProcessCreator == null && table.PartitionedMainProcessCreator == null)
+                    throw new InvalidStrategyParameterException(this, nameof(DwhStrategyTableConfiguration.MainProcessCreator) + "/" + nameof(DwhStrategyTableConfiguration.PartitionedMainProcessCreator), null, nameof(DwhStrategyTableConfiguration.MainProcessCreator) + " or " + nameof(DwhStrategyTableConfiguration.PartitionedMainProcessCreator) + " must be supplied for " + table.TableName);
+
+                if (table.MainProcessCreator != null && table.PartitionedMainProcessCreator != null)
+                    throw new InvalidStrategyParameterException(this, nameof(DwhStrategyTableConfiguration.MainProcessCreator) + "/" + nameof(DwhStrategyTableConfiguration.PartitionedMainProcessCreator), null, "only one of " + nameof(DwhStrategyTableConfiguration.MainProcessCreator) + " or " + nameof(DwhStrategyTableConfiguration.PartitionedMainProcessCreator) + " can be supplied for " + table.TableName);
 
                 if (table.FinalizerJobsCreator == null)
                     throw new StrategyParameterNullException(this, nameof(DwhStrategyTableConfiguration.FinalizerJobsCreator));
@@ -65,29 +68,13 @@
                             ? TransactionScopeKind.Suppress
                             : TransactionScopeKind.None;
 
-                        var processSupportsPartitions = false;
-                        using (var creatorScope = context.BeginScope(creatorScopeKind))
+                        if (table.MainProcessCreator != null)
                         {
-                            mainProcess = table.MainProcessCreator.Invoke(Configuration.ConnectionStringKey, table, partitionIndex, out processSupportsPartitions);
-                        }
-
-                        if (processSupportsPartitions)
-                        {
-                            mainProcess.Name += "-#" + (partitionIndex + 1).ToString("D", CultureInfo.InvariantCulture);
-                            var rowCount = 0;
-                            foreach (var row in mainProcess.Evaluate()) // must enumerate through all rows
+                            using (var creatorScope = context.BeginScope(creatorScopeKind))
                             {
-                                rowCount++;
+                                mainProcess = table.MainProcessCreator.Invoke(Configuration.ConnectionStringKey, table);
                             }
 
-                            if (context.GetExceptions().Count > initialExceptionCount)
-                                return;
-
-                            if (rowCount == 0)
-                                break;
-                        }
-                        else
-                        {
                             mainProcess.EvaluateWithoutResult();
 
                             if (context.GetExceptions().Count > initialExceptionCount)
@@ -95,6 +82,24 @@
 
                             break;
                         }
+
+                        using (var creatorScope = context.BeginScope(creatorScopeKind))
+                        {
+                            mainProcess = table.PartitionedMainProcessCreator.Invoke(Configuration.ConnectionStringKey, table, partitionIndex);
+                        }
+
+                        mainProcess.Name += "-#" + (partitionIndex + 1).ToString("D", CultureInfo.InvariantCulture);
+                        var rowCount = 0;
+                        foreach (var row in mainProcess.Evaluate()) // must enumerate through all rows
+                        {
+                            rowCount++;
+                        }
+
+                        if (context.GetExceptions().Count > initialExceptionCount)
+                            return;
+
+                        if (rowCount == 0)
+                            break;
                     }
                 }
 
