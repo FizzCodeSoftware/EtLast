@@ -34,7 +34,7 @@
                             exception.Data.Add("LeftKey", leftKey);
                             throw exception;
                         case MatchMode.Custom:
-                            NoMatchAction.CustomAction.Invoke(this, row);
+                            NoMatchAction.CustomAction.Invoke(this, row, null);
                             break;
                     }
                 }

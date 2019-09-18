@@ -97,7 +97,7 @@
                             var exception = new OperationExecutionException(Process, this, row, "no match");
                             throw exception;
                         case MatchMode.Custom:
-                            NoMatchAction.CustomAction.Invoke(this, row);
+                            NoMatchAction.CustomAction.Invoke(this, row, null);
                             break;
                     }
                 }

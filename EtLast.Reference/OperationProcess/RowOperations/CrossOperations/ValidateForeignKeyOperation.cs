@@ -8,7 +8,7 @@
         public MatchAction NoMatchAction { get; set; }
         public MatchAction MatchAction { get; set; }
 
-        private readonly HashSet<string> _lookup = new HashSet<string>();
+        private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();
 
         public override void Apply(IRow row)
         {
@@ -22,7 +22,7 @@
 
             var leftKey = GetLeftKey(Process, row);
 
-            if (leftKey == null || !_lookup.Contains(leftKey))
+            if (leftKey == null || !_lookup.TryGetValue(leftKey, out var rightRow))
             {
                 if (NoMatchAction != null)
                 {
@@ -36,7 +36,7 @@
                             exception.Data.Add("LeftKey", leftKey);
                             throw exception;
                         case MatchMode.Custom:
-                            NoMatchAction.CustomAction.Invoke(this, row);
+                            NoMatchAction.CustomAction.Invoke(this, row, null);
                             break;
                     }
                 }
@@ -53,7 +53,7 @@
                         exception.Data.Add("LeftKey", leftKey);
                         throw exception;
                     case MatchMode.Custom:
-                        MatchAction.CustomAction.Invoke(this, row);
+                        MatchAction.CustomAction.Invoke(this, row, rightRow);
                         break;
                 }
             }
@@ -82,7 +82,7 @@
                 if (string.IsNullOrEmpty(key))
                     continue;
 
-                _lookup.Add(key);
+                _lookup.Add(key, row);
             }
 
             Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} fetched {RowCount} rows, lookup size is {LookupSize}", Name, rightRowCount, _lookup.Count);
