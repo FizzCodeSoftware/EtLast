@@ -4,6 +4,11 @@
 
     public delegate List<IJob> DwhBeforeAfterFinalizerJobsCreatorDelegate(string connectionStringKey, DwhStrategyConfiguration configuration);
 
+    public enum DwhStrategyTempTableMode
+    {
+        AlwaysKeep, KeepOnlyOnFailure, AlwaysDrop
+    }
+
     public class DwhStrategyConfiguration
     {
         /// <summary>
@@ -17,9 +22,9 @@
         public int FinalizerRetryCount { get; set; }
 
         /// <summary>
-        /// Setting this to true forces the strategy to clean up the temp tables even if an error caused a failure. Default value is false.
+        /// Default value is <see cref="DwhStrategyTempTableMode.KeepOnlyOnFailure"/>.
         /// </summary>
-        public bool AlwaysDropTempTables { get; set; }
+        public DwhStrategyTempTableMode TempTableMode { get; set; } = DwhStrategyTempTableMode.KeepOnlyOnFailure;
 
         public string ConnectionStringKey { get; set; }
 

@@ -197,9 +197,12 @@
             }
             finally
             {
-                if (success || Configuration.AlwaysDropTempTables)
+                if (Configuration.TempTableMode != DwhStrategyTempTableMode.AlwaysKeep)
                 {
-                    DropTempTables(context);
+                    if (success || Configuration.TempTableMode == DwhStrategyTempTableMode.AlwaysDrop)
+                    {
+                        DropTempTables(context);
+                    }
                 }
             }
         }
