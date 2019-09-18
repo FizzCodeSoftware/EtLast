@@ -16,7 +16,7 @@
 
         /// <summary>
         /// Some SQL connector implementations does not support passing arrays due to parameters (like MySQL).
-        /// If set to true, then all int[], long[], List<int> and List<long> parameters will be converted to a comma separated list and inlined into the SQL statement right before execution.
+        /// If set to true, then all int[], long[], List&lt;int&gt; and List&lt;long&gt; parameters will be converted to a comma separated list and inlined into the SQL statement right before execution.
         /// Default value is true.
         /// </summary>
         public bool InlineArrayParameters { get; set; } = true;
