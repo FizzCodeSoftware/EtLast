@@ -173,7 +173,7 @@
 
             lock (_dataLock)
             {
-                File.AppendAllText(fileName, line);
+                File.AppendAllText(fileName, line + Environment.NewLine);
             }
         }
 
