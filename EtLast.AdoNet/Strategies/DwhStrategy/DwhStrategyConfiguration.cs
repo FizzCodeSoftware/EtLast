@@ -6,7 +6,7 @@
 
     public enum DwhStrategyTempTableMode
     {
-        AlwaysKeep, KeepOnlyOnFailure, AlwaysDrop
+        KeepOnlyOnFailure, AlwaysKeep, AlwaysDrop
     }
 
     public class DwhStrategyConfiguration
