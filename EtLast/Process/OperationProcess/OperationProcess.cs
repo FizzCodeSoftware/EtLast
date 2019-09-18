@@ -389,10 +389,14 @@
 
             foreach (var kvp in counters)
             {
+                var key = kvp.Key.StartsWith(StatCounterCollection.DebugNamePrefix)
+                    ? kvp.Key.Substring(StatCounterCollection.DebugNamePrefix.Length)
+                    : kvp.Key;
+
                 sb.Append(" [")
-                    .Append(kvp.Key)
+                    .Append(key)
                     .Append(" = {")
-                    .Append(kvp.Key.Replace(" ", "_"))
+                    .Append(key.Replace(" ", "_"))
                     .Append("}]");
             }
 

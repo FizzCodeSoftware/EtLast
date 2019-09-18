@@ -66,7 +66,11 @@
                     ? LogSeverity.Debug
                     : LogSeverity.Information;
 
-                Context.Log(severity, null, "stat {StatName} = {StatValue}", kvp.Key, kvp.Value);
+                var key = kvp.Key.StartsWith(StatCounterCollection.DebugNamePrefix)
+                    ? kvp.Key.Substring(StatCounterCollection.DebugNamePrefix.Length)
+                    : kvp.Key;
+
+                Context.Log(severity, null, "stat {StatName} = {StatValue}", key, kvp.Value);
             }
         }
 
