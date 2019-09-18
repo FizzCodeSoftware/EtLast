@@ -64,19 +64,23 @@
         protected override void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn)
         {
             process.Context.Log(LogSeverity.Debug, process, "copying records from {ConnectionStringKey}/{SourceTableName} to {TargetTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionStringSettings.Name, Configuration.SourceTableName, Configuration.TargetTableName, command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+                ConnectionStringSettings.Name, Helpers.UnEscapeTableName(Configuration.SourceTableName), Helpers.UnEscapeTableName(Configuration.TargetTableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
 
             try
             {
                 var recordCount = command.ExecuteNonQuery();
                 process.Context.Log(LogSeverity.Information, process, "{RecordCount} records copied to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} in {Elapsed}",
-                    recordCount, ConnectionStringSettings.Name, Configuration.TargetTableName, Configuration.SourceTableName, startedOn.Elapsed);
+                    recordCount, ConnectionStringSettings.Name, Helpers.UnEscapeTableName(Configuration.TargetTableName), Helpers.UnEscapeTableName(Configuration.SourceTableName), startedOn.Elapsed);
             }
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(process, this, "database table copy failed", ex);
                 exception.AddOpsMessage(string.Format("database table copy failed, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message {4}, command: {5}, timeout: {6}",
-                    ConnectionStringSettings.Name, Configuration.SourceTableName, Configuration.TargetTableName, Configuration.ColumnConfiguration != null ? string.Join(",", Configuration.ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, CommandTimeout));
+                    ConnectionStringSettings.Name, Helpers.UnEscapeTableName(Configuration.SourceTableName), Helpers.UnEscapeTableName(Configuration.TargetTableName),
+                    Configuration.ColumnConfiguration != null
+                        ? string.Join(",", Configuration.ColumnConfiguration.Select(x => x.FromColumn))
+                        : "all",
+                    ex.Message, command.CommandText, CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);
                 exception.Data.Add("SourceTableName", Configuration.SourceTableName);

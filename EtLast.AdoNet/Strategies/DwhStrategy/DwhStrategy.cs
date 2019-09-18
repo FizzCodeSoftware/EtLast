@@ -138,13 +138,13 @@
                                 finalizerJobs = table.FinalizerJobsCreator.Invoke(Configuration.ConnectionStringKey, table);
                             }
 
-                            var process = new JobProcess(context, "Finalizer-" + table.TableName.Replace("[", "").Replace("]", ""));
+                            var process = new JobProcess(context, "Finalizer-" + Helpers.UnEscapeTableName(table.TableName));
                             var index = 0;
                             foreach (var job in finalizerJobs)
                             {
                                 job.Name = finalizerJobs.Count == 1
-                                    ? "Finalizer-" + table.TableName.Replace("[", "").Replace("]", "") + "-" + job.Name
-                                    : "Finalizer-" + table.TableName.Replace("[", "").Replace("]", "") + "-" + index.ToString("D", CultureInfo.InvariantCulture) + "-" + job.Name;
+                                    ? "Finalizer-" + Helpers.UnEscapeTableName(table.TableName) + "-" + job.Name
+                                    : "Finalizer-" + Helpers.UnEscapeTableName(table.TableName) + "-" + index.ToString("D", CultureInfo.InvariantCulture) + "-" + job.Name;
                                 process.AddJob(job);
 
                                 index++;

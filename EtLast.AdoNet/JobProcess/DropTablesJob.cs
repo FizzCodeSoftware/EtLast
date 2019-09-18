@@ -28,19 +28,19 @@
             var tableName = TableNames[statementIndex];
 
             process.Context.Log(LogSeverity.Debug, process, "drop table {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionStringSettings.Name, tableName, command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+                ConnectionStringSettings.Name, Helpers.UnEscapeTableName(tableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
 
             try
             {
                 command.ExecuteNonQuery();
                 process.Context.Log(LogSeverity.Debug, process, "table {ConnectionStringKey}/{TableName} is dropped in {Elapsed}",
-                    ConnectionStringSettings.Name, tableName, startedOn.Elapsed);
+                    ConnectionStringSettings.Name, Helpers.UnEscapeTableName(tableName), startedOn.Elapsed);
             }
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(process, this, "failed to drop table", ex);
                 exception.AddOpsMessage(string.Format("failed to drop table, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
-                    ConnectionStringSettings.Name, tableName, ex.Message, command.CommandText, CommandTimeout));
+                    ConnectionStringSettings.Name, Helpers.UnEscapeTableName(tableName), ex.Message, command.CommandText, CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);
                 exception.Data.Add("TableName", tableName);
@@ -57,7 +57,11 @@
                 return;
 
             process.Context.Log(LogSeverity.Information, process, "table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {TableNames}",
-                 ConnectionStringSettings.Name, startedOn.Elapsed, TableNames.Take(lastSucceededIndex + 1).ToArray());
+                 ConnectionStringSettings.Name, startedOn.Elapsed,
+                 TableNames
+                    .Take(lastSucceededIndex + 1)
+                    .Select(Helpers.UnEscapeTableName)
+                    .ToArray());
         }
     }
 }

@@ -25,22 +25,25 @@
 
         protected override void RunCommand(IProcess process, IDbCommand command, int statementIndex, Stopwatch startedOn)
         {
+            var tableName = TableNames[statementIndex];
+
             process.Context.Log(LogSeverity.Debug, process, "disable constraint check on {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionStringSettings.Name, TableNames[statementIndex], command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+                ConnectionStringSettings.Name, Helpers.UnEscapeTableName(tableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
 
             try
             {
                 command.ExecuteNonQuery();
-                process.Context.Log(LogSeverity.Debug, process, "constraint check on {ConnectionStringKey}/{TableName} is disabled", ConnectionStringSettings.Name, TableNames[statementIndex]);
+                process.Context.Log(LogSeverity.Debug, process, "constraint check on {ConnectionStringKey}/{TableName} is disabled",
+                    ConnectionStringSettings.Name, Helpers.UnEscapeTableName(tableName));
             }
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(process, this, "failed to disable constraint check", ex);
                 exception.AddOpsMessage(string.Format("failed to disable constraint check, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
-                    ConnectionStringSettings.Name, TableNames[statementIndex], ex.Message, command.CommandText, CommandTimeout));
+                    ConnectionStringSettings.Name, Helpers.UnEscapeTableName(tableName), ex.Message, command.CommandText, CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);
-                exception.Data.Add("TableName", TableNames[statementIndex]);
+                exception.Data.Add("TableName", tableName);
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", CommandTimeout);
                 exception.Data.Add("Elapsed", startedOn.Elapsed);
@@ -54,7 +57,11 @@
                 return;
 
             process.Context.Log(LogSeverity.Information, process, "constraint check successfully disabled on {ConnectionStringKey}/{TableNames}",
-                 ConnectionStringSettings.Name, startedOn.Elapsed, TableNames.Take(lastSucceededIndex + 1).ToArray());
+                 ConnectionStringSettings.Name, startedOn.Elapsed,
+                 TableNames
+                    .Take(lastSucceededIndex + 1)
+                    .Select(Helpers.UnEscapeTableName)
+                    .ToArray());
         }
     }
 }

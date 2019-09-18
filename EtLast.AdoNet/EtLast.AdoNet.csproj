@@ -78,6 +78,7 @@
     <Compile Include="ConnectionManager.cs" />
     <Compile Include="DbTableDescriptor\DbColumnDefinition.cs" />
     <Compile Include="DbTableDescriptor\DbTableDefinition.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="JobProcess\AbstractSqlStatementsJob.cs" />
     <Compile Include="JobProcess\CustomSqlStatementJob.cs" />
     <Compile Include="JobProcess\CopyTableIntoExistingTableJob.cs" />
