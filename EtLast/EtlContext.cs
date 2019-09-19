@@ -188,7 +188,7 @@
             var row = new TRow();
             row.Init(this, Interlocked.Increment(ref _nextUid) - 1, columnCountHint);
 
-            Stat.IncrementCounter("rows created", 1);
+            Stat.IncrementCounter("in-memory rows created", 1);
 
             return row;
         }

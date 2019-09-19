@@ -32,7 +32,7 @@
             foreach (var row in rightRows)
             {
                 rightRowCount++;
-                var key = GetRightKey(Process, row);
+                var key = GetRightKey(row);
                 if (string.IsNullOrEmpty(key))
                     continue;
 
@@ -59,8 +59,8 @@
 
             Stat.IncrementDebugCounter("processed", 1);
 
-            var leftKey = GetLeftKey(Process, row);
-            if (leftKey == null || !_lookup.TryGetValue(leftKey, out var rightRow))
+            var leftKey = GetLeftKey(row);
+            if (leftKey == null || !_lookup.TryGetValue(leftKey, out var match))
             {
                 if (NoMatchAction != null)
                 {
@@ -82,8 +82,8 @@
                 return;
             }
 
-            var match = EqualityComparer.Compare(row, rightRow);
-            if (!match)
+            var isMatch = EqualityComparer.Compare(row, match);
+            if (!isMatch)
             {
                 switch (NoMatchAction.Mode)
                 {
@@ -95,7 +95,7 @@
                         exception.Data.Add("LeftKey", leftKey);
                         throw exception;
                     case MatchMode.Custom:
-                        NoMatchAction.CustomAction.Invoke(this, row, rightRow);
+                        NoMatchAction.CustomAction.Invoke(this, row, match);
                         break;
                 }
             }
@@ -111,7 +111,7 @@
                         exception.Data.Add("LeftKey", leftKey);
                         throw exception;
                     case MatchMode.Custom:
-                        MatchAction.CustomAction.Invoke(this, row, rightRow);
+                        MatchAction.CustomAction.Invoke(this, row, match);
                         break;
                 }
             }

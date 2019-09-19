@@ -7,7 +7,7 @@
     {
         public RowTestDelegate If { get; set; }
         public MatchingRowSelector MatchingRowSelector { get; set; }
-        public KeySelector RightKeySelector { get; set; }
+        public MatchKeySelector RightKeySelector { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         public MatchAction NoMatchAction { get; set; }
         private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();

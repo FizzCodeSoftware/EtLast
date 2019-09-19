@@ -13,6 +13,9 @@
         public string Name { get; set; }
         public IEtlContext Context { get; }
         public IProcess Caller { get; protected set; }
+        public IProcess InputProcess { get; set; }
+        public bool ReadingInput { get; private set; }
+
         public bool ConsumerShouldNotBuffer => false;
         public OperationProcessConfiguration Configuration { get; set; } = new OperationProcessConfiguration();
 
@@ -50,8 +53,6 @@
                     AddOperation(op);
             }
         }
-
-        public IProcess InputProcess { get; set; }
 
         public OperationProcess(IEtlContext context, string name = null)
         {
@@ -439,6 +440,7 @@
             Context.Log(LogSeverity.Information, this, "evaluating {InputProcess}", InputProcess.Name);
 
             var swLoop = Stopwatch.StartNew();
+            ReadingInput = true;
             var sourceRows = InputProcess.Evaluate(this);
             var buffer = new List<IRow>();
             var inputRowCount = 0;
@@ -500,6 +502,7 @@
             }
 
             Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows in {Elapsed}", inputRowCount, startedOn.Elapsed);
+            ReadingInput = false;
 
             var loopIndex = 0;
             while (true)
@@ -555,6 +558,7 @@
             Context.Log(LogSeverity.Information, this, "evaluating {InputProcess}", InputProcess.Name);
 
             var swLoop = Stopwatch.StartNew();
+            ReadingInput = true;
             var sourceRows = InputProcess.Evaluate(this);
             var buffer = new List<IRow>();
             var inputRowCount = 0;
@@ -633,6 +637,7 @@
             }
 
             Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows in {Elapsed}", inputRowCount, startedOn.Elapsed);
+            ReadingInput = false;
 
             var loopIndex = 0;
             while (true)

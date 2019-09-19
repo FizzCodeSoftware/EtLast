@@ -12,7 +12,7 @@
         /// <summary>
         /// Forces the operation to process the accumulated batch after a fixed amount of time even if the batch is not reached <see cref="BatchSize"/> yet.
         /// </summary>
-        public int ForceProcessBatchAfterMilliseconds { get; set; } = 500;
+        public int ForceProcessBatchAfterMilliseconds { get; set; } = 200;
 
         private List<IRow> _batchRows;
         private Stopwatch _lastNewRowSeenOn;
@@ -31,7 +31,11 @@
                 _batchRows.Add(row);
             }
 
-            var processBatch = _batchRows.Count >= BatchSize || (_lastNewRowSeenOn.ElapsedMilliseconds >= ForceProcessBatchAfterMilliseconds && _batchRows.Count > 0);
+            var timeout = Process.ReadingInput
+                ? ForceProcessBatchAfterMilliseconds
+                : ForceProcessBatchAfterMilliseconds / 10;
+
+            var processBatch = _batchRows.Count >= BatchSize || (_lastNewRowSeenOn.ElapsedMilliseconds >= timeout && _batchRows.Count > 0);
             if (processBatch)
             {
                 ProcessRows(_batchRows.ToArray());

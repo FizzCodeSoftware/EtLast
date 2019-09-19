@@ -4,8 +4,8 @@
 
     public abstract class AbstractKeyBasedCrossOperation : AbstractCrossOperation
     {
-        public KeySelector LeftKeySelector { get; set; }
-        public KeySelector RightKeySelector { get; set; }
+        public MatchKeySelector LeftKeySelector { get; set; }
+        public MatchKeySelector RightKeySelector { get; set; }
 
         public override void Prepare()
         {
@@ -16,7 +16,7 @@
                 throw new OperationParameterNullException(this, nameof(RightKeySelector));
         }
 
-        protected string GetLeftKey(IProcess process, IRow row)
+        protected string GetLeftKey(IRow row)
         {
             try
             {
@@ -25,12 +25,12 @@
             catch (EtlException) { throw; }
             catch (Exception)
             {
-                var exception = new OperationExecutionException(process, this, row, nameof(LeftKeySelector) + " failed");
+                var exception = new OperationExecutionException(Process, this, row, nameof(LeftKeySelector) + " failed");
                 throw exception;
             }
         }
 
-        protected string GetRightKey(IProcess process, IRow row)
+        protected string GetRightKey(IRow row)
         {
             try
             {
@@ -39,7 +39,7 @@
             catch (EtlException) { throw; }
             catch (Exception)
             {
-                var exception = new OperationExecutionException(process, this, row, nameof(RightKeySelector) + " failed");
+                var exception = new OperationExecutionException(Process, this, row, nameof(RightKeySelector) + " failed");
                 throw exception;
             }
         }

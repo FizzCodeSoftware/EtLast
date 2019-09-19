@@ -274,6 +274,13 @@
 
                         Parameters.Remove(kvp.Key);
                     }
+                    else if (kvp.Value is string[] stringArray)
+                    {
+                        var newParamText = string.Join(",", stringArray.Select(x => "'" + x + "'")); // todo: use stringbuilder
+                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
+
+                        Parameters.Remove(kvp.Key);
+                    }
                     else if (kvp.Value is List<int> intList)
                     {
                         var newParamText = string.Join(",", intList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
@@ -284,6 +291,13 @@
                     else if (kvp.Value is List<long> longList)
                     {
                         var newParamText = string.Join(",", longList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
+                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
+
+                        Parameters.Remove(kvp.Key);
+                    }
+                    else if (kvp.Value is List<string> stringList)
+                    {
+                        var newParamText = string.Join(",", stringList.Select(x => "'" + x + "'")); // todo: use stringbuilder
                         sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
 
                         Parameters.Remove(kvp.Key);

@@ -38,7 +38,7 @@
             foreach (var row in rightRows)
             {
                 rightRowCount++;
-                var key = GetRightKey(Process, row);
+                var key = GetRightKey(row);
                 if (string.IsNullOrEmpty(key))
                     continue;
 
@@ -58,12 +58,37 @@
             {
                 foreach (var row in rows)
                 {
-                    ProcessRow(row);
+                    var key = GetLeftKey(row);
+                    if (key == null || !_lookup.TryGetValue(key, out var matches) || matches.Count == 0)
+                    {
+                        if (NoMatchAction != null)
+                        {
+                            HandleNoMatch(row, key);
+                        }
+
+                        return;
+                    }
+
+                    if (RightRowFilter != null)
+                    {
+                        matches = matches.Where(rightRow => RightRowFilter.Invoke(row, rightRow)).ToList();
+                        if (matches.Count == 0)
+                        {
+                            if (NoMatchAction != null)
+                            {
+                                HandleNoMatch(row, key);
+                            }
+
+                            return;
+                        }
+                    }
+
+                    HandleMatch(row, key, matches);
                 }
             }
             finally
             {
-                _lookup.Clear();
+                _lookup.Clear(); // no caching due to the almost always exclusively 1:N nature of the operation
             }
         }
 
@@ -88,65 +113,16 @@
             return newRow;
         }
 
-        private void ProcessRow(IRow row)
+        private void HandleMatch(IRow row, string key, List<IRow> matches)
         {
-            var leftKey = GetLeftKey(Process, row);
-            if (leftKey == null || !_lookup.TryGetValue(leftKey, out var rightRows) || rightRows.Count == 0)
+            if (matches.Count > 1)
             {
-                if (NoMatchAction != null)
-                {
-                    switch (NoMatchAction.Mode)
-                    {
-                        case MatchMode.Remove:
-                            Process.RemoveRow(row, this);
-                            break;
-                        case MatchMode.Throw:
-                            var exception = new OperationExecutionException(Process, this, row, "no match");
-                            exception.Data.Add("LeftKey", leftKey);
-                            throw exception;
-                        case MatchMode.Custom:
-                            NoMatchAction.CustomAction.Invoke(this, row, null);
-                            break;
-                    }
-                }
-
-                return;
-            }
-
-            if (RightRowFilter != null)
-            {
-                rightRows = rightRows.Where(rightRow => RightRowFilter.Invoke(row, rightRow)).ToList();
-                if (rightRows.Count == 0)
-                {
-                    if (NoMatchAction != null)
-                    {
-                        switch (NoMatchAction.Mode)
-                        {
-                            case MatchMode.Remove:
-                                Process.RemoveRow(row, this);
-                                break;
-                            case MatchMode.Throw:
-                                var exception = new OperationExecutionException(Process, this, row, "no match");
-                                exception.Data.Add("LeftKey", leftKey);
-                                throw exception;
-                            case MatchMode.Custom:
-                                NoMatchAction.CustomAction.Invoke(this, row, null);
-                                break;
-                        }
-                    }
-
-                    return;
-                }
-            }
-
-            if (rightRows.Count > 1)
-            {
-                if (rightRows.Count > 2)
+                if (matches.Count > 2)
                 {
                     var newRows = new List<IRow>();
-                    for (var i = 1; i < rightRows.Count; i++)
+                    for (var i = 1; i < matches.Count; i++)
                     {
-                        var newRow = DupeRow(Process, row, rightRows[i]);
+                        var newRow = DupeRow(Process, row, matches[i]);
                         newRows.Add(newRow);
                     }
 
@@ -154,14 +130,31 @@
                 }
                 else
                 {
-                    var newRow = DupeRow(Process, row, rightRows[1]);
+                    var newRow = DupeRow(Process, row, matches[1]);
                     Process.AddRow(newRow, this);
                 }
             }
 
             foreach (var config in ColumnConfiguration)
             {
-                config.Copy(this, rightRows[0], row);
+                config.Copy(this, matches[0], row);
+            }
+        }
+
+        private void HandleNoMatch(IRow row, string key)
+        {
+            switch (NoMatchAction.Mode)
+            {
+                case MatchMode.Remove:
+                    Process.RemoveRow(row, this);
+                    break;
+                case MatchMode.Throw:
+                    var exception = new OperationExecutionException(Process, this, row, "no match");
+                    exception.Data.Add("Key", key);
+                    throw exception;
+                case MatchMode.Custom:
+                    NoMatchAction.CustomAction.Invoke(this, row, null);
+                    break;
             }
         }
     }

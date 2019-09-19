@@ -2,7 +2,7 @@
 {
     public enum MatchMode { Remove, Throw, Custom }
 
-    public delegate void MatchActionDelegate(IRowOperation operation, IRow row, IRow rightRow);
+    public delegate void MatchActionDelegate(IRowOperation operation, IRow row, IRow match);
 
     public class MatchAction
     {

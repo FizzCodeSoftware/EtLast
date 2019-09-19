@@ -6,6 +6,7 @@
     {
         IProcess InputProcess { get; set; }
         OperationProcessConfiguration Configuration { get; }
+        bool ReadingInput { get; }
 
         List<IRowOperation> Operations { get; set; }
         T AddOperation<T>(T operation) where T : IRowOperation;

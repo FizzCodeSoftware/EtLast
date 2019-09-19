@@ -43,7 +43,7 @@
             foreach (var row in rightRows)
             {
                 rightRowCount++;
-                var key = GetRightKey(Process, row);
+                var key = GetRightKey(row);
                 if (string.IsNullOrEmpty(key))
                     continue;
 
@@ -62,13 +62,13 @@
             }
             finally
             {
-                _lookup.Clear();
+                _lookup.Clear(); // no caching due to the 1:1 nature of the operation
             }
         }
 
         private void ProcessRow(IRow row)
         {
-            var leftKey = GetLeftKey(Process, row);
+            var leftKey = GetLeftKey(row);
             if (leftKey == null || !_lookup.TryGetValue(leftKey, out var rightRow))
             {
                 if (NoMatchAction != null)

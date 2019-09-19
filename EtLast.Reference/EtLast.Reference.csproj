@@ -74,10 +74,8 @@
     <Compile Include="JobProcess\Jobs\DownloadFileJob.cs" />
     <Compile Include="MergeProcess\RowSetMergers\UnionMerger.cs" />
     <Compile Include="OperationProcess\RowOperations\CrossOperations\CompareWithRowOperation.cs" />
-    <Compile Include="OperationProcess\RowOperations\DeferredCrossOperations\AbstractDeferredCrossOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\DeferredCrossOperations\AbstractDeferredKeyBasedCrossOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\DeferredCrossOperations\DeferredCompareWithRowOperation.cs" />
-    <Compile Include="OperationProcess\RowOperations\DeferredCrossOperations\DeferredCustomExpandOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\DeferredCrossOperations\DeferredExpandOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\DeferredCrossOperations\DeferredValidateForeignKeyOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\Convert\TrimStringOperation.cs" />
@@ -104,7 +102,7 @@
     <Compile Include="OperationProcess\RowOperations\Convert\TypeConverters\TimeConverter.cs" />
     <Compile Include="ColumnCopyConfiguration.cs" />
     <Compile Include="OperationProcess\RowOperations\CrossOperations\EnumsAndDelegates\MatchingRowSelector.cs" />
-    <Compile Include="OperationProcess\RowOperations\CrossOperations\EnumsAndDelegates\KeySelector.cs" />
+    <Compile Include="OperationProcess\RowOperations\CrossOperations\EnumsAndDelegates\MatchKeySelector.cs" />
     <Compile Include="OperationProcess\RowOperations\CrossOperations\AbstractKeyBasedCrossOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\CrossOperations\CustomExpandOperation.cs" />
     <Compile Include="OperationProcess\RowOperations\CrossOperations\AbstractCrossOperation.cs" />
