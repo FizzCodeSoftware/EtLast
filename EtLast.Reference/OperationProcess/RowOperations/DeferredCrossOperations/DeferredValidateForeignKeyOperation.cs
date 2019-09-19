@@ -52,6 +52,7 @@
                 if (MatchAction != null && key != null && _lookup.TryGetValue(key, out var rightRow))
                 {
                     Stat.IncrementCounter("served_from_cache", 1);
+                    Stat.IncrementCounter("processed", 1);
 
                     HandleMatch(row, key, rightRow);
                     return;
