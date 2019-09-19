@@ -7,6 +7,10 @@
     /// </summary>
     public class ManyProcessEtlStrategy : IEtlStrategy
     {
+        public ICaller Caller { get; private set; }
+        public string InstanceName { get; set; }
+        public string Name => InstanceName ?? GetType().Name;
+
         private readonly OneProcessGeneratorDelegate[] _processCreators;
         private readonly BasicEtlStrategyMultipleCreatorDelegate _multipleProcessCreator;
         private readonly bool _stopOnError = true;
@@ -46,8 +50,11 @@
             _suppressTransactionScopeForCreator = suppressTransactionScopeForCreator;
         }
 
-        public void Execute(IEtlContext context)
+        public void Execute(ICaller caller, IEtlContext context)
         {
+            Caller = caller;
+            context.Log(LogSeverity.Information, this, "started");
+
             using (var scope = context.BeginScope(_evaluationTransactionScopeKind))
             {
                 var failed = false;
@@ -66,7 +73,8 @@
 
                         var initialExceptionCount = context.GetExceptions().Count;
 
-                        process.EvaluateWithoutResult();
+                        context.Log(LogSeverity.Information, this, "evaluating {ProcessName}", process.Name);
+                        process.EvaluateWithoutResult(this);
 
                         if (context.GetExceptions().Count != initialExceptionCount)
                         {
@@ -90,7 +98,7 @@
                     {
                         var initialExceptionCount = context.GetExceptions().Count;
 
-                        process.EvaluateWithoutResult();
+                        process.EvaluateWithoutResult(this);
 
                         if (context.GetExceptions().Count != initialExceptionCount)
                         {

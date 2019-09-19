@@ -52,7 +52,7 @@
             SqlValueProcessors.Add(new MySqlValueProcessor());
         }
 
-        public override IEnumerable<IRow> Evaluate(IProcess caller = null)
+        public override IEnumerable<IRow> Evaluate(ICaller caller = null)
         {
             if (string.IsNullOrEmpty(ConnectionStringKey))
                 throw new ProcessParameterNullException(this, nameof(ConnectionStringKey));

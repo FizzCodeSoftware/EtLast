@@ -15,7 +15,6 @@
             var logsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-dev");
 
             var loggerConfig = new LoggerConfiguration()
-                .Enrich.WithThreadId()
                 .Enrich.WithExceptionDetails()
 
                 .WriteTo.File(new CompactJsonFormatter(), Path.Combine(logsFolder, "debug-.json"),
@@ -51,6 +50,11 @@
 
             loggerConfig = loggerConfig.MinimumLevel.Is(System.Diagnostics.Debugger.IsAttached ? LogEventLevel.Verbose : LogEventLevel.Debug);
 
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                loggerConfig = loggerConfig.Enrich.WithThreadId();
+            }
+
             if (!string.IsNullOrEmpty(configuration.SeqUrl) && configuration.SeqUrl != "-")
             {
                 loggerConfig = loggerConfig.WriteTo.Seq(configuration.SeqUrl, apiKey: configuration.SeqApiKey);
@@ -64,9 +68,6 @@
             var logsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-ops");
 
             var loggerConfig = new LoggerConfiguration()
-                .Enrich.WithThreadId()
-                .Enrich.WithExceptionDetails()
-
                 .WriteTo.File(Path.Combine(logsFolder, "info-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Information,
                     retainedFileCountLimit: configuration.RetainedLogFileCountLimit,

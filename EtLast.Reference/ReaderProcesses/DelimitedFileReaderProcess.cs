@@ -26,7 +26,7 @@
         {
         }
 
-        public override IEnumerable<IRow> Evaluate(IProcess caller = null)
+        public override IEnumerable<IRow> Evaluate(ICaller caller = null)
         {
             Caller = caller;
             if (string.IsNullOrEmpty(FileName))
@@ -42,7 +42,7 @@
                 yield return row;
             }
 
-            Context.Log(LogSeverity.Information, this, "reading from {FileName}", FileName);
+            Context.Log(LogSeverity.Debug, this, "reading from {FileName}", FileName);
 
             var resultCount = 0;
 

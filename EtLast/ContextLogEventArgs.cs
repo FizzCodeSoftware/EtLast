@@ -6,7 +6,7 @@
 
     public class ContextLogEventArgs : EventArgs
     {
-        public IProcess Process { get; set; }
+        public ICaller Caller { get; set; }
         public string Text { get; set; }
         public object[] Arguments { get; set; }
         public LogSeverity Severity { get; set; }

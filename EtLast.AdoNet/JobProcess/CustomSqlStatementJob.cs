@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.AdoNet 
+﻿namespace FizzCode.EtLast.AdoNet
 {
     using System;
     using System.Collections.Generic;

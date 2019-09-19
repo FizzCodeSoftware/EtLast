@@ -1,20 +1,77 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
 
-    public class DeferredJoinOperation : AbstractDeferredKeyBasedCrossOperation
+    public class DeferredJoinOperation : AbstractRowOperation, IDeferredRowOperation
     {
-        public JoinRightRowFilterDelegate RightRowFilter { get; set; }
-        public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
-        public MatchAction NoMatchAction { get; set; }
+        public RowTestDelegate If { get; set; }
 
         /// <summary>
         /// The amount of rows processed in a batch. Default value is 1000.
         /// </summary>
-        public override int BatchSize { get; set; } = 1000;
+        public int BatchSize { get; set; } = 1000;
+
+        /// <summary>
+        /// Forces the operation to process the accumulated batch after a fixed amount of time even if the batch is not reached <see cref="BatchSize"/> yet.
+        /// </summary>
+        public int ForceProcessBatchAfterMilliseconds { get; set; } = 200;
+
+        public MatchKeySelector LeftKeySelector { get; set; }
+        public MatchKeySelector RightKeySelector { get; set; }
+        public Func<IRow[], IProcess> RightProcessCreator { get; set; }
+
+        public MatchAction NoMatchAction { get; set; }
+        public JoinRightRowFilterDelegate RightRowFilter { get; set; }
+        public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
 
         private readonly Dictionary<string, List<IRow>> _lookup = new Dictionary<string, List<IRow>>();
+        private List<IRow> _batchRows;
+        private HashSet<string> _batchRowKeys;
+        private Stopwatch _lastNewRowSeenOn;
+
+        public override void Apply(IRow row)
+        {
+            if (If?.Invoke(row) == false)
+            {
+                Stat.IncrementDebugCounter("ignored", 1);
+                return;
+            }
+
+            if (row.DeferState == DeferState.None)
+            {
+                _lastNewRowSeenOn.Restart();
+
+                var key = GetLeftKey(row);
+                _batchRows.Add(row);
+                _batchRowKeys.Add(key);
+            }
+
+            var timeout = Process.ReadingInput
+                ? ForceProcessBatchAfterMilliseconds
+                : ForceProcessBatchAfterMilliseconds / 10;
+
+            var processBatch = _batchRowKeys.Count >= BatchSize || (_lastNewRowSeenOn.ElapsedMilliseconds >= timeout && _batchRowKeys.Count > 0);
+            if (processBatch)
+            {
+                ProcessRows();
+
+                foreach (var batchRow in _batchRows)
+                {
+                    batchRow.DeferState = DeferState.DeferDone;
+                }
+
+                _batchRows.Clear();
+                _batchRowKeys.Clear();
+                _lastNewRowSeenOn.Restart();
+            }
+            else if (row.DeferState == DeferState.None)
+            {
+                row.DeferState = DeferState.DeferWait; // prevent proceeding to the next operation
+            }
+        }
 
         public override void Prepare()
         {
@@ -23,15 +80,66 @@
                 throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
             if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
                 throw new OperationParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));
+            if (LeftKeySelector == null)
+                throw new OperationParameterNullException(this, nameof(LeftKeySelector));
+            if (RightKeySelector == null)
+                throw new OperationParameterNullException(this, nameof(RightKeySelector));
+            if (RightProcessCreator == null)
+                throw new OperationParameterNullException(this, nameof(RightProcessCreator));
+
+            _batchRows = new List<IRow>(BatchSize);
+            _batchRowKeys = new HashSet<string>();
+            _lastNewRowSeenOn = Stopwatch.StartNew();
         }
 
-        protected override void ProcessRows(IRow[] rows)
+        public override void Shutdown()
         {
-            Stat.IncrementCounter("processed", rows.Length);
+            _batchRows.Clear();
+            _batchRows = null;
+            _batchRowKeys.Clear();
+            _batchRowKeys = null;
 
-            var rightProcess = RightProcessCreator.Invoke(rows);
+            _lastNewRowSeenOn = null;
 
-            Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, rightProcess.Name);
+            base.Shutdown();
+        }
+
+        protected string GetLeftKey(IRow row)
+        {
+            try
+            {
+                return LeftKeySelector(row);
+            }
+            catch (EtlException) { throw; }
+            catch (Exception)
+            {
+                var exception = new OperationExecutionException(Process, this, row, nameof(LeftKeySelector) + " failed");
+                throw exception;
+            }
+        }
+
+        protected string GetRightKey(IRow row)
+        {
+            try
+            {
+                return RightKeySelector(row);
+            }
+            catch (EtlException) { throw; }
+            catch (Exception)
+            {
+                var exception = new OperationExecutionException(Process, this, row, nameof(RightKeySelector) + " failed");
+                throw exception;
+            }
+        }
+
+        private void ProcessRows()
+        {
+            Stat.IncrementCounter("processed", _batchRows.Count);
+
+            var rightProcess = RightProcessCreator.Invoke(_batchRows.ToArray());
+
+            Process.Context.Log(LogSeverity.Information, Process, "{OperationName} evaluating {InputProcess} to process {RowCount} rows with {KeyCount} distinct foreign keys",
+                Name, rightProcess.Name, _batchRows.Count, _batchRowKeys.Count);
 
             var rightRows = rightProcess.Evaluate(Process);
             var rightRowCount = 0;
@@ -56,7 +164,7 @@
 
             try
             {
-                foreach (var row in rows)
+                foreach (var row in _batchRows)
                 {
                     var key = GetLeftKey(row);
                     if (key == null || !_lookup.TryGetValue(key, out var matches) || matches.Count == 0)

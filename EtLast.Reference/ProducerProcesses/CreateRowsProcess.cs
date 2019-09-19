@@ -20,7 +20,7 @@
         {
         }
 
-        public override IEnumerable<IRow> Evaluate(IProcess caller = null)
+        public override IEnumerable<IRow> Evaluate(ICaller caller = null)
         {
             Caller = caller;
             if (InputRows == null)

@@ -109,7 +109,7 @@
             if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
                 throw new OperationParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));
 
-            Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, RightProcess.Name);
+            Process.Context.Log(LogSeverity.Information, Process, "{OperationName} evaluating {InputProcess}", Name, RightProcess.Name);
             _lookup.Clear();
             var rightRows = RightProcess.Evaluate(Process);
             var rightRowCount = 0;

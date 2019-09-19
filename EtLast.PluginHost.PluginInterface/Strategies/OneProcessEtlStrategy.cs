@@ -7,6 +7,10 @@
     /// </summary>
     public class OneProcessEtlStrategy : IEtlStrategy
     {
+        public ICaller Caller { get; private set; }
+        public string InstanceName { get; set; }
+        public string Name => InstanceName ?? GetType().Name;
+
         private readonly OneProcessGeneratorDelegate _processCreator;
         private readonly TransactionScopeKind _evaluationTransactionScopeKind;
         private readonly bool _suppressTransactionScopeForCreator;
@@ -24,8 +28,10 @@
             _suppressTransactionScopeForCreator = suppressTransactionScopeForCreator;
         }
 
-        public void Execute(IEtlContext context)
+        public void Execute(ICaller caller, IEtlContext context)
         {
+            Caller = caller;
+
             var initialExceptionCount = context.GetExceptions().Count;
 
             using (var scope = context.BeginScope(_evaluationTransactionScopeKind))

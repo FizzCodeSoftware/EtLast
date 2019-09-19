@@ -64,7 +64,7 @@
 
             try
             {
-                strategy.Execute(this);
+                strategy.Execute(null, this);
 
                 if (GetExceptions().Count > initialExceptionCount)
                 {
@@ -94,7 +94,7 @@
             {
                 foreach (var strategy in strategies)
                 {
-                    strategy.Execute(this);
+                    strategy.Execute(null, this);
 
                     var exceptions = GetExceptions();
                     if (exceptions.Count > initialExceptionCount)
@@ -115,22 +115,22 @@
             }
         }
 
-        public void Log(LogSeverity severity, IProcess process, string text, params object[] args)
+        public void Log(LogSeverity severity, ICaller caller, string text, params object[] args)
         {
             OnLog?.Invoke(this, new ContextLogEventArgs()
             {
-                Process = process,
+                Caller = caller,
                 Text = text,
                 Severity = severity,
                 Arguments = args,
             });
         }
 
-        public void LogOps(LogSeverity severity, IProcess process, string text, params object[] args)
+        public void LogOps(LogSeverity severity, ICaller caller, string text, params object[] args)
         {
             OnLog?.Invoke(this, new ContextLogEventArgs()
             {
-                Process = process,
+                Caller = caller,
                 Text = text,
                 Severity = severity,
                 Arguments = args,
@@ -159,24 +159,24 @@
             Log(LogSeverity.Warning, null, text + " // " + rowTemplate, args.Concat(rowArgs).ToArray());
         }
 
-        public void LogCustom(string fileName, IProcess process, string text, params object[] args)
+        public void LogCustom(string fileName, ICaller caller, string text, params object[] args)
         {
             OnCustomLog?.Invoke(this, new ContextCustomLogEventArgs()
             {
                 FileName = fileName,
-                Process = process,
+                Caller = caller,
                 Text = text,
                 Arguments = args,
                 ForOps = false,
             });
         }
 
-        public void LogCustomOps(string fileName, IProcess process, string text, params object[] args)
+        public void LogCustomOps(string fileName, ICaller caller, string text, params object[] args)
         {
             OnCustomLog?.Invoke(this, new ContextCustomLogEventArgs()
             {
                 FileName = fileName,
-                Process = process,
+                Caller = caller,
                 Text = text,
                 Arguments = args,
                 ForOps = true,

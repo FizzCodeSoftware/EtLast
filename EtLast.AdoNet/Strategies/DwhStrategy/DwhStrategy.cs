@@ -6,6 +6,10 @@
 
     public class DwhStrategy : IEtlStrategy
     {
+        public ICaller Caller { get; private set; }
+        public string InstanceName { get; set; }
+        public string Name => InstanceName ?? GetType().Name;
+
         public DwhStrategyConfiguration Configuration { get; }
 
         public DwhStrategy(DwhStrategyConfiguration configuration)
@@ -13,8 +17,11 @@
             Configuration = configuration;
         }
 
-        public void Execute(IEtlContext context)
+        public void Execute(ICaller caller, IEtlContext context)
         {
+            Caller = caller;
+            context.Log(LogSeverity.Information, this, "started");
+
             if (Configuration.Tables == null)
                 throw new StrategyParameterNullException(this, nameof(Configuration.Tables));
 
@@ -58,10 +65,18 @@
                 if (context.GetExceptions().Count > initialExceptionCount)
                     return;
 
+                context.Log(LogSeverity.Information, this, "processing tables");
+
                 foreach (var table in Configuration.Tables)
                 {
+                    if (table.MainProcessCreator != null)
+                        context.Log(LogSeverity.Information, this, "processing {TableName}", Helpers.UnEscapeTableName(table.TableName));
+
                     for (var partitionIndex = 0; ; partitionIndex++)
                     {
+                        if (table.PartitionedMainProcessCreator != null)
+                            context.Log(LogSeverity.Information, this, "processing {TableName} (partition #{PartitionIndex})", Helpers.UnEscapeTableName(table.TableName), partitionIndex);
+
                         IFinalProcess mainProcess;
 
                         var creatorScopeKind = table.SuppressTransactionScopeForCreators
@@ -75,7 +90,7 @@
                                 mainProcess = table.MainProcessCreator.Invoke(Configuration.ConnectionStringKey, table);
                             }
 
-                            mainProcess.EvaluateWithoutResult();
+                            mainProcess.EvaluateWithoutResult(this);
 
                             if (context.GetExceptions().Count > initialExceptionCount)
                                 return;
@@ -109,6 +124,7 @@
                     {
                         if (Configuration.BeforeFinalizersJobCreator != null)
                         {
+                            context.Log(LogSeverity.Information, this, "starting global finalizers #" + retryCounter.ToString("D", CultureInfo.InvariantCulture));
                             List<IJob> beforeFinalizerJobs;
 
                             using (var creatorScope = context.BeginScope(TransactionScopeKind.Suppress))
@@ -128,9 +144,10 @@
                                 index++;
                             }
 
-                            process.EvaluateWithoutResult();
+                            process.EvaluateWithoutResult(this);
                         }
 
+                        context.Log(LogSeverity.Information, this, "starting table-specific finalizers #" + retryCounter.ToString("D", CultureInfo.InvariantCulture));
                         foreach (var table in Configuration.Tables)
                         {
                             var creatorScopeKind = table.SuppressTransactionScopeForCreators
@@ -155,7 +172,7 @@
                                 index++;
                             }
 
-                            process.EvaluateWithoutResult();
+                            process.EvaluateWithoutResult(this);
                         }
 
                         if (Configuration.AfterFinalizersJobCreator != null)
@@ -179,7 +196,7 @@
                                 index++;
                             }
 
-                            process.EvaluateWithoutResult();
+                            process.EvaluateWithoutResult(this);
                         }
 
                         var currentExceptionCount = context.GetExceptions().Count;
@@ -260,7 +277,7 @@
                 }
             }
 
-            var process = new JobProcess(context, "DropCreateTempTables");
+            var process = new JobProcess(context, "RecreateTempTables");
             process.AddJob(new CopyTableStructureJob
             {
                 ConnectionStringKey = Configuration.ConnectionStringKey,
@@ -268,7 +285,7 @@
                 Configuration = config,
             });
 
-            process.EvaluateWithoutResult();
+            process.EvaluateWithoutResult(this);
         }
 
         private void DropTempTables(IEtlContext context)
@@ -288,7 +305,7 @@
                 TableNames = tempTableNames.Concat(additionalTempTableNames).ToArray(),
             });
 
-            process.EvaluateWithoutResult();
+            process.EvaluateWithoutResult(this);
         }
     }
 }

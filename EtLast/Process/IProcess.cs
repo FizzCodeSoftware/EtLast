@@ -2,13 +2,12 @@
 {
     using System.Collections.Generic;
 
-    public delegate IEnumerable<IRow> EvaluateDelegate(IProcess caller);
+    public delegate IEnumerable<IRow> EvaluateDelegate(ICaller caller);
 
-    public interface IProcess
+    public interface IProcess : ICaller
     {
-        string Name { get; set; }
         IEtlContext Context { get; }
-        IProcess Caller { get; }
+        new string Name { get; set; }
 
         /// <summary>
         /// Some consumer processes use buffering to process the rows enumerated from their input.
@@ -16,6 +15,6 @@
         /// </summary>
         bool ConsumerShouldNotBuffer { get; }
 
-        IEnumerable<IRow> Evaluate(IProcess caller = null);
+        IEnumerable<IRow> Evaluate(ICaller caller = null);
     }
 }

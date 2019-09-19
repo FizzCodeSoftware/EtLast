@@ -25,7 +25,7 @@
             if (EqualityComparer == null)
                 throw new OperationParameterNullException(this, nameof(EqualityComparer));
 
-            Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, RightProcess.Name);
+            Process.Context.Log(LogSeverity.Information, Process, "{OperationName} evaluating {InputProcess}", Name, RightProcess.Name);
 
             var rightRows = RightProcess.Evaluate(Process);
             var rightRowCount = 0;

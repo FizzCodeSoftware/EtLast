@@ -69,10 +69,7 @@
             var processBatch = _batchRowKeys.Count >= BatchSize || (_lastNewRowSeenOn.ElapsedMilliseconds >= timeout && _batchRowKeys.Count > 0);
             if (processBatch)
             {
-                Process.Context.Log(LogSeverity.Information, Process, "{OperationName} processing {RowCount} batch rows with {KeyCount} distinct foreign keys ({Elapsed} of {Timeout} msec)",
-                    Name, _batchRows.Count, _batchRowKeys.Count, _lastNewRowSeenOn.ElapsedMilliseconds, timeout);
-
-                ProcessRows(_batchRows.ToArray(), _batchRowKeys.Count);
+                ProcessRows();
 
                 foreach (var batchRow in _batchRows)
                 {
@@ -89,14 +86,14 @@
             }
         }
 
-        protected void ProcessRows(IRow[] rows, int keyCount)
+        private void ProcessRows()
         {
-            Stat.IncrementCounter("processed", rows.Length);
+            Stat.IncrementCounter("processed", _batchRows.Count);
 
-            var rightProcess = RightProcessCreator.Invoke(rows);
+            var rightProcess = RightProcessCreator.Invoke(_batchRows.ToArray());
 
-            Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} reading {KeyCount} right rows from {InputProcess} for {BatchSize} batch rows",
-                Name, keyCount, rightProcess.Name, rows.Length);
+            Process.Context.Log(LogSeverity.Information, Process, "{OperationName} evaluating {InputProcess} to process {RowCount} rows with {KeyCount} distinct foreign keys",
+                Name, rightProcess.Name, _batchRows.Count, _batchRowKeys.Count);
 
             var rightRows = rightProcess.Evaluate(Process);
             var rightRowCount = 0;
@@ -115,7 +112,7 @@
 
             try
             {
-                foreach (var row in rows)
+                foreach (var row in _batchRows)
                 {
                     var key = GetLeftKey(row);
                     if (key == null || !_lookup.TryGetValue(key, out var rightRow))
@@ -208,7 +205,7 @@
             _lastNewRowSeenOn = null;
         }
 
-        protected string GetLeftKey(IRow row)
+        private string GetLeftKey(IRow row)
         {
             try
             {
@@ -222,7 +219,7 @@
             }
         }
 
-        protected string GetRightKey(IProcess process, IRow row)
+        private string GetRightKey(IProcess process, IRow row)
         {
             try
             {

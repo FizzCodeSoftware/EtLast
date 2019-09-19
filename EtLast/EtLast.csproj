@@ -92,6 +92,7 @@
     <Compile Include="Process\AggregationProcess\IContinuousAggregationOperation.cs" />
     <Compile Include="Process\AggregationProcess\ContinuousAggregationProcess.cs" />
     <Compile Include="Process\IDeferredRowOperation.cs" />
+    <Compile Include="Process\ICaller.cs" />
     <Compile Include="Process\IRowOperation.cs" />
     <Compile Include="Process\IFinalProcess.cs" />
     <Compile Include="Process\IBaseOperation.cs" />

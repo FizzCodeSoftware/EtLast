@@ -69,10 +69,7 @@
             var processBatch = _batchRowKeys.Count >= BatchSize || (_lastNewRowSeenOn.ElapsedMilliseconds >= timeout && _batchRowKeys.Count > 0);
             if (processBatch)
             {
-                Process.Context.Log(LogSeverity.Information, Process, "{OperationName} processing {RowCount} batch rows with {KeyCount} distinct foreign keys ({Elapsed} of {Timeout} msec)",
-                    Name, _batchRows.Count, _batchRowKeys.Count, _lastNewRowSeenOn.ElapsedMilliseconds, timeout);
-
-                ProcessRows(_batchRows.ToArray());
+                ProcessRows();
 
                 foreach (var batchRow in _batchRows)
                 {
@@ -120,13 +117,14 @@
             base.Shutdown();
         }
 
-        private void ProcessRows(IRow[] rows)
+        private void ProcessRows()
         {
-            Stat.IncrementCounter("processed", rows.Length);
+            Stat.IncrementCounter("processed", _batchRows.Count);
 
-            var rightProcess = RightProcessCreator.Invoke(rows);
+            var rightProcess = RightProcessCreator.Invoke(_batchRows.ToArray());
 
-            Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, rightProcess.Name);
+            Process.Context.Log(LogSeverity.Information, Process, "{OperationName} evaluating {InputProcess} to process {RowCount} rows with {KeyCount} distinct foreign keys",
+                Name, rightProcess.Name, _batchRows.Count, _batchRowKeys.Count);
 
             var rightRows = rightProcess.Evaluate(Process);
             var rightRowCount = 0;
@@ -145,7 +143,7 @@
 
             try
             {
-                foreach (var row in rows)
+                foreach (var row in _batchRows)
                 {
                     var key = GetLeftKey(row);
                     if (key == null || !_lookup.TryGetValue(key, out var rightRow))
@@ -195,7 +193,7 @@
             }
         }
 
-        protected string GetLeftKey(IRow row)
+        private string GetLeftKey(IRow row)
         {
             try
             {
@@ -209,7 +207,7 @@
             }
         }
 
-        protected string GetRightKey(IRow row)
+        private string GetRightKey(IRow row)
         {
             try
             {

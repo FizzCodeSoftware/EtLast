@@ -123,9 +123,9 @@
         private void OnLog(object sender, ContextLogEventArgs args)
         {
             var ident = string.Empty;
-            if (args.Process != null)
+            if (args.Caller != null)
             {
-                var p = args.Process;
+                var p = args.Caller;
                 while (p.Caller != null)
                 {
                     ident += "\t";
@@ -141,15 +141,15 @@
                 GetType().Name,
             };
 
-            if (args.Process != null)
-                values.Add(args.Process.Name);
+            if (args.Caller != null)
+                values.Add(args.Caller.Name);
             if (args.Arguments != null)
                 values.AddRange(args.Arguments);
 
             var valuesArray = values.ToArray();
 
             var logger = args.ForOps ? OpsLogger : Logger;
-            logger.Write(LogEventLevelMap[args.Severity], "{@Plugin}" + ident + (args.Process != null ? "{@Process} " : "") + args.Text, valuesArray);
+            logger.Write(LogEventLevelMap[args.Severity], "{@Plugin}" + ident + (args.Caller != null ? "{@Process} " : "") + args.Text, valuesArray);
         }
 
         private void OnCustomLog(object sender, ContextCustomLogEventArgs args)
@@ -169,7 +169,7 @@
 
             var fileName = Path.Combine(logsFolder, args.FileName);
 
-            var line = GetType().Name + "\t" + (args.Process != null ? args.Process.Name + "\t" : "") + string.Format(args.Text, args.Arguments);
+            var line = GetType().Name + "\t" + (args.Caller != null ? args.Caller.Name + "\t" : "") + string.Format(args.Text, args.Arguments);
 
             lock (_dataLock)
             {
@@ -186,7 +186,7 @@
                 OnLog(sender, new ContextLogEventArgs()
                 {
                     Severity = LogSeverity.Error,
-                    Process = args.Process,
+                    Caller = args.Process,
                     Text = msg,
                     ForOps = true,
                 });

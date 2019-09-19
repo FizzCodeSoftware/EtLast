@@ -71,7 +71,7 @@
             if (NoMatchAction != null && MatchAction != null && ((NoMatchAction.Mode == MatchMode.Remove && MatchAction.Mode == MatchMode.Remove) || (NoMatchAction.Mode == MatchMode.Throw && MatchAction.Mode == MatchMode.Throw)))
                 throw new InvalidOperationParameterException(this, nameof(MatchAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must use a different action moode: " + nameof(MatchAction) + " or " + nameof(NoMatchAction));
 
-            Process.Context.Log(LogSeverity.Debug, Process, "{OperationName} getting right rows from {InputProcess}", Name, RightProcess.Name);
+            Process.Context.Log(LogSeverity.Information, Process, "{OperationName} evaluating {InputProcess}", Name, RightProcess.Name);
             _lookup.Clear();
             var rightRows = RightProcess.Evaluate(Process);
             var rightRowCount = 0;

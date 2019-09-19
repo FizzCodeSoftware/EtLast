@@ -56,7 +56,7 @@
         {
         }
 
-        public override IEnumerable<IRow> Evaluate(IProcess caller = null)
+        public override IEnumerable<IRow> Evaluate(ICaller caller = null)
         {
             Caller = caller;
             if (string.IsNullOrEmpty(FileName))
@@ -108,9 +108,9 @@
 
             var resultCount = 0;
             if (!string.IsNullOrEmpty(SheetName))
-                Context.Log(LogSeverity.Information, this, "reading from {RelativeFileName}/{SheetName}", relativeFileName, SheetName);
+                Context.Log(LogSeverity.Debug, this, "reading from {RelativeFileName}/{SheetName}", relativeFileName, SheetName);
             else
-                Context.Log(LogSeverity.Information, this, "reading from {RelativeFileName}/#{SheetIndex}", relativeFileName, SheetIndex);
+                Context.Log(LogSeverity.Debug, this, "reading from {RelativeFileName}/#{SheetIndex}", relativeFileName, SheetIndex);
 
             if (Transpose)
             {

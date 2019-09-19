@@ -214,6 +214,9 @@
                 }
             }
 
+            if (properties.Count == 0)
+                return;
+
             valueFormatter.FormatStructureValue(logEvent, builder, new StructureValue(properties), null);
         }
 

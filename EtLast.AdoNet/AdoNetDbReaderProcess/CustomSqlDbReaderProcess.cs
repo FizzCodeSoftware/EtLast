@@ -12,7 +12,7 @@
         {
         }
 
-        public override IEnumerable<IRow> Evaluate(IProcess caller = null)
+        public override IEnumerable<IRow> Evaluate(ICaller caller = null)
         {
             Caller = caller;
 
@@ -29,7 +29,7 @@
 
         protected override void LogAction()
         {
-            Context.Log(LogSeverity.Information, this, "reading from {ConnectionStringKey} using custom query, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionStringSettings.Name, CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+            Context.Log(LogSeverity.Debug, this, "reading from {ConnectionStringKey} using custom query, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionStringSettings.Name, CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
         }
 
         protected override void IncrementCounter()

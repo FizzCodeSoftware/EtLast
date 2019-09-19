@@ -9,7 +9,7 @@
         public string Name { get; set; }
         public bool ConsumerShouldNotBuffer => false;
 
-        public IProcess Caller { get; protected set; }
+        public ICaller Caller { get; protected set; }
         public IProcess InputProcess { get; set; }
 
         public string[] GroupingColumns { get; set; }
@@ -22,7 +22,7 @@
             Name = name;
         }
 
-        public abstract IEnumerable<IRow> Evaluate(IProcess caller = null);
+        public abstract IEnumerable<IRow> Evaluate(ICaller caller = null);
 
         protected string GenerateKey(IRow row)
         {
