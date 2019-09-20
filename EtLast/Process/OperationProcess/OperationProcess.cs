@@ -711,45 +711,7 @@
                         if (token.IsCancellationRequested)
                             break;
 
-                        var operation = row.CurrentOperation;
-                        while (operation != null)
-                        {
-                            if (row.DeferState != DeferState.DeferDone)
-                            {
-                                try
-                                {
-                                    operation.Apply(row);
-                                }
-                                catch (OperationExecutionException) { throw; }
-                                catch (Exception ex)
-                                {
-                                    var exception = new OperationExecutionException(this, operation, row, "error raised during the execution of an operation", ex);
-                                    throw exception;
-                                }
-
-                                if (row.DeferState == DeferState.DeferWait)
-                                {
-                                    EnqueueOperation(operation, row);
-                                    break;
-                                }
-                            }
-
-                            if (row.DeferState == DeferState.DeferDone)
-                            {
-                                row.DeferState = DeferState.None;
-                            }
-
-                            operation = GetNextOp(row);
-                            if (operation == null)
-                                break;
-
-                            row.CurrentOperation = operation;
-                        }
-
-                        if (row.DeferState == DeferState.None)
-                        {
-                            FlagRowAsFinished(row);
-                        }
+                        ProcessRow(row);
                     }
                 }
                 catch (OperationCanceledException)
@@ -764,6 +726,49 @@
             });
 
             _workerThread.Start(Transaction.Current);
+        }
+
+        private void ProcessRow(IRow row)
+        {
+            var operation = row.CurrentOperation;
+            while (operation != null)
+            {
+                if (row.DeferState != DeferState.DeferDone)
+                {
+                    try
+                    {
+                        operation.Apply(row);
+                    }
+                    catch (OperationExecutionException) { throw; }
+                    catch (Exception ex)
+                    {
+                        var exception = new OperationExecutionException(this, operation, row, "error raised during the execution of an operation", ex);
+                        throw exception;
+                    }
+
+                    if (row.DeferState == DeferState.DeferWait)
+                    {
+                        EnqueueOperation(operation, row);
+                        break;
+                    }
+                }
+
+                if (row.DeferState == DeferState.DeferDone)
+                {
+                    row.DeferState = DeferState.None;
+                }
+
+                operation = GetNextOp(row);
+                if (operation == null)
+                    break;
+
+                row.CurrentOperation = operation;
+            }
+
+            if (row.DeferState == DeferState.None)
+            {
+                FlagRowAsFinished(row);
+            }
         }
 
         private void Validate()

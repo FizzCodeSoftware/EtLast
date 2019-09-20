@@ -12,16 +12,26 @@
         public EtlException(string message)
             : base(message)
         {
+            var frame = Array.Find(new System.Diagnostics.StackTrace(true).GetFrames(), sf => !sf.GetMethod().IsConstructor);
+            if (frame != null)
+                Data.Add("Caller", frame.ToString());
         }
 
         public EtlException(string message, Exception innerException)
             : base(message, innerException)
         {
+            var frame = Array.Find(new System.Diagnostics.StackTrace(true).GetFrames(), sf => !sf.GetMethod().IsConstructor);
+            if (frame != null)
+                Data.Add("Caller", frame.ToString());
         }
 
         public EtlException(IProcess process, string message)
             : base(message)
         {
+            var frame = Array.Find(new System.Diagnostics.StackTrace(true).GetFrames(), sf => !sf.GetMethod().IsConstructor);
+            if (frame != null)
+                Data.Add("Caller", frame.ToString());
+
             Data.Add("Process", process.Name);
             Data.Add("CallChain", GetCallChain(process));
         }
@@ -29,6 +39,10 @@
         public EtlException(IProcess process, string message, Exception innerException)
             : base(message, innerException)
         {
+            var frame = Array.Find(new System.Diagnostics.StackTrace(true).GetFrames(), sf => !sf.GetMethod().IsConstructor);
+            if (frame != null)
+                Data.Add("Caller", frame.ToString());
+
             Data.Add("Process", process.Name);
             Data.Add("CallChain", GetCallChain(process));
         }

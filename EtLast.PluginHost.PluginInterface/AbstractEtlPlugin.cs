@@ -181,44 +181,51 @@
         {
             var opsErrors = new List<string>();
             GetOpsMessages(args.Exception, opsErrors);
-            foreach (var msg in opsErrors)
+            foreach (var opsError in opsErrors)
             {
                 OnLog(sender, new ContextLogEventArgs()
                 {
                     Severity = LogSeverity.Error,
                     Caller = args.Process,
-                    Text = msg,
+                    Text = opsError,
                     ForOps = true,
                 });
             }
 
-            var data = new List<string>();
-            if (args.Exception.Data != null)
+            var lvl = 0;
+            var msg = "EXCEPTION: ";
+
+            var cex = args.Exception;
+            while (cex != null)
             {
-                foreach (var key in args.Exception.Data.Keys)
+                if (lvl > 0)
+                    msg += "\nINNER EXCEPTION: ";
+
+                msg += cex.Message;
+
+                if (cex.Data?.Count > 0)
                 {
-                    var value = args.Exception.Data[key];
-                    data.Add(key + " = " + (value != null ? value.ToString() : "NULL"));
+                    foreach (var key in cex.Data.Keys)
+                    {
+                        var k = key.ToString();
+                        if (cex == args.Exception && k == "Process")
+                            continue;
+                        if (k == "CallChain")
+                            continue;
+
+                        var value = cex.Data[key];
+                        msg += ", " + k + " = " + (value != null ? value.ToString() : "NULL");
+                    }
                 }
+
+                cex = cex.InnerException;
+                lvl++;
             }
 
-            if (data.Count > 0)
-            {
-                Logger.Write(LogEventLevelMap[LogSeverity.Error], args.Exception,
-                    "{Plugin}, " + (args.Process != null ? "{Process} " : "") + "{Message} {Data}",
-                    GetType().Name,
-                    args.Process?.Name,
-                    args.Exception.Message,
-                    data);
-            }
-            else
-            {
-                Logger.Write(LogEventLevelMap[LogSeverity.Error], args.Exception,
-                    "{Plugin}, " + (args.Process != null ? "{Process} " : "") + "{Message}",
-                    GetType().Name,
-                    args.Process?.Name,
-                    args.Exception.Message);
-            }
+            Logger.Write(LogEventLevelMap[LogSeverity.Error], "{Plugin}, " + (args.Process != null ? "{Process} " : "") + "{Message}",
+                GetType().Name,
+                args.Process?.Name,
+                msg);
         }
 
         public void GetOpsMessages(Exception ex, List<string> messages)

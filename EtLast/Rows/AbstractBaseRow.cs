@@ -47,7 +47,7 @@
 
         public string ToDebugString()
         {
-            return "row " + UID.ToString("D", CultureInfo.InvariantCulture) + (Flagged ? " (flagged)" : string.Empty) + " // " + string.Join(Environment.NewLine, Values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? "(" + kvp.Value.GetType().Name + ") " + kvp.Value.ToString() : "NULL")));
+            return "UID=" + UID.ToString("D", CultureInfo.InvariantCulture) + (Flagged ? ", FLAGGED" : string.Empty) + string.Join(", ", Values.Select(kvp => kvp.Key + "=" + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().Name + ")" : "NULL")));
         }
 
         /// <summary>
