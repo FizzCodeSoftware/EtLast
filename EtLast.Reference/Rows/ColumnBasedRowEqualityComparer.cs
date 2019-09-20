@@ -21,7 +21,7 @@
                     var rightValue = rightRow[column];
                     if (leftValue != null && rightValue != null)
                     {
-                        if (leftValue.Equals(rightValue))
+                        if (!leftValue.Equals(rightValue))
                             return false;
                     }
                     else if (leftValue != rightValue)

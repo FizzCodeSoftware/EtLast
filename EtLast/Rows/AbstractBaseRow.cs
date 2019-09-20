@@ -47,7 +47,7 @@
 
         public string ToDebugString()
         {
-            return "UID=" + UID.ToString("D", CultureInfo.InvariantCulture) + (Flagged ? ", FLAGGED" : string.Empty) + string.Join(", ", Values.Select(kvp => kvp.Key + "=" + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().Name + ")" : "NULL")));
+            return "UID=" + UID.ToString("D", CultureInfo.InvariantCulture) + (Flagged ? ", FLAGGED" : string.Empty) + ", " + string.Join(", ", Values.Select(kvp => kvp.Key + "=" + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().Name + ")" : "NULL")));
         }
 
         /// <summary>

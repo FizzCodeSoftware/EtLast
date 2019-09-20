@@ -126,7 +126,7 @@
                     {
                         if (NoMatchAction != null)
                         {
-                            HandleNoMatch(row, key);
+                            HandleNoMatch(row, key, null);
                         }
 
                         return;
@@ -137,7 +137,7 @@
                     {
                         if (NoMatchAction != null)
                         {
-                            HandleNoMatch(row, key);
+                            HandleNoMatch(row, key, rightRow);
                         }
                     }
                     else if (MatchAction != null)
@@ -169,7 +169,7 @@
             }
         }
 
-        private void HandleNoMatch(IRow row, string leftKey)
+        private void HandleNoMatch(IRow row, string leftKey, IRow rightRow)
         {
             switch (NoMatchAction.Mode)
             {
@@ -181,7 +181,7 @@
                     exception.Data.Add("Key", leftKey);
                     throw exception;
                 case MatchMode.Custom:
-                    NoMatchAction.CustomAction.Invoke(this, row, null);
+                    NoMatchAction.CustomAction.Invoke(this, row, rightRow);
                     break;
             }
         }
