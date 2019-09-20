@@ -192,11 +192,33 @@
                 });
             }
 
-            Logger.Write(LogEventLevelMap[LogSeverity.Error], args.Exception,
-                "{Plugin}, " + (args.Process != null ? "{Process} " : "") + "{Message}",
-                GetType().Name,
-                args.Process?.Name,
-                args.Exception.Message);
+            var data = new List<string>();
+            if (args.Exception.Data != null)
+            {
+                foreach (var key in args.Exception.Data.Keys)
+                {
+                    var value = args.Exception.Data[key];
+                    data.Add(key + " = " + (value != null ? value.ToString() : "NULL"));
+                }
+            }
+
+            if (data.Count > 0)
+            {
+                Logger.Write(LogEventLevelMap[LogSeverity.Error], args.Exception,
+                    "{Plugin}, " + (args.Process != null ? "{Process} " : "") + "{Message} {Data}",
+                    GetType().Name,
+                    args.Process?.Name,
+                    args.Exception.Message,
+                    data);
+            }
+            else
+            {
+                Logger.Write(LogEventLevelMap[LogSeverity.Error], args.Exception,
+                    "{Plugin}, " + (args.Process != null ? "{Process} " : "") + "{Message}",
+                    GetType().Name,
+                    args.Process?.Name,
+                    args.Exception.Message);
+            }
         }
 
         public void GetOpsMessages(Exception ex, List<string> messages)
