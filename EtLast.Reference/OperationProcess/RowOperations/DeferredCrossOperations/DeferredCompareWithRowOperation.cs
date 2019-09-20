@@ -28,7 +28,6 @@
 
         private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();
         private List<IRow> _batchRows;
-        private HashSet<string> _batchRowKeys;
         private Stopwatch _lastNewRowSeenOn;
 
         public override void Apply(IRow row)
@@ -45,14 +44,13 @@
 
                 var key = GetLeftKey(row);
                 _batchRows.Add(row);
-                _batchRowKeys.Add(key);
             }
 
             var timeout = Process.ReadingInput
                 ? ForceProcessBatchAfterMilliseconds
                 : ForceProcessBatchAfterMilliseconds / 10;
 
-            var processBatch = _batchRowKeys.Count >= BatchSize || (_lastNewRowSeenOn.ElapsedMilliseconds >= timeout && _batchRowKeys.Count > 0);
+            var processBatch = _batchRows.Count >= BatchSize || (_lastNewRowSeenOn.ElapsedMilliseconds >= timeout && _batchRows.Count > 0);
             if (processBatch)
             {
                 ProcessRows();
@@ -63,7 +61,6 @@
                 }
 
                 _batchRows.Clear();
-                _batchRowKeys.Clear();
                 _lastNewRowSeenOn.Restart();
             }
             else if (row.DeferState == DeferState.None)
@@ -93,7 +90,6 @@
                 throw new OperationParameterNullException(this, nameof(RightProcessCreator));
 
             _batchRows = new List<IRow>(BatchSize);
-            _batchRowKeys = new HashSet<string>();
             _lastNewRowSeenOn = Stopwatch.StartNew();
         }
 
@@ -103,8 +99,8 @@
 
             var rightProcess = RightProcessCreator.Invoke(_batchRows.ToArray());
 
-            Process.Context.Log(LogSeverity.Information, Process, "{OperationName} evaluating {InputProcess} to process {RowCount} rows with {KeyCount} distinct foreign keys",
-                Name, rightProcess.Name, _batchRows.Count, _batchRowKeys.Count);
+            Process.Context.Log(LogSeverity.Information, Process, "{OperationName} evaluating {InputProcess} to process {RowCount} rows",
+                Name, rightProcess.Name, _batchRows.Count);
 
             var rightRows = rightProcess.Evaluate(Process);
             var rightRowCount = 0;
@@ -194,8 +190,6 @@
         {
             _batchRows.Clear();
             _batchRows = null;
-            _batchRowKeys.Clear();
-            _batchRowKeys = null;
 
             _lastNewRowSeenOn = null;
 
