@@ -69,8 +69,18 @@
             try
             {
                 var recordCount = command.ExecuteNonQuery();
+
                 process.Context.Log(LogSeverity.Information, process, "{RecordCount} records copied to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} in {Elapsed}",
                     recordCount, ConnectionStringSettings.Name, Helpers.UnEscapeTableName(Configuration.TargetTableName), Helpers.UnEscapeTableName(Configuration.SourceTableName), startedOn.Elapsed);
+
+                // todo: support stats in jobs...
+                // Stat.IncrementCounter("records written", recordCount);
+                // Stat.IncrementCounter("write time", startedOn.ElapsedMilliseconds);
+
+                process.Context.Stat.IncrementCounter("database records copied / " + ConnectionStringSettings.Name, recordCount);
+                process.Context.Stat.IncrementDebugCounter("database records copied / " + ConnectionStringSettings.Name + " / " + Helpers.UnEscapeTableName(Configuration.SourceTableName) + " -> " + Helpers.UnEscapeTableName(Configuration.TargetTableName), recordCount);
+                process.Context.Stat.IncrementCounter("database copy time / " + ConnectionStringSettings.Name, startedOn.ElapsedMilliseconds);
+                process.Context.Stat.IncrementDebugCounter("database copy time / " + ConnectionStringSettings.Name + " / " + Helpers.UnEscapeTableName(Configuration.SourceTableName) + " -> " + Helpers.UnEscapeTableName(Configuration.TargetTableName), startedOn.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {

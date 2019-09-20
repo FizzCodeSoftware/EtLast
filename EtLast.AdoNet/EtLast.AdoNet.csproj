@@ -80,6 +80,7 @@
     <Compile Include="DbTableDescriptor\DbTableDefinition.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="JobProcess\AbstractSqlStatementsJob.cs" />
+    <Compile Include="JobProcess\CustomMsSqlMergeSqlStatementJob.cs" />
     <Compile Include="JobProcess\CustomSqlStatementJob.cs" />
     <Compile Include="JobProcess\CopyTableIntoExistingTableJob.cs" />
     <Compile Include="JobProcess\CopyTableStructureJob.cs" />

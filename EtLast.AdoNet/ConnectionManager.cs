@@ -68,7 +68,6 @@
                             conn = DbProviderFactories.GetFactory(providerName).CreateConnection();
                         }
 
-                        process.Context.Stat.IncrementCounter("database connections opened", 1);
                         process.Context.Stat.IncrementCounter("database connections opened / " + connectionStringSettings.Name, 1);
 
                         conn.ConnectionString = connectionStringSettings.ConnectionString;
@@ -145,7 +144,6 @@
                         conn = DbProviderFactories.GetFactory(providerName).CreateConnection();
                     }
 
-                    process.Context.Stat.IncrementCounter("database connections opened", 1);
                     process.Context.Stat.IncrementCounter("database connections opened / " + connectionStringSettings.Name, 1);
 
                     conn.ConnectionString = connectionStringSettings.ConnectionString;

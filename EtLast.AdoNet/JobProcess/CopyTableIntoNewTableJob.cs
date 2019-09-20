@@ -50,14 +50,28 @@
             try
             {
                 var recordCount = command.ExecuteNonQuery();
+
                 process.Context.Log(LogSeverity.Information, process, "table {ConnectionStringKey}/{TargetTableName} created and {RecordCount} records copied from {SourceTableName} in {Elapsed}",
                     ConnectionStringSettings.Name, Helpers.UnEscapeTableName(Configuration.TargetTableName), recordCount, Helpers.UnEscapeTableName(Configuration.SourceTableName), startedOn.Elapsed);
+
+                // todo: support stats in jobs...
+                // Stat.IncrementCounter("records copied", recordCount);
+                // Stat.IncrementCounter("copy time", startedOn.ElapsedMilliseconds);
+
+                process.Context.Stat.IncrementCounter("database records copied / " + ConnectionStringSettings.Name, recordCount);
+                process.Context.Stat.IncrementDebugCounter("database records copied / " + ConnectionStringSettings.Name + " / " + Helpers.UnEscapeTableName(Configuration.SourceTableName) + " -> " + Helpers.UnEscapeTableName(Configuration.TargetTableName), recordCount);
+                process.Context.Stat.IncrementCounter("database copy time / " + ConnectionStringSettings.Name, startedOn.ElapsedMilliseconds);
+                process.Context.Stat.IncrementDebugCounter("database copy time / " + ConnectionStringSettings.Name + " / " + Helpers.UnEscapeTableName(Configuration.SourceTableName) + " -> " + Helpers.UnEscapeTableName(Configuration.TargetTableName), startedOn.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(process, this, "database table creation and copy failed", ex);
                 exception.AddOpsMessage(string.Format("database table creation and copy failed, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message {4}, command: {5}, timeout: {6}",
-                    ConnectionStringSettings.Name, Helpers.UnEscapeTableName(Configuration.SourceTableName), Helpers.UnEscapeTableName(Configuration.TargetTableName), Configuration.ColumnConfiguration != null ? string.Join(",", Configuration.ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, CommandTimeout));
+                    ConnectionStringSettings.Name, Helpers.UnEscapeTableName(Configuration.SourceTableName), Helpers.UnEscapeTableName(Configuration.TargetTableName),
+                    Configuration.ColumnConfiguration != null
+                        ? string.Join(",", Configuration.ColumnConfiguration.Select(x => x.FromColumn))
+                        : "all",
+                    ex.Message, command.CommandText, CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);
                 exception.Data.Add("SourceTableName", Configuration.SourceTableName);

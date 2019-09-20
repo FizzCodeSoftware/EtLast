@@ -58,11 +58,11 @@
             {
                 var exception = new JobExecutionException(process, this, "custom SQL statement failed", ex);
                 exception.AddOpsMessage(string.Format("custom SQL statement failed, connection string key: {0}, message {1}, command: {2}, timeout: {3}",
-                    ConnectionStringSettings.Name, ex.Message, SqlStatement, CommandTimeout));
+                    ConnectionStringSettings.Name, ex.Message, command.CommandText, command.CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);
-                exception.Data.Add("Statement", SqlStatement);
-                exception.Data.Add("Timeout", CommandTimeout);
+                exception.Data.Add("Statement", command.CommandText);
+                exception.Data.Add("Timeout", command.CommandTimeout);
                 exception.Data.Add("Elapsed", startedOn.Elapsed);
                 throw exception;
             }

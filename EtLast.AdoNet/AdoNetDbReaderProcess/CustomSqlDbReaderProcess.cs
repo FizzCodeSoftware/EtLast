@@ -35,7 +35,7 @@
         protected override void IncrementCounter()
         {
             Context.Stat.IncrementCounter("database records read / " + ConnectionStringSettings.Name, 1);
-            Context.Stat.IncrementCounter("database records read / " + ConnectionStringSettings.Name + " / custom query", 1);
+            Context.Stat.IncrementDebugCounter("database records read / " + ConnectionStringSettings.Name + " / custom query", 1);
             Context.Stat.IncrementDebugCounter("database records read / " + ConnectionStringSettings.Name + " / custom query / " + Name, 1);
         }
     }
