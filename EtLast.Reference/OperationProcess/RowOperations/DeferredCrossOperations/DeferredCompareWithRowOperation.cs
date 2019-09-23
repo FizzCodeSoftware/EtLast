@@ -41,8 +41,6 @@
             if (row.DeferState == DeferState.None)
             {
                 _lastNewRowSeenOn.Restart();
-
-                var key = GetLeftKey(row);
                 _batchRows.Add(row);
             }
 

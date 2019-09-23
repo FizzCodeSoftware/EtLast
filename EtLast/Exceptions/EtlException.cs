@@ -1,7 +1,13 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.Linq;
+    using System.Reflection;
     using System.Runtime.InteropServices;
+    using System.Security;
+    using System.Text;
 
     [ComVisible(true)]
     [Serializable]
@@ -12,25 +18,25 @@
         public EtlException(string message)
             : base(message)
         {
-            var frame = Array.Find(new System.Diagnostics.StackTrace(true).GetFrames(), sf => !sf.GetMethod().IsConstructor);
+            var frame = Array.Find(new StackTrace().GetFrames(), sf => !sf.GetMethod().IsConstructor);
             if (frame != null)
-                Data.Add("Caller", frame.ToString());
+                Data.Add("Caller", FrameToString(frame));
         }
 
         public EtlException(string message, Exception innerException)
             : base(message, innerException)
         {
-            var frame = Array.Find(new System.Diagnostics.StackTrace(true).GetFrames(), sf => !sf.GetMethod().IsConstructor);
+            var frame = Array.Find(new StackTrace().GetFrames(), sf => !sf.GetMethod().IsConstructor);
             if (frame != null)
-                Data.Add("Caller", frame.ToString());
+                Data.Add("Caller", FrameToString(frame));
         }
 
         public EtlException(IProcess process, string message)
             : base(message)
         {
-            var frame = Array.Find(new System.Diagnostics.StackTrace(true).GetFrames(), sf => !sf.GetMethod().IsConstructor);
+            var frame = Array.Find(new StackTrace().GetFrames(), sf => !sf.GetMethod().IsConstructor);
             if (frame != null)
-                Data.Add("Caller", frame.ToString());
+                Data.Add("Caller", FrameToString(frame));
 
             Data.Add("Process", process.Name);
             Data.Add("CallChain", GetCallChain(process));
@@ -39,12 +45,56 @@
         public EtlException(IProcess process, string message, Exception innerException)
             : base(message, innerException)
         {
-            var frame = Array.Find(new System.Diagnostics.StackTrace(true).GetFrames(), sf => !sf.GetMethod().IsConstructor);
+            var frame = Array.Find(new StackTrace().GetFrames(), sf => !sf.GetMethod().IsConstructor);
             if (frame != null)
-                Data.Add("Caller", frame.ToString());
+                Data.Add("Caller", FrameToString(frame));
 
             Data.Add("Process", process.Name);
             Data.Add("CallChain", GetCallChain(process));
+        }
+
+        private static string FrameToString(StackFrame frame)
+        {
+            var sb = new StringBuilder(200);
+
+            var method = frame.GetMethod();
+            if (method == null)
+                return "<unknown method>";
+
+            if (method.DeclaringType != null)
+            {
+                sb.Append(method.DeclaringType.FullName.Replace('+', '.'))
+                    .Append(".");
+            }
+            sb.Append(method.Name);
+
+            if (method is MethodInfo mi && mi.IsGenericMethod)
+            {
+                sb.Append("<")
+                    .Append(string.Join(",", mi.GetGenericArguments().Select(ga => ga.Name)))
+                    .Append(">");
+            }
+
+            sb.Append("(")
+                .Append(string.Join(", ", method.GetParameters().Select(mp => (mp.ParameterType?.Name ?? "<UnknownType>") + " " + mp.Name)))
+                .Append(")");
+
+            try
+            {
+                var fileName = frame.GetFileName();
+                if (frame.GetNativeOffset() != -1 && fileName != null)
+                {
+                    sb.AppendFormat(CultureInfo.InvariantCulture, " in {0}, line {1}", fileName, frame.GetFileLineNumber());
+                }
+            }
+            catch (NotSupportedException)
+            {
+            }
+            catch (SecurityException)
+            {
+            }
+
+            return sb.ToString();
         }
 
         private static string GetCallChain(IProcess process)
