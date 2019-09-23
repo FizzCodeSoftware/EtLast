@@ -212,6 +212,8 @@
                             continue;
                         if (k == "CallChain")
                             continue;
+                        if (k == "OpsMessage")
+                            continue;
 
                         var value = cex.Data[key];
                         msg += ", " + k + " = " + (value != null ? value.ToString() : "NULL");
