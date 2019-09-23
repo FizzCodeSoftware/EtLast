@@ -63,7 +63,7 @@
 
             if (method.DeclaringType != null)
             {
-                sb.Append(method.DeclaringType.FullName.Replace('+', '.'))
+                sb.Append(TypeHelpers.GetFriendlyTypeName(method.DeclaringType))
                     .Append(".");
             }
             sb.Append(method.Name);
@@ -71,12 +71,12 @@
             if (method is MethodInfo mi && mi.IsGenericMethod)
             {
                 sb.Append("<")
-                    .Append(string.Join(",", mi.GetGenericArguments().Select(ga => ga.Name)))
+                    .Append(string.Join(",", mi.GetGenericArguments().Select(TypeHelpers.GetFriendlyTypeName)))
                     .Append(">");
             }
 
             sb.Append("(")
-                .Append(string.Join(", ", method.GetParameters().Select(mp => (mp.ParameterType?.Name ?? "<UnknownType>") + " " + mp.Name)))
+                .Append(string.Join(", ", method.GetParameters().Select(mp => TypeHelpers.GetFriendlyTypeName(mp.ParameterType) + " " + mp.Name)))
                 .Append(")");
 
             try

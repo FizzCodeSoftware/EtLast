@@ -47,7 +47,7 @@
 
         public string ToDebugString()
         {
-            return "UID=" + UID.ToString("D", CultureInfo.InvariantCulture) + (Flagged ? ", FLAGGED" : string.Empty) + ", " + string.Join(", ", Values.Select(kvp => kvp.Key + "=" + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().Name + ")" : "NULL")));
+            return "UID=" + UID.ToString("D", CultureInfo.InvariantCulture) + (Flagged ? ", FLAGGED" : string.Empty) + ", " + string.Join(", ", Values.Select(kvp => kvp.Key + "=" + (kvp.Value != null ? kvp.Value.ToString() + " (" + TypeHelpers.GetFriendlyTypeName(kvp.Value.GetType()) + ")" : "NULL")));
         }
 
         /// <summary>
@@ -71,8 +71,8 @@
                 var exception = new InvalidCastException("error raised during a cast operation", ex);
                 exception.Data.Add("Column", column);
                 exception.Data.Add("Value", value != null ? value.ToString() : "NULL");
-                exception.Data.Add("SourceType", value?.GetType().Name);
-                exception.Data.Add("TargetType", typeof(T).Name);
+                exception.Data.Add("SourceType", TypeHelpers.GetFriendlyTypeName(value?.GetType()));
+                exception.Data.Add("TargetType", TypeHelpers.GetFriendlyTypeName(typeof(T)));
                 throw exception;
             }
         }
@@ -88,7 +88,7 @@
             }
             catch (Exception ex)
             {
-                throw new InvalidCastException("requested cast to '" + typeof(T).Name + "' is not possible of '" + (value != null ? (value.ToString() + " (" + value.GetType().Name + ")") : "NULL") + "' in '" + column + "'", ex);
+                throw new InvalidCastException("requested cast to '" + TypeHelpers.GetFriendlyTypeName(typeof(T)) + "' is not possible of '" + (value != null ? (value.ToString() + " (" + TypeHelpers.GetFriendlyTypeName(value.GetType()) + ")") : "NULL") + "' in '" + column + "'", ex);
             }
         }
 

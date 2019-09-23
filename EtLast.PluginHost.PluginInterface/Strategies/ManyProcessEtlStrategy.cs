@@ -9,7 +9,7 @@
     {
         public ICaller Caller { get; private set; }
         public string InstanceName { get; set; }
-        public string Name => InstanceName ?? GetType().Name;
+        public string Name => InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType());
 
         private readonly OneProcessGeneratorDelegate[] _processCreators;
         private readonly BasicEtlStrategyMultipleCreatorDelegate _multipleProcessCreator;

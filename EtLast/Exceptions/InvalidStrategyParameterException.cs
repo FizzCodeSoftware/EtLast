@@ -10,7 +10,7 @@
         public InvalidStrategyParameterException(IEtlStrategy strategy, string parameterName, object value, string cause)
             : base("invalid strategy parameter")
         {
-            Data.Add("Strategy", strategy.GetType().Name);
+            Data.Add("Strategy", strategy.Name);
             Data.Add("Parameter", parameterName);
             Data.Add("Value", value != null ? value.ToString() : "NULL");
             Data.Add("Cause", cause);

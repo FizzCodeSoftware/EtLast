@@ -9,7 +9,7 @@
 
         protected AbstractJob()
         {
-            Name = GetType().Name;
+            Name = TypeHelpers.GetFriendlyTypeName(GetType());
         }
 
         public abstract void Execute(IProcess process, CancellationTokenSource cancellationTokenSource);

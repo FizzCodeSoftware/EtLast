@@ -36,11 +36,11 @@
                 {
                     if (operation != null)
                     {
-                        Context.LogRow(process, this, "column {Column} set to ({ValueType}) {Value} by {OperationName}", column, value.GetType().Name, value, operation.Name);
+                        Context.LogRow(process, this, "column {Column} set to ({ValueType}) {Value} by {OperationName}", column, TypeHelpers.GetFriendlyTypeName(value.GetType()), value, operation.Name);
                     }
                     else
                     {
-                        Context.LogRow(process, this, "column {Column} set to ({ValueType}) {Value}", column, value.GetType().Name, value);
+                        Context.LogRow(process, this, "column {Column} set to ({ValueType}) {Value}", column, TypeHelpers.GetFriendlyTypeName(value.GetType()), value);
                     }
                 }
                 else if (operation != null)

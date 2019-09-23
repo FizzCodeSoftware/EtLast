@@ -138,7 +138,7 @@
 
             var values = new List<object>
             {
-                GetType().Name,
+                TypeHelpers.GetFriendlyTypeName(GetType()),
             };
 
             if (args.Caller != null)
@@ -169,7 +169,7 @@
 
             var fileName = Path.Combine(logsFolder, args.FileName);
 
-            var line = GetType().Name + "\t" + (args.Caller != null ? args.Caller.Name + "\t" : "") + string.Format(args.Text, args.Arguments);
+            var line = TypeHelpers.GetFriendlyTypeName(GetType()) + "\t" + (args.Caller != null ? args.Caller.Name + "\t" : "") + string.Format(args.Text, args.Arguments);
 
             lock (_dataLock)
             {
@@ -225,7 +225,7 @@
             }
 
             Logger.Write(LogEventLevelMap[LogSeverity.Error], "{Plugin}, " + (args.Process != null ? "{Process} " : "") + "{Message}",
-                GetType().Name,
+                TypeHelpers.GetFriendlyTypeName(GetType()),
                 args.Process?.Name,
                 msg);
         }

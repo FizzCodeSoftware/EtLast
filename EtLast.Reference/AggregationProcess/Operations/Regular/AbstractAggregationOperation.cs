@@ -11,7 +11,7 @@
 
         protected AbstractAggregationOperation()
         {
-            Name = GetType().Name;
+            Name = TypeHelpers.GetFriendlyTypeName(GetType());
         }
 
         public abstract IEnumerable<IRow> TransformGroup(string[] groupingColumns, IProcess process, List<IRow> rows);

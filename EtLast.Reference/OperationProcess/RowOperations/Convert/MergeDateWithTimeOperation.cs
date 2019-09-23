@@ -44,8 +44,8 @@
                     return;
                 default:
                     var exception = new OperationExecutionException(Process, this, row, "invalid value found");
-                    exception.Data.Add("SourceDate", sourceDate != null ? sourceDate.ToString() + " (" + sourceDate.GetType().Name + ")" : "NULL");
-                    exception.Data.Add("SourceTime", sourceTime != null ? sourceTime.ToString() + " (" + sourceTime.GetType().Name + ")" : "NULL");
+                    exception.Data.Add("SourceDate", sourceDate != null ? sourceDate.ToString() + " (" + TypeHelpers.GetFriendlyTypeName(sourceDate.GetType()) + ")" : "NULL");
+                    exception.Data.Add("SourceTime", sourceTime != null ? sourceTime.ToString() + " (" + TypeHelpers.GetFriendlyTypeName(sourceTime.GetType()) + ")" : "NULL");
                     throw exception;
             }
         }

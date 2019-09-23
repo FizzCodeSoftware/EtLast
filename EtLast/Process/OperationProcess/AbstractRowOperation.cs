@@ -22,7 +22,7 @@
 
         protected AbstractRowOperation()
         {
-            Name = "??." + GetType().Name;
+            Name = "??." + TypeHelpers.GetFriendlyTypeName(GetType());
             _hash = Name.GetHashCode();
         }
 
@@ -53,7 +53,7 @@
         {
             ParentGroup = null;
             Index = index;
-            Name = Index.ToString("D2") + "." + (InstanceName ?? GetType().Name);
+            Name = Index.ToString("D2") + "." + (InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType()));
             _hash = Name.GetHashCode();
         }
 
@@ -61,7 +61,7 @@
         {
             ParentGroup = parentGroup;
             Index = index;
-            Name = (ParentGroup != null ? ParentGroup.Name + "|" : "") + Index.ToString("D2") + "." + (InstanceName ?? GetType().Name);
+            Name = (ParentGroup != null ? ParentGroup.Name + "|" : "") + Index.ToString("D2") + "." + (InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType()));
             _hash = Name.GetHashCode();
         }
 

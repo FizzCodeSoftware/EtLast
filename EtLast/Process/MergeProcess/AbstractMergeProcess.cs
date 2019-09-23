@@ -16,7 +16,7 @@
         {
             Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
             Merger = merger;
-            Name = name ?? GetType().Name;
+            Name = name ?? TypeHelpers.GetFriendlyTypeName(GetType());
         }
 
         public abstract IEnumerable<IRow> Evaluate(ICaller caller = null);

@@ -140,19 +140,19 @@
 
         public void LogRow(IProcess process, IRow row, string text, params object[] args)
         {
-            var rowTemplate = "row {UID} " + (row.Flagged ? "(flagged) " : string.Empty) + string.Join(", ", row.Values.Select(kvp => "[" + kvp.Key + "] = ({" + kvp.Key + "Type}) {" + kvp.Key + "Value}"));
+            var rowTemplate = "UID={UID}, " + (row.Flagged ? "FLAGGED, " : string.Empty) + string.Join(", ", row.Values.Select(kvp => kvp.Key + "={" + kvp.Key + "Value} ({" + kvp.Key + "Type}) "));
             var rowArgs = new List<object> { row.UID };
             foreach (var kvp in row.Values)
             {
                 if (kvp.Value != null)
                 {
-                    rowArgs.Add(kvp.Value.GetType().Name);
                     rowArgs.Add(kvp.Value);
+                    rowArgs.Add(TypeHelpers.GetFriendlyTypeName(kvp.Value.GetType()));
                 }
                 else
                 {
-                    rowArgs.Add("-");
                     rowArgs.Add("NULL");
+                    rowArgs.Add("-");
                 }
             }
 

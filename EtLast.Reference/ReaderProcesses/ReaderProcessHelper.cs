@@ -18,7 +18,7 @@ namespace FizzCode.EtLast
                             Process = process,
                             Operation = null,
                             OriginalValue = null,
-                            Message = string.Format("failed to convert by {0}", configuration.Converter.GetType().Name),
+                            Message = string.Format("failed to convert by {0}", TypeHelpers.GetFriendlyTypeName(configuration.Converter.GetType())),
                         }, process);
                         failed = true;
                         return value;
@@ -47,7 +47,7 @@ namespace FizzCode.EtLast
                             Process = process,
                             Operation = null,
                             OriginalValue = value,
-                            Message = string.Format("failed to convert by {0}", configuration.Converter.GetType().Name),
+                            Message = string.Format("failed to convert by {0}", TypeHelpers.GetFriendlyTypeName(configuration.Converter.GetType())),
                         }, process);
                         break;
                     case InvalidSourceHandler.SetSpecialValue:

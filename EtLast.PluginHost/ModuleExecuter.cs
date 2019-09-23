@@ -24,7 +24,7 @@
                 foreach (var plugin in modulePlugins)
                 {
                     var startedOn = Stopwatch.StartNew();
-                    logger.Write(LogEventLevel.Information, "executing {PluginTypeName}", plugin.GetType().Name);
+                    logger.Write(LogEventLevel.Information, "executing {PluginTypeName}", TypeHelpers.GetFriendlyTypeName(plugin.GetType()));
 
                     try
                     {
@@ -83,11 +83,11 @@
                     var result = pluginResults[i];
                     if (result.Success)
                     {
-                        logger.Write(LogEventLevel.Information, "run-time of {PluginName} is {Elapsed}, status is {Status}", plugin.GetType().Name, runTimes[i], "success");
+                        logger.Write(LogEventLevel.Information, "run-time of {PluginName} is {Elapsed}, status is {Status}", TypeHelpers.GetFriendlyTypeName(plugin.GetType()), runTimes[i], "success");
                     }
                     else
                     {
-                        logger.Write(LogEventLevel.Information, "run-time of {PluginName} is {Elapsed}, status is {Status}, requested to terminate execution: {TerminateHost}", plugin.GetType().Name, runTimes[i], "failed", result.TerminateHost);
+                        logger.Write(LogEventLevel.Information, "run-time of {PluginName} is {Elapsed}, status is {Status}, requested to terminate execution: {TerminateHost}", TypeHelpers.GetFriendlyTypeName(plugin.GetType()), runTimes[i], "failed", result.TerminateHost);
                     }
                 }
             }

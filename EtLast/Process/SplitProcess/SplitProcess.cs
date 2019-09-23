@@ -20,7 +20,7 @@
         public SplitProcess(IEtlContext context, string name = null)
         {
             Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
-            Name = name ?? GetType().Name;
+            Name = name ?? TypeHelpers.GetFriendlyTypeName(GetType());
         }
 
         public IEnumerable<IRow> Evaluate(ICaller caller)

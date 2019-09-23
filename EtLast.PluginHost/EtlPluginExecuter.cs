@@ -164,7 +164,9 @@
                 var modulePlugins = new ModuleLoader().LoadModule(_logger, _opsLogger, moduleFolder, sharedFolder, _hostConfiguration.CommandLineArguments[0]);
                 modulePlugins = FilterExecutablePlugins(moduleConfiguration, modulePlugins);
 
-                _logger.Write(LogEventLevel.Information, "{PluginCount} plugin(s) found: {PluginNames}", modulePlugins.Count, modulePlugins.Select(x => x.GetType().Name).ToArray());
+                _logger.Write(LogEventLevel.Information, "{PluginCount} plugin(s) found: {PluginNames}",
+                    modulePlugins.Count, modulePlugins.Select(plugin => TypeHelpers.GetFriendlyTypeName(plugin.GetType())).ToArray());
+
                 if (modulePlugins.Count == 0)
                 {
                     return ExitCodes.ERR_NOTHING_TO_EXECUTE;
