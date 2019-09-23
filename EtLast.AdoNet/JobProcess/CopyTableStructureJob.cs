@@ -73,11 +73,11 @@
                     ConnectionStringSettings.Name, Helpers.UnEscapeTableName(config.SourceTableName), Helpers.UnEscapeTableName(config.TargetTableName), config.ColumnConfiguration != null ? string.Join(",", config.ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);
-                exception.Data.Add("SourceTableName", config.SourceTableName);
-                exception.Data.Add("TargetTableName", config.TargetTableName);
+                exception.Data.Add("SourceTableName", Helpers.UnEscapeTableName(config.SourceTableName));
+                exception.Data.Add("TargetTableName", Helpers.UnEscapeTableName(config.TargetTableName));
                 if (config.ColumnConfiguration != null)
                 {
-                    exception.Data.Add("SourceColumns", string.Join(",", config.ColumnConfiguration.Select(x => x.FromColumn)));
+                    exception.Data.Add("SourceColumns", string.Join(",", config.ColumnConfiguration.Select(x => Helpers.UnEscapeColumnName(x.FromColumn))));
                 }
 
                 exception.Data.Add("Statement", command.CommandText);

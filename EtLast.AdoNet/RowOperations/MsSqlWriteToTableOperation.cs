@@ -101,8 +101,8 @@
                 exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message {2}",
                     _connectionStringSettings.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), ex.Message));
                 exception.Data.Add("ConnectionStringKey", _connectionStringSettings.Name);
-                exception.Data.Add("TableName", TableDefinition.TableName);
-                exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + x.DbColumn)));
+                exception.Data.Add("TableName", Helpers.UnEscapeTableName(TableDefinition.TableName));
+                exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + Helpers.UnEscapeColumnName(x.DbColumn))));
                 exception.Data.Add("Timeout", CommandTimeout);
                 exception.Data.Add("Elapsed", _timer.Elapsed);
                 exception.Data.Add("TotalRowsWritten", _rowsWritten);

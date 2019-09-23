@@ -74,11 +74,11 @@
                     ex.Message, command.CommandText, CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);
-                exception.Data.Add("SourceTableName", Configuration.SourceTableName);
-                exception.Data.Add("TargetTableName", Configuration.TargetTableName);
+                exception.Data.Add("SourceTableName", Helpers.UnEscapeTableName(Configuration.SourceTableName));
+                exception.Data.Add("TargetTableName", Helpers.UnEscapeTableName(Configuration.TargetTableName));
                 if (Configuration.ColumnConfiguration != null)
                 {
-                    exception.Data.Add("SourceColumns", string.Join(",", Configuration.ColumnConfiguration.Select(x => x.FromColumn)));
+                    exception.Data.Add("SourceColumns", string.Join(",", Configuration.ColumnConfiguration.Select(x => Helpers.UnEscapeColumnName(x.FromColumn))));
                 }
 
                 exception.Data.Add("Statement", command.CommandText);

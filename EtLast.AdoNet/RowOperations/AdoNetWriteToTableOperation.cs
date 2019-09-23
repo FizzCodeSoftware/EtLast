@@ -133,8 +133,8 @@
                 exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",
                     _connectionStringSettings.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), ex.Message, sqlStatement));
                 exception.Data.Add("ConnectionStringKey", _connectionStringSettings.Name);
-                exception.Data.Add("TableName", TableDefinition.TableName);
-                exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + x.DbColumn)));
+                exception.Data.Add("TableName", Helpers.UnEscapeTableName(TableDefinition.TableName));
+                exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + Helpers.UnEscapeColumnName(x.DbColumn))));
                 exception.Data.Add("SqlStatement", sqlStatement);
                 exception.Data.Add("SqlStatementCompiled", CompileSql(_command));
                 exception.Data.Add("Timeout", CommandTimeout);

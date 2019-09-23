@@ -43,7 +43,7 @@
                     ConnectionStringSettings.Name, Helpers.UnEscapeTableName(tableName), ex.Message, command.CommandText, CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);
-                exception.Data.Add("TableName", tableName);
+                exception.Data.Add("TableName", Helpers.UnEscapeTableName(tableName));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", CommandTimeout);
                 exception.Data.Add("Elapsed", startedOn.Elapsed);
