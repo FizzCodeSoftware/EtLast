@@ -216,7 +216,7 @@
                             continue;
 
                         var value = cex.Data[key];
-                        msg += ", " + k + " = " + (value != null ? value.ToString() : "NULL");
+                        msg += ", " + k + " = " + (value != null ? value.ToString().Trim() : "NULL");
                     }
                 }
 
