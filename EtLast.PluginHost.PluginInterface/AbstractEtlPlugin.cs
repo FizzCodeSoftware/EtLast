@@ -201,7 +201,7 @@
                 if (lvl > 0)
                     msg += "\nINNER EXCEPTION: ";
 
-                msg += cex.Message;
+                msg += TypeHelpers.GetFriendlyTypeName(cex.GetType()) + ": " + cex.Message;
 
                 if (cex.Data?.Count > 0)
                 {
