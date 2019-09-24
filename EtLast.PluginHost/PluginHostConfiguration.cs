@@ -13,6 +13,7 @@
         public int RetainedLogFileCountLimit { get; set; } = 14;
         public string ModulesFolder { get; set; } = @".\modules";
         public LogEventLevel MinimumLogLevelOnConsole { get; set; }
+        public bool EnableDynamicCompilation { get; set; } = true;
 
         public void LoadFromStandardAppSettings()
         {
@@ -21,6 +22,11 @@
             RetainedLogFileCountLimit = GetAppSettingAsInt("RetainedLogFileCountLimit", 14);
             TransactionScopeTimeout = TimeSpan.FromMinutes(GetAppSettingAsInt("TransactionScopeTimeoutMinutes", 120));
             ModulesFolder = GetAppSetting("ModulesFolder");
+
+            if (bool.TryParse(GetAppSetting("EnableDynamicCompilation") ?? string.Empty, out var enableDynamicCompilation))
+            {
+                EnableDynamicCompilation = enableDynamicCompilation;
+            }
 
             var v = GetAppSetting("MinimumLogLevelOnConsole");
             if (!string.IsNullOrEmpty(v))

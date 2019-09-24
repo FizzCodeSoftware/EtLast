@@ -1,15 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
-
     <Platforms>AnyCPU</Platforms>
-
     <AssemblyName>FizzCode.EtLast.Tests.Unit.AdoNet</AssemblyName>
-
     <RootNamespace>FizzCode.EtLast.Tests.Unit.AdoNet</RootNamespace>
+    <CodeAnalysisRuleSet>..\..\FizzCode.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>

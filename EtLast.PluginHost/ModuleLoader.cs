@@ -16,11 +16,11 @@
 
     internal static class ModuleLoader
     {
-        public static List<IEtlPlugin> LoadModule(ILogger logger, ILogger opsLogger, string moduleFolder, string sharedFolder, string nameSpaceEnding)
+        public static List<IEtlPlugin> LoadModule(ILogger logger, ILogger opsLogger, string moduleFolder, string sharedFolder, bool enableDynamicCompilation, string nameSpaceEnding)
         {
             var startedOn = Stopwatch.StartNew();
 
-            if (Debugger.IsAttached)
+            if (!enableDynamicCompilation || Debugger.IsAttached)
             {
                 logger.Write(LogEventLevel.Information, "loading plugins directly from AppDomain where namespace ends with {NameSpaceEnding}", nameSpaceEnding);
                 var appDomainPlugins = LoadPluginsFromAppDomain(nameSpaceEnding);

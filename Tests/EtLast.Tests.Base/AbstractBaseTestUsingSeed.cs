@@ -9,7 +9,7 @@
 
         public IOperationProcess CreateProcess(IEtlContext context = null)
         {
-            context = context ?? new EtlContext<DictionaryRow>();
+            context ??= new EtlContext<DictionaryRow>();
 
             return new OperationProcess(context)
             {

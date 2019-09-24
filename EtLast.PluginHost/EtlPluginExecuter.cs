@@ -78,7 +78,6 @@
                 _logger = SerilogConfigurator.CreateLogger(_hostConfiguration);
                 _opsLogger = SerilogConfigurator.CreateOpsLogger(_hostConfiguration);
 
-                //TransactionScopeTimeoutHack.ApplyHack(_hostConfiguration.TransactionScopeTimeout);
                 EnableVirtualTerminalProcessingHack.ApplyHack();
 
                 if (_hostConfiguration.CommandLineArguments.Length == 0)
@@ -129,7 +128,7 @@
                     FillModuleConfigFromSharedConfig(moduleConfiguration, sharedConfiguration);
                 }
 
-                var modulePlugins = ModuleLoader.LoadModule(_logger, _opsLogger, moduleFolder, sharedFolder, _hostConfiguration.CommandLineArguments[0]);
+                var modulePlugins = ModuleLoader.LoadModule(_logger, _opsLogger, moduleFolder, sharedFolder, _hostConfiguration.EnableDynamicCompilation, _hostConfiguration.CommandLineArguments[0]);
                 modulePlugins = FilterExecutablePlugins(moduleConfiguration, modulePlugins);
 
                 _logger.Write(LogEventLevel.Information, "{PluginCount} plugin(s) found: {PluginNames}",

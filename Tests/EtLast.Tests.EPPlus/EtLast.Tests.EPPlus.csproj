@@ -1,15 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
-
     <Platforms>AnyCPU</Platforms>
-
     <AssemblyName>FizzCode.EtLast.Tests.EPPlus</AssemblyName>
-
     <RootNamespace>FizzCode.EtLast.Tests.EPPlus</RootNamespace>
+    <CodeAnalysisRuleSet>..\..\FizzCode.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>
