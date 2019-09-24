@@ -13,6 +13,7 @@
     <RootNamespace>FizzCode.EtLast</RootNamespace>
     <AssemblyName>FizzCode.EtLast.PluginHost.PluginInterface</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
