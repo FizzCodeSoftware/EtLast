@@ -7,7 +7,6 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
-    using System.Xml.Linq;
     using Serilog;
     using Serilog.Events;
 
@@ -53,37 +52,6 @@
                         eventLog.WriteEntry("ETL Plugin Executer failed due to plugin errors", EventLogEntryType.Information, exitCode);
                         break;
                 }
-            }
-        }
-
-        public static void FixRoslynCompilerLocationInConfigFile(string configFileName)
-        {
-            var appDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-            if (!File.Exists(configFileName))
-            {
-                return;
-            }
-
-            var content = File.ReadAllText(configFileName);
-            var doc = XDocument.Load(configFileName);
-            var appSettingsNode = doc.Descendants("appSettings").FirstOrDefault();
-
-            var element = appSettingsNode.Descendants("add").FirstOrDefault(x => string.Equals(x.Attribute("key").Value, "aspnet:RoslynCompilerLocation", StringComparison.InvariantCultureIgnoreCase));
-            element.SetAttributeValue("value", Path.Combine(appDir, "roslyn"));
-            doc.Save(configFileName);
-
-            AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configFileName);
-
-            typeof(ConfigurationManager).GetField("s_initState", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, 0);
-            typeof(ConfigurationManager).GetField("s_configSystem", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, null);
-            typeof(ConfigurationManager).Assembly.GetTypes().First(x => x.FullName == "System.Configuration.ClientConfigPaths")
-                .GetField("s_current", BindingFlags.NonPublic | BindingFlags.Static)
-                .SetValue(null, null);
-
-            if (ConfigurationManager.AppSettings["aspnet:RoslynCompilerLocation"] == null)
-            {
-                throw new Exception("applying roslyn compiler location fix failed");
             }
         }
 

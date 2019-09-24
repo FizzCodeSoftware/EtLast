@@ -33,7 +33,7 @@
 
             var references = new List<MetadataReference>();
 
-            var referenceDllFileNames = Directory.GetFiles(@"c:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\3.0.0\ref\netcoreapp3.0", "*.dll", SearchOption.TopDirectoryOnly);
+            var referenceDllFileNames = Directory.GetFiles(@"c:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.0.0", "System*.dll", SearchOption.TopDirectoryOnly);
             foreach (var dllFileName in referenceDllFileNames)
             {
                 references.Add(MetadataReference.CreateFromFile(dllFileName));
