@@ -8,7 +8,7 @@
     <Description>EtLast ETL (Extract, Transform and Load) library for .NET Core</Description>
     <Copyright>Copyright © 2019 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>AnyCPU</Platforms>
     <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
     <AssemblyName>FizzCode.EtLast</AssemblyName>
     <RootNamespace>FizzCode.EtLast</RootNamespace>

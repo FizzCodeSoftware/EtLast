@@ -8,7 +8,7 @@
     <Description>Plugin interface for EtLast ETL (Extract, Transform and Load) library</Description>
     <Copyright>Copyright © 2019 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>AnyCPU</Platforms>
     <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
     <RootNamespace>FizzCode.EtLast</RootNamespace>
     <AssemblyName>FizzCode.EtLast.PluginHost.PluginInterface</AssemblyName>

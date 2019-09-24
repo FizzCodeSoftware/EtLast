@@ -9,7 +9,7 @@
     <Copyright>Copyright © 2019 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Description>ADO.NET extension for EtLast ETL (Extract, Transform and Load) library</Description>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>AnyCPU</Platforms>
     <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
     <AssemblyName>FizzCode.EtLast.AdoNet</AssemblyName>
     <RootNamespace>FizzCode.EtLast.AdoNet</RootNamespace>
