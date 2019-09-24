@@ -1,13 +1,16 @@
 ﻿namespace FizzCode.EtLast.PluginHost
 {
     using System;
-    using System.CodeDom.Compiler;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Runtime.Loader;
     using FizzCode.EtLast;
+    using Microsoft.CodeAnalysis;
+    using Microsoft.CodeAnalysis.CSharp;
+    using Microsoft.CodeAnalysis.Text;
     using Serilog;
     using Serilog.Events;
 
@@ -28,38 +31,24 @@
             logger.Write(LogEventLevel.Information, "compiling plugins from {FolderName} using shared files in {SharedFolderName}", moduleFolder, sharedFolder);
             var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            var parameters = new CompilerParameters();
-            parameters.ReferencedAssemblies.Add("System.dll");
-            parameters.ReferencedAssemblies.Add("System.Core.dll");
-            parameters.ReferencedAssemblies.Add("System.Configuration.dll");
-            parameters.ReferencedAssemblies.Add("System.Data.dll");
-            parameters.ReferencedAssemblies.Add("System.Data.DataSetExtensions.dll");
-            parameters.ReferencedAssemblies.Add("System.Net.Http.dll");
-            parameters.ReferencedAssemblies.Add("System.Drawing.dll");
-            parameters.ReferencedAssemblies.Add("System.Runtime.dll");
-            parameters.ReferencedAssemblies.Add("System.Runtime.Serialization.dll");
-            parameters.ReferencedAssemblies.Add("System.Net.Http.dll");
-            parameters.ReferencedAssemblies.Add("System.Security.dll");
-            parameters.ReferencedAssemblies.Add("System.ServiceModel.dll");
-            parameters.ReferencedAssemblies.Add("System.ServiceProcess.dll");
-            parameters.ReferencedAssemblies.Add("System.Transactions.dll");
-            parameters.ReferencedAssemblies.Add("System.Windows.Forms.dll");
-            parameters.ReferencedAssemblies.Add("System.Xml.dll");
-            parameters.ReferencedAssemblies.Add("System.Xml.Linq.dll");
+            var references = new List<MetadataReference>();
 
-            var dllFileNames = Directory.GetFiles(selfFolder, "*.dll", SearchOption.TopDirectoryOnly);
-            foreach (var dllFileName in dllFileNames)
+            var referenceDllFileNames = Directory.GetFiles(@"c:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\3.0.0\ref\netcoreapp3.0", "*.dll", SearchOption.TopDirectoryOnly);
+            foreach (var dllFileName in referenceDllFileNames)
+            {
+                references.Add(MetadataReference.CreateFromFile(dllFileName));
+            }
+
+            var localDllFileNames = Directory.GetFiles(selfFolder, "*.dll", SearchOption.TopDirectoryOnly);
+            foreach (var dllFileName in localDllFileNames)
             {
                 if (dllFileName.IndexOf("Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll", StringComparison.InvariantCultureIgnoreCase) > -1)
                     continue;
                 if (dllFileName.IndexOf("Serilog", StringComparison.InvariantCultureIgnoreCase) > -1)
                     continue;
 
-                parameters.ReferencedAssemblies.Add(dllFileName);
+                references.Add(MetadataReference.CreateFromFile(dllFileName));
             }
-
-            parameters.GenerateExecutable = false;
-            parameters.GenerateInMemory = true;
 
             var fileNames = Directory.GetFiles(moduleFolder, "*.cs", SearchOption.AllDirectories);
 
@@ -70,27 +59,40 @@
                     .ToArray();
             }
 
-            CompilerResults results;
-            using (var provider = new Microsoft.CSharp.CSharpCodeProvider())
-            {
-                results = provider.CompileAssemblyFromFile(parameters, fileNames);
-            }
+            var options = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp8);
 
-            if (results.Errors.Count > 0)
+            var trees = fileNames
+                .Select(x => SyntaxFactory.ParseSyntaxTree(SourceText.From(File.ReadAllText(x)), options, x))
+                .ToArray();
+
+            using (var peStream = new MemoryStream())
             {
-                foreach (CompilerError error in results.Errors)
+                var x = CSharpCompilation.Create("compiled.dll", trees, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
+                    optimizationLevel: OptimizationLevel.Release,
+                    assemblyIdentityComparer: DesktopAssemblyIdentityComparer.Default));
+
+                var result = x.Emit(peStream);
+                if (!result.Success)
                 {
-                    logger.Write(LogEventLevel.Error, "syntax error in plugin: {Message}" + error.ToString());
-                    opsLogger.Write(LogEventLevel.Error, "syntax error in plugin: {Message}" + error.ToString());
+                    var failures = result.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
+                    foreach (var error in failures)
+                    {
+                        logger.Write(LogEventLevel.Error, "syntax error in plugin: {Message}", error.ToString());
+                        opsLogger.Write(LogEventLevel.Error, "syntax error in plugin: {Message}", error.GetMessage());
+                    }
+
+                    return null;
                 }
 
-                return null;
+                peStream.Seek(0, SeekOrigin.Begin);
+
+                var assemblyLoadContext = new SimpleUnloadableAssemblyLoadContext();
+                var assembly = assemblyLoadContext.LoadFromStream(peStream);
+
+                var compiledPlugins = LoadPluginsFromAssembly(assembly);
+                logger.Write(LogEventLevel.Information, "finished in {Elapsed}", startedOn.Elapsed);
+                return compiledPlugins;
             }
-
-            var compiledPlugins = LoadPluginsFromAssembly(results.CompiledAssembly);
-
-            logger.Write(LogEventLevel.Information, "finished in {Elapsed}", startedOn.Elapsed);
-            return compiledPlugins;
         }
 
         private static List<IEtlPlugin> LoadPluginsFromAssembly(Assembly assembly)
@@ -129,6 +131,19 @@
             }
 
             return result;
+        }
+
+        internal class SimpleUnloadableAssemblyLoadContext : AssemblyLoadContext
+        {
+            public SimpleUnloadableAssemblyLoadContext()
+                : base(true)
+            {
+            }
+
+            protected override Assembly Load(AssemblyName assemblyName)
+            {
+                return null;
+            }
         }
     }
 }

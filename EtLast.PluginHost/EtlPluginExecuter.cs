@@ -110,7 +110,7 @@
                 _logger = SerilogConfigurator.CreateLogger(_hostConfiguration);
                 _opsLogger = SerilogConfigurator.CreateOpsLogger(_hostConfiguration);
 
-                TransactionScopeTimeoutHack.ApplyHack(_hostConfiguration.TransactionScopeTimeout);
+                //TransactionScopeTimeoutHack.ApplyHack(_hostConfiguration.TransactionScopeTimeout);
                 EnableVirtualTerminalProcessingHack.ApplyHack();
 
                 if (_hostConfiguration.CommandLineArguments.Length == 0)
