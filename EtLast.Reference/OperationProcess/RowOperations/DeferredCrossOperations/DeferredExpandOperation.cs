@@ -54,7 +54,7 @@
                     Stat.IncrementCounter("served_from_cache", 1);
                     Stat.IncrementCounter("processed", 1);
 
-                    HandleMatch(row, key, rightRow);
+                    HandleMatch(row, rightRow);
                     return;
                 }
 
@@ -155,7 +155,7 @@
                     }
                     else
                     {
-                        HandleMatch(row, key, rightRow);
+                        HandleMatch(row, rightRow);
                     }
                 }
             }
@@ -185,7 +185,7 @@
             }
         }
 
-        private void HandleMatch(IRow row, string key, IRow match)
+        private void HandleMatch(IRow row, IRow match)
         {
             foreach (var config in ColumnConfiguration)
             {

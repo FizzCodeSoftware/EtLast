@@ -39,7 +39,7 @@
                 case char chv:
                     using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.ScalarValue))
                     {
-                        Serilog.Formatting.Json.JsonValueFormatter.WriteQuotedJsonString(chv.ToString(), builder);
+                        Serilog.Formatting.Json.JsonValueFormatter.WriteQuotedJsonString(chv.ToString(CultureInfo.InvariantCulture), builder);
                         break;
                     }
                 case DateTime dtv:

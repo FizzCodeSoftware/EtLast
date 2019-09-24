@@ -77,17 +77,13 @@
 
         internal static ColorCode GetOverridenColorCode(LogEvent logEvent, ColorCode colorCode)
         {
-            switch (logEvent.Level)
+            return logEvent.Level switch
             {
-                case LogEventLevel.Warning:
-                    return ColorCode.LvlTokenWrn;
-                case LogEventLevel.Fatal:
-                    return ColorCode.LvlTokenFtl;
-                case LogEventLevel.Error:
-                    return ColorCode.LvlTokenErr;
-            }
-
-            return colorCode;
+                LogEventLevel.Warning => ColorCode.LvlTokenWrn,
+                LogEventLevel.Fatal => ColorCode.LvlTokenFtl,
+                LogEventLevel.Error => ColorCode.LvlTokenErr,
+                _ => colorCode,
+            };
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
+
     public class IntConverter : ITypeConverter
     {
         public string[] RemoveSubString { get; set; }
@@ -44,7 +46,7 @@
                 {
                     foreach (var subStr in RemoveSubString)
                     {
-                        str = str.Replace(subStr, string.Empty);
+                        str = str.Replace(subStr, string.Empty, StringComparison.InvariantCultureIgnoreCase);
                     }
                 }
 

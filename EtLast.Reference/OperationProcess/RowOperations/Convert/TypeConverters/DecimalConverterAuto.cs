@@ -26,7 +26,7 @@
                 {
                     foreach (var subStr in RemoveSubString)
                     {
-                        str = str.Replace(subStr, string.Empty);
+                        str = str.Replace(subStr, string.Empty, StringComparison.InvariantCultureIgnoreCase);
                     }
                 }
 

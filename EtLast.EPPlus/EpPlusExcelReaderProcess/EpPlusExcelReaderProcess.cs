@@ -67,13 +67,14 @@
                 throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
 
             var relativeFileName = FileName;
-            if (!FileName.StartsWith(".") && !FileName.StartsWith(Path.DirectorySeparatorChar.ToString()))
+            if (!FileName.StartsWith(".", StringComparison.InvariantCultureIgnoreCase) && !FileName.StartsWith(Path.DirectorySeparatorChar))
             {
                 try
                 {
                     var baseFolder = Path.GetDirectoryName((Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly()).Location);
-                    if (!baseFolder.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                    if (!baseFolder.EndsWith(Path.DirectorySeparatorChar))
                         baseFolder += Path.DirectorySeparatorChar;
+
                     relativeFileName = new Uri(baseFolder).MakeRelativeUri(new Uri(FileName)).OriginalString.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
                 }
                 catch (Exception)
@@ -101,7 +102,7 @@
             if (!File.Exists(FileName))
             {
                 var exception = new EtlException(this, "excel file doesn't exists");
-                exception.AddOpsMessage(string.Format("excel file doesn't exists, file name: {0}", FileName));
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel file doesn't exists, file name: {0}", FileName));
                 exception.Data.Add("FileName", FileName);
                 throw exception;
             }
@@ -125,14 +126,16 @@
                 try
                 {
                     Context.Stat.IncrementCounter("excel files opened", 1);
+#pragma warning disable CA2000 // Dispose objects before losing scope
 #pragma warning disable IDE0068 // Use recommended dispose pattern
                     package = new ExcelPackage(new FileInfo(FileName));
 #pragma warning restore IDE0068 // Use recommended dispose pattern
+#pragma warning restore CA2000 // Dispose objects before losing scope
                 }
                 catch (Exception ex)
                 {
                     var exception = new EtlException(this, "excel file read failed", ex);
-                    exception.AddOpsMessage(string.Format("excel file read failed, file name: {0}, message {1}", FileName, ex.Message));
+                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel file read failed, file name: {0}, message {1}", FileName, ex.Message));
                     exception.Data.Add("FileName", FileName);
                     throw exception;
                 }
@@ -150,7 +153,7 @@
                     if (!string.IsNullOrEmpty(SheetName))
                     {
                         var exception = new EtlException(this, "can't read excel sheet");
-                        exception.AddOpsMessage(string.Format("can't read excel sheet, file name: {0}, sheet: {1}, existing sheet names: {2}", FileName, SheetName, string.Join(",", workbook.Worksheets.Select(x => x.Name))));
+                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "can't read excel sheet, file name: {0}, sheet: {1}, existing sheet names: {2}", FileName, SheetName, string.Join(",", workbook.Worksheets.Select(x => x.Name))));
                         exception.Data.Add("FileName", FileName);
                         exception.Data.Add("SheetName", SheetName);
                         exception.Data.Add("ExistingSheetNames", string.Join(",", workbook.Worksheets.Select(x => x.Name)));
@@ -206,7 +209,7 @@
 
                     excelColumn = EnsureDistinctColumnNames(excelColumns, excelColumn);
 
-                    var columnConfiguration = ColumnConfiguration.Find(x => string.Compare(x.SourceColumn, excelColumn, true) == 0);
+                    var columnConfiguration = ColumnConfiguration.Find(x => string.Equals(x.SourceColumn, excelColumn, StringComparison.InvariantCultureIgnoreCase));
                     if (columnConfiguration != null)
                     {
                         var column = columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn;
@@ -249,12 +252,12 @@
                         var ci = !Transpose ? kvp.Value.Index : rowIndex;
 
                         var value = GetCellUnmerged(sheet, ri, ci)?.Value;
-                        if (value != null && TreatEmptyStringAsNull && (value is string str) && str == string.Empty)
+                        if (value != null && TreatEmptyStringAsNull && (value is string str) && string.IsNullOrEmpty(str))
                         {
                             value = null;
                         }
 
-                        value = ReaderProcessHelper.HandleConverter(this, value, ri, kvp.Key, kvp.Value.Configuration, row, out var error);
+                        value = ReaderProcessHelper.HandleConverter(this, value, kvp.Key, kvp.Value.Configuration, row, out var error);
                         if (error)
                             continue;
 

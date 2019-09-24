@@ -77,7 +77,7 @@
         protected override void LogAction()
         {
             Context.Log(LogSeverity.Debug, this, "reading from {ConnectionStringKey}/{TableName}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionStringSettings.Name, Helpers.UnEscapeTableName(TableName), CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+                ConnectionStringSettings.Name, Helpers.UnEscapeTableName(TableName), CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
         }
 
         protected override void IncrementCounter()

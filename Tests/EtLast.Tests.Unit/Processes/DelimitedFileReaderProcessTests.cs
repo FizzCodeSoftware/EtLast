@@ -19,7 +19,7 @@
 
             _delimitedFileReaderProcess = new DelimitedFileReaderProcess(context, "DelimitedFileReaderProcess")
             {
-                FileName = @"..\..\TestData\Sample.csv",
+                FileName = @"TestData\Sample.csv",
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
                 {
                     new ReaderColumnConfiguration("Id", new IntConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
@@ -64,7 +64,7 @@
         [TestMethod]
         public void InvalidConversion()
         {
-            _delimitedFileReaderProcess.FileName = @"..\..\TestData\SampleInvalidConversion.csv";
+            _delimitedFileReaderProcess.FileName = @"TestData\SampleInvalidConversion.csv";
             var result = _process.Evaluate().ToList();
 
             // TODO check exception

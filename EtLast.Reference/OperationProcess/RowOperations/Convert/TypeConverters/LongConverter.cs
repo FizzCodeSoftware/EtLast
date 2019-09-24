@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast
+﻿using System;
+
+namespace FizzCode.EtLast
 {
     public class LongConverter : ITypeConverter
     {
@@ -44,7 +46,7 @@
                 {
                     foreach (var subStr in RemoveSubString)
                     {
-                        str = str.Replace(subStr, string.Empty);
+                        str = str.Replace(subStr, string.Empty, StringComparison.InvariantCultureIgnoreCase);
                     }
                 }
 

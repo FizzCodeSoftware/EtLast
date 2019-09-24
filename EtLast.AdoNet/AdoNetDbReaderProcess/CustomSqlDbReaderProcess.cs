@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Transactions;
 
     public class CustomSqlAdoNetDbReaderProcess : AbstractAdoNetDbReaderProcess
@@ -29,7 +30,8 @@
 
         protected override void LogAction()
         {
-            Context.Log(LogSeverity.Debug, this, "reading from {ConnectionStringKey} using custom query, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionStringSettings.Name, CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+            Context.Log(LogSeverity.Debug, this, "reading from {ConnectionStringKey} using custom query, timeout: {Timeout} sec, transaction: {Transaction}",
+                ConnectionStringSettings.Name, CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
         }
 
         protected override void IncrementCounter()

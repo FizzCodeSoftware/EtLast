@@ -100,14 +100,14 @@
         {
             foreach (var kvp in stat.GetCountersOrdered())
             {
-                if (!kvp.Key.StartsWith(StatCounterCollection.DebugNamePrefix))
+                if (!kvp.Key.StartsWith(StatCounterCollection.DebugNamePrefix, StringComparison.InvariantCultureIgnoreCase))
                 {
                     globalStat.IncrementCounter(kvp.Key, kvp.Value);
                 }
             }
         }
 
-        private void LogStats(StatCounterCollection stats, ILogger logger)
+        private static void LogStats(StatCounterCollection stats, ILogger logger)
         {
             var counters = stats.GetCountersOrdered();
             if (counters.Count == 0)

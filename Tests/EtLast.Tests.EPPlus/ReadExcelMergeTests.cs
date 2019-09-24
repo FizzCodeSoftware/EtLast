@@ -1,4 +1,4 @@
-﻿namespace EtLast.Tests.EPPlus
+﻿namespace FizzCode.EtLast.Tests.EPPlus
 {
     using System;
     using System.Collections.Generic;

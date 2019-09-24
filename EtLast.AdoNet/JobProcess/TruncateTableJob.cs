@@ -4,6 +4,7 @@
     using System.Configuration;
     using System.Data;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Transactions;
 
     public class TruncateTableJob : AbstractSqlStatementJob
@@ -24,7 +25,7 @@
         protected override void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn)
         {
             process.Context.Log(LogSeverity.Debug, process, "truncating {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionStringSettings.Name, Helpers.UnEscapeTableName(TableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+                ConnectionStringSettings.Name, Helpers.UnEscapeTableName(TableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
 
             var originalStatement = command.CommandText;
 
@@ -40,7 +41,7 @@
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(process, this, "database table truncate failed", ex);
-                exception.AddOpsMessage(string.Format("database table truncate failed, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table truncate failed, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionStringSettings.Name, Helpers.UnEscapeTableName(TableName), ex.Message, originalStatement, CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);

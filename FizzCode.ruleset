@@ -6,11 +6,11 @@
     <Rule Id="CA1016" Action="Warning" />
     <Rule Id="CA1033" Action="Warning" />
     <Rule Id="CA1049" Action="Warning" />
-    <Rule Id="CA1060" Action="Warning" />
     <Rule Id="CA1061" Action="Warning" />
     <Rule Id="CA1063" Action="Warning" />
     <Rule Id="CA1065" Action="Warning" />
     <Rule Id="CA1301" Action="Warning" />
+    <Rule Id="CA1307" Action="Warning" />
     <Rule Id="CA1400" Action="Warning" />
     <Rule Id="CA1401" Action="Warning" />
     <Rule Id="CA1403" Action="Warning" />
@@ -53,7 +53,6 @@
     <Rule Id="CA2214" Action="Warning" />
     <Rule Id="CA2216" Action="Warning" />
     <Rule Id="CA2220" Action="Warning" />
-    <Rule Id="CA2229" Action="Warning" />
     <Rule Id="CA2231" Action="Warning" />
     <Rule Id="CA2232" Action="Warning" />
     <Rule Id="CA2235" Action="Warning" />
@@ -68,6 +67,26 @@
     <Rule Id="IDE0046" Action="None" />
     <Rule Id="IDE0046WithoutSuggestion" Action="None" />
     <Rule Id="IDE0060" Action="None" />
+    <Rule Id="IDE0063" Action="None" />
+    <Rule Id="IDE0063WithoutSuggestion" Action="None" />
+  </Rules>
+  <Rules AnalyzerId="Microsoft.CodeQuality.Analyzers" RuleNamespace="Microsoft.CodeQuality.Analyzers">
+    <Rule Id="CA1031" Action="None" />
+    <Rule Id="CA1056" Action="None" />
+    <Rule Id="CA1062" Action="None" />
+    <Rule Id="CA1707" Action="None" />
+    <Rule Id="CA1716" Action="None" />
+    <Rule Id="CA1814" Action="None" />
+    <Rule Id="CA1819" Action="None" />
+    <Rule Id="CA2227" Action="None" />
+  </Rules>
+  <Rules AnalyzerId="Microsoft.CodeQuality.CSharp.Analyzers" RuleNamespace="Microsoft.CodeQuality.CSharp.Analyzers">
+    <Rule Id="CA1032" Action="None" />
+  </Rules>
+  <Rules AnalyzerId="Microsoft.NetCore.Analyzers" RuleNamespace="Microsoft.NetCore.Analyzers">
+    <Rule Id="CA1303" Action="None" />
+    <Rule Id="CA1308" Action="None" />
+    <Rule Id="CA2229" Action="None" />
   </Rules>
   <Rules AnalyzerId="Roslynator.CSharp.Analyzers" RuleNamespace="Roslynator.CSharp.Analyzers">
     <Rule Id="RCS1005" Action="Info" />

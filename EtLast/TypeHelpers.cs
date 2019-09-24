@@ -9,42 +9,25 @@
             if (type == null)
                 return "<unknown type>";
 
-            var name = type.Name.Replace('+', '.');
-            switch (type.Name)
+            return type.Name switch
             {
-                case "Boolean":
-                    return "bool";
-                case "Byte":
-                    return "byte";
-                case "SByte":
-                    return "sbyte";
-                case "Char":
-                    return "char";
-                case "Decimal":
-                    return "decimal";
-                case "Double":
-                    return "double";
-                case "Single":
-                    return "float";
-                case "Int32":
-                    return "int";
-                case "UInt32":
-                    return "uint";
-                case "Int64":
-                    return "long";
-                case "UInt64":
-                    return "ulong";
-                case "Object":
-                    return "object";
-                case "Int16":
-                    return "short";
-                case "UInt16":
-                    return "ushort";
-                case "String":
-                    return "string";
-            }
-
-            return name;
+                "Boolean" => "bool",
+                "Byte" => "byte",
+                "SByte" => "sbyte",
+                "Char" => "char",
+                "Decimal" => "decimal",
+                "Double" => "double",
+                "Single" => "float",
+                "Int32" => "int",
+                "UInt32" => "uint",
+                "Int64" => "long",
+                "UInt64" => "ulong",
+                "Object" => "object",
+                "Int16" => "short",
+                "UInt16" => "ushort",
+                "String" => "string",
+                _ => type.Name.Replace('+', '.'),
+            };
         }
     }
 }

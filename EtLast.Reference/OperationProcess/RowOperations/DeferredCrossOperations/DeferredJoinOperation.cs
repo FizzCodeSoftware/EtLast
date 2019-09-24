@@ -191,7 +191,7 @@
                         }
                     }
 
-                    HandleMatch(row, key, matches);
+                    HandleMatch(row, matches);
                 }
             }
             finally
@@ -221,7 +221,7 @@
             return newRow;
         }
 
-        private void HandleMatch(IRow row, string key, List<IRow> matches)
+        private void HandleMatch(IRow row, List<IRow> matches)
         {
             if (matches.Count > 1)
             {

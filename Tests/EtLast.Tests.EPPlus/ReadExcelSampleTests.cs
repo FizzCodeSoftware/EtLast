@@ -1,4 +1,4 @@
-﻿namespace EtLast.Tests.EPPlus
+﻿namespace FizzCode.EtLast.Tests.EPPlus
 {
     using System;
     using System.Collections.Generic;
@@ -21,7 +21,7 @@
 
             _epPlusExcelReaderProcess = new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess")
             {
-                FileName = @"..\..\TestData\Sample.xlsx",
+                FileName = @"TestData\Sample.xlsx",
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
                     {
                         new ReaderColumnConfiguration("Id", new IntConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },

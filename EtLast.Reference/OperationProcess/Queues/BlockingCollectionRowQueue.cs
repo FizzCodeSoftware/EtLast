@@ -4,7 +4,10 @@
     using System.Collections.Generic;
     using System.Threading;
 
+    // todo: implement IDisposable on all IRowQueue implementations
+#pragma warning disable CA1001 // Types that own disposable fields should be disposable
     public class BlockingCollectionRowQueue : IRowQueue
+#pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         private readonly BlockingCollection<IRow> _collection = new BlockingCollection<IRow>();
 

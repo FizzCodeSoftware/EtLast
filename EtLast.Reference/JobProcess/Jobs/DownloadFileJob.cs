@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
+    using System.Globalization;
     using System.Net;
     using System.Threading;
 
@@ -28,7 +29,7 @@
                 catch (Exception ex)
                 {
                     var exception = new JobExecutionException(process, this, "file download failed", ex);
-                    exception.AddOpsMessage(string.Format("file download failed, url: {0}, file name: {1}, message: {2}", Url, FileName, ex.Message));
+                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "file download failed, url: {0}, file name: {1}, message: {2}", Url, FileName, ex.Message));
                     exception.Data.Add("Url", Url);
                     exception.Data.Add("FileName", FileName);
                     throw exception;

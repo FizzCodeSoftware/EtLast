@@ -80,7 +80,7 @@
                 return text;
             }
 
-            switch (column.GetHashCode() % 10)
+            switch (column.GetHashCode(StringComparison.InvariantCultureIgnoreCase) % 10)
             {
                 case 8:
                     return new DateTime(2000, 1, 1).AddDays(rnd.Next(1, 365 * 30));

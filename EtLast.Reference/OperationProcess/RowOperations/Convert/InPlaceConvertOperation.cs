@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast
+﻿using System.Globalization;
+
+namespace FizzCode.EtLast
 {
     public class InPlaceConvertOperation : AbstractRowOperation
     {
@@ -61,7 +63,7 @@
                                 Process = Process,
                                 Operation = this,
                                 OriginalValue = source,
-                                Message = string.Format("null source detected by {0}", Name),
+                                Message = string.Format(CultureInfo.InvariantCulture, "null source detected by {0}", Name),
                             }, this);
                             break;
                     }
@@ -85,7 +87,7 @@
                             Process = Process,
                             Operation = this,
                             OriginalValue = source,
-                            Message = string.Format("invalid source detected by {0}", Name),
+                            Message = string.Format(CultureInfo.InvariantCulture, "invalid source detected by {0}", Name),
                         }, this);
                         break;
                 }

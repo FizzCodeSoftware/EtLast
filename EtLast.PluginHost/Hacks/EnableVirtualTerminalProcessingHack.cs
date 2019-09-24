@@ -3,9 +3,9 @@
     using System;
     using System.Runtime.InteropServices;
 
-    internal class EnableVirtualTerminalProcessingHack
+    internal static class EnableVirtualTerminalProcessingHack
     {
-        public void ApplyHack()
+        public static void ApplyHack()
         {
             var stdOut = GetStdHandle(-11);
             if (stdOut != (IntPtr)(-1) && GetConsoleMode(stdOut, out var mode))

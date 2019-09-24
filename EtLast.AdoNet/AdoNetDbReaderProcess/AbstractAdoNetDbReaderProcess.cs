@@ -128,7 +128,7 @@
 
                 var transactionName = (CustomConnectionCreator != null && cmd.Transaction != null)
                     ? "custom (" + cmd.Transaction.IsolationLevel.ToString() + ")"
-                    : Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL";
+                    : Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL";
 
                 Context.Log(LogSeverity.Debug, this, "executing query {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}", HideStatementInLog ? "<hidden>" : sqlStatement, ConnectionStringSettings.Name, cmd.CommandTimeout, transactionName);
 
@@ -149,7 +149,7 @@
                     reader = cmd.ExecuteReader();
                 }
                 catch (EtlException ex) { Context.AddException(this, ex); yield break; }
-                catch (Exception ex) { Context.AddException(this, new EtlException(this, string.Format("error during executing query: " + (HideStatementInLog ? "<hidden>" : sqlStatement)), ex)); yield break; }
+                catch (Exception ex) { Context.AddException(this, new EtlException(this, string.Format(CultureInfo.InvariantCulture, "error during executing query: " + (HideStatementInLog ? "<hidden>" : sqlStatement)), ex)); yield break; }
             }
 
             Context.Log(LogSeverity.Debug, this, "query executed in {Elapsed}", swQuery.Elapsed);
@@ -170,8 +170,8 @@
                     catch (Exception ex)
                     {
                         var now = DateTime.Now;
-                        var exception = new EtlException(this, string.Format("error while reading data at row index {0}, {1} after last read", resultCount, LastDataRead.Subtract(now)), ex);
-                        exception.AddOpsMessage(string.Format("error while executing query after successfully reading {0} rows, message: {1}, connection string key: {2}, SQL statement: {3}", resultCount, ex.Message, ConnectionStringSettings.Name, sqlStatement));
+                        var exception = new EtlException(this, string.Format(CultureInfo.InvariantCulture, "error while reading data at row index {0}, {1} after last read", resultCount, LastDataRead.Subtract(now)), ex);
+                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query after successfully reading {0} rows, message: {1}, connection string key: {2}, SQL statement: {3}", resultCount, ex.Message, ConnectionStringSettings.Name, sqlStatement));
                         throw exception;
                     }
 
@@ -206,7 +206,7 @@
 
                         if (config != null)
                         {
-                            value = ReaderProcessHelper.HandleConverter(this, value, index, rowColumn, config, row, out var error);
+                            value = ReaderProcessHelper.HandleConverter(this, value, rowColumn, config, row, out var error);
                             if (error)
                                 continue;
                         }

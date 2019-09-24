@@ -130,7 +130,7 @@
             catch (Exception ex)
             {
                 var exception = new OperationExecutionException(process, this, "database write failed", ex);
-                exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database write failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",
                     _connectionStringSettings.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), ex.Message, sqlStatement));
                 exception.Data.Add("ConnectionStringKey", _connectionStringSettings.Name);
                 exception.Data.Add("TableName", Helpers.UnEscapeTableName(TableDefinition.TableName));
@@ -148,7 +148,7 @@
             _statements.Clear();
         }
 
-        private string CompileSql(IDbCommand command)
+        private static string CompileSql(IDbCommand command)
         {
             var cmd = command.CommandText;
 
@@ -163,7 +163,7 @@
                     value = "'" + value + "'";
                 }
 
-                cmd = cmd.Replace(p.ParameterName, value);
+                cmd = cmd.Replace(p.ParameterName, value, StringComparison.InvariantCultureIgnoreCase);
             }
 
             var sb = new StringBuilder();

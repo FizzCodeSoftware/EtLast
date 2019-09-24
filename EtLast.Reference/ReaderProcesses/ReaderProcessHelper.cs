@@ -1,10 +1,11 @@
-﻿using System;
-
-namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast
 {
+    using System;
+    using System.Globalization;
+
     public static class ReaderProcessHelper
     {
-        public static object HandleConverter(IProcess process, object value, int rowIndex, string rowColumn, ReaderDefaultColumnConfiguration configuration, IRow row, out bool failed)
+        public static object HandleConverter(IProcess process, object value, string rowColumn, ReaderDefaultColumnConfiguration configuration, IRow row, out bool failed)
         {
             failed = false;
 
@@ -18,7 +19,7 @@ namespace FizzCode.EtLast
                             Process = process,
                             Operation = null,
                             OriginalValue = null,
-                            Message = string.Format("failed to convert by {0}", TypeHelpers.GetFriendlyTypeName(configuration.Converter.GetType())),
+                            Message = string.Format(CultureInfo.InvariantCulture, "failed to convert by {0}", TypeHelpers.GetFriendlyTypeName(configuration.Converter.GetType())),
                         }, process);
                         failed = true;
                         return value;
@@ -47,7 +48,7 @@ namespace FizzCode.EtLast
                             Process = process,
                             Operation = null,
                             OriginalValue = value,
-                            Message = string.Format("failed to convert by {0}", TypeHelpers.GetFriendlyTypeName(configuration.Converter.GetType())),
+                            Message = string.Format(CultureInfo.InvariantCulture, "failed to convert by {0}", TypeHelpers.GetFriendlyTypeName(configuration.Converter.GetType())),
                         }, process);
                         break;
                     case InvalidSourceHandler.SetSpecialValue:

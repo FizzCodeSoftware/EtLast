@@ -11,9 +11,9 @@
     using Serilog;
     using Serilog.Events;
 
-    internal class ModuleLoader
+    internal static class ModuleLoader
     {
-        public List<IEtlPlugin> LoadModule(ILogger logger, ILogger opsLogger, string moduleFolder, string sharedFolder, string nameSpaceEnding)
+        public static List<IEtlPlugin> LoadModule(ILogger logger, ILogger opsLogger, string moduleFolder, string sharedFolder, string nameSpaceEnding)
         {
             var startedOn = Stopwatch.StartNew();
 
@@ -71,7 +71,7 @@
             }
 
             CompilerResults results;
-            using (var provider = new Microsoft.CodeDom.Providers.DotNetCompilerPlatform.CSharpCodeProvider())
+            using (var provider = new Microsoft.CSharp.CSharpCodeProvider())
             {
                 results = provider.CompileAssemblyFromFile(parameters, fileNames);
             }
@@ -101,7 +101,7 @@
             {
                 if (pluginInterfaceType.IsAssignableFrom(foundType) && foundType.IsClass && !foundType.IsAbstract)
                 {
-                    var plugin = (IEtlPlugin)Activator.CreateInstance(foundType, new object[] { });
+                    var plugin = (IEtlPlugin)Activator.CreateInstance(foundType, Array.Empty<object>());
                     if (plugin != null)
                     {
                         result.Add(plugin);
@@ -120,7 +120,7 @@
             {
                 foreach (var foundType in assembly.GetTypes().Where(x => pluginInterfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract && x.Namespace.EndsWith(subFolder, StringComparison.OrdinalIgnoreCase)))
                 {
-                    var plugin = (IEtlPlugin)Activator.CreateInstance(foundType, new object[] { });
+                    var plugin = (IEtlPlugin)Activator.CreateInstance(foundType, Array.Empty<object>());
                     if (plugin != null)
                     {
                         result.Add(plugin);

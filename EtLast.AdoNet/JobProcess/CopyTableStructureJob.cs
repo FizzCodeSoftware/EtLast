@@ -5,6 +5,7 @@
     using System.Configuration;
     using System.Data;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using System.Text;
     using System.Transactions;
@@ -57,7 +58,7 @@
             var config = Configuration[statementIndex];
 
             process.Context.Log(LogSeverity.Debug, process, "create new table {ConnectionStringKey}/{TargetTableName} based on {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionStringSettings.Name, Helpers.UnEscapeTableName(config.TargetTableName), Helpers.UnEscapeTableName(config.SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+                ConnectionStringSettings.Name, Helpers.UnEscapeTableName(config.TargetTableName), Helpers.UnEscapeTableName(config.SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
 
             try
             {
@@ -69,7 +70,7 @@
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(process, this, "failed to copy table structure", ex);
-                exception.AddOpsMessage(string.Format("failed to copy table structure, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message {4}, command: {5}, timeout: {6}",
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to copy table structure, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message {4}, command: {5}, timeout: {6}",
                     ConnectionStringSettings.Name, Helpers.UnEscapeTableName(config.SourceTableName), Helpers.UnEscapeTableName(config.TargetTableName), config.ColumnConfiguration != null ? string.Join(",", config.ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);

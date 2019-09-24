@@ -8,9 +8,9 @@
     using Serilog.Exceptions;
     using Serilog.Formatting.Compact;
 
-    internal class SerilogConfigurator
+    internal static class SerilogConfigurator
     {
-        public ILogger CreateLogger(PluginHostConfiguration configuration)
+        public static ILogger CreateLogger(PluginHostConfiguration configuration)
         {
             var logsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-dev");
 
@@ -63,7 +63,7 @@
             return loggerConfig.CreateLogger();
         }
 
-        public ILogger CreateOpsLogger(PluginHostConfiguration configuration)
+        public static ILogger CreateOpsLogger(PluginHostConfiguration configuration)
         {
             var logsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-ops");
 

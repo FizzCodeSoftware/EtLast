@@ -6,6 +6,7 @@
     using System.Data;
     using System.Data.Common;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Threading;
     using System.Transactions;
 
@@ -26,7 +27,7 @@
             var key = connectionStringSettings.Name + "/" + connectionStringSettings.ProviderName + "/";
 
             key += Transaction.Current != null
-                ? Transaction.Current.TransactionInformation.CreationTime.ToString()
+                ? Transaction.Current.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture)
                 : "-";
 
             if (ignorePool)
@@ -47,7 +48,8 @@
                     }
 
                     var startedOn = Stopwatch.StartNew();
-                    process.Context.Log(LogSeverity.Debug, process, "opening database connection to {ConnectionStringKey} using {ProviderName} provider, transaction: {Transaction}", connectionStringSettings.Name, connectionStringSettings.ProviderName, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+                    process.Context.Log(LogSeverity.Debug, process, "opening database connection to {ConnectionStringKey} using {ProviderName} provider, transaction: {Transaction}",
+                        connectionStringSettings.Name, connectionStringSettings.ProviderName, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
 
                     try
                     {
@@ -102,7 +104,7 @@
             }
 
             var exception = new EtlException(process, "can't connect to database", lastException);
-            exception.AddOpsMessage(string.Format("can't connect to database, connection string key: {0}, message: {1}", connectionStringSettings.Name, lastException.Message));
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "can't connect to database, connection string key: {0}, message: {1}", connectionStringSettings.Name, lastException.Message));
             exception.Data.Add("ConnectionStringKey", connectionStringSettings.Name);
             exception.Data.Add("ProviderName", connectionStringSettings.ProviderName);
             throw exception;
@@ -123,7 +125,8 @@
             for (var retry = 0; retry <= maxRetryCount; retry++)
             {
                 var startedOn = Stopwatch.StartNew();
-                process.Context.Log(LogSeverity.Debug, process, "opening database connection to {ConnectionStringKey} using {ProviderName} provider, transaction: {Transaction}", connectionStringSettings.Name, connectionStringSettings.ProviderName, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+                process.Context.Log(LogSeverity.Debug, process, "opening database connection to {ConnectionStringKey} using {ProviderName} provider, transaction: {Transaction}",
+                    connectionStringSettings.Name, connectionStringSettings.ProviderName, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
 
                 try
                 {
@@ -173,7 +176,7 @@
             }
 
             var exception = new EtlException(process, "can't connect to database", lastException);
-            exception.AddOpsMessage(string.Format("can't connect to database, connection string key: {0}, message: {1}", connectionStringSettings.Name, lastException.Message));
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "can't connect to database, connection string key: {0}, message: {1}", connectionStringSettings.Name, lastException.Message));
             exception.Data.Add("ConnectionStringKey", connectionStringSettings.Name);
             exception.Data.Add("ProviderName", connectionStringSettings.ProviderName);
             throw exception;

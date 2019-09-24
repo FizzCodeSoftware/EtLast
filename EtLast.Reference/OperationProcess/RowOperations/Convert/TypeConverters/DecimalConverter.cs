@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Globalization;
 
     public class DecimalConverter : ITypeConverter
@@ -48,7 +49,7 @@
                 {
                     foreach (var subStr in RemoveSubString)
                     {
-                        str = str.Replace(subStr, string.Empty);
+                        str = str.Replace(subStr, string.Empty, StringComparison.InvariantCultureIgnoreCase);
                     }
                 }
 

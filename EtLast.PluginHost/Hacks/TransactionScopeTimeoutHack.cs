@@ -3,12 +3,12 @@
     using System;
     using System.Reflection;
 
-    internal class TransactionScopeTimeoutHack
+    internal static class TransactionScopeTimeoutHack
     {
         /// <summary>
         /// Enable transaction timeout more than 10 mins.
         /// </summary>
-        public void ApplyHack(TimeSpan newMaxTimeout)
+        public static void ApplyHack(TimeSpan newMaxTimeout)
         {
             var type = typeof(System.Transactions.TransactionManager);
             var cachedMaxTimeout = type.GetField("_cachedMaxTimeout", BindingFlags.NonPublic | BindingFlags.Static);

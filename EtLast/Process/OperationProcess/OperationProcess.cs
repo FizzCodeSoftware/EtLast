@@ -8,7 +8,9 @@
     using System.Threading;
     using System.Transactions;
 
+#pragma warning disable CA1001 // Types that own disposable fields should be disposable
     public class OperationProcess : IOperationProcess
+#pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public string Name { get; set; }
         public IEtlContext Context { get; }
@@ -390,14 +392,14 @@
 
             foreach (var kvp in counters)
             {
-                var key = kvp.Key.StartsWith(StatCounterCollection.DebugNamePrefix)
+                var key = kvp.Key.StartsWith(StatCounterCollection.DebugNamePrefix, StringComparison.InvariantCultureIgnoreCase)
                     ? kvp.Key.Substring(StatCounterCollection.DebugNamePrefix.Length)
                     : kvp.Key;
 
                 sb.Append(" [")
                     .Append(key)
                     .Append(" = {")
-                    .Append(key.Replace(" ", "_"))
+                    .Append(key.Replace(" ", "_", StringComparison.InvariantCultureIgnoreCase))
                     .Append("}]");
             }
 

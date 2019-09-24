@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
@@ -53,9 +54,9 @@
                 var rowNumber = 0;
                 while ((line = reader.ReadLine()) != null)
                 {
-                    if (line.EndsWith(Delimiter.ToString()))
+                    if (line.EndsWith(Delimiter))
                     {
-                        line = line.Substring(0, line.Length - 1);
+                        line = line[0..^1];
                     }
 
                     var parts = line.Split(Delimiter);
@@ -70,24 +71,24 @@
                     for (var i = 0; i < parts.Length; i++)
                     {
                         var valueString = parts[i];
-                        if (valueString.StartsWith("\"") && valueString.EndsWith("\""))
+                        if (valueString.StartsWith("\"", StringComparison.InvariantCultureIgnoreCase) && valueString.EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            valueString = valueString.Substring(1, valueString.Length - 2);
+                            valueString = valueString[1..^1];
                         }
 
                         object value = valueString;
 
-                        if (value != null && TreatEmptyStringAsNull && (value is string str) && str == string.Empty)
+                        if (value != null && TreatEmptyStringAsNull && (value is string str) && string.IsNullOrEmpty(str))
                         {
                             value = null;
                         }
 
-                        var columnConfiguration = ColumnConfiguration.Find(x => string.Compare(x.SourceColumn, columnNames[i], true) == 0);
+                        var columnConfiguration = ColumnConfiguration.Find(x => string.Equals(x.SourceColumn, columnNames[i], StringComparison.InvariantCultureIgnoreCase));
 
                         if (columnConfiguration != null || DefaultConfiguration == null)
                         {
                             var column = columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn;
-                            value = ReaderProcessHelper.HandleConverter(this, value, rowNumber, column, columnConfiguration, row, out var error);
+                            value = ReaderProcessHelper.HandleConverter(this, value, column, columnConfiguration, row, out var error);
                             if (error)
                                 continue;
 
@@ -96,7 +97,7 @@
                         else
                         {
                             var column = columnNames[i];
-                            value = ReaderProcessHelper.HandleConverter(this, value, rowNumber, column, DefaultConfiguration, row, out var error);
+                            value = ReaderProcessHelper.HandleConverter(this, value, column, DefaultConfiguration, row, out var error);
                             if (error)
                                 continue;
 

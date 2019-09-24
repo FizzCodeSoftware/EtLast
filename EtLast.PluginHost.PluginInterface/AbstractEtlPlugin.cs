@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Configuration;
+    using System.Globalization;
     using System.IO;
     using System.Reflection;
     using Serilog;
@@ -13,23 +14,20 @@
         public Configuration Configuration { get; private set; }
         public IEtlContext Context { get; private set; }
         public string ModuleFolder { get; private set; }
-        private static readonly Dictionary<LogSeverity, LogEventLevel> LogEventLevelMap;
+
+        private static readonly Dictionary<LogSeverity, LogEventLevel> LogEventLevelMap = new Dictionary<LogSeverity, LogEventLevel>()
+        {
+            [LogSeverity.Verbose] = LogEventLevel.Verbose,
+            [LogSeverity.Debug] = LogEventLevel.Debug,
+            [LogSeverity.Information] = LogEventLevel.Information,
+            [LogSeverity.Warning] = LogEventLevel.Warning,
+            [LogSeverity.Error] = LogEventLevel.Error,
+        };
+
         public ILogger Logger { get; private set; }
         public ILogger OpsLogger { get; private set; }
         public TimeSpan TransactionScopeTimeout { get; private set; }
         private readonly object _dataLock = new object();
-
-        static AbstractEtlPlugin()
-        {
-            LogEventLevelMap = new Dictionary<LogSeverity, LogEventLevel>()
-            {
-                [LogSeverity.Verbose] = LogEventLevel.Verbose,
-                [LogSeverity.Debug] = LogEventLevel.Debug,
-                [LogSeverity.Information] = LogEventLevel.Information,
-                [LogSeverity.Warning] = LogEventLevel.Warning,
-                [LogSeverity.Error] = LogEventLevel.Error,
-            };
-        }
 
         public void Init(ILogger logger, ILogger opsLogger, Configuration configuration, string moduleFolder, TimeSpan transactionScopeTimeout)
         {
@@ -62,11 +60,11 @@
             var counters = Context.Stat.GetCountersOrdered();
             foreach (var kvp in counters)
             {
-                var severity = kvp.Key.StartsWith(StatCounterCollection.DebugNamePrefix)
+                var severity = kvp.Key.StartsWith(StatCounterCollection.DebugNamePrefix, StringComparison.InvariantCultureIgnoreCase)
                     ? LogSeverity.Debug
                     : LogSeverity.Information;
 
-                var key = kvp.Key.StartsWith(StatCounterCollection.DebugNamePrefix)
+                var key = kvp.Key.StartsWith(StatCounterCollection.DebugNamePrefix, StringComparison.InvariantCultureIgnoreCase)
                     ? kvp.Key.Substring(StatCounterCollection.DebugNamePrefix.Length)
                     : kvp.Key;
 
@@ -169,7 +167,7 @@
 
             var fileName = Path.Combine(logsFolder, args.FileName);
 
-            var line = TypeHelpers.GetFriendlyTypeName(GetType()) + "\t" + (args.Caller != null ? args.Caller.Name + "\t" : "") + string.Format(args.Text, args.Arguments);
+            var line = TypeHelpers.GetFriendlyTypeName(GetType()) + "\t" + (args.Caller != null ? args.Caller.Name + "\t" : "") + string.Format(CultureInfo.InvariantCulture, args.Text, args.Arguments);
 
             lock (_dataLock)
             {
@@ -271,7 +269,7 @@
             if (string.IsNullOrEmpty(path))
                 return null;
 
-            if (path.StartsWith(@".\"))
+            if (path.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))
             {
                 var exeFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
                 path = Path.Combine(exeFolder, path.Substring(2));

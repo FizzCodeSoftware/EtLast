@@ -1,137 +1,25 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{85A7FA9F-CFD1-4DA6-9737-ED5E4A975462}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FizzCode.EtLast</RootNamespace>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <PackageId>FizzCode.EtLast</PackageId>
+    <Authors>FizzCode Ltd.</Authors>
+    <Product>EtLast ETL (Extract, Transform and Load) library for .NET Core</Product>
+    <Description>EtLast ETL (Extract, Transform and Load) library for .NET Core</Description>
+    <Copyright>Copyright © 2019 FizzCode Ltd.</Copyright>
+    <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
+    <Platforms>AnyCPU;x64</Platforms>
+    <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
     <AssemblyName>FizzCode.EtLast</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
+    <RootNamespace>FizzCode.EtLast</RootNamespace>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>
-    </DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\Release\FizzCode.EtLast.xml</DocumentationFile>
-    <NoWarn>CS1591</NoWarn>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="Microsoft.CSharp" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.6.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\Global\AssemblyInfo.Global.cs">
-      <Link>Properties\AssemblyInfo.Global.cs</Link>
-    </Compile>
-    <Compile Include="ContextExceptionEventArgs.cs" />
-    <Compile Include="ContextLogDataEventArgs.cs" />
-    <Compile Include="TypeHelpers.cs" />
-    <Compile Include="ContextLogEventArgs.cs" />
-    <Compile Include="AdditionalData.cs" />
-    <Compile Include="EnumsAndDelegates\RowActionDelegate.cs" />
-    <Compile Include="EtlContextResult.cs" />
-    <Compile Include="EtlRowError.cs" />
-    <Compile Include="Exceptions\AggregationOperationExecutionException.cs" />
-    <Compile Include="Exceptions\EtlException.cs" />
-    <Compile Include="Exceptions\InvalidStrategyParameterException.cs" />
-    <Compile Include="Exceptions\JobParameterNullException.cs" />
-    <Compile Include="Exceptions\InvalidJobParameterException.cs" />
-    <Compile Include="Exceptions\OperationParameterNullException.cs" />
-    <Compile Include="Exceptions\StrategyParameterNullException.cs" />
-    <Compile Include="Exceptions\ProcessParameterNullException.cs" />
-    <Compile Include="Exceptions\InvalidProcessParameterException.cs" />
-    <Compile Include="Exceptions\JobExecutionException.cs" />
-    <Compile Include="Exceptions\ContinuousAggregationOperationExecutionException.cs" />
-    <Compile Include="Exceptions\OperationExecutionException.cs" />
-    <Compile Include="Exceptions\InvalidOperationParameterException.cs" />
-    <Compile Include="Interfaces\IEtlStrategy.cs" />
-    <Compile Include="Interfaces\TransactionScopeKind.cs" />
-    <Compile Include="Process\AggregationProcess\AbstractAggregationProcess.cs" />
-    <Compile Include="Process\AggregationProcess\IContinuousAggregationOperation.cs" />
-    <Compile Include="Process\AggregationProcess\ContinuousAggregationProcess.cs" />
-    <Compile Include="Process\IDeferredRowOperation.cs" />
-    <Compile Include="Process\ICaller.cs" />
-    <Compile Include="Process\IRowOperation.cs" />
-    <Compile Include="Process\IFinalProcess.cs" />
-    <Compile Include="Process\IBaseOperation.cs" />
-    <Compile Include="Process\JobProcess\EnumsAndDelegates\IfJobDelegate.cs" />
-    <Compile Include="Process\JobProcess\IJobProcess.cs" />
-    <Compile Include="Process\MergeProcess\AbstractMergeProcess.cs" />
-    <Compile Include="Process\MergeProcess\IMergeProcess.cs" />
-    <Compile Include="Process\MergeProcess\ParallelMergeProcess.cs" />
-    <Compile Include="Process\MergeProcess\SequentialMergeProcess.cs" />
-    <Compile Include="Process\OperationProcess\AbstractDeferredRowOperation.cs" />
-    <Compile Include="Process\OperationProcess\AbstractRowOperation.cs" />
-    <Compile Include="EnumsAndDelegates\RowTestDelegate.cs" />
-    <Compile Include="Process\OperationProcess\IOperationGroup.cs" />
-    <Compile Include="Process\OperationProcess\OperationGroup.cs" />
-    <Compile Include="Process\OperationProcess\OperationProcess.cs" />
-    <Compile Include="Process\StatCounterCollection.cs" />
-    <Compile Include="Interfaces\IEtlContext.cs" />
-    <Compile Include="Interfaces\IRow.cs" />
-    <Compile Include="Interfaces\IRowQueue.cs" />
-    <Compile Include="Process\MergeProcess\IRowSetMerger.cs" />
-    <Compile Include="Process\AggregationProcess\IAggregationOperation.cs" />
-    <Compile Include="Process\IProcess.cs" />
-    <Compile Include="Process\JobProcess\IJob.cs" />
-    <Compile Include="Process\JobProcess\JobProcessConfiguration.cs" />
-    <Compile Include="Process\OperationProcess\IOperationProcess.cs" />
-    <Compile Include="Process\OperationProcess\OperationProcessConfiguration.cs" />
-    <Compile Include="Process\JobProcess\JobProcess.cs" />
-    <Compile Include="EtlContext.cs" />
-    <Compile Include="Process\AggregationProcess\UnorderedAggregationProcess.cs" />
-    <Compile Include="Process\OperationProcess\Queues\DefaultRowQueue.cs" />
-    <Compile Include="Process\SplitProcess\ISplitProcess.cs" />
-    <Compile Include="Process\SplitProcess\SplitProcess.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Rows\AbstractBaseRow.cs" />
-    <Compile Include="EnumsAndDelegates\RowEqualsDelegate.cs" />
-    <Compile Include="Rows\DictionaryRow.cs" />
-    <Compile Include="Rows\IRowEqualityComparer.cs" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
 </Project>

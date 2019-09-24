@@ -56,7 +56,7 @@
             }
         }
 
-        public void FixRoslynCompilerLocationInConfigFile(string configFileName)
+        public static void FixRoslynCompilerLocationInConfigFile(string configFileName)
         {
             var appDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
@@ -107,11 +107,11 @@
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
             try
             {
-                _logger = new SerilogConfigurator().CreateLogger(_hostConfiguration);
-                _opsLogger = new SerilogConfigurator().CreateOpsLogger(_hostConfiguration);
+                _logger = SerilogConfigurator.CreateLogger(_hostConfiguration);
+                _opsLogger = SerilogConfigurator.CreateOpsLogger(_hostConfiguration);
 
-                new TransactionScopeTimeoutHack().ApplyHack(_hostConfiguration.TransactionScopeTimeout);
-                new EnableVirtualTerminalProcessingHack().ApplyHack();
+                TransactionScopeTimeoutHack.ApplyHack(_hostConfiguration.TransactionScopeTimeout);
+                EnableVirtualTerminalProcessingHack.ApplyHack();
 
                 if (_hostConfiguration.CommandLineArguments.Length == 0)
                 {
@@ -121,7 +121,7 @@
                 }
 
                 var modulesFolder = _hostConfiguration.ModulesFolder;
-                if (modulesFolder.StartsWith(@".\"))
+                if (modulesFolder.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))
                 {
                     modulesFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), modulesFolder.Substring(2));
                 }
@@ -161,7 +161,7 @@
                     FillModuleConfigFromSharedConfig(moduleConfiguration, sharedConfiguration);
                 }
 
-                var modulePlugins = new ModuleLoader().LoadModule(_logger, _opsLogger, moduleFolder, sharedFolder, _hostConfiguration.CommandLineArguments[0]);
+                var modulePlugins = ModuleLoader.LoadModule(_logger, _opsLogger, moduleFolder, sharedFolder, _hostConfiguration.CommandLineArguments[0]);
                 modulePlugins = FilterExecutablePlugins(moduleConfiguration, modulePlugins);
 
                 _logger.Write(LogEventLevel.Information, "{PluginCount} plugin(s) found: {PluginNames}",
@@ -189,7 +189,7 @@
             return ExitCodes.ERR_NO_ERROR;
         }
 
-        private List<IEtlPlugin> FilterExecutablePlugins(Configuration moduleConfiguration, List<IEtlPlugin> plugins)
+        private static List<IEtlPlugin> FilterExecutablePlugins(Configuration moduleConfiguration, List<IEtlPlugin> plugins)
         {
             if (plugins == null || plugins.Count == 0)
                 return new List<IEtlPlugin>();
@@ -197,7 +197,7 @@
             var pluginNamesToExecute = GetAppSetting(moduleConfiguration, "PluginsToExecute");
             return pluginNamesToExecute.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(name => name.Trim())
-                .Where(name => !name.StartsWith("!"))
+                .Where(name => !name.StartsWith("!", StringComparison.InvariantCultureIgnoreCase))
                 .Select(name => plugins.Find(plugin => plugin.GetType().Name == name))
                 .Where(plugin => plugin != null)
                 .ToList();
@@ -211,7 +211,7 @@
             for (var i = 1; i < _hostConfiguration.CommandLineArguments.Length; i++)
             {
                 var arg = _hostConfiguration.CommandLineArguments[i].Trim();
-                var idx = arg.IndexOf('=');
+                var idx = arg.IndexOf('=', StringComparison.InvariantCultureIgnoreCase);
                 if (idx == -1)
                 {
                     var key = arg;
@@ -231,7 +231,7 @@
             }
         }
 
-        private void FillModuleConfigFromSharedConfig(Configuration moduleConfiguration, Configuration sharedConfiguration)
+        private static void FillModuleConfigFromSharedConfig(Configuration moduleConfiguration, Configuration sharedConfiguration)
         {
             foreach (var key in sharedConfiguration.AppSettings.Settings.AllKeys)
             {
@@ -252,7 +252,7 @@
             }
         }
 
-        private string GetAppSetting(Configuration config, string key)
+        private static string GetAppSetting(Configuration config, string key)
         {
             return config.AppSettings.Settings[key + "-" + Environment.MachineName] != null
                 ? config.AppSettings.Settings[key + "-" + Environment.MachineName].Value

@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
+    using System.Globalization;
     using System.IO;
     using System.Threading;
 
@@ -24,7 +25,7 @@
                 catch (Exception ex)
                 {
                     var exception = new JobExecutionException(process, this, "file deletion failed", ex);
-                    exception.AddOpsMessage(string.Format("file deletion failed, file name: {0}, message: {1}", FileName, ex.Message));
+                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "file deletion failed, file name: {0}, message: {1}", FileName, ex.Message));
                     exception.Data.Add("FileName", FileName);
                     throw exception;
                 }

@@ -29,7 +29,7 @@
                 {
                     var value = FormatProviderHint != null
                         ? (FormatHint != null ? intValue.ToString(FormatHint, FormatProviderHint) : intValue.ToString(FormatProviderHint))
-                        : (FormatHint != null ? intValue.ToString(FormatHint) : intValue.ToString(CultureInfo.InvariantCulture));
+                        : (FormatHint != null ? intValue.ToString(FormatHint, CultureInfo.CurrentCulture) : intValue.ToString(CultureInfo.InvariantCulture));
                     return value;
                 }
                 catch
@@ -43,7 +43,7 @@
                 {
                     var value = FormatProviderHint != null
                         ? (FormatHint != null ? longValue.ToString(FormatHint, FormatProviderHint) : longValue.ToString(FormatProviderHint))
-                        : (FormatHint != null ? longValue.ToString(FormatHint) : longValue.ToString(CultureInfo.InvariantCulture));
+                        : (FormatHint != null ? longValue.ToString(FormatHint, CultureInfo.CurrentCulture) : longValue.ToString(CultureInfo.InvariantCulture));
                     return value;
                 }
                 catch
@@ -57,7 +57,7 @@
                 {
                     var value = FormatProviderHint != null
                         ? (FormatHint != null ? dblValue.ToString(FormatHint, FormatProviderHint) : dblValue.ToString(FormatProviderHint))
-                        : (FormatHint != null ? dblValue.ToString(FormatHint) : dblValue.ToString(CultureInfo.InvariantCulture));
+                        : (FormatHint != null ? dblValue.ToString(FormatHint, CultureInfo.CurrentCulture) : dblValue.ToString(CultureInfo.InvariantCulture));
                     return value;
                 }
                 catch
@@ -71,7 +71,7 @@
                 {
                     var value = FormatProviderHint != null
                         ? (FormatHint != null ? fltValue.ToString(FormatHint, FormatProviderHint) : fltValue.ToString(FormatProviderHint))
-                        : (FormatHint != null ? fltValue.ToString(FormatHint) : fltValue.ToString(CultureInfo.InvariantCulture));
+                        : (FormatHint != null ? fltValue.ToString(FormatHint, CultureInfo.CurrentCulture) : fltValue.ToString(CultureInfo.InvariantCulture));
                     return value;
                 }
                 catch
@@ -81,7 +81,7 @@
 
             try
             {
-                var asGenericConvertedString = FormatProviderHint != null ? System.Convert.ToString(source, FormatProviderHint) : System.Convert.ToString(source);
+                var asGenericConvertedString = FormatProviderHint != null ? System.Convert.ToString(source, FormatProviderHint) : System.Convert.ToString(source, CultureInfo.CurrentCulture);
                 return asGenericConvertedString;
             }
             catch

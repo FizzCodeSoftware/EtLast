@@ -15,7 +15,7 @@
                 foreach (var column in Columns)
                 {
                     var source = row[column];
-                    if (source is string str && str == string.Empty)
+                    if (source is string str && string.IsNullOrEmpty(str))
                     {
                         row.SetValue(column, null, this);
                     }
@@ -26,7 +26,7 @@
                 foreach (var kvp in row.Values)
                 {
                     var source = row[kvp.Key];
-                    if (source is string str && str == string.Empty)
+                    if (source is string str && string.IsNullOrEmpty(str))
                     {
                         row.SetValue(kvp.Key, null, this);
                     }

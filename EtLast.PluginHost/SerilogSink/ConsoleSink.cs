@@ -101,44 +101,30 @@
 
             string GetLevelNameAbbreviation()
             {
-                switch (logEvent.Level)
+                return logEvent.Level switch
                 {
-                    case LogEventLevel.Verbose:
-                        return "VRB";
-                    case LogEventLevel.Debug:
-                        return "DBG";
-                    case LogEventLevel.Information:
-                        return "INF";
-                    case LogEventLevel.Warning:
-                        return "WRN";
-                    case LogEventLevel.Error:
-                        return "ERR";
-                    case LogEventLevel.Fatal:
-                        return "FTL";
-                    default:
-                        return null;
-                }
+                    LogEventLevel.Verbose => "VRB",
+                    LogEventLevel.Debug => "DBG",
+                    LogEventLevel.Information => "INF",
+                    LogEventLevel.Warning => "WRN",
+                    LogEventLevel.Error => "ERR",
+                    LogEventLevel.Fatal => "FTL",
+                    _ => null,
+                };
             }
 
             ColorCode GetLevelColorCode()
             {
-                switch (logEvent.Level)
+                return logEvent.Level switch
                 {
-                    case LogEventLevel.Verbose:
-                        return ColorCode.LvlTokenVrb;
-                    case LogEventLevel.Debug:
-                        return ColorCode.LvlTokenDbg;
-                    case LogEventLevel.Information:
-                        return ColorCode.LvlTokenInf;
-                    case LogEventLevel.Warning:
-                        return ColorCode.LvlTokenWrn;
-                    case LogEventLevel.Error:
-                        return ColorCode.LvlTokenErr;
-                    case LogEventLevel.Fatal:
-                        return ColorCode.LvlTokenFtl;
-                    default:
-                        return ColorCode.LvlTokenInf;
-                }
+                    LogEventLevel.Verbose => ColorCode.LvlTokenVrb,
+                    LogEventLevel.Debug => ColorCode.LvlTokenDbg,
+                    LogEventLevel.Information => ColorCode.LvlTokenInf,
+                    LogEventLevel.Warning => ColorCode.LvlTokenWrn,
+                    LogEventLevel.Error => ColorCode.LvlTokenErr,
+                    LogEventLevel.Fatal => ColorCode.LvlTokenFtl,
+                    _ => ColorCode.LvlTokenInf,
+                };
             }
         }
 
@@ -155,7 +141,7 @@
             var lines = logEvent.Exception.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var line in lines)
             {
-                var colorCode = line.StartsWith("   ")
+                var colorCode = line.StartsWith("   ", StringComparison.InvariantCultureIgnoreCase)
                     ? ColorCode.TimeStamp_Property_Exception
                     : ColorCode.Message_Exception;
 

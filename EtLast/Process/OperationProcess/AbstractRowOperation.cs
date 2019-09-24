@@ -1,6 +1,8 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Diagnostics;
+    using System.Globalization;
 
     [DebuggerDisplay("{" + nameof(Name) + "}")]
     public abstract class AbstractRowOperation : IRowOperation
@@ -23,7 +25,7 @@
         protected AbstractRowOperation()
         {
             Name = "??." + TypeHelpers.GetFriendlyTypeName(GetType());
-            _hash = Name.GetHashCode();
+            _hash = Name.GetHashCode(StringComparison.InvariantCultureIgnoreCase);
         }
 
         public void SetNextOperation(IRowOperation operation)
@@ -53,16 +55,16 @@
         {
             ParentGroup = null;
             Index = index;
-            Name = Index.ToString("D2") + "." + (InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType()));
-            _hash = Name.GetHashCode();
+            Name = Index.ToString("D2", CultureInfo.InvariantCulture) + "." + (InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType()));
+            _hash = Name.GetHashCode(StringComparison.InvariantCultureIgnoreCase);
         }
 
         public void SetParentGroup(IOperationGroup parentGroup, int index)
         {
             ParentGroup = parentGroup;
             Index = index;
-            Name = (ParentGroup != null ? ParentGroup.Name + "|" : "") + Index.ToString("D2") + "." + (InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType()));
-            _hash = Name.GetHashCode();
+            Name = (ParentGroup != null ? ParentGroup.Name + "|" : "") + Index.ToString("D2", CultureInfo.InvariantCulture) + "." + (InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType()));
+            _hash = Name.GetHashCode(StringComparison.InvariantCultureIgnoreCase);
         }
 
         public override int GetHashCode()

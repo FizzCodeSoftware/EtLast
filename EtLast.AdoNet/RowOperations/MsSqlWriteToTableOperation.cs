@@ -5,9 +5,12 @@
     using System.Configuration;
     using System.Data.SqlClient;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
 
+#pragma warning disable CA1001 // Types that own disposable fields should be disposable
     public class MsSqlWriteToTableOperation : AbstractRowOperation
+#pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public RowTestDelegate If { get; set; }
         public string ConnectionStringKey { get; set; }
@@ -98,7 +101,7 @@
                 _bulkCopy = null;
 
                 var exception = new OperationExecutionException(process, this, "database write failed", ex);
-                exception.AddOpsMessage(string.Format("database write failed, connection string key: {0}, table: {1}, message {2}",
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database write failed, connection string key: {0}, table: {1}, message {2}",
                     _connectionStringSettings.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), ex.Message));
                 exception.Data.Add("ConnectionStringKey", _connectionStringSettings.Name);
                 exception.Data.Add("TableName", Helpers.UnEscapeTableName(TableDefinition.TableName));

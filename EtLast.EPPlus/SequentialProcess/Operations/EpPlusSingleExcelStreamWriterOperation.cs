@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast.EPPlus
 {
     using System;
+    using System.Globalization;
     using System.IO;
     using OfficeOpenXml;
 
@@ -31,7 +32,7 @@
             catch (Exception ex)
             {
                 var exception = new OperationExecutionException(Process, this, row, "error raised during writing an excel stream", ex);
-                exception.AddOpsMessage(string.Format("error raised during writing an excel stream, message: {0}, row: {1}", ex.Message, row.ToDebugString()));
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel stream, message: {0}, row: {1}", ex.Message, row.ToDebugString()));
                 throw exception;
             }
         }

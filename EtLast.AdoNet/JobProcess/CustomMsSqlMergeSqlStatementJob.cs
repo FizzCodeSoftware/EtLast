@@ -84,7 +84,7 @@
         protected override void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn)
         {
             process.Context.Log(LogSeverity.Debug, process, "merging to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionStringSettings.Name, Helpers.UnEscapeTableName(TargetTableName), Helpers.UnEscapeTableName(SourceTableName), command.CommandText, ConnectionStringSettings.Name, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString() ?? "NULL");
+                ConnectionStringSettings.Name, Helpers.UnEscapeTableName(TargetTableName), Helpers.UnEscapeTableName(SourceTableName), command.CommandText, ConnectionStringSettings.Name, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
 
             if (Parameters != null)
             {
@@ -116,7 +116,7 @@
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(process, this, "custom merge statement failed", ex);
-                exception.AddOpsMessage(string.Format("custom merge statement failed, connection string key: {0}, message {1}, command: {2}, timeout: {3}",
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "custom merge statement failed, connection string key: {0}, message {1}, command: {2}, timeout: {3}",
                     ConnectionStringSettings.Name, ex.Message, command.CommandText, CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);
