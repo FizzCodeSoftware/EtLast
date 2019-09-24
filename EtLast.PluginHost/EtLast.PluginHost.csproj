@@ -12,6 +12,7 @@
     <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
     <AssemblyName>FizzCode.EtLast.PluginHost</AssemblyName>
     <RootNamespace>FizzCode.EtLast.PluginHost</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

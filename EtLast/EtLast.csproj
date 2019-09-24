@@ -12,6 +12,7 @@
     <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
     <AssemblyName>FizzCode.EtLast</AssemblyName>
     <RootNamespace>FizzCode.EtLast</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

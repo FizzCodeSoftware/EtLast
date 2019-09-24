@@ -13,6 +13,7 @@
     <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
     <AssemblyName>FizzCode.EtLast.AdoNet</AssemblyName>
     <RootNamespace>FizzCode.EtLast.AdoNet</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
