@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast.PluginHost
 {
     using System;
-    using System.Configuration;
+    using Microsoft.Extensions.Configuration;
     using Serilog.Events;
 
     public class PluginHostConfiguration
@@ -15,42 +15,30 @@
         public LogEventLevel MinimumLogLevelOnConsole { get; set; }
         public bool EnableDynamicCompilation { get; set; } = true;
 
-        public void LoadFromStandardAppSettings()
+        public void LoadFromConfiguration(IConfigurationRoot configuration, string section)
         {
-            SeqUrl = GetAppSetting("seq:Url");
-            SeqApiKey = GetAppSetting("seq:ApiKey");
-            RetainedLogFileCountLimit = GetAppSettingAsInt("RetainedLogFileCountLimit", 14);
-            TransactionScopeTimeout = TimeSpan.FromMinutes(GetAppSettingAsInt("TransactionScopeTimeoutMinutes", 120));
-            ModulesFolder = GetAppSetting("ModulesFolder");
+            SeqUrl = GetHostSetting(configuration, section, "seq:Url", "-");
+            SeqApiKey = GetHostSetting<string>(configuration, section, "seq:ApiKey", null);
+            RetainedLogFileCountLimit = GetHostSetting(configuration, section, "RetainedLogFileCountLimit", 14);
+            TransactionScopeTimeout = TimeSpan.FromMinutes(GetHostSetting(configuration, section, "TransactionScopeTimeoutMinutes", 120));
+            ModulesFolder = GetHostSetting(configuration, section, "ModulesFolder", @".\modules");
+            EnableDynamicCompilation = GetHostSetting(configuration, section, "EnableDynamicCompilation", true);
 
-            if (bool.TryParse(GetAppSetting("EnableDynamicCompilation") ?? string.Empty, out var enableDynamicCompilation))
+            var v = GetHostSetting<string>(configuration, section, "MinimumLogLevelOnConsole", null);
+            if (!string.IsNullOrEmpty(v) && Enum.TryParse(v, out LogEventLevel level))
             {
-                EnableDynamicCompilation = enableDynamicCompilation;
-            }
-
-            var v = GetAppSetting("MinimumLogLevelOnConsole");
-            if (!string.IsNullOrEmpty(v))
-            {
-                if (Enum.TryParse(v, out LogEventLevel level))
-                {
-                    MinimumLogLevelOnConsole = level;
-                }
+                MinimumLogLevelOnConsole = level;
             }
         }
 
-        public static int GetAppSettingAsInt(string key, int defaultValue)
+        private static T GetHostSetting<T>(IConfigurationRoot configuration, string section, string key, T defaultValue)
         {
-            var value = GetAppSetting(key);
-            return string.IsNullOrEmpty(value)
-                ? defaultValue
-                : int.TryParse(value, out var iv)
-                    ? iv
-                    : defaultValue;
-        }
+            var v = configuration.GetValue<T>(section + ":" + key + "-" + Environment.MachineName, default);
+            if (v != null && !v.Equals(default(T)))
+                return v;
 
-        public static string GetAppSetting(string key)
-        {
-            return ConfigurationManager.AppSettings[key + "-" + Environment.MachineName] ?? ConfigurationManager.AppSettings[key];
+            v = configuration.GetValue(section + ":" + key, defaultValue);
+            return v ?? defaultValue;
         }
     }
 }

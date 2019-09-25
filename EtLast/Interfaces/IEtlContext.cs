@@ -2,13 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Threading;
     using System.Transactions;
+    using FizzCode.DbTools.Configuration;
+    using Microsoft.Extensions.Configuration;
 
     public interface IEtlContext
     {
-        Configuration Configuration { get; }
+        IConfigurationRoot Configuration { get; }
         StatCounterCollection Stat { get; }
         EtlContextResult Result { get; }
         AdditionalData AdditionalData { get; }
@@ -20,7 +21,7 @@
         TransactionScope BeginScope(TransactionScopeKind kind);
 
         CancellationTokenSource CancellationTokenSource { get; }
-        ConnectionStringSettings GetConnectionStringSettings(string key);
+        ConnectionStringWithProvider GetConnectionString(string key);
 
         void ExecuteOne(bool terminateHostOnFail, IEtlStrategy strategy);
         void ExecuteSequence(bool terminateHostOnFail, params IEtlStrategy[] strategies);

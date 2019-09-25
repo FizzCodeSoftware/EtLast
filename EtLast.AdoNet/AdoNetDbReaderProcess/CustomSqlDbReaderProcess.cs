@@ -31,14 +31,14 @@
         protected override void LogAction()
         {
             Context.Log(LogSeverity.Debug, this, "reading from {ConnectionStringKey} using custom query, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionStringSettings.Name, CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
+                ConnectionString.Name, CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
         }
 
         protected override void IncrementCounter()
         {
-            Context.Stat.IncrementCounter("database records read / " + ConnectionStringSettings.Name, 1);
-            Context.Stat.IncrementDebugCounter("database records read / " + ConnectionStringSettings.Name + " / custom query", 1);
-            Context.Stat.IncrementDebugCounter("database records read / " + ConnectionStringSettings.Name + " / custom query / " + Name, 1);
+            Context.Stat.IncrementCounter("database records read / " + ConnectionString.Name, 1);
+            Context.Stat.IncrementDebugCounter("database records read / " + ConnectionString.Name + " / custom query", 1);
+            Context.Stat.IncrementDebugCounter("database records read / " + ConnectionString.Name + " / custom query / " + Name, 1);
         }
     }
 }

@@ -31,8 +31,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Tests.EPPlus", "Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Tests.Unit", "Tests\EtLast.Tests.Unit\EtLast.Tests.Unit.csproj", "{49AB2F76-B01C-4F0F-AE52-D533EB0BEBF3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Tests.Unit.AdoNet", "Tests\EtLast.Tests.Unit.AdoNet\EtLast.Tests.Unit.AdoNet.csproj", "{2CFB5F5E-0023-4ECA-8CCD-AEF029308E1C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,10 +73,6 @@ Global
 		{49AB2F76-B01C-4F0F-AE52-D533EB0BEBF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49AB2F76-B01C-4F0F-AE52-D533EB0BEBF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49AB2F76-B01C-4F0F-AE52-D533EB0BEBF3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2CFB5F5E-0023-4ECA-8CCD-AEF029308E1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2CFB5F5E-0023-4ECA-8CCD-AEF029308E1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2CFB5F5E-0023-4ECA-8CCD-AEF029308E1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2CFB5F5E-0023-4ECA-8CCD-AEF029308E1C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -87,7 +81,6 @@ Global
 		{67506A13-D75D-46B1-9A51-0C3820F2DFB7} = {31564631-1C65-4B5D-BBC6-7831C887D0D8}
 		{156A9020-6414-4A9C-AF6A-6DCE050B7692} = {31564631-1C65-4B5D-BBC6-7831C887D0D8}
 		{49AB2F76-B01C-4F0F-AE52-D533EB0BEBF3} = {31564631-1C65-4B5D-BBC6-7831C887D0D8}
-		{2CFB5F5E-0023-4ECA-8CCD-AEF029308E1C} = {31564631-1C65-4B5D-BBC6-7831C887D0D8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2B1A4546-5839-4F14-8E4D-8404CA122935}

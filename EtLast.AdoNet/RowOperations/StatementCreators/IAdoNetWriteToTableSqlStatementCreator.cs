@@ -1,12 +1,12 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System.Collections.Generic;
-    using System.Configuration;
+    using FizzCode.DbTools.Configuration;
 
     public interface IAdoNetWriteToTableSqlStatementCreator
     {
         void Prepare(AdoNetWriteToTableOperation operation, IProcess process, DbTableDefinition tableDefinition);
-        string CreateRowStatement(ConnectionStringSettings settings, IRow row, AdoNetWriteToTableOperation operation);
-        string CreateStatement(ConnectionStringSettings settings, List<string> rowStatements);
+        string CreateRowStatement(ConnectionStringWithProvider connectionString, IRow row, AdoNetWriteToTableOperation operation);
+        string CreateStatement(ConnectionStringWithProvider connectionString, List<string> rowStatements);
     }
 }

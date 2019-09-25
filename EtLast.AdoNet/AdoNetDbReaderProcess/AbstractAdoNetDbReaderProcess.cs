@@ -2,14 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Data;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Transactions;
+    using FizzCode.DbTools.Configuration;
 
-    public delegate void ConnectionCreatorDelegate(ConnectionStringSettings connectionStringSettings, IProcess process, out DatabaseConnection connection, out IDbTransaction transaction);
+    public delegate void ConnectionCreatorDelegate(ConnectionStringWithProvider connectionString, IProcess process, out DatabaseConnection connection, out IDbTransaction transaction);
 
     public abstract class AbstractAdoNetDbReaderProcess : AbstractBaseProducerProcess
     {
@@ -31,7 +31,7 @@
         public DateTime LastDataRead { get; private set; }
         public List<ISqlValueProcessor> SqlValueProcessors { get; } = new List<ISqlValueProcessor>();
 
-        protected ConnectionStringSettings ConnectionStringSettings { get; private set; }
+        protected ConnectionStringWithProvider ConnectionString { get; private set; }
         public Dictionary<string, object> Parameters { get; set; }
 
         /// <summary>
@@ -57,11 +57,11 @@
             if (string.IsNullOrEmpty(ConnectionStringKey))
                 throw new ProcessParameterNullException(this, nameof(ConnectionStringKey));
 
-            ConnectionStringSettings = Context.GetConnectionStringSettings(ConnectionStringKey);
-            if (ConnectionStringSettings == null)
+            ConnectionString = Context.GetConnectionString(ConnectionStringKey);
+            if (ConnectionString == null)
                 throw new InvalidProcessParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
 
-            if (ConnectionStringSettings.ProviderName == null)
+            if (ConnectionString.ProviderName == null)
                 throw new ProcessParameterNullException(this, "ConnectionString");
 
             return EvaluateImplementation();
@@ -69,7 +69,7 @@
 
         private IEnumerable<IRow> EvaluateImplementation()
         {
-            var usedSqlValueProcessors = SqlValueProcessors.Where(x => x.Init(ConnectionStringSettings)).ToList();
+            var usedSqlValueProcessors = SqlValueProcessors.Where(x => x.Init(ConnectionString)).ToList();
             if (usedSqlValueProcessors.Count == 0)
                 usedSqlValueProcessors = null;
 
@@ -95,7 +95,7 @@
 
             AdoNetSqlStatementDebugEventListener.GenerateEvent(this, () => new AdoNetSqlStatementDebugEvent()
             {
-                ConnectionStringSettings = ConnectionStringSettings,
+                ConnectionString = ConnectionString,
                 SqlStatement = sqlStatement,
             });
 
@@ -111,11 +111,11 @@
             {
                 if (CustomConnectionCreator != null)
                 {
-                    CustomConnectionCreator.Invoke(ConnectionStringSettings, this, out connection, out transaction);
+                    CustomConnectionCreator.Invoke(ConnectionString, this, out connection, out transaction);
                 }
                 else
                 {
-                    connection = ConnectionManager.GetConnection(ConnectionStringSettings, this);
+                    connection = ConnectionManager.GetConnection(ConnectionString, this);
                 }
 
                 cmd = connection.Connection.CreateCommand();
@@ -130,7 +130,7 @@
                     ? "custom (" + cmd.Transaction.IsolationLevel.ToString() + ")"
                     : Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL";
 
-                Context.Log(LogSeverity.Debug, this, "executing query {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}", HideStatementInLog ? "<hidden>" : sqlStatement, ConnectionStringSettings.Name, cmd.CommandTimeout, transactionName);
+                Context.Log(LogSeverity.Debug, this, "executing query {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}", HideStatementInLog ? "<hidden>" : sqlStatement, ConnectionString.Name, cmd.CommandTimeout, transactionName);
 
                 if (Parameters != null)
                 {
@@ -171,7 +171,7 @@
                     {
                         var now = DateTime.Now;
                         var exception = new EtlException(this, string.Format(CultureInfo.InvariantCulture, "error while reading data at row index {0}, {1} after last read", resultCount, LastDataRead.Subtract(now)), ex);
-                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query after successfully reading {0} rows, message: {1}, connection string key: {2}, SQL statement: {3}", resultCount, ex.Message, ConnectionStringSettings.Name, sqlStatement));
+                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query after successfully reading {0} rows, message: {1}, connection string key: {2}, SQL statement: {3}", resultCount, ex.Message, ConnectionString.Name, sqlStatement));
                         throw exception;
                     }
 

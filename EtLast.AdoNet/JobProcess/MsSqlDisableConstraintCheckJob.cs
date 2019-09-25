@@ -2,12 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Data;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Transactions;
+    using FizzCode.DbTools.Configuration;
 
     public class MsSqlDisableConstraintCheckJob : AbstractSqlStatementsJob
     {
@@ -19,7 +19,7 @@
                 throw new JobParameterNullException(process, this, nameof(TableNames));
         }
 
-        protected override List<string> CreateSqlStatements(IProcess process, ConnectionStringSettings settings)
+        protected override List<string> CreateSqlStatements(IProcess process, ConnectionStringWithProvider connectionString)
         {
             return TableNames.Select(tableName => "ALTER TABLE " + tableName + " NOCHECK CONSTRAINT ALL;").ToList();
         }
@@ -29,21 +29,21 @@
             var tableName = TableNames[statementIndex];
 
             process.Context.Log(LogSeverity.Debug, process, "disable constraint check on {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionStringSettings.Name, Helpers.UnEscapeTableName(tableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
+                ConnectionString.Name, Helpers.UnEscapeTableName(tableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
 
             try
             {
                 command.ExecuteNonQuery();
                 process.Context.Log(LogSeverity.Debug, process, "constraint check on {ConnectionStringKey}/{TableName} is disabled",
-                    ConnectionStringSettings.Name, Helpers.UnEscapeTableName(tableName));
+                    ConnectionString.Name, Helpers.UnEscapeTableName(tableName));
             }
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(process, this, "failed to disable constraint check", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to disable constraint check, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
-                    ConnectionStringSettings.Name, Helpers.UnEscapeTableName(tableName), ex.Message, command.CommandText, CommandTimeout));
+                    ConnectionString.Name, Helpers.UnEscapeTableName(tableName), ex.Message, command.CommandText, CommandTimeout));
 
-                exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);
+                exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
                 exception.Data.Add("TableName", Helpers.UnEscapeTableName(tableName));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", CommandTimeout);
@@ -58,7 +58,7 @@
                 return;
 
             process.Context.Log(LogSeverity.Information, process, "constraint check successfully disabled on {ConnectionStringKey}/{TableNames}",
-                 ConnectionStringSettings.Name, startedOn.Elapsed,
+                 ConnectionString.Name, startedOn.Elapsed,
                  TableNames
                     .Take(lastSucceededIndex + 1)
                     .Select(Helpers.UnEscapeTableName)

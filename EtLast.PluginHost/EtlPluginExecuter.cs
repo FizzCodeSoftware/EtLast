@@ -2,11 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using Microsoft.Extensions.Configuration;
     using Serilog;
     using Serilog.Events;
 
@@ -16,43 +15,12 @@
         private ILogger _opsLogger;
         private PluginHostConfiguration _hostConfiguration;
 
-        public int Execute(PluginHostConfiguration configuration)
+        public ExitCode Execute(PluginHostConfiguration configuration)
         {
             _hostConfiguration = configuration;
 
             var exitCode = Run();
             return exitCode;
-        }
-
-        public void AddExitCodeToEventLog(int exitCode)
-        {
-            var sourceName = _hostConfiguration.CommandLineArguments.Length > 0
-                    ? "EtlPluginExecuter+" + _hostConfiguration.CommandLineArguments[0].ToLowerInvariant()
-                    : "EtlPluginExecuter";
-
-            if (!EventLog.SourceExists(sourceName))
-                EventLog.CreateEventSource(sourceName, "Application");
-
-            using (var eventLog = new EventLog("Application"))
-            {
-                eventLog.Source = sourceName;
-
-                switch (exitCode)
-                {
-                    case ExitCodes.ERR_NO_ERROR:
-                        eventLog.WriteEntry("ETL Plugin Executer successfully finished", EventLogEntryType.Information, exitCode);
-                        break;
-                    case ExitCodes.ERR_NOTHING_TO_EXECUTE:
-                    case ExitCodes.ERR_NO_CONFIG:
-                    case ExitCodes.ERR_WRONG_ARGUMENTS:
-                        eventLog.WriteEntry("ETL Plugin Executer failed due to configuration errors", EventLogEntryType.Information, exitCode);
-                        break;
-                    case ExitCodes.ERR_AT_LEAST_ONE_PLUGIN_FAILED:
-                    case ExitCodes.ERR_EXECUTION_TERMINATED:
-                        eventLog.WriteEntry("ETL Plugin Executer failed due to plugin errors", EventLogEntryType.Information, exitCode);
-                        break;
-                }
-            }
         }
 
         private void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
@@ -70,7 +38,7 @@
             Environment.Exit(-1);
         }
 
-        private int Run()
+        private ExitCode Run()
         {
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
             try
@@ -84,7 +52,7 @@
                 {
                     _logger.Write(LogEventLevel.Error, "modules name command line argument is not defined");
                     _opsLogger.Write(LogEventLevel.Error, "module name command line argument is not defined");
-                    return ExitCodes.ERR_WRONG_ARGUMENTS;
+                    return ExitCode.ERR_WRONG_ARGUMENTS;
                 }
 
                 var modulesFolder = _hostConfiguration.ModulesFolder;
@@ -97,36 +65,35 @@
                 {
                     _logger.Write(LogEventLevel.Error, "can't find the specified modules folder: {PluginFolder}", modulesFolder);
                     _opsLogger.Write(LogEventLevel.Error, "can't find the specified modules folder: {PluginFolder}", modulesFolder);
-                    return ExitCodes.ERR_NOTHING_TO_EXECUTE;
+                    return ExitCode.ERR_NOTHING_TO_EXECUTE;
                 }
 
                 var sharedFolder = Path.Combine(modulesFolder, "Shared");
                 var moduleFolder = Path.Combine(modulesFolder, _hostConfiguration.CommandLineArguments[0]);
 
-                var moduleConfigFilePath = Path.Combine(moduleFolder, "module.config");
-                Configuration moduleConfiguration = null;
-                if (!File.Exists(moduleConfigFilePath))
-                {
-                    _logger.Write(LogEventLevel.Error, "can't find plugin configuration file: {ConfigurationFilePath}", moduleConfigFilePath);
-                    _opsLogger.Write(LogEventLevel.Error, "can't find plugin configuration file: {ConfigurationFilePath}", moduleConfigFilePath);
-                    return ExitCodes.ERR_NO_CONFIG;
-                }
+                var configurationBuilder = new ConfigurationBuilder();
 
-                _logger.Write(LogEventLevel.Information, "loading module configuration file from {ConfigurationFilePath}", moduleConfigFilePath);
-                var configFileMap = new ConfigurationFileMap(moduleConfigFilePath);
-                moduleConfiguration = ConfigurationManager.OpenMappedMachineConfiguration(configFileMap);
-
-                FillModuleConfigAppSettings(moduleConfiguration);
-
-                var sharedConfigFilePath = Path.Combine(sharedFolder, "shared.config");
+                var sharedConfigFilePath = Path.Combine(sharedFolder, "shared-configuration.json");
                 if (File.Exists(sharedConfigFilePath))
                 {
+                    configurationBuilder.AddJsonFile(sharedConfigFilePath);
                     _logger.Write(LogEventLevel.Information, "loading shared configuration file from {ConfigurationFilePath}", sharedConfigFilePath);
-
-                    var sharedConfigFileMap = new ConfigurationFileMap(sharedConfigFilePath);
-                    var sharedConfiguration = ConfigurationManager.OpenMappedMachineConfiguration(sharedConfigFileMap);
-                    FillModuleConfigFromSharedConfig(moduleConfiguration, sharedConfiguration);
                 }
+
+                var moduleConfigFilePath = Path.Combine(moduleFolder, "module-configuration.json");
+                if (!File.Exists(moduleConfigFilePath))
+                {
+                    _logger.Write(LogEventLevel.Error, "can't find the module's configuration file: {ConfigurationFilePath}", moduleConfigFilePath);
+                    _opsLogger.Write(LogEventLevel.Error, "can't find the module's configuration file: {ConfigurationFilePath}", moduleConfigFilePath);
+                    return ExitCode.ERR_NO_CONFIG;
+                }
+
+                configurationBuilder.AddJsonFile(moduleConfigFilePath);
+                _logger.Write(LogEventLevel.Information, "loading module configuration file from {ConfigurationFilePath}", moduleConfigFilePath);
+
+                var moduleConfiguration = configurationBuilder.Build();
+
+                AddCommandLineArgumentsToModuleConfiguration(moduleConfiguration);
 
                 var modulePlugins = ModuleLoader.LoadModule(_logger, _opsLogger, moduleFolder, sharedFolder, _hostConfiguration.EnableDynamicCompilation, _hostConfiguration.CommandLineArguments[0]);
                 modulePlugins = FilterExecutablePlugins(moduleConfiguration, modulePlugins);
@@ -136,33 +103,36 @@
 
                 if (modulePlugins.Count == 0)
                 {
-                    return ExitCodes.ERR_NOTHING_TO_EXECUTE;
+                    return ExitCode.ERR_NOTHING_TO_EXECUTE;
                 }
 
                 var executer = new ModuleExecuter();
                 executer.ExecuteModule(_hostConfiguration, modulePlugins, _logger, _opsLogger, moduleConfiguration, moduleFolder);
 
                 if (executer.ExecutionTerminated)
-                    return ExitCodes.ERR_EXECUTION_TERMINATED;
+                    return ExitCode.ERR_EXECUTION_TERMINATED;
 
                 if (executer.AtLeastOnePluginFailed)
-                    return ExitCodes.ERR_AT_LEAST_ONE_PLUGIN_FAILED;
+                    return ExitCode.ERR_AT_LEAST_ONE_PLUGIN_FAILED;
             }
             finally
             {
                 AppDomain.CurrentDomain.UnhandledException -= UnhandledExceptionHandler;
             }
 
-            return ExitCodes.ERR_NO_ERROR;
+            return ExitCode.ERR_NO_ERROR;
         }
 
-        private static List<IEtlPlugin> FilterExecutablePlugins(Configuration moduleConfiguration, List<IEtlPlugin> plugins)
+        private static List<IEtlPlugin> FilterExecutablePlugins(IConfigurationRoot moduleConfiguration, List<IEtlPlugin> plugins)
         {
             if (plugins == null || plugins.Count == 0)
                 return new List<IEtlPlugin>();
 
-            var pluginNamesToExecute = GetAppSetting(moduleConfiguration, "PluginsToExecute");
-            return pluginNamesToExecute.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+            var pluginNamesToExecute = moduleConfiguration.GetSection("Module:PluginsToExecute-" + Environment.MachineName).Get<string[]>();
+            if (pluginNamesToExecute == null || pluginNamesToExecute.Length == 0)
+                pluginNamesToExecute = moduleConfiguration.GetSection("Module:PluginsToExecute").Get<string[]>();
+
+            return pluginNamesToExecute
                 .Select(name => name.Trim())
                 .Where(name => !name.StartsWith("!", StringComparison.InvariantCultureIgnoreCase))
                 .Select(name => plugins.Find(plugin => plugin.GetType().Name == name))
@@ -170,7 +140,7 @@
                 .ToList();
         }
 
-        private void FillModuleConfigAppSettings(Configuration moduleConfiguration)
+        private void AddCommandLineArgumentsToModuleConfiguration(IConfigurationRoot moduleConfiguration)
         {
             if (_hostConfiguration.CommandLineArguments.Length <= 1)
                 return;
@@ -182,48 +152,15 @@
                 if (idx == -1)
                 {
                     var key = arg;
-                    if (moduleConfiguration.AppSettings.Settings[key] != null)
-                        moduleConfiguration.AppSettings.Settings.Remove(key);
-
-                    moduleConfiguration.AppSettings.Settings.Add(key, string.Empty);
+                    moduleConfiguration["Module:" + key] = "true";
                 }
                 else
                 {
                     var key = arg.Substring(0, idx).Trim();
-                    if (moduleConfiguration.AppSettings.Settings[key] != null)
-                        moduleConfiguration.AppSettings.Settings.Remove(key);
 
-                    moduleConfiguration.AppSettings.Settings.Add(key, arg.Substring(idx + 1).Trim());
+                    moduleConfiguration["Module:" + key] = arg.Substring(idx + 1).Trim();
                 }
             }
-        }
-
-        private static void FillModuleConfigFromSharedConfig(Configuration moduleConfiguration, Configuration sharedConfiguration)
-        {
-            foreach (var key in sharedConfiguration.AppSettings.Settings.AllKeys)
-            {
-                if (moduleConfiguration.AppSettings.Settings[key] != null)
-                    continue;
-
-                var value = sharedConfiguration.AppSettings.Settings[key].Value;
-                moduleConfiguration.AppSettings.Settings.Add(key, value);
-            }
-
-            foreach (ConnectionStringSettings connectionStringSettings in sharedConfiguration.ConnectionStrings.ConnectionStrings)
-            {
-                if (moduleConfiguration.ConnectionStrings.ConnectionStrings[connectionStringSettings.Name] != null)
-                    continue;
-
-                var newSettings = new ConnectionStringSettings(connectionStringSettings.Name, connectionStringSettings.ConnectionString, connectionStringSettings.ProviderName);
-                moduleConfiguration.ConnectionStrings.ConnectionStrings.Add(newSettings);
-            }
-        }
-
-        private static string GetAppSetting(Configuration config, string key)
-        {
-            return config.AppSettings.Settings[key + "-" + Environment.MachineName] != null
-                ? config.AppSettings.Settings[key + "-" + Environment.MachineName].Value
-                : config.AppSettings.Settings[key].Value;
         }
     }
 }

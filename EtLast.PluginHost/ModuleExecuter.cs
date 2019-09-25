@@ -2,10 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Diagnostics;
     using System.Transactions;
     using FizzCode.EtLast;
+    using Microsoft.Extensions.Configuration;
     using Serilog;
     using Serilog.Events;
 
@@ -14,7 +14,7 @@
         public bool ExecutionTerminated { get; private set; }
         public bool AtLeastOnePluginFailed { get; private set; }
 
-        public void ExecuteModule(PluginHostConfiguration hostConfiguration, List<IEtlPlugin> modulePlugins, ILogger logger, ILogger opsLogger, Configuration pluginConfiguration, string moduleFolder)
+        public void ExecuteModule(PluginHostConfiguration hostConfiguration, List<IEtlPlugin> modulePlugins, ILogger logger, ILogger opsLogger, IConfigurationRoot moduleConfiguration, string moduleFolder)
         {
             try
             {
@@ -30,7 +30,7 @@
                     {
                         try
                         {
-                            plugin.Init(logger, opsLogger, pluginConfiguration, moduleFolder, hostConfiguration.TransactionScopeTimeout);
+                            plugin.Init(logger, opsLogger, moduleConfiguration, moduleFolder, hostConfiguration.TransactionScopeTimeout);
                             pluginResults.Add(plugin.Context.Result);
 
                             plugin.BeforeExecute();

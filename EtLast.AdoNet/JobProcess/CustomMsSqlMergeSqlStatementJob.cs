@@ -2,13 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Data;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Text;
     using System.Transactions;
+    using FizzCode.DbTools.Configuration;
 
     public class CustomMsSqlMergeSqlStatementJob : AbstractSqlStatementJob
     {
@@ -40,7 +40,7 @@
                 throw new JobParameterNullException(process, this, nameof(TargetTableName));
         }
 
-        protected override string CreateSqlStatement(IProcess process, ConnectionStringSettings settings)
+        protected override string CreateSqlStatement(IProcess process, ConnectionStringWithProvider connectionString)
         {
             var sb = new StringBuilder();
             sb
@@ -84,7 +84,7 @@
         protected override void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn)
         {
             process.Context.Log(LogSeverity.Debug, process, "merging to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionStringSettings.Name, Helpers.UnEscapeTableName(TargetTableName), Helpers.UnEscapeTableName(SourceTableName), command.CommandText, ConnectionStringSettings.Name, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
+                ConnectionString.Name, Helpers.UnEscapeTableName(TargetTableName), Helpers.UnEscapeTableName(SourceTableName), command.CommandText, ConnectionString.Name, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
 
             if (Parameters != null)
             {
@@ -102,24 +102,24 @@
                 var recordCount = command.ExecuteNonQuery();
 
                 process.Context.Log(LogSeverity.Information, process, "{RecordCount} records merged to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} in {Elapsed}",
-                    recordCount, ConnectionStringSettings.Name, Helpers.UnEscapeTableName(TargetTableName), Helpers.UnEscapeTableName(SourceTableName), startedOn.Elapsed);
+                    recordCount, ConnectionString.Name, Helpers.UnEscapeTableName(TargetTableName), Helpers.UnEscapeTableName(SourceTableName), startedOn.Elapsed);
 
                 // todo: support stats in jobs...
                 // Stat.IncrementCounter("records merged", recordCount);
                 // Stat.IncrementCounter("merge time", startedOn.ElapsedMilliseconds);
 
-                process.Context.Stat.IncrementCounter("database records merged / " + ConnectionStringSettings.Name, recordCount);
-                process.Context.Stat.IncrementDebugCounter("database records merged / " + ConnectionStringSettings.Name + " / " + Helpers.UnEscapeTableName(SourceTableName) + " -> " + Helpers.UnEscapeTableName(TargetTableName), recordCount);
-                process.Context.Stat.IncrementCounter("database merge time / " + ConnectionStringSettings.Name, startedOn.ElapsedMilliseconds);
-                process.Context.Stat.IncrementDebugCounter("database merge time / " + ConnectionStringSettings.Name + " / " + Helpers.UnEscapeTableName(SourceTableName) + " -> " + Helpers.UnEscapeTableName(TargetTableName), startedOn.ElapsedMilliseconds);
+                process.Context.Stat.IncrementCounter("database records merged / " + ConnectionString.Name, recordCount);
+                process.Context.Stat.IncrementDebugCounter("database records merged / " + ConnectionString.Name + " / " + Helpers.UnEscapeTableName(SourceTableName) + " -> " + Helpers.UnEscapeTableName(TargetTableName), recordCount);
+                process.Context.Stat.IncrementCounter("database merge time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
+                process.Context.Stat.IncrementDebugCounter("database merge time / " + ConnectionString.Name + " / " + Helpers.UnEscapeTableName(SourceTableName) + " -> " + Helpers.UnEscapeTableName(TargetTableName), startedOn.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(process, this, "custom merge statement failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "custom merge statement failed, connection string key: {0}, message {1}, command: {2}, timeout: {3}",
-                    ConnectionStringSettings.Name, ex.Message, command.CommandText, CommandTimeout));
+                    ConnectionString.Name, ex.Message, command.CommandText, CommandTimeout));
 
-                exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);
+                exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", CommandTimeout);
                 exception.Data.Add("Elapsed", startedOn.Elapsed);

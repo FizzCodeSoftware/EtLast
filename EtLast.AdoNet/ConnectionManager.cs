@@ -2,29 +2,29 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Data;
     using System.Data.Common;
     using System.Diagnostics;
     using System.Globalization;
     using System.Threading;
     using System.Transactions;
+    using FizzCode.DbTools.Configuration;
 
     public static class ConnectionManager
     {
         private static readonly Dictionary<string, DatabaseConnection> Connections = new Dictionary<string, DatabaseConnection>();
 
-        internal static DatabaseConnection GetConnection(ConnectionStringSettings connectionStringSettings, IProcess process, bool ignorePool = false, int maxRetryCount = 1, int retryDelayMilliseconds = 10000)
+        internal static DatabaseConnection GetConnection(ConnectionStringWithProvider connectionString, IProcess process, bool ignorePool = false, int maxRetryCount = 1, int retryDelayMilliseconds = 10000)
         {
-            if (string.IsNullOrEmpty(connectionStringSettings.ProviderName))
+            if (string.IsNullOrEmpty(connectionString.ProviderName))
             {
                 var ex = new EtlException(process, "missing provider name for connection string");
-                ex.Data["ConnectionStringKey"] = connectionStringSettings.Name;
-                ex.AddOpsMessage("missing provider name for connection string key: " + connectionStringSettings.Name);
+                ex.Data["ConnectionStringKey"] = connectionString.Name;
+                ex.AddOpsMessage("missing provider name for connection string key: " + connectionString.Name);
                 throw ex;
             }
 
-            var key = connectionStringSettings.Name + "/" + connectionStringSettings.ProviderName + "/";
+            var key = connectionString.Name + "/" + connectionString.ProviderName + "/";
 
             key += Transaction.Current != null
                 ? Transaction.Current.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture)
@@ -49,13 +49,13 @@
 
                     var startedOn = Stopwatch.StartNew();
                     process.Context.Log(LogSeverity.Debug, process, "opening database connection to {ConnectionStringKey} using {ProviderName} provider, transaction: {Transaction}",
-                        connectionStringSettings.Name, connectionStringSettings.ProviderName, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
+                        connectionString.Name, connectionString.ProviderName, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
 
                     try
                     {
                         IDbConnection conn = null;
 
-                        var providerName = connectionStringSettings.ProviderName;
+                        var providerName = connectionString.ProviderName;
                         if (providerName != null)
                         {
                             var connectionType = Type.GetType(providerName);
@@ -70,17 +70,17 @@
                             conn = DbProviderFactories.GetFactory(providerName).CreateConnection();
                         }
 
-                        process.Context.Stat.IncrementCounter("database connections opened / " + connectionStringSettings.Name, 1);
+                        process.Context.Stat.IncrementCounter("database connections opened / " + connectionString.Name, 1);
 
-                        conn.ConnectionString = connectionStringSettings.ConnectionString;
+                        conn.ConnectionString = connectionString.ConnectionString;
                         conn.Open();
 
-                        process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringKey} using {ProviderName} provider in {Elapsed}", connectionStringSettings.Name, connectionStringSettings.ProviderName, startedOn.Elapsed);
+                        process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringKey} using {ProviderName} provider in {Elapsed}", connectionString.Name, connectionString.ProviderName, startedOn.Elapsed);
 
                         connection = new DatabaseConnection()
                         {
                             Key = key,
-                            Settings = connectionStringSettings,
+                            ConnectionString = connectionString,
                             Connection = conn,
                             ReferenceCount = 1,
                             TransactionWhenCreated = Transaction.Current,
@@ -96,27 +96,27 @@
                     }
                 } // lock released
 
-                process.Context.Stat.IncrementCounter("database connections failed / " + connectionStringSettings.Name, 1);
+                process.Context.Stat.IncrementCounter("database connections failed / " + connectionString.Name, 1);
 
-                process.Context.Log(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", connectionStringSettings.Name, connectionStringSettings.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
-                process.Context.LogOps(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", connectionStringSettings.Name, connectionStringSettings.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
+                process.Context.Log(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", connectionString.Name, connectionString.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
+                process.Context.LogOps(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", connectionString.Name, connectionString.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
                 Thread.Sleep(retryDelayMilliseconds * (retry + 1));
             }
 
             var exception = new EtlException(process, "can't connect to database", lastException);
-            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "can't connect to database, connection string key: {0}, message: {1}", connectionStringSettings.Name, lastException.Message));
-            exception.Data.Add("ConnectionStringKey", connectionStringSettings.Name);
-            exception.Data.Add("ProviderName", connectionStringSettings.ProviderName);
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "can't connect to database, connection string key: {0}, message: {1}", connectionString.Name, lastException.Message));
+            exception.Data.Add("ConnectionStringKey", connectionString.Name);
+            exception.Data.Add("ProviderName", connectionString.ProviderName);
             throw exception;
         }
 
-        public static DatabaseConnection GetNewConnection(ConnectionStringSettings connectionStringSettings, IProcess process, int maxRetryCount = 1, int retryDelayMilliseconds = 10000)
+        public static DatabaseConnection GetNewConnection(ConnectionStringWithProvider connectionString, IProcess process, int maxRetryCount = 1, int retryDelayMilliseconds = 10000)
         {
-            if (string.IsNullOrEmpty(connectionStringSettings.ProviderName))
+            if (string.IsNullOrEmpty(connectionString.ProviderName))
             {
                 var ex = new EtlException(process, "missing provider name for connection string");
-                ex.Data["ConnectionStringKey"] = connectionStringSettings.Name;
-                ex.AddOpsMessage("missing provider name for connection string key: " + connectionStringSettings.Name);
+                ex.Data["ConnectionStringKey"] = connectionString.Name;
+                ex.AddOpsMessage("missing provider name for connection string key: " + connectionString.Name);
                 throw ex;
             }
 
@@ -126,13 +126,13 @@
             {
                 var startedOn = Stopwatch.StartNew();
                 process.Context.Log(LogSeverity.Debug, process, "opening database connection to {ConnectionStringKey} using {ProviderName} provider, transaction: {Transaction}",
-                    connectionStringSettings.Name, connectionStringSettings.ProviderName, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
+                    connectionString.Name, connectionString.ProviderName, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
 
                 try
                 {
                     IDbConnection conn = null;
 
-                    var providerName = connectionStringSettings.ProviderName;
+                    var providerName = connectionString.ProviderName;
                     if (providerName != null)
                     {
                         var connectionType = Type.GetType(providerName);
@@ -147,17 +147,17 @@
                         conn = DbProviderFactories.GetFactory(providerName).CreateConnection();
                     }
 
-                    process.Context.Stat.IncrementCounter("database connections opened / " + connectionStringSettings.Name, 1);
+                    process.Context.Stat.IncrementCounter("database connections opened / " + connectionString.Name, 1);
 
-                    conn.ConnectionString = connectionStringSettings.ConnectionString;
+                    conn.ConnectionString = connectionString.ConnectionString;
                     conn.Open();
 
-                    process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringKey} using {ProviderName} provider in {Elapsed}", connectionStringSettings.Name, connectionStringSettings.ProviderName, startedOn.Elapsed);
+                    process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringKey} using {ProviderName} provider in {Elapsed}", connectionString.Name, connectionString.ProviderName, startedOn.Elapsed);
 
                     return new DatabaseConnection()
                     {
                         Key = null,
-                        Settings = connectionStringSettings,
+                        ConnectionString = connectionString,
                         Connection = conn,
                         ReferenceCount = 1,
                         TransactionWhenCreated = Transaction.Current,
@@ -168,17 +168,17 @@
                     lastException = ex;
                 }
 
-                process.Context.Stat.IncrementCounter("database connections failed / " + connectionStringSettings.Name, 1);
+                process.Context.Stat.IncrementCounter("database connections failed / " + connectionString.Name, 1);
 
-                process.Context.Log(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", connectionStringSettings.Name, connectionStringSettings.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
-                process.Context.LogOps(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", connectionStringSettings.Name, connectionStringSettings.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
+                process.Context.Log(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", connectionString.Name, connectionString.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
+                process.Context.LogOps(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", connectionString.Name, connectionString.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
                 Thread.Sleep(retryDelayMilliseconds * (retry + 1));
             }
 
             var exception = new EtlException(process, "can't connect to database", lastException);
-            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "can't connect to database, connection string key: {0}, message: {1}", connectionStringSettings.Name, lastException.Message));
-            exception.Data.Add("ConnectionStringKey", connectionStringSettings.Name);
-            exception.Data.Add("ProviderName", connectionStringSettings.ProviderName);
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "can't connect to database, connection string key: {0}, message: {1}", connectionString.Name, lastException.Message));
+            exception.Data.Add("ConnectionStringKey", connectionString.Name);
+            exception.Data.Add("ProviderName", connectionString.ProviderName);
             throw exception;
         }
 
@@ -197,7 +197,7 @@
                         Connections.Remove(connection.Key);
                     }
 
-                    process.Context.Log(LogSeverity.Debug, process, "database connection closed: {ConnectionStringKey} using {ProviderName} provider", connection.Settings.Name, connection.Settings.ProviderName);
+                    process.Context.Log(LogSeverity.Debug, process, "database connection closed: {ConnectionStringKey} using {ProviderName} provider", connection.ConnectionString.Name, connection.ConnectionString.ProviderName);
 
                     if (connection != null)
                     {
@@ -207,7 +207,7 @@
                 }
                 else
                 {
-                    process.Context.Log(LogSeverity.Debug, process, "database connection reference count decreased to {ReferenceCount}: {ConnectionStringKey} using {ProviderName} provider", connection.ReferenceCount, connection.Settings.Name, connection.Settings.ProviderName);
+                    process.Context.Log(LogSeverity.Debug, process, "database connection reference count decreased to {ReferenceCount}: {ConnectionStringKey} using {ProviderName} provider", connection.ReferenceCount, connection.ConnectionString.Name, connection.ConnectionString.ProviderName);
                 }
             }
 

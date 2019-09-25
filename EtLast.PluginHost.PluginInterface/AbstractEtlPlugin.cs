@@ -2,16 +2,16 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Globalization;
     using System.IO;
     using System.Reflection;
+    using Microsoft.Extensions.Configuration;
     using Serilog;
     using Serilog.Events;
 
     public abstract class AbstractEtlPlugin : IEtlPlugin
     {
-        public Configuration Configuration { get; private set; }
+        public IConfigurationRoot Configuration { get; private set; }
         public IEtlContext Context { get; private set; }
         public string ModuleFolder { get; private set; }
 
@@ -29,11 +29,11 @@
         public TimeSpan TransactionScopeTimeout { get; private set; }
         private readonly object _dataLock = new object();
 
-        public void Init(ILogger logger, ILogger opsLogger, Configuration configuration, string moduleFolder, TimeSpan transactionScopeTimeout)
+        public void Init(ILogger logger, ILogger opsLogger, IConfigurationRoot moduleConfiguration, string moduleFolder, TimeSpan transactionScopeTimeout)
         {
             Logger = logger;
             OpsLogger = opsLogger;
-            Configuration = configuration;
+            Configuration = moduleConfiguration;
             Context = CreateContext<DictionaryRow>(transactionScopeTimeout);
             ModuleFolder = moduleFolder;
             TransactionScopeTimeout = transactionScopeTimeout;
@@ -256,16 +256,23 @@
             return GetPathFromConfiguration("StorageFolder", subFolders);
         }
 
-        protected string GetAppSetting(string key)
+        protected T GetModuleSetting<T>(string key, T defaultValue = default, string subSection = null)
         {
-            return Configuration.AppSettings.Settings[key + "-" + Environment.MachineName] != null
-                ? Configuration.AppSettings.Settings[key + "-" + Environment.MachineName].Value
-                : Configuration.AppSettings.Settings[key]?.Value;
+            var section = subSection == null
+                ? "Module"
+                : "Module:" + subSection;
+
+            var v = Configuration.GetValue<T>(section + ":" + key + "-" + Environment.MachineName, default);
+            if (v != null && !v.Equals(default(T)))
+                return v;
+
+            v = Configuration.GetValue(section + ":" + key, defaultValue);
+            return v ?? defaultValue;
         }
 
         protected string GetPathFromConfiguration(string appSettingName, params string[] subFolders)
         {
-            var path = GetAppSetting(appSettingName);
+            var path = GetModuleSetting<string>(appSettingName);
             if (string.IsNullOrEmpty(path))
                 return null;
 

@@ -2,13 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Data;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Text;
     using System.Transactions;
+    using FizzCode.DbTools.Configuration;
 
     public class CopyTableStructureJob : AbstractSqlStatementsJob
     {
@@ -25,7 +25,7 @@
                 throw new JobParameterNullException(process, this, nameof(TableCopyConfiguration.TargetTableName));
         }
 
-        protected override List<string> CreateSqlStatements(IProcess process, ConnectionStringSettings settings)
+        protected override List<string> CreateSqlStatements(IProcess process, ConnectionStringWithProvider connectionString)
         {
             var statements = new List<string>();
             var sb = new StringBuilder();
@@ -58,22 +58,22 @@
             var config = Configuration[statementIndex];
 
             process.Context.Log(LogSeverity.Debug, process, "create new table {ConnectionStringKey}/{TargetTableName} based on {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionStringSettings.Name, Helpers.UnEscapeTableName(config.TargetTableName), Helpers.UnEscapeTableName(config.SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
+                ConnectionString.Name, Helpers.UnEscapeTableName(config.TargetTableName), Helpers.UnEscapeTableName(config.SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
 
             try
             {
                 command.ExecuteNonQuery();
 
                 process.Context.Log(LogSeverity.Debug, process, "table {ConnectionStringKey}/{TargetTableName} is created from {SourceTableName} in {Elapsed}",
-                    ConnectionStringSettings.Name, Helpers.UnEscapeTableName(config.TargetTableName), Helpers.UnEscapeTableName(config.SourceTableName), startedOn.Elapsed);
+                    ConnectionString.Name, Helpers.UnEscapeTableName(config.TargetTableName), Helpers.UnEscapeTableName(config.SourceTableName), startedOn.Elapsed);
             }
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(process, this, "failed to copy table structure", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to copy table structure, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message {4}, command: {5}, timeout: {6}",
-                    ConnectionStringSettings.Name, Helpers.UnEscapeTableName(config.SourceTableName), Helpers.UnEscapeTableName(config.TargetTableName), config.ColumnConfiguration != null ? string.Join(",", config.ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, CommandTimeout));
+                    ConnectionString.Name, Helpers.UnEscapeTableName(config.SourceTableName), Helpers.UnEscapeTableName(config.TargetTableName), config.ColumnConfiguration != null ? string.Join(",", config.ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, CommandTimeout));
 
-                exception.Data.Add("ConnectionStringKey", ConnectionStringSettings.Name);
+                exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
                 exception.Data.Add("SourceTableName", Helpers.UnEscapeTableName(config.SourceTableName));
                 exception.Data.Add("TargetTableName", Helpers.UnEscapeTableName(config.TargetTableName));
                 if (config.ColumnConfiguration != null)
@@ -94,7 +94,7 @@
                 return;
 
             process.Context.Log(LogSeverity.Information, process, "table(s) successfully created on {ConnectionStringKey} in {Elapsed}: {TableNames}",
-                ConnectionStringSettings.Name, startedOn.Elapsed,
+                ConnectionString.Name, startedOn.Elapsed,
                 Configuration
                     .Take(lastSucceededIndex + 1)
                     .Select(config => Helpers.UnEscapeTableName(config.SourceTableName) + "->" + Helpers.UnEscapeTableName(config.TargetTableName))

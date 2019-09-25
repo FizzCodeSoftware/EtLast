@@ -2,16 +2,16 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Data;
     using System.Diagnostics;
     using System.Threading;
     using System.Transactions;
+    using FizzCode.DbTools.Configuration;
 
     public abstract class AbstractSqlStatementsJob : AbstractJob
     {
         public string ConnectionStringKey { get; set; }
-        protected ConnectionStringSettings ConnectionStringSettings { get; private set; }
+        protected ConnectionStringWithProvider ConnectionString { get; private set; }
         public int CommandTimeout { get; set; } = 300;
 
         /// <summary>
@@ -28,22 +28,22 @@
             Validate(process);
 
             var startedOn = Stopwatch.StartNew();
-            ConnectionStringSettings = process.Context.GetConnectionStringSettings(ConnectionStringKey);
-            var statements = CreateSqlStatements(process, ConnectionStringSettings);
+            ConnectionString = process.Context.GetConnectionString(ConnectionStringKey);
+            var statements = CreateSqlStatements(process, ConnectionString);
 
             foreach (var statement in statements)
             {
                 AdoNetSqlStatementDebugEventListener.GenerateEvent(process, () => new AdoNetSqlStatementDebugEvent()
                 {
                     Job = this,
-                    ConnectionStringSettings = ConnectionStringSettings,
+                    ConnectionString = ConnectionString,
                     SqlStatement = statement,
                 });
             }
 
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
-                var connection = ConnectionManager.GetConnection(ConnectionStringSettings, process);
+                var connection = ConnectionManager.GetConnection(ConnectionString, process);
                 try
                 {
                     lock (connection.Lock)
@@ -79,7 +79,7 @@
 
         protected abstract void Validate(IProcess process);
 
-        protected abstract List<string> CreateSqlStatements(IProcess process, ConnectionStringSettings settings);
+        protected abstract List<string> CreateSqlStatements(IProcess process, ConnectionStringWithProvider connectionString);
 
         protected abstract void RunCommand(IProcess process, IDbCommand command, int statementIndex, Stopwatch startedOn);
         protected abstract void LogSucceeded(IProcess process, int lastSucceededIndex, Stopwatch startedOn);

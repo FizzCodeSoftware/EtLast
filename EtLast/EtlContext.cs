@@ -3,10 +3,11 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Linq;
     using System.Threading;
     using System.Transactions;
+    using FizzCode.DbTools.Configuration;
+    using Microsoft.Extensions.Configuration;
 
     public class EtlContext<TRow> : IEtlContext
         where TRow : IRow, new()
@@ -16,7 +17,8 @@
         public EtlContextResult Result { get; } = new EtlContextResult();
         public AdditionalData AdditionalData { get; }
 
-        public Configuration Configuration { get; }
+        public IConfigurationRoot Configuration { get; }
+        public ConnectionStringCollection ConnectionStrings { get; }
 
         public DateTimeOffset CreatedOnUtc { get; }
         public DateTimeOffset CreatedOnLocal { get; }
@@ -35,14 +37,23 @@
         private int _nextUid;
 
         public EtlContext()
-            : this(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None))
+            : this(null)
         {
         }
 
-        public EtlContext(Configuration configuration)
+        public EtlContext(IConfigurationRoot configuration)
         {
             CancellationTokenSource = new CancellationTokenSource();
+
+            if (configuration == null)
+            {
+                configuration = new ConfigurationBuilder().Build();
+            }
+
             Configuration = configuration;
+            ConnectionStrings = new ConnectionStringCollection();
+            ConnectionStrings.LoadFromConfiguration(Configuration);
+
             AdditionalData = new AdditionalData()
             {
                 Dictionary = new Dictionary<string, object>(),
@@ -212,9 +223,9 @@
             return new List<Exception>(Exceptions);
         }
 
-        public ConnectionStringSettings GetConnectionStringSettings(string key)
+        public ConnectionStringWithProvider GetConnectionString(string key)
         {
-            return Configuration.ConnectionStrings.ConnectionStrings[key + "-" + Environment.MachineName] ?? Configuration.ConnectionStrings.ConnectionStrings[key];
+            return ConnectionStrings[key + "-" + Environment.MachineName] ?? ConnectionStrings[key];
         }
 
         public TransactionScope BeginScope(TransactionScopeKind kind)

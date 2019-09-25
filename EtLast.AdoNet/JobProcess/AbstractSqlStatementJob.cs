@@ -1,15 +1,15 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
-    using System.Configuration;
     using System.Data;
     using System.Diagnostics;
     using System.Threading;
     using System.Transactions;
+    using FizzCode.DbTools.Configuration;
 
     public abstract class AbstractSqlStatementJob : AbstractJob
     {
         public string ConnectionStringKey { get; set; }
-        protected ConnectionStringSettings ConnectionStringSettings { get; private set; }
+        protected ConnectionStringWithProvider ConnectionString { get; private set; }
         public int CommandTimeout { get; set; } = 300;
 
         /// <summary>
@@ -26,19 +26,19 @@
             Validate(process);
 
             var startedOn = Stopwatch.StartNew();
-            ConnectionStringSettings = process.Context.GetConnectionStringSettings(ConnectionStringKey);
-            var statement = CreateSqlStatement(process, ConnectionStringSettings);
+            ConnectionString = process.Context.GetConnectionString(ConnectionStringKey);
+            var statement = CreateSqlStatement(process, ConnectionString);
 
             AdoNetSqlStatementDebugEventListener.GenerateEvent(process, () => new AdoNetSqlStatementDebugEvent()
             {
                 Job = this,
-                ConnectionStringSettings = ConnectionStringSettings,
+                ConnectionString = ConnectionString,
                 SqlStatement = statement,
             });
 
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
-                var connection = ConnectionManager.GetConnection(ConnectionStringSettings, process);
+                var connection = ConnectionManager.GetConnection(ConnectionString, process);
                 try
                 {
                     lock (connection.Lock)
@@ -61,7 +61,7 @@
 
         protected abstract void Validate(IProcess process);
 
-        protected abstract string CreateSqlStatement(IProcess process, ConnectionStringSettings settings);
+        protected abstract string CreateSqlStatement(IProcess process, ConnectionStringWithProvider connectionString);
 
         protected abstract void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn);
     }

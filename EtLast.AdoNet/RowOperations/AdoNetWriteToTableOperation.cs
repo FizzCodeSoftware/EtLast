@@ -2,12 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Data;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Text;
+    using FizzCode.DbTools.Configuration;
 
     public class AdoNetWriteToTableOperation : AbstractRowOperation
     {
@@ -22,7 +22,7 @@
         public IAdoNetWriteToTableSqlStatementCreator SqlStatementCreator { get; set; }
 
         private DatabaseConnection _connection;
-        private ConnectionStringSettings _connectionStringSettings;
+        private ConnectionStringWithProvider _connectionString;
 
         private List<string> _statements;
 
@@ -47,7 +47,7 @@
                     _command.CommandTimeout = CommandTimeout;
                 }
 
-                var statement = SqlStatementCreator.CreateRowStatement(_connectionStringSettings, row, this);
+                var statement = SqlStatementCreator.CreateRowStatement(_connectionString, row, this);
                 _statements.Add(statement);
 
                 if (_command.Parameters.Count >= MaximumParameterCount - 1)
@@ -63,7 +63,7 @@
                 return;
             try
             {
-                _connection = ConnectionManager.GetConnection(_connectionStringSettings, process);
+                _connection = ConnectionManager.GetConnection(_connectionString, process);
             }
             catch (Exception ex)
             {
@@ -79,14 +79,14 @@
             var parameter = _command.CreateParameter();
             parameter.ParameterName = "@" + _command.Parameters.Count.ToString("D", CultureInfo.InvariantCulture);
 
-            SetParameter(parameter, value, dbColumnDefinition.DbType, _connectionStringSettings);
+            SetParameter(parameter, value, dbColumnDefinition.DbType, _connectionString);
 
             _command.Parameters.Add(parameter);
         }
 
         private void WriteToSql(IProcess process, bool shutdown)
         {
-            var sqlStatement = SqlStatementCreator.CreateStatement(_connectionStringSettings, _statements);
+            var sqlStatement = SqlStatementCreator.CreateStatement(_connectionString, _statements);
             var recordCount = _statements.Count;
 
             var startedOn = Stopwatch.StartNew();
@@ -97,7 +97,7 @@
             AdoNetSqlStatementDebugEventListener.GenerateEvent(process, () => new AdoNetSqlStatementDebugEvent()
             {
                 Operation = this,
-                ConnectionStringSettings = _connectionStringSettings,
+                ConnectionString = _connectionString,
                 SqlStatement = sqlStatement,
                 CompiledSqlStatement = CompileSql(_command),
             });
@@ -113,10 +113,10 @@
                 Stat.IncrementCounter("records written", recordCount);
                 Stat.IncrementCounter("write time", time);
 
-                process.Context.Stat.IncrementCounter("database records written / " + _connectionStringSettings.Name, recordCount);
-                process.Context.Stat.IncrementDebugCounter("database records written / " + _connectionStringSettings.Name + " / " + Helpers.UnEscapeTableName(TableDefinition.TableName), recordCount);
-                process.Context.Stat.IncrementCounter("database write time / " + _connectionStringSettings.Name, time);
-                process.Context.Stat.IncrementDebugCounter("database write time / " + _connectionStringSettings.Name + " / " + Helpers.UnEscapeTableName(TableDefinition.TableName), time);
+                process.Context.Stat.IncrementCounter("database records written / " + _connectionString.Name, recordCount);
+                process.Context.Stat.IncrementDebugCounter("database records written / " + _connectionString.Name + " / " + Helpers.UnEscapeTableName(TableDefinition.TableName), recordCount);
+                process.Context.Stat.IncrementCounter("database write time / " + _connectionString.Name, time);
+                process.Context.Stat.IncrementDebugCounter("database write time / " + _connectionString.Name + " / " + Helpers.UnEscapeTableName(TableDefinition.TableName), time);
 
                 _rowsWritten += recordCount;
 
@@ -131,8 +131,8 @@
             {
                 var exception = new OperationExecutionException(process, this, "database write failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database write failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",
-                    _connectionStringSettings.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), ex.Message, sqlStatement));
-                exception.Data.Add("ConnectionStringKey", _connectionStringSettings.Name);
+                    _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), ex.Message, sqlStatement));
+                exception.Data.Add("ConnectionStringKey", _connectionString.Name);
                 exception.Data.Add("TableName", Helpers.UnEscapeTableName(TableDefinition.TableName));
                 exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + Helpers.UnEscapeColumnName(x.DbColumn))));
                 exception.Data.Add("SqlStatement", sqlStatement);
@@ -201,10 +201,10 @@
 
             SqlStatementCreator.Prepare(this, Process, TableDefinition);
 
-            _connectionStringSettings = Process.Context.GetConnectionStringSettings(ConnectionStringKey);
-            if (_connectionStringSettings == null)
+            _connectionString = Process.Context.GetConnectionString(ConnectionStringKey);
+            if (_connectionString == null)
                 throw new InvalidOperationParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
-            if (_connectionStringSettings.ProviderName == null)
+            if (_connectionString.ProviderName == null)
                 throw new OperationParameterNullException(this, "ConnectionString");
 
             _rowsWritten = 0;
@@ -228,7 +228,7 @@
             ConnectionManager.ReleaseConnection(Process, ref _connection);
         }
 
-        public virtual void SetParameter(IDbDataParameter parameter, object value, DbType? dbType, ConnectionStringSettings connectionStringSettings)
+        public virtual void SetParameter(IDbDataParameter parameter, object value, DbType? dbType, ConnectionStringWithProvider connectionString)
         {
             if (value == null)
             {

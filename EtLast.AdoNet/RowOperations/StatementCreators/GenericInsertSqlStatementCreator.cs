@@ -1,9 +1,9 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Globalization;
     using System.Linq;
+    using FizzCode.DbTools.Configuration;
 
     public class GenericInsertSqlStatementCreator : IAdoNetWriteToTableSqlStatementCreator
     {
@@ -18,7 +18,7 @@
             _dbColumns = string.Join(", ", _columns.Select(x => x.DbColumn));
         }
 
-        public string CreateRowStatement(ConnectionStringSettings settings, IRow row, AdoNetWriteToTableOperation operation)
+        public string CreateRowStatement(ConnectionStringWithProvider connectionString, IRow row, AdoNetWriteToTableOperation operation)
         {
             var startIndex = operation.ParameterCount;
             foreach (var column in _columns)
@@ -34,7 +34,7 @@
             return statement;
         }
 
-        public string CreateStatement(ConnectionStringSettings settings, List<string> rowStatements)
+        public string CreateStatement(ConnectionStringWithProvider connectionString, List<string> rowStatements)
         {
             return "INSERT INTO " + _tableDefinition.TableName + " (" + _dbColumns + ") VALUES \n" + string.Join(",\n", rowStatements) + ";";
         }

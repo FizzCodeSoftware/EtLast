@@ -1,8 +1,8 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System;
-    using System.Configuration;
     using System.Reflection;
+    using FizzCode.DbTools.Configuration;
 
     public class MySqlValueProcessor : ISqlValueProcessor
     {
@@ -10,9 +10,9 @@
         private static PropertyInfo _mysqlDateTimeIsValidProp;
         private static PropertyInfo _mySqlDateTimeValueProp;
 
-        public bool Init(ConnectionStringSettings connectionStringSettings)
+        public bool Init(ConnectionStringWithProvider connectionString)
         {
-            var isMySql = string.Equals(connectionStringSettings.ProviderName, "MySql.Data.MySqlClient", StringComparison.InvariantCultureIgnoreCase);
+            var isMySql = string.Equals(connectionString.ProviderName, "MySql.Data.MySqlClient", StringComparison.InvariantCultureIgnoreCase);
             return isMySql;
         }
 

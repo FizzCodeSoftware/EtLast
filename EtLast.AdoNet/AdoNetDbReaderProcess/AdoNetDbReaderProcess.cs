@@ -59,7 +59,7 @@
 
             if (RecordCountLimit > 0)
             {
-                var isMySql = string.Equals(ConnectionStringSettings.ProviderName, "MySql.Data.MySqlClient", StringComparison.InvariantCultureIgnoreCase);
+                var isMySql = string.Equals(ConnectionString.ProviderName, "MySql.Data.MySqlClient", StringComparison.InvariantCultureIgnoreCase);
                 if (isMySql)
                 {
                     postfix += (string.IsNullOrEmpty(postfix) ? "" : " ") + "LIMIT " + RecordCountLimit.ToString("D", CultureInfo.InvariantCulture);
@@ -77,13 +77,13 @@
         protected override void LogAction()
         {
             Context.Log(LogSeverity.Debug, this, "reading from {ConnectionStringKey}/{TableName}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionStringSettings.Name, Helpers.UnEscapeTableName(TableName), CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
+                ConnectionString.Name, Helpers.UnEscapeTableName(TableName), CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
         }
 
         protected override void IncrementCounter()
         {
-            Context.Stat.IncrementCounter("database records read / " + ConnectionStringSettings.Name, 1);
-            Context.Stat.IncrementDebugCounter("database records read / " + ConnectionStringSettings.Name + " / " + Helpers.UnEscapeTableName(TableName), 1);
+            Context.Stat.IncrementCounter("database records read / " + ConnectionString.Name, 1);
+            Context.Stat.IncrementDebugCounter("database records read / " + ConnectionString.Name + " / " + Helpers.UnEscapeTableName(TableName), 1);
         }
     }
 }

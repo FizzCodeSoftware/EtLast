@@ -1,9 +1,9 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Globalization;
     using System.Linq;
+    using FizzCode.DbTools.Configuration;
 
     public class MsSqlServerMergeSqlStatementCreator : IAdoNetWriteToTableSqlStatementCreator
     {
@@ -25,7 +25,7 @@
             _insertDbColumnsSource = string.Join(", ", _tableDefinition.Columns.Where(x => x.Insert).Select(x => "source." + x.DbColumn));
         }
 
-        public string CreateRowStatement(ConnectionStringSettings settings, IRow row, AdoNetWriteToTableOperation operation)
+        public string CreateRowStatement(ConnectionStringWithProvider connectionString, IRow row, AdoNetWriteToTableOperation operation)
         {
             var startIndex = operation.ParameterCount;
             foreach (var column in _tableDefinition.Columns)
@@ -41,7 +41,7 @@
             return statement;
         }
 
-        public string CreateStatement(ConnectionStringSettings settings, List<string> rowStatements)
+        public string CreateStatement(ConnectionStringWithProvider connectionString, List<string> rowStatements)
         {
             return "MERGE INTO " + _tableDefinition.TableName + " target USING (VALUES \n" +
                 string.Join(", ", rowStatements) + "\n) AS source (" + _allDbColumns + ")\nON " + _keyDbColumns +

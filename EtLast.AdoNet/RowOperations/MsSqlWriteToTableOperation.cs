@@ -2,11 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Data.SqlClient;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+    using FizzCode.DbTools.Configuration;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
     public class MsSqlWriteToTableOperation : AbstractRowOperation
@@ -33,7 +33,7 @@
         /// </summary>
         public int BatchSize { get; set; } = 10000;
 
-        private ConnectionStringSettings _connectionStringSettings;
+        private ConnectionStringWithProvider _connectionString;
 
         private int _rowsWritten;
         private Stopwatch _timer;
@@ -83,10 +83,10 @@
                 var writeTime = Convert.ToInt64(time.TotalMilliseconds);
                 Stat.IncrementCounter("write time", writeTime);
 
-                process.Context.Stat.IncrementCounter("database records written / " + _connectionStringSettings.Name, recordCount);
-                process.Context.Stat.IncrementDebugCounter("database records written / " + _connectionStringSettings.Name + " / " + Helpers.UnEscapeTableName(TableDefinition.TableName), recordCount);
-                process.Context.Stat.IncrementCounter("database write time / " + _connectionStringSettings.Name, writeTime);
-                process.Context.Stat.IncrementDebugCounter("database write time / " + _connectionStringSettings.Name + " / " + Helpers.UnEscapeTableName(TableDefinition.TableName), writeTime);
+                process.Context.Stat.IncrementCounter("database records written / " + _connectionString.Name, recordCount);
+                process.Context.Stat.IncrementDebugCounter("database records written / " + _connectionString.Name + " / " + Helpers.UnEscapeTableName(TableDefinition.TableName), recordCount);
+                process.Context.Stat.IncrementCounter("database write time / " + _connectionString.Name, writeTime);
+                process.Context.Stat.IncrementDebugCounter("database write time / " + _connectionString.Name + " / " + Helpers.UnEscapeTableName(TableDefinition.TableName), writeTime);
 
                 _rowsWritten += recordCount;
 
@@ -102,8 +102,8 @@
 
                 var exception = new OperationExecutionException(process, this, "database write failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database write failed, connection string key: {0}, table: {1}, message {2}",
-                    _connectionStringSettings.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), ex.Message));
-                exception.Data.Add("ConnectionStringKey", _connectionStringSettings.Name);
+                    _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), ex.Message));
+                exception.Data.Add("ConnectionStringKey", _connectionString.Name);
                 exception.Data.Add("TableName", Helpers.UnEscapeTableName(TableDefinition.TableName));
                 exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + Helpers.UnEscapeColumnName(x.DbColumn))));
                 exception.Data.Add("Timeout", CommandTimeout);
@@ -122,11 +122,11 @@
             if (TableDefinition == null)
                 throw new OperationParameterNullException(this, nameof(TableDefinition));
 
-            _connectionStringSettings = Process.Context.GetConnectionStringSettings(ConnectionStringKey);
-            if (_connectionStringSettings == null)
+            _connectionString = Process.Context.GetConnectionString(ConnectionStringKey);
+            if (_connectionString == null)
                 throw new InvalidOperationParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
-            if (_connectionStringSettings.ProviderName != "System.Data.SqlClient")
-                throw new InvalidOperationParameterException(this, "ConnectionString", nameof(_connectionStringSettings.ProviderName), "provider name must be System.Data.SqlClient");
+            if (_connectionString.ProviderName != "System.Data.SqlClient")
+                throw new InvalidOperationParameterException(this, "ConnectionString", nameof(_connectionString.ProviderName), "provider name must be System.Data.SqlClient");
 
             _rowsWritten = 0;
             _timer = new Stopwatch();
@@ -145,7 +145,7 @@
             if (_connection != null)
                 return;
 
-            _connection = ConnectionManager.GetConnection(_connectionStringSettings, process);
+            _connection = ConnectionManager.GetConnection(_connectionString, process);
 
             var options = SqlBulkCopyOptions.Default;
 
