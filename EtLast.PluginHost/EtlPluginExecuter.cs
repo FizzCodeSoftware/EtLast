@@ -15,9 +15,18 @@
         private ILogger _opsLogger;
         private PluginHostConfiguration _hostConfiguration;
 
-        public ExitCode Execute(PluginHostConfiguration configuration)
+        public ExitCode Execute(string[] commandLineArguments)
         {
-            _hostConfiguration = configuration;
+            _hostConfiguration = new PluginHostConfiguration
+            {
+                CommandLineArguments = commandLineArguments,
+            };
+
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("host-configuration.json", false)
+                .Build();
+
+            _hostConfiguration.LoadFromConfiguration(configuration, "PluginHost");
 
             var exitCode = Run();
             return exitCode;
