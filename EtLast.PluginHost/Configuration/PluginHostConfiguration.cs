@@ -13,6 +13,7 @@
         public string ModulesFolder { get; set; } = @".\modules";
         public LogEventLevel MinimumLogLevelOnConsole { get; set; }
         public bool EnableDynamicCompilation { get; set; } = true;
+        public bool ForceDynamicCompilation { get; set; } = true;
 
         public void LoadFromConfiguration(IConfigurationRoot configuration, string section)
         {
@@ -22,6 +23,7 @@
             TransactionScopeTimeout = TimeSpan.FromMinutes(GetHostSetting(configuration, section, "TransactionScopeTimeoutMinutes", 120));
             ModulesFolder = GetHostSetting(configuration, section, "ModulesFolder", @".\modules");
             EnableDynamicCompilation = GetHostSetting(configuration, section, "EnableDynamicCompilation", true);
+            ForceDynamicCompilation = GetHostSetting(configuration, section, "ForceDynamicCompilation", false);
 
             var v = GetHostSetting<string>(configuration, section, "MinimumLogLevelOnConsole", null);
             if (!string.IsNullOrEmpty(v) && Enum.TryParse(v, out LogEventLevel level))
