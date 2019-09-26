@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.IO;
 
     public class DelimitedFileReaderProcess : AbstractBaseProducerProcess
@@ -43,7 +44,15 @@
                 yield return row;
             }
 
-            Context.Log(LogSeverity.Debug, this, "reading from {FileName}", FileName);
+            if (!File.Exists(FileName))
+            {
+                var exception = new EtlException(this, "input file doesn't exists");
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "input file doesn't exists: {0}", FileName));
+                exception.Data.Add("FileName", FileName);
+                throw exception;
+            }
+
+            Context.Log(LogSeverity.Debug, this, "reading from {FileName}", PathHelpers.GetFriendlyPathName(FileName));
 
             var resultCount = 0;
 

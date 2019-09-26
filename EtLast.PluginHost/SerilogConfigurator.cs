@@ -10,7 +10,7 @@
 
     internal static class SerilogConfigurator
     {
-        public static ILogger CreateLogger(PluginHostConfiguration configuration)
+        public static ILogger CreateLogger(PluginHostConfiguration hostConfiguration)
         {
             var logsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-dev");
 
@@ -19,34 +19,34 @@
 
                 .WriteTo.File(new CompactJsonFormatter(), Path.Combine(logsFolder, "debug-.json"),
                     restrictedToMinimumLevel: LogEventLevel.Debug,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
+                    retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimit ?? int.MaxValue,
                     rollingInterval: RollingInterval.Day)
 
                     .WriteTo.File(Path.Combine(logsFolder, "debug-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Debug,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
+                    retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimit ?? int.MaxValue,
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u4}] {Message:lj} {NewLine}{Exception}",
                     rollingInterval: RollingInterval.Day)
 
                 .WriteTo.File(Path.Combine(logsFolder, "info-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Information,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
+                    retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimit ?? int.MaxValue,
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u4}] {Message:lj} {NewLine}{Exception}",
                     rollingInterval: RollingInterval.Day)
 
                 .WriteTo.File(Path.Combine(logsFolder, "warnings-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Warning,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
+                    retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimit ?? int.MaxValue,
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u4}] {Message:lj} {NewLine}{Exception}",
                     rollingInterval: RollingInterval.Day)
 
                 .WriteTo.File(Path.Combine(logsFolder, "errors-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Error,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimit,
+                    retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimit ?? int.MaxValue,
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u4}] {Message:lj} {NewLine}{Exception}",
                     rollingInterval: RollingInterval.Day);
 
-            loggerConfig.WriteTo.Sink(new ConsoleSink("{Timestamp:HH:mm:ss.fff zzz} [{Level}] {Message:lj} {Properties}{NewLine}{Exception}"), configuration.MinimumLogLevelOnConsole);
+            loggerConfig.WriteTo.Sink(new ConsoleSink("{Timestamp:HH:mm:ss.fff zzz} [{Level}] {Message:lj} {Properties}{NewLine}{Exception}"), hostConfiguration?.MinimumLogLevelOnConsole ?? LogEventLevel.Debug);
 
             loggerConfig = loggerConfig.MinimumLevel.Is(System.Diagnostics.Debugger.IsAttached ? LogEventLevel.Verbose : LogEventLevel.Debug);
 
@@ -55,9 +55,9 @@
                 loggerConfig = loggerConfig.Enrich.WithThreadId();
             }
 
-            if (!string.IsNullOrEmpty(configuration.SeqUrl) && configuration.SeqUrl != "-")
+            if (hostConfiguration != null && !string.IsNullOrEmpty(hostConfiguration.SeqUrl) && hostConfiguration.SeqUrl != "-")
             {
-                loggerConfig = loggerConfig.WriteTo.Seq(configuration.SeqUrl, apiKey: configuration.SeqApiKey);
+                loggerConfig = loggerConfig.WriteTo.Seq(hostConfiguration.SeqUrl, apiKey: hostConfiguration.SeqApiKey);
             }
 
             return loggerConfig.CreateLogger();

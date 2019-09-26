@@ -17,6 +17,8 @@
 
         public ConsoleSink(string outputTemplate)
         {
+            EnableVirtualTerminalProcessingHack.ApplyHack();
+
             var template = new MessageTemplateParser().Parse(outputTemplate);
 
             var defaultValueFormatter = new DefaultValueFormatter();

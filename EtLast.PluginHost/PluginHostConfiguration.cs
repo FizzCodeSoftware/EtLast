@@ -6,7 +6,6 @@
 
     public class PluginHostConfiguration
     {
-        public string[] CommandLineArguments { get; set; }
         public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromMinutes(120);
         public string SeqUrl { get; set; }
         public string SeqApiKey { get; set; }

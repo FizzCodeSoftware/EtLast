@@ -7,10 +7,16 @@
     {
         public static void ApplyHack()
         {
-            var stdOut = GetStdHandle(-11);
-            if (stdOut != (IntPtr)(-1) && GetConsoleMode(stdOut, out var mode))
+            try
             {
-                SetConsoleMode(stdOut, mode | 0x4);
+                var stdOut = GetStdHandle(-11);
+                if (stdOut != (IntPtr)(-1) && GetConsoleMode(stdOut, out var mode))
+                {
+                    SetConsoleMode(stdOut, mode | 0x4);
+                }
+            }
+            catch
+            {
             }
         }
 

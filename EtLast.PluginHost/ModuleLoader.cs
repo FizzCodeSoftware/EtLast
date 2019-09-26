@@ -16,62 +16,56 @@
 
     internal static class ModuleLoader
     {
-        public static List<IEtlPlugin> LoadModule(ILogger logger, ILogger opsLogger, string moduleFolder, string sharedFolder, bool enableDynamicCompilation, string nameSpaceEnding)
+        public static List<IEtlPlugin> LoadModule(ILogger logger, ILogger opsLogger, string moduleFolder, string sharedFolder, bool enableDynamicCompilation, string moduleName)
         {
             var startedOn = Stopwatch.StartNew();
 
             if (!enableDynamicCompilation || Debugger.IsAttached)
             {
-                logger.Write(LogEventLevel.Information, "loading plugins directly from AppDomain where namespace ends with {NameSpaceEnding}", nameSpaceEnding);
-                var appDomainPlugins = LoadPluginsFromAppDomain(nameSpaceEnding);
-                logger.Write(LogEventLevel.Information, "finished in {Elapsed}", startedOn.Elapsed);
+                logger.Write(LogEventLevel.Information, "loading plugins directly from AppDomain if namespace ends with {ModuleName}", moduleName);
+                var appDomainPlugins = LoadPluginsFromAppDomain(moduleName);
+                logger.Write(LogEventLevel.Debug, "finished in {Elapsed}", startedOn.Elapsed);
                 return appDomainPlugins;
             }
 
-            logger.Write(LogEventLevel.Information, "compiling plugins from {FolderName} using shared files in {SharedFolderName}", moduleFolder, sharedFolder);
+            logger.Write(LogEventLevel.Information, "compiling plugins from {ModuleFolder} using shared files from {SharedFolder}", PathHelpers.GetFriendlyPathName(moduleFolder), PathHelpers.GetFriendlyPathName(sharedFolder));
             var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            var references = new List<MetadataReference>();
+            var referenceAssemblyFolder = @"c:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.0.0";
+            var referenceAssemblyPattern = "System*.dll";
+            logger.Write(LogEventLevel.Information, "using reference assemblies from {ReferenceAssemblyFolder} using pattern: {ReferenceAssemblyPattern}", referenceAssemblyFolder, referenceAssemblyPattern);
+            var referenceDllFileNames = Directory.GetFiles(referenceAssemblyFolder, referenceAssemblyPattern, SearchOption.TopDirectoryOnly);
 
-            var referenceDllFileNames = Directory.GetFiles(@"c:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.0.0", "System*.dll", SearchOption.TopDirectoryOnly);
-            foreach (var dllFileName in referenceDllFileNames)
-            {
-                references.Add(MetadataReference.CreateFromFile(dllFileName));
-            }
+            var referenceFileNames = new List<string>();
+            referenceFileNames.AddRange(referenceDllFileNames);
 
             var localDllFileNames = Directory.GetFiles(selfFolder, "*.dll", SearchOption.TopDirectoryOnly);
-            foreach (var dllFileName in localDllFileNames)
-            {
-                if (dllFileName.IndexOf("Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll", StringComparison.InvariantCultureIgnoreCase) > -1)
-                    continue;
-                if (dllFileName.IndexOf("Serilog", StringComparison.InvariantCultureIgnoreCase) > -1)
-                    continue;
+            referenceFileNames.AddRange(localDllFileNames);
 
-                references.Add(MetadataReference.CreateFromFile(dllFileName));
-            }
+            var references = referenceFileNames.Distinct().Select(fn => MetadataReference.CreateFromFile(fn)).ToArray();
 
-            var fileNames = Directory.GetFiles(moduleFolder, "*.cs", SearchOption.AllDirectories);
+            var csFileNames = Directory.GetFiles(moduleFolder, "*.cs", SearchOption.AllDirectories);
 
             if (Directory.Exists(sharedFolder))
             {
-                fileNames = fileNames
+                csFileNames = csFileNames
                     .Concat(Directory.GetFiles(sharedFolder, "*.cs", SearchOption.AllDirectories))
                     .ToArray();
             }
 
             var options = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp8);
 
-            var trees = fileNames
-                .Select(x => SyntaxFactory.ParseSyntaxTree(SourceText.From(File.ReadAllText(x)), options, x))
+            var syntaxTrees = csFileNames
+                .Select(fn => SyntaxFactory.ParseSyntaxTree(SourceText.From(File.ReadAllText(fn)), options, fn))
                 .ToArray();
 
-            using (var peStream = new MemoryStream())
+            using (var assemblyStream = new MemoryStream())
             {
-                var x = CSharpCompilation.Create("compiled.dll", trees, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
+                var compilation = CSharpCompilation.Create("compiled.dll", syntaxTrees, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
                     optimizationLevel: OptimizationLevel.Release,
                     assemblyIdentityComparer: DesktopAssemblyIdentityComparer.Default));
 
-                var result = x.Emit(peStream);
+                var result = compilation.Emit(assemblyStream);
                 if (!result.Success)
                 {
                     var failures = result.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
@@ -84,13 +78,13 @@
                     return null;
                 }
 
-                peStream.Seek(0, SeekOrigin.Begin);
+                assemblyStream.Seek(0, SeekOrigin.Begin);
 
-                var assemblyLoadContext = new SimpleUnloadableAssemblyLoadContext();
-                var assembly = assemblyLoadContext.LoadFromStream(peStream);
+                var assemblyLoadContext = new AssemblyLoadContext("PluginLoadContext", true);
+                var assembly = assemblyLoadContext.LoadFromStream(assemblyStream);
 
                 var compiledPlugins = LoadPluginsFromAssembly(assembly);
-                logger.Write(LogEventLevel.Information, "finished in {Elapsed}", startedOn.Elapsed);
+                logger.Write(LogEventLevel.Debug, "finished in {Elapsed}", startedOn.Elapsed);
                 return compiledPlugins;
             }
         }
@@ -114,36 +108,27 @@
             return result;
         }
 
-        private static List<IEtlPlugin> LoadPluginsFromAppDomain(string subFolder)
+        private static List<IEtlPlugin> LoadPluginsFromAppDomain(string moduleName)
         {
-            var result = new List<IEtlPlugin>();
+            var plugins = new List<IEtlPlugin>();
             var pluginInterfaceType = typeof(IEtlPlugin);
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                foreach (var foundType in assembly.GetTypes().Where(x => pluginInterfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract && x.Namespace.EndsWith(subFolder, StringComparison.OrdinalIgnoreCase)))
+                var matchingTypes = assembly.GetTypes()
+                    .Where(t => t.IsClass && !t.IsAbstract && pluginInterfaceType.IsAssignableFrom(t) && t.Namespace.EndsWith(moduleName, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                foreach (var foundType in matchingTypes)
                 {
                     var plugin = (IEtlPlugin)Activator.CreateInstance(foundType, Array.Empty<object>());
                     if (plugin != null)
                     {
-                        result.Add(plugin);
+                        plugins.Add(plugin);
                     }
                 }
             }
 
-            return result;
-        }
-
-        internal class SimpleUnloadableAssemblyLoadContext : AssemblyLoadContext
-        {
-            public SimpleUnloadableAssemblyLoadContext()
-                : base(true)
-            {
-            }
-
-            protected override Assembly Load(AssemblyName assemblyName)
-            {
-                return null;
-            }
+            return plugins;
         }
     }
 }

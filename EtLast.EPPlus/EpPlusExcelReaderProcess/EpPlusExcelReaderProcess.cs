@@ -6,7 +6,6 @@
     using System.Globalization;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
     using OfficeOpenXml;
 
     public class EpPlusExcelReaderProcess : AbstractBaseProducerProcess, IEpPlusExcelReaderProcess
@@ -66,22 +65,6 @@
             if (ColumnConfiguration == null)
                 throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
 
-            var relativeFileName = FileName;
-            if (!FileName.StartsWith(".", StringComparison.InvariantCultureIgnoreCase) && !FileName.StartsWith(Path.DirectorySeparatorChar))
-            {
-                try
-                {
-                    var baseFolder = Path.GetDirectoryName((Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly()).Location);
-                    if (!baseFolder.EndsWith(Path.DirectorySeparatorChar))
-                        baseFolder += Path.DirectorySeparatorChar;
-
-                    relativeFileName = new Uri(baseFolder).MakeRelativeUri(new Uri(FileName)).OriginalString.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-                }
-                catch (Exception)
-                {
-                }
-            }
-
             var startedOn = Stopwatch.StartNew();
 
             var evaluateInputProcess = EvaluateInputProcess(startedOn, (row, rowCount, process) =>
@@ -101,17 +84,17 @@
 
             if (!File.Exists(FileName))
             {
-                var exception = new EtlException(this, "excel file doesn't exists");
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel file doesn't exists, file name: {0}", FileName));
+                var exception = new EtlException(this, "input file doesn't exists");
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "input file doesn't exists: {0}", FileName));
                 exception.Data.Add("FileName", FileName);
                 throw exception;
             }
 
             var resultCount = 0;
             if (!string.IsNullOrEmpty(SheetName))
-                Context.Log(LogSeverity.Debug, this, "reading from {RelativeFileName}/{SheetName}", relativeFileName, SheetName);
+                Context.Log(LogSeverity.Debug, this, "reading from {FileName}/{SheetName}", PathHelpers.GetFriendlyPathName(FileName), SheetName);
             else
-                Context.Log(LogSeverity.Debug, this, "reading from {RelativeFileName}/#{SheetIndex}", relativeFileName, SheetIndex);
+                Context.Log(LogSeverity.Debug, this, "reading from {FileName}/#{SheetIndex}", PathHelpers.GetFriendlyPathName(FileName), SheetIndex);
 
             if (Transpose)
             {
