@@ -52,7 +52,8 @@
 
             Configuration = configuration;
             ConnectionStrings = new ConnectionStringCollection();
-            ConnectionStrings.LoadFromConfiguration(Configuration);
+            ConnectionStrings.LoadFromConfiguration(Configuration, "ConnectionStrings:Shared");
+            ConnectionStrings.LoadFromConfiguration(Configuration, "ConnectionStrings:Module");
 
             AdditionalData = new AdditionalData()
             {

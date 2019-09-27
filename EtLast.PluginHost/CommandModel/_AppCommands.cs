@@ -7,7 +7,7 @@
     internal class AppCommands
     {
         [SubCommand]
-        public Validate Validate { get; set; }
+        public Test Validate { get; set; }
 
         [SubCommand]
         public List List { get; set; }

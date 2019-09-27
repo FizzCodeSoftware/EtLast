@@ -55,19 +55,15 @@
                     {
                         IDbConnection conn = null;
 
-                        var providerName = connectionString.ProviderName;
-                        if (providerName != null)
+                        var connectionType = Type.GetType(connectionString.ProviderName);
+                        if (connectionType != null)
                         {
-                            var connectionType = Type.GetType(providerName);
-                            if (connectionType != null)
-                            {
-                                conn = Activator.CreateInstance(connectionType) as IDbConnection;
-                            }
+                            conn = Activator.CreateInstance(connectionType) as IDbConnection;
                         }
 
                         if (conn == null)
                         {
-                            conn = DbProviderFactories.GetFactory(providerName).CreateConnection();
+                            conn = DbProviderFactories.GetFactory(connectionString.ProviderName).CreateConnection();
                         }
 
                         process.Context.Stat.IncrementCounter("database connections opened / " + connectionString.Name, 1);
@@ -132,19 +128,15 @@
                 {
                     IDbConnection conn = null;
 
-                    var providerName = connectionString.ProviderName;
-                    if (providerName != null)
+                    var connectionType = Type.GetType(connectionString.ProviderName);
+                    if (connectionType != null)
                     {
-                        var connectionType = Type.GetType(providerName);
-                        if (connectionType != null)
-                        {
-                            conn = Activator.CreateInstance(connectionType) as IDbConnection;
-                        }
+                        conn = Activator.CreateInstance(connectionType) as IDbConnection;
                     }
 
                     if (conn == null)
                     {
-                        conn = DbProviderFactories.GetFactory(providerName).CreateConnection();
+                        conn = DbProviderFactories.GetFactory(connectionString.ProviderName).CreateConnection();
                     }
 
                     process.Context.Stat.IncrementCounter("database connections opened / " + connectionString.Name, 1);
@@ -237,6 +229,31 @@
             }
 
             connection = null;
+        }
+
+        public static void TestConnection(ConnectionStringWithProvider connectionString)
+        {
+            if (string.IsNullOrEmpty(connectionString.ProviderName))
+                throw new Exception("missing provider name for connection string");
+
+            IDbConnection conn = null;
+
+            var connectionType = Type.GetType(connectionString.ProviderName);
+            if (connectionType != null)
+            {
+                conn = Activator.CreateInstance(connectionType) as IDbConnection;
+            }
+
+            if (conn == null)
+            {
+                conn = DbProviderFactories.GetFactory(connectionString.ProviderName).CreateConnection();
+            }
+
+            conn.ConnectionString = connectionString.ConnectionString;
+            conn.Open();
+
+            conn.Close();
+            conn.Dispose();
         }
     }
 }

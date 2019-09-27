@@ -25,7 +25,7 @@
             if (File.Exists(sharedConfigFileName))
             {
                 configurationBuilder.AddJsonFile(sharedConfigFileName);
-                commandContext.Logger.Write(LogEventLevel.Information, "using shared configuration file from {ConfigurationFilePath}", PathHelpers.GetFriendlyPathName(sharedConfigFileName));
+                commandContext.Logger.Write(LogEventLevel.Debug, "using shared configuration file from {ConfigurationFilePath}", PathHelpers.GetFriendlyPathName(sharedConfigFileName));
             }
 
             var moduleConfigFileName = Path.Combine(moduleFolder, "module-configuration.json");
@@ -37,7 +37,7 @@
             }
 
             configurationBuilder.AddJsonFile(moduleConfigFileName);
-            commandContext.Logger.Write(LogEventLevel.Information, "using module configuration file from {ConfigurationFilePath}", PathHelpers.GetFriendlyPathName(moduleConfigFileName));
+            commandContext.Logger.Write(LogEventLevel.Debug, "using module configuration file from {ConfigurationFilePath}", PathHelpers.GetFriendlyPathName(moduleConfigFileName));
 
             var moduleConfiguration = configurationBuilder.Build();
 
