@@ -10,7 +10,5 @@
         public ModuleConfiguration ModuleConfiguration { get; set; }
         public List<IEtlPlugin> Plugins { get; set; }
         public List<IEtlPlugin> EnabledPlugins { get; set; }
-        public Assembly Assembly { get; set; }
-        public AssemblyLoadContext AssemblyLoadContext { get; set; }
     }
 }

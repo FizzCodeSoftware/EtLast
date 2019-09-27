@@ -3,10 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.Loader;
+    using System.Threading;
     using FizzCode.EtLast;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;
@@ -16,6 +18,8 @@
 
     internal static class ModuleLoader
     {
+        private static long _moduleAutoincrementId = 0;
+
         public static Module LoadModule(CommandContext commandContext, string moduleName, string[] moduleSettingOverrides)
         {
             commandContext.Logger.Write(LogEventLevel.Information, "loading module {ModuleName}", moduleName);
@@ -76,7 +80,8 @@
 
             using (var assemblyStream = new MemoryStream())
             {
-                var compilation = CSharpCompilation.Create("compiled.dll", syntaxTrees, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
+                var id = Interlocked.Increment(ref _moduleAutoincrementId);
+                var compilation = CSharpCompilation.Create("compiled_" + id.ToString("D", CultureInfo.InvariantCulture) + ".dll", syntaxTrees, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
                     optimizationLevel: OptimizationLevel.Release,
                     assemblyIdentityComparer: DesktopAssemblyIdentityComparer.Default));
 
@@ -96,7 +101,7 @@
 
                 assemblyStream.Seek(0, SeekOrigin.Begin);
 
-                var assemblyLoadContext = new ModuleAssemblyLoadContext();
+                var assemblyLoadContext = new AssemblyLoadContext("loader", false);
                 var assembly = assemblyLoadContext.LoadFromStream(assemblyStream);
 
                 var compiledPlugins = LoadPluginsFromAssembly(assembly);
@@ -106,8 +111,6 @@
                     ModuleConfiguration = moduleConfiguration,
                     Plugins = compiledPlugins,
                     EnabledPlugins = FilterExecutablePlugins(moduleConfiguration, compiledPlugins),
-                    Assembly = assembly,
-                    AssemblyLoadContext = assemblyLoadContext,
                 };
             }
         }
@@ -116,10 +119,8 @@
         {
             commandContext.Logger.Write(LogEventLevel.Information, "unloading module {ModuleName}", module.ModuleConfiguration.ModuleName);
 
-            if (module.AssemblyLoadContext?.IsCollectible == true)
-            {
-                module.AssemblyLoadContext.Unload();
-            }
+            module.Plugins = null;
+            module.EnabledPlugins = null;
         }
 
         private static List<IEtlPlugin> FilterExecutablePlugins(ModuleConfiguration moduleConfiguration, List<IEtlPlugin> plugins)
@@ -179,19 +180,6 @@
             }
 
             return plugins;
-        }
-
-        private class ModuleAssemblyLoadContext : AssemblyLoadContext
-        {
-            public ModuleAssemblyLoadContext()
-                : base(true)
-            {
-            }
-
-            protected override Assembly Load(AssemblyName assemblyName)
-            {
-                return null;
-            }
         }
     }
 }
