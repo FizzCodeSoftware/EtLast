@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class OperationProcessConfiguration
+    public class OperationHostProcessConfiguration
     {
         public Type RowQueueType { get; set; } = typeof(DefaultRowQueue);
 

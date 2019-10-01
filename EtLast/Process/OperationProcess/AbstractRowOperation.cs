@@ -7,7 +7,7 @@
     [DebuggerDisplay("{" + nameof(Name) + "}")]
     public abstract class AbstractRowOperation : IRowOperation
     {
-        public IOperationProcess Process { get; private set; }
+        public IOperationHostProcess Process { get; private set; }
         public IOperationGroup ParentGroup { get; private set; }
         IProcess IBaseOperation.Process => Process;
 
@@ -38,15 +38,15 @@
             PrevOperation = operation;
         }
 
-        public virtual void SetProcess(IOperationProcess process)
+        public virtual void SetProcess(IOperationHostProcess process)
         {
             Process = process;
         }
 
         public void SetProcess(IProcess process)
         {
-            if (!(process is IOperationProcess operationProcess))
-                throw new InvalidOperationParameterException(this, "parent process", process, "parent process must be an IOperationProcess");
+            if (!(process is IOperationHostProcess operationProcess))
+                throw new InvalidOperationParameterException(this, "parent process", process, "parent process must be an IOperationHostProcess");
 
             SetProcess(operationProcess);
         }

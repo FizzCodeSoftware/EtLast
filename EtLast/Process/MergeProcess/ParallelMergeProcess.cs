@@ -19,7 +19,7 @@
         {
             Caller = caller;
 
-            Context.Log(LogSeverity.Information, this, "started over {InputCount} processes", InputProcesses.Count);
+            Context.Log(LogSeverity.Information, this, "parallel merge started over {InputCount} processes", InputProcesses.Count);
             var startedOn = Stopwatch.StartNew();
 
             var threads = new List<Thread>();

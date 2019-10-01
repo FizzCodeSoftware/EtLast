@@ -19,9 +19,9 @@
         {
             var context = new EtlContext<DictionaryRow>();
 
-            var unpivotProcess = new OperationProcess(context, "UnpivotProcess")
+            var unpivotProcess = new OperationHostProcess(context, "UnpivotProcess")
             {
-                Configuration = new OperationProcessConfiguration()
+                Configuration = new OperationHostProcessConfiguration()
                 {
                     MainLoopDelay = 10,
                 },

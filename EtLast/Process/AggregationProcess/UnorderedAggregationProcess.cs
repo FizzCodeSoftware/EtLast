@@ -42,7 +42,7 @@
             if (Operation == null)
                 throw new ProcessParameterNullException(this, nameof(Operation));
 
-            Context.Log(LogSeverity.Information, this, "started");
+            Context.Log(LogSeverity.Information, this, "unordered aggregation started");
 
             var startedOn = Stopwatch.StartNew();
             var groups = new Dictionary<string, List<IRow>>();

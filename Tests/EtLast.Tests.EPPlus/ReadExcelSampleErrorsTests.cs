@@ -11,7 +11,7 @@
     [TestClass]
     public class ReadExcelSampleErrorsTests
     {
-        private IOperationProcess _process;
+        private IOperationHostProcess _process;
         private EpPlusExcelReaderProcess _epPlusExcelReaderProcess;
 
         [TestInitialize]
@@ -29,9 +29,9 @@
                     }
             };
 
-            _process = new OperationProcess(context, "EpPlusProcess")
+            _process = new OperationHostProcess(context, "EpPlusProcess")
             {
-                Configuration = new OperationProcessConfiguration()
+                Configuration = new OperationHostProcessConfiguration()
                 {
                     MainLoopDelay = 10,
                 },

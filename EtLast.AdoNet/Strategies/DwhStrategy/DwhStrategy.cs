@@ -20,7 +20,7 @@
         public void Execute(ICaller caller, IEtlContext context)
         {
             Caller = caller;
-            context.Log(LogSeverity.Information, this, "started");
+            context.Log(LogSeverity.Information, this, "data warehouse strategy started");
 
             if (Configuration.Tables == null)
                 throw new StrategyParameterNullException(this, nameof(Configuration.Tables));
@@ -65,17 +65,15 @@
                 if (context.GetExceptions().Count > initialExceptionCount)
                     return;
 
-                context.Log(LogSeverity.Information, this, "processing tables");
-
                 foreach (var table in Configuration.Tables)
                 {
                     if (table.MainProcessCreator != null)
-                        context.Log(LogSeverity.Information, this, "processing table: {TableName}", Helpers.UnEscapeTableName(table.TableName));
+                        context.Log(LogSeverity.Information, this, "processing table {TableName}", Helpers.UnEscapeTableName(table.TableName));
 
                     for (var partitionIndex = 0; ; partitionIndex++)
                     {
                         if (table.PartitionedMainProcessCreator != null)
-                            context.Log(LogSeverity.Information, this, "processing table: {TableName} (partition #{PartitionIndex})", Helpers.UnEscapeTableName(table.TableName), partitionIndex);
+                            context.Log(LogSeverity.Information, this, "processing table {TableName} (partition #{PartitionIndex})", Helpers.UnEscapeTableName(table.TableName), partitionIndex);
 
                         IFinalProcess mainProcess;
 
@@ -132,7 +130,7 @@
                                 beforeFinalizerJobs = Configuration.BeforeFinalizersJobCreator.Invoke(Configuration.ConnectionStringKey, Configuration);
                             }
 
-                            var process = new JobProcess(context, "BeforeFinalizer");
+                            var process = new JobHostProcess(context, "BeforeFinalizer");
                             var index = 0;
                             foreach (var job in beforeFinalizerJobs)
                             {
@@ -160,7 +158,7 @@
                                 finalizerJobs = table.FinalizerJobsCreator.Invoke(Configuration.ConnectionStringKey, table);
                             }
 
-                            var process = new JobProcess(context, "Finalizer:" + Helpers.UnEscapeTableName(table.TableName));
+                            var process = new JobHostProcess(context, "Finalizer:" + Helpers.UnEscapeTableName(table.TableName));
                             var index = 0;
                             foreach (var job in finalizerJobs)
                             {
@@ -184,7 +182,7 @@
                                 afterFinalizerJobs = Configuration.AfterFinalizersJobCreator.Invoke(Configuration.ConnectionStringKey, Configuration);
                             }
 
-                            var process = new JobProcess(context, "AfterFinalizer");
+                            var process = new JobHostProcess(context, "AfterFinalizer");
                             var index = 0;
                             foreach (var job in afterFinalizerJobs)
                             {
@@ -277,7 +275,7 @@
                 }
             }
 
-            var process = new JobProcess(context, "RecreateTempTables");
+            var process = new JobHostProcess(context, "RecreateTempTables");
             process.AddJob(new CopyTableStructureJob
             {
                 ConnectionStringKey = Configuration.ConnectionStringKey,
@@ -297,7 +295,7 @@
                 .Where(x => x.AdditionalTables != null)
                 .SelectMany(x => x.AdditionalTables.Values.Select(y => y.TempTableName));
 
-            var process = new JobProcess(context, "DropTempTablesProcess");
+            var process = new JobHostProcess(context, "DropTempTablesProcess");
             process.AddJob(new DropTablesJob()
             {
                 Name = "DropTempTables",

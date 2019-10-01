@@ -9,7 +9,7 @@
     [TestClass]
     public class DelimitedFileReaderProcessTests
     {
-        private IOperationProcess _process;
+        private IOperationHostProcess _process;
         private DelimitedFileReaderProcess _delimitedFileReaderProcess;
 
         [TestInitialize]
@@ -32,9 +32,9 @@
                 HasHeaderRow = true,
             };
 
-            _process = new OperationProcess(context, "DelimitedFileReaderOperationProcess")
+            _process = new OperationHostProcess(context, "DelimitedFileReaderOperationProcess")
             {
-                Configuration = new OperationProcessConfiguration()
+                Configuration = new OperationHostProcessConfiguration()
                 {
                     MainLoopDelay = 10,
                 },

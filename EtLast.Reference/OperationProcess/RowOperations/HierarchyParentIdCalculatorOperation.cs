@@ -31,7 +31,7 @@
         public override void Prepare()
         {
             if (!Process.Configuration.KeepOrder)
-                throw new InvalidOperationParameterException(this, nameof(Process), null, nameof(HierarchyParentIdCalculatorOperation) + " can be used only if process.Configuration." + nameof(OperationProcessConfiguration.KeepOrder) + " is set to true");
+                throw new InvalidOperationParameterException(this, nameof(Process), null, nameof(HierarchyParentIdCalculatorOperation) + " can be used only if process.Configuration." + nameof(OperationHostProcessConfiguration.KeepOrder) + " is set to true");
             if (string.IsNullOrEmpty(NewColumnWithParentId))
                 throw new OperationParameterNullException(this, nameof(NewColumnWithParentId));
             if (string.IsNullOrEmpty(IntegerIdColumn))

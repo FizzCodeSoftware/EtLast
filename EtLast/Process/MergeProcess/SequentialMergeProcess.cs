@@ -15,7 +15,7 @@
         {
             Caller = caller;
 
-            Context.Log(LogSeverity.Information, this, "started over {InputCount} processes", InputProcesses.Count);
+            Context.Log(LogSeverity.Information, this, "sequential merge started over {InputCount} processes", InputProcesses.Count);
             var startedOn = Stopwatch.StartNew();
 
             var resultSets = new List<IEnumerable<IRow>>();

@@ -22,7 +22,7 @@
                 {
                     var startedOn = Stopwatch.StartNew();
                     var friendlyPluginName = TypeHelpers.GetFriendlyTypeName(plugin.GetType());
-                    commandContext.Logger.Write(LogEventLevel.Information, "executing plugin [{PluginTypeName}]", friendlyPluginName);
+                    commandContext.Logger.Write(LogEventLevel.Information, "[{ModuleName}/{PluginName}] plugin started", module.ModuleConfiguration.ModuleName, friendlyPluginName);
 
                     try
                     {
@@ -39,7 +39,7 @@
 
                             if (plugin.Context.Result.TerminateHost)
                             {
-                                commandContext.Logger.Write(LogEventLevel.Error, "plugin requested to terminate the execution: [{PluginName}]", friendlyPluginName);
+                                commandContext.Logger.Write(LogEventLevel.Error, "[{ModuleName}/{PluginName}] requested to terminate the execution", plugin.ModuleConfiguration.ModuleName, friendlyPluginName);
                                 result = ExecutionResult.PluginFailedAndExecutionTerminated;
 
                                 startedOn.Stop();
@@ -55,8 +55,8 @@
                         catch (Exception ex)
                         {
                             result = ExecutionResult.PluginFailedAndExecutionTerminated;
-                            commandContext.Logger.Write(LogEventLevel.Error, ex, "unhandled error during plugin execution after {Elapsed} in [{PluginName}]", startedOn.Elapsed, friendlyPluginName);
-                            commandContext.OpsLogger.Write(LogEventLevel.Error, "unhandled error during plugin execution after {Elapsed} in [{PluginName}]: {Message}", startedOn.Elapsed, friendlyPluginName, ex.Message);
+                            commandContext.Logger.Write(LogEventLevel.Error, ex, "[{ModuleName}/{PluginName}] unhandled error during plugin execution after {Elapsed}", plugin.ModuleConfiguration.ModuleName, startedOn.Elapsed, friendlyPluginName);
+                            commandContext.OpsLogger.Write(LogEventLevel.Error, "[{ModuleName}/{PluginName}] unhandled error during plugin execution after {Elapsed}: {Message}", plugin.ModuleConfiguration.ModuleName, startedOn.Elapsed, friendlyPluginName, ex.Message);
 
                             startedOn.Stop();
                             runTimes.Add(startedOn.Elapsed);
@@ -70,10 +70,10 @@
                     startedOn.Stop();
                     runTimes.Add(startedOn.Elapsed);
 
-                    commandContext.Logger.Write(LogEventLevel.Information, "execution of [{PluginName}] is finished in {Elapsed}", friendlyPluginName, startedOn.Elapsed);
+                    commandContext.Logger.Write(LogEventLevel.Information, "[{ModuleName}/{PluginName}] finished in {Elapsed}", plugin.ModuleConfiguration.ModuleName, friendlyPluginName, startedOn.Elapsed);
                 }
 
-                LogStats(globalStat, commandContext.Logger);
+                LogStats(module, globalStat, commandContext.Logger);
 
                 for (var i = 0; i < Math.Min(module.EnabledPlugins.Count, pluginResults.Count); i++)
                 {
@@ -81,11 +81,11 @@
                     var pluginResult = pluginResults[i];
                     if (pluginResult.Success)
                     {
-                        commandContext.Logger.Write(LogEventLevel.Information, "run-time of [{PluginName}] is {Elapsed}, status is {Status}", TypeHelpers.GetFriendlyTypeName(plugin.GetType()), runTimes[i], "success");
+                        commandContext.Logger.Write(LogEventLevel.Information, "[{ModuleName}/{PluginName}] run-time is {Elapsed}, status is {Status}", plugin.ModuleConfiguration.ModuleName, TypeHelpers.GetFriendlyTypeName(plugin.GetType()), runTimes[i], "success");
                     }
                     else
                     {
-                        commandContext.Logger.Write(LogEventLevel.Information, "run-time of [{PluginName}] is {Elapsed}, status is {Status}, requested to terminate execution: {TerminateHost}", TypeHelpers.GetFriendlyTypeName(plugin.GetType()), runTimes[i], "failed", pluginResult.TerminateHost);
+                        commandContext.Logger.Write(LogEventLevel.Information, "[{ModuleName}/{PluginName}] run-time is {Elapsed}, status is {Status}, requested to terminate execution: {TerminateHost}", plugin.ModuleConfiguration.ModuleName, TypeHelpers.GetFriendlyTypeName(plugin.GetType()), runTimes[i], "failed", pluginResult.TerminateHost);
                     }
                 }
             }
@@ -107,7 +107,7 @@
             }
         }
 
-        private static void LogStats(StatCounterCollection stats, ILogger logger)
+        private static void LogStats(Module module, StatCounterCollection stats, ILogger logger)
         {
             var counters = stats.GetCountersOrdered();
             if (counters.Count == 0)
@@ -115,7 +115,7 @@
 
             foreach (var kvp in counters)
             {
-                logger.Write(LogEventLevel.Information, "global stat {StatName} = {StatValue}", kvp.Key, kvp.Value);
+                logger.Write(LogEventLevel.Information, "[{ModuleName}] stat {StatName} = {StatValue}", module.ModuleConfiguration.ModuleName, kvp.Key, kvp.Value);
             }
         }
     }

@@ -63,7 +63,7 @@
             Else.Add(operation);
         }
 
-        public override void SetProcess(IOperationProcess process)
+        public override void SetProcess(IOperationHostProcess process)
         {
             base.SetProcess(process);
 

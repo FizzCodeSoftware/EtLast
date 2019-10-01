@@ -6,7 +6,7 @@
     using System.Threading;
     using System.Transactions;
 
-    public class JobProcess : IJobProcess
+    public class JobHostProcess : IJobHostProcess
     {
         private readonly List<IJob> _jobs = new List<IJob>();
 
@@ -23,9 +23,9 @@
         public ICaller Caller { get; private set; }
         public bool ConsumerShouldNotBuffer => false;
 
-        public JobProcessConfiguration Configuration { get; set; } = new JobProcessConfiguration();
+        public JobHostProcessConfiguration Configuration { get; set; } = new JobHostProcessConfiguration();
 
-        public JobProcess(IEtlContext context, string name)
+        public JobHostProcess(IEtlContext context, string name)
         {
             Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
             Name = name;
@@ -35,6 +35,8 @@
         {
             Caller = caller;
             var startedOn = Stopwatch.StartNew();
+
+            Context.Log(LogSeverity.Information, this, "job host started");
 
             if (InputProcess != null)
             {
@@ -63,6 +65,8 @@
             Caller = caller;
             var startedOn = Stopwatch.StartNew();
 
+            Context.Log(LogSeverity.Information, this, "job host started");
+
             if (InputProcess != null)
             {
                 Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", InputProcess.Name);
@@ -83,17 +87,19 @@
 
         private void ExecuteJobsSequential()
         {
-            foreach (var job in _jobs)
+            for (var i = 0; i < _jobs.Count; i++)
             {
                 if (Context.CancellationTokenSource.IsCancellationRequested)
                     break;
 
+                var job = _jobs[i];
+
                 var startedOn = Stopwatch.StartNew();
-                Context.Log(LogSeverity.Information, this, "job ({JobName}) started", job.Name);
+                Context.Log(LogSeverity.Information, this, "({JobName}) job started ({JobIndex} of {JobCount}}", job.Name, i + 1, _jobs.Count);
 
                 try
                 {
-                    ExecuteJob(job);
+                    ExecuteJob(_jobs[i]);
                 }
                 catch (Exception ex)
                 {
@@ -101,7 +107,7 @@
                     break;
                 }
 
-                Context.Log(LogSeverity.Debug, this, "job ({JobName}) finished in {Elapsed}", job.Name, startedOn.Elapsed);
+                Context.Log(LogSeverity.Debug, this, "({JobName}) job finished in {Elapsed}", _jobs[i].Name, startedOn.Elapsed);
             }
         }
 
@@ -109,13 +115,15 @@
         {
             var threads = new List<Thread>();
 
-            foreach (var job in _jobs)
+            for (var i = 0; i < _jobs.Count; i++)
             {
                 var thread = new Thread(tran =>
                 {
+                    var job = _jobs[i];
+
                     var swJob = Stopwatch.StartNew();
                     Transaction.Current = tran as Transaction;
-                    Context.Log(LogSeverity.Information, this, "job ({JobName}) started", job.Name);
+                    Context.Log(LogSeverity.Information, this, "({JobName}) job started on a new thread ({JobIndex} of {JobCount}}", job.Name, i + 1, _jobs.Count);
 
                     try
                     {
@@ -126,7 +134,7 @@
                         Context.AddException(this, ex);
                     }
 
-                    Context.Log(LogSeverity.Debug, this, "job ({JobName}) finished in {Elapsed}", job.Name, swJob.Elapsed);
+                    Context.Log(LogSeverity.Debug, this, "({JobName}) job finished in {Elapsed}", job.Name, swJob.Elapsed);
                 });
 
                 thread.Start(Transaction.Current);
@@ -148,7 +156,7 @@
                     var ok = job.If.Invoke(this, job);
                     if (!ok)
                     {
-                        Context.Log(LogSeverity.Debug, this, "job ({JobName}) is skipped due to 'If' condition is evaluated as false", job.Name);
+                        Context.Log(LogSeverity.Debug, this, "({JobName}) job is skipped due to 'If' condition is evaluated as false", job.Name);
                         return;
                     }
                 }

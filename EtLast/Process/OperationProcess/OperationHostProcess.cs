@@ -9,7 +9,7 @@
     using System.Transactions;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
-    public class OperationProcess : IOperationProcess
+    public class OperationHostProcess : IOperationHostProcess
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public string Name { get; set; }
@@ -19,7 +19,7 @@
         public bool ReadingInput { get; private set; }
 
         public bool ConsumerShouldNotBuffer => false;
-        public OperationProcessConfiguration Configuration { get; set; } = new OperationProcessConfiguration();
+        public OperationHostProcessConfiguration Configuration { get; set; } = new OperationHostProcessConfiguration();
 
         private List<IRow> _rows = new List<IRow>();
         private int _rowsAdded;
@@ -56,10 +56,10 @@
             }
         }
 
-        public OperationProcess(IEtlContext context, string name = null)
+        public OperationHostProcess(IEtlContext context, string name = null)
         {
             Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
-            Name = name ?? nameof(OperationProcess);
+            Name = name ?? nameof(OperationHostProcess);
         }
 
         public T AddOperation<T>(T operation)
@@ -425,7 +425,7 @@
 
             var startedOn = Stopwatch.StartNew();
 
-            Context.Log(LogSeverity.Information, this, "started");
+            Context.Log(LogSeverity.Information, this, "operation host started");
 
             CreateRowQueue(Configuration.RowQueueType);
             if (Context.CancellationTokenSource.IsCancellationRequested)
@@ -542,7 +542,7 @@
 
             var startedOn = Stopwatch.StartNew();
 
-            Context.Log(LogSeverity.Information, this, "started");
+            Context.Log(LogSeverity.Information, this, "operation host started");
 
             CreateRowQueue(Configuration.RowQueueType);
             if (Context.CancellationTokenSource.IsCancellationRequested)

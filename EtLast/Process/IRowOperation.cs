@@ -9,10 +9,10 @@ namespace FizzCode.EtLast
         IRowOperation PrevOperation { get; }
         StatCounterCollection Stat { get; }
 
-        new IOperationProcess Process { get; }
+        new IOperationHostProcess Process { get; }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        void SetProcess(IOperationProcess process);
+        void SetProcess(IOperationHostProcess process);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         void SetParentGroup(IOperationGroup parentGroup, int index);

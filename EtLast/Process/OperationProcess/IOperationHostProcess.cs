@@ -2,10 +2,10 @@
 {
     using System.Collections.Generic;
 
-    public interface IOperationProcess : IFinalProcess
+    public interface IOperationHostProcess : IFinalProcess
     {
         IProcess InputProcess { get; set; }
-        OperationProcessConfiguration Configuration { get; }
+        OperationHostProcessConfiguration Configuration { get; }
         bool ReadingInput { get; }
 
         List<IRowOperation> Operations { get; set; }

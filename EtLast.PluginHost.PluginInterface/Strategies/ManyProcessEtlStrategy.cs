@@ -53,7 +53,7 @@
         public void Execute(ICaller caller, IEtlContext context)
         {
             Caller = caller;
-            context.Log(LogSeverity.Information, this, "started");
+            context.Log(LogSeverity.Information, this, "many-process strategy started");
 
             using (var scope = context.BeginScope(_evaluationTransactionScopeKind))
             {

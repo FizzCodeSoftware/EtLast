@@ -19,7 +19,7 @@
         {
             Caller = caller;
 
-            Context.Log(LogSeverity.Information, this, "started");
+            Context.Log(LogSeverity.Information, this, "row seeder started");
             var startedOn = Stopwatch.StartNew();
 
             foreach (var row in EvaluateInputProcess(startedOn))

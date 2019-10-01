@@ -34,9 +34,9 @@
         {
             var context = new EtlContext<DictionaryRow>();
 
-            var leftProcess = new OperationProcess(context, "LeftProcess")
+            var leftProcess = new OperationHostProcess(context, "LeftProcess")
             {
-                Configuration = new OperationProcessConfiguration()
+                Configuration = new OperationHostProcessConfiguration()
                 {
                     MainLoopDelay = 10,
                 },

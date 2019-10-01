@@ -28,8 +28,6 @@
             var module = ModuleLoader.LoadModule(CommandLineHandler.Context, moduleName, moduleSettingOverrides?.ToArray(), pluginListOverride?.ToArray());
             if (module?.EnabledPlugins.Count > 0)
             {
-                CommandLineHandler.Context.Logger.Write(LogEventLevel.Information, "executing module {ModuleName}", moduleName);
-
                 ModuleExecuter.Execute(CommandLineHandler.Context, module);
             }
 
@@ -54,10 +52,7 @@
 
                 var module = ModuleLoader.LoadModule(CommandLineHandler.Context, moduleName, moduleSettingOverrides?.ToArray(), null);
                 if (module == null)
-                {
-                    CommandLineHandler.Context.Logger.Warning("terminating the execution of all modules due to {ModuleName} failed", moduleName);
                     return;
-                }
 
                 if (module.EnabledPlugins?.Count == 0)
                 {
@@ -73,8 +68,6 @@
 
             foreach (var module in modules)
             {
-                CommandLineHandler.Context.Logger.Write(LogEventLevel.Information, "executing module {ModuleName}", module.ModuleConfiguration.ModuleName);
-
                 var result = ModuleExecuter.Execute(CommandLineHandler.Context, module);
                 ModuleLoader.UnloadModule(CommandLineHandler.Context, module);
 

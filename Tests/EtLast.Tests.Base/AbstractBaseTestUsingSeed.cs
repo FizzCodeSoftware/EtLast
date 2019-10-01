@@ -7,13 +7,13 @@
     {
         public string[] SeedColumnNames { get; } = { "id", "name", "age", "fkid", "date", "time", "datetime" };
 
-        public IOperationProcess CreateProcess(IEtlContext context = null)
+        public IOperationHostProcess CreateProcess(IEtlContext context = null)
         {
             context ??= new EtlContext<DictionaryRow>();
 
-            return new OperationProcess(context)
+            return new OperationHostProcess(context)
             {
-                Configuration = new OperationProcessConfiguration()
+                Configuration = new OperationHostProcessConfiguration()
                 {
                     MainLoopDelay = 10,
                     InputBufferSize = 10,
@@ -21,7 +21,7 @@
             };
         }
 
-        public List<IRow> RunEtl(IOperationProcess process, int rowCount)
+        public List<IRow> RunEtl(IOperationHostProcess process, int rowCount)
         {
             var inputProcess = new SeedRowsProcess(process.Context, "SeedRows")
             {

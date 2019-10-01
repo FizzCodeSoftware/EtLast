@@ -23,9 +23,9 @@
         {
             var context = new EtlContext<DictionaryRow>();
 
-            var hierarchyParentIdCalculatorProcess = new OperationProcess(context, "HierarchyParentIdCalculatorProcess")
+            var hierarchyParentIdCalculatorProcess = new OperationHostProcess(context, "HierarchyParentIdCalculatorProcess")
             {
-                Configuration = new OperationProcessConfiguration()
+                Configuration = new OperationHostProcessConfiguration()
                 {
                     MainLoopDelay = 10,
                 },
@@ -50,9 +50,9 @@
         {
             var context = new EtlContext<DictionaryRow>();
 
-            var hierarchyParentIdCalculatorProcess = new OperationProcess(context, "HierarchyParentIdCalculatorProcess")
+            var hierarchyParentIdCalculatorProcess = new OperationHostProcess(context, "HierarchyParentIdCalculatorProcess")
             {
-                Configuration = new OperationProcessConfiguration()
+                Configuration = new OperationHostProcessConfiguration()
                 {
                     MainLoopDelay = 10,
                     KeepOrder = true,
@@ -80,7 +80,7 @@
                 new object[] { "id", 5, "name", "F", "parentId", 0, "level1", null, "level2", "FFF" }), result);
         }
 
-        private static void AddOperation(IOperationProcess operationProcess)
+        private static void AddOperation(IOperationHostProcess operationProcess)
         {
             operationProcess.AddOperation(new HierarchyParentIdCalculatorOperation()
             {

@@ -12,13 +12,13 @@
                 new object[] { 0, "A", 1, "7", new DateTime(2018,1,1), new TimeSpan(8,0,0), new DateTime(2018,2,11,12,0,0) },
                 new object[] { 1, "B", 2, null } };
 
-        public IOperationProcess CreateProcess()
+        public IOperationHostProcess CreateProcess()
         {
             var context = new EtlContext<DictionaryRow>();
 
-            return new OperationProcess(context)
+            return new OperationHostProcess(context)
             {
-                Configuration = new OperationProcessConfiguration()
+                Configuration = new OperationHostProcessConfiguration()
                 {
                     MainLoopDelay = 10,
                     InputBufferSize = 10,
@@ -26,7 +26,7 @@
             };
         }
 
-        public List<IRow> RunEtl(IOperationProcess process)
+        public List<IRow> RunEtl(IOperationHostProcess process)
         {
             process.InputProcess = new CreateRowsProcess(process.Context, "CreateRows")
             {

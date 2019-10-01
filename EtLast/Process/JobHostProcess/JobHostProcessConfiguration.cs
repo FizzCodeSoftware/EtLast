@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
-    public class JobProcessConfiguration
+    public class JobHostProcessConfiguration
     {
         public bool AllowParallelExecution { get; set; }
     }

@@ -42,9 +42,9 @@ This basic sample, the process makes no real sense in itself, since it simply re
     };
     
     // Create operation process
-    var process = new OperationProcess(context, "OperationProcess")
+    var process = new OperationHostProcess(context, "OperationProcess")
     {
-        Configuration = new OperationProcessConfiguration()
+        Configuration = new OperationHostProcessConfiguration()
         {
             WorkerCount = 2,
             MainLoopDelay = 10,
@@ -85,9 +85,9 @@ This basic sample, the process makes no real sense in itself, since it simply re
     };
 
     // Create operation process as before, only the InputProcess is the delimitedFileReaderProcess now.
-    var process = new OperationProcess(context, "OperationProcess")
+    var process = new OperationHostProcess(context, "OperationProcess")
     {
-        Configuration = new OperationProcessConfiguration()
+        Configuration = new OperationHostProcessConfiguration()
         {
             WorkerCount = 2,
             MainLoopDelay = 10,

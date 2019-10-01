@@ -37,6 +37,8 @@
 
             DisplayHelp();
 
+            DisplayModuleNames();
+
             while (!Terminated)
             {
                 Console.Write("> ");
@@ -81,6 +83,11 @@
                 args.Add("--help");
                 runner.Run(args.ToArray());
             }
+        }
+
+        private static void DisplayModuleNames()
+        {
+            ModuleLister.ListModules(Context);
         }
 
         private static AppSettings GetAppSettings()

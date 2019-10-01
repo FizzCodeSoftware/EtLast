@@ -24,13 +24,13 @@
             }
         }
 
-        private static OperationProcess CreateKeepOrderProcess(bool keepOrder)
+        private static OperationHostProcess CreateKeepOrderProcess(bool keepOrder)
         {
             var context = new EtlContext<DictionaryRow>();
 
-            var process = new OperationProcess(context)
+            var process = new OperationHostProcess(context)
             {
-                Configuration = new OperationProcessConfiguration()
+                Configuration = new OperationHostProcessConfiguration()
                 {
                     KeepOrder = keepOrder,
                     InputBufferSize = 1, // low buffering for strong concurrency

@@ -23,6 +23,9 @@
                 return null;
             }
 
+            moduleFolder = Directory.GetDirectories(commandContext.HostConfiguration.ModulesFolder, moduleName, SearchOption.TopDirectoryOnly).FirstOrDefault();
+            moduleName = Path.GetFileName(moduleFolder);
+
             var configurationBuilder = new ConfigurationBuilder();
 
             if (File.Exists(sharedConfigFileName))
@@ -54,7 +57,7 @@
             var broken = false;
             foreach (var pluginName in pluginNamesToExecute.Where(x => x.Contains(',', StringComparison.InvariantCultureIgnoreCase) || x.Contains(' ', StringComparison.InvariantCultureIgnoreCase)))
             {
-                commandContext.Logger.Write(LogEventLevel.Error, "plugin name can't contain comma or space character: '{PluginName}'", pluginName);
+                commandContext.Logger.Write(LogEventLevel.Error, "plugin name can't contain comma or space character: [{PluginName}]", pluginName);
                 broken = true;
             }
             if (broken)
