@@ -28,14 +28,14 @@
         {
             var tableName = TableNames[statementIndex];
 
-            process.Context.Log(LogSeverity.Debug, process, "drop table {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionString.Name, Helpers.UnEscapeTableName(tableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
+            process.Context.Log(LogSeverity.Debug, process, "({JobName}) drop table {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+                Name, ConnectionString.Name, Helpers.UnEscapeTableName(tableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
 
             try
             {
                 command.ExecuteNonQuery();
-                process.Context.Log(LogSeverity.Debug, process, "table {ConnectionStringKey}/{TableName} is dropped in {Elapsed}",
-                    ConnectionString.Name, Helpers.UnEscapeTableName(tableName), startedOn.Elapsed);
+                process.Context.Log(LogSeverity.Debug, process, "({JobName}) table {ConnectionStringKey}/{TableName} is dropped in {Elapsed}",
+                    Name, ConnectionString.Name, Helpers.UnEscapeTableName(tableName), startedOn.Elapsed);
             }
             catch (Exception ex)
             {
@@ -57,8 +57,8 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            process.Context.Log(LogSeverity.Information, process, "table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {TableNames}",
-                 ConnectionString.Name, startedOn.Elapsed,
+            process.Context.Log(LogSeverity.Information, process, "({JobName}) table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {TableNames}",
+                 Name, ConnectionString.Name, startedOn.Elapsed,
                  TableNames
                     .Take(lastSucceededIndex + 1)
                     .Select(Helpers.UnEscapeTableName)

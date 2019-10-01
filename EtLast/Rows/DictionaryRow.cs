@@ -36,7 +36,7 @@
                 {
                     if (operation != null)
                     {
-                        Context.LogRow(process, this, "column {Column} set to ({ValueType}) {Value} by {OperationName}", column, TypeHelpers.GetFriendlyTypeName(value.GetType()), value, operation.Name);
+                        Context.LogRow(process, this, "column {Column} set to ({ValueType}) {Value} by ({OperationName})", column, TypeHelpers.GetFriendlyTypeName(value.GetType()), value, operation.Name);
                     }
                     else
                     {
@@ -45,7 +45,7 @@
                 }
                 else if (operation != null)
                 {
-                    Context.LogRow(process, this, "column {Column} set to NULL by {OperationName}", column, operation.Name);
+                    Context.LogRow(process, this, "column {Column} set to NULL by ({OperationName})", column, operation.Name);
                 }
                 else
                 {

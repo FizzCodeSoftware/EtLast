@@ -1,8 +1,6 @@
 ﻿namespace FizzCode.EtLast.PluginHost
 {
     using System.Collections.Generic;
-    using System.Reflection;
-    using System.Runtime.Loader;
     using FizzCode.EtLast;
 
     internal class Module

@@ -38,7 +38,7 @@
 
             if (InputProcess != null)
             {
-                Context.Log(LogSeverity.Information, this, "evaluating {InputProcess}", InputProcess.Name);
+                Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", InputProcess.Name);
                 var rows = InputProcess.Evaluate(this);
                 foreach (var row in rows)
                 {
@@ -65,7 +65,7 @@
 
             if (InputProcess != null)
             {
-                Context.Log(LogSeverity.Information, this, "evaluating {InputProcess}", InputProcess.Name);
+                Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", InputProcess.Name);
                 InputProcess.EvaluateWithoutResult(this);
             }
 
@@ -89,7 +89,7 @@
                     break;
 
                 var startedOn = Stopwatch.StartNew();
-                Context.Log(LogSeverity.Information, this, "job {JobName} started", job.Name);
+                Context.Log(LogSeverity.Information, this, "job ({JobName}) started", job.Name);
 
                 try
                 {
@@ -101,7 +101,7 @@
                     break;
                 }
 
-                Context.Log(LogSeverity.Debug, this, "job {JobName} finished in {Elapsed}", job.Name, startedOn.Elapsed);
+                Context.Log(LogSeverity.Debug, this, "job ({JobName}) finished in {Elapsed}", job.Name, startedOn.Elapsed);
             }
         }
 
@@ -115,7 +115,7 @@
                 {
                     var swJob = Stopwatch.StartNew();
                     Transaction.Current = tran as Transaction;
-                    Context.Log(LogSeverity.Information, this, "job {JobName} started", job.Name);
+                    Context.Log(LogSeverity.Information, this, "job ({JobName}) started", job.Name);
 
                     try
                     {
@@ -126,7 +126,7 @@
                         Context.AddException(this, ex);
                     }
 
-                    Context.Log(LogSeverity.Debug, this, "job {JobName} finished in {Elapsed}", job.Name, swJob.Elapsed);
+                    Context.Log(LogSeverity.Debug, this, "job ({JobName}) finished in {Elapsed}", job.Name, swJob.Elapsed);
                 });
 
                 thread.Start(Transaction.Current);
@@ -148,7 +148,7 @@
                     var ok = job.If.Invoke(this, job);
                     if (!ok)
                     {
-                        Context.Log(LogSeverity.Debug, this, "job {JobName} is skipped due to 'If' condition is evaluated as false", job.Name);
+                        Context.Log(LogSeverity.Debug, this, "job ({JobName}) is skipped due to 'If' condition is evaluated as false", job.Name);
                         return;
                     }
                 }

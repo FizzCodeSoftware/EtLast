@@ -11,9 +11,8 @@
 
     public abstract class AbstractEtlPlugin : IEtlPlugin
     {
-        public IConfigurationRoot Configuration { get; private set; }
+        public ModuleConfiguration ModuleConfiguration { get; private set; }
         public IEtlContext Context { get; private set; }
-        public string ModuleFolder { get; private set; }
 
         private static readonly Dictionary<LogSeverity, LogEventLevel> LogEventLevelMap = new Dictionary<LogSeverity, LogEventLevel>()
         {
@@ -29,13 +28,12 @@
         public TimeSpan TransactionScopeTimeout { get; private set; }
         private readonly object _dataLock = new object();
 
-        public void Init(ILogger logger, ILogger opsLogger, IConfigurationRoot moduleConfiguration, string moduleFolder, TimeSpan transactionScopeTimeout)
+        public void Init(ILogger logger, ILogger opsLogger, ModuleConfiguration moduleConfiguration, TimeSpan transactionScopeTimeout)
         {
             Logger = logger;
             OpsLogger = opsLogger;
-            Configuration = moduleConfiguration;
+            ModuleConfiguration = moduleConfiguration;
             Context = CreateContext<DictionaryRow>(transactionScopeTimeout);
-            ModuleFolder = moduleFolder;
             TransactionScopeTimeout = transactionScopeTimeout;
         }
 
@@ -104,9 +102,10 @@
         private IEtlContext CreateContext<TRow>(TimeSpan tansactionScopeTimeout)
             where TRow : IRow, new()
         {
-            var context = new EtlContext<TRow>(Configuration)
+            var context = new EtlContext<TRow>()
             {
-                TransactionScopeTimeout = tansactionScopeTimeout
+                TransactionScopeTimeout = tansactionScopeTimeout,
+                ConnectionStrings = ModuleConfiguration.ConnectionStrings,
             };
 
             context.OnException += OnException;
@@ -147,7 +146,7 @@
             var valuesArray = values.ToArray();
 
             var logger = args.ForOps ? OpsLogger : Logger;
-            logger.Write(LogEventLevelMap[args.Severity], "{@Plugin}" + ident + (args.Caller != null ? "{@Process} " : "") + args.Text, valuesArray);
+            logger.Write(LogEventLevelMap[args.Severity], "[{Plugin}]" + ident + (args.Caller != null ? "<{Process}> " : "") + args.Text, valuesArray);
         }
 
         private void OnCustomLog(object sender, ContextCustomLogEventArgs args)
@@ -222,7 +221,7 @@
                 lvl++;
             }
 
-            Logger.Write(LogEventLevelMap[LogSeverity.Error], "{Plugin}, " + (args.Process != null ? "{Process} " : "") + "{Message}",
+            Logger.Write(LogEventLevelMap[LogSeverity.Error], "[{Plugin}], " + (args.Process != null ? "<{Process}> " : "") + "{Message}",
                 TypeHelpers.GetFriendlyTypeName(GetType()),
                 args.Process?.Name,
                 msg);
@@ -262,11 +261,11 @@
                 ? "Module"
                 : "Module:" + subSection;
 
-            var v = Configuration.GetValue<T>(section + ":" + key + "-" + Environment.MachineName, default);
+            var v = ModuleConfiguration.Configuration.GetValue<T>(section + ":" + key + "-" + Environment.MachineName, default);
             if (v != null && !v.Equals(default(T)))
                 return v;
 
-            v = Configuration.GetValue(section + ":" + key, defaultValue);
+            v = ModuleConfiguration.Configuration.GetValue(section + ":" + key, defaultValue);
             return v ?? defaultValue;
         }
 

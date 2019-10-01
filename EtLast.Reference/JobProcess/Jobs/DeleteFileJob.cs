@@ -16,7 +16,7 @@
 
             if (File.Exists(FileName))
             {
-                process.Context.Log(LogSeverity.Information, process, "deleting file '{FileName}'", FileName);
+                process.Context.Log(LogSeverity.Information, process, "({JobName}) deleting file '{FileName}'", Name, FileName);
 
                 try
                 {

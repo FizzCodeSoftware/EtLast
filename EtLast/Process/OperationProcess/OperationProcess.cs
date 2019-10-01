@@ -439,7 +439,7 @@
             if (Context.CancellationTokenSource.IsCancellationRequested)
                 return;
 
-            Context.Log(LogSeverity.Information, this, "evaluating {InputProcess}", InputProcess.Name);
+            Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", InputProcess.Name);
 
             var swLoop = Stopwatch.StartNew();
             ReadingInput = true;
@@ -557,7 +557,7 @@
                 yield break;
 
             var resultCount = 0;
-            Context.Log(LogSeverity.Information, this, "evaluating {InputProcess}", InputProcess.Name);
+            Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", InputProcess.Name);
 
             var swLoop = Stopwatch.StartNew();
             ReadingInput = true;

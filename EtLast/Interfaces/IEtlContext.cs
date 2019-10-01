@@ -5,11 +5,9 @@
     using System.Threading;
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
-    using Microsoft.Extensions.Configuration;
 
     public interface IEtlContext
     {
-        IConfigurationRoot Configuration { get; }
         StatCounterCollection Stat { get; }
         EtlContextResult Result { get; }
         AdditionalData AdditionalData { get; }

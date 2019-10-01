@@ -14,6 +14,7 @@
         public static void Run(string[] startupArguments)
         {
             Context = new CommandContext();
+            AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
             try
             {
@@ -49,6 +50,21 @@
 
                 Console.WriteLine();
             }
+        }
+
+        private static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
+        {
+            if (Context.Logger != null)
+            {
+                Context.Logger.Error(e.ExceptionObject as Exception, "unexpected error during execution");
+                Context.OpsLogger.Error("unexpected error during execution: {Message}", (e.ExceptionObject as Exception)?.Message);
+            }
+            else
+            {
+                Console.WriteLine("unexpected error during execution: " + e.ExceptionObject.ToString());
+            }
+
+            Environment.Exit(-1);
         }
 
         internal static void DisplayHelp(string command = null)

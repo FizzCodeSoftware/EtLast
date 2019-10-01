@@ -32,7 +32,7 @@
         {
             if (InputProcess != null)
             {
-                Context.Log(LogSeverity.Information, this, "evaluating {InputProcess}", InputProcess.Name);
+                Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", InputProcess.Name);
 
                 var inputRows = InputProcess.Evaluate(this);
                 var rowCount = 0;

@@ -13,18 +13,15 @@
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.Text;
-    using Microsoft.Extensions.Configuration;
     using Serilog.Events;
 
     internal static class ModuleLoader
     {
         private static long _moduleAutoincrementId = 0;
 
-        public static Module LoadModule(CommandContext commandContext, string moduleName, string[] moduleSettingOverrides)
+        public static Module LoadModule(CommandContext commandContext, string moduleName, string[] moduleSettingOverrides, string[] pluginListOverride)
         {
-            commandContext.Logger.Write(LogEventLevel.Information, "loading module {ModuleName}", moduleName);
-
-            var moduleConfiguration = ModuleConfigurationLoader.LoadModuleConfiguration(commandContext, moduleName, moduleSettingOverrides);
+            var moduleConfiguration = ModuleConfigurationLoader.LoadModuleConfiguration(commandContext, moduleName, moduleSettingOverrides, pluginListOverride);
             if (moduleConfiguration == null)
                 return null;
 
@@ -39,12 +36,17 @@
                 commandContext.Logger.Write(LogEventLevel.Information, "loading plugins directly from AppDomain if namespace ends with {ModuleName}", moduleName);
                 var appDomainPlugins = LoadPluginsFromAppDomain(moduleName);
                 commandContext.Logger.Write(LogEventLevel.Debug, "finished in {Elapsed}", startedOn.Elapsed);
-                return new Module()
+                var module = new Module()
                 {
                     ModuleConfiguration = moduleConfiguration,
                     Plugins = appDomainPlugins,
                     EnabledPlugins = FilterExecutablePlugins(moduleConfiguration, appDomainPlugins),
                 };
+
+                commandContext.Logger.Write(LogEventLevel.Debug, "{PluginCount} plugin(s) found: {PluginNames}",
+                    module.EnabledPlugins.Count, module.EnabledPlugins.Select(plugin => TypeHelpers.GetFriendlyTypeName(plugin.GetType())).ToArray());
+
+                return module;
             }
 
             commandContext.Logger.Write(LogEventLevel.Information, "compiling plugins from {ModuleFolder} using shared files from {SharedFolder}", PathHelpers.GetFriendlyPathName(moduleConfiguration.ModuleFolder), PathHelpers.GetFriendlyPathName(sharedFolder));
@@ -61,7 +63,7 @@
             var localDllFileNames = Directory.GetFiles(selfFolder, "*.dll", SearchOption.TopDirectoryOnly);
             referenceFileNames.AddRange(localDllFileNames);
 
-            var references = referenceFileNames.Distinct().Select(fn => MetadataReference.CreateFromFile(fn)).ToArray();
+            var metadataReferences = referenceFileNames.Distinct().Select(fn => MetadataReference.CreateFromFile(fn)).ToArray();
 
             var csFileNames = Directory.GetFiles(moduleConfiguration.ModuleFolder, "*.cs", SearchOption.AllDirectories);
 
@@ -81,7 +83,7 @@
             using (var assemblyStream = new MemoryStream())
             {
                 var id = Interlocked.Increment(ref _moduleAutoincrementId);
-                var compilation = CSharpCompilation.Create("compiled_" + id.ToString("D", CultureInfo.InvariantCulture) + ".dll", syntaxTrees, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
+                var compilation = CSharpCompilation.Create("compiled_" + id.ToString("D", CultureInfo.InvariantCulture) + ".dll", syntaxTrees, metadataReferences, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
                     optimizationLevel: OptimizationLevel.Release,
                     assemblyIdentityComparer: DesktopAssemblyIdentityComparer.Default));
 
@@ -106,19 +108,25 @@
 
                 var compiledPlugins = LoadPluginsFromAssembly(assembly);
                 commandContext.Logger.Write(LogEventLevel.Debug, "finished in {Elapsed}", startedOn.Elapsed);
-                return new Module()
+                var module = new Module()
                 {
                     ModuleConfiguration = moduleConfiguration,
                     Plugins = compiledPlugins,
                     EnabledPlugins = FilterExecutablePlugins(moduleConfiguration, compiledPlugins),
                 };
+
+                commandContext.Logger.Write(LogEventLevel.Debug, "{PluginCount} plugin(s) found: {PluginNames}",
+                    module.EnabledPlugins.Count, module.EnabledPlugins.Select(plugin => TypeHelpers.GetFriendlyTypeName(plugin.GetType())).ToArray());
+
+                return module;
             }
         }
 
         public static void UnloadModule(CommandContext commandContext, Module module)
         {
-            commandContext.Logger.Write(LogEventLevel.Information, "unloading module {ModuleName}", module.ModuleConfiguration.ModuleName);
+            commandContext.Logger.Write(LogEventLevel.Debug, "unloading module {ModuleName}", module.ModuleConfiguration.ModuleName);
 
+            module.ModuleConfiguration = null;
             module.Plugins = null;
             module.EnabledPlugins = null;
         }
@@ -128,15 +136,8 @@
             if (plugins == null || plugins.Count == 0)
                 return new List<IEtlPlugin>();
 
-            var pluginNamesToExecute = moduleConfiguration.Configuration.GetSection("Module:PluginsToExecute-" + Environment.MachineName).Get<string[]>();
-            if (pluginNamesToExecute == null || pluginNamesToExecute.Length == 0)
-                pluginNamesToExecute = moduleConfiguration.Configuration.GetSection("Module:PluginsToExecute").Get<string[]>();
-
-            return pluginNamesToExecute
-                .Select(name => name.Trim())
-                .Where(name => !name.StartsWith("!", StringComparison.InvariantCultureIgnoreCase))
-                .Select(name => plugins.Find(plugin => plugin.GetType().Name == name))
-                .Where(plugin => plugin != null)
+            return plugins
+                .Where(plugin => moduleConfiguration.EnabledPluginList.Contains(plugin.GetType().Name))
                 .ToList();
         }
 

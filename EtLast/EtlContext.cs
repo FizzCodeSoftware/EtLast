@@ -7,7 +7,6 @@
     using System.Threading;
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
-    using Microsoft.Extensions.Configuration;
 
     public class EtlContext<TRow> : IEtlContext
         where TRow : IRow, new()
@@ -17,8 +16,7 @@
         public EtlContextResult Result { get; } = new EtlContextResult();
         public AdditionalData AdditionalData { get; }
 
-        public IConfigurationRoot Configuration { get; }
-        public ConnectionStringCollection ConnectionStrings { get; }
+        public ConnectionStringCollection ConnectionStrings { get; set; }
 
         public DateTimeOffset CreatedOnUtc { get; }
         public DateTimeOffset CreatedOnLocal { get; }
@@ -37,23 +35,8 @@
         private int _nextUid;
 
         public EtlContext()
-            : this(null)
-        {
-        }
-
-        public EtlContext(IConfigurationRoot configuration)
         {
             CancellationTokenSource = new CancellationTokenSource();
-
-            if (configuration == null)
-            {
-                configuration = new ConfigurationBuilder().Build();
-            }
-
-            Configuration = configuration;
-            ConnectionStrings = new ConnectionStringCollection();
-            ConnectionStrings.LoadFromConfiguration(Configuration, "ConnectionStrings:Shared");
-            ConnectionStrings.LoadFromConfiguration(Configuration, "ConnectionStrings:Module");
 
             AdditionalData = new AdditionalData()
             {
@@ -226,7 +209,7 @@
 
         public ConnectionStringWithProvider GetConnectionString(string key)
         {
-            return ConnectionStrings[key + "-" + Environment.MachineName] ?? ConnectionStrings[key];
+            return ConnectionStrings?[key + "-" + Environment.MachineName] ?? ConnectionStrings?[key];
         }
 
         public TransactionScope BeginScope(TransactionScopeKind kind)

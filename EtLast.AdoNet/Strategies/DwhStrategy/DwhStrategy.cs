@@ -70,12 +70,12 @@
                 foreach (var table in Configuration.Tables)
                 {
                     if (table.MainProcessCreator != null)
-                        context.Log(LogSeverity.Information, this, "processing {TableName}", Helpers.UnEscapeTableName(table.TableName));
+                        context.Log(LogSeverity.Information, this, "processing table: {TableName}", Helpers.UnEscapeTableName(table.TableName));
 
                     for (var partitionIndex = 0; ; partitionIndex++)
                     {
                         if (table.PartitionedMainProcessCreator != null)
-                            context.Log(LogSeverity.Information, this, "processing {TableName} (partition #{PartitionIndex})", Helpers.UnEscapeTableName(table.TableName), partitionIndex);
+                            context.Log(LogSeverity.Information, this, "processing table: {TableName} (partition #{PartitionIndex})", Helpers.UnEscapeTableName(table.TableName), partitionIndex);
 
                         IFinalProcess mainProcess;
 
@@ -137,8 +137,8 @@
                             foreach (var job in beforeFinalizerJobs)
                             {
                                 job.Name = beforeFinalizerJobs.Count == 1
-                                    ? "BeforeFinalizer-" + job.Name
-                                    : "BeforeFinalizer-" + index.ToString("D", CultureInfo.InvariantCulture) + "-" + job.Name;
+                                    ? "BeforeFinalizer:" + job.Name
+                                    : "BeforeFinalizer:" + index.ToString("D", CultureInfo.InvariantCulture) + "-" + job.Name;
                                 process.AddJob(job);
 
                                 index++;
@@ -160,13 +160,13 @@
                                 finalizerJobs = table.FinalizerJobsCreator.Invoke(Configuration.ConnectionStringKey, table);
                             }
 
-                            var process = new JobProcess(context, "Finalizer-" + Helpers.UnEscapeTableName(table.TableName));
+                            var process = new JobProcess(context, "Finalizer:" + Helpers.UnEscapeTableName(table.TableName));
                             var index = 0;
                             foreach (var job in finalizerJobs)
                             {
                                 job.Name = finalizerJobs.Count == 1
-                                    ? "Finalizer-" + Helpers.UnEscapeTableName(table.TableName) + "-" + job.Name
-                                    : "Finalizer-" + Helpers.UnEscapeTableName(table.TableName) + "-" + index.ToString("D", CultureInfo.InvariantCulture) + "-" + job.Name;
+                                    ? "Finalizer:" + Helpers.UnEscapeTableName(table.TableName) + "-" + job.Name
+                                    : "Finalizer:" + Helpers.UnEscapeTableName(table.TableName) + "-" + index.ToString("D", CultureInfo.InvariantCulture) + "-" + job.Name;
                                 process.AddJob(job);
 
                                 index++;
@@ -189,8 +189,8 @@
                             foreach (var job in afterFinalizerJobs)
                             {
                                 job.Name = afterFinalizerJobs.Count == 1
-                                    ? "AfterFinalizer-" + job.Name
-                                    : "AfterFinalizer-" + index.ToString("D", CultureInfo.InvariantCulture) + "-" + job.Name;
+                                    ? "AfterFinalizer:" + job.Name
+                                    : "AfterFinalizer:" + index.ToString("D", CultureInfo.InvariantCulture) + "-" + job.Name;
                                 process.AddJob(job);
 
                                 index++;

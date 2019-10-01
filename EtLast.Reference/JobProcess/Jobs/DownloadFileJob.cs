@@ -17,7 +17,7 @@
             if (string.IsNullOrEmpty(FileName))
                 throw new JobParameterNullException(process, this, nameof(FileName));
 
-            process.Context.Log(LogSeverity.Information, process, "downloading file from '{Url}' to '{FileName}'", Url, FileName);
+            process.Context.Log(LogSeverity.Information, process, "({JobName}) downloading file from '{Url}' to '{FileName}'", Name, Url, FileName);
 
             // todo: use HttpClient instead with cancellationTokenSource
             using (var clt = new WebClient())

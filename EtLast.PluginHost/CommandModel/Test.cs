@@ -6,6 +6,7 @@
     using CommandDotNet.Attributes;
     using FizzCode.DbTools.Configuration;
     using FizzCode.EtLast.AdoNet;
+    using Serilog.Events;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
 #pragma warning disable CA1822 // Mark members as static
@@ -41,7 +42,9 @@
 
             foreach (var moduleName in moduleNames)
             {
-                var module = ModuleLoader.LoadModule(commandContext, moduleName, null);
+                CommandLineHandler.Context.Logger.Write(LogEventLevel.Information, "loading module {ModuleName}", moduleName);
+
+                var module = ModuleLoader.LoadModule(commandContext, moduleName, null, null);
                 if (module != null)
                 {
                     ModuleLoader.UnloadModule(commandContext, module);
@@ -86,7 +89,7 @@
             var index = 0;
             foreach (var moduleName in moduleNames)
             {
-                var moduleConfiguration = ModuleConfigurationLoader.LoadModuleConfiguration(commandContext, moduleName, null);
+                var moduleConfiguration = ModuleConfigurationLoader.LoadModuleConfiguration(commandContext, moduleName, null, null);
                 if (moduleConfiguration == null)
                     continue;
 

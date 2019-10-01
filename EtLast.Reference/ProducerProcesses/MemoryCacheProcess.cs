@@ -55,7 +55,7 @@
             }
             else
             {
-                Context.Log(LogSeverity.Information, this, "evaluating {InputProcess}", InputProcess.Name);
+                Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", InputProcess.Name);
 
                 var inputRows = InputProcess.Evaluate(this);
                 _cache = new List<IRow>();

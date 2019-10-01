@@ -27,14 +27,14 @@
 
         protected override void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn)
         {
-            process.Context.Log(LogSeverity.Debug, process, "deleting records from {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionString.Name, Helpers.UnEscapeTableName(TableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
+            process.Context.Log(LogSeverity.Debug, process, "({JobName}) deleting records from {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+                Name, ConnectionString.Name, Helpers.UnEscapeTableName(TableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
 
             try
             {
                 var recordCount = command.ExecuteNonQuery();
-                process.Context.Log(LogSeverity.Information, process, "{RecordCount} records deleted in {ConnectionStringKey}/{TableName} in {Elapsed}",
-                    recordCount, ConnectionString.Name, Helpers.UnEscapeTableName(TableName), startedOn.Elapsed);
+                process.Context.Log(LogSeverity.Information, process, "({JobName}) {RecordCount} records deleted in {ConnectionStringKey}/{TableName} in {Elapsed}",
+                    Name, recordCount, ConnectionString.Name, Helpers.UnEscapeTableName(TableName), startedOn.Elapsed);
             }
             catch (Exception ex)
             {
