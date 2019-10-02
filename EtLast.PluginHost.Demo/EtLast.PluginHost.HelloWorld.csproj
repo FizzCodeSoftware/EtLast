@@ -30,31 +30,23 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="modules\HelloWorld\001-HelloWorldDirectConsole.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Compile Update="modules\**\*.cs">
       <Pack>true</Pack>
-      <PackagePath>contentFiles/any/netcoreapp3.0</PackagePath>
-    </Compile>
-    <Compile Update="modules\HelloWorld\002-HelloWorldProcess.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Pack>true</Pack>
-      <PackagePath>contentFiles/any/netcoreapp3.0</PackagePath>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="host-configuration.json">
+    <Content Include="host-configuration.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Pack>true</Pack>
-      <BuildAction>Content</BuildAction>
-      <PackagePath>contentFiles/any/netcoreapp3.0</PackagePath>
-    </None>
-    <None Update="modules\HelloWorld\module-configuration.json">
+      <PackagePath>contentFiles/cs/netcoreapp3.0</PackagePath>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+    </Content>
+    <Content Include="modules\**\module-configuration.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Pack>true</Pack>
-      <BuildAction>Content</BuildAction>
-      <PackagePath>contentFiles/any/netcoreapp3.0</PackagePath>
-    </None>
+      <PackagePath>contentFiles/cs/netcoreapp3.0</PackagePath>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+    </Content>
   </ItemGroup>
 
 </Project>
