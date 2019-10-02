@@ -16,16 +16,6 @@
     <NoWarn>CS1591</NoWarn>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(Configuration)' == 'Release'">
-    <Compile Remove="modules\HelloWorld\001-SimpleHelloWorld.cs" />
-    <Compile Remove="modules\HelloWorld\002-HelloWorldProcess.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="host-configuration.json" />
-    <None Remove="modules\HelloWorld\module-configuration.json" />
-  </ItemGroup>
-
   <ItemGroup>
     <Content Include="host-configuration.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -52,6 +42,15 @@
     <ProjectReference Include="..\EtLast.PluginHost.PluginInterface\EtLast.PluginHost.PluginInterface.csproj" />
     <ProjectReference Include="..\EtLast.PluginHost\EtLast.PluginHost.csproj" />
     <ProjectReference Include="..\EtLast\EtLast.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="modules\HelloWorld\001-HelloWorldDirectConsole.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="modules\HelloWorld\002-HelloWorldProcess.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
   </ItemGroup>
 
 </Project>
