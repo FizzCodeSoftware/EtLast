@@ -50,7 +50,7 @@
 #pragma warning restore RCS1104 // Simplify conditional expression.
         }
 
-        private bool AreEqualEtlRowErrors(KeyValuePair<string, object> kvp, IRow row2)
+        private static bool AreEqualEtlRowErrors(KeyValuePair<string, object> kvp, IRow row2)
         {
             return kvp.Value is EtlRowErrorTest etlRowErrorTest
                 && row2[kvp.Key] is EtlRowError etlRowError

@@ -7,7 +7,7 @@
     {
         public string[] SeedColumnNames { get; } = { "id", "name", "age", "fkid", "date", "time", "datetime" };
 
-        public IOperationHostProcess CreateProcess(IEtlContext context = null)
+        public static IOperationHostProcess CreateProcess(IEtlContext context = null)
         {
             context ??= new EtlContext<DictionaryRow>();
 

@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast.Tests.Unit
 {
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -55,8 +56,8 @@
                     Columns = SampleColumnsB,
                     InputRows = SampleRowsB.ToList(),
                 },
-                LeftKeySelector = row => row.GetAs<int>("id").ToString(),
-                RightKeySelector = row => row.GetAs<int>("fk").ToString(),
+                LeftKeySelector = row => row.GetAs<int>("id").ToString("D", CultureInfo.InvariantCulture),
+                RightKeySelector = row => row.GetAs<int>("fk").ToString("D", CultureInfo.InvariantCulture),
                 ColumnConfiguration = new List<ColumnCopyConfiguration>
                 {
                     new ColumnCopyConfiguration("color"),
@@ -68,9 +69,9 @@
             Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "A") == 3);
             Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "B") == 2);
             Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "C") == 1);
-            Assert.IsTrue(result.Count(x => x.GetAs<int>("id") == 3) == 0);
-            Assert.IsTrue(result.Count(x => x.GetAs<int>("id") == 4) == 0);
-            Assert.IsTrue(result.Count(x => x.GetAs<int>("id") == 5) == 0);
+            Assert.IsTrue(!result.Any(x => x.GetAs<int>("id") == 3));
+            Assert.IsTrue(!result.Any(x => x.GetAs<int>("id") == 4));
+            Assert.IsTrue(!result.Any(x => x.GetAs<int>("id") == 5));
         }
     }
 }

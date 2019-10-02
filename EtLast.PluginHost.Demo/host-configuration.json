@@ -1,0 +1,10 @@
+﻿{
+  "PluginHost": {
+    "ModulesFolder": ".\\modules",
+    "RetainedLogFileCountLimit": 14,
+    "TransactionScopeTimeoutMinutes": 1440,
+    "MinimumLogLevelOnConsole": "Information",
+    "EnableDynamicCompilation": true,
+    "ForceDynamicCompilation": false
+  }
+}

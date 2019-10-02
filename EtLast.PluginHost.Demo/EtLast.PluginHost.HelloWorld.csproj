@@ -1,0 +1,57 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <PackageId>FizzCode.EtLast.PluginHost.HelloWorld</PackageId>
+    <Authors>FizzCode Ltd.</Authors>
+    <Product>EtLast ETL (Extract, Transform and Load) library for .NET Core</Product>
+    <Description>"Hello World" content for the EtLast Plugin host library</Description>
+    <Copyright>Copyright © 2019 FizzCode Ltd.</Copyright>
+    <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
+    <Platforms>AnyCPU</Platforms>
+    <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
+    <AssemblyName>FizzCode.EtLast.PluginHost.HelloWorld</AssemblyName>
+    <RootNamespace>FizzCode.EtLast.PluginHost.HelloWorld</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
+    <Compile Remove="modules\HelloWorld\001-SimpleHelloWorld.cs" />
+    <Compile Remove="modules\HelloWorld\002-HelloWorldProcess.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="host-configuration.json" />
+    <None Remove="modules\HelloWorld\module-configuration.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="host-configuration.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="modules\HelloWorld\001-HelloWorldDirectConsole.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="modules\HelloWorld\002-HelloWorldProcess.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="modules\HelloWorld\module-configuration.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EtLast.PluginHost.PluginInterface\EtLast.PluginHost.PluginInterface.csproj" />
+    <ProjectReference Include="..\EtLast.PluginHost\EtLast.PluginHost.csproj" />
+    <ProjectReference Include="..\EtLast\EtLast.csproj" />
+  </ItemGroup>
+
+</Project>
