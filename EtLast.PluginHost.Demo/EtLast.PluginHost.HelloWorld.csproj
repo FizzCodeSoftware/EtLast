@@ -17,21 +17,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="host-configuration.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="modules\HelloWorld\001-HelloWorldDirectConsole.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="modules\HelloWorld\002-HelloWorldProcess.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="modules\HelloWorld\module-configuration.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -47,10 +32,23 @@
   <ItemGroup>
     <Compile Update="modules\HelloWorld\001-HelloWorldDirectConsole.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
     </Compile>
     <Compile Update="modules\HelloWorld\002-HelloWorldProcess.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="host-configuration.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+    </None>
+    <None Update="modules\HelloWorld\module-configuration.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+    </None>
   </ItemGroup>
 
 </Project>
