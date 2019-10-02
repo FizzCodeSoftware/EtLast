@@ -44,10 +44,12 @@
     <None Update="host-configuration.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Pack>true</Pack>
+      <BuildAction>Content</BuildAction>
     </None>
     <None Update="modules\HelloWorld\module-configuration.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Pack>true</Pack>
+      <BuildAction>Content</BuildAction>
     </None>
   </ItemGroup>
 
