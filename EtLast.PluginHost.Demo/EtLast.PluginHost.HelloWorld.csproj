@@ -33,10 +33,12 @@
     <Compile Update="modules\HelloWorld\001-HelloWorldDirectConsole.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Pack>true</Pack>
+      <PackagePath>contentFiles/any/netcoreapp3.0</PackagePath>
     </Compile>
     <Compile Update="modules\HelloWorld\002-HelloWorldProcess.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Pack>true</Pack>
+      <PackagePath>contentFiles/any/netcoreapp3.0</PackagePath>
     </Compile>
   </ItemGroup>
 
@@ -45,11 +47,13 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Pack>true</Pack>
       <BuildAction>Content</BuildAction>
+      <PackagePath>contentFiles/any/netcoreapp3.0</PackagePath>
     </None>
     <None Update="modules\HelloWorld\module-configuration.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Pack>true</Pack>
       <BuildAction>Content</BuildAction>
+      <PackagePath>contentFiles/any/netcoreapp3.0</PackagePath>
     </None>
   </ItemGroup>
 
