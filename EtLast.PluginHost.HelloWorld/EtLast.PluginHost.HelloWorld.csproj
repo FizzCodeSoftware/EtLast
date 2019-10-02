@@ -32,19 +32,22 @@
   <ItemGroup>
     <Compile Update="modules\**\*.cs">
       <Pack>true</Pack>
+      <PackagePath>contentFiles/cs/netcoreapp3.0</PackagePath>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="GettingStarted.txt">
+      <PackagePath>contentFiles/cs/netcoreapp3.0</PackagePath>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+    </Content>
     <Content Include="host-configuration.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <PackagePath>contentFiles/cs/netcoreapp3.0</PackagePath>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="modules\**\module-configuration.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackagePath>contentFiles/cs/netcoreapp3.0</PackagePath>
+      <PackagePath>contentFiles/cs/netcoreapp3.0/modules</PackagePath>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
   </ItemGroup>

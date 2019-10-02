@@ -31,7 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Tests.EPPlus", "Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Tests.Unit", "Tests\EtLast.Tests.Unit\EtLast.Tests.Unit.csproj", "{49AB2F76-B01C-4F0F-AE52-D533EB0BEBF3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.PluginHost.HelloWorld", "EtLast.PluginHost.Demo\EtLast.PluginHost.HelloWorld.csproj", "{7E6FBD1F-FC9E-4566-9106-5313AC7CFBA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.PluginHost.HelloWorld", "EtLast.PluginHost.HelloWorld\EtLast.PluginHost.HelloWorld.csproj", "{428C7C01-5AAF-4447-83CD-6082510F9F20}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,10 +75,10 @@ Global
 		{49AB2F76-B01C-4F0F-AE52-D533EB0BEBF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49AB2F76-B01C-4F0F-AE52-D533EB0BEBF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49AB2F76-B01C-4F0F-AE52-D533EB0BEBF3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7E6FBD1F-FC9E-4566-9106-5313AC7CFBA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7E6FBD1F-FC9E-4566-9106-5313AC7CFBA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7E6FBD1F-FC9E-4566-9106-5313AC7CFBA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7E6FBD1F-FC9E-4566-9106-5313AC7CFBA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{428C7C01-5AAF-4447-83CD-6082510F9F20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{428C7C01-5AAF-4447-83CD-6082510F9F20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{428C7C01-5AAF-4447-83CD-6082510F9F20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{428C7C01-5AAF-4447-83CD-6082510F9F20}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
