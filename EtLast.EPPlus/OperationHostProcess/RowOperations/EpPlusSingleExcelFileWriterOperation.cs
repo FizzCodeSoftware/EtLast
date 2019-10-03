@@ -12,7 +12,7 @@
         public Action<ExcelPackage, TState> Initialize { get; set; }
         public Action<IRow, ExcelPackage, TState> Action { get; set; }
         public Action<ExcelPackage, TState> Finalize { get; set; }
-        public ExcelPackage Source { get; set; }
+        public ExcelPackage ExistingPackage { get; set; }
 
         private ExcelPackage _excelPackage;
         private TState _state;
@@ -21,7 +21,7 @@
         {
             if (_excelPackage == null) // lazy load here instead of prepare
             {
-                _excelPackage = Source ?? new ExcelPackage(new FileInfo(FileName));
+                _excelPackage = ExistingPackage ?? new ExcelPackage(new FileInfo(FileName));
                 Initialize?.Invoke(_excelPackage, _state);
             }
 
@@ -56,9 +56,12 @@
 
             _state = default;
 
-            _excelPackage.Save();
-            _excelPackage.Dispose();
-            _excelPackage = null;
+            if (ExistingPackage == null && _excelPackage != null)
+            {
+                _excelPackage.Save();
+                _excelPackage.Dispose();
+                _excelPackage = null;
+            }
         }
     }
 }

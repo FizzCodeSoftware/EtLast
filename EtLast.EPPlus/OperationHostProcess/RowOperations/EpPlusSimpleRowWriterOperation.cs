@@ -9,7 +9,7 @@
     public class EpPlusSimpleRowWriterOperation : AbstractRowOperation
     {
         public string FileName { get; set; }
-        public ExcelPackage Source { get; set; }
+        public ExcelPackage ExistingPackage { get; set; }
         public string SheetName { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
 
@@ -20,7 +20,7 @@
         {
             if (_excelPackage == null) // lazy load here instead of prepare
             {
-                _excelPackage = Source ?? new ExcelPackage(new FileInfo(FileName));
+                _excelPackage = ExistingPackage ?? new ExcelPackage(new FileInfo(FileName));
 
                 _state.LastWorksheet = _excelPackage.Workbook.Worksheets.Add(SheetName);
                 _state.LastRow = 1;
@@ -73,9 +73,12 @@
 
             _state = null;
 
-            _excelPackage.Save();
-            _excelPackage.Dispose();
-            _excelPackage = null;
+            if (ExistingPackage == null && _excelPackage != null)
+            {
+                _excelPackage.Save();
+                _excelPackage.Dispose();
+                _excelPackage = null;
+            }
         }
     }
 }
