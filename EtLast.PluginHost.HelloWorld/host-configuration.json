@@ -1,6 +1,6 @@
 ﻿{
   "PluginHost": {
-    "ModulesFolder": ".\\modules",
+    "ModulesFolder": ".\\Modules",
     "RetainedLogFileCountLimit": 14,
     "TransactionScopeTimeoutMinutes": 1440,
     "MinimumLogLevelOnConsole": "Information",

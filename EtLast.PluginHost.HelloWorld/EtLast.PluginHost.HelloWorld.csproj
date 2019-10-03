@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="modules\**\*.cs">
+    <Compile Update="Modules\**\*.cs">
       <Pack>true</Pack>
       <PackagePath>contentFiles/cs/netcoreapp3.0</PackagePath>
       <PackageCopyToOutput>true</PackageCopyToOutput>
@@ -46,7 +46,7 @@
       <PackagePath>contentFiles/cs/netcoreapp3.0</PackagePath>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
-    <Content Include="modules\**\module-configuration.json">
+    <Content Include="Modules\**\module-configuration.json">
       <PackagePath>contentFiles/cs/netcoreapp3.0/modules</PackagePath>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
