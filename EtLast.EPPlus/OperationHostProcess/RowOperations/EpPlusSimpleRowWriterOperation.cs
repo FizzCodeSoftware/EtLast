@@ -12,6 +12,7 @@
         public ExcelPackage ExistingPackage { get; set; }
         public string SheetName { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
+        public Action<ExcelPackage, SimpleExcelWriterState> Finalize { get; set; }
 
         private ExcelPackage _excelPackage;
         private SimpleExcelWriterState _state;
@@ -69,6 +70,8 @@
 
         public override void Shutdown()
         {
+            Finalize?.Invoke(_excelPackage, _state);
+
             base.Shutdown();
 
             _state = null;
