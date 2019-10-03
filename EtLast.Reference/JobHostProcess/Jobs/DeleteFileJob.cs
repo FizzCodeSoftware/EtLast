@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
+    using System.Diagnostics;
     using System.Globalization;
     using System.IO;
     using System.Threading;
@@ -16,23 +17,28 @@
 
             if (File.Exists(FileName))
             {
-                process.Context.Log(LogSeverity.Information, process, "({JobName}) deleting file '{FileName}'", Name, FileName);
+                process.Context.Log(LogSeverity.Information, process, "({JobName}) deleting file '{FileName}'",
+                    Name, PathHelpers.GetFriendlyPathName(FileName));
 
+                var startedOn = Stopwatch.StartNew();
                 try
                 {
                     File.Delete(FileName);
+                    process.Context.Log(LogSeverity.Debug, process, "({JobName}) successfully deleted file '{FileName}' in {Elapsed}",
+                        Name, PathHelpers.GetFriendlyPathName(FileName), startedOn.Elapsed);
                 }
                 catch (Exception ex)
                 {
                     var exception = new JobExecutionException(process, this, "file deletion failed", ex);
-                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "file deletion failed, file name: {0}, message: {1}", FileName, ex.Message));
+                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "file deletion failed, file name: {0}, message: {1}",
+                        FileName, ex.Message));
                     exception.Data.Add("FileName", FileName);
                     throw exception;
                 }
             }
             else
             {
-                process.Context.Log(LogSeverity.Debug, process, "file doesn't exists '{FileName}'", FileName);
+                process.Context.Log(LogSeverity.Debug, process, "can't delete file because it doesn't exists '{FileName}'", PathHelpers.GetFriendlyPathName(FileName));
             }
         }
     }
