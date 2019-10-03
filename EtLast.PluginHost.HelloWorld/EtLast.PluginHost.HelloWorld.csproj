@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\EtLast.EPPlus\EtLast.EPPlus.csproj" />
     <ProjectReference Include="..\EtLast.PluginHost.PluginInterface\EtLast.PluginHost.PluginInterface.csproj" />
     <ProjectReference Include="..\EtLast.PluginHost\EtLast.PluginHost.csproj" />
     <ProjectReference Include="..\EtLast\EtLast.csproj" />
@@ -50,6 +51,14 @@
       <PackagePath>contentFiles/cs/netcoreapp3.0/modules</PackagePath>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
+    <Content Include="Storage\**\*.*">
+      <PackagePath>contentFiles/cs/netcoreapp3.0/storage</PackagePath>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+    </Content>
   </ItemGroup>
+
+  <!--<ItemGroup>
+    <Folder Include="Storage\" />
+  </ItemGroup>-->
 
 </Project>
