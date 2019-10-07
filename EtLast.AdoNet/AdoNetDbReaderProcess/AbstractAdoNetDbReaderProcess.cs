@@ -9,7 +9,7 @@
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
-    public delegate void ConnectionCreatorDelegate(ConnectionStringWithProvider connectionString, IProcess process, out DatabaseConnection connection, out IDbTransaction transaction);
+    public delegate void ConnectionCreatorDelegate(ConnectionStringWithProvider connectionString, AbstractAdoNetDbReaderProcess process, out DatabaseConnection connection, out IDbTransaction transaction);
 
     public abstract class AbstractAdoNetDbReaderProcess : AbstractBaseProducerProcess
     {
