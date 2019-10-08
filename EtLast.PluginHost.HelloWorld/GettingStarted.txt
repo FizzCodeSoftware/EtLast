@@ -19,4 +19,4 @@ namespace HelloWorldApp
 
 4) start the application
 
-5) type this and press Enter: exec modules HelloWorld
+5) type this and press Enter: run module HelloWorld

@@ -7,19 +7,19 @@
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
 #pragma warning disable CA1822 // Mark members as static
-    [ApplicationMetadata(Name = "exec", Description = "Execute ETL modules and/or plugins.")]
+    [ApplicationMetadata(Name = "run", Description = "Execute ETL modules and/or plugins.")]
     [SubCommand]
-    public class Execute
+    public class Run
     {
         [ApplicationMetadata(Name = "module", Description = "Execute one module.")]
-        public void ExecuteModule(
+        public void RunModule(
             [Argument(Name = "module-name", Description = "The name of the module name.")]string moduleName,
             [Option(LongName = "plugin")]List<string> pluginListOverride,
             [Option(LongName = "param", ShortName = "p")]List<string> moduleSettingOverrides)
         {
             if (string.IsNullOrEmpty(moduleName))
             {
-                CommandLineHandler.DisplayHelp("exec module");
+                CommandLineHandler.DisplayHelp("run module");
                 return;
             }
 
@@ -35,13 +35,13 @@
         }
 
         [ApplicationMetadata(Name = "modules", Description = "Execute one or more module.")]
-        public void ExecuteModules(
+        public void RunModules(
             [Argument(Name = "module-names", Description = "The space-separated list of module names.")]List<string> moduleNames,
             [Option(LongName = "param", ShortName = "p")]List<string> moduleSettingOverrides)
         {
             if (moduleNames == null || moduleNames.Count == 0)
             {
-                CommandLineHandler.DisplayHelp("exec modules");
+                CommandLineHandler.DisplayHelp("run modules");
                 return;
             }
 

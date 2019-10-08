@@ -13,7 +13,7 @@
         public List List { get; set; }
 
         [SubCommand]
-        public Execute Execute { get; set; }
+        public Run Run { get; set; }
 
         [ApplicationMetadata(Name = "exit", Description = "Exit from the command-line utility.")]
         public void Exit()
