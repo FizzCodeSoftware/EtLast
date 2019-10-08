@@ -10,17 +10,16 @@
         public string InstanceName { get; set; }
         public string Name => InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType());
 
-        public DwhStrategyConfiguration Configuration { get; }
-
-        public DwhStrategy(DwhStrategyConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        public DwhStrategyConfiguration Configuration { get; set; }
 
         public void Execute(ICaller caller, IEtlContext context)
         {
+
             Caller = caller;
             context.Log(LogSeverity.Information, this, "data warehouse strategy started");
+
+            if (Configuration == null)
+                throw new StrategyParameterNullException(this, nameof(Configuration));
 
             if (Configuration.Tables == null)
                 throw new StrategyParameterNullException(this, nameof(Configuration.Tables));
