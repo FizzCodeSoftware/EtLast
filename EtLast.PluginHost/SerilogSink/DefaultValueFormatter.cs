@@ -78,19 +78,19 @@
                         {
                             if (ts.Days > 0)
                             {
-                                value.Render(builder, @"dd\.hh\:mm");
+                                value.Render(builder, @"d\.hh\:mm");
                             }
                             else if (ts.Hours > 0)
                             {
-                                value.Render(builder, @"hh\:mm\:ss", CultureInfo.InvariantCulture);
+                                value.Render(builder, @"h\:mm\:ss", CultureInfo.InvariantCulture);
                             }
                             else if (ts.Minutes > 0)
                             {
-                                value.Render(builder, @"mm\:ss", CultureInfo.InvariantCulture);
+                                value.Render(builder, @"m\:ss", CultureInfo.InvariantCulture);
                             }
                             else if (ts.Seconds > 0)
                             {
-                                value.Render(builder, @"ss\.fff", CultureInfo.InvariantCulture);
+                                value.Render(builder, @"s\.fff", CultureInfo.InvariantCulture);
                             }
                             else
                             {
