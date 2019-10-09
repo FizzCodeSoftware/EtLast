@@ -2,10 +2,10 @@
 {
     public class ColumnCopyConfiguration
     {
-        public string ToColumn { get; }
         public string FromColumn { get; }
+        public string ToColumn { get; }
 
-        public ColumnCopyConfiguration(string toColumn, string fromColumn)
+        public ColumnCopyConfiguration(string fromColumn, string toColumn)
         {
             ToColumn = toColumn;
             FromColumn = fromColumn;
@@ -13,8 +13,8 @@
 
         public ColumnCopyConfiguration(string fromColumn)
         {
-            ToColumn = fromColumn;
             FromColumn = fromColumn;
+            ToColumn = fromColumn;
         }
 
         public void Copy(IBaseOperation operation, IRow sourceRow, IRow targetRow)
