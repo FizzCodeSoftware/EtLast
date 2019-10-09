@@ -120,7 +120,6 @@
                     {
                         if (Configuration.BeforeFinalizersJobCreator != null)
                         {
-                            context.Log(LogSeverity.Information, this, "starting 'before' finalizers #" + retryCounter.ToString("D", CultureInfo.InvariantCulture));
                             List<IJob> beforeFinalizerJobs;
 
                             using (var creatorScope = context.BeginScope(TransactionScopeKind.Suppress))
@@ -128,13 +127,18 @@
                                 beforeFinalizerJobs = Configuration.BeforeFinalizersJobCreator.Invoke(Configuration.ConnectionStringKey, Configuration);
                             }
 
-                            var process = new JobHostProcess(context, "BeforeFinalizers");
-                            foreach (var job in beforeFinalizerJobs)
+                            if (beforeFinalizerJobs?.Count > 0)
                             {
-                                process.AddJob(job);
-                            }
+                                context.Log(LogSeverity.Information, this, "starting 'before' finalizers #" + retryCounter.ToString("D", CultureInfo.InvariantCulture));
 
-                            process.EvaluateWithoutResult(this);
+                                var process = new JobHostProcess(context, "BeforeFinalizers");
+                                foreach (var job in beforeFinalizerJobs)
+                                {
+                                    process.AddJob(job);
+                                }
+
+                                process.EvaluateWithoutResult(this);
+                            }
                         }
 
                         context.Log(LogSeverity.Information, this, "starting table-specific finalizers #" + retryCounter.ToString("D", CultureInfo.InvariantCulture));
@@ -183,7 +187,6 @@
 
                         if (Configuration.AfterFinalizersJobCreator != null)
                         {
-                            context.Log(LogSeverity.Information, this, "starting 'after' finalizers #" + retryCounter.ToString("D", CultureInfo.InvariantCulture));
                             List<IJob> afterFinalizerJobs;
 
                             using (var creatorScope = context.BeginScope(TransactionScopeKind.Suppress))
@@ -191,13 +194,18 @@
                                 afterFinalizerJobs = Configuration.AfterFinalizersJobCreator.Invoke(Configuration.ConnectionStringKey, Configuration);
                             }
 
-                            var process = new JobHostProcess(context, "AfterFinalizers");
-                            foreach (var job in afterFinalizerJobs)
+                            if (afterFinalizerJobs?.Count > 0)
                             {
-                                process.AddJob(job);
-                            }
+                                context.Log(LogSeverity.Information, this, "starting 'after' finalizers #" + retryCounter.ToString("D", CultureInfo.InvariantCulture));
 
-                            process.EvaluateWithoutResult(this);
+                                var process = new JobHostProcess(context, "AfterFinalizers");
+                                foreach (var job in afterFinalizerJobs)
+                                {
+                                    process.AddJob(job);
+                                }
+
+                                process.EvaluateWithoutResult(this);
+                            }
                         }
 
                         var currentExceptionCount = context.GetExceptions().Count;
