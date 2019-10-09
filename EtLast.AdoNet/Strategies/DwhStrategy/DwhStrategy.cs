@@ -120,7 +120,7 @@
                     {
                         if (Configuration.BeforeFinalizersJobCreator != null)
                         {
-                            context.Log(LogSeverity.Information, this, "starting global finalizers #" + retryCounter.ToString("D", CultureInfo.InvariantCulture));
+                            context.Log(LogSeverity.Information, this, "starting 'before' finalizers #" + retryCounter.ToString("D", CultureInfo.InvariantCulture));
                             List<IJob> beforeFinalizerJobs;
 
                             using (var creatorScope = context.BeginScope(TransactionScopeKind.Suppress))
@@ -128,13 +128,13 @@
                                 beforeFinalizerJobs = Configuration.BeforeFinalizersJobCreator.Invoke(Configuration.ConnectionStringKey, Configuration);
                             }
 
-                            var process = new JobHostProcess(context, "BeforeFinalizer");
+                            var process = new JobHostProcess(context, "BeforeFinalizers");
                             var index = 0;
                             foreach (var job in beforeFinalizerJobs)
                             {
                                 job.Name = beforeFinalizerJobs.Count == 1
                                     ? "BeforeFinalizer:" + job.Name
-                                    : "BeforeFinalizer:" + index.ToString("D", CultureInfo.InvariantCulture) + "-" + job.Name;
+                                    : "BeforeFinalizer#" + index.ToString("D", CultureInfo.InvariantCulture) + ":" + job.Name;
                                 process.AddJob(job);
 
                                 index++;
@@ -156,13 +156,13 @@
                                 finalizerJobs = table.FinalizerJobsCreator.Invoke(Configuration.ConnectionStringKey, table);
                             }
 
-                            var process = new JobHostProcess(context, "Finalizer:" + Helpers.UnEscapeTableName(table.TableName));
+                            var process = new JobHostProcess(context, "Finalizers:" + Helpers.UnEscapeTableName(table.TableName));
                             var index = 0;
                             foreach (var job in finalizerJobs)
                             {
                                 job.Name = finalizerJobs.Count == 1
-                                    ? "Finalizer:" + Helpers.UnEscapeTableName(table.TableName) + "-" + job.Name
-                                    : "Finalizer:" + Helpers.UnEscapeTableName(table.TableName) + "-" + index.ToString("D", CultureInfo.InvariantCulture) + "-" + job.Name;
+                                    ? "Finalizer:" + job.Name
+                                    : "Finalizer#" + index.ToString("D", CultureInfo.InvariantCulture) + ":" + job.Name;
                                 process.AddJob(job);
 
                                 index++;
@@ -173,6 +173,7 @@
 
                         if (Configuration.AfterFinalizersJobCreator != null)
                         {
+                            context.Log(LogSeverity.Information, this, "starting 'after' finalizers #" + retryCounter.ToString("D", CultureInfo.InvariantCulture));
                             List<IJob> afterFinalizerJobs;
 
                             using (var creatorScope = context.BeginScope(TransactionScopeKind.Suppress))
@@ -180,13 +181,13 @@
                                 afterFinalizerJobs = Configuration.AfterFinalizersJobCreator.Invoke(Configuration.ConnectionStringKey, Configuration);
                             }
 
-                            var process = new JobHostProcess(context, "AfterFinalizer");
+                            var process = new JobHostProcess(context, "AfterFinalizers");
                             var index = 0;
                             foreach (var job in afterFinalizerJobs)
                             {
                                 job.Name = afterFinalizerJobs.Count == 1
                                     ? "AfterFinalizer:" + job.Name
-                                    : "AfterFinalizer:" + index.ToString("D", CultureInfo.InvariantCulture) + "-" + job.Name;
+                                    : "AfterFinalizer#" + index.ToString("D", CultureInfo.InvariantCulture) + ":" + job.Name;
                                 process.AddJob(job);
 
                                 index++;
