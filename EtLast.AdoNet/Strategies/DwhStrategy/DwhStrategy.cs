@@ -14,7 +14,6 @@
 
         public void Execute(ICaller caller, IEtlContext context)
         {
-
             Caller = caller;
             context.Log(LogSeverity.Information, this, "data warehouse strategy started");
 

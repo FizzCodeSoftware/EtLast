@@ -1,14 +1,17 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Collections.Generic;
 
-    public class ExpandOperation : AbstractKeyBasedCrossOperation
+    public class CustomExpandFromLookupOperation : AbstractCrossOperation
     {
         public RowTestDelegate If { get; set; }
+        public MatchingRowFromLookupSelector MatchingRowSelector { get; set; }
+        public MatchKeySelector RightKeySelector { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         public MatchAction NoMatchAction { get; set; }
         public MatchActionDelegate MatchCustomAction { get; set; }
-        private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();
+        private readonly Dictionary<string, List<IRow>> _lookup = new Dictionary<string, List<IRow>>();
 
         public override void Apply(IRow row)
         {
@@ -20,8 +23,8 @@
 
             Stat.IncrementDebugCounter("processed", 1);
 
-            var leftKey = GetLeftKey(row);
-            if (leftKey == null || !_lookup.TryGetValue(leftKey, out var rightRow))
+            var rightRow = MatchingRowSelector(row, _lookup);
+            if (rightRow == null)
             {
                 if (NoMatchAction != null)
                 {
@@ -32,7 +35,6 @@
                             break;
                         case MatchMode.Throw:
                             var exception = new OperationExecutionException(Process, this, row, "no match");
-                            exception.Data.Add("LeftKey", leftKey);
                             throw exception;
                         case MatchMode.Custom:
                             NoMatchAction.CustomAction.Invoke(this, row, null);
@@ -59,6 +61,11 @@
         public override void Prepare()
         {
             base.Prepare();
+
+            if (MatchingRowSelector == null)
+                throw new OperationParameterNullException(this, nameof(MatchingRowSelector));
+            if (RightKeySelector == null)
+                throw new OperationParameterNullException(this, nameof(RightKeySelector));
             if (ColumnConfiguration == null)
                 throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
             if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
@@ -71,11 +78,17 @@
             foreach (var row in rightRows)
             {
                 rightRowCount++;
-                var key = GetRightKey(row);
+                var key = GetRightKey(Process, row);
                 if (string.IsNullOrEmpty(key))
                     continue;
 
-                _lookup[key] = row;
+                if (!_lookup.TryGetValue(key, out var list))
+                {
+                    list = new List<IRow>();
+                    _lookup.Add(key, list);
+                }
+
+                list.Add(row);
             }
 
             Process.Context.Log(LogSeverity.Debug, Process, "({OperationName}) fetched {RowCount} rows, lookup size is {LookupSize}", Name, rightRowCount, _lookup.Count);
@@ -86,6 +99,20 @@
         {
             base.Shutdown();
             _lookup.Clear();
+        }
+
+        protected string GetRightKey(IProcess process, IRow row)
+        {
+            try
+            {
+                return RightKeySelector(row);
+            }
+            catch (EtlException) { throw; }
+            catch (Exception)
+            {
+                var exception = new OperationExecutionException(process, this, row, nameof(RightKeySelector) + " failed");
+                throw exception;
+            }
         }
     }
 }

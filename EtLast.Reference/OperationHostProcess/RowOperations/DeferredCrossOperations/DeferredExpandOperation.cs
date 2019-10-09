@@ -24,6 +24,7 @@
 
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         public MatchAction NoMatchAction { get; set; }
+        public MatchActionDelegate MatchCustomAction { get; set; }
 
         /// <summary>
         /// Default value is 100000
@@ -191,6 +192,8 @@
             {
                 config.Copy(this, match, row);
             }
+
+            MatchCustomAction?.Invoke(this, row, match);
         }
 
         private string GetLeftKey(IRow row)

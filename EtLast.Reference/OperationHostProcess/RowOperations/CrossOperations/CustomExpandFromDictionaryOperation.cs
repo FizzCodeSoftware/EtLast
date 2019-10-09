@@ -3,14 +3,15 @@
     using System;
     using System.Collections.Generic;
 
-    public class CustomExpandOperation : AbstractCrossOperation
+    public class CustomExpandFromDictionaryOperation : AbstractCrossOperation
     {
         public RowTestDelegate If { get; set; }
-        public MatchingRowSelector MatchingRowSelector { get; set; }
+        public MatchingRowFromDictionarySelector MatchingRowSelector { get; set; }
         public MatchKeySelector RightKeySelector { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         public MatchAction NoMatchAction { get; set; }
-        private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();
+        public MatchActionDelegate MatchCustomAction { get; set; }
+        private readonly Dictionary<string, IRow> _dictionary = new Dictionary<string, IRow>();
 
         public override void Apply(IRow row)
         {
@@ -22,7 +23,7 @@
 
             Stat.IncrementDebugCounter("processed", 1);
 
-            var rightRow = MatchingRowSelector(row, _lookup);
+            var rightRow = MatchingRowSelector(row, _dictionary);
             if (rightRow == null)
             {
                 if (NoMatchAction != null)
@@ -44,10 +45,17 @@
                 return;
             }
 
+            HandleMatch(row, rightRow);
+        }
+
+        private void HandleMatch(IRow row, IRow match)
+        {
             foreach (var config in ColumnConfiguration)
             {
-                config.Copy(this, rightRow, row);
+                config.Copy(this, match, row);
             }
+
+            MatchCustomAction?.Invoke(this, row, match);
         }
 
         public override void Prepare()
@@ -64,7 +72,7 @@
                 throw new OperationParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));
 
             Process.Context.Log(LogSeverity.Information, Process, "({OperationName}) evaluating <{InputProcess}>", Name, RightProcess.Name);
-            _lookup.Clear();
+            _dictionary.Clear();
             var rightRows = RightProcess.Evaluate(Process);
             var rightRowCount = 0;
             foreach (var row in rightRows)
@@ -74,17 +82,17 @@
                 if (string.IsNullOrEmpty(key))
                     continue;
 
-                _lookup[key] = row;
+                _dictionary[key] = row;
             }
 
-            Process.Context.Log(LogSeverity.Debug, Process, "({OperationName}) fetched {RowCount} rows, lookup size is {LookupSize}", Name, rightRowCount, _lookup.Count);
+            Process.Context.Log(LogSeverity.Debug, Process, "({OperationName}) fetched {RowCount} rows, dictionary size is {DictionarySize}", Name, rightRowCount, _dictionary.Count);
             Stat.IncrementCounter("right rows loaded", rightRowCount);
         }
 
         public override void Shutdown()
         {
             base.Shutdown();
-            _lookup.Clear();
+            _dictionary.Clear();
         }
 
         protected string GetRightKey(IProcess process, IRow row)

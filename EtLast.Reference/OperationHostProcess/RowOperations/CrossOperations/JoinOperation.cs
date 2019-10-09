@@ -11,6 +11,7 @@
         public JoinRightRowFilterDelegate RightRowFilter { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         public MatchAction NoMatchAction { get; set; }
+        public MatchActionDelegate MatchCustomAction { get; set; }
         private readonly Dictionary<string, List<IRow>> _lookup = new Dictionary<string, List<IRow>>();
 
         public override void Apply(IRow row)
@@ -83,6 +84,7 @@
                     for (var i = 1; i < rightRows.Count; i++)
                     {
                         var newRow = DupeRow(Process, row, rightRows[i]);
+                        MatchCustomAction?.Invoke(this, newRow, rightRows[i]);
                         newRows.Add(newRow);
                     }
 
@@ -91,6 +93,7 @@
                 else
                 {
                     var newRow = DupeRow(Process, row, rightRows[1]);
+                    MatchCustomAction?.Invoke(this, newRow, rightRows[1]);
                     Process.AddRow(newRow, this);
                 }
             }
@@ -99,6 +102,8 @@
             {
                 config.Copy(this, rightRows[0], row);
             }
+
+            MatchCustomAction?.Invoke(this, row, rightRows[0]);
         }
 
         public override void Prepare()

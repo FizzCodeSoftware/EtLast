@@ -24,6 +24,7 @@
         public Func<IRow[], IProcess> RightProcessCreator { get; set; }
 
         public MatchAction NoMatchAction { get; set; }
+        public MatchActionDelegate MatchCustomAction { get; set; }
         public JoinRightRowFilterDelegate RightRowFilter { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
 
@@ -231,6 +232,7 @@
                     for (var i = 1; i < matches.Count; i++)
                     {
                         var newRow = DupeRow(Process, row, matches[i]);
+                        MatchCustomAction?.Invoke(this, newRow, matches[i]);
                         newRows.Add(newRow);
                     }
 
@@ -239,6 +241,7 @@
                 else
                 {
                     var newRow = DupeRow(Process, row, matches[1]);
+                    MatchCustomAction?.Invoke(this, newRow, matches[1]);
                     Process.AddRow(newRow, this);
                 }
             }
@@ -247,6 +250,8 @@
             {
                 config.Copy(this, matches[0], row);
             }
+
+            MatchCustomAction?.Invoke(this, row, matches[0]);
         }
 
         private void HandleNoMatch(IRow row, string key)
