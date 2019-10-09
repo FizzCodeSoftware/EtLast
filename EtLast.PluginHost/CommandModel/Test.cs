@@ -6,11 +6,10 @@
     using CommandDotNet.Attributes;
     using FizzCode.DbTools.Configuration;
     using FizzCode.EtLast.AdoNet;
-    using Serilog.Events;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
 #pragma warning disable CA1822 // Mark members as static
-    [ApplicationMetadata(Name = "test", Description = "test various things, like connection string, modules, etc")]
+    [ApplicationMetadata(Name = "test", Description = "test various things, like connection strings, modules, etc")]
     [SubCommand]
     public class Test
     {
@@ -42,17 +41,17 @@
 
             foreach (var moduleName in moduleNames)
             {
-                CommandLineHandler.Context.Logger.Write(LogEventLevel.Information, "loading module {ModuleName}", moduleName);
+                CommandLineHandler.Context.Logger.Information("loading module {Module}", moduleName);
 
                 var module = ModuleLoader.LoadModule(commandContext, moduleName, null, null);
                 if (module != null)
                 {
                     ModuleLoader.UnloadModule(commandContext, module);
-                    commandContext.Logger.Information("validation {ValidationResult} for {ModuleName}", "PASSED", moduleName);
+                    commandContext.Logger.Information("validation {ValidationResult} for {Module}", "PASSED", moduleName);
                 }
                 else
                 {
-                    commandContext.Logger.Information("validation {ValidationResult} for {ModuleName}", "FAILED", moduleName);
+                    commandContext.Logger.Information("validation {ValidationResult} for {Module}", "FAILED", moduleName);
                 }
 
                 Console.WriteLine();
@@ -99,7 +98,7 @@
                     sharedCs.LoadFromConfiguration(moduleConfiguration.Configuration, "ConnectionStrings:Shared");
                     if (sharedCs.All.Any())
                     {
-                        commandContext.Logger.Information("connection strings for: {ModuleName}", "Shared");
+                        commandContext.Logger.Information("connection strings for: {Module}", "Shared");
                         foreach (var cs in sharedCs.All)
                         {
                             commandContext.Logger.Information("\t{Name}, {ProviderName}, {ConnectionString}", cs.Name, cs.ProviderName, cs.ConnectionString);
@@ -108,7 +107,7 @@
                     }
                 }
 
-                commandContext.Logger.Information("connection strings for: {ModuleName}", moduleName);
+                commandContext.Logger.Information("connection strings for: {Module}", moduleName);
 
                 var connectionStrings = new ConnectionStringCollection();
                 connectionStrings.LoadFromConfiguration(moduleConfiguration.Configuration, "ConnectionStrings:Module");

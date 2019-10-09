@@ -74,13 +74,13 @@
         {
             if (Context.Result.Exceptions.Count > 0)
             {
-                Logger.Write(LogEventLevel.Error, "{ExceptionCount} exceptions raised during plugin execution", Context.Result.Exceptions.Count);
-                OpsLogger.Write(LogEventLevel.Error, "{ExceptionCount} exceptions raised during plugin execution", Context.Result.Exceptions.Count);
+                Logger.Error("{ExceptionCount} exceptions raised during plugin execution", Context.Result.Exceptions.Count);
+                OpsLogger.Error("{ExceptionCount} exceptions raised during plugin execution", Context.Result.Exceptions.Count);
 
                 var index = 0;
                 foreach (var ex in Context.Result.Exceptions)
                 {
-                    Logger.Write(LogEventLevel.Error, ex, "exception #{ExceptionIndex}", index++);
+                    Logger.Error(ex, "exception #{ExceptionIndex}", index++);
 
                     var opsMsg = ex.Message;
                     if (ex.Data.Contains(EtlException.OpsMessageDataKey) && (ex.Data[EtlException.OpsMessageDataKey] != null))
@@ -88,7 +88,7 @@
                         opsMsg = ex.Data[EtlException.OpsMessageDataKey].ToString();
                     }
 
-                    OpsLogger.Write(LogEventLevel.Error, "exception #{ExceptionIndex}: {Message}", index++, opsMsg);
+                    OpsLogger.Error("exception #{ExceptionIndex}: {Message}", index++, opsMsg);
                 }
             }
         }

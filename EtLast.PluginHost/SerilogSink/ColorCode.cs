@@ -17,5 +17,11 @@
         NumberValue = 12,
         BooleanValue = 13,
         ScalarValue = 14,
+        TimeSpanValue = 15,
+        Module = 16,
+        Plugin = 17,
+        Process = 18,
+        Operation = 19,
+        Job = 20,
     }
 }

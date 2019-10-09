@@ -11,7 +11,7 @@
             if (Process == null)
                 throw new JobParameterNullException(process, this, nameof(Process));
 
-            Process.Context.Log(LogSeverity.Information, Process, "({JobName}) evaluating <{InputProcess}>", Name, process.Name);
+            Process.Context.Log(LogSeverity.Information, Process, "({Job}) evaluating <{InputProcess}>", Name, process.Name);
             Process.EvaluateWithoutResult(process);
         }
     }

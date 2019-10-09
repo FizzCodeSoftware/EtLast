@@ -96,38 +96,29 @@
 
         private static void WriteLevel(LogEvent logEvent, TextWriter builder)
         {
-            var text = GetLevelNameAbbreviation();
-            var colorCode = GetLevelColorCode();
+            var text = logEvent.Level switch
+            {
+                LogEventLevel.Verbose => "VRB",
+                LogEventLevel.Debug => "DBG",
+                LogEventLevel.Information => "INF",
+                LogEventLevel.Warning => "WRN",
+                LogEventLevel.Error => "ERR",
+                LogEventLevel.Fatal => "FTL",
+                _ => null,
+            };
+
+            var colorCode = logEvent.Level switch
+            {
+                LogEventLevel.Verbose => ColorCode.LvlTokenVrb,
+                LogEventLevel.Debug => ColorCode.LvlTokenDbg,
+                LogEventLevel.Information => ColorCode.LvlTokenInf,
+                LogEventLevel.Warning => ColorCode.LvlTokenWrn,
+                LogEventLevel.Error => ColorCode.LvlTokenErr,
+                LogEventLevel.Fatal => ColorCode.LvlTokenFtl,
+                _ => ColorCode.LvlTokenInf,
+            };
 
             ColorCodeContext.Write(builder, colorCode, text);
-
-            string GetLevelNameAbbreviation()
-            {
-                return logEvent.Level switch
-                {
-                    LogEventLevel.Verbose => "VRB",
-                    LogEventLevel.Debug => "DBG",
-                    LogEventLevel.Information => "INF",
-                    LogEventLevel.Warning => "WRN",
-                    LogEventLevel.Error => "ERR",
-                    LogEventLevel.Fatal => "FTL",
-                    _ => null,
-                };
-            }
-
-            ColorCode GetLevelColorCode()
-            {
-                return logEvent.Level switch
-                {
-                    LogEventLevel.Verbose => ColorCode.LvlTokenVrb,
-                    LogEventLevel.Debug => ColorCode.LvlTokenDbg,
-                    LogEventLevel.Information => ColorCode.LvlTokenInf,
-                    LogEventLevel.Warning => ColorCode.LvlTokenWrn,
-                    LogEventLevel.Error => ColorCode.LvlTokenErr,
-                    LogEventLevel.Fatal => ColorCode.LvlTokenFtl,
-                    _ => ColorCode.LvlTokenInf,
-                };
-            }
         }
 
         private static void WriteNewLine(TextWriter builder)
@@ -170,7 +161,18 @@
                             }
                             else if (topLevelScalar && value is ScalarValue sv && sv.Value is string text)
                             {
-                                ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.StringValue, text);
+                                var colorCode = pt.PropertyName switch
+                                {
+                                    "Module" => ColorCode.Module,
+                                    "Plugin" => ColorCode.Plugin,
+                                    "Process" => ColorCode.Process,
+                                    "InputProcess" => ColorCode.Process,
+                                    "Operation" => ColorCode.Operation,
+                                    "Job" => ColorCode.Job,
+                                    _ => ColorCode.StringValue
+                                };
+
+                                ColorCodeContext.WriteOverridden(builder, logEvent, colorCode, text);
                             }
                             else
                             {

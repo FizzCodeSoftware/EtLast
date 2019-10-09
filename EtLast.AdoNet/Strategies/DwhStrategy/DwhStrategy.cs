@@ -99,7 +99,7 @@
                             mainProcess = table.PartitionedMainProcessCreator.Invoke(Configuration.ConnectionStringKey, table, partitionIndex);
                         }
 
-                        mainProcess.Name += "-#" + (partitionIndex + 1).ToString("D", CultureInfo.InvariantCulture);
+                        mainProcess.Name += "/#" + (partitionIndex + 1).ToString("D", CultureInfo.InvariantCulture);
                         var rowCount = 0;
                         foreach (var row in mainProcess.Evaluate()) // must enumerate through all rows
                         {
@@ -129,15 +129,9 @@
                             }
 
                             var process = new JobHostProcess(context, "BeforeFinalizers");
-                            var index = 0;
                             foreach (var job in beforeFinalizerJobs)
                             {
-                                job.Name = beforeFinalizerJobs.Count == 1
-                                    ? "BeforeFinalizer:" + job.Name
-                                    : "BeforeFinalizer#" + index.ToString("D", CultureInfo.InvariantCulture) + ":" + job.Name;
                                 process.AddJob(job);
-
-                                index++;
                             }
 
                             process.EvaluateWithoutResult(this);
@@ -146,29 +140,45 @@
                         context.Log(LogSeverity.Information, this, "starting table-specific finalizers #" + retryCounter.ToString("D", CultureInfo.InvariantCulture));
                         foreach (var table in Configuration.Tables)
                         {
-                            var creatorScopeKind = table.SuppressTransactionScopeForCreators
+                            var rowCount = new CustomSqlAdoNetDbReaderProcess(context, "RowCountReader")
+                            {
+                                ConnectionStringKey = Configuration.ConnectionStringKey,
+                                Sql = "SELECT COUNT(*) cnt FROM " + table.TempTableName,
+                                ColumnConfiguration = new List<ReaderColumnConfiguration>()
+                                {
+                                    new ReaderColumnConfiguration("cnt", new IntConverter(), NullSourceHandler.SetSpecialValue)
+                                    {
+                                        SpecialValueIfSourceIsNull = 0,
+                                    }
+                                }
+                            }.Evaluate().ToList().FirstOrDefault()?.GetAs<int>("cnt") ?? 0;
+
+                            if (rowCount > 0)
+                            {
+                                context.Log(LogSeverity.Information, this, "{TempRowCount} rows found in {TableName}, starting finalizers", rowCount, Helpers.UnEscapeTableName(table.TempTableName));
+
+                                var creatorScopeKind = table.SuppressTransactionScopeForCreators
                                 ? TransactionScopeKind.Suppress
                                 : TransactionScopeKind.None;
 
-                            List<IJob> finalizerJobs;
-                            using (var creatorScope = context.BeginScope(creatorScopeKind))
-                            {
-                                finalizerJobs = table.FinalizerJobsCreator.Invoke(Configuration.ConnectionStringKey, table);
+                                List<IJob> finalizerJobs;
+                                using (var creatorScope = context.BeginScope(creatorScopeKind))
+                                {
+                                    finalizerJobs = table.FinalizerJobsCreator.Invoke(Configuration.ConnectionStringKey, table);
+                                }
+
+                                var process = new JobHostProcess(context, "Finalize:" + Helpers.UnEscapeTableName(table.TableName));
+                                foreach (var job in finalizerJobs)
+                                {
+                                    process.AddJob(job);
+                                }
+
+                                process.EvaluateWithoutResult(this);
                             }
-
-                            var process = new JobHostProcess(context, "Finalizers:" + Helpers.UnEscapeTableName(table.TableName));
-                            var index = 0;
-                            foreach (var job in finalizerJobs)
+                            else
                             {
-                                job.Name = finalizerJobs.Count == 1
-                                    ? "Finalizer:" + job.Name
-                                    : "Finalizer#" + index.ToString("D", CultureInfo.InvariantCulture) + ":" + job.Name;
-                                process.AddJob(job);
-
-                                index++;
+                                context.Log(LogSeverity.Debug, this, "{TempRowCount} rows found in {TableName}, skipping finalizers", rowCount, Helpers.UnEscapeTableName(table.TempTableName));
                             }
-
-                            process.EvaluateWithoutResult(this);
                         }
 
                         if (Configuration.AfterFinalizersJobCreator != null)
@@ -182,15 +192,9 @@
                             }
 
                             var process = new JobHostProcess(context, "AfterFinalizers");
-                            var index = 0;
                             foreach (var job in afterFinalizerJobs)
                             {
-                                job.Name = afterFinalizerJobs.Count == 1
-                                    ? "AfterFinalizer:" + job.Name
-                                    : "AfterFinalizer#" + index.ToString("D", CultureInfo.InvariantCulture) + ":" + job.Name;
                                 process.AddJob(job);
-
-                                index++;
                             }
 
                             process.EvaluateWithoutResult(this);

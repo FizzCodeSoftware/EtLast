@@ -57,14 +57,14 @@
         {
             var config = Configuration[statementIndex];
 
-            process.Context.Log(LogSeverity.Debug, process, "({JobName}) create new table {ConnectionStringKey}/{TargetTableName} based on {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            process.Context.Log(LogSeverity.Debug, process, "({Job}) create new table {ConnectionStringKey}/{TargetTableName} based on {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 Name, ConnectionString.Name, Helpers.UnEscapeTableName(config.TargetTableName), Helpers.UnEscapeTableName(config.SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
 
             try
             {
                 command.ExecuteNonQuery();
 
-                process.Context.Log(LogSeverity.Debug, process, "({JobName}) table {ConnectionStringKey}/{TargetTableName} is created from {SourceTableName} in {Elapsed}",
+                process.Context.Log(LogSeverity.Debug, process, "({Job}) table {ConnectionStringKey}/{TargetTableName} is created from {SourceTableName} in {Elapsed}",
                     Name, ConnectionString.Name, Helpers.UnEscapeTableName(config.TargetTableName), Helpers.UnEscapeTableName(config.SourceTableName), startedOn.Elapsed);
             }
             catch (Exception ex)
@@ -93,7 +93,7 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            process.Context.Log(LogSeverity.Information, process, "({JobName}) table(s) successfully created on {ConnectionStringKey} in {Elapsed}: {TableNames}",
+            process.Context.Log(LogSeverity.Information, process, "({Job}) table(s) successfully created on {ConnectionStringKey} in {Elapsed}: {TableNames}",
                 Name, ConnectionString.Name, startedOn.Elapsed,
                 Configuration
                     .Take(lastSucceededIndex + 1)

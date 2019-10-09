@@ -10,11 +10,14 @@
         public static string[] StartupArguments { get; private set; }
         public static bool Terminated { get; set; }
         public static CommandContext Context { get; private set; }
+        private static AppRunner<AppCommands> _runner;
 
         public static void Run(string[] startupArguments)
         {
             Context = new CommandContext();
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
+
+            _runner = new AppRunner<AppCommands>(GetAppSettings());
 
             try
             {
@@ -29,9 +32,7 @@
 
             if (StartupArguments?.Length > 0)
             {
-                var runner = new AppRunner<AppCommands>(GetAppSettings());
-
-                runner.Run(StartupArguments);
+                RunCommand(StartupArguments);
                 return;
             }
 
@@ -47,11 +48,15 @@
                     continue;
 
                 var lineArguments = commandLine.Split(' ');
-                var runner = new AppRunner<AppCommands>(GetAppSettings());
-                runner.Run(lineArguments);
+                Run(lineArguments);
 
                 Console.WriteLine();
             }
+        }
+
+        public static void RunCommand(params string[] args)
+        {
+            _runner.Run(args);
         }
 
         private static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
@@ -71,17 +76,15 @@
 
         internal static void DisplayHelp(string command = null)
         {
-            var runner = new AppRunner<AppCommands>(GetAppSettings());
-
             if (string.IsNullOrEmpty(command))
             {
-                runner.Run("--help");
+                RunCommand("--help");
             }
             else
             {
                 var args = command.Split(' ').ToList();
                 args.Add("--help");
-                runner.Run(args.ToArray());
+                RunCommand(args.ToArray());
             }
         }
 

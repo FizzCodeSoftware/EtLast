@@ -5,7 +5,6 @@
     using System.Diagnostics;
     using System.Transactions;
     using Serilog;
-    using Serilog.Events;
 
     internal static class ModuleExecuter
     {
@@ -13,16 +12,30 @@
         {
             var result = ExecutionResult.Success;
 
+            GC.Collect();
+            var cpuTime = GetCpuTime();
+            var lifetimeMemory = GetLifetimeMemory();
+            var currentMemory = GetCurrentMemory();
+
             try
             {
+                var moduleStartedOn = Stopwatch.StartNew();
                 var globalStat = new StatCounterCollection();
                 var runTimes = new List<TimeSpan>();
                 var pluginResults = new List<EtlContextResult>();
+                var cpuTimes = new List<TimeSpan>();
+                var lifetimeMemories = new List<long>();
+                var currentMemories = new List<long>();
                 foreach (var plugin in module.EnabledPlugins)
                 {
-                    var startedOn = Stopwatch.StartNew();
+                    var pluginStartedOn = Stopwatch.StartNew();
                     var friendlyPluginName = TypeHelpers.GetFriendlyTypeName(plugin.GetType());
-                    commandContext.Logger.Write(LogEventLevel.Information, "[{ModuleName}/{PluginName}] plugin started", module.ModuleConfiguration.ModuleName, friendlyPluginName);
+                    commandContext.Logger.Information("[{Module}/{Plugin}] plugin started", module.ModuleConfiguration.ModuleName, friendlyPluginName);
+
+                    GC.Collect();
+                    var pluginCpuTime = GetCpuTime();
+                    var pluginLifetimeMemory = GetLifetimeMemory();
+                    var pluginCurrentMemory = GetCurrentMemory();
 
                     try
                     {
@@ -39,11 +52,11 @@
 
                             if (plugin.Context.Result.TerminateHost)
                             {
-                                commandContext.Logger.Write(LogEventLevel.Error, "[{ModuleName}/{PluginName}] requested to terminate the execution", plugin.ModuleConfiguration.ModuleName, friendlyPluginName);
+                                commandContext.Logger.Error("[{Module}/{Plugin}] requested to terminate the execution", module.ModuleConfiguration.ModuleName, friendlyPluginName);
                                 result = ExecutionResult.PluginFailedAndExecutionTerminated;
 
-                                startedOn.Stop();
-                                runTimes.Add(startedOn.Elapsed);
+                                pluginStartedOn.Stop();
+                                runTimes.Add(pluginStartedOn.Elapsed);
                                 break; // stop processing plugins
                             }
 
@@ -55,11 +68,11 @@
                         catch (Exception ex)
                         {
                             result = ExecutionResult.PluginFailedAndExecutionTerminated;
-                            commandContext.Logger.Write(LogEventLevel.Error, ex, "[{ModuleName}/{PluginName}] unhandled error during plugin execution after {Elapsed}", plugin.ModuleConfiguration.ModuleName, startedOn.Elapsed, friendlyPluginName);
-                            commandContext.OpsLogger.Write(LogEventLevel.Error, "[{ModuleName}/{PluginName}] unhandled error during plugin execution after {Elapsed}: {Message}", plugin.ModuleConfiguration.ModuleName, startedOn.Elapsed, friendlyPluginName, ex.Message);
+                            commandContext.Logger.Error(ex, "[{Module}/{Plugin}] unhandled error during plugin execution after {Elapsed}", module.ModuleConfiguration.ModuleName, pluginStartedOn.Elapsed, friendlyPluginName);
+                            commandContext.OpsLogger.Error("[{Module}/{Plugin}] unhandled error during plugin execution after {Elapsed}: {Message}", module.ModuleConfiguration.ModuleName, pluginStartedOn.Elapsed, friendlyPluginName, ex.Message);
 
-                            startedOn.Stop();
-                            runTimes.Add(startedOn.Elapsed);
+                            pluginStartedOn.Stop();
+                            runTimes.Add(pluginStartedOn.Elapsed);
                             break; // stop processing plugins
                         }
                     }
@@ -67,10 +80,19 @@
                     {
                     }
 
-                    startedOn.Stop();
-                    runTimes.Add(startedOn.Elapsed);
+                    pluginStartedOn.Stop();
+                    runTimes.Add(pluginStartedOn.Elapsed);
 
-                    commandContext.Logger.Write(LogEventLevel.Information, "[{ModuleName}/{PluginName}] finished in {Elapsed}", plugin.ModuleConfiguration.ModuleName, friendlyPluginName, startedOn.Elapsed);
+                    GC.Collect();
+                    cpuTimes.Add(GetCpuTime().Subtract(pluginCpuTime));
+                    lifetimeMemories.Add(GetLifetimeMemory() - pluginLifetimeMemory);
+                    currentMemories.Add(GetCurrentMemory() - pluginCurrentMemory);
+
+                    commandContext.Logger.Information(
+                        "[{Module}/{Plugin}] finished in {Elapsed}",
+                        module.ModuleConfiguration.ModuleName,
+                        friendlyPluginName,
+                        pluginStartedOn.Elapsed);
                 }
 
                 LogStats(module, globalStat, commandContext.Logger);
@@ -81,13 +103,37 @@
                     var pluginResult = pluginResults[i];
                     if (pluginResult.Success)
                     {
-                        commandContext.Logger.Write(LogEventLevel.Information, "[{ModuleName}/{PluginName}] run-time is {Elapsed}, status is {Status}", plugin.ModuleConfiguration.ModuleName, TypeHelpers.GetFriendlyTypeName(plugin.GetType()), runTimes[i], "success");
+                        commandContext.Logger.Information("[{Module}/{Plugin}] run-time is {Elapsed}, status is {Status}, CPU time: {CpuTime}, allocated memory: {AllocatedMemory}, survived memory: {SurvivedMemory}",
+                            module.ModuleConfiguration.ModuleName,
+                            TypeHelpers.GetFriendlyTypeName(plugin.GetType()),
+                            runTimes[i],
+                            "success",
+                            cpuTimes[i],
+                            lifetimeMemories[i],
+                            currentMemories[i]);
                     }
                     else
                     {
-                        commandContext.Logger.Write(LogEventLevel.Information, "[{ModuleName}/{PluginName}] run-time is {Elapsed}, status is {Status}, requested to terminate execution: {TerminateHost}", plugin.ModuleConfiguration.ModuleName, TypeHelpers.GetFriendlyTypeName(plugin.GetType()), runTimes[i], "failed", pluginResult.TerminateHost);
+                        commandContext.Logger.Information("[{Module}/{Plugin}] run-time is {Elapsed}, status is {Status}, requested to terminate execution: {TerminateHost}, CPU time: {CpuTime}, allocated memory: {AllocatedMemory}, survived memory: {SurvivedMemory}",
+                            module.ModuleConfiguration.ModuleName,
+                            TypeHelpers.GetFriendlyTypeName(plugin.GetType()),
+                            runTimes[i],
+                            "failed",
+                            pluginResult.TerminateHost,
+                            cpuTimes[i],
+                            lifetimeMemories[i],
+                            currentMemories[i]);
                     }
                 }
+
+                GC.Collect();
+                commandContext.Logger.Information("[{Module}] run-time is {Elapsed}, result is {Result}, CPU time: {CpuTime}, allocated memory: {AllocatedMemory}, survived memory: {SurvivedMemory}",
+                    module.ModuleConfiguration.ModuleName,
+                    moduleStartedOn.Elapsed,
+                    result,
+                    GetCpuTime().Subtract(cpuTime),
+                    GetLifetimeMemory() - lifetimeMemory,
+                    GetCurrentMemory() - currentMemory);
             }
             catch (TransactionAbortedException)
             {
@@ -115,8 +161,23 @@
 
             foreach (var kvp in counters)
             {
-                logger.Write(LogEventLevel.Information, "[{ModuleName}] stat {StatName} = {StatValue}", module.ModuleConfiguration.ModuleName, kvp.Key, kvp.Value);
+                logger.Information("[{Module}] stat {StatName} = {StatValue}", module.ModuleConfiguration.ModuleName, kvp.Key, kvp.Value);
             }
+        }
+
+        private static TimeSpan GetCpuTime()
+        {
+            return AppDomain.CurrentDomain.MonitoringTotalProcessorTime;
+        }
+
+        private static long GetCurrentMemory()
+        {
+            return GC.GetTotalMemory(false);
+        }
+
+        private static long GetLifetimeMemory()
+        {
+            return GC.GetTotalAllocatedBytes(true);
         }
     }
 }

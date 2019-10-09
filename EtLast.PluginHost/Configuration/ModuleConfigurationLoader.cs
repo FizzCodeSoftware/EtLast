@@ -18,8 +18,8 @@
             var moduleFolder = Path.Combine(commandContext.HostConfiguration.ModulesFolder, moduleName);
             if (!Directory.Exists(moduleFolder))
             {
-                commandContext.Logger.Write(LogEventLevel.Error, "can't find the module folder: {ModuleFolder}", moduleFolder);
-                commandContext.OpsLogger.Write(LogEventLevel.Error, "can't find the module folder: {ModuleFolder}", moduleFolder);
+                commandContext.Logger.Error("can't find the module folder: {ModuleFolder}", moduleFolder);
+                commandContext.OpsLogger.Error("can't find the module folder: {ModuleFolder}", moduleFolder);
                 return null;
             }
 
@@ -31,19 +31,19 @@
             if (File.Exists(sharedConfigFileName))
             {
                 configurationBuilder.AddJsonFile(sharedConfigFileName);
-                commandContext.Logger.Write(LogEventLevel.Debug, "using shared configuration file from {ConfigurationFilePath}", PathHelpers.GetFriendlyPathName(sharedConfigFileName));
+                commandContext.Logger.Debug("using shared configuration file from {ConfigurationFilePath}", PathHelpers.GetFriendlyPathName(sharedConfigFileName));
             }
 
             var moduleConfigFileName = Path.Combine(moduleFolder, "module-configuration.json");
             if (!File.Exists(moduleConfigFileName))
             {
-                commandContext.Logger.Write(LogEventLevel.Error, "can't find the module configuration file: {ConfigurationFilePath}", moduleConfigFileName);
-                commandContext.OpsLogger.Write(LogEventLevel.Error, "can't find the module configuration file: {ConfigurationFilePath}", moduleConfigFileName);
+                commandContext.Logger.Error("can't find the module configuration file: {ConfigurationFilePath}", moduleConfigFileName);
+                commandContext.OpsLogger.Error("can't find the module configuration file: {ConfigurationFilePath}", moduleConfigFileName);
                 return null;
             }
 
             configurationBuilder.AddJsonFile(moduleConfigFileName);
-            commandContext.Logger.Write(LogEventLevel.Debug, "using module configuration file from {ConfigurationFilePath}", PathHelpers.GetFriendlyPathName(moduleConfigFileName));
+            commandContext.Logger.Debug("using module configuration file from {ConfigurationFilePath}", PathHelpers.GetFriendlyPathName(moduleConfigFileName));
 
             var configuration = configurationBuilder.Build();
             AddCommandLineArgumentsToModuleConfiguration(configuration, moduleSettingOverrides);
@@ -57,7 +57,7 @@
             var broken = false;
             foreach (var pluginName in pluginNamesToExecute.Where(x => x.Contains(',', StringComparison.InvariantCultureIgnoreCase) || x.Contains(' ', StringComparison.InvariantCultureIgnoreCase)))
             {
-                commandContext.Logger.Write(LogEventLevel.Error, "plugin name can't contain comma or space character: [{PluginName}]", pluginName);
+                commandContext.Logger.Error("plugin name can't contain comma or space character: [{Plugin}]", pluginName);
                 broken = true;
             }
             if (broken)
@@ -84,7 +84,7 @@
                 .Distinct()
                 .ToList();
 
-            commandContext.Logger.Debug("connection strings for: {ModuleName}", moduleName);
+            commandContext.Logger.Debug("connection strings for: {Module}", moduleName);
             var relevantCs = new ConnectionStringCollection();
             foreach (var originalName in originalNames)
             {

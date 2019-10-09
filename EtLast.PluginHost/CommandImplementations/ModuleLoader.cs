@@ -13,7 +13,6 @@
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.Text;
-    using Serilog.Events;
 
     internal static class ModuleLoader
     {
@@ -33,9 +32,9 @@
             if (!commandContext.HostConfiguration.ForceDynamicCompilation
                 && (!commandContext.HostConfiguration.EnableDynamicCompilation || Debugger.IsAttached))
             {
-                commandContext.Logger.Write(LogEventLevel.Information, "loading plugins directly from AppDomain if namespace ends with {ModuleName}", moduleName);
+                commandContext.Logger.Information("loading plugins directly from AppDomain if namespace ends with '{Module}'", moduleName);
                 var appDomainPlugins = LoadPluginsFromAppDomain(moduleName);
-                commandContext.Logger.Write(LogEventLevel.Debug, "finished in {Elapsed}", startedOn.Elapsed);
+                commandContext.Logger.Debug("finished in {Elapsed}", startedOn.Elapsed);
                 var module = new Module()
                 {
                     ModuleConfiguration = moduleConfiguration,
@@ -43,18 +42,18 @@
                     EnabledPlugins = FilterExecutablePlugins(moduleConfiguration, appDomainPlugins),
                 };
 
-                commandContext.Logger.Write(LogEventLevel.Debug, "{PluginCount} plugin(s) found: {PluginNames}",
+                commandContext.Logger.Debug("{PluginCount} plugin(s) found: {PluginNames}",
                     module.EnabledPlugins.Count, module.EnabledPlugins.Select(plugin => TypeHelpers.GetFriendlyTypeName(plugin.GetType())).ToArray());
 
                 return module;
             }
 
-            commandContext.Logger.Write(LogEventLevel.Information, "compiling plugins from {ModuleFolder} using shared files from {SharedFolder}", PathHelpers.GetFriendlyPathName(moduleConfiguration.ModuleFolder), PathHelpers.GetFriendlyPathName(sharedFolder));
+            commandContext.Logger.Information("compiling plugins from {ModuleFolder} using shared files from {SharedFolder}", PathHelpers.GetFriendlyPathName(moduleConfiguration.ModuleFolder), PathHelpers.GetFriendlyPathName(sharedFolder));
             var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             var referenceAssemblyFolder = @"c:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.0.0";
             var referenceAssemblyPattern = "System*.dll";
-            commandContext.Logger.Write(LogEventLevel.Information, "using reference assemblies from {ReferenceAssemblyFolder} using pattern: {ReferenceAssemblyPattern}", referenceAssemblyFolder, referenceAssemblyPattern);
+            commandContext.Logger.Information("using reference assemblies from {ReferenceAssemblyFolder} using pattern: {ReferenceAssemblyPattern}", referenceAssemblyFolder, referenceAssemblyPattern);
             var referenceDllFileNames = Directory.GetFiles(referenceAssemblyFolder, referenceAssemblyPattern, SearchOption.TopDirectoryOnly);
 
             var referenceFileNames = new List<string>();
@@ -94,8 +93,8 @@
                     foreach (var error in failures)
                     {
                         // DiagnosticFormatter can be used for custom formatting
-                        commandContext.Logger.Write(LogEventLevel.Error, "syntax error in plugin: {Message}", error.ToString());
-                        commandContext.OpsLogger.Write(LogEventLevel.Error, "syntax error in plugin: {Message}", error.GetMessage());
+                        commandContext.Logger.Error("syntax error in plugin: {Message}", error.ToString());
+                        commandContext.OpsLogger.Error("syntax error in plugin: {Message}", error.GetMessage());
                     }
 
                     return null;
@@ -107,7 +106,7 @@
                 var assembly = assemblyLoadContext.LoadFromStream(assemblyStream);
 
                 var compiledPlugins = LoadPluginsFromAssembly(assembly);
-                commandContext.Logger.Write(LogEventLevel.Debug, "finished in {Elapsed}", startedOn.Elapsed);
+                commandContext.Logger.Debug("finished in {Elapsed}", startedOn.Elapsed);
                 var module = new Module()
                 {
                     ModuleConfiguration = moduleConfiguration,
@@ -115,7 +114,7 @@
                     EnabledPlugins = FilterExecutablePlugins(moduleConfiguration, compiledPlugins),
                 };
 
-                commandContext.Logger.Write(LogEventLevel.Debug, "{PluginCount} plugin(s) found: {PluginNames}",
+                commandContext.Logger.Debug("{PluginCount} plugin(s) found: {PluginNames}",
                     module.EnabledPlugins.Count, module.EnabledPlugins.Select(plugin => TypeHelpers.GetFriendlyTypeName(plugin.GetType())).ToArray());
 
                 return module;
@@ -124,7 +123,7 @@
 
         public static void UnloadModule(CommandContext commandContext, Module module)
         {
-            commandContext.Logger.Write(LogEventLevel.Debug, "unloading module {ModuleName}", module.ModuleConfiguration.ModuleName);
+            commandContext.Logger.Debug("unloading module {Module}", module.ModuleConfiguration.ModuleName);
 
             module.ModuleConfiguration = null;
             module.Plugins = null;

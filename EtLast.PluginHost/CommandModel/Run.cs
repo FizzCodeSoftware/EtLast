@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using CommandDotNet.Attributes;
-    using Serilog.Events;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
 #pragma warning disable CA1822 // Mark members as static
@@ -23,7 +22,7 @@
                 return;
             }
 
-            CommandLineHandler.Context.Logger.Write(LogEventLevel.Information, "loading module {ModuleName}", moduleName);
+            CommandLineHandler.Context.Logger.Information("loading module {Module}", moduleName);
 
             var module = ModuleLoader.LoadModule(CommandLineHandler.Context, moduleName, moduleSettingOverrides?.ToArray(), pluginListOverride?.ToArray());
             if (module?.EnabledPlugins.Count > 0)
@@ -48,7 +47,7 @@
             var modules = new List<Module>();
             foreach (var moduleName in moduleNames)
             {
-                CommandLineHandler.Context.Logger.Write(LogEventLevel.Information, "loading module {ModuleName}", moduleName);
+                CommandLineHandler.Context.Logger.Information("loading module {Module}", moduleName);
 
                 var module = ModuleLoader.LoadModule(CommandLineHandler.Context, moduleName, moduleSettingOverrides?.ToArray(), null);
                 if (module == null)
@@ -56,7 +55,7 @@
 
                 if (module.EnabledPlugins?.Count == 0)
                 {
-                    CommandLineHandler.Context.Logger.Write(LogEventLevel.Warning, "skipping module {ModuleName} due to it has no enabled plugins", moduleName);
+                    CommandLineHandler.Context.Logger.Warning("skipping module {Module} due to it has no enabled plugins", moduleName);
                     ModuleLoader.UnloadModule(CommandLineHandler.Context, module);
 
                     continue;
@@ -73,7 +72,7 @@
 
                 if (result != ExecutionResult.Success)
                 {
-                    CommandLineHandler.Context.Logger.Warning("terminating the execution of all modules due to {ModuleName} failed", module.ModuleConfiguration.ModuleName);
+                    CommandLineHandler.Context.Logger.Warning("terminating the execution of all modules due to {Module} failed", module.ModuleConfiguration.ModuleName);
                     break;
                 }
 

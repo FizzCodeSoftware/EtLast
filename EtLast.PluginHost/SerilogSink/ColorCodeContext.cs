@@ -19,15 +19,21 @@
             [ColorCode.NullValue] = "\x1b[38;5;0027m",
             [ColorCode.StructureName] = "\x1b[38;5;0007m",
             [ColorCode.StringValue] = "\x1b[38;5;0045m",
-            [ColorCode.NumberValue] = "\x1b[38;5;0200m",
+            [ColorCode.NumberValue] = "\x1b[38;5;0204m",
             [ColorCode.BooleanValue] = "\x1b[38;5;0027m",
             [ColorCode.ScalarValue] = "\x1b[38;5;0085m",
+            [ColorCode.TimeSpanValue] = "\x1b[38;5;0220m",
             [ColorCode.LvlTokenVrb] = "\x1b[38;5;0007m",
             [ColorCode.LvlTokenDbg] = "\x1b[38;5;0007m",
             [ColorCode.LvlTokenInf] = "\x1b[38;5;0015m",
             [ColorCode.LvlTokenWrn] = "\x1b[38;5;000m\x1b[48;5;11m",
             [ColorCode.LvlTokenErr] = "\x1b[38;5;0015m\x1b[48;5;0196m",
             [ColorCode.LvlTokenFtl] = "\x1b[38;5;0015m\x1b[48;5;0196m",
+            [ColorCode.Module] = "\x1b[38;5;0007m",
+            [ColorCode.Plugin] = "\x1b[38;5;0007m",
+            [ColorCode.Process] = "\x1b[38;5;0228m",
+            [ColorCode.Operation] = "\x1b[38;5;0085m",
+            [ColorCode.Job] = "\x1b[38;5;0085m",
         };
 
         public ColorCodeContext(TextWriter builder)

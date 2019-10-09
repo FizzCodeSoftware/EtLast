@@ -1,5 +1,7 @@
 ﻿namespace FizzCode.EtLast.PluginHost.SerilogSink
 {
+    using System;
+    using System.Globalization;
     using System.IO;
     using Serilog.Events;
 
@@ -40,23 +42,75 @@
                 case uint _:
                 case long _:
                 case ulong _:
+                    using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.NumberValue))
+                    {
+                        if (string.IsNullOrEmpty(format))
+                        {
+                            value.Render(builder, "#,0", CultureInfo.InvariantCulture);
+                        }
+                        else
+                        {
+                            value.Render(builder, format, CultureInfo.InvariantCulture);
+                        }
+
+                        break;
+                    }
                 case float _:
                 case double _:
                 case decimal _:
                     using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.NumberValue))
                     {
-                        value.Render(builder, format);
-                        break;
-                    }
-                default:
-                    {
-                        using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.ScalarValue))
+                        if (string.IsNullOrEmpty(format))
                         {
-                            value.Render(builder, format);
+                            value.Render(builder, "#,0.#", CultureInfo.InvariantCulture);
+                        }
+                        else
+                        {
+                            value.Render(builder, format, CultureInfo.InvariantCulture);
                         }
 
                         break;
                     }
+                case TimeSpan ts:
+                    using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.TimeSpanValue))
+                    {
+                        if (string.IsNullOrEmpty(format))
+                        {
+                            if (ts.Days > 0)
+                            {
+                                value.Render(builder, @"dd\.hh\:mm");
+                            }
+                            else if (ts.Hours > 0)
+                            {
+                                value.Render(builder, @"hh\:mm\:ss", CultureInfo.InvariantCulture);
+                            }
+                            else if (ts.Minutes > 0)
+                            {
+                                value.Render(builder, @"mm\:ss", CultureInfo.InvariantCulture);
+                            }
+                            else if (ts.Seconds > 0)
+                            {
+                                value.Render(builder, @"ss\.fff", CultureInfo.InvariantCulture);
+                            }
+                            else
+                            {
+                                value.Render(builder, @"\.fff", CultureInfo.InvariantCulture);
+                            }
+                        }
+                        else
+                        {
+                            value.Render(builder, format, CultureInfo.InvariantCulture);
+                        }
+
+                        break;
+                    }
+                default:
+                    using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.ScalarValue))
+                    {
+                        value.Render(builder, format, CultureInfo.InvariantCulture);
+                    }
+
+                    break;
             }
         }
 

@@ -3,14 +3,13 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using Serilog.Events;
 
     internal static class ModuleLister
     {
         public static void ListModules(CommandContext commandContext)
         {
             var moduleNames = GetAllModules(commandContext);
-            commandContext.Logger.Write(LogEventLevel.Information, "available modules: {ModuleNames}", moduleNames);
+            commandContext.Logger.Information("available modules: {ModuleNames}", moduleNames);
         }
 
         public static List<string> GetAllModules(CommandContext commandContext)

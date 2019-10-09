@@ -28,13 +28,13 @@
         {
             var tableName = TableNames[statementIndex];
 
-            process.Context.Log(LogSeverity.Debug, process, "({JobName}) disable constraint check on {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            process.Context.Log(LogSeverity.Debug, process, "({Job}) disable constraint check on {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 Name, ConnectionString.Name, Helpers.UnEscapeTableName(tableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
 
             try
             {
                 command.ExecuteNonQuery();
-                process.Context.Log(LogSeverity.Debug, process, "({JobName}) constraint check on {ConnectionStringKey}/{TableName} is disabled",
+                process.Context.Log(LogSeverity.Debug, process, "({Job}) constraint check on {ConnectionStringKey}/{TableName} is disabled",
                     Name, ConnectionString.Name, Helpers.UnEscapeTableName(tableName));
             }
             catch (Exception ex)
@@ -57,12 +57,13 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            process.Context.Log(LogSeverity.Information, process, "({JobName}) constraint check successfully disabled on {ConnectionStringKey}/{TableNames}",
-                 Name, ConnectionString.Name, startedOn.Elapsed,
+            process.Context.Log(LogSeverity.Information, process, "({Job}) constraint check successfully disabled on {ConnectionStringKey}/{TableNames} in {Elapsed}",
+                 Name, ConnectionString.Name,
                  TableNames
                     .Take(lastSucceededIndex + 1)
                     .Select(Helpers.UnEscapeTableName)
-                    .ToArray());
+                    .ToArray(),
+                 startedOn.Elapsed);
         }
     }
 }
