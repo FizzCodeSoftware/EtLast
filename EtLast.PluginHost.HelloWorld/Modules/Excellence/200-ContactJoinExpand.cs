@@ -75,7 +75,7 @@
                         ColumnConfiguration = new List<ColumnCopyConfiguration>()
                         {
                             new ColumnCopyConfiguration("MethodTypeID"),
-                            new ColumnCopyConfiguration("ContactValue", "Value"),
+                            new ColumnCopyConfiguration("Value", "ContactValue"),
                         },
                     },
                     new ExpandOperation()
@@ -95,7 +95,7 @@
                         RightKeySelector = row => row.GetAs<string>("ID"),
                         ColumnConfiguration = new List<ColumnCopyConfiguration>()
                         {
-                            new ColumnCopyConfiguration("ContactMethod", "Name"),
+                            new ColumnCopyConfiguration("Name", "ContactMethod"),
                         },
                     },
                     new EpPlusSimpleRowWriterOperation()
@@ -104,9 +104,9 @@
                         SheetName = "output",
                         ColumnConfiguration = new List<ColumnCopyConfiguration>()
                         {
-                            new ColumnCopyConfiguration("Contact name", "Name"),
-                            new ColumnCopyConfiguration("Contact method", "ContactMethod"),
-                            new ColumnCopyConfiguration("Value", "ContactValue"),
+                            new ColumnCopyConfiguration("Name", "Contact name"),
+                            new ColumnCopyConfiguration("ContactMethod", "Contact method"),
+                            new ColumnCopyConfiguration("ContactValue", "Value"),
                         },
                         Finalize = (package, state) => state.LastWorksheet.Cells.AutoFitColumns(),
                     }

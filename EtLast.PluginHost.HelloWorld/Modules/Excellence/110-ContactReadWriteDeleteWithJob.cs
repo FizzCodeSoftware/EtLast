@@ -52,8 +52,8 @@
                         SheetName = "output",
                         ColumnConfiguration = new List<ColumnCopyConfiguration>()
                         {
-                            new ColumnCopyConfiguration("Contact name", "Name"),
-                            new ColumnCopyConfiguration("Contact age", "Age"),
+                            new ColumnCopyConfiguration("Name", "Contact name"),
+                            new ColumnCopyConfiguration("Age", "Contact age"),
                         },
                         Finalize = (package, state) => state.LastWorksheet.Cells.AutoFitColumns(),
                     }
