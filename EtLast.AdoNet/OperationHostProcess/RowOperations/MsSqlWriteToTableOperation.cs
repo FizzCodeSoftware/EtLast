@@ -101,7 +101,7 @@
                 _bulkCopy = null;
 
                 var exception = new OperationExecutionException(process, this, "database write failed", ex);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database write failed, connection string key: {0}, table: {1}, message {2}",
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database write failed, connection string key: {0}, table: {1}, message: {2}",
                     _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), ex.Message));
                 exception.Data.Add("ConnectionStringKey", _connectionString.Name);
                 exception.Data.Add("TableName", Helpers.UnEscapeTableName(TableDefinition.TableName));

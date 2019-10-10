@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -11,7 +10,7 @@
     public class EtlContext<TRow> : IEtlContext
         where TRow : IRow, new()
     {
-        private ConcurrentBag<Exception> Exceptions { get; } = new ConcurrentBag<Exception>();
+        private readonly List<Exception> _exceptions = new List<Exception>();
         public StatCounterCollection Stat { get; } = new StatCounterCollection();
         public EtlContextResult Result { get; } = new EtlContextResult();
         public AdditionalData AdditionalData { get; }
@@ -190,7 +189,17 @@
 
         public void AddException(IProcess process, Exception ex)
         {
-            Exceptions.Add(ex);
+            lock (_exceptions)
+            {
+                if (_exceptions.Contains(ex))
+                {
+                    Log(LogSeverity.Warning, process, "internal warning: exception is already registered: {Message}", ex.Message);
+                    return;
+                }
+
+                _exceptions.Add(ex);
+            }
+
             OnException?.Invoke(this, new ContextExceptionEventArgs()
             {
                 Process = process,
@@ -204,7 +213,10 @@
 
         public List<Exception> GetExceptions()
         {
-            return new List<Exception>(Exceptions);
+            lock (_exceptions)
+            {
+                return new List<Exception>(_exceptions);
+            }
         }
 
         public ConnectionStringWithProvider GetConnectionString(string key)

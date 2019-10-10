@@ -8,9 +8,8 @@
     public class JobExecutionException : EtlException
     {
         public JobExecutionException(IProcess process, IJob job, Exception innerException)
-            : base(process, "error raised during the execution of a job", innerException)
+            : this(process, job, "error raised during the execution of a job", innerException)
         {
-            Data.Add("Job", job.Name);
         }
 
         public JobExecutionException(IProcess process, IJob job, string message)

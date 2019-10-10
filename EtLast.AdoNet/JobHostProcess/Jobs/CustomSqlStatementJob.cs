@@ -58,7 +58,7 @@
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(process, this, "custom SQL statement failed", ex);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "custom SQL statement failed, connection string key: {0}, message {1}, command: {2}, timeout: {3}",
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "custom SQL statement failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                     ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionString.Name);

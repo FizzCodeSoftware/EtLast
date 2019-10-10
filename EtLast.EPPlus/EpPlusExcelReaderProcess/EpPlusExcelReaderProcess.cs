@@ -118,7 +118,7 @@
                 catch (Exception ex)
                 {
                     var exception = new EtlException(this, "excel file read failed", ex);
-                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel file read failed, file name: {0}, message {1}", FileName, ex.Message));
+                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel file read failed, file name: {0}, message: {1}", FileName, ex.Message));
                     exception.Data.Add("FileName", FileName);
                     throw exception;
                 }

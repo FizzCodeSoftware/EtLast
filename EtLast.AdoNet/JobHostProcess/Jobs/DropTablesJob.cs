@@ -19,7 +19,7 @@
                 throw new JobParameterNullException(process, this, nameof(TableNames));
         }
 
-        protected override List<string> CreateSqlStatements(IProcess process, ConnectionStringWithProvider connectionString)
+        protected override List<string> CreateSqlStatements(IProcess process, ConnectionStringWithProvider connectionString, IDbConnection connection)
         {
             return TableNames.Select(tableName => "DROP TABLE IF EXISTS " + tableName + ";").ToList();
         }
@@ -41,12 +41,12 @@
             {
                 var exception = new JobExecutionException(process, this, "failed to drop table", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop table, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
-                    ConnectionString.Name, Helpers.UnEscapeTableName(tableName), ex.Message, command.CommandText, CommandTimeout));
+                    ConnectionString.Name, Helpers.UnEscapeTableName(tableName), ex.Message, command.CommandText, command.CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
                 exception.Data.Add("TableName", Helpers.UnEscapeTableName(tableName));
                 exception.Data.Add("Statement", command.CommandText);
-                exception.Data.Add("Timeout", CommandTimeout);
+                exception.Data.Add("Timeout", command.CommandTimeout);
                 exception.Data.Add("Elapsed", startedOn.Elapsed);
                 throw exception;
             }
@@ -57,8 +57,8 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            process.Context.Log(LogSeverity.Information, process, "({Job}) table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {TableNames}",
-                 Name, ConnectionString.Name, startedOn.Elapsed,
+            process.Context.Log(LogSeverity.Information, process, "({Job}) {TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {TableNames}",
+                 Name, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed,
                  TableNames
                     .Take(lastSucceededIndex + 1)
                     .Select(Helpers.UnEscapeTableName)

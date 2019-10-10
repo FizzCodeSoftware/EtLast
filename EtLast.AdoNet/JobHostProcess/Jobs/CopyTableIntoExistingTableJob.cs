@@ -86,7 +86,7 @@
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(process, this, "database table copy failed", ex);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table copy failed, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message {4}, command: {5}, timeout: {6}",
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table copy failed, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message: {4}, command: {5}, timeout: {6}",
                     ConnectionString.Name, Helpers.UnEscapeTableName(Configuration.SourceTableName), Helpers.UnEscapeTableName(Configuration.TargetTableName),
                     Configuration.ColumnConfiguration != null
                         ? string.Join(",", Configuration.ColumnConfiguration.Select(x => x.FromColumn))

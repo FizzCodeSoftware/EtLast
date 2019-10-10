@@ -62,7 +62,10 @@
             var localDllFileNames = Directory.GetFiles(selfFolder, "*.dll", SearchOption.TopDirectoryOnly);
             referenceFileNames.AddRange(localDllFileNames);
 
-            var metadataReferences = referenceFileNames.Distinct().Select(fn => MetadataReference.CreateFromFile(fn)).ToArray();
+            var metadataReferences = referenceFileNames
+                .Distinct()
+                .Select(fn => MetadataReference.CreateFromFile(fn))
+                .ToArray();
 
             var csFileNames = Directory.GetFiles(moduleConfiguration.ModuleFolder, "*.cs", SearchOption.AllDirectories);
 
@@ -136,7 +139,11 @@
                 return new List<IEtlPlugin>();
 
             return plugins
-                .Where(plugin => moduleConfiguration.EnabledPluginList.Contains(plugin.GetType().Name))
+                .Where(plugin =>
+                {
+                    var pluginName = plugin.GetType().Name;
+                    return moduleConfiguration.EnabledPluginList.Any(enabledName => string.Equals(enabledName, pluginName, StringComparison.InvariantCultureIgnoreCase));
+                })
                 .ToList();
         }
 

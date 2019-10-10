@@ -67,12 +67,12 @@
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(process, this, "database table creation and copy failed", ex);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table creation and copy failed, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message {4}, command: {5}, timeout: {6}",
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table creation and copy failed, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message: {4}, command: {5}, timeout: {6}",
                     ConnectionString.Name, Helpers.UnEscapeTableName(Configuration.SourceTableName), Helpers.UnEscapeTableName(Configuration.TargetTableName),
                     Configuration.ColumnConfiguration != null
                         ? string.Join(",", Configuration.ColumnConfiguration.Select(x => x.FromColumn))
                         : "all",
-                    ex.Message, command.CommandText, CommandTimeout));
+                    ex.Message, command.CommandText, command.CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
                 exception.Data.Add("SourceTableName", Helpers.UnEscapeTableName(Configuration.SourceTableName));
@@ -83,7 +83,7 @@
                 }
 
                 exception.Data.Add("Statement", command.CommandText);
-                exception.Data.Add("Timeout", CommandTimeout);
+                exception.Data.Add("Timeout", command.CommandTimeout);
                 exception.Data.Add("Elapsed", startedOn.Elapsed);
                 throw exception;
             }
