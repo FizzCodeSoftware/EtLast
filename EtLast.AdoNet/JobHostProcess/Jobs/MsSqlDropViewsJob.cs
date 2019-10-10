@@ -131,8 +131,12 @@
             try
             {
                 command.ExecuteNonQuery();
+
                 process.Context.Log(LogSeverity.Debug, process, "({Job}) view {ConnectionStringKey}/{ViewName} is dropped in {Elapsed}",
                     Name, ConnectionString.Name, Helpers.UnEscapeViewName(viewName), startedOn.Elapsed);
+
+                process.Context.Stat.IncrementCounter("database views dropped / " + ConnectionString.Name, 1);
+                process.Context.Stat.IncrementCounter("database views dropped time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {

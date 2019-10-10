@@ -40,8 +40,12 @@
             try
             {
                 command.ExecuteNonQuery();
+
                 process.Context.Log(LogSeverity.Debug, process, "({Job}) schema {ConnectionStringKey}/{SchemaName} is dropped in {Elapsed}",
                     Name, ConnectionString.Name, Helpers.UnEscapeTableName(schemaName), startedOn.Elapsed);
+
+                process.Context.Stat.IncrementCounter("database schemas dropped / " + ConnectionString.Name, 1);
+                process.Context.Stat.IncrementCounter("database schemas dropped time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {

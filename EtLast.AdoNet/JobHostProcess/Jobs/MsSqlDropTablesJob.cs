@@ -131,8 +131,12 @@
             try
             {
                 command.ExecuteNonQuery();
+
                 process.Context.Log(LogSeverity.Debug, process, "({Job}) table {ConnectionStringKey}/{TableName} is dropped in {Elapsed}",
                     Name, ConnectionString.Name, Helpers.UnEscapeTableName(tableName), startedOn.Elapsed);
+
+                process.Context.Stat.IncrementCounter("database tables dropped / " + ConnectionString.Name, 1);
+                process.Context.Stat.IncrementCounter("database tables dropped time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {

@@ -296,5 +296,20 @@
 
             return path;
         }
+
+        protected string GetFileNameFromConfiguration(string appSettingName)
+        {
+            var fileName = GetModuleSetting<string>(appSettingName);
+            if (string.IsNullOrEmpty(fileName))
+                return null;
+
+            if (fileName.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))
+            {
+                var exeFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                fileName = Path.Combine(exeFolder, fileName.Substring(2));
+            }
+
+            return fileName;
+        }
     }
 }

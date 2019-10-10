@@ -21,7 +21,9 @@
 
         protected override List<string> CreateSqlStatements(IProcess process, ConnectionStringWithProvider connectionString, IDbConnection connection)
         {
-            return TableNames.Select(tableName => "DROP TABLE IF EXISTS " + tableName + ";").ToList();
+            return TableNames
+                .Select(tableName => "DROP TABLE IF EXISTS " + tableName + ";")
+                .ToList();
         }
 
         protected override void RunCommand(IProcess process, IDbCommand command, int statementIndex, Stopwatch startedOn)
@@ -34,8 +36,12 @@
             try
             {
                 command.ExecuteNonQuery();
+
                 process.Context.Log(LogSeverity.Debug, process, "({Job}) table {ConnectionStringKey}/{TableName} is dropped in {Elapsed}",
                     Name, ConnectionString.Name, Helpers.UnEscapeTableName(tableName), startedOn.Elapsed);
+
+                process.Context.Stat.IncrementCounter("database tables dropped / " + ConnectionString.Name, 1);
+                process.Context.Stat.IncrementCounter("database tables dropped time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
