@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
 
@@ -16,6 +17,7 @@
         {
             Caller = caller;
             context.Log(LogSeverity.Information, this, "data warehouse strategy started");
+            var startedOn = Stopwatch.StartNew();
 
             if (Configuration == null)
                 throw new StrategyParameterNullException(this, nameof(Configuration));
@@ -231,6 +233,8 @@
                     }
                 }
             }
+
+            context.Log(LogSeverity.Information, this, success ? "finished in {Elapsed}" : "failed after {Elapsed}", startedOn.Elapsed);
         }
 
         public static IJob DeleteTargetTableFinalizer(string connectionStringKey, DwhStrategyTableConfigurationBase tableConfiguration)

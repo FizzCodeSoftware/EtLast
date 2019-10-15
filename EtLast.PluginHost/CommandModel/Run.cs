@@ -30,7 +30,10 @@
                 ModuleExecuter.Execute(CommandLineHandler.Context, module);
             }
 
-            ModuleLoader.UnloadModule(CommandLineHandler.Context, module);
+            if (module != null)
+            {
+                ModuleLoader.UnloadModule(CommandLineHandler.Context, module);
+            }
         }
 
         [ApplicationMetadata(Name = "modules", Description = "Execute one or more module.")]

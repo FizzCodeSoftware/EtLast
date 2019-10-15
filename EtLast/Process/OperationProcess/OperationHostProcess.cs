@@ -258,12 +258,12 @@
             }
         }
 
-        private void CreateRowQueue(Type type)
+        private void CreateRowQueue()
         {
-            _rowQueue = (IRowQueue)Activator.CreateInstance(type);
+            _rowQueue = (IRowQueue)Activator.CreateInstance(Configuration.RowQueueType);
         }
 
-        private void PrepareOperations()
+        private bool PrepareOperations()
         {
             try
             {
@@ -271,11 +271,15 @@
                 {
                     PrepareOperation(op);
                 }
+
+                return true;
             }
             catch (Exception ex)
             {
                 Context.AddException(this, ex);
             }
+
+            return false;
         }
 
         private void PrepareOperation(IRowOperation op)
@@ -427,12 +431,11 @@
 
             Context.Log(LogSeverity.Information, this, "operation host started");
 
-            CreateRowQueue(Configuration.RowQueueType);
+            CreateRowQueue();
             if (Context.CancellationTokenSource.IsCancellationRequested)
                 return;
 
-            PrepareOperations();
-            if (Context.CancellationTokenSource.IsCancellationRequested)
+            if (!PrepareOperations() || Context.CancellationTokenSource.IsCancellationRequested)
                 return;
 
             CreateWorker();
@@ -544,12 +547,11 @@
 
             Context.Log(LogSeverity.Information, this, "operation host started");
 
-            CreateRowQueue(Configuration.RowQueueType);
+            CreateRowQueue();
             if (Context.CancellationTokenSource.IsCancellationRequested)
                 yield break;
 
-            PrepareOperations();
-            if (Context.CancellationTokenSource.IsCancellationRequested)
+            if (!PrepareOperations() || Context.CancellationTokenSource.IsCancellationRequested)
                 yield break;
 
             CreateWorker();
@@ -715,9 +717,6 @@
 
                         ProcessRow(row);
                     }
-                }
-                catch (OperationCanceledException)
-                {
                 }
                 catch (Exception ex)
                 {

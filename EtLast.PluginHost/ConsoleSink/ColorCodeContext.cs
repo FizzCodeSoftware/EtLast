@@ -26,7 +26,7 @@
             [ColorCode.LvlTokenVrb] = "\x1b[38;5;0007m",
             [ColorCode.LvlTokenDbg] = "\x1b[38;5;0007m",
             [ColorCode.LvlTokenInf] = "\x1b[38;5;0015m",
-            [ColorCode.LvlTokenWrn] = "\x1b[38;5;000m\x1b[48;5;11m",
+            [ColorCode.LvlTokenWrn] = "\x1b[38;5;000m\x1b[48;5;0214m",
             [ColorCode.LvlTokenErr] = "\x1b[38;5;0015m\x1b[48;5;0196m",
             [ColorCode.LvlTokenFtl] = "\x1b[38;5;0015m\x1b[48;5;0196m",
             [ColorCode.Module] = "\x1b[38;5;0007m",
@@ -36,6 +36,8 @@
             [ColorCode.Job] = "\x1b[38;5;0085m",
         };
 
+        private const string ResetColorCodeValue = "\x1b[0m";
+
         public ColorCodeContext(TextWriter builder)
         {
             _builder = builder;
@@ -43,16 +45,15 @@
 
         public void Dispose()
         {
-            _builder.Write("\x1b[0m");
+            _builder.Write(ResetColorCodeValue);
         }
 
         internal static ColorCodeContext StartOverridden(TextWriter builder, LogEvent logEvent, ColorCode colorCode)
         {
-            colorCode = GetOverridenColorCode(logEvent, colorCode);
-
-            if (_colorCodeValues.TryGetValue(colorCode, out var value))
+            colorCode = GetOverridenColorCode(logEvent.Level, colorCode);
+            if (_colorCodeValues.TryGetValue(colorCode, out var colorCodeValue))
             {
-                builder.Write(value);
+                builder.Write(colorCodeValue);
             }
 
             return new ColorCodeContext(builder);
@@ -66,24 +67,24 @@
             }
 
             builder.Write(text);
-            builder.Write("\x1b[0m");
+            builder.Write(ResetColorCodeValue);
         }
 
         internal static void WriteOverridden(TextWriter builder, LogEvent logEvent, ColorCode colorCode, string text)
         {
-            colorCode = GetOverridenColorCode(logEvent, colorCode);
-            if (_colorCodeValues.TryGetValue(colorCode, out var value))
+            colorCode = GetOverridenColorCode(logEvent.Level, colorCode);
+            if (_colorCodeValues.TryGetValue(colorCode, out var colorCodeValue))
             {
-                builder.Write(value);
+                builder.Write(colorCodeValue);
             }
 
             builder.Write(text);
-            builder.Write("\x1b[0m");
+            builder.Write(ResetColorCodeValue);
         }
 
-        internal static ColorCode GetOverridenColorCode(LogEvent logEvent, ColorCode colorCode)
+        internal static ColorCode GetOverridenColorCode(LogEventLevel level, ColorCode colorCode)
         {
-            return logEvent.Level switch
+            return level switch
             {
                 LogEventLevel.Warning => ColorCode.LvlTokenWrn,
                 LogEventLevel.Fatal => ColorCode.LvlTokenFtl,

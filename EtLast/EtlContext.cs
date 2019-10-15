@@ -189,11 +189,14 @@
 
         public void AddException(IProcess process, Exception ex)
         {
+            if (ex is OperationCanceledException)
+                return;
+
             lock (_exceptions)
             {
                 if (_exceptions.Contains(ex))
                 {
-                    Log(LogSeverity.Warning, process, "internal warning: exception is already registered: {Message}", ex.Message);
+                    CancellationTokenSource.Cancel();
                     return;
                 }
 
