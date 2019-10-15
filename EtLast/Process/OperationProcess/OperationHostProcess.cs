@@ -199,7 +199,8 @@
                             if (_rows.Count != count)
                             {
                                 wipedRowCount += count - _rows.Count;
-                                Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} of {AllRowCount} rows without keeping order in {Elapsed}, average speed is {AvgWipeSpeed} msec/Krow", count - _rows.Count, count, startedOn.Elapsed, Math.Round(swProcessing.ElapsedMilliseconds * 1000 / (double)wipedRowCount, 1));
+                                Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} of {AllRowCount} rows without keeping order in {Elapsed}, average speed is {AvgWipeSpeed} msec/Krow",
+                                    count - _rows.Count, count, startedOn.Elapsed, Math.Round(swProcessing.ElapsedMilliseconds * 1000 / (double)wipedRowCount, 1));
                             }
                         }
                     }
@@ -225,7 +226,8 @@
 
                         if (lastRemoveableIndex > -1)
                         {
-                            Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} of {AllRowCount} rows while keeping order, average speed is {AvgWipeSpeed} msec/Krow", lastRemoveableIndex + 1, _rows.Count, Math.Round(swProcessing.ElapsedMilliseconds * 1000 / (double)wipedRowCount, 1));
+                            Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} of {AllRowCount} rows while keeping order, average speed is {AvgWipeSpeed} msec/Krow",
+                                lastRemoveableIndex + 1, _rows.Count, Math.Round(swProcessing.ElapsedMilliseconds * 1000 / (double)wipedRowCount, 1));
                             _rows.RemoveRange(0, lastRemoveableIndex + 1);
                         }
                     }
@@ -248,7 +250,8 @@
                     if (_rows.Count != count)
                     {
                         wipedRowCount += count - _rows.Count;
-                        Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} rows, average speed is {AvgWipeSpeed} msec/Krow", count - _rows.Count, Math.Round(swProcessing.ElapsedMilliseconds * 1000 / (double)wipedRowCount, 1));
+                        Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} rows, average speed is {AvgWipeSpeed} msec/Krow",
+                            count - _rows.Count, Math.Round(swProcessing.ElapsedMilliseconds * 1000 / (double)wipedRowCount, 1));
                     }
                 }
                 finally
@@ -492,7 +495,8 @@
 
                     if (swSleep != null)
                     {
-                        Context.Log(LogSeverity.Verbose, this, "slept {Elapsed} to lower active row count to {ActiveRowCount}, input buffer: {InputBufferCount}/{InputBufferSize}", swSleep.Elapsed, Interlocked.Read(ref _activeRowCount), buffer.Count, Configuration.InputBufferSize);
+                        Context.Log(LogSeverity.Verbose, this, "slept {Elapsed} to lower active row count to {ActiveRowCount}, input buffer: {InputBufferCount}/{InputBufferSize}",
+                            swSleep.Elapsed, Interlocked.Read(ref _activeRowCount), buffer.Count, Configuration.InputBufferSize);
                     }
                 }
 
@@ -601,7 +605,8 @@
                                     yield return finishedRow;
                                 }
 
-                                Context.Log(LogSeverity.Debug, this, "returned {RowCount} rows of {OutputRowCount} in total, read input rows: {InputRowCount}, active rows: {ActiveRowCount}", finished.Count, resultCount, inputRowCount, Interlocked.Read(ref _activeRowCount));
+                                Context.Log(LogSeverity.Debug, this, "returned {RowCount} rows of {OutputRowCount} in total, read input rows: {InputRowCount}, active rows: {ActiveRowCount}",
+                                    finished.Count, resultCount, inputRowCount, Interlocked.Read(ref _activeRowCount));
 
                                 finished.Clear();
                             }
@@ -656,7 +661,8 @@
                         yield return finishedRow;
                     }
 
-                    Context.Log(LogSeverity.Debug, this, "returned {RowCount} rows of {OutputRowCount} in total, active rows: {ActiveRowCount}", finished.Count, resultCount, Interlocked.Read(ref _activeRowCount));
+                    Context.Log(LogSeverity.Debug, this, "returned {RowCount} rows of {OutputRowCount} in total, active rows: {ActiveRowCount}",
+                        finished.Count, resultCount, Interlocked.Read(ref _activeRowCount));
 
                     finished.Clear();
                 }

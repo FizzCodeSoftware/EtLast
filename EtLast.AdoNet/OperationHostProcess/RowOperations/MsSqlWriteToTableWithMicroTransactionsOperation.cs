@@ -138,8 +138,12 @@
 
                         if (retry < MaxRetryCount)
                         {
-                            process.Context.Log(LogSeverity.Information, process, "database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
-                            process.Context.LogOps(LogSeverity.Information, process, "database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
+                            process.Context.Log(LogSeverity.Information, process, "database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                                RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
+
+                            process.Context.LogOps(LogSeverity.Information, process, "database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                                RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
+
                             Thread.Sleep(RetryDelayMilliseconds * (retry + 1));
                         }
                         else

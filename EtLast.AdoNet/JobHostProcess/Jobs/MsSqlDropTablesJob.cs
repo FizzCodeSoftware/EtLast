@@ -99,7 +99,8 @@
                                 _ => null,
                             };
 
-                            process.Context.Log(LogSeverity.Information, process, "{TableCount} tables aquired from information schema in {Elapsed}" + modeInfo, _tableNames.Count, startedOn.Elapsed);
+                            process.Context.Log(LogSeverity.Information, process, "{TableCount} tables aquired from information schema in {Elapsed}" + modeInfo,
+                                _tableNames.Count, startedOn.Elapsed);
                         }
                         catch (Exception ex)
                         {

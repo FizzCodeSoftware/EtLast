@@ -2,9 +2,13 @@
   "PluginHost": {
     "ModulesFolder": ".\\Modules",
     "RetainedLogFileCountLimit": 14,
-    "TransactionScopeTimeoutMinutes": 1440,
+    "TransactionScopeTimeoutMinutes": 60,
     "MinimumLogLevelOnConsole": "Information",
     "EnableDynamicCompilation": true,
-    "ForceDynamicCompilation": false
+    "ForceDynamicCompilation": false,
+    "Seq": {
+      "Url": null,
+      "ApiKey": null
+    }
   }
 }

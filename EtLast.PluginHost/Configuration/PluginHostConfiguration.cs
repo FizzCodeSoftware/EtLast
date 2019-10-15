@@ -17,8 +17,8 @@
 
         public void LoadFromConfiguration(IConfigurationRoot configuration, string section)
         {
-            SeqUrl = GetHostSetting(configuration, section, "seq:Url", "-");
-            SeqApiKey = GetHostSetting<string>(configuration, section, "seq:ApiKey", null);
+            SeqUrl = GetHostSetting<string>(configuration, section, "Seq:Url", null);
+            SeqApiKey = GetHostSetting<string>(configuration, section, "Seq:ApiKey", null);
             RetainedLogFileCountLimit = GetHostSetting(configuration, section, "RetainedLogFileCountLimit", 14);
             TransactionScopeTimeout = TimeSpan.FromMinutes(GetHostSetting(configuration, section, "TransactionScopeTimeoutMinutes", 120));
             ModulesFolder = GetHostSetting(configuration, section, "ModulesFolder", @".\modules");
@@ -38,8 +38,7 @@
             if (v != null && !v.Equals(default(T)))
                 return v;
 
-            v = configuration.GetValue(section + ":" + key, defaultValue);
-            return v ?? defaultValue;
+            return configuration.GetValue(section + ":" + key, defaultValue);
         }
     }
 }

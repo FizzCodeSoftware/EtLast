@@ -71,7 +71,8 @@
                         conn.ConnectionString = connectionString.ConnectionString;
                         conn.Open();
 
-                        process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringKey} using {ProviderName} provider in {Elapsed}", connectionString.Name, connectionString.ProviderName, startedOn.Elapsed);
+                        process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringKey} using {ProviderName} provider in {Elapsed}",
+                            connectionString.Name, connectionString.ProviderName, startedOn.Elapsed);
 
                         connection = new DatabaseConnection()
                         {
@@ -144,7 +145,8 @@
                     conn.ConnectionString = connectionString.ConnectionString;
                     conn.Open();
 
-                    process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringKey} using {ProviderName} provider in {Elapsed}", connectionString.Name, connectionString.ProviderName, startedOn.Elapsed);
+                    process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringKey} using {ProviderName} provider in {Elapsed}",
+                        connectionString.Name, connectionString.ProviderName, startedOn.Elapsed);
 
                     return new DatabaseConnection()
                     {
@@ -162,8 +164,12 @@
 
                 process.Context.Stat.IncrementCounter("database connections failed / " + connectionString.Name, 1);
 
-                process.Context.Log(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", connectionString.Name, connectionString.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
-                process.Context.LogOps(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", connectionString.Name, connectionString.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
+                process.Context.Log(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                    connectionString.Name, connectionString.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
+
+                process.Context.LogOps(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                    connectionString.Name, connectionString.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
+
                 Thread.Sleep(retryDelayMilliseconds * (retry + 1));
             }
 
@@ -189,7 +195,8 @@
                         Connections.Remove(connection.Key);
                     }
 
-                    process.Context.Log(LogSeverity.Debug, process, "database connection closed: {ConnectionStringKey} using {ProviderName} provider", connection.ConnectionString.Name, connection.ConnectionString.ProviderName);
+                    process.Context.Log(LogSeverity.Debug, process, "database connection closed: {ConnectionStringKey} using {ProviderName} provider",
+                        connection.ConnectionString.Name, connection.ConnectionString.ProviderName);
 
                     if (connection != null)
                     {
@@ -199,7 +206,8 @@
                 }
                 else
                 {
-                    process.Context.Log(LogSeverity.Debug, process, "database connection reference count decreased to {ReferenceCount}: {ConnectionStringKey} using {ProviderName} provider", connection.ReferenceCount, connection.ConnectionString.Name, connection.ConnectionString.ProviderName);
+                    process.Context.Log(LogSeverity.Debug, process, "database connection reference count decreased to {ReferenceCount}: {ConnectionStringKey} using {ProviderName} provider",
+                        connection.ReferenceCount, connection.ConnectionString.Name, connection.ConnectionString.ProviderName);
                 }
             }
 

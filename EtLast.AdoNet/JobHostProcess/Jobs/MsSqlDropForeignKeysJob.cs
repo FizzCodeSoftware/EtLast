@@ -186,10 +186,14 @@ from
                     {
                         MsSqlDropForeignKeysJobMode.All => " (all foreign keys in database)",
                         MsSqlDropForeignKeysJobMode.InSpecifiedSchema => " (in schema '" + SchemaName + "')",
+                        MsSqlDropForeignKeysJobMode.ToSpecifiedSchema => " (to schema '" + SchemaName + "')",
+                        MsSqlDropForeignKeysJobMode.InSpecifiedTables => " (in tables '" + string.Join(",", TableNames) + "')",
+                        MsSqlDropForeignKeysJobMode.ToSpecifiedTables => " (to tables '" + string.Join(",", TableNames) + "')",
                         _ => null,
                     };
 
-                    process.Context.Log(LogSeverity.Information, process, "{ForeignKeyCount} foreign keys aquired from information schema in {Elapsed} for {TableCount} tables" + modeInfo, constraintsByTable.Sum(x => x.Value.Count), startedOn.Elapsed, _tableNames.Count);
+                    process.Context.Log(LogSeverity.Information, process, "{ForeignKeyCount} foreign keys aquired from information schema in {Elapsed} for {TableCount} tables" + modeInfo,
+                        constraintsByTable.Sum(x => x.Value.Count), startedOn.Elapsed, _tableNames.Count);
 
                     return statements;
                 }

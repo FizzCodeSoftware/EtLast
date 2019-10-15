@@ -99,7 +99,8 @@
                                 _ => null,
                             };
 
-                            process.Context.Log(LogSeverity.Information, process, "{ViewCount} views aquired from information schema in {Elapsed}" + modeInfo, _viewNames.Count, startedOn.Elapsed);
+                            process.Context.Log(LogSeverity.Information, process, "{ViewCount} views aquired from information schema in {Elapsed}" + modeInfo,
+                                _viewNames.Count, startedOn.Elapsed);
                         }
                         catch (Exception ex)
                         {
