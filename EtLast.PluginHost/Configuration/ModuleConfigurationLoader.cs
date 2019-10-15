@@ -6,7 +6,6 @@
     using System.Linq;
     using FizzCode.DbTools.Configuration;
     using Microsoft.Extensions.Configuration;
-    using Serilog.Events;
 
     internal static class ModuleConfigurationLoader
     {
@@ -92,7 +91,7 @@
                     ?? allConnectionStrings.Find(x => string.Equals(x.Name, originalName, StringComparison.InvariantCultureIgnoreCase));
 
                 relevantCs.Add(cs);
-                commandContext.Logger.Debug("\t{Name}, {ProviderName}, {ConnectionString}", cs.Name, cs.ProviderName, cs.ConnectionString);
+                commandContext.Logger.Debug("\t{ConnectionStringKey}, {ProviderName}", cs.Name, cs.ProviderName);
             }
 
             return new ModuleConfiguration()

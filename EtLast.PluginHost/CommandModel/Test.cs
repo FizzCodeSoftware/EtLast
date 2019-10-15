@@ -101,7 +101,7 @@
                         commandContext.Logger.Information("connection strings for: {Module}", "Shared");
                         foreach (var cs in sharedCs.All)
                         {
-                            commandContext.Logger.Information("\t{Name}, {ProviderName}, {ConnectionString}", cs.Name, cs.ProviderName, cs.ConnectionString);
+                            commandContext.Logger.Information("\t{ConnectionStringKey}, {ProviderName}", cs.Name, cs.ProviderName);
                             allConnectionStrings.Add(cs);
                         }
                     }
@@ -113,7 +113,7 @@
                 connectionStrings.LoadFromConfiguration(moduleConfiguration.Configuration, "ConnectionStrings:Module");
                 foreach (var cs in connectionStrings.All)
                 {
-                    commandContext.Logger.Information("\t{Name}, {ProviderName}, {ConnectionString}", cs.Name, cs.ProviderName, cs.ConnectionString);
+                    commandContext.Logger.Information("\t{ConnectionStringKey}, {ProviderName}", cs.Name, cs.ProviderName);
                     allConnectionStrings.RemoveAll(x => x.Name == cs.Name);
                     allConnectionStrings.Add(cs);
                 }
@@ -132,7 +132,7 @@
                 var cs = allConnectionStrings.Find(x => string.Equals(x.Name, originalName + "-" + Environment.MachineName, StringComparison.InvariantCultureIgnoreCase))
                     ?? allConnectionStrings.Find(x => string.Equals(x.Name, originalName, StringComparison.InvariantCultureIgnoreCase));
 
-                commandContext.Logger.Information("\ttesting: {Name}, {ProviderName}, {ConnectionString}", cs.Name, cs.ProviderName, cs.ConnectionString);
+                commandContext.Logger.Information("\ttesting: {ConnectionStringKey}, {ProviderName}", cs.Name, cs.ProviderName);
                 try
                 {
                     ConnectionManager.TestConnection(cs);
@@ -140,9 +140,11 @@
                 }
                 catch (Exception ex)
                 {
-                    commandContext.Logger.Error("\t\tFAILED: " + ex.Message);
+                    commandContext.Logger.Error(ex, "\t\tFAILED");
                 }
             }
+
+            commandContext.Logger.Information("connection string test(s) finished");
         }
     }
 #pragma warning restore CA1812 // Avoid uninstantiated internal classes
