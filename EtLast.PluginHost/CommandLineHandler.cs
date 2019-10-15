@@ -33,6 +33,11 @@
             Console.WriteLine();
             Context.Logger.Information("{ProgramName} {ProgramVersion} started on {EtLast} {EtLastVersion}", programName, Assembly.GetEntryAssembly().GetName().Version.ToString(), "EtLast", typeof(IEtlContext).Assembly.GetName().Version.ToString());
             Context.Logger.Debug("command line arguments: {CommandLineArguments}", startupArguments);
+            if (!string.IsNullOrEmpty(Context.HostConfiguration.SeqUrl))
+            {
+                Context.Logger.Debug("all logs will be sent to SEQ listening on {SeqUrl}", Context.HostConfiguration.SeqUrl);
+            }
+
             Console.WriteLine();
 
             StartupArguments = startupArguments;
