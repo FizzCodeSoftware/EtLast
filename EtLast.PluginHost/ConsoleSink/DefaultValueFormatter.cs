@@ -104,6 +104,20 @@
 
                         break;
                     }
+                case DateTime _:
+                    using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.ScalarValue))
+                    {
+                        value.Render(builder, "yyyy.MM.dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
+                    }
+
+                    break;
+                case DateTimeOffset _:
+                    using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.ScalarValue))
+                    {
+                        value.Render(builder, "yyyy.MM.dd HH:mm:ss.fff zzz", CultureInfo.InvariantCulture);
+                    }
+
+                    break;
                 default:
                     using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.ScalarValue))
                     {

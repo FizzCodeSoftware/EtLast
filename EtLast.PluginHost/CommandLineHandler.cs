@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Reflection;
     using CommandDotNet;
     using CommandDotNet.Models;
 
@@ -10,9 +11,10 @@
         public static string[] StartupArguments { get; private set; }
         public static bool Terminated { get; set; }
         public static CommandContext Context { get; private set; }
+
         private static AppRunner<AppCommands> _runner;
 
-        public static void Run(string[] startupArguments)
+        public static void Run(string programName, string[] startupArguments)
         {
             Context = new CommandContext();
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
@@ -27,6 +29,11 @@
             {
                 return;
             }
+
+            Console.WriteLine();
+            Context.Logger.Information("{ProgramName} {ProgramVersion} started on {EtLast} {EtLastVersion}", programName, Assembly.GetEntryAssembly().GetName().Version.ToString(), "EtLast", typeof(IEtlContext).Assembly.GetName().Version.ToString());
+            Context.Logger.Debug("command line arguments: {CommandLineArguments}", startupArguments);
+            Console.WriteLine();
 
             StartupArguments = startupArguments;
 
@@ -48,7 +55,7 @@
                     continue;
 
                 var lineArguments = commandLine.Split(' ');
-                Run(lineArguments);
+                RunCommand(lineArguments);
 
                 Console.WriteLine();
             }
