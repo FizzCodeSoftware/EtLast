@@ -18,9 +18,9 @@
                     new CustomActionJob()
                     {
                         Name = "HelloWorldJob",
-                        Then = process =>
+                        Then = job =>
                         {
-                            Context.Log(LogSeverity.Information, process, "Hello {Subject}! [using {ExecutorName} and {StrategyName}]", "World",
+                            Context.Log(LogSeverity.Information, job.Process, "Hello {Subject}! [using {ExecutorName} and {StrategyName}]", "World",
                                 nameof(Context.ExecuteOne), nameof(DefaultEtlStrategy));
                         }
                         // do not use string interpolation because EtLast is using structured logging and all values are stored as key-value pairs

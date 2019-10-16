@@ -83,6 +83,7 @@
 
                         if (table.MainProcessCreator != null)
                         {
+                            context.Log(LogSeverity.Information, this, "creating process");
                             using (var creatorScope = context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
                             {
                                 mainProcess = table.MainProcessCreator.Invoke(Configuration.ConnectionStringKey, table);
@@ -118,102 +119,28 @@
 
                 for (var retryCounter = 0; retryCounter <= maxRetryCount; retryCounter++)
                 {
+                    context.Log(LogSeverity.Information, this, "finalization round {FinalizationRound} started", retryCounter);
                     using (var scope = context.BeginScope(this, Configuration.FinalizerTransactionScopeKind, LogSeverity.Information))
                     {
                         if (Configuration.BeforeFinalizersJobCreator != null)
                         {
-                            List<IJob> beforeFinalizerJobs;
-
-                            using (var creatorScope = context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
-                            {
-                                beforeFinalizerJobs = Configuration.BeforeFinalizersJobCreator.Invoke(Configuration.ConnectionStringKey, Configuration);
-                            }
-
-                            if (beforeFinalizerJobs?.Count > 0)
-                            {
-                                context.Log(LogSeverity.Information, this, "starting 'before' finalizers #" + retryCounter.ToString("D", CultureInfo.InvariantCulture));
-
-                                var process = new JobHostProcess(context, "BeforeFinalizers");
-                                foreach (var job in beforeFinalizerJobs)
-                                {
-                                    process.AddJob(job);
-                                }
-
-                                process.EvaluateWithoutResult(this);
-                            }
+                            var preFinalizer = new DwhStrategyPreFinalizerManager();
+                            preFinalizer.Execute(context, this);
                         }
 
-                        context.Log(LogSeverity.Information, this, "starting table-specific finalizers #" + retryCounter.ToString("D", CultureInfo.InvariantCulture));
-                        foreach (var table in Configuration.Tables)
-                        {
-                            var rowCount = new CustomSqlAdoNetDbReaderProcess(context, "RowCountReader")
-                            {
-                                ConnectionStringKey = Configuration.ConnectionStringKey,
-                                Sql = "SELECT COUNT(*) cnt FROM " + table.TempTableName,
-                                ColumnConfiguration = new List<ReaderColumnConfiguration>()
-                                {
-                                    new ReaderColumnConfiguration("cnt", new IntConverter(), NullSourceHandler.SetSpecialValue)
-                                    {
-                                        SpecialValueIfSourceIsNull = 0,
-                                    }
-                                }
-                            }.Evaluate().ToList().FirstOrDefault()?.GetAs<int>("cnt") ?? 0;
-
-                            if (rowCount > 0)
-                            {
-                                context.Log(LogSeverity.Information, this, "{TempRowCount} rows found in {TableName}, starting finalizers", rowCount, Helpers.UnEscapeTableName(table.TempTableName));
-
-                                var creatorScopeKind = table.SuppressTransactionScopeForCreators
-                                ? TransactionScopeKind.Suppress
-                                : TransactionScopeKind.None;
-
-                                List<IJob> finalizerJobs;
-                                using (var creatorScope = context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
-                                {
-                                    finalizerJobs = table.FinalizerJobsCreator.Invoke(Configuration.ConnectionStringKey, table);
-                                }
-
-                                var process = new JobHostProcess(context, "Finalize:" + Helpers.UnEscapeTableName(table.TableName));
-                                foreach (var job in finalizerJobs)
-                                {
-                                    process.AddJob(job);
-                                }
-
-                                process.EvaluateWithoutResult(this);
-                            }
-                            else
-                            {
-                                context.Log(LogSeverity.Debug, this, "{TempRowCount} rows found in {TableName}, skipping finalizers", rowCount, Helpers.UnEscapeTableName(table.TempTableName));
-                            }
-                        }
+                        var tableFinalizer = new DwhStrategyTableFinalizerManager();
+                        tableFinalizer.Execute(context, this);
 
                         if (Configuration.AfterFinalizersJobCreator != null)
                         {
-                            List<IJob> afterFinalizerJobs;
-
-                            using (var creatorScope = context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
-                            {
-                                afterFinalizerJobs = Configuration.AfterFinalizersJobCreator.Invoke(Configuration.ConnectionStringKey, Configuration);
-                            }
-
-                            if (afterFinalizerJobs?.Count > 0)
-                            {
-                                context.Log(LogSeverity.Information, this, "starting 'after' finalizers #" + retryCounter.ToString("D", CultureInfo.InvariantCulture));
-
-                                var process = new JobHostProcess(context, "AfterFinalizers");
-                                foreach (var job in afterFinalizerJobs)
-                                {
-                                    process.AddJob(job);
-                                }
-
-                                process.EvaluateWithoutResult(this);
-                            }
+                            var postFinalizer = new DwhStrategyPostFinalizerManager();
+                            postFinalizer.Execute(context, this);
                         }
 
                         var currentExceptionCount = context.GetExceptions().Count;
                         if (currentExceptionCount == initialExceptionCount)
                         {
-                            context.CompleteScope(this, scope, LogSeverity.Information);
+                            scope.Complete();
 
                             success = true;
                             break;

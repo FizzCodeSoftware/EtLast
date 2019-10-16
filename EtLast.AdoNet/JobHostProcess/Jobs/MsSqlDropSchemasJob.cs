@@ -13,43 +13,43 @@
     {
         public string[] SchemaNames { get; set; }
 
-        protected override void Validate(IProcess process)
+        protected override void Validate()
         {
             if (SchemaNames == null || SchemaNames.Length == 0)
-                throw new JobParameterNullException(process, this, nameof(SchemaNames));
+                throw new JobParameterNullException(Process, this, nameof(SchemaNames));
 
-            var knownProvider = process.Context.GetConnectionString(ConnectionStringKey)?.KnownProvider;
+            var knownProvider = Process.Context.GetConnectionString(ConnectionStringKey)?.KnownProvider;
             if (knownProvider != KnownProvider.MsSql)
-                throw new InvalidJobParameterException(process, this, nameof(ConnectionString), nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
+                throw new InvalidJobParameterException(Process, this, nameof(ConnectionString), nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
         }
 
-        protected override List<string> CreateSqlStatements(IProcess process, ConnectionStringWithProvider connectionString, IDbConnection connection)
+        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection)
         {
             return SchemaNames
                 .Select(schemaName => "DROP SCHEMA IF EXISTS " + schemaName + ";")
                 .ToList();
         }
 
-        protected override void RunCommand(IProcess process, IDbCommand command, int statementIndex, Stopwatch startedOn)
+        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
         {
             var schemaName = SchemaNames[statementIndex];
 
-            process.Context.Log(LogSeverity.Debug, process, "({Job}) drop schema {ConnectionStringKey}/{SchemaName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) drop schema {ConnectionStringKey}/{SchemaName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 Name, ConnectionString.Name, Helpers.UnEscapeTableName(schemaName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 command.ExecuteNonQuery();
 
-                process.Context.Log(LogSeverity.Debug, process, "({Job}) schema {ConnectionStringKey}/{SchemaName} is dropped in {Elapsed}",
+                Process.Context.Log(LogSeverity.Debug, Process, "({Job}) schema {ConnectionStringKey}/{SchemaName} is dropped in {Elapsed}",
                     Name, ConnectionString.Name, Helpers.UnEscapeTableName(schemaName), startedOn.Elapsed);
 
-                process.Context.Stat.IncrementCounter("database schemas dropped / " + ConnectionString.Name, 1);
-                process.Context.Stat.IncrementCounter("database schemas dropped time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
+                Process.Context.Stat.IncrementCounter("database schemas dropped / " + ConnectionString.Name, 1);
+                Process.Context.Stat.IncrementCounter("database schemas dropped time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
-                var exception = new JobExecutionException(process, this, "failed to drop schema", ex);
+                var exception = new JobExecutionException(Process, this, "failed to drop schema", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop schema, connection string key: {0}, schema: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionString.Name, Helpers.UnEscapeTableName(schemaName), ex.Message, command.CommandText, command.CommandTimeout));
 
@@ -62,12 +62,12 @@
             }
         }
 
-        protected override void LogSucceeded(IProcess process, int lastSucceededIndex, Stopwatch startedOn)
+        protected override void LogSucceeded(int lastSucceededIndex, Stopwatch startedOn)
         {
             if (lastSucceededIndex == -1)
                 return;
 
-            process.Context.Log(LogSeverity.Information, process, "({Job}) {SchemaCount} schema(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {SchemaNames}",
+            Process.Context.Log(LogSeverity.Information, Process, "({Job}) {SchemaCount} schema(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {SchemaNames}",
                  Name, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed,
                  SchemaNames
                     .Take(lastSucceededIndex + 1)

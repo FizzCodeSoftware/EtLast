@@ -24,7 +24,7 @@
                     },
                     new EvaluateProcessWithoutResultJob()
                     {
-                        Process = ProcessCreatorInternal(),
+                        ProcessToExecute = ProcessCreatorInternal(),
                     }
                 },
             };

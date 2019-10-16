@@ -23,36 +23,36 @@
 
         private List<string> _viewNames;
 
-        protected override void Validate(IProcess process)
+        protected override void Validate()
         {
             switch (Mode)
             {
                 case MsSqlDropViewsJobMode.SpecifiedViews:
                     if (ViewNames == null || ViewNames.Length == 0)
-                        throw new JobParameterNullException(process, this, nameof(ViewNames));
+                        throw new JobParameterNullException(Process, this, nameof(ViewNames));
                     if (!string.IsNullOrEmpty(SchemaName))
-                        throw new InvalidJobParameterException(process, this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropViewsJobMode.SpecifiedViews));
+                        throw new InvalidJobParameterException(Process, this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropViewsJobMode.SpecifiedViews));
                     break;
                 case MsSqlDropViewsJobMode.All:
                     if (ViewNames != null)
-                        throw new InvalidJobParameterException(process, this, nameof(ViewNames), ViewNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropViewsJobMode.All));
+                        throw new InvalidJobParameterException(Process, this, nameof(ViewNames), ViewNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropViewsJobMode.All));
                     if (!string.IsNullOrEmpty(SchemaName))
-                        throw new InvalidJobParameterException(process, this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropViewsJobMode.All));
+                        throw new InvalidJobParameterException(Process, this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropViewsJobMode.All));
                     break;
                 case MsSqlDropViewsJobMode.SpecifiedSchema:
                     if (ViewNames != null)
-                        throw new InvalidJobParameterException(process, this, nameof(ViewNames), ViewNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropViewsJobMode.All));
+                        throw new InvalidJobParameterException(Process, this, nameof(ViewNames), ViewNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropViewsJobMode.All));
                     if (string.IsNullOrEmpty(SchemaName))
-                        throw new JobParameterNullException(process, this, nameof(SchemaName));
+                        throw new JobParameterNullException(Process, this, nameof(SchemaName));
                     break;
             }
 
-            var knownProvider = process.Context.GetConnectionString(ConnectionStringKey)?.KnownProvider;
+            var knownProvider = Process.Context.GetConnectionString(ConnectionStringKey)?.KnownProvider;
             if (knownProvider != KnownProvider.MsSql)
-                throw new InvalidJobParameterException(process, this, nameof(ConnectionString), nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
+                throw new InvalidJobParameterException(Process, this, nameof(ConnectionString), nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
         }
 
-        protected override List<string> CreateSqlStatements(IProcess process, ConnectionStringWithProvider connectionString, IDbConnection connection)
+        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection)
         {
             switch (Mode)
             {
@@ -78,7 +78,7 @@
                                 command.Parameters.Add(parameter);
                             }
 
-                            process.Context.Log(LogSeverity.Debug, process, "({Job}) querying view names from {ConnectionStringKey} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+                            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) querying view names from {ConnectionStringKey} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                                 Name, ConnectionString.Name, command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
                             _viewNames = new List<string>();
@@ -99,12 +99,12 @@
                                 _ => null,
                             };
 
-                            process.Context.Log(LogSeverity.Information, process, "{ViewCount} views aquired from information schema in {Elapsed}" + modeInfo,
-                                _viewNames.Count, startedOn.Elapsed);
+                            Process.Context.Log(LogSeverity.Information, Process, "{ViewCount} views aquired from information schema on {ConnectionStringKey} in {Elapsed}" + modeInfo,
+                                _viewNames.Count, ConnectionString.Name, startedOn.Elapsed);
                         }
                         catch (Exception ex)
                         {
-                            var exception = new JobExecutionException(process, this, "failed to query view names from information schema", ex);
+                            var exception = new JobExecutionException(Process, this, "failed to query view names from information schema", ex);
                             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "view list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                                 ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
                             exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
@@ -122,26 +122,26 @@
                 .ToList();
         }
 
-        protected override void RunCommand(IProcess process, IDbCommand command, int statementIndex, Stopwatch startedOn)
+        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
         {
             var viewName = _viewNames[statementIndex];
 
-            process.Context.Log(LogSeverity.Debug, process, "({Job}) drop view {ConnectionStringKey}/{ViewName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) drop view {ConnectionStringKey}/{ViewName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 Name, ConnectionString.Name, Helpers.UnEscapeViewName(viewName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 command.ExecuteNonQuery();
 
-                process.Context.Log(LogSeverity.Debug, process, "({Job}) view {ConnectionStringKey}/{ViewName} is dropped in {Elapsed}",
+                Process.Context.Log(LogSeverity.Debug, Process, "({Job}) view {ConnectionStringKey}/{ViewName} is dropped in {Elapsed}",
                     Name, ConnectionString.Name, Helpers.UnEscapeViewName(viewName), startedOn.Elapsed);
 
-                process.Context.Stat.IncrementCounter("database views dropped / " + ConnectionString.Name, 1);
-                process.Context.Stat.IncrementCounter("database views dropped time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
+                Process.Context.Stat.IncrementCounter("database views dropped / " + ConnectionString.Name, 1);
+                Process.Context.Stat.IncrementCounter("database views dropped time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
-                var exception = new JobExecutionException(process, this, "failed to drop view", ex);
+                var exception = new JobExecutionException(Process, this, "failed to drop view", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop view, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionString.Name, Helpers.UnEscapeViewName(viewName), ex.Message, command.CommandText, command.CommandTimeout));
 
@@ -154,12 +154,12 @@
             }
         }
 
-        protected override void LogSucceeded(IProcess process, int lastSucceededIndex, Stopwatch startedOn)
+        protected override void LogSucceeded(int lastSucceededIndex, Stopwatch startedOn)
         {
             if (lastSucceededIndex == -1)
                 return;
 
-            process.Context.Log(LogSeverity.Information, process, "({Job}) {ViewCount} view(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {ViewNames}",
+            Process.Context.Log(LogSeverity.Information, Process, "({Job}) {ViewCount} view(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {ViewNames}",
                  Name, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed,
                  _viewNames
                     .Take(lastSucceededIndex + 1)

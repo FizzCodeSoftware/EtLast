@@ -21,9 +21,6 @@
 
             var template = new MessageTemplateParser().Parse(outputTemplate);
 
-            var defaultValueFormatter = new DefaultValueFormatter();
-            AbstractValueFormatter jsonValueFormatter = new JsonValueFormatter(defaultValueFormatter);
-
             _writers = new List<Action<LogEvent, TextWriter>>();
             foreach (var token in template.Tokens)
             {
@@ -46,9 +43,7 @@
                                 break;
                             case OutputProperties.MessagePropertyName:
                                 {
-                                    var isLiteral = propertyToken.Format?.Any(x => x == 'l') == true;
-                                    var valueFormatter = propertyToken.Format?.Any(x => x == 'j') == true ? jsonValueFormatter : defaultValueFormatter;
-                                    _writers.Add((e, b) => WriteMessage(e, b, valueFormatter, isLiteral));
+                                    _writers.Add(WriteMessage);
                                     break;
                                 }
                             case OutputProperties.TimestampPropertyName:
@@ -56,8 +51,7 @@
                                 break;
                             case "Properties":
                                 {
-                                    var valueFormatter = propertyToken.Format?.Any(x => x == 'j') == true ? jsonValueFormatter : defaultValueFormatter;
-                                    _writers.Add((e, b) => WriteProperties(e, b, template, valueFormatter));
+                                    _writers.Add((e, b) => WriteProperties(e, b, template));
                                     break;
                                 }
                             default:
@@ -142,7 +136,7 @@
             }
         }
 
-        private static void WriteMessage(LogEvent logEvent, TextWriter builder, AbstractValueFormatter valueFormatter, bool topLevelScalar)
+        private static void WriteMessage(LogEvent logEvent, TextWriter builder)
         {
             foreach (var token in logEvent.MessageTemplate.Tokens)
             {
@@ -159,24 +153,9 @@
                             {
                                 ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.TimeStamp_Property_Exception, pt.ToString());
                             }
-                            else if (topLevelScalar && value is ScalarValue sv && sv.Value is string text)
-                            {
-                                var colorCode = pt.PropertyName switch
-                                {
-                                    "Module" => ColorCode.Module,
-                                    "Plugin" => ColorCode.Plugin,
-                                    "Process" => ColorCode.Process,
-                                    "InputProcess" => ColorCode.Process,
-                                    "Operation" => ColorCode.Operation,
-                                    "Job" => ColorCode.Job,
-                                    _ => ColorCode.StringValue
-                                };
-
-                                ColorCodeContext.WriteOverridden(builder, logEvent, colorCode, text);
-                            }
                             else
                             {
-                                valueFormatter.Format(logEvent, value, builder, pt.Format, topLevelScalar);
+                                ValueFormatter.Format(logEvent, value, builder, pt.Format, pt.PropertyName);
                             }
 
                             break;
@@ -193,7 +172,7 @@
             }
         }
 
-        private static void WriteProperties(LogEvent logEvent, TextWriter builder, MessageTemplate outputTemplate, AbstractValueFormatter valueFormatter)
+        private static void WriteProperties(LogEvent logEvent, TextWriter builder, MessageTemplate outputTemplate)
         {
             var properties = new List<LogEventProperty>();
             foreach (var kvp in logEvent.Properties)
@@ -207,7 +186,7 @@
             if (properties.Count == 0)
                 return;
 
-            valueFormatter.FormatStructureValue(logEvent, builder, new StructureValue(properties), null);
+            ValueFormatter.FormatStructureValue(logEvent, builder, new StructureValue(properties));
         }
 
         private static void WriteProperty(LogEvent logEvent, TextWriter builder, string propertyName, string format)

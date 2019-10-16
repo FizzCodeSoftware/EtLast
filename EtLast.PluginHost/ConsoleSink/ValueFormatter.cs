@@ -5,9 +5,47 @@
     using System.IO;
     using Serilog.Events;
 
-    internal class DefaultValueFormatter : AbstractValueFormatter
+    internal static class ValueFormatter
     {
-        public override void FormatScalarValue(LogEvent logEvent, TextWriter builder, ScalarValue value, string format, bool topLevelScalar)
+        public static void Format(LogEvent logEvent, LogEventPropertyValue value, TextWriter builder, string format, string propertyName)
+        {
+            switch (value)
+            {
+                case ScalarValue sv:
+                    FormatScalarValue(logEvent, builder, sv, format, propertyName);
+                    break;
+                case SequenceValue seqv:
+                    FormatSequenceValue(logEvent, builder, seqv, propertyName);
+                    break;
+                case StructureValue strv:
+                    FormatStructureValue(logEvent, builder, strv);
+                    break;
+                case DictionaryValue dictv:
+                    FormatDictionaryValue(logEvent, builder, dictv, propertyName);
+                    break;
+                default:
+                    throw new NotSupportedException($"The value {value} is not of a type supported by this visitor.");
+            }
+        }
+
+        private static void FormatSequenceValue(LogEvent logEvent, TextWriter builder, SequenceValue sequence, string propertyName)
+        {
+            ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.Value, "[");
+
+            var isFirst = true;
+            foreach (var element in sequence.Elements)
+            {
+                if (!isFirst)
+                    ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.Value, ", ");
+
+                isFirst = false;
+                Format(logEvent, element, builder, null, propertyName);
+            }
+
+            ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.Value, "]");
+        }
+
+        public static void FormatScalarValue(LogEvent logEvent, TextWriter builder, ScalarValue value, string format, string propertyName)
         {
             switch (value.Value)
             {
@@ -15,17 +53,12 @@
                     ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.NullValue, "NULL");
                     break;
                 case string strv:
-                    using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.StringValue))
-                    {
-                        if (format != "l")
-                        {
-                            Serilog.Formatting.Json.JsonValueFormatter.WriteQuotedJsonString(strv, builder);
-                        }
-                        else
-                        {
-                            builder.Write(strv);
-                        }
+                    if (string.IsNullOrEmpty(propertyName) || !CustomColoredProperties.Map.TryGetValue(propertyName, out var colorCode))
+                        colorCode = ColorCode.StringValue;
 
+                    using (ColorCodeContext.StartOverridden(builder, logEvent, colorCode))
+                    {
+                        builder.Write(strv);
                         break;
                     }
                 case bool bv:
@@ -128,7 +161,7 @@
             }
         }
 
-        public override void FormatStructureValue(LogEvent logEvent, TextWriter builder, StructureValue value, string format)
+        public static void FormatStructureValue(LogEvent logEvent, TextWriter builder, StructureValue value)
         {
             if (value.TypeTag != null)
             {
@@ -148,13 +181,13 @@
                 ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.StructureName, property.Name);
                 ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.Value, "=");
 
-                Format(logEvent, property.Value, builder, null);
+                Format(logEvent, property.Value, builder, null, property.Name);
             }
 
             ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.Value, "}");
         }
 
-        public override void FormatDictionaryValue(LogEvent logEvent, TextWriter builder, DictionaryValue value, string format)
+        public static void FormatDictionaryValue(LogEvent logEvent, TextWriter builder, DictionaryValue value, string propertyName)
         {
             ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.Value, "{");
 
@@ -170,12 +203,12 @@
 
                 using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.StringValue))
                 {
-                    Format(logEvent, element.Key, builder, null);
+                    Format(logEvent, element.Key, builder, null, propertyName);
                 }
 
                 ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.Value, "]=");
 
-                Format(logEvent, element.Value, builder, null);
+                Format(logEvent, element.Value, builder, null, propertyName);
             }
 
             ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.Value, "}");

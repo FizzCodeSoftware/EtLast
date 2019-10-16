@@ -23,36 +23,36 @@
 
         private List<string> _tableNames;
 
-        protected override void Validate(IProcess process)
+        protected override void Validate()
         {
             switch (Mode)
             {
                 case MsSqlDropTablesJobMode.SpecifiedTables:
                     if (TableNames == null || TableNames.Length == 0)
-                        throw new JobParameterNullException(process, this, nameof(TableNames));
+                        throw new JobParameterNullException(Process, this, nameof(TableNames));
                     if (!string.IsNullOrEmpty(SchemaName))
-                        throw new InvalidJobParameterException(process, this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropTablesJobMode.SpecifiedTables));
+                        throw new InvalidJobParameterException(Process, this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropTablesJobMode.SpecifiedTables));
                     break;
                 case MsSqlDropTablesJobMode.All:
                     if (TableNames != null)
-                        throw new InvalidJobParameterException(process, this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropTablesJobMode.All));
+                        throw new InvalidJobParameterException(Process, this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropTablesJobMode.All));
                     if (!string.IsNullOrEmpty(SchemaName))
-                        throw new InvalidJobParameterException(process, this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropTablesJobMode.All));
+                        throw new InvalidJobParameterException(Process, this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropTablesJobMode.All));
                     break;
                 case MsSqlDropTablesJobMode.SpecifiedSchema:
                     if (TableNames != null)
-                        throw new InvalidJobParameterException(process, this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropTablesJobMode.All));
+                        throw new InvalidJobParameterException(Process, this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropTablesJobMode.All));
                     if (string.IsNullOrEmpty(SchemaName))
-                        throw new JobParameterNullException(process, this, nameof(SchemaName));
+                        throw new JobParameterNullException(Process, this, nameof(SchemaName));
                     break;
             }
 
-            var knownProvider = process.Context.GetConnectionString(ConnectionStringKey)?.KnownProvider;
+            var knownProvider = Process.Context.GetConnectionString(ConnectionStringKey)?.KnownProvider;
             if (knownProvider != KnownProvider.MsSql)
-                throw new InvalidJobParameterException(process, this, nameof(ConnectionString), nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
+                throw new InvalidJobParameterException(Process, this, nameof(ConnectionString), nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
         }
 
-        protected override List<string> CreateSqlStatements(IProcess process, ConnectionStringWithProvider connectionString, IDbConnection connection)
+        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection)
         {
             switch (Mode)
             {
@@ -78,7 +78,7 @@
                                 command.Parameters.Add(parameter);
                             }
 
-                            process.Context.Log(LogSeverity.Debug, process, "({Job}) querying table names from {ConnectionStringKey} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+                            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) querying table names from {ConnectionStringKey} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                                 Name, ConnectionString.Name, command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
                             _tableNames = new List<string>();
@@ -99,12 +99,12 @@
                                 _ => null,
                             };
 
-                            process.Context.Log(LogSeverity.Information, process, "{TableCount} tables aquired from information schema in {Elapsed}" + modeInfo,
-                                _tableNames.Count, startedOn.Elapsed);
+                            Process.Context.Log(LogSeverity.Information, Process, "{TableCount} tables aquired from information schema on {ConnectionStringKey} in {Elapsed}" + modeInfo,
+                                _tableNames.Count, ConnectionString.Name, startedOn.Elapsed);
                         }
                         catch (Exception ex)
                         {
-                            var exception = new JobExecutionException(process, this, "failed to query table names from information schema", ex);
+                            var exception = new JobExecutionException(Process, this, "failed to query table names from information schema", ex);
                             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "table list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                                 ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
                             exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
@@ -122,26 +122,26 @@
                 .ToList();
         }
 
-        protected override void RunCommand(IProcess process, IDbCommand command, int statementIndex, Stopwatch startedOn)
+        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
         {
             var tableName = _tableNames[statementIndex];
 
-            process.Context.Log(LogSeverity.Debug, process, "({Job}) drop table {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) drop table {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 Name, ConnectionString.Name, Helpers.UnEscapeTableName(tableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 command.ExecuteNonQuery();
 
-                process.Context.Log(LogSeverity.Debug, process, "({Job}) table {ConnectionStringKey}/{TableName} is dropped in {Elapsed}",
+                Process.Context.Log(LogSeverity.Debug, Process, "({Job}) table {ConnectionStringKey}/{TableName} is dropped in {Elapsed}",
                     Name, ConnectionString.Name, Helpers.UnEscapeTableName(tableName), startedOn.Elapsed);
 
-                process.Context.Stat.IncrementCounter("database tables dropped / " + ConnectionString.Name, 1);
-                process.Context.Stat.IncrementCounter("database tables dropped time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
+                Process.Context.Stat.IncrementCounter("database tables dropped / " + ConnectionString.Name, 1);
+                Process.Context.Stat.IncrementCounter("database tables dropped time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
-                var exception = new JobExecutionException(process, this, "failed to drop table", ex);
+                var exception = new JobExecutionException(Process, this, "failed to drop table", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop table, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionString.Name, Helpers.UnEscapeTableName(tableName), ex.Message, command.CommandText, command.CommandTimeout));
 
@@ -154,17 +154,13 @@
             }
         }
 
-        protected override void LogSucceeded(IProcess process, int lastSucceededIndex, Stopwatch startedOn)
+        protected override void LogSucceeded(int lastSucceededIndex, Stopwatch startedOn)
         {
             if (lastSucceededIndex == -1)
                 return;
 
-            process.Context.Log(LogSeverity.Information, process, "({Job}) {TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {TableNames}",
-                 Name, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed,
-                 _tableNames
-                    .Take(lastSucceededIndex + 1)
-                    .Select(Helpers.UnEscapeTableName)
-                    .ToArray());
+            Process.Context.Log(LogSeverity.Information, Process, "({Job}) {TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}",
+                 Name, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed);
         }
     }
 }

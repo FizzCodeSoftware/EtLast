@@ -147,7 +147,7 @@
             var valuesArray = values.ToArray();
 
             var logger = args.ForOps ? OpsLogger : Logger;
-            logger.Write(LogEventLevelMap[args.Severity], "[{Module}/{Plugin}]" + ident + (args.Caller != null ? "<{Process}> " : "") + args.Text, valuesArray);
+            logger.Write(LogEventLevelMap[args.Severity], "[{Module}/{Plugin}]" + ident + (args.Caller != null ? "<{Caller}> " : "") + args.Text, valuesArray);
         }
 
         private void OnCustomLog(object sender, ContextCustomLogEventArgs args)

@@ -14,18 +14,18 @@
     {
         public List<TableCopyConfiguration> Configuration { get; set; }
 
-        protected override void Validate(IProcess process)
+        protected override void Validate()
         {
             if (Configuration == null)
-                throw new JobParameterNullException(process, this, nameof(Configuration));
+                throw new JobParameterNullException(Process, this, nameof(Configuration));
 
             if (Configuration.Any(x => string.IsNullOrEmpty(x.SourceTableName)))
-                throw new JobParameterNullException(process, this, nameof(TableCopyConfiguration.SourceTableName));
+                throw new JobParameterNullException(Process, this, nameof(TableCopyConfiguration.SourceTableName));
             if (Configuration.Any(x => string.IsNullOrEmpty(x.TargetTableName)))
-                throw new JobParameterNullException(process, this, nameof(TableCopyConfiguration.TargetTableName));
+                throw new JobParameterNullException(Process, this, nameof(TableCopyConfiguration.TargetTableName));
         }
 
-        protected override List<string> CreateSqlStatements(IProcess process, ConnectionStringWithProvider connectionString, IDbConnection connection)
+        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection)
         {
             var statements = new List<string>();
             var sb = new StringBuilder();
@@ -53,23 +53,23 @@
             return statements;
         }
 
-        protected override void RunCommand(IProcess process, IDbCommand command, int statementIndex, Stopwatch startedOn)
+        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
         {
             var config = Configuration[statementIndex];
 
-            process.Context.Log(LogSeverity.Debug, process, "({Job}) create new table {ConnectionStringKey}/{TargetTableName} based on {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) create new table {ConnectionStringKey}/{TargetTableName} based on {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 Name, ConnectionString.Name, Helpers.UnEscapeTableName(config.TargetTableName), Helpers.UnEscapeTableName(config.SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 command.ExecuteNonQuery();
 
-                process.Context.Log(LogSeverity.Debug, process, "({Job}) table {ConnectionStringKey}/{TargetTableName} is created from {SourceTableName} in {Elapsed}",
+                Process.Context.Log(LogSeverity.Debug, Process, "({Job}) table {ConnectionStringKey}/{TargetTableName} is created from {SourceTableName} in {Elapsed}",
                     Name, ConnectionString.Name, Helpers.UnEscapeTableName(config.TargetTableName), Helpers.UnEscapeTableName(config.SourceTableName), startedOn.Elapsed);
             }
             catch (Exception ex)
             {
-                var exception = new JobExecutionException(process, this, "failed to copy table structure", ex);
+                var exception = new JobExecutionException(Process, this, "failed to copy table structure", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to copy table structure, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message: {4}, command: {5}, timeout: {6}",
                     ConnectionString.Name, Helpers.UnEscapeTableName(config.SourceTableName), Helpers.UnEscapeTableName(config.TargetTableName), config.ColumnConfiguration != null ? string.Join(",", config.ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, command.CommandTimeout));
 
@@ -88,17 +88,13 @@
             }
         }
 
-        protected override void LogSucceeded(IProcess process, int lastSucceededIndex, Stopwatch startedOn)
+        protected override void LogSucceeded(int lastSucceededIndex, Stopwatch startedOn)
         {
             if (lastSucceededIndex == -1)
                 return;
 
-            process.Context.Log(LogSeverity.Information, process, "({Job}) table(s) successfully created on {ConnectionStringKey} in {Elapsed}: {TableNames}",
-                Name, ConnectionString.Name, startedOn.Elapsed,
-                Configuration
-                    .Take(lastSucceededIndex + 1)
-                    .Select(config => Helpers.UnEscapeTableName(config.SourceTableName) + "->" + Helpers.UnEscapeTableName(config.TargetTableName))
-                    .ToArray());
+            Process.Context.Log(LogSeverity.Information, Process, "({Job}) {TableCount} table(s) successfully created on {ConnectionStringKey} in {Elapsed}",
+                Name, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed);
         }
     }
 }

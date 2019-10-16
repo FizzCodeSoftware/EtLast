@@ -20,27 +20,27 @@
         /// </summary>
         public bool SuppressExistingTransactionScope { get; set; }
 
-        public override void Execute(IProcess process, CancellationTokenSource cancellationTokenSource)
+        public override void Execute(CancellationTokenSource cancellationTokenSource)
         {
             if (string.IsNullOrEmpty(ConnectionStringKey))
-                throw new JobParameterNullException(process, this, nameof(ConnectionStringKey));
+                throw new JobParameterNullException(Process, this, nameof(ConnectionStringKey));
 
-            Validate(process);
+            Validate();
 
             var startedOn = Stopwatch.StartNew();
-            ConnectionString = process.Context.GetConnectionString(ConnectionStringKey);
+            ConnectionString = Process.Context.GetConnectionString(ConnectionStringKey);
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
-                var connection = ConnectionManager.GetConnection(ConnectionString, process);
+                var connection = ConnectionManager.GetConnection(ConnectionString, Process);
                 try
                 {
                     lock (connection.Lock)
                     {
-                        var statements = CreateSqlStatements(process, ConnectionString, connection.Connection);
+                        var statements = CreateSqlStatements(ConnectionString, connection.Connection);
 
                         foreach (var statement in statements)
                         {
-                            AdoNetSqlStatementDebugEventListener.GenerateEvent(process, () => new AdoNetSqlStatementDebugEvent()
+                            AdoNetSqlStatementDebugEventListener.GenerateEvent(Process, () => new AdoNetSqlStatementDebugEvent()
                             {
                                 Job = this,
                                 ConnectionString = ConnectionString,
@@ -57,31 +57,31 @@
                                 cmd.CommandText = statements[i];
                                 try
                                 {
-                                    RunCommand(process, cmd, i, startedOn);
+                                    RunCommand(cmd, i, startedOn);
                                 }
                                 catch (Exception)
                                 {
-                                    LogSucceeded(process, i - 1, startedOn);
+                                    LogSucceeded(i - 1, startedOn);
                                     throw;
                                 }
                             }
 
-                            LogSucceeded(process, statements.Count - 1, startedOn);
+                            LogSucceeded(statements.Count - 1, startedOn);
                         }
                     }
                 }
                 finally
                 {
-                    ConnectionManager.ReleaseConnection(process, ref connection);
+                    ConnectionManager.ReleaseConnection(Process, ref connection);
                 }
             }
         }
 
-        protected abstract void Validate(IProcess process);
+        protected abstract void Validate();
 
-        protected abstract List<string> CreateSqlStatements(IProcess process, ConnectionStringWithProvider connectionString, IDbConnection connection);
+        protected abstract List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection);
 
-        protected abstract void RunCommand(IProcess process, IDbCommand command, int statementIndex, Stopwatch startedOn);
-        protected abstract void LogSucceeded(IProcess process, int lastSucceededIndex, Stopwatch startedOn);
+        protected abstract void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn);
+        protected abstract void LogSucceeded(int lastSucceededIndex, Stopwatch startedOn);
     }
 }

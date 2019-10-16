@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
     public interface IEtlContext
@@ -16,8 +15,7 @@
         DateTimeOffset CreatedOnLocal { get; }
 
         TimeSpan TransactionScopeTimeout { get; }
-        TransactionScope BeginScope(ICaller caller, TransactionScopeKind kind, LogSeverity logSeverity);
-        void CompleteScope(ICaller caller, TransactionScope scope, LogSeverity logSeverity);
+        EtlTransactionScope BeginScope(ICaller caller, TransactionScopeKind kind, LogSeverity logSeverity);
 
         CancellationTokenSource CancellationTokenSource { get; }
         ConnectionStringWithProvider GetConnectionString(string key);

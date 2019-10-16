@@ -19,17 +19,17 @@
 
         public bool CopyIdentityColumns { get; set; }
 
-        protected override void Validate(IProcess process)
+        protected override void Validate()
         {
             if (Configuration == null)
-                throw new JobParameterNullException(process, this, nameof(Configuration));
+                throw new JobParameterNullException(Process, this, nameof(Configuration));
             if (string.IsNullOrEmpty(Configuration.SourceTableName))
-                throw new JobParameterNullException(process, this, nameof(Configuration.SourceTableName));
+                throw new JobParameterNullException(Process, this, nameof(Configuration.SourceTableName));
             if (string.IsNullOrEmpty(Configuration.TargetTableName))
-                throw new JobParameterNullException(process, this, nameof(Configuration.TargetTableName));
+                throw new JobParameterNullException(Process, this, nameof(Configuration.TargetTableName));
         }
 
-        protected override string CreateSqlStatement(IProcess process, ConnectionStringWithProvider connectionString)
+        protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString)
         {
             var statement = string.Empty;
             if (CopyIdentityColumns && ConnectionString.KnownProvider == KnownProvider.MsSql)
@@ -62,30 +62,30 @@
             return statement;
         }
 
-        protected override void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn)
+        protected override void RunCommand(IDbCommand command, Stopwatch startedOn)
         {
-            process.Context.Log(LogSeverity.Debug, process, "({Job}) copying records from {ConnectionStringKey}/{SourceTableName} to {TargetTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) copying records from {ConnectionStringKey}/{SourceTableName} to {TargetTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 Name, ConnectionString.Name, Helpers.UnEscapeTableName(Configuration.SourceTableName), Helpers.UnEscapeTableName(Configuration.TargetTableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 var recordCount = command.ExecuteNonQuery();
 
-                process.Context.Log(LogSeverity.Information, process, "({Job}) {RecordCount} records copied to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} in {Elapsed}",
+                Process.Context.Log(LogSeverity.Information, Process, "({Job}) {RecordCount} records copied to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} in {Elapsed}",
                     Name, recordCount, ConnectionString.Name, Helpers.UnEscapeTableName(Configuration.TargetTableName), Helpers.UnEscapeTableName(Configuration.SourceTableName), startedOn.Elapsed);
 
                 // todo: support stats in jobs...
                 // Stat.IncrementCounter("records written", recordCount);
                 // Stat.IncrementCounter("write time", startedOn.ElapsedMilliseconds);
 
-                process.Context.Stat.IncrementCounter("database records copied / " + ConnectionString.Name, recordCount);
-                process.Context.Stat.IncrementDebugCounter("database records copied / " + ConnectionString.Name + " / " + Helpers.UnEscapeTableName(Configuration.SourceTableName) + " -> " + Helpers.UnEscapeTableName(Configuration.TargetTableName), recordCount);
-                process.Context.Stat.IncrementCounter("database copy time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
-                process.Context.Stat.IncrementDebugCounter("database copy time / " + ConnectionString.Name + " / " + Helpers.UnEscapeTableName(Configuration.SourceTableName) + " -> " + Helpers.UnEscapeTableName(Configuration.TargetTableName), startedOn.ElapsedMilliseconds);
+                Process.Context.Stat.IncrementCounter("database records copied / " + ConnectionString.Name, recordCount);
+                Process.Context.Stat.IncrementDebugCounter("database records copied / " + ConnectionString.Name + " / " + Helpers.UnEscapeTableName(Configuration.SourceTableName) + " -> " + Helpers.UnEscapeTableName(Configuration.TargetTableName), recordCount);
+                Process.Context.Stat.IncrementCounter("database copy time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
+                Process.Context.Stat.IncrementDebugCounter("database copy time / " + ConnectionString.Name + " / " + Helpers.UnEscapeTableName(Configuration.SourceTableName) + " -> " + Helpers.UnEscapeTableName(Configuration.TargetTableName), startedOn.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
-                var exception = new JobExecutionException(process, this, "database table copy failed", ex);
+                var exception = new JobExecutionException(Process, this, "database table copy failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table copy failed, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message: {4}, command: {5}, timeout: {6}",
                     ConnectionString.Name, Helpers.UnEscapeTableName(Configuration.SourceTableName), Helpers.UnEscapeTableName(Configuration.TargetTableName),
                     Configuration.ColumnConfiguration != null

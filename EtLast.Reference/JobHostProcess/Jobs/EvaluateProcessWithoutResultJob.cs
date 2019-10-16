@@ -4,15 +4,15 @@
 
     public class EvaluateProcessWithoutResultJob : AbstractJob
     {
-        public IFinalProcess Process { get; set; }
+        public IFinalProcess ProcessToExecute { get; set; }
 
-        public override void Execute(IProcess process, CancellationTokenSource cancellationTokenSource)
+        public override void Execute(CancellationTokenSource cancellationTokenSource)
         {
-            if (Process == null)
-                throw new JobParameterNullException(process, this, nameof(Process));
+            if (ProcessToExecute == null)
+                throw new JobParameterNullException(ProcessToExecute, this, nameof(EvaluateProcessWithoutResultJob.ProcessToExecute));
 
-            Process.Context.Log(LogSeverity.Information, Process, "({Job}) evaluating <{InputProcess}>", Name, process.Name);
-            Process.EvaluateWithoutResult(process);
+            ProcessToExecute.Context.Log(LogSeverity.Information, ProcessToExecute, "({Job}) evaluating <{InputProcess}>", Name, ProcessToExecute.Name);
+            ProcessToExecute.EvaluateWithoutResult(ProcessToExecute);
         }
     }
 }

@@ -107,7 +107,7 @@
                         bulkCopy.Close();
                         ConnectionManager.ReleaseConnection(Process, ref connection);
 
-                        process.Context.CompleteScope(process, scope, LogSeverity.Debug);
+                        scope.Complete();
 
                         _timer.Stop();
                         var time = _timer.Elapsed;
@@ -126,8 +126,8 @@
                         _reader.Reset();
 
                         var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
-                        process.Context.Log(severity, process, "({OperationName}) {TotalRowCount} rows written to {TableName}, average speed is {AvgSpeed} msec/Krow), batch time: {BatchElapsed}",
-                            Name, _rowsWritten, Helpers.UnEscapeTableName(TableDefinition.TableName), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
+                        process.Context.Log(severity, process, "({Operation}) {TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, average speed is {AvgSpeed} msec/Krow), batch time: {BatchElapsed}",
+                            Name, _rowsWritten, _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
                         break;
                     }
                     catch (SqlException ex)
@@ -138,10 +138,10 @@
 
                         if (retry < MaxRetryCount)
                         {
-                            process.Context.Log(LogSeverity.Information, process, "({OperationName}) database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                            process.Context.Log(LogSeverity.Information, process, "({Operation}) database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
                                 Name, RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
 
-                            process.Context.LogOps(LogSeverity.Information, process, "({OperationName}) database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                            process.Context.LogOps(LogSeverity.Information, process, "({Operation}) database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
                                 Name, RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
 
                             Thread.Sleep(RetryDelayMilliseconds * (retry + 1));

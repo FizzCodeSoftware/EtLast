@@ -161,7 +161,7 @@
                     }
                 }
 
-                job.Execute(this, Context.CancellationTokenSource);
+                job.Execute(Context.CancellationTokenSource);
             }
             catch (OperationCanceledException)
             {
@@ -172,13 +172,25 @@
 
         public void AddJob(IJob job)
         {
+            job.SetProcess(this);
             _jobs.Add(job);
         }
 
-        private void SetJobs(List<IJob> job)
+        private void SetJobs(List<IJob> jobs)
         {
+            foreach (var job in _jobs)
+            {
+                job.SetProcess(null);
+            }
+
             _jobs.Clear();
-            _jobs.AddRange(job);
+
+            foreach (var job in jobs)
+            {
+                job.SetProcess(this);
+            }
+
+            _jobs.AddRange(jobs);
         }
     }
 }

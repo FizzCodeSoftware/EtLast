@@ -13,44 +13,44 @@
     {
         public string[] TableNames { get; set; }
 
-        protected override void Validate(IProcess process)
+        protected override void Validate()
         {
             if (TableNames == null || TableNames.Length == 0)
-                throw new JobParameterNullException(process, this, nameof(TableNames));
+                throw new JobParameterNullException(Process, this, nameof(TableNames));
 
-            var knownProvider = process.Context.GetConnectionString(ConnectionStringKey)?.KnownProvider;
+            var knownProvider = Process.Context.GetConnectionString(ConnectionStringKey)?.KnownProvider;
             if ((knownProvider != KnownProvider.MsSql) &&
                 (knownProvider != KnownProvider.MySql))
             {
-                throw new InvalidJobParameterException(process, this, nameof(ConnectionString), nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient or MySql.Data.MySqlClient");
+                throw new InvalidJobParameterException(Process, this, nameof(ConnectionString), nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient or MySql.Data.MySqlClient");
             }
         }
 
-        protected override List<string> CreateSqlStatements(IProcess process, ConnectionStringWithProvider connectionString, IDbConnection connection)
+        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection)
         {
             return TableNames.Select(viewName => "DROP VIEW IF EXISTS " + viewName + ";").ToList();
         }
 
-        protected override void RunCommand(IProcess process, IDbCommand command, int statementIndex, Stopwatch startedOn)
+        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
         {
             var viewName = TableNames[statementIndex];
 
-            process.Context.Log(LogSeverity.Debug, process, "({Job}) drop view {ConnectionStringKey}/{ViewName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) drop view {ConnectionStringKey}/{ViewName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 Name, ConnectionString.Name, Helpers.UnEscapeViewName(viewName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 command.ExecuteNonQuery();
 
-                process.Context.Log(LogSeverity.Debug, process, "({Job}) view {ConnectionStringKey}/{ViewName} is dropped in {Elapsed}",
+                Process.Context.Log(LogSeverity.Debug, Process, "({Job}) view {ConnectionStringKey}/{ViewName} is dropped in {Elapsed}",
                     Name, ConnectionString.Name, Helpers.UnEscapeViewName(viewName), startedOn.Elapsed);
 
-                process.Context.Stat.IncrementCounter("database views dropped / " + ConnectionString.Name, 1);
-                process.Context.Stat.IncrementCounter("database views dropped time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
+                Process.Context.Stat.IncrementCounter("database views dropped / " + ConnectionString.Name, 1);
+                Process.Context.Stat.IncrementCounter("database views dropped time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
-                var exception = new JobExecutionException(process, this, "failed to drop view", ex);
+                var exception = new JobExecutionException(Process, this, "failed to drop view", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop view, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionString.Name, Helpers.UnEscapeViewName(viewName), ex.Message, command.CommandText, command.CommandTimeout));
 
@@ -63,12 +63,12 @@
             }
         }
 
-        protected override void LogSucceeded(IProcess process, int lastSucceededIndex, Stopwatch startedOn)
+        protected override void LogSucceeded(int lastSucceededIndex, Stopwatch startedOn)
         {
             if (lastSucceededIndex == -1)
                 return;
 
-            process.Context.Log(LogSeverity.Information, process, "({Job}) {ViewCount} view(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {ViewNames}",
+            Process.Context.Log(LogSeverity.Information, Process, "({Job}) {ViewCount} view(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {ViewNames}",
                  Name, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed,
                  TableNames
                     .Take(lastSucceededIndex + 1)

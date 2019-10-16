@@ -6,6 +6,9 @@
     {
         string Name { get; set; }
         IfJobDelegate If { get; }
-        void Execute(IProcess process, CancellationTokenSource cancellationTokenSource);
+        void Execute(CancellationTokenSource cancellationTokenSource);
+
+        IProcess Process { get; }
+        public void SetProcess(IProcess process);
     }
 }

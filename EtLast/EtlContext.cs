@@ -2,10 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using System.Threading;
-    using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
     public class EtlContext<TRow> : IEtlContext
@@ -228,35 +226,9 @@
             return ConnectionStrings?[key + "-" + Environment.MachineName] ?? ConnectionStrings?[key];
         }
 
-        public TransactionScope BeginScope(ICaller caller, TransactionScopeKind kind, LogSeverity logSeverity)
+        public EtlTransactionScope BeginScope(ICaller caller, TransactionScopeKind kind, LogSeverity logSeverity)
         {
-            if (kind == TransactionScopeKind.None)
-                return null;
-
-            var scope = new TransactionScope((TransactionScopeOption)kind, TransactionScopeTimeout);
-            Log(logSeverity, caller, "new transaction scope started: {Transaction}, kind: {Kind}", Transaction.Current.ToIdentifierString(), kind);
-            return scope;
-        }
-
-        public void CompleteScope(ICaller caller, TransactionScope scope, LogSeverity logSeverity)
-        {
-            if (scope == null)
-                return;
-
-            var transactionId = Transaction.Current.ToIdentifierString();
-            Log(logSeverity, caller, "completing transaction scope: {Transaction}", transactionId);
-            var startedOn = Stopwatch.StartNew();
-
-            try
-            {
-                scope.Complete();
-            }
-            catch (Exception ex)
-            {
-                Log(logSeverity, caller, "transaction scope completition failed after {Elapsed}: {Transaction}, error message: {ExceptionMessage}", startedOn.Elapsed, transactionId, ex.Message);
-            }
-
-            Log(logSeverity, caller, "transaction scope completed in {Elapsed}: {Transaction}", startedOn.Elapsed, transactionId);
+            return new EtlTransactionScope(this, caller, kind, TransactionScopeTimeout, logSeverity);
         }
     }
 }

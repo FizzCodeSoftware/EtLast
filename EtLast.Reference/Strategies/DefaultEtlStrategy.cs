@@ -88,7 +88,7 @@
 
                         var initialExceptionCount = context.GetExceptions().Count;
 
-                        context.Log(LogSeverity.Information, this, "evaluating {ProcessName}", process.Name);
+                        context.Log(LogSeverity.Information, this, "evaluating <{Process}>", process.Name);
                         process.EvaluateWithoutResult(this);
 
                         if (context.GetExceptions().Count != initialExceptionCount)
@@ -124,7 +124,7 @@
 
                 if (!failed)
                 {
-                    context.CompleteScope(this, scope, LogSeverity.Information);
+                    scope.Complete();
                 }
             }
         }

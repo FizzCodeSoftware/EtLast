@@ -9,7 +9,10 @@
         {
             return t == null
                 ? "NULL"
-                : t.TransactionInformation.CreationTime.ToString("yyyyMMdd-HHmmss-ffff", CultureInfo.InvariantCulture);
+                : t
+                    .TransactionInformation
+                    .CreationTime
+                    .ToString("HHmmssffff", CultureInfo.InvariantCulture);
         }
     }
 }

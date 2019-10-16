@@ -21,21 +21,21 @@
         /// </summary>
         public bool InlineArrayParameters { get; set; } = true;
 
-        protected override void Validate(IProcess process)
+        protected override void Validate()
         {
             if (string.IsNullOrEmpty(SqlStatement))
-                throw new JobParameterNullException(process, this, nameof(SqlStatement));
+                throw new JobParameterNullException(Process, this, nameof(SqlStatement));
         }
 
-        protected override string CreateSqlStatement(IProcess process, ConnectionStringWithProvider connectionString)
+        protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString)
         {
             var sqlStatementProcessed = InlineArrayParametersIfNecessary(SqlStatement);
             return sqlStatementProcessed;
         }
 
-        protected override void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn)
+        protected override void RunCommand(IDbCommand command, Stopwatch startedOn)
         {
-            process.Context.Log(LogSeverity.Debug, process, "({Job}) executing custom SQL statement {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}",
+            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) executing custom SQL statement {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}",
                 Name, command.CommandText, ConnectionString.Name, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             if (Parameters != null)
@@ -52,12 +52,12 @@
             try
             {
                 var recordCount = command.ExecuteNonQuery();
-                process.Context.Log(LogSeverity.Information, process, "({Job}) {RecordCount} records affected in {Elapsed}",
+                Process.Context.Log(LogSeverity.Information, Process, "({Job}) {RecordCount} records affected in {Elapsed}",
                     Name, recordCount, startedOn.Elapsed);
             }
             catch (Exception ex)
             {
-                var exception = new JobExecutionException(process, this, "custom SQL statement failed", ex);
+                var exception = new JobExecutionException(Process, this, "custom SQL statement failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "custom SQL statement failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                     ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
 

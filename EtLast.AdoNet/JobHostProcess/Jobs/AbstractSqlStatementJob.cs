@@ -18,18 +18,18 @@
         /// </summary>
         public bool SuppressExistingTransactionScope { get; set; }
 
-        public override void Execute(IProcess process, CancellationTokenSource cancellationTokenSource)
+        public override void Execute(CancellationTokenSource cancellationTokenSource)
         {
             if (string.IsNullOrEmpty(ConnectionStringKey))
-                throw new JobParameterNullException(process, this, nameof(ConnectionStringKey));
+                throw new JobParameterNullException(Process, this, nameof(ConnectionStringKey));
 
-            Validate(process);
+            Validate();
 
             var startedOn = Stopwatch.StartNew();
-            ConnectionString = process.Context.GetConnectionString(ConnectionStringKey);
-            var statement = CreateSqlStatement(process, ConnectionString);
+            ConnectionString = Process.Context.GetConnectionString(ConnectionStringKey);
+            var statement = CreateSqlStatement(ConnectionString);
 
-            AdoNetSqlStatementDebugEventListener.GenerateEvent(process, () => new AdoNetSqlStatementDebugEvent()
+            AdoNetSqlStatementDebugEventListener.GenerateEvent(Process, () => new AdoNetSqlStatementDebugEvent()
             {
                 Job = this,
                 ConnectionString = ConnectionString,
@@ -38,7 +38,7 @@
 
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
-                var connection = ConnectionManager.GetConnection(ConnectionString, process);
+                var connection = ConnectionManager.GetConnection(ConnectionString, Process);
                 try
                 {
                     lock (connection.Lock)
@@ -48,21 +48,21 @@
                             cmd.CommandTimeout = CommandTimeout;
                             cmd.CommandText = statement;
 
-                            RunCommand(process, cmd, startedOn);
+                            RunCommand(cmd, startedOn);
                         }
                     }
                 }
                 finally
                 {
-                    ConnectionManager.ReleaseConnection(process, ref connection);
+                    ConnectionManager.ReleaseConnection(Process, ref connection);
                 }
             }
         }
 
-        protected abstract void Validate(IProcess process);
+        protected abstract void Validate();
 
-        protected abstract string CreateSqlStatement(IProcess process, ConnectionStringWithProvider connectionString);
+        protected abstract string CreateSqlStatement(ConnectionStringWithProvider connectionString);
 
-        protected abstract void RunCommand(IProcess process, IDbCommand command, Stopwatch startedOn);
+        protected abstract void RunCommand(IDbCommand command, Stopwatch startedOn);
     }
 }

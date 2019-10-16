@@ -91,8 +91,8 @@
                 _rowsWritten += recordCount;
 
                 var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
-                process.Context.Log(severity, process, "({OperationName}) {TotalRowCount} rows written to {TableName}, average speed is {AvgSpeed} msec/Krow), batch time: {BatchElapsed}",
-                    Name, _rowsWritten, Helpers.UnEscapeTableName(TableDefinition.TableName), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
+                process.Context.Log(severity, process, "({Operation}) {TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, average speed is {AvgSpeed} msec/Krow), batch time: {BatchElapsed}",
+                    Name, _rowsWritten, _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
             }
             catch (Exception ex)
             {

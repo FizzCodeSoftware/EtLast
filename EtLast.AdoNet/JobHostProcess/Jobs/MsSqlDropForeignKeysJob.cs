@@ -25,9 +25,9 @@
 
         public string SchemaName { get; set; }
 
-        private List<string> _tableNames;
+        private List<Tuple<string, int>> _tableNamesAndCounts;
 
-        protected override void Validate(IProcess process)
+        protected override void Validate()
         {
             // no base.Validate call
 
@@ -35,36 +35,36 @@
             {
                 case MsSqlDropForeignKeysJobMode.InSpecifiedTables:
                     if (TableNames == null || TableNames.Length == 0)
-                        throw new JobParameterNullException(process, this, nameof(TableNames));
+                        throw new JobParameterNullException(Process, this, nameof(TableNames));
                     if (!string.IsNullOrEmpty(SchemaName))
-                        throw new InvalidJobParameterException(process, this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysJobMode.InSpecifiedTables));
+                        throw new InvalidJobParameterException(Process, this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysJobMode.InSpecifiedTables));
                     break;
                 case MsSqlDropForeignKeysJobMode.All:
                     if (TableNames != null)
-                        throw new InvalidJobParameterException(process, this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysJobMode.All));
+                        throw new InvalidJobParameterException(Process, this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysJobMode.All));
                     if (!string.IsNullOrEmpty(SchemaName))
-                        throw new InvalidJobParameterException(process, this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysJobMode.All));
+                        throw new InvalidJobParameterException(Process, this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysJobMode.All));
                     break;
                 case MsSqlDropForeignKeysJobMode.InSpecifiedSchema:
                     if (TableNames != null)
-                        throw new InvalidJobParameterException(process, this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysJobMode.InSpecifiedSchema));
+                        throw new InvalidJobParameterException(Process, this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysJobMode.InSpecifiedSchema));
                     if (string.IsNullOrEmpty(SchemaName))
-                        throw new JobParameterNullException(process, this, nameof(SchemaName));
+                        throw new JobParameterNullException(Process, this, nameof(SchemaName));
                     break;
                 case MsSqlDropForeignKeysJobMode.ToSpecifiedSchema:
                     if (TableNames != null)
-                        throw new InvalidJobParameterException(process, this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysJobMode.ToSpecifiedSchema));
+                        throw new InvalidJobParameterException(Process, this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysJobMode.ToSpecifiedSchema));
                     if (string.IsNullOrEmpty(SchemaName))
-                        throw new JobParameterNullException(process, this, nameof(SchemaName));
+                        throw new JobParameterNullException(Process, this, nameof(SchemaName));
                     break;
             }
 
-            var knownProvider = process.Context.GetConnectionString(ConnectionStringKey)?.KnownProvider;
+            var knownProvider = Process.Context.GetConnectionString(ConnectionStringKey)?.KnownProvider;
             if (knownProvider != KnownProvider.MsSql)
-                throw new InvalidJobParameterException(process, this, nameof(ConnectionString), nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
+                throw new InvalidJobParameterException(Process, this, nameof(ConnectionString), nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
         }
 
-        protected override List<string> CreateSqlStatements(IProcess process, ConnectionStringWithProvider connectionString, IDbConnection connection)
+        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection)
         {
             var startedOn = Stopwatch.StartNew();
             using (var command = connection.CreateCommand())
@@ -138,7 +138,7 @@ from
                     // tables are not filtered with an IN clause due to the limitations of the query processor
                     // this solution will read unnecessary data, but it will work in all conditions
 
-                    process.Context.Log(LogSeverity.Debug, process, "({Job}) querying foreign key names from {ConnectionStringKey} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+                    Process.Context.Log(LogSeverity.Debug, Process, "({Job}) querying foreign key names from {ConnectionStringKey} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                         Name, ConnectionString.Name, command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
                     var tablesNamesHashSet = Mode == MsSqlDropForeignKeysJobMode.InSpecifiedTables || Mode == MsSqlDropForeignKeysJobMode.ToSpecifiedTables
@@ -173,11 +173,11 @@ from
                         }
                     }
 
-                    _tableNames = new List<string>();
+                    _tableNamesAndCounts = new List<Tuple<string, int>>();
                     var statements = new List<string>();
                     foreach (var kvp in constraintsByTable.OrderBy(x => x.Key))
                     {
-                        _tableNames.Add(kvp.Key);
+                        _tableNamesAndCounts.Add(new Tuple<string, int>(kvp.Key, kvp.Value.Count));
 
                         statements.Add("ALTER TABLE " + kvp.Key + " DROP CONSTRAINT " + string.Join(", ", kvp.Value) + ";");
                     }
@@ -192,14 +192,14 @@ from
                         _ => null,
                     };
 
-                    process.Context.Log(LogSeverity.Information, process, "{ForeignKeyCount} foreign keys aquired from information schema in {Elapsed} for {TableCount} tables" + modeInfo,
-                        constraintsByTable.Sum(x => x.Value.Count), startedOn.Elapsed, _tableNames.Count);
+                    Process.Context.Log(LogSeverity.Information, Process, "{ForeignKeyCount} foreign keys aquired from information schema on {ConnectionStringKey} in {Elapsed} for {TableCount} tables" + modeInfo,
+                        constraintsByTable.Sum(x => x.Value.Count), ConnectionString.Name, startedOn.Elapsed, _tableNamesAndCounts.Count);
 
                     return statements;
                 }
                 catch (Exception ex)
                 {
-                    var exception = new JobExecutionException(process, this, "failed to query foreign key names from information schema", ex);
+                    var exception = new JobExecutionException(Process, this, "failed to query foreign key names from information schema", ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "foreign key list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                         ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
                     exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
@@ -211,27 +211,30 @@ from
             }
         }
 
-        protected override void RunCommand(IProcess process, IDbCommand command, int statementIndex, Stopwatch startedOn)
+        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
         {
-            var tableName = _tableNames[statementIndex];
+            var t = _tableNamesAndCounts[statementIndex];
 
-            process.Context.Log(LogSeverity.Debug, process, "({Job}) drop foreign keys of {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                Name, ConnectionString.Name, Helpers.UnEscapeTableName(tableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
+            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) drop foreign keys of {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+                Name, ConnectionString.Name, Helpers.UnEscapeTableName(t.Item1), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 command.ExecuteNonQuery();
-                process.Context.Log(LogSeverity.Debug, process, "({Job}) foreign keys on {ConnectionStringKey}/{TableName} are dropped in {Elapsed}",
-                    Name, ConnectionString.Name, Helpers.UnEscapeTableName(tableName), startedOn.Elapsed);
+                Process.Context.Log(LogSeverity.Debug, Process, "({Job}) foreign keys on {ConnectionStringKey}/{TableName} are dropped in {Elapsed}",
+                    Name, ConnectionString.Name, Helpers.UnEscapeTableName(t.Item1), startedOn.Elapsed);
+
+                Process.Context.Stat.IncrementCounter("database foreign keys dropped / " + ConnectionString.Name, t.Item2);
+                Process.Context.Stat.IncrementCounter("database foreign keys time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
-                var exception = new JobExecutionException(process, this, "failed to drop foreign keys", ex);
+                var exception = new JobExecutionException(Process, this, "failed to drop foreign keys", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop foreign keys, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
-                    ConnectionString.Name, Helpers.UnEscapeViewName(tableName), ex.Message, command.CommandText, command.CommandTimeout));
+                    ConnectionString.Name, Helpers.UnEscapeViewName(t.Item1), ex.Message, command.CommandText, command.CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
-                exception.Data.Add("TableNameName", Helpers.UnEscapeViewName(tableName));
+                exception.Data.Add("TableName", Helpers.UnEscapeViewName(t.Item1));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
                 exception.Data.Add("Elapsed", startedOn.Elapsed);
@@ -239,17 +242,17 @@ from
             }
         }
 
-        protected override void LogSucceeded(IProcess process, int lastSucceededIndex, Stopwatch startedOn)
+        protected override void LogSucceeded(int lastSucceededIndex, Stopwatch startedOn)
         {
             if (lastSucceededIndex == -1)
                 return;
 
-            process.Context.Log(LogSeverity.Information, process, "({Job}) all foreign keys for {TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {TableNames}",
-                 Name, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed,
-                 _tableNames
+            var fkCount = _tableNamesAndCounts
                     .Take(lastSucceededIndex + 1)
-                    .Select(Helpers.UnEscapeTableName)
-                    .ToArray());
+                    .Sum(x => x.Item2);
+
+            Process.Context.Log(LogSeverity.Information, Process, "({Job}) {ForeignKeyCount} foreign keys for {TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}",
+                 Name, fkCount, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed);
         }
     }
 }
