@@ -26,9 +26,14 @@
 
             var key = connectionString.Name + "/" + connectionString.ProviderName + "/";
 
-            key += Transaction.Current != null
-                ? Transaction.Current.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture)
-                : "-";
+            if (Transaction.Current != null)
+            {
+                key += Transaction.Current.TransactionInformation.CreationTime.Ticks.ToString("D", CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                key += "-";
+            }
 
             if (ignorePool)
             {
@@ -49,7 +54,7 @@
 
                     var startedOn = Stopwatch.StartNew();
                     process.Context.Log(LogSeverity.Debug, process, "opening database connection to {ConnectionStringKey} using {ProviderName} provider, transaction: {Transaction}",
-                        connectionString.Name, connectionString.ProviderName, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
+                        connectionString.Name, connectionString.ProviderName, Transaction.Current.ToIdentifierString());
 
                     try
                     {
@@ -123,7 +128,7 @@
             {
                 var startedOn = Stopwatch.StartNew();
                 process.Context.Log(LogSeverity.Debug, process, "opening database connection to {ConnectionStringKey} using {ProviderName} provider, transaction: {Transaction}",
-                    connectionString.Name, connectionString.ProviderName, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
+                    connectionString.Name, connectionString.ProviderName, Transaction.Current.ToIdentifierString());
 
                 try
                 {

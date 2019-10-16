@@ -125,7 +125,7 @@
                 var p = args.Caller;
                 while (p.Caller != null)
                 {
-                    ident += "\t";
+                    ident += "   ";
                     p = p.Caller;
                 }
             }

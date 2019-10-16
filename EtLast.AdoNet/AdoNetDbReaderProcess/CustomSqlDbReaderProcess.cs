@@ -31,7 +31,7 @@
         protected override void LogAction()
         {
             Context.Log(LogSeverity.Debug, this, "reading from {ConnectionStringKey} using custom query, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionString.Name, CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
+                ConnectionString.Name, CommandTimeout, Transaction.Current.ToIdentifierString());
         }
 
         protected override void IncrementCounter()

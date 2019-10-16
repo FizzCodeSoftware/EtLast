@@ -16,7 +16,7 @@
         public void Execute(ICaller caller, IEtlContext context)
         {
             Caller = caller;
-            context.Log(LogSeverity.Information, this, "data warehouse strategy started");
+            context.Log(LogSeverity.Information, this, "strategy started (dwh)");
             var startedOn = Stopwatch.StartNew();
 
             if (Configuration == null)
@@ -83,7 +83,7 @@
 
                         if (table.MainProcessCreator != null)
                         {
-                            using (var creatorScope = context.BeginScope(creatorScopeKind))
+                            using (var creatorScope = context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
                             {
                                 mainProcess = table.MainProcessCreator.Invoke(Configuration.ConnectionStringKey, table);
                             }
@@ -96,7 +96,7 @@
                             break;
                         }
 
-                        using (var creatorScope = context.BeginScope(creatorScopeKind))
+                        using (var creatorScope = context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
                         {
                             mainProcess = table.PartitionedMainProcessCreator.Invoke(Configuration.ConnectionStringKey, table, partitionIndex);
                         }
@@ -118,13 +118,13 @@
 
                 for (var retryCounter = 0; retryCounter <= maxRetryCount; retryCounter++)
                 {
-                    using (var scope = context.BeginScope(Configuration.FinalizerTransactionScopeKind))
+                    using (var scope = context.BeginScope(this, Configuration.FinalizerTransactionScopeKind, LogSeverity.Information))
                     {
                         if (Configuration.BeforeFinalizersJobCreator != null)
                         {
                             List<IJob> beforeFinalizerJobs;
 
-                            using (var creatorScope = context.BeginScope(TransactionScopeKind.Suppress))
+                            using (var creatorScope = context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
                             {
                                 beforeFinalizerJobs = Configuration.BeforeFinalizersJobCreator.Invoke(Configuration.ConnectionStringKey, Configuration);
                             }
@@ -168,7 +168,7 @@
                                 : TransactionScopeKind.None;
 
                                 List<IJob> finalizerJobs;
-                                using (var creatorScope = context.BeginScope(creatorScopeKind))
+                                using (var creatorScope = context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
                                 {
                                     finalizerJobs = table.FinalizerJobsCreator.Invoke(Configuration.ConnectionStringKey, table);
                                 }
@@ -191,7 +191,7 @@
                         {
                             List<IJob> afterFinalizerJobs;
 
-                            using (var creatorScope = context.BeginScope(TransactionScopeKind.Suppress))
+                            using (var creatorScope = context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
                             {
                                 afterFinalizerJobs = Configuration.AfterFinalizersJobCreator.Invoke(Configuration.ConnectionStringKey, Configuration);
                             }
@@ -213,7 +213,7 @@
                         var currentExceptionCount = context.GetExceptions().Count;
                         if (currentExceptionCount == initialExceptionCount)
                         {
-                            scope?.Complete();
+                            context.CompleteScope(this, scope, LogSeverity.Information);
 
                             success = true;
                             break;

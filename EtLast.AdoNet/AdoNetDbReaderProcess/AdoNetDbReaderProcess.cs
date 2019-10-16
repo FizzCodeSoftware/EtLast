@@ -1,9 +1,9 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
-    using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Transactions;
+    using FizzCode.DbTools.Configuration;
 
     public class AdoNetDbReaderProcess : AbstractAdoNetDbReaderProcess
     {
@@ -59,8 +59,7 @@
 
             if (RecordCountLimit > 0)
             {
-                var isMySql = string.Equals(ConnectionString.ProviderName, "MySql.Data.MySqlClient", StringComparison.InvariantCultureIgnoreCase);
-                if (isMySql)
+                if (ConnectionString.KnownProvider == KnownProvider.MySql)
                 {
                     postfix += (string.IsNullOrEmpty(postfix) ? "" : " ") + "LIMIT " + RecordCountLimit.ToString("D", CultureInfo.InvariantCulture);
                 }
@@ -77,7 +76,7 @@
         protected override void LogAction()
         {
             Context.Log(LogSeverity.Debug, this, "reading from {ConnectionStringKey}/{TableName}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionString.Name, Helpers.UnEscapeTableName(TableName), CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
+                ConnectionString.Name, Helpers.UnEscapeTableName(TableName), CommandTimeout, Transaction.Current.ToIdentifierString());
         }
 
         protected override void IncrementCounter()

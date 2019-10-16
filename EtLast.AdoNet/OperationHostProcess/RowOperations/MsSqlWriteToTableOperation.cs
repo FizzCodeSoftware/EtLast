@@ -91,8 +91,8 @@
                 _rowsWritten += recordCount;
 
                 var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
-                process.Context.Log(severity, process, "{TotalRowCount} rows written to {TableName}, average speed is {AvgSpeed} msec/Krow), batch time: {BatchElapsed}",
-                    _rowsWritten, Helpers.UnEscapeTableName(TableDefinition.TableName), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
+                process.Context.Log(severity, process, "({OperationName}) {TotalRowCount} rows written to {TableName}, average speed is {AvgSpeed} msec/Krow), batch time: {BatchElapsed}",
+                    Name, _rowsWritten, Helpers.UnEscapeTableName(TableDefinition.TableName), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
             }
             catch (Exception ex)
             {
@@ -125,7 +125,8 @@
             _connectionString = Process.Context.GetConnectionString(ConnectionStringKey);
             if (_connectionString == null)
                 throw new InvalidOperationParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
-            if (_connectionString.ProviderName != "System.Data.SqlClient")
+
+            if (_connectionString.KnownProvider != KnownProvider.MsSql)
                 throw new InvalidOperationParameterException(this, "ConnectionString", nameof(_connectionString.ProviderName), "provider name must be System.Data.SqlClient");
 
             _rowsWritten = 0;

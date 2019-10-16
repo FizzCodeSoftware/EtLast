@@ -128,7 +128,7 @@
 
                 var transactionName = (CustomConnectionCreator != null && cmd.Transaction != null)
                     ? "custom (" + cmd.Transaction.IsolationLevel.ToString() + ")"
-                    : Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL";
+                    : Transaction.Current.ToIdentifierString();
 
                 Context.Log(LogSeverity.Debug, this, "executing query {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}",
                     HideStatementInLog ? "<hidden>" : sqlStatement, ConnectionString.Name, cmd.CommandTimeout, transactionName);

@@ -12,8 +12,7 @@
 
         public bool Init(ConnectionStringWithProvider connectionString)
         {
-            var isMySql = string.Equals(connectionString.ProviderName, "MySql.Data.MySqlClient", StringComparison.InvariantCultureIgnoreCase);
-            return isMySql;
+            return connectionString.KnownProvider == KnownProvider.MySql;
         }
 
         public object ProcessValue(object value, string column)

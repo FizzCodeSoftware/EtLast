@@ -47,8 +47,8 @@
                     break;
             }
 
-            var providerName = process.Context.GetConnectionString(ConnectionStringKey)?.ProviderName;
-            if (providerName != "System.Data.SqlClient")
+            var knownProvider = process.Context.GetConnectionString(ConnectionStringKey)?.KnownProvider;
+            if (knownProvider != KnownProvider.MsSql)
                 throw new InvalidJobParameterException(process, this, nameof(ConnectionString), nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
         }
 
@@ -79,7 +79,7 @@
                             }
 
                             process.Context.Log(LogSeverity.Debug, process, "({Job}) querying view names from {ConnectionStringKey} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                                Name, ConnectionString.Name, command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
+                                Name, ConnectionString.Name, command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
                             _viewNames = new List<string>();
                             using (var reader = command.ExecuteReader())
@@ -127,7 +127,7 @@
             var viewName = _viewNames[statementIndex];
 
             process.Context.Log(LogSeverity.Debug, process, "({Job}) drop view {ConnectionStringKey}/{ViewName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                Name, ConnectionString.Name, Helpers.UnEscapeViewName(viewName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
+                Name, ConnectionString.Name, Helpers.UnEscapeViewName(viewName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {

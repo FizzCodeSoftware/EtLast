@@ -16,7 +16,8 @@
         DateTimeOffset CreatedOnLocal { get; }
 
         TimeSpan TransactionScopeTimeout { get; }
-        TransactionScope BeginScope(TransactionScopeKind kind);
+        TransactionScope BeginScope(ICaller caller, TransactionScopeKind kind, LogSeverity logSeverity);
+        void CompleteScope(ICaller caller, TransactionScope scope, LogSeverity logSeverity);
 
         CancellationTokenSource CancellationTokenSource { get; }
         ConnectionStringWithProvider GetConnectionString(string key);

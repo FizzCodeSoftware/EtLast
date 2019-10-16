@@ -59,8 +59,8 @@
                     break;
             }
 
-            var providerName = process.Context.GetConnectionString(ConnectionStringKey)?.ProviderName;
-            if (providerName != "System.Data.SqlClient")
+            var knownProvider = process.Context.GetConnectionString(ConnectionStringKey)?.KnownProvider;
+            if (knownProvider != KnownProvider.MsSql)
                 throw new InvalidJobParameterException(process, this, nameof(ConnectionString), nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
         }
 
@@ -139,7 +139,7 @@ from
                     // this solution will read unnecessary data, but it will work in all conditions
 
                     process.Context.Log(LogSeverity.Debug, process, "({Job}) querying foreign key names from {ConnectionStringKey} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                        Name, ConnectionString.Name, command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
+                        Name, ConnectionString.Name, command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
                     var tablesNamesHashSet = Mode == MsSqlDropForeignKeysJobMode.InSpecifiedTables || Mode == MsSqlDropForeignKeysJobMode.ToSpecifiedTables
                         ? TableNames.Select(x => x.ToLowerInvariant()).ToHashSet()
@@ -216,7 +216,7 @@ from
             var tableName = _tableNames[statementIndex];
 
             process.Context.Log(LogSeverity.Debug, process, "({Job}) drop foreign keys of {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                Name, ConnectionString.Name, Helpers.UnEscapeTableName(tableName), command.CommandText, command.CommandTimeout, Transaction.Current?.TransactionInformation.CreationTime.ToString("yyyy.MM.dd HH:mm:ss.ffff", CultureInfo.InvariantCulture) ?? "NULL");
+                Name, ConnectionString.Name, Helpers.UnEscapeTableName(tableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {

@@ -17,16 +17,6 @@
         public string ConnectionStringKey { get; set; }
         public int CommandTimeout { get; set; } = 30;
 
-        /// <summary>
-        /// Default value is 5
-        /// </summary>
-        public int MaxRetryCount { get; set; } = 5;
-
-        /// <summary>
-        /// Default value is 5000
-        /// </summary>
-        public int RetryDelayMilliseconds { get; set; } = 5000;
-
         public DbTableDefinition TableDefinition { get; set; }
 
         /// <summary>
@@ -43,6 +33,16 @@
         /// Default value is 10000
         /// </summary>
         public int BatchSize { get; set; } = 10000;
+
+        /// <summary>
+        /// Default value is 5
+        /// </summary>
+        public int MaxRetryCount { get; set; } = 5;
+
+        /// <summary>
+        /// Default value is 5000
+        /// </summary>
+        public int RetryDelayMilliseconds { get; set; } = 5000;
 
         private ConnectionStringWithProvider _connectionString;
 
@@ -78,7 +78,7 @@
 
             for (var retry = 0; retry <= MaxRetryCount; retry++)
             {
-                using (var scope = process.Context.BeginScope(TransactionScopeKind.RequiresNew))
+                using (var scope = process.Context.BeginScope(process, TransactionScopeKind.RequiresNew, LogSeverity.Debug))
                 {
                     var connection = ConnectionManager.GetConnection(_connectionString, process);
 
@@ -107,7 +107,7 @@
                         bulkCopy.Close();
                         ConnectionManager.ReleaseConnection(Process, ref connection);
 
-                        scope.Complete();
+                        process.Context.CompleteScope(process, scope, LogSeverity.Debug);
 
                         _timer.Stop();
                         var time = _timer.Elapsed;
@@ -126,8 +126,8 @@
                         _reader.Reset();
 
                         var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
-                        process.Context.Log(severity, process, "{TotalRowCount} rows written to {TableName}, average speed is {AvgSpeed} msec/Krow), batch time: {BatchElapsed}",
-                            _rowsWritten, Helpers.UnEscapeTableName(TableDefinition.TableName), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
+                        process.Context.Log(severity, process, "({OperationName}) {TotalRowCount} rows written to {TableName}, average speed is {AvgSpeed} msec/Krow), batch time: {BatchElapsed}",
+                            Name, _rowsWritten, Helpers.UnEscapeTableName(TableDefinition.TableName), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
                         break;
                     }
                     catch (SqlException ex)
@@ -138,11 +138,11 @@
 
                         if (retry < MaxRetryCount)
                         {
-                            process.Context.Log(LogSeverity.Information, process, "database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
-                                RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
+                            process.Context.Log(LogSeverity.Information, process, "({OperationName}) database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                                Name, RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
 
-                            process.Context.LogOps(LogSeverity.Information, process, "database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
-                                RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
+                            process.Context.LogOps(LogSeverity.Information, process, "({OperationName}) database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                                Name, RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
 
                             Thread.Sleep(RetryDelayMilliseconds * (retry + 1));
                         }
@@ -190,7 +190,8 @@
             _connectionString = Process.Context.GetConnectionString(ConnectionStringKey);
             if (_connectionString == null)
                 throw new InvalidOperationParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
-            if (_connectionString.ProviderName != "System.Data.SqlClient")
+
+            if (_connectionString.KnownProvider != KnownProvider.MsSql)
                 throw new InvalidOperationParameterException(this, "ConnectionString", nameof(_connectionString.ProviderName), "provider name must be System.Data.SqlClient");
 
             _rowsWritten = 0;

@@ -6,7 +6,7 @@
     {
         public override void Execute()
         {
-            Context.ExecuteOne(true, new OneProcessEtlStrategy(CreateHelloWorldProcess, TransactionScopeKind.None));
+            Context.ExecuteOne(true, new DefaultEtlStrategy(CreateHelloWorldProcess, TransactionScopeKind.None));
         }
 
         private IFinalProcess CreateHelloWorldProcess()
@@ -21,7 +21,7 @@
                         Then = process =>
                         {
                             Context.Log(LogSeverity.Information, process, "Hello {Subject}! [using {ExecutorName} and {StrategyName}]", "World",
-                                nameof(Context.ExecuteOne), nameof(OneProcessEtlStrategy));
+                                nameof(Context.ExecuteOne), nameof(DefaultEtlStrategy));
                         }
                         // do not use string interpolation because EtLast is using structured logging and all values are stored as key-value pairs
                     },
