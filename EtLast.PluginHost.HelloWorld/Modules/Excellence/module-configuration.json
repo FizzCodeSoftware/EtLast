@@ -1,6 +1,5 @@
 ﻿{
   "Module": {
-    "StorageFolder": ".\\storage\\Excellence",
     "PluginsToExecute": [ "ContactReadWrite", "ContactReadWriteDeleteWithJob", "ContactJoinExpand" ]
   }
 }

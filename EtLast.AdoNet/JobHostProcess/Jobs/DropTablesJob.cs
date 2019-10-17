@@ -63,12 +63,8 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            Process.Context.Log(LogSeverity.Information, Process, "({Job}) {TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {TableNames}",
-                 Name, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed,
-                 TableNames
-                    .Take(lastSucceededIndex + 1)
-                    .Select(Helpers.UnEscapeTableName)
-                    .ToArray());
+            Process.Context.Log(LogSeverity.Information, Process, "({Job}) {TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}",
+                 Name, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed);
         }
     }
 }

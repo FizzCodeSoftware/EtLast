@@ -47,14 +47,22 @@
       <PackagePath>contentFiles/cs/netcoreapp3.0</PackagePath>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
+    <Content Include="Modules\Shared\shared-configuration.json">
+      <PackagePath>contentFiles/cs/netcoreapp3.0/Modules/Shared</PackagePath>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+    </Content>
     <Content Include="Modules\**\module-configuration.json">
-      <PackagePath>contentFiles/cs/netcoreapp3.0/modules</PackagePath>
+      <PackagePath>contentFiles/cs/netcoreapp3.0/Modules</PackagePath>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="Storage\**\*.*">
-      <PackagePath>contentFiles/cs/netcoreapp3.0/storage</PackagePath>
+      <PackagePath>contentFiles/cs/netcoreapp3.0/Storage</PackagePath>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Modules\Shared\shared-configuration.json" />
   </ItemGroup>
 
   <!--<ItemGroup>

@@ -5,7 +5,7 @@
 
     public abstract class AbstractContactPlugin : AbstractEtlPlugin
     {
-        public string SourceFileName => Path.Combine(GetStorageFolder(), "contacts.xlsx");
-        public string OutputFileName => Path.Combine(GetStorageFolder("output"), GetType().Name + ".xlsx");
+        public string SourceFileName => Path.Combine(GetStorageFolder("Excellence"), "contacts.xlsx");
+        public string OutputFileName => Path.Combine(GetStorageFolder("Excellence", "output"), GetType().Name + ".xlsx");
     }
 }

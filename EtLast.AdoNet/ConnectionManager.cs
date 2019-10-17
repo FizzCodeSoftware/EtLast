@@ -24,7 +24,7 @@
                 throw ex;
             }
 
-            var key = connectionString.Name + "/" + connectionString.ProviderName + "/";
+            var key = connectionString.Name;
 
             if (Transaction.Current != null)
             {
@@ -53,8 +53,8 @@
                     }
 
                     var startedOn = Stopwatch.StartNew();
-                    process.Context.Log(LogSeverity.Debug, process, "opening database connection to {ConnectionStringKey} using {ProviderName} provider, transaction: {Transaction}",
-                        connectionString.Name, connectionString.ProviderName, Transaction.Current.ToIdentifierString());
+                    process.Context.Log(LogSeverity.Debug, process, "opening database connection to {ConnectionStringKey} ({Provider}), transaction: {Transaction}",
+                        connectionString.Name, connectionString.GetFriendlyProviderName(), Transaction.Current.ToIdentifierString());
 
                     try
                     {
@@ -76,8 +76,8 @@
                         conn.ConnectionString = connectionString.ConnectionString;
                         conn.Open();
 
-                        process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringKey} using {ProviderName} provider in {Elapsed}",
-                            connectionString.Name, connectionString.ProviderName, startedOn.Elapsed);
+                        process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringKey} ({Provider}) in {Elapsed}",
+                            connectionString.Name, connectionString.GetFriendlyProviderName(), startedOn.Elapsed);
 
                         connection = new DatabaseConnection()
                         {
@@ -100,8 +100,12 @@
 
                 process.Context.Stat.IncrementCounter("database connections failed / " + connectionString.Name, 1);
 
-                process.Context.Log(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", connectionString.Name, connectionString.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
-                process.Context.LogOps(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", connectionString.Name, connectionString.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
+                process.Context.Log(LogSeverity.Error, process, "can't connect to database, connection string key: {ConnectionStringKey} ({Provider}), retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                    connectionString.Name, connectionString.GetFriendlyProviderName(), retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
+
+                process.Context.LogOps(LogSeverity.Error, process, "can't connect to database, connection string key: {ConnectionStringKey} ({Provider}), retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                    connectionString.Name, connectionString.GetFriendlyProviderName(), retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
+
                 Thread.Sleep(retryDelayMilliseconds * (retry + 1));
             }
 
@@ -127,8 +131,8 @@
             for (var retry = 0; retry <= maxRetryCount; retry++)
             {
                 var startedOn = Stopwatch.StartNew();
-                process.Context.Log(LogSeverity.Debug, process, "opening database connection to {ConnectionStringKey} using {ProviderName} provider, transaction: {Transaction}",
-                    connectionString.Name, connectionString.ProviderName, Transaction.Current.ToIdentifierString());
+                process.Context.Log(LogSeverity.Debug, process, "opening database connection to {ConnectionStringKey} ({Provider}), transaction: {Transaction}",
+                    connectionString.Name, connectionString.GetFriendlyProviderName(), Transaction.Current.ToIdentifierString());
 
                 try
                 {
@@ -150,8 +154,8 @@
                     conn.ConnectionString = connectionString.ConnectionString;
                     conn.Open();
 
-                    process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringKey} using {ProviderName} provider in {Elapsed}",
-                        connectionString.Name, connectionString.ProviderName, startedOn.Elapsed);
+                    process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringKey} ({Provider}) in {Elapsed}",
+                        connectionString.Name, connectionString.GetFriendlyProviderName(), startedOn.Elapsed);
 
                     return new DatabaseConnection()
                     {
@@ -169,11 +173,11 @@
 
                 process.Context.Stat.IncrementCounter("database connections failed / " + connectionString.Name, 1);
 
-                process.Context.Log(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
-                    connectionString.Name, connectionString.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
+                process.Context.Log(LogSeverity.Error, process, "can't connect to database, connection string key: {ConnectionStringKey} ({Provider}), retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                    connectionString.Name, connectionString.GetFriendlyProviderName(), retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
 
-                process.Context.LogOps(LogSeverity.Information, process, "can't connect to database, connection string key: {ConnectionStringKey} using {ProviderName} provider, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
-                    connectionString.Name, connectionString.ProviderName, retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
+                process.Context.LogOps(LogSeverity.Error, process, "can't connect to database, connection string key: {ConnectionStringKey} ({Provider}), retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                    connectionString.Name, connectionString.GetFriendlyProviderName(), retryDelayMilliseconds * (retry + 1), retry, lastException.Message);
 
                 Thread.Sleep(retryDelayMilliseconds * (retry + 1));
             }
@@ -200,8 +204,8 @@
                         Connections.Remove(connection.Key);
                     }
 
-                    process.Context.Log(LogSeverity.Debug, process, "database connection closed: {ConnectionStringKey} using {ProviderName} provider",
-                        connection.ConnectionString.Name, connection.ConnectionString.ProviderName);
+                    process.Context.Log(LogSeverity.Debug, process, "database connection closed: {ConnectionStringKey} ({Provider})",
+                        connection.ConnectionString.Name, connection.ConnectionString.GetFriendlyProviderName());
 
                     if (connection != null)
                     {
@@ -211,8 +215,8 @@
                 }
                 else
                 {
-                    process.Context.Log(LogSeverity.Debug, process, "database connection reference count decreased to {ReferenceCount}: {ConnectionStringKey} using {ProviderName} provider",
-                        connection.ReferenceCount, connection.ConnectionString.Name, connection.ConnectionString.ProviderName);
+                    process.Context.Log(LogSeverity.Debug, process, "database connection reference count decreased to {ReferenceCount}: {ConnectionStringKey} ({Provider})",
+                        connection.ReferenceCount, connection.ConnectionString.Name, connection.ConnectionString.GetFriendlyProviderName());
                 }
             }
 

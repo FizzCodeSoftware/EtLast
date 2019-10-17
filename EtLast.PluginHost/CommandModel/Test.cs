@@ -101,7 +101,7 @@
                         commandContext.Logger.Information("connection strings for: {Module}", "Shared");
                         foreach (var cs in sharedCs.All)
                         {
-                            commandContext.Logger.Information("\t{ConnectionStringKey}, {ProviderName}", cs.Name, cs.ProviderName);
+                            commandContext.Logger.Information("\t{ConnectionStringKey}, {Provider}", cs.Name, cs.GetFriendlyProviderName());
                             allConnectionStrings.Add(cs);
                         }
                     }
@@ -113,7 +113,7 @@
                 connectionStrings.LoadFromConfiguration(moduleConfiguration.Configuration, "ConnectionStrings:Module");
                 foreach (var cs in connectionStrings.All)
                 {
-                    commandContext.Logger.Information("\t{ConnectionStringKey}, {ProviderName}", cs.Name, cs.ProviderName);
+                    commandContext.Logger.Information("\t{ConnectionStringKey}, {Provider}", cs.Name, cs.GetFriendlyProviderName());
                     allConnectionStrings.RemoveAll(x => x.Name == cs.Name);
                     allConnectionStrings.Add(cs);
                 }
@@ -135,16 +135,16 @@
                 var knownFields = connectionString.GetKnownConnectionStringFields();
                 if (knownFields == null)
                 {
-                    commandContext.Logger.Information("\ttesting: {ConnectionStringKey}, {ProviderName}",
-                        connectionString.Name, connectionString.ProviderName);
+                    commandContext.Logger.Information("\ttesting: {ConnectionStringKey}, {Provider}",
+                        connectionString.Name, connectionString.GetFriendlyProviderName());
                 }
                 else
                 {
-                    var message = "\ttesting: {ConnectionStringKey}, {ProviderName}";
+                    var message = "\ttesting: {ConnectionStringKey}, {Provider}";
                     var args = new List<object>()
                     {
                         connectionString.Name,
-                        connectionString.ProviderName
+                        connectionString.GetFriendlyProviderName(),
                     };
 
                     if (knownFields.Server != null)

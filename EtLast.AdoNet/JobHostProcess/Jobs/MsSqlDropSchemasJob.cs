@@ -19,7 +19,7 @@
                 throw new JobParameterNullException(Process, this, nameof(SchemaNames));
 
             var knownProvider = Process.Context.GetConnectionString(ConnectionStringKey)?.KnownProvider;
-            if (knownProvider != KnownProvider.MsSql)
+            if (knownProvider != KnownProvider.SqlServer)
                 throw new InvalidJobParameterException(Process, this, nameof(ConnectionString), nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
         }
 

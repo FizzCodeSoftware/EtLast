@@ -5,6 +5,7 @@
     using System.IO;
     using System.Linq;
     using FizzCode.DbTools.Configuration;
+    using FizzCode.EtLast.AdoNet;
     using Microsoft.Extensions.Configuration;
 
     internal static class ModuleConfigurationLoader
@@ -91,7 +92,7 @@
                     ?? allConnectionStrings.Find(x => string.Equals(x.Name, originalName, StringComparison.InvariantCultureIgnoreCase));
 
                 relevantCs.Add(cs);
-                commandContext.Logger.Debug("\t{ConnectionStringKey}, {ProviderName}", cs.Name, cs.ProviderName);
+                commandContext.Logger.Debug("\t{ConnectionStringKey}, {Provider}", cs.Name, cs.GetFriendlyProviderName());
             }
 
             return new ModuleConfiguration()

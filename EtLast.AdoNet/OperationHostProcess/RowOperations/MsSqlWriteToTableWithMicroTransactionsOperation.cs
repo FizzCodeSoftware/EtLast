@@ -80,29 +80,32 @@
             {
                 using (var scope = process.Context.BeginScope(process, TransactionScopeKind.RequiresNew, LogSeverity.Debug))
                 {
-                    var connection = ConnectionManager.GetConnection(_connectionString, process);
-
-                    var options = SqlBulkCopyOptions.Default;
-
-                    if (BulkCopyKeepIdentity)
-                        options |= SqlBulkCopyOptions.KeepIdentity;
-
-                    if (BulkCopyCheckConstraints)
-                        options |= SqlBulkCopyOptions.CheckConstraints;
-
-                    var bulkCopy = new SqlBulkCopy(connection.Connection as SqlConnection, options, null)
-                    {
-                        DestinationTableName = TableDefinition.TableName,
-                        BulkCopyTimeout = CommandTimeout,
-                    };
-
-                    foreach (var column in TableDefinition.Columns)
-                    {
-                        bulkCopy.ColumnMappings.Add(column.RowColumn, column.DbColumn);
-                    }
+                    DatabaseConnection connection = null;
+                    SqlBulkCopy bulkCopy = null;
 
                     try
                     {
+                        connection = ConnectionManager.GetConnection(_connectionString, process);
+
+                        var options = SqlBulkCopyOptions.Default;
+
+                        if (BulkCopyKeepIdentity)
+                            options |= SqlBulkCopyOptions.KeepIdentity;
+
+                        if (BulkCopyCheckConstraints)
+                            options |= SqlBulkCopyOptions.CheckConstraints;
+
+                        bulkCopy = new SqlBulkCopy(connection.Connection as SqlConnection, options, null)
+                        {
+                            DestinationTableName = TableDefinition.TableName,
+                            BulkCopyTimeout = CommandTimeout,
+                        };
+
+                        foreach (var column in TableDefinition.Columns)
+                        {
+                            bulkCopy.ColumnMappings.Add(column.RowColumn, column.DbColumn);
+                        }
+
                         bulkCopy.WriteToServer(_reader);
                         bulkCopy.Close();
                         ConnectionManager.ReleaseConnection(Process, ref connection);
@@ -126,14 +129,18 @@
                         _reader.Reset();
 
                         var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
-                        process.Context.Log(severity, process, "({Operation}) {TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, average speed is {AvgSpeed} msec/Krow), batch time: {BatchElapsed}",
+                        process.Context.Log(severity, process, "({Operation}) {TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, average speed is {AvgSpeed} msec/Krow), last batch time: {BatchElapsed}",
                             Name, _rowsWritten, _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
                         break;
                     }
                     catch (SqlException ex)
                     {
-                        ConnectionManager.ConnectionFailed(ref connection);
-                        bulkCopy.Close();
+                        if (connection != null)
+                        {
+                            ConnectionManager.ConnectionFailed(ref connection);
+                            bulkCopy?.Close();
+                        }
+
                         _reader.ResetCurrentIndex();
 
                         if (retry < MaxRetryCount)
@@ -162,8 +169,11 @@
                     }
                     catch (Exception ex)
                     {
-                        ConnectionManager.ReleaseConnection(Process, ref connection);
-                        bulkCopy.Close();
+                        if (connection != null)
+                        {
+                            ConnectionManager.ConnectionFailed(ref connection);
+                            bulkCopy?.Close();
+                        }
 
                         var exception = new OperationExecutionException(process, this, "database write failed", ex);
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database write failed, connection string key: {0}, table: {1}, message: {2}",
@@ -191,7 +201,7 @@
             if (_connectionString == null)
                 throw new InvalidOperationParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
 
-            if (_connectionString.KnownProvider != KnownProvider.MsSql)
+            if (_connectionString.KnownProvider != KnownProvider.SqlServer)
                 throw new InvalidOperationParameterException(this, "ConnectionString", nameof(_connectionString.ProviderName), "provider name must be System.Data.SqlClient");
 
             _rowsWritten = 0;
