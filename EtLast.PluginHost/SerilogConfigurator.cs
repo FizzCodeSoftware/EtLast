@@ -36,7 +36,7 @@
 
                 .WriteTo.File(Path.Combine(logsFolder, "3-warning-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Warning,
-                    retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitHigh ?? int.MaxValue,
+                    retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitImportant ?? int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                     rollingInterval: RollingInterval.Day,
                     formatProvider: CultureInfo.InvariantCulture,
@@ -44,7 +44,7 @@
 
                 .WriteTo.File(Path.Combine(logsFolder, "4-error-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Error,
-                    retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitHigh ?? int.MaxValue,
+                    retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitImportant ?? int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                     rollingInterval: RollingInterval.Day,
                     formatProvider: CultureInfo.InvariantCulture,
@@ -52,7 +52,7 @@
 
                 .WriteTo.File(Path.Combine(logsFolder, "5-fatal-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Fatal,
-                    retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitHigh ?? int.MaxValue,
+                    retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitImportant ?? int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                     rollingInterval: RollingInterval.Day,
                     formatProvider: CultureInfo.InvariantCulture,
@@ -62,7 +62,7 @@
             {
                 config.WriteTo.File(Path.Combine(logsFolder, "1-debug-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Debug,
-                    retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitDebug ?? int.MaxValue,
+                    retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitLow ?? int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                     rollingInterval: RollingInterval.Day,
                     formatProvider: CultureInfo.InvariantCulture,
@@ -73,7 +73,7 @@
             {
                 config.WriteTo.File(Path.Combine(logsFolder, "0-verbose-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Verbose,
-                    retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitVerbose ?? int.MaxValue,
+                    retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitLow ?? int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                     rollingInterval: RollingInterval.Day,
                     formatProvider: CultureInfo.InvariantCulture,
@@ -112,7 +112,7 @@
 
                 .WriteTo.File(Path.Combine(logsFolder, "3-warning-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Warning,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimitHigh,
+                    retainedFileCountLimit: configuration.RetainedLogFileCountLimitImportant,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                     rollingInterval: RollingInterval.Day,
                     formatProvider: CultureInfo.InvariantCulture,
@@ -120,7 +120,7 @@
 
                 .WriteTo.File(Path.Combine(logsFolder, "4-error-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Error,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimitHigh,
+                    retainedFileCountLimit: configuration.RetainedLogFileCountLimitImportant,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                     rollingInterval: RollingInterval.Day,
                     formatProvider: CultureInfo.InvariantCulture,
@@ -128,7 +128,7 @@
 
                 .WriteTo.File(Path.Combine(logsFolder, "5-fatal-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Fatal,
-                    retainedFileCountLimit: configuration.RetainedLogFileCountLimitHigh,
+                    retainedFileCountLimit: configuration.RetainedLogFileCountLimitImportant,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                     rollingInterval: RollingInterval.Day,
                     formatProvider: CultureInfo.InvariantCulture,
