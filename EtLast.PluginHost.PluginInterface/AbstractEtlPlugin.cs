@@ -21,6 +21,7 @@
             [LogSeverity.Information] = LogEventLevel.Information,
             [LogSeverity.Warning] = LogEventLevel.Warning,
             [LogSeverity.Error] = LogEventLevel.Error,
+            [LogSeverity.Fatal] = LogEventLevel.Fatal,
         };
 
         public ILogger Logger { get; private set; }
@@ -183,7 +184,7 @@
             {
                 OnLog(sender, new ContextLogEventArgs()
                 {
-                    Severity = LogSeverity.Error,
+                    Severity = LogSeverity.Fatal,
                     Caller = args.Process,
                     Text = opsError,
                     ForOps = true,
@@ -222,7 +223,7 @@
                 lvl++;
             }
 
-            Logger.Write(LogEventLevelMap[LogSeverity.Error], "[{Plugin}], " + (args.Process != null ? "<{Process}> " : "") + "{Message}",
+            Logger.Write(LogEventLevelMap[LogSeverity.Fatal], "[{Plugin}], " + (args.Process != null ? "<{Process}> " : "") + "{Message}",
                 TypeHelpers.GetFriendlyTypeName(GetType()),
                 args.Process?.Name,
                 msg);

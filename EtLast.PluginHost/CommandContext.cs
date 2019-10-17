@@ -10,7 +10,7 @@
     {
         public ILogger Logger { get; private set; }
         public ILogger OpsLogger { get; private set; }
-        public PluginHostConfiguration HostConfiguration { get; private set; }
+        public HostConfiguration HostConfiguration { get; private set; }
 
         public bool Load()
         {
@@ -25,7 +25,7 @@
                 return false;
             }
 
-            HostConfiguration = new PluginHostConfiguration();
+            HostConfiguration = new HostConfiguration();
 
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile(hostConfigurationFileName, false)

@@ -13,7 +13,6 @@
             ["InputProcess"] = ColorCode.Process,
             ["Operation"] = ColorCode.Operation,
             ["Job"] = ColorCode.Job,
-            ["AmbientTransaction"] = ColorCode.Transaction,
             ["Transaction"] = ColorCode.Transaction,
             ["ConnectionStringKey"] = ColorCode.SourceOrTarget,
             ["TableName"] = ColorCode.SourceOrTarget,

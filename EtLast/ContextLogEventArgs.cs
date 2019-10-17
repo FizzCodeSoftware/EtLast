@@ -2,7 +2,15 @@
 {
     using System;
 
-    public enum LogSeverity { Verbose, Debug, Information, Warning, Error, Ops }
+    public enum LogSeverity
+    {
+        Verbose,
+        Debug,
+        Information,
+        Warning,
+        Error,
+        Fatal
+    }
 
     public class ContextLogEventArgs : EventArgs
     {
