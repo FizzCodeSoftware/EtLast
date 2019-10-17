@@ -83,7 +83,7 @@
 
         protected override void RunCommand(IDbCommand command, Stopwatch startedOn)
         {
-            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) merging to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            Process.Context.Log(LogSeverity.Debug, Process, this, null, "merging to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 Name, ConnectionString.Name, Helpers.UnEscapeTableName(TargetTableName), Helpers.UnEscapeTableName(SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             if (Parameters != null)
@@ -101,7 +101,7 @@
             {
                 var recordCount = command.ExecuteNonQuery();
 
-                Process.Context.Log(LogSeverity.Information, Process, "({Job}) {RecordCount} records merged to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} in {Elapsed}",
+                Process.Context.Log(LogSeverity.Information, Process, this, null, "{RecordCount} records merged to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} in {Elapsed}",
                     Name, recordCount, ConnectionString.Name, Helpers.UnEscapeTableName(TargetTableName), Helpers.UnEscapeTableName(SourceTableName), startedOn.Elapsed);
 
                 // todo: support stats in jobs...

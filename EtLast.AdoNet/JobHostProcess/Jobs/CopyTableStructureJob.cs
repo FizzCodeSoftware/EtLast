@@ -57,14 +57,14 @@
         {
             var config = Configuration[statementIndex];
 
-            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) create new table {ConnectionStringKey}/{TargetTableName} based on {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            Process.Context.Log(LogSeverity.Debug, Process, this, null, "create new table {ConnectionStringKey}/{TargetTableName} based on {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 Name, ConnectionString.Name, Helpers.UnEscapeTableName(config.TargetTableName), Helpers.UnEscapeTableName(config.SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 command.ExecuteNonQuery();
 
-                Process.Context.Log(LogSeverity.Debug, Process, "({Job}) table {ConnectionStringKey}/{TargetTableName} is created from {SourceTableName} in {Elapsed}",
+                Process.Context.Log(LogSeverity.Debug, Process, this, null, "table {ConnectionStringKey}/{TargetTableName} is created from {SourceTableName} in {Elapsed}",
                     Name, ConnectionString.Name, Helpers.UnEscapeTableName(config.TargetTableName), Helpers.UnEscapeTableName(config.SourceTableName), startedOn.Elapsed);
             }
             catch (Exception ex)
@@ -93,7 +93,7 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            Process.Context.Log(LogSeverity.Information, Process, "({Job}) {TableCount} table(s) successfully created on {ConnectionStringKey} in {Elapsed}",
+            Process.Context.Log(LogSeverity.Information, Process, this, null, "{TableCount} table(s) successfully created on {ConnectionStringKey} in {Elapsed}",
                 Name, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed);
         }
     }

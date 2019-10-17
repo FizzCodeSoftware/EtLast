@@ -35,7 +35,7 @@
 
         protected override void RunCommand(IDbCommand command, Stopwatch startedOn)
         {
-            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) executing custom SQL statement {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}",
+            Process.Context.Log(LogSeverity.Debug, Process, this, null, "executing custom SQL statement {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}",
                 Name, command.CommandText, ConnectionString.Name, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             if (Parameters != null)
@@ -52,7 +52,7 @@
             try
             {
                 var recordCount = command.ExecuteNonQuery();
-                Process.Context.Log(LogSeverity.Information, Process, "({Job}) {RecordCount} records affected in {Elapsed}",
+                Process.Context.Log(LogSeverity.Information, Process, this, null, "{RecordCount} records affected in {Elapsed}",
                     Name, recordCount, startedOn.Elapsed);
             }
             catch (Exception ex)

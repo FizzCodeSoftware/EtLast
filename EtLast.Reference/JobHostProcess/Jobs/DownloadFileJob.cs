@@ -18,7 +18,7 @@
             if (string.IsNullOrEmpty(FileName))
                 throw new JobParameterNullException(Process, this, nameof(FileName));
 
-            Process.Context.Log(LogSeverity.Information, Process, "({Job}) downloading file from '{Url}' to '{FileName}'",
+            Process.Context.Log(LogSeverity.Information, Process, this, null, "downloading file from '{Url}' to '{FileName}'",
                 Name, Url, PathHelpers.GetFriendlyPathName(FileName));
 
             // todo: use HttpClient instead with cancellationTokenSource
@@ -28,7 +28,7 @@
                 try
                 {
                     clt.DownloadFile(Url, FileName);
-                    Process.Context.Log(LogSeverity.Debug, Process, "({Job}) successfully downloaded from '{Url}' to '{FileName}' in {Elapsed}",
+                    Process.Context.Log(LogSeverity.Debug, Process, this, null, "successfully downloaded from '{Url}' to '{FileName}' in {Elapsed}",
                         Name, Url, PathHelpers.GetFriendlyPathName(FileName), startedOn.Elapsed);
                 }
                 catch (Exception ex)

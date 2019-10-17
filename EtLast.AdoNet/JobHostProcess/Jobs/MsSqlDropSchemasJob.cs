@@ -34,14 +34,14 @@
         {
             var schemaName = SchemaNames[statementIndex];
 
-            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) drop schema {ConnectionStringKey}/{SchemaName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            Process.Context.Log(LogSeverity.Debug, Process, this, null, "drop schema {ConnectionStringKey}/{SchemaName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 Name, ConnectionString.Name, Helpers.UnEscapeTableName(schemaName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 command.ExecuteNonQuery();
 
-                Process.Context.Log(LogSeverity.Debug, Process, "({Job}) schema {ConnectionStringKey}/{SchemaName} is dropped in {Elapsed}",
+                Process.Context.Log(LogSeverity.Debug, Process, this, null, "schema {ConnectionStringKey}/{SchemaName} is dropped in {Elapsed}",
                     Name, ConnectionString.Name, Helpers.UnEscapeTableName(schemaName), startedOn.Elapsed);
 
                 Process.Context.Stat.IncrementCounter("database schemas dropped / " + ConnectionString.Name, 1);
@@ -67,7 +67,7 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            Process.Context.Log(LogSeverity.Information, Process, "({Job}) {SchemaCount} schema(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {SchemaNames}",
+            Process.Context.Log(LogSeverity.Information, Process, this, null, "{SchemaCount} schema(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {SchemaNames}",
                  Name, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed,
                  SchemaNames
                     .Take(lastSucceededIndex + 1)

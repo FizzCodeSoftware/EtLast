@@ -30,14 +30,14 @@
         {
             var tableName = TableNames[statementIndex];
 
-            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) drop table {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            Process.Context.Log(LogSeverity.Debug, Process, this, null, "drop table {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 Name, ConnectionString.Name, Helpers.UnEscapeTableName(tableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 command.ExecuteNonQuery();
 
-                Process.Context.Log(LogSeverity.Debug, Process, "({Job}) table {ConnectionStringKey}/{TableName} is dropped in {Elapsed}",
+                Process.Context.Log(LogSeverity.Debug, Process, this, null, "table {ConnectionStringKey}/{TableName} is dropped in {Elapsed}",
                     Name, ConnectionString.Name, Helpers.UnEscapeTableName(tableName), startedOn.Elapsed);
 
                 Process.Context.Stat.IncrementCounter("database tables dropped / " + ConnectionString.Name, 1);
@@ -63,7 +63,7 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            Process.Context.Log(LogSeverity.Information, Process, "({Job}) {TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}",
+            Process.Context.Log(LogSeverity.Information, Process, this, null, "{TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}",
                  Name, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed);
         }
     }

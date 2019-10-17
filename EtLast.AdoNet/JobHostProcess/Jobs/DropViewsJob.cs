@@ -35,14 +35,14 @@
         {
             var viewName = TableNames[statementIndex];
 
-            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) drop view {ConnectionStringKey}/{ViewName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            Process.Context.Log(LogSeverity.Debug, Process, this, null, "drop view {ConnectionStringKey}/{ViewName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 Name, ConnectionString.Name, Helpers.UnEscapeViewName(viewName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 command.ExecuteNonQuery();
 
-                Process.Context.Log(LogSeverity.Debug, Process, "({Job}) view {ConnectionStringKey}/{ViewName} is dropped in {Elapsed}",
+                Process.Context.Log(LogSeverity.Debug, Process, this, null, "view {ConnectionStringKey}/{ViewName} is dropped in {Elapsed}",
                     Name, ConnectionString.Name, Helpers.UnEscapeViewName(viewName), startedOn.Elapsed);
 
                 Process.Context.Stat.IncrementCounter("database views dropped / " + ConnectionString.Name, 1);
@@ -68,7 +68,7 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            Process.Context.Log(LogSeverity.Information, Process, "({Job}) {ViewCount} view(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {ViewNames}",
+            Process.Context.Log(LogSeverity.Information, Process, this, null, "{ViewCount} view(s) successfully dropped on {ConnectionStringKey} in {Elapsed}: {ViewNames}",
                  Name, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed,
                  TableNames
                     .Take(lastSucceededIndex + 1)

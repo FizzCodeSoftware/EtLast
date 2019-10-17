@@ -135,7 +135,7 @@
                             ? LogSeverity.Information
                             : LogSeverity.Debug;
 
-                        process.Context.Log(severity, process, "({Operation}) {TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} msec/Krow), last batch time: {BatchElapsed}",
+                        process.Context.Log(severity, process, null, this, "{TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} msec/Krow), last batch time: {BatchElapsed}",
                             Name, _rowsWritten, _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), transactionId, Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
                         break;
                     }
@@ -152,10 +152,10 @@
 
                     if (retry < MaxRetryCount)
                     {
-                        process.Context.Log(LogSeverity.Error, process, "({Operation}) database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                        process.Context.Log(LogSeverity.Error, process, null, this, "database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
                             Name, RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
 
-                        process.Context.LogOps(LogSeverity.Error, process, "({Operation}) database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                        process.Context.LogOps(LogSeverity.Error, process, null, this, "database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
                             Name, RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
 
                         Thread.Sleep(RetryDelayMilliseconds * (retry + 1));

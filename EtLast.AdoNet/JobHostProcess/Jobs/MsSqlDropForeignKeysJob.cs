@@ -138,7 +138,7 @@ from
                     // tables are not filtered with an IN clause due to the limitations of the query processor
                     // this solution will read unnecessary data, but it will work in all conditions
 
-                    Process.Context.Log(LogSeverity.Debug, Process, "({Job}) querying foreign key names from {ConnectionStringKey} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+                    Process.Context.Log(LogSeverity.Debug, Process, this, null, "querying foreign key names from {ConnectionStringKey} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                         Name, ConnectionString.Name, command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
                     var tablesNamesHashSet = Mode == MsSqlDropForeignKeysJobMode.InSpecifiedTables || Mode == MsSqlDropForeignKeysJobMode.ToSpecifiedTables
@@ -215,13 +215,13 @@ from
         {
             var t = _tableNamesAndCounts[statementIndex];
 
-            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) drop foreign keys of {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            Process.Context.Log(LogSeverity.Debug, Process, this, null, "drop foreign keys of {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 Name, ConnectionString.Name, Helpers.UnEscapeTableName(t.Item1), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 command.ExecuteNonQuery();
-                Process.Context.Log(LogSeverity.Debug, Process, "({Job}) foreign keys on {ConnectionStringKey}/{TableName} are dropped in {Elapsed}",
+                Process.Context.Log(LogSeverity.Debug, Process, this, null, "foreign keys on {ConnectionStringKey}/{TableName} are dropped in {Elapsed}",
                     Name, ConnectionString.Name, Helpers.UnEscapeTableName(t.Item1), startedOn.Elapsed);
 
                 Process.Context.Stat.IncrementCounter("database foreign keys dropped / " + ConnectionString.Name, t.Item2);
@@ -251,7 +251,7 @@ from
                     .Take(lastSucceededIndex + 1)
                     .Sum(x => x.Item2);
 
-            Process.Context.Log(LogSeverity.Information, Process, "({Job}) {ForeignKeyCount} foreign keys for {TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}",
+            Process.Context.Log(LogSeverity.Information, Process, this, null, "{ForeignKeyCount} foreign keys for {TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}",
                  Name, fkCount, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed);
         }
     }

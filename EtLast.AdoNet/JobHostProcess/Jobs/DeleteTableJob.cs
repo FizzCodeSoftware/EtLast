@@ -27,13 +27,13 @@
 
         protected override void RunCommand(IDbCommand command, Stopwatch startedOn)
         {
-            Process.Context.Log(LogSeverity.Debug, Process, "({Job}) deleting records from {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            Process.Context.Log(LogSeverity.Debug, Process, this, null, "deleting records from {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 Name, ConnectionString.Name, Helpers.UnEscapeTableName(TableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 var recordCount = command.ExecuteNonQuery();
-                Process.Context.Log(LogSeverity.Information, Process, "({Job}) {RecordCount} records deleted in {ConnectionStringKey}/{TableName} in {Elapsed}",
+                Process.Context.Log(LogSeverity.Information, Process, this, null, "{RecordCount} records deleted in {ConnectionStringKey}/{TableName} in {Elapsed}",
                     Name, recordCount, ConnectionString.Name, Helpers.UnEscapeTableName(TableName), startedOn.Elapsed);
             }
             catch (Exception ex)
