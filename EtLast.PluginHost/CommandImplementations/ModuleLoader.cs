@@ -29,8 +29,8 @@
 
             var startedOn = Stopwatch.StartNew();
 
-            if (!commandContext.HostConfiguration.ForceDynamicCompilation
-                && (!commandContext.HostConfiguration.EnableDynamicCompilation || Debugger.IsAttached))
+            if (commandContext.HostConfiguration.DynamicCompilationMode == DynamicCompilationMode.Never
+                || (commandContext.HostConfiguration.DynamicCompilationMode == DynamicCompilationMode.Default && Debugger.IsAttached))
             {
                 commandContext.Logger.Information("loading plugins directly from AppDomain if namespace ends with '{Module}'", moduleName);
                 var appDomainPlugins = LoadPluginsFromAppDomain(moduleName);

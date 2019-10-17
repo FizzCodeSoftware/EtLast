@@ -16,7 +16,6 @@
         {
             var logsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-dev");
 
-
             var config = new LoggerConfiguration()
                 .Enrich.WithExceptionDetails()
 

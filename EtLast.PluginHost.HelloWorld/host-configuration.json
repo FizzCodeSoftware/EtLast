@@ -1,5 +1,5 @@
 ﻿{
-  "PluginHost": {
+  "EtlHost": {
     "ModulesFolder": ".\\Modules",
     "RetainedLogFileCountLimit": {
       "Important": 30,
@@ -7,10 +7,16 @@
       "Low": 1
     },
     "TransactionScopeTimeoutMinutes": 60,
-    "MinimumLogLevelOnConsole": "Information",
-    "MinimumLogLevelInFile": "Debug",
-    "EnableDynamicCompilation": true,
-    "ForceDynamicCompilation": false,
+    "MinimumLogLevel": { // Verbose, Debug, Information, Warning, Error, Fatal
+      "Console": "Information",
+      "File": "Debug"
+    },
+    "DynamicCompilation": {
+      // Default: compile .cs files only when the debugger is not attached
+      // Never: never compile .cs files
+      // Always: always compile .cs files
+      "Mode": "Default"
+    },
     "Seq": {
       "Url": null,
       "ApiKey": null

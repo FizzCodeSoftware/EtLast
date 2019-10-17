@@ -31,7 +31,7 @@
                 .AddJsonFile(hostConfigurationFileName, false)
                 .Build();
 
-            HostConfiguration.LoadFromConfiguration(configuration, "PluginHost");
+            HostConfiguration.LoadFromConfiguration(configuration, "EtlHost");
 
             if (HostConfiguration.ModulesFolder.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))
             {
