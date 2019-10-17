@@ -101,7 +101,7 @@
                         commandContext.Logger.Information("connection strings for: {Module}", "Shared");
                         foreach (var cs in sharedCs.All)
                         {
-                            commandContext.Logger.Information("\t{ConnectionStringKey}, {Provider}", cs.Name, cs.GetFriendlyProviderName());
+                            commandContext.Logger.Information("\t{ConnectionStringKey} ({Provider})", cs.Name, cs.GetFriendlyProviderName());
                             allConnectionStrings.Add(cs);
                         }
                     }
@@ -113,7 +113,7 @@
                 connectionStrings.LoadFromConfiguration(moduleConfiguration.Configuration, "ConnectionStrings:Module");
                 foreach (var cs in connectionStrings.All)
                 {
-                    commandContext.Logger.Information("\t{ConnectionStringKey}, {Provider}", cs.Name, cs.GetFriendlyProviderName());
+                    commandContext.Logger.Information("\t{ConnectionStringKey} ({Provider})", cs.Name, cs.GetFriendlyProviderName());
                     allConnectionStrings.RemoveAll(x => x.Name == cs.Name);
                     allConnectionStrings.Add(cs);
                 }
@@ -135,12 +135,12 @@
                 var knownFields = connectionString.GetKnownConnectionStringFields();
                 if (knownFields == null)
                 {
-                    commandContext.Logger.Information("\ttesting: {ConnectionStringKey}, {Provider}",
+                    commandContext.Logger.Information("\ttesting: {ConnectionStringKey} ({Provider})",
                         connectionString.Name, connectionString.GetFriendlyProviderName());
                 }
                 else
                 {
-                    var message = "\ttesting: {ConnectionStringKey}, {Provider}";
+                    var message = "\ttesting: {ConnectionStringKey} ({Provider})";
                     var args = new List<object>()
                     {
                         connectionString.Name,
@@ -149,31 +149,31 @@
 
                     if (knownFields.Server != null)
                     {
-                        message += ", Server: {Server}";
+                        message += ", server: {Server}";
                         args.Add(knownFields.Server);
                     }
 
                     if (knownFields.Port != null)
                     {
-                        message += ", Port: {Port}";
+                        message += ", port: {Port}";
                         args.Add(knownFields.Port);
                     }
 
                     if (knownFields.Database != null)
                     {
-                        message += ", Database: {Database}";
+                        message += ", database: {Database}";
                         args.Add(knownFields.Database);
                     }
 
                     if (knownFields.IntegratedSecurity != null)
                     {
-                        message += ", IntegratedSecurity: {IntegratedSecurity}";
+                        message += ", integrated security: {IntegratedSecurity}";
                         args.Add(knownFields.IntegratedSecurity);
                     }
 
                     if (knownFields.UserId != null)
                     {
-                        message += ", UserId: {UserId}";
+                        message += ", user: {UserId}";
                         args.Add(knownFields.UserId);
                     }
 

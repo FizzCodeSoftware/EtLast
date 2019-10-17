@@ -22,6 +22,7 @@
             ["SourceTableName"] = ColorCode.SourceOrTarget,
             ["TargetTableName"] = ColorCode.SourceOrTarget,
             ["FileName"] = ColorCode.SourceOrTarget,
+            ["Folder"] = ColorCode.SourceOrTarget,
         };
     }
 }

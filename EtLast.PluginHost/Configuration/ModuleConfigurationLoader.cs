@@ -5,7 +5,6 @@
     using System.IO;
     using System.Linq;
     using FizzCode.DbTools.Configuration;
-    using FizzCode.EtLast.AdoNet;
     using Microsoft.Extensions.Configuration;
 
     internal static class ModuleConfigurationLoader
@@ -18,8 +17,8 @@
             var moduleFolder = Path.Combine(commandContext.HostConfiguration.ModulesFolder, moduleName);
             if (!Directory.Exists(moduleFolder))
             {
-                commandContext.Logger.Error("can't find the module folder: {ModuleFolder}", moduleFolder);
-                commandContext.OpsLogger.Error("can't find the module folder: {ModuleFolder}", moduleFolder);
+                commandContext.Logger.Error("can't find the module folder: {Folder}", moduleFolder);
+                commandContext.OpsLogger.Error("can't find the module folder: {Folder}", moduleFolder);
                 return null;
             }
 
@@ -31,19 +30,19 @@
             if (File.Exists(sharedConfigFileName))
             {
                 configurationBuilder.AddJsonFile(sharedConfigFileName);
-                commandContext.Logger.Debug("using shared configuration file from {ConfigurationFilePath}", PathHelpers.GetFriendlyPathName(sharedConfigFileName));
+                commandContext.Logger.Debug("using shared configuration file from {FileName}", PathHelpers.GetFriendlyPathName(sharedConfigFileName));
             }
 
             var moduleConfigFileName = Path.Combine(moduleFolder, "module-configuration.json");
             if (!File.Exists(moduleConfigFileName))
             {
-                commandContext.Logger.Error("can't find the module configuration file: {ConfigurationFilePath}", moduleConfigFileName);
-                commandContext.OpsLogger.Error("can't find the module configuration file: {ConfigurationFilePath}", moduleConfigFileName);
+                commandContext.Logger.Error("can't find the module configuration file: {FileName}", moduleConfigFileName);
+                commandContext.OpsLogger.Error("can't find the module configuration file: {FileName}", moduleConfigFileName);
                 return null;
             }
 
             configurationBuilder.AddJsonFile(moduleConfigFileName);
-            commandContext.Logger.Debug("using module configuration file from {ConfigurationFilePath}", PathHelpers.GetFriendlyPathName(moduleConfigFileName));
+            commandContext.Logger.Debug("using module configuration file from {FileName}", PathHelpers.GetFriendlyPathName(moduleConfigFileName));
 
             var configuration = configurationBuilder.Build();
             AddCommandLineArgumentsToModuleConfiguration(configuration, moduleSettingOverrides);
@@ -79,20 +78,22 @@
                 allConnectionStrings.Add(cs);
             }
 
-            var originalNames = allConnectionStrings
-                .Select(x => x.Name.Split('-')[0])
-                .Distinct()
-                .ToList();
-
-            commandContext.Logger.Debug("connection strings for: {Module}", moduleName);
             var relevantCs = new ConnectionStringCollection();
-            foreach (var originalName in originalNames)
-            {
-                var cs = allConnectionStrings.Find(x => string.Equals(x.Name, originalName + "-" + Environment.MachineName, StringComparison.InvariantCultureIgnoreCase))
-                    ?? allConnectionStrings.Find(x => string.Equals(x.Name, originalName, StringComparison.InvariantCultureIgnoreCase));
 
-                relevantCs.Add(cs);
-                commandContext.Logger.Debug("\t{ConnectionStringKey}, {Provider}", cs.Name, cs.GetFriendlyProviderName());
+            if (allConnectionStrings?.Count > 0)
+            {
+                var originalNames = allConnectionStrings
+                    .Select(x => x.Name.Split('-')[0])
+                    .Distinct()
+                    .ToList();
+
+                foreach (var originalName in originalNames)
+                {
+                    var connectionString = allConnectionStrings.Find(x => string.Equals(x.Name, originalName + "-" + Environment.MachineName, StringComparison.InvariantCultureIgnoreCase))
+                        ?? allConnectionStrings.Find(x => string.Equals(x.Name, originalName, StringComparison.InvariantCultureIgnoreCase));
+
+                    relevantCs.Add(connectionString);
+                }
             }
 
             return new ModuleConfiguration()

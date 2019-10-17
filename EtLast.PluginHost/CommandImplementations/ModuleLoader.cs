@@ -24,6 +24,62 @@
             if (moduleConfiguration == null)
                 return null;
 
+            if (moduleConfiguration.ConnectionStrings.All.Any())
+            {
+                commandContext.Logger.Information("relevant connection strings for: {Module}", moduleName);
+
+                foreach (var connectionString in moduleConfiguration.ConnectionStrings.All)
+                {
+                    var knownFields = connectionString.GetKnownConnectionStringFields();
+                    if (knownFields == null)
+                    {
+                        commandContext.Logger.Information("\t{ConnectionStringKey} ({Provider})",
+                            connectionString.Name, connectionString.GetFriendlyProviderName());
+                    }
+                    else
+                    {
+                        var message = "\t{ConnectionStringKey} ({Provider})";
+                        var args = new List<object>()
+                            {
+                                connectionString.Name,
+                                connectionString.GetFriendlyProviderName(),
+                            };
+
+                        if (knownFields.Server != null)
+                        {
+                            message += ", server: {Server}";
+                            args.Add(knownFields.Server);
+                        }
+
+                        if (knownFields.Port != null)
+                        {
+                            message += ", port: {Port}";
+                            args.Add(knownFields.Port);
+                        }
+
+                        if (knownFields.Database != null)
+                        {
+                            message += ", database: {Database}";
+                            args.Add(knownFields.Database);
+                        }
+
+                        if (knownFields.IntegratedSecurity != null)
+                        {
+                            message += ", integrated security: {IntegratedSecurity}";
+                            args.Add(knownFields.IntegratedSecurity);
+                        }
+
+                        if (knownFields.UserId != null)
+                        {
+                            message += ", user: {UserId}";
+                            args.Add(knownFields.UserId);
+                        }
+
+                        commandContext.Logger.Information(message, args.ToArray());
+                    }
+                }
+            }
+
             var sharedFolder = Path.Combine(commandContext.HostConfiguration.ModulesFolder, "Shared");
             var sharedConfigFileName = Path.Combine(sharedFolder, "shared-configuration.json");
 
@@ -48,7 +104,7 @@
                 return module;
             }
 
-            commandContext.Logger.Information("compiling plugins from {ModuleFolder} using shared files from {SharedFolder}", PathHelpers.GetFriendlyPathName(moduleConfiguration.ModuleFolder), PathHelpers.GetFriendlyPathName(sharedFolder));
+            commandContext.Logger.Information("compiling plugins from {Folder} using shared files from {SharedFolder}", PathHelpers.GetFriendlyPathName(moduleConfiguration.ModuleFolder), PathHelpers.GetFriendlyPathName(sharedFolder));
             var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             var referenceAssemblyFolder = @"c:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.0.0";

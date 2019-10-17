@@ -20,8 +20,8 @@
                 Logger = SerilogConfigurator.CreateLogger(null);
                 OpsLogger = SerilogConfigurator.CreateOpsLogger(null);
 
-                Logger.Error("can't find the host configuration file: {ConfigurationFilePath}", hostConfigurationFileName);
-                OpsLogger.Error("can't find the host configuration file: {ConfigurationFilePath}", hostConfigurationFileName);
+                Logger.Error("can't find the host configuration file: {FileName}", hostConfigurationFileName);
+                OpsLogger.Error("can't find the host configuration file: {FileName}", hostConfigurationFileName);
                 return false;
             }
 
