@@ -20,7 +20,7 @@
             [ColorCode.StructureName] = "\x1b[38;5;0007m",
             [ColorCode.StringValue] = "\x1b[38;5;0045m",
             [ColorCode.NumberValue] = "\x1b[38;5;0204m",
-            [ColorCode.BooleanValue] = "\x1b[38;5;0027m",
+            [ColorCode.BooleanValue] = "\x1b[38;5;0033m",
             [ColorCode.ScalarValue] = "\x1b[38;5;0085m",
             [ColorCode.TimeSpanValue] = "\x1b[38;5;0220m",
             [ColorCode.LvlTokenVrb] = "\x1b[38;5;0007m",

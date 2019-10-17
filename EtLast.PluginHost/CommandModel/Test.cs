@@ -129,13 +129,60 @@
 
             foreach (var originalName in originalNames)
             {
-                var cs = allConnectionStrings.Find(x => string.Equals(x.Name, originalName + "-" + Environment.MachineName, StringComparison.InvariantCultureIgnoreCase))
+                var connectionString = allConnectionStrings.Find(x => string.Equals(x.Name, originalName + "-" + Environment.MachineName, StringComparison.InvariantCultureIgnoreCase))
                     ?? allConnectionStrings.Find(x => string.Equals(x.Name, originalName, StringComparison.InvariantCultureIgnoreCase));
 
-                commandContext.Logger.Information("\ttesting: {ConnectionStringKey}, {ProviderName}", cs.Name, cs.ProviderName);
+                var knownFields = connectionString.GetKnownConnectionStringFields();
+                if (knownFields == null)
+                {
+                    commandContext.Logger.Information("\ttesting: {ConnectionStringKey}, {ProviderName}",
+                        connectionString.Name, connectionString.ProviderName);
+                }
+                else
+                {
+                    var message = "\ttesting: {ConnectionStringKey}, {ProviderName}";
+                    var args = new List<object>()
+                    {
+                        connectionString.Name,
+                        connectionString.ProviderName
+                    };
+
+                    if (knownFields.Server != null)
+                    {
+                        message += ", Server: {Server}";
+                        args.Add(knownFields.Server);
+                    }
+
+                    if (knownFields.Port != null)
+                    {
+                        message += ", Port: {Port}";
+                        args.Add(knownFields.Port);
+                    }
+
+                    if (knownFields.Database != null)
+                    {
+                        message += ", Database: {Database}";
+                        args.Add(knownFields.Database);
+                    }
+
+                    if (knownFields.IntegratedSecurity != null)
+                    {
+                        message += ", IntegratedSecurity: {IntegratedSecurity}";
+                        args.Add(knownFields.IntegratedSecurity);
+                    }
+
+                    if (knownFields.UserId != null)
+                    {
+                        message += ", UserId: {UserId}";
+                        args.Add(knownFields.UserId);
+                    }
+
+                    commandContext.Logger.Information(message, args.ToArray());
+                }
+
                 try
                 {
-                    ConnectionManager.TestConnection(cs);
+                    ConnectionManager.TestConnection(connectionString);
                     commandContext.Logger.Information("\t\tPASSED");
                 }
                 catch (Exception ex)
