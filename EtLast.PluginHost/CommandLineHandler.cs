@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using System.Reflection;
+    using System.Text.RegularExpressions;
     using CommandDotNet;
     using CommandDotNet.Models;
 
@@ -52,6 +53,8 @@
 
             DisplayModuleNames();
 
+            var regEx = new Regex("(?<=\")[^\"]*(?=\")|[^\" ]+");
+
             while (!Terminated)
             {
                 Console.Write("> ");
@@ -59,7 +62,11 @@
                 if (string.IsNullOrEmpty(commandLine))
                     continue;
 
-                var lineArguments = commandLine.Split(' ');
+                var lineArguments = regEx
+                    .Matches(commandLine.Trim())
+                    .Select(x => x.Value)
+                    .ToArray();
+
                 RunCommand(lineArguments);
 
                 Console.WriteLine();
