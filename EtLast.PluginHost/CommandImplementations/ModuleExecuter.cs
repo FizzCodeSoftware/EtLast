@@ -57,6 +57,11 @@
 
                                 pluginStartedOn.Stop();
                                 runTimes.Add(pluginStartedOn.Elapsed);
+                                GC.Collect();
+                                cpuTimes.Add(GetCpuTime().Subtract(pluginCpuTime));
+                                lifetimeMemories.Add(GetLifetimeMemory() - pluginLifetimeMemory);
+                                currentMemories.Add(GetCurrentMemory() - pluginCurrentMemory);
+
                                 break; // stop processing plugins
                             }
 
@@ -73,6 +78,11 @@
 
                             pluginStartedOn.Stop();
                             runTimes.Add(pluginStartedOn.Elapsed);
+                            GC.Collect();
+                            cpuTimes.Add(GetCpuTime().Subtract(pluginCpuTime));
+                            lifetimeMemories.Add(GetLifetimeMemory() - pluginLifetimeMemory);
+                            currentMemories.Add(GetCurrentMemory() - pluginCurrentMemory);
+
                             break; // stop processing plugins
                         }
                     }
@@ -82,7 +92,6 @@
 
                     pluginStartedOn.Stop();
                     runTimes.Add(pluginStartedOn.Elapsed);
-
                     GC.Collect();
                     cpuTimes.Add(GetCpuTime().Subtract(pluginCpuTime));
                     lifetimeMemories.Add(GetLifetimeMemory() - pluginLifetimeMemory);

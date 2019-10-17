@@ -115,7 +115,7 @@
                 }
                 else
                 {
-                    connection = ConnectionManager.GetConnection(ConnectionString, this);
+                    connection = ConnectionManager.GetConnection(ConnectionString, this, null, null);
                 }
 
                 cmd = connection.Connection.CreateCommand();
@@ -243,7 +243,7 @@
 
             if (CustomConnectionCreator == null)
             {
-                ConnectionManager.ReleaseConnection(this, ref connection);
+                ConnectionManager.ReleaseConnection(this, null, null, ref connection);
             }
 
             Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, startedOn.Elapsed);

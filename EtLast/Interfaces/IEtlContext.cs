@@ -15,7 +15,7 @@
         DateTimeOffset CreatedOnLocal { get; }
 
         TimeSpan TransactionScopeTimeout { get; }
-        EtlTransactionScope BeginScope(ICaller caller, TransactionScopeKind kind, LogSeverity logSeverity);
+        EtlTransactionScope BeginScope(ICaller caller, IJob job, IBaseOperation operation, TransactionScopeKind kind, LogSeverity logSeverity);
 
         CancellationTokenSource CancellationTokenSource { get; }
         ConnectionStringWithProvider GetConnectionString(string key);
@@ -26,7 +26,10 @@
         IRow CreateRow(int columnCountHint = 0);
 
         void Log(LogSeverity severity, ICaller caller, string text, params object[] args);
+        void Log(LogSeverity severity, ICaller caller, IJob job, IBaseOperation operation, string text, params object[] args);
         void LogOps(LogSeverity severity, ICaller caller, string text, params object[] args);
+        void LogOps(LogSeverity severity, ICaller caller, IJob job, IBaseOperation operation, string text, params object[] args);
+
         void LogRow(IProcess process, IRow row, string text, params object[] args);
         void LogCustom(string fileName, ICaller caller, string text, params object[] args);
         void LogCustomOps(string fileName, ICaller caller, string text, params object[] args);

@@ -70,7 +70,7 @@
             Caller = caller;
             context.Log(LogSeverity.Information, this, "strategy started");
 
-            using (var scope = context.BeginScope(this, _evaluationTransactionScopeKind, LogSeverity.Information))
+            using (var scope = context.BeginScope(this, null, null, _evaluationTransactionScopeKind, LogSeverity.Information))
             {
                 var failed = false;
 
@@ -79,7 +79,7 @@
                     foreach (var creator in _processCreators)
                     {
                         IFinalProcess process = null;
-                        using (var creatorScope = context.BeginScope(this, _suppressTransactionScopeForCreator ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Information))
+                        using (var creatorScope = context.BeginScope(this, null, null, _suppressTransactionScopeForCreator ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Information))
                         {
                             process = creator.Invoke();
                             if (process == null)
@@ -102,7 +102,7 @@
                 else
                 {
                     IFinalProcess[] processes = null;
-                    using (var creatorScope = context.BeginScope(this, _suppressTransactionScopeForCreator ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Information))
+                    using (var creatorScope = context.BeginScope(this, null, null, _suppressTransactionScopeForCreator ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Information))
                     {
                         processes = _multipleProcessCreator.Invoke();
                     }

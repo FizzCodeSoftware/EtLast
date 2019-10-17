@@ -15,6 +15,8 @@
     public class ContextLogEventArgs : EventArgs
     {
         public ICaller Caller { get; set; }
+        public IJob Job { get; set; }
+        public IBaseOperation Operation { get; set; }
         public string Text { get; set; }
         public object[] Arguments { get; set; }
         public LogSeverity Severity { get; set; }

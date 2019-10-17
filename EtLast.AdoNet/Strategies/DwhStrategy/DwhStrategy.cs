@@ -84,7 +84,7 @@
                         if (table.MainProcessCreator != null)
                         {
                             context.Log(LogSeverity.Information, this, "creating process");
-                            using (var creatorScope = context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
+                            using (var creatorScope = context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
                             {
                                 mainProcess = table.MainProcessCreator.Invoke(Configuration.ConnectionStringKey, table);
                             }
@@ -97,7 +97,7 @@
                             break;
                         }
 
-                        using (var creatorScope = context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
+                        using (var creatorScope = context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
                         {
                             mainProcess = table.PartitionedMainProcessCreator.Invoke(Configuration.ConnectionStringKey, table, partitionIndex);
                         }
@@ -120,7 +120,7 @@
                 for (var retryCounter = 0; retryCounter <= maxRetryCount; retryCounter++)
                 {
                     context.Log(LogSeverity.Information, this, "finalization round {FinalizationRound} started", retryCounter);
-                    using (var scope = context.BeginScope(this, Configuration.FinalizerTransactionScopeKind, LogSeverity.Information))
+                    using (var scope = context.BeginScope(this, null, null, Configuration.FinalizerTransactionScopeKind, LogSeverity.Information))
                     {
                         if (Configuration.BeforeFinalizersJobCreator != null)
                         {

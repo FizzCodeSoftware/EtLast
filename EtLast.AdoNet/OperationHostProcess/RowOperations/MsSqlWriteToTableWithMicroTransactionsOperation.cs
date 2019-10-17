@@ -7,6 +7,7 @@
     using System.Globalization;
     using System.Linq;
     using System.Threading;
+    using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
@@ -78,14 +79,16 @@
 
             for (var retry = 0; retry <= MaxRetryCount; retry++)
             {
-                using (var scope = process.Context.BeginScope(process, TransactionScopeKind.RequiresNew, LogSeverity.Debug))
-                {
-                    DatabaseConnection connection = null;
-                    SqlBulkCopy bulkCopy = null;
+                DatabaseConnection connection = null;
+                SqlBulkCopy bulkCopy = null;
 
-                    try
+                try
+                {
+                    using (var scope = process.Context.BeginScope(process, null, this, TransactionScopeKind.RequiresNew, LogSeverity.Debug))
                     {
-                        connection = ConnectionManager.GetConnection(_connectionString, process);
+                        var transactionId = Transaction.Current.ToIdentifierString();
+
+                        connection = ConnectionManager.GetConnection(_connectionString, process, null, this, 0);
 
                         var options = SqlBulkCopyOptions.Default;
 
@@ -108,7 +111,7 @@
 
                         bulkCopy.WriteToServer(_reader);
                         bulkCopy.Close();
-                        ConnectionManager.ReleaseConnection(Process, ref connection);
+                        ConnectionManager.ReleaseConnection(Process, null, this, ref connection);
 
                         scope.Complete();
 
@@ -128,53 +131,37 @@
                         _rowsWritten += recordCount;
                         _reader.Reset();
 
-                        var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
-                        process.Context.Log(severity, process, "({Operation}) {TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, average speed is {AvgSpeed} msec/Krow), last batch time: {BatchElapsed}",
-                            Name, _rowsWritten, _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
+                        var severity = shutdown
+                            ? LogSeverity.Information
+                            : LogSeverity.Debug;
+
+                        process.Context.Log(severity, process, "({Operation}) {TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} msec/Krow), last batch time: {BatchElapsed}",
+                            Name, _rowsWritten, _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), transactionId, Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
                         break;
                     }
-                    catch (SqlException ex)
+                }
+                catch (Exception ex)
+                {
+                    if (connection != null)
                     {
-                        if (connection != null)
-                        {
-                            ConnectionManager.ConnectionFailed(ref connection);
-                            bulkCopy?.Close();
-                        }
-
-                        _reader.ResetCurrentIndex();
-
-                        if (retry < MaxRetryCount)
-                        {
-                            process.Context.Log(LogSeverity.Error, process, "({Operation}) database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
-                                Name, RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
-
-                            process.Context.LogOps(LogSeverity.Error, process, "({Operation}) database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
-                                Name, RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
-
-                            Thread.Sleep(RetryDelayMilliseconds * (retry + 1));
-                        }
-                        else
-                        {
-                            var exception = new OperationExecutionException(process, this, "database write failed", ex);
-                            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database write failed, connection string key: {0}, table: {1}, message: {2}",
-                                _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), ex.Message));
-                            exception.Data.Add("ConnectionStringKey", _connectionString.Name);
-                            exception.Data.Add("TableName", Helpers.UnEscapeTableName(TableDefinition.TableName));
-                            exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + Helpers.UnEscapeColumnName(x.DbColumn))));
-                            exception.Data.Add("Timeout", CommandTimeout);
-                            exception.Data.Add("Elapsed", _timer.Elapsed);
-                            exception.Data.Add("TotalRowsWritten", _rowsWritten);
-                            throw exception;
-                        }
+                        ConnectionManager.ConnectionFailed(ref connection);
+                        bulkCopy?.Close();
                     }
-                    catch (Exception ex)
-                    {
-                        if (connection != null)
-                        {
-                            ConnectionManager.ConnectionFailed(ref connection);
-                            bulkCopy?.Close();
-                        }
 
+                    _reader.ResetCurrentIndex();
+
+                    if (retry < MaxRetryCount)
+                    {
+                        process.Context.Log(LogSeverity.Error, process, "({Operation}) database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                            Name, RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
+
+                        process.Context.LogOps(LogSeverity.Error, process, "({Operation}) database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                            Name, RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
+
+                        Thread.Sleep(RetryDelayMilliseconds * (retry + 1));
+                    }
+                    else
+                    {
                         var exception = new OperationExecutionException(process, this, "database write failed", ex);
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database write failed, connection string key: {0}, table: {1}, message: {2}",
                             _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), ex.Message));

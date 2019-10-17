@@ -14,7 +14,7 @@
             List<IJob> jobs;
 
             context.Log(LogSeverity.Information, this, "started");
-            using (var creatorScope = context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
+            using (var creatorScope = context.BeginScope(this, null, null, TransactionScopeKind.Suppress, LogSeverity.Information))
             {
                 jobs = strategy.Configuration.BeforeFinalizersJobCreator.Invoke(strategy.Configuration.ConnectionStringKey, strategy.Configuration);
                 context.Log(LogSeverity.Information, this, "created {PreFinalizerCount} pre-finalizers", jobs?.Count ?? 0);

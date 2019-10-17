@@ -7,6 +7,7 @@
     using System.Globalization;
     using System.Linq;
     using System.Text;
+    using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
     public class AdoNetWriteToTableOperation : AbstractRowOperation
@@ -63,7 +64,7 @@
                 return;
             try
             {
-                _connection = ConnectionManager.GetConnection(_connectionString, process);
+                _connection = ConnectionManager.GetConnection(_connectionString, process, null, this);
             }
             catch (Exception ex)
             {
@@ -123,8 +124,8 @@
                 if (shutdown || (_rowsWritten / 10000 != (_rowsWritten - recordCount) / 10000))
                 {
                     var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
-                    process.Context.Log(severity, process, "({Operation}) {TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, average speed is {AvgSpeed} msec/Krow)",
-                        Name, _rowsWritten, _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), Math.Round(_fullTime.ElapsedMilliseconds * 1000 / (double)_rowsWritten, 1));
+                    process.Context.Log(severity, process, "({Operation}) {TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} msec/Krow)",
+                        Name, _rowsWritten, _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), Transaction.Current.ToIdentifierString(), Math.Round(_fullTime.ElapsedMilliseconds * 1000 / (double)_rowsWritten, 1));
                 }
             }
             catch (Exception ex)
@@ -225,7 +226,7 @@
             _fullTime.Stop();
             _fullTime = null;
 
-            ConnectionManager.ReleaseConnection(Process, ref _connection);
+            ConnectionManager.ReleaseConnection(Process, null, this, ref _connection);
         }
 
         public virtual void SetParameter(IDbDataParameter parameter, object value, DbType? dbType, ConnectionStringWithProvider connectionString)

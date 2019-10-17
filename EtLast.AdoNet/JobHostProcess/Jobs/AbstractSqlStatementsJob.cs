@@ -31,7 +31,7 @@
             ConnectionString = Process.Context.GetConnectionString(ConnectionStringKey);
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
-                var connection = ConnectionManager.GetConnection(ConnectionString, Process);
+                var connection = ConnectionManager.GetConnection(ConnectionString, Process, this, null);
                 try
                 {
                     lock (connection.Lock)
@@ -72,7 +72,7 @@
                 }
                 finally
                 {
-                    ConnectionManager.ReleaseConnection(Process, ref connection);
+                    ConnectionManager.ReleaseConnection(Process, this, null, ref connection);
                 }
             }
         }

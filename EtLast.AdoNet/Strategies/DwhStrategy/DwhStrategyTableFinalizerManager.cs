@@ -49,7 +49,7 @@
                     : TransactionScopeKind.None;
 
                     List<IJob> finalizerJobs;
-                    using (var creatorScope = context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
+                    using (var creatorScope = context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
                     {
                         finalizerJobs = table.FinalizerJobsCreator.Invoke(strategy.Configuration.ConnectionStringKey, table);
                     }

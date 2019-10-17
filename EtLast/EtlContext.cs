@@ -119,11 +119,38 @@
             });
         }
 
+        public void Log(LogSeverity severity, ICaller caller, IJob job, IBaseOperation operation, string text, params object[] args)
+        {
+            OnLog?.Invoke(this, new ContextLogEventArgs()
+            {
+                Caller = caller,
+                Job = job,
+                Operation = operation,
+                Text = text,
+                Severity = severity,
+                Arguments = args,
+            });
+        }
+
         public void LogOps(LogSeverity severity, ICaller caller, string text, params object[] args)
         {
             OnLog?.Invoke(this, new ContextLogEventArgs()
             {
                 Caller = caller,
+                Text = text,
+                Severity = severity,
+                Arguments = args,
+                ForOps = true,
+            });
+        }
+
+        public void LogOps(LogSeverity severity, ICaller caller, IJob job, IBaseOperation operation, string text, params object[] args)
+        {
+            OnLog?.Invoke(this, new ContextLogEventArgs()
+            {
+                Caller = caller,
+                Job = job,
+                Operation = operation,
                 Text = text,
                 Severity = severity,
                 Arguments = args,
@@ -226,9 +253,9 @@
             return ConnectionStrings?[key + "-" + Environment.MachineName] ?? ConnectionStrings?[key];
         }
 
-        public EtlTransactionScope BeginScope(ICaller caller, TransactionScopeKind kind, LogSeverity logSeverity)
+        public EtlTransactionScope BeginScope(ICaller caller, IJob job, IBaseOperation operation, TransactionScopeKind kind, LogSeverity logSeverity)
         {
-            return new EtlTransactionScope(this, caller, kind, TransactionScopeTimeout, logSeverity);
+            return new EtlTransactionScope(this, caller, job, operation, kind, TransactionScopeTimeout, logSeverity);
         }
     }
 }

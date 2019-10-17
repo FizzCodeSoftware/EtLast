@@ -142,13 +142,26 @@
 
             if (args.Caller != null)
                 values.Add(args.Caller.Name);
+            if (args.Job != null)
+                values.Add(args.Job.Name);
+            if (args.Operation != null)
+                values.Add(args.Operation.Name);
+
             if (args.Arguments != null)
                 values.AddRange(args.Arguments);
 
             var valuesArray = values.ToArray();
 
             var logger = args.ForOps ? OpsLogger : Logger;
-            logger.Write(LogEventLevelMap[args.Severity], "[{Module}/{Plugin}]" + ident + (args.Caller != null ? "<{Caller}> " : "") + args.Text, valuesArray);
+            logger.Write(
+                LogEventLevelMap[args.Severity],
+                "[{Module}/{Plugin}]"
+                    + ident
+                    + (args.Caller != null ? "<{Caller}> " : "")
+                    + (args.Job != null ? "({Job}) " : "")
+                    + (args.Operation != null ? "({Operation}) " : "")
+                    + args.Text,
+                valuesArray);
         }
 
         private void OnCustomLog(object sender, ContextCustomLogEventArgs args)
@@ -223,7 +236,8 @@
                 lvl++;
             }
 
-            Logger.Write(LogEventLevelMap[LogSeverity.Fatal], "[{Plugin}], " + (args.Process != null ? "<{Process}> " : "") + "{Message}",
+            Logger.Write(LogEventLevelMap[LogSeverity.Fatal], "[{Module}/{Plugin}], " + (args.Process != null ? "<{Process}> " : "") + "{Message}",
+                ModuleConfiguration.ModuleName,
                 TypeHelpers.GetFriendlyTypeName(GetType()),
                 args.Process?.Name,
                 msg);

@@ -6,6 +6,7 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+    using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
@@ -90,13 +91,16 @@
 
                 _rowsWritten += recordCount;
 
-                var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
-                process.Context.Log(severity, process, "({Operation}) {TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, average speed is {AvgSpeed} msec/Krow), last batch time: {BatchElapsed}",
-                    Name, _rowsWritten, _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
+                var severity = shutdown
+                    ? LogSeverity.Information
+                    : LogSeverity.Debug;
+
+                process.Context.Log(severity, process, "({Operation}) {TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} msec/Krow), last batch time: {BatchElapsed}",
+                    Name, _rowsWritten, _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), Transaction.Current.ToIdentifierString(), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
             }
             catch (Exception ex)
             {
-                ConnectionManager.ReleaseConnection(Process, ref _connection);
+                ConnectionManager.ReleaseConnection(Process, null, this, ref _connection);
                 _bulkCopy.Close();
                 _bulkCopy = null;
 
@@ -146,7 +150,7 @@
             if (_connection != null)
                 return;
 
-            _connection = ConnectionManager.GetConnection(_connectionString, process);
+            _connection = ConnectionManager.GetConnection(_connectionString, process, null, this);
 
             var options = SqlBulkCopyOptions.Default;
 
@@ -190,7 +194,7 @@
                 _bulkCopy = null;
             }
 
-            ConnectionManager.ReleaseConnection(Process, ref _connection);
+            ConnectionManager.ReleaseConnection(Process, null, this, ref _connection);
         }
     }
 }
