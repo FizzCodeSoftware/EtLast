@@ -9,7 +9,7 @@
             Context.ExecuteOne(true, new DefaultEtlStrategy(CreateHelloWorldProcess, TransactionScopeKind.None));
         }
 
-        private IFinalProcess CreateHelloWorldProcess()
+        private IFinalProcess CreateHelloWorldProcess(IEtlStrategy strategy)
         {
             return new JobHostProcess(Context, "AwesomeJobHost")
             {
@@ -17,7 +17,7 @@
                 {
                     new CustomActionJob()
                     {
-                        Name = "HelloWorldJob",
+                        InstanceName = "HelloWorldJob",
                         Then = job =>
                         {
                             Context.Log(LogSeverity.Information, job.Process, "Hello {Subject}! [using {ExecutorName} and {StrategyName}]", "World",

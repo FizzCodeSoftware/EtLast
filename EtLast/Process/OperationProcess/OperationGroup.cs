@@ -78,18 +78,18 @@
             }
         }
 
-        public override void SetParent(int index)
+        public override void SetParent(int number)
         {
-            base.SetParent(index);
+            base.SetParent(number);
 
-            var idx = 0;
+            var idx = 1;
             foreach (var op in Then)
             {
                 op.SetParentGroup(this, idx);
                 idx++;
             }
 
-            idx = 0;
+            idx = 1;
             foreach (var op in Else)
             {
                 op.SetParentGroup(this, idx);

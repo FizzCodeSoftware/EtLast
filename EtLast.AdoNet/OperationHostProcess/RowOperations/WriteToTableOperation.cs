@@ -10,7 +10,7 @@
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
-    public class AdoNetWriteToTableOperation : AbstractRowOperation
+    public class WriteToTableOperation : AbstractRowOperation
     {
         public RowTestDelegate If { get; set; }
         public string ConnectionStringKey { get; set; }
@@ -87,6 +87,9 @@
 
         private void WriteToSql(IProcess process, bool shutdown)
         {
+            if (Transaction.Current == null)
+                process.Context.Log(LogSeverity.Warning, process, null, this, "there is no active transaction!");
+
             var sqlStatement = SqlStatementCreator.CreateStatement(_connectionString, _statements);
             var recordCount = _statements.Count;
 

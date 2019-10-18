@@ -67,14 +67,8 @@
 
                 foreach (var table in Configuration.Tables)
                 {
-                    if (table.MainProcessCreator != null)
-                        context.Log(LogSeverity.Information, this, "processing table {TableName}", Helpers.UnEscapeTableName(table.TableName));
-
                     for (var partitionIndex = 0; ; partitionIndex++)
                     {
-                        if (table.PartitionedMainProcessCreator != null)
-                            context.Log(LogSeverity.Information, this, "processing table {TableName} (partition #{PartitionIndex})", Helpers.UnEscapeTableName(table.TableName), partitionIndex);
-
                         IFinalProcess mainProcess;
 
                         var creatorScopeKind = table.SuppressTransactionScopeForCreators
@@ -83,7 +77,9 @@
 
                         if (table.MainProcessCreator != null)
                         {
-                            context.Log(LogSeverity.Information, this, "creating process");
+                            context.Log(LogSeverity.Information, this, "creating main process for table {TableName}",
+                                Helpers.UnEscapeTableName(table.TableName));
+
                             using (var creatorScope = context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
                             {
                                 mainProcess = table.MainProcessCreator.Invoke(Configuration.ConnectionStringKey, table);
@@ -96,6 +92,9 @@
 
                             break;
                         }
+
+                        context.Log(LogSeverity.Information, this, "creating main process for table {TableName}, (partition #{PartitionIndex})",
+                            Helpers.UnEscapeTableName(table.TableName), partitionIndex);
 
                         using (var creatorScope = context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
                         {
@@ -168,7 +167,7 @@
         {
             return new DeleteTableJob
             {
-                Name = "DeleteContentFromTargetTable",
+                InstanceName = "DeleteContentFromTargetTable",
                 ConnectionStringKey = connectionStringKey,
                 TableName = tableConfiguration.TableName,
             };
@@ -178,7 +177,7 @@
         {
             return new CopyTableIntoExistingTableJob
             {
-                Name = "CopyTempToTargetTable",
+                InstanceName = "CopyTempToTargetTable",
                 ConnectionStringKey = connectionStringKey,
                 Configuration = new TableCopyConfiguration()
                 {
@@ -220,6 +219,7 @@
             var process = new JobHostProcess(context, "RecreateTempTables");
             process.AddJob(new CopyTableStructureJob
             {
+                InstanceName = "RecreateTempTables",
                 ConnectionStringKey = Configuration.ConnectionStringKey,
                 SuppressExistingTransactionScope = true,
                 Configuration = config,
@@ -240,7 +240,7 @@
             var process = new JobHostProcess(context, "DropTempTablesProcess");
             process.AddJob(new DropTablesJob()
             {
-                Name = "DropTempTables",
+                InstanceName = "DropTempTables",
                 ConnectionStringKey = Configuration.ConnectionStringKey,
                 TableNames = tempTableNames.Concat(additionalTempTableNames).ToArray(),
             });

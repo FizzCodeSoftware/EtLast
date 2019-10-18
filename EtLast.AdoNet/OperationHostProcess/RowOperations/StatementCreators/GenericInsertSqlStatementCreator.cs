@@ -11,14 +11,14 @@
         private DbTableDefinition _tableDefinition;
         private DbColumnDefinition[] _columns;
 
-        public void Prepare(AdoNetWriteToTableOperation operation, IProcess process, DbTableDefinition tableDefinition)
+        public void Prepare(WriteToTableOperation operation, IProcess process, DbTableDefinition tableDefinition)
         {
             _tableDefinition = tableDefinition;
             _columns = _tableDefinition.Columns.Where(x => x.Insert).ToArray();
             _dbColumns = string.Join(", ", _columns.Select(x => x.DbColumn));
         }
 
-        public string CreateRowStatement(ConnectionStringWithProvider connectionString, IRow row, AdoNetWriteToTableOperation operation)
+        public string CreateRowStatement(ConnectionStringWithProvider connectionString, IRow row, WriteToTableOperation operation)
         {
             var startIndex = operation.ParameterCount;
             foreach (var column in _columns)

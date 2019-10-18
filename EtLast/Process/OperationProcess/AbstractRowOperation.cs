@@ -13,7 +13,7 @@
 
         public string InstanceName { get; set; }
         public string Name { get; private set; }
-        public int Index { get; private set; }
+        public int Number { get; private set; }
 
         public IRowOperation NextOperation { get; private set; }
         public IRowOperation PrevOperation { get; private set; }
@@ -51,19 +51,19 @@
             SetProcess(operationProcess);
         }
 
-        public virtual void SetParent(int index)
+        public virtual void SetParent(int number)
         {
             ParentGroup = null;
-            Index = index;
-            Name = Index.ToString("D2", CultureInfo.InvariantCulture) + "." + (InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType()));
+            Number = number;
+            Name = Number.ToString("D2", CultureInfo.InvariantCulture) + "." + (InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType()));
             _hash = Name.GetHashCode(StringComparison.InvariantCultureIgnoreCase);
         }
 
-        public void SetParentGroup(IOperationGroup parentGroup, int index)
+        public void SetParentGroup(IOperationGroup parentGroup, int number)
         {
             ParentGroup = parentGroup;
-            Index = index;
-            Name = (ParentGroup != null ? ParentGroup.Name + "|" : "") + Index.ToString("D2", CultureInfo.InvariantCulture) + "." + (InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType()));
+            Number = number;
+            Name = (ParentGroup != null ? ParentGroup.Name + "|" : "") + Number.ToString("D2", CultureInfo.InvariantCulture) + "." + (InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType()));
             _hash = Name.GetHashCode(StringComparison.InvariantCultureIgnoreCase);
         }
 

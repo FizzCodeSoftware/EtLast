@@ -15,7 +15,7 @@ namespace FizzCode.EtLast
         void SetProcess(IOperationHostProcess process);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        void SetParentGroup(IOperationGroup parentGroup, int index);
+        void SetParentGroup(IOperationGroup parentGroup, int number);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         void SetNextOperation(IRowOperation operation);

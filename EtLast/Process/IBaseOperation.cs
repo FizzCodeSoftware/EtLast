@@ -4,7 +4,7 @@
     {
         string InstanceName { get; }
         string Name { get; }
-        int Index { get; }
+        int Number { get; }
 
         IProcess Process { get; }
 

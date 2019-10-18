@@ -7,6 +7,7 @@
     {
         public bool CloneRows { get; set; }
 
+        private bool _firstEvaluationFinished;
         private List<IRow> _cache;
 
         public MemoryCacheProcess(IEtlContext context, string name)
@@ -26,6 +27,11 @@
 
             if (_cache != null)
             {
+                if (!_firstEvaluationFinished)
+                {
+                    throw new EtlException(this, "the memory cache is not built yet before the second call on " + nameof(MemoryCacheProcess) + "." + nameof(Evaluate));
+                }
+
                 Context.Log(LogSeverity.Information, this, "returning rows from cache");
                 if (CloneRows)
                 {
@@ -89,6 +95,8 @@
                         yield return row;
                     }
                 }
+
+                _firstEvaluationFinished = true;
 
                 Context.Log(LogSeverity.Debug, this, "fetched and returned {RowCount} rows from {InputProcess} in {Elapsed}", resultCount, InputProcess.Name, startedOn.Elapsed);
             }

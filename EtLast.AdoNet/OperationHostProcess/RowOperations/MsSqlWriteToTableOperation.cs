@@ -69,6 +69,9 @@
 
         private void WriteToSql(IProcess process, bool shutdown)
         {
+            if (Transaction.Current == null)
+                process.Context.Log(LogSeverity.Warning, process, null, this, "there is no active transaction!");
+
             var recordCount = _reader.RowCount;
             _timer.Restart();
 

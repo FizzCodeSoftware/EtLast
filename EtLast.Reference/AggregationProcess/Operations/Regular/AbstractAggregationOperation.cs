@@ -6,7 +6,7 @@
     {
         public string Name { get; set; }
         public string InstanceName { get; set; } // todo: update name when InstanceName is set
-        public int Index { get; private set; }
+        public int Number { get; private set; }
         public IProcess Process { get; private set; }
 
         protected AbstractAggregationOperation()
@@ -21,9 +21,9 @@
             Process = process;
         }
 
-        public void SetParent(int index)
+        public void SetParent(int number)
         {
-            Index = index;
+            Number = number;
         }
 
         public void Prepare()

@@ -12,7 +12,7 @@
             Context.ExecuteOne(true, new DefaultEtlStrategy(ProcessCreator, TransactionScopeKind.None));
         }
 
-        private IFinalProcess ProcessCreator()
+        private IFinalProcess ProcessCreator(IEtlStrategy strategy)
         {
             return new JobHostProcess(Context, "JobHost")
             {

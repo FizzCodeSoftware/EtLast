@@ -22,7 +22,7 @@
             {
                 _operation = value;
                 _operation.SetProcess(this);
-                _operation.SetParent(0);
+                _operation.SetParent(1);
             }
         }
 

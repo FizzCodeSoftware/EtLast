@@ -14,7 +14,7 @@
         private string _insertDbColumnsTarget;
         private string _insertDbColumnsSource;
 
-        public void Prepare(AdoNetWriteToTableOperation operation, IProcess process, DbTableDefinition tableDefinition)
+        public void Prepare(WriteToTableOperation operation, IProcess process, DbTableDefinition tableDefinition)
         {
             _tableDefinition = tableDefinition;
 
@@ -25,7 +25,7 @@
             _insertDbColumnsSource = string.Join(", ", _tableDefinition.Columns.Where(x => x.Insert).Select(x => "source." + x.DbColumn));
         }
 
-        public string CreateRowStatement(ConnectionStringWithProvider connectionString, IRow row, AdoNetWriteToTableOperation operation)
+        public string CreateRowStatement(ConnectionStringWithProvider connectionString, IRow row, WriteToTableOperation operation)
         {
             var startIndex = operation.ParameterCount;
             foreach (var column in _tableDefinition.Columns)

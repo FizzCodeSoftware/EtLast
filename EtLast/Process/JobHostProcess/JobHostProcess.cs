@@ -176,7 +176,7 @@
 
         public void AddJob(IJob job)
         {
-            job.SetProcess(this);
+            job.SetProcess(this, _jobs.Count + 1);
             _jobs.Add(job);
         }
 
@@ -184,17 +184,15 @@
         {
             foreach (var job in _jobs)
             {
-                job.SetProcess(null);
+                job.SetProcess(null, 0);
             }
 
             _jobs.Clear();
 
             foreach (var job in jobs)
             {
-                job.SetProcess(this);
+                AddJob(job);
             }
-
-            _jobs.AddRange(jobs);
         }
     }
 }

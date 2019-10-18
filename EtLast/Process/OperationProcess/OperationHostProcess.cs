@@ -66,7 +66,7 @@
             where T : IRowOperation
         {
             operation.SetProcess(this);
-            operation.SetParent(_operations.Count);
+            operation.SetParent(_operations.Count + 1);
 
             if (_operations.Count > 0)
             {
@@ -154,9 +154,10 @@
             IRowOperation nextOp = null;
             if (row.CurrentOperation != null)
             {
-                if (row.CurrentOperation.Index < _operations.Count - 1)
+                var currentIndex = row.CurrentOperation.Number - 1;
+                if (currentIndex < _operations.Count - 1)
                 {
-                    nextOp = _operations[row.CurrentOperation.Index + 1];
+                    nextOp = _operations[currentIndex + 1];
                 }
             }
             else

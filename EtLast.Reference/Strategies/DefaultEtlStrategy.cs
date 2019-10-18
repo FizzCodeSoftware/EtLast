@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
-    public delegate IFinalProcess SingleProcessCreatorDelegate();
-    public delegate IFinalProcess[] MultipleProcessCreatorDelegate();
+    public delegate IFinalProcess SingleProcessCreatorDelegate(IEtlStrategy strategy);
+    public delegate IFinalProcess[] MultipleProcessCreatorDelegate(IEtlStrategy strategy);
 
     /// <summary>
     /// The default implementation of the <see cref="IEtlStrategy"/> interface to execute multuple processes, optionally supporting transaction scopes.
@@ -81,7 +81,7 @@
                         IFinalProcess process = null;
                         using (var creatorScope = context.BeginScope(this, null, null, _suppressTransactionScopeForCreator ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Information))
                         {
-                            process = creator.Invoke();
+                            process = creator.Invoke(this);
                             if (process == null)
                                 continue;
                         }
@@ -104,7 +104,7 @@
                     IFinalProcess[] processes = null;
                     using (var creatorScope = context.BeginScope(this, null, null, _suppressTransactionScopeForCreator ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Information))
                     {
-                        processes = _multipleProcessCreator.Invoke();
+                        processes = _multipleProcessCreator.Invoke(this);
                     }
 
                     foreach (var process in processes)

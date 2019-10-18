@@ -5,8 +5,8 @@
 
     public interface IAdoNetWriteToTableSqlStatementCreator
     {
-        void Prepare(AdoNetWriteToTableOperation operation, IProcess process, DbTableDefinition tableDefinition);
-        string CreateRowStatement(ConnectionStringWithProvider connectionString, IRow row, AdoNetWriteToTableOperation operation);
+        void Prepare(WriteToTableOperation operation, IProcess process, DbTableDefinition tableDefinition);
+        string CreateRowStatement(ConnectionStringWithProvider connectionString, IRow row, WriteToTableOperation operation);
         string CreateStatement(ConnectionStringWithProvider connectionString, List<string> rowStatements);
     }
 }
