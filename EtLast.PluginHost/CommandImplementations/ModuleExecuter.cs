@@ -20,12 +20,16 @@
             try
             {
                 var moduleStartedOn = Stopwatch.StartNew();
-                var globalStat = new StatCounterCollection();
+                var moduleStat = new StatCounterCollection();
                 var runTimes = new List<TimeSpan>();
                 var pluginResults = new List<EtlContextResult>();
                 var cpuTimes = new List<TimeSpan>();
                 var lifetimeMemories = new List<long>();
                 var currentMemories = new List<long>();
+
+                var moduleWarningCount = 0;
+                var moduleExceptionCount = 0;
+
                 foreach (var plugin in module.EnabledPlugins)
                 {
                     var pluginStartedOn = Stopwatch.StartNew();
@@ -48,7 +52,10 @@
                             plugin.Execute();
                             plugin.AfterExecute();
 
-                            AppendGlobalStat(globalStat, plugin.Context.Stat);
+                            moduleWarningCount += plugin.Context.Result.WarningCount;
+                            moduleExceptionCount += plugin.Context.Result.Exceptions.Count;
+
+                            AppendStats(moduleStat, plugin.Context.Stat);
 
                             if (plugin.Context.Result.TerminateHost)
                             {
@@ -104,7 +111,7 @@
                         pluginStartedOn.Elapsed);
                 }
 
-                LogStats(module, globalStat, commandContext.Logger);
+                LogStats(module, moduleStat, commandContext.Logger);
 
                 for (var i = 0; i < Math.Min(module.EnabledPlugins.Count, pluginResults.Count); i++)
                 {
@@ -135,6 +142,12 @@
                     }
                 }
 
+                if (moduleWarningCount > 0)
+                    commandContext.Logger.Warning("[{Module}] {Count} warnings/errors occured during module execution", module.ModuleConfiguration.ModuleName, moduleWarningCount);
+
+                if (moduleExceptionCount > 0)
+                    commandContext.Logger.Warning("[{Module}] {Count} exceptions raised during module execution", module.ModuleConfiguration.ModuleName, moduleExceptionCount);
+
                 GC.Collect();
                 commandContext.Logger.Information("[{Module}] run-time is {Elapsed}, result is {Result}, CPU time: {CpuTime}, allocated memory: {AllocatedMemory}, survived memory: {SurvivedMemory}",
                     module.ModuleConfiguration.ModuleName,
@@ -151,7 +164,7 @@
             return result;
         }
 
-        private static void AppendGlobalStat(StatCounterCollection globalStat, StatCounterCollection stat)
+        private static void AppendStats(StatCounterCollection globalStat, StatCounterCollection stat)
         {
             foreach (var kvp in stat.GetCountersOrdered())
             {

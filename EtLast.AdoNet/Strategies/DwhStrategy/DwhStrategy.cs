@@ -201,7 +201,10 @@
                 {
                     SourceTableName = tableConfiguration.TempTableName,
                     TargetTableName = tableConfiguration.TableName,
-                    ColumnConfiguration = tableConfiguration.Columns?.Select(x => new ColumnCopyConfiguration(x)).ToList(),
+                    ColumnConfiguration = tableConfiguration
+                        .Columns?
+                        .Select(x => new ColumnCopyConfiguration(x))
+                        .ToList(),
                 },
                 CommandTimeout = commandTimeout,
                 CopyIdentityColumns = copyIdentityColumns,
@@ -217,7 +220,10 @@
                 {
                     SourceTableName = table.TableName,
                     TargetTableName = table.TempTableName,
-                    ColumnConfiguration = table.Columns?.Select(x => new ColumnCopyConfiguration(x)).ToList(),
+                    ColumnConfiguration = table
+                        .Columns?
+                        .Select(x => new ColumnCopyConfiguration(x))
+                        .ToList(),
                 });
 
                 if (table.AdditionalTables != null)
@@ -228,7 +234,10 @@
                         {
                             SourceTableName = additionalTable.TableName,
                             TargetTableName = additionalTable.TempTableName,
-                            ColumnConfiguration = additionalTable.Columns?.Select(x => new ColumnCopyConfiguration(x)).ToList(),
+                            ColumnConfiguration = additionalTable
+                                .Columns?
+                                .Select(x => new ColumnCopyConfiguration(x))
+                                .ToList(),
                         });
                     }
                 }
@@ -260,7 +269,9 @@
             {
                 InstanceName = "DropTempTables",
                 ConnectionStringKey = Configuration.ConnectionStringKey,
-                TableNames = tempTableNames.Concat(additionalTempTableNames).ToArray(),
+                TableNames = tempTableNames
+                    .Concat(additionalTempTableNames)
+                    .ToArray(),
             });
 
             process.EvaluateWithoutResult(this);

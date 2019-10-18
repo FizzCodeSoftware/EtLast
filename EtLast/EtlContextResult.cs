@@ -5,9 +5,10 @@
 
     public class EtlContextResult
     {
-        public bool Success { get; set; } = true;
+        public bool Success { get; internal set; } = true;
         public bool TerminateHost { get; set; }
-        public List<Exception> Exceptions { get; set; } = new List<Exception>();
+        public List<Exception> Exceptions { get; } = new List<Exception>();
+        public int WarningCount { get; internal set; }
 
         public void MergeWith(EtlContextResult otherResult)
         {

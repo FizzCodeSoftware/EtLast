@@ -14,25 +14,17 @@
         public ModuleConfiguration ModuleConfiguration { get; private set; }
         public IEtlContext Context { get; private set; }
 
-        private static readonly Dictionary<LogSeverity, LogEventLevel> LogEventLevelMap = new Dictionary<LogSeverity, LogEventLevel>()
-        {
-            [LogSeverity.Verbose] = LogEventLevel.Verbose,
-            [LogSeverity.Debug] = LogEventLevel.Debug,
-            [LogSeverity.Information] = LogEventLevel.Information,
-            [LogSeverity.Warning] = LogEventLevel.Warning,
-            [LogSeverity.Error] = LogEventLevel.Error,
-            [LogSeverity.Fatal] = LogEventLevel.Fatal,
-        };
-
-        public ILogger Logger { get; private set; }
-        public ILogger OpsLogger { get; private set; }
+        private ILogger _logger;
+        private ILogger _opsLogger;
         public TimeSpan TransactionScopeTimeout { get; private set; }
         private readonly object _dataLock = new object();
 
+        public List<Tuple<LogSeverity, string, object[]>> WarningCount { get; } = new List<Tuple<LogSeverity, string, object[]>>();
+
         public void Init(ILogger logger, ILogger opsLogger, ModuleConfiguration moduleConfiguration, TimeSpan transactionScopeTimeout)
         {
-            Logger = logger;
-            OpsLogger = opsLogger;
+            _logger = logger;
+            _opsLogger = opsLogger;
             ModuleConfiguration = moduleConfiguration;
             Context = CreateContext<DictionaryRow>(transactionScopeTimeout);
             TransactionScopeTimeout = transactionScopeTimeout;
@@ -50,7 +42,6 @@
         public void AfterExecute()
         {
             CustomAfterExecute();
-            LogExceptions();
             LogStats();
         }
 
@@ -68,29 +59,6 @@
                     : kvp.Key;
 
                 Context.Log(severity, null, "stat {StatName} = {StatValue}", key, kvp.Value);
-            }
-        }
-
-        private void LogExceptions()
-        {
-            if (Context.Result.Exceptions.Count > 0)
-            {
-                Logger.Error("{ExceptionCount} exceptions raised during plugin execution", Context.Result.Exceptions.Count);
-                OpsLogger.Error("{ExceptionCount} exceptions raised during plugin execution", Context.Result.Exceptions.Count);
-
-                var index = 0;
-                foreach (var ex in Context.Result.Exceptions)
-                {
-                    Logger.Error(ex, "exception #{ExceptionIndex}", index++);
-
-                    var opsMsg = ex.Message;
-                    if (ex.Data.Contains(EtlException.OpsMessageDataKey) && (ex.Data[EtlException.OpsMessageDataKey] != null))
-                    {
-                        opsMsg = ex.Data[EtlException.OpsMessageDataKey].ToString();
-                    }
-
-                    OpsLogger.Error("exception #{ExceptionIndex}: {Message}", index++, opsMsg);
-                }
             }
         }
 
@@ -150,11 +118,14 @@
             if (args.Arguments != null)
                 values.AddRange(args.Arguments);
 
+            var logger = args.ForOps
+                ? _opsLogger
+                : _logger;
+
             var valuesArray = values.ToArray();
 
-            var logger = args.ForOps ? OpsLogger : Logger;
             logger.Write(
-                LogEventLevelMap[args.Severity],
+                (LogEventLevel)args.Severity,
                 "[{Module}/{Plugin}]"
                     + ident
                     + (args.Caller != null ? "<{Caller}> " : "")
@@ -162,6 +133,18 @@
                     + (args.Operation != null ? "({Operation}) " : "")
                     + args.Text,
                 valuesArray);
+
+            if (args.Severity == LogSeverity.Warning || args.Severity == LogSeverity.Error)
+            {
+                WarningCount.Add(new Tuple<LogSeverity, string, object[]>(
+                    args.Severity,
+                    "[{Module}/{Plugin}] "
+                        + (args.Caller != null ? "<{Caller}> " : "")
+                        + (args.Job != null ? "({Job}) " : "")
+                        + (args.Operation != null ? "({Operation}) " : "")
+                        + args.Text,
+                    valuesArray));
+            }
         }
 
         private void OnCustomLog(object sender, ContextCustomLogEventArgs args)
@@ -236,7 +219,7 @@
                 lvl++;
             }
 
-            Logger.Write(LogEventLevelMap[LogSeverity.Fatal], "[{Module}/{Plugin}], " + (args.Process != null ? "<{Process}> " : "") + "{Message}",
+            _logger.Fatal("[{Module}/{Plugin}], " + (args.Process != null ? "<{Process}> " : "") + "{Message}",
                 ModuleConfiguration.ModuleName,
                 TypeHelpers.GetFriendlyTypeName(GetType()),
                 args.Process?.Name,

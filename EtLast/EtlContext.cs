@@ -110,6 +110,9 @@
 
         public void Log(LogSeverity severity, ICaller caller, string text, params object[] args)
         {
+            if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
+                Result.WarningCount++;
+
             OnLog?.Invoke(this, new ContextLogEventArgs()
             {
                 Caller = caller,
@@ -121,6 +124,9 @@
 
         public void Log(LogSeverity severity, ICaller caller, IJob job, IBaseOperation operation, string text, params object[] args)
         {
+            if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
+                Result.WarningCount++;
+
             OnLog?.Invoke(this, new ContextLogEventArgs()
             {
                 Caller = caller,
