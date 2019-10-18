@@ -181,22 +181,22 @@
             context.Log(LogSeverity.Information, this, success ? "finished in {Elapsed}" : "failed after {Elapsed}", startedOn.Elapsed);
         }
 
-        public static IJob DeleteTargetTableFinalizer(DwhStrategy strategy, DwhStrategyTableConfigurationBase tableConfiguration)
+        public static IJob DeleteTargetTableFinalizer(DwhStrategyTableConfigurationBase tableConfiguration)
         {
             return new DeleteTableJob
             {
                 InstanceName = "DeleteContentFromTargetTable",
-                ConnectionStringKey = strategy.Configuration.ConnectionStringKey,
+                ConnectionStringKey = tableConfiguration.Strategy.Configuration.ConnectionStringKey,
                 TableName = tableConfiguration.TableName,
             };
         }
 
-        public static IJob CopyTableFinalizer(DwhStrategy strategy, DwhStrategyTableConfigurationBase tableConfiguration, int commandTimeout, bool copyIdentityColumns = false)
+        public static IJob CopyTableFinalizer(DwhStrategyTableConfigurationBase tableConfiguration, int commandTimeout, bool copyIdentityColumns = false)
         {
             return new CopyTableIntoExistingTableJob
             {
                 InstanceName = "CopyTempToTargetTable",
-                ConnectionStringKey = strategy.Configuration.ConnectionStringKey,
+                ConnectionStringKey = tableConfiguration.Strategy.Configuration.ConnectionStringKey,
                 Configuration = new TableCopyConfiguration()
                 {
                     SourceTableName = tableConfiguration.TempTableName,

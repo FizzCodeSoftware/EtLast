@@ -8,8 +8,6 @@
 
     public class DwhStrategyTableConfiguration : DwhStrategyTableConfigurationBase
     {
-        public DwhStrategy Strategy { get; internal set; }
-
         /// <summary>
         /// Setting this to true forces the strategy to suppress the ambient scope while calling the process- and job creator delegates. Default value is false.
         /// </summary>
@@ -26,6 +24,8 @@
 
     public class DwhStrategyTableConfigurationBase
     {
+        public DwhStrategy Strategy { get; internal set; }
+
         public string TableName { get; set; }
         public string TempTableName { get; set; }
         public string[] Columns { get; set; }
