@@ -51,7 +51,7 @@
                     List<IJob> finalizerJobs;
                     using (var creatorScope = context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
                     {
-                        finalizerJobs = table.FinalizerJobsCreator.Invoke(strategy.Configuration.ConnectionStringKey, table);
+                        finalizerJobs = table.FinalizerJobsCreator.Invoke(table);
                     }
 
                     var process = new JobHostProcess(context, "Finalize:" + Helpers.UnEscapeTableName(table.TableName));

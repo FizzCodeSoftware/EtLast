@@ -2,12 +2,14 @@
 {
     using System.Collections.Generic;
 
-    public delegate IFinalProcess DwhPartitionedMainProcessCreatorDelegate(string connectionStringKey, DwhStrategyTableConfiguration tableConfiguration, int partitionIndex);
-    public delegate IFinalProcess DwhMainProcessCreatorDelegate(string connectionStringKey, DwhStrategyTableConfiguration tableConfiguration);
-    public delegate List<IJob> DwhFinalizerJobsCreatorDelegate(string connectionStringKey, DwhStrategyTableConfiguration tableConfiguration);
+    public delegate IFinalProcess DwhPartitionedMainProcessCreatorDelegate(DwhStrategyTableConfiguration tableConfiguration, int partitionIndex);
+    public delegate IFinalProcess DwhMainProcessCreatorDelegate(DwhStrategyTableConfiguration tableConfiguration);
+    public delegate List<IJob> DwhFinalizerJobsCreatorDelegate(DwhStrategyTableConfiguration tableConfiguration);
 
     public class DwhStrategyTableConfiguration : DwhStrategyTableConfigurationBase
     {
+        public DwhStrategy Strategy { get; internal set; }
+
         /// <summary>
         /// Setting this to true forces the strategy to suppress the ambient scope while calling the process- and job creator delegates. Default value is false.
         /// </summary>

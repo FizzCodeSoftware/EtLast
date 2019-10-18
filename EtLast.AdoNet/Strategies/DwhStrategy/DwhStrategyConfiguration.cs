@@ -11,6 +11,8 @@
 
     public class DwhStrategyConfiguration
     {
+        public DwhStrategy Strategy { get; internal set; }
+
         /// <summary>
         /// The transaction scope kind around the finalizers. Default value is <see cref="TransactionScopeKind.Required"/>.
         /// </summary>

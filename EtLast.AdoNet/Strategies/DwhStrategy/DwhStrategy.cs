@@ -11,7 +11,25 @@
         public string InstanceName { get; set; }
         public string Name => InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType());
 
-        public DwhStrategyConfiguration Configuration { get; set; }
+        private DwhStrategyConfiguration _configuration;
+
+        public DwhStrategyConfiguration Configuration
+        {
+            get => _configuration;
+            set
+            {
+                if (_configuration != null)
+                    _configuration.Strategy = null;
+
+                _configuration = value;
+                _configuration.Strategy = this;
+
+                foreach (var table in _configuration.Tables)
+                {
+                    table.Strategy = this;
+                }
+            }
+        }
 
         public void Execute(ICaller caller, IEtlContext context)
         {
@@ -82,7 +100,7 @@
 
                             using (var creatorScope = context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
                             {
-                                mainProcess = table.MainProcessCreator.Invoke(Configuration.ConnectionStringKey, table);
+                                mainProcess = table.MainProcessCreator.Invoke(table);
                             }
 
                             mainProcess.EvaluateWithoutResult(this);
@@ -98,7 +116,7 @@
 
                         using (var creatorScope = context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
                         {
-                            mainProcess = table.PartitionedMainProcessCreator.Invoke(Configuration.ConnectionStringKey, table, partitionIndex);
+                            mainProcess = table.PartitionedMainProcessCreator.Invoke(table, partitionIndex);
                         }
 
                         mainProcess.Name += "/#" + (partitionIndex + 1).ToString("D", CultureInfo.InvariantCulture);
@@ -163,22 +181,22 @@
             context.Log(LogSeverity.Information, this, success ? "finished in {Elapsed}" : "failed after {Elapsed}", startedOn.Elapsed);
         }
 
-        public static IJob DeleteTargetTableFinalizer(string connectionStringKey, DwhStrategyTableConfigurationBase tableConfiguration)
+        public static IJob DeleteTargetTableFinalizer(DwhStrategy strategy, DwhStrategyTableConfigurationBase tableConfiguration)
         {
             return new DeleteTableJob
             {
                 InstanceName = "DeleteContentFromTargetTable",
-                ConnectionStringKey = connectionStringKey,
+                ConnectionStringKey = strategy.Configuration.ConnectionStringKey,
                 TableName = tableConfiguration.TableName,
             };
         }
 
-        public static IJob CopyTableFinalizer(string connectionStringKey, DwhStrategyTableConfigurationBase tableConfiguration, int commandTimeout, bool copyIdentityColumns = false)
+        public static IJob CopyTableFinalizer(DwhStrategy strategy, DwhStrategyTableConfigurationBase tableConfiguration, int commandTimeout, bool copyIdentityColumns = false)
         {
             return new CopyTableIntoExistingTableJob
             {
                 InstanceName = "CopyTempToTargetTable",
-                ConnectionStringKey = connectionStringKey,
+                ConnectionStringKey = strategy.Configuration.ConnectionStringKey,
                 Configuration = new TableCopyConfiguration()
                 {
                     SourceTableName = tableConfiguration.TempTableName,
