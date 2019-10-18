@@ -19,8 +19,6 @@
         public TimeSpan TransactionScopeTimeout { get; private set; }
         private readonly object _dataLock = new object();
 
-        public List<Tuple<LogSeverity, string, object[]>> WarningCount { get; } = new List<Tuple<LogSeverity, string, object[]>>();
-
         public void Init(ILogger logger, ILogger opsLogger, ModuleConfiguration moduleConfiguration, TimeSpan transactionScopeTimeout)
         {
             _logger = logger;
@@ -122,8 +120,6 @@
                 ? _opsLogger
                 : _logger;
 
-            var valuesArray = values.ToArray();
-
             logger.Write(
                 (LogEventLevel)args.Severity,
                 "[{Module}/{Plugin}]"
@@ -132,19 +128,7 @@
                     + (args.Job != null ? "({Job}) " : "")
                     + (args.Operation != null ? "({Operation}) " : "")
                     + args.Text,
-                valuesArray);
-
-            if (args.Severity == LogSeverity.Warning || args.Severity == LogSeverity.Error)
-            {
-                WarningCount.Add(new Tuple<LogSeverity, string, object[]>(
-                    args.Severity,
-                    "[{Module}/{Plugin}] "
-                        + (args.Caller != null ? "<{Caller}> " : "")
-                        + (args.Job != null ? "({Job}) " : "")
-                        + (args.Operation != null ? "({Operation}) " : "")
-                        + args.Text,
-                    valuesArray));
-            }
+                values.ToArray());
         }
 
         private void OnCustomLog(object sender, ContextCustomLogEventArgs args)
