@@ -29,13 +29,13 @@
             var tableName = TableNames[statementIndex];
 
             Process.Context.Log(LogSeverity.Debug, Process, this, null, "enable constraint check on {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                Name, ConnectionString.Name, Helpers.UnEscapeTableName(tableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
+                ConnectionString.Name, Helpers.UnEscapeTableName(tableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 command.ExecuteNonQuery();
                 Process.Context.Log(LogSeverity.Debug, Process, this, null, "constraint check on {ConnectionStringKey}/{TableName} is enabled in {Elapsed}",
-                    Name, ConnectionString.Name, Helpers.UnEscapeTableName(tableName), startedOn.Elapsed);
+                    ConnectionString.Name, Helpers.UnEscapeTableName(tableName), startedOn.Elapsed);
             }
             catch (Exception ex)
             {
@@ -58,7 +58,7 @@
                 return;
 
             Process.Context.Log(LogSeverity.Information, Process, this, null, "constraint check successfully enabled on {TableCount} tables on {ConnectionStringKey} in {Elapsed}",
-                Name, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed);
+                lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed);
         }
     }
 }

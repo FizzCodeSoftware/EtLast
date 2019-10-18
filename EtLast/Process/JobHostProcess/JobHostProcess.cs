@@ -95,7 +95,8 @@
                 var job = _jobs[i];
 
                 var startedOn = Stopwatch.StartNew();
-                Context.Log(LogSeverity.Information, this, job, null, "job started ({JobIndex} of {JobCount}}", job.Name, i + 1, _jobs.Count);
+                Context.Log(LogSeverity.Information, this, job, null, "job started ({JobIndex} of {JobCount}}",
+                    i + 1, _jobs.Count);
 
                 try
                 {
@@ -107,7 +108,8 @@
                     break;
                 }
 
-                Context.Log(LogSeverity.Debug, this, job, null, "job finished in {Elapsed}", _jobs[i].Name, startedOn.Elapsed);
+                Context.Log(LogSeverity.Debug, this, job, null, "job finished in {Elapsed}",
+                    startedOn.Elapsed);
             }
         }
 
@@ -123,7 +125,8 @@
 
                     var swJob = Stopwatch.StartNew();
                     Transaction.Current = tran as Transaction;
-                    Context.Log(LogSeverity.Information, this, job, null, "job started on a new thread ({JobIndex} of {JobCount}}", job.Name, i + 1, _jobs.Count);
+                    Context.Log(LogSeverity.Information, this, job, null, "job started on a new thread ({JobIndex} of {JobCount}}",
+                        i + 1, _jobs.Count);
 
                     try
                     {
@@ -134,7 +137,8 @@
                         Context.AddException(this, ex);
                     }
 
-                    Context.Log(LogSeverity.Debug, this, job, null, "job finished in {Elapsed}", job.Name, swJob.Elapsed);
+                    Context.Log(LogSeverity.Debug, this, job, null, "job finished in {Elapsed}",
+                        swJob.Elapsed);
                 });
 
                 thread.Start(Transaction.Current);
@@ -156,7 +160,7 @@
                     var ok = job.If.Invoke(this, job);
                     if (!ok)
                     {
-                        Context.Log(LogSeverity.Debug, this, job, null, "job is skipped due to '" + nameof(job.If) + "' condition returned false", job.Name);
+                        Context.Log(LogSeverity.Debug, this, job, null, "job is skipped due to '" + nameof(job.If) + "' condition returned false");
                         return;
                     }
                 }

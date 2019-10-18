@@ -86,11 +86,14 @@
             }
             catch (Exception ex)
             {
-                Context.Log(LogSeverity, Caller, Job, Operation, "transaction completition failed after {Elapsed}: {Transaction}, error message: {ExceptionMessage}", startedOn.Elapsed, transactionId, ex.Message);
+                Context.Log(LogSeverity, Caller, Job, Operation, "transaction completition failed after {Elapsed}: {Transaction}, error message: {ExceptionMessage}",
+                    startedOn.Elapsed, transactionId, ex.Message);
+
                 Completed = false;
             }
 
-            Context.Log(LogSeverity, Caller, Job, Operation, "transaction completed in {Elapsed}: {Transaction}", startedOn.Elapsed, transactionId);
+            Context.Log(LogSeverity, Caller, Job, Operation, "transaction completed in {Elapsed}: {Transaction}",
+                startedOn.Elapsed, transactionId);
         }
 
         protected virtual void Dispose(bool disposing)

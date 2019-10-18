@@ -71,7 +71,9 @@
             if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
                 throw new OperationParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));
 
-            Process.Context.Log(LogSeverity.Information, Process, null, this, "evaluating <{InputProcess}>", Name, RightProcess.Name);
+            Process.Context.Log(LogSeverity.Information, Process, null, this, "evaluating <{InputProcess}>",
+                RightProcess.Name);
+
             _dictionary.Clear();
             var rightRows = RightProcess.Evaluate(Process);
             var rightRowCount = 0;
@@ -85,7 +87,9 @@
                 _dictionary[key] = row;
             }
 
-            Process.Context.Log(LogSeverity.Debug, Process, null, this, "fetched {RowCount} rows, dictionary size is {DictionarySize}", Name, rightRowCount, _dictionary.Count);
+            Process.Context.Log(LogSeverity.Debug, Process, null, this, "fetched {RowCount} rows, dictionary size is {DictionarySize}",
+                rightRowCount, _dictionary.Count);
+
             Stat.IncrementCounter("right rows loaded", rightRowCount);
         }
 

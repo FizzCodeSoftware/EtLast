@@ -19,7 +19,7 @@
                 throw new JobParameterNullException(Process, this, nameof(FileName));
 
             Process.Context.Log(LogSeverity.Information, Process, this, null, "downloading file from '{Url}' to '{FileName}'",
-                Name, Url, PathHelpers.GetFriendlyPathName(FileName));
+                Url, PathHelpers.GetFriendlyPathName(FileName));
 
             // todo: use HttpClient instead with cancellationTokenSource
             var startedOn = Stopwatch.StartNew();
@@ -29,7 +29,7 @@
                 {
                     clt.DownloadFile(Url, FileName);
                     Process.Context.Log(LogSeverity.Debug, Process, this, null, "successfully downloaded from '{Url}' to '{FileName}' in {Elapsed}",
-                        Name, Url, PathHelpers.GetFriendlyPathName(FileName), startedOn.Elapsed);
+                        Url, PathHelpers.GetFriendlyPathName(FileName), startedOn.Elapsed);
                 }
                 catch (Exception ex)
                 {

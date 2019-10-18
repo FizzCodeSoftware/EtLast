@@ -18,14 +18,14 @@
             if (File.Exists(FileName))
             {
                 Process.Context.Log(LogSeverity.Information, Process, this, null, "deleting file '{FileName}'",
-                    Name, PathHelpers.GetFriendlyPathName(FileName));
+                    PathHelpers.GetFriendlyPathName(FileName));
 
                 var startedOn = Stopwatch.StartNew();
                 try
                 {
                     File.Delete(FileName);
                     Process.Context.Log(LogSeverity.Debug, Process, this, null, "successfully deleted file '{FileName}' in {Elapsed}",
-                        Name, PathHelpers.GetFriendlyPathName(FileName), startedOn.Elapsed);
+                        PathHelpers.GetFriendlyPathName(FileName), startedOn.Elapsed);
                 }
                 catch (Exception ex)
                 {

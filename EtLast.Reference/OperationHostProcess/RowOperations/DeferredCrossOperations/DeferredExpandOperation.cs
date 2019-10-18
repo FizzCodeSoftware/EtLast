@@ -125,7 +125,7 @@
             var rightProcess = RightProcessCreator.Invoke(_batchRows.ToArray());
 
             Process.Context.Log(LogSeverity.Debug, Process, null, this, "evaluating <{InputProcess}> to process {RowCount} rows with {KeyCount} distinct foreign keys",
-                Name, rightProcess.Name, _batchRows.Count, _batchRowKeys.Count);
+                rightProcess.Name, _batchRows.Count, _batchRowKeys.Count);
 
             var rightRows = rightProcess.Evaluate(Process);
             var rightRowCount = 0;
@@ -139,7 +139,9 @@
                 _lookup[key] = row;
             }
 
-            Process.Context.Log(LogSeverity.Debug, Process, null, this, "fetched {RowCount} rows, lookup size is {LookupSize}", Name, rightRowCount, _lookup.Count);
+            Process.Context.Log(LogSeverity.Debug, Process, null, this, "fetched {RowCount} rows, lookup size is {LookupSize}",
+                rightRowCount, _lookup.Count);
+
             Stat.IncrementCounter("right rows loaded", rightRowCount);
 
             try
