@@ -6,12 +6,13 @@
     {
         private readonly Dictionary<string, object> _data = new Dictionary<string, object>();
 
-        public void SetData<T>(string key, T data)
+        public object this[string key]
         {
-            _data[key] = data;
+            get => GetAs<object>(key, null);
+            set => _data[key] = value;
         }
 
-        public T GetData<T>(string key, T defaultValue)
+        public T GetAs<T>(string key, T defaultValue)
         {
             _data.TryGetValue(key, out var value);
             if (value != null && value is T)
@@ -20,6 +21,11 @@
             }
 
             return defaultValue;
+        }
+
+        public IEnumerable<KeyValuePair<string, object>> All()
+        {
+            return _data;
         }
     }
 }
