@@ -32,7 +32,7 @@
                     tempTablesWithData++;
 
                     context.Log(LogSeverity.Information, this, "creating finalizers for {TableName}",
-                        rowCount, Helpers.UnEscapeTableName(table.TableName));
+                        Helpers.UnEscapeTableName(table.TableName));
 
                     var creatorScopeKind = table.SuppressTransactionScopeForCreators
                         ? TransactionScopeKind.Suppress
