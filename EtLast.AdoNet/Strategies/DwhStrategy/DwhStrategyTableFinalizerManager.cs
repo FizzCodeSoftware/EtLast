@@ -78,7 +78,7 @@
                 }
             }.Evaluate().ToList().FirstOrDefault()?.GetAs<int>("cnt") ?? 0;
 
-            context.Log(LogSeverity.Information, this, "{TempRowCount} rows found in {TempTableName}", count, tempTableName);
+            context.Log(count > 0 ? LogSeverity.Information : LogSeverity.Debug, this, "{TempRowCount} rows found in {TempTableName}", count, tempTableName);
 
             return count;
         }
