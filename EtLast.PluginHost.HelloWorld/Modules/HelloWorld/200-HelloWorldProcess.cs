@@ -6,7 +6,7 @@
     {
         public override void Execute()
         {
-            Context.ExecuteOne(true, new DefaultEtlStrategy(CreateHelloWorldProcess, TransactionScopeKind.None));
+            Context.ExecuteOne(true, new DefaultEtlStrategy(Context, CreateHelloWorldProcess, TransactionScopeKind.None));
         }
 
         private IFinalProcess CreateHelloWorldProcess(IEtlStrategy strategy)

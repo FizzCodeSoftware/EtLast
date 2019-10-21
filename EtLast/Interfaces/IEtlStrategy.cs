@@ -2,6 +2,7 @@
 {
     public interface IEtlStrategy : ICaller
     {
-        void Execute(ICaller caller, IEtlContext context);
+        IEtlContext Context { get; }
+        void Execute(ICaller caller);
     }
 }

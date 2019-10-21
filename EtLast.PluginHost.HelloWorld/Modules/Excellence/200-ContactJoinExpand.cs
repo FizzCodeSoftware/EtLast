@@ -9,7 +9,7 @@
     {
         public override void Execute()
         {
-            Context.ExecuteOne(true, new DefaultEtlStrategy(ProcessCreator, TransactionScopeKind.None));
+            Context.ExecuteOne(true, new DefaultEtlStrategy(Context, ProcessCreator, TransactionScopeKind.None));
         }
 
         private IFinalProcess ProcessCreator(IEtlStrategy strategy)

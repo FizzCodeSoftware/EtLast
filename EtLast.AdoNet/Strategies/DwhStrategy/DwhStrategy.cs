@@ -7,6 +7,7 @@
 
     public class DwhStrategy : IEtlStrategy
     {
+        public IEtlContext Context { get; }
         public ICaller Caller { get; private set; }
         public string InstanceName { get; set; }
         public string Name => InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType());
@@ -31,10 +32,15 @@
             }
         }
 
-        public void Execute(ICaller caller, IEtlContext context)
+        public DwhStrategy(IEtlContext context)
+        {
+            Context = context ?? throw new StrategyParameterNullException(this, nameof(context));
+        }
+
+        public void Execute(ICaller caller)
         {
             Caller = caller;
-            context.Log(LogSeverity.Information, this, "strategy started (dwh)");
+            Context.Log(LogSeverity.Information, this, "strategy started (dwh)");
             var startedOn = Stopwatch.StartNew();
 
             if (Configuration == null)
@@ -50,7 +56,7 @@
             if (Configuration.FinalizerTransactionScopeKind != TransactionScopeKind.RequiresNew && maxRetryCount > 0)
                 throw new InvalidStrategyParameterException(this, nameof(Configuration.FinalizerRetryCount), null, "retrying finalizers can be possible only if the " + nameof(Configuration.FinalizerTransactionScopeKind) + " is set to " + nameof(TransactionScopeKind.RequiresNew));
 
-            var initialExceptionCount = context.GetExceptions().Count;
+            var initialExceptionCount = Context.GetExceptions().Count;
             var success = false;
 
             foreach (var table in Configuration.Tables)
@@ -78,9 +84,9 @@
 
             try
             {
-                CreateTempTables(context);
+                CreateTempTables(Context);
 
-                if (context.GetExceptions().Count > initialExceptionCount)
+                if (Context.GetExceptions().Count > initialExceptionCount)
                     return;
 
                 foreach (var table in Configuration.Tables)
@@ -95,26 +101,26 @@
 
                         if (table.MainProcessCreator != null)
                         {
-                            context.Log(LogSeverity.Information, this, "creating main process for table {TableName}",
+                            Context.Log(LogSeverity.Information, this, "creating main process for table {TableName}",
                                 Helpers.UnEscapeTableName(table.TableName));
 
-                            using (var creatorScope = context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
+                            using (var creatorScope = Context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
                             {
                                 mainProcess = table.MainProcessCreator.Invoke(table);
                             }
 
                             mainProcess.EvaluateWithoutResult(this);
 
-                            if (context.GetExceptions().Count > initialExceptionCount)
+                            if (Context.GetExceptions().Count > initialExceptionCount)
                                 return;
 
                             break;
                         }
 
-                        context.Log(LogSeverity.Information, this, "creating main process for table {TableName}, (partition #{PartitionIndex})",
+                        Context.Log(LogSeverity.Information, this, "creating main process for table {TableName}, (partition #{PartitionIndex})",
                             Helpers.UnEscapeTableName(table.TableName), partitionIndex);
 
-                        using (var creatorScope = context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
+                        using (var creatorScope = Context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
                         {
                             mainProcess = table.PartitionedMainProcessCreator.Invoke(table, partitionIndex);
                         }
@@ -126,7 +132,7 @@
                             rowCount++;
                         }
 
-                        if (context.GetExceptions().Count > initialExceptionCount)
+                        if (Context.GetExceptions().Count > initialExceptionCount)
                             return;
 
                         if (rowCount == 0)
@@ -136,25 +142,25 @@
 
                 for (var retryCounter = 0; retryCounter <= maxRetryCount; retryCounter++)
                 {
-                    context.Log(LogSeverity.Information, this, "finalization round {FinalizationRound} started", retryCounter);
-                    using (var scope = context.BeginScope(this, null, null, Configuration.FinalizerTransactionScopeKind, LogSeverity.Information))
+                    Context.Log(LogSeverity.Information, this, "finalization round {FinalizationRound} started", retryCounter);
+                    using (var scope = Context.BeginScope(this, null, null, Configuration.FinalizerTransactionScopeKind, LogSeverity.Information))
                     {
                         if (Configuration.BeforeFinalizersJobCreator != null)
                         {
                             var preFinalizer = new DwhStrategyPreFinalizerManager();
-                            preFinalizer.Execute(context, this);
+                            preFinalizer.Execute(Context, this);
                         }
 
                         var tableFinalizer = new DwhStrategyTableFinalizerManager();
-                        tableFinalizer.Execute(context, this);
+                        tableFinalizer.Execute(Context, this);
 
                         if (Configuration.AfterFinalizersJobCreator != null)
                         {
                             var postFinalizer = new DwhStrategyPostFinalizerManager();
-                            postFinalizer.Execute(context, this);
+                            postFinalizer.Execute(Context, this);
                         }
 
-                        var currentExceptionCount = context.GetExceptions().Count;
+                        var currentExceptionCount = Context.GetExceptions().Count;
                         if (currentExceptionCount == initialExceptionCount)
                         {
                             scope.Complete();
@@ -173,12 +179,12 @@
                 {
                     if (success || Configuration.TempTableMode == DwhStrategyTempTableMode.AlwaysDrop)
                     {
-                        DropTempTables(context);
+                        DropTempTables(Context);
                     }
                 }
             }
 
-            context.Log(LogSeverity.Information, this, success ? "finished in {Elapsed}" : "failed after {Elapsed}", startedOn.Elapsed);
+            Context.Log(LogSeverity.Information, this, success ? "finished in {Elapsed}" : "failed after {Elapsed}", startedOn.Elapsed);
         }
 
         public static IJob DeleteTargetTableFinalizer(DwhStrategyTableBase table)

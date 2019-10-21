@@ -53,7 +53,7 @@
 
             try
             {
-                strategy.Execute(null, this);
+                strategy.Execute(null);
 
                 if (GetExceptions().Count > initialExceptionCount)
                 {
@@ -83,7 +83,7 @@
             {
                 foreach (var strategy in strategies)
                 {
-                    strategy.Execute(null, this);
+                    strategy.Execute(null);
 
                     var exceptions = GetExceptions();
                     if (exceptions.Count > initialExceptionCount)
