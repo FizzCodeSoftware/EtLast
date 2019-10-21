@@ -35,11 +35,7 @@
         public EtlContext()
         {
             CancellationTokenSource = new CancellationTokenSource();
-
-            AdditionalData = new AdditionalData()
-            {
-                Dictionary = new Dictionary<string, object>(),
-            };
+            AdditionalData = new AdditionalData();
 
             var utcNow = DateTimeOffset.UtcNow;
             CreatedOnUtc = utcNow;

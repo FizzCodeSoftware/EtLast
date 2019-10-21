@@ -4,12 +4,22 @@
 
     public class AdditionalData
     {
-        public Dictionary<string, object> Dictionary { get; set; }
+        private readonly Dictionary<string, object> _data = new Dictionary<string, object>();
 
-        public T GetData<T>(string key)
+        public void SetData<T>(string key, T data)
         {
-            Dictionary.TryGetValue(key, out var value);
-            return (T)value;
+            _data[key] = data;
+        }
+
+        public T GetData<T>(string key, T defaultValue)
+        {
+            _data.TryGetValue(key, out var value);
+            if (value != null && value is T)
+            {
+                return (T)value;
+            }
+
+            return defaultValue;
         }
     }
 }

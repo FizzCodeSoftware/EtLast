@@ -58,22 +58,22 @@
                 if (string.IsNullOrEmpty(table.TempTableName))
                 {
                     if (string.IsNullOrEmpty(Configuration.AutoTempTablePrefix) && string.IsNullOrEmpty(Configuration.AutoTempTablePostfix))
-                        throw new InvalidStrategyParameterException(this, nameof(table.TempTableName), null, nameof(DwhStrategyTableConfiguration) + "." + nameof(DwhStrategyTableConfigurationBase.TempTableName) + " must be specified if there is no " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePrefix) + " or " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePostfix) + " specified (table name: " + table.TableName + ")");
+                        throw new InvalidStrategyParameterException(this, nameof(table.TempTableName), null, nameof(DwhStrategyTable) + "." + nameof(DwhStrategyTableBase.TempTableName) + " must be specified if there is no " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePrefix) + " or " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePostfix) + " specified (table name: " + table.TableName + ")");
 
                     table.TempTableName = Configuration.AutoTempTablePrefix + table.TableName + Configuration.AutoTempTablePostfix;
                 }
 
                 if (string.IsNullOrEmpty(table.TableName))
-                    throw new StrategyParameterNullException(this, nameof(DwhStrategyTableConfigurationBase.TableName));
+                    throw new StrategyParameterNullException(this, nameof(DwhStrategyTableBase.TableName));
 
                 if (table.MainProcessCreator == null && table.PartitionedMainProcessCreator == null)
-                    throw new InvalidStrategyParameterException(this, nameof(DwhStrategyTableConfiguration.MainProcessCreator) + "/" + nameof(DwhStrategyTableConfiguration.PartitionedMainProcessCreator), null, nameof(DwhStrategyTableConfiguration.MainProcessCreator) + " or " + nameof(DwhStrategyTableConfiguration.PartitionedMainProcessCreator) + " must be supplied for " + table.TableName);
+                    throw new InvalidStrategyParameterException(this, nameof(DwhStrategyTable.MainProcessCreator) + "/" + nameof(DwhStrategyTable.PartitionedMainProcessCreator), null, nameof(DwhStrategyTable.MainProcessCreator) + " or " + nameof(DwhStrategyTable.PartitionedMainProcessCreator) + " must be supplied for " + table.TableName);
 
                 if (table.MainProcessCreator != null && table.PartitionedMainProcessCreator != null)
-                    throw new InvalidStrategyParameterException(this, nameof(DwhStrategyTableConfiguration.MainProcessCreator) + "/" + nameof(DwhStrategyTableConfiguration.PartitionedMainProcessCreator), null, "only one of " + nameof(DwhStrategyTableConfiguration.MainProcessCreator) + " or " + nameof(DwhStrategyTableConfiguration.PartitionedMainProcessCreator) + " can be supplied for " + table.TableName);
+                    throw new InvalidStrategyParameterException(this, nameof(DwhStrategyTable.MainProcessCreator) + "/" + nameof(DwhStrategyTable.PartitionedMainProcessCreator), null, "only one of " + nameof(DwhStrategyTable.MainProcessCreator) + " or " + nameof(DwhStrategyTable.PartitionedMainProcessCreator) + " can be supplied for " + table.TableName);
 
                 if (table.FinalizerJobsCreator == null)
-                    throw new StrategyParameterNullException(this, nameof(DwhStrategyTableConfiguration.FinalizerJobsCreator));
+                    throw new StrategyParameterNullException(this, nameof(DwhStrategyTable.FinalizerJobsCreator));
             }
 
             try
@@ -181,7 +181,7 @@
             context.Log(LogSeverity.Information, this, success ? "finished in {Elapsed}" : "failed after {Elapsed}", startedOn.Elapsed);
         }
 
-        public static IJob DeleteTargetTableFinalizer(DwhStrategyTableConfigurationBase tableConfiguration)
+        public static IJob DeleteTargetTableFinalizer(DwhStrategyTableBase tableConfiguration)
         {
             return new DeleteTableJob
             {
@@ -191,7 +191,7 @@
             };
         }
 
-        public static IJob CopyTableFinalizer(DwhStrategyTableConfigurationBase tableConfiguration, int commandTimeout, bool copyIdentityColumns = false)
+        public static IJob CopyTableFinalizer(DwhStrategyTableBase tableConfiguration, int commandTimeout, bool copyIdentityColumns = false)
         {
             return new CopyTableIntoExistingTableJob
             {

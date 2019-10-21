@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -18,35 +17,26 @@
             var tempTablesWithoutData = 0;
             foreach (var table in strategy.Configuration.Tables)
             {
-                var rowCount = new CustomSqlAdoNetDbReaderProcess(context, "RowCountReader")
-                {
-                    ConnectionStringKey = strategy.Configuration.ConnectionStringKey,
-                    Sql = "SELECT COUNT(*) cnt FROM " + table.TempTableName,
-                    ColumnConfiguration = new List<ReaderColumnConfiguration>()
-                    {
-                        new ReaderColumnConfiguration("cnt", new IntConverter(), NullSourceHandler.SetSpecialValue)
-                        {
-                            SpecialValueIfSourceIsNull = 0,
-                        }
-                    }
-                }.Evaluate().ToList().FirstOrDefault()?.GetAs<int>("cnt") ?? 0;
+                var rowCount = CountRowsIn(context, strategy.Configuration.ConnectionStringKey, table.TempTableName);
 
-                // todo: support AdditionalTables here !
                 if (table.AdditionalTables?.Count > 0)
                 {
-                    throw new NotImplementedException();
+                    foreach (var additionalTable in table.AdditionalTables.Values)
+                    {
+                        rowCount += CountRowsIn(context, strategy.Configuration.ConnectionStringKey, additionalTable.TempTableName);
+                    }
                 }
 
                 if (rowCount > 0)
                 {
                     tempTablesWithData++;
 
-                    context.Log(LogSeverity.Information, this, "{TempRowCount} rows found in {TableName}, creating finalizers for table",
-                        rowCount, Helpers.UnEscapeTableName(table.TempTableName));
+                    context.Log(LogSeverity.Information, this, "creating finalizers for {TableName}",
+                        rowCount, Helpers.UnEscapeTableName(table.TableName));
 
                     var creatorScopeKind = table.SuppressTransactionScopeForCreators
-                    ? TransactionScopeKind.Suppress
-                    : TransactionScopeKind.None;
+                        ? TransactionScopeKind.Suppress
+                        : TransactionScopeKind.None;
 
                     List<IJob> finalizerJobs;
                     using (var creatorScope = context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
@@ -65,12 +55,32 @@
                 else
                 {
                     tempTablesWithoutData++;
-                    context.Log(LogSeverity.Debug, this, "no data found in {TableName}, skipping finalizers", Helpers.UnEscapeTableName(table.TempTableName));
+                    context.Log(LogSeverity.Debug, this, "no data found for {TableName}, skipping finalizers", Helpers.UnEscapeTableName(table.TableName));
                 }
             }
 
             context.Log(LogSeverity.Information, this, "{TableCount} temp table contains data", tempTablesWithData);
             context.Log(LogSeverity.Information, this, "{TableCount} temp table contains no data", tempTablesWithoutData);
+        }
+
+        private int CountRowsIn(IEtlContext context, string connectionStringKey, string tempTableName)
+        {
+            var count = new CustomSqlAdoNetDbReaderProcess(context, "TempRowCountReader:" + tempTableName)
+            {
+                ConnectionStringKey = connectionStringKey,
+                Sql = "select count(*) as cnt from " + tempTableName,
+                ColumnConfiguration = new List<ReaderColumnConfiguration>()
+                {
+                    new ReaderColumnConfiguration("cnt", new IntConverter(), NullSourceHandler.SetSpecialValue)
+                    {
+                        SpecialValueIfSourceIsNull = 0,
+                    }
+                }
+            }.Evaluate().ToList().FirstOrDefault()?.GetAs<int>("cnt") ?? 0;
+
+            context.Log(LogSeverity.Information, this, "{TempRowCount} rows found in {TempTableName}", count, tempTableName);
+
+            return count;
         }
     }
 }

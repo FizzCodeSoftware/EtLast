@@ -135,7 +135,7 @@
                             ? LogSeverity.Information
                             : LogSeverity.Debug;
 
-                        process.Context.Log(severity, process, null, this, "{TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, micro-transaction: {Transaction}, average speed is {AvgSpeed} msec/Krow), last batch time: {BatchElapsed}",
+                        process.Context.Log(severity, process, null, this, "{TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, micro-transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}",
                             _rowsWritten, _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), transactionId, Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
                         break;
                     }

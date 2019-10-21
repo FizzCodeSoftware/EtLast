@@ -40,16 +40,16 @@
         /// </summary>
         public DwhBeforeAfterFinalizerJobsCreatorDelegate AfterFinalizersJobCreator { get; set; }
 
-        public List<DwhStrategyTableConfiguration> Tables { get; set; }
+        public List<DwhStrategyTable> Tables { get; set; }
 
         /// <summary>
-        /// Used for table configurations where <see cref="DwhStrategyTableConfigurationBase.TempTableName"/> is null.
+        /// Used for table configurations where <see cref="DwhStrategyTableBase.TempTableName"/> is null.
         /// Temp table name will be: AutoTempTablePrefix + TableName + AutoTempTablePostfix
         /// </summary>
         public string AutoTempTablePrefix { get; set; }
 
         /// <summary>
-        /// Used for table configurations where <see cref="DwhStrategyTableConfigurationBase.TempTableName"/> is null.
+        /// Used for table configurations where <see cref="DwhStrategyTableBase.TempTableName"/> is null.
         /// Temp table name will be: AutoTempTablePrefix + TableName + AutoTempTablePostfix
         /// </summary>
         public string AutoTempTablePostfix { get; set; }

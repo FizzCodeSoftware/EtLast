@@ -127,7 +127,7 @@
                 if (shutdown || (_rowsWritten / 10000 != (_rowsWritten - recordCount) / 10000))
                 {
                     var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
-                    process.Context.Log(severity, process, null, this, "{TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} msec/Krow)",
+                    process.Context.Log(severity, process, null, this, "{TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow)",
                         _rowsWritten, _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), Transaction.Current.ToIdentifierString(), Math.Round(_fullTime.ElapsedMilliseconds * 1000 / (double)_rowsWritten, 1));
                 }
             }

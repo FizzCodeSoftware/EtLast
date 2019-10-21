@@ -200,7 +200,7 @@
                             if (_rows.Count != count)
                             {
                                 wipedRowCount += count - _rows.Count;
-                                Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} of {AllRowCount} rows without keeping order in {Elapsed}, average speed is {AvgWipeSpeed} msec/Krow",
+                                Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} of {AllRowCount} rows without keeping order in {Elapsed}, average speed is {AvgWipeSpeed} sec/Mrow",
                                     count - _rows.Count, count, startedOn.Elapsed, Math.Round(swProcessing.ElapsedMilliseconds * 1000 / (double)wipedRowCount, 1));
                             }
                         }
@@ -227,7 +227,7 @@
 
                         if (lastRemoveableIndex > -1)
                         {
-                            Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} of {AllRowCount} rows while keeping order, average speed is {AvgWipeSpeed} msec/Krow",
+                            Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} of {AllRowCount} rows while keeping order, average speed is {AvgWipeSpeed} sec/Mrow",
                                 lastRemoveableIndex + 1, _rows.Count, Math.Round(swProcessing.ElapsedMilliseconds * 1000 / (double)wipedRowCount, 1));
                             _rows.RemoveRange(0, lastRemoveableIndex + 1);
                         }
@@ -251,7 +251,7 @@
                     if (_rows.Count != count)
                     {
                         wipedRowCount += count - _rows.Count;
-                        Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} rows, average speed is {AvgWipeSpeed} msec/Krow",
+                        Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} rows, average speed is {AvgWipeSpeed} sec/Mrow",
                             count - _rows.Count, Math.Round(swProcessing.ElapsedMilliseconds * 1000 / (double)wipedRowCount, 1));
                     }
                 }
