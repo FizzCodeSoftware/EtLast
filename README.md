@@ -1,5 +1,5 @@
 # EtLast
-###### ETL (Extract, Transform and Load) library for .Net Framework
+###### ETL (Extract, Transform and Load) library for .NET Core 3
 
 For Examples, see the last chapter.
 
