@@ -14,7 +14,7 @@
             ProcessToExecute.Context.Log(LogSeverity.Information, ProcessToExecute, this, null, "evaluating <{InputProcess}>",
                 ProcessToExecute.Name);
 
-            ProcessToExecute.EvaluateWithoutResult(ProcessToExecute);
+            ProcessToExecute.EvaluateWithoutResult(Process);
         }
     }
 }
