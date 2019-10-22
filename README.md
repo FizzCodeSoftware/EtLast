@@ -33,7 +33,7 @@ namespace HelloWorldApp
     {
         private static void Main(string[] args)
         {
-            FizzCode.EtLast.PluginHost.CommandLineHandler.Run(args);
+            FizzCode.EtLast.PluginHost.CommandLineHandler.Run("HelloWorld", args);
         }
     }
 }
