@@ -3,19 +3,19 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using CommandDotNet.Attributes;
+    using CommandDotNet;
     using FizzCode.DbTools.Configuration;
     using FizzCode.EtLast.AdoNet;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
 #pragma warning disable CA1822 // Mark members as static
-    [ApplicationMetadata(Name = "test", Description = "test various things, like connection strings, modules, etc")]
+    [Command(Name = "test", Description = "test various things, like connection strings, modules, etc")]
     [SubCommand]
     public class Test
     {
-        [ApplicationMetadata(Name = "modules", Description = "Tests one or more modules.")]
+        [Command(Name = "modules", Description = "Tests one or more modules.")]
         public void ValidateModule(
-        [Argument(Name = "names", Description = "The space-separated list of module names.")]List<string> moduleNames,
+        [Operand(Name = "names", Description = "The space-separated list of module names.")]List<string> moduleNames,
         [Option(LongName = "all", ShortName = "a")]bool all)
         {
             if (moduleNames == null || moduleNames.Count == 0)
@@ -58,9 +58,9 @@
             }
         }
 
-        [ApplicationMetadata(Name = "connection-strings", Description = "Tests connection strings.")]
+        [Command(Name = "connection-strings", Description = "Tests connection strings.")]
         public void ValidateConnectionStrings(
-        [Argument(Name = "names", Description = "The space-separated list of module names.")]List<string> moduleNames,
+        [Operand(Name = "names", Description = "The space-separated list of module names.")]List<string> moduleNames,
         [Option(LongName = "all", ShortName = "a")]bool all)
         {
             if (moduleNames == null || moduleNames.Count == 0)

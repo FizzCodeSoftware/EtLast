@@ -1,9 +1,9 @@
-﻿namespace FizzCode.EtLast.PluginHost
-{
-    using CommandDotNet.Attributes;
+﻿using CommandDotNet;
 
+namespace FizzCode.EtLast.PluginHost
+{
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
-    [ApplicationMetadata(Name = ">")]
+    [Command(Name = ">")]
     internal class AppCommands
     {
         [SubCommand]
@@ -15,7 +15,7 @@
         [SubCommand]
         public Run Run { get; set; }
 
-        [ApplicationMetadata(Name = "exit", Description = "Exit from the command-line utility.")]
+        [Command(Name = "exit", Description = "Exit from the command-line utility.")]
         public void Exit()
         {
             CommandLineHandler.Terminated = true;

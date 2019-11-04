@@ -1,14 +1,14 @@
 ﻿namespace FizzCode.EtLast.PluginHost
 {
-    using CommandDotNet.Attributes;
+    using CommandDotNet;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
 #pragma warning disable CA1822 // Mark members as static
-    [ApplicationMetadata(Name = "list", Description = "List modules/plugins.")]
+    [Command(Name = "list", Description = "List modules/plugins.")]
     [SubCommand]
     public class List
     {
-        [ApplicationMetadata(Name = "modules", Description = "List all available modules.")]
+        [Command(Name = "modules", Description = "List all available modules.")]
         public void Module()
         {
             ModuleLister.ListModules(CommandLineHandler.Context);

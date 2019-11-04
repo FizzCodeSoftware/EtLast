@@ -2,17 +2,17 @@
 {
     using System;
     using System.Collections.Generic;
-    using CommandDotNet.Attributes;
+    using CommandDotNet;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
 #pragma warning disable CA1822 // Mark members as static
-    [ApplicationMetadata(Name = "run", Description = "Execute ETL modules and/or plugins.")]
+    [Command(Name = "run", Description = "Execute ETL modules and/or plugins.")]
     [SubCommand]
     public class Run
     {
-        [ApplicationMetadata(Name = "module", Description = "Execute one module.")]
+        [Command(Name = "module", Description = "Execute one module.")]
         public void RunModule(
-            [Argument(Name = "module-name", Description = "The name of the module name.")]string moduleName,
+            [Operand(Name = "module-name", Description = "The name of the module name.")]string moduleName,
             [Option(LongName = "plugin")]List<string> pluginListOverride,
             [Option(LongName = "param", ShortName = "p")]List<string> moduleSettingOverrides)
         {
@@ -36,9 +36,9 @@
             }
         }
 
-        [ApplicationMetadata(Name = "modules", Description = "Execute one or more module.")]
+        [Command(Name = "modules", Description = "Execute one or more module.")]
         public void RunModules(
-            [Argument(Name = "module-names", Description = "The space-separated list of module names.")]List<string> moduleNames,
+            [Operand(Name = "module-names", Description = "The space-separated list of module names.")]List<string> moduleNames,
             [Option(LongName = "param", ShortName = "p")]List<string> moduleSettingOverrides)
         {
             if (moduleNames == null || moduleNames.Count == 0)

@@ -70,7 +70,10 @@
 
         public override void Shutdown()
         {
-            Finalize?.Invoke(_excelPackage, _state);
+            if (_state.LastWorksheet != null)
+            {
+                Finalize?.Invoke(_excelPackage, _state);
+            }
 
             base.Shutdown();
 

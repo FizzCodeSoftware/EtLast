@@ -5,7 +5,7 @@
     using System.Reflection;
     using System.Text.RegularExpressions;
     using CommandDotNet;
-    using CommandDotNet.Models;
+    using CommandDotNet.Help;
 
     public static class CommandLineHandler
     {
@@ -116,12 +116,11 @@
         {
             return new AppSettings()
             {
-                EnableVersionOption = false,
-                Case = Case.KebabCase,
                 Help = new AppHelpSettings()
                 {
                     TextStyle = HelpTextStyle.Basic,
                     UsageAppNameStyle = UsageAppNameStyle.GlobalTool,
+                    PrintHelpOption = false,
                 },
             };
         }
