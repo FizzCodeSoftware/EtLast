@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Transactions;
 
     public class CustomSqlAdoNetDbReaderProcess : AbstractAdoNetDbReaderProcess
@@ -13,7 +12,7 @@
         {
         }
 
-        public override IEnumerable<IRow> Evaluate(ICaller caller = null)
+        public override IEnumerable<IRow> Evaluate(IExecutionBlock caller = null)
         {
             Caller = caller;
 

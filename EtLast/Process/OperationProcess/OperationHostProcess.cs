@@ -14,7 +14,7 @@
     {
         public string Name { get; set; }
         public IEtlContext Context { get; }
-        public ICaller Caller { get; protected set; }
+        public IExecutionBlock Caller { get; protected set; }
         public IProcess InputProcess { get; set; }
         public bool ReadingInput { get; private set; }
 
@@ -423,7 +423,7 @@
             }
         }
 
-        public void EvaluateWithoutResult(ICaller caller = null)
+        public void EvaluateWithoutResult(IExecutionBlock caller = null)
         {
             Caller = caller;
 
@@ -540,7 +540,7 @@
             Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", startedOn.Elapsed);
         }
 
-        public IEnumerable<IRow> Evaluate(ICaller caller = null)
+        public IEnumerable<IRow> Evaluate(IExecutionBlock caller = null)
         {
             Caller = caller;
 

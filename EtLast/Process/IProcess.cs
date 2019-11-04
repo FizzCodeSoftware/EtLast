@@ -2,9 +2,9 @@
 {
     using System.Collections.Generic;
 
-    public delegate IEnumerable<IRow> EvaluateDelegate(ICaller caller);
+    public delegate IEnumerable<IRow> EvaluateDelegate(IExecutionBlock caller);
 
-    public interface IProcess : ICaller
+    public interface IProcess : IExecutionBlock
     {
         IEtlContext Context { get; }
         new string Name { get; set; }
@@ -15,6 +15,6 @@
         /// </summary>
         bool ConsumerShouldNotBuffer { get; }
 
-        IEnumerable<IRow> Evaluate(ICaller caller = null);
+        IEnumerable<IRow> Evaluate(IExecutionBlock caller = null);
     }
 }

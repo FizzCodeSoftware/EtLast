@@ -2,9 +2,9 @@
 {
     using System.Collections.Generic;
 
-    internal class DwhStrategyPostFinalizerManager : ICaller
+    internal class DwhStrategyPostFinalizerManager : IExecutionBlock
     {
-        public ICaller Caller { get; private set; }
+        public IExecutionBlock Caller { get; private set; }
         public string Name => "PostFinalizerManager";
 
         public void Execute(IEtlContext context, DwhStrategy strategy)

@@ -2,6 +2,6 @@
 {
     public interface IFinalProcess : IProcess
     {
-        void EvaluateWithoutResult(ICaller caller = null);
+        void EvaluateWithoutResult(IExecutionBlock caller = null);
     }
 }

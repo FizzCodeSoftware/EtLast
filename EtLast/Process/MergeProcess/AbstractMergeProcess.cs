@@ -7,7 +7,7 @@
         public string Name { get; set; }
         public IEtlContext Context { get; }
         public IRowSetMerger Merger { get; }
-        public ICaller Caller { get; protected set; }
+        public IExecutionBlock Caller { get; protected set; }
         public bool ConsumerShouldNotBuffer => false;
 
         protected List<IProcess> InputProcesses { get; } = new List<IProcess>();
@@ -19,7 +19,7 @@
             Name = name ?? TypeHelpers.GetFriendlyTypeName(GetType());
         }
 
-        public abstract IEnumerable<IRow> Evaluate(ICaller caller = null);
+        public abstract IEnumerable<IRow> Evaluate(IExecutionBlock caller = null);
 
         public void AddInput(IProcess inputProcess)
         {

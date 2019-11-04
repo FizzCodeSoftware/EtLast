@@ -20,7 +20,7 @@
 
         public IEtlContext Context { get; }
         public string Name { get; set; }
-        public ICaller Caller { get; private set; }
+        public IExecutionBlock Caller { get; private set; }
         public bool ConsumerShouldNotBuffer => false;
 
         public JobHostProcessConfiguration Configuration { get; set; } = new JobHostProcessConfiguration();
@@ -31,7 +31,7 @@
             Name = name;
         }
 
-        public IEnumerable<IRow> Evaluate(ICaller caller = null)
+        public IEnumerable<IRow> Evaluate(IExecutionBlock caller = null)
         {
             Caller = caller;
             var startedOn = Stopwatch.StartNew();
@@ -60,7 +60,7 @@
             Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", startedOn.Elapsed);
         }
 
-        public void EvaluateWithoutResult(ICaller caller = null)
+        public void EvaluateWithoutResult(IExecutionBlock caller = null)
         {
             Caller = caller;
             var startedOn = Stopwatch.StartNew();

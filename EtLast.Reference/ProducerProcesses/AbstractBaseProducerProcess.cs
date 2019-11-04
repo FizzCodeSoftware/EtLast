@@ -11,7 +11,7 @@
     {
         public IEtlContext Context { get; }
         public string Name { get; set; }
-        public ICaller Caller { get; protected set; }
+        public IExecutionBlock Caller { get; protected set; }
         public bool IgnoreRowsWithError { get; set; } = false;
         public virtual bool ConsumerShouldNotBuffer { get; } = false;
 
@@ -26,7 +26,7 @@
             Name = name;
         }
 
-        public abstract IEnumerable<IRow> Evaluate(ICaller caller = null);
+        public abstract IEnumerable<IRow> Evaluate(IExecutionBlock caller = null);
 
         protected IEnumerable<IRow> EvaluateInputProcess(Stopwatch sw, Action<IRow, object, IProcess> inputRowAction = null)
         {

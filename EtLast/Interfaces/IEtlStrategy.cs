@@ -1,8 +1,8 @@
 ﻿namespace FizzCode.EtLast
 {
-    public interface IEtlStrategy : ICaller
+    public interface IEtlStrategy : IExecutionBlock
     {
         IEtlContext Context { get; }
-        void Execute(ICaller caller);
+        void Execute(IExecutionBlock caller);
     }
 }

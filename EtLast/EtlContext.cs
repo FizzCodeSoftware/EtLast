@@ -104,7 +104,7 @@
             }
         }
 
-        public void Log(LogSeverity severity, ICaller caller, string text, params object[] args)
+        public void Log(LogSeverity severity, IExecutionBlock caller, string text, params object[] args)
         {
             if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
                 Result.WarningCount++;
@@ -118,7 +118,7 @@
             });
         }
 
-        public void Log(LogSeverity severity, ICaller caller, IJob job, IBaseOperation operation, string text, params object[] args)
+        public void Log(LogSeverity severity, IExecutionBlock caller, IJob job, IBaseOperation operation, string text, params object[] args)
         {
             if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
                 Result.WarningCount++;
@@ -134,7 +134,7 @@
             });
         }
 
-        public void LogOps(LogSeverity severity, ICaller caller, string text, params object[] args)
+        public void LogOps(LogSeverity severity, IExecutionBlock caller, string text, params object[] args)
         {
             OnLog?.Invoke(this, new ContextLogEventArgs()
             {
@@ -146,7 +146,7 @@
             });
         }
 
-        public void LogOps(LogSeverity severity, ICaller caller, IJob job, IBaseOperation operation, string text, params object[] args)
+        public void LogOps(LogSeverity severity, IExecutionBlock caller, IJob job, IBaseOperation operation, string text, params object[] args)
         {
             OnLog?.Invoke(this, new ContextLogEventArgs()
             {
@@ -181,7 +181,7 @@
             Log(LogSeverity.Warning, null, text + " // " + rowTemplate, args.Concat(rowArgs).ToArray());
         }
 
-        public void LogCustom(string fileName, ICaller caller, string text, params object[] args)
+        public void LogCustom(string fileName, IExecutionBlock caller, string text, params object[] args)
         {
             OnCustomLog?.Invoke(this, new ContextCustomLogEventArgs()
             {
@@ -193,7 +193,7 @@
             });
         }
 
-        public void LogCustomOps(string fileName, ICaller caller, string text, params object[] args)
+        public void LogCustomOps(string fileName, IExecutionBlock caller, string text, params object[] args)
         {
             OnCustomLog?.Invoke(this, new ContextCustomLogEventArgs()
             {
@@ -255,7 +255,7 @@
             return ConnectionStrings?[key + "-" + Environment.MachineName] ?? ConnectionStrings?[key];
         }
 
-        public EtlTransactionScope BeginScope(ICaller caller, IJob job, IBaseOperation operation, TransactionScopeKind kind, LogSeverity logSeverity)
+        public EtlTransactionScope BeginScope(IExecutionBlock caller, IJob job, IBaseOperation operation, TransactionScopeKind kind, LogSeverity logSeverity)
         {
             return new EtlTransactionScope(this, caller, job, operation, kind, TransactionScopeTimeout, logSeverity);
         }

@@ -9,7 +9,7 @@
     {
         public IEtlContext Context { get; set; }
         public string Name { get; set; }
-        public ICaller Caller { get; set; }
+        public IExecutionBlock Caller { get; set; }
         public IProcess InputProcess { get; set; }
         public bool ConsumerShouldNotBuffer => false;
 
@@ -23,7 +23,7 @@
             Name = name ?? TypeHelpers.GetFriendlyTypeName(GetType());
         }
 
-        public IEnumerable<IRow> Evaluate(ICaller caller)
+        public IEnumerable<IRow> Evaluate(IExecutionBlock caller)
         {
             // this process has multiple callers
             // Caller = caller;

@@ -2,9 +2,9 @@
 {
     using System.Collections.Generic;
 
-    internal class DwhStrategyPreFinalizerManager : ICaller
+    internal class DwhStrategyPreFinalizerManager : IExecutionBlock
     {
-        public ICaller Caller { get; private set; }
+        public IExecutionBlock Caller { get; private set; }
         public string Name => "PreFinalizerManager";
 
         public void Execute(IEtlContext context, DwhStrategy strategy)

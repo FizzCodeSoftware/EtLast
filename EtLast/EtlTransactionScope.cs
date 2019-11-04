@@ -7,7 +7,7 @@
     public class EtlTransactionScope : IDisposable
     {
         public IEtlContext Context { get; }
-        public ICaller Caller { get; }
+        public IExecutionBlock Caller { get; }
         public IJob Job { get; }
         public IBaseOperation Operation { get; }
         public TransactionScopeKind Kind { get; }
@@ -19,7 +19,7 @@
 
         private bool _isDisposed;
 
-        public EtlTransactionScope(IEtlContext context, ICaller caller, IJob job, IBaseOperation operation, TransactionScopeKind kind, TimeSpan scopeTimeout, LogSeverity logSeverity)
+        public EtlTransactionScope(IEtlContext context, IExecutionBlock caller, IJob job, IBaseOperation operation, TransactionScopeKind kind, TimeSpan scopeTimeout, LogSeverity logSeverity)
         {
             Context = context;
             Caller = caller;

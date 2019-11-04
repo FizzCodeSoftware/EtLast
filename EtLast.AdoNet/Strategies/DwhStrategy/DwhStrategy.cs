@@ -8,7 +8,7 @@
     public class DwhStrategy : IEtlStrategy
     {
         public IEtlContext Context { get; }
-        public ICaller Caller { get; private set; }
+        public IExecutionBlock Caller { get; private set; }
         public string InstanceName { get; set; }
         public string Name => InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType());
 
@@ -37,7 +37,7 @@
             Context = context ?? throw new StrategyParameterNullException(this, nameof(context));
         }
 
-        public void Execute(ICaller caller)
+        public void Execute(IExecutionBlock caller)
         {
             Caller = caller;
             Context.Log(LogSeverity.Information, this, "strategy started (dwh)");

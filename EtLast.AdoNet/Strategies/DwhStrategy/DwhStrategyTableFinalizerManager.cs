@@ -3,9 +3,9 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    internal class DwhStrategyTableFinalizerManager : ICaller
+    internal class DwhStrategyTableFinalizerManager : IExecutionBlock
     {
-        public ICaller Caller { get; private set; }
+        public IExecutionBlock Caller { get; private set; }
         public string Name => "TableFinalizerManager";
 
         public void Execute(IEtlContext context, DwhStrategy strategy)
@@ -78,7 +78,7 @@
                 }
             }.Evaluate().ToList().FirstOrDefault()?.GetAs<int>("cnt") ?? 0;
 
-            context.Log(count > 0 ? LogSeverity.Information : LogSeverity.Debug, this, "{TempRowCount} rows found in {TempTableName}", count, tempTableName);
+            context.Log(count > 0 ? LogSeverity.Information : LogSeverity.Debug, this, "{TempRowCount} rows found in {TableName}", count, tempTableName);
 
             return count;
         }
