@@ -52,8 +52,8 @@
             try
             {
                 var recordCount = command.ExecuteNonQuery();
-                Process.Context.Log(LogSeverity.Information, Process, this, null, "{RecordCount} records affected in {Elapsed}",
-                    recordCount, startedOn.Elapsed);
+                Process.Context.Log(LogSeverity.Information, Process, this, null, "custom SQL statement affected {RecordCount} records in {Elapsed}, transaction: {Transaction}",
+                    recordCount, startedOn.Elapsed, Transaction.Current.ToIdentifierString());
             }
             catch (Exception ex)
             {

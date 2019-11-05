@@ -52,8 +52,8 @@
             {
                 var recordCount = command.ExecuteNonQuery();
 
-                Process.Context.Log(LogSeverity.Information, Process, this, null, "table {ConnectionStringKey}/{TargetTableName} created and {RecordCount} records copied from {SourceTableName} in {Elapsed}",
-                    ConnectionString.Name, Helpers.UnEscapeTableName(Configuration.TargetTableName), recordCount, Helpers.UnEscapeTableName(Configuration.SourceTableName), startedOn.Elapsed);
+                Process.Context.Log(LogSeverity.Information, Process, this, null, "table {ConnectionStringKey}/{TargetTableName} created and {RecordCount} records copied from {SourceTableName} in {Elapsed}, transaction: {Transaction}",
+                    ConnectionString.Name, Helpers.UnEscapeTableName(Configuration.TargetTableName), recordCount, Helpers.UnEscapeTableName(Configuration.SourceTableName), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
 
                 // todo: support stats in jobs...
                 // Stat.IncrementCounter("records copied", recordCount);

@@ -133,8 +133,8 @@
             {
                 command.ExecuteNonQuery();
 
-                Process.Context.Log(LogSeverity.Debug, Process, this, null, "view {ConnectionStringKey}/{ViewName} is dropped in {Elapsed}",
-                    ConnectionString.Name, Helpers.UnEscapeViewName(viewName), startedOn.Elapsed);
+                Process.Context.Log(LogSeverity.Debug, Process, this, null, "view {ConnectionStringKey}/{ViewName} is dropped in {Elapsed}, transaction: {Transaction}",
+                    ConnectionString.Name, Helpers.UnEscapeViewName(viewName), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
 
                 Process.Context.Stat.IncrementCounter("database views dropped / " + ConnectionString.Name, 1);
                 Process.Context.Stat.IncrementCounter("database views dropped time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
@@ -159,8 +159,8 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            Process.Context.Log(LogSeverity.Information, Process, this, null, "{ViewCount} view(s) successfully dropped on {ConnectionStringKey} in {Elapsed}",
-                 lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed);
+            Process.Context.Log(LogSeverity.Information, Process, this, null, "{ViewCount} view(s) successfully dropped on {ConnectionStringKey} in {Elapsed}, transaction: {Transaction}",
+                 lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }
 }

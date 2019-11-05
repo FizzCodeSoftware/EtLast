@@ -182,17 +182,7 @@ from
                         statements.Add("ALTER TABLE " + kvp.Key + " DROP CONSTRAINT " + string.Join(", ", kvp.Value) + ";");
                     }
 
-                    var modeInfo = Mode switch
-                    {
-                        MsSqlDropForeignKeysJobMode.All => " (all foreign keys in database)",
-                        MsSqlDropForeignKeysJobMode.InSpecifiedSchema => " (in schema '" + SchemaName + "')",
-                        MsSqlDropForeignKeysJobMode.ToSpecifiedSchema => " (to schema '" + SchemaName + "')",
-                        MsSqlDropForeignKeysJobMode.InSpecifiedTables => " (in tables '" + string.Join(",", TableNames) + "')",
-                        MsSqlDropForeignKeysJobMode.ToSpecifiedTables => " (to tables '" + string.Join(",", TableNames) + "')",
-                        _ => null,
-                    };
-
-                    Process.Context.Log(LogSeverity.Information, Process, "{ForeignKeyCount} foreign keys aquired from information schema on {ConnectionStringKey} in {Elapsed} for {TableCount} tables" + modeInfo,
+                    Process.Context.Log(LogSeverity.Information, Process, "{ForeignKeyCount} foreign keys aquired from information schema on {ConnectionStringKey} in {Elapsed} for {TableCount} tables",
                         constraintsByTable.Sum(x => x.Value.Count), ConnectionString.Name, startedOn.Elapsed, _tableNamesAndCounts.Count);
 
                     return statements;
@@ -221,8 +211,8 @@ from
             try
             {
                 command.ExecuteNonQuery();
-                Process.Context.Log(LogSeverity.Debug, Process, this, null, "foreign keys on {ConnectionStringKey}/{TableName} are dropped in {Elapsed}",
-                    ConnectionString.Name, Helpers.UnEscapeTableName(t.Item1), startedOn.Elapsed);
+                Process.Context.Log(LogSeverity.Debug, Process, this, null, "foreign keys on {ConnectionStringKey}/{TableName} are dropped in {Elapsed}, transaction: {Transaction}",
+                    ConnectionString.Name, Helpers.UnEscapeTableName(t.Item1), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
 
                 Process.Context.Stat.IncrementCounter("database foreign keys dropped / " + ConnectionString.Name, t.Item2);
                 Process.Context.Stat.IncrementCounter("database foreign keys time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
@@ -251,8 +241,8 @@ from
                     .Take(lastSucceededIndex + 1)
                     .Sum(x => x.Item2);
 
-            Process.Context.Log(LogSeverity.Information, Process, this, null, "{ForeignKeyCount} foreign keys for {TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}",
-                 fkCount, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed);
+            Process.Context.Log(LogSeverity.Information, Process, this, null, "{ForeignKeyCount} foreign keys for {TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}, transaction: {Transaction}",
+                 fkCount, lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }
 }

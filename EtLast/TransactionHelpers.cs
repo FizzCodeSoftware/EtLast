@@ -7,10 +7,13 @@
     {
         public static string ToIdentifierString(this Transaction t)
         {
-            return t == null
-                ? "NULL"
-                : t
-                    .TransactionInformation
+            if (t == null)
+                return "NULL";
+
+            if (t.TransactionInformation.LocalIdentifier != null)
+                return t.TransactionInformation.LocalIdentifier.Substring(t.TransactionInformation.LocalIdentifier.Length - 10);
+
+            return t.TransactionInformation
                     .CreationTime
                     .ToString("HHmmssffff", CultureInfo.InvariantCulture);
         }

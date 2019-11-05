@@ -65,7 +65,7 @@
 
         private int CountRowsIn(IEtlContext context, string connectionStringKey, string tempTableName)
         {
-            var count = new CustomSqlAdoNetDbReaderProcess(context, "TempRowCountReader:" + tempTableName)
+            var count = new CustomSqlAdoNetDbReaderProcess(context, "TempRowCountReader:" + Helpers.UnEscapeTableName(tempTableName))
             {
                 ConnectionStringKey = connectionStringKey,
                 Sql = "select count(*) as cnt from " + tempTableName,
@@ -78,7 +78,7 @@
                 }
             }.Evaluate().ToList().FirstOrDefault()?.GetAs<int>("cnt") ?? 0;
 
-            context.Log(count > 0 ? LogSeverity.Information : LogSeverity.Debug, this, "{TempRowCount} rows found in {TableName}", count, tempTableName);
+            context.Log(count > 0 ? LogSeverity.Information : LogSeverity.Debug, this, "{TempRowCount} rows found in {TableName}", count, Helpers.UnEscapeTableName(tempTableName));
 
             return count;
         }

@@ -34,8 +34,8 @@
             try
             {
                 command.ExecuteNonQuery();
-                Process.Context.Log(LogSeverity.Debug, Process, this, null, "constraint check on {ConnectionStringKey}/{TableName} is enabled in {Elapsed}",
-                    ConnectionString.Name, Helpers.UnEscapeTableName(tableName), startedOn.Elapsed);
+                Process.Context.Log(LogSeverity.Debug, Process, this, null, "constraint check on {ConnectionStringKey}/{TableName} is enabled in {Elapsed}, transaction: {Transaction}",
+                    ConnectionString.Name, Helpers.UnEscapeTableName(tableName), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
             }
             catch (Exception ex)
             {
@@ -57,8 +57,8 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            Process.Context.Log(LogSeverity.Information, Process, this, null, "constraint check successfully enabled on {TableCount} tables on {ConnectionStringKey} in {Elapsed}",
-                lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed);
+            Process.Context.Log(LogSeverity.Information, Process, this, null, "constraint check successfully enabled on {TableCount} tables on {ConnectionStringKey} in {Elapsed}, transaction: {Transaction}",
+                lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }
 }

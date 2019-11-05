@@ -64,8 +64,8 @@
             {
                 command.ExecuteNonQuery();
 
-                Process.Context.Log(LogSeverity.Debug, Process, this, null, "table {ConnectionStringKey}/{TargetTableName} is created from {SourceTableName} in {Elapsed}",
-                    ConnectionString.Name, Helpers.UnEscapeTableName(config.TargetTableName), Helpers.UnEscapeTableName(config.SourceTableName), startedOn.Elapsed);
+                Process.Context.Log(LogSeverity.Debug, Process, this, null, "table {ConnectionStringKey}/{TargetTableName} is created from {SourceTableName} in {Elapsed}, transaction: {Transaction}",
+                    ConnectionString.Name, Helpers.UnEscapeTableName(config.TargetTableName), Helpers.UnEscapeTableName(config.SourceTableName), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
             }
             catch (Exception ex)
             {

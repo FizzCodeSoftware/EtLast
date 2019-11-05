@@ -101,8 +101,8 @@
             {
                 var recordCount = command.ExecuteNonQuery();
 
-                Process.Context.Log(LogSeverity.Information, Process, this, null, "{RecordCount} records merged to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} in {Elapsed}",
-                    recordCount, ConnectionString.Name, Helpers.UnEscapeTableName(TargetTableName), Helpers.UnEscapeTableName(SourceTableName), startedOn.Elapsed);
+                Process.Context.Log(LogSeverity.Information, Process, this, null, "{RecordCount} records merged to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} in {Elapsed}, transaction: {Transaction}",
+                    recordCount, ConnectionString.Name, Helpers.UnEscapeTableName(TargetTableName), Helpers.UnEscapeTableName(SourceTableName), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
 
                 // todo: support stats in jobs...
                 // Stat.IncrementCounter("records merged", recordCount);

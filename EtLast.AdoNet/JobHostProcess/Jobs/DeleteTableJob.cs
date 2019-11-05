@@ -33,8 +33,8 @@
             try
             {
                 var recordCount = command.ExecuteNonQuery();
-                Process.Context.Log(LogSeverity.Information, Process, this, null, "{RecordCount} records deleted in {ConnectionStringKey}/{TableName} in {Elapsed}",
-                    recordCount, ConnectionString.Name, Helpers.UnEscapeTableName(TableName), startedOn.Elapsed);
+                Process.Context.Log(LogSeverity.Information, Process, this, null, "{RecordCount} records deleted in {ConnectionStringKey}/{TableName} in {Elapsed}, transaction: {Transaction}",
+                    recordCount, ConnectionString.Name, Helpers.UnEscapeTableName(TableName), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
             }
             catch (Exception ex)
             {
