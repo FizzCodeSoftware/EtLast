@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Globalization;
     using System.Transactions;
 
@@ -11,11 +12,16 @@
                 return "NULL";
 
             if (t.TransactionInformation.LocalIdentifier != null)
+            {
+                if (t.TransactionInformation.DistributedIdentifier != Guid.Empty)
+                    return t.TransactionInformation.LocalIdentifier.Substring(t.TransactionInformation.LocalIdentifier.Length - 10) + "::" + t.TransactionInformation.DistributedIdentifier.ToString("N", CultureInfo.InvariantCulture).Substring(26);
+
                 return t.TransactionInformation.LocalIdentifier.Substring(t.TransactionInformation.LocalIdentifier.Length - 10);
+            }
 
             return t.TransactionInformation
                     .CreationTime
-                    .ToString("HHmmssffff", CultureInfo.InvariantCulture);
+                    .ToString("HHmmssfff", CultureInfo.InvariantCulture);
         }
     }
 }
