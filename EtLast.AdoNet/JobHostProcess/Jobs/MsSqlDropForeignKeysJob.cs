@@ -151,14 +151,14 @@ from
                     {
                         while (reader.Read())
                         {
-                            var sourceTableName = "[" + (string)reader["schemaName"] + "].[" + (string)reader["tableName"] + "]";
+                            var sourceTableName = ConnectionString.Escape((string)reader["tableName"], (string)reader["schemaName"]);
 
                             if (Mode == MsSqlDropForeignKeysJobMode.InSpecifiedTables && !tablesNamesHashSet.Contains(sourceTableName))
                                 continue;
 
                             if (Mode == MsSqlDropForeignKeysJobMode.ToSpecifiedTables)
                             {
-                                var referredTableName = "[" + (string)reader["refSchemaName"] + "].[" + (string)reader["refTableName"] + "]";
+                                var referredTableName = ConnectionString.Escape((string)reader["refTableName"], (string)reader["refSchemaName"]);
                                 if (!tablesNamesHashSet.Contains(sourceTableName))
                                     continue;
                             }
@@ -169,7 +169,7 @@ from
                                 constraintsByTable.Add(sourceTableName, list);
                             }
 
-                            list.Add("[" + (string)reader["fkName"] + "]");
+                            list.Add(ConnectionString.Escape((string)reader["fkName"]));
                         }
                     }
 

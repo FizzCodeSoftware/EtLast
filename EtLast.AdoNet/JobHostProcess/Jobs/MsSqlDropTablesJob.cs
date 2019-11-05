@@ -86,7 +86,7 @@
                             {
                                 while (reader.Read())
                                 {
-                                    _tableNames.Add("[" + (string)reader["TABLE_SCHEMA"] + "].[" + (string)reader["TABLE_NAME"] + "]");
+                                    _tableNames.Add(ConnectionString.Escape((string)reader["TABLE_NAME"], (string)reader["TABLE_SCHEMA"]));
                                 }
                             }
 
