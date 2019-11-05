@@ -2,13 +2,14 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using FizzCode.DbTools.Configuration;
 
     internal class DwhStrategyTableFinalizerManager : IExecutionBlock
     {
         public IExecutionBlock Caller { get; private set; }
         public string Name => "TableFinalizerManager";
 
-        public void Execute(IEtlContext context, DwhStrategy strategy)
+        public void Execute(IEtlContext context, DwhStrategy strategy, ConnectionStringWithProvider connectionString)
         {
             Caller = strategy;
 
@@ -17,13 +18,13 @@
             var tempTablesWithoutData = 0;
             foreach (var table in strategy.Configuration.Tables)
             {
-                var rowCount = CountRowsIn(context, strategy.Configuration.ConnectionStringKey, table.TempTableName);
+                var rowCount = CountRowsIn(context, connectionString, table.TempTableName);
 
                 if (table.AdditionalTables?.Count > 0)
                 {
                     foreach (var additionalTable in table.AdditionalTables.Values)
                     {
-                        rowCount += CountRowsIn(context, strategy.Configuration.ConnectionStringKey, additionalTable.TempTableName);
+                        rowCount += CountRowsIn(context, connectionString, additionalTable.TempTableName);
                     }
                 }
 
@@ -32,7 +33,7 @@
                     tempTablesWithData++;
 
                     context.Log(LogSeverity.Information, this, "creating finalizers for {TableName}",
-                        Helpers.UnEscapeTableName(table.TableName));
+                        connectionString.Unescape(table.TableName));
 
                     var creatorScopeKind = table.SuppressTransactionScopeForCreators
                         ? TransactionScopeKind.Suppress
@@ -44,7 +45,7 @@
                         finalizerJobs = table.FinalizerJobsCreator.Invoke(table);
                     }
 
-                    var process = new JobHostProcess(context, "Finalize:" + Helpers.UnEscapeTableName(table.TableName));
+                    var process = new JobHostProcess(context, "Finalize:" + connectionString.Unescape(table.TableName));
                     foreach (var job in finalizerJobs)
                     {
                         process.AddJob(job);
@@ -55,7 +56,7 @@
                 else
                 {
                     tempTablesWithoutData++;
-                    context.Log(LogSeverity.Debug, this, "no data found for {TableName}, skipping finalizers", Helpers.UnEscapeTableName(table.TableName));
+                    context.Log(LogSeverity.Debug, this, "no data found for {TableName}, skipping finalizers", connectionString.Unescape(table.TableName));
                 }
             }
 
@@ -63,11 +64,11 @@
             context.Log(LogSeverity.Information, this, "{TableCount} temp table contains no data", tempTablesWithoutData);
         }
 
-        private int CountRowsIn(IEtlContext context, string connectionStringKey, string tempTableName)
+        private int CountRowsIn(IEtlContext context, ConnectionStringWithProvider connectionString, string tempTableName)
         {
-            var count = new CustomSqlAdoNetDbReaderProcess(context, "TempRowCountReader:" + Helpers.UnEscapeTableName(tempTableName))
+            var count = new CustomSqlAdoNetDbReaderProcess(context, "TempRowCountReader:" + connectionString.Unescape(tempTableName))
             {
-                ConnectionStringKey = connectionStringKey,
+                ConnectionStringKey = connectionString.Name,
                 Sql = "select count(*) as cnt from " + tempTableName,
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
                 {
@@ -78,7 +79,7 @@
                 }
             }.Evaluate().ToList().FirstOrDefault()?.GetAs<int>("cnt") ?? 0;
 
-            context.Log(count > 0 ? LogSeverity.Information : LogSeverity.Debug, this, "{TempRowCount} rows found in {TableName}", count, Helpers.UnEscapeTableName(tempTableName));
+            context.Log(count > 0 ? LogSeverity.Information : LogSeverity.Debug, this, "{TempRowCount} rows found in {TableName}", count, connectionString.Unescape(tempTableName));
 
             return count;
         }

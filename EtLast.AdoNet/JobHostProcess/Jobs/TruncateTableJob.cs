@@ -25,7 +25,7 @@
         protected override void RunCommand(IDbCommand command, Stopwatch startedOn)
         {
             Process.Context.Log(LogSeverity.Debug, Process, this, null, "truncating {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionString.Name, Helpers.UnEscapeTableName(TableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
+                ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             var originalStatement = command.CommandText;
 
@@ -43,10 +43,10 @@
             {
                 var exception = new JobExecutionException(Process, this, "database table truncate failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table truncate failed, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
-                    ConnectionString.Name, Helpers.UnEscapeTableName(TableName), ex.Message, originalStatement, CommandTimeout));
+                    ConnectionString.Name, ConnectionString.Unescape(TableName), ex.Message, originalStatement, CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
-                exception.Data.Add("TableName", Helpers.UnEscapeTableName(TableName));
+                exception.Data.Add("TableName", ConnectionString.Unescape(TableName));
                 exception.Data.Add("Statement", originalStatement);
                 exception.Data.Add("Timeout", CommandTimeout);
                 exception.Data.Add("Elapsed", startedOn.Elapsed);

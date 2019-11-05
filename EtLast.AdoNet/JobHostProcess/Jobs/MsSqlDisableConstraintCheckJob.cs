@@ -29,22 +29,22 @@
             var tableName = TableNames[statementIndex];
 
             Process.Context.Log(LogSeverity.Debug, Process, this, null, "disable constraint check on {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionString.Name, Helpers.UnEscapeTableName(tableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
+                ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 command.ExecuteNonQuery();
                 Process.Context.Log(LogSeverity.Debug, Process, this, null, "constraint check on {ConnectionStringKey}/{TableName} is disabled, transaction: {Transaction}",
-                    ConnectionString.Name, Helpers.UnEscapeTableName(tableName), Transaction.Current.ToIdentifierString());
+                    ConnectionString.Name, ConnectionString.Unescape(tableName), Transaction.Current.ToIdentifierString());
             }
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(Process, this, "failed to disable constraint check", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to disable constraint check, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
-                    ConnectionString.Name, Helpers.UnEscapeTableName(tableName), ex.Message, command.CommandText, command.CommandTimeout));
+                    ConnectionString.Name, ConnectionString.Unescape(tableName), ex.Message, command.CommandText, command.CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
-                exception.Data.Add("TableName", Helpers.UnEscapeTableName(tableName));
+                exception.Data.Add("TableName", ConnectionString.Unescape(tableName));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
                 exception.Data.Add("Elapsed", startedOn.Elapsed);

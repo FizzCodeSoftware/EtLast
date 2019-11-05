@@ -52,6 +52,10 @@
             if (Configuration.ConnectionStringKey == null)
                 throw new StrategyParameterNullException(this, nameof(Configuration.ConnectionStringKey));
 
+            var connectionString = Context.GetConnectionString(Configuration.ConnectionStringKey);
+            if (connectionString == null)
+                throw new InvalidStrategyParameterException(this, nameof(Configuration.ConnectionStringKey), Configuration.ConnectionStringKey, "key doesn't exists");
+
             var maxRetryCount = Configuration.FinalizerRetryCount;
             if (Configuration.FinalizerTransactionScopeKind != TransactionScopeKind.RequiresNew && maxRetryCount > 0)
                 throw new InvalidStrategyParameterException(this, nameof(Configuration.FinalizerRetryCount), null, "retrying finalizers can be possible only if the " + nameof(Configuration.FinalizerTransactionScopeKind) + " is set to " + nameof(TransactionScopeKind.RequiresNew));
@@ -102,7 +106,7 @@
                         if (table.MainProcessCreator != null)
                         {
                             Context.Log(LogSeverity.Information, this, "creating main process for table {TableName}",
-                                Helpers.UnEscapeTableName(table.TableName));
+                                connectionString.Unescape(table.TableName));
 
                             using (var creatorScope = Context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
                             {
@@ -118,7 +122,7 @@
                         }
 
                         Context.Log(LogSeverity.Information, this, "creating main process for table {TableName}, (partition #{PartitionIndex})",
-                            Helpers.UnEscapeTableName(table.TableName), partitionIndex);
+                            connectionString.Unescape(table.TableName), partitionIndex);
 
                         using (var creatorScope = Context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
                         {
@@ -152,7 +156,7 @@
                         }
 
                         var tableFinalizer = new DwhStrategyTableFinalizerManager();
-                        tableFinalizer.Execute(Context, this);
+                        tableFinalizer.Execute(Context, this, connectionString);
 
                         if (Configuration.AfterFinalizersJobCreator != null)
                         {

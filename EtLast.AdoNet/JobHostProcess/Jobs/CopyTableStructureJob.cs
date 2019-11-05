@@ -58,27 +58,27 @@
             var config = Configuration[statementIndex];
 
             Process.Context.Log(LogSeverity.Debug, Process, this, null, "create new table {ConnectionStringKey}/{TargetTableName} based on {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionString.Name, Helpers.UnEscapeTableName(config.TargetTableName), Helpers.UnEscapeTableName(config.SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
+                ConnectionString.Name, ConnectionString.Unescape(config.TargetTableName), ConnectionString.Unescape(config.SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 command.ExecuteNonQuery();
 
                 Process.Context.Log(LogSeverity.Debug, Process, this, null, "table {ConnectionStringKey}/{TargetTableName} is created from {SourceTableName} in {Elapsed}, transaction: {Transaction}",
-                    ConnectionString.Name, Helpers.UnEscapeTableName(config.TargetTableName), Helpers.UnEscapeTableName(config.SourceTableName), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
+                    ConnectionString.Name, ConnectionString.Unescape(config.TargetTableName), ConnectionString.Unescape(config.SourceTableName), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
             }
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(Process, this, "failed to copy table structure", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to copy table structure, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message: {4}, command: {5}, timeout: {6}",
-                    ConnectionString.Name, Helpers.UnEscapeTableName(config.SourceTableName), Helpers.UnEscapeTableName(config.TargetTableName), config.ColumnConfiguration != null ? string.Join(",", config.ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, command.CommandTimeout));
+                    ConnectionString.Name, ConnectionString.Unescape(config.SourceTableName), ConnectionString.Unescape(config.TargetTableName), config.ColumnConfiguration != null ? string.Join(",", config.ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, command.CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
-                exception.Data.Add("SourceTableName", Helpers.UnEscapeTableName(config.SourceTableName));
-                exception.Data.Add("TargetTableName", Helpers.UnEscapeTableName(config.TargetTableName));
+                exception.Data.Add("SourceTableName", ConnectionString.Unescape(config.SourceTableName));
+                exception.Data.Add("TargetTableName", ConnectionString.Unescape(config.TargetTableName));
                 if (config.ColumnConfiguration != null)
                 {
-                    exception.Data.Add("SourceColumns", string.Join(",", config.ColumnConfiguration.Select(x => Helpers.UnEscapeColumnName(x.FromColumn))));
+                    exception.Data.Add("SourceColumns", string.Join(",", config.ColumnConfiguration.Select(x => ConnectionString.Unescape(x.FromColumn))));
                 }
 
                 exception.Data.Add("Statement", command.CommandText);

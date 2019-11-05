@@ -46,40 +46,40 @@
         protected override void RunCommand(IDbCommand command, Stopwatch startedOn)
         {
             Process.Context.Log(LogSeverity.Debug, Process, this, null, "creating new table {ConnectionStringKey}/{TargetTableName} and copying records from {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionString.Name, Helpers.UnEscapeTableName(Configuration.TargetTableName), Helpers.UnEscapeTableName(Configuration.SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
+                ConnectionString.Name, ConnectionString.Unescape(Configuration.TargetTableName), ConnectionString.Unescape(Configuration.SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 var recordCount = command.ExecuteNonQuery();
 
                 Process.Context.Log(LogSeverity.Information, Process, this, null, "table {ConnectionStringKey}/{TargetTableName} created and {RecordCount} records copied from {SourceTableName} in {Elapsed}, transaction: {Transaction}",
-                    ConnectionString.Name, Helpers.UnEscapeTableName(Configuration.TargetTableName), recordCount, Helpers.UnEscapeTableName(Configuration.SourceTableName), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
+                    ConnectionString.Name, ConnectionString.Unescape(Configuration.TargetTableName), recordCount, ConnectionString.Unescape(Configuration.SourceTableName), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
 
                 // todo: support stats in jobs...
                 // Stat.IncrementCounter("records copied", recordCount);
                 // Stat.IncrementCounter("copy time", startedOn.ElapsedMilliseconds);
 
                 Process.Context.Stat.IncrementCounter("database records copied / " + ConnectionString.Name, recordCount);
-                Process.Context.Stat.IncrementDebugCounter("database records copied / " + ConnectionString.Name + " / " + Helpers.UnEscapeTableName(Configuration.SourceTableName) + " -> " + Helpers.UnEscapeTableName(Configuration.TargetTableName), recordCount);
+                Process.Context.Stat.IncrementDebugCounter("database records copied / " + ConnectionString.Name + " / " + ConnectionString.Unescape(Configuration.SourceTableName) + " -> " + ConnectionString.Unescape(Configuration.TargetTableName), recordCount);
                 Process.Context.Stat.IncrementCounter("database copy time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
-                Process.Context.Stat.IncrementDebugCounter("database copy time / " + ConnectionString.Name + " / " + Helpers.UnEscapeTableName(Configuration.SourceTableName) + " -> " + Helpers.UnEscapeTableName(Configuration.TargetTableName), startedOn.ElapsedMilliseconds);
+                Process.Context.Stat.IncrementDebugCounter("database copy time / " + ConnectionString.Name + " / " + ConnectionString.Unescape(Configuration.SourceTableName) + " -> " + ConnectionString.Unescape(Configuration.TargetTableName), startedOn.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
                 var exception = new JobExecutionException(Process, this, "database table creation and copy failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table creation and copy failed, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message: {4}, command: {5}, timeout: {6}",
-                    ConnectionString.Name, Helpers.UnEscapeTableName(Configuration.SourceTableName), Helpers.UnEscapeTableName(Configuration.TargetTableName),
+                    ConnectionString.Name, ConnectionString.Unescape(Configuration.SourceTableName), ConnectionString.Unescape(Configuration.TargetTableName),
                     Configuration.ColumnConfiguration != null
                         ? string.Join(",", Configuration.ColumnConfiguration.Select(x => x.FromColumn))
                         : "all",
                     ex.Message, command.CommandText, command.CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
-                exception.Data.Add("SourceTableName", Helpers.UnEscapeTableName(Configuration.SourceTableName));
-                exception.Data.Add("TargetTableName", Helpers.UnEscapeTableName(Configuration.TargetTableName));
+                exception.Data.Add("SourceTableName", ConnectionString.Unescape(Configuration.SourceTableName));
+                exception.Data.Add("TargetTableName", ConnectionString.Unescape(Configuration.TargetTableName));
                 if (Configuration.ColumnConfiguration != null)
                 {
-                    exception.Data.Add("SourceColumns", string.Join(",", Configuration.ColumnConfiguration.Select(x => Helpers.UnEscapeColumnName(x.FromColumn))));
+                    exception.Data.Add("SourceColumns", string.Join(",", Configuration.ColumnConfiguration.Select(x => ConnectionString.Unescape(x.FromColumn))));
                 }
 
                 exception.Data.Add("Statement", command.CommandText);

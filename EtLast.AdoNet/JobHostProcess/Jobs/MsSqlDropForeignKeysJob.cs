@@ -206,13 +206,13 @@ from
             var t = _tableNamesAndCounts[statementIndex];
 
             Process.Context.Log(LogSeverity.Debug, Process, this, null, "drop foreign keys of {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionString.Name, Helpers.UnEscapeTableName(t.Item1), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
+                ConnectionString.Name, ConnectionString.Unescape(t.Item1), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 command.ExecuteNonQuery();
                 Process.Context.Log(LogSeverity.Debug, Process, this, null, "foreign keys on {ConnectionStringKey}/{TableName} are dropped in {Elapsed}, transaction: {Transaction}",
-                    ConnectionString.Name, Helpers.UnEscapeTableName(t.Item1), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
+                    ConnectionString.Name, ConnectionString.Unescape(t.Item1), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
 
                 Process.Context.Stat.IncrementCounter("database foreign keys dropped / " + ConnectionString.Name, t.Item2);
                 Process.Context.Stat.IncrementCounter("database foreign keys time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
@@ -221,10 +221,10 @@ from
             {
                 var exception = new JobExecutionException(Process, this, "failed to drop foreign keys", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop foreign keys, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
-                    ConnectionString.Name, Helpers.UnEscapeViewName(t.Item1), ex.Message, command.CommandText, command.CommandTimeout));
+                    ConnectionString.Name, ConnectionString.Unescape(t.Item1), ex.Message, command.CommandText, command.CommandTimeout));
 
                 exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
-                exception.Data.Add("TableName", Helpers.UnEscapeViewName(t.Item1));
+                exception.Data.Add("TableName", ConnectionString.Unescape(t.Item1));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
                 exception.Data.Add("Elapsed", startedOn.Elapsed);

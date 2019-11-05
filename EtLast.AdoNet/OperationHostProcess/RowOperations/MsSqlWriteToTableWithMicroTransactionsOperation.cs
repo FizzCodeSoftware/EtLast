@@ -124,9 +124,9 @@
                         Stat.IncrementCounter("write time", writeTime);
 
                         process.Context.Stat.IncrementCounter("database records written / " + _connectionString.Name, recordCount);
-                        process.Context.Stat.IncrementDebugCounter("database records written / " + _connectionString.Name + " / " + Helpers.UnEscapeTableName(TableDefinition.TableName), recordCount);
+                        process.Context.Stat.IncrementDebugCounter("database records written / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), recordCount);
                         process.Context.Stat.IncrementCounter("database write time / " + _connectionString.Name, writeTime);
-                        process.Context.Stat.IncrementDebugCounter("database write time / " + _connectionString.Name + " / " + Helpers.UnEscapeTableName(TableDefinition.TableName), writeTime);
+                        process.Context.Stat.IncrementDebugCounter("database write time / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), writeTime);
 
                         _rowsWritten += recordCount;
                         _reader.Reset();
@@ -136,7 +136,7 @@
                             : LogSeverity.Debug;
 
                         process.Context.Log(severity, process, null, this, "{TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, micro-transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}",
-                            _rowsWritten, _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), transactionId, Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
+                            _rowsWritten, _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), transactionId, Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
                         break;
                     }
                 }
@@ -164,10 +164,10 @@
                     {
                         var exception = new OperationExecutionException(process, this, "database write failed", ex);
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database write failed, connection string key: {0}, table: {1}, message: {2}",
-                            _connectionString.Name, Helpers.UnEscapeTableName(TableDefinition.TableName), ex.Message));
+                            _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), ex.Message));
                         exception.Data.Add("ConnectionStringKey", _connectionString.Name);
-                        exception.Data.Add("TableName", Helpers.UnEscapeTableName(TableDefinition.TableName));
-                        exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + Helpers.UnEscapeColumnName(x.DbColumn))));
+                        exception.Data.Add("TableName", _connectionString.Unescape(TableDefinition.TableName));
+                        exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + _connectionString.Unescape(x.DbColumn))));
                         exception.Data.Add("Timeout", CommandTimeout);
                         exception.Data.Add("Elapsed", _timer.Elapsed);
                         exception.Data.Add("TotalRowsWritten", _rowsWritten);

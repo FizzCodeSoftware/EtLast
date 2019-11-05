@@ -12,7 +12,7 @@
     {
         [Command(Name = "module", Description = "Execute one module.")]
         public void RunModule(
-            [Operand(Name = "module-name", Description = "The name of the module name.")]string moduleName,
+            [Operand(Name = "module-name", Description = "The name of the module.")]string moduleName,
             [Option(LongName = "plugin")]List<string> pluginListOverride,
             [Option(LongName = "param", ShortName = "p")]List<string> moduleSettingOverrides)
         {
