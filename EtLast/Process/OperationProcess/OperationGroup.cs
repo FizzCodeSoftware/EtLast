@@ -101,6 +101,7 @@
         {
             if (Then.Count == 0)
                 throw new OperationParameterNullException(this, nameof(Then));
+
             if (Else.Count > 0 && If == null)
                 throw new OperationParameterNullException(this, nameof(If));
         }

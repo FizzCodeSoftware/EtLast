@@ -32,10 +32,13 @@
         {
             if (!Process.Configuration.KeepOrder)
                 throw new InvalidOperationParameterException(this, nameof(Process), null, nameof(HierarchyParentIdCalculatorOperation) + " can be used only if process.Configuration." + nameof(OperationHostProcessConfiguration.KeepOrder) + " is set to true");
+
             if (string.IsNullOrEmpty(NewColumnWithParentId))
                 throw new OperationParameterNullException(this, nameof(NewColumnWithParentId));
+
             if (string.IsNullOrEmpty(IntegerIdColumn))
                 throw new OperationParameterNullException(this, nameof(IntegerIdColumn));
+
             if (LevelColumns == null || LevelColumns.Length == 0)
                 throw new OperationParameterNullException(this, nameof(LevelColumns));
 

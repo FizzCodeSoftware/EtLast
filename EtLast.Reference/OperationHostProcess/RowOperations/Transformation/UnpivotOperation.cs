@@ -57,8 +57,10 @@
         {
             if (FixColumns == null)
                 throw new OperationParameterNullException(this, nameof(FixColumns));
+
             if (NewColumnForValue == null)
                 throw new OperationParameterNullException(this, nameof(NewColumnForValue));
+
             if (NewColumnForDimension == null)
                 throw new OperationParameterNullException(this, nameof(NewColumnForDimension));
 

@@ -60,8 +60,10 @@
             Caller = caller;
             if (string.IsNullOrEmpty(FileName))
                 throw new ProcessParameterNullException(this, nameof(FileName));
+
             if (string.IsNullOrEmpty(SheetName) && SheetIndex == -1)
                 throw new ProcessParameterNullException(this, nameof(SheetName));
+
             if (ColumnConfiguration == null)
                 throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
 
@@ -130,6 +132,7 @@
                 var workbook = package.Workbook;
                 if (workbook == null || workbook.Worksheets.Count == 0)
                     yield break;
+
                 var sheet = !string.IsNullOrEmpty(SheetName) ? workbook.Worksheets[SheetName] : workbook.Worksheets[SheetIndex];
                 if (sheet == null)
                 {

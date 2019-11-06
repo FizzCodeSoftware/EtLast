@@ -50,6 +50,7 @@
             var pluginNamesToExecute = pluginListOverride;
             if (pluginNamesToExecute == null || pluginNamesToExecute.Length == 0)
                 pluginNamesToExecute = configuration.GetSection("Module:PluginsToExecute-" + Environment.MachineName).Get<string[]>();
+
             if (pluginNamesToExecute == null || pluginNamesToExecute.Length == 0)
                 pluginNamesToExecute = configuration.GetSection("Module:PluginsToExecute").Get<string[]>();
 
@@ -59,6 +60,7 @@
                 commandContext.Logger.Error("plugin name can't contain comma or space character: [{Plugin}]", pluginName);
                 broken = true;
             }
+
             if (broken)
                 return null;
 

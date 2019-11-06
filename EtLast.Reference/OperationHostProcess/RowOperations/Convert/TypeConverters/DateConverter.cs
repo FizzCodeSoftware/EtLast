@@ -14,6 +14,7 @@
         {
             if (source is DateTime)
                 return source;
+
             if (source is DateTimeOffset dto)
                 return dto.DateTime;
 

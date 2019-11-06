@@ -41,6 +41,7 @@
         {
             if (Stream == null)
                 throw new OperationParameterNullException(this, nameof(Stream));
+
             if (Action == null)
                 throw new OperationParameterNullException(this, nameof(Action));
 

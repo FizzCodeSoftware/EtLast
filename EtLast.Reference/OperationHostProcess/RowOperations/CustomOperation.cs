@@ -33,6 +33,7 @@
         {
             if (Then == null)
                 throw new OperationParameterNullException(this, nameof(Then));
+
             if (Else != null && If == null)
                 throw new OperationParameterNullException(this, nameof(If));
         }

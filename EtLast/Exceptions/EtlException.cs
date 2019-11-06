@@ -66,6 +66,7 @@
                 sb.Append(TypeHelpers.GetFriendlyTypeName(method.DeclaringType))
                     .Append(".");
             }
+
             sb.Append(method.Name);
 
             if (method is MethodInfo mi && mi.IsGenericMethod)

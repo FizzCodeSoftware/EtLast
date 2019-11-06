@@ -39,6 +39,7 @@
 
             if (GroupingColumns == null || GroupingColumns.Length == 0)
                 throw new ProcessParameterNullException(this, nameof(GroupingColumns));
+
             if (Operation == null)
                 throw new ProcessParameterNullException(this, nameof(Operation));
 

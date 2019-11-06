@@ -60,8 +60,10 @@
         {
             if (string.IsNullOrEmpty(FileName))
                 throw new OperationParameterNullException(this, nameof(FileName));
+
             if (string.IsNullOrEmpty(SheetName))
                 throw new OperationParameterNullException(this, nameof(SheetName));
+
             if (ColumnConfiguration == null)
                 throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
 

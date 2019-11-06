@@ -36,6 +36,7 @@
         {
             if (string.IsNullOrEmpty(SourceTableName))
                 throw new JobParameterNullException(Process, this, nameof(SourceTableName));
+
             if (string.IsNullOrEmpty(TargetTableName))
                 throw new JobParameterNullException(Process, this, nameof(TargetTableName));
         }
@@ -58,20 +59,25 @@
                 sb.Append(" WHEN MATCHED");
                 if (!string.IsNullOrEmpty(WhenMatchedCondition))
                     sb.Append(" AND ").Append(WhenMatchedCondition);
+
                 sb.Append(" THEN ").Append(WhenMatchedAction);
             }
+
             if (!string.IsNullOrEmpty(WhenNotMatchedByTargetAction))
             {
                 sb.Append(" WHEN NOT MATCHED BY TARGET");
                 if (!string.IsNullOrEmpty(WhenNotMatchedByTargetCondition))
                     sb.Append(" AND ").Append(WhenNotMatchedByTargetCondition);
+
                 sb.Append(" THEN ").Append(WhenNotMatchedByTargetAction);
             }
+
             if (!string.IsNullOrEmpty(WhenNotMatchedBySourceAction))
             {
                 sb.Append(" WHEN NOT MATCHED BY SOURCE");
                 if (!string.IsNullOrEmpty(WhenNotMatchedBySourceCondition))
                     sb.Append(" AND ").Append(WhenNotMatchedBySourceCondition);
+
                 sb.Append(" THEN ").Append(WhenNotMatchedBySourceAction);
             }
 

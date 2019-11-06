@@ -17,6 +17,7 @@
             Caller = caller;
             if (InputGenerator == null)
                 throw new ProcessParameterNullException(this, nameof(InputGenerator));
+
             var startedOn = Stopwatch.StartNew();
 
             foreach (var row in EvaluateInputProcess(startedOn))

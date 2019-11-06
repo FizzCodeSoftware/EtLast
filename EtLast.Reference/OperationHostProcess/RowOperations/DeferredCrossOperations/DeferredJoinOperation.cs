@@ -79,12 +79,16 @@
             base.Prepare();
             if (ColumnConfiguration == null)
                 throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
+
             if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
                 throw new OperationParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));
+
             if (LeftKeySelector == null)
                 throw new OperationParameterNullException(this, nameof(LeftKeySelector));
+
             if (RightKeySelector == null)
                 throw new OperationParameterNullException(this, nameof(RightKeySelector));
+
             if (RightProcessCreator == null)
                 throw new OperationParameterNullException(this, nameof(RightProcessCreator));
 

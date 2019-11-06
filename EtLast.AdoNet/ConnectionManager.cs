@@ -196,6 +196,7 @@
         {
             if (connection == null)
                 return;
+
             lock (Connections)
             {
                 connection.ReferenceCount--;

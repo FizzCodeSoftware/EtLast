@@ -98,8 +98,10 @@ namespace FizzCode.EtLast
         {
             if (TypeConverter == null)
                 throw new OperationParameterNullException(this, nameof(TypeConverter));
+
             if (Columns.Length == 0)
                 throw new OperationParameterNullException(this, nameof(Columns));
+
             if (ActionIfInvalid != InvalidValueAction.SetSpecialValue && SpecialValueIfInvalid != null)
                 throw new OperationParameterNullException(this, nameof(SpecialValueIfInvalid));
         }

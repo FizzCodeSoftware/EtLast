@@ -32,6 +32,7 @@
         {
             if (string.IsNullOrEmpty(TargetColumn))
                 throw new OperationParameterNullException(this, nameof(TargetColumn));
+
             if (ColumnsToMerge == null || ColumnsToMerge.Length == 0)
                 throw new OperationParameterNullException(this, nameof(ColumnsToMerge));
         }

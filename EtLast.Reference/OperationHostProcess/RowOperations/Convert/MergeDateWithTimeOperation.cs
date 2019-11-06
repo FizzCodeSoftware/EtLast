@@ -54,10 +54,13 @@
         {
             if (string.IsNullOrEmpty(TargetColumn))
                 throw new OperationParameterNullException(this, nameof(TargetColumn));
+
             if (string.IsNullOrEmpty(SourceDateColumn))
                 throw new OperationParameterNullException(this, nameof(SourceDateColumn));
+
             if (string.IsNullOrEmpty(SourceTimeColumn))
                 throw new OperationParameterNullException(this, nameof(SourceTimeColumn));
+
             if (ActionIfInvalid != InvalidValueAction.SetSpecialValue && SpecialValueIfInvalid != null)
                 throw new OperationParameterNullException(this, nameof(SpecialValueIfInvalid));
         }

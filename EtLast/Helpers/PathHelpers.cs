@@ -11,6 +11,7 @@
             var folder = Path.GetDirectoryName((Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly()).Location);
             if (!folder.EndsWith(Path.DirectorySeparatorChar))
                 folder += Path.DirectorySeparatorChar;
+
             return folder;
         });
 

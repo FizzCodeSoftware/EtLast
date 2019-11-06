@@ -24,6 +24,7 @@
         {
             if (Column == null)
                 throw new OperationParameterNullException(this, nameof(Column));
+
             if (Value == null)
                 throw new OperationParameterNullException(this, nameof(Value));
         }

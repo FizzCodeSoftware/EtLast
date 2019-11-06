@@ -783,8 +783,10 @@
         {
             if (Configuration == null)
                 throw new ProcessParameterNullException(this, nameof(Configuration));
+
             if (Configuration.RowQueueType == null)
                 throw new ProcessParameterNullException(this, nameof(Configuration.RowQueueType));
+
             if (InputProcess == null)
                 throw new ProcessParameterNullException(this, nameof(InputProcess));
 

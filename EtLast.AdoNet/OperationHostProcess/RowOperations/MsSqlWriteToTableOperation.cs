@@ -126,6 +126,7 @@
         {
             if (string.IsNullOrEmpty(ConnectionStringKey))
                 throw new OperationParameterNullException(this, nameof(ConnectionStringKey));
+
             if (TableDefinition == null)
                 throw new OperationParameterNullException(this, nameof(TableDefinition));
 

@@ -31,6 +31,7 @@
         {
             if (string.IsNullOrEmpty(Column))
                 throw new OperationParameterNullException(this, nameof(Column));
+
             if (ErrorIf == null)
                 throw new OperationParameterNullException(this, nameof(ErrorIf));
         }

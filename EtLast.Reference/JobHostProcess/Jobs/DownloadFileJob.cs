@@ -15,6 +15,7 @@
         {
             if (string.IsNullOrEmpty(Url))
                 throw new JobParameterNullException(Process, this, nameof(Url));
+
             if (string.IsNullOrEmpty(FileName))
                 throw new JobParameterNullException(Process, this, nameof(FileName));
 

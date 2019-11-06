@@ -23,8 +23,10 @@
         {
             if (Configuration == null)
                 throw new JobParameterNullException(Process, this, nameof(Configuration));
+
             if (string.IsNullOrEmpty(Configuration.SourceTableName))
                 throw new JobParameterNullException(Process, this, nameof(Configuration.SourceTableName));
+
             if (string.IsNullOrEmpty(Configuration.TargetTableName))
                 throw new JobParameterNullException(Process, this, nameof(Configuration.TargetTableName));
         }

@@ -12,6 +12,7 @@
             base.Prepare();
             if (LeftKeySelector == null)
                 throw new OperationParameterNullException(this, nameof(LeftKeySelector));
+
             if (RightKeySelector == null)
                 throw new OperationParameterNullException(this, nameof(RightKeySelector));
         }

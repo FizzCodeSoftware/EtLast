@@ -14,14 +14,19 @@ namespace FizzCode.EtLast
             // smaller whole numbers
             if (source is sbyte sbv)
                 return System.Convert.ToInt64(sbv);
+
             if (source is byte bv)
                 return System.Convert.ToInt64(bv);
+
             if (source is short sv)
                 return System.Convert.ToInt64(sv);
+
             if (source is ushort usv)
                 return System.Convert.ToInt64(usv);
+
             if (source is int iv)
                 return System.Convert.ToInt64(iv);
+
             if (source is uint uiv)
                 return System.Convert.ToInt64(uiv);
 
@@ -32,8 +37,10 @@ namespace FizzCode.EtLast
             // decimal values
             if (source is float fv && fv >= long.MinValue && fv <= long.MaxValue)
                 return System.Convert.ToInt64(fv);
+
             if (source is double dv && dv >= long.MinValue && dv <= long.MaxValue)
                 return System.Convert.ToInt64(dv);
+
             if (source is decimal dcv && dcv >= long.MinValue && dcv <= long.MaxValue)
                 return System.Convert.ToInt64(dcv);
 
@@ -52,6 +59,7 @@ namespace FizzCode.EtLast
 
                 if (long.TryParse(str, out var value))
                     return value;
+
                 if (float.TryParse(str, out var sfv))
                     return System.Convert.ToInt64(sfv);
                 else if (double.TryParse(str, out var sdv))

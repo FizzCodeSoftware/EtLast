@@ -62,6 +62,7 @@
         {
             if (_connection != null)
                 return;
+
             try
             {
                 _connection = ConnectionManager.GetConnection(_connectionString, process, null, this);
@@ -196,10 +197,13 @@
         {
             if (string.IsNullOrEmpty(ConnectionStringKey))
                 throw new OperationParameterNullException(this, nameof(ConnectionStringKey));
+
             if (MaximumParameterCount <= 0)
                 throw new InvalidOperationParameterException(this, nameof(MaximumParameterCount), MaximumParameterCount, "value must be greater than 0");
+
             if (SqlStatementCreator == null)
                 throw new OperationParameterNullException(this, nameof(SqlStatementCreator));
+
             if (TableDefinition == null)
                 throw new OperationParameterNullException(this, nameof(TableDefinition));
 
@@ -208,6 +212,7 @@
             _connectionString = Process.Context.GetConnectionString(ConnectionStringKey);
             if (_connectionString == null)
                 throw new InvalidOperationParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
+
             if (_connectionString.ProviderName == null)
                 throw new OperationParameterNullException(this, "ConnectionString");
 

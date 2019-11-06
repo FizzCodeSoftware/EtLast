@@ -21,6 +21,7 @@
 
             if (Configuration.Any(x => string.IsNullOrEmpty(x.SourceTableName)))
                 throw new JobParameterNullException(Process, this, nameof(TableCopyConfiguration.SourceTableName));
+
             if (Configuration.Any(x => string.IsNullOrEmpty(x.TargetTableName)))
                 throw new JobParameterNullException(Process, this, nameof(TableCopyConfiguration.TargetTableName));
         }

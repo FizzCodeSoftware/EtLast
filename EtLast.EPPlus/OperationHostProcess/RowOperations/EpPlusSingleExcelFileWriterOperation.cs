@@ -42,6 +42,7 @@
         {
             if (string.IsNullOrEmpty(FileName))
                 throw new OperationParameterNullException(this, nameof(FileName));
+
             if (Action == null)
                 throw new OperationParameterNullException(this, nameof(Action));
 

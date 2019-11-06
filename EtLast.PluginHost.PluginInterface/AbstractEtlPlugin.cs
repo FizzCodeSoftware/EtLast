@@ -108,8 +108,10 @@
 
             if (args.Caller != null)
                 values.Add(args.Caller.Name);
+
             if (args.Job != null)
                 values.Add(args.Job.Name);
+
             if (args.Operation != null)
                 values.Add(args.Operation.Name);
 
@@ -189,8 +191,10 @@
                         var k = key.ToString();
                         if (cex == args.Exception && k == "Process")
                             continue;
+
                         if (k == "CallChain")
                             continue;
+
                         if (k == "OpsMessage")
                             continue;
 

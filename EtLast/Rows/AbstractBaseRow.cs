@@ -82,6 +82,7 @@
             var value = InternalGetValue(column);
             if (value == null)
                 return defaultValueIfNull;
+
             try
             {
                 return (T)value;
@@ -110,6 +111,7 @@
             {
                 if (kvp.Value != null)
                     return false;
+
                 if (kvp.Value is string str)
                 {
                     if (!string.IsNullOrEmpty(str))
