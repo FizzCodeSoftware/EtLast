@@ -53,7 +53,7 @@ namespace FizzCode.EtLast
                 {
                     foreach (var subStr in RemoveSubString)
                     {
-                        str = str.Replace(subStr, string.Empty, StringComparison.InvariantCultureIgnoreCase);
+                        str = str.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
                     }
                 }
 

@@ -165,7 +165,7 @@
                     }
                 }
 
-                job.Execute(Context.CancellationTokenSource);
+                job.Execute();
             }
             catch (OperationCanceledException)
             {

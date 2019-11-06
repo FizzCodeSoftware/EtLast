@@ -2,7 +2,6 @@
 {
     using System.Data;
     using System.Diagnostics;
-    using System.Threading;
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
@@ -18,7 +17,7 @@
         /// </summary>
         public bool SuppressExistingTransactionScope { get; set; }
 
-        public override void Execute(CancellationTokenSource cancellationTokenSource)
+        public override void Execute()
         {
             if (string.IsNullOrEmpty(ConnectionStringKey))
                 throw new JobParameterNullException(Process, this, nameof(ConnectionStringKey));

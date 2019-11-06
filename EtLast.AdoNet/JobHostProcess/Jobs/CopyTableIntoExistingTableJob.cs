@@ -33,7 +33,7 @@
 
         protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString)
         {
-            var statement = string.Empty;
+            var statement = "";
             if (CopyIdentityColumns && ConnectionString.KnownProvider == KnownProvider.SqlServer)
             {
                 statement = "SET IDENTITY_INSERT " + Configuration.TargetTableName + " ON; ";

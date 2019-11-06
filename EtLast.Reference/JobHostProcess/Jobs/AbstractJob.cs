@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Globalization;
-    using System.Threading;
 
     public abstract class AbstractJob : IJob
     {
@@ -17,7 +16,7 @@
             Name = "??." + TypeHelpers.GetFriendlyTypeName(GetType());
         }
 
-        public abstract void Execute(CancellationTokenSource cancellationTokenSource);
+        public abstract void Execute();
 
         public void SetProcess(IProcess process, int number)
         {

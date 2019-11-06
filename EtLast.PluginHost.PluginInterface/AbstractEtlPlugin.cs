@@ -86,7 +86,7 @@
 
         private void OnLog(object sender, ContextLogEventArgs args)
         {
-            var ident = string.Empty;
+            var ident = "";
             if (args.Caller != null)
             {
                 var p = args.Caller;

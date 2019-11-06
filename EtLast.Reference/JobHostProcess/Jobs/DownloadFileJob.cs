@@ -4,14 +4,13 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Net;
-    using System.Threading;
 
     public class DownloadFileJob : AbstractJob
     {
         public string Url { get; set; }
         public string FileName { get; set; }
 
-        public override void Execute(CancellationTokenSource cancellationTokenSource)
+        public override void Execute()
         {
             if (string.IsNullOrEmpty(Url))
                 throw new JobParameterNullException(Process, this, nameof(Url));

@@ -44,8 +44,8 @@
                 ? string.Join(", ", dbColumns)
                 : "*";
 
-            var prefix = string.Empty;
-            var postfix = string.Empty;
+            var prefix = "";
+            var postfix = "";
 
             if (!string.IsNullOrEmpty(CustomWhereClause))
             {

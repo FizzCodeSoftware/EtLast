@@ -71,7 +71,7 @@
             if (column.EndsWith("name", StringComparison.OrdinalIgnoreCase))
             {
                 var n = rnd.Next(3, 10);
-                var text = string.Empty;
+                var text = "";
                 for (var i = 0; i < n; i++)
                 {
                     text += (char)(65 + rnd.Next(26));
@@ -86,7 +86,7 @@
                     return new DateTime(2000, 1, 1).AddDays(rnd.Next(1, 365 * 30));
                 case 9:
                     var n = rnd.Next(3, 10);
-                    var text = string.Empty;
+                    var text = "";
                     for (var i = 0; i < n; i++)
                     {
                         text += (char)(65 + rnd.Next(26));

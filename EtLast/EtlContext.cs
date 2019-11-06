@@ -162,7 +162,7 @@
 
         public void LogRow(IProcess process, IRow row, string text, params object[] args)
         {
-            var rowTemplate = "UID={UID}, " + (row.Flagged ? "FLAGGED, " : string.Empty) + string.Join(", ", row.Values.Select(kvp => kvp.Key + "={" + kvp.Key + "Value} ({" + kvp.Key + "Type}) "));
+            var rowTemplate = "UID={UID}, " + (row.Flagged ? "FLAGGED, " : "") + string.Join(", ", row.Values.Select(kvp => kvp.Key + "={" + kvp.Key + "Value} ({" + kvp.Key + "Type}) "));
             var rowArgs = new List<object> { row.UID };
             foreach (var kvp in row.Values)
             {

@@ -4,13 +4,12 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
-    using System.Threading;
 
     public class DeleteFileJob : AbstractJob
     {
         public string FileName { get; set; }
 
-        public override void Execute(CancellationTokenSource cancellationTokenSource)
+        public override void Execute()
         {
             if (string.IsNullOrEmpty(FileName))
                 throw new JobParameterNullException(Process, this, nameof(FileName));

@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast
 {
-    using System.Threading;
-
     public interface IJob
     {
         string Name { get; }
@@ -9,7 +7,7 @@
 
         int Number { get; }
         IfJobDelegate If { get; }
-        void Execute(CancellationTokenSource cancellationTokenSource);
+        void Execute();
 
         IProcess Process { get; }
         public void SetProcess(IProcess process, int number);

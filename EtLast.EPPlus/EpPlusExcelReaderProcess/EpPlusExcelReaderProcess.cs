@@ -158,7 +158,7 @@
 
                 for (var colIndex = FirstDataColumn; colIndex <= endColumn; colIndex++)
                 {
-                    var excelColumn = string.Empty;
+                    var excelColumn = "";
 
                     if (!Transpose)
                     {
@@ -171,7 +171,7 @@
                             {
                                 if (HeaderCellMode == EpPlusExcelHeaderCellMode.Join)
                                 {
-                                    excelColumn += (!string.IsNullOrEmpty(excelColumn) ? HeaderRowJoinSeparator : string.Empty) + c;
+                                    excelColumn += (!string.IsNullOrEmpty(excelColumn) ? HeaderRowJoinSeparator : "") + c;
                                 }
                                 else if (HeaderCellMode == EpPlusExcelHeaderCellMode.KeepFirst)
                                 {
