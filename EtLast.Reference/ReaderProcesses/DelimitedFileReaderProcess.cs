@@ -6,7 +6,7 @@
     using System.Globalization;
     using System.IO;
 
-    public class DelimitedFileReaderProcess : AbstractBaseProducerProcess
+    public class DelimitedFileReaderProcess : AbstractProducerProcess
     {
         public string FileName { get; set; }
 
@@ -28,23 +28,17 @@
         {
         }
 
-        public override IEnumerable<IRow> Evaluate(IExecutionBlock caller = null)
+        public override void Validate()
         {
-            Caller = caller;
             if (string.IsNullOrEmpty(FileName))
                 throw new ProcessParameterNullException(this, nameof(FileName));
 
             if (!HasHeaderRow && (ColumnNames == null || ColumnNames.Length == 0))
                 throw new ProcessParameterNullException(this, nameof(ColumnNames));
+        }
 
-            var startedOn = Stopwatch.StartNew();
-
-            var rows = EvaluateInputProcess(startedOn);
-            foreach (var row in rows)
-            {
-                yield return row;
-            }
-
+        protected override IEnumerable<IRow> Produce(Stopwatch startedOn)
+        {
             if (!File.Exists(FileName))
             {
                 var exception = new EtlException(this, "input file doesn't exists");
@@ -55,13 +49,11 @@
 
             Context.Log(LogSeverity.Debug, this, "reading from {FileName}", PathHelpers.GetFriendlyPathName(FileName));
 
-            var resultCount = 0;
-
             using (var reader = new StreamReader(FileName))
             {
                 var columnNames = ColumnNames;
                 string line;
-                var rowNumber = 0;
+                var firstRow = true;
                 while ((line = reader.ReadLine()) != null)
                 {
                     if (line.EndsWith(Delimiter))
@@ -70,11 +62,15 @@
                     }
 
                     var parts = line.Split(Delimiter);
-                    if (rowNumber == 0 && HasHeaderRow)
+                    if (firstRow)
                     {
-                        columnNames = parts;
-                        rowNumber++;
-                        continue;
+                        firstRow = false;
+
+                        if (HasHeaderRow)
+                        {
+                            columnNames = parts;
+                            continue;
+                        }
                     }
 
                     var row = Context.CreateRow(parts.Length);
@@ -98,7 +94,7 @@
                         if (columnConfiguration != null || DefaultConfiguration == null)
                         {
                             var column = columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn;
-                            value = ReaderProcessHelper.HandleConverter(this, value, column, columnConfiguration, row, out var error);
+                            value = HandleConverter(this, value, column, columnConfiguration, row, out var error);
                             if (error)
                                 continue;
 
@@ -107,7 +103,7 @@
                         else
                         {
                             var column = columnNames[i];
-                            value = ReaderProcessHelper.HandleConverter(this, value, column, DefaultConfiguration, row, out var error);
+                            value = HandleConverter(this, value, column, DefaultConfiguration, row, out var error);
                             if (error)
                                 continue;
 
@@ -115,16 +111,9 @@
                         }
                     }
 
-                    if (IgnoreRowsWithError && row.HasError())
-                        continue;
-
-                    rowNumber++;
-                    resultCount++;
                     yield return row;
                 }
             }
-
-            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, startedOn.Elapsed);
         }
     }
 }

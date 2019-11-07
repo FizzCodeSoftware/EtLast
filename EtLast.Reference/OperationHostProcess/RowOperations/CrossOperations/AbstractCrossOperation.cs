@@ -2,7 +2,7 @@
 {
     public abstract class AbstractCrossOperation : AbstractRowOperation
     {
-        public IProcess RightProcess { get; set; }
+        public IEvaluable RightProcess { get; set; }
 
         public override void Prepare()
         {

@@ -48,13 +48,13 @@
             {
                 if (_batchRowKeys.Count >= BatchSize)
                 {
-                    Process.Context.Log(LogSeverity.Information, Process, null, this, "processing {RowCount} batch rows with {KeyCount} distinct foreign keys",
-                       _batchRows.Count, _batchRowKeys.Count);
+                    Process.Context.Log(LogSeverity.Information, Process, this, "processing {RowCount} batch rows with {KeyCount} distinct foreign keys", _batchRows.Count,
+                        _batchRowKeys.Count);
                 }
                 else
                 {
-                    Process.Context.Log(LogSeverity.Information, Process, null, this, "processing {RowCount} batch rows with {KeyCount} distinct foreign keys ({Elapsed} of {Timeout} msec)",
-                       _batchRows.Count, _batchRowKeys.Count, _lastNewRowSeenOn.ElapsedMilliseconds, timeout);
+                    Process.Context.Log(LogSeverity.Information, Process, this, "processing {RowCount} batch rows with {KeyCount} distinct foreign keys ({Elapsed} of {Timeout} msec)", _batchRows.Count,
+                        _batchRowKeys.Count, _lastNewRowSeenOn.ElapsedMilliseconds, timeout);
                 }
 
                 ProcessRows(_batchRows.ToArray());

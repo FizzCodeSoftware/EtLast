@@ -62,15 +62,15 @@
                 InitConnection(Process);
                 lock (_connection.Lock)
                 {
-                    WriteToSql(Process, false);
+                    WriteToSql(false);
                 }
             }
         }
 
-        private void WriteToSql(IProcess process, bool shutdown)
+        private void WriteToSql(bool shutdown)
         {
             if (Transaction.Current == null)
-                process.Context.Log(LogSeverity.Warning, process, null, this, "there is no active transaction!");
+                Process.Context.Log(LogSeverity.Warning, Process, this, "there is no active transaction!");
 
             var recordCount = _reader.RowCount;
             _timer.Restart();
@@ -87,10 +87,10 @@
                 var writeTime = Convert.ToInt64(time.TotalMilliseconds);
                 Stat.IncrementCounter("write time", writeTime);
 
-                process.Context.Stat.IncrementCounter("database records written / " + _connectionString.Name, recordCount);
-                process.Context.Stat.IncrementDebugCounter("database records written / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), recordCount);
-                process.Context.Stat.IncrementCounter("database write time / " + _connectionString.Name, writeTime);
-                process.Context.Stat.IncrementDebugCounter("database write time / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), writeTime);
+                Process.Context.Stat.IncrementCounter("database records written / " + _connectionString.Name, recordCount);
+                Process.Context.Stat.IncrementDebugCounter("database records written / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), recordCount);
+                Process.Context.Stat.IncrementCounter("database write time / " + _connectionString.Name, writeTime);
+                Process.Context.Stat.IncrementDebugCounter("database write time / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), writeTime);
 
                 _rowsWritten += recordCount;
 
@@ -98,16 +98,16 @@
                     ? LogSeverity.Information
                     : LogSeverity.Debug;
 
-                process.Context.Log(severity, process, null, this, "{TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}",
-                    _rowsWritten, _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), Transaction.Current.ToIdentifierString(), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
+                Process.Context.Log(severity, Process, this, "{TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}", _rowsWritten,
+                    _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), Transaction.Current.ToIdentifierString(), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
             }
             catch (Exception ex)
             {
-                ConnectionManager.ReleaseConnection(Process, null, this, ref _connection);
+                ConnectionManager.ReleaseConnection(base.Process, this, ref _connection);
                 _bulkCopy.Close();
                 _bulkCopy = null;
 
-                var exception = new OperationExecutionException(process, this, "database write failed", ex);
+                var exception = new OperationExecutionException(Process, this, "database write failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database write failed, connection string key: {0}, table: {1}, message: {2}",
                     _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), ex.Message));
                 exception.Data.Add("ConnectionStringKey", _connectionString.Name);
@@ -154,7 +154,7 @@
             if (_connection != null)
                 return;
 
-            _connection = ConnectionManager.GetConnection(_connectionString, process, null, this);
+            _connection = ConnectionManager.GetConnection(_connectionString, process, this);
 
             var options = SqlBulkCopyOptions.Default;
 
@@ -183,7 +183,7 @@
                 InitConnection(Process);
                 lock (_connection.Lock)
                 {
-                    WriteToSql(Process, true);
+                    WriteToSql(true);
                 }
             }
 
@@ -198,7 +198,7 @@
                 _bulkCopy = null;
             }
 
-            ConnectionManager.ReleaseConnection(Process, null, this, ref _connection);
+            ConnectionManager.ReleaseConnection(Process, this, ref _connection);
         }
     }
 }

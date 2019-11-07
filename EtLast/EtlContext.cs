@@ -46,14 +46,14 @@
         /// Executes the specified strategy.
         /// </summary>
         /// <param name="terminateHostOnFail">If true, then a failed strategy will set the <see cref="EtlContextResult.TerminateHost"/> field to true in the result object.</param>
-        /// <param name="strategy">The strategy to be executed.</param>
-        public void ExecuteOne(bool terminateHostOnFail, IEtlStrategy strategy)
+        /// <param name="process">The process to execute.</param>
+        public void ExecuteOne(bool terminateHostOnFail, IExecutable process)
         {
             var initialExceptionCount = GetExceptions().Count;
 
             try
             {
-                strategy.Execute(null);
+                process.Execute(null);
 
                 if (GetExceptions().Count > initialExceptionCount)
                 {
@@ -74,16 +74,16 @@
         /// If a strategy fails then the execution will stop and return to the caller.
         /// </summary>
         /// <param name="terminateHostOnFail">If true, then a failed strategy will set the <see cref="EtlContextResult.TerminateHost"/> field to true in the result object.</param>
-        /// <param name="strategies">The strategies to be executed.</param>
-        public void ExecuteSequence(bool terminateHostOnFail, params IEtlStrategy[] strategies)
+        /// <param name="processes">The processes to execute.</param>
+        public void ExecuteSequence(bool terminateHostOnFail, params IExecutable[] processes)
         {
             var initialExceptionCount = GetExceptions().Count;
 
             try
             {
-                foreach (var strategy in strategies)
+                foreach (var process in processes)
                 {
-                    strategy.Execute(null);
+                    process.Execute(null);
 
                     var exceptions = GetExceptions();
                     if (exceptions.Count > initialExceptionCount)
@@ -104,7 +104,7 @@
             }
         }
 
-        public void Log(LogSeverity severity, IExecutionBlock caller, string text, params object[] args)
+        public void Log(LogSeverity severity, IProcess caller, string text, params object[] args)
         {
             if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
                 Result.WarningCount++;
@@ -118,7 +118,7 @@
             });
         }
 
-        public void Log(LogSeverity severity, IExecutionBlock caller, IJob job, IBaseOperation operation, string text, params object[] args)
+        public void Log(LogSeverity severity, IProcess caller, IBaseOperation operation, string text, params object[] args)
         {
             if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
                 Result.WarningCount++;
@@ -126,7 +126,6 @@
             OnLog?.Invoke(this, new ContextLogEventArgs()
             {
                 Caller = caller,
-                Job = job,
                 Operation = operation,
                 Text = text,
                 Severity = severity,
@@ -134,7 +133,7 @@
             });
         }
 
-        public void LogOps(LogSeverity severity, IExecutionBlock caller, string text, params object[] args)
+        public void LogOps(LogSeverity severity, IProcess caller, string text, params object[] args)
         {
             OnLog?.Invoke(this, new ContextLogEventArgs()
             {
@@ -146,12 +145,11 @@
             });
         }
 
-        public void LogOps(LogSeverity severity, IExecutionBlock caller, IJob job, IBaseOperation operation, string text, params object[] args)
+        public void LogOps(LogSeverity severity, IProcess caller, IBaseOperation operation, string text, params object[] args)
         {
             OnLog?.Invoke(this, new ContextLogEventArgs()
             {
                 Caller = caller,
-                Job = job,
                 Operation = operation,
                 Text = text,
                 Severity = severity,
@@ -181,7 +179,7 @@
             Log(LogSeverity.Warning, null, text + " // " + rowTemplate, args.Concat(rowArgs).ToArray());
         }
 
-        public void LogCustom(string fileName, IExecutionBlock caller, string text, params object[] args)
+        public void LogCustom(string fileName, IProcess caller, string text, params object[] args)
         {
             OnCustomLog?.Invoke(this, new ContextCustomLogEventArgs()
             {
@@ -193,7 +191,7 @@
             });
         }
 
-        public void LogCustomOps(string fileName, IExecutionBlock caller, string text, params object[] args)
+        public void LogCustomOps(string fileName, IProcess caller, string text, params object[] args)
         {
             OnCustomLog?.Invoke(this, new ContextCustomLogEventArgs()
             {
@@ -255,9 +253,9 @@
             return ConnectionStrings?[key + "-" + Environment.MachineName] ?? ConnectionStrings?[key];
         }
 
-        public EtlTransactionScope BeginScope(IExecutionBlock caller, IJob job, IBaseOperation operation, TransactionScopeKind kind, LogSeverity logSeverity)
+        public EtlTransactionScope BeginScope(IProcess caller, IBaseOperation operation, TransactionScopeKind kind, LogSeverity logSeverity)
         {
-            return new EtlTransactionScope(this, caller, job, operation, kind, TransactionScopeTimeout, logSeverity);
+            return new EtlTransactionScope(this, caller, operation, kind, TransactionScopeTimeout, logSeverity);
         }
     }
 }

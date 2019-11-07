@@ -18,14 +18,12 @@
         {
         }
 
-        public override IEnumerable<IRow> Evaluate(IExecutionBlock caller = null)
+        public override void Validate()
         {
-            Caller = caller;
+            base.Validate();
 
             if (TableName == null)
                 throw new ProcessParameterNullException(this, nameof(TableName));
-
-            return base.Evaluate(caller);
         }
 
         protected override string CreateSqlStatement()

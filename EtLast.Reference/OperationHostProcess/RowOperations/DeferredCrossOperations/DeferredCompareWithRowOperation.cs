@@ -20,7 +20,7 @@
 
         public MatchKeySelector LeftKeySelector { get; set; }
         public MatchKeySelector RightKeySelector { get; set; }
-        public Func<IRow[], IProcess> RightProcessCreator { get; set; }
+        public Func<IRow[], IEvaluable> RightProcessCreator { get; set; }
 
         public IRowEqualityComparer EqualityComparer { get; set; }
         public MatchAction NoMatchAction { get; set; }
@@ -104,8 +104,8 @@
 
             var rightProcess = RightProcessCreator.Invoke(_batchRows.ToArray());
 
-            Process.Context.Log(LogSeverity.Debug, Process, null, this, "evaluating <{InputProcess}> to process {RowCount} rows",
-                rightProcess.Name, _batchRows.Count);
+            Process.Context.Log(LogSeverity.Debug, Process, this, "evaluating <{InputProcess}> to process {RowCount} rows", rightProcess.Name,
+                _batchRows.Count);
 
             var rightRows = rightProcess.Evaluate(Process);
             var rightRowCount = 0;
@@ -119,8 +119,8 @@
                 _lookup[key] = row;
             }
 
-            Process.Context.Log(LogSeverity.Debug, Process, null, this, "fetched {RowCount} rows, lookup size is {LookupSize}",
-                rightRowCount, _lookup.Count);
+            Process.Context.Log(LogSeverity.Debug, Process, this, "fetched {RowCount} rows, lookup size is {LookupSize}", rightRowCount,
+                _lookup.Count);
 
             Stat.IncrementCounter("right rows loaded", rightRowCount);
 

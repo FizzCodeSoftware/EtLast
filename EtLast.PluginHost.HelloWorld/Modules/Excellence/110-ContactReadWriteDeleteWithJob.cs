@@ -9,30 +9,25 @@
     {
         public override void Execute()
         {
-            Context.ExecuteOne(true, new DefaultEtlStrategy(Context, ProcessCreator, TransactionScopeKind.None));
-        }
-
-        private IFinalProcess ProcessCreator(IEtlStrategy strategy)
-        {
-            return new JobHostProcess(Context, "JobHost")
+            Context.ExecuteOne(true, new DefaultEtlStrategy(Context, null)
             {
-                Jobs = new List<IJob>()
-                {
-                    new DeleteFileJob()
-                    {
-                         FileName = OutputFileName,
-                    },
-                    new EvaluateProcessWithoutResultJob()
-                    {
-                        ProcessToExecute = ProcessCreatorInternal(),
-                    }
-                },
-            };
+                ProcessCreator = ProcessCreator,
+            });
         }
 
-        private OperationHostProcess ProcessCreatorInternal()
+        private IEnumerable<IExecutable> ProcessCreator()
         {
-            return new OperationHostProcess(Context, "OperationsHost")
+            yield return new DeleteFileProcess(Context)
+            {
+                FileName = OutputFileName,
+            };
+
+            yield return ProcessCreatorInternal();
+        }
+
+        private IExecutable ProcessCreatorInternal()
+        {
+            return new OperationHostProcess(Context, "OperationHost")
             {
                 InputProcess = new EpPlusExcelReaderProcess(Context, "Read:People")
                 {

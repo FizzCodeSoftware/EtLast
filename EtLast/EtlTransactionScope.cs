@@ -7,8 +7,7 @@
     public class EtlTransactionScope : IDisposable
     {
         public IEtlContext Context { get; }
-        public IExecutionBlock Caller { get; }
-        public IJob Job { get; }
+        public IProcess Caller { get; }
         public IBaseOperation Operation { get; }
         public TransactionScopeKind Kind { get; }
         public TransactionScope Scope { get; private set; }
@@ -19,11 +18,10 @@
 
         private bool _isDisposed;
 
-        public EtlTransactionScope(IEtlContext context, IExecutionBlock caller, IJob job, IBaseOperation operation, TransactionScopeKind kind, TimeSpan scopeTimeout, LogSeverity logSeverity)
+        public EtlTransactionScope(IEtlContext context, IProcess caller, IBaseOperation operation, TransactionScopeKind kind, TimeSpan scopeTimeout, LogSeverity logSeverity)
         {
             Context = context;
             Caller = caller;
-            Job = job;
             Operation = operation;
             Kind = kind;
             LogSeverity = logSeverity;
@@ -40,23 +38,23 @@
             switch (kind)
             {
                 case TransactionScopeKind.RequiresNew:
-                    Context.Log(logSeverity, Caller, Job, Operation, "new transaction started: {Transaction}", newId);
+                    Context.Log(logSeverity, Caller, Operation, "new transaction started: {Transaction}", newId);
                     break;
                 case TransactionScopeKind.Required:
                     if (previousId == null || newId != previousId)
                     {
-                        Context.Log(logSeverity, Caller, Job, Operation, "new transaction started: {Transaction}", newId);
+                        Context.Log(logSeverity, Caller, Operation, "new transaction started: {Transaction}", newId);
                     }
                     else
                     {
-                        Context.Log(logSeverity, Caller, Job, Operation, "new transaction started and merged with previous: {Transaction}", newId);
+                        Context.Log(logSeverity, Caller, Operation, "new transaction started and merged with previous: {Transaction}", newId);
                     }
 
                     break;
                 case TransactionScopeKind.Suppress:
                     if (previousId != null)
                     {
-                        Context.Log(logSeverity, Caller, Job, Operation, "existing transaction suppressed: {Transaction}", previousId);
+                        Context.Log(logSeverity, Caller, Operation, "existing transaction suppressed: {Transaction}", previousId);
                     }
                     break;
             }
@@ -74,7 +72,7 @@
             }
 
             var transactionId = Transaction.Current.ToIdentifierString();
-            Context.Log(LogSeverity, Caller, Job, Operation, "completing transaction: {Transaction}", transactionId);
+            Context.Log(LogSeverity, Caller, Operation, "completing transaction: {Transaction}", transactionId);
             var startedOn = Stopwatch.StartNew();
 
             CompleteCalled = true;
@@ -86,14 +84,14 @@
             }
             catch (Exception ex)
             {
-                Context.Log(LogSeverity, Caller, Job, Operation, "transaction completition failed after {Elapsed}: {Transaction}, error message: {ExceptionMessage}",
-                    startedOn.Elapsed, transactionId, ex.Message);
+                Context.Log(LogSeverity, Caller, Operation, "transaction completition failed after {Elapsed}: {Transaction}, error message: {ExceptionMessage}", startedOn.Elapsed,
+                    transactionId, ex.Message);
 
                 Completed = false;
             }
 
-            Context.Log(LogSeverity, Caller, Job, Operation, "transaction completed in {Elapsed}: {Transaction}",
-                startedOn.Elapsed, transactionId);
+            Context.Log(LogSeverity, Caller, Operation, "transaction completed in {Elapsed}: {Transaction}", startedOn.Elapsed,
+                transactionId);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -107,7 +105,7 @@
                         if (Kind != TransactionScopeKind.Suppress && !CompleteCalled)
                         {
                             var transactionId = Transaction.Current?.ToIdentifierString();
-                            Context.Log(LogSeverity, Caller, Job, Operation, "reverting transaction {Transaction}", transactionId);
+                            Context.Log(LogSeverity, Caller, Operation, "reverting transaction {Transaction}", transactionId);
                         }
 
                         Scope.Dispose();
@@ -116,7 +114,7 @@
                         if (Kind == TransactionScopeKind.Suppress && !CompleteCalled)
                         {
                             var transactionId = Transaction.Current?.ToIdentifierString();
-                            Context.Log(LogSeverity, Caller, Job, Operation, "suppression of transaction {Transaction} is removed", transactionId);
+                            Context.Log(LogSeverity, Caller, Operation, "suppression of transaction {Transaction} is removed", transactionId);
                         }
                     }
                 }

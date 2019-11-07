@@ -14,8 +14,7 @@
 
     public class ContextLogEventArgs : EventArgs
     {
-        public IExecutionBlock Caller { get; set; }
-        public IJob Job { get; set; }
+        public IProcess Caller { get; set; }
         public IBaseOperation Operation { get; set; }
         public string Text { get; set; }
         public object[] Arguments { get; set; }

@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public delegate List<IJob> DwhBeforeAfterFinalizerJobsCreatorDelegate(string connectionStringKey, DwhStrategyConfiguration configuration);
+    public delegate List<IExecutable> DwhBeforeAfterFinalizerJobsCreatorDelegate(string connectionStringKey, DwhStrategyConfiguration configuration);
 
     public enum DwhStrategyTempTableMode
     {

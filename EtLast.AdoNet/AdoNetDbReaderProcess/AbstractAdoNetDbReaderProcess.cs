@@ -11,10 +11,9 @@
 
     public delegate void ConnectionCreatorDelegate(ConnectionStringWithProvider connectionString, AbstractAdoNetDbReaderProcess process, out DatabaseConnection connection, out IDbTransaction transaction);
 
-    public abstract class AbstractAdoNetDbReaderProcess : AbstractBaseProducerProcess
+    public abstract class AbstractAdoNetDbReaderProcess : AbstractProducerProcess
     {
         public string ConnectionStringKey { get; set; }
-        public string AddRowIndexToColumn { get; set; }
 
         public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
         public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
@@ -52,41 +51,26 @@
             SqlValueProcessors.Add(new MySqlValueProcessor());
         }
 
-        public override IEnumerable<IRow> Evaluate(IExecutionBlock caller = null)
+        public override void Validate()
         {
             if (string.IsNullOrEmpty(ConnectionStringKey))
                 throw new ProcessParameterNullException(this, nameof(ConnectionStringKey));
 
-            ConnectionString = Context.GetConnectionString(ConnectionStringKey);
-            if (ConnectionString == null)
+            var connectionString = Context.GetConnectionString(ConnectionStringKey);
+            if (connectionString == null)
                 throw new InvalidProcessParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
 
-            if (ConnectionString.ProviderName == null)
+            if (connectionString.ProviderName == null)
                 throw new ProcessParameterNullException(this, "ConnectionString");
-
-            return EvaluateImplementation();
         }
 
-        private IEnumerable<IRow> EvaluateImplementation()
+        protected override IEnumerable<IRow> Produce(Stopwatch startedOn)
         {
+            ConnectionString = Context.GetConnectionString(ConnectionStringKey);
+
             var usedSqlValueProcessors = SqlValueProcessors.Where(x => x.Init(ConnectionString)).ToList();
             if (usedSqlValueProcessors.Count == 0)
                 usedSqlValueProcessors = null;
-
-            var startedOn = Stopwatch.StartNew();
-
-            var evaluateInputProcess = EvaluateInputProcess(startedOn, (row, rowCount, process) =>
-            {
-                if (AddRowIndexToColumn != null)
-                    row.SetValue(AddRowIndexToColumn, rowCount, process);
-            });
-
-            var index = 0;
-            foreach (var row in evaluateInputProcess)
-            {
-                index++;
-                yield return row;
-            }
 
             var resultCount = 0;
 
@@ -115,7 +99,7 @@
                 }
                 else
                 {
-                    connection = ConnectionManager.GetConnection(ConnectionString, this, null, null);
+                    connection = ConnectionManager.GetConnection(ConnectionString, this, null);
                 }
 
                 cmd = connection.Connection.CreateCommand();
@@ -207,7 +191,7 @@
 
                         if (config != null)
                         {
-                            value = ReaderProcessHelper.HandleConverter(this, value, rowColumn, config, row, out var error);
+                            value = HandleConverter(this, value, rowColumn, config, row, out var error);
                             if (error)
                                 continue;
                         }
@@ -215,15 +199,7 @@
                         row.SetValue(rowColumn, value, this);
                     }
 
-                    if (IgnoreRowsWithError && row.HasError())
-                        continue;
-
                     resultCount++;
-                    index++;
-
-                    if (AddRowIndexToColumn != null)
-                        row.SetValue(AddRowIndexToColumn, index, this);
-
                     yield return row;
                 }
             }
@@ -243,10 +219,8 @@
 
             if (CustomConnectionCreator == null)
             {
-                ConnectionManager.ReleaseConnection(this, null, null, ref connection);
+                ConnectionManager.ReleaseConnection(this, null, ref connection);
             }
-
-            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, startedOn.Elapsed);
         }
 
         private string InlineArrayParametersIfNecessary(string sqlStatement)

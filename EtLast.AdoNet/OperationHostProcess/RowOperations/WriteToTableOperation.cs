@@ -65,7 +65,7 @@
 
             try
             {
-                _connection = ConnectionManager.GetConnection(_connectionString, process, null, this);
+                _connection = ConnectionManager.GetConnection(_connectionString, process, this);
             }
             catch (Exception ex)
             {
@@ -89,7 +89,7 @@
         private void WriteToSql(IProcess process, bool shutdown)
         {
             if (Transaction.Current == null)
-                process.Context.Log(LogSeverity.Warning, process, null, this, "there is no active transaction!");
+                process.Context.Log(LogSeverity.Warning, process, this, "there is no active transaction!");
 
             var sqlStatement = SqlStatementCreator.CreateStatement(_connectionString, _statements);
             var recordCount = _statements.Count;
@@ -128,8 +128,8 @@
                 if (shutdown || (_rowsWritten / 10000 != (_rowsWritten - recordCount) / 10000))
                 {
                     var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
-                    process.Context.Log(severity, process, null, this, "{TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow)",
-                        _rowsWritten, _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), Transaction.Current.ToIdentifierString(), Math.Round(_fullTime.ElapsedMilliseconds * 1000 / (double)_rowsWritten, 1));
+                    process.Context.Log(severity, process, this, "{TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow)", _rowsWritten,
+                        _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), Transaction.Current.ToIdentifierString(), Math.Round(_fullTime.ElapsedMilliseconds * 1000 / (double)_rowsWritten, 1));
                 }
             }
             catch (Exception ex)
@@ -234,7 +234,7 @@
             _fullTime.Stop();
             _fullTime = null;
 
-            ConnectionManager.ReleaseConnection(Process, null, this, ref _connection);
+            ConnectionManager.ReleaseConnection(Process, this, ref _connection);
         }
 
         public virtual void SetParameter(IDbDataParameter parameter, object value, DbType? dbType, ConnectionStringWithProvider connectionString)

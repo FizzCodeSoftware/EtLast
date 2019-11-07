@@ -5,7 +5,7 @@
     public class AdoNetSqlStatementDebugEvent
     {
         public IBaseOperation Operation { get; set; }
-        public IJob Job { get; set; }
+        public IProcess Process { get; set; }
         public ConnectionStringWithProvider ConnectionString { get; set; }
         public string SqlStatement { get; set; }
         public string CompiledSqlStatement { get; set; }

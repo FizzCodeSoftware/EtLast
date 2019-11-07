@@ -2,16 +2,10 @@
 {
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Globalization;
     using System.Linq;
 
-    public class DwhStrategy : IEtlStrategy
+    public class DwhStrategy : AbstractExecutableProcess
     {
-        public IEtlContext Context { get; }
-        public IExecutionBlock Caller { get; private set; }
-        public string InstanceName { get; set; }
-        public string Name => InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType());
-
         private DwhStrategyConfiguration _configuration;
 
         public DwhStrategyConfiguration Configuration
@@ -20,7 +14,13 @@
             set
             {
                 if (_configuration != null)
+                {
                     _configuration.Strategy = null;
+                    foreach (var table in _configuration.Tables)
+                    {
+                        table.Strategy = null;
+                    }
+                }
 
                 _configuration = value;
                 _configuration.Strategy = this;
@@ -32,33 +32,36 @@
             }
         }
 
-        public DwhStrategy(IEtlContext context)
+        public DwhStrategy(IEtlContext context, string name = null)
+            : base(context, name)
         {
-            Context = context ?? throw new StrategyParameterNullException(this, nameof(context));
         }
 
-        public void Execute(IExecutionBlock caller)
+        public override void Validate()
         {
-            Caller = caller;
-            Context.Log(LogSeverity.Information, this, "strategy started (dwh)");
-            var startedOn = Stopwatch.StartNew();
-
             if (Configuration == null)
-                throw new StrategyParameterNullException(this, nameof(Configuration));
+                throw new ProcessParameterNullException(this, nameof(Configuration));
 
             if (Configuration.Tables == null)
-                throw new StrategyParameterNullException(this, nameof(Configuration.Tables));
+                throw new ProcessParameterNullException(this, nameof(Configuration.Tables));
 
             if (Configuration.ConnectionStringKey == null)
-                throw new StrategyParameterNullException(this, nameof(Configuration.ConnectionStringKey));
+                throw new ProcessParameterNullException(this, nameof(Configuration.ConnectionStringKey));
 
             var connectionString = Context.GetConnectionString(Configuration.ConnectionStringKey);
             if (connectionString == null)
-                throw new InvalidStrategyParameterException(this, nameof(Configuration.ConnectionStringKey), Configuration.ConnectionStringKey, "key doesn't exists");
+                throw new InvalidProcessParameterException(this, nameof(Configuration.ConnectionStringKey), Configuration.ConnectionStringKey, "key doesn't exists");
+        }
+
+        protected override void Execute(Stopwatch startedOn)
+        {
+            Context.Log(LogSeverity.Information, this, "strategy started (dwh)");
+
+            var connectionString = Context.GetConnectionString(Configuration.ConnectionStringKey);
 
             var maxRetryCount = Configuration.FinalizerRetryCount;
             if (Configuration.FinalizerTransactionScopeKind != TransactionScopeKind.RequiresNew && maxRetryCount > 0)
-                throw new InvalidStrategyParameterException(this, nameof(Configuration.FinalizerRetryCount), null, "retrying finalizers can be possible only if the " + nameof(Configuration.FinalizerTransactionScopeKind) + " is set to " + nameof(TransactionScopeKind.RequiresNew));
+                throw new InvalidProcessParameterException(this, nameof(Configuration.FinalizerRetryCount), null, "retrying finalizers can be possible only if the " + nameof(Configuration.FinalizerTransactionScopeKind) + " is set to " + nameof(TransactionScopeKind.RequiresNew));
 
             var initialExceptionCount = Context.GetExceptions().Count;
             var success = false;
@@ -68,22 +71,22 @@
                 if (string.IsNullOrEmpty(table.TempTableName))
                 {
                     if (string.IsNullOrEmpty(Configuration.AutoTempTablePrefix) && string.IsNullOrEmpty(Configuration.AutoTempTablePostfix))
-                        throw new InvalidStrategyParameterException(this, nameof(table.TempTableName), null, nameof(DwhStrategyTable) + "." + nameof(DwhStrategyTableBase.TempTableName) + " must be specified if there is no " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePrefix) + " or " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePostfix) + " specified (table name: " + table.TableName + ")");
+                        throw new InvalidProcessParameterException(this, nameof(table.TempTableName), null, nameof(DwhStrategyTable) + "." + nameof(DwhStrategyTableBase.TempTableName) + " must be specified if there is no " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePrefix) + " or " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePostfix) + " specified (table name: " + table.TableName + ")");
 
                     table.TempTableName = Configuration.AutoTempTablePrefix + table.TableName + Configuration.AutoTempTablePostfix;
                 }
 
                 if (string.IsNullOrEmpty(table.TableName))
-                    throw new StrategyParameterNullException(this, nameof(DwhStrategyTableBase.TableName));
+                    throw new ProcessParameterNullException(this, nameof(DwhStrategyTableBase.TableName));
 
                 if (table.MainProcessCreator == null && table.PartitionedMainProcessCreator == null)
-                    throw new InvalidStrategyParameterException(this, nameof(DwhStrategyTable.MainProcessCreator) + "/" + nameof(DwhStrategyTable.PartitionedMainProcessCreator), null, nameof(DwhStrategyTable.MainProcessCreator) + " or " + nameof(DwhStrategyTable.PartitionedMainProcessCreator) + " must be supplied for " + table.TableName);
+                    throw new InvalidProcessParameterException(this, nameof(DwhStrategyTable.MainProcessCreator) + "/" + nameof(DwhStrategyTable.PartitionedMainProcessCreator), null, nameof(DwhStrategyTable.MainProcessCreator) + " or " + nameof(DwhStrategyTable.PartitionedMainProcessCreator) + " must be supplied for " + table.TableName);
 
                 if (table.MainProcessCreator != null && table.PartitionedMainProcessCreator != null)
-                    throw new InvalidStrategyParameterException(this, nameof(DwhStrategyTable.MainProcessCreator) + "/" + nameof(DwhStrategyTable.PartitionedMainProcessCreator), null, "only one of " + nameof(DwhStrategyTable.MainProcessCreator) + " or " + nameof(DwhStrategyTable.PartitionedMainProcessCreator) + " can be supplied for " + table.TableName);
+                    throw new InvalidProcessParameterException(this, nameof(DwhStrategyTable.MainProcessCreator) + "/" + nameof(DwhStrategyTable.PartitionedMainProcessCreator), null, "only one of " + nameof(DwhStrategyTable.MainProcessCreator) + " or " + nameof(DwhStrategyTable.PartitionedMainProcessCreator) + " can be supplied for " + table.TableName);
 
                 if (table.FinalizerJobsCreator == null)
-                    throw new StrategyParameterNullException(this, nameof(DwhStrategyTable.FinalizerJobsCreator));
+                    throw new ProcessParameterNullException(this, nameof(DwhStrategyTable.FinalizerJobsCreator));
             }
 
             try
@@ -97,8 +100,6 @@
                 {
                     for (var partitionIndex = 0; ; partitionIndex++)
                     {
-                        IFinalProcess mainProcess;
-
                         var creatorScopeKind = table.SuppressTransactionScopeForCreators
                             ? TransactionScopeKind.Suppress
                             : TransactionScopeKind.None;
@@ -108,12 +109,14 @@
                             Context.Log(LogSeverity.Information, this, "creating main process for table {TableName}",
                                 connectionString.Unescape(table.TableName));
 
-                            using (var creatorScope = Context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
+                            IExecutable mainExecutableProcess;
+
+                            using (var creatorScope = Context.BeginScope(this, null, creatorScopeKind, LogSeverity.Information))
                             {
-                                mainProcess = table.MainProcessCreator.Invoke(table);
+                                mainExecutableProcess = table.MainProcessCreator.Invoke(table);
                             }
 
-                            mainProcess.EvaluateWithoutResult(this);
+                            mainExecutableProcess.Execute(this);
 
                             if (Context.GetExceptions().Count > initialExceptionCount)
                                 return;
@@ -124,14 +127,15 @@
                         Context.Log(LogSeverity.Information, this, "creating main process for table {TableName}, (partition #{PartitionIndex})",
                             connectionString.Unescape(table.TableName), partitionIndex);
 
-                        using (var creatorScope = Context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
+                        IEvaluable mainEvaluableProcess;
+
+                        using (var creatorScope = Context.BeginScope(this, null, creatorScopeKind, LogSeverity.Information))
                         {
-                            mainProcess = table.PartitionedMainProcessCreator.Invoke(table, partitionIndex);
+                            mainEvaluableProcess = table.PartitionedMainProcessCreator.Invoke(table, partitionIndex);
                         }
 
-                        mainProcess.Name += "/#" + (partitionIndex + 1).ToString("D", CultureInfo.InvariantCulture);
                         var rowCount = 0;
-                        foreach (var row in mainProcess.Evaluate()) // must enumerate through all rows
+                        foreach (var row in mainEvaluableProcess.Evaluate()) // must enumerate through all rows
                         {
                             rowCount++;
                         }
@@ -147,7 +151,7 @@
                 for (var retryCounter = 0; retryCounter <= maxRetryCount; retryCounter++)
                 {
                     Context.Log(LogSeverity.Information, this, "finalization round {FinalizationRound} started", retryCounter);
-                    using (var scope = Context.BeginScope(this, null, null, Configuration.FinalizerTransactionScopeKind, LogSeverity.Information))
+                    using (var scope = Context.BeginScope(this, null, Configuration.FinalizerTransactionScopeKind, LogSeverity.Information))
                     {
                         if (Configuration.BeforeFinalizersJobCreator != null)
                         {
@@ -191,21 +195,19 @@
             Context.Log(LogSeverity.Information, this, success ? "finished in {Elapsed}" : "failed after {Elapsed}", startedOn.Elapsed);
         }
 
-        public static IJob DeleteTargetTableFinalizer(DwhStrategyTableBase table)
+        public static IProcess DeleteTargetTableFinalizer(IEtlContext context, DwhStrategyTableBase table)
         {
-            return new DeleteTableJob
+            return new DeleteTableProcess(context, "DeleteContentFromTargetTable")
             {
-                InstanceName = "DeleteContentFromTargetTable",
                 ConnectionStringKey = table.Strategy.Configuration.ConnectionStringKey,
                 TableName = table.TableName,
             };
         }
 
-        public static IJob CopyTableFinalizer(DwhStrategyTableBase table, int commandTimeout, bool copyIdentityColumns = false)
+        public static IProcess CopyTableFinalizer(IEtlContext context, DwhStrategyTableBase table, int commandTimeout, bool copyIdentityColumns = false)
         {
-            return new CopyTableIntoExistingTableJob
+            return new CopyTableIntoExistingTableProcess(context, "CopyTempToTargetTable")
             {
-                InstanceName = "CopyTempToTargetTable",
                 ConnectionStringKey = table.Strategy.Configuration.ConnectionStringKey,
                 Configuration = new TableCopyConfiguration()
                 {
@@ -253,16 +255,12 @@
                 }
             }
 
-            var process = new JobHostProcess(context, "RecreateTempTables");
-            process.AddJob(new CopyTableStructureJob
+            new CopyTableStructureProcess(context, "RecreateTempTables")
             {
-                InstanceName = "RecreateTempTables",
                 ConnectionStringKey = Configuration.ConnectionStringKey,
                 SuppressExistingTransactionScope = true,
                 Configuration = config,
-            });
-
-            process.EvaluateWithoutResult(this);
+            }.Execute(this);
         }
 
         private void DropTempTables(IEtlContext context)
@@ -274,17 +272,13 @@
                 .Where(x => x.AdditionalTables != null)
                 .SelectMany(x => x.AdditionalTables.Values.Select(y => y.TempTableName));
 
-            var process = new JobHostProcess(context, "DropTempTablesProcess");
-            process.AddJob(new DropTablesJob()
+            new DropTablesProcess(context, "DropTempTables")
             {
-                InstanceName = "DropTempTables",
                 ConnectionStringKey = Configuration.ConnectionStringKey,
                 TableNames = tempTableNames
                     .Concat(additionalTempTableNames)
                     .ToArray(),
-            });
-
-            process.EvaluateWithoutResult(this);
+            }.Execute(this);
         }
     }
 }

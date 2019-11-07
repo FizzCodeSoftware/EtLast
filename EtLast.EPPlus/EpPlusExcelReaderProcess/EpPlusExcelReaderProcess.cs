@@ -8,7 +8,9 @@
     using System.Linq;
     using OfficeOpenXml;
 
-    public class EpPlusExcelReaderProcess : AbstractBaseProducerProcess, IEpPlusExcelReaderProcess
+    public enum EpPlusExcelHeaderCellMode { Join, KeepFirst, KeepLast }
+
+    public class EpPlusExcelReaderProcess : AbstractProducerProcess
     {
         public string FileName { get; set; }
         public string SheetName { get; set; }
@@ -19,11 +21,6 @@
         /// Usage example: reader.PreLoadedFile = new ExcelPackage(new FileInfo(fileName));
         /// </summary>
         public ExcelPackage PreLoadedFile { get; set; }
-
-        /// <summary>
-        /// First row index is (integer) 1
-        /// </summary>
-        public string AddRowIndexToColumn { get; set; }
 
         public bool TreatEmptyStringAsNull { get; set; }
         public bool IgnoreNullOrEmptyRows { get; set; } = true;
@@ -55,9 +52,8 @@
         {
         }
 
-        public override IEnumerable<IRow> Evaluate(IExecutionBlock caller = null)
+        public override void Validate()
         {
-            Caller = caller;
             if (string.IsNullOrEmpty(FileName))
                 throw new ProcessParameterNullException(this, nameof(FileName));
 
@@ -66,24 +62,10 @@
 
             if (ColumnConfiguration == null)
                 throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
+        }
 
-            var startedOn = Stopwatch.StartNew();
-
-            var evaluateInputProcess = EvaluateInputProcess(startedOn, (row, rowCount, process) =>
-            {
-                if (AddRowIndexToColumn != null)
-                {
-                    row.SetValue(AddRowIndexToColumn, rowCount, process);
-                }
-            });
-
-            var index = 0;
-            foreach (var row in evaluateInputProcess)
-            {
-                index++;
-                yield return row;
-            }
-
+        protected override IEnumerable<IRow> Produce(Stopwatch startedOn)
+        {
             if (!File.Exists(FileName))
             {
                 var exception = new EtlException(this, "input file doesn't exists");
@@ -92,7 +74,6 @@
                 throw exception;
             }
 
-            var resultCount = 0;
             if (!string.IsNullOrEmpty(SheetName))
                 Context.Log(LogSeverity.Debug, this, "reading from {FileName}/{SheetName}", PathHelpers.GetFriendlyPathName(FileName), SheetName);
             else
@@ -243,7 +224,7 @@
                             value = null;
                         }
 
-                        value = ReaderProcessHelper.HandleConverter(this, value, kvp.Key, kvp.Value.Configuration, row, out var error);
+                        value = HandleConverter(this, value, kvp.Key, kvp.Value.Configuration, row, out var error);
                         if (error)
                             continue;
 
@@ -252,14 +233,6 @@
 
                     if (IgnoreNullOrEmptyRows && row.IsNullOrEmpty())
                         continue;
-
-                    if (IgnoreRowsWithError && row.HasError())
-                        continue;
-
-                    resultCount++;
-                    index++;
-                    if (AddRowIndexToColumn != null)
-                        row.SetValue(AddRowIndexToColumn, index, this);
 
                     yield return row;
                 }
@@ -272,8 +245,6 @@
                     package = null;
                 }
             }
-
-            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, startedOn.Elapsed);
         }
 
         private static string EnsureDistinctColumnNames(List<string> excelColumns, string excelColumn)

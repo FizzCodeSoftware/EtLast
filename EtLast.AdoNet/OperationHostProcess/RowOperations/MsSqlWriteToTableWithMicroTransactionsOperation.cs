@@ -84,11 +84,11 @@
 
                 try
                 {
-                    using (var scope = process.Context.BeginScope(process, null, this, TransactionScopeKind.RequiresNew, LogSeverity.Debug))
+                    using (var scope = process.Context.BeginScope(process, this, TransactionScopeKind.RequiresNew, LogSeverity.Debug))
                     {
                         var transactionId = Transaction.Current.ToIdentifierString();
 
-                        connection = ConnectionManager.GetConnection(_connectionString, process, null, this, 0);
+                        connection = ConnectionManager.GetConnection(_connectionString, process, this, 0);
 
                         var options = SqlBulkCopyOptions.Default;
 
@@ -111,7 +111,7 @@
 
                         bulkCopy.WriteToServer(_reader);
                         bulkCopy.Close();
-                        ConnectionManager.ReleaseConnection(Process, null, this, ref connection);
+                        ConnectionManager.ReleaseConnection(Process, this, ref connection);
 
                         scope.Complete();
 
@@ -135,8 +135,8 @@
                             ? LogSeverity.Information
                             : LogSeverity.Debug;
 
-                        process.Context.Log(severity, process, null, this, "{TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, micro-transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}",
-                            _rowsWritten, _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), transactionId, Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
+                        process.Context.Log(severity, process, this, "{TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, micro-transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}", _rowsWritten,
+                            _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), transactionId, Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
                         break;
                     }
                 }
@@ -152,11 +152,11 @@
 
                     if (retry < MaxRetryCount)
                     {
-                        process.Context.Log(LogSeverity.Error, process, null, this, "database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
-                            RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
+                        process.Context.Log(LogSeverity.Error, process, this, "database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", RetryDelayMilliseconds * (retry + 1),
+                            retry, ex.Message);
 
-                        process.Context.LogOps(LogSeverity.Error, process, null, this, "database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
-                            Name, RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
+                        process.Context.LogOps(LogSeverity.Error, process, this, "database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", Name,
+                            RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
 
                         Thread.Sleep(RetryDelayMilliseconds * (retry + 1));
                     }

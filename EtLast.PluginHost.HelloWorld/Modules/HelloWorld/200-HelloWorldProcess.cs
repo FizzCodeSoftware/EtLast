@@ -6,26 +6,22 @@
     {
         public override void Execute()
         {
-            Context.ExecuteOne(true, new DefaultEtlStrategy(Context, CreateHelloWorldProcess, TransactionScopeKind.None));
+            Context.ExecuteOne(true, new DefaultEtlStrategy(Context, null)
+            {
+                ProcessCreator = CreateHelloWorldProcess,
+            });
         }
 
-        private IFinalProcess CreateHelloWorldProcess(IEtlStrategy strategy)
+        private IEnumerable<IExecutable> CreateHelloWorldProcess()
         {
-            return new JobHostProcess(Context, "AwesomeJobHost")
+            yield return new CustomActionProcess(Context, "HelloWorldJob")
             {
-                Jobs = new List<IJob>()
+                Then = process =>
                 {
-                    new CustomActionJob()
-                    {
-                        InstanceName = "HelloWorldJob",
-                        Then = job =>
-                        {
-                            Context.Log(LogSeverity.Information, job.Process, "Hello {Subject}! [using {ExecutorName} and {StrategyName}]", "World",
-                                nameof(Context.ExecuteOne), nameof(DefaultEtlStrategy));
-                        }
-                        // do not use string interpolation because EtLast is using structured logging and all values are stored as key-value pairs
-                    },
+                    Context.Log(LogSeverity.Information, process, "Hello {Subject}! [using {ExecutorName} and {StrategyName}]", "World",
+                        nameof(Context.ExecuteOne), nameof(DefaultEtlStrategy));
                 }
+                // do not use string interpolation because EtLast is using structured logging and all values are stored as key-value pairs
             };
         }
     }

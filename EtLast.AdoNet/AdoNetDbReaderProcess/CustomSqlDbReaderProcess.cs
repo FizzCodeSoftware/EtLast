@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
-    using System.Collections.Generic;
     using System.Transactions;
 
     public class CustomSqlAdoNetDbReaderProcess : AbstractAdoNetDbReaderProcess
@@ -12,14 +11,12 @@
         {
         }
 
-        public override IEnumerable<IRow> Evaluate(IExecutionBlock caller = null)
+        public override void Validate()
         {
-            Caller = caller;
+            base.Validate();
 
             if (string.IsNullOrEmpty(Sql))
                 throw new ProcessParameterNullException(this, nameof(Sql));
-
-            return base.Evaluate(caller);
         }
 
         protected override string CreateSqlStatement()

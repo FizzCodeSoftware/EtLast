@@ -109,9 +109,6 @@
             if (args.Caller != null)
                 values.Add(args.Caller.Name);
 
-            if (args.Job != null)
-                values.Add(args.Job.Name);
-
             if (args.Operation != null)
                 values.Add(args.Operation.Name);
 
@@ -127,7 +124,6 @@
                 "[{Module}/{Plugin}]"
                     + ident
                     + (args.Caller != null ? "<{Caller}> " : "")
-                    + (args.Job != null ? "({Job}) " : "")
                     + (args.Operation != null ? "({Operation}) " : "")
                     + args.Text,
                 values.ToArray());

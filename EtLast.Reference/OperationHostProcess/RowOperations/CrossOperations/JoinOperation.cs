@@ -115,8 +115,7 @@
             if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
                 throw new OperationParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));
 
-            Process.Context.Log(LogSeverity.Information, Process, null, this, "evaluating <{InputProcess}>",
-                RightProcess.Name);
+            Process.Context.Log(LogSeverity.Information, Process, this, "evaluating <{InputProcess}>", RightProcess.Name);
 
             _lookup.Clear();
             var rightRows = RightProcess.Evaluate(Process);
@@ -137,8 +136,8 @@
                 list.Add(row);
             }
 
-            Process.Context.Log(LogSeverity.Debug, Process, null, this, "fetched {RowCount} rows, lookup size is {LookupSize}",
-                rightRowCount, _lookup.Count);
+            Process.Context.Log(LogSeverity.Debug, Process, this, "fetched {RowCount} rows, lookup size is {LookupSize}", rightRowCount,
+                _lookup.Count);
 
             Stat.IncrementCounter("right rows loaded", rightRowCount);
         }

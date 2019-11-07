@@ -7,26 +7,23 @@
     using System.IO;
     using OfficeOpenXml;
 
-    public class EpPlusExcelSheetListReaderProcess : AbstractBaseProducerProcess
+    public class EpPlusExcelSheetListReaderProcess : AbstractProducerProcess
     {
         public string FileName { get; set; }
 
-        public EpPlusExcelSheetListReaderProcess(IEtlContext context, string name) : base(context, name)
+        public EpPlusExcelSheetListReaderProcess(IEtlContext context, string name)
+            : base(context, name)
         {
         }
 
-        public override IEnumerable<IRow> Evaluate(IExecutionBlock caller = null)
+        public override void Validate()
         {
-            Caller = caller;
             if (string.IsNullOrEmpty(FileName))
                 throw new ProcessParameterNullException(this, nameof(FileName));
+        }
 
-            var startedOn = Stopwatch.StartNew();
-
-            foreach (var row in EvaluateInputProcess(startedOn))
-                yield return row;
-
-            var resultCount = 0;
+        protected override IEnumerable<IRow> Produce(Stopwatch startedOn)
+        {
             Context.Log(LogSeverity.Debug, this, "reading from {FileName}", FileName);
 
             ExcelPackage package;
@@ -56,12 +53,10 @@
                     row.SetValue("Name", workbook.Worksheets[i].Name, this);
                     row.SetValue("Color", workbook.Worksheets[i].TabColor, this);
                     row.SetValue("Visible", workbook.Worksheets[i].Hidden == eWorkSheetHidden.Visible, this);
+
                     yield return row;
-                    resultCount++;
                 }
             }
-
-            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, startedOn.Elapsed);
         }
     }
 }

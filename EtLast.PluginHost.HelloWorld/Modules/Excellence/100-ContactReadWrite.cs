@@ -10,14 +10,17 @@
     {
         public override void Execute()
         {
-            Context.ExecuteOne(true, new DefaultEtlStrategy(Context, ProcessCreator, TransactionScopeKind.None));
+            Context.ExecuteOne(true, new DefaultEtlStrategy(Context, null)
+            {
+                ProcessCreator = ProcessCreator,
+            });
         }
 
-        private IFinalProcess ProcessCreator(IEtlStrategy strategy)
+        private IEnumerable<IExecutable> ProcessCreator()
         {
             File.Delete(OutputFileName);
 
-            return new OperationHostProcess(Context, "OperationsHost")
+            yield return new OperationHostProcess(Context, "OperationHost")
             {
                 InputProcess = new EpPlusExcelReaderProcess(Context, "Read:People")
                 {

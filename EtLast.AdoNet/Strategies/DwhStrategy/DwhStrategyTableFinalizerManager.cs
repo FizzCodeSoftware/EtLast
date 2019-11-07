@@ -4,27 +4,21 @@
     using System.Linq;
     using FizzCode.DbTools.Configuration;
 
-    internal class DwhStrategyTableFinalizerManager : IExecutionBlock
+    internal class DwhStrategyTableFinalizerManager
     {
-        public IExecutionBlock Caller { get; private set; }
-        public string Name => "TableFinalizerManager";
-
         public void Execute(IEtlContext context, DwhStrategy strategy, ConnectionStringWithProvider connectionString)
         {
-            Caller = strategy;
-
-            context.Log(LogSeverity.Information, this, "started");
             var tempTablesWithData = 0;
             var tempTablesWithoutData = 0;
             foreach (var table in strategy.Configuration.Tables)
             {
-                var rowCount = CountRowsIn(context, connectionString, table.TempTableName);
+                var rowCount = CountRowsIn(strategy, context, connectionString, table.TempTableName);
 
                 if (table.AdditionalTables?.Count > 0)
                 {
                     foreach (var additionalTable in table.AdditionalTables.Values)
                     {
-                        rowCount += CountRowsIn(context, connectionString, additionalTable.TempTableName);
+                        rowCount += CountRowsIn(strategy, context, connectionString, additionalTable.TempTableName);
                     }
                 }
 
@@ -32,39 +26,41 @@
                 {
                     tempTablesWithData++;
 
-                    context.Log(LogSeverity.Information, this, "creating finalizers for {TableName}",
+                    context.Log(LogSeverity.Information, strategy, "creating finalizers for {TableName}",
                         connectionString.Unescape(table.TableName));
 
                     var creatorScopeKind = table.SuppressTransactionScopeForCreators
                         ? TransactionScopeKind.Suppress
                         : TransactionScopeKind.None;
 
-                    List<IJob> finalizerJobs;
-                    using (var creatorScope = context.BeginScope(this, null, null, creatorScopeKind, LogSeverity.Information))
+                    List<IExecutable> finalizers;
+                    using (var creatorScope = context.BeginScope(strategy, null, creatorScopeKind, LogSeverity.Information))
                     {
-                        finalizerJobs = table.FinalizerJobsCreator.Invoke(table);
+                        finalizers = table.FinalizerJobsCreator.Invoke(table);
                     }
 
-                    var process = new JobHostProcess(context, "Finalize:" + connectionString.Unescape(table.TableName));
-                    foreach (var job in finalizerJobs)
+                    foreach (var finalizer in finalizers)
                     {
-                        process.AddJob(job);
+                        var preExceptionCount = context.GetExceptions().Count;
+                        finalizer.Execute(strategy);
+                        if (context.GetExceptions().Count > preExceptionCount)
+                        {
+                            break;
+                        }
                     }
-
-                    process.EvaluateWithoutResult(this);
                 }
                 else
                 {
                     tempTablesWithoutData++;
-                    context.Log(LogSeverity.Debug, this, "no data found for {TableName}, skipping finalizers", connectionString.Unescape(table.TableName));
+                    context.Log(LogSeverity.Debug, strategy, "no data found for {TableName}, skipping finalizers", connectionString.Unescape(table.TableName));
                 }
             }
 
-            context.Log(LogSeverity.Information, this, "{TableCount} temp table contains data", tempTablesWithData);
-            context.Log(LogSeverity.Information, this, "{TableCount} temp table contains no data", tempTablesWithoutData);
+            context.Log(LogSeverity.Information, strategy, "{TableCount} temp table contains data", tempTablesWithData);
+            context.Log(LogSeverity.Information, strategy, "{TableCount} temp table is empty", tempTablesWithoutData);
         }
 
-        private int CountRowsIn(IEtlContext context, ConnectionStringWithProvider connectionString, string tempTableName)
+        private static int CountRowsIn(DwhStrategy strategy, IEtlContext context, ConnectionStringWithProvider connectionString, string tempTableName)
         {
             var count = new CustomSqlAdoNetDbReaderProcess(context, "TempRowCountReader:" + connectionString.Unescape(tempTableName))
             {
@@ -79,7 +75,7 @@
                 }
             }.Evaluate().ToList().FirstOrDefault()?.GetAs<int>("cnt") ?? 0;
 
-            context.Log(count > 0 ? LogSeverity.Information : LogSeverity.Debug, this, "{TempRowCount} rows found in {TableName}", count, connectionString.Unescape(tempTableName));
+            context.Log(count > 0 ? LogSeverity.Information : LogSeverity.Debug, strategy, "{TempRowCount} rows found in {TableName}", count, connectionString.Unescape(tempTableName));
 
             return count;
         }

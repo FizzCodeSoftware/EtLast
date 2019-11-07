@@ -2,35 +2,32 @@
 {
     using System.Collections.Generic;
 
-    internal class DwhStrategyPostFinalizerManager : IExecutionBlock
+    internal class DwhStrategyPostFinalizerManager
     {
-        public IExecutionBlock Caller { get; private set; }
-        public string Name => "PostFinalizerManager";
-
         public void Execute(IEtlContext context, DwhStrategy strategy)
         {
-            Caller = strategy;
+            List<IExecutable> finalizers;
 
-            List<IJob> jobs;
-
-            context.Log(LogSeverity.Information, this, "started");
-            using (var creatorScope = context.BeginScope(this, null, null, TransactionScopeKind.Suppress, LogSeverity.Information))
+            context.Log(LogSeverity.Information, strategy, "started");
+            using (var creatorScope = context.BeginScope(strategy, null, TransactionScopeKind.Suppress, LogSeverity.Information))
             {
-                jobs = strategy.Configuration.AfterFinalizersJobCreator.Invoke(strategy.Configuration.ConnectionStringKey, strategy.Configuration);
-                context.Log(LogSeverity.Information, this, "created {PostFinalizerCount} post-finalizers", jobs?.Count ?? 0);
+                finalizers = strategy.Configuration.AfterFinalizersJobCreator.Invoke(strategy.Configuration.ConnectionStringKey, strategy.Configuration);
+                context.Log(LogSeverity.Information, strategy, "created {PostFinalizerCount} post-finalizers", finalizers?.Count ?? 0);
             }
 
-            if (jobs?.Count > 0)
+            if (finalizers?.Count > 0)
             {
-                context.Log(LogSeverity.Information, this, "starting post-finalizers");
+                context.Log(LogSeverity.Information, strategy, "starting post-finalizers");
 
-                var process = new JobHostProcess(context, "PostFinalizerHost");
-                foreach (var job in jobs)
+                foreach (var finalizer in finalizers)
                 {
-                    process.AddJob(job);
+                    var preExceptionCount = context.GetExceptions().Count;
+                    finalizer.Execute(strategy);
+                    if (context.GetExceptions().Count > preExceptionCount)
+                    {
+                        break;
+                    }
                 }
-
-                process.EvaluateWithoutResult(this);
             }
         }
     }

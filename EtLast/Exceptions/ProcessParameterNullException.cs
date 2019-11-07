@@ -7,8 +7,8 @@
     [Serializable]
     public class ProcessParameterNullException : InvalidProcessParameterException
     {
-        public ProcessParameterNullException(IProcess process, string parameterName)
-            : base(process, parameterName, null, "value cannot be null or empty")
+        public ProcessParameterNullException(IProcess block, string parameterName)
+            : base(block, parameterName, null, "value cannot be null or empty")
         {
         }
     }

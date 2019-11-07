@@ -2,9 +2,9 @@
 {
     using System.Collections.Generic;
 
-    public delegate IFinalProcess DwhPartitionedMainProcessCreatorDelegate(DwhStrategyTable table, int partitionIndex);
-    public delegate IFinalProcess DwhMainProcessCreatorDelegate(DwhStrategyTable table);
-    public delegate List<IJob> DwhFinalizerJobsCreatorDelegate(DwhStrategyTable table);
+    public delegate IEvaluable DwhPartitionedMainProcessCreatorDelegate(DwhStrategyTable table, int partitionIndex);
+    public delegate IExecutable DwhMainProcessCreatorDelegate(DwhStrategyTable table);
+    public delegate List<IExecutable> DwhFinalizerJobsCreatorDelegate(DwhStrategyTable table);
 
     public class DwhStrategyTable : DwhStrategyTableBase
     {
