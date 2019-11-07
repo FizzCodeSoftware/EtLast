@@ -13,6 +13,7 @@
         public MemoryCacheProcess(IEtlContext context, string name)
             : base(context, name)
         {
+            AutomaticallyEvaluateAndYieldInputProcessRows = false;
         }
 
         public override void Validate()

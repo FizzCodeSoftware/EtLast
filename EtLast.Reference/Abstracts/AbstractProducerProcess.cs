@@ -24,6 +24,7 @@
         public string AddRowIndexToColumn { get; set; }
 
         private int _currentRowIndex;
+        protected bool AutomaticallyEvaluateAndYieldInputProcessRows { get; set; } = true;
 
         protected AbstractProducerProcess(IEtlContext context, string name = null)
             : base(context, name)

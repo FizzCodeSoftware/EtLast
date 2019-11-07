@@ -64,7 +64,7 @@
                     {
                         var initialExceptionCount = Context.GetExceptions().Count;
 
-                        Context.Log(LogSeverity.Information, this, "evaluating <{Process}>", process.Name);
+                        Context.Log(LogSeverity.Information, this, "executing <{Process}>", process.Name);
                         process.Execute(this);
 
                         if (Context.GetExceptions().Count != initialExceptionCount)
