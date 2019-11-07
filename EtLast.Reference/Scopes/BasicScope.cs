@@ -4,7 +4,7 @@
     using System.Diagnostics;
     using System.Linq;
 
-    public delegate IEnumerable<IExecutable> ProcessCreatorDelegate();
+    public delegate IEnumerable<IExecutable> ProcessCreatorDelegate(IExecutable scope);
 
     /// <summary>
     /// The default etl scope to execute multiple processes, optionally supporting ambient transaction scopes.
@@ -54,7 +54,7 @@
                     IExecutable[] processes = null;
                     using (var creatorScope = Context.BeginScope(this, null, SuppressTransactionScopeForCreator ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Information))
                     {
-                        processes = creator.Invoke().Where(x => x != null).ToArray();
+                        processes = creator.Invoke(this).Where(x => x != null).ToArray();
                     }
 
                     if (processes.Length == 0)

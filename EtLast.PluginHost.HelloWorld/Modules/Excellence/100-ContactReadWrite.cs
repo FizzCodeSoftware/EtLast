@@ -16,7 +16,7 @@
             });
         }
 
-        private IEnumerable<IExecutable> ProcessCreator()
+        private IEnumerable<IExecutable> ProcessCreator(IExecutable scope)
         {
             File.Delete(OutputFileName);
 

@@ -12,7 +12,7 @@
             });
         }
 
-        private IEnumerable<IExecutable> CreateHelloWorldProcess()
+        private IEnumerable<IExecutable> CreateHelloWorldProcess(IExecutable scope)
         {
             yield return new CustomActionProcess(Context, "HelloWorldJob")
             {

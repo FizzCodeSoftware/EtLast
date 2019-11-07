@@ -15,7 +15,7 @@
             });
         }
 
-        private IEnumerable<IExecutable> ProcessCreator()
+        private IEnumerable<IExecutable> ProcessCreator(IExecutable scope)
         {
             yield return new DeleteFileProcess(Context)
             {
