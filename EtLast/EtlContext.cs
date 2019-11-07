@@ -43,17 +43,17 @@
         }
 
         /// <summary>
-        /// Executes the specified strategy.
+        /// Executes the specified process.
         /// </summary>
-        /// <param name="terminateHostOnFail">If true, then a failed strategy will set the <see cref="EtlContextResult.TerminateHost"/> field to true in the result object.</param>
-        /// <param name="process">The process to execute.</param>
-        public void ExecuteOne(bool terminateHostOnFail, IExecutable process)
+        /// <param name="terminateHostOnFail">If true, then failures will set the <see cref="EtlContextResult.TerminateHost"/> field to true in <see cref="Result"/>.</param>
+        /// <param name="executable">The process to execute.</param>
+        public void ExecuteOne(bool terminateHostOnFail, IExecutable executable)
         {
             var initialExceptionCount = GetExceptions().Count;
 
             try
             {
-                process.Execute(null);
+                executable.Execute(null);
 
                 if (GetExceptions().Count > initialExceptionCount)
                 {
@@ -70,20 +70,19 @@
         }
 
         /// <summary>
-        /// Sequentially executes the specified strategies in the specified order.
-        /// If a strategy fails then the execution will stop and return to the caller.
+        /// Sequentially executes the specified strategies in the specified order. In case of failure the execution will terminated.
         /// </summary>
-        /// <param name="terminateHostOnFail">If true, then a failed strategy will set the <see cref="EtlContextResult.TerminateHost"/> field to true in the result object.</param>
-        /// <param name="processes">The processes to execute.</param>
-        public void ExecuteSequence(bool terminateHostOnFail, params IExecutable[] processes)
+        /// <param name="terminateHostOnFail">If true, then failures will set the <see cref="EtlContextResult.TerminateHost"/> field to true in <see cref="Result"/>.</param>
+        /// <param name="executables">The processes to execute.</param>
+        public void ExecuteSequence(bool terminateHostOnFail, params IExecutable[] executables)
         {
             var initialExceptionCount = GetExceptions().Count;
 
             try
             {
-                foreach (var process in processes)
+                foreach (var executable in executables)
                 {
-                    process.Execute(null);
+                    executable.Execute(null);
 
                     var exceptions = GetExceptions();
                     if (exceptions.Count > initialExceptionCount)

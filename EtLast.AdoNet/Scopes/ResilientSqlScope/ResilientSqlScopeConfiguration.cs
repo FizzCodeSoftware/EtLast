@@ -2,16 +2,16 @@
 {
     using System.Collections.Generic;
 
-    public delegate List<IExecutable> DwhBeforeAfterFinalizerJobsCreatorDelegate(string connectionStringKey, DwhStrategyConfiguration configuration);
+    public delegate List<IExecutable> ResilientSqlScopePrePostFinalizerCreatorDelegate(string connectionStringKey, ResilientSqlScopeConfiguration configuration);
 
-    public enum DwhStrategyTempTableMode
+    public enum ResilientSqlScopeTempTableMode
     {
         KeepOnlyOnFailure, AlwaysKeep, AlwaysDrop
     }
 
-    public class DwhStrategyConfiguration
+    public class ResilientSqlScopeConfiguration
     {
-        public DwhStrategy Strategy { get; internal set; }
+        public ResilientSqlScope Scope { get; internal set; }
 
         /// <summary>
         /// The transaction scope kind around the finalizers. Default value is <see cref="TransactionScopeKind.Required"/>.
@@ -24,32 +24,32 @@
         public int FinalizerRetryCount { get; set; }
 
         /// <summary>
-        /// Default value is <see cref="DwhStrategyTempTableMode.KeepOnlyOnFailure"/>.
+        /// Default value is <see cref="ResilientSqlScopeTempTableMode.KeepOnlyOnFailure"/>.
         /// </summary>
-        public DwhStrategyTempTableMode TempTableMode { get; set; } = DwhStrategyTempTableMode.KeepOnlyOnFailure;
+        public ResilientSqlScopeTempTableMode TempTableMode { get; set; } = ResilientSqlScopeTempTableMode.KeepOnlyOnFailure;
 
         public string ConnectionStringKey { get; set; }
 
         /// <summary>
-        /// Allows the execution of jobs BEFORE the individual table finalizers are created and executed.
+        /// Allows the execution of global finalizers BEFORE the individual table finalizers are created and executed.
         /// </summary>
-        public DwhBeforeAfterFinalizerJobsCreatorDelegate BeforeFinalizersJobCreator { get; set; }
+        public ResilientSqlScopePrePostFinalizerCreatorDelegate PreFinalizerCreator { get; set; }
 
         /// <summary>
-        /// Allows the execution of jobs AFTER the individual table finalizers are created and executed.
+        /// Allows the execution of global finalizers AFTER the individual table finalizers are created and executed.
         /// </summary>
-        public DwhBeforeAfterFinalizerJobsCreatorDelegate AfterFinalizersJobCreator { get; set; }
+        public ResilientSqlScopePrePostFinalizerCreatorDelegate PostFinalizerCreator { get; set; }
 
-        public List<DwhStrategyTable> Tables { get; set; }
+        public List<ResilientTable> Tables { get; set; }
 
         /// <summary>
-        /// Used for table configurations where <see cref="DwhStrategyTableBase.TempTableName"/> is null.
+        /// Used for table configurations where <see cref="ResilientTableBase.TempTableName"/> is null.
         /// Temp table name will be: AutoTempTablePrefix + TableName + AutoTempTablePostfix
         /// </summary>
         public string AutoTempTablePrefix { get; set; }
 
         /// <summary>
-        /// Used for table configurations where <see cref="DwhStrategyTableBase.TempTableName"/> is null.
+        /// Used for table configurations where <see cref="ResilientTableBase.TempTableName"/> is null.
         /// Temp table name will be: AutoTempTablePrefix + TableName + AutoTempTablePostfix
         /// </summary>
         public string AutoTempTablePostfix { get; set; }

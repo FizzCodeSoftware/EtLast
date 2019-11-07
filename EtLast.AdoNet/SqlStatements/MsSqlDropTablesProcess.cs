@@ -9,14 +9,14 @@
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
-    public enum MsSqlDropTablesJobMode { All, SpecifiedTables, SpecifiedSchema }
+    public enum MsSqlDropTablesProcessMode { All, SpecifiedTables, SpecifiedSchema }
 
     public class MsSqlDropTablesProcess : AbstractSqlStatementsProcess
     {
         /// <summary>
-        /// Default value is <see cref="MsSqlDropTablesJobMode.SpecifiedTables"/>
+        /// Default value is <see cref="MsSqlDropTablesProcessMode.SpecifiedTables"/>
         /// </summary>
-        public MsSqlDropTablesJobMode Mode { get; set; } = MsSqlDropTablesJobMode.SpecifiedTables;
+        public MsSqlDropTablesProcessMode Mode { get; set; } = MsSqlDropTablesProcessMode.SpecifiedTables;
 
         public string SchemaName { get; set; }
         public string[] TableNames { get; set; }
@@ -34,21 +34,21 @@
 
             switch (Mode)
             {
-                case MsSqlDropTablesJobMode.SpecifiedTables:
+                case MsSqlDropTablesProcessMode.SpecifiedTables:
                     if (TableNames == null || TableNames.Length == 0)
                         throw new ProcessParameterNullException(this, nameof(TableNames));
                     if (!string.IsNullOrEmpty(SchemaName))
-                        throw new InvalidProcessParameterException(this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropTablesJobMode.SpecifiedTables));
+                        throw new InvalidProcessParameterException(this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropTablesProcessMode.SpecifiedTables));
                     break;
-                case MsSqlDropTablesJobMode.All:
+                case MsSqlDropTablesProcessMode.All:
                     if (TableNames != null)
-                        throw new InvalidProcessParameterException(this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropTablesJobMode.All));
+                        throw new InvalidProcessParameterException(this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropTablesProcessMode.All));
                     if (!string.IsNullOrEmpty(SchemaName))
-                        throw new InvalidProcessParameterException(this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropTablesJobMode.All));
+                        throw new InvalidProcessParameterException(this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropTablesProcessMode.All));
                     break;
-                case MsSqlDropTablesJobMode.SpecifiedSchema:
+                case MsSqlDropTablesProcessMode.SpecifiedSchema:
                     if (TableNames != null)
-                        throw new InvalidProcessParameterException(this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropTablesJobMode.All));
+                        throw new InvalidProcessParameterException(this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropTablesProcessMode.All));
                     if (string.IsNullOrEmpty(SchemaName))
                         throw new ProcessParameterNullException(this, nameof(SchemaName));
                     break;
@@ -63,12 +63,12 @@
         {
             switch (Mode)
             {
-                case MsSqlDropTablesJobMode.SpecifiedTables:
+                case MsSqlDropTablesProcessMode.SpecifiedTables:
                     _tableNames = TableNames.ToList();
                     break;
 
-                case MsSqlDropTablesJobMode.SpecifiedSchema:
-                case MsSqlDropTablesJobMode.All:
+                case MsSqlDropTablesProcessMode.SpecifiedSchema:
+                case MsSqlDropTablesProcessMode.All:
                     var startedOn = Stopwatch.StartNew();
                     using (var command = connection.CreateCommand())
                     {
@@ -76,7 +76,7 @@
                         {
                             command.CommandTimeout = CommandTimeout;
                             command.CommandText = "select * from INFORMATION_SCHEMA.TABLES where TABLE_TYPE = 'BASE TABLE'";
-                            if (Mode == MsSqlDropTablesJobMode.SpecifiedSchema)
+                            if (Mode == MsSqlDropTablesProcessMode.SpecifiedSchema)
                             {
                                 command.CommandText += " and TABLE_SCHEMA = @schemaName";
                                 var parameter = command.CreateParameter();
@@ -101,8 +101,8 @@
 
                             var modeInfo = Mode switch
                             {
-                                MsSqlDropTablesJobMode.All => " (all tables in database)",
-                                MsSqlDropTablesJobMode.SpecifiedSchema => " (in schema '" + SchemaName + "')",
+                                MsSqlDropTablesProcessMode.All => " (all tables in database)",
+                                MsSqlDropTablesProcessMode.SpecifiedSchema => " (in schema '" + SchemaName + "')",
                                 _ => null,
                             };
 

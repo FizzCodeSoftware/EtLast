@@ -20,8 +20,8 @@
         CancellationTokenSource CancellationTokenSource { get; }
         ConnectionStringWithProvider GetConnectionString(string key);
 
-        void ExecuteOne(bool terminateHostOnFail, IExecutable process);
-        void ExecuteSequence(bool terminateHostOnFail, params IExecutable[] processes);
+        void ExecuteOne(bool terminateHostOnFail, IExecutable executable);
+        void ExecuteSequence(bool terminateHostOnFail, params IExecutable[] executables);
 
         IRow CreateRow(int columnCountHint = 0);
 

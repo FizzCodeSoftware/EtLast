@@ -4,21 +4,21 @@
     using System.Linq;
     using FizzCode.DbTools.Configuration;
 
-    internal class DwhStrategyTableFinalizerManager
+    internal class ResilientTableFinalizerManager
     {
-        public void Execute(IEtlContext context, DwhStrategy strategy, ConnectionStringWithProvider connectionString)
+        public void Execute(IEtlContext context, ResilientSqlScope scope, ConnectionStringWithProvider connectionString)
         {
             var tempTablesWithData = 0;
             var tempTablesWithoutData = 0;
-            foreach (var table in strategy.Configuration.Tables)
+            foreach (var table in scope.Configuration.Tables)
             {
-                var rowCount = CountRowsIn(strategy, context, connectionString, table.TempTableName);
+                var rowCount = CountRowsIn(scope, context, connectionString, table.TempTableName);
 
                 if (table.AdditionalTables?.Count > 0)
                 {
                     foreach (var additionalTable in table.AdditionalTables.Values)
                     {
-                        rowCount += CountRowsIn(strategy, context, connectionString, additionalTable.TempTableName);
+                        rowCount += CountRowsIn(scope, context, connectionString, additionalTable.TempTableName);
                     }
                 }
 
@@ -26,7 +26,7 @@
                 {
                     tempTablesWithData++;
 
-                    context.Log(LogSeverity.Information, strategy, "creating finalizers for {TableName}",
+                    context.Log(LogSeverity.Information, scope, "creating finalizers for {TableName}",
                         connectionString.Unescape(table.TableName));
 
                     var creatorScopeKind = table.SuppressTransactionScopeForCreators
@@ -34,15 +34,15 @@
                         : TransactionScopeKind.None;
 
                     List<IExecutable> finalizers;
-                    using (var creatorScope = context.BeginScope(strategy, null, creatorScopeKind, LogSeverity.Information))
+                    using (var creatorScope = context.BeginScope(scope, null, creatorScopeKind, LogSeverity.Information))
                     {
-                        finalizers = table.FinalizerJobsCreator.Invoke(table);
+                        finalizers = table.FinalizerCreator.Invoke(table);
                     }
 
                     foreach (var finalizer in finalizers)
                     {
                         var preExceptionCount = context.GetExceptions().Count;
-                        finalizer.Execute(strategy);
+                        finalizer.Execute(scope);
                         if (context.GetExceptions().Count > preExceptionCount)
                         {
                             break;
@@ -52,15 +52,15 @@
                 else
                 {
                     tempTablesWithoutData++;
-                    context.Log(LogSeverity.Debug, strategy, "no data found for {TableName}, skipping finalizers", connectionString.Unescape(table.TableName));
+                    context.Log(LogSeverity.Debug, scope, "no data found for {TableName}, skipping finalizers", connectionString.Unescape(table.TableName));
                 }
             }
 
-            context.Log(LogSeverity.Information, strategy, "{TableCount} temp table contains data", tempTablesWithData);
-            context.Log(LogSeverity.Information, strategy, "{TableCount} temp table is empty", tempTablesWithoutData);
+            context.Log(LogSeverity.Information, scope, "{TableCount} temp table contains data", tempTablesWithData);
+            context.Log(LogSeverity.Information, scope, "{TableCount} temp table is empty", tempTablesWithoutData);
         }
 
-        private static int CountRowsIn(DwhStrategy strategy, IEtlContext context, ConnectionStringWithProvider connectionString, string tempTableName)
+        private static int CountRowsIn(ResilientSqlScope scope, IEtlContext context, ConnectionStringWithProvider connectionString, string tempTableName)
         {
             var count = new CustomSqlAdoNetDbReaderProcess(context, "TempRowCountReader:" + connectionString.Unescape(tempTableName))
             {
@@ -75,7 +75,7 @@
                 }
             }.Evaluate().ToList().FirstOrDefault()?.GetAs<int>("cnt") ?? 0;
 
-            context.Log(count > 0 ? LogSeverity.Information : LogSeverity.Debug, strategy, "{TempRowCount} rows found in {TableName}", count, connectionString.Unescape(tempTableName));
+            context.Log(count > 0 ? LogSeverity.Information : LogSeverity.Debug, scope, "{TempRowCount} rows found in {TableName}", count, connectionString.Unescape(tempTableName));
 
             return count;
         }

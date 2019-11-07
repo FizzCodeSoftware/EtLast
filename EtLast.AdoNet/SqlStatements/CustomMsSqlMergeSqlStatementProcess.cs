@@ -117,7 +117,7 @@
                 Context.Log(LogSeverity.Information, this, "{RecordCount} records merged to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} in {Elapsed}, transaction: {Transaction}", recordCount,
                     ConnectionString.Name, ConnectionString.Unescape(TargetTableName), ConnectionString.Unescape(SourceTableName), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
 
-                // todo: support stats in jobs...
+                // todo: support stats...
                 // Stat.IncrementCounter("records merged", recordCount);
                 // Stat.IncrementCounter("merge time", startedOn.ElapsedMilliseconds);
 

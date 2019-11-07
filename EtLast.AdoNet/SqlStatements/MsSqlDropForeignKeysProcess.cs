@@ -9,7 +9,7 @@
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
-    public enum MsSqlDropForeignKeysJobMode { All, InSpecifiedTables, InSpecifiedSchema, ToSpecifiedSchema, ToSpecifiedTables }
+    public enum MsSqlDropForeignKeysProcessMode { All, InSpecifiedTables, InSpecifiedSchema, ToSpecifiedSchema, ToSpecifiedTables }
 
     public class MsSqlDropForeignKeysProcess : AbstractSqlStatementsProcess
     {
@@ -19,9 +19,9 @@
         }
 
         /// <summary>
-        /// Default value is <see cref="MsSqlDropForeignKeysJobMode.ToSpecifiedTables"/>
+        /// Default value is <see cref="MsSqlDropForeignKeysProcessMode.ToSpecifiedTables"/>
         /// </summary>
-        public MsSqlDropForeignKeysJobMode Mode { get; set; } = MsSqlDropForeignKeysJobMode.ToSpecifiedTables;
+        public MsSqlDropForeignKeysProcessMode Mode { get; set; } = MsSqlDropForeignKeysProcessMode.ToSpecifiedTables;
 
         /// <summary>
         /// Table names must include schema name.
@@ -38,27 +38,27 @@
 
             switch (Mode)
             {
-                case MsSqlDropForeignKeysJobMode.InSpecifiedTables:
+                case MsSqlDropForeignKeysProcessMode.InSpecifiedTables:
                     if (TableNames == null || TableNames.Length == 0)
                         throw new ProcessParameterNullException(this, nameof(TableNames));
                     if (!string.IsNullOrEmpty(SchemaName))
-                        throw new InvalidProcessParameterException(this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysJobMode.InSpecifiedTables));
+                        throw new InvalidProcessParameterException(this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysProcessMode.InSpecifiedTables));
                     break;
-                case MsSqlDropForeignKeysJobMode.All:
+                case MsSqlDropForeignKeysProcessMode.All:
                     if (TableNames != null)
-                        throw new InvalidProcessParameterException(this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysJobMode.All));
+                        throw new InvalidProcessParameterException(this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysProcessMode.All));
                     if (!string.IsNullOrEmpty(SchemaName))
-                        throw new InvalidProcessParameterException(this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysJobMode.All));
+                        throw new InvalidProcessParameterException(this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysProcessMode.All));
                     break;
-                case MsSqlDropForeignKeysJobMode.InSpecifiedSchema:
+                case MsSqlDropForeignKeysProcessMode.InSpecifiedSchema:
                     if (TableNames != null)
-                        throw new InvalidProcessParameterException(this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysJobMode.InSpecifiedSchema));
+                        throw new InvalidProcessParameterException(this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysProcessMode.InSpecifiedSchema));
                     if (string.IsNullOrEmpty(SchemaName))
                         throw new ProcessParameterNullException(this, nameof(SchemaName));
                     break;
-                case MsSqlDropForeignKeysJobMode.ToSpecifiedSchema:
+                case MsSqlDropForeignKeysProcessMode.ToSpecifiedSchema:
                     if (TableNames != null)
-                        throw new InvalidProcessParameterException(this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysJobMode.ToSpecifiedSchema));
+                        throw new InvalidProcessParameterException(this, nameof(TableNames), TableNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropForeignKeysProcessMode.ToSpecifiedSchema));
                     if (string.IsNullOrEmpty(SchemaName))
                         throw new ProcessParameterNullException(this, nameof(SchemaName));
                     break;
@@ -79,7 +79,7 @@
                     command.CommandTimeout = CommandTimeout;
                     switch (Mode)
                     {
-                        case MsSqlDropForeignKeysJobMode.ToSpecifiedSchema:
+                        case MsSqlDropForeignKeysProcessMode.ToSpecifiedSchema:
                             {
                                 command.CommandText = @"
 select
@@ -97,7 +97,7 @@ from
                                 break;
                             }
 
-                        case MsSqlDropForeignKeysJobMode.InSpecifiedSchema:
+                        case MsSqlDropForeignKeysProcessMode.InSpecifiedSchema:
                             {
                                 command.CommandText = @"
 select
@@ -115,7 +115,7 @@ where fk.schema_id = SCHEMA_ID(@schemaName)";
                                 break;
                             }
 
-                        case MsSqlDropForeignKeysJobMode.InSpecifiedTables:
+                        case MsSqlDropForeignKeysProcessMode.InSpecifiedTables:
                             command.CommandText = @"
 select
 	fk.[name] fkName,
@@ -125,7 +125,7 @@ from
 	sys.foreign_keys fk
 	inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id";
                             break;
-                        case MsSqlDropForeignKeysJobMode.ToSpecifiedTables:
+                        case MsSqlDropForeignKeysProcessMode.ToSpecifiedTables:
                             command.CommandText = @"
 select
 	fk.[name] fkName,
@@ -146,7 +146,7 @@ from
                     Context.Log(LogSeverity.Debug, this, null, "querying foreign key names from {ConnectionStringKey} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                         command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
-                    var tablesNamesHashSet = Mode == MsSqlDropForeignKeysJobMode.InSpecifiedTables || Mode == MsSqlDropForeignKeysJobMode.ToSpecifiedTables
+                    var tablesNamesHashSet = Mode == MsSqlDropForeignKeysProcessMode.InSpecifiedTables || Mode == MsSqlDropForeignKeysProcessMode.ToSpecifiedTables
                         ? TableNames.Select(x => x.ToLowerInvariant()).ToHashSet()
                         : null;
 
@@ -158,10 +158,10 @@ from
                         {
                             var sourceTableName = ConnectionString.Escape((string)reader["tableName"], (string)reader["schemaName"]);
 
-                            if (Mode == MsSqlDropForeignKeysJobMode.InSpecifiedTables && !tablesNamesHashSet.Contains(sourceTableName))
+                            if (Mode == MsSqlDropForeignKeysProcessMode.InSpecifiedTables && !tablesNamesHashSet.Contains(sourceTableName))
                                 continue;
 
-                            if (Mode == MsSqlDropForeignKeysJobMode.ToSpecifiedTables)
+                            if (Mode == MsSqlDropForeignKeysProcessMode.ToSpecifiedTables)
                             {
                                 var referredTableName = ConnectionString.Escape((string)reader["refTableName"], (string)reader["refSchemaName"]);
                                 if (!tablesNamesHashSet.Contains(sourceTableName))

@@ -4,35 +4,35 @@
     using System.Diagnostics;
     using System.Linq;
 
-    public class DwhStrategy : AbstractExecutableProcess
+    public class ResilientSqlScope : AbstractExecutableProcess
     {
-        private DwhStrategyConfiguration _configuration;
+        private ResilientSqlScopeConfiguration _configuration;
 
-        public DwhStrategyConfiguration Configuration
+        public ResilientSqlScopeConfiguration Configuration
         {
             get => _configuration;
             set
             {
                 if (_configuration != null)
                 {
-                    _configuration.Strategy = null;
+                    _configuration.Scope = null;
                     foreach (var table in _configuration.Tables)
                     {
-                        table.Strategy = null;
+                        table.Scope = null;
                     }
                 }
 
                 _configuration = value;
-                _configuration.Strategy = this;
+                _configuration.Scope = this;
 
                 foreach (var table in _configuration.Tables)
                 {
-                    table.Strategy = this;
+                    table.Scope = this;
                 }
             }
         }
 
-        public DwhStrategy(IEtlContext context, string name = null)
+        public ResilientSqlScope(IEtlContext context, string name = null)
             : base(context, name)
         {
         }
@@ -55,7 +55,7 @@
 
         protected override void Execute(Stopwatch startedOn)
         {
-            Context.Log(LogSeverity.Information, this, "strategy started (dwh)");
+            Context.Log(LogSeverity.Information, this, "scope started");
 
             var connectionString = Context.GetConnectionString(Configuration.ConnectionStringKey);
 
@@ -71,22 +71,22 @@
                 if (string.IsNullOrEmpty(table.TempTableName))
                 {
                     if (string.IsNullOrEmpty(Configuration.AutoTempTablePrefix) && string.IsNullOrEmpty(Configuration.AutoTempTablePostfix))
-                        throw new InvalidProcessParameterException(this, nameof(table.TempTableName), null, nameof(DwhStrategyTable) + "." + nameof(DwhStrategyTableBase.TempTableName) + " must be specified if there is no " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePrefix) + " or " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePostfix) + " specified (table name: " + table.TableName + ")");
+                        throw new InvalidProcessParameterException(this, nameof(table.TempTableName), null, nameof(ResilientTable) + "." + nameof(ResilientTableBase.TempTableName) + " must be specified if there is no " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePrefix) + " or " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePostfix) + " specified (table name: " + table.TableName + ")");
 
                     table.TempTableName = Configuration.AutoTempTablePrefix + table.TableName + Configuration.AutoTempTablePostfix;
                 }
 
                 if (string.IsNullOrEmpty(table.TableName))
-                    throw new ProcessParameterNullException(this, nameof(DwhStrategyTableBase.TableName));
+                    throw new ProcessParameterNullException(this, nameof(ResilientTableBase.TableName));
 
                 if (table.MainProcessCreator == null && table.PartitionedMainProcessCreator == null)
-                    throw new InvalidProcessParameterException(this, nameof(DwhStrategyTable.MainProcessCreator) + "/" + nameof(DwhStrategyTable.PartitionedMainProcessCreator), null, nameof(DwhStrategyTable.MainProcessCreator) + " or " + nameof(DwhStrategyTable.PartitionedMainProcessCreator) + " must be supplied for " + table.TableName);
+                    throw new InvalidProcessParameterException(this, nameof(ResilientTable.MainProcessCreator) + "/" + nameof(ResilientTable.PartitionedMainProcessCreator), null, nameof(ResilientTable.MainProcessCreator) + " or " + nameof(ResilientTable.PartitionedMainProcessCreator) + " must be supplied for " + table.TableName);
 
                 if (table.MainProcessCreator != null && table.PartitionedMainProcessCreator != null)
-                    throw new InvalidProcessParameterException(this, nameof(DwhStrategyTable.MainProcessCreator) + "/" + nameof(DwhStrategyTable.PartitionedMainProcessCreator), null, "only one of " + nameof(DwhStrategyTable.MainProcessCreator) + " or " + nameof(DwhStrategyTable.PartitionedMainProcessCreator) + " can be supplied for " + table.TableName);
+                    throw new InvalidProcessParameterException(this, nameof(ResilientTable.MainProcessCreator) + "/" + nameof(ResilientTable.PartitionedMainProcessCreator), null, "only one of " + nameof(ResilientTable.MainProcessCreator) + " or " + nameof(ResilientTable.PartitionedMainProcessCreator) + " can be supplied for " + table.TableName);
 
-                if (table.FinalizerJobsCreator == null)
-                    throw new ProcessParameterNullException(this, nameof(DwhStrategyTable.FinalizerJobsCreator));
+                if (table.FinalizerCreator == null)
+                    throw new ProcessParameterNullException(this, nameof(ResilientTable.FinalizerCreator));
             }
 
             try
@@ -153,18 +153,18 @@
                     Context.Log(LogSeverity.Information, this, "finalization round {FinalizationRound} started", retryCounter);
                     using (var scope = Context.BeginScope(this, null, Configuration.FinalizerTransactionScopeKind, LogSeverity.Information))
                     {
-                        if (Configuration.BeforeFinalizersJobCreator != null)
+                        if (Configuration.PreFinalizerCreator != null)
                         {
-                            var preFinalizer = new DwhStrategyPreFinalizerManager();
+                            var preFinalizer = new ResilientSqlScopePreFinalizerManager();
                             preFinalizer.Execute(Context, this);
                         }
 
-                        var tableFinalizer = new DwhStrategyTableFinalizerManager();
+                        var tableFinalizer = new ResilientTableFinalizerManager();
                         tableFinalizer.Execute(Context, this, connectionString);
 
-                        if (Configuration.AfterFinalizersJobCreator != null)
+                        if (Configuration.PostFinalizerCreator != null)
                         {
-                            var postFinalizer = new DwhStrategyPostFinalizerManager();
+                            var postFinalizer = new ResilientSqlScopePostFinalizerManager();
                             postFinalizer.Execute(Context, this);
                         }
 
@@ -183,9 +183,9 @@
             }
             finally
             {
-                if (Configuration.TempTableMode != DwhStrategyTempTableMode.AlwaysKeep)
+                if (Configuration.TempTableMode != ResilientSqlScopeTempTableMode.AlwaysKeep)
                 {
-                    if (success || Configuration.TempTableMode == DwhStrategyTempTableMode.AlwaysDrop)
+                    if (success || Configuration.TempTableMode == ResilientSqlScopeTempTableMode.AlwaysDrop)
                     {
                         DropTempTables(Context);
                     }
@@ -195,20 +195,20 @@
             Context.Log(LogSeverity.Information, this, success ? "finished in {Elapsed}" : "failed after {Elapsed}", startedOn.Elapsed);
         }
 
-        public static IProcess DeleteTargetTableFinalizer(IEtlContext context, DwhStrategyTableBase table)
+        public static IProcess DeleteTargetTableFinalizer(IEtlContext context, ResilientTableBase table)
         {
             return new DeleteTableProcess(context, "DeleteContentFromTargetTable")
             {
-                ConnectionStringKey = table.Strategy.Configuration.ConnectionStringKey,
+                ConnectionStringKey = table.Scope.Configuration.ConnectionStringKey,
                 TableName = table.TableName,
             };
         }
 
-        public static IProcess CopyTableFinalizer(IEtlContext context, DwhStrategyTableBase table, int commandTimeout, bool copyIdentityColumns = false)
+        public static IProcess CopyTableFinalizer(IEtlContext context, ResilientTableBase table, int commandTimeout, bool copyIdentityColumns = false)
         {
             return new CopyTableIntoExistingTableProcess(context, "CopyTempToTargetTable")
             {
-                ConnectionStringKey = table.Strategy.Configuration.ConnectionStringKey,
+                ConnectionStringKey = table.Scope.Configuration.ConnectionStringKey,
                 Configuration = new TableCopyConfiguration()
                 {
                     SourceTableName = table.TempTableName,

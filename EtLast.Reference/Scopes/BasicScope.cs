@@ -7,9 +7,9 @@
     public delegate IEnumerable<IExecutable> ProcessCreatorDelegate();
 
     /// <summary>
-    /// The default etl strategy to execute multiple process, optionally supporting transaction scopes.
+    /// The default etl scope to execute multiple processes, optionally supporting ambient transaction scopes.
     /// </summary>
-    public class DefaultEtlStrategy : AbstractExecutableProcess
+    public class BasicScope : AbstractExecutableProcess
     {
         public ProcessCreatorDelegate ProcessCreator { get; set; }
         public ProcessCreatorDelegate[] ProcessCreators { get; set; }
@@ -25,7 +25,7 @@
         public TransactionScopeKind EvaluationTransactionScopeKind { get; set; } = TransactionScopeKind.None;
         public bool SuppressTransactionScopeForCreator { get; set; }
 
-        public DefaultEtlStrategy(IEtlContext context, string name = null)
+        public BasicScope(IEtlContext context, string name = null)
             : base(context, name)
         {
         }
@@ -36,7 +36,7 @@
 
         protected override void Execute(Stopwatch startedOn)
         {
-            Context.Log(LogSeverity.Information, this, "strategy started");
+            Context.Log(LogSeverity.Information, this, "scope started");
 
             using (var scope = Context.BeginScope(this, null, EvaluationTransactionScopeKind, LogSeverity.Information))
             {

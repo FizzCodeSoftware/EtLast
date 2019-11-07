@@ -83,7 +83,7 @@
                 Context.Log(LogSeverity.Information, this, "{RecordCount} records copied to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} in {Elapsed}, transaction: {Transaction}", recordCount,
                     ConnectionString.Name, ConnectionString.Unescape(Configuration.TargetTableName), ConnectionString.Unescape(Configuration.SourceTableName), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
 
-                // todo: support stats in jobs...
+                // todo: support stats...
                 // Stat.IncrementCounter("records written", recordCount);
                 // Stat.IncrementCounter("write time", startedOn.ElapsedMilliseconds);
 

@@ -9,14 +9,14 @@
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
-    public enum MsSqlDropViewsJobMode { All, SpecifiedViews, SpecifiedSchema }
+    public enum MsSqlDropViewsProcessMode { All, SpecifiedViews, SpecifiedSchema }
 
     public class MsSqlDropViewsProcess : AbstractSqlStatementsProcess
     {
         /// <summary>
-        /// Default value is <see cref="MsSqlDropViewsJobMode.SpecifiedViews"/>
+        /// Default value is <see cref="MsSqlDropViewsProcessMode.SpecifiedViews"/>
         /// </summary>
-        public MsSqlDropViewsJobMode Mode { get; set; } = MsSqlDropViewsJobMode.SpecifiedViews;
+        public MsSqlDropViewsProcessMode Mode { get; set; } = MsSqlDropViewsProcessMode.SpecifiedViews;
 
         public string SchemaName { get; set; }
         public string[] ViewNames { get; set; }
@@ -34,21 +34,21 @@
 
             switch (Mode)
             {
-                case MsSqlDropViewsJobMode.SpecifiedViews:
+                case MsSqlDropViewsProcessMode.SpecifiedViews:
                     if (ViewNames == null || ViewNames.Length == 0)
                         throw new ProcessParameterNullException(this, nameof(ViewNames));
                     if (!string.IsNullOrEmpty(SchemaName))
-                        throw new InvalidProcessParameterException(this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropViewsJobMode.SpecifiedViews));
+                        throw new InvalidProcessParameterException(this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropViewsProcessMode.SpecifiedViews));
                     break;
-                case MsSqlDropViewsJobMode.All:
+                case MsSqlDropViewsProcessMode.All:
                     if (ViewNames != null)
-                        throw new InvalidProcessParameterException(this, nameof(ViewNames), ViewNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropViewsJobMode.All));
+                        throw new InvalidProcessParameterException(this, nameof(ViewNames), ViewNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropViewsProcessMode.All));
                     if (!string.IsNullOrEmpty(SchemaName))
-                        throw new InvalidProcessParameterException(this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropViewsJobMode.All));
+                        throw new InvalidProcessParameterException(this, nameof(SchemaName), SchemaName, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropViewsProcessMode.All));
                     break;
-                case MsSqlDropViewsJobMode.SpecifiedSchema:
+                case MsSqlDropViewsProcessMode.SpecifiedSchema:
                     if (ViewNames != null)
-                        throw new InvalidProcessParameterException(this, nameof(ViewNames), ViewNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropViewsJobMode.All));
+                        throw new InvalidProcessParameterException(this, nameof(ViewNames), ViewNames, "Value must be null if " + nameof(Mode) + " is set to " + nameof(MsSqlDropViewsProcessMode.All));
                     if (string.IsNullOrEmpty(SchemaName))
                         throw new ProcessParameterNullException(this, nameof(SchemaName));
                     break;
@@ -63,12 +63,12 @@
         {
             switch (Mode)
             {
-                case MsSqlDropViewsJobMode.SpecifiedViews:
+                case MsSqlDropViewsProcessMode.SpecifiedViews:
                     _viewNames = ViewNames.ToList();
                     break;
 
-                case MsSqlDropViewsJobMode.SpecifiedSchema:
-                case MsSqlDropViewsJobMode.All:
+                case MsSqlDropViewsProcessMode.SpecifiedSchema:
+                case MsSqlDropViewsProcessMode.All:
                     var startedOn = Stopwatch.StartNew();
                     using (var command = connection.CreateCommand())
                     {
@@ -76,7 +76,7 @@
                         {
                             command.CommandTimeout = CommandTimeout;
                             command.CommandText = "select * from INFORMATION_SCHEMA.VIEWS";
-                            if (Mode == MsSqlDropViewsJobMode.SpecifiedSchema)
+                            if (Mode == MsSqlDropViewsProcessMode.SpecifiedSchema)
                             {
                                 command.CommandText += " where TABLE_SCHEMA = @schemaName";
                                 var parameter = command.CreateParameter();
@@ -101,8 +101,8 @@
 
                             var modeInfo = Mode switch
                             {
-                                MsSqlDropViewsJobMode.All => " (all views in database)",
-                                MsSqlDropViewsJobMode.SpecifiedSchema => " (in schema '" + SchemaName + "')",
+                                MsSqlDropViewsProcessMode.All => " (all views in database)",
+                                MsSqlDropViewsProcessMode.SpecifiedSchema => " (in schema '" + SchemaName + "')",
                                 _ => null,
                             };
 

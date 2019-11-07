@@ -19,7 +19,7 @@
         }
 
         /// <summary>
-        /// If true, this job will execute out of ambient transaction scope.
+        /// If true, this statement will be executed out of ambient transaction scope.
         /// See <see cref="TransactionScopeOption.Suppress"/>>.
         /// </summary>
         public bool SuppressExistingTransactionScope { get; set; }
