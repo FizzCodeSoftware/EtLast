@@ -33,7 +33,7 @@
 
         protected sealed override IEnumerable<IRow> Evaluate(Stopwatch startedOn)
         {
-            if (InputProcess != null)
+            if (AutomaticallyEvaluateAndYieldInputProcessRows && InputProcess != null)
             {
                 Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", InputProcess.Name);
 
