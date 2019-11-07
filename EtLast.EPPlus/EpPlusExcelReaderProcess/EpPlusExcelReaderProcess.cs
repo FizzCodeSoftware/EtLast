@@ -23,7 +23,6 @@
         public ExcelPackage PreLoadedFile { get; set; }
 
         public bool TreatEmptyStringAsNull { get; set; }
-        public bool IgnoreNullOrEmptyRows { get; set; } = true;
 
         public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
         public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
@@ -230,9 +229,6 @@
 
                         row.SetValue(kvp.Key, value, this);
                     }
-
-                    if (IgnoreNullOrEmptyRows && row.IsNullOrEmpty())
-                        continue;
 
                     yield return row;
                 }

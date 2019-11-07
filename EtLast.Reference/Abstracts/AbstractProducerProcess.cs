@@ -11,6 +11,7 @@
     public abstract class AbstractProducerProcess : AbstractEvaluableProcess
     {
         public bool IgnoreRowsWithError { get; set; } = false;
+        public bool IgnoreNullOrEmptyRows { get; set; } = true;
 
         /// <summary>
         /// The process evaluates and yields the rows from the input process.
@@ -70,6 +71,9 @@
         private bool ProcessRowBeforeYield(IRow row)
         {
             if (IgnoreRowsWithError && row.HasError())
+                return false;
+
+            if (IgnoreNullOrEmptyRows && row.IsNullOrEmpty())
                 return false;
 
             _currentRowIndex++;
