@@ -94,7 +94,7 @@
                         if (columnConfiguration != null || DefaultConfiguration == null)
                         {
                             var column = columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn;
-                            value = HandleConverter(this, value, column, columnConfiguration, row, out var error);
+                            value = HandleConverter(value, column, columnConfiguration, row, out var error);
                             if (error)
                                 continue;
 
@@ -103,7 +103,7 @@
                         else
                         {
                             var column = columnNames[i];
-                            value = HandleConverter(this, value, column, DefaultConfiguration, row, out var error);
+                            value = HandleConverter(value, column, DefaultConfiguration, row, out var error);
                             if (error)
                                 continue;
 

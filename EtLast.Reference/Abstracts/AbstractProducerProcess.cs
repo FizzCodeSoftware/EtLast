@@ -84,7 +84,7 @@
             return true;
         }
 
-        protected static object HandleConverter(IProcess process, object value, string rowColumn, ReaderDefaultColumnConfiguration configuration, IRow row, out bool failed)
+        protected object HandleConverter(object value, string rowColumn, ReaderDefaultColumnConfiguration configuration, IRow row, out bool failed)
         {
             failed = false;
 
@@ -95,17 +95,17 @@
                     case NullSourceHandler.WrapError:
                         row.SetValue(rowColumn, new EtlRowError()
                         {
-                            Process = process,
+                            Process = this,
                             Operation = null,
                             OriginalValue = null,
                             Message = string.Format(CultureInfo.InvariantCulture, "failed to convert by {0}", TypeHelpers.GetFriendlyTypeName(configuration.Converter.GetType())),
-                        }, process);
+                        }, this);
                         failed = true;
                         return value;
                     case NullSourceHandler.SetSpecialValue:
                         return configuration.SpecialValueIfSourceIsNull;
                     case NullSourceHandler.Throw:
-                        throw new InvalidValueException(process, row, rowColumn);
+                        throw new InvalidValueException(this, row, rowColumn);
                     default:
                         throw new NotImplementedException(configuration.NullSourceHandler.ToString() + " is not supported yet");
                 }
@@ -122,17 +122,17 @@
                     case InvalidSourceHandler.WrapError:
                         row.SetValue(rowColumn, new EtlRowError()
                         {
-                            Process = process,
+                            Process = this,
                             Operation = null,
                             OriginalValue = value,
                             Message = string.Format(CultureInfo.InvariantCulture, "failed to convert by {0}", TypeHelpers.GetFriendlyTypeName(configuration.Converter.GetType())),
-                        }, process);
+                        }, this);
                         break;
                     case InvalidSourceHandler.SetSpecialValue:
-                        row.SetValue(rowColumn, configuration.SpecialValueIfSourceIsInvalid, process);
+                        row.SetValue(rowColumn, configuration.SpecialValueIfSourceIsInvalid, this);
                         break;
                     case InvalidSourceHandler.Throw:
-                        throw new InvalidValueException(process, row, rowColumn);
+                        throw new InvalidValueException(this, row, rowColumn);
                     default:
                         throw new NotImplementedException(configuration.NullSourceHandler.ToString() + " is not supported yet");
                 }

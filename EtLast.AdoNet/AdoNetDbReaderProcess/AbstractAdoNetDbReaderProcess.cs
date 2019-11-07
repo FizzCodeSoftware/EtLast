@@ -191,7 +191,7 @@
 
                         if (config != null)
                         {
-                            value = HandleConverter(this, value, rowColumn, config, row, out var error);
+                            value = HandleConverter(value, rowColumn, config, row, out var error);
                             if (error)
                                 continue;
                         }

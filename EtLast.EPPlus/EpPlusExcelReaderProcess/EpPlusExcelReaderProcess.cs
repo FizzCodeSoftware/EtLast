@@ -223,7 +223,7 @@
                             value = null;
                         }
 
-                        value = HandleConverter(this, value, kvp.Key, kvp.Value.Configuration, row, out var error);
+                        value = HandleConverter(value, kvp.Key, kvp.Value.Configuration, row, out var error);
                         if (error)
                             continue;
 
