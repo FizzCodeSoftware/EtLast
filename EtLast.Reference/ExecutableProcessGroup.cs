@@ -17,6 +17,11 @@
         {
             if (ProcessList == null || ProcessList.Count == 0)
                 throw new ProcessParameterNullException(this, nameof(ProcessList));
+
+            foreach (var process in ProcessList)
+            {
+                process.Validate();
+            }
         }
 
         protected override void ExecuteImpl()

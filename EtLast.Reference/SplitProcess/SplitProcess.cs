@@ -28,9 +28,8 @@
 
         public IEnumerable<IRow> Evaluate(IProcess caller)
         {
-            // this process has multiple callers
-            Caller = caller;
-
+            LastInvocation = Stopwatch.StartNew();
+            Caller = caller; // this process has multiple callers
             Validate();
 
             StartQueueFeeder();
