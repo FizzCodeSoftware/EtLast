@@ -108,17 +108,25 @@
                             Context.Log(LogSeverity.Information, this, "creating main process for table {TableName}",
                                 connectionString.Unescape(table.TableName));
 
-                            IExecutable mainExecutableProcess;
+                            IExecutable[] mainProcessList;
 
                             using (var creatorScope = Context.BeginScope(this, null, creatorScopeKind, LogSeverity.Information))
                             {
-                                mainExecutableProcess = table.MainProcessCreator.Invoke(table);
+                                mainProcessList = table.MainProcessCreator
+                                    .Invoke(table)
+                                    .Where(x => x != null)
+                                    .ToArray();
                             }
 
-                            mainExecutableProcess.Execute(this);
-
-                            if (Context.GetExceptions().Count > initialExceptionCount)
-                                return;
+                            foreach (var process in mainProcessList)
+                            {
+                                var preExceptionCount = Context.GetExceptions().Count;
+                                process.Execute(this);
+                                if (Context.GetExceptions().Count > initialExceptionCount)
+                                {
+                                    return;
+                                }
+                            }
 
                             break;
                         }

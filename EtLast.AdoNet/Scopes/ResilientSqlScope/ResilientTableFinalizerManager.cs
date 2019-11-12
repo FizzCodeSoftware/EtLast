@@ -33,10 +33,13 @@
                         ? TransactionScopeKind.Suppress
                         : TransactionScopeKind.None;
 
-                    List<IExecutable> finalizers;
+                    IExecutable[] finalizers;
                     using (var creatorScope = context.BeginScope(scope, null, creatorScopeKind, LogSeverity.Information))
                     {
-                        finalizers = table.FinalizerCreator.Invoke(table);
+                        finalizers = table.FinalizerCreator
+                            .Invoke(table)
+                            .Where(x => x != null)
+                            .ToArray();
                     }
 
                     foreach (var finalizer in finalizers)

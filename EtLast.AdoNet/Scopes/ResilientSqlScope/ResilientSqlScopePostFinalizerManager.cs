@@ -1,21 +1,24 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
-    using System.Collections.Generic;
+    using System.Linq;
 
     internal class ResilientSqlScopePostFinalizerManager
     {
         public void Execute(IEtlContext context, ResilientSqlScope scope)
         {
-            List<IExecutable> finalizers;
+            IExecutable[] finalizers;
 
             context.Log(LogSeverity.Information, scope, "started");
             using (var creatorScope = context.BeginScope(scope, null, TransactionScopeKind.Suppress, LogSeverity.Information))
             {
-                finalizers = scope.Configuration.PostFinalizerCreator.Invoke(scope.Configuration.ConnectionStringKey, scope.Configuration);
-                context.Log(LogSeverity.Information, scope, "created {PostFinalizerCount} post-finalizers", finalizers?.Count ?? 0);
+                finalizers = scope.Configuration.PostFinalizerCreator.Invoke(scope.Configuration.ConnectionStringKey, scope.Configuration)
+                    ?.Where(x => x != null)
+                    .ToArray();
+
+                context.Log(LogSeverity.Information, scope, "created {PostFinalizerCount} post-finalizers", finalizers?.Length ?? 0);
             }
 
-            if (finalizers?.Count > 0)
+            if (finalizers?.Length > 0)
             {
                 context.Log(LogSeverity.Information, scope, "starting post-finalizers");
 

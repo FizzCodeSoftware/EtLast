@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public delegate List<IExecutable> ResilientSqlScopePrePostFinalizerCreatorDelegate(string connectionStringKey, ResilientSqlScopeConfiguration configuration);
+    public delegate IEnumerable<IExecutable> ResilientSqlScopePrePostFinalizerCreatorDelegate(string connectionStringKey, ResilientSqlScopeConfiguration configuration);
 
     public enum ResilientSqlScopeTempTableMode
     {
