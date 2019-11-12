@@ -64,7 +64,7 @@
                 throw new ProcessParameterNullException(this, "ConnectionString");
         }
 
-        protected override IEnumerable<IRow> Produce(Stopwatch startedOn)
+        protected override IEnumerable<IRow> Produce()
         {
             ConnectionString = Context.GetConnectionString(ConnectionStringKey);
 

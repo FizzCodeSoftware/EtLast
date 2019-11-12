@@ -22,7 +22,7 @@
                 throw new ProcessParameterNullException(this, nameof(InputProcess));
         }
 
-        protected override IEnumerable<IRow> Produce(Stopwatch startedOn)
+        protected override IEnumerable<IRow> Produce()
         {
             if (_cache != null)
             {
@@ -36,6 +36,9 @@
                 {
                     foreach (var row in _cache)
                     {
+                        if (Context.CancellationTokenSource.IsCancellationRequested)
+                            yield break;
+
                         var newRow = Context.CreateRow(row.ColumnCount);
                         foreach (var kvp in row.Values)
                         {
@@ -49,6 +52,9 @@
                 {
                     foreach (var row in _cache)
                     {
+                        if (Context.CancellationTokenSource.IsCancellationRequested)
+                            yield break;
+
                         yield return row;
                     }
                 }

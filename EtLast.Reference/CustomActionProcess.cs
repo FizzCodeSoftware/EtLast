@@ -18,7 +18,7 @@
                 throw new ProcessParameterNullException(this, nameof(Then));
         }
 
-        protected override void Execute(Stopwatch startedOn)
+        protected override void ExecuteImpl()
         {
             Then.Invoke(this);
         }

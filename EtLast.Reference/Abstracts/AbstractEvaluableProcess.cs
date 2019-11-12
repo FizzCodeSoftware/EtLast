@@ -16,15 +16,19 @@
 
         public IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
+            LastInvocation = Stopwatch.StartNew();
             Caller = caller;
             Validate();
 
+            if (Context.CancellationTokenSource.IsCancellationRequested)
+                return Enumerable.Empty<IRow>();
+
+            if (If?.Invoke(this) == false)
+                return Enumerable.Empty<IRow>();
+
             try
             {
-                var startedOn = Stopwatch.StartNew();
-
-                var rows = Evaluate(startedOn);
-                return rows;
+                return EvaluateImpl();
             }
             catch (EtlException ex) { Context.AddException(this, ex); }
             catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
@@ -32,6 +36,6 @@
             return Enumerable.Empty<IRow>();
         }
 
-        protected abstract IEnumerable<IRow> Evaluate(Stopwatch startedOn);
+        protected abstract IEnumerable<IRow> EvaluateImpl();
     }
 }

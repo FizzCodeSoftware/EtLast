@@ -63,7 +63,7 @@
                 throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
         }
 
-        protected override IEnumerable<IRow> Produce(Stopwatch startedOn)
+        protected override IEnumerable<IRow> Produce()
         {
             if (!File.Exists(FileName))
             {
@@ -187,7 +187,7 @@
                     }
                 }
 
-                for (var rowIndex = FirstDataRow; rowIndex <= endRow; rowIndex++)
+                for (var rowIndex = FirstDataRow; rowIndex <= endRow && !Context.CancellationTokenSource.IsCancellationRequested; rowIndex++)
                 {
                     Context.Stat.IncrementCounter("excel rows read", 1);
 

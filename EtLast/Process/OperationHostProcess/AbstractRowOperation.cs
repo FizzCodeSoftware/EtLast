@@ -8,7 +8,6 @@
     public abstract class AbstractRowOperation : IRowOperation
     {
         public IOperationHostProcess Process { get; private set; }
-        public IOperationGroup ParentGroup { get; private set; }
         IProcess IBaseOperation.Process => Process;
 
         public string InstanceName { get; set; }
@@ -51,19 +50,10 @@
             SetProcess(operationProcess);
         }
 
-        public virtual void SetParent(int number)
+        public virtual void SetNumber(int number)
         {
-            ParentGroup = null;
             Number = number;
             Name = Number.ToString("D2", CultureInfo.InvariantCulture) + "." + (InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType()));
-            _hash = Name.GetHashCode(StringComparison.InvariantCultureIgnoreCase);
-        }
-
-        public void SetParentGroup(IOperationGroup parentGroup, int number)
-        {
-            ParentGroup = parentGroup;
-            Number = number;
-            Name = (ParentGroup != null ? ParentGroup.Name + "|" : "") + Number.ToString("D2", CultureInfo.InvariantCulture) + "." + (InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType()));
             _hash = Name.GetHashCode(StringComparison.InvariantCultureIgnoreCase);
         }
 

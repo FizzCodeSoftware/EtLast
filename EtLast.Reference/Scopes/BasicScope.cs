@@ -34,7 +34,7 @@
         {
         }
 
-        protected override void Execute(Stopwatch startedOn)
+        protected override void ExecuteImpl()
         {
             Context.Log(LogSeverity.Information, this, "scope started");
 

@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Diagnostics;
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
@@ -30,7 +29,7 @@
                 throw new ProcessParameterNullException(this, nameof(ConnectionStringKey));
         }
 
-        protected override void Execute(Stopwatch startedOn)
+        protected override void ExecuteImpl()
         {
             ConnectionString = Context.GetConnectionString(ConnectionStringKey);
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
@@ -61,16 +60,16 @@
                                 cmd.CommandText = statements[i];
                                 try
                                 {
-                                    RunCommand(cmd, i, startedOn);
+                                    RunCommand(cmd, i);
                                 }
                                 catch (Exception)
                                 {
-                                    LogSucceeded(i - 1, startedOn);
+                                    LogSucceeded(i - 1);
                                     throw;
                                 }
                             }
 
-                            LogSucceeded(statements.Count - 1, startedOn);
+                            LogSucceeded(statements.Count - 1);
                         }
                     }
                 }
@@ -83,7 +82,7 @@
 
         protected abstract List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection);
 
-        protected abstract void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn);
-        protected abstract void LogSucceeded(int lastSucceededIndex, Stopwatch startedOn);
+        protected abstract void RunCommand(IDbCommand command, int statementIndex);
+        protected abstract void LogSucceeded(int lastSucceededIndex);
     }
 }

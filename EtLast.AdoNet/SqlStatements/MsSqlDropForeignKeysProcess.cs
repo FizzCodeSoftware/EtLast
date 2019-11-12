@@ -206,7 +206,7 @@ from
             }
         }
 
-        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
+        protected override void RunCommand(IDbCommand command, int statementIndex)
         {
             var t = _tableNamesAndCounts[statementIndex];
 
@@ -217,10 +217,10 @@ from
             {
                 command.ExecuteNonQuery();
                 Context.Log(LogSeverity.Debug, this, "foreign keys on {ConnectionStringKey}/{TableName} are dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
-                    ConnectionString.Unescape(t.Item1), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
+                    ConnectionString.Unescape(t.Item1), LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
 
                 Context.Stat.IncrementCounter("database foreign keys dropped / " + ConnectionString.Name, t.Item2);
-                Context.Stat.IncrementCounter("database foreign keys time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
+                Context.Stat.IncrementCounter("database foreign keys time / " + ConnectionString.Name, LastInvocation.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
@@ -232,12 +232,12 @@ from
                 exception.Data.Add("TableName", ConnectionString.Unescape(t.Item1));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
-                exception.Data.Add("Elapsed", startedOn.Elapsed);
+                exception.Data.Add("Elapsed", LastInvocation.Elapsed);
                 throw exception;
             }
         }
 
-        protected override void LogSucceeded(int lastSucceededIndex, Stopwatch startedOn)
+        protected override void LogSucceeded(int lastSucceededIndex)
         {
             if (lastSucceededIndex == -1)
                 return;
@@ -247,7 +247,7 @@ from
                     .Sum(x => x.Item2);
 
             Context.Log(LogSeverity.Information, this, "{ForeignKeyCount} foreign keys for {TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}, transaction: {Transaction}", fkCount,
-                lastSucceededIndex + 1, ConnectionString.Name, startedOn.Elapsed, Transaction.Current.ToIdentifierString());
+                lastSucceededIndex + 1, ConnectionString.Name, LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }
 }

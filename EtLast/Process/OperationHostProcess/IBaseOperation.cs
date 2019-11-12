@@ -9,7 +9,7 @@
         IProcess Process { get; }
 
         void SetProcess(IProcess process);
-        void SetParent(int index);
+        void SetNumber(int index);
 
         void Prepare();
         void Shutdown();

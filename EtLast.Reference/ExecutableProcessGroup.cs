@@ -19,7 +19,7 @@
                 throw new ProcessParameterNullException(this, nameof(ProcessList));
         }
 
-        protected override void Execute(Stopwatch startedOn)
+        protected override void ExecuteImpl()
         {
             Context.Log(LogSeverity.Information, this, "started");
 
@@ -58,7 +58,7 @@
                 Context.Log(LogSeverity.Debug, process, null, "process finished in {Elapsed}", processStartedOn.Elapsed);
             }
 
-            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", startedOn.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", LastInvocation.Elapsed);
         }
     }
 }

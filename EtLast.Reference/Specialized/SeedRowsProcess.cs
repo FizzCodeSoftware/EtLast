@@ -21,11 +21,14 @@
                 throw new InvalidProcessParameterException(this, nameof(Count), Count, "value must be greater than zero");
         }
 
-        protected override IEnumerable<IRow> Produce(Stopwatch startedOn)
+        protected override IEnumerable<IRow> Produce()
         {
             Context.Log(LogSeverity.Debug, this, "returning random generated rows");
             foreach (var id in Enumerable.Range(0, Count))
             {
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    yield break;
+
                 var row = Context.CreateRow();
 
                 var inputRow = Columns.Select(col => CreateRandomObject(id, col)).ToArray();

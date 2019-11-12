@@ -12,6 +12,9 @@
     public class OperationHostProcess : IOperationHostProcess
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
+        public ProcessTestDelegate If { get; set; }
+
+        public Stopwatch LastInvocation { get; protected set; }
         public string Name { get; set; }
         public IEtlContext Context { get; }
         public IProcess Caller { get; protected set; }
@@ -44,7 +47,7 @@
         {
             foreach (var op in _operations)
             {
-                op.SetParentGroup(null, 0);
+                op.SetProcess(null);
             }
 
             _operations.Clear();
@@ -52,7 +55,9 @@
             foreach (var op in operations)
             {
                 if (op != null)
+                {
                     AddOperation(op);
+                }
             }
         }
 
@@ -66,7 +71,7 @@
             where T : IRowOperation
         {
             operation.SetProcess(this);
-            operation.SetParent(_operations.Count + 1);
+            operation.SetNumber(_operations.Count + 1);
 
             if (_operations.Count > 0)
             {
@@ -425,13 +430,15 @@
 
         public void Execute(IProcess caller = null)
         {
+            LastInvocation = Stopwatch.StartNew();
             Caller = caller;
-
             Validate();
+
             if (Context.CancellationTokenSource.IsCancellationRequested)
                 return;
 
-            var startedOn = Stopwatch.StartNew();
+            if (If?.Invoke(this) == false)
+                return;
 
             Context.Log(LogSeverity.Information, this, "operation host started");
 
@@ -511,7 +518,7 @@
                 buffer.Clear();
             }
 
-            Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows in {Elapsed}", inputRowCount, startedOn.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows in {Elapsed}", inputRowCount, LastInvocation.Elapsed);
             ReadingInput = false;
 
             var loopIndex = 0;
@@ -537,18 +544,20 @@
             ShutdownOperations();
             LogStats();
 
-            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", startedOn.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", LastInvocation.Elapsed);
         }
 
         public IEnumerable<IRow> Evaluate(IProcess caller = null)
         {
+            LastInvocation = Stopwatch.StartNew();
             Caller = caller;
-
             Validate();
+
             if (Context.CancellationTokenSource.IsCancellationRequested)
                 yield break;
 
-            var startedOn = Stopwatch.StartNew();
+            if (If?.Invoke(this) == false)
+                yield break;
 
             Context.Log(LogSeverity.Information, this, "operation host started");
 
@@ -646,7 +655,7 @@
                 buffer.Clear();
             }
 
-            Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows in {Elapsed}", inputRowCount, startedOn.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows in {Elapsed}", inputRowCount, LastInvocation.Elapsed);
             ReadingInput = false;
 
             var loopIndex = 0;
@@ -704,7 +713,7 @@
             ShutdownOperations();
             LogStats();
 
-            Context.Log(LogSeverity.Debug, this, "finished and retuned {RowCount} rows of {AllRowCount} rows in {Elapsed}", resultCount, _rowsAdded, startedOn.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished and retuned {RowCount} rows of {AllRowCount} rows in {Elapsed}", resultCount, _rowsAdded, LastInvocation.Elapsed);
         }
 
         private void CreateWorker()

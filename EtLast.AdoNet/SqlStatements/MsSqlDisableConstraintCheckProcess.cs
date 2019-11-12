@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Transactions;
@@ -31,7 +30,7 @@
             return TableNames.Select(tableName => "ALTER TABLE " + tableName + " NOCHECK CONSTRAINT ALL;").ToList();
         }
 
-        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
+        protected override void RunCommand(IDbCommand command, int statementIndex)
         {
             var tableName = TableNames[statementIndex];
 
@@ -54,18 +53,18 @@
                 exception.Data.Add("TableName", ConnectionString.Unescape(tableName));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
-                exception.Data.Add("Elapsed", startedOn.Elapsed);
+                exception.Data.Add("Elapsed", LastInvocation.Elapsed);
                 throw exception;
             }
         }
 
-        protected override void LogSucceeded(int lastSucceededIndex, Stopwatch startedOn)
+        protected override void LogSucceeded(int lastSucceededIndex)
         {
             if (lastSucceededIndex == -1)
                 return;
 
             Context.Log(LogSeverity.Information, this, "constraint check successfully disabled on {TableCount} tables on {ConnectionStringKey} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
-                ConnectionString.Name, startedOn.Elapsed, Transaction.Current.ToIdentifierString());
+                ConnectionString.Name, LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }
 }

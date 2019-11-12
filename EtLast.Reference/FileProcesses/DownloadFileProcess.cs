@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
-    using System.Diagnostics;
     using System.Globalization;
     using System.Net;
 
@@ -27,7 +26,7 @@
                 PathHelpers.GetFriendlyPathName(FileName));
         }
 
-        protected override void Execute(Stopwatch startedOn)
+        protected override void ExecuteImpl()
         {
             // todo: use HttpClient instead with cancellationTokenSource
             using (var clt = new WebClient())
@@ -36,7 +35,7 @@
                 {
                     clt.DownloadFile(Url, FileName);
                     Context.Log(LogSeverity.Debug, this, "successfully downloaded from '{Url}' to '{FileName}' in {Elapsed}", Url,
-                        PathHelpers.GetFriendlyPathName(FileName), startedOn.Elapsed);
+                        PathHelpers.GetFriendlyPathName(FileName), LastInvocation.Elapsed);
                 }
                 catch (Exception ex)
                 {

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
 
     /// <summary>
     /// Input can be unordered. Group key generation is applied on the input rows on-the-fly, but group processing is started only after all groups are created.
@@ -22,7 +21,7 @@
             {
                 _operation = value;
                 _operation.SetProcess(this);
-                _operation.SetParent(1);
+                _operation.SetNumber(1);
             }
         }
 
@@ -40,7 +39,7 @@
                 throw new ProcessParameterNullException(this, nameof(Operation));
         }
 
-        protected override IEnumerable<IRow> Evaluate(Stopwatch startedOn)
+        protected override IEnumerable<IRow> EvaluateImpl()
         {
             Operation.Prepare();
 
@@ -66,10 +65,9 @@
                 list.Add(row);
             }
 
-            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}", rowCount, groups.Count, startedOn.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}", rowCount, groups.Count, LastInvocation.Elapsed);
 
-            var terminated = Context.CancellationTokenSource.IsCancellationRequested;
-            if (terminated)
+            if (Context.CancellationTokenSource.IsCancellationRequested)
                 yield break;
 
             var resultCount = 0;
@@ -95,7 +93,7 @@
 
             Operation.Shutdown();
 
-            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, startedOn.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, LastInvocation.Elapsed);
         }
 
         private IEnumerable<IRow> TransformGroup(List<IRow> group)

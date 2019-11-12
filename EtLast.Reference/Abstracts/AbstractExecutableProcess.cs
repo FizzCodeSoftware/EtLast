@@ -12,18 +12,24 @@
 
         public void Execute(IProcess caller = null)
         {
+            LastInvocation = Stopwatch.StartNew();
             Caller = caller;
             Validate();
 
+            if (Context.CancellationTokenSource.IsCancellationRequested)
+                return;
+
+            if (If?.Invoke(this) == false)
+                return;
+
             try
             {
-                var startedOn = Stopwatch.StartNew();
-                Execute(startedOn);
+                ExecuteImpl();
             }
             catch (EtlException ex) { Context.AddException(this, ex); }
             catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
         }
 
-        protected abstract void Execute(Stopwatch startedOn);
+        protected abstract void ExecuteImpl();
     }
 }

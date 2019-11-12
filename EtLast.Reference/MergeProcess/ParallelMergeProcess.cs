@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using System.Threading;
     using System.Transactions;
@@ -19,7 +18,7 @@
         {
         }
 
-        protected override IEnumerable<IRow> Evaluate(Stopwatch startedOn)
+        protected override IEnumerable<IRow> EvaluateImpl()
         {
             Context.Log(LogSeverity.Information, this, "started");
 
@@ -63,7 +62,7 @@
 
             var result = Merger.Merge(resultSets.ToList());
 
-            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", startedOn.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", LastInvocation.Elapsed);
             return result;
         }
     }

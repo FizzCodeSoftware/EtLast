@@ -18,13 +18,16 @@
                 throw new ProcessParameterNullException(this, nameof(InputGenerator));
         }
 
-        protected override IEnumerable<IRow> Produce(Stopwatch startedOn)
+        protected override IEnumerable<IRow> Produce()
         {
             Context.Log(LogSeverity.Information, this, "evaluating input generator");
 
             var inputRows = InputGenerator.Invoke(this);
             foreach (var row in inputRows)
             {
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    yield break;
+
                 yield return row;
             }
         }

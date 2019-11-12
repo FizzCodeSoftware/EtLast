@@ -38,7 +38,7 @@
             return _queue.GetConsumer(Context.CancellationTokenSource.Token);
         }
 
-        protected override void Execute(Stopwatch startedOn)
+        protected override void ExecuteImpl()
         {
             throw new EtlException(nameof(Execute) + " is not supported in " + GetType().Name);
         }

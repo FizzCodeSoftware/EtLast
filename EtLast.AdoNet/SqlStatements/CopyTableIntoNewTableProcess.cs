@@ -2,7 +2,6 @@
 {
     using System;
     using System.Data;
-    using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Transactions;
@@ -52,7 +51,7 @@
             return statement;
         }
 
-        protected override void RunCommand(IDbCommand command, Stopwatch startedOn)
+        protected override void RunCommand(IDbCommand command)
         {
             Context.Log(LogSeverity.Debug, this, "creating new table {ConnectionStringKey}/{TargetTableName} and copying records from {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(Configuration.TargetTableName), ConnectionString.Unescape(Configuration.SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
@@ -62,7 +61,7 @@
                 var recordCount = command.ExecuteNonQuery();
 
                 Context.Log(LogSeverity.Information, this, "table {ConnectionStringKey}/{TargetTableName} created and {RecordCount} records copied from {SourceTableName} in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
-                    ConnectionString.Unescape(Configuration.TargetTableName), recordCount, ConnectionString.Unescape(Configuration.SourceTableName), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
+                    ConnectionString.Unescape(Configuration.TargetTableName), recordCount, ConnectionString.Unescape(Configuration.SourceTableName), LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
 
                 // todo: support stats...
                 // Stat.IncrementCounter("records copied", recordCount);
@@ -70,8 +69,8 @@
 
                 Context.Stat.IncrementCounter("database records copied / " + ConnectionString.Name, recordCount);
                 Context.Stat.IncrementDebugCounter("database records copied / " + ConnectionString.Name + " / " + ConnectionString.Unescape(Configuration.SourceTableName) + " -> " + ConnectionString.Unescape(Configuration.TargetTableName), recordCount);
-                Context.Stat.IncrementCounter("database copy time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
-                Context.Stat.IncrementDebugCounter("database copy time / " + ConnectionString.Name + " / " + ConnectionString.Unescape(Configuration.SourceTableName) + " -> " + ConnectionString.Unescape(Configuration.TargetTableName), startedOn.ElapsedMilliseconds);
+                Context.Stat.IncrementCounter("database copy time / " + ConnectionString.Name, LastInvocation.ElapsedMilliseconds);
+                Context.Stat.IncrementDebugCounter("database copy time / " + ConnectionString.Name + " / " + ConnectionString.Unescape(Configuration.SourceTableName) + " -> " + ConnectionString.Unescape(Configuration.TargetTableName), LastInvocation.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
@@ -93,7 +92,7 @@
 
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
-                exception.Data.Add("Elapsed", startedOn.Elapsed);
+                exception.Data.Add("Elapsed", LastInvocation.Elapsed);
                 throw exception;
             }
         }

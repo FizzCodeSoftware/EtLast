@@ -22,7 +22,7 @@
                 throw new ProcessParameterNullException(this, nameof(FileName));
         }
 
-        protected override IEnumerable<IRow> Produce(Stopwatch startedOn)
+        protected override IEnumerable<IRow> Produce()
         {
             Context.Log(LogSeverity.Debug, this, "reading from {FileName}", FileName);
 
@@ -48,6 +48,9 @@
 
                 for (var i = 0; i < workbook.Worksheets.Count; i++)
                 {
+                    if (Context.CancellationTokenSource.IsCancellationRequested)
+                        yield break;
+
                     var row = Context.CreateRow(4);
                     row.SetValue("Index", i, this);
                     row.SetValue("Name", workbook.Worksheets[i].Name, this);

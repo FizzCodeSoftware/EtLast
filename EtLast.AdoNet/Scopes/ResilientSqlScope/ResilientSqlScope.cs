@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
 
     public class ResilientSqlScope : AbstractExecutableProcess
@@ -53,7 +52,7 @@
                 throw new InvalidProcessParameterException(this, nameof(Configuration.ConnectionStringKey), Configuration.ConnectionStringKey, "key doesn't exists");
         }
 
-        protected override void Execute(Stopwatch startedOn)
+        protected override void ExecuteImpl()
         {
             Context.Log(LogSeverity.Information, this, "scope started");
 
@@ -159,13 +158,16 @@
                             preFinalizer.Execute(Context, this);
                         }
 
-                        var tableFinalizer = new ResilientTableFinalizerManager();
-                        tableFinalizer.Execute(Context, this, connectionString);
-
-                        if (Configuration.PostFinalizerCreator != null)
+                        if (Context.GetExceptions().Count == initialExceptionCount)
                         {
-                            var postFinalizer = new ResilientSqlScopePostFinalizerManager();
-                            postFinalizer.Execute(Context, this);
+                            var tableFinalizer = new ResilientTableFinalizerManager();
+                            tableFinalizer.Execute(Context, this, connectionString);
+
+                            if (Configuration.PostFinalizerCreator != null && Context.GetExceptions().Count == initialExceptionCount)
+                            {
+                                var postFinalizer = new ResilientSqlScopePostFinalizerManager();
+                                postFinalizer.Execute(Context, this);
+                            }
                         }
 
                         var currentExceptionCount = Context.GetExceptions().Count;
@@ -192,7 +194,7 @@
                 }
             }
 
-            Context.Log(LogSeverity.Information, this, success ? "finished in {Elapsed}" : "failed after {Elapsed}", startedOn.Elapsed);
+            Context.Log(LogSeverity.Information, this, success ? "finished in {Elapsed}" : "failed after {Elapsed}", LastInvocation.Elapsed);
         }
 
         public static IExecutable DeleteTargetTableFinalizer(ResilientTableBase table)

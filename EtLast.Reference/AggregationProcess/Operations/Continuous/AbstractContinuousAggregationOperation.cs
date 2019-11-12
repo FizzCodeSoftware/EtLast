@@ -19,7 +19,7 @@
             Process = process;
         }
 
-        public void SetParent(int number)
+        public void SetNumber(int number)
         {
             Number = number;
         }

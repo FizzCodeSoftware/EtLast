@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Transactions;
@@ -33,7 +32,7 @@
                 .ToList();
         }
 
-        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
+        protected override void RunCommand(IDbCommand command, int statementIndex)
         {
             var tableName = TableNames[statementIndex];
 
@@ -45,10 +44,10 @@
                 command.ExecuteNonQuery();
 
                 Context.Log(LogSeverity.Debug, this, "table {ConnectionStringKey}/{TableName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
-                    ConnectionString.Unescape(tableName), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
+                    ConnectionString.Unescape(tableName), LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
 
                 Context.Stat.IncrementCounter("database tables dropped / " + ConnectionString.Name, 1);
-                Context.Stat.IncrementCounter("database tables dropped time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
+                Context.Stat.IncrementCounter("database tables dropped time / " + ConnectionString.Name, LastInvocation.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
@@ -60,18 +59,18 @@
                 exception.Data.Add("TableName", ConnectionString.Unescape(tableName));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
-                exception.Data.Add("Elapsed", startedOn.Elapsed);
+                exception.Data.Add("Elapsed", LastInvocation.Elapsed);
                 throw exception;
             }
         }
 
-        protected override void LogSucceeded(int lastSucceededIndex, Stopwatch startedOn)
+        protected override void LogSucceeded(int lastSucceededIndex)
         {
             if (lastSucceededIndex == -1)
                 return;
 
             Context.Log(LogSeverity.Information, this, "{TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
-                ConnectionString.Name, startedOn.Elapsed, Transaction.Current.ToIdentifierString());
+                ConnectionString.Name, LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }
 }

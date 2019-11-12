@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System.Data;
-    using System.Diagnostics;
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
@@ -28,7 +27,7 @@
                 throw new ProcessParameterNullException(this, nameof(ConnectionStringKey));
         }
 
-        protected override void Execute(Stopwatch startedOn)
+        protected override void ExecuteImpl()
         {
             ConnectionString = Context.GetConnectionString(ConnectionStringKey);
             var statement = CreateSqlStatement(ConnectionString);
@@ -52,7 +51,7 @@
                             cmd.CommandTimeout = CommandTimeout;
                             cmd.CommandText = statement;
 
-                            RunCommand(cmd, startedOn);
+                            RunCommand(cmd);
                         }
                     }
                 }
@@ -65,6 +64,6 @@
 
         protected abstract string CreateSqlStatement(ConnectionStringWithProvider connectionString);
 
-        protected abstract void RunCommand(IDbCommand command, Stopwatch startedOn);
+        protected abstract void RunCommand(IDbCommand command);
     }
 }

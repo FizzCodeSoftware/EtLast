@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Transactions;
@@ -40,7 +39,7 @@
             return sqlStatementProcessed;
         }
 
-        protected override void RunCommand(IDbCommand command, Stopwatch startedOn)
+        protected override void RunCommand(IDbCommand command)
         {
             Context.Log(LogSeverity.Debug, this, "executing custom SQL statement {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}", command.CommandText,
                 ConnectionString.Name, command.CommandTimeout, Transaction.Current.ToIdentifierString());
@@ -60,7 +59,7 @@
             {
                 var recordCount = command.ExecuteNonQuery();
                 Context.Log(LogSeverity.Information, this, "custom SQL statement affected {RecordCount} records in {Elapsed}, transaction: {Transaction}", recordCount,
-                    startedOn.Elapsed, Transaction.Current.ToIdentifierString());
+                    LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
             }
             catch (Exception ex)
             {
@@ -71,7 +70,7 @@
                 exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
-                exception.Data.Add("Elapsed", startedOn.Elapsed);
+                exception.Data.Add("Elapsed", LastInvocation.Elapsed);
                 throw exception;
             }
         }

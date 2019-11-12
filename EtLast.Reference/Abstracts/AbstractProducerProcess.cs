@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Globalization;
 
     /// <summary>
@@ -31,7 +30,7 @@
         {
         }
 
-        protected sealed override IEnumerable<IRow> Evaluate(Stopwatch startedOn)
+        protected sealed override IEnumerable<IRow> EvaluateImpl()
         {
             if (AutomaticallyEvaluateAndYieldInputProcessRows && InputProcess != null)
             {
@@ -51,11 +50,14 @@
                 }
 
                 Context.Log(LogSeverity.Debug, this, "fetched {FetchedRowCount} and returned {ReturnedRowCount} rows from {InputProcess} in {Elapsed}",
-                    fetchedRowCount, returnedRowCount, InputProcess.Name, startedOn.Elapsed);
+                    fetchedRowCount, returnedRowCount, InputProcess.Name, LastInvocation.Elapsed);
             }
 
+            if (Context.CancellationTokenSource.IsCancellationRequested)
+                yield break;
+
             var resultCount = 0;
-            foreach (var row in Produce(startedOn))
+            foreach (var row in Produce())
             {
                 if (ProcessRowBeforeYield(row))
                 {
@@ -64,10 +66,10 @@
                 }
             }
 
-            Context.Log(LogSeverity.Debug, this, "produced and returned {RowCount} rows in {Elapsed}", resultCount, startedOn.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "produced and returned {RowCount} rows in {Elapsed}", resultCount, LastInvocation.Elapsed);
         }
 
-        protected abstract IEnumerable<IRow> Produce(Stopwatch startedOn);
+        protected abstract IEnumerable<IRow> Produce();
 
         private bool ProcessRowBeforeYield(IRow row)
         {

@@ -37,7 +37,7 @@
                 throw new ProcessParameterNullException(this, nameof(ColumnNames));
         }
 
-        protected override IEnumerable<IRow> Produce(Stopwatch startedOn)
+        protected override IEnumerable<IRow> Produce()
         {
             if (!File.Exists(FileName))
             {
@@ -54,7 +54,7 @@
                 var columnNames = ColumnNames;
                 string line;
                 var firstRow = true;
-                while ((line = reader.ReadLine()) != null)
+                while ((line = reader.ReadLine()) != null && !Context.CancellationTokenSource.IsCancellationRequested)
                 {
                     if (line.EndsWith(Delimiter))
                     {

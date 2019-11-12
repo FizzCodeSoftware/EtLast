@@ -50,7 +50,7 @@
             if (operation is IDeferredRowOperation)
                 throw new InvalidOperationParameterException(this, nameof(operation), null, "deferred operations are not supported in " + nameof(OperationGroup));
 
-            operation.SetParentGroup(this, Then.Count);
+            operation.SetNumber(Then.Count + 1);
             Then.Add(operation);
         }
 
@@ -59,7 +59,7 @@
             if (operation is IDeferredRowOperation)
                 throw new InvalidOperationParameterException(this, nameof(operation), null, "deferred operations are not supported in " + nameof(OperationGroup));
 
-            operation.SetParentGroup(this, Else.Count);
+            operation.SetNumber(Then.Count + 1);
             Else.Add(operation);
         }
 
@@ -69,30 +69,30 @@
 
             foreach (var op in Then)
             {
-                op.SetProcess(Process);
+                op.SetProcess(process);
             }
 
             foreach (var op in Else)
             {
-                op.SetProcess(Process);
+                op.SetProcess(process);
             }
         }
 
-        public override void SetParent(int number)
+        public override void SetNumber(int number)
         {
-            base.SetParent(number);
+            base.SetNumber(number);
 
             var idx = 1;
             foreach (var op in Then)
             {
-                op.SetParentGroup(this, idx);
+                op.SetNumber(idx);
                 idx++;
             }
 
             idx = 1;
             foreach (var op in Else)
             {
-                op.SetParentGroup(this, idx);
+                op.SetNumber(idx);
                 idx++;
             }
         }

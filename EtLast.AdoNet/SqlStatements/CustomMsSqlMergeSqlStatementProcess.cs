@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Text;
@@ -94,7 +93,7 @@
             return sqlStatementProcessed;
         }
 
-        protected override void RunCommand(IDbCommand command, Stopwatch startedOn)
+        protected override void RunCommand(IDbCommand command)
         {
             Context.Log(LogSeverity.Debug, this, "merging to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(TargetTableName), ConnectionString.Unescape(SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
@@ -115,7 +114,7 @@
                 var recordCount = command.ExecuteNonQuery();
 
                 Context.Log(LogSeverity.Information, this, "{RecordCount} records merged to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} in {Elapsed}, transaction: {Transaction}", recordCount,
-                    ConnectionString.Name, ConnectionString.Unescape(TargetTableName), ConnectionString.Unescape(SourceTableName), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
+                    ConnectionString.Name, ConnectionString.Unescape(TargetTableName), ConnectionString.Unescape(SourceTableName), LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
 
                 // todo: support stats...
                 // Stat.IncrementCounter("records merged", recordCount);
@@ -123,8 +122,8 @@
 
                 Context.Stat.IncrementCounter("database records merged / " + ConnectionString.Name, recordCount);
                 Context.Stat.IncrementDebugCounter("database records merged / " + ConnectionString.Name + " / " + ConnectionString.Unescape(SourceTableName) + " -> " + ConnectionString.Unescape(TargetTableName), recordCount);
-                Context.Stat.IncrementCounter("database merge time / " + ConnectionString.Name, startedOn.ElapsedMilliseconds);
-                Context.Stat.IncrementDebugCounter("database merge time / " + ConnectionString.Name + " / " + ConnectionString.Unescape(SourceTableName) + " -> " + ConnectionString.Unescape(TargetTableName), startedOn.ElapsedMilliseconds);
+                Context.Stat.IncrementCounter("database merge time / " + ConnectionString.Name, LastInvocation.ElapsedMilliseconds);
+                Context.Stat.IncrementDebugCounter("database merge time / " + ConnectionString.Name + " / " + ConnectionString.Unescape(SourceTableName) + " -> " + ConnectionString.Unescape(TargetTableName), LastInvocation.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
@@ -135,7 +134,7 @@
                 exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", CommandTimeout);
-                exception.Data.Add("Elapsed", startedOn.Elapsed);
+                exception.Data.Add("Elapsed", LastInvocation.Elapsed);
                 throw exception;
             }
         }

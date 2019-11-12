@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
-    using System.Diagnostics;
     using System.Globalization;
     using System.IO;
 
@@ -20,7 +19,7 @@
                 throw new ProcessParameterNullException(this, nameof(FileName));
         }
 
-        protected override void Execute(Stopwatch startedOn)
+        protected override void ExecuteImpl()
         {
             if (!File.Exists(FileName))
             {
@@ -34,7 +33,7 @@
             {
                 File.Delete(FileName);
                 Context.Log(LogSeverity.Debug, this, "successfully deleted file '{FileName}' in {Elapsed}", PathHelpers.GetFriendlyPathName(FileName),
-                    startedOn.Elapsed);
+                    LastInvocation.Elapsed);
             }
             catch (Exception ex)
             {

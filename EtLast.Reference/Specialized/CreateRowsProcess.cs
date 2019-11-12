@@ -26,12 +26,15 @@
                 throw new ProcessParameterNullException(this, nameof(InputRows));
         }
 
-        protected override IEnumerable<IRow> Produce(Stopwatch startedOn)
+        protected override IEnumerable<IRow> Produce()
         {
             Context.Log(LogSeverity.Debug, this, "returning pre-defined rows");
 
             foreach (var inputRow in InputRows)
             {
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    yield break;
+
                 var row = Context.CreateRow();
 
                 for (var i = 0; i < Math.Min(Columns.Length, inputRow.Length); i++)

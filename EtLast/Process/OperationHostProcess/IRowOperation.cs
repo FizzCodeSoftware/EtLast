@@ -4,7 +4,6 @@
 
     public interface IRowOperation : IBaseOperation
     {
-        IOperationGroup ParentGroup { get; }
         IRowOperation NextOperation { get; }
         IRowOperation PrevOperation { get; }
         StatCounterCollection Stat { get; }
@@ -13,9 +12,6 @@
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         void SetProcess(IOperationHostProcess process);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        void SetParentGroup(IOperationGroup parentGroup, int number);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         void SetNextOperation(IRowOperation operation);

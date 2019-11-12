@@ -2,7 +2,6 @@
 {
     using System;
     using System.Data;
-    using System.Diagnostics;
     using System.Globalization;
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
@@ -29,7 +28,7 @@
             return "TRUNCATE TABLE " + TableName;
         }
 
-        protected override void RunCommand(IDbCommand command, Stopwatch startedOn)
+        protected override void RunCommand(IDbCommand command)
         {
             Context.Log(LogSeverity.Debug, this, "truncating {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(TableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
@@ -44,7 +43,7 @@
                 command.CommandText = originalStatement;
                 command.ExecuteNonQuery();
                 Context.Log(LogSeverity.Information, this, "{RecordCount} records deleted in {ConnectionStringKey}/{TableName} in {Elapsed}, transaction: {Transaction}", recordCount,
-                    ConnectionString.Name, TableName, startedOn.Elapsed, Transaction.Current.ToIdentifierString());
+                    ConnectionString.Name, TableName, LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
             }
             catch (Exception ex)
             {
@@ -56,7 +55,7 @@
                 exception.Data.Add("TableName", ConnectionString.Unescape(TableName));
                 exception.Data.Add("Statement", originalStatement);
                 exception.Data.Add("Timeout", CommandTimeout);
-                exception.Data.Add("Elapsed", startedOn.Elapsed);
+                exception.Data.Add("Elapsed", LastInvocation.Elapsed);
                 throw exception;
             }
         }
