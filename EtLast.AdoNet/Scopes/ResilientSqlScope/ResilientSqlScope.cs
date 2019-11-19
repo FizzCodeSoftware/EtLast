@@ -205,18 +205,18 @@
             Context.Log(LogSeverity.Information, this, success ? "finished in {Elapsed}" : "failed after {Elapsed}", LastInvocation.Elapsed);
         }
 
-        public static IExecutable DeleteTargetTableFinalizer(ResilientTableBase table)
+        public static IEnumerable<IExecutable> DeleteTargetTableFinalizer(ResilientTableBase table)
         {
-            return new DeleteTableProcess(table.Scope.Context, "DeleteContentFromTargetTable")
+            yield return new DeleteTableProcess(table.Scope.Context, "DeleteContentFromTargetTable")
             {
                 ConnectionStringKey = table.Scope.Configuration.ConnectionStringKey,
                 TableName = table.TableName,
             };
         }
 
-        public static IExecutable CopyTableFinalizer(ResilientTableBase table, int commandTimeout, bool copyIdentityColumns = false)
+        public static IEnumerable<IExecutable> CopyTableFinalizer(ResilientTableBase table, int commandTimeout, bool copyIdentityColumns = false)
         {
-            return new CopyTableIntoExistingTableProcess(table.Scope.Context, "CopyTempToTargetTable")
+            yield return new CopyTableIntoExistingTableProcess(table.Scope.Context, "CopyTempToTargetTable")
             {
                 ConnectionStringKey = table.Scope.Configuration.ConnectionStringKey,
                 Configuration = new TableCopyConfiguration()
