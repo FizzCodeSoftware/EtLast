@@ -1,29 +1,35 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
 
-    public delegate IEnumerable<IExecutable> ProcessCreatorDelegate(IExecutable scope);
+    public delegate IEnumerable<IExecutable> ProcessCreatorDelegate(IBasicScope scope);
 
     /// <summary>
     /// The default etl scope to execute multiple processes, optionally supporting ambient transaction scopes.
     /// </summary>
-    public class BasicScope : AbstractExecutableProcess
+    public class BasicScope : AbstractExecutableProcess, IBasicScope
     {
         public ProcessCreatorDelegate ProcessCreator { get; set; }
-        public ProcessCreatorDelegate[] ProcessCreators { get; set; }
+        public IEnumerable<ProcessCreatorDelegate> ProcessCreators { get; set; }
+
+        /// <summary>
+        /// Default value is <see cref="TransactionScopeKind.None"/>.
+        /// </summary>
+        public TransactionScopeKind TransactionScopeKind { get; set; } = TransactionScopeKind.None;
+
+        /// <summary>
+        /// Default value is <see cref="TransactionScopeKind.None"/> which means creation of the executables happens directly within the exection scope.
+        /// </summary>
+        public TransactionScopeKind CreationTransactionScopeKind { get; set; } = TransactionScopeKind.None;
 
         /// <summary>
         /// Default value is true.
         /// </summary>
         public bool StopOnError { get; set; } = true;
 
-        /// <summary>
-        /// Default value is <see cref="TransactionScopeKind.None"/>.
-        /// </summary>
-        public TransactionScopeKind EvaluationTransactionScopeKind { get; set; } = TransactionScopeKind.None;
-        public bool SuppressTransactionScopeForCreator { get; set; }
+        public EventHandler<BasicScopeProcessFailedEventArgs> OnError { get; set; }
 
         public BasicScope(IEtlContext context, string name = null)
             : base(context, name)
@@ -38,7 +44,7 @@
         {
             Context.Log(LogSeverity.Information, this, "scope started");
 
-            using (var scope = Context.BeginScope(this, null, EvaluationTransactionScopeKind, LogSeverity.Information))
+            using (var scope = Context.BeginScope(this, null, TransactionScopeKind, LogSeverity.Information))
             {
                 var failed = false;
 
@@ -52,7 +58,7 @@
                 foreach (var creator in creators)
                 {
                     IExecutable[] processes = null;
-                    using (var creatorScope = Context.BeginScope(this, null, SuppressTransactionScopeForCreator ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Information))
+                    using (var creatorScope = Context.BeginScope(this, null, CreationTransactionScopeKind, LogSeverity.Information))
                     {
                         processes = creator.Invoke(this).Where(x => x != null).ToArray();
                     }
@@ -69,6 +75,8 @@
 
                         if (Context.GetExceptions().Count != initialExceptionCount)
                         {
+                            OnError?.Invoke(this, new BasicScopeProcessFailedEventArgs(this, process));
+
                             failed = true;
                             if (StopOnError)
                                 break;
