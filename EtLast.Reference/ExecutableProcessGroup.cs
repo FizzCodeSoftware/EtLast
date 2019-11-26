@@ -36,8 +36,8 @@
                 var process = ProcessList[i];
 
                 var processStartedOn = Stopwatch.StartNew();
-                Context.Log(LogSeverity.Information, process, null, "process started ({ProcessIndex} of {ProcessCount}}", i + 1,
-                    ProcessList.Count);
+                Context.Log(LogSeverity.Information, this, null, "executing <{Process}> ({ProcessIndex} of {ProcessCount}}",
+                    process.Name, i + 1, ProcessList.Count);
 
                 try
                 {
@@ -60,7 +60,8 @@
                     break;
                 }
 
-                Context.Log(LogSeverity.Debug, process, null, "process finished in {Elapsed}", processStartedOn.Elapsed);
+                Context.Log(LogSeverity.Debug, this, null, "<{Process}> finished in {Elapsed}",
+                    process.Name, processStartedOn.Elapsed);
             }
 
             Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", LastInvocation.Elapsed);

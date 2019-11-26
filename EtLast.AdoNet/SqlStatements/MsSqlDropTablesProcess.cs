@@ -106,7 +106,7 @@
                                 _ => null,
                             };
 
-                            Context.Log(LogSeverity.Information, this, "{TableCount} tables aquired from information schema on {ConnectionStringKey} in {Elapsed}" + modeInfo,
+                            Context.Log(LogSeverity.Information, this, "{TableCount} tables aquired from information schema of {ConnectionStringKey} in {Elapsed}" + modeInfo,
                                 _tableNames.Count, ConnectionString.Name, startedOn.Elapsed);
                         }
                         catch (Exception ex)

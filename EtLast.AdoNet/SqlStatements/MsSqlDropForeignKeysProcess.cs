@@ -187,7 +187,7 @@ from
                         statements.Add("ALTER TABLE " + kvp.Key + " DROP CONSTRAINT " + string.Join(", ", kvp.Value) + ";");
                     }
 
-                    Context.Log(LogSeverity.Information, this, "{ForeignKeyCount} foreign keys aquired from information schema on {ConnectionStringKey} in {Elapsed} for {TableCount} tables",
+                    Context.Log(LogSeverity.Information, this, "{ForeignKeyCount} foreign keys aquired from information schema of {ConnectionStringKey} in {Elapsed} for {TableCount} tables",
                         constraintsByTable.Sum(x => x.Value.Count), ConnectionString.Name, startedOn.Elapsed, _tableNamesAndCounts.Count);
 
                     return statements;

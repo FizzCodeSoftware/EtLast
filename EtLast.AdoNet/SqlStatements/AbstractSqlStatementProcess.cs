@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
+    using System.Collections.Generic;
     using System.Data;
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
@@ -30,7 +31,9 @@
         protected override void ExecuteImpl()
         {
             ConnectionString = Context.GetConnectionString(ConnectionStringKey);
-            var statement = CreateSqlStatement(ConnectionString);
+
+            var parameters = new Dictionary<string, object>();
+            var statement = CreateSqlStatement(ConnectionString, parameters);
 
             AdoNetSqlStatementDebugEventListener.GenerateEvent(this, () => new AdoNetSqlStatementDebugEvent()
             {
@@ -51,6 +54,14 @@
                             cmd.CommandTimeout = CommandTimeout;
                             cmd.CommandText = statement;
 
+                            foreach (var kvp in parameters)
+                            {
+                                var parameter = cmd.CreateParameter();
+                                parameter.ParameterName = kvp.Key;
+                                parameter.Value = kvp.Value;
+                                cmd.Parameters.Add(parameter);
+                            }
+
                             RunCommand(cmd);
                         }
                     }
@@ -62,7 +73,7 @@
             }
         }
 
-        protected abstract string CreateSqlStatement(ConnectionStringWithProvider connectionString);
+        protected abstract string CreateSqlStatement(ConnectionStringWithProvider connectionString, Dictionary<string, object> parameters);
 
         protected abstract void RunCommand(IDbCommand command);
     }

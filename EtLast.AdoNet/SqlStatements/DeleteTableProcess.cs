@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
     using System.Globalization;
     using System.Transactions;
@@ -24,7 +25,7 @@
                 throw new ProcessParameterNullException(this, nameof(TableName));
         }
 
-        protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString)
+        protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString, Dictionary<string, object> parameters)
         {
             return string.IsNullOrEmpty(CustomWhereClause)
                 ? "DELETE FROM " + TableName

@@ -47,7 +47,7 @@
                 throw new ProcessParameterNullException(this, nameof(TargetTableName));
         }
 
-        protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString)
+        protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString, Dictionary<string, object> parameters)
         {
             var sb = new StringBuilder();
             sb

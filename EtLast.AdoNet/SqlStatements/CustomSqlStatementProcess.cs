@@ -33,8 +33,9 @@
                 throw new ProcessParameterNullException(this, nameof(SqlStatement));
         }
 
-        protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString)
+        protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString, Dictionary<string, object> parameters)
         {
+            // todo: move parameter support to abstract base
             var sqlStatementProcessed = InlineArrayParametersIfNecessary(SqlStatement);
             return sqlStatementProcessed;
         }

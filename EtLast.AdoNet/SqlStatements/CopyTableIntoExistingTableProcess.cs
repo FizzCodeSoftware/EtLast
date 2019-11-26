@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
     using System.Globalization;
     using System.Linq;
@@ -17,6 +18,8 @@
         public string WhereClause { get; set; }
 
         public bool CopyIdentityColumns { get; set; }
+
+        public Dictionary<string, object> ColumnDefaults { get; set; }
 
         public CopyTableIntoExistingTableProcess(IEtlContext context, string name = null)
             : base(context, name)
@@ -37,11 +40,14 @@
                 throw new ProcessParameterNullException(this, nameof(Configuration.TargetTableName));
         }
 
-        protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString)
+        protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString, Dictionary<string, object> parameters)
         {
             var statement = "";
             if (CopyIdentityColumns && ConnectionString.KnownProvider == KnownProvider.SqlServer)
             {
+                if (Configuration.ColumnConfiguration == null || Configuration.ColumnConfiguration.Count == 0)
+                    throw new InvalidProcessParameterException(this, nameof(Configuration) + "." + nameof(TableCopyConfiguration.ColumnConfiguration), null, "identity columns can be copied only if the column list is specified");
+
                 statement = "SET IDENTITY_INSERT " + Configuration.TargetTableName + " ON; ";
             }
 
@@ -53,6 +59,19 @@
             {
                 var sourceColumnList = string.Join(", ", Configuration.ColumnConfiguration.Select(x => x.FromColumn));
                 var targetColumnList = string.Join(", ", Configuration.ColumnConfiguration.Select(x => x.ToColumn));
+
+                if (ColumnDefaults != null)
+                {
+                    var index = 0;
+                    foreach (var kvp in ColumnDefaults)
+                    {
+                        var parameName = "@colDef" + index.ToString("D", CultureInfo.InvariantCulture);
+                        sourceColumnList += ", " + parameName + " as " + kvp.Key;
+                        targetColumnList += ", " + kvp.Key;
+                        parameters.Add(parameName, kvp.Value);
+                        index++;
+                    }
+                }
 
                 statement += "INSERT INTO " + Configuration.TargetTableName + " (" + targetColumnList + ") SELECT " + sourceColumnList + " FROM " + Configuration.SourceTableName;
             }

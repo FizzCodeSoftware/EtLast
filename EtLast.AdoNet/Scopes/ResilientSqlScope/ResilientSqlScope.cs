@@ -162,19 +162,19 @@
                     {
                         if (Configuration.PreFinalizerCreator != null)
                         {
-                            var preFinalizer = new ResilientSqlScopePreFinalizerManager();
-                            preFinalizer.Execute(Context, this);
+                            var preFinalizer = new ResilientSqlScopePreFinalizerManager(this);
+                            preFinalizer.Execute();
                         }
 
                         if (Context.GetExceptions().Count == initialExceptionCount)
                         {
-                            var tableFinalizer = new ResilientTableFinalizerManager();
-                            tableFinalizer.Execute(Context, this, connectionString);
+                            var tableFinalizer = new ResilientTableFinalizerManager(this);
+                            tableFinalizer.Execute(connectionString);
 
                             if (Configuration.PostFinalizerCreator != null && Context.GetExceptions().Count == initialExceptionCount)
                             {
-                                var postFinalizer = new ResilientSqlScopePostFinalizerManager();
-                                postFinalizer.Execute(Context, this);
+                                var postFinalizer = new ResilientSqlScopePostFinalizerManager(this);
+                                postFinalizer.Execute();
                             }
                         }
 
@@ -216,7 +216,12 @@
 
         public static IEnumerable<IExecutable> CopyTableFinalizer(ResilientTableBase table, int commandTimeout, bool copyIdentityColumns = false)
         {
+            if (copyIdentityColumns && table.Columns == null)
+                throw new EtlException(table.Scope, "identity columns can be copied only if the " + nameof(ResilientTable) + "." + nameof(ResilientTableBase.Columns) + " is specified");
+
+#pragma warning disable RCS1227 // Validate arguments correctly.
             yield return new CopyTableIntoExistingTableProcess(table.Scope.Context, "CopyTempToTargetTable")
+#pragma warning restore RCS1227 // Validate arguments correctly.
             {
                 ConnectionStringKey = table.Scope.Configuration.ConnectionStringKey,
                 Configuration = new TableCopyConfiguration()

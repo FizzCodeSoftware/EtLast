@@ -106,7 +106,7 @@
                                 _ => null,
                             };
 
-                            Context.Log(LogSeverity.Information, this, "{ViewCount} views aquired from information schema on {ConnectionStringKey} in {Elapsed}" + modeInfo,
+                            Context.Log(LogSeverity.Information, this, "{ViewCount} views aquired from information schema of {ConnectionStringKey} in {Elapsed}" + modeInfo,
                                 _viewNames.Count, ConnectionString.Name, startedOn.Elapsed);
                         }
                         catch (Exception ex)

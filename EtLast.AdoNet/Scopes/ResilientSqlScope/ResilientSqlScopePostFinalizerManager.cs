@@ -1,37 +1,56 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
+    using System.Diagnostics;
     using System.Linq;
 
-    internal class ResilientSqlScopePostFinalizerManager
+    internal class ResilientSqlScopePostFinalizerManager : IProcess
     {
-        public void Execute(IEtlContext context, ResilientSqlScope scope)
+        private readonly ResilientSqlScope _scope;
+        public IEtlContext Context => _scope.Context;
+        public string Name { get; } = "PostFinalizerManager";
+        public IProcess Caller => _scope;
+        public Stopwatch LastInvocation { get; private set; }
+        public ProcessTestDelegate If { get; set; }
+
+        public ResilientSqlScopePostFinalizerManager(ResilientSqlScope scope)
         {
+            _scope = scope;
+        }
+
+        public void Execute()
+        {
+            LastInvocation = Stopwatch.StartNew();
+
             IExecutable[] finalizers;
 
-            context.Log(LogSeverity.Information, scope, "started");
-            using (var creatorScope = context.BeginScope(scope, null, TransactionScopeKind.Suppress, LogSeverity.Information))
+            Context.Log(LogSeverity.Information, this, "started");
+            using (var creatorScope = Context.BeginScope(_scope, null, TransactionScopeKind.Suppress, LogSeverity.Information))
             {
-                finalizers = scope.Configuration.PostFinalizerCreator.Invoke(scope.Configuration.ConnectionStringKey, scope.Configuration)
+                finalizers = _scope.Configuration.PostFinalizerCreator.Invoke(_scope.Configuration.ConnectionStringKey, _scope.Configuration)
                     ?.Where(x => x != null)
                     .ToArray();
 
-                context.Log(LogSeverity.Information, scope, "created {PostFinalizerCount} post-finalizers", finalizers?.Length ?? 0);
+                Context.Log(LogSeverity.Information, this, "created {PostFinalizerCount} post-finalizers", finalizers?.Length ?? 0);
             }
 
             if (finalizers?.Length > 0)
             {
-                context.Log(LogSeverity.Information, scope, "starting post-finalizers");
+                Context.Log(LogSeverity.Information, this, "starting post-finalizers");
 
                 foreach (var finalizer in finalizers)
                 {
-                    var preExceptionCount = context.GetExceptions().Count;
-                    finalizer.Execute(scope);
-                    if (context.GetExceptions().Count > preExceptionCount)
+                    var preExceptionCount = Context.GetExceptions().Count;
+                    finalizer.Execute(this);
+                    if (Context.GetExceptions().Count > preExceptionCount)
                     {
                         break;
                     }
                 }
             }
+        }
+
+        public void Validate()
+        {
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
     using System.Globalization;
     using System.Linq;
@@ -35,7 +36,7 @@
                 throw new ProcessParameterNullException(this, nameof(Configuration.TargetTableName));
         }
 
-        protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString)
+        protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString, Dictionary<string, object> parameters)
         {
             var columnList = (Configuration.ColumnConfiguration == null || Configuration.ColumnConfiguration.Count == 0)
                  ? "*"

@@ -103,7 +103,7 @@
             }
             catch (Exception ex)
             {
-                ConnectionManager.ReleaseConnection(base.Process, this, ref _connection);
+                ConnectionManager.ReleaseConnection(Process, this, ref _connection);
                 _bulkCopy.Close();
                 _bulkCopy = null;
 
