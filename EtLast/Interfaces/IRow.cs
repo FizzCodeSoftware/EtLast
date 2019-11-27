@@ -13,8 +13,8 @@
 
         void Init(IEtlContext context, int uid, int columnCountHint = 0); // called right after creation
 
-        void SetValue(string column, object newValue, IProcess process);
-        void SetValue(string column, object newValue, IBaseOperation operation);
+        IRow SetValue(string column, object newValue, IProcess process);
+        IRow SetValue(string column, object newValue, IBaseOperation operation);
 
         void RemoveColumn(string column, IProcess process);
         void RemoveColumn(string column, IBaseOperation operation);

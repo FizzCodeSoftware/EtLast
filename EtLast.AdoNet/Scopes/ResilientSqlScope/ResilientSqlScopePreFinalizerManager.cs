@@ -24,7 +24,7 @@
             IExecutable[] finalizers;
 
             Context.Log(LogSeverity.Information, this, "started");
-            using (var creatorScope = Context.BeginScope(_scope, null, TransactionScopeKind.Suppress, LogSeverity.Information))
+            using (var creatorScope = Context.BeginScope(this, null, TransactionScopeKind.Suppress, LogSeverity.Information))
             {
                 finalizers = _scope.Configuration.PreFinalizerCreator.Invoke(_scope.Configuration.ConnectionStringKey, _scope.Configuration)
                     ?.Where(x => x != null)

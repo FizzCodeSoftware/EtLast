@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public delegate IEnumerable<IExecutable> ResilientSqlScopePrePostFinalizerCreatorDelegate(string connectionStringKey, ResilientSqlScopeConfiguration configuration);
+    public delegate IEnumerable<IExecutable> ResilientSqlScopeExecutableCreatorDelegate(string connectionStringKey, ResilientSqlScopeConfiguration configuration);
 
     public enum ResilientSqlScopeTempTableMode
     {
@@ -12,6 +12,11 @@
     public class ResilientSqlScopeConfiguration
     {
         public ResilientSqlScope Scope { get; internal set; }
+
+        /// <summary>
+        /// The transaction scope kind around the finalizers. Default value is <see cref="TransactionScopeKind.Required"/>.
+        /// </summary>
+        public TransactionScopeKind InitializationTransactionScopeKind { get; set; }
 
         /// <summary>
         /// The transaction scope kind around the finalizers. Default value is <see cref="TransactionScopeKind.Required"/>.
@@ -31,14 +36,19 @@
         public string ConnectionStringKey { get; set; }
 
         /// <summary>
+        /// Allows the execution of initializers BEFORE the individual table processes are created and executed.
+        /// </summary>
+        public ResilientSqlScopeExecutableCreatorDelegate InitializerCreator { get; set; }
+
+        /// <summary>
         /// Allows the execution of global finalizers BEFORE the individual table finalizers are created and executed.
         /// </summary>
-        public ResilientSqlScopePrePostFinalizerCreatorDelegate PreFinalizerCreator { get; set; }
+        public ResilientSqlScopeExecutableCreatorDelegate PreFinalizerCreator { get; set; }
 
         /// <summary>
         /// Allows the execution of global finalizers AFTER the individual table finalizers are created and executed.
         /// </summary>
-        public ResilientSqlScopePrePostFinalizerCreatorDelegate PostFinalizerCreator { get; set; }
+        public ResilientSqlScopeExecutableCreatorDelegate PostFinalizerCreator { get; set; }
 
         public List<ResilientTable> Tables { get; set; }
 

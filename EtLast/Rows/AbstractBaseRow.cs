@@ -7,7 +7,7 @@
     using System.Linq;
 
     [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
-    public abstract class AbstractBaseRow
+    public abstract class AbstractBaseRow : IRow
     {
         public IEtlContext Context { get; protected set; }
         public int UID { get; protected set; }
@@ -19,16 +19,20 @@
 
         public virtual IEnumerable<KeyValuePair<string, object>> Values { get; }
 
+        public abstract int ColumnCount { get; }
+
         public object this[string column] { get => InternalGetValue(column); set => InternalSetValue(column, value, null, null); }
 
-        public void SetValue(string column, object value, IProcess process)
+        public IRow SetValue(string column, object newValue, IProcess process)
         {
-            InternalSetValue(column, value, process, null);
+            InternalSetValue(column, newValue, process, null);
+            return this;
         }
 
-        public void SetValue(string column, object value, IBaseOperation operation)
+        public IRow SetValue(string column, object newValue, IBaseOperation operation)
         {
-            InternalSetValue(column, value, operation.Process, operation);
+            InternalSetValue(column, newValue, operation.Process, operation);
+            return this;
         }
 
         protected abstract object InternalGetValue(string column);
@@ -146,5 +150,8 @@
         {
             return InternalGetValue(column) is decimal;
         }
+
+        public abstract void Init(IEtlContext context, int uid, int columnCountHint = 0);
+        public abstract bool Exists(string column);
     }
 }

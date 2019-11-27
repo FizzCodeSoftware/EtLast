@@ -27,13 +27,13 @@
             var tempTablesWithoutData = 0;
             foreach (var table in _scope.Configuration.Tables)
             {
-                var rowCount = CountRowsIn(_scope, Context, connectionString, table.TempTableName);
+                var rowCount = CountRowsIn(Context, connectionString, table.TempTableName);
 
                 if (table.AdditionalTables?.Count > 0)
                 {
                     foreach (var additionalTable in table.AdditionalTables.Values)
                     {
-                        rowCount += CountRowsIn(_scope, Context, connectionString, additionalTable.TempTableName);
+                        rowCount += CountRowsIn(Context, connectionString, additionalTable.TempTableName);
                     }
                 }
 
@@ -41,7 +41,7 @@
                 {
                     tempTablesWithData++;
 
-                    Context.Log(LogSeverity.Information, _scope, "creating finalizers for {TableName}",
+                    Context.Log(LogSeverity.Information, this, "creating finalizers for {TableName}",
                         connectionString.Unescape(table.TableName));
 
                     var creatorScopeKind = table.SuppressTransactionScopeForCreators
@@ -49,7 +49,7 @@
                         : TransactionScopeKind.None;
 
                     IExecutable[] finalizers;
-                    using (var creatorScope = Context.BeginScope(_scope, null, creatorScopeKind, LogSeverity.Information))
+                    using (var creatorScope = Context.BeginScope(this, null, creatorScopeKind, LogSeverity.Information))
                     {
                         finalizers = table.FinalizerCreator
                             .Invoke(table)
@@ -70,15 +70,15 @@
                 else
                 {
                     tempTablesWithoutData++;
-                    Context.Log(LogSeverity.Debug, _scope, "no data found for {TableName}, skipping finalizers", connectionString.Unescape(table.TableName));
+                    Context.Log(LogSeverity.Debug, this, "no data found for {TableName}, skipping finalizers", connectionString.Unescape(table.TableName));
                 }
             }
 
-            Context.Log(LogSeverity.Information, _scope, "{TableCount} temp table contains data", tempTablesWithData);
-            Context.Log(LogSeverity.Information, _scope, "{TableCount} temp table is empty", tempTablesWithoutData);
+            Context.Log(LogSeverity.Information, this, "{TableCount} temp table contains data", tempTablesWithData);
+            Context.Log(LogSeverity.Information, this, "{TableCount} temp table is empty", tempTablesWithoutData);
         }
 
-        private static int CountRowsIn(ResilientSqlScope scope, IEtlContext context, ConnectionStringWithProvider connectionString, string tempTableName)
+        private int CountRowsIn(IEtlContext context, ConnectionStringWithProvider connectionString, string tempTableName)
         {
             var count = new CustomSqlAdoNetDbReaderProcess(context, "TempRowCountReader:" + connectionString.Unescape(tempTableName))
             {
@@ -93,7 +93,7 @@
                 }
             }.Evaluate().ToList().FirstOrDefault()?.GetAs<int>("cnt") ?? 0;
 
-            context.Log(count > 0 ? LogSeverity.Information : LogSeverity.Debug, scope, "{TempRowCount} rows found in {TableName}", count, connectionString.Unescape(tempTableName));
+            context.Log(count > 0 ? LogSeverity.Information : LogSeverity.Debug, this, "{TempRowCount} rows found in {TableName}", count, connectionString.Unescape(tempTableName));
 
             return count;
         }

@@ -95,6 +95,18 @@
                 if (Context.GetExceptions().Count > initialExceptionCount)
                     return;
 
+                if (Configuration.InitializerCreator != null)
+                {
+                    var initializationSuccessful = false;
+                    Initialize(maxRetryCount, ref initialExceptionCount, ref initializationSuccessful);
+
+                    if (!initializationSuccessful)
+                    {
+                        Context.Log(LogSeverity.Information, this, "initialization failed after {Elapsed}", LastInvocation.Elapsed);
+                        return;
+                    }
+                }
+
                 foreach (var table in Configuration.Tables)
                 {
                     for (var partitionIndex = 0; ; partitionIndex++)
@@ -203,6 +215,30 @@
             }
 
             Context.Log(LogSeverity.Information, this, success ? "finished in {Elapsed}" : "failed after {Elapsed}", LastInvocation.Elapsed);
+        }
+
+        private void Initialize(int maxRetryCount, ref int initialExceptionCount, ref bool initializationSuccessful)
+        {
+            for (var retryCounter = 0; retryCounter <= maxRetryCount; retryCounter++)
+            {
+                Context.Log(LogSeverity.Information, this, "initialization round {InitializationRound} started", retryCounter);
+                using (var scope = Context.BeginScope(this, null, Configuration.InitializationTransactionScopeKind, LogSeverity.Information))
+                {
+                    var manager = new ResilientSqlScopeInitializerManager(this);
+                    manager.Execute();
+
+                    var currentExceptionCount = Context.GetExceptions().Count;
+                    if (currentExceptionCount == initialExceptionCount)
+                    {
+                        scope.Complete();
+
+                        initializationSuccessful = true;
+                        break;
+                    }
+
+                    initialExceptionCount = currentExceptionCount;
+                }
+            }
         }
 
         public static IEnumerable<IExecutable> DeleteTargetTableFinalizer(ResilientTableBase table)

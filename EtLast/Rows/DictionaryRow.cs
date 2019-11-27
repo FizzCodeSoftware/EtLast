@@ -9,14 +9,14 @@
         private Dictionary<string, object> _values;
         public override IEnumerable<KeyValuePair<string, object>> Values => _values;
 
-        public bool Exists(string column)
+        public override bool Exists(string column)
         {
             return _values.ContainsKey(column);
         }
 
-        public int ColumnCount => _values.Count;
+        public override int ColumnCount => _values.Count;
 
-        public void Init(IEtlContext context, int uid, int columnCountHint = 0)
+        public override void Init(IEtlContext context, int uid, int columnCountHint = 0)
         {
             Context = context;
             UID = uid;
