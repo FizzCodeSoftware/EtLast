@@ -16,7 +16,7 @@
             AutomaticallyEvaluateAndYieldInputProcessRows = false;
         }
 
-        public override void Validate()
+        public override void ValidateImpl()
         {
             if (InputProcess == null)
                 throw new ProcessParameterNullException(this, nameof(InputProcess));

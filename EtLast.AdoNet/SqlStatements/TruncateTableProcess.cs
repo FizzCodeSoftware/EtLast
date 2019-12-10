@@ -16,7 +16,7 @@
         {
         }
 
-        public override void Validate()
+        public override void ValidateImpl()
         {
             base.Validate();
 

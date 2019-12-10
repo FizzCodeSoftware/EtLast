@@ -14,7 +14,7 @@
         {
         }
 
-        public override void Validate()
+        public override void ValidateImpl()
         {
             if (string.IsNullOrEmpty(Url))
                 throw new ProcessParameterNullException(this, nameof(Url));

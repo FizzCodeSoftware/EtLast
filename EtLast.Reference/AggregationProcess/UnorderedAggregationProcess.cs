@@ -30,7 +30,7 @@
         {
         }
 
-        public override void Validate()
+        public override void ValidateImpl()
         {
             if (GroupingColumns == null || GroupingColumns.Length == 0)
                 throw new ProcessParameterNullException(this, nameof(GroupingColumns));

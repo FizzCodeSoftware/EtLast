@@ -51,7 +51,7 @@
             SqlValueProcessors.Add(new MySqlValueProcessor());
         }
 
-        public override void Validate()
+        public override void ValidateImpl()
         {
             if (string.IsNullOrEmpty(ConnectionStringKey))
                 throw new ProcessParameterNullException(this, nameof(ConnectionStringKey));

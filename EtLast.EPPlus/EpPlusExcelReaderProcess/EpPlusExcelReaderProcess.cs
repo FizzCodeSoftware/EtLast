@@ -51,7 +51,7 @@
         {
         }
 
-        public override void Validate()
+        public override void ValidateImpl()
         {
             if (string.IsNullOrEmpty(FileName))
                 throw new ProcessParameterNullException(this, nameof(FileName));

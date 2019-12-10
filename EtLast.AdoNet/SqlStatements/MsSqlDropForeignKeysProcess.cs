@@ -32,7 +32,7 @@
 
         private List<Tuple<string, int>> _tableNamesAndCounts;
 
-        public override void Validate()
+        public override void ValidateImpl()
         {
             base.Validate();
 

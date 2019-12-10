@@ -14,6 +14,7 @@
         {
             LastInvocation = Stopwatch.StartNew();
             Caller = caller;
+
             Validate();
 
             if (Context.CancellationTokenSource.IsCancellationRequested)

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
 namespace FizzCode.EtLast
 {
@@ -16,6 +17,16 @@ namespace FizzCode.EtLast
             Name = name ?? TypeHelpers.GetFriendlyTypeName(GetType());
         }
 
-        public abstract void Validate();
+        public void Validate()
+        {
+            try
+            {
+                ValidateImpl();
+            }
+            catch (EtlException ex) { Context.AddException(this, ex); }
+            catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
+        }
+
+        public abstract void ValidateImpl();
     }
 }

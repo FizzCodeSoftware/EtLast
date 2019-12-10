@@ -12,7 +12,7 @@
         {
         }
 
-        public override void Validate()
+        public override void ValidateImpl()
         {
             if (Then == null)
                 throw new ProcessParameterNullException(this, nameof(Then));

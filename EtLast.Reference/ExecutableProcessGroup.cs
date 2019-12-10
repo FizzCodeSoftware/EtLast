@@ -13,7 +13,7 @@
         {
         }
 
-        public override void Validate()
+        public override void ValidateImpl()
         {
             if (ProcessList == null || ProcessList.Count == 0)
                 throw new ProcessParameterNullException(this, nameof(ProcessList));

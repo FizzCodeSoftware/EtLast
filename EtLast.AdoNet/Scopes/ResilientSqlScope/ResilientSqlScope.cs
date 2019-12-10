@@ -36,7 +36,7 @@
         {
         }
 
-        public override void Validate()
+        public override void ValidateImpl()
         {
             if (Configuration == null)
                 throw new ProcessParameterNullException(this, nameof(Configuration));

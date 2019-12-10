@@ -11,7 +11,7 @@
         {
         }
 
-        public override void Validate()
+        public override void ValidateImpl()
         {
             if (InputGenerator == null)
                 throw new ProcessParameterNullException(this, nameof(InputGenerator));
