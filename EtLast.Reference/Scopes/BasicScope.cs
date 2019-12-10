@@ -68,12 +68,12 @@
 
                     foreach (var process in processes)
                     {
-                        var initialExceptionCount = Context.GetExceptions().Count;
+                        var initialExceptionCount = Context.ExceptionCount;
 
                         Context.Log(LogSeverity.Information, this, "executing <{Process}>", process.Name);
                         process.Execute(this);
 
-                        if (Context.GetExceptions().Count != initialExceptionCount)
+                        if (Context.ExceptionCount != initialExceptionCount)
                         {
                             OnError?.Invoke(this, new BasicScopeProcessFailedEventArgs(this, process));
 

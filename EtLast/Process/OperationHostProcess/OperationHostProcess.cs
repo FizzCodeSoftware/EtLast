@@ -147,8 +147,11 @@
                 _rowQueue.Signal();
 
             Interlocked.Add(ref _activeRowCount, addedCount);
+
             if (operation != null)
+            {
                 operation.Stat.IncrementCounter("rows added", rowCount);
+            }
         }
 
         private IRowOperation GetNextOp(IRow row)

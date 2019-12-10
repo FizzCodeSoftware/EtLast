@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageId>FizzCode.EtLast.Reference</PackageId>
     <Authors>FizzCode Ltd.</Authors>
     <Company>FizzCode Ltd.</Company>
@@ -15,6 +15,7 @@
     <AssemblyName>FizzCode.EtLast.Reference</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
+    <Configurations>Debug;Release;Debug-LocalProjects</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

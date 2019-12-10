@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageId>FizzCode.EtLast.PluginHost.HelloWorld</PackageId>
     <Authors>FizzCode Ltd.</Authors>
     <Product>EtLast ETL (Extract, Transform and Load) library for .NET Core</Product>
@@ -33,30 +33,30 @@
   <ItemGroup>
     <Compile Update="Modules\**\*.cs">
       <Pack>true</Pack>
-      <PackagePath>contentFiles/cs/netcoreapp3.0</PackagePath>
+      <PackagePath>contentFiles/cs/netcoreapp3.1</PackagePath>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="GettingStarted.txt">
-      <PackagePath>contentFiles/cs/netcoreapp3.0</PackagePath>
+      <PackagePath>contentFiles/cs/netcoreapp3.1</PackagePath>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="host-configuration.json">
-      <PackagePath>contentFiles/cs/netcoreapp3.0</PackagePath>
+      <PackagePath>contentFiles/cs/netcoreapp3.1</PackagePath>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="Modules\Shared\shared-configuration.json">
-      <PackagePath>contentFiles/cs/netcoreapp3.0/Modules/Shared</PackagePath>
+      <PackagePath>contentFiles/cs/netcoreapp3.1/Modules/Shared</PackagePath>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="Modules\**\module-configuration.json">
-      <PackagePath>contentFiles/cs/netcoreapp3.0/Modules</PackagePath>
+      <PackagePath>contentFiles/cs/netcoreapp3.1/Modules</PackagePath>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="Storage\**\*.*">
-      <PackagePath>contentFiles/cs/netcoreapp3.0/Storage</PackagePath>
+      <PackagePath>contentFiles/cs/netcoreapp3.1/Storage</PackagePath>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
   </ItemGroup>

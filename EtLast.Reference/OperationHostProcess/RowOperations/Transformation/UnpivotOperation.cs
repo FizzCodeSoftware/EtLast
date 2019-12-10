@@ -37,7 +37,7 @@
                     continue;
 
                 var newRow = Process.Context.CreateRow(FixColumns.Length + 2);
-                newRow.CurrentOperation = row.CurrentOperation;
+                newRow.CurrentOperation = this;
 
                 foreach (var column in FixColumns)
                 {

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageId>FizzCode.EtLast.EPPlus</PackageId>
     <Authors>FizzCode Ltd.</Authors>
     <Product>EtLast ETL (Extract, Transform and Load) library for .NET Core</Product>
@@ -14,6 +14,7 @@
     <RootNamespace>FizzCode.EtLast.EPPlus</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
+    <Configurations>Debug;Release;Debug-LocalProjects</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

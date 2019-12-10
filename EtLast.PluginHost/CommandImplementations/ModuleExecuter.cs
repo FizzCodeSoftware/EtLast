@@ -59,7 +59,7 @@
 
                             if (plugin.Context.Result.TerminateHost)
                             {
-                                commandContext.Logger.Error("[{Module}/{Plugin}] requested to terminate the execution", module.ModuleConfiguration.ModuleName, friendlyPluginName);
+                                commandContext.Logger.Error("[{Module}/{Plugin}] requested to terminate the execution of the module", module.ModuleConfiguration.ModuleName, friendlyPluginName);
                                 result = ExecutionResult.PluginFailedAndExecutionTerminated;
 
                                 pluginStartedOn.Stop();

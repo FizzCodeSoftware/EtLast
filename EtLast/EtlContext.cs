@@ -49,13 +49,13 @@
         /// <param name="executable">The process to execute.</param>
         public void ExecuteOne(bool terminateHostOnFail, IExecutable executable)
         {
-            var initialExceptionCount = GetExceptions().Count;
+            var initialExceptionCount = ExceptionCount;
 
             try
             {
                 executable.Execute(null);
 
-                if (GetExceptions().Count > initialExceptionCount)
+                if (ExceptionCount > initialExceptionCount)
                 {
                     Result.Success = false;
                     Result.TerminateHost = terminateHostOnFail;
@@ -63,9 +63,9 @@
             }
             catch (Exception unhandledException)
             {
+                AddException(executable, unhandledException);
                 Result.Success = false;
                 Result.TerminateHost = terminateHostOnFail;
-                Result.Exceptions.Add(unhandledException);
             }
         }
 
@@ -76,30 +76,30 @@
         /// <param name="executables">The processes to execute.</param>
         public void ExecuteSequence(bool terminateHostOnFail, params IExecutable[] executables)
         {
-            var initialExceptionCount = GetExceptions().Count;
+            var initialExceptionCount = ExceptionCount;
 
-            try
+            foreach (var executable in executables)
             {
-                foreach (var executable in executables)
+                try
                 {
                     executable.Execute(null);
 
-                    var exceptions = GetExceptions();
-                    if (exceptions.Count > initialExceptionCount)
+                    if (ExceptionCount > initialExceptionCount)
                         break;
                 }
-
-                if (GetExceptions().Count > initialExceptionCount)
+                catch (Exception unhandledException)
                 {
+                    AddException(executable, unhandledException);
                     Result.Success = false;
                     Result.TerminateHost = terminateHostOnFail;
+                    break;
                 }
             }
-            catch (Exception unhandledException)
+
+            if (ExceptionCount > initialExceptionCount)
             {
                 Result.Success = false;
                 Result.TerminateHost = terminateHostOnFail;
-                Result.Exceptions.Add(unhandledException);
             }
         }
 
@@ -217,6 +217,8 @@
             if (ex is OperationCanceledException)
                 return;
 
+            Result.Exceptions.Add(ex);
+
             lock (_exceptions)
             {
                 if (_exceptions.Contains(ex))
@@ -244,6 +246,17 @@
             lock (_exceptions)
             {
                 return new List<Exception>(_exceptions);
+            }
+        }
+
+        public int ExceptionCount
+        {
+            get
+            {
+                lock (_exceptions)
+                {
+                    return _exceptions.Count;
+                }
             }
         }
 

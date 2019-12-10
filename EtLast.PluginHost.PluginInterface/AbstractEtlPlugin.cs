@@ -203,7 +203,7 @@
                 lvl++;
             }
 
-            _logger.Fatal("[{Module}/{Plugin}], " + (args.Process != null ? "<{Process}> " : "") + "{Message}",
+            _logger.Fatal("[{Module}/{Plugin}] " + (args.Process != null ? "<{Process}> " : "") + "{Message}",
                 ModuleConfiguration.ModuleName,
                 TypeHelpers.GetFriendlyTypeName(GetType()),
                 args.Process?.Name,

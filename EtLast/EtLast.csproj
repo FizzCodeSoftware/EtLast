@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageId>FizzCode.EtLast</PackageId>
     <Authors>FizzCode Ltd.</Authors>
     <Product>EtLast ETL (Extract, Transform and Load) library for .NET Core</Product>
@@ -14,15 +14,16 @@
     <RootNamespace>FizzCode.EtLast</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
+    <Configurations>Debug;Release;Debug-LocalProjects</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.DbTools.Configuration" Version="1.0.128.5126" />
+    <PackageReference Include="FizzCode.DbTools.Configuration" Version="1.0.130.5135" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.0" />
   </ItemGroup>
 
 </Project>

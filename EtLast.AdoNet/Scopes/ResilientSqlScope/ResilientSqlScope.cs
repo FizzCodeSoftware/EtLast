@@ -62,7 +62,7 @@
             if (Configuration.FinalizerTransactionScopeKind != TransactionScopeKind.RequiresNew && maxRetryCount > 0)
                 throw new InvalidProcessParameterException(this, nameof(Configuration.FinalizerRetryCount), null, "retrying finalizers can be possible only if the " + nameof(Configuration.FinalizerTransactionScopeKind) + " is set to " + nameof(TransactionScopeKind.RequiresNew));
 
-            var initialExceptionCount = Context.GetExceptions().Count;
+            var initialExceptionCount = Context.ExceptionCount;
             var success = false;
 
             foreach (var table in Configuration.Tables)
@@ -92,7 +92,7 @@
             {
                 CreateTempTables(Context);
 
-                if (Context.GetExceptions().Count > initialExceptionCount)
+                if (Context.ExceptionCount > initialExceptionCount)
                     return;
 
                 if (Configuration.InitializerCreator != null)
@@ -132,9 +132,9 @@
 
                             foreach (var process in mainProcessList)
                             {
-                                var preExceptionCount = Context.GetExceptions().Count;
+                                var preExceptionCount = Context.ExceptionCount;
                                 process.Execute(this);
-                                if (Context.GetExceptions().Count > initialExceptionCount)
+                                if (Context.ExceptionCount > initialExceptionCount)
                                 {
                                     return;
                                 }
@@ -159,7 +159,7 @@
                             rowCount++;
                         }
 
-                        if (Context.GetExceptions().Count > initialExceptionCount)
+                        if (Context.ExceptionCount > initialExceptionCount)
                             return;
 
                         if (rowCount == 0)
@@ -178,19 +178,19 @@
                             preFinalizer.Execute();
                         }
 
-                        if (Context.GetExceptions().Count == initialExceptionCount)
+                        if (Context.ExceptionCount == initialExceptionCount)
                         {
                             var tableFinalizer = new ResilientTableFinalizerManager(this);
                             tableFinalizer.Execute(connectionString);
 
-                            if (Configuration.PostFinalizerCreator != null && Context.GetExceptions().Count == initialExceptionCount)
+                            if (Configuration.PostFinalizerCreator != null && Context.ExceptionCount == initialExceptionCount)
                             {
                                 var postFinalizer = new ResilientSqlScopePostFinalizerManager(this);
                                 postFinalizer.Execute();
                             }
                         }
 
-                        var currentExceptionCount = Context.GetExceptions().Count;
+                        var currentExceptionCount = Context.ExceptionCount;
                         if (currentExceptionCount == initialExceptionCount)
                         {
                             scope.Complete();
@@ -227,7 +227,7 @@
                     var manager = new ResilientSqlScopeInitializerManager(this);
                     manager.Execute();
 
-                    var currentExceptionCount = Context.GetExceptions().Count;
+                    var currentExceptionCount = Context.ExceptionCount;
                     if (currentExceptionCount == initialExceptionCount)
                     {
                         scope.Complete();
@@ -241,16 +241,17 @@
             }
         }
 
-        public static IEnumerable<IExecutable> DeleteTargetTableFinalizer(ResilientTableBase table)
+        public static IEnumerable<IExecutable> DeleteTargetTableFinalizer(ResilientTableBase table, int commandTimeout = 60)
         {
             yield return new DeleteTableProcess(table.Scope.Context, "DeleteContentFromTargetTable")
             {
                 ConnectionStringKey = table.Scope.Configuration.ConnectionStringKey,
                 TableName = table.TableName,
+                CommandTimeout = commandTimeout,
             };
         }
 
-        public static IEnumerable<IExecutable> CopyTableFinalizer(ResilientTableBase table, int commandTimeout, bool copyIdentityColumns = false)
+        public static IEnumerable<IExecutable> CopyTableFinalizer(ResilientTableBase table, int commandTimeout = 60, bool copyIdentityColumns = false)
         {
             if (copyIdentityColumns && table.Columns == null)
                 throw new EtlException(table.Scope, "identity columns can be copied only if the " + nameof(ResilientTable) + "." + nameof(ResilientTableBase.Columns) + " is specified");

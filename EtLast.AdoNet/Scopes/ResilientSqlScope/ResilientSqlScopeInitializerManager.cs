@@ -39,9 +39,9 @@
 
                 foreach (var initializer in initializers)
                 {
-                    var preExceptionCount = Context.GetExceptions().Count;
+                    var preExceptionCount = Context.ExceptionCount;
                     initializer.Execute(this);
-                    if (Context.GetExceptions().Count > preExceptionCount)
+                    if (Context.ExceptionCount > preExceptionCount)
                     {
                         break;
                     }

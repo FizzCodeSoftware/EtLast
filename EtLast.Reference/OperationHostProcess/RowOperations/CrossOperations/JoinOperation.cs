@@ -151,7 +151,7 @@
         private IRow DupeRow(IProcess process, IRow row, IRow rightRow)
         {
             var newRow = process.Context.CreateRow(row.ColumnCount + rightRow.ColumnCount);
-            newRow.CurrentOperation = row.CurrentOperation;
+            newRow.CurrentOperation = this;
 
             // duplicate left row
             foreach (var kvp in row.Values)

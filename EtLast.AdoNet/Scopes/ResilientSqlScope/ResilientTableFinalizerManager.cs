@@ -59,9 +59,9 @@
 
                     foreach (var finalizer in finalizers)
                     {
-                        var preExceptionCount = Context.GetExceptions().Count;
+                        var preExceptionCount = Context.ExceptionCount;
                         finalizer.Execute(_scope);
-                        if (Context.GetExceptions().Count > preExceptionCount)
+                        if (Context.ExceptionCount > preExceptionCount)
                         {
                             break;
                         }
