@@ -165,7 +165,7 @@
                 var assembly = assemblyLoadContext.LoadFromStream(assemblyStream);
 
                 var compiledPlugins = LoadPluginsFromAssembly(assembly);
-                commandContext.Logger.Debug("finished in {Elapsed}", startedOn.Elapsed);
+                commandContext.Logger.Debug("compilation finished in {Elapsed}", startedOn.Elapsed);
                 var module = new Module()
                 {
                     ModuleConfiguration = moduleConfiguration,

@@ -18,7 +18,7 @@
 
         public override void ValidateImpl()
         {
-            base.Validate();
+            base.ValidateImpl();
 
             if (string.IsNullOrEmpty(TableName))
                 throw new ProcessParameterNullException(this, nameof(TableName));

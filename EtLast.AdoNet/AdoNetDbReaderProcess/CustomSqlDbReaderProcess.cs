@@ -13,7 +13,7 @@
 
         public override void ValidateImpl()
         {
-            base.Validate();
+            base.ValidateImpl();
 
             if (string.IsNullOrEmpty(Sql))
                 throw new ProcessParameterNullException(this, nameof(Sql));

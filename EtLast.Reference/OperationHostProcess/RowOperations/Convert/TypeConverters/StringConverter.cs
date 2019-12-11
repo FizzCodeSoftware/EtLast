@@ -8,71 +8,66 @@
         public string FormatHint { get; }
         public IFormatProvider FormatProviderHint { get; }
 
+        /// <summary>
+        /// Default false.
+        /// </summary>
+        public bool TrimStartEnd { get; set; } = false;
+
+        /// <summary>
+        /// Default false.
+        /// </summary>
+        public bool RemoveLineBreaksFromMiddle { get; set; } = false;
+
+        /// <summary>
+        /// Default false.
+        /// </summary>
+        public bool RemoveSpacesFromMiddle { get; set; } = false;
+
         public StringConverter(string formatHint = null, IFormatProvider formatProviderHint = null)
         {
             FormatHint = formatHint;
             FormatProviderHint = formatProviderHint;
         }
 
-        public object Convert(object source)
+        public virtual object Convert(object source)
         {
-            if (source is string)
+            var result = ConvertToString(source);
+            if (!string.IsNullOrEmpty(result))
             {
-                return source;
-            }
-
-            // todo: support all numerical values...
-
-            if (source is int intValue)
-            {
-                try
+                if (TrimStartEnd)
                 {
-                    var value = FormatProviderHint != null
-                        ? (FormatHint != null ? intValue.ToString(FormatHint, FormatProviderHint) : intValue.ToString(FormatProviderHint))
-                        : (FormatHint != null ? intValue.ToString(FormatHint, CultureInfo.CurrentCulture) : intValue.ToString(CultureInfo.InvariantCulture));
-                    return value;
+                    result = result.Trim();
                 }
-                catch
-                {
-                }
-            }
 
-            if (source is long longValue)
-            {
-                try
+                if (RemoveLineBreaksFromMiddle)
                 {
-                    var value = FormatProviderHint != null
-                        ? (FormatHint != null ? longValue.ToString(FormatHint, FormatProviderHint) : longValue.ToString(FormatProviderHint))
-                        : (FormatHint != null ? longValue.ToString(FormatHint, CultureInfo.CurrentCulture) : longValue.ToString(CultureInfo.InvariantCulture));
-                    return value;
+                    result = result
+                        .Replace("\r", "", StringComparison.InvariantCultureIgnoreCase)
+                        .Replace("\n", "", StringComparison.InvariantCultureIgnoreCase);
                 }
-                catch
+
+                if (RemoveSpacesFromMiddle)
                 {
+                    result = result
+                        .Replace(" ", "", StringComparison.InvariantCultureIgnoreCase);
                 }
             }
 
-            if (source is double dblValue)
+            return result;
+        }
+
+        protected string ConvertToString(object source)
+        {
+            if (source is string stringValue)
             {
-                try
-                {
-                    var value = FormatProviderHint != null
-                        ? (FormatHint != null ? dblValue.ToString(FormatHint, FormatProviderHint) : dblValue.ToString(FormatProviderHint))
-                        : (FormatHint != null ? dblValue.ToString(FormatHint, CultureInfo.CurrentCulture) : dblValue.ToString(CultureInfo.InvariantCulture));
-                    return value;
-                }
-                catch
-                {
-                }
+                return stringValue;
             }
 
-            if (source is float fltValue)
+            if (source is IFormattable formattable)
             {
                 try
                 {
-                    var value = FormatProviderHint != null
-                        ? (FormatHint != null ? fltValue.ToString(FormatHint, FormatProviderHint) : fltValue.ToString(FormatProviderHint))
-                        : (FormatHint != null ? fltValue.ToString(FormatHint, CultureInfo.CurrentCulture) : fltValue.ToString(CultureInfo.InvariantCulture));
-                    return value;
+                    return formattable.ToString(FormatHint, FormatProviderHint ?? CultureInfo.CurrentCulture);
                 }
                 catch
                 {
@@ -81,17 +76,7 @@
 
             try
             {
-                var asGenericConvertedString = FormatProviderHint != null ? System.Convert.ToString(source, FormatProviderHint) : System.Convert.ToString(source, CultureInfo.CurrentCulture);
-                return asGenericConvertedString;
-            }
-            catch
-            {
-            }
-
-            try
-            {
-                var asToString = source.ToString();
-                return asToString;
+                return source.ToString();
             }
             catch
             {

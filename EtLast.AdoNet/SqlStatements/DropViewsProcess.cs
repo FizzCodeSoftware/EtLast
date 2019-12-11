@@ -19,7 +19,7 @@
 
         public override void ValidateImpl()
         {
-            base.Validate();
+            base.ValidateImpl();
 
             if (TableNames == null || TableNames.Length == 0)
                 throw new ProcessParameterNullException(this, nameof(TableNames));

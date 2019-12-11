@@ -30,7 +30,7 @@
 
         public override void ValidateImpl()
         {
-            base.Validate();
+            base.ValidateImpl();
 
             switch (Mode)
             {

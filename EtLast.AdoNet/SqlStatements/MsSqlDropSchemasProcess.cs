@@ -19,7 +19,7 @@
 
         public override void ValidateImpl()
         {
-            base.Validate();
+            base.ValidateImpl();
 
             if (SchemaNames == null || SchemaNames.Length == 0)
                 throw new ProcessParameterNullException(this, nameof(SchemaNames));

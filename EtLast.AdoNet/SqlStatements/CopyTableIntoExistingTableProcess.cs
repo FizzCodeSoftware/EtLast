@@ -28,7 +28,7 @@
 
         public override void ValidateImpl()
         {
-            base.Validate();
+            base.ValidateImpl();
 
             if (Configuration == null)
                 throw new ProcessParameterNullException(this, nameof(Configuration));
