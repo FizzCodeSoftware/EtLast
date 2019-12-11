@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+using System.Globalization;
 using System.Text;
 
 namespace FizzCode.EtLast
@@ -37,54 +37,39 @@ namespace FizzCode.EtLast
 
         protected void LogCounters()
         {
+            var counters = CounterCollection.GetCounters();
+            if (counters.Count == 0)
+                return;
+
             var sb = new StringBuilder();
             var parameters = new List<object>();
 
-            var counters = CounterCollection
-                .GetCounters()
-                .Where(x => !x.IsDebug)
-                .ToList();
-
-            if (counters.Count > 0)
+            foreach (var counter in counters)
             {
-                sb.Append("counters");
-
-                foreach (var counter in counters)
+                sb.Append("counter {Counter} = {Value}");
+                parameters.Add(counter.Name);
+                parameters.Add(counter.Value.TypedValue);
+                if (counter.SubValues != null)
                 {
-                    sb.Append(" [")
-                        .Append("{Counter").Append(counter.Code).Append('}')
-                        .Append(" = {Value").Append(counter.Code).Append("}]");
+                    var idx = 0;
+                    foreach (var kvp in counter.SubValues)
+                    {
+                        sb
+                            .Append(", {Sub")
+                            .Append(idx.ToString("D", CultureInfo.InvariantCulture))
+                            .Append("} = {SubValue")
+                            .Append(idx.ToString("D", CultureInfo.InvariantCulture))
+                            .Append('}');
 
-                    parameters.Add(counter.Name);
-                    parameters.Add(counter.Value);
+                        parameters.Add(kvp.Key);
+                        parameters.Add(kvp.Value.TypedValue);
+                        idx++;
+                    }
                 }
 
-                Context.Log(LogSeverity.Information, this, sb.ToString(), parameters.ToArray());
-            }
-
-            counters = CounterCollection
-                .GetCounters()
-                .Where(x => x.IsDebug)
-                .ToList();
-
-            if (counters.Count > 0)
-            {
-                parameters.Clear();
+                Context.Log(counter.IsDebug ? LogSeverity.Debug : LogSeverity.Information, this, sb.ToString(), parameters.ToArray());
                 sb.Clear();
-
-                sb.Append("counters (debug)");
-
-                foreach (var counter in counters)
-                {
-                    sb.Append(" [")
-                        .Append("{Counter").Append(counter.Code).Append('}')
-                        .Append(" = {Value").Append(counter.Code).Append("}]");
-
-                    parameters.Add(counter.Name);
-                    parameters.Add(counter.Value);
-                }
-
-                Context.Log(LogSeverity.Debug, this, sb.ToString(), parameters.ToArray());
+                parameters.Clear();
             }
         }
     }

@@ -61,17 +61,19 @@
             {
                 var recordCount = command.ExecuteNonQuery();
 
+                var time = LastInvocation.Elapsed;
+
                 Context.Log(LogSeverity.Information, this, "table {ConnectionStringKey}/{TargetTableName} created and {RecordCount} records copied from {SourceTableName} in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
-                    ConnectionString.Unescape(Configuration.TargetTableName), recordCount, ConnectionString.Unescape(Configuration.SourceTableName), LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
+                    ConnectionString.Unescape(Configuration.TargetTableName), recordCount, ConnectionString.Unescape(Configuration.SourceTableName), time, Transaction.Current.ToIdentifierString());
 
                 CounterCollection.IncrementCounter("db records copied", recordCount);
-                CounterCollection.IncrementCounter("db copy time", LastInvocation.ElapsedMilliseconds);
+                CounterCollection.IncrementTimeSpan("db copy time", time);
 
                 // not relevant on process level
-                Context.CounterCollection.IncrementCounter("db records copied / " + ConnectionString.Name, recordCount);
-                Context.CounterCollection.IncrementDebugCounter("db records copied / " + ConnectionString.Name + " / " + ConnectionString.Unescape(Configuration.SourceTableName) + " -> " + ConnectionString.Unescape(Configuration.TargetTableName), recordCount);
-                Context.CounterCollection.IncrementCounter("db copy time / " + ConnectionString.Name, LastInvocation.ElapsedMilliseconds);
-                Context.CounterCollection.IncrementDebugCounter("db copy time / " + ConnectionString.Name + " / " + ConnectionString.Unescape(Configuration.SourceTableName) + " -> " + ConnectionString.Unescape(Configuration.TargetTableName), LastInvocation.ElapsedMilliseconds);
+                Context.CounterCollection.IncrementCounter("db records copied", ConnectionString.Name, recordCount);
+                Context.CounterCollection.IncrementCounter("db records copied", ConnectionString.Name + "/" + ConnectionString.Unescape(Configuration.SourceTableName) + " -> " + ConnectionString.Unescape(Configuration.TargetTableName), recordCount);
+                Context.CounterCollection.IncrementTimeSpan("db copy time", ConnectionString.Name, time);
+                Context.CounterCollection.IncrementTimeSpan("db copy time", ConnectionString.Name + "/" + ConnectionString.Unescape(Configuration.SourceTableName) + " -> " + ConnectionString.Unescape(Configuration.TargetTableName), time);
             }
             catch (Exception ex)
             {

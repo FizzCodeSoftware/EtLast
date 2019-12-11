@@ -5,6 +5,7 @@
     using System.Globalization;
     using System.IO;
     using System.Reflection;
+    using System.Text;
     using Microsoft.Extensions.Configuration;
     using Serilog;
     using Serilog.Events;
@@ -46,13 +47,38 @@
         private void LogCounters()
         {
             var counters = Context.CounterCollection.GetCounters();
+            if (counters.Count == 0)
+                return;
+
+            var sb = new StringBuilder();
+            var parameters = new List<object>();
+
             foreach (var counter in counters)
             {
-                var severity = counter.IsDebug
-                    ? LogSeverity.Debug
-                    : LogSeverity.Information;
+                sb.Append("counter {Counter} = {Value}");
+                parameters.Add(counter.Name);
+                parameters.Add(counter.Value.TypedValue);
+                if (counter.SubValues != null)
+                {
+                    var idx = 0;
+                    foreach (var kvp in counter.SubValues)
+                    {
+                        sb
+                            .Append(", {Sub")
+                            .Append(idx.ToString("D", CultureInfo.InvariantCulture))
+                            .Append("} = {SubValue")
+                            .Append(idx.ToString("D", CultureInfo.InvariantCulture))
+                            .Append('}');
 
-                Context.Log(severity, null, "counter {Counter} = {Value}", counter.Name, counter.Value);
+                        parameters.Add(kvp.Key);
+                        parameters.Add(kvp.Value.TypedValue);
+                        idx++;
+                    }
+                }
+
+                Context.Log(counter.IsDebug ? LogSeverity.Debug : LogSeverity.Information, null, sb.ToString(), parameters.ToArray());
+                sb.Clear();
+                parameters.Clear();
             }
         }
 

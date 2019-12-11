@@ -83,15 +83,14 @@
                 var time = _timer.Elapsed;
                 _fullTime += time.TotalMilliseconds;
 
-                var writeTime = Convert.ToInt64(time.TotalMilliseconds);
                 CounterCollection.IncrementCounter("db records written", recordCount);
-                CounterCollection.IncrementCounter("db write time", writeTime);
+                CounterCollection.IncrementTimeSpan("db records written", "time", time);
 
                 // not relevant on operation level
-                Process.Context.CounterCollection.IncrementCounter("db records written / " + _connectionString.Name, recordCount);
-                Process.Context.CounterCollection.IncrementDebugCounter("db records written / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), recordCount);
-                Process.Context.CounterCollection.IncrementCounter("db write time / " + _connectionString.Name, writeTime);
-                Process.Context.CounterCollection.IncrementDebugCounter("db write time / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), writeTime);
+                Process.Context.CounterCollection.IncrementDebugCounter("db records written /" + _connectionString.Name, recordCount);
+                Process.Context.CounterCollection.IncrementDebugCounter("db records written /" + _connectionString.Name + "/" + _connectionString.Unescape(TableDefinition.TableName), recordCount);
+                Process.Context.CounterCollection.IncrementDebugTimeSpan("db records written /" + _connectionString.Name, "time", time);
+                Process.Context.CounterCollection.IncrementDebugTimeSpan("db records written /" + _connectionString.Name + "/" + _connectionString.Unescape(TableDefinition.TableName), "time", time);
 
                 _rowsWritten += recordCount;
 
@@ -108,8 +107,8 @@
                 _bulkCopy.Close();
                 _bulkCopy = null;
 
-                var exception = new OperationExecutionException(Process, this, "database write failed", ex);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database write failed, connection string key: {0}, table: {1}, message: {2}",
+                var exception = new OperationExecutionException(Process, this, "db records written failed", ex);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db records written failed, connection string key: {0}, table: {1}, message: {2}",
                     _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), ex.Message));
                 exception.Data.Add("ConnectionStringKey", _connectionString.Name);
                 exception.Data.Add("TableName", _connectionString.Unescape(TableDefinition.TableName));

@@ -33,51 +33,87 @@
             }
         }
 
-        public void IncrementCounter(string name, long n, bool forwardDisabled = false)
+        public void IncrementCounter(string baseName, long n, bool forwardDisabled = false)
         {
-            if (_forwardCountersToCollection != null && !forwardDisabled)
-                _forwardCountersToCollection.IncrementCounter(name, n);
-
-            lock (_counters)
-            {
-                if (!_counters.TryGetValue(name, out var value))
-                {
-                    value = new StatCounter()
-                    {
-                        Name = name,
-                        Code = GetCounterCode(name),
-                        IsDebug = false,
-                    };
-
-                    _counters[name] = value;
-                }
-
-                value.Value += n;
-                value.IsDebug = false;
-            }
+            Increment(baseName, null, n, forwardDisabled, false, StatCounterValueType.Numeric);
         }
 
-        public void IncrementDebugCounter(string name, long n, bool forwardDisabled = false)
+        public void IncrementDebugCounter(string baseName, long n, bool forwardDisabled = false)
         {
+            Increment(baseName, null, n, forwardDisabled, true, StatCounterValueType.Numeric);
+        }
+
+        public void IncrementTimeSpan(string baseName, TimeSpan elapsed, bool forwardDisabled = false)
+        {
+            Increment(baseName, null, Convert.ToInt64(elapsed.TotalMilliseconds), forwardDisabled, false, StatCounterValueType.TimeSpan);
+        }
+
+        public void IncrementDebugTimeSpan(string baseName, TimeSpan elapsed, bool forwardDisabled = false)
+        {
+            Increment(baseName, null, Convert.ToInt64(elapsed.TotalMilliseconds), forwardDisabled, true, StatCounterValueType.TimeSpan);
+        }
+
+        public void IncrementCounter(string baseName, string subName, long n, bool forwardDisabled = false)
+        {
+            Increment(baseName, subName, n, forwardDisabled, false, StatCounterValueType.Numeric);
+        }
+
+        public void IncrementDebugCounter(string baseName, string subName, long n, bool forwardDisabled = false)
+        {
+            Increment(baseName, subName, n, forwardDisabled, true, StatCounterValueType.Numeric);
+        }
+
+        public void IncrementTimeSpan(string baseName, string subName, TimeSpan elapsed, bool forwardDisabled = false)
+        {
+            Increment(baseName, subName, Convert.ToInt64(elapsed.TotalMilliseconds), forwardDisabled, false, StatCounterValueType.TimeSpan);
+        }
+
+        public void IncrementDebugTimeSpan(string baseName, string subName, TimeSpan elapsed, bool forwardDisabled = false)
+        {
+            Increment(baseName, subName, Convert.ToInt64(elapsed.TotalMilliseconds), forwardDisabled, true, StatCounterValueType.TimeSpan);
+        }
+
+        internal void Increment(string name, string subName, long n, bool forwardDisabled, bool isDebug, StatCounterValueType counterType)
+        {
+            if (n == 0)
+                return;
+
             if (_forwardCountersToCollection != null && !forwardDisabled)
-                _forwardCountersToCollection.IncrementDebugCounter(name, n);
+                _forwardCountersToCollection.Increment(name, subName, n, false, isDebug, counterType);
 
             lock (_counters)
             {
-                if (!_counters.TryGetValue(name, out var value))
+                if (!_counters.TryGetValue(name, out var counter))
                 {
-                    value = new StatCounter()
+                    counter = new StatCounter()
                     {
                         Name = name,
                         Code = GetCounterCode(name),
-                        IsDebug = true,
+                        IsDebug = isDebug,
                     };
 
-                    _counters[name] = value;
+                    _counters[name] = counter;
                 }
 
-                value.Value += n;
-                value.IsDebug = true;
+                if (subName == null)
+                {
+                    counter.Value.ValueType = counterType;
+                    counter.Value.Value += n;
+                }
+                else
+                {
+                    if (counter.SubValues == null)
+                        counter.SubValues = new Dictionary<string, StatCounterValue>();
+
+                    if (!counter.SubValues.TryGetValue(subName, out var subValue))
+                    {
+                        subValue = new StatCounterValue();
+                        counter.SubValues[subName] = subValue;
+                    }
+
+                    subValue.ValueType = counterType;
+                    subValue.Value += n;
+                }
             }
         }
 

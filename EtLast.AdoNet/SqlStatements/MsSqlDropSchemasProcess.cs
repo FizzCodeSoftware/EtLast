@@ -47,15 +47,17 @@
             {
                 command.ExecuteNonQuery();
 
+                var time = LastInvocation.Elapsed;
+
                 Context.Log(LogSeverity.Debug, this, "schema {ConnectionStringKey}/{SchemaName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
-                    ConnectionString.Unescape(schemaName), LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
+                    ConnectionString.Unescape(schemaName), time, Transaction.Current.ToIdentifierString());
 
                 CounterCollection.IncrementCounter("db schemas dropped", 1);
-                CounterCollection.IncrementCounter("db schemas dropped time", LastInvocation.ElapsedMilliseconds);
+                CounterCollection.IncrementTimeSpan("db schemas dropped time", time);
 
                 // not relevant on process level
-                Context.CounterCollection.IncrementCounter("db schemas dropped / " + ConnectionString.Name, 1);
-                Context.CounterCollection.IncrementCounter("db schemas dropped time / " + ConnectionString.Name, LastInvocation.ElapsedMilliseconds);
+                Context.CounterCollection.IncrementCounter("db schemas dropped", ConnectionString.Name, 1);
+                Context.CounterCollection.IncrementTimeSpan("db schemas dropped time", ConnectionString.Name, time);
             }
             catch (Exception ex)
             {

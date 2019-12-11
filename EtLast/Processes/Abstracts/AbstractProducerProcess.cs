@@ -85,13 +85,13 @@
         {
             if (IgnoreRowsWithError && row.HasError())
             {
-                CounterCollection.IncrementCounter("ignored rows / error", 1, true);
+                CounterCollection.IncrementCounter("produced rows", "ignored due to error", 1, true);
                 return false;
             }
 
             if (IgnoreNullOrEmptyRows && row.IsNullOrEmpty())
             {
-                CounterCollection.IncrementCounter("ignored rows / empty", 1, true);
+                CounterCollection.IncrementCounter("produced rows", "ignored due to empty", 1, true);
                 return false;
             }
 

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using System.Text;
     using System.Threading;
@@ -74,7 +75,7 @@
 
             _operations.Add(operation);
 
-            CounterCollection.IncrementCounter("operations", 1, true);
+            CounterCollection.IncrementDebugCounter("operations", 1, true);
 
             return operation;
         }
@@ -411,61 +412,53 @@
         {
             var parameters = new List<object>();
 
-            var counters = op.CounterCollection
-                .GetCounters()
-                .Where(x => !x.IsDebug)
-                .ToList();
+            var counters = op.CounterCollection.GetCounters();
+            if (counters.Count == 0)
+                return;
 
-            if (counters.Count > 0)
+            /*            sb.Append("counters of ({Operation})");
+                        parameters.Add(op.Name);
+
+                        foreach (var counter in counters)
+                        {
+                            sb.Append(" [")
+                                .Append("{Counter").Append(counter.Code).Append('}')
+                                .Append(" = {Value").Append(counter.Code).Append("}]");
+
+                            parameters.Add(counter.Name);
+                            parameters.Add(counter.TypedValue);
+                        }
+
+                        Context.Log(LogSeverity.Information, this, sb.ToString(), parameters.ToArray());
+                        sb.Clear();*/
+
+            foreach (var counter in counters)
             {
-                sb.Append("counters of ({Operation})");
+                sb.Append("({Operation}) - counter {Counter} = {Value}");
                 parameters.Add(op.Name);
-
-                foreach (var counter in counters)
+                parameters.Add(counter.Name);
+                parameters.Add(counter.Value.TypedValue);
+                if (counter.SubValues != null)
                 {
-                    sb.Append(" [")
-                        .Append("{Counter").Append(counter.Code).Append('}')
-                        .Append(" = {Value").Append(counter.Code).Append("}]");
+                    var idx = 0;
+                    foreach (var kvp in counter.SubValues)
+                    {
+                        sb
+                            .Append(", {Sub")
+                            .Append(idx.ToString("D", CultureInfo.InvariantCulture))
+                            .Append("} = {SubValue")
+                            .Append(idx.ToString("D", CultureInfo.InvariantCulture))
+                            .Append('}');
 
-                    parameters.Add(counter.Name);
-                    parameters.Add(counter.Value);
+                        parameters.Add(kvp.Key);
+                        parameters.Add(kvp.Value.TypedValue);
+                        idx++;
+                    }
                 }
 
-                Context.Log(LogSeverity.Information, this, sb.ToString(), parameters.ToArray());
+                Context.Log(counter.IsDebug ? LogSeverity.Debug : LogSeverity.Information, this, sb.ToString(), parameters.ToArray());
                 sb.Clear();
-            }
-
-            counters = op.CounterCollection
-                .GetCounters()
-                .Where(x => x.IsDebug)
-                .ToList();
-
-            if (counters.Count > 0)
-            {
                 parameters.Clear();
-                sb.Append("counters of ({Operation}) (debug)");
-                parameters.Add(op.Name);
-
-                foreach (var counter in counters)
-                {
-                    sb.Append(" [")
-                        .Append("{Counter").Append(counter.Code).Append('}')
-                        .Append(" = {Value").Append(counter.Code).Append("}]");
-
-                    parameters.Add(counter.Name);
-                    parameters.Add(counter.Value);
-                }
-
-                Context.Log(LogSeverity.Debug, this, sb.ToString(), parameters.ToArray());
-                sb.Clear();
-            }
-
-            if (op is IOperationGroup group)
-            {
-                foreach (var cop in group.Then.Concat(group.Else))
-                {
-                    LogOpCounters(cop, sb);
-                }
             }
         }
 

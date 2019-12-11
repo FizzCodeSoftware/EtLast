@@ -107,22 +107,22 @@
                 CompiledSqlStatement = CompileSql(_command),
             });
 
-            base.Process.Context.Log(LogSeverity.Verbose, base.Process, "executing SQL statement: {SqlStatement}", sqlStatement);
+            Process.Context.Log(LogSeverity.Verbose, Process, "executing SQL statement: {SqlStatement}", sqlStatement);
 
             try
             {
                 _command.ExecuteNonQuery();
-                var time = startedOn.ElapsedMilliseconds;
+                var time = startedOn.Elapsed;
                 _fullTime.Stop();
 
                 CounterCollection.IncrementCounter("db records written", recordCount);
-                CounterCollection.IncrementCounter("db write time", time);
+                CounterCollection.IncrementTimeSpan("db records written", "time", time);
 
                 // not relevant on operation level
-                Process.Context.CounterCollection.IncrementCounter("db records written / " + _connectionString.Name, recordCount);
-                Process.Context.CounterCollection.IncrementDebugCounter("db records written / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), recordCount);
-                Process.Context.CounterCollection.IncrementCounter("db write time / " + _connectionString.Name, time);
-                Process.Context.CounterCollection.IncrementDebugCounter("db write time / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), time);
+                Process.Context.CounterCollection.IncrementDebugCounter("db records written /" + _connectionString.Name, recordCount);
+                Process.Context.CounterCollection.IncrementDebugCounter("db records written /" + _connectionString.Name + "/" + _connectionString.Unescape(TableDefinition.TableName), recordCount);
+                Process.Context.CounterCollection.IncrementDebugTimeSpan("db records written /" + _connectionString.Name, "time", time);
+                Process.Context.CounterCollection.IncrementDebugTimeSpan("db records written /" + _connectionString.Name + "/" + _connectionString.Unescape(TableDefinition.TableName), "time", time);
 
                 _rowsWritten += recordCount;
 
@@ -135,8 +135,8 @@
             }
             catch (Exception ex)
             {
-                var exception = new OperationExecutionException(Process, this, "database write failed", ex);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database write failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",
+                var exception = new OperationExecutionException(Process, this, "db records written failed", ex);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db records written failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",
                     _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), ex.Message, sqlStatement));
                 exception.Data.Add("ConnectionStringKey", _connectionString.Name);
                 exception.Data.Add("TableName", _connectionString.Unescape(TableDefinition.TableName));
