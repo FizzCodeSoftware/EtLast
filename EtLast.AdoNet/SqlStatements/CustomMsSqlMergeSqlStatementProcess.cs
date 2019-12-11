@@ -116,14 +116,14 @@
                 Context.Log(LogSeverity.Information, this, "{RecordCount} records merged to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} in {Elapsed}, transaction: {Transaction}", recordCount,
                     ConnectionString.Name, ConnectionString.Unescape(TargetTableName), ConnectionString.Unescape(SourceTableName), LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
 
-                // todo: support stats...
-                // Stat.IncrementCounter("records merged", recordCount);
-                // Stat.IncrementCounter("merge time", startedOn.ElapsedMilliseconds);
+                CounterCollection.IncrementCounter("db records merged", recordCount);
+                CounterCollection.IncrementCounter("db merge time", LastInvocation.ElapsedMilliseconds);
 
-                Context.Stat.IncrementCounter("database records merged / " + ConnectionString.Name, recordCount);
-                Context.Stat.IncrementDebugCounter("database records merged / " + ConnectionString.Name + " / " + ConnectionString.Unescape(SourceTableName) + " -> " + ConnectionString.Unescape(TargetTableName), recordCount);
-                Context.Stat.IncrementCounter("database merge time / " + ConnectionString.Name, LastInvocation.ElapsedMilliseconds);
-                Context.Stat.IncrementDebugCounter("database merge time / " + ConnectionString.Name + " / " + ConnectionString.Unescape(SourceTableName) + " -> " + ConnectionString.Unescape(TargetTableName), LastInvocation.ElapsedMilliseconds);
+                // not relevant on process level
+                Context.CounterCollection.IncrementCounter("db records merged / " + ConnectionString.Name, recordCount);
+                Context.CounterCollection.IncrementDebugCounter("db records merged / " + ConnectionString.Name + " / " + ConnectionString.Unescape(SourceTableName) + " -> " + ConnectionString.Unescape(TargetTableName), recordCount);
+                Context.CounterCollection.IncrementCounter("db merge time / " + ConnectionString.Name, LastInvocation.ElapsedMilliseconds);
+                Context.CounterCollection.IncrementDebugCounter("db merge time / " + ConnectionString.Name + " / " + ConnectionString.Unescape(SourceTableName) + " -> " + ConnectionString.Unescape(TargetTableName), LastInvocation.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {

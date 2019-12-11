@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\EtLast.EPPlus\EtLast.EPPlus.csproj" />
-    <ProjectReference Include="..\..\EtLast.Reference\EtLast.Reference.csproj" />
     <ProjectReference Include="..\..\EtLast\EtLast.csproj" />
     <ProjectReference Include="..\EtLast.Tests.Base\EtLast.Tests.Base.csproj" />
   </ItemGroup>

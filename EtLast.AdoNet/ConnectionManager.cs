@@ -67,7 +67,8 @@
                             conn = DbProviderFactories.GetFactory(connectionString.ProviderName).CreateConnection();
                         }
 
-                        process.Context.Stat.IncrementCounter("database connections opened / " + connectionString.Name, 1);
+                        process.CounterCollection.IncrementCounter("db connections opened", 1);
+                        process.Context.CounterCollection.IncrementCounter("db connections opened / " + connectionString.Name, 1);
 
                         conn.ConnectionString = connectionString.ConnectionString;
                         conn.Open();
@@ -94,7 +95,8 @@
                     }
                 } // lock released
 
-                process.Context.Stat.IncrementCounter("database connections failed / " + connectionString.Name, 1);
+                process.CounterCollection.IncrementCounter("db connections failed", 1);
+                process.Context.CounterCollection.IncrementCounter("db connections failed / " + connectionString.Name, 1);
 
                 if (retry < maxRetryCount)
                 {
@@ -149,7 +151,8 @@
                         conn = DbProviderFactories.GetFactory(connectionString.ProviderName).CreateConnection();
                     }
 
-                    process.Context.Stat.IncrementCounter("database connections opened / " + connectionString.Name, 1);
+                    process.CounterCollection.IncrementCounter("db connections opened", 1);
+                    process.Context.CounterCollection.IncrementCounter("db connections opened / " + connectionString.Name, 1);
 
                     conn.ConnectionString = connectionString.ConnectionString;
                     conn.Open();
@@ -171,7 +174,8 @@
                     lastException = ex;
                 }
 
-                process.Context.Stat.IncrementCounter("database connections failed / " + connectionString.Name, 1);
+                process.CounterCollection.IncrementCounter("db connections opened", 1);
+                process.Context.CounterCollection.IncrementCounter("db connections opened / " + connectionString.Name, 1);
 
                 if (retry < maxRetryCount)
                 {

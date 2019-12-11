@@ -7,7 +7,7 @@
 
     public interface IEtlContext
     {
-        StatCounterCollection Stat { get; }
+        StatCounterCollection CounterCollection { get; }
         EtlContextResult Result { get; }
         AdditionalData AdditionalData { get; }
 

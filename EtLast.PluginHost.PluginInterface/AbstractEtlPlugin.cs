@@ -19,12 +19,12 @@
         public TimeSpan TransactionScopeTimeout { get; private set; }
         private readonly object _dataLock = new object();
 
-        public void Init(ILogger logger, ILogger opsLogger, ModuleConfiguration moduleConfiguration, TimeSpan transactionScopeTimeout)
+        public void Init(ILogger logger, ILogger opsLogger, ModuleConfiguration moduleConfiguration, TimeSpan transactionScopeTimeout, StatCounterCollection moduleStatCounterCollection)
         {
             _logger = logger;
             _opsLogger = opsLogger;
             ModuleConfiguration = moduleConfiguration;
-            Context = CreateContext<DictionaryRow>(transactionScopeTimeout);
+            Context = CreateContext<DictionaryRow>(transactionScopeTimeout, moduleStatCounterCollection);
             TransactionScopeTimeout = transactionScopeTimeout;
         }
 
@@ -40,23 +40,19 @@
         public void AfterExecute()
         {
             CustomAfterExecute();
-            LogStats();
+            LogCounters();
         }
 
-        private void LogStats()
+        private void LogCounters()
         {
-            var counters = Context.Stat.GetCountersOrdered();
-            foreach (var kvp in counters)
+            var counters = Context.CounterCollection.GetCounters();
+            foreach (var counter in counters)
             {
-                var severity = kvp.Key.StartsWith(StatCounterCollection.DebugNamePrefix, StringComparison.InvariantCultureIgnoreCase)
+                var severity = counter.IsDebug
                     ? LogSeverity.Debug
                     : LogSeverity.Information;
 
-                var key = kvp.Key.StartsWith(StatCounterCollection.DebugNamePrefix, StringComparison.InvariantCultureIgnoreCase)
-                    ? kvp.Key.Substring(StatCounterCollection.DebugNamePrefix.Length)
-                    : kvp.Key;
-
-                Context.Log(severity, null, "stat {StatName} = {StatValue}", key, kvp.Value);
+                Context.Log(severity, null, "counter {Counter} = {Value}", counter.Name, counter.Value);
             }
         }
 
@@ -66,10 +62,10 @@
 
         public abstract void Execute();
 
-        private IEtlContext CreateContext<TRow>(TimeSpan tansactionScopeTimeout)
+        private IEtlContext CreateContext<TRow>(TimeSpan tansactionScopeTimeout, StatCounterCollection moduleStatCounterCollection)
             where TRow : IRow, new()
         {
-            var context = new EtlContext<TRow>()
+            var context = new EtlContext<TRow>(moduleStatCounterCollection)
             {
                 TransactionScopeTimeout = tansactionScopeTimeout,
                 ConnectionStrings = ModuleConfiguration.ConnectionStrings,
@@ -78,8 +74,6 @@
             context.OnException += OnException;
             context.OnLog += OnLog;
             context.OnCustomLog += OnCustomLog;
-
-            //context.Log(LogSeverity.Information, null, "ETL context created by {UserName}", !string.IsNullOrWhiteSpace(Environment.UserDomainName) ? $@"{Environment.UserDomainName}\{Environment.UserName}" : Environment.UserName);
 
             return context;
         }

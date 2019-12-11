@@ -53,7 +53,7 @@
 
                 if (_command.Parameters.Count >= MaximumParameterCount - 1)
                 {
-                    WriteToSql(Process, false);
+                    WriteToSql(false);
                 }
             }
         }
@@ -86,10 +86,10 @@
             _command.Parameters.Add(parameter);
         }
 
-        private void WriteToSql(IProcess process, bool shutdown)
+        private void WriteToSql(bool shutdown)
         {
             if (Transaction.Current == null)
-                process.Context.Log(LogSeverity.Warning, process, this, "there is no active transaction!");
+                Process.Context.Log(LogSeverity.Warning, Process, this, "there is no active transaction!");
 
             var sqlStatement = SqlStatementCreator.CreateStatement(_connectionString, _statements);
             var recordCount = _statements.Count;
@@ -99,7 +99,7 @@
 
             _command.CommandText = sqlStatement;
 
-            AdoNetSqlStatementDebugEventListener.GenerateEvent(process, () => new AdoNetSqlStatementDebugEvent()
+            AdoNetSqlStatementDebugEventListener.GenerateEvent(Process, () => new AdoNetSqlStatementDebugEvent()
             {
                 Operation = this,
                 ConnectionString = _connectionString,
@@ -107,7 +107,7 @@
                 CompiledSqlStatement = CompileSql(_command),
             });
 
-            Process.Context.Log(LogSeverity.Verbose, Process, "executing SQL statement: {SqlStatement}", sqlStatement);
+            base.Process.Context.Log(LogSeverity.Verbose, base.Process, "executing SQL statement: {SqlStatement}", sqlStatement);
 
             try
             {
@@ -115,26 +115,27 @@
                 var time = startedOn.ElapsedMilliseconds;
                 _fullTime.Stop();
 
-                Stat.IncrementCounter("records written", recordCount);
-                Stat.IncrementCounter("write time", time);
+                CounterCollection.IncrementCounter("db records written", recordCount);
+                CounterCollection.IncrementCounter("db write time", time);
 
-                process.Context.Stat.IncrementCounter("database records written / " + _connectionString.Name, recordCount);
-                process.Context.Stat.IncrementDebugCounter("database records written / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), recordCount);
-                process.Context.Stat.IncrementCounter("database write time / " + _connectionString.Name, time);
-                process.Context.Stat.IncrementDebugCounter("database write time / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), time);
+                // not relevant on operation level
+                Process.Context.CounterCollection.IncrementCounter("db records written / " + _connectionString.Name, recordCount);
+                Process.Context.CounterCollection.IncrementDebugCounter("db records written / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), recordCount);
+                Process.Context.CounterCollection.IncrementCounter("db write time / " + _connectionString.Name, time);
+                Process.Context.CounterCollection.IncrementDebugCounter("db write time / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), time);
 
                 _rowsWritten += recordCount;
 
                 if (shutdown || (_rowsWritten / 10000 != (_rowsWritten - recordCount) / 10000))
                 {
                     var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
-                    process.Context.Log(severity, process, this, "{TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow)", _rowsWritten,
+                    Process.Context.Log(severity, Process, this, "{TotalRowCount} records written to {ConnectionStringKey}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow)", _rowsWritten,
                         _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), Transaction.Current.ToIdentifierString(), Math.Round(_fullTime.ElapsedMilliseconds * 1000 / (double)_rowsWritten, 1));
                 }
             }
             catch (Exception ex)
             {
-                var exception = new OperationExecutionException(process, this, "database write failed", ex);
+                var exception = new OperationExecutionException(Process, this, "database write failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database write failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",
                     _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), ex.Message, sqlStatement));
                 exception.Data.Add("ConnectionStringKey", _connectionString.Name);
@@ -226,7 +227,7 @@
         {
             if (_command != null)
             {
-                WriteToSql(Process, true);
+                WriteToSql(true);
             }
 
             _statements = null;

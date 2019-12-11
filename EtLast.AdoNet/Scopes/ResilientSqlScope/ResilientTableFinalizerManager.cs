@@ -13,31 +13,35 @@
         public IProcess Caller => _scope;
         public Stopwatch LastInvocation { get; private set; }
         public ProcessTestDelegate If { get; set; }
+        public StatCounterCollection CounterCollection { get; }
 
         public ResilientTableFinalizerManager(ResilientSqlScope scope)
         {
             _scope = scope;
+            CounterCollection = new StatCounterCollection(scope.Context.CounterCollection);
         }
 
         public void Execute(ConnectionStringWithProvider connectionString)
         {
             LastInvocation = Stopwatch.StartNew();
 
+            Context.Log(LogSeverity.Information, this, "started");
+
             var tempTablesWithData = 0;
             var tempTablesWithoutData = 0;
             foreach (var table in _scope.Configuration.Tables)
             {
-                var rowCount = CountRowsIn(Context, connectionString, table.TempTableName);
+                var recordCount = CountRecordsIn(connectionString, table.TempTableName);
 
                 if (table.AdditionalTables?.Count > 0)
                 {
                     foreach (var additionalTable in table.AdditionalTables.Values)
                     {
-                        rowCount += CountRowsIn(Context, connectionString, additionalTable.TempTableName);
+                        recordCount += CountRecordsIn(connectionString, additionalTable.TempTableName);
                     }
                 }
 
-                if (rowCount > 0)
+                if (recordCount > 0)
                 {
                     tempTablesWithData++;
 
@@ -60,7 +64,7 @@
                     foreach (var finalizer in finalizers)
                     {
                         var preExceptionCount = Context.ExceptionCount;
-                        finalizer.Execute(_scope);
+                        finalizer.Execute(this);
                         if (Context.ExceptionCount > preExceptionCount)
                         {
                             break;
@@ -78,9 +82,9 @@
             Context.Log(LogSeverity.Information, this, "{TableCount} temp table is empty", tempTablesWithoutData);
         }
 
-        private int CountRowsIn(IEtlContext context, ConnectionStringWithProvider connectionString, string tempTableName)
+        private int CountRecordsIn(ConnectionStringWithProvider connectionString, string tempTableName)
         {
-            var count = new CustomSqlAdoNetDbReaderProcess(context, "TempRowCountReader:" + connectionString.Unescape(tempTableName))
+            var count = new CustomSqlAdoNetDbReaderProcess(Context, "TempRecordCountReader:" + connectionString.Unescape(tempTableName))
             {
                 ConnectionStringKey = connectionString.Name,
                 Sql = "select count(*) as cnt from " + tempTableName,
@@ -91,9 +95,9 @@
                         SpecialValueIfSourceIsNull = 0,
                     }
                 }
-            }.Evaluate().ToList().FirstOrDefault()?.GetAs<int>("cnt") ?? 0;
+            }.Evaluate(this).ToList().FirstOrDefault()?.GetAs<int>("cnt") ?? 0;
 
-            context.Log(count > 0 ? LogSeverity.Information : LogSeverity.Debug, this, "{TempRowCount} rows found in {TableName}", count, connectionString.Unescape(tempTableName));
+            Context.Log(count > 0 ? LogSeverity.Information : LogSeverity.Debug, this, "{TempRecordCount} records found in {TableName}", count, connectionString.Unescape(tempTableName));
 
             return count;
         }

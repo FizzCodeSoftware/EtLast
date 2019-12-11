@@ -13,8 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Global", "Global", "{9BB952
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast", "EtLast\EtLast.csproj", "{0920E879-8254-4598-B45B-09EA142CCEA8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Reference", "EtLast.Reference\EtLast.Reference.csproj", "{C7817C5F-23CE-46D8-8F2E-F1E60ADCE1D1}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.AdoNet", "EtLast.AdoNet\EtLast.AdoNet.csproj", "{13911483-B951-4AC6-842F-DA0667F615F3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.PluginHost.PluginInterface", "EtLast.PluginHost.PluginInterface\EtLast.PluginHost.PluginInterface.csproj", "{CDCB06F9-387C-4AC9-A629-5828A8FC11F2}"
@@ -45,10 +43,6 @@ Global
 		{0920E879-8254-4598-B45B-09EA142CCEA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0920E879-8254-4598-B45B-09EA142CCEA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0920E879-8254-4598-B45B-09EA142CCEA8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C7817C5F-23CE-46D8-8F2E-F1E60ADCE1D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C7817C5F-23CE-46D8-8F2E-F1E60ADCE1D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C7817C5F-23CE-46D8-8F2E-F1E60ADCE1D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C7817C5F-23CE-46D8-8F2E-F1E60ADCE1D1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{13911483-B951-4AC6-842F-DA0667F615F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{13911483-B951-4AC6-842F-DA0667F615F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13911483-B951-4AC6-842F-DA0667F615F3}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -7,7 +7,7 @@
     {
         ModuleConfiguration ModuleConfiguration { get; }
         IEtlContext Context { get; }
-        void Init(ILogger logger, ILogger opsLogger, ModuleConfiguration moduleConfiguration, TimeSpan transactionScopeTimeout);
+        void Init(ILogger logger, ILogger opsLogger, ModuleConfiguration moduleConfiguration, TimeSpan transactionScopeTimeout, StatCounterCollection moduleStatCounterCollection);
         void BeforeExecute();
         void AfterExecute();
         void Execute();

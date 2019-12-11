@@ -11,10 +11,12 @@
         public IProcess Caller => _scope;
         public Stopwatch LastInvocation { get; private set; }
         public ProcessTestDelegate If { get; set; }
+        public StatCounterCollection CounterCollection { get; }
 
         public ResilientSqlScopePreFinalizerManager(ResilientSqlScope scope)
         {
             _scope = scope;
+            CounterCollection = new StatCounterCollection(scope.Context.CounterCollection);
         }
 
         public void Execute()

@@ -68,11 +68,11 @@
 
             if (rc >= BatchSize)
             {
-                WriteToSql(Process, false);
+                WriteToSql(false);
             }
         }
 
-        private void WriteToSql(IProcess process, bool shutdown)
+        private void WriteToSql(bool shutdown)
         {
             var recordCount = _reader.RowCount;
             _timer.Restart();
@@ -84,11 +84,11 @@
 
                 try
                 {
-                    using (var scope = process.Context.BeginScope(process, this, TransactionScopeKind.RequiresNew, LogSeverity.Debug))
+                    using (var scope = Process.Context.BeginScope(Process, this, TransactionScopeKind.RequiresNew, LogSeverity.Debug))
                     {
                         var transactionId = Transaction.Current.ToIdentifierString();
 
-                        connection = ConnectionManager.GetConnection(_connectionString, process, this, 0);
+                        connection = ConnectionManager.GetConnection(_connectionString, Process, this, 0);
 
                         var options = SqlBulkCopyOptions.Default;
 
@@ -111,7 +111,7 @@
 
                         bulkCopy.WriteToServer(_reader);
                         bulkCopy.Close();
-                        ConnectionManager.ReleaseConnection(Process, this, ref connection);
+                        ConnectionManager.ReleaseConnection(base.Process, this, ref connection);
 
                         scope.Complete();
 
@@ -119,14 +119,15 @@
                         var time = _timer.Elapsed;
                         _fullTime += time.TotalMilliseconds;
 
-                        Stat.IncrementCounter("records written", recordCount);
                         var writeTime = Convert.ToInt64(time.TotalMilliseconds);
-                        Stat.IncrementCounter("write time", writeTime);
+                        CounterCollection.IncrementCounter("db records written", recordCount);
+                        CounterCollection.IncrementCounter("db write time", writeTime);
 
-                        process.Context.Stat.IncrementCounter("database records written / " + _connectionString.Name, recordCount);
-                        process.Context.Stat.IncrementDebugCounter("database records written / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), recordCount);
-                        process.Context.Stat.IncrementCounter("database write time / " + _connectionString.Name, writeTime);
-                        process.Context.Stat.IncrementDebugCounter("database write time / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), writeTime);
+                        // not relevant on operation level
+                        Process.Context.CounterCollection.IncrementCounter("db records written / " + _connectionString.Name, recordCount);
+                        Process.Context.CounterCollection.IncrementDebugCounter("db records written / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), recordCount);
+                        Process.Context.CounterCollection.IncrementCounter("db write time / " + _connectionString.Name, writeTime);
+                        Process.Context.CounterCollection.IncrementDebugCounter("db write time / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), writeTime);
 
                         _rowsWritten += recordCount;
                         _reader.Reset();
@@ -135,7 +136,7 @@
                             ? LogSeverity.Information
                             : LogSeverity.Debug;
 
-                        process.Context.Log(severity, process, this, "{TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, micro-transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}", _rowsWritten,
+                        Process.Context.Log(severity, Process, this, "{TotalRowCount} records written to {ConnectionStringKey}/{TableName}, micro-transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}", _rowsWritten,
                             _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), transactionId, Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
                         break;
                     }
@@ -152,17 +153,17 @@
 
                     if (retry < MaxRetryCount)
                     {
-                        process.Context.Log(LogSeverity.Error, process, this, "database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", RetryDelayMilliseconds * (retry + 1),
+                        Process.Context.Log(LogSeverity.Error, Process, this, "database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", RetryDelayMilliseconds * (retry + 1),
                             retry, ex.Message);
 
-                        process.Context.LogOps(LogSeverity.Error, process, this, "database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", Name,
+                        Process.Context.LogOps(LogSeverity.Error, Process, this, "database write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", Name,
                             RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
 
                         Thread.Sleep(RetryDelayMilliseconds * (retry + 1));
                     }
                     else
                     {
-                        var exception = new OperationExecutionException(process, this, "database write failed", ex);
+                        var exception = new OperationExecutionException(Process, this, "database write failed", ex);
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database write failed, connection string key: {0}, table: {1}, message: {2}",
                             _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), ex.Message));
                         exception.Data.Add("ConnectionStringKey", _connectionString.Name);
@@ -208,7 +209,7 @@
         {
             if (_reader.RowCount > 0)
             {
-                WriteToSql(Process, true);
+                WriteToSql(true);
             }
 
             _reader = null;

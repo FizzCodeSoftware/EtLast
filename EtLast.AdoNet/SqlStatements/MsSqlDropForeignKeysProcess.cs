@@ -219,8 +219,12 @@ from
                 Context.Log(LogSeverity.Debug, this, "foreign keys on {ConnectionStringKey}/{TableName} are dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(t.Item1), LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
 
-                Context.Stat.IncrementCounter("database foreign keys dropped / " + ConnectionString.Name, t.Item2);
-                Context.Stat.IncrementCounter("database foreign keys time / " + ConnectionString.Name, LastInvocation.ElapsedMilliseconds);
+                CounterCollection.IncrementCounter("db foreign keys dropped", t.Item2);
+                CounterCollection.IncrementCounter("db foreign keys time", LastInvocation.ElapsedMilliseconds);
+
+                // not relevant on process level
+                Context.CounterCollection.IncrementCounter("db foreign keys dropped / " + ConnectionString.Name, t.Item2);
+                Context.CounterCollection.IncrementCounter("db foreign keys time / " + ConnectionString.Name, LastInvocation.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {

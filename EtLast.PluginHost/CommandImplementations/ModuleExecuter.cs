@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Transactions;
     using Serilog;
 
@@ -20,7 +21,7 @@
             try
             {
                 var moduleStartedOn = Stopwatch.StartNew();
-                var moduleStat = new StatCounterCollection();
+                var moduleCounterCollection = new StatCounterCollection();
                 var runTimes = new List<TimeSpan>();
                 var pluginResults = new List<EtlContextResult>();
                 var cpuTimes = new List<TimeSpan>();
@@ -45,7 +46,7 @@
                     {
                         try
                         {
-                            plugin.Init(commandContext.Logger, commandContext.OpsLogger, module.ModuleConfiguration, commandContext.HostConfiguration.TransactionScopeTimeout);
+                            plugin.Init(commandContext.Logger, commandContext.OpsLogger, module.ModuleConfiguration, commandContext.HostConfiguration.TransactionScopeTimeout, moduleCounterCollection);
                             pluginResults.Add(plugin.Context.Result);
 
                             plugin.BeforeExecute();
@@ -54,8 +55,6 @@
 
                             moduleWarningCount += plugin.Context.Result.WarningCount;
                             moduleExceptionCount += plugin.Context.Result.Exceptions.Count;
-
-                            AppendStats(moduleStat, plugin.Context.Stat);
 
                             if (plugin.Context.Result.TerminateHost)
                             {
@@ -111,7 +110,7 @@
                         pluginStartedOn.Elapsed);
                 }
 
-                LogStats(module, moduleStat, commandContext.Logger);
+                LogCounters(module, moduleCounterCollection, commandContext.Logger);
 
                 for (var i = 0; i < Math.Min(module.EnabledPlugins.Count, pluginResults.Count); i++)
                 {
@@ -164,26 +163,15 @@
             return result;
         }
 
-        private static void AppendStats(StatCounterCollection globalStat, StatCounterCollection stat)
+        private static void LogCounters(Module module, StatCounterCollection counterCollection, ILogger logger)
         {
-            foreach (var kvp in stat.GetCountersOrdered())
-            {
-                if (!kvp.Key.StartsWith(StatCounterCollection.DebugNamePrefix, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    globalStat.IncrementCounter(kvp.Key, kvp.Value);
-                }
-            }
-        }
+            var counters = counterCollection
+                .GetCounters()
+                .Where(counter => !counter.IsDebug);
 
-        private static void LogStats(Module module, StatCounterCollection stats, ILogger logger)
-        {
-            var counters = stats.GetCountersOrdered();
-            if (counters.Count == 0)
-                return;
-
-            foreach (var kvp in counters)
+            foreach (var counter in counters)
             {
-                logger.Information("[{Module}] stat {StatName} = {StatValue}", module.ModuleConfiguration.ModuleName, kvp.Key, kvp.Value);
+                logger.Information("[{Module}] counter {Counter} = {Value}", module.ModuleConfiguration.ModuleName, counter.Name, counter.Value);
             }
         }
 

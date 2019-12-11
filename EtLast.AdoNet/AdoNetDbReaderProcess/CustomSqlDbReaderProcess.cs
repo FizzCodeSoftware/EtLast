@@ -32,9 +32,9 @@
 
         protected override void IncrementCounter()
         {
-            Context.Stat.IncrementCounter("database records read / " + ConnectionString.Name, 1);
-            Context.Stat.IncrementDebugCounter("database records read / " + ConnectionString.Name + " / custom query", 1);
-            Context.Stat.IncrementDebugCounter("database records read / " + ConnectionString.Name + " / custom query / " + Name, 1);
+            CounterCollection.IncrementCounter("db records read", 1);
+            Context.CounterCollection.IncrementDebugCounter("db records read / " + ConnectionString.Name + " / custom query", 1);
+            Context.CounterCollection.IncrementDebugCounter("db records read / " + ConnectionString.Name + " / custom query / " + Name, 1);
         }
     }
 }

@@ -101,14 +101,14 @@
                 Context.Log(LogSeverity.Information, this, "{RecordCount} records copied to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} in {Elapsed}, transaction: {Transaction}", recordCount,
                     ConnectionString.Name, ConnectionString.Unescape(Configuration.TargetTableName), ConnectionString.Unescape(Configuration.SourceTableName), LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
 
-                // todo: support stats...
-                // Stat.IncrementCounter("records written", recordCount);
-                // Stat.IncrementCounter("write time", LastInvocation.ElapsedMilliseconds);
+                CounterCollection.IncrementCounter("db records copied", recordCount);
+                CounterCollection.IncrementCounter("db copy time", LastInvocation.ElapsedMilliseconds);
 
-                Context.Stat.IncrementCounter("database records copied / " + ConnectionString.Name, recordCount);
-                Context.Stat.IncrementDebugCounter("database records copied / " + ConnectionString.Name + " / " + ConnectionString.Unescape(Configuration.SourceTableName) + " -> " + ConnectionString.Unescape(Configuration.TargetTableName), recordCount);
-                Context.Stat.IncrementCounter("database copy time / " + ConnectionString.Name, LastInvocation.ElapsedMilliseconds);
-                Context.Stat.IncrementDebugCounter("database copy time / " + ConnectionString.Name + " / " + ConnectionString.Unescape(Configuration.SourceTableName) + " -> " + ConnectionString.Unescape(Configuration.TargetTableName), LastInvocation.ElapsedMilliseconds);
+                // not relevant on process level
+                Context.CounterCollection.IncrementCounter("db records copied / " + ConnectionString.Name, recordCount);
+                Context.CounterCollection.IncrementDebugCounter("db records copied / " + ConnectionString.Name + " / " + ConnectionString.Unescape(Configuration.SourceTableName) + " -> " + ConnectionString.Unescape(Configuration.TargetTableName), recordCount);
+                Context.CounterCollection.IncrementCounter("db copy time / " + ConnectionString.Name, LastInvocation.ElapsedMilliseconds);
+                Context.CounterCollection.IncrementDebugCounter("db copy time / " + ConnectionString.Name + " / " + ConnectionString.Unescape(Configuration.SourceTableName) + " -> " + ConnectionString.Unescape(Configuration.TargetTableName), LastInvocation.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {

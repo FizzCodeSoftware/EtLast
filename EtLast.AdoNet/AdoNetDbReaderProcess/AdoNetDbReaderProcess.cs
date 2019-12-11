@@ -79,8 +79,9 @@
 
         protected override void IncrementCounter()
         {
-            Context.Stat.IncrementCounter("database records read / " + ConnectionString.Name, 1);
-            Context.Stat.IncrementDebugCounter("database records read / " + ConnectionString.Name + " / " + ConnectionString.Unescape(TableName), 1);
+            CounterCollection.IncrementCounter("db records read", 1);
+            Context.CounterCollection.IncrementDebugCounter("db records read / " + ConnectionString.Name, 1);
+            Context.CounterCollection.IncrementDebugCounter("db records read / " + ConnectionString.Name + " / " + ConnectionString.Unescape(TableName), 1);
         }
     }
 }

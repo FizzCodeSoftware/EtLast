@@ -83,14 +83,15 @@
                 var time = _timer.Elapsed;
                 _fullTime += time.TotalMilliseconds;
 
-                Stat.IncrementCounter("records written", recordCount);
                 var writeTime = Convert.ToInt64(time.TotalMilliseconds);
-                Stat.IncrementCounter("write time", writeTime);
+                CounterCollection.IncrementCounter("db records written", recordCount);
+                CounterCollection.IncrementCounter("db write time", writeTime);
 
-                Process.Context.Stat.IncrementCounter("database records written / " + _connectionString.Name, recordCount);
-                Process.Context.Stat.IncrementDebugCounter("database records written / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), recordCount);
-                Process.Context.Stat.IncrementCounter("database write time / " + _connectionString.Name, writeTime);
-                Process.Context.Stat.IncrementDebugCounter("database write time / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), writeTime);
+                // not relevant on operation level
+                Process.Context.CounterCollection.IncrementCounter("db records written / " + _connectionString.Name, recordCount);
+                Process.Context.CounterCollection.IncrementDebugCounter("db records written / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), recordCount);
+                Process.Context.CounterCollection.IncrementCounter("db write time / " + _connectionString.Name, writeTime);
+                Process.Context.CounterCollection.IncrementDebugCounter("db write time / " + _connectionString.Name + " / " + _connectionString.Unescape(TableDefinition.TableName), writeTime);
 
                 _rowsWritten += recordCount;
 
@@ -98,7 +99,7 @@
                     ? LogSeverity.Information
                     : LogSeverity.Debug;
 
-                Process.Context.Log(severity, Process, this, "{TotalRowCount} rows written to {ConnectionStringKey}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}", _rowsWritten,
+                Process.Context.Log(severity, Process, this, "{TotalRowCount} records written to {ConnectionStringKey}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}", _rowsWritten,
                     _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), Transaction.Current.ToIdentifierString(), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
             }
             catch (Exception ex)

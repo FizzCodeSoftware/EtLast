@@ -143,8 +143,12 @@
                 Context.Log(LogSeverity.Debug, this, "table {ConnectionStringKey}/{TableName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(tableName), LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
 
-                Context.Stat.IncrementCounter("database tables dropped / " + ConnectionString.Name, 1);
-                Context.Stat.IncrementCounter("database tables dropped time / " + ConnectionString.Name, LastInvocation.ElapsedMilliseconds);
+                CounterCollection.IncrementCounter("db tables dropped", 1);
+                CounterCollection.IncrementCounter("db tables dropped time", LastInvocation.ElapsedMilliseconds);
+
+                // not relevant on process level
+                Context.CounterCollection.IncrementCounter("db tables dropped / " + ConnectionString.Name, 1);
+                Context.CounterCollection.IncrementCounter("db tables dropped time / " + ConnectionString.Name, LastInvocation.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {

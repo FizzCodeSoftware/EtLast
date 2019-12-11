@@ -10,7 +10,7 @@
         where TRow : IRow, new()
     {
         private readonly List<Exception> _exceptions = new List<Exception>();
-        public StatCounterCollection Stat { get; } = new StatCounterCollection();
+        public StatCounterCollection CounterCollection { get; }
         public EtlContextResult Result { get; } = new EtlContextResult();
         public AdditionalData AdditionalData { get; }
 
@@ -32,7 +32,7 @@
 
         private int _nextUid;
 
-        public EtlContext()
+        public EtlContext(StatCounterCollection forwardCountersToCollection = null)
         {
             CancellationTokenSource = new CancellationTokenSource();
             AdditionalData = new AdditionalData();
@@ -40,6 +40,8 @@
             var utcNow = DateTimeOffset.UtcNow;
             CreatedOnUtc = utcNow;
             CreatedOnLocal = utcNow.ToLocalTime();
+
+            CounterCollection = new StatCounterCollection(forwardCountersToCollection);
         }
 
         /// <summary>
@@ -207,7 +209,7 @@
             var row = new TRow();
             row.Init(this, Interlocked.Increment(ref _nextUid) - 1, columnCountHint);
 
-            Stat.IncrementCounter("in-memory rows created", 1);
+            CounterCollection.IncrementCounter("in-memory rows created", 1);
 
             return row;
         }
@@ -236,7 +238,7 @@
                 Exception = ex,
             });
 
-            Stat.IncrementCounter("exceptions", 1);
+            CounterCollection.IncrementCounter("exceptions", 1);
 
             CancellationTokenSource.Cancel();
         }

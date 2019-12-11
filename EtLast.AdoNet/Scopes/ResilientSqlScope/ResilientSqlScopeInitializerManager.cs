@@ -2,6 +2,7 @@
 {
     using System.Diagnostics;
     using System.Linq;
+    using FizzCode.EtLast;
 
     internal class ResilientSqlScopeInitializerManager : IProcess
     {
@@ -11,10 +12,12 @@
         public IProcess Caller => _scope;
         public Stopwatch LastInvocation { get; private set; }
         public ProcessTestDelegate If { get; set; }
+        public StatCounterCollection CounterCollection { get; }
 
         public ResilientSqlScopeInitializerManager(ResilientSqlScope scope)
         {
             _scope = scope;
+            CounterCollection = new StatCounterCollection(scope.Context.CounterCollection);
         }
 
         public void Execute()

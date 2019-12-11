@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Globalization;
     using System.IO;
     using System.Linq;
@@ -90,7 +89,9 @@
             {
                 try
                 {
-                    Context.Stat.IncrementCounter("excel files opened", 1);
+                    // not relevant on process level
+                    Context.CounterCollection.IncrementCounter("excel files opened", 1);
+
 #pragma warning disable CA2000 // Dispose objects before losing scope
 #pragma warning disable IDE0068 // Use recommended dispose pattern
                     package = new ExcelPackage(new FileInfo(FileName));
@@ -189,7 +190,7 @@
 
                 for (var rowIndex = FirstDataRow; rowIndex <= endRow && !Context.CancellationTokenSource.IsCancellationRequested; rowIndex++)
                 {
-                    Context.Stat.IncrementCounter("excel rows read", 1);
+                    CounterCollection.IncrementCounter("excel rows read", 1);
 
                     var row = Context.CreateRow(columnIndexes.Count);
 
