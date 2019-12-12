@@ -35,51 +35,31 @@
 
         public void IncrementCounter(string baseName, long n, bool forwardDisabled = false)
         {
-            Increment(baseName, null, n, forwardDisabled, false, StatCounterValueType.Numeric);
+            Increment(baseName, n, forwardDisabled, false, StatCounterValueType.Numeric);
         }
 
         public void IncrementDebugCounter(string baseName, long n, bool forwardDisabled = false)
         {
-            Increment(baseName, null, n, forwardDisabled, true, StatCounterValueType.Numeric);
+            Increment(baseName, n, forwardDisabled, true, StatCounterValueType.Numeric);
         }
 
         public void IncrementTimeSpan(string baseName, TimeSpan elapsed, bool forwardDisabled = false)
         {
-            Increment(baseName, null, Convert.ToInt64(elapsed.TotalMilliseconds), forwardDisabled, false, StatCounterValueType.TimeSpan);
+            Increment(baseName, Convert.ToInt64(elapsed.TotalMilliseconds), forwardDisabled, false, StatCounterValueType.TimeSpan);
         }
 
         public void IncrementDebugTimeSpan(string baseName, TimeSpan elapsed, bool forwardDisabled = false)
         {
-            Increment(baseName, null, Convert.ToInt64(elapsed.TotalMilliseconds), forwardDisabled, true, StatCounterValueType.TimeSpan);
+            Increment(baseName, Convert.ToInt64(elapsed.TotalMilliseconds), forwardDisabled, true, StatCounterValueType.TimeSpan);
         }
 
-        public void IncrementCounter(string baseName, string subName, long n, bool forwardDisabled = false)
-        {
-            Increment(baseName, subName, n, forwardDisabled, false, StatCounterValueType.Numeric);
-        }
-
-        public void IncrementDebugCounter(string baseName, string subName, long n, bool forwardDisabled = false)
-        {
-            Increment(baseName, subName, n, forwardDisabled, true, StatCounterValueType.Numeric);
-        }
-
-        public void IncrementTimeSpan(string baseName, string subName, TimeSpan elapsed, bool forwardDisabled = false)
-        {
-            Increment(baseName, subName, Convert.ToInt64(elapsed.TotalMilliseconds), forwardDisabled, false, StatCounterValueType.TimeSpan);
-        }
-
-        public void IncrementDebugTimeSpan(string baseName, string subName, TimeSpan elapsed, bool forwardDisabled = false)
-        {
-            Increment(baseName, subName, Convert.ToInt64(elapsed.TotalMilliseconds), forwardDisabled, true, StatCounterValueType.TimeSpan);
-        }
-
-        internal void Increment(string name, string subName, long n, bool forwardDisabled, bool isDebug, StatCounterValueType counterType)
+        internal void Increment(string name, long n, bool forwardDisabled, bool isDebug, StatCounterValueType counterType)
         {
             if (n == 0)
                 return;
 
             if (_forwardCountersToCollection != null && !forwardDisabled)
-                _forwardCountersToCollection.Increment(name, subName, n, false, isDebug, counterType);
+                _forwardCountersToCollection.Increment(name, n, false, isDebug, counterType);
 
             lock (_counters)
             {
@@ -95,25 +75,8 @@
                     _counters[name] = counter;
                 }
 
-                if (subName == null)
-                {
-                    counter.Value.ValueType = counterType;
-                    counter.Value.Value += n;
-                }
-                else
-                {
-                    if (counter.SubValues == null)
-                        counter.SubValues = new Dictionary<string, StatCounterValue>();
-
-                    if (!counter.SubValues.TryGetValue(subName, out var subValue))
-                    {
-                        subValue = new StatCounterValue();
-                        counter.SubValues[subName] = subValue;
-                    }
-
-                    subValue.ValueType = counterType;
-                    subValue.Value += n;
-                }
+                counter.ValueType = counterType;
+                counter.Value += n;
             }
         }
 

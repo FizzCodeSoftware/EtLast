@@ -52,8 +52,8 @@
 
                 if (key != null && _lookup.TryGetValue(key, out var rightRow))
                 {
-                    CounterCollection.IncrementCounter("served_from_cache", 1, true);
-                    CounterCollection.IncrementCounter("processed", 1, true);
+                    CounterCollection.IncrementCounter("served from cache", 1, true);
+                    CounterCollection.IncrementDebugCounter("processed", 1, true);
 
                     HandleMatch(row, rightRow);
                     return;
@@ -124,7 +124,8 @@
 
         private void ProcessRows()
         {
-            CounterCollection.IncrementCounter("processed", _batchRows.Count, true);
+            CounterCollection.IncrementDebugCounter("processed", _batchRows.Count, true);
+            CounterCollection.IncrementCounter("batches", 1, true);
 
             var rightProcess = RightProcessCreator.Invoke(_batchRows.ToArray());
 

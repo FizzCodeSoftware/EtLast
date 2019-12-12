@@ -83,14 +83,14 @@
                 var time = _timer.Elapsed;
                 _fullTime += time.TotalMilliseconds;
 
-                CounterCollection.IncrementCounter("db records written", recordCount);
-                CounterCollection.IncrementTimeSpan("db records written", "time", time);
+                CounterCollection.IncrementCounter("db record write count", recordCount);
+                CounterCollection.IncrementTimeSpan("db record write time", time);
 
                 // not relevant on operation level
-                Process.Context.CounterCollection.IncrementDebugCounter("db records written /" + _connectionString.Name, recordCount);
-                Process.Context.CounterCollection.IncrementDebugCounter("db records written /" + _connectionString.Name + "/" + _connectionString.Unescape(TableDefinition.TableName), recordCount);
-                Process.Context.CounterCollection.IncrementDebugTimeSpan("db records written /" + _connectionString.Name, "time", time);
-                Process.Context.CounterCollection.IncrementDebugTimeSpan("db records written /" + _connectionString.Name + "/" + _connectionString.Unescape(TableDefinition.TableName), "time", time);
+                Process.Context.CounterCollection.IncrementDebugCounter("db record write count - " + _connectionString.Name, recordCount);
+                Process.Context.CounterCollection.IncrementDebugCounter("db record write count - " + _connectionString.Name + "/" + _connectionString.Unescape(TableDefinition.TableName), recordCount);
+                Process.Context.CounterCollection.IncrementDebugTimeSpan("db record write time - " + _connectionString.Name, time);
+                Process.Context.CounterCollection.IncrementDebugTimeSpan("db record write time - " + _connectionString.Name + "/" + _connectionString.Unescape(TableDefinition.TableName), time);
 
                 _rowsWritten += recordCount;
 

@@ -80,8 +80,8 @@
         protected override void IncrementCounter()
         {
             CounterCollection.IncrementCounter("db records read", 1);
-            Context.CounterCollection.IncrementCounter("db records read", ConnectionString.Name, 1);
-            Context.CounterCollection.IncrementCounter("db records read", ConnectionString.Name + "/" + ConnectionString.Unescape(TableName), 1);
+            Context.CounterCollection.IncrementDebugCounter("db records read - " + ConnectionString.Name, 1);
+            Context.CounterCollection.IncrementDebugCounter("db records read - " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableName), 1);
         }
     }
 }

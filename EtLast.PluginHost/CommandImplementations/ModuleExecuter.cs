@@ -3,9 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Globalization;
     using System.Linq;
-    using System.Text;
     using System.Transactions;
     using Serilog;
 
@@ -174,37 +172,9 @@
             if (counters.Count == 0)
                 return;
 
-            var sb = new StringBuilder();
-            var parameters = new List<object>();
-
             foreach (var counter in counters)
             {
-                sb.Append("[{Module}] counter {Counter} = {Value}");
-                parameters.Add(module.ModuleConfiguration.ModuleName);
-                parameters.Add(counter.Name);
-                parameters.Add(counter.Value.TypedValue);
-
-                if (counter.SubValues != null)
-                {
-                    var idx = 0;
-                    foreach (var kvp in counter.SubValues)
-                    {
-                        sb
-                            .Append(", {Sub")
-                            .Append(idx.ToString("D", CultureInfo.InvariantCulture))
-                            .Append("} = {SubValue")
-                            .Append(idx.ToString("D", CultureInfo.InvariantCulture))
-                            .Append('}');
-
-                        parameters.Add(kvp.Key);
-                        parameters.Add(kvp.Value.TypedValue);
-                        idx++;
-                    }
-                }
-
-                logger.Write(counter.IsDebug ? Serilog.Events.LogEventLevel.Debug : Serilog.Events.LogEventLevel.Information, sb.ToString(), parameters.ToArray());
-                sb.Clear();
-                parameters.Clear();
+                logger.Write(counter.IsDebug ? Serilog.Events.LogEventLevel.Debug : Serilog.Events.LogEventLevel.Information, "[{Module}] counter {Counter} = {Value}", module.ModuleConfiguration.ModuleName, counter.Name, counter.TypedValue);
             }
         }
 

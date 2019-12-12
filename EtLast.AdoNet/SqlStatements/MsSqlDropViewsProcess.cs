@@ -145,12 +145,12 @@
                 Context.Log(LogSeverity.Debug, this, "view {ConnectionStringKey}/{ViewName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(viewName), time, Transaction.Current.ToIdentifierString());
 
-                CounterCollection.IncrementCounter("db views dropped", 1);
-                CounterCollection.IncrementTimeSpan("db views dropped time", time);
+                CounterCollection.IncrementCounter("db drop view count", 1);
+                CounterCollection.IncrementTimeSpan("db drop view time", time);
 
                 // not relevant on process level
-                Context.CounterCollection.IncrementCounter("db views dropped", ConnectionString.Name, 1);
-                Context.CounterCollection.IncrementTimeSpan("db views dropped time", ConnectionString.Name, time);
+                Context.CounterCollection.IncrementCounter("db drop view count - " + ConnectionString.Name, 1);
+                Context.CounterCollection.IncrementTimeSpan("db drop view time - " + ConnectionString.Name, time);
             }
             catch (Exception ex)
             {

@@ -100,7 +100,8 @@
 
         private void ProcessRows()
         {
-            CounterCollection.IncrementCounter("processed", _batchRows.Count, true);
+            CounterCollection.IncrementDebugCounter("processed", _batchRows.Count, true);
+            CounterCollection.IncrementCounter("batches", 1, true);
 
             var rightProcess = RightProcessCreator.Invoke(_batchRows.ToArray());
 

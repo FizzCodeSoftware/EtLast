@@ -222,12 +222,12 @@ from
                 Context.Log(LogSeverity.Debug, this, "foreign keys on {ConnectionStringKey}/{TableName} are dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(t.Item1), time, Transaction.Current.ToIdentifierString());
 
-                CounterCollection.IncrementCounter("db foreign keys dropped", t.Item2);
-                CounterCollection.IncrementTimeSpan("db foreign keys time", time);
+                CounterCollection.IncrementCounter("db drop foreign key count", 1);
+                CounterCollection.IncrementTimeSpan("db drop foreign key time", time);
 
                 // not relevant on process level
-                Context.CounterCollection.IncrementCounter("db foreign keys dropped", ConnectionString.Name, t.Item2);
-                Context.CounterCollection.IncrementTimeSpan("db foreign keys time", ConnectionString.Name, time);
+                Context.CounterCollection.IncrementCounter("db drop foreign key count - " + ConnectionString.Name, 1);
+                Context.CounterCollection.IncrementTimeSpan("db drop foreign key time - " + ConnectionString.Name, time);
             }
             catch (Exception ex)
             {

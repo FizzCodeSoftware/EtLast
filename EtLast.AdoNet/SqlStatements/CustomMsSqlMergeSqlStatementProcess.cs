@@ -118,14 +118,14 @@
                 Context.Log(LogSeverity.Information, this, "{RecordCount} records merged to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} in {Elapsed}, transaction: {Transaction}", recordCount,
                     ConnectionString.Name, ConnectionString.Unescape(TargetTableName), ConnectionString.Unescape(SourceTableName), time, Transaction.Current.ToIdentifierString());
 
-                CounterCollection.IncrementCounter("db records merged", recordCount);
-                CounterCollection.IncrementTimeSpan("db merge time", time);
+                CounterCollection.IncrementCounter("db record merge count", recordCount);
+                CounterCollection.IncrementTimeSpan("db record merge time", time);
 
                 // not relevant on process level
-                Context.CounterCollection.IncrementCounter("db records merged", ConnectionString.Name, recordCount);
-                Context.CounterCollection.IncrementCounter("db records merged", ConnectionString.Name + "/" + ConnectionString.Unescape(SourceTableName) + " -> " + ConnectionString.Unescape(TargetTableName), recordCount);
-                Context.CounterCollection.IncrementTimeSpan("db merge time", ConnectionString.Name, time);
-                Context.CounterCollection.IncrementTimeSpan("db merge time", ConnectionString.Name + "/" + ConnectionString.Unescape(SourceTableName) + " -> " + ConnectionString.Unescape(TargetTableName), time);
+                Context.CounterCollection.IncrementCounter("db record merge count - " + ConnectionString.Name, recordCount);
+                Context.CounterCollection.IncrementCounter("db record merge count - " + ConnectionString.Name + "/" + ConnectionString.Unescape(SourceTableName) + " -> " + ConnectionString.Unescape(TargetTableName), recordCount);
+                Context.CounterCollection.IncrementTimeSpan("db record merge time - " + ConnectionString.Name, time);
+                Context.CounterCollection.IncrementTimeSpan("db record merge time - " + ConnectionString.Name + "/" + ConnectionString.Unescape(SourceTableName) + " -> " + ConnectionString.Unescape(TargetTableName), time);
             }
             catch (Exception ex)
             {
