@@ -107,10 +107,10 @@
                 CounterCollection.IncrementTimeSpan("db record copy time", time);
 
                 // not relevant on process level
-                Context.CounterCollection.IncrementCounter("db record copy count - " + ConnectionString.Name, recordCount);
-                Context.CounterCollection.IncrementCounter("db record copy count - " + ConnectionString.Name + "/" + ConnectionString.Unescape(Configuration.SourceTableName) + " -> " + ConnectionString.Unescape(Configuration.TargetTableName), recordCount);
-                Context.CounterCollection.IncrementTimeSpan("db record copy time - " + ConnectionString.Name, time);
-                Context.CounterCollection.IncrementTimeSpan("db record copy time - " + ConnectionString.Name + "/" + ConnectionString.Unescape(Configuration.SourceTableName) + " -> " + ConnectionString.Unescape(Configuration.TargetTableName), time);
+                Context.CounterCollection.IncrementDebugCounter("db record copy count - " + ConnectionString.Name, recordCount);
+                Context.CounterCollection.IncrementDebugCounter("db record copy count - " + ConnectionString.Name + "/" + ConnectionString.Unescape(Configuration.SourceTableName) + " -> " + ConnectionString.Unescape(Configuration.TargetTableName), recordCount);
+                Context.CounterCollection.IncrementDebugTimeSpan("db record copy time - " + ConnectionString.Name, time);
+                Context.CounterCollection.IncrementDebugTimeSpan("db record copy time - " + ConnectionString.Name + "/" + ConnectionString.Unescape(Configuration.SourceTableName) + " -> " + ConnectionString.Unescape(Configuration.TargetTableName), time);
             }
             catch (Exception ex)
             {

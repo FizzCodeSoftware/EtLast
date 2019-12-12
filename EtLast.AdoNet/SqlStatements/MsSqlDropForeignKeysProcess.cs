@@ -206,7 +206,7 @@ from
             }
         }
 
-        protected override void RunCommand(IDbCommand command, int statementIndex)
+        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
         {
             var t = _tableNamesAndCounts[statementIndex];
 
@@ -217,7 +217,7 @@ from
             {
                 command.ExecuteNonQuery();
 
-                var time = LastInvocation.Elapsed;
+                var time = startedOn.Elapsed;
 
                 Context.Log(LogSeverity.Debug, this, "foreign keys on {ConnectionStringKey}/{TableName} are dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(t.Item1), time, Transaction.Current.ToIdentifierString());
@@ -226,8 +226,8 @@ from
                 CounterCollection.IncrementTimeSpan("db drop foreign key time", time);
 
                 // not relevant on process level
-                Context.CounterCollection.IncrementCounter("db drop foreign key count - " + ConnectionString.Name, 1);
-                Context.CounterCollection.IncrementTimeSpan("db drop foreign key time - " + ConnectionString.Name, time);
+                Context.CounterCollection.IncrementDebugCounter("db drop foreign key count - " + ConnectionString.Name, 1);
+                Context.CounterCollection.IncrementDebugTimeSpan("db drop foreign key time - " + ConnectionString.Name, time);
             }
             catch (Exception ex)
             {
@@ -239,7 +239,7 @@ from
                 exception.Data.Add("TableName", ConnectionString.Unescape(t.Item1));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
-                exception.Data.Add("Elapsed", LastInvocation.Elapsed);
+                exception.Data.Add("Elapsed", startedOn.Elapsed);
                 throw exception;
             }
         }

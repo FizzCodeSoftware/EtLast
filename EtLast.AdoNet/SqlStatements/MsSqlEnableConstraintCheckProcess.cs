@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Transactions;
@@ -30,7 +31,7 @@
             return TableNames.Select(tableName => "ALTER TABLE " + tableName + " WITH CHECK CHECK CONSTRAINT ALL;").ToList();
         }
 
-        protected override void RunCommand(IDbCommand command, int statementIndex)
+        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
         {
             var tableName = TableNames[statementIndex];
 
@@ -40,8 +41,11 @@
             try
             {
                 command.ExecuteNonQuery();
+
+                var time = startedOn.Elapsed;
+
                 Context.Log(LogSeverity.Debug, this, "constraint check on {ConnectionStringKey}/{TableName} is enabled in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
-                    ConnectionString.Unescape(tableName), LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
+                    ConnectionString.Unescape(tableName), time, Transaction.Current.ToIdentifierString());
             }
             catch (Exception ex)
             {
@@ -53,7 +57,7 @@
                 exception.Data.Add("TableName", ConnectionString.Unescape(tableName));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
-                exception.Data.Add("Elapsed", LastInvocation.Elapsed);
+                exception.Data.Add("Elapsed", startedOn.Elapsed);
                 throw exception;
             }
         }

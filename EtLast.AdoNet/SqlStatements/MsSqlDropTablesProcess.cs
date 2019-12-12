@@ -129,7 +129,7 @@
                 .ToList();
         }
 
-        protected override void RunCommand(IDbCommand command, int statementIndex)
+        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
         {
             var tableName = _tableNames[statementIndex];
 
@@ -140,7 +140,7 @@
             {
                 command.ExecuteNonQuery();
 
-                var time = LastInvocation.Elapsed;
+                var time = startedOn.Elapsed;
 
                 Context.Log(LogSeverity.Debug, this, "table {ConnectionStringKey}/{TableName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(tableName), time, Transaction.Current.ToIdentifierString());
@@ -149,8 +149,8 @@
                 CounterCollection.IncrementTimeSpan("db drop table time", time);
 
                 // not relevant on process level
-                Context.CounterCollection.IncrementCounter("db drop table count - " + ConnectionString.Name, 1);
-                Context.CounterCollection.IncrementTimeSpan("db drop table time - " + ConnectionString.Name, time);
+                Context.CounterCollection.IncrementDebugCounter("db drop table count - " + ConnectionString.Name, 1);
+                Context.CounterCollection.IncrementDebugTimeSpan("db drop table time - " + ConnectionString.Name, time);
             }
             catch (Exception ex)
             {
@@ -162,7 +162,7 @@
                 exception.Data.Add("TableName", ConnectionString.Unescape(tableName));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
-                exception.Data.Add("Elapsed", LastInvocation.Elapsed);
+                exception.Data.Add("Elapsed", startedOn.Elapsed);
                 throw exception;
             }
         }

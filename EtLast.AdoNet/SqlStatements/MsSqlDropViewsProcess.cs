@@ -129,7 +129,7 @@
                 .ToList();
         }
 
-        protected override void RunCommand(IDbCommand command, int statementIndex)
+        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
         {
             var viewName = _viewNames[statementIndex];
 
@@ -140,7 +140,7 @@
             {
                 command.ExecuteNonQuery();
 
-                var time = LastInvocation.Elapsed;
+                var time = startedOn.Elapsed;
 
                 Context.Log(LogSeverity.Debug, this, "view {ConnectionStringKey}/{ViewName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(viewName), time, Transaction.Current.ToIdentifierString());
@@ -149,8 +149,8 @@
                 CounterCollection.IncrementTimeSpan("db drop view time", time);
 
                 // not relevant on process level
-                Context.CounterCollection.IncrementCounter("db drop view count - " + ConnectionString.Name, 1);
-                Context.CounterCollection.IncrementTimeSpan("db drop view time - " + ConnectionString.Name, time);
+                Context.CounterCollection.IncrementDebugCounter("db drop view count - " + ConnectionString.Name, 1);
+                Context.CounterCollection.IncrementDebugTimeSpan("db drop view time - " + ConnectionString.Name, time);
             }
             catch (Exception ex)
             {
@@ -162,7 +162,7 @@
                 exception.Data.Add("ViewName", ConnectionString.Unescape(viewName));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
-                exception.Data.Add("Elapsed", LastInvocation.Elapsed);
+                exception.Data.Add("Elapsed", startedOn.Elapsed);
                 throw exception;
             }
         }

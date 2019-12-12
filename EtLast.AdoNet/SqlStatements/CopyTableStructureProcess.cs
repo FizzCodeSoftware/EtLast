@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Text;
@@ -60,7 +61,7 @@
             return statements;
         }
 
-        protected override void RunCommand(IDbCommand command, int statementIndex)
+        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
         {
             var config = Configuration[statementIndex];
 
@@ -72,7 +73,7 @@
                 command.ExecuteNonQuery();
 
                 Context.Log(LogSeverity.Debug, this, "table {ConnectionStringKey}/{TargetTableName} is created from {SourceTableName} in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
-                    ConnectionString.Unescape(config.TargetTableName), ConnectionString.Unescape(config.SourceTableName), LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
+                    ConnectionString.Unescape(config.TargetTableName), ConnectionString.Unescape(config.SourceTableName), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
             }
             catch (Exception ex)
             {
@@ -90,7 +91,7 @@
 
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
-                exception.Data.Add("Elapsed", LastInvocation.Elapsed);
+                exception.Data.Add("Elapsed", startedOn.Elapsed);
                 throw exception;
             }
         }

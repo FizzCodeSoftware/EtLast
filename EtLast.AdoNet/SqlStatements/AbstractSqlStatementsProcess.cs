@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Diagnostics;
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
@@ -55,12 +56,15 @@
                         {
                             cmd.CommandTimeout = CommandTimeout;
 
+                            var startedOn = Stopwatch.StartNew();
+
                             for (var i = 0; i < statements.Count; i++)
                             {
                                 cmd.CommandText = statements[i];
                                 try
                                 {
-                                    RunCommand(cmd, i);
+                                    startedOn.Restart();
+                                    RunCommand(cmd, i, startedOn);
                                 }
                                 catch (Exception)
                                 {
@@ -82,7 +86,7 @@
 
         protected abstract List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection);
 
-        protected abstract void RunCommand(IDbCommand command, int statementIndex);
+        protected abstract void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn);
         protected abstract void LogSucceeded(int lastSucceededIndex);
     }
 }

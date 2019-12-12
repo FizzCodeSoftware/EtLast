@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Transactions;
@@ -36,7 +37,7 @@
                 .ToList();
         }
 
-        protected override void RunCommand(IDbCommand command, int statementIndex)
+        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
         {
             var schemaName = SchemaNames[statementIndex];
 
@@ -47,7 +48,7 @@
             {
                 command.ExecuteNonQuery();
 
-                var time = LastInvocation.Elapsed;
+                var time = startedOn.Elapsed;
 
                 Context.Log(LogSeverity.Debug, this, "schema {ConnectionStringKey}/{SchemaName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(schemaName), time, Transaction.Current.ToIdentifierString());
@@ -56,8 +57,8 @@
                 CounterCollection.IncrementTimeSpan("db drop schema time", time);
 
                 // not relevant on process level
-                Context.CounterCollection.IncrementCounter("db drop schema count - " + ConnectionString.Name, 1);
-                Context.CounterCollection.IncrementTimeSpan("db drop schema time - " + ConnectionString.Name, time);
+                Context.CounterCollection.IncrementDebugCounter("db drop schema count - " + ConnectionString.Name, 1);
+                Context.CounterCollection.IncrementDebugTimeSpan("db drop schema time - " + ConnectionString.Name, time);
             }
             catch (Exception ex)
             {
@@ -69,7 +70,7 @@
                 exception.Data.Add("SchemaName", ConnectionString.Unescape(schemaName));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
-                exception.Data.Add("Elapsed", LastInvocation.Elapsed);
+                exception.Data.Add("Elapsed", startedOn.Elapsed);
                 throw exception;
             }
         }
