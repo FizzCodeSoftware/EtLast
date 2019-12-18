@@ -25,9 +25,8 @@
             if (SchemaNames == null || SchemaNames.Length == 0)
                 throw new ProcessParameterNullException(this, nameof(SchemaNames));
 
-            var knownProvider = Context.GetConnectionString(ConnectionStringKey)?.KnownProvider;
-            if (knownProvider != KnownProvider.SqlServer)
-                throw new InvalidProcessParameterException(this, nameof(ConnectionString), nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
+            if (ConnectionString.KnownProvider != KnownProvider.SqlServer)
+                throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be System.Data.SqlClient");
         }
 
         protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection)
@@ -41,7 +40,7 @@
         {
             var schemaName = SchemaNames[statementIndex];
 
-            Context.Log(LogSeverity.Debug, this, "drop schema {ConnectionStringKey}/{SchemaName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+            Context.Log(LogSeverity.Debug, this, "drop schema {ConnectionStringName}/{SchemaName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(schemaName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
@@ -50,7 +49,7 @@
 
                 var time = startedOn.Elapsed;
 
-                Context.Log(LogSeverity.Debug, this, "schema {ConnectionStringKey}/{SchemaName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
+                Context.Log(LogSeverity.Debug, this, "schema {ConnectionStringName}/{SchemaName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(schemaName), time, Transaction.Current.ToIdentifierString());
 
                 CounterCollection.IncrementCounter("db drop schema count", 1);
@@ -66,7 +65,7 @@
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop schema, connection string key: {0}, schema: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionString.Name, ConnectionString.Unescape(schemaName), ex.Message, command.CommandText, command.CommandTimeout));
 
-                exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
+                exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                 exception.Data.Add("SchemaName", ConnectionString.Unescape(schemaName));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
@@ -80,7 +79,7 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            Context.Log(LogSeverity.Information, this, "{SchemaCount} schema(s) successfully dropped on {ConnectionStringKey} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
+            Context.Log(LogSeverity.Information, this, "{SchemaCount} schema(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
                 ConnectionString.Name, LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }

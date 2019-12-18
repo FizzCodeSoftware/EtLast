@@ -1,8 +1,9 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System.Collections.Generic;
+    using FizzCode.DbTools.Configuration;
 
-    public delegate IEnumerable<IExecutable> ResilientSqlScopeExecutableCreatorDelegate(string connectionStringKey, ResilientSqlScopeConfiguration configuration);
+    public delegate IEnumerable<IExecutable> ResilientSqlScopeExecutableCreatorDelegate(ResilientSqlScope scope);
 
     public enum ResilientSqlScopeTempTableMode
     {
@@ -33,7 +34,7 @@
         /// </summary>
         public ResilientSqlScopeTempTableMode TempTableMode { get; set; } = ResilientSqlScopeTempTableMode.KeepOnlyOnFailure;
 
-        public string ConnectionStringKey { get; set; }
+        public ConnectionStringWithProvider ConnectionString { get; set; }
 
         /// <summary>
         /// Allows the execution of initializers BEFORE the individual table processes are created and executed.

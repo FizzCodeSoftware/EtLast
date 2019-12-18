@@ -95,7 +95,7 @@
 
         protected override void RunCommand(IDbCommand command)
         {
-            Context.Log(LogSeverity.Debug, this, "merging to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+            Context.Log(LogSeverity.Debug, this, "merging to {ConnectionStringName}/{TargetTableName} from {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(TargetTableName), ConnectionString.Unescape(SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             if (Parameters != null)
@@ -115,7 +115,7 @@
 
                 var time = LastInvocation.Elapsed;
 
-                Context.Log(LogSeverity.Information, this, "{RecordCount} records merged to {ConnectionStringKey}/{TargetTableName} from {SourceTableName} in {Elapsed}, transaction: {Transaction}", recordCount,
+                Context.Log(LogSeverity.Information, this, "{RecordCount} records merged to {ConnectionStringName}/{TargetTableName} from {SourceTableName} in {Elapsed}, transaction: {Transaction}", recordCount,
                     ConnectionString.Name, ConnectionString.Unescape(TargetTableName), ConnectionString.Unescape(SourceTableName), time, Transaction.Current.ToIdentifierString());
 
                 CounterCollection.IncrementCounter("db record merge count", recordCount);
@@ -133,7 +133,7 @@
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "custom merge statement failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                     ConnectionString.Name, ex.Message, command.CommandText, CommandTimeout));
 
-                exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
+                exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", CommandTimeout);
                 exception.Data.Add("Elapsed", LastInvocation.Elapsed);

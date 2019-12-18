@@ -13,7 +13,7 @@
     public class WriteToTableOperation : AbstractRowOperation
     {
         public RowTestDelegate If { get; set; }
-        public string ConnectionStringKey { get; set; }
+        public ConnectionStringWithProvider ConnectionString { get; set; }
         public int CommandTimeout { get; set; } = 30;
         public int MaximumParameterCount { get; set; } = 30;
         public IDictionary<string, DbType> ColumnTypes { get; set; }
@@ -23,8 +23,6 @@
         public IAdoNetWriteToTableSqlStatementCreator SqlStatementCreator { get; set; }
 
         private DatabaseConnection _connection;
-        private ConnectionStringWithProvider _connectionString;
-
         private List<string> _statements;
 
         private int _rowsWritten;
@@ -48,7 +46,7 @@
                     _command.CommandTimeout = CommandTimeout;
                 }
 
-                var statement = SqlStatementCreator.CreateRowStatement(_connectionString, row, this);
+                var statement = SqlStatementCreator.CreateRowStatement(ConnectionString, row, this);
                 _statements.Add(statement);
 
                 if (_command.Parameters.Count >= MaximumParameterCount - 1)
@@ -65,7 +63,7 @@
 
             try
             {
-                _connection = ConnectionManager.GetConnection(_connectionString, process, this);
+                _connection = ConnectionManager.GetConnection(ConnectionString, process, this);
             }
             catch (Exception ex)
             {
@@ -81,7 +79,7 @@
             var parameter = _command.CreateParameter();
             parameter.ParameterName = "@" + _command.Parameters.Count.ToString("D", CultureInfo.InvariantCulture);
 
-            SetParameter(parameter, value, dbColumnDefinition.DbType, _connectionString);
+            SetParameter(parameter, value, dbColumnDefinition.DbType, ConnectionString);
 
             _command.Parameters.Add(parameter);
         }
@@ -91,7 +89,7 @@
             if (Transaction.Current == null)
                 Process.Context.Log(LogSeverity.Warning, Process, this, "there is no active transaction!");
 
-            var sqlStatement = SqlStatementCreator.CreateStatement(_connectionString, _statements);
+            var sqlStatement = SqlStatementCreator.CreateStatement(ConnectionString, _statements);
             var recordCount = _statements.Count;
 
             var startedOn = Stopwatch.StartNew();
@@ -102,7 +100,7 @@
             AdoNetSqlStatementDebugEventListener.GenerateEvent(Process, () => new AdoNetSqlStatementDebugEvent()
             {
                 Operation = this,
-                ConnectionString = _connectionString,
+                ConnectionString = ConnectionString,
                 SqlStatement = sqlStatement,
                 CompiledSqlStatement = CompileSql(_command),
             });
@@ -119,28 +117,28 @@
                 CounterCollection.IncrementTimeSpan("db record write time", time);
 
                 // not relevant on operation level
-                Process.Context.CounterCollection.IncrementDebugCounter("db record write count - " + _connectionString.Name, recordCount);
-                Process.Context.CounterCollection.IncrementDebugCounter("db record write count - " + _connectionString.Name + "/" + _connectionString.Unescape(TableDefinition.TableName), recordCount);
-                Process.Context.CounterCollection.IncrementDebugTimeSpan("db record write time - " + _connectionString.Name, time);
-                Process.Context.CounterCollection.IncrementDebugTimeSpan("db record write time - " + _connectionString.Name + "/" + _connectionString.Unescape(TableDefinition.TableName), time);
+                Process.Context.CounterCollection.IncrementDebugCounter("db record write count - " + ConnectionString.Name, recordCount);
+                Process.Context.CounterCollection.IncrementDebugCounter("db record write count - " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName), recordCount);
+                Process.Context.CounterCollection.IncrementDebugTimeSpan("db record write time - " + ConnectionString.Name, time);
+                Process.Context.CounterCollection.IncrementDebugTimeSpan("db record write time - " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName), time);
 
                 _rowsWritten += recordCount;
 
                 if (shutdown || (_rowsWritten / 10000 != (_rowsWritten - recordCount) / 10000))
                 {
                     var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
-                    Process.Context.Log(severity, Process, this, "{TotalRowCount} records written to {ConnectionStringKey}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow)", _rowsWritten,
-                        _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), Transaction.Current.ToIdentifierString(), Math.Round(_fullTime.ElapsedMilliseconds * 1000 / (double)_rowsWritten, 1));
+                    Process.Context.Log(severity, Process, this, "{TotalRowCount} records written to {ConnectionStringName}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow)", _rowsWritten,
+                        ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), Transaction.Current.ToIdentifierString(), Math.Round(_fullTime.ElapsedMilliseconds * 1000 / (double)_rowsWritten, 1));
                 }
             }
             catch (Exception ex)
             {
                 var exception = new OperationExecutionException(Process, this, "db records written failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db records written failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",
-                    _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), ex.Message, sqlStatement));
-                exception.Data.Add("ConnectionStringKey", _connectionString.Name);
-                exception.Data.Add("TableName", _connectionString.Unescape(TableDefinition.TableName));
-                exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + _connectionString.Unescape(x.DbColumn))));
+                    ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message, sqlStatement));
+                exception.Data.Add("ConnectionStringName", ConnectionString.Name);
+                exception.Data.Add("TableName", ConnectionString.Unescape(TableDefinition.TableName));
+                exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + ConnectionString.Unescape(x.DbColumn))));
                 exception.Data.Add("SqlStatement", sqlStatement);
                 exception.Data.Add("SqlStatementCompiled", CompileSql(_command));
                 exception.Data.Add("Timeout", CommandTimeout);
@@ -196,8 +194,8 @@
 
         public override void Prepare()
         {
-            if (string.IsNullOrEmpty(ConnectionStringKey))
-                throw new OperationParameterNullException(this, nameof(ConnectionStringKey));
+            if (ConnectionString == null)
+                throw new OperationParameterNullException(this, nameof(ConnectionString));
 
             if (MaximumParameterCount <= 0)
                 throw new InvalidOperationParameterException(this, nameof(MaximumParameterCount), MaximumParameterCount, "value must be greater than 0");
@@ -209,13 +207,6 @@
                 throw new OperationParameterNullException(this, nameof(TableDefinition));
 
             SqlStatementCreator.Prepare(this, Process, TableDefinition);
-
-            _connectionString = Process.Context.GetConnectionString(ConnectionStringKey);
-            if (_connectionString == null)
-                throw new InvalidOperationParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
-
-            if (_connectionString.ProviderName == null)
-                throw new OperationParameterNullException(this, "ConnectionString");
 
             _rowsWritten = 0;
             _fullTime = new Stopwatch();

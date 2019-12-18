@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using FizzCode.DbTools.Configuration;
 
     internal class ResilientTableFinalizerManager : IProcess
     {
@@ -21,7 +20,7 @@
             CounterCollection = new StatCounterCollection(scope.Context.CounterCollection);
         }
 
-        public void Execute(ConnectionStringWithProvider connectionString)
+        public void Execute()
         {
             LastInvocation = Stopwatch.StartNew();
 
@@ -31,13 +30,13 @@
             var tempTablesWithoutData = 0;
             foreach (var table in _scope.Configuration.Tables)
             {
-                var recordCount = CountRecordsIn(connectionString, table.TempTableName);
+                var recordCount = CountRecordsIn(table.TempTableName);
 
                 if (table.AdditionalTables?.Count > 0)
                 {
                     foreach (var additionalTable in table.AdditionalTables.Values)
                     {
-                        recordCount += CountRecordsIn(connectionString, additionalTable.TempTableName);
+                        recordCount += CountRecordsIn(additionalTable.TempTableName);
                     }
                 }
 
@@ -46,7 +45,7 @@
                     tempTablesWithData++;
 
                     Context.Log(LogSeverity.Information, this, "creating finalizers for {TableName}",
-                        connectionString.Unescape(table.TableName));
+                        _scope.Configuration.ConnectionString.Unescape(table.TableName));
 
                     var creatorScopeKind = table.SuppressTransactionScopeForCreators
                         ? TransactionScopeKind.Suppress
@@ -74,7 +73,7 @@
                 else
                 {
                     tempTablesWithoutData++;
-                    Context.Log(LogSeverity.Debug, this, "no data found for {TableName}, skipping finalizers", connectionString.Unescape(table.TableName));
+                    Context.Log(LogSeverity.Debug, this, "no data found for {TableName}, skipping finalizers", _scope.Configuration.ConnectionString.Unescape(table.TableName));
                 }
             }
 
@@ -82,11 +81,11 @@
             Context.Log(LogSeverity.Information, this, "{TableCount} temp table is empty", tempTablesWithoutData);
         }
 
-        private int CountRecordsIn(ConnectionStringWithProvider connectionString, string tempTableName)
+        private int CountRecordsIn(string tempTableName)
         {
-            var count = new CustomSqlAdoNetDbReaderProcess(Context, "TempRecordCountReader:" + connectionString.Unescape(tempTableName))
+            var count = new CustomSqlAdoNetDbReaderProcess(Context, "TempRecordCountReader:" + _scope.Configuration.ConnectionString.Unescape(tempTableName))
             {
-                ConnectionStringKey = connectionString.Name,
+                ConnectionString = _scope.Configuration.ConnectionString,
                 Sql = "select count(*) as cnt from " + tempTableName,
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
                 {
@@ -97,7 +96,10 @@
                 }
             }.Evaluate(this).ToList().FirstOrDefault()?.GetAs<int>("cnt") ?? 0;
 
-            Context.Log(count > 0 ? LogSeverity.Information : LogSeverity.Debug, this, "{TempRecordCount} records found in {TableName}", count, connectionString.Unescape(tempTableName));
+            Context.Log(count > 0
+                ? LogSeverity.Information
+                : LogSeverity.Debug,
+                this, "{TempRecordCount} records found in {TableName}", count, _scope.Configuration.ConnectionString.Unescape(tempTableName));
 
             return count;
         }

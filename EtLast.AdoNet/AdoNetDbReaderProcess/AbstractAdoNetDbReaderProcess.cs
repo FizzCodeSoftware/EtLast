@@ -13,7 +13,7 @@
 
     public abstract class AbstractAdoNetDbReaderProcess : AbstractProducerProcess
     {
-        public string ConnectionStringKey { get; set; }
+        public ConnectionStringWithProvider ConnectionString { get; set; }
 
         public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
         public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
@@ -30,7 +30,6 @@
         public DateTime LastDataRead { get; private set; }
         public List<ISqlValueProcessor> SqlValueProcessors { get; } = new List<ISqlValueProcessor>();
 
-        protected ConnectionStringWithProvider ConnectionString { get; private set; }
         public Dictionary<string, object> Parameters { get; set; }
 
         /// <summary>
@@ -53,21 +52,12 @@
 
         public override void ValidateImpl()
         {
-            if (string.IsNullOrEmpty(ConnectionStringKey))
-                throw new ProcessParameterNullException(this, nameof(ConnectionStringKey));
-
-            var connectionString = Context.GetConnectionString(ConnectionStringKey);
-            if (connectionString == null)
-                throw new InvalidProcessParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
-
-            if (connectionString.ProviderName == null)
-                throw new ProcessParameterNullException(this, "ConnectionString");
+            if (ConnectionString == null)
+                throw new ProcessParameterNullException(this, nameof(ConnectionString));
         }
 
         protected override IEnumerable<IRow> Produce()
         {
-            ConnectionString = Context.GetConnectionString(ConnectionStringKey);
-
             var usedSqlValueProcessors = SqlValueProcessors.Where(x => x.Init(ConnectionString)).ToList();
             if (usedSqlValueProcessors.Count == 0)
                 usedSqlValueProcessors = null;
@@ -114,7 +104,7 @@
                     ? "custom (" + cmd.Transaction.IsolationLevel.ToString() + ")"
                     : Transaction.Current.ToIdentifierString();
 
-                Context.Log(LogSeverity.Debug, this, "executing query {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}",
+                Context.Log(LogSeverity.Debug, this, "executing query {SqlStatement} on {ConnectionStringName}, timeout: {Timeout} sec, transaction: {Transaction}",
                     HideStatementInLog ? "<hidden>" : sqlStatement, ConnectionString.Name, cmd.CommandTimeout, transactionName);
 
                 if (Parameters != null)

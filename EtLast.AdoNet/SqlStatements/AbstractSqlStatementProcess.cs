@@ -7,8 +7,7 @@
 
     public abstract class AbstractSqlStatementProcess : AbstractExecutableProcess
     {
-        public string ConnectionStringKey { get; set; }
-        protected ConnectionStringWithProvider ConnectionString { get; private set; }
+        public ConnectionStringWithProvider ConnectionString { get; set; }
         public int CommandTimeout { get; set; } = 300;
 
         protected AbstractSqlStatementProcess(IEtlContext context, string name = null)
@@ -24,14 +23,12 @@
 
         public override void ValidateImpl()
         {
-            if (string.IsNullOrEmpty(ConnectionStringKey))
-                throw new ProcessParameterNullException(this, nameof(ConnectionStringKey));
+            if (ConnectionString == null)
+                throw new ProcessParameterNullException(this, nameof(ConnectionString));
         }
 
         protected override void ExecuteImpl()
         {
-            ConnectionString = Context.GetConnectionString(ConnectionStringKey);
-
             var parameters = new Dictionary<string, object>();
             var statement = CreateSqlStatement(ConnectionString, parameters);
 

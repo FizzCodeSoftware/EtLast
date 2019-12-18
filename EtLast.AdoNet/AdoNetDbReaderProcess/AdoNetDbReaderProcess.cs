@@ -73,7 +73,7 @@
 
         protected override void LogAction()
         {
-            Context.Log(LogSeverity.Debug, this, "reading from {ConnectionStringKey}/{TableName}, timeout: {Timeout} sec, transaction: {Transaction}",
+            Context.Log(LogSeverity.Debug, this, "reading from {ConnectionStringName}/{TableName}, timeout: {Timeout} sec, transaction: {Transaction}",
                 ConnectionString.Name, ConnectionString.Unescape(TableName), CommandTimeout, Transaction.Current.ToIdentifierString());
         }
 

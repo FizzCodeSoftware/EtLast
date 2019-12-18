@@ -26,7 +26,7 @@
 
         protected override void LogAction()
         {
-            Context.Log(LogSeverity.Debug, this, "reading from {ConnectionStringKey} using custom query, timeout: {Timeout} sec, transaction: {Transaction}",
+            Context.Log(LogSeverity.Debug, this, "reading from {ConnectionStringName} using custom query, timeout: {Timeout} sec, transaction: {Transaction}",
                 ConnectionString.Name, CommandTimeout, Transaction.Current.ToIdentifierString());
         }
 

@@ -28,7 +28,7 @@
             Context.Log(LogSeverity.Information, this, "started");
             using (var creatorScope = Context.BeginScope(this, null, TransactionScopeKind.Suppress, LogSeverity.Information))
             {
-                finalizers = _scope.Configuration.PostFinalizerCreator.Invoke(_scope.Configuration.ConnectionStringKey, _scope.Configuration)
+                finalizers = _scope.Configuration.PostFinalizerCreator.Invoke(_scope)
                     ?.Where(x => x != null)
                     .ToArray();
 

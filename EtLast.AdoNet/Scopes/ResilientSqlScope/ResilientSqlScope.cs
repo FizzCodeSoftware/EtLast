@@ -44,19 +44,13 @@
             if (Configuration.Tables == null)
                 throw new ProcessParameterNullException(this, nameof(Configuration.Tables));
 
-            if (Configuration.ConnectionStringKey == null)
-                throw new ProcessParameterNullException(this, nameof(Configuration.ConnectionStringKey));
-
-            var connectionString = Context.GetConnectionString(Configuration.ConnectionStringKey);
-            if (connectionString == null)
-                throw new InvalidProcessParameterException(this, nameof(Configuration.ConnectionStringKey), Configuration.ConnectionStringKey, "key doesn't exists");
+            if (Configuration.ConnectionString == null)
+                throw new ProcessParameterNullException(this, nameof(Configuration.ConnectionString));
         }
 
         protected override void ExecuteImpl()
         {
             Context.Log(LogSeverity.Information, this, "scope started");
-
-            var connectionString = Context.GetConnectionString(Configuration.ConnectionStringKey);
 
             var maxRetryCount = Configuration.FinalizerRetryCount;
             if (Configuration.FinalizerTransactionScopeKind != TransactionScopeKind.RequiresNew && maxRetryCount > 0)
@@ -118,7 +112,7 @@
                         if (table.MainProcessCreator != null)
                         {
                             Context.Log(LogSeverity.Information, this, "creating main process for table {TableName}",
-                                connectionString.Unescape(table.TableName));
+                                Configuration.ConnectionString.Unescape(table.TableName));
 
                             IExecutable[] mainProcessList;
 
@@ -144,7 +138,7 @@
                         }
 
                         Context.Log(LogSeverity.Information, this, "creating main process for table {TableName}, (partition #{PartitionIndex})",
-                            connectionString.Unescape(table.TableName), partitionIndex);
+                            Configuration.ConnectionString.Unescape(table.TableName), partitionIndex);
 
                         IEvaluable mainEvaluableProcess;
 
@@ -181,7 +175,7 @@
                         if (Context.ExceptionCount == initialExceptionCount)
                         {
                             var tableFinalizer = new ResilientTableFinalizerManager(this);
-                            tableFinalizer.Execute(connectionString);
+                            tableFinalizer.Execute();
 
                             if (Configuration.PostFinalizerCreator != null && Context.ExceptionCount == initialExceptionCount)
                             {
@@ -245,7 +239,7 @@
         {
             yield return new DeleteTableProcess(table.Scope.Context, "DeleteContentFromTargetTable")
             {
-                ConnectionStringKey = table.Scope.Configuration.ConnectionStringKey,
+                ConnectionString = table.Scope.Configuration.ConnectionString,
                 TableName = table.TableName,
                 CommandTimeout = commandTimeout,
             };
@@ -260,7 +254,7 @@
             yield return new CopyTableIntoExistingTableProcess(table.Scope.Context, "CopyTempToTargetTable")
 #pragma warning restore RCS1227 // Validate arguments correctly.
             {
-                ConnectionStringKey = table.Scope.Configuration.ConnectionStringKey,
+                ConnectionString = table.Scope.Configuration.ConnectionString,
                 Configuration = new TableCopyConfiguration()
                 {
                     SourceTableName = table.TempTableName,
@@ -279,7 +273,7 @@
         {
             yield return new CustomMsSqlMergeSqlStatementProcess(table.Scope.Context)
             {
-                ConnectionStringKey = table.Scope.Configuration.ConnectionStringKey,
+                ConnectionString = table.Scope.Configuration.ConnectionString,
                 CommandTimeout = commandTimeout,
                 SourceTableName = table.TempTableName,
                 SourceTableAlias = "s",
@@ -325,7 +319,7 @@
 
             new CopyTableStructureProcess(context, "RecreateTempTables")
             {
-                ConnectionStringKey = Configuration.ConnectionStringKey,
+                ConnectionString = Configuration.ConnectionString,
                 SuppressExistingTransactionScope = true,
                 Configuration = config,
             }.Execute(this);
@@ -342,7 +336,7 @@
 
             new DropTablesProcess(context, "DropTempTables")
             {
-                ConnectionStringKey = Configuration.ConnectionStringKey,
+                ConnectionString = Configuration.ConnectionString,
                 TableNames = tempTableNames
                     .Concat(additionalTempTableNames)
                     .ToArray(),

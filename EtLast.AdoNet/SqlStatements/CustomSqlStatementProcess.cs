@@ -42,7 +42,7 @@
 
         protected override void RunCommand(IDbCommand command)
         {
-            Context.Log(LogSeverity.Debug, this, "executing custom SQL statement {SqlStatement} on {ConnectionStringKey}, timeout: {Timeout} sec, transaction: {Transaction}", command.CommandText,
+            Context.Log(LogSeverity.Debug, this, "executing custom SQL statement {SqlStatement} on {ConnectionStringName}, timeout: {Timeout} sec, transaction: {Transaction}", command.CommandText,
                 ConnectionString.Name, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             if (Parameters != null)
@@ -68,7 +68,7 @@
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "custom SQL statement failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                     ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
 
-                exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
+                exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
                 exception.Data.Add("Elapsed", LastInvocation.Elapsed);

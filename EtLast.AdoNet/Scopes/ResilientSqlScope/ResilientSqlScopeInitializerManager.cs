@@ -29,7 +29,7 @@
             Context.Log(LogSeverity.Information, this, "started");
             using (var creatorScope = Context.BeginScope(this, null, TransactionScopeKind.Suppress, LogSeverity.Information))
             {
-                initializers = _scope.Configuration.InitializerCreator.Invoke(_scope.Configuration.ConnectionStringKey, _scope.Configuration)
+                initializers = _scope.Configuration.InitializerCreator.Invoke(_scope)
                     ?.Where(x => x != null)
                     .ToArray();
 

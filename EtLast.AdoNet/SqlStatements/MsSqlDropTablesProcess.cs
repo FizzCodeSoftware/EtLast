@@ -54,9 +54,8 @@
                     break;
             }
 
-            var knownProvider = Context.GetConnectionString(ConnectionStringKey)?.KnownProvider;
-            if (knownProvider != KnownProvider.SqlServer)
-                throw new InvalidProcessParameterException(this, nameof(ConnectionString), nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
+            if (ConnectionString.KnownProvider != KnownProvider.SqlServer)
+                throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be System.Data.SqlClient");
         }
 
         protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection)
@@ -85,7 +84,7 @@
                                 command.Parameters.Add(parameter);
                             }
 
-                            Context.Log(LogSeverity.Debug, this, "querying table names from {ConnectionStringKey} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+                            Context.Log(LogSeverity.Debug, this, "querying table names from {ConnectionStringName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                                 command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
                             _tableNames = new List<string>();
@@ -106,7 +105,7 @@
                                 _ => null,
                             };
 
-                            Context.Log(LogSeverity.Information, this, "{TableCount} tables aquired from information schema of {ConnectionStringKey} in {Elapsed}" + modeInfo,
+                            Context.Log(LogSeverity.Information, this, "{TableCount} tables aquired from information schema of {ConnectionStringName} in {Elapsed}" + modeInfo,
                                 _tableNames.Count, ConnectionString.Name, startedOn.Elapsed);
                         }
                         catch (Exception ex)
@@ -114,7 +113,7 @@
                             var exception = new ProcessExecutionException(this, "failed to query table names from information schema", ex);
                             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "table list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                                 ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
-                            exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
+                            exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                             exception.Data.Add("Statement", command.CommandText);
                             exception.Data.Add("Timeout", command.CommandTimeout);
                             exception.Data.Add("Elapsed", startedOn.Elapsed);
@@ -133,7 +132,7 @@
         {
             var tableName = _tableNames[statementIndex];
 
-            Context.Log(LogSeverity.Debug, this, "drop table {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+            Context.Log(LogSeverity.Debug, this, "drop table {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(tableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
@@ -142,7 +141,7 @@
 
                 var time = startedOn.Elapsed;
 
-                Context.Log(LogSeverity.Debug, this, "table {ConnectionStringKey}/{TableName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
+                Context.Log(LogSeverity.Debug, this, "table {ConnectionStringName}/{TableName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(tableName), time, Transaction.Current.ToIdentifierString());
 
                 CounterCollection.IncrementCounter("db drop table count", 1);
@@ -158,7 +157,7 @@
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop table, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionString.Name, ConnectionString.Unescape(tableName), ex.Message, command.CommandText, command.CommandTimeout));
 
-                exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
+                exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                 exception.Data.Add("TableName", ConnectionString.Unescape(tableName));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
@@ -172,7 +171,7 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            Context.Log(LogSeverity.Information, this, "{TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
+            Context.Log(LogSeverity.Information, this, "{TableCount} table(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
                 ConnectionString.Name, LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }

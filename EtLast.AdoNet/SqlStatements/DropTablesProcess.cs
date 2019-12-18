@@ -37,7 +37,7 @@
         {
             var tableName = TableNames[statementIndex];
 
-            Context.Log(LogSeverity.Debug, this, "drop table {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+            Context.Log(LogSeverity.Debug, this, "drop table {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(tableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
@@ -46,7 +46,7 @@
 
                 var time = startedOn.Elapsed;
 
-                Context.Log(LogSeverity.Debug, this, "table {ConnectionStringKey}/{TableName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
+                Context.Log(LogSeverity.Debug, this, "table {ConnectionStringName}/{TableName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(tableName), time, Transaction.Current.ToIdentifierString());
 
                 CounterCollection.IncrementCounter("db drop table count", 1);
@@ -62,7 +62,7 @@
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop table, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionString.Name, ConnectionString.Unescape(tableName), ex.Message, command.CommandText, command.CommandTimeout));
 
-                exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
+                exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                 exception.Data.Add("TableName", ConnectionString.Unescape(tableName));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
@@ -76,7 +76,7 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            Context.Log(LogSeverity.Information, this, "{TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
+            Context.Log(LogSeverity.Information, this, "{TableCount} table(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
                 ConnectionString.Name, LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }

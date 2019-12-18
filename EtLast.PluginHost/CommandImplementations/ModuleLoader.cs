@@ -33,12 +33,12 @@
                     var knownFields = connectionString.GetKnownConnectionStringFields();
                     if (knownFields == null)
                     {
-                        commandContext.Logger.Information("\t{ConnectionStringKey} ({Provider})",
+                        commandContext.Logger.Information("\t{ConnectionStringName} ({Provider})",
                             connectionString.Name, connectionString.GetFriendlyProviderName());
                     }
                     else
                     {
-                        var message = "\t{ConnectionStringKey} ({Provider})";
+                        var message = "\t{ConnectionStringName} ({Provider})";
                         var args = new List<object>()
                             {
                                 connectionString.Name,

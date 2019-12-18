@@ -54,7 +54,7 @@
 
         protected override void RunCommand(IDbCommand command)
         {
-            Context.Log(LogSeverity.Debug, this, "creating new table {ConnectionStringKey}/{TargetTableName} and copying records from {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+            Context.Log(LogSeverity.Debug, this, "creating new table {ConnectionStringName}/{TargetTableName} and copying records from {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(Configuration.TargetTableName), ConnectionString.Unescape(Configuration.SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
@@ -63,7 +63,7 @@
 
                 var time = LastInvocation.Elapsed;
 
-                Context.Log(LogSeverity.Information, this, "table {ConnectionStringKey}/{TargetTableName} created and {RecordCount} records copied from {SourceTableName} in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
+                Context.Log(LogSeverity.Information, this, "table {ConnectionStringName}/{TargetTableName} created and {RecordCount} records copied from {SourceTableName} in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(Configuration.TargetTableName), recordCount, ConnectionString.Unescape(Configuration.SourceTableName), time, Transaction.Current.ToIdentifierString());
 
                 CounterCollection.IncrementCounter("db record copy count", recordCount);
@@ -85,7 +85,7 @@
                         : "all",
                     ex.Message, command.CommandText, command.CommandTimeout));
 
-                exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
+                exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                 exception.Data.Add("SourceTableName", ConnectionString.Unescape(Configuration.SourceTableName));
                 exception.Data.Add("TargetTableName", ConnectionString.Unescape(Configuration.TargetTableName));
                 if (Configuration.ColumnConfiguration != null)

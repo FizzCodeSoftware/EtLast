@@ -64,9 +64,8 @@
                     break;
             }
 
-            var knownProvider = Context.GetConnectionString(ConnectionStringKey)?.KnownProvider;
-            if (knownProvider != KnownProvider.SqlServer)
-                throw new InvalidProcessParameterException(this, nameof(ConnectionString), nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
+            if (ConnectionString.KnownProvider != KnownProvider.SqlServer)
+                throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be System.Data.SqlClient");
         }
 
         protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection)
@@ -143,7 +142,7 @@ from
                     // tables are not filtered with an IN clause due to the limitations of the query processor
                     // this solution will read unnecessary data, but it will work in all conditions
 
-                    Context.Log(LogSeverity.Debug, this, null, "querying foreign key names from {ConnectionStringKey} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+                    Context.Log(LogSeverity.Debug, this, null, "querying foreign key names from {ConnectionStringName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                         command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
                     var tablesNamesHashSet = Mode == MsSqlDropForeignKeysProcessMode.InSpecifiedTables || Mode == MsSqlDropForeignKeysProcessMode.ToSpecifiedTables
@@ -187,7 +186,7 @@ from
                         statements.Add("ALTER TABLE " + kvp.Key + " DROP CONSTRAINT " + string.Join(", ", kvp.Value) + ";");
                     }
 
-                    Context.Log(LogSeverity.Information, this, "{ForeignKeyCount} foreign keys aquired from information schema of {ConnectionStringKey} in {Elapsed} for {TableCount} tables",
+                    Context.Log(LogSeverity.Information, this, "{ForeignKeyCount} foreign keys aquired from information schema of {ConnectionStringName} in {Elapsed} for {TableCount} tables",
                         constraintsByTable.Sum(x => x.Value.Count), ConnectionString.Name, startedOn.Elapsed, _tableNamesAndCounts.Count);
 
                     return statements;
@@ -197,7 +196,7 @@ from
                     var exception = new ProcessExecutionException(this, "failed to query foreign key names from information schema", ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "foreign key list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                         ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
-                    exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
+                    exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                     exception.Data.Add("Statement", command.CommandText);
                     exception.Data.Add("Timeout", command.CommandTimeout);
                     exception.Data.Add("Elapsed", startedOn.Elapsed);
@@ -210,7 +209,7 @@ from
         {
             var t = _tableNamesAndCounts[statementIndex];
 
-            Context.Log(LogSeverity.Debug, this, "drop foreign keys of {ConnectionStringKey}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+            Context.Log(LogSeverity.Debug, this, "drop foreign keys of {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(t.Item1), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
@@ -219,7 +218,7 @@ from
 
                 var time = startedOn.Elapsed;
 
-                Context.Log(LogSeverity.Debug, this, "foreign keys on {ConnectionStringKey}/{TableName} are dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
+                Context.Log(LogSeverity.Debug, this, "foreign keys on {ConnectionStringName}/{TableName} are dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(t.Item1), time, Transaction.Current.ToIdentifierString());
 
                 CounterCollection.IncrementCounter("db drop foreign key count", 1);
@@ -235,7 +234,7 @@ from
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop foreign keys, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionString.Name, ConnectionString.Unescape(t.Item1), ex.Message, command.CommandText, command.CommandTimeout));
 
-                exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
+                exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                 exception.Data.Add("TableName", ConnectionString.Unescape(t.Item1));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
@@ -253,7 +252,7 @@ from
                     .Take(lastSucceededIndex + 1)
                     .Sum(x => x.Item2);
 
-            Context.Log(LogSeverity.Information, this, "{ForeignKeyCount} foreign keys for {TableCount} table(s) successfully dropped on {ConnectionStringKey} in {Elapsed}, transaction: {Transaction}", fkCount,
+            Context.Log(LogSeverity.Information, this, "{ForeignKeyCount} foreign keys for {TableCount} table(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", fkCount,
                 lastSucceededIndex + 1, ConnectionString.Name, LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }

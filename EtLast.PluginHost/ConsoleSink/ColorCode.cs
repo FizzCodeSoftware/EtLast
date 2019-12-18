@@ -23,7 +23,7 @@
         Process = 18,
         Operation = 19,
         Job = 20,
-        ConnectionStringKey = 21,
+        ConnectionStringName = 21,
         SourceOrTarget = 22,
         Transaction = 23,
     }

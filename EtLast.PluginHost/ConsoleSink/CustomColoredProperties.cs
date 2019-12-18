@@ -14,7 +14,7 @@
             ["Operation"] = ColorCode.Operation,
             ["Job"] = ColorCode.Job,
             ["Transaction"] = ColorCode.Transaction,
-            ["ConnectionStringKey"] = ColorCode.SourceOrTarget,
+            ["ConnectionStringName"] = ColorCode.SourceOrTarget,
             ["TableName"] = ColorCode.SourceOrTarget,
             ["TableNames"] = ColorCode.SourceOrTarget,
             ["SchemaName"] = ColorCode.SourceOrTarget,

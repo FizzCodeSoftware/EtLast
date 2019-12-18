@@ -54,9 +54,8 @@
                     break;
             }
 
-            var knownProvider = Context.GetConnectionString(ConnectionStringKey)?.KnownProvider;
-            if (knownProvider != KnownProvider.SqlServer)
-                throw new InvalidProcessParameterException(this, nameof(ConnectionString), nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
+            if (ConnectionString.KnownProvider != KnownProvider.SqlServer)
+                throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be System.Data.SqlClient");
         }
 
         protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection)
@@ -85,7 +84,7 @@
                                 command.Parameters.Add(parameter);
                             }
 
-                            Context.Log(LogSeverity.Debug, this, "querying view names from {ConnectionStringKey} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+                            Context.Log(LogSeverity.Debug, this, "querying view names from {ConnectionStringName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                                 command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
                             _viewNames = new List<string>();
@@ -106,7 +105,7 @@
                                 _ => null,
                             };
 
-                            Context.Log(LogSeverity.Information, this, "{ViewCount} views aquired from information schema of {ConnectionStringKey} in {Elapsed}" + modeInfo,
+                            Context.Log(LogSeverity.Information, this, "{ViewCount} views aquired from information schema of {ConnectionStringName} in {Elapsed}" + modeInfo,
                                 _viewNames.Count, ConnectionString.Name, startedOn.Elapsed);
                         }
                         catch (Exception ex)
@@ -114,7 +113,7 @@
                             var exception = new ProcessExecutionException(this, "failed to query view names from information schema", ex);
                             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "view list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                                 ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
-                            exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
+                            exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                             exception.Data.Add("Statement", command.CommandText);
                             exception.Data.Add("Timeout", command.CommandTimeout);
                             exception.Data.Add("Elapsed", startedOn.Elapsed);
@@ -133,7 +132,7 @@
         {
             var viewName = _viewNames[statementIndex];
 
-            Context.Log(LogSeverity.Debug, this, "drop view {ConnectionStringKey}/{ViewName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+            Context.Log(LogSeverity.Debug, this, "drop view {ConnectionStringName}/{ViewName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(viewName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
@@ -142,7 +141,7 @@
 
                 var time = startedOn.Elapsed;
 
-                Context.Log(LogSeverity.Debug, this, "view {ConnectionStringKey}/{ViewName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
+                Context.Log(LogSeverity.Debug, this, "view {ConnectionStringName}/{ViewName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(viewName), time, Transaction.Current.ToIdentifierString());
 
                 CounterCollection.IncrementCounter("db drop view count", 1);
@@ -158,7 +157,7 @@
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop view, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionString.Name, ConnectionString.Unescape(viewName), ex.Message, command.CommandText, command.CommandTimeout));
 
-                exception.Data.Add("ConnectionStringKey", ConnectionString.Name);
+                exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                 exception.Data.Add("ViewName", ConnectionString.Unescape(viewName));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
@@ -172,7 +171,7 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            Context.Log(LogSeverity.Information, this, "{ViewCount} view(s) successfully dropped on {ConnectionStringKey} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
+            Context.Log(LogSeverity.Information, this, "{ViewCount} view(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
                 ConnectionString.Name, LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }

@@ -15,7 +15,7 @@
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public RowTestDelegate If { get; set; }
-        public string ConnectionStringKey { get; set; }
+        public ConnectionStringWithProvider ConnectionString { get; set; }
         public int CommandTimeout { get; set; } = 30;
 
         public DbTableDefinition TableDefinition { get; set; }
@@ -44,8 +44,6 @@
         /// Default value is 5000
         /// </summary>
         public int RetryDelayMilliseconds { get; set; } = 5000;
-
-        private ConnectionStringWithProvider _connectionString;
 
         private int _rowsWritten;
         private Stopwatch _timer;
@@ -88,7 +86,7 @@
                     {
                         var transactionId = Transaction.Current.ToIdentifierString();
 
-                        connection = ConnectionManager.GetConnection(_connectionString, Process, this, 0);
+                        connection = ConnectionManager.GetConnection(ConnectionString, Process, this, 0);
 
                         var options = SqlBulkCopyOptions.Default;
 
@@ -123,10 +121,10 @@
                         CounterCollection.IncrementTimeSpan("db record write time", time);
 
                         // not relevant on operation level
-                        Process.Context.CounterCollection.IncrementDebugCounter("db record write count - " + _connectionString.Name, recordCount);
-                        Process.Context.CounterCollection.IncrementDebugCounter("db record write count - " + _connectionString.Name + "/" + _connectionString.Unescape(TableDefinition.TableName), recordCount);
-                        Process.Context.CounterCollection.IncrementDebugTimeSpan("db record write time - " + _connectionString.Name, time);
-                        Process.Context.CounterCollection.IncrementDebugTimeSpan("db record write time - " + _connectionString.Name + "/" + _connectionString.Unescape(TableDefinition.TableName), time);
+                        Process.Context.CounterCollection.IncrementDebugCounter("db record write count - " + ConnectionString.Name, recordCount);
+                        Process.Context.CounterCollection.IncrementDebugCounter("db record write count - " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName), recordCount);
+                        Process.Context.CounterCollection.IncrementDebugTimeSpan("db record write time - " + ConnectionString.Name, time);
+                        Process.Context.CounterCollection.IncrementDebugTimeSpan("db record write time - " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName), time);
 
                         _rowsWritten += recordCount;
                         _reader.Reset();
@@ -135,8 +133,8 @@
                             ? LogSeverity.Information
                             : LogSeverity.Debug;
 
-                        Process.Context.Log(severity, Process, this, "{TotalRowCount} records written to {ConnectionStringKey}/{TableName}, micro-transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}", _rowsWritten,
-                            _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), transactionId, Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
+                        Process.Context.Log(severity, Process, this, "{TotalRowCount} records written to {ConnectionStringName}/{TableName}, micro-transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}", _rowsWritten,
+                            ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), transactionId, Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
                         break;
                     }
                 }
@@ -164,10 +162,10 @@
                     {
                         var exception = new OperationExecutionException(Process, this, "db records written failed", ex);
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db records written failed, connection string key: {0}, table: {1}, message: {2}",
-                            _connectionString.Name, _connectionString.Unescape(TableDefinition.TableName), ex.Message));
-                        exception.Data.Add("ConnectionStringKey", _connectionString.Name);
-                        exception.Data.Add("TableName", _connectionString.Unescape(TableDefinition.TableName));
-                        exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + _connectionString.Unescape(x.DbColumn))));
+                            ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message));
+                        exception.Data.Add("ConnectionStringName", ConnectionString.Name);
+                        exception.Data.Add("TableName", ConnectionString.Unescape(TableDefinition.TableName));
+                        exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + ConnectionString.Unescape(x.DbColumn))));
                         exception.Data.Add("Timeout", CommandTimeout);
                         exception.Data.Add("Elapsed", _timer.Elapsed);
                         exception.Data.Add("TotalRowsWritten", _rowsWritten);
@@ -179,18 +177,14 @@
 
         public override void Prepare()
         {
-            if (string.IsNullOrEmpty(ConnectionStringKey))
-                throw new OperationParameterNullException(this, nameof(ConnectionStringKey));
+            if (ConnectionString == null)
+                throw new OperationParameterNullException(this, nameof(ConnectionString));
 
             if (TableDefinition == null)
                 throw new OperationParameterNullException(this, nameof(TableDefinition));
 
-            _connectionString = Process.Context.GetConnectionString(ConnectionStringKey);
-            if (_connectionString == null)
-                throw new InvalidOperationParameterException(this, nameof(ConnectionStringKey), ConnectionStringKey, "key doesn't exists");
-
-            if (_connectionString.KnownProvider != KnownProvider.SqlServer)
-                throw new InvalidOperationParameterException(this, "ConnectionString", nameof(_connectionString.ProviderName), "provider name must be System.Data.SqlClient");
+            if (ConnectionString.KnownProvider != KnownProvider.SqlServer)
+                throw new InvalidOperationParameterException(this, "ConnectionString", nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
 
             _rowsWritten = 0;
             _timer = new Stopwatch();
