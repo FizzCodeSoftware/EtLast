@@ -203,7 +203,7 @@
                 msg);
         }
 
-        public void GetOpsMessages(Exception ex, List<string> messages)
+        private void GetOpsMessages(Exception ex, List<string> messages)
         {
             if (ex.Data.Contains(EtlException.OpsMessageDataKey))
             {
@@ -287,9 +287,19 @@
             return fileName;
         }
 
-        public ConnectionStringWithProvider GetConnectionString(string key)
+        protected virtual ConnectionStringWithProvider GetConnectionString(string key, bool allowMachineNameOverride = true)
         {
-            return ModuleConfiguration.ConnectionStrings?[key + "-" + Environment.MachineName] ?? ModuleConfiguration.ConnectionStrings?[key];
+            if (ModuleConfiguration.ConnectionStrings == null)
+                return null;
+
+            if (allowMachineNameOverride)
+            {
+                var connectionString = ModuleConfiguration.ConnectionStrings[key + "-" + Environment.MachineName];
+                if (connectionString != null)
+                    return connectionString;
+            }
+
+            return ModuleConfiguration.ConnectionStrings[key];
         }
     }
 }
