@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
-    using FizzCode.DbTools.Configuration;
 
     public class EtlContext<TRow> : IEtlContext
         where TRow : IRow, new()
@@ -13,8 +12,6 @@
         public StatCounterCollection CounterCollection { get; }
         public EtlContextResult Result { get; } = new EtlContextResult();
         public AdditionalData AdditionalData { get; }
-
-        public ConnectionStringCollection ConnectionStrings { get; set; }
 
         public DateTimeOffset CreatedOnUtc { get; }
         public DateTimeOffset CreatedOnLocal { get; }
@@ -260,11 +257,6 @@
                     return _exceptions.Count;
                 }
             }
-        }
-
-        public ConnectionStringWithProvider GetConnectionString(string key)
-        {
-            return ConnectionStrings?[key + "-" + Environment.MachineName] ?? ConnectionStrings?[key];
         }
 
         public EtlTransactionScope BeginScope(IProcess caller, IBaseOperation operation, TransactionScopeKind kind, LogSeverity logSeverity)

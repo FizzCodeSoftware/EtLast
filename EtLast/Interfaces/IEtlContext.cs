@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using FizzCode.DbTools.Configuration;
 
     public interface IEtlContext
     {
@@ -18,7 +17,6 @@
         EtlTransactionScope BeginScope(IProcess caller, IBaseOperation operation, TransactionScopeKind kind, LogSeverity logSeverity);
 
         CancellationTokenSource CancellationTokenSource { get; }
-        ConnectionStringWithProvider GetConnectionString(string key);
 
         void ExecuteOne(bool terminateHostOnFail, IExecutable executable);
         void ExecuteSequence(bool terminateHostOnFail, params IExecutable[] executables);

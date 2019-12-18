@@ -5,6 +5,7 @@
     using System.Globalization;
     using System.IO;
     using System.Reflection;
+    using FizzCode.DbTools.Configuration;
     using Microsoft.Extensions.Configuration;
     using Serilog;
     using Serilog.Events;
@@ -67,7 +68,6 @@
             var context = new EtlContext<TRow>(moduleStatCounterCollection)
             {
                 TransactionScopeTimeout = tansactionScopeTimeout,
-                ConnectionStrings = ModuleConfiguration.ConnectionStrings,
             };
 
             context.OnException += OnException;
@@ -285,6 +285,11 @@
             }
 
             return fileName;
+        }
+
+        public ConnectionStringWithProvider GetConnectionString(string key)
+        {
+            return ModuleConfiguration.ConnectionStrings?[key + "-" + Environment.MachineName] ?? ModuleConfiguration.ConnectionStrings?[key];
         }
     }
 }
