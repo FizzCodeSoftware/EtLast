@@ -16,7 +16,7 @@
         /// <summary>
         /// Forces the operation to process the accumulated batch after a fixed amount of time even if the batch is not reached <see cref="BatchSize"/> yet.
         /// </summary>
-        public int ForceProcessBatchAfterMilliseconds { get; set; } = 200;
+        public int ForceProcessBatchAfterMilliseconds { get; set; } = 500;
 
         public MatchKeySelector LeftKeySelector { get; set; }
         public MatchKeySelector RightKeySelector { get; set; }

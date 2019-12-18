@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
-    using System.Diagnostics;
 
     public class CustomActionProcess : AbstractExecutableProcess
     {

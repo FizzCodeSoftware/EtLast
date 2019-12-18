@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
-    using System.Diagnostics;
 
     public class MemoryCacheProcess : AbstractProducerProcess
     {

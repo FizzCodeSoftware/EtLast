@@ -827,7 +827,10 @@
             foreach (var operation in Operations)
             {
                 if (operation is IDeferredRowOperation defOp && Configuration.ThrottlingLimit < defOp.BatchSize * 10)
-                    throw new InvalidProcessParameterException(this, nameof(Configuration.ThrottlingLimit), Configuration.ThrottlingLimit, nameof(Configuration) + "." + nameof(Configuration.ThrottlingLimit) + " must be >= than any deferred operation's " + nameof(IDeferredRowOperation.BatchSize) + " multiplied by 10 to prevent starving");
+                {
+                    Configuration.ThrottlingLimit = defOp.BatchSize * 10;
+                    Context.Log(LogSeverity.Warning, this, nameof(Configuration) + "." + nameof(Configuration.ThrottlingLimit) + " must be >= than any deferred operation's " + nameof(IDeferredRowOperation.BatchSize) + " multiplied by 10 to prevent starving. The specified value is adjusted according to this recommendation.");
+                }
             }
         }
 
