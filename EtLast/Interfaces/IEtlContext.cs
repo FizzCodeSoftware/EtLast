@@ -36,6 +36,7 @@
 
         void AddException(IProcess process, Exception ex);
         List<Exception> GetExceptions();
+
         int ExceptionCount { get; }
 
         EventHandler<ContextExceptionEventArgs> OnException { get; set; }

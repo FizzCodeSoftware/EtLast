@@ -1,6 +1,8 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
+    using System.Globalization;
+    using System.Linq;
 
     public static class TypeHelpers
     {
@@ -8,6 +10,17 @@
         {
             if (type == null)
                 return "<unknown type>";
+
+            if (type.IsArray)
+            {
+                return GetFriendlyTypeName(type.GetElementType()) + "[]";
+            }
+
+            if (type.IsGenericType)
+            {
+                return string.Format(CultureInfo.InvariantCulture, "{0}<{1}>", type.Name.Substring(0, type.Name.LastIndexOf("`", StringComparison.InvariantCultureIgnoreCase)),
+                    string.Join(", ", type.GetGenericArguments().Select(GetFriendlyTypeName)));
+            }
 
             return type.Name switch
             {
