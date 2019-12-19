@@ -112,6 +112,8 @@
             var rightRowCount = 0;
             foreach (var row in rightRows)
             {
+                Process.Context.SetRowOwner(row, Process);
+
                 rightRowCount++;
                 var key = GetRightKey(row);
                 if (string.IsNullOrEmpty(key))

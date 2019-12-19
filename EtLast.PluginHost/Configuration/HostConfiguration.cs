@@ -9,6 +9,8 @@
     public class HostConfiguration
     {
         public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromMinutes(120);
+
+        public Uri DiagnosticsUri { get; set; }
         public string SeqUrl { get; set; }
         public string SeqApiKey { get; set; }
         public int RetainedLogFileCountLimitImportant { get; set; } = 30;
@@ -21,6 +23,10 @@
 
         public void LoadFromConfiguration(IConfigurationRoot configuration, string section)
         {
+            var diagUrl = GetHostSetting<string>(configuration, section, "RemoteDiagnostics:Url", null);
+            if (!string.IsNullOrEmpty(diagUrl))
+                DiagnosticsUri = new Uri(diagUrl);
+
             SeqUrl = GetHostSetting<string>(configuration, section, "Seq:Url", null);
             SeqApiKey = GetHostSetting<string>(configuration, section, "Seq:ApiKey", null);
             RetainedLogFileCountLimitImportant = GetHostSetting(configuration, section, "RetainedLogFileCountLimit:Important", 30);

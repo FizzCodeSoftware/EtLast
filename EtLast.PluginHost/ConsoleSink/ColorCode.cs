@@ -8,7 +8,7 @@
         LvlTokenWrn = 3,
         LvlTokenErr = 4,
         LvlTokenFtl = 5,
-        Message_Exception = 6,
+        Exception = 6,
         TimeStamp_Property_Exception = 7,
         Value = 8,
         NullValue = 9,

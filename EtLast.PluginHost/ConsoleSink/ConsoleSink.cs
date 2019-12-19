@@ -90,28 +90,8 @@
 
         private static void WriteLevel(LogEvent logEvent, TextWriter builder)
         {
-            var text = logEvent.Level switch
-            {
-                LogEventLevel.Verbose => "VRB",
-                LogEventLevel.Debug => "DBG",
-                LogEventLevel.Information => "INF",
-                LogEventLevel.Warning => "WRN",
-                LogEventLevel.Error => "ERR",
-                LogEventLevel.Fatal => "FTL",
-                _ => null,
-            };
-
-            var colorCode = logEvent.Level switch
-            {
-                LogEventLevel.Verbose => ColorCode.LvlTokenVrb,
-                LogEventLevel.Debug => ColorCode.LvlTokenDbg,
-                LogEventLevel.Information => ColorCode.LvlTokenInf,
-                LogEventLevel.Warning => ColorCode.LvlTokenWrn,
-                LogEventLevel.Error => ColorCode.LvlTokenErr,
-                LogEventLevel.Fatal => ColorCode.LvlTokenFtl,
-                _ => ColorCode.LvlTokenInf,
-            };
-
+            var text = ((LogSeverity)logEvent.Level).ToShortString();
+            var colorCode = GetColorCodeFromSeverity(logEvent);
             ColorCodeContext.Write(builder, colorCode, text);
         }
 
@@ -128,11 +108,7 @@
             var lines = logEvent.Exception.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var line in lines)
             {
-                var colorCode = line.StartsWith("   ", StringComparison.InvariantCultureIgnoreCase)
-                    ? ColorCode.TimeStamp_Property_Exception
-                    : ColorCode.Message_Exception;
-
-                ColorCodeContext.Write(builder, colorCode, line + Environment.NewLine);
+                ColorCodeContext.Write(builder, ColorCode.Exception, line + Environment.NewLine);
             }
         }
 
@@ -144,7 +120,8 @@
                 {
                     case TextToken tt:
                         {
-                            ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.Message_Exception, tt.Text);
+                            var colorCode = GetColorCodeFromSeverity(logEvent);
+                            ColorCodeContext.WriteOverridden(builder, logEvent, colorCode, tt.Text);
                             break;
                         }
                     case PropertyToken pt:
@@ -164,9 +141,24 @@
             }
         }
 
+        private static ColorCode GetColorCodeFromSeverity(LogEvent logEvent)
+        {
+            return logEvent.Level switch
+            {
+                LogEventLevel.Verbose => ColorCode.LvlTokenVrb,
+                LogEventLevel.Debug => ColorCode.LvlTokenDbg,
+                LogEventLevel.Information => ColorCode.LvlTokenInf,
+                LogEventLevel.Warning => ColorCode.LvlTokenWrn,
+                LogEventLevel.Error => ColorCode.LvlTokenErr,
+                LogEventLevel.Fatal => ColorCode.LvlTokenFtl,
+                _ => ColorCode.LvlTokenInf,
+            };
+        }
+
         private static void WriteTimeStamp(LogEvent logEvent, TextWriter builder, string format)
         {
-            using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.TimeStamp_Property_Exception))
+            var colorCode = GetColorCodeFromSeverity(logEvent);
+            using (ColorCodeContext.StartOverridden(builder, logEvent, colorCode))
             {
                 new ScalarValue(logEvent.Timestamp).Render(builder, format);
             }

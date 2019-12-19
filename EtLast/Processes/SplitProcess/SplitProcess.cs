@@ -63,6 +63,8 @@
             var rows = InputProcess.Evaluate(this);
             foreach (var row in rows)
             {
+                Context.SetRowOwner(row, this);
+
                 _queue.AddRow(row);
             }
 

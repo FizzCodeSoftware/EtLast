@@ -21,7 +21,7 @@
         [TestMethod]
         public void OnlyOrderedOperationProcess()
         {
-            var context = new EtlContext<DictionaryRow>();
+            var context = new EtlContext();
 
             var hierarchyParentIdCalculatorProcess = new OperationHostProcess(context, "HierarchyParentIdCalculatorProcess")
             {
@@ -48,7 +48,7 @@
         [TestMethod]
         public void HierarchyParentIdCalculatorTest()
         {
-            var context = new EtlContext<DictionaryRow>();
+            var context = new EtlContext();
 
             var hierarchyParentIdCalculatorProcess = new OperationHostProcess(context, "HierarchyParentIdCalculatorProcess")
             {

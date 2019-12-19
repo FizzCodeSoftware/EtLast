@@ -1,10 +1,12 @@
-﻿using System;
-using System.Diagnostics;
-
-namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast
 {
+    using System;
+    using System.Diagnostics;
+    using System.Globalization;
+
     public abstract class AbstractProcess : IProcess
     {
+        public string UID { get; } = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
         public ProcessTestDelegate If { get; set; }
         public IEtlContext Context { get; }
         public IProcess Caller { get; protected set; }
@@ -38,9 +40,10 @@ namespace FizzCode.EtLast
             if (counters.Count == 0)
                 return;
 
+            Context.Log(LogSeverity.Information, this, "PROCESS COUNTERS");
             foreach (var counter in counters)
             {
-                Context.Log(counter.IsDebug ? LogSeverity.Debug : LogSeverity.Information, this, "counter {Counter} = {Value}", counter.Name, counter.TypedValue);
+                Context.Log(counter.IsDebug ? LogSeverity.Debug : LogSeverity.Information, this, "{Counter} = {Value}", counter.Name, counter.TypedValue);
             }
         }
     }

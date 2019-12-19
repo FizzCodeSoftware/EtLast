@@ -11,7 +11,7 @@
         [TestMethod]
         public void InvalidCastInOperation()
         {
-            var context = new EtlContext<DictionaryRow>();
+            var context = new EtlContext();
 
             var process = CreateProcess(context);
             process.AddOperation(new CustomOperation() { Then = (op, row) => { var x = row.GetAs<int>("x"); } });
@@ -27,7 +27,7 @@
         [TestMethod]
         public void InvalidOperationInOperation()
         {
-            var context = new EtlContext<DictionaryRow>();
+            var context = new EtlContext();
 
             var process = CreateProcess(context);
             process.AddOperation(new CustomOperation() { Then = (op, row) => { int? x = null; var y = x.Value; } });
@@ -43,7 +43,7 @@
         [TestMethod]
         public void InvalidOperationParameter()
         {
-            var context = new EtlContext<DictionaryRow>();
+            var context = new EtlContext();
             var process = CreateProcess(context);
             process.AddOperation(new CustomOperation());
 

@@ -284,21 +284,20 @@
 
         private bool PrepareOperations()
         {
-            try
+            foreach (var op in Operations)
             {
-                foreach (var op in Operations)
+                try
                 {
                     PrepareOperation(op);
                 }
-
-                return true;
+                catch (Exception ex)
+                {
+                    Context.AddException(this, ex, op);
+                    return false;
+                }
             }
-            catch (Exception ex)
-            {
-                Context.AddException(this, ex);
-            }
 
-            return false;
+            return true;
         }
 
         private void PrepareOperation(IRowOperation op)
@@ -325,16 +324,17 @@
 
         private void ShutdownOperations()
         {
-            try
+            foreach (var op in Operations)
             {
-                foreach (var op in Operations)
+                try
                 {
                     ShutdownOperation(op);
                 }
-            }
-            catch (Exception ex)
-            {
-                Context.AddException(this, ex);
+                catch (Exception ex)
+                {
+                    Context.AddException(this, ex, op);
+                    return;
+                }
             }
         }
 
@@ -368,6 +368,8 @@
 
         public void RemoveRow(IRow row, IRowOperation operation)
         {
+            Context.SetRowOwner(row, null);
+
             row.State = RowState.Removed;
             operation.CounterCollection.IncrementCounter("rows removed", 1, true);
             CounterCollection.IncrementCounter("rows removed by operations", 1, true);
@@ -378,6 +380,8 @@
             var n = 0;
             foreach (var row in rows)
             {
+                Context.SetRowOwner(row, null);
+
                 row.State = RowState.Removed;
                 n++;
             }
@@ -386,7 +390,7 @@
             CounterCollection.IncrementCounter("rows removed by operations", n, true);
         }
 
-        public void FlagRowAsFinished(IRow row)
+        private void FlagRowAsFinished(IRow row)
         {
             Interlocked.Decrement(ref _activeRowCount);
 
@@ -399,6 +403,7 @@
 
         private void LogOpCounters()
         {
+            Context.Log(LogSeverity.Information, this, "OPERATION COUNTERS");
             foreach (var op in Operations)
             {
                 LogOpCounters(op);
@@ -413,7 +418,7 @@
 
             foreach (var counter in counters)
             {
-                Context.Log(counter.IsDebug ? LogSeverity.Debug : LogSeverity.Information, this, "({Operation}) counter {Counter} = {Value}", op.Name, counter.Name, counter.TypedValue);
+                Context.Log(counter.IsDebug ? LogSeverity.Debug : LogSeverity.Information, this, "({Operation}) {Counter} = {Value}", op.Name, counter.Name, counter.TypedValue);
             }
 
             if (op is IOperationGroup group)
@@ -473,6 +478,8 @@
             var swProcessing = Stopwatch.StartNew();
             foreach (var row in sourceRows)
             {
+                Context.SetRowOwner(row, this);
+
                 row.CurrentOperation = null;
                 row.State = RowState.Normal;
 
@@ -551,10 +558,10 @@
             WaitForWorkerThread();
             ShutdownOperations();
 
+            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", LastInvocation.Elapsed);
+
             LogCounters();
             LogOpCounters();
-
-            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", LastInvocation.Elapsed);
         }
 
         public IEnumerable<IRow> Evaluate(IProcess caller = null)
@@ -612,6 +619,8 @@
 
             foreach (var row in sourceRows)
             {
+                Context.SetRowOwner(row, this);
+
                 row.CurrentOperation = null;
                 row.State = RowState.Normal;
 
@@ -735,10 +744,10 @@
             WaitForWorkerThread();
             ShutdownOperations();
 
+            Context.Log(LogSeverity.Debug, this, "finished and retuned {RowCount} rows of {AllRowCount} rows in {Elapsed}", resultCount, _rowsAdded, LastInvocation.Elapsed);
+
             LogCounters();
             LogOpCounters();
-
-            Context.Log(LogSeverity.Debug, this, "finished and retuned {RowCount} rows of {AllRowCount} rows in {Elapsed}", resultCount, _rowsAdded, LastInvocation.Elapsed);
         }
 
         private void CreateWorker()
@@ -756,7 +765,8 @@
                         if (token.IsCancellationRequested)
                             break;
 
-                        ProcessRow(row);
+                        if (!ProcessRow(row))
+                            break;
                     }
                 }
                 catch (Exception ex)
@@ -770,7 +780,7 @@
             _workerThread.Start(Transaction.Current);
         }
 
-        private void ProcessRow(IRow row)
+        private bool ProcessRow(IRow row)
         {
             var operation = row.CurrentOperation;
             while (operation != null)
@@ -785,7 +795,8 @@
                     catch (Exception ex)
                     {
                         var exception = new OperationExecutionException(this, operation, row, "error raised during the execution of an operation", ex);
-                        throw exception;
+                        Context.AddException(this, exception, operation);
+                        return false;
                     }
 
                     if (row.DeferState == DeferState.DeferWait)
@@ -811,6 +822,8 @@
             {
                 FlagRowAsFinished(row);
             }
+
+            return true;
         }
 
         public override void ValidateImpl()

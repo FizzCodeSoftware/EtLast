@@ -98,14 +98,16 @@
 
             var rightRows = rightProcess.Evaluate(Process);
             var rightRowCount = 0;
-            foreach (var rightRow in rightRows)
+            foreach (var row in rightRows)
             {
+                Process.Context.SetRowOwner(row, Process);
+
                 rightRowCount++;
-                var key = GetRightKey(Process, rightRow);
+                var key = GetRightKey(Process, row);
                 if (string.IsNullOrEmpty(key))
                     continue;
 
-                _lookup.Add(key, rightRow);
+                _lookup.Add(key, row);
             }
 
             Process.Context.Log(LogSeverity.Debug, Process, this, "fetched {RowCount} rows, lookup size is {LookupSize}", rightRowCount,

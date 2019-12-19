@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PackageId>FizzCode.EtLast.Diagnostics.Interface</PackageId>
+    <Authors>FizzCode Ltd.</Authors>
+    <Product>EtLast ETL (Extract, Transform and Load) library for .NET Core</Product>
+    <Description>Diagnostics interface for EtLast ETL (Extract, Transform and Load) library</Description>
+    <Copyright>Copyright © 2019-2020 FizzCode Ltd.</Copyright>
+    <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
+    <Platforms>AnyCPU</Platforms>
+    <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
+    <AssemblyName>FizzCode.EtLast.Diagnostics.Interface</AssemblyName>
+    <RootNamespace>FizzCode.EtLast.Diagnostics.Interface</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>CS1591</NoWarn>
+    <Configurations>Debug;Release</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EtLast\EtLast.csproj" />
+  </ItemGroup>
+
+</Project>

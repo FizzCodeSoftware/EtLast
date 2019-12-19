@@ -12,20 +12,21 @@
 
     internal static class SerilogConfigurator
     {
+        public static string DevLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-dev");
+        public static string OpsLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-ops");
+
         public static ILogger CreateLogger(HostConfiguration hostConfiguration)
         {
-            var logsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-dev");
-
             var config = new LoggerConfiguration()
                 .Enrich.WithExceptionDetails()
 
-                .WriteTo.File(new CompactJsonFormatter(), Path.Combine(logsFolder, "events-.json"),
+                .WriteTo.File(new CompactJsonFormatter(), Path.Combine(DevLogFolder, "events-.json"),
                     restrictedToMinimumLevel: hostConfiguration?.MinimumLogLevelInFile ?? LogEventLevel.Debug,
                     retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitInfo ?? int.MaxValue,
                     rollingInterval: RollingInterval.Day,
                     encoding: Encoding.UTF8)
 
-                .WriteTo.File(Path.Combine(logsFolder, "2-info-.txt"),
+                .WriteTo.File(Path.Combine(DevLogFolder, "2-info-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Information,
                     retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitInfo ?? int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
@@ -33,7 +34,7 @@
                     formatProvider: CultureInfo.InvariantCulture,
                     encoding: Encoding.UTF8)
 
-                .WriteTo.File(Path.Combine(logsFolder, "3-warning-.txt"),
+                .WriteTo.File(Path.Combine(DevLogFolder, "3-warning-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Warning,
                     retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitImportant ?? int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
@@ -41,7 +42,7 @@
                     formatProvider: CultureInfo.InvariantCulture,
                     encoding: Encoding.UTF8)
 
-                .WriteTo.File(Path.Combine(logsFolder, "4-error-.txt"),
+                .WriteTo.File(Path.Combine(DevLogFolder, "4-error-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Error,
                     retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitImportant ?? int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
@@ -49,7 +50,7 @@
                     formatProvider: CultureInfo.InvariantCulture,
                     encoding: Encoding.UTF8)
 
-                .WriteTo.File(Path.Combine(logsFolder, "5-fatal-.txt"),
+                .WriteTo.File(Path.Combine(DevLogFolder, "5-fatal-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Fatal,
                     retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitImportant ?? int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
@@ -59,7 +60,7 @@
 
             if ((hostConfiguration?.MinimumLogLevelInFile ?? LogEventLevel.Debug) <= LogEventLevel.Debug)
             {
-                config.WriteTo.File(Path.Combine(logsFolder, "1-debug-.txt"),
+                config.WriteTo.File(Path.Combine(DevLogFolder, "1-debug-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Debug,
                     retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitLow ?? int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
@@ -70,7 +71,7 @@
 
             if ((hostConfiguration?.MinimumLogLevelInFile ?? LogEventLevel.Debug) <= LogEventLevel.Verbose)
             {
-                config.WriteTo.File(Path.Combine(logsFolder, "0-verbose-.txt"),
+                config.WriteTo.File(Path.Combine(DevLogFolder, "0-verbose-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Verbose,
                     retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitLow ?? int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
@@ -83,11 +84,6 @@
 
             config = config.MinimumLevel.Is(System.Diagnostics.Debugger.IsAttached ? LogEventLevel.Verbose : LogEventLevel.Debug);
 
-            if (System.Diagnostics.Debugger.IsAttached)
-            {
-                config = config.Enrich.WithThreadId();
-            }
-
             if (hostConfiguration != null && !string.IsNullOrEmpty(hostConfiguration.SeqUrl) && hostConfiguration.SeqUrl != "-")
             {
                 config = config.WriteTo.Seq(hostConfiguration.SeqUrl, apiKey: hostConfiguration.SeqApiKey);
@@ -98,10 +94,8 @@
 
         public static ILogger CreateOpsLogger(HostConfiguration hostConfiguration)
         {
-            var logsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-ops");
-
             var loggerConfig = new LoggerConfiguration()
-                .WriteTo.File(Path.Combine(logsFolder, "2-info-.txt"),
+                .WriteTo.File(Path.Combine(OpsLogFolder, "2-info-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Information,
                     retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitInfo ?? int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
@@ -109,7 +103,7 @@
                     formatProvider: CultureInfo.InvariantCulture,
                     encoding: Encoding.UTF8)
 
-                .WriteTo.File(Path.Combine(logsFolder, "3-warning-.txt"),
+                .WriteTo.File(Path.Combine(OpsLogFolder, "3-warning-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Warning,
                     retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitImportant ?? int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
@@ -117,7 +111,7 @@
                     formatProvider: CultureInfo.InvariantCulture,
                     encoding: Encoding.UTF8)
 
-                .WriteTo.File(Path.Combine(logsFolder, "4-error-.txt"),
+                .WriteTo.File(Path.Combine(OpsLogFolder, "4-error-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Error,
                     retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitImportant ?? int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
@@ -125,7 +119,7 @@
                     formatProvider: CultureInfo.InvariantCulture,
                     encoding: Encoding.UTF8)
 
-                .WriteTo.File(Path.Combine(logsFolder, "5-fatal-.txt"),
+                .WriteTo.File(Path.Combine(OpsLogFolder, "5-fatal-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Fatal,
                     retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitImportant ?? int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",

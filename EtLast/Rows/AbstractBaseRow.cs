@@ -9,9 +9,10 @@
     [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
     public abstract class AbstractBaseRow : IRow
     {
-        public IEtlContext Context { get; protected set; }
-        public int UID { get; protected set; }
-        public bool Flagged { get; set; }
+        public IEtlContext Context { get; private set; }
+        public IProcess CreatorProcess { get; private set; }
+        public IProcess CurrentProcess { get; set; }
+        public int UID { get; private set; }
 
         public IRowOperation CurrentOperation { get; set; }
         public RowState State { get; set; }
@@ -21,37 +22,26 @@
 
         public abstract int ColumnCount { get; }
 
-        public object this[string column] { get => InternalGetValue(column); set => InternalSetValue(column, value, null, null); }
+        public object this[string column] { get => GetValueImpl(column); set => SetValueImpl(column, value, null, null); }
 
         public IRow SetValue(string column, object newValue, IProcess process)
         {
-            InternalSetValue(column, newValue, process, null);
+            SetValueImpl(column, newValue, process, null);
             return this;
         }
 
         public IRow SetValue(string column, object newValue, IBaseOperation operation)
         {
-            InternalSetValue(column, newValue, operation.Process, operation);
+            SetValueImpl(column, newValue, operation.Process, operation);
             return this;
         }
 
-        protected abstract object InternalGetValue(string column);
-        protected abstract void InternalSetValue(string column, object value, IProcess process, IBaseOperation operation);
-        protected abstract void InternalRemoveColumn(string column, IProcess process, IBaseOperation operation);
-
-        public void RemoveColumn(string column, IProcess process)
-        {
-            InternalRemoveColumn(column, process, null);
-        }
-
-        public void RemoveColumn(string column, IBaseOperation operation)
-        {
-            InternalRemoveColumn(column, operation.Process, operation);
-        }
+        protected abstract object GetValueImpl(string column);
+        protected abstract void SetValueImpl(string column, object value, IProcess process, IBaseOperation operation);
 
         public string ToDebugString()
         {
-            return "UID=" + UID.ToString("D", CultureInfo.InvariantCulture) + (Flagged ? ", FLAGGED" : "") + ", " + string.Join(", ", Values.Select(kvp => kvp.Key + "=" + (kvp.Value != null ? kvp.Value.ToString() + " (" + TypeHelpers.GetFriendlyTypeName(kvp.Value.GetType()) + ")" : "NULL")));
+            return "UID=" + UID.ToString("D", CultureInfo.InvariantCulture) + ", " + string.Join(", ", Values.Select(kvp => kvp.Key + "=" + (kvp.Value != null ? kvp.Value.ToString() + " (" + TypeHelpers.GetFriendlyTypeName(kvp.Value.GetType()) + ")" : "NULL")));
         }
 
         /// <summary>
@@ -65,7 +55,7 @@
 
         public T GetAs<T>(string column)
         {
-            var value = InternalGetValue(column);
+            var value = GetValueImpl(column);
             try
             {
                 return (T)value;
@@ -83,7 +73,7 @@
 
         public T GetAs<T>(string column, T defaultValueIfNull)
         {
-            var value = InternalGetValue(column);
+            var value = GetValueImpl(column);
             if (value == null)
                 return defaultValueIfNull;
 
@@ -99,13 +89,13 @@
 
         public bool IsNull(string column)
         {
-            var value = InternalGetValue(column);
+            var value = GetValueImpl(column);
             return value == null;
         }
 
         public bool IsNullOrEmpty(string column)
         {
-            var value = InternalGetValue(column);
+            var value = GetValueImpl(column);
             return value == null || (value is string str && string.IsNullOrEmpty(str));
         }
 
@@ -128,30 +118,37 @@
 
         public bool IsInt(string column)
         {
-            return InternalGetValue(column) is int;
+            return GetValueImpl(column) is int;
         }
 
         public bool IsLong(string column)
         {
-            return InternalGetValue(column) is long;
+            return GetValueImpl(column) is long;
         }
 
         public bool IsFloat(string column)
         {
-            return InternalGetValue(column) is float;
+            return GetValueImpl(column) is float;
         }
 
         public bool IsDouble(string column)
         {
-            return InternalGetValue(column) is double;
+            return GetValueImpl(column) is double;
         }
 
         public bool IsDecimal(string column)
         {
-            return InternalGetValue(column) is decimal;
+            return GetValueImpl(column) is decimal;
         }
 
-        public abstract void Init(IEtlContext context, int uid, int columnCountHint = 0);
-        public abstract bool Exists(string column);
+        public virtual void Init(IEtlContext context, IProcess creatorProcess, int uid, IEnumerable<KeyValuePair<string, object>> initialValues)
+        {
+            Context = context;
+            CreatorProcess = creatorProcess;
+            CurrentProcess = creatorProcess;
+            UID = uid;
+        }
+
+        public abstract bool HasValue(string column);
     }
 }

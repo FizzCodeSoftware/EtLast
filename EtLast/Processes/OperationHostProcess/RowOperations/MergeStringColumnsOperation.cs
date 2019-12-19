@@ -22,7 +22,7 @@
                     newValue += (newValue == null ? "" : Separator) + value;
                 }
 
-                row.RemoveColumn(column, this);
+                row.SetValue(column, null, this);
             }
 
             row.SetValue(TargetColumn, newValue, this);

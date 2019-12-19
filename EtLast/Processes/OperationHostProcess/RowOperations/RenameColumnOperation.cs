@@ -14,7 +14,7 @@
             if (If?.Invoke(row) == false)
                 return;
 
-            if (row.Exists(ColumnConfiguration.NewName))
+            if (row.HasValue(ColumnConfiguration.NewName))
             {
                 switch (ActionIfInvalid)
                 {
@@ -32,7 +32,7 @@
             }
 
             var value = row[ColumnConfiguration.CurrentName];
-            row.RemoveColumn(ColumnConfiguration.CurrentName, this);
+            row.SetValue(ColumnConfiguration.CurrentName, null, this);
             row.SetValue(ColumnConfiguration.NewName, value, this);
         }
 

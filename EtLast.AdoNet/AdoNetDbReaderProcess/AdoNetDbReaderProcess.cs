@@ -8,7 +8,6 @@
     public class AdoNetDbReaderProcess : AbstractAdoNetDbReaderProcess
     {
         public string TableName { get; set; }
-
         public string CustomWhereClause { get; set; }
         public string CustomOrderByClause { get; set; }
         public int RecordCountLimit { get; set; }

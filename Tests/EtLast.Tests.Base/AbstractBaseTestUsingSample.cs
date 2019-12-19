@@ -14,7 +14,7 @@
 
         public static IOperationHostProcess CreateProcess()
         {
-            var context = new EtlContext<DictionaryRow>();
+            var context = new EtlContext();
 
             return new OperationHostProcess(context)
             {

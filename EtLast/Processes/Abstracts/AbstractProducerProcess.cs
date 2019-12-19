@@ -48,6 +48,8 @@
                 var inputRows = InputProcess.Evaluate(this);
                 foreach (var row in inputRows)
                 {
+                    Context.SetRowOwner(row, this);
+
                     fetchedRowCount++;
                     if (ProcessRowBeforeYield(row))
                     {
@@ -74,9 +76,9 @@
                 }
             }
 
-            LogCounters();
-
             Context.Log(LogSeverity.Debug, this, "produced and returned {RowCount} rows in {Elapsed}", resultCount, LastInvocation.Elapsed);
+
+            LogCounters();
         }
 
         protected abstract IEnumerable<IRow> Produce();
@@ -97,68 +99,50 @@
 
             _currentRowIndex++;
 
-            if (AddRowIndexToColumn != null && !row.Exists(AddRowIndexToColumn))
+            if (AddRowIndexToColumn != null && !row.HasValue(AddRowIndexToColumn))
                 row.SetValue(AddRowIndexToColumn, _currentRowIndex, this);
 
             return true;
         }
 
-        protected object HandleConverter(object value, string rowColumn, ReaderDefaultColumnConfiguration configuration, IRow row, out bool failed)
+        protected object HandleConverter(object value, ReaderDefaultColumnConfiguration configuration)
         {
-            failed = false;
-
             if (value == null)
             {
-                switch (configuration.NullSourceHandler)
+                return configuration.NullSourceHandler switch
                 {
-                    case NullSourceHandler.WrapError:
-                        row.SetValue(rowColumn, new EtlRowError()
-                        {
-                            Process = this,
-                            Operation = null,
-                            OriginalValue = null,
-                            Message = string.Format(CultureInfo.InvariantCulture, "failed to convert by {0}", TypeHelpers.GetFriendlyTypeName(configuration.Converter.GetType())),
-                        }, this);
-                        failed = true;
-
-                        return value;
-                    case NullSourceHandler.SetSpecialValue:
-                        return configuration.SpecialValueIfSourceIsNull;
-                    case NullSourceHandler.Throw:
-                        throw new InvalidValueException(this, row, rowColumn);
-                    default:
-                        throw new NotImplementedException(configuration.NullSourceHandler.ToString() + " is not supported yet");
-                }
+                    NullSourceHandler.WrapError => new EtlRowError()
+                    {
+                        Process = this,
+                        Operation = null,
+                        OriginalValue = null,
+                        Message = string.Format(CultureInfo.InvariantCulture, "failed to convert by {0}", TypeHelpers.GetFriendlyTypeName(configuration.Converter.GetType())),
+                    },
+                    NullSourceHandler.SetSpecialValue => configuration.SpecialValueIfSourceIsNull,
+                    _ => throw new NotImplementedException(configuration.NullSourceHandler.ToString() + " is not supported yet"),
+                };
             }
 
             if (value != null && configuration.Converter != null)
             {
                 var newValue = configuration.Converter.Convert(value);
+#pragma warning disable RCS1173 // Use coalesce expression instead of if.
                 if (newValue != null)
                     return newValue;
+#pragma warning restore RCS1173 // Use coalesce expression instead of if.
 
-                switch (configuration.InvalidSourceHandler)
+                return configuration.InvalidSourceHandler switch
                 {
-                    case InvalidSourceHandler.WrapError:
-                        row.SetValue(rowColumn, new EtlRowError()
-                        {
-                            Process = this,
-                            Operation = null,
-                            OriginalValue = value,
-                            Message = string.Format(CultureInfo.InvariantCulture, "failed to convert by {0}", TypeHelpers.GetFriendlyTypeName(configuration.Converter.GetType())),
-                        }, this);
-                        break;
-                    case InvalidSourceHandler.SetSpecialValue:
-                        row.SetValue(rowColumn, configuration.SpecialValueIfSourceIsInvalid, this);
-                        break;
-                    case InvalidSourceHandler.Throw:
-                        throw new InvalidValueException(this, row, rowColumn);
-                    default:
-                        throw new NotImplementedException(configuration.NullSourceHandler.ToString() + " is not supported yet");
-                }
-
-                failed = true;
-                return value;
+                    InvalidSourceHandler.WrapError => new EtlRowError()
+                    {
+                        Process = this,
+                        Operation = null,
+                        OriginalValue = value,
+                        Message = string.Format(CultureInfo.InvariantCulture, "failed to convert by {0}", TypeHelpers.GetFriendlyTypeName(configuration.Converter.GetType())),
+                    },
+                    InvalidSourceHandler.SetSpecialValue => configuration.SpecialValueIfSourceIsInvalid,
+                    _ => throw new NotImplementedException(configuration.NullSourceHandler.ToString() + " is not supported yet"),
+                };
             }
 
             return value;

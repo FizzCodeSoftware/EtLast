@@ -1,13 +1,15 @@
 ﻿namespace FizzCode.EtLast.EPPlus
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
     using OfficeOpenXml;
 
     public class EpPlusSingleExcelFileWriterOperation<TState> : AbstractRowOperation
-        where TState : new()
+        where TState : BaseExcelWriterState, new()
     {
+        public RowTestDelegate If { get; set; }
         public string FileName { get; set; }
         public Action<ExcelPackage, TState> Initialize { get; set; }
         public Action<IRow, ExcelPackage, TState> Action { get; set; }
@@ -19,6 +21,9 @@
 
         public override void Apply(IRow row)
         {
+            if (If?.Invoke(row) == false)
+                return;
+
             if (_excelPackage == null) // lazy load here instead of prepare
             {
                 _excelPackage = ExistingPackage ?? new ExcelPackage(new FileInfo(FileName));
@@ -28,6 +33,12 @@
             try
             {
                 Action.Invoke(row, _excelPackage, _state);
+
+                Process.Context.OnRowStored?.Invoke(Process, this, row, new List<KeyValuePair<string, string>>()
+                {
+                    new KeyValuePair<string, string>("File", PathHelpers.GetFriendlyPathName(FileName)),
+                    new KeyValuePair<string, string>("Sheet", _state.LastWorksheet?.Name),
+                });
             }
             catch (Exception ex)
             {

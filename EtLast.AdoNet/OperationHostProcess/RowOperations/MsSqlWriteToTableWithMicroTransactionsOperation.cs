@@ -55,6 +55,12 @@
             if (If?.Invoke(row) == false)
                 return;
 
+            Process.Context.OnRowStored?.Invoke(Process, this, row, new List<KeyValuePair<string, string>>()
+            {
+                new KeyValuePair<string, string>("Connection", ConnectionString.Name),
+                new KeyValuePair<string, string>("Table", TableDefinition.TableName),
+            });
+
             var rc = _reader.RowCount;
             for (var i = 0; i < TableDefinition.Columns.Length; i++)
             {

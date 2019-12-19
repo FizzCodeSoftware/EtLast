@@ -6,7 +6,7 @@
     <Authors>FizzCode Ltd.</Authors>
     <Product>EtLast ETL (Extract, Transform and Load) library for .NET Core</Product>
     <Description>Plugin interface for EtLast ETL (Extract, Transform and Load) library</Description>
-    <Copyright>Copyright © 2019 FizzCode Ltd.</Copyright>
+    <Copyright>Copyright © 2019-2020 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Platforms>AnyCPU</Platforms>
     <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
@@ -14,7 +14,7 @@
     <AssemblyName>FizzCode.EtLast.PluginHost.PluginInterface</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
-    <Configurations>Debug;Release;Debug-LocalProjects</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,10 +22,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.0" />
-    <PackageReference Include="Serilog" Version="2.9.0" />
-    <PackageReference Include="Serilog.Exceptions" Version="5.3.1" />
-    <PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.1" />
   </ItemGroup>
 
   <ItemGroup>

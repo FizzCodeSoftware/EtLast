@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -9,8 +8,8 @@
 
     public class ParallelMergeProcess : AbstractMergeProcess
     {
-        public ParallelMergeProcess(IEtlContext context, IRowSetMerger merger, string name = null)
-            : base(context, merger, name)
+        public ParallelMergeProcess(IEtlContext context, string name = null)
+            : base(context, name)
         {
         }
 
@@ -23,10 +22,13 @@
             Context.Log(LogSeverity.Information, this, "started");
 
             var threads = new List<Thread>();
-            var resultSets = new ConcurrentBag<IEnumerable<IRow>>();
+            var finished = new bool[ProcessList.Count];
+            var queue = new DefaultRowQueue();
 
-            foreach (var inputProcess in ProcessList)
+            for (var i = 0; i < ProcessList.Count; i++)
             {
+                var inputProcess = ProcessList[i];
+
                 var thread = new Thread(tran =>
                 {
                     var depTran = tran as DependentTransaction;
@@ -35,9 +37,18 @@
                         using (var ts = depTran != null ? new TransactionScope(depTran, TimeSpan.FromDays(1)) : null)
                         {
                             var rows = inputProcess.Evaluate(this);
-                            resultSets.Add(rows);
+
+                            foreach (var row in rows)
+                            {
+                                Context.SetRowOwner(row, this);
+                                queue.AddRow(row);
+                            }
 
                             ts?.Complete();
+
+                            finished[i] = true;
+                            if (finished.All(x => x))
+                                queue.SignalNoMoreRows();
                         }
                     }
                     finally
@@ -55,15 +66,17 @@
                 threads.Add(thread);
             }
 
+            foreach (var row in queue.GetConsumer(Context.CancellationTokenSource.Token))
+            {
+                yield return row;
+            }
+
             foreach (var thread in threads)
             {
                 thread.Join();
             }
 
-            var result = Merger.Merge(resultSets.ToList());
-
             Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", LastInvocation.Elapsed);
-            return result;
         }
     }
 }

@@ -135,6 +135,8 @@
 
             if (reader != null && !Context.CancellationTokenSource.IsCancellationRequested)
             {
+                var initialValues = new List<KeyValuePair<string, object>>();
+
                 while (!Context.CancellationTokenSource.IsCancellationRequested)
                 {
                     try
@@ -153,7 +155,7 @@
                     LastDataRead = DateTime.Now;
                     IncrementCounter();
 
-                    var row = Context.CreateRow(reader.FieldCount);
+                    initialValues.Clear();
                     for (var i = 0; i < reader.FieldCount; i++)
                     {
                         var dbColumn = string.Intern(reader.GetName(i));
@@ -181,15 +183,14 @@
 
                         if (config != null)
                         {
-                            value = HandleConverter(value, rowColumn, config, row, out var error);
-                            if (error)
-                                continue;
+                            value = HandleConverter(value, config);
                         }
 
-                        row.SetValue(rowColumn, value, this);
+                        initialValues.Add(new KeyValuePair<string, object>(rowColumn, value));
                     }
 
                     resultCount++;
+                    var row = Context.CreateRow(this, initialValues);
                     yield return row;
                 }
             }

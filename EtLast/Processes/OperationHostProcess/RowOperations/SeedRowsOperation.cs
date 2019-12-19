@@ -16,14 +16,10 @@
             var buffer = new List<IRow>();
             for (var id = 0; id < RowCount; id++)
             {
-                var newRow = Process.Context.CreateRow();
-                newRow.CurrentOperation = this;
+                var values = Columns.Select(col => new KeyValuePair<string, object>(col, CreateRandomValue(id, col, rnd)));
 
-                var inputRow = Columns.Select(col => CreateRandomObject(id, col, rnd)).ToArray();
-                for (var i = 0; i < Math.Min(Columns.Length, inputRow.Length); i++)
-                {
-                    newRow.SetValue(Columns[i], inputRow[i], this);
-                }
+                var newRow = Process.Context.CreateRow(Process, values);
+                newRow.CurrentOperation = this;
 
                 buffer.Add(newRow);
 
@@ -41,32 +37,22 @@
             }
         }
 
-        public static object CreateRandomObject(int id, string column, Random rnd)
+        public static object CreateRandomValue(int id, string column, Random rnd)
         {
             if (string.Equals(column, "id", StringComparison.OrdinalIgnoreCase))
-            {
                 return id;
-            }
 
             if (column.EndsWith("id", StringComparison.OrdinalIgnoreCase))
-            {
                 return rnd.Next(1, 10000);
-            }
 
             if (column.EndsWith("datetime", StringComparison.OrdinalIgnoreCase))
-            {
                 return new DateTime(2000, 1, 1).AddDays(rnd.Next(1, 365 * 30)).AddHours(rnd.Next(25)).AddMinutes(rnd.Next(60)).AddSeconds(rnd.Next(60));
-            }
 
             if (column.EndsWith("date", StringComparison.OrdinalIgnoreCase))
-            {
                 return new DateTime(2000, 1, 1).AddDays(rnd.Next(1, 365 * 30));
-            }
 
             if (column.EndsWith("time", StringComparison.OrdinalIgnoreCase))
-            {
                 return new TimeSpan(0, rnd.Next(24), rnd.Next(60), rnd.Next(60), rnd.Next(1000));
-            }
 
             if (column.EndsWith("name", StringComparison.OrdinalIgnoreCase))
             {

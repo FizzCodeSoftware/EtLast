@@ -9,7 +9,7 @@
         public static string ToIdentifierString(this Transaction t)
         {
             if (t == null)
-                return "NULL";
+                return null;
 
             if (t.TransactionInformation.LocalIdentifier != null)
             {

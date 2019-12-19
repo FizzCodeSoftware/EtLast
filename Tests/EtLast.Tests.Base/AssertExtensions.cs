@@ -22,22 +22,6 @@
             }
         }
 
-        public static void RowsAreEqual(this Assert assert, object[] expectedrowElements, IRow actual)
-        {
-            assert.RowsAreEqual(RowHelper.CreateRow(expectedrowElements), actual);
-        }
-
-        public static void RowsAreEqual1(this Assert assert, List<IRow> expecteds, params object[][] actualParams)
-        {
-            var actuals = new List<IRow>();
-            foreach (var rowElements in actualParams)
-            {
-                actuals.Add(RowHelper.CreateRow(rowElements));
-            }
-
-            assert.RowsAreEqual(expecteds, actuals);
-        }
-
         public static void RowsAreEqual(this Assert assert, List<IRow> expecteds, List<IRow> actuals)
         {
             if (assert == null)

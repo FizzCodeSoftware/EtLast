@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// Id, Name, Cars, Houses, Kids
@@ -36,16 +37,12 @@
                 if (_fixColumns?.Contains(cell.Key) == true)
                     continue;
 
-                var newRow = Process.Context.CreateRow(FixColumns.Length + 2);
+                var initialValues = FixColumns.Select(x => new KeyValuePair<string, object>(x, row[x])).ToList();
+                initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, cell.Key));
+                initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, cell.Value));
+
+                var newRow = Process.Context.CreateRow(Process, initialValues);
                 newRow.CurrentOperation = this;
-
-                foreach (var column in FixColumns)
-                {
-                    newRow.SetValue(column, row[column], this);
-                }
-
-                newRow.SetValue(NewColumnForDimension, cell.Key, this);
-                newRow.SetValue(NewColumnForValue, cell.Value, this);
 
                 Process.AddRow(newRow, this);
             }

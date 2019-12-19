@@ -53,6 +53,7 @@
                 var columnNames = ColumnNames;
                 string line;
                 var firstRow = true;
+                var initialValues = new List<KeyValuePair<string, object>>();
                 while ((line = reader.ReadLine()) != null && !Context.CancellationTokenSource.IsCancellationRequested)
                 {
                     if (line.EndsWith(Delimiter))
@@ -72,7 +73,7 @@
                         }
                     }
 
-                    var row = Context.CreateRow(parts.Length);
+                    initialValues.Clear();
                     for (var i = 0; i < parts.Length; i++)
                     {
                         var valueString = parts[i];
@@ -93,23 +94,18 @@
                         if (columnConfiguration != null || DefaultConfiguration == null)
                         {
                             var column = columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn;
-                            value = HandleConverter(value, column, columnConfiguration, row, out var error);
-                            if (error)
-                                continue;
-
-                            row.SetValue(column, value, this);
+                            value = HandleConverter(value, columnConfiguration);
+                            initialValues.Add(new KeyValuePair<string, object>(column, value));
                         }
                         else
                         {
                             var column = columnNames[i];
-                            value = HandleConverter(value, column, DefaultConfiguration, row, out var error);
-                            if (error)
-                                continue;
-
-                            row.SetValue(column, value, this);
+                            value = HandleConverter(value, DefaultConfiguration);
+                            initialValues.Add(new KeyValuePair<string, object>(column, value));
                         }
                     }
 
+                    var row = Context.CreateRow(this, initialValues);
                     yield return row;
                 }
             }

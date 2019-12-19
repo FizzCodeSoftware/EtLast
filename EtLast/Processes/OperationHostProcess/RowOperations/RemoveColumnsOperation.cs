@@ -15,7 +15,7 @@
 
             foreach (var column in Columns)
             {
-                row.RemoveColumn(column, this);
+                row.SetValue(column, null, this);
             }
         }
 
