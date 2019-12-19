@@ -2,13 +2,15 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Threading;
 
     public class EtlContext<TRow> : IEtlContext
         where TRow : IRow, new()
     {
-        private readonly List<Exception> _exceptions = new List<Exception>();
+        public string UID { get; } = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+
         public StatCounterCollection CounterCollection { get; }
         public EtlContextResult Result { get; } = new EtlContextResult();
         public AdditionalData AdditionalData { get; }
@@ -28,6 +30,7 @@
         public EventHandler<ContextCustomLogEventArgs> OnCustomLog { get; set; }
 
         private int _nextUid;
+        private readonly List<Exception> _exceptions = new List<Exception>();
 
         public EtlContext(StatCounterCollection forwardCountersToCollection = null)
         {

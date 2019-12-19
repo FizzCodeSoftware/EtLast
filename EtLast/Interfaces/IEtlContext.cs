@@ -6,6 +6,8 @@
 
     public interface IEtlContext
     {
+        string UID { get; }
+
         StatCounterCollection CounterCollection { get; }
         EtlContextResult Result { get; }
         AdditionalData AdditionalData { get; }

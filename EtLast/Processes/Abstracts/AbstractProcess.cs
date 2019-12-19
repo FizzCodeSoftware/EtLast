@@ -1,10 +1,12 @@
-﻿using System;
-using System.Diagnostics;
-
-namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast
 {
+    using System;
+    using System.Diagnostics;
+    using System.Globalization;
+
     public abstract class AbstractProcess : IProcess
     {
+        public string UID { get; } = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
         public ProcessTestDelegate If { get; set; }
         public IEtlContext Context { get; }
         public IProcess Caller { get; protected set; }

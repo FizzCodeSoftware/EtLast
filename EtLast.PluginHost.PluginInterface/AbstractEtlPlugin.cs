@@ -19,9 +19,11 @@
         private ILogger _opsLogger;
         public TimeSpan TransactionScopeTimeout { get; private set; }
         private readonly object _dataLock = new object();
+        public string Name { get; private set; }
 
         public void Init(ILogger logger, ILogger opsLogger, ModuleConfiguration moduleConfiguration, TimeSpan transactionScopeTimeout, StatCounterCollection moduleStatCounterCollection)
         {
+            Name = TypeHelpers.GetFriendlyTypeName(GetType());
             _logger = logger;
             _opsLogger = opsLogger;
             ModuleConfiguration = moduleConfiguration;
@@ -96,7 +98,7 @@
             var values = new List<object>
             {
                 ModuleConfiguration.ModuleName,
-                TypeHelpers.GetFriendlyTypeName(GetType()),
+                Name,
             };
 
             if (args.Caller != null)

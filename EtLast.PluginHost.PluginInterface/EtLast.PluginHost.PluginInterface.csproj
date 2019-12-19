@@ -14,7 +14,7 @@
     <AssemblyName>FizzCode.EtLast.PluginHost.PluginInterface</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
-    <Configurations>Debug;Release;Debug-LocalProjects</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

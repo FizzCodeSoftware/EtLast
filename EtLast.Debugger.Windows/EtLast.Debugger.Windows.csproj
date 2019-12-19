@@ -1,21 +1,22 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <PackageId>FizzCode.EtLast.Specialized</PackageId>
+    <UseWindowsForms>true</UseWindowsForms>
+    <IsPackable>false</IsPackable>
     <Authors>FizzCode Ltd.</Authors>
     <Company>FizzCode Ltd.</Company>
     <Product>EtLast ETL (Extract, Transform and Load) library for .NET Core</Product>
-    <Description>Specialized features for EtLast ETL (Extract, Transform and Load) library</Description>
     <Copyright>Copyright © 2019 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
-    <Platforms>AnyCPU</Platforms>
+    <Description>ADO.NET extension for EtLast ETL (Extract, Transform and Load) library</Description>
     <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
-    <RootNamespace>FizzCode.EtLast.Specialized</RootNamespace>
-    <AssemblyName>FizzCode.EtLast.Specialized</AssemblyName>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>CS1591</NoWarn>
-    <Configurations>Debug;Release</Configurations>
+    <AssemblyName>FizzCode.EtLast.Debugger.Windows</AssemblyName>
+    <RootNamespace>FizzCode.EtLast.Debugger.Windows</RootNamespace>
+    <ApplicationIcon />
+    <Win32Resource />
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>

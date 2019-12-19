@@ -1,13 +1,16 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
 
     internal class ResilientTableFinalizerManager : IProcess
     {
         private readonly ResilientSqlScope _scope;
         public IEtlContext Context => _scope.Context;
+        public string UID { get; } = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
         public string Name { get; } = "TableFinalizerManager";
         public IProcess Caller => _scope;
         public Stopwatch LastInvocation { get; private set; }
