@@ -284,21 +284,20 @@
 
         private bool PrepareOperations()
         {
-            try
+            foreach (var op in Operations)
             {
-                foreach (var op in Operations)
+                try
                 {
                     PrepareOperation(op);
                 }
-
-                return true;
+                catch (Exception ex)
+                {
+                    Context.AddException(this, ex, op);
+                    return false;
+                }
             }
-            catch (Exception ex)
-            {
-                Context.AddException(this, ex);
-            }
 
-            return false;
+            return true;
         }
 
         private void PrepareOperation(IRowOperation op)
@@ -325,16 +324,17 @@
 
         private void ShutdownOperations()
         {
-            try
+            foreach (var op in Operations)
             {
-                foreach (var op in Operations)
+                try
                 {
                     ShutdownOperation(op);
                 }
-            }
-            catch (Exception ex)
-            {
-                Context.AddException(this, ex);
+                catch (Exception ex)
+                {
+                    Context.AddException(this, ex, op);
+                    return;
+                }
             }
         }
 
@@ -756,7 +756,8 @@
                         if (token.IsCancellationRequested)
                             break;
 
-                        ProcessRow(row);
+                        if (!ProcessRow(row))
+                            break;
                     }
                 }
                 catch (Exception ex)
@@ -770,7 +771,7 @@
             _workerThread.Start(Transaction.Current);
         }
 
-        private void ProcessRow(IRow row)
+        private bool ProcessRow(IRow row)
         {
             var operation = row.CurrentOperation;
             while (operation != null)
@@ -785,7 +786,8 @@
                     catch (Exception ex)
                     {
                         var exception = new OperationExecutionException(this, operation, row, "error raised during the execution of an operation", ex);
-                        throw exception;
+                        Context.AddException(this, exception, operation);
+                        return false;
                     }
 
                     if (row.DeferState == DeferState.DeferWait)
@@ -811,6 +813,8 @@
             {
                 FlagRowAsFinished(row);
             }
+
+            return true;
         }
 
         public override void ValidateImpl()

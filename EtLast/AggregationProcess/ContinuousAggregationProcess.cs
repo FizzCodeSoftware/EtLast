@@ -69,7 +69,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ex);
+                    Context.AddException(this, ex, Operation);
                     break;
                 }
 

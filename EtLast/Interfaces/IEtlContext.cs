@@ -6,8 +6,6 @@
 
     public interface IEtlContext
     {
-        string UID { get; }
-
         StatCounterCollection CounterCollection { get; }
         EtlContextResult Result { get; }
         AdditionalData AdditionalData { get; }
@@ -34,7 +32,7 @@
         void LogCustom(string fileName, IProcess caller, string text, params object[] args);
         void LogCustomOps(string fileName, IProcess caller, string text, params object[] args);
 
-        void AddException(IProcess process, Exception ex);
+        void AddException(IProcess process, Exception ex, IBaseOperation operation = null);
         List<Exception> GetExceptions();
 
         int ExceptionCount { get; }

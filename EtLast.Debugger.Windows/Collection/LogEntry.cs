@@ -4,7 +4,6 @@
 
     internal class LogEntry
     {
-        public string ContextUid { get; set; }
         public string[] ContextName { get; set; }
         public string CallerUid { get; set; }
         public string CallerName { get; set; }

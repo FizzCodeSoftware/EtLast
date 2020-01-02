@@ -2,15 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
     using System.Threading;
 
     public class EtlContext<TRow> : IEtlContext
         where TRow : IRow, new()
     {
-        public string UID { get; } = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
-
         public StatCounterCollection CounterCollection { get; }
         public EtlContextResult Result { get; } = new EtlContextResult();
         public AdditionalData AdditionalData { get; }
@@ -214,7 +211,7 @@
             return row;
         }
 
-        public void AddException(IProcess process, Exception ex)
+        public void AddException(IProcess process, Exception ex, IBaseOperation operation = null)
         {
             if (ex is OperationCanceledException)
                 return;
@@ -234,7 +231,8 @@
 
             OnException?.Invoke(this, new ContextExceptionEventArgs()
             {
-                Process = process,
+                Caller = process,
+                Operation = operation,
                 Exception = ex,
             });
 

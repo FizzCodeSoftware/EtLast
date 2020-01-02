@@ -20,6 +20,9 @@
     "Seq": {
       "Url": null,
       "ApiKey": null
+    },
+    "RemoteDiagnostics": {
+      "Url": "http://localhost:8642"
     }
   }
 }

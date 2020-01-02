@@ -7,25 +7,22 @@
     using System.Reflection;
     using FizzCode.DbTools.Configuration;
     using Microsoft.Extensions.Configuration;
-    using Serilog;
-    using Serilog.Events;
 
     public abstract class AbstractEtlPlugin : IEtlPlugin
     {
         public ModuleConfiguration ModuleConfiguration { get; private set; }
         public IEtlContext Context { get; private set; }
 
-        private ILogger _logger;
-        private ILogger _opsLogger;
+        private IEtlPluginLogger _logger;
         public TimeSpan TransactionScopeTimeout { get; private set; }
         private readonly object _dataLock = new object();
-        public string Name { get; private set; }
 
-        public void Init(ILogger logger, ILogger opsLogger, ModuleConfiguration moduleConfiguration, TimeSpan transactionScopeTimeout, StatCounterCollection moduleStatCounterCollection)
+        private string _nameCached;
+        public string Name => _nameCached ?? (_nameCached = TypeHelpers.GetFriendlyTypeName(GetType()));
+
+        public void Init(IEtlPluginLogger logger, ModuleConfiguration moduleConfiguration, TimeSpan transactionScopeTimeout, StatCounterCollection moduleStatCounterCollection)
         {
-            Name = TypeHelpers.GetFriendlyTypeName(GetType());
             _logger = logger;
-            _opsLogger = opsLogger;
             ModuleConfiguration = moduleConfiguration;
             Context = CreateContext<DictionaryRow>(transactionScopeTimeout, moduleStatCounterCollection);
             TransactionScopeTimeout = transactionScopeTimeout;
@@ -72,56 +69,11 @@
                 TransactionScopeTimeout = tansactionScopeTimeout,
             };
 
-            context.OnException += OnException;
-            context.OnLog += OnLog;
+            context.OnException += (sender, args) => _logger.LogException(this, args);
+            context.OnLog += (sender, args) => _logger.Log(args.Severity, args.ForOps, this, args.Caller, args.Operation, args.Text, args.Arguments);
             context.OnCustomLog += OnCustomLog;
 
             return context;
-        }
-
-        private void OnLog(object sender, ContextLogEventArgs args)
-        {
-            var ident = "";
-            if (args.Caller != null)
-            {
-                var p = args.Caller;
-                while (p.Caller != null)
-                {
-                    ident += "   ";
-                    p = p.Caller;
-                }
-            }
-
-            if (string.IsNullOrEmpty(ident))
-                ident = " ";
-
-            var values = new List<object>
-            {
-                ModuleConfiguration.ModuleName,
-                Name,
-            };
-
-            if (args.Caller != null)
-                values.Add(args.Caller.Name);
-
-            if (args.Operation != null)
-                values.Add(args.Operation.Name);
-
-            if (args.Arguments != null)
-                values.AddRange(args.Arguments);
-
-            var logger = args.ForOps
-                ? _opsLogger
-                : _logger;
-
-            logger.Write(
-                (LogEventLevel)args.Severity,
-                "[{Module}/{Plugin}]"
-                    + ident
-                    + (args.Caller != null ? "<{Caller}> " : "")
-                    + (args.Operation != null ? "({Operation}) " : "")
-                    + args.Text,
-                values.ToArray());
         }
 
         private void OnCustomLog(object sender, ContextCustomLogEventArgs args)
@@ -146,85 +98,6 @@
             lock (_dataLock)
             {
                 File.AppendAllText(fileName, line + Environment.NewLine);
-            }
-        }
-
-        protected virtual void OnException(object sender, ContextExceptionEventArgs args)
-        {
-            var opsErrors = new List<string>();
-            GetOpsMessages(args.Exception, opsErrors);
-            foreach (var opsError in opsErrors)
-            {
-                OnLog(sender, new ContextLogEventArgs()
-                {
-                    Severity = LogSeverity.Fatal,
-                    Caller = args.Process,
-                    Text = opsError,
-                    ForOps = true,
-                });
-            }
-
-            var lvl = 0;
-            var msg = "EXCEPTION: ";
-
-            var cex = args.Exception;
-            while (cex != null)
-            {
-                if (lvl > 0)
-                    msg += "\nINNER EXCEPTION: ";
-
-                msg += TypeHelpers.GetFriendlyTypeName(cex.GetType()) + ": " + cex.Message;
-
-                if (cex.Data?.Count > 0)
-                {
-                    foreach (var key in cex.Data.Keys)
-                    {
-                        var k = key.ToString();
-                        if (cex == args.Exception && k == "Process")
-                            continue;
-
-                        if (k == "CallChain")
-                            continue;
-
-                        if (k == "OpsMessage")
-                            continue;
-
-                        var value = cex.Data[key];
-                        msg += ", " + k + " = " + (value != null ? value.ToString().Trim() : "NULL");
-                    }
-                }
-
-                cex = cex.InnerException;
-                lvl++;
-            }
-
-            _logger.Fatal("[{Module}/{Plugin}] " + (args.Process != null ? "<{Process}> " : "") + "{Message}",
-                ModuleConfiguration.ModuleName,
-                TypeHelpers.GetFriendlyTypeName(GetType()),
-                args.Process?.Name,
-                msg);
-        }
-
-        private void GetOpsMessages(Exception ex, List<string> messages)
-        {
-            if (ex.Data.Contains(EtlException.OpsMessageDataKey))
-            {
-                var msg = ex.Data[EtlException.OpsMessageDataKey];
-                if (msg != null)
-                {
-                    messages.Add(msg.ToString());
-                }
-            }
-
-            if (ex.InnerException != null)
-                GetOpsMessages(ex.InnerException, messages);
-
-            if (ex is AggregateException aex)
-            {
-                foreach (var iex in aex.InnerExceptions)
-                {
-                    GetOpsMessages(iex, messages);
-                }
             }
         }
 
