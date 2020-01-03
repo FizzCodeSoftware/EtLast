@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.IO;
     using System.Reflection;
     using FizzCode.DbTools.Configuration;
@@ -10,21 +9,28 @@
 
     public abstract class AbstractEtlPlugin : IEtlPlugin
     {
-        public ModuleConfiguration ModuleConfiguration { get; private set; }
-        public IEtlContext Context { get; private set; }
-
-        private IEtlPluginLogger _logger;
-        public TimeSpan TransactionScopeTimeout { get; private set; }
-        private readonly object _dataLock = new object();
-
         private string _nameCached;
         public string Name => _nameCached ?? (_nameCached = TypeHelpers.GetFriendlyTypeName(GetType()));
 
+        public ModuleConfiguration ModuleConfiguration { get; private set; }
+        public IEtlContext Context { get; private set; }
+
+        protected IEtlPluginLogger Logger { get; private set; }
+        protected TimeSpan TransactionScopeTimeout { get; private set; }
+
         public void Init(IEtlPluginLogger logger, ModuleConfiguration moduleConfiguration, TimeSpan transactionScopeTimeout, StatCounterCollection moduleStatCounterCollection)
         {
-            _logger = logger;
+            Logger = logger;
             ModuleConfiguration = moduleConfiguration;
-            Context = CreateContext<DictionaryRow>(transactionScopeTimeout, moduleStatCounterCollection);
+
+            Context = new EtlContext<DictionaryRow>(moduleStatCounterCollection)
+            {
+                TransactionScopeTimeout = transactionScopeTimeout,
+                OnException = (sender, args) => Logger.LogException(this, args),
+                OnLog = (sender, args) => Logger.Log(args.Severity, args.ForOps, this, args.Caller, args.Operation, args.Text, args.Arguments),
+                OnCustomLog = (sender, args) => Logger.LogCustom(args.ForOps, this, args.FileName, args.Caller, args.Text, args.Arguments),
+            };
+
             TransactionScopeTimeout = transactionScopeTimeout;
         }
 
@@ -61,46 +67,6 @@
 
         public abstract void Execute();
 
-        private IEtlContext CreateContext<TRow>(TimeSpan tansactionScopeTimeout, StatCounterCollection moduleStatCounterCollection)
-            where TRow : IRow, new()
-        {
-            var context = new EtlContext<TRow>(moduleStatCounterCollection)
-            {
-                TransactionScopeTimeout = tansactionScopeTimeout,
-            };
-
-            context.OnException += (sender, args) => _logger.LogException(this, args);
-            context.OnLog += (sender, args) => _logger.Log(args.Severity, args.ForOps, this, args.Caller, args.Operation, args.Text, args.Arguments);
-            context.OnCustomLog += OnCustomLog;
-
-            return context;
-        }
-
-        private void OnCustomLog(object sender, ContextCustomLogEventArgs args)
-        {
-            var subFolder = args.ForOps ? "log-ops" : "log-dev";
-            var logsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), subFolder);
-            if (!Directory.Exists(logsFolder))
-            {
-                try
-                {
-                    Directory.CreateDirectory(logsFolder);
-                }
-                catch (Exception)
-                {
-                }
-            }
-
-            var fileName = Path.Combine(logsFolder, args.FileName);
-
-            var line = TypeHelpers.GetFriendlyTypeName(GetType()) + "\t" + (args.Caller != null ? args.Caller.Name + "\t" : "") + string.Format(CultureInfo.InvariantCulture, args.Text, args.Arguments);
-
-            lock (_dataLock)
-            {
-                File.AppendAllText(fileName, line + Environment.NewLine);
-            }
-        }
-
         protected string GetStorageFolder(params string[] subFolders)
         {
             return GetPathFromConfiguration("StorageFolder", subFolders);
@@ -108,16 +74,23 @@
 
         protected T GetModuleSetting<T>(string key, T defaultValue = default, string subSection = null)
         {
-            var section = subSection == null
-                ? "Module"
-                : "Module:" + subSection;
-
-            var v = ModuleConfiguration.Configuration.GetValue<T>(section + ":" + key + "-" + Environment.MachineName, default);
+            var v = ModuleConfiguration.Configuration.GetValue<T>((subSection == null ? "Module" : "Module:" + subSection) + ":" + key + "-" + Environment.MachineName, default);
             if (v != null && !v.Equals(default(T)))
                 return v;
 
-            v = ModuleConfiguration.Configuration.GetValue(section + ":" + key, defaultValue);
-            return v ?? defaultValue;
+            v = ModuleConfiguration.Configuration.GetValue((subSection == null ? "Module" : "Module:" + subSection) + ":" + key, defaultValue);
+            if (v != null && !v.Equals(default(T)))
+                return v;
+
+            v = ModuleConfiguration.Configuration.GetValue<T>((subSection == null ? "Shared" : "Shared:" + subSection) + ":" + key + "-" + Environment.MachineName, default);
+            if (v != null && !v.Equals(default(T)))
+                return v;
+
+            v = ModuleConfiguration.Configuration.GetValue<T>((subSection == null ? "Shared" : "Shared:" + subSection) + ":" + key, default);
+            if (v != null && !v.Equals(default(T)))
+                return v;
+
+            return defaultValue;
         }
 
         protected string GetPathFromConfiguration(string appSettingName, params string[] subFolders)

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.IO;
     using System.Net.Http;
     using System.Text;
     using System.Text.Encodings.Web;
@@ -17,7 +18,8 @@
         public ModuleConfiguration ModuleConfiguration { get; set; }
         public Uri DiagnosticsUri { get; set; }
 
-        private HttpClient disgnosticsClient;
+        private HttpClient _disgnosticsClient;
+        private readonly object _customFileLock = new object();
 
         public void Log(LogSeverity severity, bool forOps, IEtlPlugin plugin, IProcess caller, IBaseOperation operation, string text, params object[] args)
         {
@@ -275,13 +277,16 @@
 
                 using var content = new StringContent(contentBuilder.ToString(), Encoding.UTF8, "application/text");
 
-                if (disgnosticsClient == null)
+                if (_disgnosticsClient == null)
                 {
-                    disgnosticsClient = new HttpClient();
+                    _disgnosticsClient = new HttpClient
+                    {
+                        Timeout = TimeSpan.FromMilliseconds(100)
+                    };
                 }
 
 #pragma warning disable CA2234 // Pass system uri objects instead of strings
-                var response = disgnosticsClient.PostAsync(fullUrl, content).Result;
+                var response = _disgnosticsClient.PostAsync(fullUrl, content).Result;
 #pragma warning restore CA2234 // Pass system uri objects instead of strings
                 var responseBody = response.Content.ReadAsStringAsync().Result;
                 if (responseBody != "ACK")
@@ -334,7 +339,7 @@
             {
                 if (disposing)
                 {
-                    disgnosticsClient?.Dispose();
+                    _disgnosticsClient?.Dispose();
                 }
 
                 _isDisposed = true;
@@ -345,6 +350,39 @@
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        public void LogCustom(bool forOps, IEtlPlugin plugin, string fileName, IProcess caller, string text, params object[] args)
+        {
+            var logsFolder = forOps
+                ? SerilogConfigurator.OpsLogFolder
+                : SerilogConfigurator.DevLogFolder;
+
+            if (!Directory.Exists(logsFolder))
+            {
+                try
+                {
+                    Directory.CreateDirectory(logsFolder);
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            var filePath = Path.Combine(logsFolder, fileName);
+
+            var line = new StringBuilder()
+                .Append(ModuleConfiguration.ModuleName)
+                .Append("\t")
+                .Append(plugin != null ? plugin.Name + "\t" : "")
+                .Append(caller != null ? caller.Name + "\t" : "")
+                .AppendFormat(CultureInfo.InvariantCulture, text, args)
+                .ToString();
+
+            lock (_customFileLock)
+            {
+                File.AppendAllText(filePath, line + Environment.NewLine);
+            }
         }
     }
 }
