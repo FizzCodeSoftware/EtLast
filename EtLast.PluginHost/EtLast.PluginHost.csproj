@@ -6,7 +6,7 @@
     <Authors>FizzCode Ltd.</Authors>
     <Product>EtLast ETL (Extract, Transform and Load) library for .NET Core</Product>
     <Description>Plugin host for EtLast ETL (Extract, Transform and Load) library</Description>
-    <Copyright>Copyright © 2019 FizzCode Ltd.</Copyright>
+    <Copyright>Copyright © 2019-2020 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Platforms>AnyCPU</Platforms>
     <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
@@ -35,6 +35,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
+    <ProjectReference Include="..\EtLast.Diagnostics.Interface\EtLast.Diagnostics.Interface.csproj" />
     <ProjectReference Include="..\EtLast.PluginHost.PluginInterface\EtLast.PluginHost.PluginInterface.csproj" />
     <ProjectReference Include="..\EtLast\EtLast.csproj" />
   </ItemGroup>

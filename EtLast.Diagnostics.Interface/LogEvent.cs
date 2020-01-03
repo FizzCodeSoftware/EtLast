@@ -1,18 +1,18 @@
-﻿namespace FizzCode.EtLast.Debugger.Windows
+﻿namespace FizzCode.EtLast.Diagnostics.Interface
 {
-    using System.Collections.Generic;
+    using FizzCode.EtLast;
 
-    internal class LogEntry
+    public class LogEvent
     {
         public string[] ContextName { get; set; }
         public string CallerUid { get; set; }
         public string CallerName { get; set; }
         public string OperationType { get; set; }
-        public string OperationNumber { get; set; }
+        public int? OperationNumber { get; set; }
         public string OperationName { get; set; }
         public string Text { get; set; }
         public LogSeverity Severity { get; set; }
+        public Argument[] Arguments { get; set; }
         public bool ForOps { get; set; }
-        public List<object> Arguments { get; set; } = new List<object>();
     }
 }

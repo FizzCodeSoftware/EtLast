@@ -10,6 +10,6 @@
         public List<Collection> ChildCollections { get; } = new List<Collection>();
         public Dictionary<string, Collection> ChildCollectionsByName { get; } = new Dictionary<string, Collection>();
 
-        public List<LogEntry> LogEntries { get; } = new List<LogEntry>();
+        public List<Diagnostics.Interface.LogEvent> LogEntries { get; } = new List<Diagnostics.Interface.LogEvent>();
     }
 }

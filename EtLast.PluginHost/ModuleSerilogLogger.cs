@@ -4,9 +4,10 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Net.Http;
     using System.Text;
-    using System.Text.Encodings.Web;
+    using System.Text.Json;
     using FizzCode.EtLast;
     using Serilog;
     using Serilog.Events;
@@ -18,7 +19,7 @@
         public ModuleConfiguration ModuleConfiguration { get; set; }
         public Uri DiagnosticsUri { get; set; }
 
-        private HttpClient _disgnosticsClient;
+        private HttpClient _diagnosticsClient;
         private readonly object _customFileLock = new object();
 
         public void Log(LogSeverity severity, bool forOps, IEtlPlugin plugin, IProcess caller, IBaseOperation operation, string text, params object[] args)
@@ -143,151 +144,41 @@
             }
         }
 
-        private static void GetHttpArgument(object x, out string content, out string type)
-        {
-            if (x is string sv)
-            {
-                content = sv;
-                type = "string";
-                return;
-            }
-
-            if (x is bool bv)
-            {
-                content = bv ? "1" : "0";
-                type = "bool";
-                return;
-            }
-
-            if (x is int iv)
-            {
-                content = iv.ToString("D", CultureInfo.InvariantCulture);
-                type = "int";
-                return;
-            }
-
-            if (x is long lv)
-            {
-                content = lv.ToString("D", CultureInfo.InvariantCulture);
-                type = "long";
-                return;
-            }
-
-            if (x is float fv)
-            {
-                content = fv.ToString("G", CultureInfo.InvariantCulture);
-                type = "float";
-                return;
-            }
-
-            if (x is double dv)
-            {
-                content = dv.ToString("G", CultureInfo.InvariantCulture);
-                type = "double";
-                return;
-            }
-
-            if (x is decimal dev)
-            {
-                content = dev.ToString("G", CultureInfo.InvariantCulture);
-                type = "decimal";
-                return;
-            }
-
-            if (x is DateTime dt)
-            {
-                content = dt.Ticks.ToString("D", CultureInfo.InvariantCulture);
-                type = "datetime";
-                return;
-            }
-
-            if (x is TimeSpan ts)
-            {
-                content = Convert.ToInt64(ts.TotalMilliseconds).ToString("D", CultureInfo.InvariantCulture);
-                type = "timespan";
-                return;
-            }
-
-            content = x.ToString();
-            type = x.GetType().Name;
-        }
-
         private void SendDiagnostis(LogSeverity severity, bool forOps, IEtlPlugin plugin, IProcess caller, IBaseOperation operation, string text, params object[] args)
         {
             try
             {
-                var contentBuilder = new StringBuilder();
-                contentBuilder.AppendLine(text.Length.ToString("D", CultureInfo.InvariantCulture));
-                contentBuilder.AppendLine(text);
-
-                if (args?.Length > 0)
+                var logEvent = new Diagnostics.Interface.LogEvent()
                 {
-                    contentBuilder.AppendLine(args.Length.ToString("D", CultureInfo.InvariantCulture));
-                    foreach (var argument in args)
-                    {
-                        if (argument == null)
-                        {
-                            contentBuilder.AppendLine("null,0,1");
-                            continue;
-                        }
-
-                        GetHttpArgument(argument, out var argContent, out var type);
-                        contentBuilder.Append(type).Append(',').Append(argContent.Length).AppendLine(",0");
-                        contentBuilder.AppendLine(argContent);
-                    }
-                }
-                else
-                {
-                    contentBuilder.AppendLine("0");
-                }
-
-                var queryValues = new Dictionary<string, string>
-                {
-                    { "severity", severity.ToString() }
+                    Text = text,
+                    Severity = severity,
+                    ContextName = plugin != null
+                        ? new string[] { ModuleConfiguration.ModuleName, plugin.Name }
+                        : new string[] { ModuleConfiguration.ModuleName },
+                    ForOps = forOps,
+                    CallerName = caller?.Name,
+                    CallerUid = caller?.UID,
+                    OperationName = operation?.Name,
+                    OperationType = operation != null ? TypeHelpers.GetFriendlyTypeName(operation.GetType()) : null,
+                    OperationNumber = operation?.Number,
+                    Arguments = args?.Select(Diagnostics.Interface.Argument.FromObject).ToArray(),
                 };
 
-                if (plugin != null)
-                {
-                    queryValues.Add("contextName", ModuleConfiguration.ModuleName + "," + plugin.Name);
-                }
-                else
-                {
-                    queryValues.Add("contextName", ModuleConfiguration.ModuleName);
-                }
+                var fullUri = new Uri(DiagnosticsUri, "log");
 
-                if (caller != null)
+                var jsonContent = JsonSerializer.Serialize(logEvent);
+
+                if (_diagnosticsClient == null)
                 {
-                    queryValues.Add("callerUid", caller.UID);
-                    queryValues.Add("callerName", caller.Name);
-                }
-
-                if (operation != null)
-                {
-                    queryValues.Add("opType", operation.GetType().Name);
-                    queryValues.Add("opNum", operation.Number.ToString("D", CultureInfo.InvariantCulture));
-                    queryValues.Add("opName", operation.Name);
-                }
-
-                if (forOps)
-                {
-                    queryValues.Add("forOps", "1");
-                }
-
-                var fullUrl = AddQueryValues(new Uri(DiagnosticsUri, "log").ToString(), queryValues);
-
-                using var content = new StringContent(contentBuilder.ToString(), Encoding.UTF8, "application/text");
-
-                if (_disgnosticsClient == null)
-                {
-                    _disgnosticsClient = new HttpClient
+                    _diagnosticsClient = new HttpClient
                     {
                         Timeout = TimeSpan.FromMilliseconds(100)
                     };
                 }
 
-#pragma warning disable CA2234 // Pass system uri objects instead of strings
-                var response = _disgnosticsClient.PostAsync(fullUrl, content).Result;
-#pragma warning restore CA2234 // Pass system uri objects instead of strings
+                using var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                var response = _diagnosticsClient.PostAsync(fullUri, content).Result;
                 var responseBody = response.Content.ReadAsStringAsync().Result;
                 if (responseBody != "ACK")
                 {
@@ -299,38 +190,6 @@
             }
         }
 
-        private static string AddQueryValues(string uri, Dictionary<string, string> values)
-        {
-            var uriLeft = uri;
-            string uriRight = null;
-
-            var idx = uri.IndexOf('#', StringComparison.InvariantCulture);
-            if (idx != -1)
-            {
-                uriRight = uri.Substring(idx);
-                uriLeft = uri.Substring(0, idx);
-            }
-
-            var addSeparator = uriLeft.IndexOf('?', StringComparison.InvariantCulture) == -1;
-
-            var sb = new StringBuilder();
-            sb.Append(uriLeft);
-            foreach (var kvp in values)
-            {
-                sb.Append(addSeparator ? '?' : '&')
-                .Append(UrlEncoder.Default.Encode(kvp.Key))
-                .Append('=')
-                .Append(UrlEncoder.Default.Encode(kvp.Value));
-
-                addSeparator = false;
-            }
-
-            if (uriRight != null)
-                sb.Append(uriRight);
-
-            return sb.ToString();
-        }
-
         private bool _isDisposed;
 
         protected virtual void Dispose(bool disposing)
@@ -339,7 +198,7 @@
             {
                 if (disposing)
                 {
-                    _disgnosticsClient?.Dispose();
+                    _diagnosticsClient?.Dispose();
                 }
 
                 _isDisposed = true;

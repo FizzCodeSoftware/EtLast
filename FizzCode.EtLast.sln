@@ -33,7 +33,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.PluginHost.HelloWorl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Specialized", "EtLast.Specialized\EtLast.Specialized.csproj", "{87E7EC8D-6E9E-4815-A399-486323441F40}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.Debugger.Windows", "EtLast.Debugger.Windows\EtLast.Debugger.Windows.csproj", "{003B6174-8DEE-4951-B58A-B75BEFE91D35}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Diagnostics.Windows", "EtLast.Diagnostics.Windows\EtLast.Diagnostics.Windows.csproj", "{C6DD4813-2092-418D-8E89-2BDDA248D9A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtLast.Diagnostics.Interface", "EtLast.Diagnostics.Interface\EtLast.Diagnostics.Interface.csproj", "{2972041C-1CA5-4A7D-9381-20D8DE91A951}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,10 +83,14 @@ Global
 		{87E7EC8D-6E9E-4815-A399-486323441F40}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87E7EC8D-6E9E-4815-A399-486323441F40}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87E7EC8D-6E9E-4815-A399-486323441F40}.Release|Any CPU.Build.0 = Release|Any CPU
-		{003B6174-8DEE-4951-B58A-B75BEFE91D35}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{003B6174-8DEE-4951-B58A-B75BEFE91D35}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{003B6174-8DEE-4951-B58A-B75BEFE91D35}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{003B6174-8DEE-4951-B58A-B75BEFE91D35}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6DD4813-2092-418D-8E89-2BDDA248D9A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6DD4813-2092-418D-8E89-2BDDA248D9A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6DD4813-2092-418D-8E89-2BDDA248D9A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6DD4813-2092-418D-8E89-2BDDA248D9A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2972041C-1CA5-4A7D-9381-20D8DE91A951}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2972041C-1CA5-4A7D-9381-20D8DE91A951}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2972041C-1CA5-4A7D-9381-20D8DE91A951}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2972041C-1CA5-4A7D-9381-20D8DE91A951}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
