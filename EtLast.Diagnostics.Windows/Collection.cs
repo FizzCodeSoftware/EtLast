@@ -1,31 +1,40 @@
 ﻿namespace FizzCode.EtLast.Debugger.Windows
 {
-    using System;
     using System.Collections.Generic;
 
     internal class Collection
     {
-        public string Name { get; set; }
+        public string Name { get; }
 
-        public Collection ParentCollection { get; set; }
+        public Collection ParentCollection { get; }
         public List<Collection> ChildCollections { get; } = new List<Collection>();
         public Dictionary<string, Collection> ChildCollectionsByName { get; } = new Dictionary<string, Collection>();
 
-        public object[] AllEvents = Array.Empty<object>();
-        private int _firstEventIndex;
+        public Playbook CurrentPlayBook { get; }
 
-        public Dictionary<int, TrackedRow> AllRows { get; } = new Dictionary<int, TrackedRow>();
-
-        public void AddEvent(int num, object payload)
+        public Collection(string name, Collection parentCollection = null)
         {
-            if (AllEvents.Length == 0)
+            Name = name;
+            CurrentPlayBook = new Playbook(this);
+            ParentCollection = parentCollection;
+        }
+
+        public Collection GetCollection(string[] names)
+        {
+            var collection = this;
+            for (var i = 0; i < names.Length; i++)
             {
-                _firstEventIndex = num;
+                if (!collection.ChildCollectionsByName.TryGetValue(names[i], out var child))
+                {
+                    child = new Collection(names[i], collection);
+                    collection.ChildCollections.Add(child);
+                    collection.ChildCollectionsByName.Add(names[i], child);
+                }
+
+                collection = child;
             }
 
-            var count = num - _firstEventIndex + 1;
-            Array.Resize(ref AllEvents, count);
-            AllEvents[count - 1] = payload;
+            return collection;
         }
     }
 }

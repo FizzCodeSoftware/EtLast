@@ -46,6 +46,13 @@
 
         public void CalculateTextValue()
         {
+            if (Value == null)
+            {
+                TextValue = null;
+                Type = "?";
+                return;
+            }
+
             if (Value is EtlRowError rowErr)
             {
                 TextValue = rowErr.Message;

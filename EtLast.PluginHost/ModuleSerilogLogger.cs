@@ -12,6 +12,7 @@
     using FizzCode.EtLast;
     using Serilog;
     using Serilog.Events;
+    using Serilog.Parsing;
 
     public class ModuleSerilogLogger : IEtlPluginLogger, IDisposable
     {
@@ -23,7 +24,10 @@
         private HttpClient _diagnosticsClient;
         private readonly object _customFileLock = new object();
 
-        private int _number;
+        private int _diagnosticsNumber;
+        private readonly Dictionary<string, MessageTemplate> _messageTemplateCache = new Dictionary<string, MessageTemplate>();
+        private readonly object _messageTemplateCacheLock = new object();
+        private readonly MessageTemplateParser _messageTemplateParser = new MessageTemplateParser();
 
         public void Log(LogSeverity severity, bool forOps, IEtlPlugin plugin, IProcess process, IBaseOperation operation, string text, params object[] args)
         {
@@ -149,8 +153,46 @@
 
         private void SendDiagnostis(LogSeverity severity, bool forOps, IEtlPlugin plugin, IProcess process, IBaseOperation operation, string text, params object[] args)
         {
+            if (args.Length == 0)
+            {
+                SendDiagnostics("log", new Diagnostics.Interface.LogEvent()
+                {
+                    Timestamp = DateTime.Now.Ticks,
+                    Text = text,
+                    Severity = severity,
+                    ContextName = plugin != null
+                        ? new string[] { ModuleConfiguration.ModuleName, plugin.Name }
+                        : new string[] { ModuleConfiguration.ModuleName },
+                    ForOps = forOps,
+                    ProcessName = process?.Name,
+                    ProcessUid = process?.UID,
+                    OperationName = operation?.Name,
+                    OperationType = operation != null ? TypeHelpers.GetFriendlyTypeName(operation.GetType()) : null,
+                    OperationNumber = operation?.Number,
+                });
+
+                return;
+            }
+
+            var template = GetMessageTemplate(text);
+
+            var arguments = new Diagnostics.Interface.NamedArgument[args.Length];
+            var idx = 0;
+            var tokens = template.Tokens.ToList();
+            for (var i = 0; i < tokens.Count && idx < args.Length; i++)
+            {
+                if (tokens[i] is PropertyToken pt)
+                {
+                    var rawText = text.Substring(pt.StartIndex, pt.Length);
+                    // todo: replace rawText with pt.PropertyName in the original text to remove the unnecessary optional alignment and other attributes
+                    arguments[idx] = Diagnostics.Interface.NamedArgument.FromObject(rawText, args[idx]);
+                    idx++;
+                }
+            }
+
             SendDiagnostics("log", new Diagnostics.Interface.LogEvent()
             {
+                Timestamp = DateTime.Now.Ticks,
                 Text = text,
                 Severity = severity,
                 ContextName = plugin != null
@@ -162,15 +204,41 @@
                 OperationName = operation?.Name,
                 OperationType = operation != null ? TypeHelpers.GetFriendlyTypeName(operation.GetType()) : null,
                 OperationNumber = operation?.Number,
-                Arguments = args?.Select(Diagnostics.Interface.Argument.FromObject).ToArray(),
+                Arguments = arguments,
             });
+        }
+
+        private MessageTemplate GetMessageTemplate(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return null;
+
+            lock (_messageTemplateCacheLock)
+            {
+                if (_messageTemplateCache.TryGetValue(text, out var existingTemplate))
+                    return existingTemplate;
+            }
+
+            var template = _messageTemplateParser.Parse(text);
+            lock (_messageTemplateCacheLock)
+            {
+                if (!_messageTemplateCache.ContainsKey(text))
+                {
+                    if (_messageTemplateCache.Count == 1000)
+                        _messageTemplateCache.Clear();
+
+                    _messageTemplateCache[text] = template;
+                }
+            }
+
+            return template;
         }
 
         private void SendDiagnostics(string relativeUri, object content)
         {
             try
             {
-                var num = Interlocked.Increment(ref _number);
+                var num = Interlocked.Increment(ref _diagnosticsNumber);
 
                 var fullUri = new Uri(DiagnosticsUri, relativeUri + "?num=" + num);
                 var jsonContent = JsonSerializer.Serialize(content);

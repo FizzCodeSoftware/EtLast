@@ -17,7 +17,7 @@ namespace FizzCode.EtLast.Debugger.Windows
     {
         private HttpListener _listener;
         private readonly RichTextBox _rb;
-        private readonly Collection _rootCollection = new Collection() { Name = "root" };
+        private readonly Collection _rootCollection = new Collection("root");
 
         public MainForm()
         {
@@ -125,17 +125,8 @@ namespace FizzCode.EtLast.Debugger.Windows
 
             lock (_rootCollection)
             {
-                var collection = GetCollection(payload.ContextName);
-                collection.AddEvent(num, payload);
-                var row = new TrackedRow()
-                {
-                    Uid = payload.RowUid,
-                    CreatedByEvent = payload,
-                };
-
-                row.AllEvents.Add(payload);
-
-                collection.AllRows[row.Uid] = row;
+                var collection = _rootCollection.GetCollection(payload.ContextName);
+                collection.CurrentPlayBook.AddEvent(num, payload);
             }
 
             _rb.Invoke((MethodInvoker)delegate
@@ -164,12 +155,8 @@ namespace FizzCode.EtLast.Debugger.Windows
 
             lock (_rootCollection)
             {
-                var collection = GetCollection(payload.ContextName);
-                collection.AddEvent(num, payload);
-
-                var row = collection.AllRows[payload.RowUid];
-                row.AllEvents.Add(payload);
-                row.LastOwnerChangedEvent = payload;
+                var collection = _rootCollection.GetCollection(payload.ContextName);
+                collection.CurrentPlayBook.AddEvent(num, payload);
             }
 
             _rb.Invoke((MethodInvoker)delegate
@@ -201,12 +188,13 @@ namespace FizzCode.EtLast.Debugger.Windows
 
             lock (_rootCollection)
             {
-                GetCollection(payload.ContextName).AddEvent(num, payload);
+                var collection = _rootCollection.GetCollection(payload.ContextName);
+                collection.CurrentPlayBook.AddEvent(num, payload);
             }
 
             _rb.Invoke((MethodInvoker)delegate
             {
-                _rb.AppendText("[LOG] [" + payload.Severity + "] [" + string.Join("/", payload.ContextName) + "] ");
+                _rb.AppendText("[LOG] [" + new DateTime(payload.Timestamp).ToString("yyyy.MM.dd HH:mm:ss.fff", CultureInfo.InvariantCulture) + "] [" + payload.Severity + "] [" + string.Join("/", payload.ContextName) + "] ");
 
                 if (payload.ProcessUid != null)
                 {
@@ -218,39 +206,19 @@ namespace FizzCode.EtLast.Debugger.Windows
                     _rb.AppendText("(" + payload.OperationName + "/#" + payload.OperationNumber + ") ");
                 }
 
-                _rb.AppendText(payload.Text);
-
+                var text = payload.Text;
                 if (payload.Arguments != null)
                 {
-                    _rb.AppendText(" ::: " + string.Join(", ", payload.Arguments.Select(x => x.Value == null ? "<null>" : (x.Value.ToString() + " (" + x.Value.GetType().Name + ")"))));
+                    foreach (var arg in payload.Arguments)
+                    {
+                        text = text.Replace(arg.Name, arg.TextValue, StringComparison.InvariantCultureIgnoreCase);
+                    }
                 }
+
+                _rb.AppendText(text);
 
                 _rb.AppendText(Environment.NewLine);
             });
-        }
-
-        private Collection GetCollection(string[] names)
-        {
-            var collection = _rootCollection;
-
-            for (var i = 0; i < names.Length; i++)
-            {
-                if (!collection.ChildCollectionsByName.TryGetValue(names[i], out var child))
-                {
-                    child = new Collection()
-                    {
-                        Name = names[i],
-                        ParentCollection = collection,
-                    };
-
-                    collection.ChildCollections.Add(child);
-                    collection.ChildCollectionsByName.Add(names[i], child);
-                }
-
-                collection = child;
-            }
-
-            return collection;
         }
     }
 }
