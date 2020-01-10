@@ -27,8 +27,11 @@
             {
                 TransactionScopeTimeout = transactionScopeTimeout,
                 OnException = (sender, args) => Logger.LogException(this, args),
-                OnLog = (sender, args) => Logger.Log(args.Severity, args.ForOps, this, args.Caller, args.Operation, args.Text, args.Arguments),
-                OnCustomLog = (sender, args) => Logger.LogCustom(args.ForOps, this, args.FileName, args.Caller, args.Text, args.Arguments),
+                OnLog = (sender, args) => Logger.Log(args.Severity, args.ForOps, this, args.Process, args.Operation, args.Text, args.Arguments),
+                OnCustomLog = (sender, args) => Logger.LogCustom(args.ForOps, this, args.FileName, args.Process, args.Text, args.Arguments),
+                OnRowCreated = (sender, args) => Logger.LifecycleRowCreated(this, args.Row, args.CreatorProcess),
+                OnRowOwnerChanged = (sender, args) => Logger.LifecycleRowOwnerChanged(this, args.Row, args.PreviousProcess, args.CurrentProcess),
+                OnRowStored = (sender, args) => Logger.LifecycleRowStored(this, args.Row, args.Location),
             };
 
             TransactionScopeTimeout = transactionScopeTimeout;

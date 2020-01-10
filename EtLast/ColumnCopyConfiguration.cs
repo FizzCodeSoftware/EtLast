@@ -1,5 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System.Collections.Generic;
+
     public class ColumnCopyConfiguration
     {
         public string FromColumn { get; }
@@ -23,6 +25,15 @@
             if (value != null)
             {
                 targetRow.SetValue(ToColumn, value, operation);
+            }
+        }
+
+        public void Copy(IRow sourceRow, List<KeyValuePair<string, object>> targetValues)
+        {
+            var value = sourceRow[FromColumn];
+            if (value != null)
+            {
+                targetValues.Add(new KeyValuePair<string, object>(FromColumn, value));
             }
         }
     }

@@ -83,7 +83,7 @@
                     var newRows = new List<IRow>();
                     for (var i = 1; i < rightRows.Count; i++)
                     {
-                        var newRow = DupeRow(Process, row, rightRows[i]);
+                        var newRow = DupeRow(row, rightRows[i]);
                         MatchCustomAction?.Invoke(this, newRow, rightRows[i]);
                         newRows.Add(newRow);
                     }
@@ -92,7 +92,7 @@
                 }
                 else
                 {
-                    var newRow = DupeRow(Process, row, rightRows[1]);
+                    var newRow = DupeRow(row, rightRows[1]);
                     MatchCustomAction?.Invoke(this, newRow, rightRows[1]);
                     Process.AddRow(newRow, this);
                 }
@@ -122,6 +122,8 @@
             var rightRowCount = 0;
             foreach (var row in rightRows)
             {
+                Process.Context.SetRowOwner(row, Process);
+
                 rightRowCount++;
                 var key = GetRightKey(row);
                 if (string.IsNullOrEmpty(key))
@@ -148,23 +150,19 @@
             _lookup.Clear();
         }
 
-        private IRow DupeRow(IProcess process, IRow row, IRow rightRow)
+        private IRow DupeRow(IRow row, IRow rightRow)
         {
-            var newRow = process.Context.CreateRow(row.ColumnCount + rightRow.ColumnCount);
-            newRow.CurrentOperation = this;
-
             // duplicate left row
-            foreach (var kvp in row.Values)
-            {
-                newRow.SetValue(kvp.Key, kvp.Value, this);
-            }
+            var values = row.Values.ToList();
 
             // join right[1..N-1] row to [1..N-1]
-
             foreach (var config in ColumnConfiguration)
             {
-                config.Copy(this, rightRow, newRow);
+                config.Copy(rightRow, values);
             }
+
+            var newRow = Process.Context.CreateRow(Process, values);
+            newRow.CurrentOperation = this;
 
             return newRow;
         }

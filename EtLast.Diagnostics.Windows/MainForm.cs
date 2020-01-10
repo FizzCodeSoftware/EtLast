@@ -3,6 +3,8 @@ namespace FizzCode.EtLast.Debugger.Windows
 {
     using System;
     using System.Collections.Specialized;
+    using System.Drawing;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Net;
@@ -30,6 +32,9 @@ namespace FizzCode.EtLast.Debugger.Windows
                 Parent = this,
                 Dock = DockStyle.Fill,
                 ReadOnly = true,
+                BackColor = Color.Black,
+                ForeColor = Color.LightGray,
+                Font = new Font("CONSOLAS", 11.0f)
             };
         }
 
@@ -86,18 +91,33 @@ namespace FizzCode.EtLast.Debugger.Windows
                 case ("/favicon.ico", "GET"):
                     return;
                 case ("/log", "POST"):
-                    NewLog(body);
-                    return;
+                    {
+                        var num = int.Parse(query["num"], CultureInfo.InvariantCulture);
+                        HandleLogEvent(body, num);
+                        return;
+                    }
+                case ("/row-created", "POST"):
+                    {
+                        var num = int.Parse(query["num"], CultureInfo.InvariantCulture);
+                        HandleRowCreatedEvent(body, num);
+                        return;
+                    }
+                case ("/row-owner-changed", "POST"):
+                    {
+                        var num = int.Parse(query["num"], CultureInfo.InvariantCulture);
+                        HandleRowOwnerChangedEvent(body, num);
+                        return;
+                    }
             }
         }
 
-        private void NewLog(string body)
+        private void HandleRowCreatedEvent(string body, int num)
         {
-            var logEvent = JsonSerializer.Deserialize<Diagnostics.Interface.LogEvent>(body);
+            var payload = JsonSerializer.Deserialize<Diagnostics.Interface.RowCreatedEvent>(body);
 
-            if (logEvent.Arguments != null)
+            if (payload.Values != null)
             {
-                foreach (var arg in logEvent.Arguments)
+                foreach (var arg in payload.Values)
                 {
                     arg.CalculateValue();
                 }
@@ -105,29 +125,104 @@ namespace FizzCode.EtLast.Debugger.Windows
 
             lock (_rootCollection)
             {
-                var collection = GetCollection(logEvent.ContextName);
-                collection.LogEntries.Add(logEvent);
+                var collection = GetCollection(payload.ContextName);
+                collection.AddEvent(num, payload);
+                var row = new TrackedRow()
+                {
+                    Uid = payload.RowUid,
+                    CreatedByEvent = payload,
+                };
+
+                row.AllEvents.Add(payload);
+
+                collection.AllRows[row.Uid] = row;
             }
 
             _rb.Invoke((MethodInvoker)delegate
             {
-                _rb.AppendText("[LOG] [" + logEvent.Severity + "] [" + string.Join("/", logEvent.ContextName) + "] ");
+                _rb.AppendText("[ROW-CREATED] [" + string.Join("/", payload.ContextName) + "] ");
 
-                if (logEvent.CallerUid != null)
+                if (payload.ProcessUid != null)
                 {
-                    _rb.AppendText("<" + logEvent.CallerName + "> ");
+                    _rb.AppendText("<" + payload.ProcessName + "> ");
                 }
 
-                if (logEvent.OperationType != null)
+                _rb.AppendText("UID=" + payload.RowUid.ToString("D", CultureInfo.InvariantCulture));
+
+                if (payload.Values != null)
                 {
-                    _rb.AppendText("(" + logEvent.OperationName + "/#" + logEvent.OperationNumber + ") ");
+                    _rb.AppendText(", " + string.Join(", ", payload.Values.Select(x => x.Name + "=" + (x.Value == null ? "<null>" : (x.Value.ToString() + " (" + x.Value.GetType().Name + ")")))));
                 }
 
-                _rb.AppendText(logEvent.Text);
+                _rb.AppendText(Environment.NewLine);
+            });
+        }
 
-                if (logEvent.Arguments != null)
+        private void HandleRowOwnerChangedEvent(string body, int num)
+        {
+            var payload = JsonSerializer.Deserialize<Diagnostics.Interface.RowOwnerChangedEvent>(body);
+
+            lock (_rootCollection)
+            {
+                var collection = GetCollection(payload.ContextName);
+                collection.AddEvent(num, payload);
+
+                var row = collection.AllRows[payload.RowUid];
+                row.AllEvents.Add(payload);
+                row.LastOwnerChangedEvent = payload;
+            }
+
+            _rb.Invoke((MethodInvoker)delegate
+            {
+                _rb.AppendText("[ROW-OWNER-CHANGED] [" + string.Join("/", payload.ContextName) + "] ");
+
+                if (payload.NewProcessUid != null)
                 {
-                    _rb.AppendText(" ::: " + string.Join(", ", logEvent.Arguments.Select(x => x.Value == null ? "NULL" : (x.Value.ToString() + " (" + x.Value.GetType().Name + ")"))));
+                    _rb.AppendText("<" + payload.NewProcessName + "> ");
+                }
+
+                _rb.AppendText("UID=" + payload.RowUid.ToString("D", CultureInfo.InvariantCulture));
+
+                _rb.AppendText(Environment.NewLine);
+            });
+        }
+
+        private void HandleLogEvent(string body, int num)
+        {
+            var payload = JsonSerializer.Deserialize<Diagnostics.Interface.LogEvent>(body);
+
+            if (payload.Arguments != null)
+            {
+                foreach (var arg in payload.Arguments)
+                {
+                    arg.CalculateValue();
+                }
+            }
+
+            lock (_rootCollection)
+            {
+                GetCollection(payload.ContextName).AddEvent(num, payload);
+            }
+
+            _rb.Invoke((MethodInvoker)delegate
+            {
+                _rb.AppendText("[LOG] [" + payload.Severity + "] [" + string.Join("/", payload.ContextName) + "] ");
+
+                if (payload.ProcessUid != null)
+                {
+                    _rb.AppendText("<" + payload.ProcessName + "> ");
+                }
+
+                if (payload.OperationType != null)
+                {
+                    _rb.AppendText("(" + payload.OperationName + "/#" + payload.OperationNumber + ") ");
+                }
+
+                _rb.AppendText(payload.Text);
+
+                if (payload.Arguments != null)
+                {
+                    _rb.AppendText(" ::: " + string.Join(", ", payload.Arguments.Select(x => x.Value == null ? "<null>" : (x.Value.ToString() + " (" + x.Value.GetType().Name + ")"))));
                 }
 
                 _rb.AppendText(Environment.NewLine);

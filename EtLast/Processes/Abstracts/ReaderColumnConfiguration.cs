@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
-    public enum NullSourceHandler { SetSpecialValue, WrapError, Throw }
-    public enum InvalidSourceHandler { SetSpecialValue, WrapError, Throw }
+    public enum NullSourceHandler { SetSpecialValue, WrapError }
+    public enum InvalidSourceHandler { SetSpecialValue, WrapError }
 
     public class ReaderColumnConfiguration : ReaderDefaultColumnConfiguration
     {

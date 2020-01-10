@@ -50,12 +50,15 @@
                     if (Context.CancellationTokenSource.IsCancellationRequested)
                         yield break;
 
-                    var row = Context.CreateRow(4);
-                    row.SetValue("Index", i, this);
-                    row.SetValue("Name", workbook.Worksheets[i].Name, this);
-                    row.SetValue("Color", workbook.Worksheets[i].TabColor, this);
-                    row.SetValue("Visible", workbook.Worksheets[i].Hidden == eWorkSheetHidden.Visible, this);
+                    var initialValues = new Dictionary<string, object>
+                    {
+                        ["Index"] = i,
+                        ["Name"] = workbook.Worksheets[i].Name,
+                        ["Color"] = workbook.Worksheets[i].TabColor,
+                        ["Visible"] = workbook.Worksheets[i].Hidden == eWorkSheetHidden.Visible
+                    };
 
+                    var row = Context.CreateRow(this, initialValues);
                     yield return row;
                 }
             }

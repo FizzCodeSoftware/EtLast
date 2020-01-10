@@ -10,7 +10,7 @@
     /// - uses very flexible IAggregationOperation which takes all rows in a group and generates 0..N "group rows"
     ///  - 1 group results 0..N aggregated row
     /// </summary>
-    public class UnorderedAggregationProcess : AbstractAggregationProcess
+    public class AggregationProcess : AbstractAggregationProcess
     {
         private IAggregationOperation _operation;
 
@@ -25,7 +25,7 @@
             }
         }
 
-        public UnorderedAggregationProcess(IEtlContext context, string name)
+        public AggregationProcess(IEtlContext context, string name)
             : base(context, name)
         {
         }
@@ -51,6 +51,8 @@
             var rowCount = 0;
             foreach (var row in rows)
             {
+                Context.SetRowOwner(row, this);
+
                 rowCount++;
                 var key = GenerateKey(row);
                 if (row.Flagged)
@@ -73,10 +75,15 @@
             var resultCount = 0;
             foreach (var group in groups.Values)
             {
-                IEnumerable<IRow> groupResult;
+                IRow aggregateRow;
                 try
                 {
-                    groupResult = TransformGroup(group);
+                    try
+                    {
+                        aggregateRow = Operation.TransformGroup(GroupingColumns, this, group);
+                    }
+                    catch (EtlException) { throw; }
+                    catch (Exception ex) { throw new AggregationOperationExecutionException(this, Operation, group, ex); }
                 }
                 catch (Exception ex)
                 {
@@ -84,29 +91,21 @@
                     break;
                 }
 
-                foreach (var resultRow in groupResult)
+                foreach (var row in group)
+                {
+                    Context.SetRowOwner(row, null);
+                }
+
+                if (aggregateRow != null)
                 {
                     resultCount++;
-                    yield return resultRow;
+                    yield return aggregateRow;
                 }
             }
 
             Operation.Shutdown();
 
             Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, LastInvocation.Elapsed);
-        }
-
-        private IEnumerable<IRow> TransformGroup(List<IRow> group)
-        {
-            IEnumerable<IRow> groupResult;
-            try
-            {
-                groupResult = Operation.TransformGroup(GroupingColumns, this, group);
-            }
-            catch (EtlException) { throw; }
-            catch (Exception ex) { throw new AggregationOperationExecutionException(this, Operation, group, ex); }
-
-            return groupResult;
         }
     }
 }

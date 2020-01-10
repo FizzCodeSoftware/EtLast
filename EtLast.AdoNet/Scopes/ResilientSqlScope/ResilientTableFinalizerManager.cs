@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
@@ -86,23 +85,17 @@
 
         private int CountRecordsIn(string tempTableName)
         {
-            var count = new CustomSqlAdoNetDbReaderProcess(Context, "TempRecordCountReader:" + _scope.Configuration.ConnectionString.Unescape(tempTableName))
+            var count = new GetTableRecordCountProcess(Context, "TempRecordCountReader:" + _scope.Configuration.ConnectionString.Unescape(tempTableName))
             {
                 ConnectionString = _scope.Configuration.ConnectionString,
-                Sql = "select count(*) as cnt from " + tempTableName,
-                ColumnConfiguration = new List<ReaderColumnConfiguration>()
-                {
-                    new ReaderColumnConfiguration("cnt", new IntConverter(), NullSourceHandler.SetSpecialValue)
-                    {
-                        SpecialValueIfSourceIsNull = 0,
-                    }
-                }
-            }.Evaluate(this).ToList().FirstOrDefault()?.GetAs<int>("cnt") ?? 0;
+                TableName = tempTableName,
+            }.Execute();
 
-            Context.Log(count > 0
-                ? LogSeverity.Information
-                : LogSeverity.Debug,
-                this, "{TempRecordCount} records found in {TableName}", count, _scope.Configuration.ConnectionString.Unescape(tempTableName));
+            if (count > 0)
+            {
+                Context.Log(LogSeverity.Information, this, "{TempRecordCount} records found in {ConnectionStringName}/{TableName}",
+                      count, _scope.Configuration.ConnectionString.Name, _scope.Configuration.ConnectionString.Unescape(tempTableName));
+            }
 
             return count;
         }

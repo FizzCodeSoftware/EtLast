@@ -26,7 +26,7 @@
             var groupByOperation = new GroupByOperation();
             groupByOperation.AddIntAverage("height");
 
-            var process = new UnorderedAggregationProcess(context, "p1")
+            var process = new AggregationProcess(context, "p1")
             {
                 GroupingColumns = groupingColumns,
                 Operation = groupByOperation,

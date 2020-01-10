@@ -368,6 +368,8 @@
 
         public void RemoveRow(IRow row, IRowOperation operation)
         {
+            Context.SetRowOwner(row, null);
+
             row.State = RowState.Removed;
             operation.CounterCollection.IncrementCounter("rows removed", 1, true);
             CounterCollection.IncrementCounter("rows removed by operations", 1, true);
@@ -378,6 +380,8 @@
             var n = 0;
             foreach (var row in rows)
             {
+                Context.SetRowOwner(row, null);
+
                 row.State = RowState.Removed;
                 n++;
             }
@@ -386,7 +390,7 @@
             CounterCollection.IncrementCounter("rows removed by operations", n, true);
         }
 
-        public void FlagRowAsFinished(IRow row)
+        private void FlagRowAsFinished(IRow row)
         {
             Interlocked.Decrement(ref _activeRowCount);
 
@@ -473,6 +477,8 @@
             var swProcessing = Stopwatch.StartNew();
             foreach (var row in sourceRows)
             {
+                Context.SetRowOwner(row, this);
+
                 row.CurrentOperation = null;
                 row.State = RowState.Normal;
 
@@ -612,6 +618,8 @@
 
             foreach (var row in sourceRows)
             {
+                Context.SetRowOwner(row, this);
+
                 row.CurrentOperation = null;
                 row.State = RowState.Normal;
 

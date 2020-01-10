@@ -21,13 +21,19 @@
         /// </summary>
         public ExcelPackage PreLoadedFile { get; set; }
 
-        public bool TreatEmptyStringAsNull { get; set; }
+        /// <summary>
+        /// Default true.
+        /// </summary>
+        public bool TreatEmptyStringAsNull { get; set; } = true;
 
         public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
         public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
 
         public bool Transpose { get; set; }
 
+        /// <summary>
+        /// Default true.
+        /// </summary>
         public bool Unmerge { get; set; } = true;
 
         public int[] HeaderRows { get; set; } = new[] { 1 };
@@ -38,7 +44,7 @@
         public EpPlusExcelHeaderCellMode HeaderCellMode { get; set; } = EpPlusExcelHeaderCellMode.KeepLast;
 
         /// <summary>
-        /// Default value is "/"
+        /// Default value is "/".
         /// </summary>
         public string HeaderRowJoinSeparator { get; set; } = "/";
 
@@ -188,11 +194,11 @@
                     }
                 }
 
+                var initialValues = new List<KeyValuePair<string, object>>();
+
                 for (var rowIndex = FirstDataRow; rowIndex <= endRow && !Context.CancellationTokenSource.IsCancellationRequested; rowIndex++)
                 {
                     CounterCollection.IncrementCounter("excel rows read", 1);
-
-                    var row = Context.CreateRow(columnIndexes.Count);
 
                     if (IgnoreNullOrEmptyRows)
                     {
@@ -213,6 +219,8 @@
                             continue;
                     }
 
+                    initialValues.Clear();
+
                     foreach (var kvp in columnIndexes)
                     {
                         var ri = !Transpose ? rowIndex : kvp.Value.Index;
@@ -224,13 +232,11 @@
                             value = null;
                         }
 
-                        value = HandleConverter(value, kvp.Key, kvp.Value.Configuration, row, out var error);
-                        if (error)
-                            continue;
-
-                        row.SetValue(kvp.Key, value, this);
+                        value = HandleConverter(value, kvp.Value.Configuration);
+                        initialValues.Add(new KeyValuePair<string, object>(kvp.Key, value));
                     }
 
+                    var row = Context.CreateRow(this, initialValues);
                     yield return row;
                 }
             }

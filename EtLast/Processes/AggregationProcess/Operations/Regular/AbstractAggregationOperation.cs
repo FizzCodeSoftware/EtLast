@@ -14,7 +14,7 @@
             Name = TypeHelpers.GetFriendlyTypeName(GetType());
         }
 
-        public abstract IEnumerable<IRow> TransformGroup(string[] groupingColumns, IProcess process, List<IRow> rows);
+        public abstract IRow TransformGroup(string[] groupingColumns, IProcess process, List<IRow> rows);
 
         public void SetProcess(IProcess process)
         {

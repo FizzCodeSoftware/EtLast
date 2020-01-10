@@ -38,12 +38,7 @@
                         if (Context.CancellationTokenSource.IsCancellationRequested)
                             yield break;
 
-                        var newRow = Context.CreateRow(row.ColumnCount);
-                        foreach (var kvp in row.Values)
-                        {
-                            newRow.SetValue(kvp.Key, kvp.Value, this);
-                        }
-
+                        var newRow = Context.CreateRow(this, row.Values);
                         yield return newRow;
                     }
                 }
@@ -74,12 +69,8 @@
                             continue;
 
                         _cache.Add(row);
-                        var newRow = Context.CreateRow(row.ColumnCount);
-                        foreach (var kvp in row.Values)
-                        {
-                            newRow.SetValue(kvp.Key, kvp.Value, this);
-                        }
 
+                        var newRow = Context.CreateRow(this, row.Values);
                         yield return newRow;
                     }
                 }
@@ -87,6 +78,8 @@
                 {
                     foreach (var row in inputRows)
                     {
+                        Context.SetRowOwner(row, this);
+
                         _cache.Add(row);
                         yield return row;
                     }

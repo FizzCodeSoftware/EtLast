@@ -16,10 +16,10 @@
 
         public override int ColumnCount => _values.Count;
 
-        public override void Init(IEtlContext context, int uid, int columnCountHint = 0)
+        public override void Init(IEtlContext context, IProcess creatorProcess, int uid, int columnCountHint = 0)
         {
-            Context = context;
-            UID = uid;
+            base.Init(context, creatorProcess, uid, columnCountHint);
+
             _values = columnCountHint == 0 ? new Dictionary<string, object>() : new Dictionary<string, object>(columnCountHint);
         }
 

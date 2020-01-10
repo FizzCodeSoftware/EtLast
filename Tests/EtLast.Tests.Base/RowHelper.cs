@@ -9,7 +9,7 @@
         public static IRow CreateRow(object[] rowElements)
         {
             var row = new DictionaryRow();
-            row.Init(null, -1, rowElements.Length);
+            row.Init(null, null, -1, rowElements.Length);
 
             for (var i = 0; i < rowElements.Length; i += 2)
             {
@@ -26,7 +26,7 @@
             for (var i = 0; i < data.Length; i++)
             {
                 var row = new DictionaryRow();
-                row.Init(null, -1, columns.Length);
+                row.Init(null, null, -1, columns.Length);
 
                 var columnNumber = 0;
                 foreach (var column in columns)

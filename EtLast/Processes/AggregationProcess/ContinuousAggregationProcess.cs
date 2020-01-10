@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// Input can be unordered. Group key generation is applied on the input rows on-the-fly. Group rows are maintained on-the-fly using the current row.
@@ -41,31 +42,39 @@
 
             Context.Log(LogSeverity.Information, this, "continuous aggregation started");
 
-            var groups = new Dictionary<string, AggregateRow>();
+            var aggregateRows = new Dictionary<string, AggregateRow>();
             var rows = InputProcess.Evaluate(this);
 
             var rowCount = 0;
             foreach (var row in rows)
             {
+                Context.SetRowOwner(row, this);
+
                 rowCount++;
                 var key = GenerateKey(row);
                 if (row.Flagged)
                     Context.LogRow(this, row, "aggregation group key generated: {GroupKey}", key);
 
-                if (!groups.TryGetValue(key, out var aggregateRow))
+                if (!aggregateRows.TryGetValue(key, out var aggregateRow))
                 {
-                    aggregateRow = new AggregateRow { Row = Context.CreateRow(row.ColumnCount) };
-                    foreach (var column in GroupingColumns)
-                    {
-                        aggregateRow.Row.SetValue(column, row[column], this);
-                    }
+                    var initialValues = GroupingColumns.Select(column => new KeyValuePair<string, object>(column, row[column]));
 
-                    groups.Add(key, aggregateRow);
+                    aggregateRow = new AggregateRow
+                    {
+                        Row = Context.CreateRow(this, initialValues),
+                    };
+
+                    aggregateRows.Add(key, aggregateRow);
                 }
 
                 try
                 {
-                    TransformGroup(row, aggregateRow);
+                    try
+                    {
+                        Operation.TransformGroup(GroupingColumns, this, row, aggregateRow.Row, aggregateRow.RowsInGroup);
+                    }
+                    catch (EtlException) { throw; }
+                    catch (Exception ex) { throw new ContinuousAggregationOperationExecutionException(this, Operation, row, aggregateRow.Row, ex); }
                 }
                 catch (Exception ex)
                 {
@@ -74,31 +83,23 @@
                 }
 
                 aggregateRow.RowsInGroup++;
+
+                Context.SetRowOwner(row, null);
             }
 
-            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}", rowCount, groups.Count, LastInvocation.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}", rowCount, aggregateRows.Count, LastInvocation.Elapsed);
 
             if (Context.CancellationTokenSource.IsCancellationRequested)
                 yield break;
 
-            foreach (var group in groups.Values)
+            foreach (var aggregateRow in aggregateRows.Values)
             {
-                yield return group.Row;
+                yield return aggregateRow.Row;
             }
 
             Operation.Shutdown();
 
-            Context.Log(LogSeverity.Debug, this, "finished and returned {GroupCount} groups in {Elapsed}", groups.Count, LastInvocation.Elapsed);
-        }
-
-        private void TransformGroup(IRow row, AggregateRow aggregateRow)
-        {
-            try
-            {
-                Operation.TransformGroup(GroupingColumns, this, row, aggregateRow.Row, aggregateRow.RowsInGroup);
-            }
-            catch (EtlException) { throw; }
-            catch (Exception ex) { throw new ContinuousAggregationOperationExecutionException(this, Operation, row, aggregateRow.Row, ex); }
+            Context.Log(LogSeverity.Debug, this, "finished and returned {GroupCount} groups in {Elapsed}", aggregateRows.Count, LastInvocation.Elapsed);
         }
     }
 }

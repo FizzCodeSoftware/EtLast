@@ -4,7 +4,6 @@
 
     public interface IMergerProcess : IEvaluable
     {
-        IRowSetMerger Merger { get; }
         List<IEvaluable> ProcessList { get; set; }
     }
 }

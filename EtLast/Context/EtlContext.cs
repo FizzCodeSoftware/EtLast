@@ -26,6 +26,10 @@
         public EventHandler<ContextLogEventArgs> OnLog { get; set; }
         public EventHandler<ContextCustomLogEventArgs> OnCustomLog { get; set; }
 
+        public EventHandler<ContextRowCreatedEventArgs> OnRowCreated { get; set; }
+        public EventHandler<ContextRowOwnerChangedEventArgs> OnRowOwnerChanged { get; set; }
+        public EventHandler<ContextRowStoredEventArgs> OnRowStored { get; set; }
+
         private int _nextUid;
         private readonly List<Exception> _exceptions = new List<Exception>();
 
@@ -102,28 +106,28 @@
             }
         }
 
-        public void Log(LogSeverity severity, IProcess caller, string text, params object[] args)
+        public void Log(LogSeverity severity, IProcess process, string text, params object[] args)
         {
             if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
                 Result.WarningCount++;
 
             OnLog?.Invoke(this, new ContextLogEventArgs()
             {
-                Caller = caller,
+                Process = process,
                 Text = text,
                 Severity = severity,
                 Arguments = args,
             });
         }
 
-        public void Log(LogSeverity severity, IProcess caller, IBaseOperation operation, string text, params object[] args)
+        public void Log(LogSeverity severity, IProcess process, IBaseOperation operation, string text, params object[] args)
         {
             if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
                 Result.WarningCount++;
 
             OnLog?.Invoke(this, new ContextLogEventArgs()
             {
-                Caller = caller,
+                Process = process,
                 Operation = operation,
                 Text = text,
                 Severity = severity,
@@ -131,11 +135,11 @@
             });
         }
 
-        public void LogOps(LogSeverity severity, IProcess caller, string text, params object[] args)
+        public void LogOps(LogSeverity severity, IProcess process, string text, params object[] args)
         {
             OnLog?.Invoke(this, new ContextLogEventArgs()
             {
-                Caller = caller,
+                Process = process,
                 Text = text,
                 Severity = severity,
                 Arguments = args,
@@ -143,11 +147,11 @@
             });
         }
 
-        public void LogOps(LogSeverity severity, IProcess caller, IBaseOperation operation, string text, params object[] args)
+        public void LogOps(LogSeverity severity, IProcess process, IBaseOperation operation, string text, params object[] args)
         {
             OnLog?.Invoke(this, new ContextLogEventArgs()
             {
-                Caller = caller,
+                Process = process,
                 Operation = operation,
                 Text = text,
                 Severity = severity,
@@ -177,36 +181,48 @@
             Log(LogSeverity.Warning, null, text + " // " + rowTemplate, args.Concat(rowArgs).ToArray());
         }
 
-        public void LogCustom(string fileName, IProcess caller, string text, params object[] args)
+        public void LogCustom(string fileName, IProcess process, string text, params object[] args)
         {
             OnCustomLog?.Invoke(this, new ContextCustomLogEventArgs()
             {
                 FileName = fileName,
-                Caller = caller,
+                Process = process,
                 Text = text,
                 Arguments = args,
                 ForOps = false,
             });
         }
 
-        public void LogCustomOps(string fileName, IProcess caller, string text, params object[] args)
+        public void LogCustomOps(string fileName, IProcess process, string text, params object[] args)
         {
             OnCustomLog?.Invoke(this, new ContextCustomLogEventArgs()
             {
                 FileName = fileName,
-                Caller = caller,
+                Process = process,
                 Text = text,
                 Arguments = args,
                 ForOps = true,
             });
         }
 
-        public IRow CreateRow(int columnCountHint)
+        public IRow CreateRow(IProcess creatorProcess, IEnumerable<KeyValuePair<string, object>> initialValues)
         {
             var row = new TRow();
-            row.Init(this, Interlocked.Increment(ref _nextUid) - 1, columnCountHint);
+
+            row.Init(this, creatorProcess, Interlocked.Increment(ref _nextUid) - 1); // todo: fill columnCountHint if available
+
+            foreach (var kvp in initialValues)
+            {
+                row[kvp.Key] = kvp.Value;
+            }
 
             CounterCollection.IncrementCounter("in-memory rows created", 1);
+
+            OnRowCreated?.Invoke(this, new ContextRowCreatedEventArgs()
+            {
+                CreatorProcess = creatorProcess,
+                Row = row,
+            });
 
             return row;
         }
@@ -231,7 +247,7 @@
 
             OnException?.Invoke(this, new ContextExceptionEventArgs()
             {
-                Caller = process,
+                Process = process,
                 Operation = operation,
                 Exception = ex,
             });
@@ -260,9 +276,22 @@
             }
         }
 
-        public EtlTransactionScope BeginScope(IProcess caller, IBaseOperation operation, TransactionScopeKind kind, LogSeverity logSeverity)
+        public EtlTransactionScope BeginScope(IProcess process, IBaseOperation operation, TransactionScopeKind kind, LogSeverity logSeverity)
         {
-            return new EtlTransactionScope(this, caller, operation, kind, TransactionScopeTimeout, logSeverity);
+            return new EtlTransactionScope(this, process, operation, kind, TransactionScopeTimeout, logSeverity);
+        }
+
+        public void SetRowOwner(IRow row, IProcess currentProcess)
+        {
+            var previousProcess = row.CurrentProcess;
+            row.CurrentProcess = currentProcess;
+
+            OnRowOwnerChanged?.Invoke(this, new ContextRowOwnerChangedEventArgs()
+            {
+                Row = row,
+                PreviousProcess = previousProcess,
+                CurrentProcess = currentProcess,
+            });
         }
     }
 }

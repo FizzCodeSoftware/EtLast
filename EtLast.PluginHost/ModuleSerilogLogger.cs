@@ -8,6 +8,7 @@
     using System.Net.Http;
     using System.Text;
     using System.Text.Json;
+    using System.Threading;
     using FizzCode.EtLast;
     using Serilog;
     using Serilog.Events;
@@ -22,12 +23,14 @@
         private HttpClient _diagnosticsClient;
         private readonly object _customFileLock = new object();
 
-        public void Log(LogSeverity severity, bool forOps, IEtlPlugin plugin, IProcess caller, IBaseOperation operation, string text, params object[] args)
+        private int _number;
+
+        public void Log(LogSeverity severity, bool forOps, IEtlPlugin plugin, IProcess process, IBaseOperation operation, string text, params object[] args)
         {
             var ident = "";
-            if (caller != null)
+            if (process != null)
             {
-                var p = caller;
+                var p = process;
                 while (p.Caller != null)
                 {
                     ident += "   ";
@@ -46,8 +49,8 @@
             if (plugin != null)
                 values.Add(plugin.Name);
 
-            if (caller != null)
-                values.Add(caller.Name);
+            if (process != null)
+                values.Add(process.Name);
 
             if (operation != null)
                 values.Add(operation.Name);
@@ -64,14 +67,14 @@
                 "[{Module}"
                     + (plugin != null ? "/{Plugin}]" : "]")
                     + ident
-                    + (caller != null ? "<{Caller}> " : "")
+                    + (process != null ? "<{ActiveProcess}> " : "")
                     + (operation != null ? "({Operation}) " : "")
                     + text,
                 values.ToArray());
 
             if (DiagnosticsUri != null)
             {
-                SendDiagnostis(severity, forOps, plugin, caller, operation, text, args);
+                SendDiagnostis(severity, forOps, plugin, process, operation, text, args);
             }
         }
 
@@ -81,7 +84,7 @@
             GetOpsMessagesRecursive(args.Exception, opsErrors);
             foreach (var opsError in opsErrors)
             {
-                Log(LogSeverity.Fatal, true, plugin, args.Caller, args.Operation, opsError);
+                Log(LogSeverity.Fatal, true, plugin, args.Process, args.Operation, opsError);
             }
 
             var lvl = 0;
@@ -118,7 +121,7 @@
                 lvl++;
             }
 
-            Log(LogSeverity.Fatal, false, plugin, args.Caller, args.Operation, "{Message}", msg);
+            Log(LogSeverity.Fatal, false, plugin, args.Process, args.Operation, "{Message}", msg);
         }
 
         private void GetOpsMessagesRecursive(Exception ex, List<string> messages)
@@ -144,29 +147,33 @@
             }
         }
 
-        private void SendDiagnostis(LogSeverity severity, bool forOps, IEtlPlugin plugin, IProcess caller, IBaseOperation operation, string text, params object[] args)
+        private void SendDiagnostis(LogSeverity severity, bool forOps, IEtlPlugin plugin, IProcess process, IBaseOperation operation, string text, params object[] args)
+        {
+            SendDiagnostics("log", new Diagnostics.Interface.LogEvent()
+            {
+                Text = text,
+                Severity = severity,
+                ContextName = plugin != null
+                    ? new string[] { ModuleConfiguration.ModuleName, plugin.Name }
+                    : new string[] { ModuleConfiguration.ModuleName },
+                ForOps = forOps,
+                ProcessName = process?.Name,
+                ProcessUid = process?.UID,
+                OperationName = operation?.Name,
+                OperationType = operation != null ? TypeHelpers.GetFriendlyTypeName(operation.GetType()) : null,
+                OperationNumber = operation?.Number,
+                Arguments = args?.Select(Diagnostics.Interface.Argument.FromObject).ToArray(),
+            });
+        }
+
+        private void SendDiagnostics(string relativeUri, object content)
         {
             try
             {
-                var logEvent = new Diagnostics.Interface.LogEvent()
-                {
-                    Text = text,
-                    Severity = severity,
-                    ContextName = plugin != null
-                        ? new string[] { ModuleConfiguration.ModuleName, plugin.Name }
-                        : new string[] { ModuleConfiguration.ModuleName },
-                    ForOps = forOps,
-                    CallerName = caller?.Name,
-                    CallerUid = caller?.UID,
-                    OperationName = operation?.Name,
-                    OperationType = operation != null ? TypeHelpers.GetFriendlyTypeName(operation.GetType()) : null,
-                    OperationNumber = operation?.Number,
-                    Arguments = args?.Select(Diagnostics.Interface.Argument.FromObject).ToArray(),
-                };
+                var num = Interlocked.Increment(ref _number);
 
-                var fullUri = new Uri(DiagnosticsUri, "log");
-
-                var jsonContent = JsonSerializer.Serialize(logEvent);
+                var fullUri = new Uri(DiagnosticsUri, relativeUri + "?num=" + num);
+                var jsonContent = JsonSerializer.Serialize(content);
 
                 if (_diagnosticsClient == null)
                 {
@@ -176,9 +183,9 @@
                     };
                 }
 
-                using var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                using var textContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-                var response = _diagnosticsClient.PostAsync(fullUri, content).Result;
+                var response = _diagnosticsClient.PostAsync(fullUri, textContent).Result;
                 var responseBody = response.Content.ReadAsStringAsync().Result;
                 if (responseBody != "ACK")
                 {
@@ -211,7 +218,7 @@
             GC.SuppressFinalize(this);
         }
 
-        public void LogCustom(bool forOps, IEtlPlugin plugin, string fileName, IProcess caller, string text, params object[] args)
+        public void LogCustom(bool forOps, IEtlPlugin plugin, string fileName, IProcess process, string text, params object[] args)
         {
             var logsFolder = forOps
                 ? SerilogConfigurator.OpsLogFolder
@@ -234,7 +241,7 @@
                 .Append(ModuleConfiguration.ModuleName)
                 .Append("\t")
                 .Append(plugin != null ? plugin.Name + "\t" : "")
-                .Append(caller != null ? caller.Name + "\t" : "")
+                .Append(process != null ? process.Name + "\t" : "")
                 .AppendFormat(CultureInfo.InvariantCulture, text, args)
                 .ToString();
 
@@ -242,6 +249,39 @@
             {
                 File.AppendAllText(filePath, line + Environment.NewLine);
             }
+        }
+
+        public void LifecycleRowCreated(IEtlPlugin plugin, IRow row, IProcess creatorProcess)
+        {
+            SendDiagnostics("row-created", new Diagnostics.Interface.RowCreatedEvent()
+            {
+                ContextName = plugin != null
+                   ? new string[] { ModuleConfiguration.ModuleName, plugin.Name }
+                   : new string[] { ModuleConfiguration.ModuleName },
+                ProcessUid = creatorProcess?.UID,
+                ProcessName = creatorProcess?.Name,
+                RowUid = row.UID,
+                Values = row.Values.Select(x => Diagnostics.Interface.NamedArgument.FromObject(x.Key, x.Value)).ToList(),
+            });
+        }
+
+        public void LifecycleRowOwnerChanged(IEtlPlugin plugin, IRow row, IProcess previousProcess, IProcess currentProcess)
+        {
+            SendDiagnostics("row-owner-changed", new Diagnostics.Interface.RowOwnerChangedEvent()
+            {
+                ContextName = plugin != null
+                   ? new string[] { ModuleConfiguration.ModuleName, plugin.Name }
+                   : new string[] { ModuleConfiguration.ModuleName },
+                RowUid = row.UID,
+                PreviousProcessUid = previousProcess?.UID,
+                PreviousProcessName = previousProcess?.Name,
+                NewProcessUid = currentProcess?.UID,
+                NewProcessName = currentProcess?.Name,
+            });
+        }
+
+        public void LifecycleRowStored(IEtlPlugin plugin, IRow row, List<KeyValuePair<string, string>> location)
+        {
         }
     }
 }

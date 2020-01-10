@@ -9,8 +9,11 @@
     [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
     public abstract class AbstractBaseRow : IRow
     {
-        public IEtlContext Context { get; protected set; }
-        public int UID { get; protected set; }
+        public IEtlContext Context { get; private set; }
+        public IProcess CreatorProcess { get; private set; }
+        public IProcess CurrentProcess { get; set; }
+        public int UID { get; private set; }
+
         public bool Flagged { get; set; }
 
         public IRowOperation CurrentOperation { get; set; }
@@ -151,7 +154,14 @@
             return InternalGetValue(column) is decimal;
         }
 
-        public abstract void Init(IEtlContext context, int uid, int columnCountHint = 0);
+        public virtual void Init(IEtlContext context, IProcess creatorProcess, int uid, int columnCountHint = 0)
+        {
+            Context = context;
+            CreatorProcess = creatorProcess;
+            CurrentProcess = creatorProcess;
+            UID = uid;
+        }
+
         public abstract bool Exists(string column);
     }
 }

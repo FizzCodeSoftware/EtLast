@@ -1,0 +1,103 @@
+﻿namespace FizzCode.EtLast.AdoNet
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Data;
+    using System.Diagnostics;
+    using System.Transactions;
+    using FizzCode.DbTools.Configuration;
+
+    public abstract class AbstractSqlStatementWithResultProcess<T> : AbstractProcess
+    {
+        public ConnectionStringWithProvider ConnectionString { get; set; }
+        public int CommandTimeout { get; set; } = 300;
+
+        protected AbstractSqlStatementWithResultProcess(IEtlContext context, string name = null)
+            : base(context, name)
+        {
+        }
+
+        /// <summary>
+        /// If true, this statement will be executed out of ambient transaction scope.
+        /// See <see cref="TransactionScopeOption.Suppress"/>>.
+        /// </summary>
+        public bool SuppressExistingTransactionScope { get; set; }
+
+        public override void ValidateImpl()
+        {
+            if (ConnectionString == null)
+                throw new ProcessParameterNullException(this, nameof(ConnectionString));
+        }
+
+        public T Execute(IProcess caller = null)
+        {
+            LastInvocation = Stopwatch.StartNew();
+            Caller = caller;
+
+            Validate();
+
+            if (Context.CancellationTokenSource.IsCancellationRequested)
+                return default;
+
+            if (If?.Invoke(this) == false)
+                return default;
+
+            try
+            {
+                return ExecuteImpl();
+            }
+            catch (EtlException ex) { Context.AddException(this, ex); }
+            catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
+
+            return default;
+        }
+
+        private T ExecuteImpl()
+        {
+            var parameters = new Dictionary<string, object>();
+            var statement = CreateSqlStatement(ConnectionString, parameters);
+
+            AdoNetSqlStatementDebugEventListener.GenerateEvent(this, () => new AdoNetSqlStatementDebugEvent()
+            {
+                Process = this,
+                ConnectionString = ConnectionString,
+                SqlStatement = statement,
+            });
+
+            using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
+            {
+                var connection = ConnectionManager.GetConnection(ConnectionString, this, null);
+                try
+                {
+                    lock (connection.Lock)
+                    {
+                        using (var cmd = connection.Connection.CreateCommand())
+                        {
+                            cmd.CommandTimeout = CommandTimeout;
+                            cmd.CommandText = statement;
+
+                            foreach (var kvp in parameters)
+                            {
+                                var parameter = cmd.CreateParameter();
+                                parameter.ParameterName = kvp.Key;
+                                parameter.Value = kvp.Value;
+                                cmd.Parameters.Add(parameter);
+                            }
+
+                            var result = RunCommandAndGetResult(cmd);
+                            return result;
+                        }
+                    }
+                }
+                finally
+                {
+                    ConnectionManager.ReleaseConnection(this, null, ref connection);
+                }
+            }
+        }
+
+        protected abstract string CreateSqlStatement(ConnectionStringWithProvider connectionString, Dictionary<string, object> parameters);
+
+        protected abstract T RunCommandAndGetResult(IDbCommand command);
+    }
+}

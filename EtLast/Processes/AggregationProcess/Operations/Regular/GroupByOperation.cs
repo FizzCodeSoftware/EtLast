@@ -14,24 +14,12 @@
             return this;
         }
 
-        public override IEnumerable<IRow> TransformGroup(string[] groupingColumns, IProcess process, List<IRow> rows)
+        public override IRow TransformGroup(string[] groupingColumns, IProcess process, List<IRow> rows)
         {
-            var aggregatedRow = process.Context.CreateRow(groupingColumns.Length + ColumnAggregators.Count);
+            var initialValues = groupingColumns.Select(x => new KeyValuePair<string, object>(x, rows[0][x]))
+                .Concat(ColumnAggregators.Select(agg => new KeyValuePair<string, object>(agg.Key, agg.Value.Invoke(rows, agg.Key))));
 
-            var firstRow = rows[0];
-            foreach (var v in groupingColumns)
-            {
-                aggregatedRow.SetValue(v, firstRow[v], this);
-            }
-
-            foreach (var kvp in ColumnAggregators)
-            {
-                var column = kvp.Key;
-                var aggregatedValue = kvp.Value.Invoke(rows, column);
-                aggregatedRow.SetValue(column, aggregatedValue, this);
-            }
-
-            yield return aggregatedRow;
+            return process.Context.CreateRow(process, initialValues);
         }
     }
 

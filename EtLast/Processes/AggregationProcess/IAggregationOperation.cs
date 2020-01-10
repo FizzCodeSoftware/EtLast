@@ -4,6 +4,6 @@
 
     public interface IAggregationOperation : IBaseOperation
     {
-        IEnumerable<IRow> TransformGroup(string[] groupingColumns, IProcess process, List<IRow> rows);
+        IRow TransformGroup(string[] groupingColumns, IProcess process, List<IRow> rows);
     }
 }

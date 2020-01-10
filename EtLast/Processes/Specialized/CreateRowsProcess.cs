@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// Creates <see cref="IRow"/>s from <see cref="InputRows"/>.
@@ -34,13 +35,12 @@
                 if (Context.CancellationTokenSource.IsCancellationRequested)
                     yield break;
 
-                var row = Context.CreateRow();
+                var initialValues = Enumerable
+                    .Range(0, Math.Min(Columns.Length, inputRow.Length))
+                    .Select(i => new KeyValuePair<string, object>(Columns[i], inputRow[i]))
+                    .ToList();
 
-                for (var i = 0; i < Math.Min(Columns.Length, inputRow.Length); i++)
-                {
-                    row.SetValue(Columns[i], inputRow[i], this);
-                }
-
+                var row = Context.CreateRow(this, initialValues);
                 yield return row;
             }
         }

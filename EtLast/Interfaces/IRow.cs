@@ -11,7 +11,10 @@
         int UID { get; }
         bool Flagged { get; set; }
 
-        void Init(IEtlContext context, int uid, int columnCountHint = 0); // called right after creation
+        IProcess CreatorProcess { get; }
+        IProcess CurrentProcess { get; set; }
+
+        void Init(IEtlContext context, IProcess creatorProcess, int uid, int columnCountHint = 0); // called right after creation
 
         IRow SetValue(string column, object newValue, IProcess process);
         IRow SetValue(string column, object newValue, IBaseOperation operation);
