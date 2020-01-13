@@ -18,7 +18,7 @@
 
             foreach (var config in ColumnConfiguration)
             {
-                if (row.Exists(config.NewName))
+                if (row.HasValue(config.NewName))
                 {
                     switch (ActionIfInvalid)
                     {
@@ -36,7 +36,7 @@
                 }
 
                 var value = row[config.CurrentName];
-                row.RemoveColumn(config.CurrentName, this);
+                row.SetValue(config.CurrentName, null, this);
                 row.SetValue(config.NewName, value, this);
             }
         }

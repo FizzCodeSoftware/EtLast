@@ -52,9 +52,6 @@
 
                 rowCount++;
                 var key = GenerateKey(row);
-                if (row.Flagged)
-                    Context.LogRow(this, row, "aggregation group key generated: {GroupKey}", key);
-
                 if (!aggregateRows.TryGetValue(key, out var aggregateRow))
                 {
                     var initialValues = GroupingColumns.Select(column => new KeyValuePair<string, object>(column, row[column]));

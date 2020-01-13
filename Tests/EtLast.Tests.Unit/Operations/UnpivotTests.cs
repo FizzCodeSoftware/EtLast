@@ -17,7 +17,7 @@
         [TestMethod]
         public void UnpivotTest()
         {
-            var context = new EtlContext<DictionaryRow>();
+            var context = new EtlContext();
 
             var unpivotProcess = new OperationHostProcess(context, "UnpivotProcess")
             {

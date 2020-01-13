@@ -27,10 +27,6 @@
             }
 
             var statement = "(" + string.Join(", ", _columns.Select(_ => "@" + startIndex++.ToString("D", CultureInfo.InvariantCulture))) + ")";
-
-            if (row.Flagged)
-                operation.Process.Context.LogRow(operation.Process, row, "SQL statement generated: {SqlStatement}", statement);
-
             return statement;
         }
 

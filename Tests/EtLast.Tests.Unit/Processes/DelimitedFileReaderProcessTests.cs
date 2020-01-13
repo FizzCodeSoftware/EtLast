@@ -15,7 +15,7 @@
         [TestInitialize]
         public void Initialize()
         {
-            var context = new EtlContext<DictionaryRow>();
+            var context = new EtlContext();
 
             _delimitedFileReaderProcess = new DelimitedFileReaderProcess(context, "DelimitedFileReaderProcess")
             {

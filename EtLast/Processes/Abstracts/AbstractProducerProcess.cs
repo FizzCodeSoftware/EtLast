@@ -99,7 +99,7 @@
 
             _currentRowIndex++;
 
-            if (AddRowIndexToColumn != null && !row.Exists(AddRowIndexToColumn))
+            if (AddRowIndexToColumn != null && !row.HasValue(AddRowIndexToColumn))
                 row.SetValue(AddRowIndexToColumn, _currentRowIndex, this);
 
             return true;

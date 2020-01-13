@@ -12,6 +12,7 @@ namespace FizzCode.EtLast.Debugger.Windows
     using System.Text.Json;
     using System.Web;
     using System.Windows.Forms;
+    using FizzCode.EtLast;
 
     public partial class MainForm : Form
     {
@@ -194,7 +195,7 @@ namespace FizzCode.EtLast.Debugger.Windows
 
             _rb.Invoke((MethodInvoker)delegate
             {
-                _rb.AppendText("[LOG] [" + new DateTime(payload.Timestamp).ToString("yyyy.MM.dd HH:mm:ss.fff", CultureInfo.InvariantCulture) + "] [" + payload.Severity + "] [" + string.Join("/", payload.ContextName) + "] ");
+                _rb.AppendText("[LOG] [" + new DateTime(payload.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + "] [" + SeverityToShortString(payload.Severity) + "] [" + string.Join("/", payload.ContextName) + "] ");
 
                 if (payload.ProcessUid != null)
                 {
@@ -219,6 +220,20 @@ namespace FizzCode.EtLast.Debugger.Windows
 
                 _rb.AppendText(Environment.NewLine);
             });
+        }
+
+        private static string SeverityToShortString(LogSeverity severity)
+        {
+            return severity switch
+            {
+                LogSeverity.Verbose => "VRB",
+                LogSeverity.Debug => "DBG",
+                LogSeverity.Information => "INF",
+                LogSeverity.Warning => "WRN",
+                LogSeverity.Error => "ERR",
+                LogSeverity.Fatal => "FTL",
+                _ => severity.ToString(),
+            };
         }
     }
 }

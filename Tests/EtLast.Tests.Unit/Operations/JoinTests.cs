@@ -33,7 +33,7 @@
         [TestMethod]
         public void InnerJoinTest()
         {
-            var context = new EtlContext<DictionaryRow>();
+            var context = new EtlContext();
 
             var leftProcess = new OperationHostProcess(context, "LeftProcess")
             {

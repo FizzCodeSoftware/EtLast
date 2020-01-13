@@ -36,6 +36,12 @@
             if (If?.Invoke(row) == false)
                 return;
 
+            Process.Context.OnRowStored?.Invoke(row, new List<KeyValuePair<string, string>>()
+            {
+                new KeyValuePair<string, string>("Connection", ConnectionString.Name),
+                new KeyValuePair<string, string>("Table", TableDefinition.TableName),
+            });
+
             InitConnection(Process);
 
             lock (_connection.Lock)

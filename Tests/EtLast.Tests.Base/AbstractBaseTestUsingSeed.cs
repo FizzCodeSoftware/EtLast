@@ -9,7 +9,7 @@
 
         public static IOperationHostProcess CreateProcess(IEtlContext context = null)
         {
-            context ??= new EtlContext<DictionaryRow>();
+            context ??= new EtlContext();
 
             return new OperationHostProcess(context)
             {

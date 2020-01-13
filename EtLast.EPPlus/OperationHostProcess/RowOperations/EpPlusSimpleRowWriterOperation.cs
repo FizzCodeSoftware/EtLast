@@ -8,6 +8,7 @@
 
     public class EpPlusSimpleRowWriterOperation : AbstractRowOperation
     {
+        public RowTestDelegate If { get; set; }
         public string FileName { get; set; }
         public ExcelPackage ExistingPackage { get; set; }
         public string SheetName { get; set; }
@@ -19,6 +20,15 @@
 
         public override void Apply(IRow row)
         {
+            if (If?.Invoke(row) == false)
+                return;
+
+            Process.Context.OnRowStored?.Invoke(row, new List<KeyValuePair<string, string>>()
+            {
+                new KeyValuePair<string, string>("File", PathHelpers.GetFriendlyPathName(FileName)),
+                new KeyValuePair<string, string>("Sheet", SheetName),
+            });
+
             if (_excelPackage == null) // lazy load here instead of prepare
             {
                 _excelPackage = ExistingPackage ?? new ExcelPackage(new FileInfo(FileName));

@@ -17,7 +17,7 @@
         [TestInitialize]
         public void Initialize()
         {
-            var context = new EtlContext<DictionaryRow>();
+            var context = new EtlContext();
 
             _epPlusExcelReaderProcess = new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess")
             {

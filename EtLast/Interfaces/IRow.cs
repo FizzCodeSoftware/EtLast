@@ -9,23 +9,19 @@
     {
         IEtlContext Context { get; }
         int UID { get; }
-        bool Flagged { get; set; }
 
         IProcess CreatorProcess { get; }
         IProcess CurrentProcess { get; set; }
 
-        void Init(IEtlContext context, IProcess creatorProcess, int uid, int columnCountHint = 0); // called right after creation
+        void Init(IEtlContext context, IProcess creatorProcess, int uid, IEnumerable<KeyValuePair<string, object>> initialValues); // called right after creation
 
         IRow SetValue(string column, object newValue, IProcess process);
         IRow SetValue(string column, object newValue, IBaseOperation operation);
 
-        void RemoveColumn(string column, IProcess process);
-        void RemoveColumn(string column, IBaseOperation operation);
-
         object this[string column] { get; set; }
         IEnumerable<KeyValuePair<string, object>> Values { get; }
 
-        bool Exists(string column);
+        bool HasValue(string column);
 
         int ColumnCount { get; }
 

@@ -6,6 +6,8 @@
 
     public interface IEtlContext
     {
+        void SetRowType<T>() where T : IRow;
+
         StatCounterCollection CounterCollection { get; }
         EtlContextResult Result { get; }
         AdditionalData AdditionalData { get; }
@@ -28,7 +30,6 @@
         void LogOps(LogSeverity severity, IProcess process, string text, params object[] args);
         void LogOps(LogSeverity severity, IProcess process, IBaseOperation operation, string text, params object[] args);
 
-        void LogRow(IProcess process, IRow row, string text, params object[] args);
         void LogCustom(string fileName, IProcess process, string text, params object[] args);
         void LogCustomOps(string fileName, IProcess process, string text, params object[] args);
 
@@ -37,10 +38,15 @@
 
         int ExceptionCount { get; }
 
-        EventHandler<ContextExceptionEventArgs> OnException { get; set; }
-
         void SetRowOwner(IRow row, IProcess currentProcess);
 
-        EventHandler<ContextLogEventArgs> OnLog { get; set; }
+        EventHandler<ContextExceptionEventArgs> OnException { get; set; }
+        ContextOnLogDelegate OnLog { get; set; }
+        ContextOnCustomLogDelegate OnCustomLog { get; set; }
+
+        ContextOnRowCreatedDelegate OnRowCreated { get; set; }
+        ContextOnRowOwnerChangedDelegate OnRowOwnerChanged { get; set; }
+        ContextOnRowValueChangedDelegate OnRowValueChanged { get; set; }
+        ContextOnRowStoredDelegate OnRowStored { get; set; }
     }
 }

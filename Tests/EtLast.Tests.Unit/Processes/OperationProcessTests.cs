@@ -26,7 +26,7 @@
 
         private static OperationHostProcess CreateKeepOrderProcess(bool keepOrder)
         {
-            var context = new EtlContext<DictionaryRow>();
+            var context = new EtlContext();
 
             var process = new OperationHostProcess(context)
             {

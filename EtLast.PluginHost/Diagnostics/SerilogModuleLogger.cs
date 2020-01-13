@@ -5,26 +5,21 @@
     using System.Globalization;
     using System.IO;
     using System.Linq;
-    using System.Net.Http;
     using System.Text;
-    using System.Text.Json;
-    using System.Threading;
     using FizzCode.EtLast;
     using Serilog;
     using Serilog.Events;
     using Serilog.Parsing;
 
-    public class ModuleSerilogLogger : IEtlPluginLogger, IDisposable
+    public class SerilogModuleLogger : IModuleLogger
     {
         public ILogger Logger { get; set; }
         public ILogger OpsLogger { get; set; }
         public ModuleConfiguration ModuleConfiguration { get; set; }
-        public Uri DiagnosticsUri { get; set; }
+        public IDiagnosticsSender DiagnosticsSender { get; set; }
 
-        private HttpClient _diagnosticsClient;
         private readonly object _customFileLock = new object();
 
-        private int _diagnosticsNumber;
         private readonly Dictionary<string, MessageTemplate> _messageTemplateCache = new Dictionary<string, MessageTemplate>();
         private readonly object _messageTemplateCacheLock = new object();
         private readonly MessageTemplateParser _messageTemplateParser = new MessageTemplateParser();
@@ -76,9 +71,9 @@
                     + text,
                 values.ToArray());
 
-            if (DiagnosticsUri != null)
+            if (DiagnosticsSender != null)
             {
-                SendDiagnostis(severity, forOps, plugin, process, operation, text, args);
+                SendLog(severity, forOps, plugin, process, operation, text, args);
             }
         }
 
@@ -151,11 +146,11 @@
             }
         }
 
-        private void SendDiagnostis(LogSeverity severity, bool forOps, IEtlPlugin plugin, IProcess process, IBaseOperation operation, string text, params object[] args)
+        private void SendLog(LogSeverity severity, bool forOps, IEtlPlugin plugin, IProcess process, IBaseOperation operation, string text, params object[] args)
         {
             if (args.Length == 0)
             {
-                SendDiagnostics("log", new Diagnostics.Interface.LogEvent()
+                DiagnosticsSender.SendDiagnostics("log", new Diagnostics.Interface.LogEvent()
                 {
                     Timestamp = DateTime.Now.Ticks,
                     Text = text,
@@ -190,7 +185,7 @@
                 }
             }
 
-            SendDiagnostics("log", new Diagnostics.Interface.LogEvent()
+            DiagnosticsSender.SendDiagnostics("log", new Diagnostics.Interface.LogEvent()
             {
                 Timestamp = DateTime.Now.Ticks,
                 Text = text,
@@ -234,58 +229,6 @@
             return template;
         }
 
-        private void SendDiagnostics(string relativeUri, object content)
-        {
-            try
-            {
-                var num = Interlocked.Increment(ref _diagnosticsNumber);
-
-                var fullUri = new Uri(DiagnosticsUri, relativeUri + "?num=" + num);
-                var jsonContent = JsonSerializer.Serialize(content);
-
-                if (_diagnosticsClient == null)
-                {
-                    _diagnosticsClient = new HttpClient
-                    {
-                        Timeout = TimeSpan.FromMilliseconds(100)
-                    };
-                }
-
-                using var textContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
-                var response = _diagnosticsClient.PostAsync(fullUri, textContent).Result;
-                var responseBody = response.Content.ReadAsStringAsync().Result;
-                if (responseBody != "ACK")
-                {
-                    throw new Exception("ohh");
-                }
-            }
-            catch (Exception)
-            {
-            }
-        }
-
-        private bool _isDisposed;
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_isDisposed)
-            {
-                if (disposing)
-                {
-                    _diagnosticsClient?.Dispose();
-                }
-
-                _isDisposed = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
         public void LogCustom(bool forOps, IEtlPlugin plugin, string fileName, IProcess process, string text, params object[] args)
         {
             var logsFolder = forOps
@@ -321,7 +264,7 @@
 
         public void LifecycleRowCreated(IEtlPlugin plugin, IRow row, IProcess creatorProcess)
         {
-            SendDiagnostics("row-created", new Diagnostics.Interface.RowCreatedEvent()
+            DiagnosticsSender?.SendDiagnostics("row-created", new Diagnostics.Interface.RowCreatedEvent()
             {
                 ContextName = plugin != null
                    ? new string[] { ModuleConfiguration.ModuleName, plugin.Name }
@@ -335,7 +278,7 @@
 
         public void LifecycleRowOwnerChanged(IEtlPlugin plugin, IRow row, IProcess previousProcess, IProcess currentProcess)
         {
-            SendDiagnostics("row-owner-changed", new Diagnostics.Interface.RowOwnerChangedEvent()
+            DiagnosticsSender?.SendDiagnostics("row-owner-changed", new Diagnostics.Interface.RowOwnerChangedEvent()
             {
                 ContextName = plugin != null
                    ? new string[] { ModuleConfiguration.ModuleName, plugin.Name }
@@ -349,6 +292,10 @@
         }
 
         public void LifecycleRowStored(IEtlPlugin plugin, IRow row, List<KeyValuePair<string, string>> location)
+        {
+        }
+
+        public void LifecycleRowValueChanged(IEtlPlugin plugin, IRow row, string column, object previousValue, object newValue, IProcess process, IBaseOperation operation)
         {
         }
     }

@@ -20,7 +20,7 @@
         [TestMethod]
         public void GroupByName_AverageHeight()
         {
-            var context = new EtlContext<DictionaryRow>();
+            var context = new EtlContext();
 
             var groupingColumns = new string[] { "name" };
             var groupByOperation = new GroupByOperation();

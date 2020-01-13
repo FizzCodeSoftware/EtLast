@@ -15,57 +15,12 @@
         public ModuleConfiguration ModuleConfiguration { get; private set; }
         public IEtlContext Context { get; private set; }
 
-        protected IEtlPluginLogger Logger { get; private set; }
         protected TimeSpan TransactionScopeTimeout { get; private set; }
 
-        public void Init(IEtlPluginLogger logger, ModuleConfiguration moduleConfiguration, TimeSpan transactionScopeTimeout, StatCounterCollection moduleStatCounterCollection)
+        public void Init(IEtlContext context, ModuleConfiguration moduleConfiguration)
         {
-            Logger = logger;
             ModuleConfiguration = moduleConfiguration;
-
-            Context = new EtlContext<DictionaryRow>(moduleStatCounterCollection)
-            {
-                TransactionScopeTimeout = transactionScopeTimeout,
-                OnException = (sender, args) => Logger.LogException(this, args),
-                OnLog = (sender, args) => Logger.Log(args.Severity, args.ForOps, this, args.Process, args.Operation, args.Text, args.Arguments),
-                OnCustomLog = (sender, args) => Logger.LogCustom(args.ForOps, this, args.FileName, args.Process, args.Text, args.Arguments),
-                OnRowCreated = (sender, args) => Logger.LifecycleRowCreated(this, args.Row, args.CreatorProcess),
-                OnRowOwnerChanged = (sender, args) => Logger.LifecycleRowOwnerChanged(this, args.Row, args.PreviousProcess, args.CurrentProcess),
-                OnRowStored = (sender, args) => Logger.LifecycleRowStored(this, args.Row, args.Location),
-            };
-
-            TransactionScopeTimeout = transactionScopeTimeout;
-        }
-
-        public void BeforeExecute()
-        {
-            CustomBeforeExecute();
-        }
-
-        protected virtual void CustomBeforeExecute()
-        {
-        }
-
-        public void AfterExecute()
-        {
-            CustomAfterExecute();
-            LogCounters();
-        }
-
-        private void LogCounters()
-        {
-            var counters = Context.CounterCollection.GetCounters();
-            if (counters.Count == 0)
-                return;
-
-            foreach (var counter in counters)
-            {
-                Context.Log(counter.IsDebug ? LogSeverity.Debug : LogSeverity.Information, null, "counter {Counter} = {Value}", counter.Name, counter.TypedValue);
-            }
-        }
-
-        protected virtual void CustomAfterExecute()
-        {
+            Context = context;
         }
 
         public abstract void Execute();

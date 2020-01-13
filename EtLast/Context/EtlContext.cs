@@ -2,12 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
 
-    public class EtlContext<TRow> : IEtlContext
-        where TRow : IRow, new()
+    public class EtlContext : IEtlContext
     {
+        public Type RowType { get; private set; }
         public StatCounterCollection CounterCollection { get; }
         public EtlContextResult Result { get; } = new EtlContextResult();
         public AdditionalData AdditionalData { get; }
@@ -23,18 +22,20 @@
         public CancellationTokenSource CancellationTokenSource { get; }
 
         public EventHandler<ContextExceptionEventArgs> OnException { get; set; }
-        public EventHandler<ContextLogEventArgs> OnLog { get; set; }
-        public EventHandler<ContextCustomLogEventArgs> OnCustomLog { get; set; }
+        public ContextOnLogDelegate OnLog { get; set; }
+        public ContextOnCustomLogDelegate OnCustomLog { get; set; }
 
-        public EventHandler<ContextRowCreatedEventArgs> OnRowCreated { get; set; }
-        public EventHandler<ContextRowOwnerChangedEventArgs> OnRowOwnerChanged { get; set; }
-        public EventHandler<ContextRowStoredEventArgs> OnRowStored { get; set; }
+        public ContextOnRowCreatedDelegate OnRowCreated { get; set; }
+        public ContextOnRowOwnerChangedDelegate OnRowOwnerChanged { get; set; }
+        public ContextOnRowValueChangedDelegate OnRowValueChanged { get; set; }
+        public ContextOnRowStoredDelegate OnRowStored { get; set; }
 
         private int _nextUid;
         private readonly List<Exception> _exceptions = new List<Exception>();
 
         public EtlContext(StatCounterCollection forwardCountersToCollection = null)
         {
+            SetRowType<DictionaryRow>();
             CancellationTokenSource = new CancellationTokenSource();
             AdditionalData = new AdditionalData();
 
@@ -43,6 +44,11 @@
             CreatedOnLocal = utcNow.ToLocalTime();
 
             CounterCollection = new StatCounterCollection(forwardCountersToCollection);
+        }
+
+        public void SetRowType<T>() where T : IRow
+        {
+            RowType = typeof(T);
         }
 
         /// <summary>
@@ -111,13 +117,7 @@
             if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
                 Result.WarningCount++;
 
-            OnLog?.Invoke(this, new ContextLogEventArgs()
-            {
-                Process = process,
-                Text = text,
-                Severity = severity,
-                Arguments = args,
-            });
+            OnLog?.Invoke(severity, false, process, null, text, args);
         }
 
         public void Log(LogSeverity severity, IProcess process, IBaseOperation operation, string text, params object[] args)
@@ -125,104 +125,37 @@
             if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
                 Result.WarningCount++;
 
-            OnLog?.Invoke(this, new ContextLogEventArgs()
-            {
-                Process = process,
-                Operation = operation,
-                Text = text,
-                Severity = severity,
-                Arguments = args,
-            });
+            OnLog?.Invoke(severity, false, process, operation, text, args);
         }
 
         public void LogOps(LogSeverity severity, IProcess process, string text, params object[] args)
         {
-            OnLog?.Invoke(this, new ContextLogEventArgs()
-            {
-                Process = process,
-                Text = text,
-                Severity = severity,
-                Arguments = args,
-                ForOps = true,
-            });
+            OnLog?.Invoke(severity, true, process, null, text, args);
         }
 
         public void LogOps(LogSeverity severity, IProcess process, IBaseOperation operation, string text, params object[] args)
         {
-            OnLog?.Invoke(this, new ContextLogEventArgs()
-            {
-                Process = process,
-                Operation = operation,
-                Text = text,
-                Severity = severity,
-                Arguments = args,
-                ForOps = true,
-            });
-        }
-
-        public void LogRow(IProcess process, IRow row, string text, params object[] args)
-        {
-            var rowTemplate = "UID={UID}, " + (row.Flagged ? "FLAGGED, " : "") + string.Join(", ", row.Values.Select(kvp => kvp.Key + "={" + kvp.Key + "Value} ({" + kvp.Key + "Type}) "));
-            var rowArgs = new List<object> { row.UID };
-            foreach (var kvp in row.Values)
-            {
-                if (kvp.Value != null)
-                {
-                    rowArgs.Add(kvp.Value);
-                    rowArgs.Add(TypeHelpers.GetFriendlyTypeName(kvp.Value.GetType()));
-                }
-                else
-                {
-                    rowArgs.Add("NULL");
-                    rowArgs.Add("-");
-                }
-            }
-
-            Log(LogSeverity.Warning, null, text + " // " + rowTemplate, args.Concat(rowArgs).ToArray());
+            OnLog?.Invoke(severity, true, process, operation, text, args);
         }
 
         public void LogCustom(string fileName, IProcess process, string text, params object[] args)
         {
-            OnCustomLog?.Invoke(this, new ContextCustomLogEventArgs()
-            {
-                FileName = fileName,
-                Process = process,
-                Text = text,
-                Arguments = args,
-                ForOps = false,
-            });
+            OnCustomLog?.Invoke(false, fileName, process, text, args);
         }
 
         public void LogCustomOps(string fileName, IProcess process, string text, params object[] args)
         {
-            OnCustomLog?.Invoke(this, new ContextCustomLogEventArgs()
-            {
-                FileName = fileName,
-                Process = process,
-                Text = text,
-                Arguments = args,
-                ForOps = true,
-            });
+            OnCustomLog?.Invoke(true, fileName, process, text, args);
         }
 
         public IRow CreateRow(IProcess creatorProcess, IEnumerable<KeyValuePair<string, object>> initialValues)
         {
-            var row = new TRow();
-
-            row.Init(this, creatorProcess, Interlocked.Increment(ref _nextUid) - 1); // todo: fill columnCountHint if available
-
-            foreach (var kvp in initialValues)
-            {
-                row[kvp.Key] = kvp.Value;
-            }
+            var row = (IRow)Activator.CreateInstance(RowType);
+            row.Init(this, creatorProcess, Interlocked.Increment(ref _nextUid) - 1, initialValues);
 
             CounterCollection.IncrementCounter("in-memory rows created", 1);
 
-            OnRowCreated?.Invoke(this, new ContextRowCreatedEventArgs()
-            {
-                CreatorProcess = creatorProcess,
-                Row = row,
-            });
+            OnRowCreated?.Invoke(row, creatorProcess);
 
             return row;
         }
@@ -285,13 +218,7 @@
         {
             var previousProcess = row.CurrentProcess;
             row.CurrentProcess = currentProcess;
-
-            OnRowOwnerChanged?.Invoke(this, new ContextRowOwnerChangedEventArgs()
-            {
-                Row = row,
-                PreviousProcess = previousProcess,
-                CurrentProcess = currentProcess,
-            });
+            OnRowOwnerChanged?.Invoke(row, previousProcess, currentProcess);
         }
     }
 }

@@ -9,13 +9,13 @@
         public static IRow CreateRow(object[] rowElements)
         {
             var row = new DictionaryRow();
-            row.Init(null, null, -1, rowElements.Length);
-
+            var initialValues = new List<KeyValuePair<string, object>>();
             for (var i = 0; i < rowElements.Length; i += 2)
             {
-                row[rowElements[i] as string] = rowElements[i + 1];
+                initialValues.Add(new KeyValuePair<string, object>(rowElements[i] as string, rowElements[i + 1]));
             }
 
+            row.Init(null, null, -1, initialValues);
             return row;
         }
 
@@ -25,17 +25,18 @@
 
             for (var i = 0; i < data.Length; i++)
             {
-                var row = new DictionaryRow();
-                row.Init(null, null, -1, columns.Length);
-
+                var initialValues = new List<KeyValuePair<string, object>>();
                 var columnNumber = 0;
                 foreach (var column in columns)
                 {
                     if (data[i].Length <= columnNumber)
                         break;
 
-                    row[column] = data[i][columnNumber++];
+                    initialValues.Add(new KeyValuePair<string, object>(column, data[i][columnNumber++]));
                 }
+
+                var row = new DictionaryRow();
+                row.Init(null, null, -1, initialValues);
             }
 
             return rows;
