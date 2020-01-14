@@ -7,14 +7,14 @@
 
     internal class Playbook
     {
-        public Collection Collection { get; }
+        public SessionContext Collection { get; }
 
         public List<object> Events { get; } = new List<object>();
         public Dictionary<int, TrackedRow> RowList { get; } = new Dictionary<int, TrackedRow>();
         public Dictionary<string, TrackedStore> StoreList { get; } = new Dictionary<string, TrackedStore>();
         public Dictionary<string, TrackedProcess> ProcessList { get; } = new Dictionary<string, TrackedProcess>();
 
-        public Playbook(Collection collection)
+        public Playbook(SessionContext collection)
         {
             Collection = collection;
         }

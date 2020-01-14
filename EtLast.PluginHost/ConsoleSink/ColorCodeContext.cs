@@ -13,7 +13,7 @@
 
         private static readonly IDictionary<ColorCode, string> _colorCodeValues = new Dictionary<ColorCode, string>
         {
-            [ColorCode.Message_Exception] = "\x1b[38;5;0015m",
+            [ColorCode.Exception] = "\x1b[38;5;0015m",
             [ColorCode.TimeStamp_Property_Exception] = "\x1b[38;5;0007m",
             [ColorCode.Value] = "\x1b[38;5;0008m",
             [ColorCode.NullValue] = "\x1b[38;5;0027m",
@@ -23,8 +23,8 @@
             [ColorCode.BooleanValue] = "\x1b[38;5;0033m",
             [ColorCode.ScalarValue] = "\x1b[38;5;0085m",
             [ColorCode.TimeSpanValue] = "\x1b[38;5;0220m",
-            [ColorCode.LvlTokenVrb] = "\x1b[38;5;0007m",
-            [ColorCode.LvlTokenDbg] = "\x1b[38;5;0007m",
+            [ColorCode.LvlTokenVrb] = "\x1b[38;5;0008m",
+            [ColorCode.LvlTokenDbg] = "\x1b[38;5;0008m",
             [ColorCode.LvlTokenInf] = "\x1b[38;5;0015m",
             [ColorCode.LvlTokenWrn] = "\x1b[38;5;000m\x1b[48;5;0214m",
             [ColorCode.LvlTokenErr] = "\x1b[38;5;0015m\x1b[48;5;0196m",
@@ -89,6 +89,8 @@
         {
             return level switch
             {
+                LogEventLevel.Verbose => ColorCode.LvlTokenVrb,
+                LogEventLevel.Debug => ColorCode.LvlTokenDbg,
                 LogEventLevel.Warning => ColorCode.LvlTokenWrn,
                 LogEventLevel.Fatal => ColorCode.LvlTokenFtl,
                 LogEventLevel.Error => ColorCode.LvlTokenErr,

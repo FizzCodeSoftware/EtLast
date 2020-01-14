@@ -558,10 +558,10 @@
             WaitForWorkerThread();
             ShutdownOperations();
 
+            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", LastInvocation.Elapsed);
+
             LogCounters();
             LogOpCounters();
-
-            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", LastInvocation.Elapsed);
         }
 
         public IEnumerable<IRow> Evaluate(IProcess caller = null)
@@ -744,10 +744,10 @@
             WaitForWorkerThread();
             ShutdownOperations();
 
+            Context.Log(LogSeverity.Debug, this, "finished and retuned {RowCount} rows of {AllRowCount} rows in {Elapsed}", resultCount, _rowsAdded, LastInvocation.Elapsed);
+
             LogCounters();
             LogOpCounters();
-
-            Context.Log(LogSeverity.Debug, this, "finished and retuned {RowCount} rows of {AllRowCount} rows in {Elapsed}", resultCount, _rowsAdded, LastInvocation.Elapsed);
         }
 
         private void CreateWorker()

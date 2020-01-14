@@ -76,9 +76,9 @@
                 }
             }
 
-            LogCounters();
-
             Context.Log(LogSeverity.Debug, this, "produced and returned {RowCount} rows in {Elapsed}", resultCount, LastInvocation.Elapsed);
+
+            LogCounters();
         }
 
         protected abstract IEnumerable<IRow> Produce();

@@ -13,9 +13,11 @@
         private HttpClient _client;
         private BlockingCollection<Tuple<string, object>> _queue = new BlockingCollection<Tuple<string, object>>();
         private readonly Thread _workerThread;
+        private readonly string _sessionId;
 
-        public HttpDiagnosticsSender(Uri diagnosticsUri)
+        public HttpDiagnosticsSender(string sessionId, Uri diagnosticsUri)
         {
+            _sessionId = sessionId;
             _uri = diagnosticsUri;
             _client = new HttpClient
             {
@@ -34,7 +36,7 @@
             {
                 try
                 {
-                    var fullUri = new Uri(_uri, element.Item1);
+                    var fullUri = new Uri(_uri, element.Item1 + "?sid=" + _sessionId);
                     var jsonContent = JsonSerializer.Serialize(element.Item2);
 
                     using (var textContent = new StringContent(jsonContent, Encoding.UTF8, "application/json"))

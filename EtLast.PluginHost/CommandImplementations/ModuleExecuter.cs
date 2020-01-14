@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using System.Transactions;
     using FizzCode.EtLast;
@@ -13,13 +14,15 @@
         {
             var result = ExecutionResult.Success;
 
+            var sessionId = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture).Substring(0, 6);
+
             IModuleLogger logger = new SerilogModuleLogger()
             {
                 Logger = commandContext.Logger,
                 OpsLogger = commandContext.OpsLogger,
                 ModuleConfiguration = module.ModuleConfiguration,
                 DiagnosticsSender = commandContext.HostConfiguration.DiagnosticsUri != null
-                    ? new HttpDiagnosticsSender(commandContext.HostConfiguration.DiagnosticsUri)
+                    ? new HttpDiagnosticsSender(sessionId, commandContext.HostConfiguration.DiagnosticsUri)
                     : null,
             };
 
@@ -41,7 +44,7 @@
                 var pluginTotalAllocations = new List<long>();
                 var pluginAllocationDifferences = new List<long>();
 
-                logger.Log(LogSeverity.Information, false, null, null, "module started");
+                logger.Log(LogSeverity.Information, false, null, null, "module started, session: {SessionId}", sessionId);
 
                 foreach (var plugin in module.EnabledPlugins)
                 {
