@@ -84,11 +84,6 @@
 
             config = config.MinimumLevel.Is(System.Diagnostics.Debugger.IsAttached ? LogEventLevel.Verbose : LogEventLevel.Debug);
 
-            if (System.Diagnostics.Debugger.IsAttached)
-            {
-                config = config.Enrich.WithThreadId();
-            }
-
             if (hostConfiguration != null && !string.IsNullOrEmpty(hostConfiguration.SeqUrl) && hostConfiguration.SeqUrl != "-")
             {
                 config = config.WriteTo.Seq(hostConfiguration.SeqUrl, apiKey: hostConfiguration.SeqApiKey);

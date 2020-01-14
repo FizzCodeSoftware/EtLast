@@ -40,9 +40,10 @@
             if (counters.Count == 0)
                 return;
 
+            Context.Log(LogSeverity.Information, this, "PROCESS COUNTERS");
             foreach (var counter in counters)
             {
-                Context.Log(counter.IsDebug ? LogSeverity.Debug : LogSeverity.Information, this, "counter {Counter} = {Value}", counter.Name, counter.TypedValue);
+                Context.Log(counter.IsDebug ? LogSeverity.Debug : LogSeverity.Information, this, "{Counter} = {Value}", counter.Name, counter.TypedValue);
             }
         }
     }

@@ -93,26 +93,33 @@ namespace FizzCode.EtLast.Debugger.Windows
                     return;
                 case ("/log", "POST"):
                     {
-                        var num = int.Parse(query["num"], CultureInfo.InvariantCulture);
-                        HandleLogEvent(body, num);
+                        HandleLogEvent(body);
                         return;
                     }
                 case ("/row-created", "POST"):
                     {
-                        var num = int.Parse(query["num"], CultureInfo.InvariantCulture);
-                        HandleRowCreatedEvent(body, num);
+                        HandleRowCreatedEvent(body);
                         return;
                     }
                 case ("/row-owner-changed", "POST"):
                     {
-                        var num = int.Parse(query["num"], CultureInfo.InvariantCulture);
-                        HandleRowOwnerChangedEvent(body, num);
+                        HandleRowOwnerChangedEvent(body);
+                        return;
+                    }
+                case ("/row-value-changed", "POST"):
+                    {
+                        HandleRowValueChangedEvent(body);
+                        return;
+                    }
+                case ("/row-stored", "POST"):
+                    {
+                        HandleRowStoredEvent(body);
                         return;
                     }
             }
         }
 
-        private void HandleRowCreatedEvent(string body, int num)
+        private void HandleRowCreatedEvent(string body)
         {
             var payload = JsonSerializer.Deserialize<Diagnostics.Interface.RowCreatedEvent>(body);
 
@@ -127,12 +134,12 @@ namespace FizzCode.EtLast.Debugger.Windows
             lock (_rootCollection)
             {
                 var collection = _rootCollection.GetCollection(payload.ContextName);
-                collection.CurrentPlayBook.AddEvent(num, payload);
+                collection.CurrentPlayBook.AddEvent(payload);
             }
 
             _rb.Invoke((MethodInvoker)delegate
             {
-                _rb.AppendText("[ROW-CREATED] [" + string.Join("/", payload.ContextName) + "] ");
+                _rb.AppendText("[ROW-CREATED] [" + new DateTime(payload.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + "] [" + string.Join("/", payload.ContextName) + "] ");
 
                 if (payload.ProcessUid != null)
                 {
@@ -143,26 +150,26 @@ namespace FizzCode.EtLast.Debugger.Windows
 
                 if (payload.Values != null)
                 {
-                    _rb.AppendText(", " + string.Join(", ", payload.Values.Select(x => x.Name + "=" + (x.Value == null ? "<null>" : (x.Value.ToString() + " (" + x.Value.GetType().Name + ")")))));
+                    _rb.AppendText(", " + string.Join(", ", payload.Values.Select(x => x.Name + "=" + x.ToDisplayValue() + (x.Value == null ? "" : " (" + x.Value.GetType().Name + ")"))));
                 }
 
                 _rb.AppendText(Environment.NewLine);
             });
         }
 
-        private void HandleRowOwnerChangedEvent(string body, int num)
+        private void HandleRowOwnerChangedEvent(string body)
         {
             var payload = JsonSerializer.Deserialize<Diagnostics.Interface.RowOwnerChangedEvent>(body);
 
             lock (_rootCollection)
             {
                 var collection = _rootCollection.GetCollection(payload.ContextName);
-                collection.CurrentPlayBook.AddEvent(num, payload);
+                collection.CurrentPlayBook.AddEvent(payload);
             }
 
             _rb.Invoke((MethodInvoker)delegate
             {
-                _rb.AppendText("[ROW-OWNER-CHANGED] [" + string.Join("/", payload.ContextName) + "] ");
+                _rb.AppendText("[ROW-OWNER-CHANGED] [" + new DateTime(payload.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + "] [" + string.Join("/", payload.ContextName) + "] ");
 
                 if (payload.NewProcessUid != null)
                 {
@@ -175,7 +182,58 @@ namespace FizzCode.EtLast.Debugger.Windows
             });
         }
 
-        private void HandleLogEvent(string body, int num)
+        private void HandleRowValueChangedEvent(string body)
+        {
+            var payload = JsonSerializer.Deserialize<Diagnostics.Interface.RowValueChangedEvent>(body);
+
+            payload.PreviousValue.CalculateValue();
+            payload.CurrentValue.CalculateValue();
+
+            lock (_rootCollection)
+            {
+                var collection = _rootCollection.GetCollection(payload.ContextName);
+                collection.CurrentPlayBook.AddEvent(payload);
+            }
+
+            _rb.Invoke((MethodInvoker)delegate
+            {
+                _rb.AppendText("[ROW-VALUE-CHANGED] [" + new DateTime(payload.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + "] [" + string.Join("/", payload.ContextName) + "]");
+
+                if (payload.ProcessUid != null)
+                {
+                    _rb.AppendText("<" + payload.ProcessName + "> ");
+                }
+
+                if (payload.OperationType != null)
+                {
+                    _rb.AppendText("(" + payload.OperationName + "/#" + payload.OperationNumber + ") ");
+                }
+
+                _rb.AppendText("UID=" + payload.RowUid.ToString("D", CultureInfo.InvariantCulture)
+                    + ", column: " + payload.Column + ", previous value: " + payload.PreviousValue.ToDisplayValue() + ", current value: " + payload.CurrentValue.ToDisplayValue());
+
+                _rb.AppendText(Environment.NewLine);
+            });
+        }
+
+        private void HandleRowStoredEvent(string body)
+        {
+            var payload = JsonSerializer.Deserialize<Diagnostics.Interface.RowStoredEvent>(body);
+
+            lock (_rootCollection)
+            {
+                var collection = _rootCollection.GetCollection(payload.ContextName);
+                collection.CurrentPlayBook.AddEvent(payload);
+            }
+
+            _rb.Invoke((MethodInvoker)delegate
+            {
+                _rb.AppendText("[ROW-STORED] [" + new DateTime(payload.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + "] [" + string.Join("/", payload.ContextName) + "] UID=" + payload.RowUid.ToString("D", CultureInfo.InvariantCulture) + ", location: " + string.Join(" / ", payload.Locations.Select(x => x.Key + "=" + x.Value)));
+                _rb.AppendText(Environment.NewLine);
+            });
+        }
+
+        private void HandleLogEvent(string body)
         {
             var payload = JsonSerializer.Deserialize<Diagnostics.Interface.LogEvent>(body);
 
@@ -190,7 +248,7 @@ namespace FizzCode.EtLast.Debugger.Windows
             lock (_rootCollection)
             {
                 var collection = _rootCollection.GetCollection(payload.ContextName);
-                collection.CurrentPlayBook.AddEvent(num, payload);
+                collection.CurrentPlayBook.AddEvent(payload);
             }
 
             _rb.Invoke((MethodInvoker)delegate
@@ -212,7 +270,7 @@ namespace FizzCode.EtLast.Debugger.Windows
                 {
                     foreach (var arg in payload.Arguments)
                     {
-                        text = text.Replace(arg.Name, arg.TextValue, StringComparison.InvariantCultureIgnoreCase);
+                        text = text.Replace(arg.Name, arg.ToDisplayValue(), StringComparison.InvariantCultureIgnoreCase);
                     }
                 }
 

@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast.Debugger.Windows
 {
-    using System;
     using System.Collections.Generic;
     using FizzCode.EtLast.Diagnostics.Interface;
 
@@ -8,8 +7,7 @@
     {
         public Collection Collection { get; }
 
-        public object[] AllEvents = Array.Empty<object>();
-        private int _firstEventIndex;
+        public List<object> AllEvents { get; } = new List<object>();
 
         public Dictionary<int, TrackedRow> AllRows { get; } = new Dictionary<int, TrackedRow>();
 
@@ -18,37 +16,59 @@
             Collection = collection;
         }
 
-        public void AddEvent(int num, object payload)
+        public void AddEvent(object payload)
         {
-            if (AllEvents.Length == 0)
-            {
-                _firstEventIndex = num;
-            }
-
-            var count = num - _firstEventIndex + 1;
-            Array.Resize(ref AllEvents, count);
-            AllEvents[count - 1] = payload;
+            AllEvents.Add(payload);
 
             switch (payload)
             {
-                case RowCreatedEvent rowCreatedEvent:
+                case RowCreatedEvent evt:
                     {
                         var row = new TrackedRow()
                         {
-                            Uid = rowCreatedEvent.RowUid,
-                            CreatedByEvent = rowCreatedEvent,
+                            Uid = evt.RowUid,
+                            CreatedByEvent = evt,
                         };
 
-                        row.AllEvents.Add(rowCreatedEvent);
+                        row.AllEvents.Add(evt);
+
+                        foreach (var value in evt.Values)
+                        {
+                            if (value.Value != null)
+                            {
+                                row.Values[value.Name] = value;
+                            }
+                        }
 
                         AllRows[row.Uid] = row;
                         break;
                     }
-                case RowOwnerChangedEvent rowOwnerChangedEvent:
+                case RowOwnerChangedEvent evt:
                     {
-                        var row = AllRows[rowOwnerChangedEvent.RowUid];
-                        row.AllEvents.Add(payload);
-                        row.LastOwnerChangedEvent = rowOwnerChangedEvent;
+                        if (AllRows.TryGetValue(evt.RowUid, out var row))
+                        {
+                            row.AllEvents.Add(evt);
+                            row.LastOwnerChangedEvent = evt;
+                        }
+
+                        break;
+                    }
+
+                case RowValueChangedEvent evt:
+                    {
+                        if (AllRows.TryGetValue(evt.RowUid, out var row))
+                        {
+                            row.AllEvents.Add(evt);
+                            if (evt.CurrentValue != null)
+                            {
+                                row.Values[evt.Column] = evt.CurrentValue;
+                            }
+                            else
+                            {
+                                row.Values.Remove(evt.Column);
+                            }
+                        }
+
                         break;
                     }
             }

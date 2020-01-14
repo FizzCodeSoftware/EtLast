@@ -10,10 +10,10 @@
     <Product>EtLast ETL (Extract, Transform and Load) library for .NET Core</Product>
     <Copyright>Copyright © 2019-2020 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
-    <Description>ADO.NET extension for EtLast ETL (Extract, Transform and Load) library</Description>
+    <Description>Diagnostics UI for EtLast ETL (Extract, Transform and Load)</Description>
     <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
-    <AssemblyName>FizzCode.EtLast.Debugger.Windows</AssemblyName>
-    <RootNamespace>FizzCode.EtLast.Debugger.Windows</RootNamespace>
+    <AssemblyName>FizzCode.EtLast.Diagnostics.Windows</AssemblyName>
+    <RootNamespace>FizzCode.EtLast.Diagnostics.Windows</RootNamespace>
     <ApplicationIcon />
     <Win32Resource />
     <ApplicationManifest>app.manifest</ApplicationManifest>

@@ -24,7 +24,25 @@
         private readonly object _messageTemplateCacheLock = new object();
         private readonly MessageTemplateParser _messageTemplateParser = new MessageTemplateParser();
 
-        public void Log(LogSeverity severity, bool forOps, IEtlPlugin plugin, IProcess process, IBaseOperation operation, string text, params object[] args)
+        public IEtlPlugin CurrentPlugin { get; private set; }
+
+        public void SetCurrentPlugin(IEtlPlugin plugin)
+        {
+            CurrentPlugin = plugin;
+        }
+
+        public void SetupContextEvents(IEtlContext context)
+        {
+            context.OnException = (sender, args) => LogException(args);
+            context.OnLog = Log;
+            context.OnCustomLog = LogCustom;
+            context.OnRowCreated = LifecycleRowCreated;
+            context.OnRowOwnerChanged = LifecycleRowOwnerChanged;
+            context.OnRowValueChanged = LifecycleRowValueChanged;
+            context.OnRowStored = LifecycleRowStored;
+        }
+
+        public void Log(LogSeverity severity, bool forOps, IProcess process, IBaseOperation operation, string text, params object[] args)
         {
             var ident = "";
             if (process != null)
@@ -45,8 +63,8 @@
                 ModuleConfiguration.ModuleName,
             };
 
-            if (plugin != null)
-                values.Add(plugin.Name);
+            if (CurrentPlugin != null)
+                values.Add(CurrentPlugin.Name);
 
             if (process != null)
                 values.Add(process.Name);
@@ -64,7 +82,7 @@
             logger.Write(
                 (LogEventLevel)severity,
                 "[{Module}"
-                    + (plugin != null ? "/{Plugin}]" : "]")
+                    + (CurrentPlugin != null ? "/{Plugin}]" : "]")
                     + ident
                     + (process != null ? "<{ActiveProcess}> " : "")
                     + (operation != null ? "({Operation}) " : "")
@@ -73,17 +91,69 @@
 
             if (DiagnosticsSender != null)
             {
-                SendLog(severity, forOps, plugin, process, operation, text, args);
+                if (args.Length == 0)
+                {
+                    DiagnosticsSender.SendDiagnostics("log", new Diagnostics.Interface.LogEvent()
+                    {
+                        Timestamp = DateTime.Now.Ticks,
+                        Text = text,
+                        Severity = severity,
+                        ContextName = CurrentPlugin != null
+                            ? new string[] { ModuleConfiguration.ModuleName, CurrentPlugin.Name }
+                            : new string[] { ModuleConfiguration.ModuleName },
+                        ForOps = forOps,
+                        ProcessName = process?.Name,
+                        ProcessUid = process?.UID,
+                        OperationName = operation?.Name,
+                        OperationType = operation != null ? TypeHelpers.GetFriendlyTypeName(operation.GetType()) : null,
+                        OperationNumber = operation?.Number,
+                    });
+
+                    return;
+                }
+
+                var template = GetMessageTemplate(text);
+
+                var arguments = new Diagnostics.Interface.NamedArgument[args.Length];
+                var idx = 0;
+                var tokens = template.Tokens.ToList();
+                for (var i = 0; i < tokens.Count && idx < args.Length; i++)
+                {
+                    if (tokens[i] is PropertyToken pt)
+                    {
+                        var rawText = text.Substring(pt.StartIndex, pt.Length);
+                        // todo: replace rawText with pt.PropertyName in the original text to remove the unnecessary optional alignment and other attributes
+                        arguments[idx] = Diagnostics.Interface.NamedArgument.FromObject(rawText, args[idx]);
+                        idx++;
+                    }
+                }
+
+                DiagnosticsSender.SendDiagnostics("log", new Diagnostics.Interface.LogEvent()
+                {
+                    Timestamp = DateTime.Now.Ticks,
+                    Text = text,
+                    Severity = severity,
+                    ContextName = CurrentPlugin != null
+                        ? new string[] { ModuleConfiguration.ModuleName, CurrentPlugin.Name }
+                        : new string[] { ModuleConfiguration.ModuleName },
+                    ForOps = forOps,
+                    ProcessName = process?.Name,
+                    ProcessUid = process?.UID,
+                    OperationName = operation?.Name,
+                    OperationType = operation != null ? TypeHelpers.GetFriendlyTypeName(operation.GetType()) : null,
+                    OperationNumber = operation?.Number,
+                    Arguments = arguments,
+                });
             }
         }
 
-        public void LogException(IEtlPlugin plugin, ContextExceptionEventArgs args)
+        private void LogException(ContextExceptionEventArgs args)
         {
             var opsErrors = new List<string>();
             GetOpsMessagesRecursive(args.Exception, opsErrors);
             foreach (var opsError in opsErrors)
             {
-                Log(LogSeverity.Fatal, true, plugin, args.Process, args.Operation, opsError);
+                Log(LogSeverity.Fatal, true, args.Process, args.Operation, opsError);
             }
 
             var lvl = 0;
@@ -120,7 +190,7 @@
                 lvl++;
             }
 
-            Log(LogSeverity.Fatal, false, plugin, args.Process, args.Operation, "{Message}", msg);
+            Log(LogSeverity.Fatal, false, args.Process, args.Operation, "{Message}", msg);
         }
 
         private void GetOpsMessagesRecursive(Exception ex, List<string> messages)
@@ -144,63 +214,6 @@
                     GetOpsMessagesRecursive(iex, messages);
                 }
             }
-        }
-
-        private void SendLog(LogSeverity severity, bool forOps, IEtlPlugin plugin, IProcess process, IBaseOperation operation, string text, params object[] args)
-        {
-            if (args.Length == 0)
-            {
-                DiagnosticsSender.SendDiagnostics("log", new Diagnostics.Interface.LogEvent()
-                {
-                    Timestamp = DateTime.Now.Ticks,
-                    Text = text,
-                    Severity = severity,
-                    ContextName = plugin != null
-                        ? new string[] { ModuleConfiguration.ModuleName, plugin.Name }
-                        : new string[] { ModuleConfiguration.ModuleName },
-                    ForOps = forOps,
-                    ProcessName = process?.Name,
-                    ProcessUid = process?.UID,
-                    OperationName = operation?.Name,
-                    OperationType = operation != null ? TypeHelpers.GetFriendlyTypeName(operation.GetType()) : null,
-                    OperationNumber = operation?.Number,
-                });
-
-                return;
-            }
-
-            var template = GetMessageTemplate(text);
-
-            var arguments = new Diagnostics.Interface.NamedArgument[args.Length];
-            var idx = 0;
-            var tokens = template.Tokens.ToList();
-            for (var i = 0; i < tokens.Count && idx < args.Length; i++)
-            {
-                if (tokens[i] is PropertyToken pt)
-                {
-                    var rawText = text.Substring(pt.StartIndex, pt.Length);
-                    // todo: replace rawText with pt.PropertyName in the original text to remove the unnecessary optional alignment and other attributes
-                    arguments[idx] = Diagnostics.Interface.NamedArgument.FromObject(rawText, args[idx]);
-                    idx++;
-                }
-            }
-
-            DiagnosticsSender.SendDiagnostics("log", new Diagnostics.Interface.LogEvent()
-            {
-                Timestamp = DateTime.Now.Ticks,
-                Text = text,
-                Severity = severity,
-                ContextName = plugin != null
-                    ? new string[] { ModuleConfiguration.ModuleName, plugin.Name }
-                    : new string[] { ModuleConfiguration.ModuleName },
-                ForOps = forOps,
-                ProcessName = process?.Name,
-                ProcessUid = process?.UID,
-                OperationName = operation?.Name,
-                OperationType = operation != null ? TypeHelpers.GetFriendlyTypeName(operation.GetType()) : null,
-                OperationNumber = operation?.Number,
-                Arguments = arguments,
-            });
         }
 
         private MessageTemplate GetMessageTemplate(string text)
@@ -229,7 +242,7 @@
             return template;
         }
 
-        public void LogCustom(bool forOps, IEtlPlugin plugin, string fileName, IProcess process, string text, params object[] args)
+        private void LogCustom(bool forOps, string fileName, IProcess process, string text, params object[] args)
         {
             var logsFolder = forOps
                 ? SerilogConfigurator.OpsLogFolder
@@ -251,7 +264,7 @@
             var line = new StringBuilder()
                 .Append(ModuleConfiguration.ModuleName)
                 .Append("\t")
-                .Append(plugin != null ? plugin.Name + "\t" : "")
+                .Append(CurrentPlugin != null ? CurrentPlugin.Name + "\t" : "")
                 .Append(process != null ? process.Name + "\t" : "")
                 .AppendFormat(CultureInfo.InvariantCulture, text, args)
                 .ToString();
@@ -262,12 +275,13 @@
             }
         }
 
-        public void LifecycleRowCreated(IEtlPlugin plugin, IRow row, IProcess creatorProcess)
+        private void LifecycleRowCreated(IRow row, IProcess creatorProcess)
         {
             DiagnosticsSender?.SendDiagnostics("row-created", new Diagnostics.Interface.RowCreatedEvent()
             {
-                ContextName = plugin != null
-                   ? new string[] { ModuleConfiguration.ModuleName, plugin.Name }
+                Timestamp = DateTime.Now.Ticks,
+                ContextName = CurrentPlugin != null
+                   ? new string[] { ModuleConfiguration.ModuleName, CurrentPlugin.Name }
                    : new string[] { ModuleConfiguration.ModuleName },
                 ProcessUid = creatorProcess?.UID,
                 ProcessName = creatorProcess?.Name,
@@ -276,12 +290,13 @@
             });
         }
 
-        public void LifecycleRowOwnerChanged(IEtlPlugin plugin, IRow row, IProcess previousProcess, IProcess currentProcess)
+        private void LifecycleRowOwnerChanged(IRow row, IProcess previousProcess, IProcess currentProcess)
         {
             DiagnosticsSender?.SendDiagnostics("row-owner-changed", new Diagnostics.Interface.RowOwnerChangedEvent()
             {
-                ContextName = plugin != null
-                   ? new string[] { ModuleConfiguration.ModuleName, plugin.Name }
+                Timestamp = DateTime.Now.Ticks,
+                ContextName = CurrentPlugin != null
+                   ? new string[] { ModuleConfiguration.ModuleName, CurrentPlugin.Name }
                    : new string[] { ModuleConfiguration.ModuleName },
                 RowUid = row.UID,
                 PreviousProcessUid = previousProcess?.UID,
@@ -291,12 +306,37 @@
             });
         }
 
-        public void LifecycleRowStored(IEtlPlugin plugin, IRow row, List<KeyValuePair<string, string>> location)
+        private void LifecycleRowStored(IRow row, List<KeyValuePair<string, string>> location)
         {
+            DiagnosticsSender?.SendDiagnostics("row-stored", new Diagnostics.Interface.RowStoredEvent()
+            {
+                Timestamp = DateTime.Now.Ticks,
+                ContextName = CurrentPlugin != null
+                   ? new string[] { ModuleConfiguration.ModuleName, CurrentPlugin.Name }
+                   : new string[] { ModuleConfiguration.ModuleName },
+                RowUid = row.UID,
+                Locations = location,
+            });
         }
 
-        public void LifecycleRowValueChanged(IEtlPlugin plugin, IRow row, string column, object previousValue, object newValue, IProcess process, IBaseOperation operation)
+        private void LifecycleRowValueChanged(IRow row, string column, object previousValue, object currentValue, IProcess process, IBaseOperation operation)
         {
+            DiagnosticsSender?.SendDiagnostics("row-value-changed", new Diagnostics.Interface.RowValueChangedEvent()
+            {
+                Timestamp = DateTime.Now.Ticks,
+                ContextName = CurrentPlugin != null
+                   ? new string[] { ModuleConfiguration.ModuleName, CurrentPlugin.Name }
+                   : new string[] { ModuleConfiguration.ModuleName },
+                RowUid = row.UID,
+                Column = column,
+                PreviousValue = Diagnostics.Interface.Argument.FromObject(previousValue),
+                CurrentValue = Diagnostics.Interface.Argument.FromObject(currentValue),
+                ProcessName = process?.Name,
+                ProcessUid = process?.UID,
+                OperationName = operation?.Name,
+                OperationType = operation != null ? TypeHelpers.GetFriendlyTypeName(operation.GetType()) : null,
+                OperationNumber = operation?.Number,
+            });
         }
     }
 }

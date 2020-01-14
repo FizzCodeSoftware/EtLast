@@ -1,8 +1,7 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface
 {
-    public class RowOwnerChangedEvent
+    public class RowOwnerChangedEvent : AbstractEvent
     {
-        public string[] ContextName { get; set; }
         public int RowUid { get; set; }
 
         public string PreviousProcessUid { get; set; }

@@ -403,6 +403,7 @@
 
         private void LogOpCounters()
         {
+            Context.Log(LogSeverity.Information, this, "OPERATION COUNTERS");
             foreach (var op in Operations)
             {
                 LogOpCounters(op);
@@ -417,7 +418,7 @@
 
             foreach (var counter in counters)
             {
-                Context.Log(counter.IsDebug ? LogSeverity.Debug : LogSeverity.Information, this, "({Operation}) counter {Counter} = {Value}", op.Name, counter.Name, counter.TypedValue);
+                Context.Log(counter.IsDebug ? LogSeverity.Debug : LogSeverity.Information, this, "({Operation}) {Counter} = {Value}", op.Name, counter.Name, counter.TypedValue);
             }
 
             if (op is IOperationGroup group)

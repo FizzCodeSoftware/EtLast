@@ -2,10 +2,8 @@
 {
     using FizzCode.EtLast;
 
-    public class LogEvent
+    public class LogEvent : AbstractEvent
     {
-        public long Timestamp { get; set; }
-        public string[] ContextName { get; set; }
         public string ProcessUid { get; set; }
         public string ProcessName { get; set; }
         public string OperationType { get; set; }

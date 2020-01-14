@@ -12,7 +12,6 @@
         private readonly Uri _uri;
         private HttpClient _client;
         private BlockingCollection<Tuple<string, object>> _queue = new BlockingCollection<Tuple<string, object>>();
-        private int _id;
         private readonly Thread _workerThread;
 
         public HttpDiagnosticsSender(Uri diagnosticsUri)
@@ -35,9 +34,7 @@
             {
                 try
                 {
-                    var id = Interlocked.Increment(ref _id);
-
-                    var fullUri = new Uri(_uri, element.Item1 + "?num=" + id);
+                    var fullUri = new Uri(_uri, element.Item1);
                     var jsonContent = JsonSerializer.Serialize(element.Item2);
 
                     using (var textContent = new StringContent(jsonContent, Encoding.UTF8, "application/json"))

@@ -2,9 +2,8 @@
 {
     using System.Collections.Generic;
 
-    public class RowCreatedEvent
+    public class RowCreatedEvent : AbstractEvent
     {
-        public string[] ContextName { get; set; }
         public string ProcessUid { get; set; }
         public string ProcessName { get; set; }
 

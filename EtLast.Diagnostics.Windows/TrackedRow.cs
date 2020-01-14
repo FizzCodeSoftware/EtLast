@@ -10,5 +10,7 @@
 
         public RowCreatedEvent CreatedByEvent { get; set; }
         public RowOwnerChangedEvent LastOwnerChangedEvent { get; set; }
+
+        public Dictionary<string, Argument> Values { get; } = new Dictionary<string, Argument>();
     }
 }
