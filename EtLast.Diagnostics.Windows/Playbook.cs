@@ -1,6 +1,8 @@
 ﻿namespace FizzCode.EtLast.Debugger.Windows
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using FizzCode.EtLast.Diagnostics.Interface;
 
     internal class Playbook
@@ -10,6 +12,8 @@
         public List<object> AllEvents { get; } = new List<object>();
 
         public Dictionary<int, TrackedRow> AllRows { get; } = new Dictionary<int, TrackedRow>();
+
+        public Dictionary<string, TrackedStore> Stores { get; } = new Dictionary<string, TrackedStore>();
 
         public Playbook(Collection collection)
         {
@@ -41,8 +45,8 @@
                         }
 
                         AllRows[row.Uid] = row;
-                        break;
                     }
+                    break;
                 case RowOwnerChangedEvent evt:
                     {
                         if (AllRows.TryGetValue(evt.RowUid, out var row))
@@ -50,10 +54,8 @@
                             row.AllEvents.Add(evt);
                             row.LastOwnerChangedEvent = evt;
                         }
-
-                        break;
                     }
-
+                    break;
                 case RowValueChangedEvent evt:
                     {
                         if (AllRows.TryGetValue(evt.RowUid, out var row))
@@ -68,9 +70,25 @@
                                 row.Values.Remove(evt.Column);
                             }
                         }
-
-                        break;
                     }
+                    break;
+                case RowStoredEvent evt:
+                    {
+                        if (AllRows.TryGetValue(evt.RowUid, out var row))
+                        {
+                            row.AllEvents.Add(evt);
+                            var storePath = string.Join("/", evt.Locations.Select(x => x.Value));
+                            if (!Stores.TryGetValue(storePath, out var store))
+                            {
+                                store = new TrackedStore(storePath);
+                                Stores.Add(storePath, store);
+                            }
+
+                            var snapshot = row.GetSnapshot();
+                            store.Rows.Add(new Tuple<RowStoredEvent, TrackedRowSnapshot>(evt, snapshot));
+                        }
+                    }
+                    break;
             }
         }
     }
