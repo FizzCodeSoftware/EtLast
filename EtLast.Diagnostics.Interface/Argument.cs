@@ -31,6 +31,7 @@
                 "string" => TextValue,
                 "row-error" => TextValue,
                 "bool" => TextValue == "1",
+                "char" => TextValue[0],
                 "int" => int.Parse(TextValue, CultureInfo.InvariantCulture),
                 "long" => long.Parse(TextValue, CultureInfo.InvariantCulture),
                 "float" => float.Parse(TextValue, CultureInfo.InvariantCulture),
@@ -56,15 +57,22 @@
 
             return Value switch
             {
-                bool bv => bv ? "true" : "false",
-                int iv => iv.ToString("#,0", CultureInfo.InvariantCulture),
-                long lv => lv.ToString("#,0", CultureInfo.InvariantCulture),
-                float fv => fv.ToString("#,0.#", CultureInfo.InvariantCulture),
-                double dv => dv.ToString("#,0.#", CultureInfo.InvariantCulture),
-                decimal decv => decv.ToString("#,0.#", CultureInfo.InvariantCulture),
-                DateTime dt => dt.ToString("yyyy.MM.dd HH:mm:ss.fff", CultureInfo.InvariantCulture),
-                DateTimeOffset dto => dto.ToString("yyyy.MM.dd HH:mm:ss.fff zzz", CultureInfo.InvariantCulture),
-                TimeSpan ts => TimeSpanToString(ts),
+                bool v => v ? "true" : "false",
+                char v => "\'" + v + "\'",
+                sbyte v => v.ToString("#,0", CultureInfo.InvariantCulture),
+                byte v => v.ToString("#,0", CultureInfo.InvariantCulture),
+                short v => v.ToString("#,0", CultureInfo.InvariantCulture),
+                ushort v => v.ToString("#,0", CultureInfo.InvariantCulture),
+                int v => v.ToString("#,0", CultureInfo.InvariantCulture),
+                uint v => v.ToString("#,0", CultureInfo.InvariantCulture),
+                long v => v.ToString("#,0", CultureInfo.InvariantCulture),
+                ulong v => v.ToString("#,0", CultureInfo.InvariantCulture),
+                float v => v.ToString("#,0.#", CultureInfo.InvariantCulture),
+                double v => v.ToString("#,0.#", CultureInfo.InvariantCulture),
+                decimal v => v.ToString("#,0.#", CultureInfo.InvariantCulture),
+                TimeSpan v => TimeSpanToString(v),
+                DateTime v => v.ToString("yyyy.MM.dd HH:mm:ss.fff", CultureInfo.InvariantCulture),
+                DateTimeOffset v => v.ToString("yyyy.MM.dd HH:mm:ss.fff zzz", CultureInfo.InvariantCulture),
                 _ => TextValue,
             };
         }
@@ -121,6 +129,41 @@
                 return;
             }
 
+            if (Value is char cv)
+            {
+                TextValue = cv.ToString();
+                Type = "char";
+                return;
+            }
+
+            if (Value is sbyte sbytev)
+            {
+                TextValue = sbytev.ToString("D", CultureInfo.InvariantCulture);
+                Type = "sbyte";
+                return;
+            }
+
+            if (Value is byte bytev)
+            {
+                TextValue = bytev.ToString("D", CultureInfo.InvariantCulture);
+                Type = "byte";
+                return;
+            }
+
+            if (Value is short shortv)
+            {
+                TextValue = shortv.ToString("D", CultureInfo.InvariantCulture);
+                Type = "short";
+                return;
+            }
+
+            if (Value is short ushortv)
+            {
+                TextValue = ushortv.ToString("D", CultureInfo.InvariantCulture);
+                Type = "ushort";
+                return;
+            }
+
             if (Value is int iv)
             {
                 TextValue = iv.ToString("D", CultureInfo.InvariantCulture);
@@ -128,10 +171,24 @@
                 return;
             }
 
+            if (Value is uint uintv)
+            {
+                TextValue = uintv.ToString("D", CultureInfo.InvariantCulture);
+                Type = "uint";
+                return;
+            }
+
             if (Value is long lv)
             {
                 TextValue = lv.ToString("D", CultureInfo.InvariantCulture);
                 Type = "long";
+                return;
+            }
+
+            if (Value is ulong ulongv)
+            {
+                TextValue = ulongv.ToString("D", CultureInfo.InvariantCulture);
+                Type = "ulong";
                 return;
             }
 
@@ -156,6 +213,13 @@
                 return;
             }
 
+            if (Value is TimeSpan ts)
+            {
+                TextValue = Convert.ToInt64(ts.TotalMilliseconds).ToString("D", CultureInfo.InvariantCulture);
+                Type = "timespan";
+                return;
+            }
+
             if (Value is DateTime dt)
             {
                 TextValue = dt.Ticks.ToString("D", CultureInfo.InvariantCulture);
@@ -167,13 +231,6 @@
             {
                 TextValue = dto.Ticks.ToString("D", CultureInfo.InvariantCulture) + "|" + dto.Offset.Ticks.ToString("D", CultureInfo.InvariantCulture);
                 Type = "datetimeoffset";
-                return;
-            }
-
-            if (Value is TimeSpan ts)
-            {
-                TextValue = Convert.ToInt64(ts.TotalMilliseconds).ToString("D", CultureInfo.InvariantCulture);
-                Type = "timespan";
                 return;
             }
 
