@@ -9,11 +9,10 @@
     {
         public Collection Collection { get; }
 
-        public List<object> AllEvents { get; } = new List<object>();
-
-        public Dictionary<int, TrackedRow> AllRows { get; } = new Dictionary<int, TrackedRow>();
-
-        public Dictionary<string, TrackedStore> Stores { get; } = new Dictionary<string, TrackedStore>();
+        public List<object> Events { get; } = new List<object>();
+        public Dictionary<int, TrackedRow> RowList { get; } = new Dictionary<int, TrackedRow>();
+        public Dictionary<string, TrackedStore> StoreList { get; } = new Dictionary<string, TrackedStore>();
+        public Dictionary<string, TrackedProcess> ProcessList { get; } = new Dictionary<string, TrackedProcess>();
 
         public Playbook(Collection collection)
         {
@@ -22,7 +21,7 @@
 
         public void AddEvent(object payload)
         {
-            AllEvents.Add(payload);
+            Events.Add(payload);
 
             switch (payload)
             {
@@ -44,21 +43,50 @@
                             }
                         }
 
-                        AllRows[row.Uid] = row;
+                        RowList[row.Uid] = row;
+
+                        if (!ProcessList.TryGetValue(evt.ProcessUid, out var process))
+                        {
+                            process = new TrackedProcess(evt.ProcessUid, evt.ProcessName);
+                            ProcessList.Add(evt.ProcessUid, process);
+                        }
+
+                        process.AddRow(row);
                     }
                     break;
                 case RowOwnerChangedEvent evt:
                     {
-                        if (AllRows.TryGetValue(evt.RowUid, out var row))
+                        if (RowList.TryGetValue(evt.RowUid, out var row))
                         {
                             row.AllEvents.Add(evt);
-                            row.LastOwnerChangedEvent = evt;
+
+                            if (!ProcessList.TryGetValue(evt.PreviousProcessUid, out var previousProcess))
+                            {
+                                previousProcess = new TrackedProcess(evt.PreviousProcessUid, evt.PreviousProcessName);
+                                ProcessList.Add(evt.PreviousProcessUid, previousProcess);
+                            }
+
+                            if (!string.IsNullOrEmpty(evt.NewProcessUid))
+                            {
+                                if (!ProcessList.TryGetValue(evt.NewProcessUid, out var newProcess))
+                                {
+                                    newProcess = new TrackedProcess(evt.NewProcessUid, evt.NewProcessName);
+                                    ProcessList.Add(evt.NewProcessUid, newProcess);
+                                }
+
+                                previousProcess.RemoveRow(row);
+                                newProcess.AddRow(row);
+                            }
+                            else
+                            {
+                                previousProcess.DropRow(row);
+                            }
                         }
                     }
                     break;
                 case RowValueChangedEvent evt:
                     {
-                        if (AllRows.TryGetValue(evt.RowUid, out var row))
+                        if (RowList.TryGetValue(evt.RowUid, out var row))
                         {
                             row.AllEvents.Add(evt);
                             if (evt.CurrentValue != null)
@@ -74,14 +102,14 @@
                     break;
                 case RowStoredEvent evt:
                     {
-                        if (AllRows.TryGetValue(evt.RowUid, out var row))
+                        if (RowList.TryGetValue(evt.RowUid, out var row))
                         {
                             row.AllEvents.Add(evt);
                             var storePath = string.Join("/", evt.Locations.Select(x => x.Value));
-                            if (!Stores.TryGetValue(storePath, out var store))
+                            if (!StoreList.TryGetValue(storePath, out var store))
                             {
                                 store = new TrackedStore(storePath);
-                                Stores.Add(storePath, store);
+                                StoreList.Add(storePath, store);
                             }
 
                             var snapshot = row.GetSnapshot();

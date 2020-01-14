@@ -2,8 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using FizzCode.EtLast.Diagnostics.Interface;
 
+    [DebuggerDisplay("{Path}")]
     public class TrackedStore
     {
         public string Path { get; }
