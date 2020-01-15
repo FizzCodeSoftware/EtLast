@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.Debugger.Windows
+﻿namespace FizzCode.EtLast.Diagnostics.Windows
 {
     using System;
     using System.Windows.Forms;

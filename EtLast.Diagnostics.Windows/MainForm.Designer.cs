@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.Debugger.Windows
+﻿namespace FizzCode.EtLast.Diagnostics.Windows
 {
     partial class MainForm
     {
@@ -16,12 +16,6 @@
             if (disposing && (components != null))
             {
                 components.Dispose();
-            }
-            if (disposing && _listener != null)
-            {
-                _listener.Stop();
-                _listener.Close();
-                _listener = null;
             }
 
             base.Dispose(disposing);

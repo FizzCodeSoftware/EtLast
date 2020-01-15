@@ -1,20 +1,20 @@
-﻿namespace FizzCode.EtLast.Debugger.Windows
+﻿namespace FizzCode.EtLast.Diagnostics.Interface
 {
     using System.Collections.Generic;
     using System.Diagnostics;
 
     [DebuggerDisplay("{FullName}")]
-    internal class SessionContext
+    public class SessionContext
     {
         public string Name { get; }
 
-        public Session Session { get; }
+        public DiagnosticsSession Session { get; }
         public SessionContext ParentContext { get; }
         public List<SessionContext> ChildContextList { get; } = new List<SessionContext>();
         public Dictionary<string, SessionContext> ChildContextListByName { get; } = new Dictionary<string, SessionContext>();
         public Playbook Playbook { get; }
 
-        public SessionContext(Session session, string name, SessionContext parentContext = null)
+        public SessionContext(DiagnosticsSession session, string name, SessionContext parentContext = null)
         {
             Session = session;
             Name = name;

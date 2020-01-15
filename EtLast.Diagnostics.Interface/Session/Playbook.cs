@@ -1,11 +1,10 @@
-﻿namespace FizzCode.EtLast.Debugger.Windows
+﻿namespace FizzCode.EtLast.Diagnostics.Interface
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using FizzCode.EtLast.Diagnostics.Interface;
 
-    internal class Playbook
+    public class Playbook
     {
         public SessionContext Collection { get; }
 

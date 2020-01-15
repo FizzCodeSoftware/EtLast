@@ -90,17 +90,7 @@
 
         private static void WriteLevel(LogEvent logEvent, TextWriter builder)
         {
-            var text = logEvent.Level switch
-            {
-                LogEventLevel.Verbose => "VRB",
-                LogEventLevel.Debug => "DBG",
-                LogEventLevel.Information => "INF",
-                LogEventLevel.Warning => "WRN",
-                LogEventLevel.Error => "ERR",
-                LogEventLevel.Fatal => "FTL",
-                _ => null,
-            };
-
+            var text = ((LogSeverity)logEvent.Level).ToShortString();
             var colorCode = GetColorCodeFromSeverity(logEvent);
             ColorCodeContext.Write(builder, colorCode, text);
         }

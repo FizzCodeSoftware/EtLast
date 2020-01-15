@@ -1,8 +1,7 @@
-﻿namespace FizzCode.EtLast.Debugger.Windows
+﻿namespace FizzCode.EtLast.Diagnostics.Interface
 {
     using System.Collections.Generic;
     using System.Diagnostics;
-    using FizzCode.EtLast.Diagnostics.Interface;
 
     [DebuggerDisplay("{Uid}")]
     public class TrackedRow

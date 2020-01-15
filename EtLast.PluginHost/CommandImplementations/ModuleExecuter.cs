@@ -75,8 +75,6 @@
                             plugin.Init(pluginContext, module.ModuleConfiguration);
                             plugin.Execute();
 
-                            LogCounters(pluginContext.CounterCollection, logger);
-
                             moduleWarningCount += pluginContext.Result.WarningCount;
                             moduleExceptionCount += pluginContext.Result.Exceptions.Count;
 
@@ -130,6 +128,7 @@
                     pluginAllocationDifferences.Add(GetCurrentAllocatedBytes() - pluginStartCurrentAllocatedBytes);
 
                     logger.Log(LogSeverity.Information, false, null, null, "plugin finished in {Elapsed}", pluginStartedOn.Elapsed);
+                    LogCounters(pluginContext.CounterCollection, logger);
                 }
 
                 logger.SetCurrentPlugin(null);
@@ -156,8 +155,6 @@
                             plugin.Name, runTimes[i], "failed", pluginResult.TerminateHost, cpuTimes[i], pluginTotalAllocations[i], pluginAllocationDifferences[i]);
                     }
                 }
-
-                logger.Log(LogSeverity.Information, false, null, null, "");
 
                 logger.SetCurrentPlugin(null);
 
@@ -222,8 +219,6 @@
                 logger.Log(counter.IsDebug ? LogSeverity.Debug : LogSeverity.Information, false, null, null, "{Counter} = {Value}",
                     counter.Name, counter.TypedValue);
             }
-
-            logger.Log(LogSeverity.Information, false, null, null, "");
         }
 
         private static TimeSpan GetCpuTime()

@@ -1,18 +1,17 @@
-﻿namespace FizzCode.EtLast.Debugger.Windows
+﻿namespace FizzCode.EtLast.Diagnostics.Interface
 {
     using System.Collections.Generic;
     using System.Diagnostics;
-    using FizzCode.EtLast.Diagnostics.Interface;
 
     [DebuggerDisplay("{SessionId}")]
-    internal class Session
+    public class DiagnosticsSession
     {
         public string SessionId { get; }
 
         public List<SessionContext> ContextList { get; } = new List<SessionContext>();
         public Dictionary<string, SessionContext> ContextListByName { get; } = new Dictionary<string, SessionContext>();
 
-        public Session(string name)
+        public DiagnosticsSession(string name)
         {
             SessionId = name;
         }
