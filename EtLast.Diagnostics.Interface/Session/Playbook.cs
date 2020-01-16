@@ -4,18 +4,21 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    public delegate void OnProcessAddedDelegate(Playbook playbook, TrackedProcess process);
+
     public class Playbook
     {
-        public SessionContext Collection { get; }
+        public SessionContext Context { get; }
 
         public List<object> Events { get; } = new List<object>();
         public Dictionary<int, TrackedRow> RowList { get; } = new Dictionary<int, TrackedRow>();
         public Dictionary<string, TrackedStore> StoreList { get; } = new Dictionary<string, TrackedStore>();
         public Dictionary<string, TrackedProcess> ProcessList { get; } = new Dictionary<string, TrackedProcess>();
+        public OnProcessAddedDelegate OnProcessAdded { get; set; }
 
-        public Playbook(SessionContext collection)
+        public Playbook(SessionContext sessionContext)
         {
-            Collection = collection;
+            Context = sessionContext;
         }
 
         public void AddEvent(object payload)
@@ -48,6 +51,7 @@
                         {
                             process = new TrackedProcess(evt.ProcessUid, evt.ProcessName);
                             ProcessList.Add(evt.ProcessUid, process);
+                            OnProcessAdded?.Invoke(this, process);
                         }
 
                         process.AddRow(row);
@@ -63,6 +67,7 @@
                             {
                                 previousProcess = new TrackedProcess(evt.PreviousProcessUid, evt.PreviousProcessName);
                                 ProcessList.Add(evt.PreviousProcessUid, previousProcess);
+                                OnProcessAdded?.Invoke(this, previousProcess);
                             }
 
                             if (!string.IsNullOrEmpty(evt.NewProcessUid))
@@ -71,6 +76,7 @@
                                 {
                                     newProcess = new TrackedProcess(evt.NewProcessUid, evt.NewProcessName);
                                     ProcessList.Add(evt.NewProcessUid, newProcess);
+                                    OnProcessAdded?.Invoke(this, newProcess);
                                 }
 
                                 previousProcess.RemoveRow(row);

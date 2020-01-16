@@ -11,7 +11,7 @@
     using FizzCode.EtLast.Diagnostics.Interface;
 
     internal delegate void OnNewEventArrivedDelegate(SessionContext context, AbstractEvent evt);
-    internal delegate void OnSessionCreatedDelegate(DiagnosticsSession session);
+    internal delegate void OnSessionCreatedDelegate(Session session);
 
     internal class DiagnosticsStateManager : IDisposable
     {
@@ -20,7 +20,8 @@
         public OnNewEventArrivedDelegate OnNewEventArrived { get; set; }
 
         private readonly HttpListener _listener;
-        private readonly Dictionary<string, DiagnosticsSession> _sessions = new Dictionary<string, DiagnosticsSession>();
+        private readonly Dictionary<string, Session> _sessions = new Dictionary<string, Session>();
+        public IEnumerable<Session> Session => _sessions.Values;
 
         public DiagnosticsStateManager(string uriPrefix)
         {
@@ -113,11 +114,11 @@
             }
         }
 
-        private DiagnosticsSession GetSession(string sessionId)
+        private Session GetSession(string sessionId)
         {
             if (!_sessions.TryGetValue(sessionId, out var session))
             {
-                session = new DiagnosticsSession(sessionId);
+                session = new Session(sessionId);
                 _sessions.Add(sessionId, session);
 
                 OnSessionCreated?.Invoke(session);
@@ -126,7 +127,7 @@
             return session;
         }
 
-        private void HandleRowCreatedEvent(DiagnosticsSession session, string body)
+        private void HandleRowCreatedEvent(Session session, string body)
         {
             var evt = JsonSerializer.Deserialize<RowCreatedEvent>(body);
 
@@ -142,14 +143,14 @@
             OnNewEventArrived?.Invoke(context, evt);
         }
 
-        private void HandleRowOwnerChangedEvent(DiagnosticsSession session, string body)
+        private void HandleRowOwnerChangedEvent(Session session, string body)
         {
             var evt = JsonSerializer.Deserialize<RowOwnerChangedEvent>(body);
             var context = session.AddEvent(evt);
             OnNewEventArrived?.Invoke(context, evt);
         }
 
-        private void HandleRowValueChangedEvent(DiagnosticsSession session, string body)
+        private void HandleRowValueChangedEvent(Session session, string body)
         {
             var evt = JsonSerializer.Deserialize<RowValueChangedEvent>(body);
 
@@ -160,7 +161,7 @@
             OnNewEventArrived?.Invoke(context, evt);
         }
 
-        private void HandleRowStoredEvent(DiagnosticsSession session, string body)
+        private void HandleRowStoredEvent(Session session, string body)
         {
             var evt = JsonSerializer.Deserialize<RowStoredEvent>(body);
 
@@ -168,7 +169,7 @@
             OnNewEventArrived?.Invoke(context, evt);
         }
 
-        private void HandleLogEvent(DiagnosticsSession session, string body)
+        private void HandleLogEvent(Session session, string body)
         {
             var evt = JsonSerializer.Deserialize<LogEvent>(body);
 

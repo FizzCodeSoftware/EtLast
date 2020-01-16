@@ -10,7 +10,7 @@ namespace FizzCode.EtLast.Diagnostics.Windows
     {
         private readonly TabControl _sessionTabs;
         private readonly DiagnosticsStateManager _stateManager;
-        private readonly Dictionary<string, SessionTabManager> _sessionTabManagers = new Dictionary<string, SessionTabManager>();
+        private readonly Dictionary<string, SessionContainerManager> _sessionTabManagers = new Dictionary<string, SessionContainerManager>();
 
         public MainForm()
         {
@@ -28,14 +28,14 @@ namespace FizzCode.EtLast.Diagnostics.Windows
             _stateManager.Start();
         }
 
-        private void SessionCreated(DiagnosticsSession session)
+        private void SessionCreated(Session session)
         {
             Invoke((Action)delegate
             {
                 var sessionContainer = new TabPage(session.SessionId);
-                var manager = new SessionTabManager(_stateManager, session, sessionContainer);
+                var manager = new SessionContainerManager(_stateManager, session, sessionContainer);
                 _sessionTabManagers.Add(session.SessionId, manager);
-                _sessionTabs.Controls.Add(sessionContainer);
+                _sessionTabs.TabPages.Add(sessionContainer);
                 _sessionTabs.SelectedTab = sessionContainer;
             });
         }
@@ -44,7 +44,7 @@ namespace FizzCode.EtLast.Diagnostics.Windows
         {
             base.OnLoad(e);
 
-            this.MaximizeOnSecondaryScreen();
+            //this.MaximizeOnSecondaryScreen();
         }
     }
 }

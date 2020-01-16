@@ -8,17 +8,17 @@
     {
         public string Name { get; }
 
-        public DiagnosticsSession Session { get; }
+        public Session Session { get; }
         public SessionContext ParentContext { get; }
         public List<SessionContext> ChildContextList { get; } = new List<SessionContext>();
         public Dictionary<string, SessionContext> ChildContextListByName { get; } = new Dictionary<string, SessionContext>();
-        public Playbook Playbook { get; }
+        public Playbook WholePlaybook { get; }
 
-        public SessionContext(DiagnosticsSession session, string name, SessionContext parentContext = null)
+        public SessionContext(Session session, string name, SessionContext parentContext = null)
         {
             Session = session;
             Name = name;
-            Playbook = new Playbook(this);
+            WholePlaybook = new Playbook(this);
             ParentContext = parentContext;
         }
 
@@ -33,7 +33,7 @@
                     if (ParentContext != null)
                         return ParentContext.FullName + "/" + Name;
 
-                    _fullName = Session.SessionId + "/" + Name;
+                    _fullName = Name;
                 }
 
                 return _fullName;

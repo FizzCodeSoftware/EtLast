@@ -12,11 +12,14 @@
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public Control Container { get; }
+        public Session Session { get; }
+
         private readonly RichTextBox _output;
 
-        public LogManager(DiagnosticsStateManager stateManager, Control container)
+        public LogManager(DiagnosticsStateManager stateManager, Control container, Session session)
         {
             Container = container;
+            Session = session;
 
             _output = new RichTextBox
             {
@@ -25,23 +28,20 @@
                 ReadOnly = true,
                 BackColor = Color.Black,
                 ForeColor = Color.LightGray,
-                Font = new Font("CONSOLAS", 11.0f)
+                Font = new Font("CONSOLAS", 11.0f),
+                HideSelection = false,
             };
 
-            stateManager.OnSessionCreated += SessionCreated;
-            stateManager.OnNewEventArrived += NewEventArrived;
-        }
+            _output.AppendText("[SESSION STARTED] [" + Session.SessionId + "]" + Environment.NewLine);
 
-        private void SessionCreated(DiagnosticsSession session)
-        {
-            _output.Invoke((MethodInvoker)delegate
-            {
-                _output.AppendText("[SESSION STARTED] [" + session.SessionId + "]" + Environment.NewLine);
-            });
+            stateManager.OnNewEventArrived += NewEventArrived;
         }
 
         private void NewEventArrived(SessionContext context, AbstractEvent abstractEvent)
         {
+            if (Session != null && context.Session != Session)
+                return;
+
             switch (abstractEvent)
             {
                 case RowCreatedEvent evt:
