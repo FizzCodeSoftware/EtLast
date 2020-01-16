@@ -7,15 +7,13 @@
     [DebuggerDisplay("{Name}")]
     public class TrackedProcess
     {
-        public string Uid { get; }
-        public string Name { get; }
+        public ProcessInfo Info { get; }
         public Dictionary<int, TrackedRow> AliveRowList { get; set; } = new Dictionary<int, TrackedRow>();
         public Dictionary<int, TrackedRow> DroppedRowList { get; set; } = new Dictionary<int, TrackedRow>();
 
-        public TrackedProcess(string uid, string name)
+        public TrackedProcess(ProcessInfo info)
         {
-            Uid = uid;
-            Name = name;
+            Info = info;
         }
 
         public void AddRow(TrackedRow row)

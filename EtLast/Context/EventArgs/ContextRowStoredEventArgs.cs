@@ -2,5 +2,5 @@
 {
     using System.Collections.Generic;
 
-    public delegate void ContextOnRowStoredDelegate(IRow row, List<KeyValuePair<string, string>> location);
+    public delegate void ContextOnRowStoredDelegate(IProcess process, IRowOperation operation, IRow row, List<KeyValuePair<string, string>> location);
 }

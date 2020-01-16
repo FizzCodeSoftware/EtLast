@@ -6,11 +6,7 @@
     {
         public int RowUid { get; set; }
         public List<KeyValuePair<string, string>> Locations { get; set; }
-    }
-
-    public class RowStoredEventLocation
-    {
-        public string Name { get; set; }
-        public string Value { get; set; }
+        public ProcessInfo Process { get; set; }
+        public OperationInfo Operation { get; set; }
     }
 }

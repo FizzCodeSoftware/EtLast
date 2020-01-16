@@ -49,9 +49,9 @@
                     {
                         _output.AppendText(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + context.FullName + "] [ROW-CREATED] ");
 
-                        if (evt.ProcessUid != null)
+                        if (evt.Process != null)
                         {
-                            _output.AppendText("<" + evt.ProcessName + "> ");
+                            _output.AppendText("<" + evt.Process.Name + "> ");
                         }
 
                         _output.AppendText("UID=" + evt.RowUid.ToString("D", CultureInfo.InvariantCulture));
@@ -97,14 +97,14 @@
                     {
                         _output.AppendText(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + context.FullName + "] [" + evt.Severity.ToShortString() + "] ");
 
-                        if (evt.ProcessUid != null)
+                        if (evt.Process != null)
                         {
-                            _output.AppendText("<" + evt.ProcessName + "> ");
+                            _output.AppendText("<" + evt.Process.Name + "> ");
                         }
 
-                        if (evt.OperationType != null)
+                        if (evt.Operation != null)
                         {
-                            _output.AppendText("(" + evt.OperationName + "/#" + evt.OperationNumber + ") ");
+                            _output.AppendText("(" + evt.Operation.Name + "/#" + evt.Operation.Number + ") ");
                         }
 
                         var text = evt.Text;
@@ -126,9 +126,9 @@
                     {
                         _output.AppendText(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + context.FullName + "] [ROW-OWNER-CHANGED] ");
 
-                        if (evt.NewProcessUid != null)
+                        if (evt.NewProcess.Uid != null)
                         {
-                            _output.AppendText("<" + evt.NewProcessName + "> ");
+                            _output.AppendText("<" + evt.NewProcess.Name + "> ");
                         }
 
                         _output.AppendText("UID=" + evt.RowUid.ToString("D", CultureInfo.InvariantCulture));

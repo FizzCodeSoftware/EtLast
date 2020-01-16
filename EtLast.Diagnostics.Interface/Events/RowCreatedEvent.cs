@@ -4,9 +4,7 @@
 
     public class RowCreatedEvent : AbstractEvent
     {
-        public string ProcessUid { get; set; }
-        public string ProcessName { get; set; }
-
+        public ProcessInfo Process { get; set; }
         public int RowUid { get; set; }
         public List<NamedArgument> Values { get; set; }
     }

@@ -4,11 +4,8 @@
 
     public class LogEvent : AbstractEvent
     {
-        public string ProcessUid { get; set; }
-        public string ProcessName { get; set; }
-        public string OperationType { get; set; }
-        public int? OperationNumber { get; set; }
-        public string OperationName { get; set; }
+        public ProcessInfo Process { get; set; }
+        public OperationInfo Operation { get; set; }
         public string Text { get; set; }
         public LogSeverity Severity { get; set; }
         public NamedArgument[] Arguments { get; set; }

@@ -102,11 +102,18 @@
                             ? new string[] { ModuleConfiguration.ModuleName, CurrentPlugin.Name }
                             : new string[] { ModuleConfiguration.ModuleName },
                         ForOps = forOps,
-                        ProcessName = process?.Name,
-                        ProcessUid = process?.UID,
-                        OperationName = operation?.Name,
-                        OperationType = operation != null ? TypeHelpers.GetFriendlyTypeName(operation.GetType()) : null,
-                        OperationNumber = operation?.Number,
+                        Process = process == null ? null : new Diagnostics.Interface.ProcessInfo()
+                        {
+                            Uid = process.UID,
+                            Type = TypeHelpers.GetFriendlyTypeName(process.GetType()),
+                            Name = process.Name,
+                        },
+                        Operation = operation == null ? null : new Diagnostics.Interface.OperationInfo()
+                        {
+                            Number = operation.Number,
+                            Type = TypeHelpers.GetFriendlyTypeName(operation.GetType()),
+                            Name = operation.Name,
+                        }
                     });
 
                     return;
@@ -137,11 +144,18 @@
                         ? new string[] { ModuleConfiguration.ModuleName, CurrentPlugin.Name }
                         : new string[] { ModuleConfiguration.ModuleName },
                     ForOps = forOps,
-                    ProcessName = process?.Name,
-                    ProcessUid = process?.UID,
-                    OperationName = operation?.Name,
-                    OperationType = operation != null ? TypeHelpers.GetFriendlyTypeName(operation.GetType()) : null,
-                    OperationNumber = operation?.Number,
+                    Process = process == null ? null : new Diagnostics.Interface.ProcessInfo()
+                    {
+                        Uid = process.UID,
+                        Type = TypeHelpers.GetFriendlyTypeName(process.GetType()),
+                        Name = process.Name,
+                    },
+                    Operation = operation == null ? null : new Diagnostics.Interface.OperationInfo()
+                    {
+                        Number = operation.Number,
+                        Type = TypeHelpers.GetFriendlyTypeName(operation.GetType()),
+                        Name = operation.Name,
+                    },
                     Arguments = arguments,
                 });
             }
@@ -283,8 +297,12 @@
                 ContextName = CurrentPlugin != null
                    ? new string[] { ModuleConfiguration.ModuleName, CurrentPlugin.Name }
                    : new string[] { ModuleConfiguration.ModuleName },
-                ProcessUid = creatorProcess?.UID,
-                ProcessName = creatorProcess?.Name,
+                Process = creatorProcess == null ? null : new Diagnostics.Interface.ProcessInfo()
+                {
+                    Uid = creatorProcess.UID,
+                    Type = TypeHelpers.GetFriendlyTypeName(creatorProcess.GetType()),
+                    Name = creatorProcess.Name,
+                },
                 RowUid = row.UID,
                 Values = row.Values.Select(x => Diagnostics.Interface.NamedArgument.FromObject(x.Key, x.Value)).ToList(),
             });
@@ -299,14 +317,22 @@
                    ? new string[] { ModuleConfiguration.ModuleName, CurrentPlugin.Name }
                    : new string[] { ModuleConfiguration.ModuleName },
                 RowUid = row.UID,
-                PreviousProcessUid = previousProcess?.UID,
-                PreviousProcessName = previousProcess?.Name,
-                NewProcessUid = currentProcess?.UID,
-                NewProcessName = currentProcess?.Name,
+                PreviousProcess = previousProcess == null ? null : new Diagnostics.Interface.ProcessInfo()
+                {
+                    Uid = previousProcess.UID,
+                    Type = TypeHelpers.GetFriendlyTypeName(previousProcess.GetType()),
+                    Name = previousProcess.Name,
+                },
+                NewProcess = currentProcess == null ? null : new Diagnostics.Interface.ProcessInfo()
+                {
+                    Uid = currentProcess.UID,
+                    Type = TypeHelpers.GetFriendlyTypeName(currentProcess.GetType()),
+                    Name = currentProcess.Name,
+                },
             });
         }
 
-        private void LifecycleRowStored(IRow row, List<KeyValuePair<string, string>> location)
+        private void LifecycleRowStored(IProcess process, IRowOperation operation, IRow row, List<KeyValuePair<string, string>> location)
         {
             DiagnosticsSender?.SendDiagnostics("row-stored", new Diagnostics.Interface.RowStoredEvent()
             {
@@ -316,6 +342,18 @@
                    : new string[] { ModuleConfiguration.ModuleName },
                 RowUid = row.UID,
                 Locations = location,
+                Process = process == null ? null : new Diagnostics.Interface.ProcessInfo()
+                {
+                    Uid = process.UID,
+                    Type = TypeHelpers.GetFriendlyTypeName(process.GetType()),
+                    Name = process.Name,
+                },
+                Operation = operation == null ? null : new Diagnostics.Interface.OperationInfo()
+                {
+                    Number = operation.Number,
+                    Type = TypeHelpers.GetFriendlyTypeName(operation.GetType()),
+                    Name = operation.Name,
+                },
             });
         }
 
@@ -331,8 +369,9 @@
                 Column = column,
                 PreviousValue = Diagnostics.Interface.Argument.FromObject(previousValue),
                 CurrentValue = Diagnostics.Interface.Argument.FromObject(currentValue),
-                ProcessName = process?.Name,
                 ProcessUid = process?.UID,
+                ProcessType = process != null ? TypeHelpers.GetFriendlyTypeName(process.GetType()) : null,
+                ProcessName = process?.Name,
                 OperationName = operation?.Name,
                 OperationType = operation != null ? TypeHelpers.GetFriendlyTypeName(operation.GetType()) : null,
                 OperationNumber = operation?.Number,

@@ -60,17 +60,17 @@
             if (_contextContainerManagers.ContainsKey(playbook.Context.FullName))
                 return;
 
-            var contextContainer = new TabPage(playbook.Context.Name);
-
-            var contextManager = new SessionContextContainerManager(playbook.Context, contextContainer);
-            _contextContainerManagers.Add(playbook.Context.FullName, contextManager);
-
-            _contextTabs?.Invoke(new Action(() =>
+            _contextTabs.Invoke(new Action(() =>
             {
-                _contextTabs.TabPages.Add(contextContainer);
-            }));
+                var contextContainer = new TabPage(playbook.Context.Name);
 
-            contextManager.OnProcessAdded(playbook, process);
+                var contextManager = new SessionContextContainerManager(playbook.Context, contextContainer);
+                _contextContainerManagers.Add(playbook.Context.FullName, contextManager);
+
+                _contextTabs.TabPages.Add(contextContainer);
+
+                contextManager.OnProcessAdded(playbook, process);
+            }));
         }
 
         private void Container_Resize(object sender, EventArgs e)

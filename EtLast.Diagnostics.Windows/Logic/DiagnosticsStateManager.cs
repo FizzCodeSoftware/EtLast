@@ -15,7 +15,6 @@
 
     internal class DiagnosticsStateManager : IDisposable
     {
-        public string UriPrefix { get; }
         public OnSessionCreatedDelegate OnSessionCreated { get; set; }
         public OnNewEventArrivedDelegate OnNewEventArrived { get; set; }
 
@@ -25,9 +24,8 @@
 
         public DiagnosticsStateManager(string uriPrefix)
         {
-            UriPrefix = uriPrefix;
             _listener = new HttpListener();
-            _listener.Prefixes.Add(UriPrefix);
+            _listener.Prefixes.Add(uriPrefix);
         }
 
         public void Start()
@@ -153,7 +151,6 @@
         private void HandleRowValueChangedEvent(Session session, string body)
         {
             var evt = JsonSerializer.Deserialize<RowValueChangedEvent>(body);
-
             evt.PreviousValue.CalculateValue();
             evt.CurrentValue.CalculateValue();
 
@@ -164,7 +161,6 @@
         private void HandleRowStoredEvent(Session session, string body)
         {
             var evt = JsonSerializer.Deserialize<RowStoredEvent>(body);
-
             var context = session.AddEvent(evt);
             OnNewEventArrived?.Invoke(context, evt);
         }
@@ -172,7 +168,6 @@
         private void HandleLogEvent(Session session, string body)
         {
             var evt = JsonSerializer.Deserialize<LogEvent>(body);
-
             if (evt.Arguments != null)
             {
                 foreach (var arg in evt.Arguments)

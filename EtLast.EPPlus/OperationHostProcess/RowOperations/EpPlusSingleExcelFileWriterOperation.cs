@@ -34,7 +34,7 @@
             {
                 Action.Invoke(row, _excelPackage, _state);
 
-                Process.Context.OnRowStored?.Invoke(row, new List<KeyValuePair<string, string>>()
+                Process.Context.OnRowStored?.Invoke(Process, this, row, new List<KeyValuePair<string, string>>()
                 {
                     new KeyValuePair<string, string>("File", PathHelpers.GetFriendlyPathName(FileName)),
                     new KeyValuePair<string, string>("Sheet", _state.LastWorksheet?.Name),

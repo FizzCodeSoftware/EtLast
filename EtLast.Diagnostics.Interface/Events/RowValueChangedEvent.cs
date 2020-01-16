@@ -9,6 +9,7 @@
         public Argument CurrentValue { get; set; }
 
         public string ProcessUid { get; set; }
+        public string ProcessType { get; set; }
         public string ProcessName { get; set; }
         public string OperationType { get; set; }
         public int? OperationNumber { get; set; }

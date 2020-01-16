@@ -47,10 +47,10 @@
 
                         RowList[row.Uid] = row;
 
-                        if (!ProcessList.TryGetValue(evt.ProcessUid, out var process))
+                        if (!ProcessList.TryGetValue(evt.Process.Uid, out var process))
                         {
-                            process = new TrackedProcess(evt.ProcessUid, evt.ProcessName);
-                            ProcessList.Add(evt.ProcessUid, process);
+                            process = new TrackedProcess(evt.Process);
+                            ProcessList.Add(evt.Process.Uid, process);
                             OnProcessAdded?.Invoke(this, process);
                         }
 
@@ -63,19 +63,19 @@
                         {
                             row.AllEvents.Add(evt);
 
-                            if (!ProcessList.TryGetValue(evt.PreviousProcessUid, out var previousProcess))
+                            if (!ProcessList.TryGetValue(evt.PreviousProcess.Uid, out var previousProcess))
                             {
-                                previousProcess = new TrackedProcess(evt.PreviousProcessUid, evt.PreviousProcessName);
-                                ProcessList.Add(evt.PreviousProcessUid, previousProcess);
+                                previousProcess = new TrackedProcess(evt.PreviousProcess);
+                                ProcessList.Add(evt.PreviousProcess.Uid, previousProcess);
                                 OnProcessAdded?.Invoke(this, previousProcess);
                             }
 
-                            if (!string.IsNullOrEmpty(evt.NewProcessUid))
+                            if (evt.NewProcess != null)
                             {
-                                if (!ProcessList.TryGetValue(evt.NewProcessUid, out var newProcess))
+                                if (!ProcessList.TryGetValue(evt.NewProcess.Uid, out var newProcess))
                                 {
-                                    newProcess = new TrackedProcess(evt.NewProcessUid, evt.NewProcessName);
-                                    ProcessList.Add(evt.NewProcessUid, newProcess);
+                                    newProcess = new TrackedProcess(evt.NewProcess);
+                                    ProcessList.Add(evt.NewProcess.Uid, newProcess);
                                     OnProcessAdded?.Invoke(this, newProcess);
                                 }
 
@@ -109,6 +109,13 @@
                     {
                         if (RowList.TryGetValue(evt.RowUid, out var row))
                         {
+                            if (!ProcessList.TryGetValue(evt.Process.Uid, out var process))
+                            {
+                                process = new TrackedProcess(evt.Process);
+                                ProcessList.Add(evt.Process.Uid, process);
+                                OnProcessAdded?.Invoke(this, process);
+                            }
+
                             row.AllEvents.Add(evt);
                             var storePath = string.Join("/", evt.Locations.Select(x => x.Value));
                             if (!StoreList.TryGetValue(storePath, out var store))

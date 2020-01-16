@@ -23,7 +23,7 @@
             if (If?.Invoke(row) == false)
                 return;
 
-            Process.Context.OnRowStored?.Invoke(row, new List<KeyValuePair<string, string>>()
+            Process.Context.OnRowStored?.Invoke(Process, this, row, new List<KeyValuePair<string, string>>()
             {
                 new KeyValuePair<string, string>("File", PathHelpers.GetFriendlyPathName(FileName)),
                 new KeyValuePair<string, string>("Sheet", SheetName),
