@@ -10,17 +10,16 @@
 
     internal static class ModuleExecuter
     {
-        public static ExecutionResult Execute(CommandContext commandContext, Module module)
+        public static ExecutionResult Execute(CommandContext commandContext, params Module[] modules)
         {
             var result = ExecutionResult.Success;
 
             var sessionId = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture).Substring(0, 6);
 
-            IModuleLogger logger = new SerilogModuleLogger()
+            ISessionLogger sessionLogger = new SerilogSessionLogger()
             {
                 Logger = commandContext.Logger,
                 OpsLogger = commandContext.OpsLogger,
-                ModuleConfiguration = module.ModuleConfiguration,
                 DiagnosticsSender = commandContext.HostConfiguration.DiagnosticsUri != null
                     ? new HttpDiagnosticsSender(sessionId, commandContext.HostConfiguration.DiagnosticsUri)
                     : null,
@@ -28,73 +27,76 @@
 
             GC.Collect();
 
-            var moduleStartedOn = Stopwatch.StartNew();
-            var moduleStartCpuTime = GetCpuTime();
-            var moduleStartTotalAllocatedBytes = GetTotalAllocatedBytes();
-            var moduleStartCurrentAllocatedBytes = GetCurrentAllocatedBytes();
-            var moduleCounterCollection = new StatCounterCollection();
-            var moduleWarningCount = 0;
-            var moduleExceptionCount = 0;
+            var sessionStartedOn = Stopwatch.StartNew();
+            var sessionStartCpuTime = GetCpuTime();
+            var sessionStartTotalAllocatedBytes = GetTotalAllocatedBytes();
+            var sessionStartCurrentAllocatedBytes = GetCurrentAllocatedBytes();
+            var sessionCounterCollection = new StatCounterCollection();
+            var sessionWarningCount = 0;
+            var sessionExceptionCount = 0;
+
+            var pluginInformation = new List<SessionPluginInfo>();
+            foreach (var module in modules)
+            {
+                foreach (var plugin in module.EnabledPlugins)
+                {
+                    pluginInformation.Add(new SessionPluginInfo()
+                    {
+                        Module = module,
+                        Plugin = plugin,
+                    });
+                }
+            }
 
             try
             {
-                var runTimes = new List<TimeSpan>();
-                var pluginResults = new List<EtlContextResult>();
-                var cpuTimes = new List<TimeSpan>();
-                var pluginTotalAllocations = new List<long>();
-                var pluginAllocationDifferences = new List<long>();
+                sessionLogger.Log(LogSeverity.Information, false, null, null, "session {SessionId} started", sessionId);
 
-                logger.Log(LogSeverity.Information, false, null, null, "module started, session: {SessionId}", sessionId);
-
-                foreach (var plugin in module.EnabledPlugins)
+                foreach (var pluginInfo in pluginInformation)
                 {
                     var pluginStartedOn = Stopwatch.StartNew();
-                    var friendlyPluginName = TypeHelpers.GetFriendlyTypeName(plugin.GetType());
+                    //var friendlyPluginName = TypeHelpers.GetFriendlyTypeName(pluginInfo.Plugin.GetType());
 
-                    var pluginContext = new EtlContext(moduleCounterCollection)
+                    pluginInfo.Context = new EtlContext(sessionCounterCollection)
                     {
                         TransactionScopeTimeout = commandContext.HostConfiguration.TransactionScopeTimeout,
                     };
 
-                    pluginResults.Add(pluginContext.Result);
+                    sessionLogger.SetCurrentPlugin(pluginInfo.Module, pluginInfo.Plugin);
+                    sessionLogger.SetupContextEvents(pluginInfo.Context);
 
-                    logger.SetCurrentPlugin(plugin);
-                    logger.SetupContextEvents(pluginContext);
-
-                    logger.Log(LogSeverity.Information, false, null, null, "plugin started");
+                    sessionLogger.Log(LogSeverity.Information, false, null, null, "plugin started");
 
                     GC.Collect();
-                    var pluginStartCpuTime = GetCpuTime();
-                    var pluginStartTotalAllocatedBytes = GetTotalAllocatedBytes();
-                    var pluginStartCurrentAllocatedBytes = GetCurrentAllocatedBytes();
-
+                    pluginInfo.CpuTimeStart = GetCpuTime();
+                    pluginInfo.TotalAllocationsStart = GetTotalAllocatedBytes();
+                    pluginInfo.AllocationDifferenceStart = GetCurrentAllocatedBytes();
                     try
                     {
                         try
                         {
-                            plugin.Init(pluginContext, module.ModuleConfiguration);
-                            plugin.Execute();
+                            pluginInfo.Plugin.Init(pluginInfo.Context, pluginInfo.Module.ModuleConfiguration);
+                            pluginInfo.Plugin.Execute();
 
-                            moduleWarningCount += pluginContext.Result.WarningCount;
-                            moduleExceptionCount += pluginContext.Result.Exceptions.Count;
+                            sessionWarningCount += pluginInfo.Context.Result.WarningCount;
+                            sessionExceptionCount += pluginInfo.Context.Result.Exceptions.Count;
 
-                            if (pluginContext.Result.TerminateHost)
+                            if (pluginInfo.Context.Result.TerminateHost)
                             {
-                                logger.Log(LogSeverity.Error, false, null, null, "requested to terminate the execution of the module");
+                                sessionLogger.Log(LogSeverity.Error, false, null, null, "requested to terminate the execution of the module");
 
                                 result = ExecutionResult.PluginFailedAndExecutionTerminated;
 
                                 pluginStartedOn.Stop();
-                                runTimes.Add(pluginStartedOn.Elapsed);
+                                pluginInfo.RunTime = pluginStartedOn.Elapsed;
                                 GC.Collect();
-                                cpuTimes.Add(GetCpuTime().Subtract(pluginStartCpuTime));
-                                pluginTotalAllocations.Add(GetTotalAllocatedBytes() - pluginStartTotalAllocatedBytes);
-                                pluginAllocationDifferences.Add(GetCurrentAllocatedBytes() - pluginStartCurrentAllocatedBytes);
-
+                                pluginInfo.CpuTimeFinish = GetCpuTime();
+                                pluginInfo.TotalAllocationsFinish = GetTotalAllocatedBytes();
+                                pluginInfo.AllocationDifferenceFinish = GetCurrentAllocatedBytes();
                                 break; // stop processing plugins
                             }
 
-                            if (!pluginContext.Result.Success)
+                            if (!pluginInfo.Context.Result.Success)
                             {
                                 result = ExecutionResult.PluginFailed;
                             }
@@ -103,16 +105,15 @@
                         {
                             result = ExecutionResult.PluginFailedAndExecutionTerminated;
 
-                            logger.Log(LogSeverity.Error, false, null, null, "unhandled error during plugin execution after {Elapsed}", pluginStartedOn.Elapsed);
-                            logger.Log(LogSeverity.Error, true, null, null, "requested to terminate the execution of the module: {Message}", ex.Message);
+                            sessionLogger.Log(LogSeverity.Error, false, null, null, "unhandled error during plugin execution after {Elapsed}", pluginStartedOn.Elapsed);
+                            sessionLogger.Log(LogSeverity.Error, true, null, null, "requested to terminate the execution of the module: {Message}", ex.Message);
 
                             pluginStartedOn.Stop();
-                            runTimes.Add(pluginStartedOn.Elapsed);
+                            pluginInfo.RunTime = pluginStartedOn.Elapsed;
                             GC.Collect();
-                            cpuTimes.Add(GetCpuTime().Subtract(pluginStartCpuTime));
-                            pluginTotalAllocations.Add(GetTotalAllocatedBytes() - pluginStartTotalAllocatedBytes);
-                            pluginAllocationDifferences.Add(GetCurrentAllocatedBytes() - pluginStartCurrentAllocatedBytes);
-
+                            pluginInfo.CpuTimeFinish = GetCpuTime();
+                            pluginInfo.TotalAllocationsFinish = GetTotalAllocatedBytes();
+                            pluginInfo.AllocationDifferenceFinish = GetCurrentAllocatedBytes();
                             break; // stop processing plugins
                         }
                     }
@@ -121,78 +122,78 @@
                     }
 
                     pluginStartedOn.Stop();
-                    runTimes.Add(pluginStartedOn.Elapsed);
+                    pluginInfo.RunTime = pluginStartedOn.Elapsed;
                     GC.Collect();
-                    cpuTimes.Add(GetCpuTime().Subtract(pluginStartCpuTime));
-                    pluginTotalAllocations.Add(GetTotalAllocatedBytes() - pluginStartTotalAllocatedBytes);
-                    pluginAllocationDifferences.Add(GetCurrentAllocatedBytes() - pluginStartCurrentAllocatedBytes);
+                    pluginInfo.CpuTimeFinish = GetCpuTime();
+                    pluginInfo.TotalAllocationsFinish = GetTotalAllocatedBytes();
+                    pluginInfo.AllocationDifferenceFinish = GetCurrentAllocatedBytes();
 
-                    logger.Log(LogSeverity.Information, false, null, null, "plugin finished in {Elapsed}", pluginStartedOn.Elapsed);
-                    LogCounters(pluginContext.CounterCollection, logger);
+                    sessionLogger.Log(LogSeverity.Information, false, null, null, "plugin finished in {Elapsed}", pluginStartedOn.Elapsed);
+                    LogCounters(pluginInfo.Context.CounterCollection, sessionLogger);
                 }
 
-                logger.SetCurrentPlugin(null);
+                sessionLogger.SetCurrentPlugin(null, null);
 
-                LogCounters(moduleCounterCollection, logger);
+                LogCounters(sessionCounterCollection, sessionLogger);
 
-                logger.Log(LogSeverity.Information, false, null, null, "---------------------");
-                logger.Log(LogSeverity.Information, false, null, null, "PLUGIN RESULT SUMMARY");
-                logger.Log(LogSeverity.Information, false, null, null, "---------------------");
+                sessionLogger.Log(LogSeverity.Information, false, null, null, "--------------");
+                sessionLogger.Log(LogSeverity.Information, false, null, null, "PLUGIN SUMMARY");
+                sessionLogger.Log(LogSeverity.Information, false, null, null, "--------------");
 
-                for (var i = 0; i < Math.Min(module.EnabledPlugins.Count, pluginResults.Count); i++)
+                foreach (var pluginInfo in pluginInformation)
                 {
-                    var plugin = module.EnabledPlugins[i];
-                    var pluginResult = pluginResults[i];
+                    if (pluginInfo.Context == null)
+                        continue;
 
-                    if (pluginResult.Success)
+                    if (pluginInfo.Context.Result.Success)
                     {
-                        logger.Log(LogSeverity.Information, false, null, null, "{Plugin} run-time is {Elapsed}, status is {Status}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
-                            plugin.Name, runTimes[i], "success", cpuTimes[i], pluginTotalAllocations[i], pluginAllocationDifferences[i]);
+                        sessionLogger.Log(LogSeverity.Information, false, null, null, "{Plugin} run-time is {Elapsed}, status is {Status}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
+                            pluginInfo.Plugin.Name, pluginInfo.RunTime, "success", pluginInfo.CpuTime, pluginInfo.TotalAllocations, pluginInfo.AllocationDifference);
                     }
                     else
                     {
-                        logger.Log(LogSeverity.Information, false, null, null, "{Plugin} run-time is {Elapsed}, status is {Status}, requested to terminate execution: {TerminateHost}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
-                            plugin.Name, runTimes[i], "failed", pluginResult.TerminateHost, cpuTimes[i], pluginTotalAllocations[i], pluginAllocationDifferences[i]);
+                        sessionLogger.Log(LogSeverity.Information, false, null, null, "{Plugin} run-time is {Elapsed}, status is {Status}, requested to terminate execution: {TerminateHost}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
+                            pluginInfo.Plugin.Name, pluginInfo.RunTime, "failed", pluginInfo.Context.Result.TerminateHost, pluginInfo.CpuTime, pluginInfo.TotalAllocations, pluginInfo.AllocationDifference);
                     }
                 }
 
-                logger.SetCurrentPlugin(null);
+                sessionLogger.SetCurrentPlugin(null, null);
 
-                logger.Log(LogSeverity.Information, false, null, null, "---------------------");
-                logger.Log(LogSeverity.Information, false, null, null, "MODULE RESULT SUMMARY");
-                logger.Log(LogSeverity.Information, false, null, null, "---------------------");
+                sessionLogger.Log(LogSeverity.Information, false, null, null, "---------------");
+                sessionLogger.Log(LogSeverity.Information, false, null, null, "SESSION SUMMARY");
+                sessionLogger.Log(LogSeverity.Information, false, null, null, "---------------");
 
-                if (moduleWarningCount > 0)
+                if (sessionWarningCount > 0)
                 {
-                    logger.Log(LogSeverity.Warning, false, null, null, "{Count} warnings/errors occured",
-                        moduleWarningCount);
+                    sessionLogger.Log(LogSeverity.Warning, false, null, null, "{Count} warnings/errors occured",
+                        sessionWarningCount);
                 }
 
-                if (moduleExceptionCount > 0)
+                if (sessionExceptionCount > 0)
                 {
-                    logger.Log(LogSeverity.Warning, false, null, null, "{Count} exceptions raised",
-                        moduleExceptionCount);
+                    sessionLogger.Log(LogSeverity.Warning, false, null, null, "{Count} exceptions raised",
+                        sessionExceptionCount);
                 }
 
                 GC.Collect();
 
-                logger.Log(LogSeverity.Information, false, null, null, "run-time is {Elapsed}, result is {Result}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
-                    moduleStartedOn.Elapsed, result, GetCpuTime().Subtract(moduleStartCpuTime), GetTotalAllocatedBytes() - moduleStartTotalAllocatedBytes, GetCurrentAllocatedBytes() - moduleStartCurrentAllocatedBytes);
+                sessionLogger.Log(LogSeverity.Information, false, null, null, "run-time is {Elapsed}, result is {Result}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
+                    sessionStartedOn.Elapsed, result, GetCpuTime().Subtract(sessionStartCpuTime), GetTotalAllocatedBytes() - sessionStartTotalAllocatedBytes, GetCurrentAllocatedBytes() - sessionStartCurrentAllocatedBytes);
             }
             catch (TransactionAbortedException)
             {
             }
 
-            if (logger.DiagnosticsSender != null)
+            if (sessionLogger.DiagnosticsSender != null)
             {
-                logger.DiagnosticsSender.Flush();
-                logger.DiagnosticsSender.Dispose();
+                sessionLogger.DiagnosticsSender.Flush();
+                sessionLogger.DiagnosticsSender.Dispose();
             }
 
             return result;
         }
 
-        private static void LogCounters(StatCounterCollection counterCollection, IModuleLogger logger)
+        private static void LogCounters(StatCounterCollection counterCollection, ISessionLogger logger)
         {
             var counters = counterCollection.GetCounters()
                 .Where(counter => !counter.IsDebug)
@@ -203,9 +204,9 @@
 
             if (logger.CurrentPlugin == null)
             {
-                logger.Log(LogSeverity.Information, false, null, null, "---------------");
-                logger.Log(LogSeverity.Information, false, null, null, "MODULE COUNTERS");
-                logger.Log(LogSeverity.Information, false, null, null, "---------------");
+                logger.Log(LogSeverity.Information, false, null, null, "----------------");
+                logger.Log(LogSeverity.Information, false, null, null, "SESSION COUNTERS");
+                logger.Log(LogSeverity.Information, false, null, null, "----------------");
             }
             else
             {
@@ -234,6 +235,26 @@
         private static long GetTotalAllocatedBytes()
         {
             return GC.GetTotalAllocatedBytes(true);
+        }
+
+        private class SessionPluginInfo
+        {
+            public IEtlPlugin Plugin { get; set; }
+            public Module Module { get; set; }
+            public TimeSpan RunTime { get; set; }
+            public EtlContext Context { get; set; }
+
+            public TimeSpan CpuTimeStart { get; set; }
+            public long TotalAllocationsStart { get; set; }
+            public long AllocationDifferenceStart { get; set; }
+
+            public TimeSpan CpuTimeFinish { get; set; }
+            public long TotalAllocationsFinish { get; set; }
+            public long AllocationDifferenceFinish { get; set; }
+
+            public TimeSpan CpuTime => CpuTimeFinish.Subtract(CpuTimeStart);
+            public long TotalAllocations => TotalAllocationsFinish - TotalAllocationsStart;
+            public long AllocationDifference => AllocationDifferenceFinish - AllocationDifferenceStart;
         }
     }
 }

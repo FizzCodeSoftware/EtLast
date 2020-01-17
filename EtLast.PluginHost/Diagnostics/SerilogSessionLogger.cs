@@ -11,11 +11,10 @@
     using Serilog.Events;
     using Serilog.Parsing;
 
-    public class SerilogModuleLogger : IModuleLogger
+    internal class SerilogSessionLogger : ISessionLogger
     {
         public ILogger Logger { get; set; }
         public ILogger OpsLogger { get; set; }
-        public ModuleConfiguration ModuleConfiguration { get; set; }
         public IDiagnosticsSender DiagnosticsSender { get; set; }
 
         private readonly object _customFileLock = new object();
@@ -24,10 +23,12 @@
         private readonly object _messageTemplateCacheLock = new object();
         private readonly MessageTemplateParser _messageTemplateParser = new MessageTemplateParser();
 
+        public Module CurrentModule { get; private set; }
         public IEtlPlugin CurrentPlugin { get; private set; }
 
-        public void SetCurrentPlugin(IEtlPlugin plugin)
+        public void SetCurrentPlugin(Module module, IEtlPlugin plugin)
         {
+            CurrentModule = module;
             CurrentPlugin = plugin;
         }
 
@@ -58,10 +59,9 @@
             if (string.IsNullOrEmpty(ident))
                 ident = " ";
 
-            var values = new List<object>
-            {
-                ModuleConfiguration.ModuleName,
-            };
+            var values = new List<object>();
+            if (CurrentModule != null)
+                values.Add(CurrentModule.ModuleConfiguration.ModuleName);
 
             if (CurrentPlugin != null)
                 values.Add(CurrentPlugin.Name);
@@ -81,12 +81,10 @@
 
             logger.Write(
                 (LogEventLevel)severity,
-                "[{Module}"
-                    + (CurrentPlugin != null ? "/{Plugin}]" : "]")
-                    + ident
-                    + (process != null ? "<{ActiveProcess}> " : "")
-                    + (operation != null ? "({Operation}) " : "")
-                    + text,
+                (CurrentPlugin != null ? "[{Module}/{Plugin}]" + ident : "")
+                + (process != null ? "<{ActiveProcess}> " : "")
+                + (operation != null ? "({Operation}) " : "")
+                + text,
                 values.ToArray());
 
             if (DiagnosticsSender != null)
@@ -99,8 +97,10 @@
                         Text = text,
                         Severity = severity,
                         ContextName = CurrentPlugin != null
-                            ? new string[] { ModuleConfiguration.ModuleName, CurrentPlugin.Name }
-                            : new string[] { ModuleConfiguration.ModuleName },
+                            ? new string[] { CurrentModule.ModuleConfiguration.ModuleName, CurrentPlugin.Name }
+                            : CurrentModule != null
+                                ? new string[] { CurrentModule.ModuleConfiguration.ModuleName }
+                                : new string[] { "session" },
                         ForOps = forOps,
                         Process = process == null ? null : new Diagnostics.Interface.ProcessInfo()
                         {
@@ -141,8 +141,10 @@
                     Text = text,
                     Severity = severity,
                     ContextName = CurrentPlugin != null
-                        ? new string[] { ModuleConfiguration.ModuleName, CurrentPlugin.Name }
-                        : new string[] { ModuleConfiguration.ModuleName },
+                            ? new string[] { CurrentModule.ModuleConfiguration.ModuleName, CurrentPlugin.Name }
+                            : CurrentModule != null
+                                ? new string[] { CurrentModule.ModuleConfiguration.ModuleName }
+                                : new string[] { "session" },
                     ForOps = forOps,
                     Process = process == null ? null : new Diagnostics.Interface.ProcessInfo()
                     {
@@ -276,9 +278,7 @@
             var filePath = Path.Combine(logsFolder, fileName);
 
             var line = new StringBuilder()
-                .Append(ModuleConfiguration.ModuleName)
-                .Append("\t")
-                .Append(CurrentPlugin != null ? CurrentPlugin.Name + "\t" : "")
+                .Append(CurrentPlugin != null ? (CurrentPlugin.ModuleConfiguration.ModuleName + "\t" + CurrentPlugin.Name + "\t") : "")
                 .Append(process != null ? process.Name + "\t" : "")
                 .AppendFormat(CultureInfo.InvariantCulture, text, args)
                 .ToString();
@@ -295,8 +295,10 @@
             {
                 Timestamp = DateTime.Now.Ticks,
                 ContextName = CurrentPlugin != null
-                   ? new string[] { ModuleConfiguration.ModuleName, CurrentPlugin.Name }
-                   : new string[] { ModuleConfiguration.ModuleName },
+                            ? new string[] { CurrentModule.ModuleConfiguration.ModuleName, CurrentPlugin.Name }
+                            : CurrentModule != null
+                                ? new string[] { CurrentModule.ModuleConfiguration.ModuleName }
+                                : new string[] { "session" },
                 Process = creatorProcess == null ? null : new Diagnostics.Interface.ProcessInfo()
                 {
                     Uid = creatorProcess.UID,
@@ -314,8 +316,10 @@
             {
                 Timestamp = DateTime.Now.Ticks,
                 ContextName = CurrentPlugin != null
-                   ? new string[] { ModuleConfiguration.ModuleName, CurrentPlugin.Name }
-                   : new string[] { ModuleConfiguration.ModuleName },
+                            ? new string[] { CurrentModule.ModuleConfiguration.ModuleName, CurrentPlugin.Name }
+                            : CurrentModule != null
+                                ? new string[] { CurrentModule.ModuleConfiguration.ModuleName }
+                                : new string[] { "session" },
                 RowUid = row.UID,
                 PreviousProcess = previousProcess == null ? null : new Diagnostics.Interface.ProcessInfo()
                 {
@@ -338,8 +342,10 @@
             {
                 Timestamp = DateTime.Now.Ticks,
                 ContextName = CurrentPlugin != null
-                   ? new string[] { ModuleConfiguration.ModuleName, CurrentPlugin.Name }
-                   : new string[] { ModuleConfiguration.ModuleName },
+                            ? new string[] { CurrentModule.ModuleConfiguration.ModuleName, CurrentPlugin.Name }
+                            : CurrentModule != null
+                                ? new string[] { CurrentModule.ModuleConfiguration.ModuleName }
+                                : new string[] { "session" },
                 RowUid = row.UID,
                 Locations = location,
                 Process = process == null ? null : new Diagnostics.Interface.ProcessInfo()
@@ -363,8 +369,10 @@
             {
                 Timestamp = DateTime.Now.Ticks,
                 ContextName = CurrentPlugin != null
-                   ? new string[] { ModuleConfiguration.ModuleName, CurrentPlugin.Name }
-                   : new string[] { ModuleConfiguration.ModuleName },
+                            ? new string[] { CurrentModule.ModuleConfiguration.ModuleName, CurrentPlugin.Name }
+                            : CurrentModule != null
+                                ? new string[] { CurrentModule.ModuleConfiguration.ModuleName }
+                                : new string[] { "session" },
                 RowUid = row.UID,
                 Column = column,
                 PreviousValue = Diagnostics.Interface.Argument.FromObject(previousValue),

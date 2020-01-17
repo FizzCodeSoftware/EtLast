@@ -60,7 +60,6 @@
                 {
                     CommandLineHandler.Context.Logger.Warning("skipping module {Module} due to it has no enabled plugins", moduleName);
                     ModuleLoader.UnloadModule(CommandLineHandler.Context, module);
-
                     continue;
                 }
 
@@ -68,21 +67,14 @@
                 Console.WriteLine();
             }
 
+            ModuleExecuter.Execute(CommandLineHandler.Context, modules.ToArray());
+
             foreach (var module in modules)
             {
-                var result = ModuleExecuter.Execute(CommandLineHandler.Context, module);
                 ModuleLoader.UnloadModule(CommandLineHandler.Context, module);
-
-                if (result != ExecutionResult.Success)
-                {
-                    CommandLineHandler.Context.Logger.Warning("terminating the execution of all modules due to {Module} failed", module.ModuleConfiguration.ModuleName);
-                    break;
-                }
-
-                Console.WriteLine();
             }
         }
-    }
 #pragma warning restore CA1812 // Avoid uninstantiated internal classes
 #pragma warning restore CA1822 // Mark members as static
+    }
 }
