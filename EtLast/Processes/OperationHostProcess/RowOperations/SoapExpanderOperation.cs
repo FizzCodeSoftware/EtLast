@@ -50,14 +50,14 @@
                         }
 
                         CounterCollection.IncrementTimeSpan("SOAP time - success", startedOn.Elapsed);
-                        CounterCollection.IncrementCounter("SOAP requests - success", 1);
+                        CounterCollection.IncrementCounter("SOAP incovations - success", 1);
                         return;
                     }
                 }
                 catch (Exception)
                 {
                     CounterCollection.IncrementTimeSpan("SOAP time - failure", startedOn.Elapsed);
-                    CounterCollection.IncrementCounter("SOAP requests - failure", 1);
+                    CounterCollection.IncrementCounter("SOAP incovations - failure", 1);
                     _client = default;
                 }
             }

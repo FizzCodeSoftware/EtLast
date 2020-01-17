@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast.PluginHost
 {
-    using System;
     using System.Collections.Generic;
     using CommandDotNet;
 
@@ -64,7 +63,6 @@
                 }
 
                 modules.Add(module);
-                Console.WriteLine();
             }
 
             ModuleExecuter.Execute(CommandLineHandler.Context, modules.ToArray());

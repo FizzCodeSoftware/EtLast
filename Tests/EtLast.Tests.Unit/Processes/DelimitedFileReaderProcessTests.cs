@@ -30,6 +30,7 @@
                     new ReaderColumnConfiguration("Value4", "ValueDouble", new DoubleConverter(true))
                 },
                 HasHeaderRow = true,
+                TreatEmptyStringAsNull = false,
             };
 
             _process = new OperationHostProcess(context, "DelimitedFileReaderOperationProcess")

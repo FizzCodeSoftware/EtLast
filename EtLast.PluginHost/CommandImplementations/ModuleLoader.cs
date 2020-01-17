@@ -26,7 +26,7 @@
 
             if (moduleConfiguration.ConnectionStrings.All.Any())
             {
-                commandContext.Logger.Information("relevant connection strings for: {Module}", moduleName);
+                commandContext.Logger.Information("relevant connection strings");
 
                 foreach (var connectionString in moduleConfiguration.ConnectionStrings.All)
                 {

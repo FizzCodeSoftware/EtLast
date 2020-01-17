@@ -53,8 +53,6 @@
                 {
                     commandContext.Logger.Information("validation {ValidationResult} for {Module}", "FAILED", moduleName);
                 }
-
-                Console.WriteLine();
             }
         }
 

@@ -4,15 +4,19 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
 
     public class DelimitedFileReaderProcess : AbstractProducerProcess
     {
         public string FileName { get; set; }
 
         public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
-        public ReaderDefaultColumnConfiguration DefaultConfiguration { get; set; }
+        public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
 
-        public bool TreatEmptyStringAsNull { get; set; }
+        /// <summary>
+        /// Default true.
+        /// </summary>
+        public bool TreatEmptyStringAsNull { get; set; } = true;
 
         public bool HasHeaderRow { get; set; }
         public string[] ColumnNames { get; set; }
@@ -47,6 +51,8 @@
             }
 
             Context.Log(LogSeverity.Debug, this, "reading from {FileName}", PathHelpers.GetFriendlyPathName(FileName));
+
+            var columnConfig = ColumnConfiguration.ToDictionary(x => x.SourceColumn.ToLowerInvariant());
 
             using (var reader = new StreamReader(FileName))
             {
@@ -89,18 +95,17 @@
                             value = null;
                         }
 
-                        var columnConfiguration = ColumnConfiguration.Find(x => string.Equals(x.SourceColumn, columnNames[i], StringComparison.InvariantCultureIgnoreCase));
-
-                        if (columnConfiguration != null || DefaultConfiguration == null)
+                        columnConfig.TryGetValue(columnNames[i].ToLowerInvariant(), out var columnConfiguration);
+                        if (columnConfiguration != null)
                         {
                             var column = columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn;
                             value = HandleConverter(value, columnConfiguration);
                             initialValues.Add(new KeyValuePair<string, object>(column, value));
                         }
-                        else
+                        else if (DefaultColumnConfiguration != null)
                         {
                             var column = columnNames[i];
-                            value = HandleConverter(value, DefaultConfiguration);
+                            value = HandleConverter(value, DefaultColumnConfiguration);
                             initialValues.Add(new KeyValuePair<string, object>(column, value));
                         }
                     }
