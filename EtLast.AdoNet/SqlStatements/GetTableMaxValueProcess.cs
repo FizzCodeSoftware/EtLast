@@ -45,7 +45,12 @@
                 {
                     while (reader.Read())
                     {
-                        result.MaxValue = (T)reader["maxValue"];
+                        var mv = reader["maxValue"];
+                        if (!(mv is DBNull))
+                        {
+                            result.MaxValue = (T)mv;
+                        }
+
                         result.RecordCount = (int)reader["cnt"];
                     }
                 }
