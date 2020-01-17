@@ -23,6 +23,10 @@
             Context = context;
         }
 
+        public virtual void BeforeExecute()
+        {
+        }
+
         public abstract void Execute();
 
         protected string GetStorageFolder(params string[] subFolders)

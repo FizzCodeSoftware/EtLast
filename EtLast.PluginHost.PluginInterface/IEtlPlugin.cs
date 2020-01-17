@@ -7,6 +7,7 @@
         string Name { get; }
 
         void Init(IEtlContext context, ModuleConfiguration moduleConfiguration);
+        void BeforeExecute();
         void Execute();
     }
 }

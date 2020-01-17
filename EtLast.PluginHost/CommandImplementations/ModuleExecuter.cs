@@ -76,6 +76,7 @@
                         try
                         {
                             pluginInfo.Plugin.Init(pluginInfo.Context, pluginInfo.Module.ModuleConfiguration);
+                            pluginInfo.Plugin.BeforeExecute();
                             pluginInfo.Plugin.Execute();
 
                             sessionWarningCount += pluginInfo.Context.Result.WarningCount;
