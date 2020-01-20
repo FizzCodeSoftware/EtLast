@@ -14,15 +14,16 @@
     <RootNamespace>FizzCode.EtLast.DwhBuilder.Alpha</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
-    <Configurations>Debug;Release</Configurations>
+    <Configurations>Debug;Release;Debug-LocalProjects</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.DbTools.DataDefinition" Version="1.0.133.5267" />
+    <PackageReference Condition="'$(Configuration)' != 'Debug-LocalProjects'" Include="FizzCode.DbTools.DataDefinition" Version="1.0.133.5267" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
+    <ProjectReference Condition="'$(Configuration)' == 'Debug-LocalProjects'" Include="..\..\DbTools\DbTools.DataDefinition\DbTools.DataDefinition.csproj" />
   </ItemGroup>
 
 </Project>
