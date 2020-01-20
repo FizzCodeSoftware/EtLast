@@ -26,7 +26,7 @@
         {
             if (If?.Invoke(row) == false)
             {
-                CounterCollection.IncrementDebugCounter("ignored", 1);
+                CounterCollection.IncrementCounter("ignored", 1);
                 return;
             }
 

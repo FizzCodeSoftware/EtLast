@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
-    using System.Linq;
     using System.Transactions;
     using FizzCode.EtLast;
 
@@ -196,9 +195,7 @@
 
         private static void LogCounters(StatCounterCollection counterCollection, ISessionLogger logger)
         {
-            var counters = counterCollection.GetCounters()
-                .Where(counter => !counter.IsDebug)
-                .ToList();
+            var counters = counterCollection.GetCounters();
 
             if (counters.Count == 0)
                 return;
@@ -218,7 +215,7 @@
 
             foreach (var counter in counters)
             {
-                logger.Log(counter.IsDebug ? LogSeverity.Debug : LogSeverity.Information, false, null, null, "{Counter} = {Value}",
+                logger.Log(LogSeverity.Information, false, null, null, "{Counter} = {Value}",
                     counter.Name, counter.TypedValue);
             }
         }

@@ -14,11 +14,11 @@
         {
             if (If?.Invoke(row) == false)
             {
-                CounterCollection.IncrementDebugCounter("ignored", 1);
+                CounterCollection.IncrementCounter("ignored", 1);
                 return;
             }
 
-            CounterCollection.IncrementDebugCounter("processed", 1);
+            CounterCollection.IncrementCounter("processed", 1);
 
             var leftKey = GetLeftKey(row);
 

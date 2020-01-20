@@ -27,18 +27,18 @@
                 if (result)
                 {
                     newRows = Then.Invoke(this, row);
-                    CounterCollection.IncrementDebugCounter("then executed", 1);
+                    CounterCollection.IncrementCounter("then executed", 1);
                 }
                 else if (Else != null)
                 {
                     newRows = Else.Invoke(this, row);
-                    CounterCollection.IncrementDebugCounter("else executed", 1);
+                    CounterCollection.IncrementCounter("else executed", 1);
                 }
             }
             else
             {
                 newRows = Then.Invoke(this, row);
-                CounterCollection.IncrementDebugCounter("then executed", 1);
+                CounterCollection.IncrementCounter("then executed", 1);
             }
 
             if (RemoveOriginalRow)

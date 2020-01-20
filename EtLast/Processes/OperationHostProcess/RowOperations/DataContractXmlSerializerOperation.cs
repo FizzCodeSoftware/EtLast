@@ -44,8 +44,8 @@
                     CounterCollection.IncrementTimeSpan("serialization time (DataContract XML)", time);
                     CounterCollection.IncrementCounter("serialization count (DataContract XML)", 1);
 
-                    CounterCollection.IncrementDebugTimeSpan("serialization time (DataContract XML) - " + TypeHelpers.GetFriendlyTypeName(typeof(T)), time);
-                    CounterCollection.IncrementDebugCounter("serialization count (DataContract XML) - " + TypeHelpers.GetFriendlyTypeName(typeof(T)), 1);
+                    CounterCollection.IncrementTimeSpan("serialization time (DataContract XML) - " + TypeHelpers.GetFriendlyTypeName(typeof(T)), time);
+                    CounterCollection.IncrementCounter("serialization count (DataContract XML) - " + TypeHelpers.GetFriendlyTypeName(typeof(T)), 1);
                 }
             }
             catch (Exception ex)
@@ -54,8 +54,8 @@
                 CounterCollection.IncrementTimeSpan("serialization time (DataContract XML) - error", time);
                 CounterCollection.IncrementCounter("serialization count (DataContract XML) - error", 1);
 
-                CounterCollection.IncrementDebugTimeSpan("serialization time (DataContract XML) - error - " + TypeHelpers.GetFriendlyTypeName(typeof(T)), time);
-                CounterCollection.IncrementDebugCounter("serialization count (DataContract XML) - error - " + TypeHelpers.GetFriendlyTypeName(typeof(T)), 1);
+                CounterCollection.IncrementTimeSpan("serialization time (DataContract XML) - error - " + TypeHelpers.GetFriendlyTypeName(typeof(T)), time);
+                CounterCollection.IncrementCounter("serialization count (DataContract XML) - error - " + TypeHelpers.GetFriendlyTypeName(typeof(T)), 1);
 
                 switch (ActionIfFailed)
                 {

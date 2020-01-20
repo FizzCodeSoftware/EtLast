@@ -10,6 +10,7 @@
         public ProcessInfo Info { get; }
         public Dictionary<int, TrackedRow> AliveRowList { get; set; } = new Dictionary<int, TrackedRow>();
         public Dictionary<int, TrackedRow> DroppedRowList { get; set; } = new Dictionary<int, TrackedRow>();
+        public int RemovedRowCount { get; private set; }
 
         public TrackedProcess(ProcessInfo info)
         {
@@ -42,6 +43,7 @@
 
             AliveRowList.Remove(row.Uid);
             row.CurrentOwner = null;
+            RemovedRowCount++;
         }
     }
 }

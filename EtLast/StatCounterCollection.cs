@@ -35,31 +35,21 @@
 
         public void IncrementCounter(string baseName, long n, bool forwardDisabled = false)
         {
-            Increment(baseName, n, forwardDisabled, false, StatCounterValueType.Numeric);
-        }
-
-        public void IncrementDebugCounter(string baseName, long n, bool forwardDisabled = false)
-        {
-            Increment(baseName, n, forwardDisabled, true, StatCounterValueType.Numeric);
+            Increment(baseName, n, forwardDisabled, StatCounterValueType.Numeric);
         }
 
         public void IncrementTimeSpan(string baseName, TimeSpan elapsed, bool forwardDisabled = false)
         {
-            Increment(baseName, Convert.ToInt64(elapsed.TotalMilliseconds), forwardDisabled, false, StatCounterValueType.TimeSpan);
+            Increment(baseName, Convert.ToInt64(elapsed.TotalMilliseconds), forwardDisabled, StatCounterValueType.TimeSpan);
         }
 
-        public void IncrementDebugTimeSpan(string baseName, TimeSpan elapsed, bool forwardDisabled = false)
-        {
-            Increment(baseName, Convert.ToInt64(elapsed.TotalMilliseconds), forwardDisabled, true, StatCounterValueType.TimeSpan);
-        }
-
-        internal void Increment(string name, long n, bool forwardDisabled, bool isDebug, StatCounterValueType counterType)
+        internal void Increment(string name, long n, bool forwardDisabled, StatCounterValueType counterType)
         {
             if (n == 0)
                 return;
 
             if (_forwardCountersToCollection != null && !forwardDisabled)
-                _forwardCountersToCollection.Increment(name, n, false, isDebug, counterType);
+                _forwardCountersToCollection.Increment(name, n, false, counterType);
 
             lock (_counters)
             {
@@ -69,7 +59,6 @@
                     {
                         Name = name,
                         Code = GetCounterCode(name),
-                        IsDebug = isDebug,
                     };
 
                     _counters[name] = counter;

@@ -56,8 +56,8 @@
                 CounterCollection.IncrementTimeSpan("db drop schema time", time);
 
                 // not relevant on process level
-                Context.CounterCollection.IncrementDebugCounter("db drop schema count - " + ConnectionString.Name, 1);
-                Context.CounterCollection.IncrementDebugTimeSpan("db drop schema time - " + ConnectionString.Name, time);
+                Context.CounterCollection.IncrementCounter("db drop schema count - " + ConnectionString.Name, 1);
+                Context.CounterCollection.IncrementTimeSpan("db drop schema time - " + ConnectionString.Name, time);
             }
             catch (Exception ex)
             {

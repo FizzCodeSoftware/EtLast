@@ -14,18 +14,18 @@
                 if (result)
                 {
                     Then.Invoke(this, row);
-                    CounterCollection.IncrementDebugCounter("then executed", 1);
+                    CounterCollection.IncrementCounter("then executed", 1);
                 }
                 else if (Else != null)
                 {
                     Else.Invoke(this, row);
-                    CounterCollection.IncrementDebugCounter("else executed", 1);
+                    CounterCollection.IncrementCounter("else executed", 1);
                 }
             }
             else
             {
                 Then.Invoke(this, row);
-                CounterCollection.IncrementDebugCounter("then executed", 1);
+                CounterCollection.IncrementCounter("then executed", 1);
             }
         }
 

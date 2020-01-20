@@ -10,7 +10,7 @@
 
         public override void Apply(IRow row)
         {
-            CounterCollection.IncrementDebugCounter("executed", 1);
+            CounterCollection.IncrementCounter("executed", 1);
 
             if (If != null)
             {
@@ -22,7 +22,7 @@
                         operation.Apply(row);
                     }
 
-                    CounterCollection.IncrementDebugCounter("then executed", 1);
+                    CounterCollection.IncrementCounter("then executed", 1);
                 }
                 else if (Else.Count > 0)
                 {
@@ -31,7 +31,7 @@
                         operation.Apply(row);
                     }
 
-                    CounterCollection.IncrementDebugCounter("else executed", 1);
+                    CounterCollection.IncrementCounter("else executed", 1);
                 }
             }
             else
@@ -41,7 +41,7 @@
                     operation.Apply(row);
                 }
 
-                CounterCollection.IncrementDebugCounter("then executed", 1);
+                CounterCollection.IncrementCounter("then executed", 1);
             }
         }
 

@@ -9,7 +9,6 @@ namespace FizzCode.EtLast
         public string Name { get; internal set; }
 
         public string Code { get; internal set; }
-        public bool IsDebug { get; internal set; }
         public long Value { get; internal set; }
         public StatCounterValueType ValueType { get; internal set; }
 
@@ -26,7 +25,6 @@ namespace FizzCode.EtLast
             {
                 Name = Name,
                 Code = Code,
-                IsDebug = IsDebug,
                 Value = Value,
                 ValueType = ValueType,
             };

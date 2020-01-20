@@ -153,7 +153,7 @@
             var row = (IRow)Activator.CreateInstance(RowType);
             row.Init(this, creatorProcess, Interlocked.Increment(ref _nextUid) - 1, initialValues);
 
-            CounterCollection.IncrementDebugCounter("in-memory rows created", 1);
+            CounterCollection.IncrementCounter("in-memory rows created", 1);
 
             OnRowCreated?.Invoke(row, creatorProcess);
 

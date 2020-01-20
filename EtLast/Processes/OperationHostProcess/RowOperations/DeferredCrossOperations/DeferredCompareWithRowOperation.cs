@@ -34,7 +34,7 @@
         {
             if (If?.Invoke(row) == false)
             {
-                CounterCollection.IncrementDebugCounter("ignored", 1);
+                CounterCollection.IncrementCounter("ignored", 1);
                 return;
             }
 
@@ -100,7 +100,7 @@
 
         private void ProcessRows()
         {
-            CounterCollection.IncrementDebugCounter("processed", _batchRows.Count, true);
+            CounterCollection.IncrementCounter("processed", _batchRows.Count, true);
             CounterCollection.IncrementCounter("batches", 1, true);
 
             var rightProcess = RightProcessCreator.Invoke(_batchRows.ToArray());

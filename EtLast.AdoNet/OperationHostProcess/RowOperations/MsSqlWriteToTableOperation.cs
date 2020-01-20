@@ -91,10 +91,10 @@
                 CounterCollection.IncrementTimeSpan("db record write time", time);
 
                 // not relevant on operation level
-                Process.Context.CounterCollection.IncrementDebugCounter("db record write count - " + ConnectionString.Name, recordCount);
-                Process.Context.CounterCollection.IncrementDebugCounter("db record write count - " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName), recordCount);
-                Process.Context.CounterCollection.IncrementDebugTimeSpan("db record write time - " + ConnectionString.Name, time);
-                Process.Context.CounterCollection.IncrementDebugTimeSpan("db record write time - " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName), time);
+                Process.Context.CounterCollection.IncrementCounter("db record write count - " + ConnectionString.Name, recordCount);
+                Process.Context.CounterCollection.IncrementCounter("db record write count - " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName), recordCount);
+                Process.Context.CounterCollection.IncrementTimeSpan("db record write time - " + ConnectionString.Name, time);
+                Process.Context.CounterCollection.IncrementTimeSpan("db record write time - " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName), time);
 
                 _rowsWritten += recordCount;
 

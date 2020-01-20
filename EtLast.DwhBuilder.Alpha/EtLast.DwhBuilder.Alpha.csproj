@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PackageId>FizzCode.EtLast.DwhBuilder.Alpha</PackageId>
+    <Authors>FizzCode Ltd.</Authors>
+    <Product>EtLast ETL (Extract, Transform and Load) library for .NET Core</Product>
+    <Description>Data warehouse builder (alpha) for EtLast ETL (Extract, Transform and Load) library</Description>
+    <Copyright>Copyright © 2019-2020 FizzCode Ltd.</Copyright>
+    <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
+    <Platforms>AnyCPU</Platforms>
+    <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
+    <AssemblyName>FizzCode.EtLast.DwhBuilder.Alpha</AssemblyName>
+    <RootNamespace>FizzCode.EtLast.DwhBuilder.Alpha</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>CS1591</NoWarn>
+    <Configurations>Debug;Release</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FizzCode.DbTools.DataDefinition" Version="1.0.133.5267" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
+  </ItemGroup>
+
+</Project>

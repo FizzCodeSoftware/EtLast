@@ -73,7 +73,7 @@
 
             _operations.Add(operation);
 
-            CounterCollection.IncrementDebugCounter("operations", 1, true);
+            CounterCollection.IncrementCounter("operations", 1, true);
 
             return operation;
         }
@@ -196,7 +196,7 @@
         {
             if (_rowsLock.TryEnterWriteLock(10000))
             {
-                CounterCollection.IncrementDebugCounter("wipes", 1, true);
+                CounterCollection.IncrementCounter("wipes", 1, true);
 
                 try
                 {
@@ -257,7 +257,7 @@
         {
             if (_rowsLock.TryEnterWriteLock(10000))
             {
-                CounterCollection.IncrementDebugCounter("wipes", 1, true);
+                CounterCollection.IncrementCounter("wipes", 1, true);
 
                 try
                 {
@@ -403,7 +403,7 @@
 
         private void LogOpCounters()
         {
-            Context.Log(LogSeverity.Information, this, "OPERATION COUNTERS");
+            Context.Log(LogSeverity.Debug, this, "OPERATION COUNTERS");
             foreach (var op in Operations)
             {
                 LogOpCounters(op);
@@ -418,7 +418,7 @@
 
             foreach (var counter in counters)
             {
-                Context.Log(counter.IsDebug ? LogSeverity.Debug : LogSeverity.Information, this, "({Operation}) {Counter} = {Value}", op.Name, counter.Name, counter.TypedValue);
+                Context.Log(LogSeverity.Debug, this, "({Operation}) {Counter} = {Value}", op.Name, counter.Name, counter.TypedValue);
             }
 
             if (op is IOperationGroup group)

@@ -40,7 +40,7 @@
         {
             if (If?.Invoke(row) == false)
             {
-                CounterCollection.IncrementDebugCounter("ignored", 1);
+                CounterCollection.IncrementCounter("ignored", 1);
                 return;
             }
 
@@ -53,7 +53,7 @@
                 if (key != null && _lookup.TryGetValue(key, out var rightRow))
                 {
                     CounterCollection.IncrementCounter("served from cache", 1, true);
-                    CounterCollection.IncrementDebugCounter("processed", 1, true);
+                    CounterCollection.IncrementCounter("processed", 1, true);
 
                     HandleMatch(row, rightRow);
                     return;
@@ -124,7 +124,7 @@
 
         private void ProcessRows()
         {
-            CounterCollection.IncrementDebugCounter("processed", _batchRows.Count, true);
+            CounterCollection.IncrementCounter("processed", _batchRows.Count, true);
             CounterCollection.IncrementCounter("batches", 1, true);
 
             var rightProcess = RightProcessCreator.Invoke(_batchRows.ToArray());
