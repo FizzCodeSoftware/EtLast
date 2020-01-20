@@ -14,16 +14,25 @@
     <RootNamespace>FizzCode.EtLast.DwhBuilder.Alpha</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
-    <Configurations>Debug;Release;Debug-LocalProjects</Configurations>
+    <Configurations>Debug;Release;LocalProjects</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LocalProjects|AnyCPU'">
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Condition="'$(Configuration)' != 'Debug-LocalProjects'" Include="FizzCode.DbTools.DataDefinition" Version="1.0.133.5267" />
+    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.DataDefinition" Version="1.0.133.5267" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
-    <ProjectReference Condition="'$(Configuration)' == 'Debug-LocalProjects'" Include="..\..\DbTools\DbTools.DataDefinition\DbTools.DataDefinition.csproj" />
+    <ProjectReference Condition="'$(Configuration)' == 'LocalProjects'" Include="..\..\DbTools\DbTools.DataDefinition\DbTools.DataDefinition.csproj" />
   </ItemGroup>
 
 </Project>

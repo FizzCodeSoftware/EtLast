@@ -17,6 +17,10 @@
     <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="CommandDotNet" Version="3.0.0-preview7" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.4.0" />
