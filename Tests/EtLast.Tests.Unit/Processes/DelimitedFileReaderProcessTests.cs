@@ -68,8 +68,6 @@
             _delimitedFileReaderProcess.FileName = @"TestData\SampleInvalidConversion.csv";
             var result = _process.Evaluate().ToList();
 
-            // TODO check exception
-
             Assert.AreEqual(2, result.Count);
             Assert.That.RowsAreEqual(RowHelper.CreateRows(
                 new object[] { "Id", new EtlRowErrorTest("X"), "Name", "A", "ValueString", "AAA", "ValueInt", -1, "ValueDate", new EtlRowErrorTest(""), "ValueDouble", new EtlRowErrorTest("") },

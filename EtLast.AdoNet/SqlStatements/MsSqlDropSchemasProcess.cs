@@ -32,7 +32,8 @@
         protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection)
         {
             return SchemaNames
-                .Select(schemaName => "DROP SCHEMA IF EXISTS " + schemaName + ";")
+                .Where(x => !string.Equals(x, "dbo", StringComparison.InvariantCultureIgnoreCase))
+                .Select(x => "DROP SCHEMA IF EXISTS " + x + ";")
                 .ToList();
         }
 

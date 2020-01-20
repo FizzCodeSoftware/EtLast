@@ -80,7 +80,7 @@
                         }
 
                         _output.AppendText("UID=" + evt.RowUid.ToString("D", CultureInfo.InvariantCulture)
-                            + ", column: " + evt.Column + ", previous value: " + evt.PreviousValue.ToDisplayValue() + ", current value: " + evt.CurrentValue.ToDisplayValue());
+                            + ", column: " + evt.Column + ", current value: " + evt.CurrentValue.ToDisplayValue());
 
                         _output.AppendText(Environment.NewLine);
                     });

@@ -6,6 +6,7 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+    using System.Text;
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
@@ -242,7 +243,18 @@
                     }
                     else if (kvp.Value is string[] stringArray)
                     {
-                        var newParamText = string.Join(",", stringArray.Select(x => "'" + x + "'")); // todo: use stringbuilder
+                        var sb = new StringBuilder();
+                        foreach (var s in stringArray)
+                        {
+                            if (sb.Length > 0)
+                                sb.Append(",");
+
+                            sb.Append("'");
+                            sb.Append(s);
+                            sb.Append("'");
+                        }
+
+                        var newParamText = sb.ToString();
                         sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
 
                         Parameters.Remove(kvp.Key);
@@ -263,7 +275,18 @@
                     }
                     else if (kvp.Value is List<string> stringList)
                     {
-                        var newParamText = string.Join(",", stringList.Select(x => "'" + x + "'")); // todo: use stringbuilder
+                        var sb = new StringBuilder();
+                        foreach (var s in stringList)
+                        {
+                            if (sb.Length > 0)
+                                sb.Append(",");
+
+                            sb.Append("'");
+                            sb.Append(s);
+                            sb.Append("'");
+                        }
+
+                        var newParamText = sb.ToString();
                         sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
 
                         Parameters.Remove(kvp.Key);

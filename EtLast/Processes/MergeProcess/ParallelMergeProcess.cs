@@ -23,7 +23,7 @@
 
             var threads = new List<Thread>();
             var finished = new bool[ProcessList.Count];
-            var queue = new DefaultRowQueue();
+            using var queue = new DefaultRowQueue();
 
             for (var i = 0; i < ProcessList.Count; i++)
             {

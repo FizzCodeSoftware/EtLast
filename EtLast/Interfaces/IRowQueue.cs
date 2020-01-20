@@ -1,9 +1,10 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading;
 
-    public interface IRowQueue
+    public interface IRowQueue : IDisposable
     {
         void AddRow(IRow row);
 

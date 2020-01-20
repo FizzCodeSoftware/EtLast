@@ -34,10 +34,9 @@
 
         protected override void SetValueImpl(string column, object value, IProcess process, IBaseOperation operation)
         {
+            Context.OnRowValueChanged?.Invoke(this, column, value, process, operation);
+
             var hasPreviousValue = _values.TryGetValue(column, out var previousValue);
-
-            Context.OnRowValueChanged?.Invoke(this, column, previousValue, value, process, operation);
-
             if (value == null && hasPreviousValue)
             {
                 _values.Remove(column);

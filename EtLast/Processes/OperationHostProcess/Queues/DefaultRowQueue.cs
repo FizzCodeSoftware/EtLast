@@ -1,12 +1,11 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Threading;
 
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable
     public class DefaultRowQueue : IRowQueue
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         private readonly AutoResetEvent _newRowEvent = new AutoResetEvent(false);
         private readonly ManualResetEvent _noMoreRowsEvent = new ManualResetEvent(false);
@@ -57,6 +56,28 @@
 
                 yield return row;
             }
+        }
+
+        private bool disposedValue;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _newRowEvent.Dispose();
+                    _noMoreRowsEvent.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

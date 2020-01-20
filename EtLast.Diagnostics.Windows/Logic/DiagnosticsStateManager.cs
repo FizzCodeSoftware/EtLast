@@ -151,7 +151,6 @@
         private void HandleRowValueChangedEvent(Session session, string body)
         {
             var evt = JsonSerializer.Deserialize<RowValueChangedEvent>(body);
-            evt.PreviousValue.CalculateValue();
             evt.CurrentValue.CalculateValue();
 
             var context = session.AddEvent(evt);

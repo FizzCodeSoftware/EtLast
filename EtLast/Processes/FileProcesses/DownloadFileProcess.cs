@@ -28,14 +28,16 @@
 
         protected override void ExecuteImpl()
         {
-            // todo: use HttpClient instead with cancellationTokenSource
             using (var clt = new WebClient())
             {
                 try
                 {
-                    clt.DownloadFile(Url, FileName);
-                    Context.Log(LogSeverity.Debug, this, "successfully downloaded from '{Url}' to '{FileName}' in {Elapsed}", Url,
-                        PathHelpers.GetFriendlyPathName(FileName), LastInvocation.Elapsed);
+                    using (Context.CancellationTokenSource.Token.Register(clt.CancelAsync))
+                    {
+                        clt.DownloadFile(Url, FileName);
+                        Context.Log(LogSeverity.Debug, this, "successfully downloaded from '{Url}' to '{FileName}' in {Elapsed}", Url,
+                            PathHelpers.GetFriendlyPathName(FileName), LastInvocation.Elapsed);
+                    }
                 }
                 catch (Exception ex)
                 {

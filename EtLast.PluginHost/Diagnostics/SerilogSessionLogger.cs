@@ -129,7 +129,6 @@
                     if (tokens[i] is PropertyToken pt)
                     {
                         var rawText = text.Substring(pt.StartIndex, pt.Length);
-                        // todo: replace rawText with pt.PropertyName in the original text to remove the unnecessary optional alignment and other attributes
                         arguments[idx] = Diagnostics.Interface.NamedArgument.FromObject(rawText, args[idx]);
                         idx++;
                     }
@@ -363,7 +362,7 @@
             });
         }
 
-        private void LifecycleRowValueChanged(IRow row, string column, object previousValue, object currentValue, IProcess process, IBaseOperation operation)
+        private void LifecycleRowValueChanged(IRow row, string column, object currentValue, IProcess process, IBaseOperation operation)
         {
             DiagnosticsSender?.SendDiagnostics("row-value-changed", new Diagnostics.Interface.RowValueChangedEvent()
             {
@@ -375,7 +374,6 @@
                                 : new string[] { "session" },
                 RowUid = row.UID,
                 Column = column,
-                PreviousValue = Diagnostics.Interface.Argument.FromObject(previousValue),
                 CurrentValue = Diagnostics.Interface.Argument.FromObject(currentValue),
                 ProcessUid = process?.UID,
                 ProcessType = process != null ? TypeHelpers.GetFriendlyTypeName(process.GetType()) : null,

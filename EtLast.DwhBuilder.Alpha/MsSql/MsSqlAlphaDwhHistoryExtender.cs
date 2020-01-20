@@ -66,7 +66,7 @@
 
             baseTable.DatabaseDefinition.AddTable(historyTable);
 
-            historyTable.AddInt32(historyTable.SchemaAndTableName.TableName + "Id").SetIdentity().SetPK();
+            historyTable.AddInt32(historyTable.SchemaAndTableName.TableName + configuration.HistoryTableIdColumnPostfix).SetIdentity().SetPK();
 
             // step #1: copy all columns (including foreign keys)
             foreach (var column in baseTable.Columns)

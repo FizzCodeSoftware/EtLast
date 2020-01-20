@@ -129,7 +129,6 @@
                 var nextOp = GetNextOp(row);
                 if (nextOp != null)
                 {
-                    // EnqueueOperation(nextOp, row);
                     row.CurrentOperation = nextOp;
                     _rowQueue.AddRowNoSignal(row);
 
@@ -394,7 +393,6 @@
         {
             Interlocked.Decrement(ref _activeRowCount);
 
-            // do not overwrite Removed with Finished!
             if (row.State == RowState.Normal)
             {
                 row.State = RowState.Finished;
@@ -456,107 +454,114 @@
             Context.Log(LogSeverity.Information, this, "operation host started");
 
             CreateRowQueue();
-            if (Context.CancellationTokenSource.IsCancellationRequested)
-                return;
-
-            if (!PrepareOperations() || Context.CancellationTokenSource.IsCancellationRequested)
-                return;
-
-            CreateWorker();
-            if (Context.CancellationTokenSource.IsCancellationRequested)
-                return;
-
-            Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", InputProcess.Name);
-
-            var swLoop = Stopwatch.StartNew();
-            ReadingInput = true;
-            var sourceRows = InputProcess.Evaluate(this);
-            var buffer = new List<IRow>();
-            var inputRowCount = 0;
-            var wipedRowCount = 0;
-
-            var swProcessing = Stopwatch.StartNew();
-            foreach (var row in sourceRows)
+            try
             {
-                Context.SetRowOwner(row, this);
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    return;
 
-                row.CurrentOperation = null;
-                row.State = RowState.Normal;
+                if (!PrepareOperations() || Context.CancellationTokenSource.IsCancellationRequested)
+                    return;
 
-                inputRowCount++;
-                buffer.Add(row);
+                CreateWorker();
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    return;
 
-                if (buffer.Count > Configuration.InputBufferSize || InputProcess.ConsumerShouldNotBuffer)
+                Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", InputProcess.Name);
+
+                var swLoop = Stopwatch.StartNew();
+                ReadingInput = true;
+                var sourceRows = InputProcess.Evaluate(this);
+                var buffer = new List<IRow>();
+                var inputRowCount = 0;
+                var wipedRowCount = 0;
+
+                var swProcessing = Stopwatch.StartNew();
+                foreach (var row in sourceRows)
                 {
-                    AddRows(buffer, null);
-                    buffer.Clear();
+                    Context.SetRowOwner(row, this);
 
-                    Stopwatch swSleep = null;
-                    while (true)
+                    row.CurrentOperation = null;
+                    row.State = RowState.Normal;
+
+                    inputRowCount++;
+                    buffer.Add(row);
+
+                    if (buffer.Count > Configuration.InputBufferSize || InputProcess.ConsumerShouldNotBuffer)
                     {
-                        if (swLoop.ElapsedMilliseconds >= Configuration.MainLoopDelay)
-                        {
-                            Wipe(swProcessing, ref wipedRowCount);
-                            swLoop.Restart();
-                        }
+                        AddRows(buffer, null);
+                        buffer.Clear();
 
-                        if (Interlocked.Read(ref _activeRowCount) <= Configuration.ThrottlingLimit)
-                            break;
+                        Stopwatch swSleep = null;
+                        while (true)
+                        {
+                            if (swLoop.ElapsedMilliseconds >= Configuration.MainLoopDelay)
+                            {
+                                Wipe(swProcessing, ref wipedRowCount);
+                                swLoop.Restart();
+                            }
+
+                            if (Interlocked.Read(ref _activeRowCount) <= Configuration.ThrottlingLimit)
+                                break;
+
+                            if (swSleep != null)
+                            {
+                                if (swSleep.ElapsedMilliseconds >= Configuration.ThrottlingMaxSleep)
+                                    break;
+                            }
+                            else
+                            {
+                                swSleep = Stopwatch.StartNew();
+                            }
+
+                            Thread.Sleep(Configuration.ThrottlingSleepResolution);
+                        }
 
                         if (swSleep != null)
                         {
-                            if (swSleep.ElapsedMilliseconds >= Configuration.ThrottlingMaxSleep)
-                                break;
+                            Context.Log(LogSeverity.Verbose, this, "slept {Elapsed} to lower active row count to {ActiveRowCount}, input buffer: {InputBufferCount}/{InputBufferSize}",
+                                swSleep.Elapsed, Interlocked.Read(ref _activeRowCount), buffer.Count, Configuration.InputBufferSize);
                         }
-                        else
-                        {
-                            swSleep = Stopwatch.StartNew();
-                        }
-
-                        Thread.Sleep(Configuration.ThrottlingSleepResolution);
                     }
 
-                    if (swSleep != null)
+                    if (Context.CancellationTokenSource.IsCancellationRequested)
+                        break;
+                }
+
+                if (buffer.Count > 0)
+                {
+                    AddRows(buffer, null);
+                    buffer.Clear();
+                }
+
+                Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows in {Elapsed}", inputRowCount, LastInvocation.Elapsed);
+                ReadingInput = false;
+
+                var loopIndex = 0;
+                while (true)
+                {
+                    Wipe(swProcessing, ref wipedRowCount);
+
+                    if (TestDone())
+                        break;
+
+                    if (loopIndex > 100)
                     {
-                        Context.Log(LogSeverity.Verbose, this, "slept {Elapsed} to lower active row count to {ActiveRowCount}, input buffer: {InputBufferCount}/{InputBufferSize}",
-                            swSleep.Elapsed, Interlocked.Read(ref _activeRowCount), buffer.Count, Configuration.InputBufferSize);
+                        Thread.Sleep(Configuration.MainLoopDelay);
+                    }
+                    else
+                    {
+                        loopIndex++;
+                        Thread.Sleep(10);
                     }
                 }
 
-                if (Context.CancellationTokenSource.IsCancellationRequested)
-                    break;
+                WaitForWorkerThread();
+                ShutdownOperations();
             }
-
-            if (buffer.Count > 0)
+            finally
             {
-                AddRows(buffer, null);
-                buffer.Clear();
+                _rowQueue.Dispose();
             }
-
-            Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows in {Elapsed}", inputRowCount, LastInvocation.Elapsed);
-            ReadingInput = false;
-
-            var loopIndex = 0;
-            while (true)
-            {
-                Wipe(swProcessing, ref wipedRowCount);
-
-                if (TestDone())
-                    break;
-
-                if (loopIndex > 100)
-                {
-                    Thread.Sleep(Configuration.MainLoopDelay);
-                }
-                else
-                {
-                    loopIndex++;
-                    Thread.Sleep(10);
-                }
-            }
-
-            WaitForWorkerThread();
-            ShutdownOperations();
 
             Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", LastInvocation.Elapsed);
 
@@ -591,158 +596,163 @@
         {
             Context.Log(LogSeverity.Information, this, "operation host started");
 
-            CreateRowQueue();
-            if (Context.CancellationTokenSource.IsCancellationRequested)
-                yield break;
-
-            if (!PrepareOperations() || Context.CancellationTokenSource.IsCancellationRequested)
-                yield break;
-
-            CreateWorker();
-            if (Context.CancellationTokenSource.IsCancellationRequested)
-                yield break;
-
             var resultCount = 0;
-            Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", InputProcess.Name);
 
-            var swLoop = Stopwatch.StartNew();
-            ReadingInput = true;
-            var sourceRows = InputProcess.Evaluate(this);
-            var buffer = new List<IRow>();
-            var inputRowCount = 0;
-            var wipedRowCount = 0;
-
-            var swProcessing = Stopwatch.StartNew();
-            var swSleep = new Stopwatch();
-
-            var finished = new List<IRow>();
-
-            foreach (var row in sourceRows)
+            CreateRowQueue();
+            try
             {
-                Context.SetRowOwner(row, this);
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    yield break;
 
-                row.CurrentOperation = null;
-                row.State = RowState.Normal;
+                if (!PrepareOperations() || Context.CancellationTokenSource.IsCancellationRequested)
+                    yield break;
 
-                inputRowCount++;
-                buffer.Add(row);
+                CreateWorker();
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    yield break;
 
-                if (buffer.Count >= Configuration.InputBufferSize || InputProcess.ConsumerShouldNotBuffer)
+                Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", InputProcess.Name);
+
+                var swLoop = Stopwatch.StartNew();
+                ReadingInput = true;
+                var sourceRows = InputProcess.Evaluate(this);
+                var buffer = new List<IRow>();
+                var inputRowCount = 0;
+                var wipedRowCount = 0;
+
+                var swProcessing = Stopwatch.StartNew();
+                var swSleep = new Stopwatch();
+
+                var finished = new List<IRow>();
+
+                foreach (var row in sourceRows)
                 {
-                    AddRows(buffer, null);
-                    buffer.Clear();
+                    Context.SetRowOwner(row, this);
 
-                    while (true)
+                    row.CurrentOperation = null;
+                    row.State = RowState.Normal;
+
+                    inputRowCount++;
+                    buffer.Add(row);
+
+                    if (buffer.Count >= Configuration.InputBufferSize || InputProcess.ConsumerShouldNotBuffer)
                     {
-                        if (swLoop.ElapsedMilliseconds >= Configuration.MainLoopDelay)
+                        AddRows(buffer, null);
+                        buffer.Clear();
+
+                        while (true)
                         {
-                            WipeAndGet(finished, swProcessing, ref wipedRowCount);
-                            swLoop.Restart();
-
-                            if (finished.Count > 0)
+                            if (swLoop.ElapsedMilliseconds >= Configuration.MainLoopDelay)
                             {
-                                resultCount += finished.Count;
-                                foreach (var finishedRow in finished)
+                                WipeAndGet(finished, swProcessing, ref wipedRowCount);
+                                swLoop.Restart();
+
+                                if (finished.Count > 0)
                                 {
-                                    yield return finishedRow;
+                                    resultCount += finished.Count;
+                                    foreach (var finishedRow in finished)
+                                    {
+                                        yield return finishedRow;
+                                    }
+
+                                    Context.Log(LogSeverity.Debug, this, "returned {RowCount} rows of {OutputRowCount} in total, read input rows: {InputRowCount}, active rows: {ActiveRowCount}",
+                                        finished.Count, resultCount, inputRowCount, Interlocked.Read(ref _activeRowCount));
+
+                                    finished.Clear();
                                 }
-
-                                Context.Log(LogSeverity.Debug, this, "returned {RowCount} rows of {OutputRowCount} in total, read input rows: {InputRowCount}, active rows: {ActiveRowCount}",
-                                    finished.Count, resultCount, inputRowCount, Interlocked.Read(ref _activeRowCount));
-
-                                finished.Clear();
                             }
-                        }
 
-                        if (Interlocked.Read(ref _activeRowCount) <= Configuration.ThrottlingLimit)
-                            break;
+                            if (Interlocked.Read(ref _activeRowCount) <= Configuration.ThrottlingLimit)
+                                break;
+
+                            if (swSleep.IsRunning)
+                            {
+                                if (swSleep.ElapsedMilliseconds >= Configuration.ThrottlingMaxSleep)
+                                    break;
+                            }
+                            else
+                            {
+                                swSleep.Restart();
+                            }
+
+                            Thread.Sleep(Configuration.ThrottlingSleepResolution);
+                        }
 
                         if (swSleep.IsRunning)
                         {
-                            if (swSleep.ElapsedMilliseconds >= Configuration.ThrottlingMaxSleep)
-                                break;
+                            Context.Log(LogSeverity.Verbose, this, "slept {Sleep} to lower active row count to {ActiveRowCount}", swSleep.Elapsed, Interlocked.Read(ref _activeRowCount));
+                            swSleep.Stop();
                         }
-                        else
-                        {
-                            swSleep.Restart();
-                        }
-
-                        Thread.Sleep(Configuration.ThrottlingSleepResolution);
                     }
 
-                    if (swSleep.IsRunning)
+                    if (Context.CancellationTokenSource.IsCancellationRequested)
+                        break;
+                }
+
+                if (buffer.Count > 0)
+                {
+                    AddRows(buffer, null);
+                    buffer.Clear();
+                }
+
+                Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows in {Elapsed}", inputRowCount, LastInvocation.Elapsed);
+                ReadingInput = false;
+
+                var loopIndex = 0;
+                while (true)
+                {
+                    WipeAndGet(finished, swProcessing, ref wipedRowCount);
+
+                    if (finished.Count > 0)
                     {
-                        Context.Log(LogSeverity.Verbose, this, "slept {Sleep} to lower active row count to {ActiveRowCount}", swSleep.Elapsed, Interlocked.Read(ref _activeRowCount));
-                        swSleep.Stop();
+                        resultCount += finished.Count;
+                        foreach (var finishedRow in finished)
+                        {
+                            yield return finishedRow;
+                        }
+
+                        Context.Log(LogSeverity.Debug, this, "returned {RowCount} rows of {OutputRowCount} in total, active rows: {ActiveRowCount}",
+                            finished.Count, resultCount, Interlocked.Read(ref _activeRowCount));
+
+                        finished.Clear();
+                    }
+
+                    if (TestDone())
+                        break;
+
+                    if (loopIndex > 100)
+                    {
+                        Thread.Sleep(Configuration.MainLoopDelay);
+                    }
+                    else
+                    {
+                        loopIndex++;
+                        Thread.Sleep(10);
                     }
                 }
 
-                if (Context.CancellationTokenSource.IsCancellationRequested)
-                    break;
-            }
-
-            if (buffer.Count > 0)
-            {
-                AddRows(buffer, null);
-                buffer.Clear();
-            }
-
-            Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows in {Elapsed}", inputRowCount, LastInvocation.Elapsed);
-            ReadingInput = false;
-
-            var loopIndex = 0;
-            while (true)
-            {
-                WipeAndGet(finished, swProcessing, ref wipedRowCount);
-
+                finished.AddRange(_rows.Where(x => x.State == RowState.Finished));
                 if (finished.Count > 0)
                 {
-                    resultCount += finished.Count;
                     foreach (var finishedRow in finished)
                     {
                         yield return finishedRow;
                     }
 
-                    Context.Log(LogSeverity.Debug, this, "returned {RowCount} rows of {OutputRowCount} in total, active rows: {ActiveRowCount}",
-                        finished.Count, resultCount, Interlocked.Read(ref _activeRowCount));
-
+                    Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} rows", _rows.Count);
+                    Context.Log(LogSeverity.Debug, this, "returned {RowCount} rows", finished.Count);
                     finished.Clear();
                 }
 
-                if (TestDone())
-                    break;
+                _rows.Clear();
 
-                if (loopIndex > 100)
-                {
-                    Thread.Sleep(Configuration.MainLoopDelay);
-                }
-                else
-                {
-                    loopIndex++;
-                    Thread.Sleep(10);
-                }
+                WaitForWorkerThread();
+                ShutdownOperations();
             }
-
-            // safely ignore BasicConfiguration.KeepOrder because _rows is already ordered
-            // so all remaining (finished) items are ordered
-            // todo: test because this is optimistic concurrency
-            finished.AddRange(_rows.Where(x => x.State == RowState.Finished));
-            if (finished.Count > 0)
+            finally
             {
-                foreach (var finishedRow in finished)
-                {
-                    yield return finishedRow;
-                }
-
-                Context.Log(LogSeverity.Verbose, this, "wiped {RowCount} rows", _rows.Count);
-                Context.Log(LogSeverity.Debug, this, "returned {RowCount} rows", finished.Count);
-                finished.Clear();
+                _rowQueue.Dispose();
             }
-
-            _rows.Clear();
-
-            WaitForWorkerThread();
-            ShutdownOperations();
 
             Context.Log(LogSeverity.Debug, this, "finished and retuned {RowCount} rows of {AllRowCount} rows in {Elapsed}", resultCount, _rowsAdded, LastInvocation.Elapsed);
 

@@ -4,8 +4,20 @@
 
     public abstract class AbstractAggregationOperation : IAggregationOperation
     {
-        public string Name { get; set; }
-        public string InstanceName { get; set; } // todo: update name when InstanceName is set
+        public string Name { get; private set; }
+
+        private string _instanceName;
+
+        public string InstanceName
+        {
+            get => _instanceName;
+            set
+            {
+                _instanceName = value;
+                Name = value;
+            }
+        }
+
         public int Number { get; private set; }
         public IProcess Process { get; private set; }
 
