@@ -23,7 +23,7 @@
                     exception.Data.Add("Operation" + index.ToString("D", CultureInfo.InvariantCulture), error.Operation?.Name);
                     exception.Data.Add("Column" + index.ToString("D", CultureInfo.InvariantCulture), kvp.Key);
                     exception.Data.Add("Value" + index.ToString("D", CultureInfo.InvariantCulture), error.OriginalValue != null
-                        ? error.OriginalValue + " (" + TypeHelpers.GetFriendlyTypeName(error.OriginalValue.GetType()) + ")"
+                        ? error.OriginalValue + " (" + error.OriginalValue.GetType().GetFriendlyTypeName() + ")"
                         : "NULL");
                     index++;
                 }

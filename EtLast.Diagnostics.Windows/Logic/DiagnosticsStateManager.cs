@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.Specialized;
+    using System.Globalization;
     using System.IO;
     using System.Net;
     using System.Text;
@@ -51,7 +52,10 @@
                     var body = bodyReader.ReadToEnd();
                     var query = HttpUtility.ParseQueryString(request.Url.Query);
 
-                    HandleRequest(request.HttpMethod, context.Request.Url.AbsolutePath, body, query);
+                    if (context.Request.Url.AbsolutePath == "/diag" && request.HttpMethod == "POST")
+                    {
+                        HandleRequest(body, query);
+                    }
                 }
 
                 var responseBytes = Encoding.UTF8.GetBytes("ACK");
@@ -71,7 +75,7 @@
             }
         }
 
-        private void HandleRequest(string httpMethod, string absoluteUrl, string body, NameValueCollection query)
+        private void HandleRequest(string body, NameValueCollection query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -80,35 +84,42 @@
             if (string.IsNullOrEmpty(sessionId))
                 return;
 
+            var contextName = query["ctx"];
+
             var session = GetSession(sessionId);
 
-            switch (absoluteUrl, httpMethod)
+            using var contentReader = new StringReader(body);
+            var eventCount = int.Parse(contentReader.ReadLine(), CultureInfo.InvariantCulture);
+
+            for (var i = 0; i < eventCount; i++)
             {
-                case ("/log", "POST"):
+                var eventType = contentReader.ReadLine();
+                var payloadLength = int.Parse(contentReader.ReadLine(), CultureInfo.InvariantCulture);
+                var payloadChars = new char[payloadLength];
+                contentReader.ReadBlock(payloadChars, 0, payloadLength);
+                contentReader.ReadLine();
+                var payload = new string(payloadChars);
+
+                var abstractEvent = eventType switch
+                {
+                    "log" => ProcessLogEvent(payload),
+                    "row-created" => ProcessRowCreatedEvent(payload),
+                    "row-owner-changed" => ProcessRowOwnerChangedEvent(payload),
+                    "row-value-changed" => ProcessRowValueChangedEvent(payload),
+                    "row-stored" => ProcessRowStoredEvent(payload),
+                    "context-counters-updated" => ProcessContextCountersUpdatedEvent(payload),
+                    "process-created" => ProcessProcessCreatedEvent(payload),
+                    _ => null,
+                };
+
+                if (abstractEvent != null)
+                {
+                    var context = session.GetContext(contextName);
+                    if (context.WholePlaybook.AddEvent(abstractEvent))
                     {
-                        HandleLogEvent(session, body);
-                        return;
+                        OnNewEventArrived?.Invoke(context, abstractEvent);
                     }
-                case ("/row-created", "POST"):
-                    {
-                        HandleRowCreatedEvent(session, body);
-                        return;
-                    }
-                case ("/row-owner-changed", "POST"):
-                    {
-                        HandleRowOwnerChangedEvent(session, body);
-                        return;
-                    }
-                case ("/row-value-changed", "POST"):
-                    {
-                        HandleRowValueChangedEvent(session, body);
-                        return;
-                    }
-                case ("/row-stored", "POST"):
-                    {
-                        HandleRowStoredEvent(session, body);
-                        return;
-                    }
+                }
             }
         }
 
@@ -125,48 +136,55 @@
             return session;
         }
 
-        private void HandleRowCreatedEvent(Session session, string body)
+        private static AbstractEvent ProcessProcessCreatedEvent(string payload)
         {
-            var evt = JsonSerializer.Deserialize<RowCreatedEvent>(body);
+            var evt = JsonSerializer.Deserialize<ProcessCreatedEvent>(payload);
+            return evt;
+        }
+
+        private static AbstractEvent ProcessRowCreatedEvent(string payload)
+        {
+            var evt = JsonSerializer.Deserialize<RowCreatedEvent>(payload);
 
             if (evt.Values != null)
             {
-                foreach (var arg in evt.Values)
+                foreach (var value in evt.Values)
                 {
-                    arg.CalculateValue();
+                    value.CalculateValue();
                 }
             }
 
-            var context = session.AddEvent(evt);
-            OnNewEventArrived?.Invoke(context, evt);
+            return evt;
         }
 
-        private void HandleRowOwnerChangedEvent(Session session, string body)
+        private static AbstractEvent ProcessRowOwnerChangedEvent(string payload)
         {
-            var evt = JsonSerializer.Deserialize<RowOwnerChangedEvent>(body);
-            var context = session.AddEvent(evt);
-            OnNewEventArrived?.Invoke(context, evt);
+            var evt = JsonSerializer.Deserialize<RowOwnerChangedEvent>(payload);
+            return evt;
         }
 
-        private void HandleRowValueChangedEvent(Session session, string body)
+        private static AbstractEvent ProcessRowValueChangedEvent(string payload)
         {
-            var evt = JsonSerializer.Deserialize<RowValueChangedEvent>(body);
+            var evt = JsonSerializer.Deserialize<RowValueChangedEvent>(payload);
             evt.CurrentValue.CalculateValue();
-
-            var context = session.AddEvent(evt);
-            OnNewEventArrived?.Invoke(context, evt);
+            return evt;
         }
 
-        private void HandleRowStoredEvent(Session session, string body)
+        private static AbstractEvent ProcessRowStoredEvent(string payload)
         {
-            var evt = JsonSerializer.Deserialize<RowStoredEvent>(body);
-            var context = session.AddEvent(evt);
-            OnNewEventArrived?.Invoke(context, evt);
+            var evt = JsonSerializer.Deserialize<RowStoredEvent>(payload);
+            return evt;
         }
 
-        private void HandleLogEvent(Session session, string body)
+        private static AbstractEvent ProcessContextCountersUpdatedEvent(string payload)
         {
-            var evt = JsonSerializer.Deserialize<LogEvent>(body);
+            var evt = JsonSerializer.Deserialize<ContextCountersUpdatedEvent>(payload);
+            return evt;
+        }
+
+        private static AbstractEvent ProcessLogEvent(string payload)
+        {
+            var evt = JsonSerializer.Deserialize<LogEvent>(payload);
             if (evt.Arguments != null)
             {
                 foreach (var arg in evt.Arguments)
@@ -175,15 +193,14 @@
                 }
             }
 
-            var context = session.AddEvent(evt);
-            OnNewEventArrived?.Invoke(context, evt);
+            return evt;
         }
 
-        private bool disposedValue;
+        private bool _disposed;
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!_disposed)
             {
                 if (disposing && _listener != null)
                 {
@@ -191,7 +208,7 @@
                     _listener.Close();
                 }
 
-                disposedValue = true;
+                _disposed = true;
             }
         }
 

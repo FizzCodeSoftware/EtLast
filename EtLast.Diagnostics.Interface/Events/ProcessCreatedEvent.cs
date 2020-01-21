@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface
 {
-    public class ProcessInfo
+    public class ProcessCreatedEvent : AbstractEvent
     {
         public int Uid { get; set; }
         public string Type { get; set; }

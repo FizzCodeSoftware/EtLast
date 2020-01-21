@@ -7,9 +7,8 @@
         public string Column { get; set; }
         public Argument CurrentValue { get; set; }
 
-        public string ProcessUid { get; set; }
-        public string ProcessType { get; set; }
-        public string ProcessName { get; set; }
+        public int? ProcessUid { get; set; }
+
         public string OperationType { get; set; }
         public int? OperationNumber { get; set; }
         public string OperationName { get; set; }

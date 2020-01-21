@@ -3,6 +3,7 @@ namespace FizzCode.EtLast.Diagnostics.Windows
 {
     using System;
     using System.Collections.Generic;
+    using System.Drawing;
     using System.Windows.Forms;
     using FizzCode.EtLast.Diagnostics.Interface;
 
@@ -32,7 +33,11 @@ namespace FizzCode.EtLast.Diagnostics.Windows
         {
             Invoke((Action)delegate
             {
-                var sessionContainer = new TabPage(session.SessionId);
+                var sessionContainer = new TabPage(session.SessionId)
+                {
+                    BorderStyle = BorderStyle.None,
+                };
+
                 var manager = new SessionContainerManager(_stateManager, session, sessionContainer);
                 _sessionTabManagers.Add(session.SessionId, manager);
                 _sessionTabs.TabPages.Add(sessionContainer);

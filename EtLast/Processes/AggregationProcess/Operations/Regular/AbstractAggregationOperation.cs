@@ -23,7 +23,7 @@
 
         protected AbstractAggregationOperation()
         {
-            Name = TypeHelpers.GetFriendlyTypeName(GetType());
+            Name = GetType().GetFriendlyTypeName();
         }
 
         public abstract IRow TransformGroup(string[] groupingColumns, IProcess process, List<IRow> rows);

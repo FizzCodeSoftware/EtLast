@@ -99,7 +99,7 @@
                 };
 
                 commandContext.Logger.Debug("{PluginCount} plugin(s) found: {PluginNames}",
-                    module.EnabledPlugins.Count, module.EnabledPlugins.Select(plugin => TypeHelpers.GetFriendlyTypeName(plugin.GetType())).ToArray());
+                    module.EnabledPlugins.Count, module.EnabledPlugins.Select(plugin => plugin.GetType().GetFriendlyTypeName()).ToArray());
 
                 return module;
             }
@@ -174,7 +174,7 @@
                 };
 
                 commandContext.Logger.Debug("{PluginCount} plugin(s) found: {PluginNames}",
-                    module.EnabledPlugins.Count, module.EnabledPlugins.Select(plugin => TypeHelpers.GetFriendlyTypeName(plugin.GetType())).ToArray());
+                    module.EnabledPlugins.Count, module.EnabledPlugins.Select(plugin => plugin.GetType().GetFriendlyTypeName()).ToArray());
 
                 return module;
             }

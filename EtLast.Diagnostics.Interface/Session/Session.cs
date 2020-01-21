@@ -19,69 +19,21 @@
             SessionId = name;
         }
 
-        private readonly List<SessionContext> _createdContexts = new List<SessionContext>();
-
-        private SessionContext GetContext(string[] names)
+        public SessionContext GetContext(string name)
         {
-            _createdContexts.Clear();
+            if (name == null)
+                name = "/";
 
-            if (!ContextListByName.TryGetValue(names[0], out var context))
+            if (!ContextListByName.TryGetValue(name, out var context))
             {
-                context = new SessionContext(this, names[0], null);
+                context = new SessionContext(this, name);
                 ContextList.Add(context);
-                ContextListByName.Add(names[0], context);
-                _createdContexts.Add(context);
-            }
+                ContextListByName.Add(name, context);
 
-            for (var i = 1; i < names.Length; i++)
-            {
-                if (!context.ChildContextListByName.TryGetValue(names[i], out var childContext))
-                {
-                    childContext = new SessionContext(this, names[i], context);
-                    context.ChildContextList.Add(childContext);
-                    context.ChildContextListByName.Add(names[i], childContext);
-                    _createdContexts.Add(childContext);
-                }
-
-                context = childContext;
-            }
-
-            foreach (var ctx in _createdContexts)
-            {
-                OnSessionContextCreated?.Invoke(ctx);
+                OnSessionContextCreated?.Invoke(context);
             }
 
             return context;
-        }
-
-        public SessionContext AddEvent(AbstractEvent evt)
-        {
-            var context = GetContext(evt.ContextName);
-            context.WholePlaybook.AddEvent(evt);
-            return context;
-        }
-
-        public IEnumerable<SessionContext> GetAllLeafContext()
-        {
-            return GetAllLeafContextRecursive(ContextList);
-        }
-
-        private IEnumerable<SessionContext> GetAllLeafContextRecursive(List<SessionContext> list)
-        {
-            foreach (var context in list)
-            {
-                if (context.ChildContextList?.Count > 0)
-                {
-                    foreach (var child in GetAllLeafContextRecursive(context.ChildContextList))
-                    {
-                        yield return child;
-                    }
-                }
-                else
-                {
-                    yield return context;
-                }
-            }
         }
     }
 }

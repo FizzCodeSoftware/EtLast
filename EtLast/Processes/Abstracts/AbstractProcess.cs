@@ -2,11 +2,10 @@
 {
     using System;
     using System.Diagnostics;
-    using System.Globalization;
 
     public abstract class AbstractProcess : IProcess
     {
-        public string UID { get; } = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+        public int UID { get; }
         public ProcessTestDelegate If { get; set; }
         public IEtlContext Context { get; }
         public IProcess Caller { get; protected set; }
@@ -18,8 +17,10 @@
         protected AbstractProcess(IEtlContext context, string name = null)
         {
             Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
-            Name = name ?? TypeHelpers.GetFriendlyTypeName(GetType());
+            Name = name ?? GetType().GetFriendlyTypeName();
             CounterCollection = new StatCounterCollection(context.CounterCollection);
+
+            UID = Context.GetProcessUid(this);
         }
 
         public void Validate()

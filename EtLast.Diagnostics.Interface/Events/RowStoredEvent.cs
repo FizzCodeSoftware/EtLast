@@ -6,7 +6,7 @@
     {
         public int RowUid { get; set; }
         public List<KeyValuePair<string, string>> Locations { get; set; }
-        public ProcessInfo Process { get; set; }
+        public int ProcessUid { get; set; }
         public OperationInfo Operation { get; set; }
     }
 }

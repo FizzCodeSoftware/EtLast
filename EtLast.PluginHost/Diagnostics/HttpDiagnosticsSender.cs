@@ -2,6 +2,9 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Globalization;
     using System.Net.Http;
     using System.Text;
     using System.Text.Json;
@@ -14,14 +17,16 @@
         private BlockingCollection<Tuple<string, object>> _queue = new BlockingCollection<Tuple<string, object>>();
         private readonly Thread _workerThread;
         private readonly string _sessionId;
+        private readonly string _contextName;
 
-        public HttpDiagnosticsSender(string sessionId, Uri diagnosticsUri)
+        public HttpDiagnosticsSender(string sessionId, string contextName, Uri diagnosticsUri)
         {
             _sessionId = sessionId;
+            _contextName = contextName;
             _uri = diagnosticsUri;
             _client = new HttpClient
             {
-                Timeout = TimeSpan.FromMilliseconds(1000),
+                Timeout = TimeSpan.FromMilliseconds(1500),
             };
 
             _workerThread = new Thread(WorkerMethod);
@@ -31,28 +36,52 @@
         private void WorkerMethod()
         {
             var consumer = _queue.GetConsumingEnumerable();
+            var swLastSent = Stopwatch.StartNew();
 
+            var buffer = new List<Tuple<string, object>>();
             foreach (var element in consumer)
             {
                 try
                 {
-                    var fullUri = new Uri(_uri, element.Item1 + "?sid=" + _sessionId);
-                    var jsonContent = JsonSerializer.Serialize(element.Item2);
-
-                    using (var textContent = new StringContent(jsonContent, Encoding.UTF8, "application/json"))
+                    buffer.Add(element);
+                    if (buffer.Count >= 1000 || swLastSent.ElapsedMilliseconds > 500)
                     {
-                        var response = _client.PostAsync(fullUri, textContent).Result;
-                        var responseBody = response.Content.ReadAsStringAsync().Result;
-                        if (responseBody != "ACK")
-                        {
-                            throw new Exception("ohh");
-                        }
+                        SendBuffer(buffer);
+                        swLastSent.Restart();
                     }
                 }
                 catch (Exception)
                 {
                 }
             }
+
+            SendBuffer(buffer);
+        }
+
+        private void SendBuffer(List<Tuple<string, object>> buffer)
+        {
+            var fullUri = new Uri(_uri, "diag?sid=" + _sessionId + (_contextName != null ? "&ctx=" + _contextName : ""));
+            var builder = new StringBuilder();
+            builder.AppendLine(buffer.Count.ToString("D", CultureInfo.InvariantCulture));
+            foreach (var element in buffer)
+            {
+                var type = element.Item1;
+                var jsonContent = JsonSerializer.Serialize(element.Item2);
+                builder.AppendLine(type);
+                builder.AppendLine(jsonContent.Length.ToString("D", CultureInfo.InvariantCulture));
+                builder.AppendLine(jsonContent);
+            }
+
+            var content = builder.ToString();
+            Console.WriteLine("send diagnostics context, payload size = " + content.Length);
+
+            using (var textContent = new StringContent(content, Encoding.UTF8, "application/json"))
+            {
+                var response = _client.PostAsync(fullUri, textContent).Result;
+                var responseBody = response.Content.ReadAsStringAsync().Result;
+            }
+
+            buffer.Clear();
         }
 
         public void SendDiagnostics(string category, object content)

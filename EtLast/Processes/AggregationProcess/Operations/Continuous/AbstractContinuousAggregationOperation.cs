@@ -9,7 +9,7 @@
 
         protected AbstractContinuousAggregationOperation()
         {
-            Name = TypeHelpers.GetFriendlyTypeName(GetType());
+            Name = GetType().GetFriendlyTypeName();
         }
 
         public abstract void TransformGroup(string[] groupingColumns, IProcess process, IRow row, IRow aggregateRow, int rowsInGroup);

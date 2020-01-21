@@ -27,11 +27,19 @@
 
             HostConfiguration = new HostConfiguration();
 
-            var configuration = new ConfigurationBuilder()
-                .AddJsonFile(hostConfigurationFileName, false)
-                .Build();
+            try
+            {
+                var configuration = new ConfigurationBuilder()
+                    .AddJsonFile(hostConfigurationFileName, false)
+                    .Build();
 
-            HostConfiguration.LoadFromConfiguration(configuration, "EtlHost");
+                HostConfiguration.LoadFromConfiguration(configuration, "EtlHost");
+            }
+            catch (Exception ex)
+            {
+                var exception = new ConfigurationFileException(hostConfigurationFileName, "can't read the configuration file", ex);
+                throw exception;
+            }
 
             if (HostConfiguration.ModulesFolder.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))
             {

@@ -6,20 +6,20 @@
 
     public static class TransactionHelpers
     {
-        public static string ToIdentifierString(this Transaction t)
+        public static string ToIdentifierString(this Transaction transaction)
         {
-            if (t == null)
+            if (transaction == null)
                 return null;
 
-            if (t.TransactionInformation.LocalIdentifier != null)
+            if (transaction.TransactionInformation.LocalIdentifier != null)
             {
-                if (t.TransactionInformation.DistributedIdentifier != Guid.Empty)
-                    return t.TransactionInformation.LocalIdentifier.Substring(t.TransactionInformation.LocalIdentifier.Length - 10) + "::" + t.TransactionInformation.DistributedIdentifier.ToString("N", CultureInfo.InvariantCulture).Substring(26);
+                if (transaction.TransactionInformation.DistributedIdentifier != Guid.Empty)
+                    return transaction.TransactionInformation.LocalIdentifier.Substring(transaction.TransactionInformation.LocalIdentifier.Length - 10) + "::" + transaction.TransactionInformation.DistributedIdentifier.ToString("N", CultureInfo.InvariantCulture).Substring(26);
 
-                return t.TransactionInformation.LocalIdentifier.Substring(t.TransactionInformation.LocalIdentifier.Length - 10);
+                return transaction.TransactionInformation.LocalIdentifier.Substring(transaction.TransactionInformation.LocalIdentifier.Length - 10);
             }
 
-            return t.TransactionInformation
+            return transaction.TransactionInformation
                     .CreationTime
                     .ToString("HHmmssfff", CultureInfo.InvariantCulture);
         }

@@ -9,7 +9,7 @@
     {
         private readonly ResilientSqlScope _scope;
         public IEtlContext Context => _scope.Context;
-        public string UID { get; } = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+        public int UID { get; }
         public string Name { get; } = "PreFinalizerManager";
         public IProcess Caller => _scope;
         public Stopwatch LastInvocation { get; private set; }
@@ -20,6 +20,7 @@
         {
             _scope = scope;
             CounterCollection = new StatCounterCollection(scope.Context.CounterCollection);
+            UID = Context.GetProcessUid(this);
         }
 
         public void Execute()

@@ -23,7 +23,7 @@
 
         protected AbstractRowOperation()
         {
-            Name = "??." + TypeHelpers.GetFriendlyTypeName(GetType());
+            Name = "??." + GetType().GetFriendlyTypeName();
             _hash = Name.GetHashCode(StringComparison.InvariantCultureIgnoreCase);
         }
 
@@ -54,7 +54,7 @@
         public virtual void SetNumber(int number)
         {
             Number = number;
-            Name = Number.ToString("D2", CultureInfo.InvariantCulture) + "." + (InstanceName ?? TypeHelpers.GetFriendlyTypeName(GetType()));
+            Name = Number.ToString("D2", CultureInfo.InvariantCulture) + "." + (InstanceName ?? GetType().GetFriendlyTypeName());
             _hash = Name.GetHashCode(StringComparison.InvariantCultureIgnoreCase);
         }
 

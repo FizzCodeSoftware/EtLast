@@ -29,6 +29,7 @@
                 {
                     Parent = container,
                     Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom,
+                    BorderStyle = BorderStyle.None,
                 };
 
                 _logManager = new LogManager(_stateManager, logContainer, Session);
@@ -37,7 +38,9 @@
                 {
                     Parent = container,
                     Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom,
+                    Appearance = TabAppearance.FlatButtons,
                 };
+                _contextTabs.SelectedIndexChanged += SelectedContextTabChanged;
 
                 Session.OnSessionContextCreated += OnSessionContextCreated;
 
@@ -50,26 +53,35 @@
             }
         }
 
-        private void OnSessionContextCreated(SessionContext context)
+        private void SelectedContextTabChanged(object sender, EventArgs e)
         {
-            context.WholePlaybook.OnProcessAdded += OnProcessAdded;
+            if (_contextTabs.SelectedIndex < 0)
+                return;
+
+            var context = _contextTabs.TabPages[_contextTabs.SelectedIndex].Tag as SessionContext;
+            var contextManager = _contextContainerManagers[context.Name];
+            contextManager.FocusProcessList();
         }
 
-        private void OnProcessAdded(Playbook playbook, TrackedProcess process)
+        private void OnSessionContextCreated(SessionContext context)
         {
-            if (_contextContainerManagers.ContainsKey(playbook.Context.FullName))
+            if (_contextContainerManagers.ContainsKey(context.Name))
                 return;
 
             _contextTabs.Invoke(new Action(() =>
             {
-                var contextContainer = new TabPage(playbook.Context.Name);
+                var contextContainer = new TabPage(context.Name)
+                {
+                    BorderStyle = BorderStyle.None,
+                    Tag = context,
+                };
 
-                var contextManager = new SessionContextContainerManager(playbook.Context, contextContainer);
-                _contextContainerManagers.Add(playbook.Context.FullName, contextManager);
+                var contextManager = new SessionContextContainerManager(context, contextContainer);
+                _contextContainerManagers.Add(context.Name, contextManager);
 
                 _contextTabs.TabPages.Add(contextContainer);
 
-                contextManager.OnProcessAdded(playbook, process);
+                contextManager.FocusProcessList();
             }));
         }
 

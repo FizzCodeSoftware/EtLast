@@ -4,7 +4,7 @@
 
     public interface IProcess
     {
-        string UID { get; }
+        int UID { get; }
         IEtlContext Context { get; }
         string Name { get; }
         IProcess Caller { get; }

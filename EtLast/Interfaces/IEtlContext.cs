@@ -48,5 +48,7 @@
         ContextOnRowOwnerChangedDelegate OnRowOwnerChanged { get; set; }
         ContextOnRowValueChangedDelegate OnRowValueChanged { get; set; }
         ContextOnRowStoredDelegate OnRowStored { get; set; }
+
+        int GetProcessUid(IProcess process);
     }
 }

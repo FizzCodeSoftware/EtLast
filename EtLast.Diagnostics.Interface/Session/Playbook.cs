@@ -5,6 +5,7 @@
     using System.Linq;
 
     public delegate void OnProcessAddedDelegate(Playbook playbook, TrackedProcess process);
+    public delegate void OnCountersUpdatedDelegate(Playbook playbook);
 
     public class Playbook
     {
@@ -13,22 +14,51 @@
         public List<object> Events { get; } = new List<object>();
         public Dictionary<int, TrackedRow> RowList { get; } = new Dictionary<int, TrackedRow>();
         public Dictionary<string, TrackedStore> StoreList { get; } = new Dictionary<string, TrackedStore>();
-        public Dictionary<string, TrackedProcess> ProcessList { get; } = new Dictionary<string, TrackedProcess>();
+        public Dictionary<int, TrackedProcess> ProcessList { get; } = new Dictionary<int, TrackedProcess>();
+        public List<Counter> Counters { get; } = new List<Counter>();
+
         public OnProcessAddedDelegate OnProcessAdded { get; set; }
+        public OnCountersUpdatedDelegate OnCountersUpdated { get; set; }
 
         public Playbook(SessionContext sessionContext)
         {
             Context = sessionContext;
         }
 
-        public void AddEvent(object payload)
+        public bool AddEvent(object payload)
         {
             Events.Add(payload);
 
             switch (payload)
             {
+                case LogEvent evt:
+                    {
+                        if (evt.ProcessUid != null && !ProcessList.TryGetValue(evt.ProcessUid.Value, out var process))
+                            return false;
+                    }
+                    break;
+                case ContextCountersUpdatedEvent evt:
+                    {
+                        Counters.Clear();
+                        Counters.AddRange(evt.Counters);
+                        OnCountersUpdated?.Invoke(this);
+                    }
+                    break;
+                case ProcessCreatedEvent evt:
+                    {
+                        if (!ProcessList.TryGetValue(evt.Uid, out var process))
+                        {
+                            process = new TrackedProcess(evt.Uid, evt.Type, evt.Name);
+                            ProcessList.Add(process.Uid, process);
+                            OnProcessAdded?.Invoke(this, process);
+                        }
+                    }
+                    break;
                 case RowCreatedEvent evt:
                     {
+                        if (!ProcessList.TryGetValue(evt.ProcessUid, out var process))
+                            return false;
+
                         var row = new TrackedRow()
                         {
                             Uid = evt.RowUid,
@@ -47,89 +77,76 @@
 
                         RowList[row.Uid] = row;
 
-                        if (!ProcessList.TryGetValue(evt.Process.Uid, out var process))
-                        {
-                            process = new TrackedProcess(evt.Process);
-                            ProcessList.Add(evt.Process.Uid, process);
-                            OnProcessAdded?.Invoke(this, process);
-                        }
-
                         process.AddRow(row);
                     }
                     break;
                 case RowOwnerChangedEvent evt:
                     {
-                        if (RowList.TryGetValue(evt.RowUid, out var row))
+                        if (!ProcessList.TryGetValue(evt.PreviousProcessUid, out var previousProcess))
+                            return false;
+
+                        if (!RowList.TryGetValue(evt.RowUid, out var row))
+                            return false;
+
+                        TrackedProcess newProcess = null;
+                        if (evt.NewProcessUid != null && !ProcessList.TryGetValue(evt.NewProcessUid.Value, out newProcess))
+                            return false;
+
+                        if (newProcess != null)
                         {
-                            row.AllEvents.Add(evt);
-
-                            if (!ProcessList.TryGetValue(evt.PreviousProcess.Uid, out var previousProcess))
-                            {
-                                previousProcess = new TrackedProcess(evt.PreviousProcess);
-                                ProcessList.Add(evt.PreviousProcess.Uid, previousProcess);
-                                OnProcessAdded?.Invoke(this, previousProcess);
-                            }
-
-                            if (evt.NewProcess != null)
-                            {
-                                if (!ProcessList.TryGetValue(evt.NewProcess.Uid, out var newProcess))
-                                {
-                                    newProcess = new TrackedProcess(evt.NewProcess);
-                                    ProcessList.Add(evt.NewProcess.Uid, newProcess);
-                                    OnProcessAdded?.Invoke(this, newProcess);
-                                }
-
-                                previousProcess.RemoveRow(row);
-                                newProcess.AddRow(row);
-                            }
-                            else
-                            {
-                                previousProcess.DropRow(row);
-                            }
+                            previousProcess.RemoveRow(row);
+                            newProcess.AddRow(row);
                         }
+                        else
+                        {
+                            previousProcess.DropRow(row);
+                        }
+
+                        row.AllEvents.Add(evt);
                     }
                     break;
                 case RowValueChangedEvent evt:
                     {
-                        if (RowList.TryGetValue(evt.RowUid, out var row))
+                        if (!RowList.TryGetValue(evt.RowUid, out var row))
+                            return false;
+
+                        if (evt.ProcessUid != null && !ProcessList.TryGetValue(evt.ProcessUid.Value, out var process))
+                            return false;
+
+                        row.AllEvents.Add(evt);
+                        if (evt.CurrentValue != null)
                         {
-                            row.AllEvents.Add(evt);
-                            if (evt.CurrentValue != null)
-                            {
-                                row.Values[evt.Column] = evt.CurrentValue;
-                            }
-                            else
-                            {
-                                row.Values.Remove(evt.Column);
-                            }
+                            row.Values[evt.Column] = evt.CurrentValue;
+                        }
+                        else
+                        {
+                            row.Values.Remove(evt.Column);
                         }
                     }
                     break;
                 case RowStoredEvent evt:
                     {
-                        if (RowList.TryGetValue(evt.RowUid, out var row))
+                        if (!RowList.TryGetValue(evt.RowUid, out var row))
+                            return false;
+
+                        if (!ProcessList.TryGetValue(evt.ProcessUid, out var process))
+                            return false;
+
+                        row.AllEvents.Add(evt);
+                        var storePath = string.Join("/", evt.Locations.Select(x => x.Value));
+                        if (!StoreList.TryGetValue(storePath, out var store))
                         {
-                            if (!ProcessList.TryGetValue(evt.Process.Uid, out var process))
-                            {
-                                process = new TrackedProcess(evt.Process);
-                                ProcessList.Add(evt.Process.Uid, process);
-                                OnProcessAdded?.Invoke(this, process);
-                            }
-
-                            row.AllEvents.Add(evt);
-                            var storePath = string.Join("/", evt.Locations.Select(x => x.Value));
-                            if (!StoreList.TryGetValue(storePath, out var store))
-                            {
-                                store = new TrackedStore(storePath);
-                                StoreList.Add(storePath, store);
-                            }
-
-                            var snapshot = row.GetSnapshot();
-                            store.Rows.Add(new Tuple<RowStoredEvent, TrackedRowSnapshot>(evt, snapshot));
+                            store = new TrackedStore(storePath);
+                            StoreList.Add(storePath, store);
                         }
+
+                        var snapshot = row.GetSnapshot();
+                        store.Rows.Add(new Tuple<RowStoredEvent, TrackedRowSnapshot>(evt, snapshot));
                     }
                     break;
             }
+
+            return true;
         }
     }
 }

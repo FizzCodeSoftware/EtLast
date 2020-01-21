@@ -3,7 +3,7 @@
     public class RowOwnerChangedEvent : AbstractEvent
     {
         public int RowUid { get; set; }
-        public ProcessInfo PreviousProcess { get; set; }
-        public ProcessInfo NewProcess { get; set; }
+        public int PreviousProcessUid { get; set; }
+        public int? NewProcessUid { get; set; }
     }
 }

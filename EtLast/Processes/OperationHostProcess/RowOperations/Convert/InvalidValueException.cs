@@ -13,7 +13,7 @@
             var value = row[column];
             Data.Add("Operation", row.CurrentOperation?.Name);
             Data.Add("Column", column);
-            Data.Add("Value", value != null ? value.ToString() + " (" + TypeHelpers.GetFriendlyTypeName(value.GetType()) + ")" : "NULL");
+            Data.Add("Value", value != null ? value.ToString() + " (" + value.GetType().GetFriendlyTypeName() + ")" : "NULL");
             Data.Add("Row", row.ToDebugString());
         }
 
@@ -22,9 +22,9 @@
         {
             var value = row[column];
             Data.Add("Operation", row.CurrentOperation?.Name);
-            Data.Add("Converter", TypeHelpers.GetFriendlyTypeName(converter.GetType()));
+            Data.Add("Converter", converter.GetType().GetFriendlyTypeName());
             Data.Add("Column", column);
-            Data.Add("Value", value != null ? value.ToString() + " (" + TypeHelpers.GetFriendlyTypeName(value.GetType()) + ")" : "NULL");
+            Data.Add("Value", value != null ? value.ToString() + " (" + value.GetType().GetFriendlyTypeName() + ")" : "NULL");
             Data.Add("Row", row.ToDebugString());
         }
     }

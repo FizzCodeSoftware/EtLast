@@ -29,8 +29,10 @@
         public ContextOnRowOwnerChangedDelegate OnRowOwnerChanged { get; set; }
         public ContextOnRowValueChangedDelegate OnRowValueChanged { get; set; }
         public ContextOnRowStoredDelegate OnRowStored { get; set; }
+        public ContextOnProcessCreatedDelegate OnProcessCreated { get; set; }
 
-        private int _nextUid;
+        private int _nextRowUid;
+        private int _nextProcessUid;
         private readonly List<Exception> _exceptions = new List<Exception>();
 
         public EtlContext(StatCounterCollection forwardCountersToCollection = null)
@@ -151,7 +153,7 @@
         public IRow CreateRow(IProcess creatorProcess, IEnumerable<KeyValuePair<string, object>> initialValues)
         {
             var row = (IRow)Activator.CreateInstance(RowType);
-            row.Init(this, creatorProcess, Interlocked.Increment(ref _nextUid) - 1, initialValues);
+            row.Init(this, creatorProcess, Interlocked.Increment(ref _nextRowUid) - 1, initialValues);
 
             CounterCollection.IncrementCounter("in-memory rows created", 1);
 
@@ -219,6 +221,13 @@
             var previousProcess = row.CurrentProcess;
             row.CurrentProcess = currentProcess;
             OnRowOwnerChanged?.Invoke(row, previousProcess, currentProcess);
+        }
+
+        public int GetProcessUid(IProcess process)
+        {
+            var uid = Interlocked.Increment(ref _nextProcessUid) - 1;
+            OnProcessCreated?.Invoke(uid, process);
+            return uid;
         }
     }
 }

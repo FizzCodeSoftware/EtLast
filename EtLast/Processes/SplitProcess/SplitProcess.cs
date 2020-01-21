@@ -1,15 +1,14 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Threading;
     using System.Transactions;
 
-    public class SplitProcess<TRowQueue> : AbstractExecutableProcess, ISplitProcess
+    public class SplitProcess<TRowQueue> : AbstractEvaluableProcess, ISplitProcess
         where TRowQueue : IRowQueue, new()
     {
         public IEvaluable InputProcess { get; set; }
-        public bool ConsumerShouldNotBuffer => InputProcess?.ConsumerShouldNotBuffer == true;
+        public override bool ConsumerShouldNotBuffer => InputProcess?.ConsumerShouldNotBuffer == true;
 
         private TRowQueue _queue;
         private Thread _feederThread;
@@ -26,20 +25,10 @@
                 throw new ProcessParameterNullException(this, nameof(InputProcess));
         }
 
-        public IEnumerable<IRow> Evaluate(IProcess caller)
+        protected override IEnumerable<IRow> EvaluateImpl()
         {
-            LastInvocation = Stopwatch.StartNew();
-            Caller = caller; // this process has multiple callers
-            Validate();
-
             StartQueueFeeder();
-
             return _queue.GetConsumer(Context.CancellationTokenSource.Token);
-        }
-
-        protected override void ExecuteImpl()
-        {
-            throw new EtlException(nameof(Execute) + " is not supported in " + GetType().Name);
         }
 
         private void StartQueueFeeder()

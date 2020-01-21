@@ -149,7 +149,7 @@
                 exception.Data.Add("SqlStatementCompiled", CompileSql(_command));
                 exception.Data.Add("Timeout", CommandTimeout);
                 exception.Data.Add("Elapsed", startedOn.Elapsed);
-                exception.Data.Add("SqlStatementCreator", TypeHelpers.GetFriendlyTypeName(SqlStatementCreator.GetType()));
+                exception.Data.Add("SqlStatementCreator", SqlStatementCreator.GetType().GetFriendlyTypeName());
                 exception.Data.Add("TotalRowsWritten", _rowsWritten);
                 throw exception;
             }
@@ -187,7 +187,7 @@
                     .Append(" (DB: ")
                     .Append(p.DbType)
                     .Append(") = ")
-                    .Append(p.Value != null ? Convert.ToString(p.Value, CultureInfo.InvariantCulture) + " (" + TypeHelpers.GetFriendlyTypeName(p.Value.GetType()) + ")" : "NULL")
+                    .Append(p.Value != null ? Convert.ToString(p.Value, CultureInfo.InvariantCulture) + " (" + p.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")
                     .Append(", prec: ")
                     .Append(p.Precision)
                     .Append(", scale: ")

@@ -6,7 +6,7 @@
 
     public static class TypeHelpers
     {
-        public static string GetFriendlyTypeName(Type type)
+        public static string GetFriendlyTypeName(this Type type)
         {
             if (type == null)
                 return "<unknown type>";

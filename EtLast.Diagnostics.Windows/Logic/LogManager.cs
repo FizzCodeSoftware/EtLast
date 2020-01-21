@@ -3,7 +3,6 @@
     using System;
     using System.Drawing;
     using System.Globalization;
-    using System.Linq;
     using System.Windows.Forms;
     using FizzCode.EtLast.Diagnostics.Interface;
 
@@ -30,6 +29,7 @@
                 ForeColor = Color.LightGray,
                 Font = new Font("CONSOLAS", 11.0f),
                 HideSelection = false,
+                BorderStyle = BorderStyle.FixedSingle,
             };
 
             _output.AppendText("[SESSION STARTED] [" + Session.SessionId + "]" + Environment.NewLine);
@@ -44,7 +44,7 @@
 
             switch (abstractEvent)
             {
-                case RowCreatedEvent evt:
+                /*case RowCreatedEvent evt:
                     _output.Invoke((Action)delegate
                     {
                         _output.AppendText(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + context.FullName + "] [ROW-CREATED] ");
@@ -91,15 +91,18 @@
                         _output.AppendText(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + context.FullName + "] [ROW-STORED] UID=" + evt.RowUid.ToString("D", CultureInfo.InvariantCulture) + ", location: " + string.Join(" / ", evt.Locations.Select(x => x.Key + "=" + x.Value)));
                         _output.AppendText(Environment.NewLine);
                     });
-                    break;
+                    break;*/
                 case LogEvent evt:
                     _output.Invoke((Action)delegate
                     {
-                        _output.AppendText(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + context.FullName + "] [" + evt.Severity.ToShortString() + "] ");
+                        _output.AppendText(new DateTime(evt.Ts).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + context.Name + "] [" + evt.Severity.ToShortString() + "] ");
 
-                        if (evt.Process != null)
+                        if (evt.ProcessUid != null)
                         {
-                            _output.AppendText("<" + evt.Process.Name + "> ");
+                            if (context.WholePlaybook.ProcessList.TryGetValue(evt.ProcessUid.Value, out var process))
+                            {
+                                _output.AppendText("<" + process.Name + "> ");
+                            }
                         }
 
                         if (evt.Operation != null)
@@ -121,21 +124,21 @@
                         _output.AppendText(Environment.NewLine);
                     });
                     break;
-                case RowOwnerChangedEvent evt:
-                    _output.Invoke((Action)delegate
-                    {
-                        _output.AppendText(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + context.FullName + "] [ROW-OWNER-CHANGED] ");
-
-                        if (evt.NewProcess.Uid != null)
+                    /*case RowOwnerChangedEvent evt:
+                        _output.Invoke((Action)delegate
                         {
-                            _output.AppendText("<" + evt.NewProcess.Name + "> ");
-                        }
+                            _output.AppendText(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + context.FullName + "] [ROW-OWNER-CHANGED] ");
 
-                        _output.AppendText("UID=" + evt.RowUid.ToString("D", CultureInfo.InvariantCulture));
+                            if (evt.NewProcess.Uid != null)
+                            {
+                                _output.AppendText("<" + evt.NewProcess.Name + "> ");
+                            }
 
-                        _output.AppendText(Environment.NewLine);
-                    });
-                    break;
+                            _output.AppendText("UID=" + evt.RowUid.ToString("D", CultureInfo.InvariantCulture));
+
+                            _output.AppendText(Environment.NewLine);
+                        });
+                        break;*/
             }
         }
     }

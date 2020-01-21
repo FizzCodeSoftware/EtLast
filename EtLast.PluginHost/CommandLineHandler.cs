@@ -1,9 +1,11 @@
 ﻿namespace FizzCode.EtLast.PluginHost
 {
     using System;
+    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
     using System.Text.RegularExpressions;
+    using System.Threading;
     using CommandDotNet;
     using CommandDotNet.Help;
 
@@ -26,8 +28,21 @@
             {
                 Context.Load();
             }
-            catch
+            catch (Exception ex)
             {
+                var msg = ex.FormatExceptionWithDetails();
+                Console.WriteLine("error during initialization:");
+                Console.WriteLine(msg);
+                if (Debugger.IsAttached)
+                {
+                    Console.WriteLine("press any key to exit...");
+                    Console.ReadKey();
+                }
+                else
+                {
+                    Thread.Sleep(3000);
+                }
+
                 return;
             }
 

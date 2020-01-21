@@ -2,7 +2,6 @@
 {
     public abstract class AbstractEvent
     {
-        public long Timestamp { get; set; }
-        public string[] ContextName { get; set; }
+        public long Ts { get; set; }
     }
 }

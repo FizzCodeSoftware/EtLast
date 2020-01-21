@@ -63,7 +63,7 @@
 
             if (method.DeclaringType != null)
             {
-                sb.Append(TypeHelpers.GetFriendlyTypeName(method.DeclaringType))
+                sb.Append(method.DeclaringType.GetFriendlyTypeName())
                     .Append(".");
             }
 
@@ -77,7 +77,7 @@
             }
 
             sb.Append("(")
-                .Append(string.Join(", ", method.GetParameters().Select(mp => TypeHelpers.GetFriendlyTypeName(mp.ParameterType) + " " + mp.Name)))
+                .Append(string.Join(", ", method.GetParameters().Select(mp => mp.ParameterType.GetFriendlyTypeName() + " " + mp.Name)))
                 .Append(")");
 
             try
