@@ -6,7 +6,10 @@
 
     public class Argument
     {
+        [JsonPropertyName("v")]
         public string TextValue { get; set; }
+
+        [JsonPropertyName("t")]
         public ArgumentType Type { get; set; }
 
         [JsonIgnore]

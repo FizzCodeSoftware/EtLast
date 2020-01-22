@@ -39,7 +39,7 @@ namespace FizzCode.EtLast.Diagnostics.Windows
                     BorderStyle = BorderStyle.None,
                 };
 
-                var manager = new SessionContainerManager(_stateManager, session, sessionContainer);
+                var manager = new SessionContainerManager(session, sessionContainer);
                 _sessionTabManagers.Add(session.SessionId, manager);
                 _sessionTabs.TabPages.Add(sessionContainer);
                 _sessionTabs.SelectedTab = sessionContainer;

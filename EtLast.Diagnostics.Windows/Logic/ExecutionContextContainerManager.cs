@@ -141,7 +141,7 @@
                 if (!_timelineContainer.Enabled)
                 {
                     _timelineContainer.Enabled = true;
-                    _firstEventLabel.Text = new DateTime(Context.WholePlaybook.Events[0].Ts).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
+                    _firstEventLabel.Text = new DateTime(Context.WholePlaybook.Events[0].Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
 
                     _firstEventLabel.Visible = true;
                     _lastEventLabel.Visible = true;
@@ -154,10 +154,10 @@
                 }
 
                 var last = Context.WholePlaybook.Events[Context.WholePlaybook.Events.Count - 1];
-                _lastEventLabel.Text = new DateTime(last.Ts).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
+                _lastEventLabel.Text = new DateTime(last.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
                 _lastEventLabel.Location = new Point(_timelineContainer.Width - _lastEventLabel.Width, 0);
 
-                _timelineTrackbar.Maximum = (int)(playbook.Events[playbook.Events.Count - 1].Ts - playbook.Events[0].Ts);
+                _timelineTrackbar.Maximum = (int)(playbook.Events[playbook.Events.Count - 1].Timestamp - playbook.Events[0].Timestamp);
                 UpdateCurrentEventLabelPosition();
             }));
         }
@@ -191,19 +191,21 @@
 
             foreach (var actualCounter in counters)
             {
-                var item = _counterList.Items[actualCounter.Code];
+                var item = _counterList.Items[actualCounter.Name];
 
-                if (!_counterList.Items.ContainsKey(actualCounter.Code))
+                if (!_counterList.Items.ContainsKey(actualCounter.Name))
                 {
-                    item = _counterList.Items.Add(actualCounter.Code, actualCounter.Name, -1);
+                    item = _counterList.Items.Add(actualCounter.Name, actualCounter.Name, -1);
                     item.SubItems.Add("-");
                     item.SubItems.Add("-");
                 }
                 else
-                    item = _counterList.Items[actualCounter.Code];
+                {
+                    item = _counterList.Items[actualCounter.Name];
+                }
 
                 Counter currentCounter = null;
-                CurrentPlaybook?.Counters?.TryGetValue(actualCounter.Code, out currentCounter);
+                CurrentPlaybook?.Counters?.TryGetValue(actualCounter.Name, out currentCounter);
                 item.SubItems[1].Text = currentCounter?.ValueToString ?? "-";
                 item.SubItems[2].Text = actualCounter.ValueToString;
             }
@@ -231,14 +233,14 @@
         {
             CurrentPlaybook = new Playbook(Context);
 
-            var selectedTick = Context.WholePlaybook.Events[0].Ts + tickDiff;
+            var selectedTick = Context.WholePlaybook.Events[0].Timestamp + tickDiff;
 
             var events = new List<AbstractEvent>();
             var idx = 0;
             while (idx < Context.WholePlaybook.Events.Count)
             {
                 var evt = Context.WholePlaybook.Events[idx++];
-                if (evt.Ts > selectedTick)
+                if (evt.Timestamp > selectedTick)
                     break;
 
                 events.Add(evt);
@@ -246,7 +248,7 @@
 
             CurrentPlaybook.AddEvents(events);
 
-            _currentEventLabel.Text = new DateTime(CurrentPlaybook.Events.Last().Ts).ToString("yyyy.MM.dd HH:mm:ss", CultureInfo.InvariantCulture);
+            _currentEventLabel.Text = new DateTime(CurrentPlaybook.Events.Last().Timestamp).ToString("yyyy.MM.dd HH:mm:ss", CultureInfo.InvariantCulture);
             if (!_currentEventLabel.Visible)
             {
                 _currentEventLabel.Visible = true;

@@ -123,7 +123,7 @@
                 {
                     _diagnosticsSender.SendDiagnostics("log", new Diagnostics.Interface.LogEvent()
                     {
-                        Ts = DateTime.Now.Ticks,
+                        Timestamp = DateTime.Now.Ticks,
                         Text = text,
                         Severity = severity,
                         ForOps = forOps,
@@ -156,7 +156,7 @@
 
                 _diagnosticsSender.SendDiagnostics("log", new Diagnostics.Interface.LogEvent()
                 {
-                    Ts = DateTime.Now.Ticks,
+                    Timestamp = DateTime.Now.Ticks,
                     Text = text,
                     Severity = severity,
                     ForOps = forOps,
@@ -186,11 +186,10 @@
 
             _diagnosticsSender.SendDiagnostics("context-counters-updated", new ContextCountersUpdatedEvent()
             {
-                Ts = DateTime.Now.Ticks,
+                Timestamp = DateTime.Now.Ticks,
                 Counters = counters.Select(c => new Counter()
                 {
                     Name = c.Name,
-                    Code = c.Code,
                     Value = c.Value,
                     ValueType = c.ValueType,
                 }).ToList(),
@@ -299,7 +298,7 @@
         {
             _diagnosticsSender?.SendDiagnostics("row-created", new RowCreatedEvent()
             {
-                Ts = DateTime.Now.Ticks,
+                Timestamp = DateTime.Now.Ticks,
                 ProcessUid = creatorProcess.UID,
                 RowUid = row.UID,
                 Values = row.Values.Select(x => NamedArgument.FromObject(x.Key, x.Value)).ToList(),
@@ -310,7 +309,7 @@
         {
             _diagnosticsSender?.SendDiagnostics("row-owner-changed", new RowOwnerChangedEvent()
             {
-                Ts = DateTime.Now.Ticks,
+                Timestamp = DateTime.Now.Ticks,
                 RowUid = row.UID,
                 PreviousProcessUid = previousProcess.UID,
                 NewProcessUid = currentProcess?.UID,
@@ -321,7 +320,7 @@
         {
             _diagnosticsSender?.SendDiagnostics("row-stored", new RowStoredEvent()
             {
-                Ts = DateTime.Now.Ticks,
+                Timestamp = DateTime.Now.Ticks,
                 RowUid = row.UID,
                 Locations = location,
                 ProcessUid = process.UID,
@@ -338,7 +337,7 @@
         {
             _diagnosticsSender?.SendDiagnostics("process-created", new ProcessCreatedEvent()
             {
-                Ts = DateTime.Now.Ticks,
+                Timestamp = DateTime.Now.Ticks,
                 Uid = uid,
                 Type = process.GetType().GetFriendlyTypeName(),
                 Name = process.Name,
@@ -349,7 +348,7 @@
         {
             _diagnosticsSender?.SendDiagnostics("row-value-changed", new RowValueChangedEvent()
             {
-                Ts = DateTime.Now.Ticks,
+                Timestamp = DateTime.Now.Ticks,
                 RowUid = row.UID,
                 Column = column,
                 CurrentValue = Argument.FromObject(currentValue),

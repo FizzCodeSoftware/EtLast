@@ -1,7 +1,10 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface
 {
+    using System.Text.Json.Serialization;
+
     public abstract class AbstractEvent
     {
-        public long Ts { get; set; }
+        [JsonPropertyName("ts")]
+        public long Timestamp { get; set; }
     }
 }

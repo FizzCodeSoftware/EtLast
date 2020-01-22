@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Text.Json.Serialization;
 
     public class ContextCountersUpdatedEvent : AbstractEvent
     {
@@ -10,9 +11,13 @@
 
     public class Counter
     {
+        [JsonPropertyName("n")]
         public string Name { get; set; }
-        public string Code { get; set; }
+
+        [JsonPropertyName("v")]
         public long Value { get; set; }
+
+        [JsonPropertyName("t")]
         public StatCounterValueType ValueType { get; set; }
 
         public string ValueToString => ValueType switch

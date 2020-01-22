@@ -48,7 +48,7 @@
             {
                 foreach (var evt in logEvents)
                 {
-                    _output.AppendText(new DateTime(evt.Ts).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + playbook.ExecutionContext.Name + "] [" + evt.Severity.ToShortString() + "] ");
+                    _output.AppendText(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + playbook.ExecutionContext.Name + "] [" + evt.Severity.ToShortString() + "] ");
 
                     if (evt.ProcessUid != null && playbook.ProcessList.TryGetValue(evt.ProcessUid.Value, out var process))
                     {

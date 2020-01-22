@@ -160,7 +160,7 @@
             {
                 foreach (var counter in lastContextCountersUpdatedEvent.Counters)
                 {
-                    Counters[counter.Code] = counter;
+                    Counters[counter.Name] = counter;
                 }
 
                 OnCountersUpdated?.Invoke(this);

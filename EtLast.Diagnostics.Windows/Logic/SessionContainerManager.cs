@@ -13,15 +13,13 @@
         public Session Session { get; }
         public Control Container { get; }
 
-        private readonly DiagnosticsStateManager _stateManager;
         private readonly TabControl _contextTabs;
         private readonly LogManager _logManager;
         private readonly Dictionary<string, ExecutionContextContainerManager> _contextContainerManagers = new Dictionary<string, ExecutionContextContainerManager>();
 
-        public SessionContainerManager(DiagnosticsStateManager stateManager, Session session, Control container)
+        public SessionContainerManager(Session session, Control container)
         {
             Session = session;
-            _stateManager = stateManager;
             Container = container;
             Container.SuspendLayout();
             try

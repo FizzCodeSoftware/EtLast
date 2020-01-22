@@ -115,7 +115,7 @@
                 {
                     if (context.StartedOn == null)
                     {
-                        context.SetStartedOn(new DateTime(abstractEvent.Ts));
+                        context.SetStartedOn(new DateTime(abstractEvent.Timestamp));
                     }
 
                     events.Add(abstractEvent);
