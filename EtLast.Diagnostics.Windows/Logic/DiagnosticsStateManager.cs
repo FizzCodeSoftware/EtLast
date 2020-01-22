@@ -11,13 +11,11 @@
     using System.Web;
     using FizzCode.EtLast.Diagnostics.Interface;
 
-    internal delegate void OnNewEventArrivedDelegate(SessionContext context, AbstractEvent evt);
     internal delegate void OnSessionCreatedDelegate(Session session);
 
     internal class DiagnosticsStateManager : IDisposable
     {
         public OnSessionCreatedDelegate OnSessionCreated { get; set; }
-        public OnNewEventArrivedDelegate OnNewEventArrived { get; set; }
 
         private readonly HttpListener _listener;
         private readonly Dictionary<string, Session> _sessions = new Dictionary<string, Session>();
@@ -85,12 +83,13 @@
                 return;
 
             var contextName = query["ctx"];
-
             var session = GetSession(sessionId);
+            var context = session.GetExecutionContext(contextName);
 
             using var contentReader = new StringReader(body);
             var eventCount = int.Parse(contentReader.ReadLine(), CultureInfo.InvariantCulture);
 
+            var events = new List<AbstractEvent>();
             for (var i = 0; i < eventCount; i++)
             {
                 var eventType = contentReader.ReadLine();
@@ -114,13 +113,16 @@
 
                 if (abstractEvent != null)
                 {
-                    var context = session.GetContext(contextName);
-                    if (context.WholePlaybook.AddEvent(abstractEvent))
+                    if (context.StartedOn == null)
                     {
-                        OnNewEventArrived?.Invoke(context, abstractEvent);
+                        context.SetStartedOn(new DateTime(abstractEvent.Ts));
                     }
+
+                    events.Add(abstractEvent);
                 }
             }
+
+            context.WholePlaybook.AddEvents(events);
         }
 
         private Session GetSession(string sessionId)

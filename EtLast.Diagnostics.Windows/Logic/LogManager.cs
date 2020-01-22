@@ -1,8 +1,10 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows
 {
     using System;
+    using System.Collections.Generic;
     using System.Drawing;
     using System.Globalization;
+    using System.Linq;
     using System.Windows.Forms;
     using FizzCode.EtLast.Diagnostics.Interface;
 
@@ -12,10 +14,9 @@
     {
         public Control Container { get; }
         public Session Session { get; }
-
         private readonly RichTextBox _output;
 
-        public LogManager(DiagnosticsStateManager stateManager, Control container, Session session)
+        public LogManager(Control container, Session session)
         {
             Container = container;
             Session = session;
@@ -34,112 +35,44 @@
 
             _output.AppendText("[SESSION STARTED] [" + Session.SessionId + "]" + Environment.NewLine);
 
-            stateManager.OnNewEventArrived += NewEventArrived;
+            session.OnExecutionContextCreated += executionContext => executionContext.WholePlaybook.OnEventsAdded += OnEventsAdded;
         }
 
-        private void NewEventArrived(SessionContext context, AbstractEvent abstractEvent)
+        private void OnEventsAdded(Playbook playbook, List<AbstractEvent> abstractEvents)
         {
-            if (Session != null && context.Session != Session)
+            var logEvents = abstractEvents.OfType<LogEvent>().ToList();
+            if (logEvents.Count == 0)
                 return;
 
-            switch (abstractEvent)
+            _output.Invoke((Action)delegate
             {
-                /*case RowCreatedEvent evt:
-                    _output.Invoke((Action)delegate
+                foreach (var evt in logEvents)
+                {
+                    _output.AppendText(new DateTime(evt.Ts).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + playbook.ExecutionContext.Name + "] [" + evt.Severity.ToShortString() + "] ");
+
+                    if (evt.ProcessUid != null && playbook.ProcessList.TryGetValue(evt.ProcessUid.Value, out var process))
                     {
-                        _output.AppendText(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + context.FullName + "] [ROW-CREATED] ");
+                        _output.AppendText("<" + process.Name + "> ");
+                    }
 
-                        if (evt.Process != null)
-                        {
-                            _output.AppendText("<" + evt.Process.Name + "> ");
-                        }
-
-                        _output.AppendText("UID=" + evt.RowUid.ToString("D", CultureInfo.InvariantCulture));
-
-                        if (evt.Values != null)
-                        {
-                            _output.AppendText(", " + string.Join(", ", evt.Values.Select(x => x.Name + "=" + x.ToDisplayValue() + (x.Value == null ? "" : " (" + x.Value.GetType().Name + ")"))));
-                        }
-
-                        _output.AppendText(Environment.NewLine);
-                    });
-                    break;
-                case RowValueChangedEvent evt:
-                    _output.Invoke((Action)delegate
+                    if (evt.Operation != null)
                     {
-                        _output.AppendText(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + context.FullName + "] [ROW-VALUE-CHANGED] ");
+                        _output.AppendText("(" + evt.Operation.Name + "/#" + evt.Operation.Number + ") ");
+                    }
 
-                        if (evt.ProcessUid != null)
-                        {
-                            _output.AppendText("<" + evt.ProcessName + "> ");
-                        }
-
-                        if (evt.OperationType != null)
-                        {
-                            _output.AppendText("(" + evt.OperationName + "/#" + evt.OperationNumber + ") ");
-                        }
-
-                        _output.AppendText("UID=" + evt.RowUid.ToString("D", CultureInfo.InvariantCulture)
-                            + ", column: " + evt.Column + ", current value: " + evt.CurrentValue.ToDisplayValue());
-
-                        _output.AppendText(Environment.NewLine);
-                    });
-                    break;
-                case RowStoredEvent evt:
-                    _output.Invoke((Action)delegate
+                    var text = evt.Text;
+                    if (evt.Arguments != null)
                     {
-                        _output.AppendText(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + context.FullName + "] [ROW-STORED] UID=" + evt.RowUid.ToString("D", CultureInfo.InvariantCulture) + ", location: " + string.Join(" / ", evt.Locations.Select(x => x.Key + "=" + x.Value)));
-                        _output.AppendText(Environment.NewLine);
-                    });
-                    break;*/
-                case LogEvent evt:
-                    _output.Invoke((Action)delegate
-                    {
-                        _output.AppendText(new DateTime(evt.Ts).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + context.Name + "] [" + evt.Severity.ToShortString() + "] ");
-
-                        if (evt.ProcessUid != null)
+                        foreach (var arg in evt.Arguments)
                         {
-                            if (context.WholePlaybook.ProcessList.TryGetValue(evt.ProcessUid.Value, out var process))
-                            {
-                                _output.AppendText("<" + process.Name + "> ");
-                            }
+                            text = text.Replace(arg.Name, arg.ToDisplayValue(), StringComparison.InvariantCultureIgnoreCase);
                         }
+                    }
 
-                        if (evt.Operation != null)
-                        {
-                            _output.AppendText("(" + evt.Operation.Name + "/#" + evt.Operation.Number + ") ");
-                        }
-
-                        var text = evt.Text;
-                        if (evt.Arguments != null)
-                        {
-                            foreach (var arg in evt.Arguments)
-                            {
-                                text = text.Replace(arg.Name, arg.ToDisplayValue(), StringComparison.InvariantCultureIgnoreCase);
-                            }
-                        }
-
-                        _output.AppendText(text);
-
-                        _output.AppendText(Environment.NewLine);
-                    });
-                    break;
-                    /*case RowOwnerChangedEvent evt:
-                        _output.Invoke((Action)delegate
-                        {
-                            _output.AppendText(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + context.FullName + "] [ROW-OWNER-CHANGED] ");
-
-                            if (evt.NewProcess.Uid != null)
-                            {
-                                _output.AppendText("<" + evt.NewProcess.Name + "> ");
-                            }
-
-                            _output.AppendText("UID=" + evt.RowUid.ToString("D", CultureInfo.InvariantCulture));
-
-                            _output.AppendText(Environment.NewLine);
-                        });
-                        break;*/
-            }
+                    _output.AppendText(text);
+                    _output.AppendText(Environment.NewLine);
+                }
+            });
         }
     }
 }

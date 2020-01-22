@@ -3,34 +3,34 @@
     using System.Collections.Generic;
     using System.Diagnostics;
 
-    public delegate void OnSessionContextCreatedDelegate(SessionContext sessionContext);
+    public delegate void OnSessionContextCreatedDelegate(ExecutionContext executionContext);
 
     [DebuggerDisplay("{SessionId}")]
     public class Session
     {
         public string SessionId { get; }
 
-        public List<SessionContext> ContextList { get; } = new List<SessionContext>();
-        public Dictionary<string, SessionContext> ContextListByName { get; } = new Dictionary<string, SessionContext>();
-        public OnSessionContextCreatedDelegate OnSessionContextCreated { get; set; }
+        public List<ExecutionContext> ContextList { get; } = new List<ExecutionContext>();
+        public Dictionary<string, ExecutionContext> ExecutionContextListByName { get; } = new Dictionary<string, ExecutionContext>();
+        public OnSessionContextCreatedDelegate OnExecutionContextCreated { get; set; }
 
         public Session(string name)
         {
             SessionId = name;
         }
 
-        public SessionContext GetContext(string name)
+        public ExecutionContext GetExecutionContext(string name)
         {
             if (name == null)
                 name = "/";
 
-            if (!ContextListByName.TryGetValue(name, out var context))
+            if (!ExecutionContextListByName.TryGetValue(name, out var context))
             {
-                context = new SessionContext(this, name);
+                context = new ExecutionContext(this, name);
                 ContextList.Add(context);
-                ContextListByName.Add(name, context);
+                ExecutionContextListByName.Add(name, context);
 
-                OnSessionContextCreated?.Invoke(context);
+                OnExecutionContextCreated?.Invoke(context);
             }
 
             return context;

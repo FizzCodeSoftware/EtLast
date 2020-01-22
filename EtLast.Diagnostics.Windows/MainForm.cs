@@ -4,6 +4,7 @@ namespace FizzCode.EtLast.Diagnostics.Windows
     using System;
     using System.Collections.Generic;
     using System.Drawing;
+    using System.Linq;
     using System.Windows.Forms;
     using FizzCode.EtLast.Diagnostics.Interface;
 
@@ -49,7 +50,22 @@ namespace FizzCode.EtLast.Diagnostics.Windows
         {
             base.OnLoad(e);
 
-            //this.MaximizeOnSecondaryScreen();
+            MaximizeOnSecondaryScreen();
+        }
+
+        private void MaximizeOnSecondaryScreen()
+        {
+            var screen = Screen.AllScreens.Length == 1 || true
+                ? Screen.PrimaryScreen
+                : Screen.AllScreens
+                    .Where(x => !x.Primary)
+                    .OrderByDescending(x => x.Bounds.Width)
+                    .First();
+
+            SuspendLayout();
+            Bounds = new Rectangle(screen.Bounds.Left, screen.Bounds.Top, Bounds.Width, Bounds.Height);
+            WindowState = FormWindowState.Maximized;
+            ResumeLayout();
         }
     }
 }

@@ -77,8 +77,14 @@
 
             using (var textContent = new StringContent(content, Encoding.UTF8, "application/json"))
             {
-                var response = _client.PostAsync(fullUri, textContent).Result;
-                var responseBody = response.Content.ReadAsStringAsync().Result;
+                try
+                {
+                    var response = _client.PostAsync(fullUri, textContent).Result;
+                    var responseBody = response.Content.ReadAsStringAsync().Result;
+                }
+                catch (Exception)
+                {
+                }
             }
 
             buffer.Clear();

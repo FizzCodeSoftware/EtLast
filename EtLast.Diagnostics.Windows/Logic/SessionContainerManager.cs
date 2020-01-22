@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Windows.Forms;
     using FizzCode.EtLast.Diagnostics.Interface;
 
@@ -15,7 +16,7 @@
         private readonly DiagnosticsStateManager _stateManager;
         private readonly TabControl _contextTabs;
         private readonly LogManager _logManager;
-        private readonly Dictionary<string, SessionContextContainerManager> _contextContainerManagers = new Dictionary<string, SessionContextContainerManager>();
+        private readonly Dictionary<string, ExecutionContextContainerManager> _contextContainerManagers = new Dictionary<string, ExecutionContextContainerManager>();
 
         public SessionContainerManager(DiagnosticsStateManager stateManager, Session session, Control container)
         {
@@ -32,7 +33,7 @@
                     BorderStyle = BorderStyle.None,
                 };
 
-                _logManager = new LogManager(_stateManager, logContainer, Session);
+                _logManager = new LogManager(logContainer, Session);
 
                 _contextTabs = new TabControl()
                 {
@@ -42,7 +43,7 @@
                 };
                 _contextTabs.SelectedIndexChanged += SelectedContextTabChanged;
 
-                Session.OnSessionContextCreated += OnSessionContextCreated;
+                Session.OnExecutionContextCreated += OnExecutionContextCreated;
 
                 container.Resize += Container_Resize;
                 Container_Resize(null, EventArgs.Empty);
@@ -58,30 +59,44 @@
             if (_contextTabs.SelectedIndex < 0)
                 return;
 
-            var context = _contextTabs.TabPages[_contextTabs.SelectedIndex].Tag as SessionContext;
+            var context = _contextTabs.TabPages[_contextTabs.SelectedIndex].Tag as ExecutionContext;
             var contextManager = _contextContainerManagers[context.Name];
             contextManager.FocusProcessList();
         }
 
-        private void OnSessionContextCreated(SessionContext context)
+        private void OnExecutionContextCreated(ExecutionContext executionContext)
         {
-            if (_contextContainerManagers.ContainsKey(context.Name))
+            if (_contextContainerManagers.ContainsKey(executionContext.Name))
                 return;
 
             _contextTabs.Invoke(new Action(() =>
             {
-                var contextContainer = new TabPage(context.Name)
+                var contextContainer = new TabPage(executionContext.Name)
                 {
                     BorderStyle = BorderStyle.None,
-                    Tag = context,
+                    Tag = executionContext,
                 };
 
-                var contextManager = new SessionContextContainerManager(context, contextContainer);
-                _contextContainerManagers.Add(context.Name, contextManager);
+                executionContext.OnStartedOnSet += OnExecutionContextStartedOnChanged;
+
+                var contextManager = new ExecutionContextContainerManager(executionContext, contextContainer);
+                _contextContainerManagers.Add(executionContext.Name, contextManager);
 
                 _contextTabs.TabPages.Add(contextContainer);
 
                 contextManager.FocusProcessList();
+            }));
+        }
+
+        private void OnExecutionContextStartedOnChanged(ExecutionContext executionContext)
+        {
+            _contextTabs.Invoke(new Action(() =>
+            {
+                var manager = _contextContainerManagers[executionContext.Name];
+                var page = manager.Container as TabPage;
+                _contextTabs.TabPages.Remove(page);
+                var idx = Session.ContextList.OrderBy(x => x.StartedOn).ToList().IndexOf(executionContext);
+                _contextTabs.TabPages.Insert(idx, page);
             }));
         }
 

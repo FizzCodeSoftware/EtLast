@@ -9,6 +9,7 @@
     using System.Text;
     using System.Threading;
     using FizzCode.EtLast;
+    using FizzCode.EtLast.Diagnostics.Interface;
     using Serilog.Events;
     using Serilog.Parsing;
 
@@ -127,7 +128,7 @@
                         Severity = severity,
                         ForOps = forOps,
                         ProcessUid = process?.UID,
-                        Operation = operation == null ? null : new Diagnostics.Interface.OperationInfo()
+                        Operation = operation == null ? null : new OperationInfo()
                         {
                             Number = operation.Number,
                             Type = operation.GetType().GetFriendlyTypeName(),
@@ -140,7 +141,7 @@
 
                 var template = GetMessageTemplate(text);
 
-                var arguments = new Diagnostics.Interface.NamedArgument[args.Length];
+                var arguments = new NamedArgument[args.Length];
                 var idx = 0;
                 var tokens = template.Tokens.ToList();
                 for (var i = 0; i < tokens.Count && idx < args.Length; i++)
@@ -148,7 +149,7 @@
                     if (tokens[i] is PropertyToken pt)
                     {
                         var rawText = text.Substring(pt.StartIndex, pt.Length);
-                        arguments[idx] = Diagnostics.Interface.NamedArgument.FromObject(rawText, args[idx]);
+                        arguments[idx] = NamedArgument.FromObject(rawText, args[idx]);
                         idx++;
                     }
                 }
@@ -160,7 +161,7 @@
                     Severity = severity,
                     ForOps = forOps,
                     ProcessUid = process?.UID,
-                    Operation = operation == null ? null : new Diagnostics.Interface.OperationInfo()
+                    Operation = operation == null ? null : new OperationInfo()
                     {
                         Number = operation.Number,
                         Type = operation.GetType().GetFriendlyTypeName(),
@@ -171,12 +172,22 @@
             }
         }
 
+        private readonly Dictionary<string, long> _lastCountersSent = new Dictionary<string, long>();
+
         internal void SendContextCountersToDiagnostics()
         {
-            _diagnosticsSender.SendDiagnostics("context-counters-updated", new Diagnostics.Interface.ContextCountersUpdatedEvent()
+            var counters = (CustomCounterCollection ?? Context.CounterCollection).GetCounters();
+            if (counters.Count == _lastCountersSent.Count)
+            {
+                var same = counters.All(counter => _lastCountersSent.TryGetValue(counter.Code, out var value) && value == counter.Value);
+                if (same)
+                    return;
+            }
+
+            _diagnosticsSender.SendDiagnostics("context-counters-updated", new ContextCountersUpdatedEvent()
             {
                 Ts = DateTime.Now.Ticks,
-                Counters = (CustomCounterCollection ?? Context.CounterCollection).GetCounters().Select(c => new Diagnostics.Interface.Counter()
+                Counters = counters.Select(c => new Counter()
                 {
                     Name = c.Name,
                     Code = c.Code,
@@ -184,6 +195,11 @@
                     ValueType = c.ValueType,
                 }).ToList(),
             });
+
+            foreach (var counter in counters)
+            {
+                _lastCountersSent[counter.Code] = counter.Value;
+            }
         }
 
         private void LogException(ContextExceptionEventArgs args)
@@ -281,18 +297,18 @@
 
         private void LifecycleRowCreated(IRow row, IProcess creatorProcess)
         {
-            _diagnosticsSender?.SendDiagnostics("row-created", new Diagnostics.Interface.RowCreatedEvent()
+            _diagnosticsSender?.SendDiagnostics("row-created", new RowCreatedEvent()
             {
                 Ts = DateTime.Now.Ticks,
                 ProcessUid = creatorProcess.UID,
                 RowUid = row.UID,
-                Values = row.Values.Select(x => Diagnostics.Interface.NamedArgument.FromObject(x.Key, x.Value)).ToList(),
+                Values = row.Values.Select(x => NamedArgument.FromObject(x.Key, x.Value)).ToList(),
             });
         }
 
         private void LifecycleRowOwnerChanged(IRow row, IProcess previousProcess, IProcess currentProcess)
         {
-            _diagnosticsSender?.SendDiagnostics("row-owner-changed", new Diagnostics.Interface.RowOwnerChangedEvent()
+            _diagnosticsSender?.SendDiagnostics("row-owner-changed", new RowOwnerChangedEvent()
             {
                 Ts = DateTime.Now.Ticks,
                 RowUid = row.UID,
@@ -303,13 +319,13 @@
 
         private void LifecycleRowStored(IProcess process, IRowOperation operation, IRow row, List<KeyValuePair<string, string>> location)
         {
-            _diagnosticsSender?.SendDiagnostics("row-stored", new Diagnostics.Interface.RowStoredEvent()
+            _diagnosticsSender?.SendDiagnostics("row-stored", new RowStoredEvent()
             {
                 Ts = DateTime.Now.Ticks,
                 RowUid = row.UID,
                 Locations = location,
                 ProcessUid = process.UID,
-                Operation = operation == null ? null : new Diagnostics.Interface.OperationInfo()
+                Operation = operation == null ? null : new OperationInfo()
                 {
                     Number = operation.Number,
                     Type = operation.GetType().GetFriendlyTypeName(),
@@ -320,7 +336,7 @@
 
         private void LifecycleProcessCreated(int uid, IProcess process)
         {
-            _diagnosticsSender?.SendDiagnostics("process-created", new Diagnostics.Interface.ProcessCreatedEvent()
+            _diagnosticsSender?.SendDiagnostics("process-created", new ProcessCreatedEvent()
             {
                 Ts = DateTime.Now.Ticks,
                 Uid = uid,
@@ -331,12 +347,12 @@
 
         private void LifecycleRowValueChanged(IRow row, string column, object currentValue, IProcess process, IBaseOperation operation)
         {
-            _diagnosticsSender?.SendDiagnostics("row-value-changed", new Diagnostics.Interface.RowValueChangedEvent()
+            _diagnosticsSender?.SendDiagnostics("row-value-changed", new RowValueChangedEvent()
             {
                 Ts = DateTime.Now.Ticks,
                 RowUid = row.UID,
                 Column = column,
-                CurrentValue = Diagnostics.Interface.Argument.FromObject(currentValue),
+                CurrentValue = Argument.FromObject(currentValue),
                 ProcessUid = process?.UID,
                 OperationName = operation?.Name,
                 OperationType = operation?.GetType().GetFriendlyTypeName(),
@@ -369,8 +385,6 @@
                 Log(LogSeverity.Information, false, null, null, "{Counter} = {Value}",
                     counter.Name, counter.TypedValue);
             }
-
-            SendContextCountersToDiagnostics();
         }
 
         private Stopwatch _startedOn;
@@ -378,14 +392,6 @@
         public void Start()
         {
             _startedOn = Stopwatch.StartNew();
-
-            if (_diagnosticsSender != null)
-            {
-                _counterSenderTimer = new Timer(timer =>
-                {
-                    SendContextCountersToDiagnostics();
-                }, null, 500, 500);
-            }
 
             GC.Collect();
             CpuTimeStart = GetCpuTime();
@@ -395,6 +401,11 @@
             if (_commandContext.HostConfiguration.DiagnosticsUri != null)
             {
                 _diagnosticsSender = new HttpDiagnosticsSender(SessionId, Name, _commandContext.HostConfiguration.DiagnosticsUri);
+
+                _counterSenderTimer = new Timer(timer =>
+                {
+                    SendContextCountersToDiagnostics();
+                }, null, 500, 500);
             }
         }
 
@@ -410,16 +421,18 @@
 
         public void Close()
         {
-            if (_diagnosticsSender != null)
-            {
-                _diagnosticsSender.Flush();
-                _diagnosticsSender.Dispose();
-            }
-
             if (_counterSenderTimer != null)
             {
                 _counterSenderTimer.Change(Timeout.Infinite, Timeout.Infinite);
                 _counterSenderTimer.Dispose();
+            }
+
+            if (_diagnosticsSender != null)
+            {
+                SendContextCountersToDiagnostics();
+
+                _diagnosticsSender.Flush();
+                _diagnosticsSender.Dispose();
             }
         }
 
