@@ -5,9 +5,9 @@
     using System.Linq;
     using FizzCode.DbTools.DataDefinition;
 
-    public static class MsSqlAlphaDwhHistoryExtender
+    public static class DwhExtender
     {
-        public static void ExtendModel<T>(T model, AlphaDwhConfiguration configuration)
+        public static void ExtendModel<T>(T model, DwhConfiguration configuration)
             where T : DatabaseDeclaration
         {
             var baseTables = model.GetTables();
@@ -24,7 +24,7 @@
 
             foreach (var baseTable in baseTables)
             {
-                if (configuration.UseEtlRunTable && !baseTable.HasProperty<NoEtlRunColumnsProperty>())
+                if (configuration.UseEtlRunTable && !baseTable.HasProperty<NoEtlRunInfoProperty>())
                 {
                     baseTable.AddInt32(configuration.EtlInsertRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName);
                     baseTable.AddInt32(configuration.EtlUpdateRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName);
@@ -41,7 +41,7 @@
             model.AddAutoNaming(historyTables);
         }
 
-        private static SqlTable CreateEtlRunTable(DatabaseDeclaration model, AlphaDwhConfiguration configuration)
+        private static SqlTable CreateEtlRunTable(DatabaseDeclaration model, DwhConfiguration configuration)
         {
             var table = new SqlTable(model.DefaultSchema, configuration.EtlRunTableName);
             model.AddTable(table);
@@ -58,7 +58,7 @@
             return table;
         }
 
-        private static SqlTable CreateHistoryTable(SqlTable baseTable, AlphaDwhConfiguration configuration)
+        private static SqlTable CreateHistoryTable(SqlTable baseTable, DwhConfiguration configuration)
         {
             var historyTable = new SqlTable(baseTable.SchemaAndTableName.Schema, baseTable.SchemaAndTableName.TableName + configuration.HistoryTableNamePostfix);
 

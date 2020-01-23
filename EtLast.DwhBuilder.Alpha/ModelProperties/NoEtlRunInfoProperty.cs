@@ -2,9 +2,9 @@
 {
     using FizzCode.DbTools.DataDefinition;
 
-    public class NoEtlRunColumnsProperty : SqlTableProperty
+    public class NoEtlRunInfoProperty : SqlTableProperty
     {
-        public NoEtlRunColumnsProperty(SqlTable table)
+        public NoEtlRunInfoProperty(SqlTable table)
             : base(table)
         {
         }
@@ -12,9 +12,9 @@
 
     public static class NoEtlRunColumnsPropertyHelper
     {
-        public static NoEtlRunColumnsProperty NoEtlRunColumn(this SqlTable sqlTable)
+        public static NoEtlRunInfoProperty NoEtlRunInfo(this SqlTable sqlTable)
         {
-            var property = new NoEtlRunColumnsProperty(sqlTable);
+            var property = new NoEtlRunInfoProperty(sqlTable);
             sqlTable.Properties.Add(property);
             return property;
         }

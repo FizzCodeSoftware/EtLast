@@ -3,7 +3,7 @@
     using System;
     using FizzCode.EtLast.AdoNet;
 
-    public class AlphaDwhConfiguration
+    public class DwhConfiguration
     {
         public string LastModifiedColumnName { get; set; }
         public string ValidFromColumnName { get; set; }
