@@ -41,46 +41,8 @@
 
         internal void Build()
         {
-            Table.FinalizerCreator = _ => TableFinalizerCreator();
+            Table.FinalizerCreator = _ => CreateTableFinalizers();
             Table.MainProcessCreator = t => CreateTableMainProcess();
-        }
-
-        private DwhTableBuilder AddBooleanConversionOperation()
-        {
-            var boolColumns = SqlTable.Columns
-                .Where(col => col.Type == SqlType.Boolean)
-                .Select(col => col.Name)
-                .ToList();
-
-            if (boolColumns.Count == 0)
-                return this;
-
-            _operationCreators.Add(builder => new[]{
-                new CustomOperation()
-                {
-                    InstanceName = "ConvertBooleans",
-                    Then = (op, row) =>
-                    {
-                        foreach (var col in boolColumns)
-                        {
-                            if (!row.IsNull(col))
-                            {
-                                var value = row[col];
-                                if (value is bool boolv)
-                                    row.SetValue(col, boolv, op);
-                                else if (value is byte bv)
-                                    row.SetValue(col, bv == 1, op);
-                                else if (value is int iv)
-                                    row.SetValue(col, iv == 1, op);
-                                else
-                                    throw new InvalidValueException(op.Process, null, row, col);
-                            }
-                        }
-                    }
-                }
-            });
-
-            return this;
         }
 
         private IRowOperation CreateTempWriterOperation(ResilientTable table, SqlTable sqlTable, bool bulkCopyCheckConstraints = false)
@@ -117,12 +79,7 @@
 
         private IEnumerable<IExecutable> CreateTableMainProcess()
         {
-            AddBooleanConversionOperation();
-
-            var currentRunid = DwhBuilder.Context.AdditionalData.GetAs("CurrentEtlRunId", 0);
-
             var operations = new List<IRowOperation>();
-
             foreach (var operationCreator in _operationCreators)
             {
                 operations.AddRange(operationCreator?.Invoke(this));
@@ -137,7 +94,7 @@
             };
         }
 
-        private IEnumerable<IExecutable> TableFinalizerCreator()
+        private IEnumerable<IExecutable> CreateTableFinalizers()
         {
             foreach (var creator in _finalizerCreators)
             {
