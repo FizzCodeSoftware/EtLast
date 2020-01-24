@@ -4,24 +4,23 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
-    using FizzCode.DbTools.Configuration;
     using FizzCode.DbTools.DataDefinition;
     using FizzCode.EtLast.AdoNet;
 
-    public static class ArtificallyVersionedFactTableExtension
+    public static class FactTableWithArtificialValidityExtension
     {
-        public static DwhTableBuilder[] ArtificallyVersionedFactTable(this DwhTableBuilder[] builders, ConnectionStringWithProvider connectionString, string[] dimensionColumns, ColumnCopyConfiguration[] valueColumns, IRowEqualityComparer customRowEqualityComparer = null)
+        public static DwhTableBuilder[] FactTableWithArtificialValidity(this DwhTableBuilder[] builders, string[] dimensionColumns, ColumnCopyConfiguration[] valueColumns, IRowEqualityComparer customRowEqualityComparer = null)
         {
             foreach (var builder in builders)
             {
-                builder.AddOperationCreator(builder => ExpandWithPreviousValue(builder, connectionString, dimensionColumns, valueColumns, customRowEqualityComparer));
-                builder.AddFinalizerCreator(builder => CreateFactTableWithDateIntervalFinalizer(builder, dimensionColumns, valueColumns));
+                builder.AddOperationCreator(builder => CreateOperations(builder, dimensionColumns, valueColumns, customRowEqualityComparer));
+                builder.AddFinalizerCreator(builder => CreateFinalizers(builder, dimensionColumns, valueColumns));
             }
 
             return builders;
         }
 
-        private static IEnumerable<IExecutable> CreateFactTableWithDateIntervalFinalizer(DwhTableBuilder builder, string[] dimensionColumns, ColumnCopyConfiguration[] valueColumns)
+        private static IEnumerable<IExecutable> CreateFinalizers(DwhTableBuilder builder, string[] dimensionColumns, ColumnCopyConfiguration[] valueColumns)
         {
             var pk = builder.SqlTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
             var pkIsIdentity = pk.SqlColumns.Any(c => c.SqlColumn.HasProperty<Identity>());
@@ -83,7 +82,7 @@
             };
         }
 
-        private static IEnumerable<IRowOperation> ExpandWithPreviousValue(DwhTableBuilder builder, ConnectionStringWithProvider connectionString, string[] dimensionColumns, ColumnCopyConfiguration[] valueColumns, IRowEqualityComparer customRowEqualityComparer = null)
+        private static IEnumerable<IRowOperation> CreateOperations(DwhTableBuilder builder, string[] dimensionColumns, ColumnCopyConfiguration[] valueColumns, IRowEqualityComparer customRowEqualityComparer = null)
         {
             var rowEqualityComparer = customRowEqualityComparer ??
                 new ColumnBasedRowEqualityComparer()
@@ -96,9 +95,9 @@
                 InstanceName = "ExpandWithPreviousValue",
                 RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.DwhBuilder.Context, "PreviousValueReader")
                 {
-                    ConnectionString = connectionString,
+                    ConnectionString = builder.DwhBuilder.ConnectionString,
                     Sql = "select " + string.Join(",", dimensionColumns.Concat(valueColumns.Select(x => x.FromColumn)))
-                        + " from " + connectionString.Escape(builder.SqlTable.SchemaAndTableName.TableName, builder.SqlTable.SchemaAndTableName.Schema)
+                        + " from " + builder.DwhBuilder.ConnectionString.Escape(builder.SqlTable.SchemaAndTableName.TableName, builder.SqlTable.SchemaAndTableName.Schema)
                         + " where " + builder.DwhBuilder.Configuration.ValidToColumnName + "=@InfiniteFuture",
                     Parameters = new Dictionary<string, object>
                     {
