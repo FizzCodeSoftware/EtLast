@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.Alpha
 {
-    using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
@@ -53,7 +52,8 @@
                 OnCondition = string.Join(" and ", dimensionColumns.Select(x => "t." + builder.DwhBuilder.ConnectionString.Escape(x) + " = s." + builder.DwhBuilder.ConnectionString.Escape(x)))
                     + " and t." + builder.DwhBuilder.ConnectionString.Escape(builder.DwhBuilder.Configuration.ValidFromColumnName) + " = s." + builder.DwhBuilder.ConnectionString.Escape(builder.DwhBuilder.Configuration.ValidFromColumnName)
                     + " and t." + builder.DwhBuilder.ConnectionString.Escape(builder.DwhBuilder.Configuration.ValidToColumnName) + " = s." + builder.DwhBuilder.ConnectionString.Escape(builder.DwhBuilder.Configuration.ValidToColumnName),
-                WhenMatchedAction = "update set " + string.Join(",", valueColumns.Select(c => "t." + c + "=s." + c)),
+                WhenMatchedAction = "UPDATE SET " + string.Join(",", valueColumns.Select(c => "t." + c + "=s." + c))
+                    + (useEtlRunTable ? ", " + builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName + "=" + currentEtlRunId.ToString("D", CultureInfo.InvariantCulture) : ""),
                 WhenNotMatchedByTargetAction = "INSERT (" + string.Join(", ", columnsToInsert.Select(c => builder.DwhBuilder.ConnectionString.Escape(c.Name)))
                     + (useEtlRunTable ? ", " + builder.DwhBuilder.Configuration.EtlInsertRunIdColumnName + ", " + builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName : "")
                     + ") VALUES (" + string.Join(", ", columnsToInsert.Select(c => "s." + builder.DwhBuilder.ConnectionString.Escape(c.Name)))
@@ -101,12 +101,8 @@
                 {
                     if (rowEqualityComparer.Compare(row, match))
                     {
-                        // there is at least one existing version, but this is the same as the last
+                        // row already exists with same values (and same dimensions)
                         op.Process.RemoveRow(row, op);
-                    }
-                    else
-                    {
-                        Console.WriteLine("x");
                     }
                 },
             };
