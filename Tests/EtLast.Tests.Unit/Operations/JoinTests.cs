@@ -50,7 +50,7 @@
 
             leftProcess.AddOperation(new JoinOperation()
             {
-                NoMatchAction = new MatchAction(MatchMode.Remove),
+                NoMatchAction = new NoMatchAction(MatchMode.Remove),
                 RightProcess = new CreateRowsProcess(context, "RightGenerator")
                 {
                     Columns = SampleColumnsB,
