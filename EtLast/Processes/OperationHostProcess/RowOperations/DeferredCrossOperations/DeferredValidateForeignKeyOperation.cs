@@ -23,7 +23,7 @@
         public Func<IRow[], IEvaluable> RightProcessCreator { get; set; }
 
         public MatchAction MatchAction { get; set; }
-        public MatchAction NoMatchAction { get; set; }
+        public NoMatchAction NoMatchAction { get; set; }
 
         /// <summary>
         /// Default value is 100000
@@ -154,7 +154,7 @@
                     exception.Data.Add("Key", key);
                     throw exception;
                 case MatchMode.Custom:
-                    NoMatchAction.CustomAction.Invoke(this, row, null);
+                    NoMatchAction.CustomAction.Invoke(this, row);
                     break;
             }
         }

@@ -279,7 +279,7 @@
                 SourceTableAlias = "s",
                 TargetTableName = table.TableName,
                 TargetTableAlias = "t",
-                OnCondition = string.Join(",", keyColumns.Select(x => "s." + x + "=t." + x)),
+                OnCondition = string.Join(" and ", keyColumns.Select(x => "s." + x + "=t." + x)),
                 WhenMatchedAction = "update set " + string.Join(",", table.Columns.Where(c => !keyColumns.Contains(c)).Select(c => "t." + c + "=s." + c)),
                 WhenNotMatchedByTargetAction = "insert (" + string.Join(",", table.Columns) + ") values (" + string.Join(",", table.Columns.Select(c => "s." + c)) + ")",
             };

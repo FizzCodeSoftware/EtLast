@@ -5,7 +5,7 @@
     public class ValidateForeignKeyOperation : AbstractKeyBasedCrossOperation
     {
         public RowTestDelegate If { get; set; }
-        public MatchAction NoMatchAction { get; set; }
+        public NoMatchAction NoMatchAction { get; set; }
         public MatchAction MatchAction { get; set; }
 
         private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();
@@ -36,7 +36,7 @@
                             exception.Data.Add("LeftKey", leftKey);
                             throw exception;
                         case MatchMode.Custom:
-                            NoMatchAction.CustomAction.Invoke(this, row, null);
+                            NoMatchAction.CustomAction.Invoke(this, row);
                             break;
                     }
                 }

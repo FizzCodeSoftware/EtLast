@@ -4,7 +4,10 @@
 
     public class MemoryCacheProcess : AbstractProducerProcess
     {
-        public bool CloneRows { get; set; }
+        /// <summary>
+        /// Default true.
+        /// </summary>
+        public bool CloneRows { get; set; } = true;
 
         private bool _firstEvaluationFinished;
         private List<IRow> _cache;

@@ -10,7 +10,7 @@
         public RowTestDelegate If { get; set; }
         public JoinRightRowFilterDelegate RightRowFilter { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
-        public MatchAction NoMatchAction { get; set; }
+        public NoMatchAction NoMatchAction { get; set; }
         public MatchActionDelegate MatchCustomAction { get; set; }
         private readonly Dictionary<string, List<IRow>> _lookup = new Dictionary<string, List<IRow>>();
 
@@ -39,7 +39,7 @@
                             exception.Data.Add("LeftKey", leftKey);
                             throw exception;
                         case MatchMode.Custom:
-                            NoMatchAction.CustomAction.Invoke(this, row, null);
+                            NoMatchAction.CustomAction.Invoke(this, row);
                             break;
                     }
                 }
@@ -67,7 +67,7 @@
                                 exception.Data.Add("LeftKey", leftKey);
                                 throw exception;
                             case MatchMode.Custom:
-                                NoMatchAction.CustomAction.Invoke(this, row, null);
+                                NoMatchAction.CustomAction.Invoke(this, row);
                                 break;
                         }
                     }

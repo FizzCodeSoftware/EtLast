@@ -23,8 +23,9 @@
         public Func<IRow[], IEvaluable> RightProcessCreator { get; set; }
 
         public IRowEqualityComparer EqualityComparer { get; set; }
-        public MatchAction NoMatchAction { get; set; }
         public MatchAction MatchAction { get; set; }
+        public NoMatchAction NoMatchAction { get; set; }
+        public MatchAction NotSameAction { get; set; }
 
         private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();
         private List<IRow> _batchRows;
@@ -136,18 +137,18 @@
                     {
                         if (NoMatchAction != null)
                         {
-                            HandleNoMatch(row, key, null);
+                            HandleNoMatch(row, key);
                         }
 
                         return;
                     }
 
-                    var match = EqualityComparer.Compare(row, rightRow);
-                    if (!match)
+                    var isSame = EqualityComparer.Compare(row, rightRow);
+                    if (!isSame)
                     {
-                        if (NoMatchAction != null)
+                        if (NotSameAction != null)
                         {
-                            HandleNoMatch(row, key, rightRow);
+                            HandleNotSame(row, key, rightRow);
                         }
                     }
                     else if (MatchAction != null)
@@ -162,7 +163,7 @@
             }
         }
 
-        private void HandleMatch(IRow row, string key, IRow rightRow)
+        private void HandleMatch(IRow row, string key, IRow match)
         {
             switch (MatchAction.Mode)
             {
@@ -174,12 +175,12 @@
                     exception.Data.Add("Key", key);
                     throw exception;
                 case MatchMode.Custom:
-                    MatchAction.CustomAction.Invoke(this, row, rightRow);
+                    MatchAction.CustomAction.Invoke(this, row, match);
                     break;
             }
         }
 
-        private void HandleNoMatch(IRow row, string leftKey, IRow rightRow)
+        private void HandleNoMatch(IRow row, string leftKey)
         {
             switch (NoMatchAction.Mode)
             {
@@ -191,7 +192,24 @@
                     exception.Data.Add("Key", leftKey);
                     throw exception;
                 case MatchMode.Custom:
-                    NoMatchAction.CustomAction.Invoke(this, row, rightRow);
+                    NoMatchAction.CustomAction.Invoke(this, row);
+                    break;
+            }
+        }
+
+        private void HandleNotSame(IRow row, string leftKey, IRow match)
+        {
+            switch (NotSameAction.Mode)
+            {
+                case MatchMode.Remove:
+                    Process.RemoveRow(row, this);
+                    break;
+                case MatchMode.Throw:
+                    var exception = new OperationExecutionException(Process, this, row, "no match");
+                    exception.Data.Add("Key", leftKey);
+                    throw exception;
+                case MatchMode.Custom:
+                    NotSameAction.CustomAction.Invoke(this, row, match);
                     break;
             }
         }

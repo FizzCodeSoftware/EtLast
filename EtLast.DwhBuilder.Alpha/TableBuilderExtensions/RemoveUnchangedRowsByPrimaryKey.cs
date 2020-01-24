@@ -7,9 +7,9 @@
     using FizzCode.DbTools.DataDefinition;
     using FizzCode.EtLast.AdoNet;
 
-    public static class RemoveUnchangedRowsExtension
+    public static class RemoveUnchangedRowsByPrimaryKeyExtension
     {
-        public static DwhTableBuilder[] RemoveUnchangedRows(this DwhTableBuilder[] builders)
+        public static DwhTableBuilder[] RemoveUnchangedRowsByPrimaryKey(this DwhTableBuilder[] builders)
         {
             foreach (var builder in builders)
             {
@@ -26,6 +26,8 @@
                 {
                     columnsToCompare = columnsToCompare.Where(x => x.Name != builder.DwhBuilder.Configuration.EtlInsertRunIdColumnName && x.Name != builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName);
                 }
+
+                // todo: should ValidFrom be excluded from the list??
 
                 if (pkCol.Type == SqlType.Int32)
                 {

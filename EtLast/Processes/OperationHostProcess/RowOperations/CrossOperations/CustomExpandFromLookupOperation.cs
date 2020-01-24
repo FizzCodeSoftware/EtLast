@@ -9,7 +9,7 @@
         public MatchingRowFromLookupSelector MatchingRowSelector { get; set; }
         public MatchKeySelector RightKeySelector { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
-        public MatchAction NoMatchAction { get; set; }
+        public NoMatchAction NoMatchAction { get; set; }
         public MatchActionDelegate MatchCustomAction { get; set; }
         private readonly Dictionary<string, List<IRow>> _lookup = new Dictionary<string, List<IRow>>();
 
@@ -37,7 +37,7 @@
                             var exception = new OperationExecutionException(Process, this, row, "no match");
                             throw exception;
                         case MatchMode.Custom:
-                            NoMatchAction.CustomAction.Invoke(this, row, null);
+                            NoMatchAction.CustomAction.Invoke(this, row);
                             break;
                     }
                 }

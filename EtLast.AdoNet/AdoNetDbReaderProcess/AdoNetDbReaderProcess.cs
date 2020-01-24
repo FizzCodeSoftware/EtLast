@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
-    using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
@@ -27,19 +27,11 @@
 
         protected override string CreateSqlStatement()
         {
-            List<string> dbColumns = null;
-            if (ColumnConfiguration != null)
+            var columnList = "*";
+            if (ColumnConfiguration?.Count > 0)
             {
-                dbColumns = new List<string>();
-                foreach (var column in ColumnConfiguration)
-                {
-                    dbColumns.Add(column.SourceColumn);
-                }
+                columnList = string.Join(", ", ColumnConfiguration.Select(x => x.SourceColumn));
             }
-
-            var columnList = dbColumns?.Count > 0
-                ? string.Join(", ", dbColumns)
-                : "*";
 
             var prefix = "";
             var postfix = "";

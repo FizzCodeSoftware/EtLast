@@ -43,7 +43,7 @@
                 {
                     new JoinOperation()
                     {
-                        NoMatchAction = new MatchAction(MatchMode.Remove),
+                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
                         RightProcess = new OperationHostProcess(Context, "PrefilterInvalidContacts")
                         {
                             InputProcess = new EpPlusExcelReaderProcess(Context, "Read:Contact")
@@ -75,7 +75,7 @@
                     },
                     new ExpandOperation()
                     {
-                        NoMatchAction = new MatchAction(MatchMode.Remove),
+                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
                         RightProcess = new EpPlusExcelReaderProcess(Context, "Read:ContactMethod")
                         {
                             FileName = SourceFileName,

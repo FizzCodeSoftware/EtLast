@@ -23,7 +23,7 @@
         public MatchKeySelector RightKeySelector { get; set; }
         public Func<IRow[], IEvaluable> RightProcessCreator { get; set; }
 
-        public MatchAction NoMatchAction { get; set; }
+        public NoMatchAction NoMatchAction { get; set; }
         public MatchActionDelegate MatchCustomAction { get; set; }
         public JoinRightRowFilterDelegate RightRowFilter { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
@@ -271,7 +271,7 @@
                     exception.Data.Add("Key", key);
                     throw exception;
                 case MatchMode.Custom:
-                    NoMatchAction.CustomAction.Invoke(this, row, null);
+                    NoMatchAction.CustomAction.Invoke(this, row);
                     break;
             }
         }

@@ -9,7 +9,7 @@
         public MatchingRowFromDictionarySelector MatchingRowSelector { get; set; }
         public MatchKeySelector RightKeySelector { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
-        public MatchAction NoMatchAction { get; set; }
+        public NoMatchAction NoMatchAction { get; set; }
         public MatchActionDelegate MatchCustomAction { get; set; }
         private readonly Dictionary<string, IRow> _dictionary = new Dictionary<string, IRow>();
 
@@ -28,24 +28,29 @@
             {
                 if (NoMatchAction != null)
                 {
-                    switch (NoMatchAction.Mode)
-                    {
-                        case MatchMode.Remove:
-                            Process.RemoveRow(row, this);
-                            break;
-                        case MatchMode.Throw:
-                            var exception = new OperationExecutionException(Process, this, row, "no match");
-                            throw exception;
-                        case MatchMode.Custom:
-                            NoMatchAction.CustomAction.Invoke(this, row, null);
-                            break;
-                    }
+                    HandleNoMatch(row);
                 }
 
                 return;
             }
 
             HandleMatch(row, rightRow);
+        }
+
+        private void HandleNoMatch(IRow row)
+        {
+            switch (NoMatchAction.Mode)
+            {
+                case MatchMode.Remove:
+                    Process.RemoveRow(row, this);
+                    break;
+                case MatchMode.Throw:
+                    var exception = new OperationExecutionException(Process, this, row, "no match");
+                    throw exception;
+                case MatchMode.Custom:
+                    NoMatchAction.CustomAction.Invoke(this, row);
+                    break;
+            }
         }
 
         private void HandleMatch(IRow row, IRow match)

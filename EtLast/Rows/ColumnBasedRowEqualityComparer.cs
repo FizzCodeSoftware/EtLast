@@ -6,7 +6,7 @@
     public class ColumnBasedRowEqualityComparer : IRowEqualityComparer
     {
         public string[] Columns { get; set; }
-        public HashSet<string> ColumnsToIgnore { get; set; }
+        public string[] ColumnsToIgnore { get; set; }
 
         public bool Compare(IRow leftRow, IRow rightRow)
         {
@@ -32,9 +32,13 @@
             }
             else
             {
+                var columnsToIgnore = ColumnsToIgnore != null
+                    ? new HashSet<string>(ColumnsToIgnore)
+                    : null;
+
                 foreach (var kvp in leftRow.Values)
                 {
-                    if (ColumnsToIgnore?.Contains(kvp.Key) == true)
+                    if (columnsToIgnore?.Contains(kvp.Key) == true)
                         continue;
 
                     var leftValue = kvp.Value;

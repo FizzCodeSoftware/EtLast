@@ -170,18 +170,27 @@
                 if (pk.SqlColumns.Count != 1)
                     throw new ArgumentException(nameof(AddTables) + " can be used only for tables with a single-column primary key (table name: " + sqlTable.SchemaAndTableName.SchemaAndName + ")");
 
-                var tempColumns = sqlTable.Columns.Select(x => x.Name);
+                var pkIsIdentity = pk.SqlColumns.Any(c => c.SqlColumn.HasProperty<Identity>());
+
+                IEnumerable<SqlColumn> tempColumns = sqlTable.Columns;
+
                 if (Configuration.UseEtlRunTable)
                 {
                     tempColumns = tempColumns
-                        .Where(x => x != Configuration.EtlInsertRunIdColumnName && x != Configuration.EtlUpdateRunIdColumnName);
+                        .Where(x => x.Name != Configuration.EtlInsertRunIdColumnName && x.Name != Configuration.EtlUpdateRunIdColumnName);
+                }
+
+                if (pkIsIdentity)
+                {
+                    tempColumns = tempColumns
+                        .Where(x => !pk.SqlColumns.Any(pkc => pkc.SqlColumn == x));
                 }
 
                 var table = new ResilientTable()
                 {
                     TableName = ConnectionString.Escape(sqlTable.SchemaAndTableName.TableName, sqlTable.SchemaAndTableName.Schema),
                     TempTableName = GetEscapedTempTableName(sqlTable),
-                    Columns = tempColumns.ToArray(),
+                    Columns = tempColumns.Select(x => x.Name).ToArray(),
                 };
 
                 var tableBuilder = new DwhTableBuilder(this, table, sqlTable);

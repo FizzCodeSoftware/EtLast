@@ -28,6 +28,7 @@
             var hasHistory = !builder.SqlTable.HasProperty<NoHistoryTableProperty>();
             var pk = builder.SqlTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
             var pkColumnName = pk.SqlColumns[0].SqlColumn.Name;
+            var currentEtlRunId = builder.DwhBuilder.Context.AdditionalData.GetAs("CurrentEtlRunId", 0);
 
             var useEtlRunTable = builder.DwhBuilder.Configuration.UseEtlRunTable && !builder.SqlTable.HasProperty<NoEtlRunInfoProperty>();
 
@@ -40,8 +41,6 @@
             var headColumnsToUpdate = tempColumns.Where(x => x.Name != builder.DwhBuilder.Configuration.ValidToColumnName).ToList();
             var headColumnsToInsert = tempColumns.Where(x => x.Name != builder.DwhBuilder.Configuration.ValidToColumnName).ToList();
 
-            var currentRunid = builder.DwhBuilder.Context.AdditionalData.GetAs("CurrentEtlRunId", 0);
-
             yield return new CustomMsSqlMergeSqlStatementProcess(builder.DwhBuilder.Context, "MergeIntoBase")
             {
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
@@ -52,11 +51,11 @@
                 TargetTableAlias = "t",
                 OnCondition = "t." + builder.DwhBuilder.ConnectionString.Escape(pkColumnName) + " = s." + builder.DwhBuilder.ConnectionString.Escape(pkColumnName),
                 WhenMatchedAction = "UPDATE SET " + string.Join(", ", headColumnsToUpdate.Select(c => "t." + builder.DwhBuilder.ConnectionString.Escape(c.Name) + "=s." + builder.DwhBuilder.ConnectionString.Escape(c.Name)))
-                                    + (useEtlRunTable ? ", " + builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName + "=" + currentRunid.ToString("D", CultureInfo.InvariantCulture) : ""),
+                                    + (useEtlRunTable ? ", " + builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName + "=" + currentEtlRunId.ToString("D", CultureInfo.InvariantCulture) : ""),
                 WhenNotMatchedByTargetAction = "INSERT (" + string.Join(", ", headColumnsToInsert.Select(c => builder.DwhBuilder.ConnectionString.Escape(c.Name)))
                     + (useEtlRunTable ? ", " + builder.DwhBuilder.Configuration.EtlInsertRunIdColumnName + ", " + builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName : "")
                     + ") VALUES (" + string.Join(", ", headColumnsToInsert.Select(c => "s." + builder.DwhBuilder.ConnectionString.Escape(c.Name)))
-                    + (useEtlRunTable ? ", " + currentRunid.ToString("D", CultureInfo.InvariantCulture) + ", " + currentRunid.ToString("D", CultureInfo.InvariantCulture) : "")
+                    + (useEtlRunTable ? ", " + currentEtlRunId.ToString("D", CultureInfo.InvariantCulture) + ", " + currentEtlRunId.ToString("D", CultureInfo.InvariantCulture) : "")
                     + ")",
             };
 
@@ -74,7 +73,7 @@
                     TargetTableAlias = "t",
                     OnCondition = "t." + builder.DwhBuilder.ConnectionString.Escape(pkColumnName) + " = s." + builder.DwhBuilder.ConnectionString.Escape(pkColumnName) + " and t." + builder.DwhBuilder.ConnectionString.Escape(builder.DwhBuilder.Configuration.ValidToColumnName) + " = @InfiniteFuture",
                     WhenMatchedAction = "UPDATE SET t." + builder.DwhBuilder.ConnectionString.Escape(builder.DwhBuilder.Configuration.ValidToColumnName) + "=s." + builder.DwhBuilder.ConnectionString.Escape(builder.DwhBuilder.Configuration.ValidFromColumnName)
-                                        + (useEtlRunTable ? ", " + builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName + "=" + currentRunid.ToString("D", CultureInfo.InvariantCulture) : ""),
+                                        + (useEtlRunTable ? ", " + builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName + "=" + currentEtlRunId.ToString("D", CultureInfo.InvariantCulture) : ""),
                     Parameters = new Dictionary<string, object>
                     {
                         ["InfiniteFuture"] = builder.DwhBuilder.Configuration.InfiniteFutureDateTime,
@@ -94,7 +93,7 @@
                         TargetTableAlias = "t",
                         OnCondition = "t." + builder.DwhBuilder.ConnectionString.Escape(pkColumnName) + " = s." + builder.DwhBuilder.ConnectionString.Escape(pkColumnName),
                         WhenMatchedAction = "UPDATE SET " + string.Join(", ", noHistoryColumns.Select(col => "t." + builder.DwhBuilder.ConnectionString.Escape(col.Name) + " = s." + builder.DwhBuilder.ConnectionString.Escape(col.Name)))
-                                            + (useEtlRunTable ? ", " + builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName + "=" + currentRunid.ToString("D", CultureInfo.InvariantCulture) : ""),
+                                            + (useEtlRunTable ? ", " + builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName + "=" + currentEtlRunId.ToString("D", CultureInfo.InvariantCulture) : ""),
                     };
                 }
 
@@ -103,8 +102,8 @@
                 {
                     columnDefaults = new Dictionary<string, object>
                     {
-                        [builder.DwhBuilder.Configuration.EtlInsertRunIdColumnName] = currentRunid,
-                        [builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName] = currentRunid
+                        [builder.DwhBuilder.Configuration.EtlInsertRunIdColumnName] = currentEtlRunId,
+                        [builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName] = currentEtlRunId
                     };
                 }
 
