@@ -26,8 +26,8 @@
             {
                 if (configuration.UseEtlRunTable && !baseTable.HasProperty<NoEtlRunInfoProperty>())
                 {
-                    baseTable.AddInt32(configuration.EtlInsertRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName);
-                    baseTable.AddInt32(configuration.EtlUpdateRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName);
+                    baseTable.AddInt32(configuration.EtlInsertRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName).IsEtlRunInfoColumn();
+                    baseTable.AddInt32(configuration.EtlUpdateRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName).IsEtlRunInfoColumn();
                 }
             }
 
@@ -46,7 +46,7 @@
             var table = new SqlTable(model.DefaultSchema, configuration.EtlRunTableName);
             model.AddTable(table);
 
-            table.Properties.Add(new IsEtlRunTableProperty(table));
+            table.Properties.Add(new IsEtlRunInfoTableProperty(table));
 
             table.AddInt32("EtlRunId").SetIdentity().SetPK();
             table.AddVarChar("MachineName", 200, false);

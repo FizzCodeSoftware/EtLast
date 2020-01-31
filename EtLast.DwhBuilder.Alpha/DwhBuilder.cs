@@ -77,7 +77,7 @@
 
             if (Configuration.UseEtlRunTable)
             {
-                var etlRunSqlTable = Model.GetTables().Find(x => x.HasProperty<IsEtlRunTableProperty>());
+                var etlRunSqlTable = Model.GetTables().Find(x => x.HasProperty<IsEtlRunInfoTableProperty>());
 
                 yield return new CustomSqlStatementProcess(Context, "UpdateEtlRun")
                 {
@@ -112,7 +112,7 @@
         {
             if (Configuration.UseEtlRunTable)
             {
-                var etlRunSqlTable = Model.GetTables().Find(x => x.HasProperty<IsEtlRunTableProperty>());
+                var etlRunSqlTable = Model.GetTables().Find(x => x.HasProperty<IsEtlRunInfoTableProperty>());
 
                 var maxId = new GetTableMaxValueProcess<int>(Context, "MaxEtlRunIdReader")
                 {

@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast.PluginHost
 {
     using System;
+    using System.Collections.Generic;
     using Microsoft.Extensions.Configuration;
     using Serilog.Events;
 
@@ -20,6 +21,7 @@
         public LogEventLevel MinimumLogLevelOnConsole { get; set; }
         public LogEventLevel MinimumLogLevelInFile { get; set; }
         public DynamicCompilationMode DynamicCompilationMode { get; set; } = DynamicCompilationMode.Default;
+        public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>();
 
         public void LoadFromConfiguration(IConfigurationRoot configuration, string section)
         {
@@ -51,6 +53,20 @@
             if (!string.IsNullOrEmpty(v) && Enum.TryParse(v, out level))
             {
                 MinimumLogLevelInFile = level;
+            }
+
+            GetCommandAliases(configuration, section);
+        }
+
+        private void GetCommandAliases(IConfigurationRoot configuration, string section)
+        {
+            var aliasSection = configuration.GetSection(section + ":Aliases");
+            if (aliasSection == null)
+                return;
+
+            foreach (var child in aliasSection.GetChildren())
+            {
+                CommandAliases.Add(child.Key, child.Value);
             }
         }
 

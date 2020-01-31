@@ -8,7 +8,7 @@
     {
         public CustomRowEqualityComparerDelegate ComparerDelegate { get; set; }
 
-        public bool Compare(IRow leftRow, IRow rightRow)
+        public bool Equals(IRow leftRow, IRow rightRow)
         {
             if (ComparerDelegate == null)
                 throw new ArgumentException(nameof(ComparerDelegate) + " can not be null");

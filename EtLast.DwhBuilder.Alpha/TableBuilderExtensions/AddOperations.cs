@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    public static class AddOperationsExtension
+    public static partial class TableBuilderExtensions
     {
         public static DwhTableBuilder[] AddOperations(this DwhTableBuilder[] builders, Func<DwhTableBuilder, IEnumerable<IRowOperation>> creator)
         {

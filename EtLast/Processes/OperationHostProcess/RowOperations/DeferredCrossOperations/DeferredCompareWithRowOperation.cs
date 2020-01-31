@@ -143,7 +143,7 @@
                         return;
                     }
 
-                    var isSame = EqualityComparer.Compare(row, rightRow);
+                    var isSame = EqualityComparer.Equals(row, rightRow);
                     if (!isSame)
                     {
                         if (NotSameAction != null)

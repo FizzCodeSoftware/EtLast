@@ -6,10 +6,10 @@
     using FizzCode.DbTools.DataDefinition;
     using FizzCode.EtLast.AdoNet;
 
-    public static class AddStandardFinalizersExtension
+    public static partial class TableBuilderExtensions
     {
         /// <summary>
-        /// - merges all columns from the temp to the target table with a default merger based on the PK column
+        /// - merges all columns from the temp to the target table with a default merger based on the already-filled PK column
         /// - if temp table is enabled then merges all columns from the temp to the history table based on the PK column (and ValidFromColumnName and ValidToColumnName)
         /// - maintains EtlInsertRunIdColumnName/EtlUpdateRunIdColumnName values if enabled
         /// </summary>
@@ -17,13 +17,13 @@
         {
             foreach (var builder in builders)
             {
-                builder.AddFinalizerCreator(CreatreStandardFinalizers);
+                builder.AddFinalizerCreator(FinalizerCreator);
             }
 
             return builders;
         }
 
-        private static IEnumerable<IExecutable> CreatreStandardFinalizers(DwhTableBuilder builder)
+        private static IEnumerable<IExecutable> FinalizerCreator(DwhTableBuilder builder)
         {
             var hasHistory = !builder.SqlTable.HasProperty<NoHistoryTableProperty>();
             var pk = builder.SqlTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
@@ -97,16 +97,6 @@
                     };
                 }
 
-                Dictionary<string, object> columnDefaults = null;
-                if (builder.DwhBuilder.Configuration.UseEtlRunTable)
-                {
-                    columnDefaults = new Dictionary<string, object>
-                    {
-                        [builder.DwhBuilder.Configuration.EtlInsertRunIdColumnName] = currentEtlRunId,
-                        [builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName] = currentEtlRunId
-                    };
-                }
-
                 var allColumnsExceptValidTo = tempColumns.Where(x => x.Name != builder.DwhBuilder.Configuration.ValidToColumnName).ToList();
                 yield return new CopyTableIntoExistingTableProcess(builder.DwhBuilder.Context, "CopyToHist")
                 {
@@ -117,7 +107,13 @@
                         TargetTableName = histTableName,
                         ColumnConfiguration = allColumnsExceptValidTo.Select(x => new ColumnCopyConfiguration(x.Name)).ToList(),
                     },
-                    ColumnDefaults = columnDefaults,
+                    ColumnDefaults = builder.DwhBuilder.Configuration.UseEtlRunTable
+                        ? new Dictionary<string, object>()
+                        {
+                            [builder.Table.Scope.Configuration.ConnectionString.Escape(builder.DwhBuilder.Configuration.EtlInsertRunIdColumnName)] = currentEtlRunId,
+                            [builder.Table.Scope.Configuration.ConnectionString.Escape(builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName)] = currentEtlRunId
+                        }
+                        : null,
                     CommandTimeout = 60 * 60,
                 };
             }

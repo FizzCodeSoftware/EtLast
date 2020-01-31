@@ -16,6 +16,7 @@
         public static CommandContext Context { get; private set; }
 
         private static AppRunner<AppCommands> _runner;
+        private static readonly Regex _regEx = new Regex("(?<=\")[^\"]*(?=\")|[^\" ]+");
 
         public static void Run(string programName, string[] startupArguments)
         {
@@ -68,8 +69,6 @@
 
             DisplayModuleNames();
 
-            var regEx = new Regex("(?<=\")[^\"]*(?=\")|[^\" ]+");
-
             while (!Terminated)
             {
                 Console.Write("> ");
@@ -77,7 +76,7 @@
                 if (string.IsNullOrEmpty(commandLine))
                     continue;
 
-                var lineArguments = regEx
+                var lineArguments = _regEx
                     .Matches(commandLine.Trim())
                     .Select(x => x.Value)
                     .ToArray();
@@ -90,6 +89,22 @@
 
         public static void RunCommand(params string[] args)
         {
+            if (args?.Length >= 1)
+            {
+                foreach (var kvp in Context.HostConfiguration.CommandAliases)
+                {
+                    if (string.Equals(kvp.Key, args[0], StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        args = _regEx
+                            .Matches(kvp.Value.Trim())
+                            .Select(x => x.Value)
+                            .Concat(args.Skip(1))
+                            .ToArray();
+                        break;
+                    }
+                }
+            }
+
             _runner.Run(args);
         }
 

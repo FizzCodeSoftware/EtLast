@@ -87,6 +87,21 @@
             }
         }
 
+        public bool Equals<T>(string column, T value)
+        {
+            var currentValue = GetValueImpl(column);
+            if (currentValue == null && value == null)
+                return false;
+
+            if ((currentValue != null && value == null) || (currentValue == null && value != null))
+                return false;
+
+            if (currentValue.GetType() != typeof(T))
+                return false;
+
+            return currentValue.Equals(value);
+        }
+
         public bool IsNull(string column)
         {
             var value = GetValueImpl(column);
@@ -116,29 +131,21 @@
             return true;
         }
 
-        public bool IsInt(string column)
+        public bool Is<T>(string column)
         {
-            return GetValueImpl(column) is int;
+            return GetValueImpl(column) is T;
         }
 
-        public bool IsLong(string column)
+        public string FormatToString(string column, IFormatProvider formatProvider = null)
         {
-            return GetValueImpl(column) is long;
-        }
+            var v = GetValueImpl(column);
+            if (v is string str)
+                return str;
 
-        public bool IsFloat(string column)
-        {
-            return GetValueImpl(column) is float;
-        }
+            if (v is IFormattable fmt)
+                return fmt.ToString(null, CultureInfo.InvariantCulture);
 
-        public bool IsDouble(string column)
-        {
-            return GetValueImpl(column) is double;
-        }
-
-        public bool IsDecimal(string column)
-        {
-            return GetValueImpl(column) is decimal;
+            return v.ToString();
         }
 
         public virtual void Init(IEtlContext context, IProcess creatorProcess, int uid, IEnumerable<KeyValuePair<string, object>> initialValues)
