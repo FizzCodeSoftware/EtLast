@@ -5,6 +5,7 @@
     using System.Globalization;
     using System.Linq;
     using FizzCode.DbTools.DataDefinition;
+    using FizzCode.DbTools.DataDefinition.MsSql2016;
     using FizzCode.EtLast.AdoNet;
 
     public static class RemoveUnchangedRowsByPrimaryKeyExtension
@@ -29,7 +30,7 @@
 
                 // todo: should ValidFrom be excluded from the list??
 
-                if (pkCol.Type == SqlType.Int32)
+                if (pkCol.Type.IsInt())
                 {
                     builder.AddOperationCreator(builder => new[] {
                     new DeferredCompareWithRowOperation()
@@ -56,7 +57,7 @@
                     },
                 });
                 }
-                else if (pkCol.Type == SqlType.NChar || pkCol.Type == SqlType.NVarchar || pkCol.Type == SqlType.Char || pkCol.Type == SqlType.Varchar)
+                else if (pkCol.Type.AnyOf(MsSqlType2016.Char, MsSqlType2016.NVarChar, MsSqlType2016.Char, MsSqlType2016.VarChar))
                 {
                     builder.AddOperationCreator(builder => new[] {
                     new DeferredCompareWithRowOperation()

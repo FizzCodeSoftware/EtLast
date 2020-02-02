@@ -5,6 +5,7 @@
     using System.Linq;
     using FizzCode.DbTools.Configuration;
     using FizzCode.DbTools.DataDefinition;
+    using FizzCode.DbTools.DataDefinition.MsSql2016;
     using FizzCode.EtLast.AdoNet;
 
     public delegate void SourceReadSqlStatementCustomizerDelegate(DwhTableBuilder tableBuilder, ref string customWhereClause, Dictionary<string, object> parameters);
@@ -95,32 +96,24 @@
             return result.MaxValue;
         }
 
-        private static ITypeConverter GetConverter(SqlColumn x)
+        private static ITypeConverter GetConverter(SqlColumn column)
         {
-            switch (x.Type)
+            return column.Type.SqlTypeInfo switch
             {
-                case SqlType.Boolean:
-                    return new BoolConverter();
-                case SqlType.Byte:
-                    return new ByteConverter();
-                case SqlType.Int32:
-                    return new IntConverter();
-                case SqlType.Double:
-                    return new DoubleConverter();
-                case SqlType.Decimal:
-                case SqlType.Money:
-                    return new DecimalConverter();
-                case SqlType.Varchar:
-                case SqlType.NVarchar:
-                case SqlType.NText:
-                case SqlType.Char:
-                case SqlType.NChar:
-                    return new StringConverter();
-                case SqlType.DateTime:
-                    return new DateTimeConverter();
-                case SqlType.DateTimeOffset:
-                    return new DateTimeOffsetConverter();
-            }
+                SqlBit _ => new BoolConverter(),
+                SqlTinyInt _ => new ByteConverter(),
+                SqlInt _ => new BoolConverter(),
+                SqlFloat _ => new DoubleConverter(),
+                SqlDecimal _ => new DecimalConverter(),
+                SqlMoney _ => new DecimalConverter(),
+                SqlVarChar _ => new StringConverter(),
+                SqlNVarChar _ => new StringConverter(),
+                SqlNText _ => new StringConverter(),
+                SqlChar _ => new StringConverter(),
+                SqlNChar _ => new StringConverter(),
+                SqlDateTime _ => new DateTimeConverter(),
+                SqlDateTimeOffset _ => new DateTimeConverter(),
+            };
 
             return null;
         }
