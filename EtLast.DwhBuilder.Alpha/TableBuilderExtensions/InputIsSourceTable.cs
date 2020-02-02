@@ -102,7 +102,7 @@
             {
                 SqlBit _ => new BoolConverter(),
                 SqlTinyInt _ => new ByteConverter(),
-                SqlInt _ => new BoolConverter(),
+                SqlInt _ => new IntConverter(),
                 SqlFloat _ => new DoubleConverter(),
                 SqlDecimal _ => new DecimalConverter(),
                 SqlMoney _ => new DecimalConverter(),
