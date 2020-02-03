@@ -27,10 +27,6 @@
                             {
                                 row.SetValue(builder.DwhBuilder.Configuration.ValidFromColumnName, row[builder.DwhBuilder.Configuration.LastModifiedColumnName], op);
                             }
-                            else
-                            {
-                                row.SetValue(builder.DwhBuilder.Configuration.ValidFromColumnName, builder.DwhBuilder.Configuration.InfinitePastDateTime, op);
-                            }
                         },
                     },
                 });

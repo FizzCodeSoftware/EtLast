@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
 
-    public class DeferredValidateForeignKeyOperation : AbstractRowOperation, IDeferredRowOperation
+    public class DeferredKeyTestOperation : AbstractRowOperation, IDeferredRowOperation
     {
         public RowTestDelegate If { get; set; }
 
@@ -30,7 +30,7 @@
         /// </summary>
         public int CacheSizeLimit { get; set; } = 100000;
 
-        private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();
+        private readonly HashSet<string> _lookup = new HashSet<string>();
         private List<IRow> _batchRows;
         private HashSet<string> _batchRowKeys;
         private Stopwatch _lastNewRowSeenOn;
@@ -49,12 +49,12 @@
 
                 var key = GetLeftKey(row);
 
-                if (MatchAction != null && key != null && _lookup.TryGetValue(key, out var rightRow))
+                if (MatchAction != null && key != null && _lookup.Contains(key))
                 {
                     CounterCollection.IncrementCounter("served from cache", 1, true);
                     CounterCollection.IncrementCounter("processed", 1, true);
 
-                    HandleMatch(row, key, rightRow);
+                    HandleMatch(row, key);
                     return;
                 }
 
@@ -107,7 +107,7 @@
                 if (string.IsNullOrEmpty(key))
                     continue;
 
-                _lookup.Add(key, row);
+                _lookup.Add(key);
             }
 
             Process.Context.Log(LogSeverity.Debug, Process, this, "fetched {RowCount} rows, lookup size is {LookupSize}", rightRowCount,
@@ -120,7 +120,7 @@
                 foreach (var row in _batchRows)
                 {
                     var key = GetLeftKey(row);
-                    if (key == null || !_lookup.TryGetValue(key, out var match))
+                    if (key == null || !_lookup.Contains(key))
                     {
                         if (NoMatchAction != null)
                         {
@@ -129,7 +129,7 @@
                     }
                     else if (MatchAction != null)
                     {
-                        HandleMatch(row, key, match);
+                        HandleMatch(row, key);
                     }
                 }
             }
@@ -159,7 +159,7 @@
             }
         }
 
-        private void HandleMatch(IRow row, string key, IRow match)
+        private void HandleMatch(IRow row, string key)
         {
             switch (MatchAction.Mode)
             {
@@ -171,7 +171,7 @@
                     exception.Data.Add("Key", key);
                     throw exception;
                 case MatchMode.Custom:
-                    MatchAction.CustomAction.Invoke(this, row, match);
+                    MatchAction.CustomAction.Invoke(this, row, row);
                     break;
             }
         }

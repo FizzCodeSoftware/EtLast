@@ -51,7 +51,7 @@
                         row.SetValue(builder.DwhBuilder.Configuration.ValidToColumnName, builder.DwhBuilder.Configuration.InfiniteFutureDateTime, op);
                     }
                 },
-                NotSameAction = new MatchAction(MatchMode.Custom)
+                MatchButDifferentAction = new MatchAction(MatchMode.Custom)
                 {
                     CustomAction = (op, row, match) =>
                     {
@@ -59,7 +59,7 @@
                         row.SetValue(builder.DwhBuilder.Configuration.ValidToColumnName, builder.DwhBuilder.Configuration.InfiniteFutureDateTime, op);
                     },
                 },
-                MatchAction = new MatchAction(MatchMode.Remove)
+                MatchAndEqualsAction = new MatchAction(MatchMode.Remove)
             };
         }
     }

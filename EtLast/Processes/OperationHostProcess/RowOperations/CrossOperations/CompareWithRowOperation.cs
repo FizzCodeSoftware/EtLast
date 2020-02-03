@@ -5,27 +5,27 @@
     public class CompareWithRowOperation : AbstractKeyBasedCrossOperation
     {
         public RowTestDelegate If { get; set; }
-        public MatchAction MatchAction { get; set; }
-        public NoMatchAction NoMatchAction { get; set; }
-        public MatchAction NotSameAction { get; set; }
         public IRowEqualityComparer EqualityComparer { get; set; }
+        public MatchAction MatchAndEqualsAction { get; set; }
+        public MatchAction MatchButDifferentAction { get; set; }
+        public NoMatchAction NoMatchAction { get; set; }
 
         private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();
 
         public override void Prepare()
         {
             base.Prepare();
-            if (MatchAction == null && NoMatchAction == null && NotSameAction == null)
-                throw new InvalidOperationParameterException(this, nameof(MatchAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must be specified: " + nameof(MatchAction) + " or " + nameof(NoMatchAction) + " or " + nameof(NotSameAction));
+            if (MatchAndEqualsAction == null && NoMatchAction == null && MatchButDifferentAction == null)
+                throw new InvalidOperationParameterException(this, nameof(MatchAndEqualsAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must be specified: " + nameof(MatchAndEqualsAction) + " or " + nameof(NoMatchAction) + " or " + nameof(MatchButDifferentAction));
 
-            if (MatchAction?.Mode == MatchMode.Custom && MatchAction.CustomAction == null)
-                throw new OperationParameterNullException(this, nameof(MatchAction) + "." + nameof(MatchAction.CustomAction));
+            if (MatchAndEqualsAction?.Mode == MatchMode.Custom && MatchAndEqualsAction.CustomAction == null)
+                throw new OperationParameterNullException(this, nameof(MatchAndEqualsAction) + "." + nameof(MatchAndEqualsAction.CustomAction));
 
             if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
                 throw new OperationParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));
 
-            if (NoMatchAction != null && MatchAction != null && ((NoMatchAction.Mode == MatchMode.Remove && MatchAction.Mode == MatchMode.Remove) || (NoMatchAction.Mode == MatchMode.Throw && MatchAction.Mode == MatchMode.Throw)))
-                throw new InvalidOperationParameterException(this, nameof(MatchAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must use a different action mode: " + nameof(MatchAction) + " or " + nameof(NoMatchAction));
+            if (NoMatchAction != null && MatchAndEqualsAction != null && ((NoMatchAction.Mode == MatchMode.Remove && MatchAndEqualsAction.Mode == MatchMode.Remove) || (NoMatchAction.Mode == MatchMode.Throw && MatchAndEqualsAction.Mode == MatchMode.Throw)))
+                throw new InvalidOperationParameterException(this, nameof(MatchAndEqualsAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must use a different action mode: " + nameof(MatchAndEqualsAction) + " or " + nameof(NoMatchAction));
 
             if (EqualityComparer == null)
                 throw new OperationParameterNullException(this, nameof(EqualityComparer));
@@ -94,9 +94,9 @@
             var isSame = EqualityComparer.Equals(row, match);
             if (isSame)
             {
-                if (MatchAction != null)
+                if (MatchAndEqualsAction != null)
                 {
-                    switch (MatchAction.Mode)
+                    switch (MatchAndEqualsAction.Mode)
                     {
                         case MatchMode.Remove:
                             Process.RemoveRow(row, this);
@@ -106,14 +106,14 @@
                             exception.Data.Add("LeftKey", leftKey);
                             throw exception;
                         case MatchMode.Custom:
-                            MatchAction.CustomAction.Invoke(this, row, match);
+                            MatchAndEqualsAction.CustomAction.Invoke(this, row, match);
                             break;
                     }
                 }
             }
-            else if (NotSameAction != null)
+            else if (MatchButDifferentAction != null)
             {
-                switch (NotSameAction.Mode)
+                switch (MatchButDifferentAction.Mode)
                 {
                     case MatchMode.Remove:
                         Process.RemoveRow(row, this);
@@ -123,7 +123,7 @@
                         exception.Data.Add("LeftKey", leftKey);
                         throw exception;
                     case MatchMode.Custom:
-                        NotSameAction.CustomAction.Invoke(this, row, match);
+                        MatchButDifferentAction.CustomAction.Invoke(this, row, match);
                         break;
                 }
             }
