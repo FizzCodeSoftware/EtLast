@@ -91,8 +91,27 @@
                 return;
             }
 
-            var isSame = EqualityComparer.Compare(row, match);
-            if (!isSame)
+            var isSame = EqualityComparer.Equals(row, match);
+            if (isSame)
+            {
+                if (MatchAction != null)
+                {
+                    switch (MatchAction.Mode)
+                    {
+                        case MatchMode.Remove:
+                            Process.RemoveRow(row, this);
+                            break;
+                        case MatchMode.Throw:
+                            var exception = new OperationExecutionException(Process, this, row, "match");
+                            exception.Data.Add("LeftKey", leftKey);
+                            throw exception;
+                        case MatchMode.Custom:
+                            MatchAction.CustomAction.Invoke(this, row, match);
+                            break;
+                    }
+                }
+            }
+            else if (NotSameAction != null)
             {
                 switch (NotSameAction.Mode)
                 {
@@ -105,22 +124,6 @@
                         throw exception;
                     case MatchMode.Custom:
                         NotSameAction.CustomAction.Invoke(this, row, match);
-                        break;
-                }
-            }
-            else
-            {
-                switch (MatchAction.Mode)
-                {
-                    case MatchMode.Remove:
-                        Process.RemoveRow(row, this);
-                        break;
-                    case MatchMode.Throw:
-                        var exception = new OperationExecutionException(Process, this, row, "match");
-                        exception.Data.Add("LeftKey", leftKey);
-                        throw exception;
-                    case MatchMode.Custom:
-                        MatchAction.CustomAction.Invoke(this, row, match);
                         break;
                 }
             }

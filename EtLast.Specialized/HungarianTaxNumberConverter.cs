@@ -6,7 +6,13 @@
 
     public class HungarianTaxNumberConverter : StringConverter
     {
+        /// <summary>
+        /// Default true.
+        /// </summary>
+        public bool AutomaticallyAddHyphens { get; set; } = true;
+
         public static Dictionary<int, string> RegionNames { get; } = CreateRegionNamesDictionary();
+        private static readonly int[] _checkSumNumbers = new[] { 9, 7, 3, 1, 9, 7, 3 };
 
         public HungarianTaxNumberConverter(string formatHint = null, IFormatProvider formatProviderHint = null)
             : base(formatHint, formatProviderHint)
@@ -20,26 +26,43 @@
         {
             var taxNr = base.Convert(source) as string;
 
+            return Convert(taxNr, AutomaticallyAddHyphens);
+        }
+
+        public static string Convert(string taxNr, bool automaticallyAddHyphens)
+        {
             if (string.IsNullOrEmpty(taxNr))
                 return null;
 
-            if (taxNr.Length == 11 && !taxNr.Contains("-", StringComparison.InvariantCultureIgnoreCase))
+            if (!Validate(taxNr))
+                return null;
+
+            if (automaticallyAddHyphens && taxNr.Length == 11 && !taxNr.Contains("-", StringComparison.InvariantCultureIgnoreCase))
             {
                 taxNr = taxNr.Substring(0, 8) + "-" + taxNr.Substring(8, 1) + "-" + taxNr.Substring(9, 2);
             }
 
-            if (!ValidateHungarianTaxNr(taxNr))
-                return null;
-
             return taxNr;
         }
 
-        public static bool ValidateHungarianTaxNr(string taxNr)
+        public static bool Validate(string taxNr)
         {
-            if (taxNr.Length != 13)
-                return false;
+            string[] parts;
 
-            var parts = taxNr.Split('-');
+            if (!taxNr.Contains("-", StringComparison.InvariantCultureIgnoreCase))
+            {
+                if (taxNr.Length != 11)
+                    return false;
+
+                parts = new[] { taxNr.Substring(0, 8), taxNr.Substring(8, 1), taxNr.Substring(9, 2) };
+            }
+            else
+            {
+                parts = taxNr.Split('-');
+                if (parts.Length != 3 || parts[0].Length != 8 || parts[1].Length != 1 || parts[2].Length != 2)
+                    return false;
+            }
+
             if (!int.TryParse(parts[1], out var vatType))
                 return false;
 
@@ -73,8 +96,6 @@
 
             return true;
         }
-
-        private static readonly int[] _checkSumNumbers = new[] { 9, 7, 3, 1, 9, 7, 3 };
 
         private static Dictionary<int, string> CreateRegionNamesDictionary()
         {

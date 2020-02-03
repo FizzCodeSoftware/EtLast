@@ -8,7 +8,7 @@
         public string[] Columns { get; set; }
         public string[] ColumnsToIgnore { get; set; }
 
-        public bool Compare(IRow leftRow, IRow rightRow)
+        public bool Equals(IRow leftRow, IRow rightRow)
         {
             if (Columns != null)
             {

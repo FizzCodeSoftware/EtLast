@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Collections.Generic;
 
     public enum RowState { Normal, Removed, Finished }
@@ -30,16 +31,15 @@
         T GetAs<T>(string column);
         T GetAs<T>(string column, T defaultValueIfNull);
 
+        bool Equals<T>(string column, T value);
+
         bool IsNull(string column);
         bool IsNullOrEmpty(string column);
 
         bool IsNullOrEmpty();
 
-        bool IsInt(string column);
-        bool IsLong(string column);
-        bool IsFloat(string column);
-        bool IsDouble(string column);
-        bool IsDecimal(string column);
+        bool Is<T>(string column);
+        string FormatToString(string column, IFormatProvider formatProvider = null);
 
         string ToDebugString();
 

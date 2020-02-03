@@ -2,9 +2,9 @@
 {
     public delegate IEvaluable InputProcessCreatorDelegate(DwhTableBuilder tableBuilder);
 
-    public static class InputIsCustomProcessExtension
+    public static partial class TableBuilderExtensions
     {
-        public static DwhTableBuilder[] InputIsCustomProcess(this DwhTableBuilder[] builders, InputProcessCreatorDelegate inputProcessCreator)
+        public static DwhTableBuilder[] Input_CustomProcess(this DwhTableBuilder[] builders, InputProcessCreatorDelegate inputProcessCreator)
         {
             foreach (var builder in builders)
             {

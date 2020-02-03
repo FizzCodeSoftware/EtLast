@@ -2,9 +2,9 @@
 {
     using FizzCode.DbTools.DataDefinition;
 
-    public class IsEtlRunTableProperty : SqlTableProperty
+    public class IsEtlRunInfoTableProperty : SqlTableProperty
     {
-        public IsEtlRunTableProperty(SqlTable table)
+        public IsEtlRunInfoTableProperty(SqlTable table)
             : base(table)
         {
         }

@@ -4,7 +4,7 @@
 
     public delegate IEnumerable<IExecutable> CustomFinalizerCreatorDelegate(DwhTableBuilder builder, int? currentEtlRunId);
 
-    public static class AddCustomFinalizerExtension
+    public static partial class TableBuilderExtensions
     {
         public static DwhTableBuilder[] AddCustomFinalizer(this DwhTableBuilder[] builders, CustomFinalizerCreatorDelegate creator)
         {

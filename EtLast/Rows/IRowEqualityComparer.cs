@@ -2,6 +2,6 @@
 {
     public interface IRowEqualityComparer
     {
-        bool Compare(IRow leftRow, IRow rightRow);
+        bool Equals(IRow leftRow, IRow rightRow);
     }
 }

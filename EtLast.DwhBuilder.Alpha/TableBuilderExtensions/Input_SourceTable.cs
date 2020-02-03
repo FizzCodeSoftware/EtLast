@@ -10,9 +10,9 @@
 
     public delegate void SourceReadSqlStatementCustomizerDelegate(DwhTableBuilder tableBuilder, ref string customWhereClause, Dictionary<string, object> parameters);
 
-    public static class InputIsSourceTableExtension
+    public static partial class TableBuilderExtensions
     {
-        public static DwhTableBuilder[] InputIsSourceTable(this DwhTableBuilder[] builders, DatabaseDefinition sourceModel, ConnectionStringWithProvider sourceConnectionString, AdoNetReaderConnectionScope readerScope, SourceReadSqlStatementCustomizerDelegate sqlStatementCustomizer = null, string customWhereClause = null)
+        public static DwhTableBuilder[] Input_SourceTable(this DwhTableBuilder[] builders, DatabaseDefinition sourceModel, ConnectionStringWithProvider sourceConnectionString, AdoNetReaderConnectionScope readerScope, SourceReadSqlStatementCustomizerDelegate sqlStatementCustomizer = null, string customWhereClause = null)
         {
             foreach (var builder in builders)
             {
@@ -44,6 +44,7 @@
 
             var isIncremental = builder.DwhBuilder.Configuration.IncrementalLoadEnabled
                 && builder.SqlTable.Columns.Any(x => string.Equals(x.Name, builder.DwhBuilder.Configuration.LastModifiedColumnName, StringComparison.InvariantCultureIgnoreCase));
+
             if (isIncremental)
             {
                 var lastModified = GetMaxLastModified(builder);
@@ -73,9 +74,9 @@
             };
         }
 
-        private static DateTime? GetMaxLastModified(DwhTableBuilder builder)
+        private static DateTimeOffset? GetMaxLastModified(DwhTableBuilder builder)
         {
-            var result = new GetTableMaxValueProcess<DateTime?>(builder.DwhBuilder.Context, "MaxLastModifiedReader")
+            var result = new GetTableMaxValueProcess<DateTimeOffset?>(builder.DwhBuilder.Context, "MaxLastModifiedReader")
             {
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 TableName = builder.Table.TableName,

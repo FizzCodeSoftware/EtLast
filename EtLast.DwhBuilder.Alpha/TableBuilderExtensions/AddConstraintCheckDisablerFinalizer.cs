@@ -4,7 +4,7 @@
     using FizzCode.DbTools.DataDefinition;
     using FizzCode.EtLast.AdoNet;
 
-    public static class AddConstraintCheckDisablerFinalizerExtension
+    public static partial class TableBuilderExtensions
     {
         public static DwhTableBuilder[] AddConstraintCheckDisablerFinalizer(this DwhTableBuilder[] builders)
         {

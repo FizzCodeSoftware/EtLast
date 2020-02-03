@@ -4,7 +4,6 @@
     using System.Globalization;
     using System.Linq;
     using FizzCode.DbTools.DataDefinition;
-    using FizzCode.DbTools.DataDefinition.MsSql2016;
 
     public static class DwhExtender
     {
@@ -27,8 +26,8 @@
             {
                 if (configuration.UseEtlRunTable && !baseTable.HasProperty<NoEtlRunInfoProperty>())
                 {
-                    baseTable.AddInt(configuration.EtlInsertRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName);
-                    baseTable.AddInt(configuration.EtlUpdateRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName);
+                    baseTable.AddInt32(configuration.EtlInsertRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName).IsEtlRunInfoColumn();
+                    baseTable.AddInt32(configuration.EtlUpdateRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName).IsEtlRunInfoColumn();
                 }
             }
 
@@ -47,9 +46,9 @@
             var table = new SqlTable(model.DefaultSchema, configuration.EtlRunTableName);
             model.AddTable(table);
 
-            table.Properties.Add(new IsEtlRunTableProperty(table));
+            table.Properties.Add(new IsEtlRunInfoTableProperty(table));
 
-            table.AddInt("EtlRunId").SetIdentity().SetPK();
+            table.AddInt32("EtlRunId").SetIdentity().SetPK();
             table.AddVarChar("MachineName", 200, false);
             table.AddVarChar("UserName", 200, false);
             table.AddDateTimeOffset("StartedOn", 2, false);
@@ -67,7 +66,7 @@
 
             baseTable.DatabaseDefinition.AddTable(historyTable);
 
-            historyTable.AddInt(historyTable.SchemaAndTableName.TableName + configuration.HistoryTableIdColumnPostfix).SetIdentity().SetPK();
+            historyTable.AddInt32(historyTable.SchemaAndTableName.TableName + configuration.HistoryTableIdColumnPostfix).SetIdentity().SetPK();
 
             // step #1: copy all columns (including foreign keys)
             foreach (var column in baseTable.Columns)
