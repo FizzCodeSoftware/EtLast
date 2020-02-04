@@ -6,6 +6,9 @@
         {
             foreach (var builder in builders)
             {
+                if (string.IsNullOrEmpty(builder.ValidFromColumnName))
+                    continue;
+
                 builder.AddOperationCreator(builder => new[]
                 {
                     new CustomOperation()

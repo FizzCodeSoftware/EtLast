@@ -8,12 +8,11 @@
         {
             foreach (var builder in builders)
             {
-                if (builder.RecordTimestampIndicatorColumn == null)
-                    throw new NotSupportedException();
+                if (string.IsNullOrEmpty(builder.ValidFromColumnName))
+                    continue;
 
-                /*var hasHistory = !builder.SqlTable.HasProperty<NoHistoryTableProperty>();
-                if (!hasHistory)
-                    continue;*/
+                if (builder.RecordTimestampIndicatorColumn == null)
+                    continue;
 
                 builder.AddOperationCreator(builder => new[]
                 {
