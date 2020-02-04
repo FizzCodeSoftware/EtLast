@@ -12,12 +12,11 @@
             {
                 builder.AddFinalizerCreator(builder =>
                 {
-                    var useEtlRunTable = builder.DwhBuilder.Configuration.UseEtlRunTable && !builder.SqlTable.HasProperty<NoEtlRunInfoProperty>();
-                    var currentRunid = useEtlRunTable
+                    var currentRunId = builder.EtlInsertRunIdColumnNameEscaped != null || builder.EtlUpdateRunIdColumnNameEscaped != null
                         ? builder.DwhBuilder.Context.AdditionalData.GetAs("CurrentEtlRunId", 0)
                         : (int?)null;
 
-                    return creator(builder, currentRunid);
+                    return creator(builder, currentRunId);
                 });
             }
 

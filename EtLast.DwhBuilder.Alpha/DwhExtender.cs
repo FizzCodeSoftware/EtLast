@@ -6,29 +6,46 @@
 
     public static class DwhExtender
     {
-        public static void ExtendModel<T>(T model, DwhConfiguration configuration)
+        public static void ExtendWithEtlRunInfo<T>(T model, DwhConfiguration configuration)
+            where T : DatabaseDeclaration
+        {
+            var etlRunTable = new SqlTable(model.DefaultSchema, configuration.EtlRunTableName);
+            model.AddTable(etlRunTable);
+
+            etlRunTable.Properties.Add(new IsEtlRunInfoTableProperty(etlRunTable));
+
+            etlRunTable.AddInt32("EtlRunId").SetIdentity().SetPK();
+            etlRunTable.AddVarChar("MachineName", 200, false);
+            etlRunTable.AddVarChar("UserName", 200, false);
+            etlRunTable.AddDateTimeOffset("StartedOn", 2, false);
+            etlRunTable.AddDateTimeOffset("FinishedOn", 2, true);
+            etlRunTable.AddVarChar("Result", 20, true);
+
+            model.AddAutoNaming(new List<SqlTable> { etlRunTable });
+
+            var baseTables = model.GetTables();
+            foreach (var baseTable in baseTables)
+            {
+                if (baseTable.HasProperty<NoEtlRunInfoProperty>())
+                    continue;
+
+                if (baseTable.HasProperty<IsEtlRunInfoTableProperty>())
+                    continue;
+
+                baseTable.AddInt32(configuration.EtlInsertRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName).IsEtlRunInfoColumn();
+                baseTable.AddInt32(configuration.EtlUpdateRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName).IsEtlRunInfoColumn();
+            }
+        }
+
+        public static void ExtendWithHistoryTables<T>(T model, DwhConfiguration configuration)
             where T : DatabaseDeclaration
         {
             var baseTables = model.GetTables();
 
             var baseTablesWithHistory = baseTables
-                .Where(t => !t.HasProperty<NoHistoryTableProperty>())
+                .Where(x => x.HasProperty<WithHistoryTableProperty>()
+                         && !x.HasProperty<IsEtlRunInfoTableProperty>())
                 .ToList();
-
-            if (configuration.UseEtlRunTable)
-            {
-                var etlRunTable = CreateEtlRunTable(model, configuration);
-                model.AddAutoNaming(new List<SqlTable> { etlRunTable });
-            }
-
-            foreach (var baseTable in baseTables)
-            {
-                if (configuration.UseEtlRunTable && !baseTable.HasProperty<NoEtlRunInfoProperty>())
-                {
-                    baseTable.AddInt32(configuration.EtlInsertRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName).IsEtlRunInfoColumn();
-                    baseTable.AddInt32(configuration.EtlUpdateRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName).IsEtlRunInfoColumn();
-                }
-            }
 
             var historyTables = new List<SqlTable>();
             foreach (var baseTable in baseTablesWithHistory)
@@ -38,23 +55,6 @@
             }
 
             model.AddAutoNaming(historyTables);
-        }
-
-        private static SqlTable CreateEtlRunTable(DatabaseDeclaration model, DwhConfiguration configuration)
-        {
-            var table = new SqlTable(model.DefaultSchema, configuration.EtlRunTableName);
-            model.AddTable(table);
-
-            table.Properties.Add(new IsEtlRunInfoTableProperty(table));
-
-            table.AddInt32("EtlRunId").SetIdentity().SetPK();
-            table.AddVarChar("MachineName", 200, false);
-            table.AddVarChar("UserName", 200, false);
-            table.AddDateTimeOffset("StartedOn", 2, false);
-            table.AddDateTimeOffset("FinishedOn", 2, true);
-            table.AddVarChar("Result", 20, true);
-
-            return table;
         }
 
         private static SqlTable CreateHistoryTable(SqlTable baseTable, DwhConfiguration configuration)

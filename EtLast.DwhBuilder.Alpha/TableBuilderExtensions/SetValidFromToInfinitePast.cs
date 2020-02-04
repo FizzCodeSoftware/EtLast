@@ -13,7 +13,7 @@
                         InstanceName = nameof(SetValidFromToDefault),
                         Then = (op, row) =>
                         {
-                            row.SetValue(builder.DwhBuilder.Configuration.ValidFromColumnName, builder.DwhBuilder.DefaultValidFromDateTime, op);
+                            row.SetValue(builder.ValidFromColumnName, builder.DwhBuilder.DefaultValidFromDateTime, op);
                         },
                     },
                 });

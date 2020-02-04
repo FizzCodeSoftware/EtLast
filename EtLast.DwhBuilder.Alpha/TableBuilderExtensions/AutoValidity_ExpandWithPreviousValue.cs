@@ -32,8 +32,7 @@
                     ConnectionString = builder.DwhBuilder.ConnectionString,
                     Sql = "select " + string.Join(",", keyColumns.Concat(valueColumns.Select(x => x.FromColumn)))
                         + " from " + builder.DwhBuilder.ConnectionString.Escape(builder.SqlTable.SchemaAndTableName.TableName, builder.SqlTable.SchemaAndTableName.Schema)
-                        + " where " + builder.DwhBuilder.Configuration.ValidToColumnName
-                        + (builder.DwhBuilder.Configuration.InfiniteFutureDateTime == null ? " IS NULL" : " = @InfiniteFuture"),
+                        + " where " + builder.ValidToColumnNameEscaped + (builder.DwhBuilder.Configuration.InfiniteFutureDateTime == null ? " IS NULL" : " = @InfiniteFuture"),
                     Parameters = builder.DwhBuilder.Configuration.InfiniteFutureDateTime == null ? null : new Dictionary<string, object>
                     {
                         ["InfiniteFuture"] = builder.DwhBuilder.Configuration.InfiniteFutureDateTime,
@@ -49,8 +48,8 @@
                     CustomAction = (op, row) =>
                     {
                         // this is the first version
-                        row.SetValue(builder.DwhBuilder.Configuration.ValidFromColumnName, builder.DwhBuilder.DefaultValidFromDateTime, op);
-                        row.SetValue(builder.DwhBuilder.Configuration.ValidToColumnName, builder.DwhBuilder.Configuration.InfiniteFutureDateTime, op);
+                        row.SetValue(builder.ValidFromColumnName, builder.DwhBuilder.DefaultValidFromDateTime, op);
+                        row.SetValue(builder.ValidToColumnName, builder.DwhBuilder.Configuration.InfiniteFutureDateTime, op);
                     }
                 },
                 MatchCustomAction = (op, row, match) =>
@@ -63,8 +62,8 @@
                     else
                     {
                         // this is different than the last version
-                        row.SetValue(builder.DwhBuilder.Configuration.ValidFromColumnName, builder.DwhBuilder.Context.CreatedOnLocal, op);
-                        row.SetValue(builder.DwhBuilder.Configuration.ValidToColumnName, builder.DwhBuilder.Configuration.InfiniteFutureDateTime, op);
+                        row.SetValue(builder.ValidFromColumnName, builder.DwhBuilder.Context.CreatedOnLocal, op);
+                        row.SetValue(builder.ValidToColumnName, builder.DwhBuilder.Configuration.InfiniteFutureDateTime, op);
                     }
                 },
             };

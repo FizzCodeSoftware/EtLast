@@ -8,7 +8,7 @@
     {
         internal DwhTableBuilder TableBuilder { get; }
         internal MatchAction MatchButDifferentAction { get; set; }
-        internal string[] KeyColumns { get; set; }
+        internal string[] MatchColumns { get; set; }
         internal string[] CompareValueColumns { get; set; }
 
         internal RemoveExistingRowsBuilder(DwhTableBuilder tableBuilder)
@@ -22,50 +22,72 @@
             {
                 CustomAction = (op, row, match) =>
                 {
-                    row.SetValue(TableBuilder.DwhBuilder.Configuration.ValidFromColumnName, TableBuilder.DwhBuilder.Context.CreatedOnLocal, op);
-                    row.SetValue(TableBuilder.DwhBuilder.Configuration.ValidToColumnName, TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime, op);
+                    row.SetValue(TableBuilder.ValidFromColumnName, TableBuilder.DwhBuilder.Context.CreatedOnLocal, op);
+                    row.SetValue(TableBuilder.ValidToColumnName, TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime, op);
                 },
             };
 
             return this;
         }
 
-        public RemoveExistingRowsBuilder UsePrimaryKey()
+        public RemoveExistingRowsBuilder MatchByPrimaryKey()
         {
             var pk = TableBuilder.SqlTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
             if (pk == null)
                 throw new NotSupportedException();
 
-            KeyColumns = pk.SqlColumns.Select(x => x.SqlColumn.Name).ToArray();
+            MatchColumns = pk.SqlColumns
+                .Select(x => x.SqlColumn.Name)
+                .ToArray();
+
             return this;
         }
 
-        public RemoveExistingRowsBuilder UseSpecificKeyColumns(params string[] keyColumns)
+        public RemoveExistingRowsBuilder MatchBySpecificColumns(params string[] matchColumns)
         {
-            KeyColumns = keyColumns;
+            MatchColumns = matchColumns;
             return this;
         }
 
-        public RemoveExistingRowsBuilder CompareAllValueColumns()
+        public RemoveExistingRowsBuilder MatchByAllColumnsExceptPk()
+        {
+            var pk = TableBuilder.SqlTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
+
+            MatchColumns = TableBuilder.SqlTable.Columns
+                .Where(x => pk.SqlColumns.All(pkc => !string.Equals(pkc.SqlColumn.Name, x.Name, StringComparison.InvariantCultureIgnoreCase)))
+                .Select(x => x.Name)
+                .ToArray();
+
+            return this;
+        }
+
+        public RemoveExistingRowsBuilder CompareAllColumnsAndValidity()
         {
             var columnsToCompare = TableBuilder.SqlTable.Columns
                 .Where(x => !x.HasProperty<IsEtlRunInfoColumnProperty>()
-                    && !string.Equals(x.Name, TableBuilder.DwhBuilder.Configuration.ValidFromColumnName, StringComparison.InvariantCultureIgnoreCase)
-                    && !string.Equals(x.Name, TableBuilder.DwhBuilder.Configuration.ValidToColumnName, StringComparison.InvariantCultureIgnoreCase));
+                    && !x.HasProperty<RecordTimestampIndicatorColumnProperty>());
 
             // key columns will be excluded from the value column list later
-
-            if (!string.IsNullOrEmpty(TableBuilder.DwhBuilder.Configuration.LastModifiedColumnName))
-            {
-                columnsToCompare = columnsToCompare
-                    .Where(x => !string.Equals(x.Name, TableBuilder.DwhBuilder.Configuration.LastModifiedColumnName, StringComparison.InvariantCultureIgnoreCase));
-            }
 
             CompareValueColumns = columnsToCompare.Select(x => x.Name).ToArray();
             return this;
         }
 
-        public RemoveExistingRowsBuilder CompareSpecificValueColumns(params string[] valueColumns)
+        public RemoveExistingRowsBuilder CompareAllColumnsButValidity()
+        {
+            var columnsToCompare = TableBuilder.SqlTable.Columns
+                .Where(x => !x.HasProperty<IsEtlRunInfoColumnProperty>()
+                    && !x.HasProperty<RecordTimestampIndicatorColumnProperty>()
+                    && !string.Equals(x.Name, TableBuilder.ValidFromColumnName, StringComparison.InvariantCultureIgnoreCase)
+                    && !string.Equals(x.Name, TableBuilder.ValidToColumnName, StringComparison.InvariantCultureIgnoreCase));
+
+            // key columns will be excluded from the value column list later
+
+            CompareValueColumns = columnsToCompare.Select(x => x.Name).ToArray();
+            return this;
+        }
+
+        public RemoveExistingRowsBuilder CompareSpecificColumns(params string[] valueColumns)
         {
             CompareValueColumns = valueColumns;
             return this;

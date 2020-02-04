@@ -6,27 +6,27 @@
 
     public static partial class TableBuilderExtensions
     {
-        public static DwhTableBuilder[] AddConstraintCheckDisablerFinalizer(this DwhTableBuilder[] builders)
+        public static DwhTableBuilder[] DisableConstraintCheck(this DwhTableBuilder[] builders)
         {
             foreach (var builder in builders)
             {
-                builder.AddFinalizerCreator(ConstraintCheckDisableFinalizer);
+                builder.AddFinalizerCreator(CreateDisableConstraintCheckFinalizer);
             }
 
             return builders;
         }
 
-        private static IEnumerable<IExecutable> ConstraintCheckDisableFinalizer(DwhTableBuilder builder)
+        private static IEnumerable<IExecutable> CreateDisableConstraintCheckFinalizer(DwhTableBuilder builder)
         {
             if (!builder.SqlTable.HasProperty<ForeignKey>())
                 yield break;
 
-            var hasHistory = !builder.SqlTable.HasProperty<NoHistoryTableProperty>();
+            var hasHistoryTable = builder.SqlTable.HasProperty<WithHistoryTableProperty>();
 
             yield return new MsSqlDisableConstraintCheckProcess(builder.DwhBuilder.Context, "DisableConstraintCheck")
             {
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
-                TableNames = !hasHistory
+                TableNames = !hasHistoryTable
                     ? new[] { builder.Table.TableName }
                     : new[] { builder.Table.TableName, builder.DwhBuilder.GetEscapedHistTableName(builder.SqlTable) },
                 CommandTimeout = 60 * 60,
@@ -43,7 +43,7 @@
                         builder.DwhBuilder.Context.AdditionalData["ConstraintCheckDisabledOnTables"] = list;
                     }
 
-                    list.AddRange(!hasHistory
+                    list.AddRange(!hasHistoryTable
                         ? new[] { builder.Table.TableName }
                         : new[] { builder.Table.TableName, builder.DwhBuilder.GetEscapedHistTableName(builder.SqlTable) });
                 }

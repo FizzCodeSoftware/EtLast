@@ -4,7 +4,7 @@
 
     public static partial class TableBuilderExtensions
     {
-        public static DwhTableBuilder[] Input_CustomProcess(this DwhTableBuilder[] builders, InputProcessCreatorDelegate inputProcessCreator)
+        public static DwhTableBuilder[] InputIsCustomProcess(this DwhTableBuilder[] builders, InputProcessCreatorDelegate inputProcessCreator)
         {
             foreach (var builder in builders)
             {

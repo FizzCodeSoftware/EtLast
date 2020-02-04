@@ -15,7 +15,7 @@
                 var tempBuilder = new RemoveExistingRowsBuilder(tableBuilder);
                 customizer.Invoke(tempBuilder);
 
-                if (tempBuilder.KeyColumns == null)
+                if (tempBuilder.MatchColumns == null)
                     throw new NotSupportedException("you must specify the key columns of " + nameof(RemoveExistingRows) + " for table " + tableBuilder.Table.TableName);
 
                 if (tempBuilder.CompareValueColumns == null && tempBuilder.MatchButDifferentAction != null)
@@ -32,34 +32,34 @@
             if (builder.CompareValueColumns != null)
             {
                 var finalValueColumns = builder.CompareValueColumns
-                    .Where(x => builder.KeyColumns.All(kc => !string.Equals(x, kc, StringComparison.InvariantCultureIgnoreCase))).ToArray();
+                    .Where(x => builder.MatchColumns.All(kc => !string.Equals(x, kc, StringComparison.InvariantCultureIgnoreCase))).ToArray();
 
                 var equalityComparer = new ColumnBasedRowEqualityComparer()
                 {
                     Columns = finalValueColumns,
                 };
 
-                if (builder.KeyColumns.Length == 1)
+                if (builder.MatchColumns.Length == 1)
                 {
                     yield return new DeferredCompareWithRowOperation()
                     {
                         InstanceName = nameof(RemoveExistingRows),
-                        If = row => !row.IsNullOrEmpty(builder.KeyColumns[0]),
+                        If = row => !row.IsNullOrEmpty(builder.MatchColumns[0]),
                         EqualityComparer = equalityComparer,
-                        LeftKeySelector = row => row.FormatToString(builder.KeyColumns[0]),
-                        RightKeySelector = row => row.FormatToString(builder.KeyColumns[0]),
+                        LeftKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
+                        RightKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
                         RightProcessCreator = rows => new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Scope.Context, "ExistingRowsReader")
                         {
-                            Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.KeyColumns[0])
+                            Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0])
                                     + "," + string.Join(",", finalValueColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
                                 + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema)
-                                + " WHERE " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.KeyColumns[0]) + " IN (@keyList)",
+                                + " WHERE " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0]) + " IN (@keyList)",
                             ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                             InlineArrayParameters = true,
                             Parameters = new Dictionary<string, object>()
                             {
                                 ["keyList"] = rows
-                                    .Select(row => row.FormatToString(builder.KeyColumns[0]))
+                                    .Select(row => row.FormatToString(builder.MatchColumns[0]))
                                     .Distinct()
                                     .ToArray(),
                             },
@@ -74,12 +74,12 @@
                     {
                         InstanceName = nameof(RemoveExistingRows),
                         EqualityComparer = equalityComparer,
-                        LeftKeySelector = row => string.Join("\0", builder.KeyColumns.Select(c => row.FormatToString(c) ?? "-")),
-                        RightKeySelector = row => string.Join("\0", builder.KeyColumns.Select(c => row.FormatToString(c) ?? "-")),
+                        LeftKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
+                        RightKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
                         RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.DwhBuilder.Context, "ExistingRowsReader")
                         {
                             ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
-                            Sql = "SELECT " + string.Join(",", builder.KeyColumns.Concat(finalValueColumns).Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
+                            Sql = "SELECT " + string.Join(",", builder.MatchColumns.Concat(finalValueColumns).Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
                                 + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema),
                         },
                         MatchAndEqualsAction = new MatchAction(MatchMode.Remove),
@@ -87,25 +87,25 @@
                     };
                 }
             }
-            else if (builder.KeyColumns.Length == 1)
+            else if (builder.MatchColumns.Length == 1)
             {
                 yield return new DeferredKeyTestOperation()
                 {
                     InstanceName = nameof(RemoveExistingRows),
-                    If = row => !row.IsNullOrEmpty(builder.KeyColumns[0]),
-                    LeftKeySelector = row => row.FormatToString(builder.KeyColumns[0]),
-                    RightKeySelector = row => row.FormatToString(builder.KeyColumns[0]),
+                    If = row => !row.IsNullOrEmpty(builder.MatchColumns[0]),
+                    LeftKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
+                    RightKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
                     RightProcessCreator = rows => new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Scope.Context, "ExistingRowsReader")
                     {
-                        Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.KeyColumns[0])
+                        Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0])
                             + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema)
-                            + " WHERE " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.KeyColumns[0]) + " IN (@keyList)",
+                            + " WHERE " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0]) + " IN (@keyList)",
                         ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                         InlineArrayParameters = true,
                         Parameters = new Dictionary<string, object>()
                         {
                             ["keyList"] = rows
-                                .Select(row => row.FormatToString(builder.KeyColumns[0]))
+                                .Select(row => row.FormatToString(builder.MatchColumns[0]))
                                 .Distinct()
                                 .ToArray(),
                         },
@@ -118,12 +118,12 @@
                 yield return new KeyTestOperation()
                 {
                     InstanceName = nameof(RemoveExistingRows),
-                    LeftKeySelector = row => string.Join("\0", builder.KeyColumns.Select(c => row.FormatToString(c) ?? "-")),
-                    RightKeySelector = row => string.Join("\0", builder.KeyColumns.Select(c => row.FormatToString(c) ?? "-")),
+                    LeftKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
+                    RightKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
                     RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.DwhBuilder.Context, "ExistingRowsReader")
                     {
                         ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
-                        Sql = "SELECT " + string.Join(",", builder.KeyColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
+                        Sql = "SELECT " + string.Join(",", builder.MatchColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
                             + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema),
                     },
                     MatchAction = new MatchAction(MatchMode.Remove),

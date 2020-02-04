@@ -5,7 +5,6 @@
 
     public class DwhConfiguration
     {
-        public string LastModifiedColumnName { get; set; }
         public string ValidFromColumnName { get; set; }
         public string ValidToColumnName { get; set; }
 
@@ -25,7 +24,6 @@
         public DateTimeOffset? InfiniteFutureDateTime { get; set; }
         public bool IncrementalLoadEnabled { get; set; } = true;
 
-        public bool UseEtlRunTable { get; set; } = true;
         public string EtlRunTableName { get; set; } = "_EtlRun";
         public string EtlInsertRunIdColumnName { get; set; } = "EtlInsertRunId";
         public string EtlUpdateRunIdColumnName { get; set; } = "EtlUpdateRunId";
