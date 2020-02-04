@@ -22,7 +22,7 @@
             {
                 CustomAction = (op, row, match) =>
                 {
-                    row.SetValue(TableBuilder.DwhBuilder.Configuration.ValidFromColumnName, DateTime.Now, op);
+                    row.SetValue(TableBuilder.DwhBuilder.Configuration.ValidFromColumnName, TableBuilder.DwhBuilder.Context.CreatedOnLocal, op);
                     row.SetValue(TableBuilder.DwhBuilder.Configuration.ValidToColumnName, TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime, op);
                 },
             };

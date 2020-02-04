@@ -15,8 +15,14 @@
         public string TempTableNamePrefix { get; set; }
         public int FinalizerRetryCount { get; set; } = 5;
         public ResilientSqlScopeTempTableMode TempTableMode { get; set; } = ResilientSqlScopeTempTableMode.AlwaysKeep;
-        public DateTime InfiniteFutureDateTime { get; set; }
-        public DateTime InfinitePastDateTime { get; set; }
+
+        /// <summary>
+        /// Default false.
+        /// </summary>
+        public bool UseContextCreationTimeForNewRecords { get; set; }
+
+        public DateTimeOffset? InfinitePastDateTime { get; set; }
+        public DateTimeOffset? InfiniteFutureDateTime { get; set; }
         public bool IncrementalLoadEnabled { get; set; } = true;
 
         public bool UseEtlRunTable { get; set; } = true;

@@ -12,7 +12,7 @@
                     throw new NotSupportedException();
 
                 var hasHistory = !builder.SqlTable.HasProperty<NoHistoryTableProperty>();
-                if (hasHistory)
+                if (!hasHistory)
                     continue;
 
                 builder.AddOperationCreator(builder => new[]

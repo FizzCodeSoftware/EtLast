@@ -23,6 +23,8 @@
         public IEnumerable<SqlTable> Tables => _tables.Select(x => x.SqlTable);
         protected readonly List<DwhTableBuilder> _tables = new List<DwhTableBuilder>();
 
+        public DateTimeOffset? DefaultValidFromDateTime => Configuration.UseContextCreationTimeForNewRecords ? Context.CreatedOnLocal : Configuration.InfinitePastDateTime;
+
         public DwhBuilder(IEtlContext context)
         {
             Context = context;
@@ -136,7 +138,7 @@
                                 ["EtlRunId"] = currentId,
                                 ["MachineName"] = Environment.MachineName,
                                 ["UserName"] = Environment.UserName,
-                                ["StartedOn"] = DateTimeOffset.Now
+                                ["StartedOn"] = Context.CreatedOnLocal,
                             };
 
                             return new[] { Context.CreateRow(process, initialValues) };

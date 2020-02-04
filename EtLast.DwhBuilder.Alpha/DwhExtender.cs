@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.Alpha
 {
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
     using FizzCode.DbTools.DataDefinition;
 
@@ -100,15 +99,13 @@
                 foreach (var fkCol in baseFk.ForeignKeyColumns)
                 {
                     var fkColumn = historyTable.Columns[fkCol.ForeignKeyColumn.Name];
-                    historyFk.ForeignKeyColumns.Add(
-                        new ForeignKeyColumnMap(fkColumn, fkCol.ReferredColumn));
+                    historyFk.ForeignKeyColumns.Add(new ForeignKeyColumnMap(fkColumn, fkCol.ReferredColumn));
                 }
             }
 
-            baseTable.AddDateTime(configuration.ValidFromColumnName, false);
-
-            historyTable.AddDateTime(configuration.ValidFromColumnName, false);
-            historyTable.AddDateTime(configuration.ValidToColumnName, false).AddDefaultValue("'" + configuration.InfiniteFutureDateTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) + "'");
+            baseTable.AddDateTimeOffset(configuration.ValidFromColumnName, 2, configuration.InfinitePastDateTime == null && !configuration.UseContextCreationTimeForNewRecords);
+            historyTable.AddDateTimeOffset(configuration.ValidFromColumnName, 2, configuration.InfinitePastDateTime == null && !configuration.UseContextCreationTimeForNewRecords);
+            historyTable.AddDateTimeOffset(configuration.ValidToColumnName, 2, configuration.InfiniteFutureDateTime == null);
 
             return historyTable;
         }

@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.Alpha
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using FizzCode.EtLast.AdoNet;
@@ -33,8 +32,9 @@
                     ConnectionString = builder.DwhBuilder.ConnectionString,
                     Sql = "select " + string.Join(",", keyColumns.Concat(valueColumns.Select(x => x.FromColumn)))
                         + " from " + builder.DwhBuilder.ConnectionString.Escape(builder.SqlTable.SchemaAndTableName.TableName, builder.SqlTable.SchemaAndTableName.Schema)
-                        + " where " + builder.DwhBuilder.Configuration.ValidToColumnName + "=@InfiniteFuture",
-                    Parameters = new Dictionary<string, object>
+                        + " where " + builder.DwhBuilder.Configuration.ValidToColumnName
+                        + (builder.DwhBuilder.Configuration.InfiniteFutureDateTime == null ? " IS NULL" : " = @InfiniteFuture"),
+                    Parameters = builder.DwhBuilder.Configuration.InfiniteFutureDateTime == null ? null : new Dictionary<string, object>
                     {
                         ["InfiniteFuture"] = builder.DwhBuilder.Configuration.InfiniteFutureDateTime,
                     },
@@ -49,7 +49,7 @@
                     CustomAction = (op, row) =>
                     {
                         // this is the first version
-                        row.SetValue(builder.DwhBuilder.Configuration.ValidFromColumnName, builder.DwhBuilder.Configuration.InfinitePastDateTime, op);
+                        row.SetValue(builder.DwhBuilder.Configuration.ValidFromColumnName, builder.DwhBuilder.DefaultValidFromDateTime, op);
                         row.SetValue(builder.DwhBuilder.Configuration.ValidToColumnName, builder.DwhBuilder.Configuration.InfiniteFutureDateTime, op);
                     }
                 },
@@ -63,7 +63,7 @@
                     else
                     {
                         // this is different than the last version
-                        row.SetValue(builder.DwhBuilder.Configuration.ValidFromColumnName, DateTime.Now, op);
+                        row.SetValue(builder.DwhBuilder.Configuration.ValidFromColumnName, builder.DwhBuilder.Context.CreatedOnLocal, op);
                         row.SetValue(builder.DwhBuilder.Configuration.ValidToColumnName, builder.DwhBuilder.Configuration.InfiniteFutureDateTime, op);
                     }
                 },

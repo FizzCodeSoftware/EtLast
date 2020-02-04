@@ -52,10 +52,11 @@
                 TargetTableName = builder.Table.TableName,
                 TargetTableAlias = "t",
                 OnCondition = string.Join(" and ", columnsToMatch.Select(x => "t." + x + " = s." + x))
-                    + " and t." + builder.DwhBuilder.ConnectionString.Escape(builder.DwhBuilder.Configuration.ValidToColumnName) + " = @InfiniteFuture",
+                    + " and t." + builder.DwhBuilder.ConnectionString.Escape(builder.DwhBuilder.Configuration.ValidToColumnName)
+                    + (builder.DwhBuilder.Configuration.InfiniteFutureDateTime == null ? " IS NULL" : " = @InfiniteFuture"),
                 WhenMatchedAction = "UPDATE SET t." + builder.DwhBuilder.ConnectionString.Escape(builder.DwhBuilder.Configuration.ValidToColumnName) + "=s." + builder.DwhBuilder.ConnectionString.Escape(builder.DwhBuilder.Configuration.ValidFromColumnName)
                     + (useEtlRunTable ? ", " + builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName + "=" + currentEtlRunId.ToString("D", CultureInfo.InvariantCulture) : ""),
-                Parameters = new Dictionary<string, object>
+                Parameters = builder.DwhBuilder.Configuration.InfiniteFutureDateTime == null ? null : new Dictionary<string, object>
                 {
                     ["InfiniteFuture"] = builder.DwhBuilder.Configuration.InfiniteFutureDateTime,
                 },

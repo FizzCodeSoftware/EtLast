@@ -35,13 +35,17 @@
                     .Where(x => pk.SqlColumns.All(pkc => !string.Equals(pkc.SqlColumn.Name, x.Name, StringComparison.InvariantCultureIgnoreCase)));
             }
 
-            var columnsNamesToInsert = columnsToInsert
+            var columnNamesToInsert = columnsToInsert
                 .Select(c => builder.DwhBuilder.ConnectionString.Escape(c.Name))
-                .ToList();
+                .ToArray();
 
-            var columnsToMatch = keyColumns
-                .Select(x => builder.DwhBuilder.ConnectionString.Escape(x))
-                .ToList();
+            var columnNamesToUpdate = valueColumns
+                .Select(c => builder.DwhBuilder.ConnectionString.Escape(c))
+                .ToArray();
+
+            var columnsNamesToMatch = keyColumns
+                .Select(c => builder.DwhBuilder.ConnectionString.Escape(c))
+                .ToArray();
 
             yield return new CustomMsSqlMergeSqlStatementProcess(builder.DwhBuilder.Context, "MergeIntoBase")
             {
@@ -51,17 +55,17 @@
                 TargetTableName = builder.Table.TableName,
                 SourceTableAlias = "s",
                 TargetTableAlias = "t",
-                OnCondition = string.Join(" and ", columnsToMatch.Select(x => "t." + x + " = s." + x)),
+                OnCondition = string.Join(" and ", columnsNamesToMatch.Select(x => "t." + x + " = s." + x)),
                 WhenMatchedAction =
-                    valueColumns.Length > 0 || useEtlRunTable
+                    columnNamesToUpdate.Length > 0 || useEtlRunTable
                         ? "UPDATE SET "
-                            + string.Join(",", valueColumns.Select(c => "t." + c + "=s." + c))
-                            + (useEtlRunTable ? (valueColumns.Length > 0 ? ", " : "") + builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName + "=" + currentEtlRunId : "")
+                            + string.Join(",", columnNamesToUpdate.Select(c => "t." + c + "=s." + c))
+                            + (useEtlRunTable ? (columnNamesToUpdate.Length > 0 ? ", " : "") + builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName + "=" + currentEtlRunId : "")
                         : null,
-                WhenNotMatchedByTargetAction = "INSERT (" + string.Join(", ", columnsNamesToInsert)
+                WhenNotMatchedByTargetAction = "INSERT (" + string.Join(", ", columnNamesToInsert)
                     + (useEtlRunTable ? ", " + builder.DwhBuilder.Configuration.EtlInsertRunIdColumnName + ", " + builder.DwhBuilder.Configuration.EtlUpdateRunIdColumnName : "")
                     + ") VALUES ("
-                        + string.Join(", ", columnsNamesToInsert)
+                        + string.Join(", ", columnNamesToInsert)
                         + (useEtlRunTable ? ", " + currentEtlRunId + ", " + currentEtlRunId : "")
                     + ")",
             };

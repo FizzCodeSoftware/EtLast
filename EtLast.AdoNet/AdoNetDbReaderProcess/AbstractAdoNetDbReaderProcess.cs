@@ -28,7 +28,7 @@
         public ConnectionCreatorDelegate CustomConnectionCreator { get; set; }
 
         public int CommandTimeout { get; set; } = 3600;
-        public DateTime LastDataRead { get; private set; }
+        public DateTimeOffset LastDataRead { get; private set; }
         public List<ISqlValueProcessor> SqlValueProcessors { get; } = new List<ISqlValueProcessor>();
 
         public Dictionary<string, object> Parameters { get; set; }
@@ -130,7 +130,7 @@
 
             Context.Log(LogSeverity.Debug, this, "query executed in {Elapsed}", swQuery.Elapsed);
 
-            LastDataRead = DateTime.Now;
+            LastDataRead = DateTimeOffset.Now;
 
             var map = ColumnConfiguration?.ToDictionary(x => x.SourceColumn);
 
@@ -147,13 +147,12 @@
                     }
                     catch (Exception ex)
                     {
-                        var now = DateTime.Now;
-                        var exception = new EtlException(this, string.Format(CultureInfo.InvariantCulture, "error while reading data at row index {0}, {1} after last read", resultCount, LastDataRead.Subtract(now)), ex);
+                        var exception = new EtlException(this, string.Format(CultureInfo.InvariantCulture, "error while reading data at row index {0}, {1} after last read", resultCount, LastDataRead.Subtract(DateTimeOffset.Now)), ex);
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query after successfully reading {0} rows, message: {1}, connection string key: {2}, SQL statement: {3}", resultCount, ex.Message, ConnectionString.Name, sqlStatement));
                         throw exception;
                     }
 
-                    LastDataRead = DateTime.Now;
+                    LastDataRead = DateTimeOffset.Now;
                     IncrementCounter();
 
                     initialValues.Clear();
