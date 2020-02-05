@@ -139,21 +139,21 @@
                         {
                             HandleNoMatch(row, key);
                         }
-
-                        return;
                     }
-
-                    var isSame = EqualityComparer.Equals(row, rightRow);
-                    if (!isSame)
+                    else
                     {
-                        if (MatchButDifferentAction != null)
+                        var isSame = EqualityComparer.Equals(row, rightRow);
+                        if (!isSame)
                         {
-                            HandleNotSame(row, key, rightRow);
+                            if (MatchButDifferentAction != null)
+                            {
+                                HandleNotSame(row, key, rightRow);
+                            }
                         }
-                    }
-                    else if (MatchAndEqualsAction != null)
-                    {
-                        HandleMatch(row, key, rightRow);
+                        else if (MatchAndEqualsAction != null)
+                        {
+                            HandleMatch(row, key, rightRow);
+                        }
                     }
                 }
             }

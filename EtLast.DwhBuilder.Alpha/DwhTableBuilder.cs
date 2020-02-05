@@ -79,7 +79,7 @@
             Table.MainProcessCreator = t => CreateTableMainProcess();
         }
 
-        private IRowOperation CreateTempWriterOperation(ResilientTable table, SqlTable sqlTable, bool bulkCopyCheckConstraints = false)
+        private IRowOperation CreateTempWriterOperation(ResilientTable table, SqlTable sqlTable)
         {
             var pk = sqlTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
             var okIsIdentity = pk.SqlColumns.Any(c => c.SqlColumn.HasProperty<Identity>());
@@ -97,12 +97,11 @@
             {
                 InstanceName = "Write",
                 ConnectionString = table.Scope.Configuration.ConnectionString,
-                BulkCopyCheckConstraints = bulkCopyCheckConstraints,
                 TableDefinition = new DbTableDefinition()
                 {
                     TableName = table.TempTableName,
                     Columns = tempColumns
-                        .Select(c => new DbColumnDefinition(c.Name))
+                        .Select(c => new DbColumnDefinition(DwhBuilder.ConnectionString.Escape(c.Name)))
                         .ToArray(),
                 },
             };

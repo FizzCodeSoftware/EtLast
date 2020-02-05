@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using FizzCode.DbTools.DataDefinition;
     using FizzCode.EtLast;
     using FizzCode.EtLast.AdoNet;
 
@@ -31,8 +32,12 @@
         {
             if (builder.CompareValueColumns != null)
             {
+                var pk = builder.TableBuilder.SqlTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
+
                 var finalValueColumns = builder.CompareValueColumns
-                    .Where(x => builder.MatchColumns.All(kc => !string.Equals(x, kc, StringComparison.InvariantCultureIgnoreCase))).ToArray();
+                    .Where(x => builder.MatchColumns.All(kc => !string.Equals(x, kc, StringComparison.InvariantCultureIgnoreCase))
+                        && (pk?.SqlColumns.All(pkc => !string.Equals(x, pkc.SqlColumn.Name, StringComparison.InvariantCultureIgnoreCase)) != false))
+                    .ToArray();
 
                 var equalityComparer = new ColumnBasedRowEqualityComparer()
                 {
@@ -51,7 +56,7 @@
                         RightProcessCreator = rows => new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Scope.Context, "ExistingRowsReader")
                         {
                             Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0])
-                                    + "," + string.Join(",", finalValueColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
+                                    + "," + string.Join(", ", finalValueColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
                                 + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema)
                                 + " WHERE " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0]) + " IN (@keyList)",
                             ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,

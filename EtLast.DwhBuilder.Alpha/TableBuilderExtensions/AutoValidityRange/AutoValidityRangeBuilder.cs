@@ -1,36 +1,23 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.Alpha
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using FizzCode.DbTools.DataDefinition;
 
-    public class RemoveExistingRowsBuilder
+    public class AutoValidityRangeBuilder
     {
         internal DwhTableBuilder TableBuilder { get; }
-        internal MatchAction MatchButDifferentAction { get; private set; }
         internal string[] MatchColumns { get; private set; }
         internal string[] CompareValueColumns { get; private set; }
+        internal Dictionary<string, string> PreviousValueColumnNameMap { get; } = new Dictionary<string, string>();
 
-        internal RemoveExistingRowsBuilder(DwhTableBuilder tableBuilder)
+        internal AutoValidityRangeBuilder(DwhTableBuilder tableBuilder)
         {
             TableBuilder = tableBuilder;
         }
 
-        public RemoveExistingRowsBuilder AutoValidityIfValueChanged()
-        {
-            MatchButDifferentAction = new MatchAction(MatchMode.Custom)
-            {
-                CustomAction = (op, row, match) =>
-                {
-                    row.SetValue(TableBuilder.ValidFromColumnName, TableBuilder.DwhBuilder.Context.CreatedOnLocal, op);
-                    row.SetValue(TableBuilder.ValidToColumnName, TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime, op);
-                },
-            };
-
-            return this;
-        }
-
-        public RemoveExistingRowsBuilder MatchByPrimaryKey()
+        public AutoValidityRangeBuilder MatchByPrimaryKey()
         {
             var pk = TableBuilder.SqlTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
             if (pk == null)
@@ -43,13 +30,13 @@
             return this;
         }
 
-        public RemoveExistingRowsBuilder MatchBySpecificColumns(params string[] matchColumns)
+        public AutoValidityRangeBuilder MatchBySpecificColumns(params string[] matchColumns)
         {
             MatchColumns = matchColumns;
             return this;
         }
 
-        public RemoveExistingRowsBuilder MatchByAllColumnsExceptPk()
+        public AutoValidityRangeBuilder MatchByAllColumnsExceptPk()
         {
             var pk = TableBuilder.SqlTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
 
@@ -61,33 +48,39 @@
             return this;
         }
 
-        public RemoveExistingRowsBuilder CompareAllColumnsAndValidity()
+        public AutoValidityRangeBuilder UsePreviousValue(string valueVolumnName, string previousValueColumnName)
         {
-            var columnsToCompare = TableBuilder.SqlTable.Columns
-                .Where(x => !x.HasProperty<IsEtlRunInfoColumnProperty>()
-                    && !x.HasProperty<RecordTimestampIndicatorColumnProperty>());
-
-            // key columns will be excluded from the value column list later
-
-            CompareValueColumns = columnsToCompare.Select(x => x.Name).ToArray();
+            PreviousValueColumnNameMap.Add(valueVolumnName, previousValueColumnName);
             return this;
         }
 
-        public RemoveExistingRowsBuilder CompareAllColumnsButValidity()
+        public AutoValidityRangeBuilder CompareAllColumnsAndValidity()
         {
-            var columnsToCompare = TableBuilder.SqlTable.Columns
+            CompareValueColumns = TableBuilder.SqlTable.Columns
+                .Where(x => !x.HasProperty<IsEtlRunInfoColumnProperty>()
+                    && !x.HasProperty<RecordTimestampIndicatorColumnProperty>())
+                .Select(x => x.Name).ToArray();
+
+            // key columns will be excluded from the value column list later
+
+            return this;
+        }
+
+        public AutoValidityRangeBuilder CompareAllColumnsButValidity()
+        {
+            CompareValueColumns = TableBuilder.SqlTable.Columns
                 .Where(x => !x.HasProperty<IsEtlRunInfoColumnProperty>()
                     && !x.HasProperty<RecordTimestampIndicatorColumnProperty>()
                     && !string.Equals(x.Name, TableBuilder.ValidFromColumnName, StringComparison.InvariantCultureIgnoreCase)
-                    && !string.Equals(x.Name, TableBuilder.ValidToColumnName, StringComparison.InvariantCultureIgnoreCase));
+                    && !string.Equals(x.Name, TableBuilder.ValidToColumnName, StringComparison.InvariantCultureIgnoreCase))
+                .Select(x => x.Name).ToArray();
 
             // key columns will be excluded from the value column list later
 
-            CompareValueColumns = columnsToCompare.Select(x => x.Name).ToArray();
             return this;
         }
 
-        public RemoveExistingRowsBuilder CompareSpecificColumns(params string[] valueColumns)
+        public AutoValidityRangeBuilder CompareSpecificColumns(params string[] valueColumns)
         {
             CompareValueColumns = valueColumns;
             return this;

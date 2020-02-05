@@ -7,7 +7,7 @@
     public class StandardFinalizerBuilder
     {
         internal DwhTableBuilder TableBuilder { get; }
-        internal string[] KeyColumns { get; set; }
+        internal string[] KeyColumns { get; private set; }
 
         internal StandardFinalizerBuilder(DwhTableBuilder tableBuilder)
         {
