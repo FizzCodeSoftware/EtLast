@@ -13,6 +13,16 @@
         public ResilientTable Table { get; }
         public SqlTable SqlTable { get; }
 
+        public SqlColumn RecordTimestampIndicatorColumn { get; }
+        public string EtlInsertRunIdColumnNameEscaped { get; }
+        public string EtlUpdateRunIdColumnNameEscaped { get; }
+
+        public bool BaseHasValidToColumn { get; }
+        public string ValidFromColumnName { get; }
+        public string ValidToColumnName { get; }
+        public string ValidFromColumnNameEscaped { get; }
+        public string ValidToColumnNameEscaped { get; }
+
         private readonly List<Func<DwhTableBuilder, IEnumerable<IExecutable>>> _finalizerCreators = new List<Func<DwhTableBuilder, IEnumerable<IExecutable>>>();
         private readonly List<Func<DwhTableBuilder, IEnumerable<IRowOperation>>> _operationCreators = new List<Func<DwhTableBuilder, IEnumerable<IRowOperation>>>();
         private Func<IEvaluable> _inputProcessCreator;
@@ -22,6 +32,30 @@
             DwhBuilder = builder;
             Table = table;
             SqlTable = sqlTable;
+            RecordTimestampIndicatorColumn = SqlTable.Columns.FirstOrDefault(x => x.HasProperty<RecordTimestampIndicatorColumnProperty>());
+
+            EtlInsertRunIdColumnNameEscaped = SqlTable.Columns
+                .Where(x => string.Equals(x.Name, builder.Configuration.EtlInsertRunIdColumnName, StringComparison.InvariantCultureIgnoreCase))
+                .Select(x => builder.ConnectionString.Escape(x.Name))
+                .FirstOrDefault();
+
+            EtlUpdateRunIdColumnNameEscaped = SqlTable.Columns
+                .Where(x => string.Equals(x.Name, builder.Configuration.EtlUpdateRunIdColumnName, StringComparison.InvariantCultureIgnoreCase))
+                .Select(x => builder.ConnectionString.Escape(x.Name))
+                .FirstOrDefault();
+
+            ValidFromColumnName = SqlTable.Columns
+                .Where(x => string.Equals(x.Name, builder.Configuration.ValidFromColumnName, StringComparison.InvariantCultureIgnoreCase))
+                .Select(x => x.Name)
+                .FirstOrDefault();
+
+            ValidFromColumnNameEscaped = ValidFromColumnName != null ? builder.ConnectionString.Escape(ValidFromColumnName) : null;
+
+            BaseHasValidToColumn = SqlTable.Columns
+                .Any(x => string.Equals(x.Name, builder.Configuration.ValidToColumnName, StringComparison.InvariantCultureIgnoreCase));
+
+            ValidToColumnName = ValidFromColumnName != null ? builder.Configuration.ValidToColumnName : null;
+            ValidToColumnNameEscaped = ValidToColumnName != null ? builder.ConnectionString.Escape(ValidToColumnName) : null;
         }
 
         internal void AddOperationCreator(Func<DwhTableBuilder, IEnumerable<IRowOperation>> creator)
@@ -45,34 +79,30 @@
             Table.MainProcessCreator = t => CreateTableMainProcess();
         }
 
-        private IRowOperation CreateTempWriterOperation(ResilientTable table, SqlTable sqlTable, bool bulkCopyCheckConstraints = false)
+        private IRowOperation CreateTempWriterOperation(ResilientTable table, SqlTable sqlTable)
         {
             var pk = sqlTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
-            var isIdentity = pk.SqlColumns.Any(c => c.SqlColumn.HasProperty<Identity>());
+            var okIsIdentity = pk.SqlColumns.Any(c => c.SqlColumn.HasProperty<Identity>());
 
-            var tempColumns = sqlTable.Columns.Select(x => x.Name);
-            if (isIdentity)
-            {
-                var pkColumnNames = pk.SqlColumns.Select(x => x.SqlColumn.Name).ToHashSet();
-                tempColumns = tempColumns.Where(x => !pkColumnNames.Contains(x));
-            }
+            var tempColumns = sqlTable.Columns
+                .Where(x => !x.HasProperty<IsEtlRunInfoColumnProperty>());
 
-            if (DwhBuilder.Configuration.UseEtlRunTable)
+            if (okIsIdentity)
             {
-                tempColumns = tempColumns.Where(x => x != DwhBuilder.Configuration.EtlInsertRunIdColumnName && x != DwhBuilder.Configuration.EtlUpdateRunIdColumnName);
+                tempColumns = tempColumns
+                    .Where(x => pk.SqlColumns.All(pkc => !string.Equals(pkc.SqlColumn.Name, x.Name, StringComparison.InvariantCultureIgnoreCase)));
             }
 
             return new MsSqlWriteToTableWithMicroTransactionsOperation()
             {
                 InstanceName = "Write",
                 ConnectionString = table.Scope.Configuration.ConnectionString,
-                BulkCopyCheckConstraints = bulkCopyCheckConstraints,
                 TableDefinition = new DbTableDefinition()
                 {
                     TableName = table.TempTableName,
                     Columns = tempColumns
-                    .Select(column => new DbColumnDefinition(column))
-                    .ToArray(),
+                        .Select(c => new DbColumnDefinition(c.Name, DwhBuilder.ConnectionString.Escape(c.Name)))
+                        .ToArray(),
                 },
             };
         }

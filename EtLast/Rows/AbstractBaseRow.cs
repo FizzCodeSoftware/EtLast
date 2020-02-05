@@ -139,6 +139,9 @@
         public string FormatToString(string column, IFormatProvider formatProvider = null)
         {
             var v = GetValueImpl(column);
+            if (v == null)
+                return null;
+
             if (v is string str)
                 return str;
 

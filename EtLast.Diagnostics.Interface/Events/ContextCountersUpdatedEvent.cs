@@ -1,12 +1,11 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface
 {
     using System;
-    using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
     public class ContextCountersUpdatedEvent : AbstractEvent
     {
-        public List<Counter> Counters { get; set; }
+        public Counter[] Counters { get; set; }
     }
 
     public class Counter

@@ -38,17 +38,8 @@
                 {
                     lock (connection.Lock)
                     {
-                        var statements = CreateSqlStatements(ConnectionString, connection.Connection);
-
-                        foreach (var statement in statements)
-                        {
-                            AdoNetSqlStatementDebugEventListener.GenerateEvent(this, () => new AdoNetSqlStatementDebugEvent()
-                            {
-                                Process = this,
-                                ConnectionString = ConnectionString,
-                                SqlStatement = statement,
-                            });
-                        }
+                        // todo: support returning parameters
+                        var sqlStatements = CreateSqlStatements(ConnectionString, connection.Connection);
 
                         using (var cmd = connection.Connection.CreateCommand())
                         {
@@ -56,9 +47,12 @@
 
                             var startedOn = Stopwatch.StartNew();
 
-                            for (var i = 0; i < statements.Count; i++)
+                            for (var i = 0; i < sqlStatements.Count; i++)
                             {
-                                cmd.CommandText = statements[i];
+                                var sqlStatement = sqlStatements[i];
+                                Context.LogDataStoreCommand(ConnectionString.Name, this, null, sqlStatement, null);
+
+                                cmd.CommandText = sqlStatement;
                                 try
                                 {
                                     startedOn.Restart();
@@ -71,7 +65,7 @@
                                 }
                             }
 
-                            LogSucceeded(statements.Count - 1);
+                            LogSucceeded(sqlStatements.Count - 1);
                         }
                     }
                 }

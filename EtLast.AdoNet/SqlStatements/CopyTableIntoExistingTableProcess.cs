@@ -68,7 +68,7 @@
                         var parameName = "@colDef" + index.ToString("D", CultureInfo.InvariantCulture);
                         sourceColumnList += ", " + parameName + " as " + kvp.Key;
                         targetColumnList += ", " + kvp.Key;
-                        parameters.Add(parameName, kvp.Value);
+                        parameters.Add(parameName, kvp.Value ?? DBNull.Value);
                         index++;
                     }
                 }

@@ -24,6 +24,7 @@
         public EventHandler<ContextExceptionEventArgs> OnException { get; set; }
         public ContextOnLogDelegate OnLog { get; set; }
         public ContextOnCustomLogDelegate OnCustomLog { get; set; }
+        public ContextOnDataStoreCommandDelegate OnContextDataStoreCommand { get; set; }
 
         public ContextOnRowCreatedDelegate OnRowCreated { get; set; }
         public ContextOnRowOwnerChangedDelegate OnRowOwnerChanged { get; set; }
@@ -148,6 +149,11 @@
         public void LogCustomOps(string fileName, IProcess process, string text, params object[] args)
         {
             OnCustomLog?.Invoke(true, fileName, process, text, args);
+        }
+
+        public void LogDataStoreCommand(string location, IProcess process, IBaseOperation operation, string command, IEnumerable<KeyValuePair<string, object>> args)
+        {
+            OnContextDataStoreCommand?.Invoke(location, process, operation, command, args);
         }
 
         public IRow CreateRow(IProcess creatorProcess, IEnumerable<KeyValuePair<string, object>> initialValues)

@@ -74,27 +74,24 @@
                     return false;
             }
 
-            foreach (var part in parts)
+            var firstPart = parts[0]; // only the first part has checksum for ALL banks
+
+            var digitSum = 0;
+            for (var i = 0; i < 7; i++)
             {
-                var digitSum = 0;
-                for (var i = 0; i < 7; i++)
-                {
-                    if (!int.TryParse(part[i].ToString(CultureInfo.InvariantCulture), out var digit))
-                        return false;
-
-                    digitSum += digit * _checkSumNumbers[i];
-                }
-
-                var checkSum = digitSum % 10;
-                if (checkSum != 0)
-                    checkSum = 10 - checkSum;
-
-                if (!int.TryParse(part[7].ToString(CultureInfo.InvariantCulture), out var lastDigit))
+                if (!int.TryParse(firstPart[i].ToString(CultureInfo.InvariantCulture), out var digit))
                     return false;
 
-                if (lastDigit != checkSum)
-                    return false;
+                digitSum += digit * _checkSumNumbers[i];
             }
+
+            var checkSum = 10 - (digitSum % 10);
+
+            if (!int.TryParse(firstPart[7].ToString(CultureInfo.InvariantCulture), out var lastDigit))
+                return false;
+
+            if (lastDigit != checkSum)
+                return false;
 
             return true;
         }

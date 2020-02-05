@@ -183,25 +183,25 @@
                         {
                             HandleNoMatch(row, key);
                         }
-
-                        return;
                     }
-
-                    if (RightRowFilter != null)
+                    else
                     {
-                        matches = matches.Where(rightRow => RightRowFilter.Invoke(row, rightRow)).ToList();
-                        if (matches.Count == 0)
+                        if (RightRowFilter != null)
                         {
-                            if (NoMatchAction != null)
+                            matches = matches.Where(rightRow => RightRowFilter.Invoke(row, rightRow)).ToList();
+                            if (matches.Count == 0)
                             {
-                                HandleNoMatch(row, key);
+                                if (NoMatchAction != null)
+                                {
+                                    HandleNoMatch(row, key);
+                                }
+
+                                continue;
                             }
-
-                            return;
                         }
-                    }
 
-                    HandleMatch(row, matches);
+                        HandleMatch(row, matches);
+                    }
                 }
             }
             finally

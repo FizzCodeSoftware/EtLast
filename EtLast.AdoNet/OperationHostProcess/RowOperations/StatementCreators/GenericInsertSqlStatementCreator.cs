@@ -8,10 +8,10 @@
     public class GenericInsertSqlStatementCreator : IAdoNetWriteToTableSqlStatementCreator
     {
         private string _dbColumns;
-        private DbTableDefinition _tableDefinition;
-        private DbColumnDefinition[] _columns;
+        private DetailedDbTableDefinition _tableDefinition;
+        private DetailedDbColumnDefinition[] _columns;
 
-        public void Prepare(WriteToTableOperation operation, IProcess process, DbTableDefinition tableDefinition)
+        public void Prepare(WriteToTableOperation operation, IProcess process, DetailedDbTableDefinition tableDefinition)
         {
             _tableDefinition = tableDefinition;
             _columns = _tableDefinition.Columns.Where(x => x.Insert).ToArray();

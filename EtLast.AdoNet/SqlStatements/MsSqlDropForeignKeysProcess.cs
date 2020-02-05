@@ -75,6 +75,8 @@
             {
                 try
                 {
+                    var parameters = new Dictionary<string, object>();
+
                     command.CommandTimeout = CommandTimeout;
                     switch (Mode)
                     {
@@ -89,10 +91,7 @@ from
 	sys.foreign_keys fk
 	inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
 	inner join sys.objects o on fkc.referenced_object_id = o.object_id and o.schema_id = SCHEMA_ID(@schemaName)";
-                                var parameter = command.CreateParameter();
-                                parameter.ParameterName = "schemaName";
-                                parameter.Value = SchemaName;
-                                command.Parameters.Add(parameter);
+                                parameters.Add("schemaName", SchemaName);
                                 break;
                             }
 
@@ -107,10 +106,7 @@ from
 	sys.foreign_keys fk
 	inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
 where fk.schema_id = SCHEMA_ID(@schemaName)";
-                                var parameter = command.CreateParameter();
-                                parameter.ParameterName = "schemaName";
-                                parameter.Value = SchemaName;
-                                command.Parameters.Add(parameter);
+                                parameters.Add("schemaName", SchemaName);
                                 break;
                             }
 
@@ -141,6 +137,16 @@ from
 
                     // tables are not filtered with an IN clause due to the limitations of the query processor
                     // this solution will read unnecessary data, but it will work in all conditions
+
+                    foreach (var kvp in parameters)
+                    {
+                        var parameter = command.CreateParameter();
+                        parameter.ParameterName = kvp.Key;
+                        parameter.Value = kvp.Value;
+                        command.Parameters.Add(parameter);
+                    }
+
+                    Context.LogDataStoreCommand(ConnectionString.Name, this, null, command.CommandText, parameters);
 
                     Context.Log(LogSeverity.Debug, this, null, "querying foreign key names from {ConnectionStringName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                         command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());

@@ -23,6 +23,8 @@
         public IEnumerable<SqlTable> Tables => _tables.Select(x => x.SqlTable);
         protected readonly List<DwhTableBuilder> _tables = new List<DwhTableBuilder>();
 
+        public DateTimeOffset? DefaultValidFromDateTime => Configuration.UseContextCreationTimeForNewRecords ? Context.CreatedOnLocal : Configuration.InfinitePastDateTime;
+
         public DwhBuilder(IEtlContext context)
         {
             Context = context;
@@ -63,7 +65,7 @@
 
         private IEnumerable<IExecutable> CreatePostFinalizers(ResilientSqlScope scope)
         {
-            // todo: this should be built and configured by AddConstraintCheckDisablerFinalizer
+            // todo: this should be built and configured by DisableConstraintCheck
             var constraintCheckDisabledOnTables = scope.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
             if (constraintCheckDisabledOnTables != null)
             {
@@ -75,10 +77,9 @@
                 };
             }
 
-            if (Configuration.UseEtlRunTable)
+            var etlRunSqlTable = Model.GetTables().Find(x => x.HasProperty<IsEtlRunInfoTableProperty>());
+            if (etlRunSqlTable != null)
             {
-                var etlRunSqlTable = Model.GetTables().Find(x => x.HasProperty<IsEtlRunInfoTableProperty>());
-
                 yield return new CustomSqlStatementProcess(Context, "UpdateEtlRun")
                 {
                     ConnectionString = scope.Configuration.ConnectionString,
@@ -101,7 +102,7 @@
 
         internal string GetEscapedHistTableName(SqlTable sqlTable)
         {
-            var hasHistory = !sqlTable.HasProperty<NoHistoryTableProperty>();
+            var hasHistory = sqlTable.HasProperty<WithHistoryTableProperty>();
             if (!hasHistory)
                 return null;
 
@@ -110,10 +111,9 @@
 
         private IEnumerable<IExecutable> CreateInitializers(ResilientSqlScope scope)
         {
-            if (Configuration.UseEtlRunTable)
+            var etlRunSqlTable = Model.GetTables().Find(x => x.HasProperty<IsEtlRunInfoTableProperty>());
+            if (etlRunSqlTable != null)
             {
-                var etlRunSqlTable = Model.GetTables().Find(x => x.HasProperty<IsEtlRunInfoTableProperty>());
-
                 var maxId = new GetTableMaxValueProcess<int>(Context, "MaxEtlRunIdReader")
                 {
                     ConnectionString = ConnectionString,
@@ -136,7 +136,7 @@
                                 ["EtlRunId"] = currentId,
                                 ["MachineName"] = Environment.MachineName,
                                 ["UserName"] = Environment.UserName,
-                                ["StartedOn"] = DateTimeOffset.Now
+                                ["StartedOn"] = Context.CreatedOnLocal,
                             };
 
                             return new[] { Context.CreateRow(process, initialValues) };
@@ -150,7 +150,9 @@
                             TableDefinition = new DbTableDefinition()
                             {
                                 TableName = ConnectionString.Escape(etlRunSqlTable.SchemaAndTableName.TableName, etlRunSqlTable.SchemaAndTableName.Schema),
-                                Columns = new[] { "EtlRunId", "MachineName", "UserName", "StartedOn" }.Select(x => new DbColumnDefinition(x)).ToArray(),
+                                Columns = new[] { "EtlRunId", "MachineName", "UserName", "StartedOn" }
+                                    .Select(c => new DbColumnDefinition(c, ConnectionString.Escape(c)))
+                                    .ToArray(),
                             },
                         },
                     },
@@ -167,23 +169,15 @@
                 var sqlTable = sqlTables[i];
 
                 var pk = sqlTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
-                if (pk.SqlColumns.Count != 1)
-                    throw new ArgumentException(nameof(AddTables) + " can be used only for tables with a single-column primary key (table name: " + sqlTable.SchemaAndTableName.SchemaAndName + ")");
-
                 var pkIsIdentity = pk.SqlColumns.Any(c => c.SqlColumn.HasProperty<Identity>());
 
-                IEnumerable<SqlColumn> tempColumns = sqlTable.Columns;
-
-                if (Configuration.UseEtlRunTable)
-                {
-                    tempColumns = tempColumns
-                        .Where(x => x.Name != Configuration.EtlInsertRunIdColumnName && x.Name != Configuration.EtlUpdateRunIdColumnName);
-                }
+                var tempColumns = sqlTable.Columns
+                    .Where(x => !x.HasProperty<IsEtlRunInfoColumnProperty>());
 
                 if (pkIsIdentity)
                 {
                     tempColumns = tempColumns
-                        .Where(x => !pk.SqlColumns.Any(pkc => pkc.SqlColumn == x));
+                        .Where(x => pk.SqlColumns.All(pkc => !string.Equals(pkc.SqlColumn.Name, x.Name, StringComparison.InvariantCultureIgnoreCase)));
                 }
 
                 var table = new ResilientTable()

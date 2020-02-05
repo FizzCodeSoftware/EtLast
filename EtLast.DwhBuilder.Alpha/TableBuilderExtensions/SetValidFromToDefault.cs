@@ -2,18 +2,21 @@
 {
     public static partial class TableBuilderExtensions
     {
-        public static DwhTableBuilder[] SetValidFromToInfinitePast(this DwhTableBuilder[] builders)
+        public static DwhTableBuilder[] SetValidFromToDefault(this DwhTableBuilder[] builders)
         {
             foreach (var builder in builders)
             {
+                if (string.IsNullOrEmpty(builder.ValidFromColumnName))
+                    continue;
+
                 builder.AddOperationCreator(builder => new[]
                 {
                     new CustomOperation()
                     {
-                        InstanceName = nameof(SetValidFromToInfinitePast),
+                        InstanceName = nameof(SetValidFromToDefault),
                         Then = (op, row) =>
                         {
-                            row.SetValue(builder.DwhBuilder.Configuration.ValidFromColumnName, builder.DwhBuilder.Configuration.InfinitePastDateTime, op);
+                            row.SetValue(builder.ValidFromColumnName, builder.DwhBuilder.DefaultValidFromDateTime, op);
                         },
                     },
                 });

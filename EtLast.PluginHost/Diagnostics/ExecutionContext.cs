@@ -71,6 +71,7 @@
             Context.OnRowValueChanged = LifecycleRowValueChanged;
             Context.OnRowStored = LifecycleRowStored;
             Context.OnProcessCreated = LifecycleProcessCreated;
+            Context.OnContextDataStoreCommand = LifecycleContextDataStoreCommand;
         }
 
         public void Log(LogSeverity severity, bool forOps, IProcess process, IBaseOperation operation, string text, params object[] args)
@@ -192,7 +193,7 @@
                     Name = c.Name,
                     Value = c.Value,
                     ValueType = c.ValueType,
-                }).ToList(),
+                }).ToArray(),
             });
 
             foreach (var counter in counters)
@@ -301,7 +302,7 @@
                 Timestamp = DateTime.Now.Ticks,
                 ProcessUid = creatorProcess.UID,
                 RowUid = row.UID,
-                Values = row.Values.Select(x => NamedArgument.FromObject(x.Key, x.Value)).ToList(),
+                Values = row.Values.Select(kvp => NamedArgument.FromObject(kvp.Key, kvp.Value)).ToArray(),
             });
         }
 
@@ -341,6 +342,18 @@
                 Uid = uid,
                 Type = process.GetType().GetFriendlyTypeName(),
                 Name = process.Name,
+            });
+        }
+
+        private void LifecycleContextDataStoreCommand(string location, IProcess process, IBaseOperation operation, string command, IEnumerable<KeyValuePair<string, object>> args)
+        {
+            _diagnosticsSender?.SendDiagnostics("data-store-command", new DataStoreCommandEvent()
+            {
+                Timestamp = DateTime.Now.Ticks,
+                ProcessUid = process.UID,
+                Location = location,
+                Command = command,
+                Arguments = args.Select(kvp => NamedArgument.FromObject(kvp.Key, kvp.Value)).ToArray(),
             });
         }
 

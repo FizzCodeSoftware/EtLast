@@ -18,7 +18,7 @@
         public int MaximumParameterCount { get; set; } = 30;
         public IDictionary<string, DbType> ColumnTypes { get; set; }
 
-        public DbTableDefinition TableDefinition { get; set; }
+        public DetailedDbTableDefinition TableDefinition { get; set; }
 
         public IAdoNetWriteToTableSqlStatementCreator SqlStatementCreator { get; set; }
 
@@ -80,7 +80,7 @@
 
         public int ParameterCount => _command?.Parameters.Count ?? 0;
 
-        public void CreateParameter(DbColumnDefinition dbColumnDefinition, object value)
+        public void CreateParameter(DetailedDbColumnDefinition dbColumnDefinition, object value)
         {
             var parameter = _command.CreateParameter();
             parameter.ParameterName = "@" + _command.Parameters.Count.ToString("D", CultureInfo.InvariantCulture);
@@ -103,13 +103,7 @@
 
             _command.CommandText = sqlStatement;
 
-            AdoNetSqlStatementDebugEventListener.GenerateEvent(Process, () => new AdoNetSqlStatementDebugEvent()
-            {
-                Operation = this,
-                ConnectionString = ConnectionString,
-                SqlStatement = sqlStatement,
-                CompiledSqlStatement = CompileSql(_command),
-            });
+            Process.Context.LogDataStoreCommand(ConnectionString.Name, Process, this, sqlStatement, null);
 
             Process.Context.Log(LogSeverity.Verbose, Process, "executing SQL statement: {SqlStatement}", sqlStatement);
 
@@ -167,7 +161,10 @@
 
             foreach (var p in arrParams.OrderByDescending(p => p.ParameterName.Length))
             {
-                var value = p.Value != null ? Convert.ToString(p.Value, CultureInfo.InvariantCulture) : "NULL";
+                var value = p.Value != null
+                    ? Convert.ToString(p.Value, CultureInfo.InvariantCulture)
+                    : "NULL";
+
                 if (_quotedParameterTypes.Contains(p.DbType))
                 {
                     value = "'" + value + "'";

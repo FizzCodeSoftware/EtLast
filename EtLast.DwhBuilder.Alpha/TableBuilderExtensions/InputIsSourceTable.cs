@@ -8,11 +8,11 @@
     using FizzCode.DbTools.DataDefinition.MsSql2016;
     using FizzCode.EtLast.AdoNet;
 
-    public delegate void SourceReadSqlStatementCustomizerDelegate(DwhTableBuilder tableBuilder, ref string customWhereClause, Dictionary<string, object> parameters);
+    public delegate void SourceReadSqlStatementCustomizerDelegate(DwhTableBuilder tableBuilder, List<string> whereClauseList, Dictionary<string, object> parameters);
 
     public static partial class TableBuilderExtensions
     {
-        public static DwhTableBuilder[] Input_SourceTable(this DwhTableBuilder[] builders, DatabaseDefinition sourceModel, ConnectionStringWithProvider sourceConnectionString, AdoNetReaderConnectionScope readerScope, SourceReadSqlStatementCustomizerDelegate sqlStatementCustomizer = null, string customWhereClause = null)
+        public static DwhTableBuilder[] InputIsSourceTable(this DwhTableBuilder[] builders, DatabaseDefinition sourceModel, ConnectionStringWithProvider sourceConnectionString, AdoNetReaderConnectionScope readerScope, SourceReadSqlStatementCustomizerDelegate sqlStatementCustomizer = null, string customWhereClause = null)
         {
             foreach (var builder in builders)
             {
@@ -24,39 +24,25 @@
 
         private static IEvaluable CreateSourceTableReader(DwhTableBuilder builder, DatabaseDefinition sourceModel, ConnectionStringWithProvider sourceConnectionString, AdoNetReaderConnectionScope readerScope, SourceReadSqlStatementCustomizerDelegate sqlStatementCustomizer, string customWhereClause)
         {
-            var parameters = new Dictionary<string, object>();
+            var whereClauseList = new List<string>();
+            if (customWhereClause != null)
+                whereClauseList.Add(customWhereClause);
 
-            var basedOnCustomQueryProperty = builder.SqlTable.Properties.OfType<BasedOnCustomQueryProperty>().FirstOrDefault();
-            if (basedOnCustomQueryProperty != null)
+            var parameterList = new Dictionary<string, object>();
+
+            sqlStatementCustomizer?.Invoke(builder, whereClauseList, parameterList);
+
+            if (builder.DwhBuilder.Configuration.IncrementalLoadEnabled && builder.RecordTimestampIndicatorColumn != null)
             {
-                var statement = basedOnCustomQueryProperty.StatementGenerator.Invoke(parameters);
-
-                return new CustomSqlAdoNetDbReaderProcess(builder.Table.Scope.Context, "CustomReader")
+                var lastTimestamp = GetMaxRecordTimestamp(builder);
+                if (lastTimestamp != null)
                 {
-                    ConnectionString = sourceConnectionString,
-                    CustomConnectionCreator = readerScope != null ? readerScope.GetConnection : (ConnectionCreatorDelegate)null,
-                    Sql = statement,
-                    Parameters = parameters,
-                };
-            }
-
-            sqlStatementCustomizer?.Invoke(builder, ref customWhereClause, parameters);
-
-            var isIncremental = builder.DwhBuilder.Configuration.IncrementalLoadEnabled
-                && builder.SqlTable.Columns.Any(x => string.Equals(x.Name, builder.DwhBuilder.Configuration.LastModifiedColumnName, StringComparison.InvariantCultureIgnoreCase));
-
-            if (isIncremental)
-            {
-                var lastModified = GetMaxLastModified(builder);
-                if (lastModified != null)
-                {
-                    customWhereClause += (string.IsNullOrEmpty(customWhereClause) ? "" : " AND ") + builder.DwhBuilder.Configuration.LastModifiedColumnName + " > @LastModified";
-                    parameters.Add("LastModified", lastModified.Value);
+                    whereClauseList.Add(builder.RecordTimestampIndicatorColumn.Name + " > @MaxRecordTimestamp");
+                    parameterList.Add("MaxRecordTimestamp", lastTimestamp.Value);
                 }
             }
 
             var sourceTableName = builder.SqlTable.Properties.OfType<SourceTableNameOverrideProperty>().FirstOrDefault()?.SourceTableName ?? builder.SqlTable.SchemaAndTableName.TableName;
-
             var sourceSqlTable = sourceModel
                 .GetTables()
                 .First(x => string.Equals(x.SchemaAndTableName.TableName, sourceTableName, StringComparison.InvariantCultureIgnoreCase));
@@ -66,21 +52,26 @@
                 ConnectionString = sourceConnectionString,
                 CustomConnectionCreator = readerScope != null ? readerScope.GetConnection : (ConnectionCreatorDelegate)null,
                 TableName = builder.DwhBuilder.ConnectionString.Escape(sourceSqlTable.SchemaAndTableName.TableName, sourceSqlTable.SchemaAndTableName.Schema),
-                CustomWhereClause = customWhereClause,
-                Parameters = parameters,
+                CustomWhereClause = whereClauseList.Count == 0
+                    ? null
+                    : string.Join(" and ", whereClauseList),
+                Parameters = parameterList,
                 ColumnConfiguration = sourceSqlTable.Columns.Select(x =>
                     new ReaderColumnConfiguration(x.Name, GetConverter(x), NullSourceHandler.SetSpecialValue, InvalidSourceHandler.WrapError)
                 ).ToList(),
             };
         }
 
-        private static DateTimeOffset? GetMaxLastModified(DwhTableBuilder builder)
+        private static DateTimeOffset? GetMaxRecordTimestamp(DwhTableBuilder builder)
         {
-            var result = new GetTableMaxValueProcess<DateTimeOffset?>(builder.DwhBuilder.Context, "MaxLastModifiedReader")
+            if (builder.RecordTimestampIndicatorColumn == null)
+                return null;
+
+            var result = new GetTableMaxValueProcess<DateTimeOffset?>(builder.DwhBuilder.Context, nameof(GetMaxRecordTimestamp) + "Reader")
             {
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 TableName = builder.Table.TableName,
-                ColumnName = builder.DwhBuilder.Configuration.LastModifiedColumnName,
+                ColumnName = builder.RecordTimestampIndicatorColumn.Name,
             }.Execute(builder.Table.Scope);
 
             if (result == null)

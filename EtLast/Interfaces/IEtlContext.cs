@@ -33,6 +33,8 @@
         void LogCustom(string fileName, IProcess process, string text, params object[] args);
         void LogCustomOps(string fileName, IProcess process, string text, params object[] args);
 
+        void LogDataStoreCommand(string location, IProcess process, IBaseOperation operation, string command, IEnumerable<KeyValuePair<string, object>> args);
+
         void AddException(IProcess process, Exception ex, IBaseOperation operation = null);
         List<Exception> GetExceptions();
 

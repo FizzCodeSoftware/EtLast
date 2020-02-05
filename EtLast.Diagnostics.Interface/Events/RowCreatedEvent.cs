@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface
 {
-    using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
     public class RowCreatedEvent : AbstractEvent
@@ -12,6 +11,6 @@
         public int RowUid { get; set; }
 
         [JsonPropertyName("v")]
-        public List<NamedArgument> Values { get; set; }
+        public NamedArgument[] Values { get; set; }
     }
 }
