@@ -1,8 +1,6 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
-    using System;
     using System.Diagnostics;
-    using System.Globalization;
     using System.Linq;
 
     internal class ResilientSqlScopePreFinalizerManager : IProcess

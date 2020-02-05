@@ -1,7 +1,7 @@
-﻿using System.Linq;
-
-namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast
 {
+    using System.Linq;
+
     public class TrimStringOperation : AbstractRowOperation
     {
         public RowTestDelegate If { get; set; }

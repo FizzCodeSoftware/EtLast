@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast
 {
+    using System;
+
     public class BoolConverterAuto : BoolConverter
     {
         public string KnownTrueString { get; set; }

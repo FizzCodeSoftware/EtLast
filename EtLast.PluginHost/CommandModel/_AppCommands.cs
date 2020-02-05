@@ -1,7 +1,7 @@
-﻿using CommandDotNet;
-
-namespace FizzCode.EtLast.PluginHost
+﻿namespace FizzCode.EtLast.PluginHost
 {
+    using CommandDotNet;
+
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
     [Command(Name = ">")]
     internal class AppCommands

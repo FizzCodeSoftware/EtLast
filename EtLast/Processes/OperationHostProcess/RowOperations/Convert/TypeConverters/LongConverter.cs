@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast
 {
+    using System;
+
     public class LongConverter : ITypeConverter
     {
         public string[] RemoveSubString { get; set; }

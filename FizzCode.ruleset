@@ -65,11 +65,13 @@
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp.Features" RuleNamespace="Microsoft.CodeAnalysis.CSharp.Features">
     <Rule Id="IDE0002" Action="Info" />
+    <Rule Id="IDE0005" Action="Info" />
     <Rule Id="IDE0046" Action="None" />
     <Rule Id="IDE0046WithoutSuggestion" Action="None" />
     <Rule Id="IDE0060" Action="None" />
     <Rule Id="IDE0063" Action="None" />
     <Rule Id="IDE0063WithoutSuggestion" Action="None" />
+    <Rule Id="IDE0065" Action="Info" />
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeQuality.Analyzers" RuleNamespace="Microsoft.CodeQuality.Analyzers">
     <Rule Id="CA1031" Action="None" />
@@ -100,7 +102,6 @@
     <Rule Id="RCS1021" Action="None" />
     <Rule Id="RCS1023" Action="Info" />
     <Rule Id="RCS1030" Action="Info" />
-    <Rule Id="RCS1031" Action="None" />
     <Rule Id="RCS1034" Action="Info" />
     <Rule Id="RCS1043" Action="Info" />
     <Rule Id="RCS1055" Action="Info" />

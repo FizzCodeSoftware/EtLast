@@ -35,7 +35,7 @@
                                 }
                                 else
                                 {
-                                    op.Process.Context.Log(LogSeverity.Warning, op.Process, op, "record timestamp is not DateTimeOffset in: {Row}", row.ToString());
+                                    op.Process.Context.Log(LogSeverity.Warning, op.Process, op, "record timestamp is not DateTimeOffset in: {Row}", row.ToDebugString());
                                 }
                             }
                         },

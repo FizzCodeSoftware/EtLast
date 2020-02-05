@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using FizzCode.DbTools.DataDefinition;
+    using FizzCode.DbTools.DataDefinition.MsSql2016;
 
     public static class DwhExtender
     {
@@ -14,7 +15,7 @@
 
             etlRunTable.Properties.Add(new IsEtlRunInfoTableProperty(etlRunTable));
 
-            etlRunTable.AddInt32("EtlRunId").SetIdentity().SetPK();
+            etlRunTable.AddInt("EtlRunId").SetIdentity().SetPK();
             etlRunTable.AddVarChar("MachineName", 200, false);
             etlRunTable.AddVarChar("UserName", 200, false);
             etlRunTable.AddDateTimeOffset("StartedOn", 2, false);
@@ -32,8 +33,8 @@
                 if (baseTable.HasProperty<IsEtlRunInfoTableProperty>())
                     continue;
 
-                baseTable.AddInt32(configuration.EtlInsertRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName).IsEtlRunInfoColumn();
-                baseTable.AddInt32(configuration.EtlUpdateRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName).IsEtlRunInfoColumn();
+                baseTable.AddInt(configuration.EtlInsertRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName).IsEtlRunInfoColumn();
+                baseTable.AddInt(configuration.EtlUpdateRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName).IsEtlRunInfoColumn();
             }
         }
 
@@ -65,7 +66,7 @@
 
             baseTable.DatabaseDefinition.AddTable(historyTable);
 
-            historyTable.AddInt32(historyTable.SchemaAndTableName.TableName + configuration.HistoryTableIdColumnPostfix).SetIdentity().SetPK();
+            historyTable.AddInt(historyTable.SchemaAndTableName.TableName + configuration.HistoryTableIdColumnPostfix).SetIdentity().SetPK();
 
             // step #1: copy all columns (including foreign keys)
             foreach (var column in baseTable.Columns)

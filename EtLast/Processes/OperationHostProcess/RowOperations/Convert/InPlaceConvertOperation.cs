@@ -1,7 +1,7 @@
-﻿using System.Globalization;
-
-namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast
 {
+    using System.Globalization;
+
     public class InPlaceConvertOperation : AbstractRowOperation
     {
         public RowTestDelegate If { get; set; }

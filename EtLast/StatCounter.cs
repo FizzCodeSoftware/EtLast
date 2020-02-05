@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast
 {
+    using System;
+
     public enum StatCounterValueType { Numeric, TimeSpan }
 
     public class StatCounter
