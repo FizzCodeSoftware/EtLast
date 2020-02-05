@@ -30,14 +30,9 @@
         protected override void ExecuteImpl()
         {
             var parameters = new Dictionary<string, object>();
-            var statement = CreateSqlStatement(ConnectionString, parameters);
+            var sqlStatement = CreateSqlStatement(ConnectionString, parameters);
 
-            AdoNetSqlStatementDebugEventListener.GenerateEvent(this, () => new AdoNetSqlStatementDebugEvent()
-            {
-                Process = this,
-                ConnectionString = ConnectionString,
-                SqlStatement = statement,
-            });
+            Context.LogDataStoreCommand(ConnectionString.Name, this, null, sqlStatement, parameters);
 
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
@@ -49,7 +44,7 @@
                         using (var cmd = connection.Connection.CreateCommand())
                         {
                             cmd.CommandTimeout = CommandTimeout;
-                            cmd.CommandText = statement;
+                            cmd.CommandText = sqlStatement;
 
                             foreach (var kvp in parameters)
                             {

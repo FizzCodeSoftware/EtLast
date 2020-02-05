@@ -65,7 +65,7 @@
 
         private IEnumerable<IExecutable> CreatePostFinalizers(ResilientSqlScope scope)
         {
-            // todo: this should be built and configured by AddConstraintCheckDisablerFinalizer
+            // todo: this should be built and configured by DisableConstraintCheck
             var constraintCheckDisabledOnTables = scope.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
             if (constraintCheckDisabledOnTables != null)
             {
@@ -150,7 +150,9 @@
                             TableDefinition = new DbTableDefinition()
                             {
                                 TableName = ConnectionString.Escape(etlRunSqlTable.SchemaAndTableName.TableName, etlRunSqlTable.SchemaAndTableName.Schema),
-                                Columns = new[] { "EtlRunId", "MachineName", "UserName", "StartedOn" }.Select(x => new DbColumnDefinition(x)).ToArray(),
+                                Columns = new[] { "EtlRunId", "MachineName", "UserName", "StartedOn" }
+                                    .Select(c => new DbColumnDefinition(c, ConnectionString.Escape(c)))
+                                    .ToArray(),
                             },
                         },
                     },

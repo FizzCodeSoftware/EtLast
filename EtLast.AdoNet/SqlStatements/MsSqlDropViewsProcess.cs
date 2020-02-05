@@ -73,16 +73,25 @@
                     {
                         try
                         {
+                            var parameters = new Dictionary<string, object>();
+
                             command.CommandTimeout = CommandTimeout;
                             command.CommandText = "select * from INFORMATION_SCHEMA.VIEWS";
                             if (Mode == MsSqlDropViewsProcessMode.SpecifiedSchema)
                             {
                                 command.CommandText += " where TABLE_SCHEMA = @schemaName";
+                                parameters.Add("schemaName", SchemaName);
+                            }
+
+                            foreach (var kvp in parameters)
+                            {
                                 var parameter = command.CreateParameter();
-                                parameter.ParameterName = "schemaName";
-                                parameter.Value = SchemaName;
+                                parameter.ParameterName = kvp.Key;
+                                parameter.Value = kvp.Value;
                                 command.Parameters.Add(parameter);
                             }
+
+                            Context.LogDataStoreCommand(ConnectionString.Name, this, null, command.CommandText, parameters);
 
                             Context.Log(LogSeverity.Debug, this, "querying view names from {ConnectionStringName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                                 command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());

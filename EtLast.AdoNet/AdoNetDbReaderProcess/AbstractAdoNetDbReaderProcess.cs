@@ -68,12 +68,6 @@
             LogAction();
             var sqlStatement = CreateSqlStatement();
 
-            AdoNetSqlStatementDebugEventListener.GenerateEvent(this, () => new AdoNetSqlStatementDebugEvent()
-            {
-                ConnectionString = ConnectionString,
-                SqlStatement = sqlStatement,
-            });
-
             DatabaseConnection connection = null;
             IDbTransaction transaction = null;
             IDataReader reader = null;
@@ -81,6 +75,7 @@
             Stopwatch swQuery;
 
             var sqlStatementProcessed = InlineArrayParametersIfNecessary(sqlStatement);
+            Context.LogDataStoreCommand(ConnectionString.Name, this, null, sqlStatementProcessed, Parameters);
 
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {

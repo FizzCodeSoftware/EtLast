@@ -101,7 +101,7 @@
                 {
                     TableName = table.TempTableName,
                     Columns = tempColumns
-                        .Select(c => new DbColumnDefinition(DwhBuilder.ConnectionString.Escape(c.Name)))
+                        .Select(c => new DbColumnDefinition(c.Name, DwhBuilder.ConnectionString.Escape(c.Name)))
                         .ToArray(),
                 },
             };

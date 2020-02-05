@@ -7,14 +7,14 @@
 
     public class MsSqlServerMergeSqlStatementCreator : IAdoNetWriteToTableSqlStatementCreator
     {
-        private DbTableDefinition _tableDefinition;
+        private DetailedDbTableDefinition _tableDefinition;
         private string _allDbColumns;
         private string _keyDbColumns;
         private string _updateDbColumns;
         private string _insertDbColumnsTarget;
         private string _insertDbColumnsSource;
 
-        public void Prepare(WriteToTableOperation operation, IProcess process, DbTableDefinition tableDefinition)
+        public void Prepare(WriteToTableOperation operation, IProcess process, DetailedDbTableDefinition tableDefinition)
         {
             _tableDefinition = tableDefinition;
 
