@@ -19,7 +19,7 @@
         {
             var context = new EtlContext();
 
-            _epPlusExcelReaderProcess = new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess")
+            _epPlusExcelReaderProcess = new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess", null)
             {
                 FileName = @"TestData\SampleErrors.xlsx",
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
@@ -29,7 +29,7 @@
                     }
             };
 
-            _process = new OperationHostProcess(context, "EpPlusProcess")
+            _process = new OperationHostProcess(context, "EpPlusProcess", null)
             {
                 Configuration = new OperationHostProcessConfiguration()
                 {
@@ -44,7 +44,7 @@
         {
             _epPlusExcelReaderProcess.SheetName = "Date0";
 
-            var result = _process.Evaluate().ToList();
+            var result = _process.Evaluate().TakeRows(null).ToList();
             Assert.AreEqual(2, result.Count);
 
             Assert.That.RowsAreEqual(RowHelper.CreateRows(

@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface
 {
+    using System.Globalization;
     using System.Text.Json.Serialization;
 
     public class OperationInfo
@@ -8,9 +9,14 @@
         public string Type { get; set; }
 
         [JsonPropertyName("nu")]
-        public int? Number { get; set; }
+        public int Number { get; set; }
 
         [JsonPropertyName("na")]
-        public string Name { get; set; }
+        public string InstanceName { get; set; }
+
+        public string ToDisplayValue()
+        {
+            return Number.ToString("D2", CultureInfo.InvariantCulture) + "." + (InstanceName ?? Type);
+        }
     }
 }

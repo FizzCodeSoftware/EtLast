@@ -17,8 +17,8 @@
         /// </summary>
         public string WhereClause { get; set; }
 
-        public CopyTableIntoNewTableProcess(IEtlContext context, string name = null)
-            : base(context, name)
+        public CopyTableIntoNewTableProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 
@@ -40,7 +40,7 @@
         {
             var columnList = (Configuration.ColumnConfiguration == null || Configuration.ColumnConfiguration.Count == 0)
                  ? "*"
-                 : string.Join(", ", Configuration.ColumnConfiguration.Select(x => x.FromColumn + " AS " + x.ToColumn));
+                 : string.Join(", ", Configuration.ColumnConfiguration.Select(x => x.FromColumn + (x.ToColumn != x.FromColumn ? " AS " + x.ToColumn : "")));
 
             var statement = "DROP TABLE IF EXISTS " + Configuration.TargetTableName + "; SELECT " + columnList + " INTO " + Configuration.TargetTableName + " FROM " + Configuration.SourceTableName;
 

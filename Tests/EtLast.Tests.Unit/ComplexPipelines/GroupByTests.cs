@@ -26,18 +26,18 @@
             var groupByOperation = new GroupByOperation();
             groupByOperation.AddIntAverage("height");
 
-            var process = new AggregationProcess(context, "p1")
+            var process = new AggregationProcess(context, "p1", null)
             {
                 GroupingColumns = groupingColumns,
                 Operation = groupByOperation,
-                InputProcess = new CreateRowsProcess(context, "CreateRows")
+                InputProcess = new CreateRowsProcess(context, "CreateRows", null)
                 {
                     Columns = SampleColumns,
                     InputRows = SampleRows.ToList(),
                 },
             };
 
-            var result = process.Evaluate().ToList();
+            var result = process.Evaluate().TakeRows(null).ToList();
             Assert.IsTrue(result.Count == 3);
             Assert.IsTrue(result.Any(x => x.GetAs<string>("name") == "A" && x.GetAs<double>("height") == 160));
             Assert.IsTrue(result.Any(x => x.GetAs<string>("name") == "B" && x.GetAs<double>("height") == 165));

@@ -12,8 +12,8 @@
         public string TableName { get; set; }
         public string CustomWhereClause { get; set; }
 
-        public GetTableRecordCountProcess(IEtlContext context, string name = null)
-            : base(context, name)
+        public GetTableRecordCountProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 
@@ -28,8 +28,8 @@
         protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString, Dictionary<string, object> parameters)
         {
             return string.IsNullOrEmpty(CustomWhereClause)
-                ? "select count(*) from " + TableName
-                : "select count(*) from " + TableName + " where " + CustomWhereClause;
+                ? "SELECT COUNT(*) FROM " + TableName
+                : "SELECT COUNT(*) FROM " + TableName + " WHERE " + CustomWhereClause;
         }
 
         protected override int RunCommandAndGetResult(IDbCommand command)

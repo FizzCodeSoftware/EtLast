@@ -61,7 +61,7 @@
                     .Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c.Name))
                     .ToArray();
 
-                yield return new CustomMsSqlMergeSqlStatementProcess(builder.TableBuilder.DwhBuilder.Context, "MergeIntoBase")
+                yield return new CustomMsSqlMergeSqlStatementProcess(builder.TableBuilder.DwhBuilder.Context, "MergeIntoBase", builder.TableBuilder.Table.Topic)
                 {
                     ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                     CommandTimeout = 60 * 60,
@@ -99,7 +99,7 @@
                     if (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime != null)
                         parameters2.Add("InfiniteFuture", builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
 
-                    yield return new CustomMsSqlMergeSqlStatementProcess(builder.TableBuilder.DwhBuilder.Context, "CloseOpenEndedHistoryRecords")
+                    yield return new CustomMsSqlMergeSqlStatementProcess(builder.TableBuilder.DwhBuilder.Context, "CloseOpenEndedHistoryRecords", builder.TableBuilder.Table.Topic)
                     {
                         ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                         CommandTimeout = 60 * 60,
@@ -124,7 +124,7 @@
                         if (builder.TableBuilder.EtlInsertRunIdColumnNameEscaped != null || builder.TableBuilder.EtlUpdateRunIdColumnNameEscaped != null)
                             parameters3.Add("EtlRunId", currentEtlRunId);
 
-                        yield return new CustomMsSqlMergeSqlStatementProcess(builder.TableBuilder.DwhBuilder.Context, "UpdateNoHistoryColumns")
+                        yield return new CustomMsSqlMergeSqlStatementProcess(builder.TableBuilder.DwhBuilder.Context, "UpdateNoHistoryColumns", builder.TableBuilder.Table.Topic)
                         {
                             ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                             CommandTimeout = 60 * 60,
@@ -157,7 +157,7 @@
                     if (builder.TableBuilder.EtlUpdateRunIdColumnNameEscaped != null)
                         columnDefaults.Add(builder.TableBuilder.EtlUpdateRunIdColumnNameEscaped, currentEtlRunId);
 
-                    yield return new CopyTableIntoExistingTableProcess(builder.TableBuilder.DwhBuilder.Context, "CopyToHistory")
+                    yield return new CopyTableIntoExistingTableProcess(builder.TableBuilder.DwhBuilder.Context, "CopyToHistory", builder.TableBuilder.Table.Topic)
                     {
                         ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                         Configuration = new TableCopyConfiguration()
@@ -182,7 +182,7 @@
                 if (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime != null)
                     parameters.Add("InfiniteFuture", builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
 
-                yield return new CustomMsSqlMergeSqlStatementProcess(builder.TableBuilder.DwhBuilder.Context, "CloseOpenEndedBaseRecords")
+                yield return new CustomMsSqlMergeSqlStatementProcess(builder.TableBuilder.DwhBuilder.Context, "CloseOpenEndedBaseRecords", builder.TableBuilder.Table.Topic)
                 {
                     ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                     CommandTimeout = 60 * 60,
@@ -206,7 +206,7 @@
                 if (builder.TableBuilder.EtlUpdateRunIdColumnNameEscaped != null)
                     columnDefaults.Add(builder.TableBuilder.EtlUpdateRunIdColumnNameEscaped, currentEtlRunId);
 
-                yield return new CopyTableIntoExistingTableProcess(builder.TableBuilder.DwhBuilder.Context, "CopyToBase")
+                yield return new CopyTableIntoExistingTableProcess(builder.TableBuilder.DwhBuilder.Context, "CopyToBase", builder.TableBuilder.Table.Topic)
                 {
                     ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                     Configuration = new TableCopyConfiguration()

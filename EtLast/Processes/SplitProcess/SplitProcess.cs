@@ -14,8 +14,8 @@
         private Thread _feederThread;
         private readonly object _lock = new object();
 
-        public SplitProcess(IEtlContext context, string name = null)
-            : base(context, name)
+        public SplitProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 
@@ -49,11 +49,9 @@
         {
             Transaction.Current = tran as Transaction;
 
-            var rows = InputProcess.Evaluate(this);
+            var rows = InputProcess.Evaluate(this).TakeRows(this);
             foreach (var row in rows)
             {
-                Context.SetRowOwner(row, this);
-
                 _queue.AddRow(row);
             }
 

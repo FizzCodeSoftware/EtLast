@@ -4,8 +4,8 @@
 
     public class SequentialMergeProcess : AbstractMergeProcess
     {
-        public SequentialMergeProcess(IEtlContext context, string name = null)
-            : base(context, name)
+        public SequentialMergeProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 
@@ -22,11 +22,9 @@
                 if (Context.CancellationTokenSource.IsCancellationRequested)
                     yield break;
 
-                var rows = inputProcess.Evaluate(this);
+                var rows = inputProcess.Evaluate(this).TakeRows(this);
                 foreach (var row in rows)
                 {
-                    Context.SetRowOwner(row, this);
-
                     yield return row;
                 }
             }

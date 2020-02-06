@@ -29,5 +29,7 @@
         public string TableName { get; set; }
         public string TempTableName { get; set; }
         public string[] Columns { get; set; }
+
+        public string Topic => Scope.Configuration.ConnectionString.Unescape(TableName);
     }
 }

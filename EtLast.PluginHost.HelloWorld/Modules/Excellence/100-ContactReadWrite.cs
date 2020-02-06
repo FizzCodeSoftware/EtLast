@@ -20,9 +20,9 @@
         {
             File.Delete(OutputFileName);
 
-            yield return new OperationHostProcess(Context, "OperationHost")
+            yield return new OperationHostProcess(Context, "OperationHost", scope.Topic)
             {
-                InputProcess = new EpPlusExcelReaderProcess(Context, "Read:People")
+                InputProcess = new EpPlusExcelReaderProcess(Context, "Read:People", scope.Topic)
                 {
                     FileName = SourceFileName,
                     SheetName = "People",

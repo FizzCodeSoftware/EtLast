@@ -10,6 +10,7 @@
         public IEtlContext Context => _scope.Context;
         public int UID { get; }
         public string Name { get; } = "InitializerManager";
+        public string Topic => _scope.Topic;
         public IProcess Caller => _scope;
         public Stopwatch LastInvocation { get; private set; }
         public ProcessTestDelegate If { get; set; }

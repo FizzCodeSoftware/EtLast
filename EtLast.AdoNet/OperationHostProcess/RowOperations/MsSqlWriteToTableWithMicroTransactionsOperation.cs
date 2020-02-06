@@ -113,6 +113,8 @@
                             bulkCopy.ColumnMappings.Add(column.RowColumn, column.DbColumn);
                         }
 
+                        Process.Context.LogDataStoreCommand(ConnectionString.Name, Process, this, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records" + (retry > 0 ? ", retry #" + retry.ToString("D", CultureInfo.InvariantCulture) : ""), null);
+
                         bulkCopy.WriteToServer(_reader);
                         bulkCopy.Close();
                         ConnectionManager.ReleaseConnection(Process, this, ref connection);

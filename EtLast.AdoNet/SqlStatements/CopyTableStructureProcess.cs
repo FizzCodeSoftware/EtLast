@@ -14,8 +14,8 @@
     {
         public List<TableCopyConfiguration> Configuration { get; set; }
 
-        public CopyTableStructureProcess(IEtlContext context, string name = null)
-            : base(context, name)
+        public CopyTableStructureProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 
@@ -42,7 +42,7 @@
             {
                 var columnList = (config.ColumnConfiguration == null || config.ColumnConfiguration.Count == 0)
                     ? "*"
-                    : string.Join(", ", config.ColumnConfiguration.Select(x => x.FromColumn + " AS " + x.ToColumn));
+                    : string.Join(", ", config.ColumnConfiguration.Select(x => x.FromColumn + (x.ToColumn != x.FromColumn ? " AS " + x.ToColumn : "")));
 
                 sb.Append("DROP TABLE IF EXISTS ")
                     .Append(config.TargetTableName)

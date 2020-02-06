@@ -17,7 +17,7 @@
         {
             var context = new EtlContext();
 
-            _delimitedFileReaderProcess = new DelimitedFileReaderProcess(context, "DelimitedFileReaderProcess")
+            _delimitedFileReaderProcess = new DelimitedFileReaderProcess(context, "DelimitedFileReaderProcess", null)
             {
                 FileName = @"TestData\Sample.csv",
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
@@ -33,7 +33,7 @@
                 TreatEmptyStringAsNull = false,
             };
 
-            _process = new OperationHostProcess(context, "DelimitedFileReaderOperationProcess")
+            _process = new OperationHostProcess(context, "DelimitedFileReaderOperationProcess", null)
             {
                 Configuration = new OperationHostProcessConfiguration()
                 {
@@ -52,7 +52,7 @@
                 Value = null
             });
 
-            var result = _process.Evaluate().ToList();
+            var result = _process.Evaluate().TakeRows(null).ToList();
             Assert.AreEqual(2, result.Count);
 
             Assert.That.RowsAreEqual(RowHelper.CreateRows(
@@ -66,7 +66,7 @@
         public void InvalidConversion()
         {
             _delimitedFileReaderProcess.FileName = @"TestData\SampleInvalidConversion.csv";
-            var result = _process.Evaluate().ToList();
+            var result = _process.Evaluate().TakeRows(null).ToList();
 
             Assert.AreEqual(2, result.Count);
             Assert.That.RowsAreEqual(RowHelper.CreateRows(

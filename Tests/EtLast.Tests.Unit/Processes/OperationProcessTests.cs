@@ -10,7 +10,7 @@
         public void KeepOrderTrue()
         {
             var process = CreateKeepOrderProcess(true);
-            var rows = process.Evaluate();
+            var rows = process.Evaluate().TakeRows(null);
 
             IRow prevRow = null;
             foreach (var row in rows)
@@ -28,7 +28,7 @@
         {
             var context = new EtlContext();
 
-            var process = new OperationHostProcess(context)
+            var process = new OperationHostProcess(context, null, null)
             {
                 Configuration = new OperationHostProcessConfiguration()
                 {
@@ -36,7 +36,7 @@
                     InputBufferSize = 1, // low buffering for strong concurrency
                     MainLoopDelay = 1, // low delay cause returning finished rows almost immediately
                 },
-                InputProcess = new SeedRowsProcess(context, "SeedRows")
+                InputProcess = new SeedRowsProcess(context, "SeedRows", null)
                 {
                     Columns = new[] { "id", "name" },
                     Count = 1000,

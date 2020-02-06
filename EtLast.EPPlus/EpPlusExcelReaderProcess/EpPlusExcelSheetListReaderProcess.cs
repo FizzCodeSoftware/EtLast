@@ -10,8 +10,8 @@
     {
         public string FileName { get; set; }
 
-        public EpPlusExcelSheetListReaderProcess(IEtlContext context, string name)
-            : base(context, name)
+        public EpPlusExcelSheetListReaderProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 

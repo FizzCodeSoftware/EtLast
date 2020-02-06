@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Drawing;
     using System.Linq;
     using System.Windows.Forms;
     using FizzCode.EtLast.Diagnostics.Interface;
@@ -13,8 +14,9 @@
         public Session Session { get; }
         public Control Container { get; }
 
-        private readonly TabControl _contextTabs;
+        private readonly TabControl _tabs;
         private readonly LogManager _logManager;
+        private readonly DataStoreCommandManager _dataStoreCommandManager;
         private readonly Dictionary<string, ExecutionContextContainerManager> _contextContainerManagers = new Dictionary<string, ExecutionContextContainerManager>();
 
         public SessionContainerManager(Session session, Control container)
@@ -24,22 +26,43 @@
             Container.SuspendLayout();
             try
             {
-                var logContainer = new Panel()
-                {
-                    Parent = container,
-                    Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom,
-                    BorderStyle = BorderStyle.None,
-                };
-
-                _logManager = new LogManager(logContainer, Session);
-
-                _contextTabs = new TabControl()
+                _tabs = new TabControl()
                 {
                     Parent = container,
                     Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom,
                     Appearance = TabAppearance.FlatButtons,
                 };
-                _contextTabs.SelectedIndexChanged += SelectedContextTabChanged;
+                _tabs.SelectedIndexChanged += SelectedContextTabChanged;
+
+                /*var logContainer = new Panel()
+                {
+                    Parent = container,
+                    Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom,
+                    BorderStyle = BorderStyle.None,
+                };*/
+
+                var logContainer = new TabPage("LOG")
+                {
+                    BorderStyle = BorderStyle.None,
+                };
+                _tabs.TabPages.Add(logContainer);
+
+                _logManager = new LogManager(logContainer, Session);
+
+                /*var dataStoreCommandContainer = new Panel()
+                {
+                    Parent = container,
+                    Anchor = AnchorStyles.Right | AnchorStyles.Bottom,
+                    BorderStyle = BorderStyle.None,
+                };*/
+
+                var dataStoreCommandContainer = new TabPage("DATA STORE COMMANDS")
+                {
+                    BorderStyle = BorderStyle.None,
+                };
+                _tabs.TabPages.Add(dataStoreCommandContainer);
+
+                _dataStoreCommandManager = new DataStoreCommandManager(dataStoreCommandContainer, Session);
 
                 Session.OnExecutionContextCreated += OnExecutionContextCreated;
 
@@ -54,12 +77,13 @@
 
         private void SelectedContextTabChanged(object sender, EventArgs e)
         {
-            if (_contextTabs.SelectedIndex < 0)
+            if (_tabs.SelectedIndex < 0)
                 return;
 
-            var context = _contextTabs.TabPages[_contextTabs.SelectedIndex].Tag as ExecutionContext;
-            var contextManager = _contextContainerManagers[context.Name];
-            contextManager.FocusProcessList();
+            if (_tabs.TabPages[_tabs.SelectedIndex].Tag is ExecutionContext context)
+            {
+                _contextContainerManagers[context.Name].FocusProcessList();
+            }
         }
 
         private void OnExecutionContextCreated(ExecutionContext executionContext)
@@ -67,7 +91,7 @@
             if (_contextContainerManagers.ContainsKey(executionContext.Name))
                 return;
 
-            _contextTabs.Invoke(new Action(() =>
+            _tabs.Invoke(new Action(() =>
             {
                 var contextContainer = new TabPage(executionContext.Name)
                 {
@@ -80,7 +104,7 @@
                 var contextManager = new ExecutionContextContainerManager(executionContext, contextContainer);
                 _contextContainerManagers.Add(executionContext.Name, contextManager);
 
-                _contextTabs.TabPages.Add(contextContainer);
+                _tabs.TabPages.Add(contextContainer);
 
                 contextManager.FocusProcessList();
             }));
@@ -88,20 +112,23 @@
 
         private void OnExecutionContextStartedOnChanged(ExecutionContext executionContext)
         {
-            _contextTabs.Invoke(new Action(() =>
+            _tabs.Invoke(new Action(() =>
             {
                 var manager = _contextContainerManagers[executionContext.Name];
                 var page = manager.Container as TabPage;
-                _contextTabs.TabPages.Remove(page);
+                _tabs.TabPages.Remove(page);
                 var idx = Session.ContextList.OrderBy(x => x.StartedOn).ToList().IndexOf(executionContext);
-                _contextTabs.TabPages.Insert(idx, page);
+                idx += 2; // LOGS, DATA STORE COMMANDS
+
+                _tabs.TabPages.Insert(idx, page);
             }));
         }
 
         private void Container_Resize(object sender, EventArgs e)
         {
-            _logManager.Container.Bounds = new System.Drawing.Rectangle(0, Container.Height - (Container.Bounds.Height / 4), Container.Width, Container.Bounds.Height / 4);
-            _contextTabs.Bounds = new System.Drawing.Rectangle(0, 0, Container.Width, _logManager.Container.Top);
+            //_logManager.Container.Bounds = new Rectangle(0, Container.Height - (Container.Bounds.Height / 4), Container.Width - 500, Container.Bounds.Height / 4);
+            //_dataStoreCommandManager.Container.Bounds = new Rectangle(_logManager.Container.Bounds.Right, Container.Height - (Container.Bounds.Height / 4), Container.Width - _logManager.Container.Bounds.Right, Container.Bounds.Height / 4);
+            _tabs.Bounds = new Rectangle(0, 0, Container.Width, Container.Height);
         }
     }
 }

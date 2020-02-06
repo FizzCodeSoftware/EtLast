@@ -23,8 +23,8 @@
 
         private List<string> _viewNames;
 
-        public MsSqlDropViewsProcess(IEtlContext context, string name = null)
-            : base(context, name)
+        public MsSqlDropViewsProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 

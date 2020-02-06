@@ -8,8 +8,8 @@
 
     public class ParallelMergeProcess : AbstractMergeProcess
     {
-        public ParallelMergeProcess(IEtlContext context, string name = null)
-            : base(context, name)
+        public ParallelMergeProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 
@@ -36,11 +36,10 @@
                     {
                         using (var ts = depTran != null ? new TransactionScope(depTran, TimeSpan.FromDays(1)) : null)
                         {
-                            var rows = inputProcess.Evaluate(this);
+                            var rows = inputProcess.Evaluate(this).TakeRows(this);
 
                             foreach (var row in rows)
                             {
-                                Context.SetRowOwner(row, this);
                                 queue.AddRow(row);
                             }
 

@@ -32,8 +32,8 @@
         private int _currentRowIndex;
         protected bool AutomaticallyEvaluateAndYieldInputProcessRows { get; set; } = true;
 
-        protected AbstractProducerProcess(IEtlContext context, string name = null)
-            : base(context, name)
+        protected AbstractProducerProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 
@@ -45,11 +45,9 @@
 
                 var fetchedRowCount = 0;
                 var returnedRowCount = 0;
-                var inputRows = InputProcess.Evaluate(this);
+                var inputRows = InputProcess.Evaluate(this).TakeRows(this);
                 foreach (var row in inputRows)
                 {
-                    Context.SetRowOwner(row, this);
-
                     fetchedRowCount++;
                     if (ProcessRowBeforeYield(row))
                     {

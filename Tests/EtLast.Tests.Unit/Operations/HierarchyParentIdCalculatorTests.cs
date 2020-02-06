@@ -23,13 +23,13 @@
         {
             var context = new EtlContext();
 
-            var hierarchyParentIdCalculatorProcess = new OperationHostProcess(context, "HierarchyParentIdCalculatorProcess")
+            var hierarchyParentIdCalculatorProcess = new OperationHostProcess(context, "HierarchyParentIdCalculatorProcess", null)
             {
                 Configuration = new OperationHostProcessConfiguration()
                 {
                     MainLoopDelay = 10,
                 },
-                InputProcess = new CreateRowsProcess(context, "HierarchyParentIdCalculatorGenerator")
+                InputProcess = new CreateRowsProcess(context, "HierarchyParentIdCalculatorGenerator", null)
                 {
                     Columns = SampleColumns,
                     InputRows = SampleRows.ToList(),
@@ -38,11 +38,11 @@
 
             AddOperation(hierarchyParentIdCalculatorProcess);
 
-            var result = hierarchyParentIdCalculatorProcess.Evaluate().ToList();
+            var result = hierarchyParentIdCalculatorProcess.Evaluate().CountRows(null);
             var exceptions = hierarchyParentIdCalculatorProcess.Context.GetExceptions();
 
             Assert.IsTrue(exceptions[0] is InvalidOperationParameterException);
-            Assert.AreEqual(0, result.Count);
+            Assert.AreEqual(0, result);
         }
 
         [TestMethod]
@@ -50,14 +50,14 @@
         {
             var context = new EtlContext();
 
-            var hierarchyParentIdCalculatorProcess = new OperationHostProcess(context, "HierarchyParentIdCalculatorProcess")
+            var hierarchyParentIdCalculatorProcess = new OperationHostProcess(context, "HierarchyParentIdCalculatorProcess", null)
             {
                 Configuration = new OperationHostProcessConfiguration()
                 {
                     MainLoopDelay = 10,
                     KeepOrder = true,
                 },
-                InputProcess = new CreateRowsProcess(context, "HierarchyParentIdCalculatorGenerator")
+                InputProcess = new CreateRowsProcess(context, "HierarchyParentIdCalculatorGenerator", null)
                 {
                     Columns = SampleColumns,
                     InputRows = SampleRows.ToList(),
@@ -66,7 +66,7 @@
 
             AddOperation(hierarchyParentIdCalculatorProcess);
 
-            var result = hierarchyParentIdCalculatorProcess.Evaluate().ToList();
+            var result = hierarchyParentIdCalculatorProcess.Evaluate().TakeRows(null).ToList();
             var exceptions = hierarchyParentIdCalculatorProcess.Context.GetExceptions();
 
             Assert.AreEqual(6, result.Count);

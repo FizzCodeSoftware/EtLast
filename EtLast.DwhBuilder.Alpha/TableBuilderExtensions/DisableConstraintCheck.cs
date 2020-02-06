@@ -23,7 +23,7 @@
 
             var hasHistoryTable = builder.SqlTable.HasProperty<WithHistoryTableProperty>();
 
-            yield return new MsSqlDisableConstraintCheckProcess(builder.DwhBuilder.Context, "DisableConstraintCheck")
+            yield return new MsSqlDisableConstraintCheckProcess(builder.DwhBuilder.Context, "DisableConstraintCheck", builder.Table.Topic)
             {
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 TableNames = !hasHistoryTable
@@ -32,7 +32,7 @@
                 CommandTimeout = 60 * 60,
             };
 
-            yield return new CustomActionProcess(builder.DwhBuilder.Context, "UpdateConstraintList")
+            yield return new CustomActionProcess(builder.DwhBuilder.Context, "UpdateConstraintList", builder.Table.Topic)
             {
                 Then = process =>
                 {

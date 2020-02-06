@@ -12,6 +12,6 @@
         /// </summary>
         bool ConsumerShouldNotBuffer { get; }
 
-        IEnumerable<IRow> Evaluate(IProcess caller = null);
+        Evaluator Evaluate(IProcess caller = null);
     }
 }

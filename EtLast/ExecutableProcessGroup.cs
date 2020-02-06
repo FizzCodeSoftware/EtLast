@@ -8,8 +8,8 @@
     {
         public List<IExecutable> ProcessList { get; set; }
 
-        public ExecutableProcessGroup(IEtlContext context, string name = null)
-            : base(context, name)
+        public ExecutableProcessGroup(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 

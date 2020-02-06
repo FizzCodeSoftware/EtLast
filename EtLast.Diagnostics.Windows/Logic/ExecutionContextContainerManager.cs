@@ -12,14 +12,16 @@
     internal class ExecutionContextContainerManager
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        public Interface.ExecutionContext Context { get; }
+        public ExecutionContext Context { get; }
         public Playbook CurrentPlaybook { get; private set; }
         public Control Container { get; }
         private readonly ListView _processList;
         private readonly ListView _counterList;
+        private readonly ListView _dataStoreCommandList;
         private readonly Panel _timelineContainer;
         private readonly TrackBar _timelineTrackbar;
         private readonly System.Threading.Timer _timelineTrackbarTimer;
+        private readonly System.Threading.Timer _processStatUpdaterTimer;
         private readonly Label _firstEventLabel;
         private readonly Label _lastEventLabel;
         private readonly Label _currentEventLabel;
@@ -67,6 +69,9 @@
                     TickFrequency = 1000000,
                 };
 
+                _processStatUpdaterTimer = new System.Threading.Timer((state) => UpdateProcessStats());
+                _processStatUpdaterTimer.Change(500, System.Threading.Timeout.Infinite);
+
                 _timelineTrackbarTimer = new System.Threading.Timer((state) =>
                 {
                     container.Invoke(new Action(() =>
@@ -94,11 +99,19 @@
                     FullRowSelect = true,
                     BackColor = Color.Black,
                     ForeColor = Color.LightGray,
-                    Width = 400,
+                    Width = 700,
+                    BorderStyle = BorderStyle.FixedSingle,
                 };
 
-                _processList.Columns.Add("process name", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 2);
-                _processList.Columns.Add("type", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 2);
+                _processList.Columns.Add("topic", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("process name", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("type", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Right;
+
+                _processList.Columns.Add("create", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("drop", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("store", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("alive", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("OUT", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
 
                 _counterList = new ListView()
                 {
@@ -112,11 +125,35 @@
                     BackColor = Color.Black,
                     ForeColor = Color.LightGray,
                     Width = _processList.Width,
+                    BorderStyle = BorderStyle.FixedSingle,
                 };
 
                 _counterList.Columns.Add("counter name", _counterList.Width - 150 - SystemInformation.VerticalScrollBarWidth - 4);
                 _counterList.Columns.Add("value", 75);
                 _counterList.Columns.Add("actual", 75);
+
+                _dataStoreCommandList = new ListView()
+                {
+                    View = View.Details,
+                    Parent = container,
+                    HeaderStyle = ColumnHeaderStyle.Nonclickable,
+                    HideSelection = false,
+                    GridLines = false,
+                    AllowColumnReorder = false,
+                    FullRowSelect = true,
+                    BackColor = Color.Black,
+                    ForeColor = Color.LightGray,
+                    BorderStyle = BorderStyle.FixedSingle,
+                };
+
+                _dataStoreCommandList.Columns.Add("timestamp", 85);
+                _dataStoreCommandList.Columns.Add("topic", 250);
+                _dataStoreCommandList.Columns.Add("process name", 250);
+                _dataStoreCommandList.Columns.Add("process type", 250);
+                _dataStoreCommandList.Columns.Add("operation type", 250);
+                _dataStoreCommandList.Columns.Add("operation name", 150);
+                _dataStoreCommandList.Columns.Add("text", 700);
+                _dataStoreCommandList.Columns.Add("arguments", 200);
 
                 context.WholePlaybook.OnProcessAdded += OnProcessAdded;
                 context.WholePlaybook.OnCountersUpdated += OnCurrentCountersUpdated;
@@ -131,10 +168,62 @@
             }
         }
 
-        private void OnEventsAdded(Playbook playbook, List<AbstractEvent> newEvents)
+        private void UpdateProcessStats()
+        {
+            _processStatUpdaterTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+
+            _processList.Invoke(new Action(() =>
+            {
+                var changed = false;
+                foreach (ListViewItem item in _processList.Items)
+                {
+                    if (item.Tag is TrackedProcess p)
+                    {
+                        if (item.SubItems[3].Text != p.CreatedRowCount.ToString("D", CultureInfo.InvariantCulture)
+                            || item.SubItems[4].Text != p.DroppedRowList.Count.ToString("D", CultureInfo.InvariantCulture)
+                            || item.SubItems[5].Text != p.StoredRowList.Count.ToString("D", CultureInfo.InvariantCulture)
+                            || item.SubItems[6].Text != p.AliveRowList.Count.ToString("D", CultureInfo.InvariantCulture)
+                            || item.SubItems[7].Text != p.PassedRowCount.ToString("D", CultureInfo.InvariantCulture))
+                        {
+                            changed = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (changed)
+                {
+                    _processList.BeginUpdate();
+                    try
+                    {
+                        foreach (ListViewItem item in _processList.Items)
+                        {
+                            if (item.Tag is TrackedProcess p)
+                            {
+                                item.SubItems[3].SetIfNotChanged(p.CreatedRowCount.ToString("D", CultureInfo.InvariantCulture));
+                                item.SubItems[4].SetIfNotChanged(p.DroppedRowList.Count.ToString("D", CultureInfo.InvariantCulture));
+                                item.SubItems[5].SetIfNotChanged(p.StoredRowList.Count.ToString("D", CultureInfo.InvariantCulture));
+                                item.SubItems[6].SetIfNotChanged(p.AliveRowList.Count.ToString("D", CultureInfo.InvariantCulture));
+                                item.SubItems[7].SetIfNotChanged(p.PassedRowCount.ToString("D", CultureInfo.InvariantCulture));
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        _processList.EndUpdate();
+                    }
+                }
+            }));
+
+            _processStatUpdaterTimer.Change(500, System.Threading.Timeout.Infinite);
+        }
+
+        private void OnEventsAdded(Playbook playbook, List<AbstractEvent> abstractEvents)
         {
             if (playbook.Events.Count < 3)
                 return;
+
+            ProcessNewDataStoreCommands(abstractEvents);
 
             _timelineContainer.Invoke(new Action(() =>
             {
@@ -160,6 +249,47 @@
                 _timelineTrackbar.Maximum = (int)(playbook.Events[playbook.Events.Count - 1].Timestamp - playbook.Events[0].Timestamp);
                 UpdateCurrentEventLabelPosition();
             }));
+        }
+
+        private void ProcessNewDataStoreCommands(List<AbstractEvent> abstractEvents)
+        {
+            var eventsQuery = abstractEvents.OfType<DataStoreCommandEvent>();
+            /*if (ProcessUidFilter != null)
+                eventsQuery = eventsQuery.Where(x => x.ProcessUid == ProcessUidFilter.Value);*/
+
+            var events = eventsQuery.ToList();
+            if (events.Count == 0)
+                return;
+
+            _dataStoreCommandList.Invoke((Action)delegate
+            {
+                _dataStoreCommandList.BeginUpdate();
+                try
+                {
+                    foreach (var evt in events)
+                    {
+                        var item = _dataStoreCommandList.Items.Add(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture), -1);
+
+                        TrackedProcess process = null;
+                        if (evt.ProcessUid != null)
+                            Context.WholePlaybook.ProcessList.TryGetValue(evt.ProcessUid.Value, out process);
+
+                        item.SubItems.Add(process?.Topic);
+                        item.SubItems.Add(process?.Name);
+                        item.SubItems.Add(process?.Type);
+                        item.SubItems.Add(evt.Operation?.Type);
+                        item.SubItems.Add(evt.Operation?.InstanceName);
+                        item.SubItems.Add(evt.Command);
+                        item.SubItems.Add(evt.Arguments != null
+                            ? string.Join(",", evt.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Name + "=" + x.ToDisplayValue()))
+                            : null);
+                    }
+                }
+                finally
+                {
+                    _dataStoreCommandList.EndUpdate();
+                }
+            });
         }
 
         private void UpdateCurrentEventLabelPosition()
@@ -189,25 +319,33 @@
         {
             var counters = Context.WholePlaybook.Counters.Values.OrderBy(x => x.Name);
 
-            foreach (var actualCounter in counters)
+            _counterList.BeginUpdate();
+            try
             {
-                var item = _counterList.Items[actualCounter.Name];
-
-                if (!_counterList.Items.ContainsKey(actualCounter.Name))
+                foreach (var actualCounter in counters)
                 {
-                    item = _counterList.Items.Add(actualCounter.Name, actualCounter.Name, -1);
-                    item.SubItems.Add("-");
-                    item.SubItems.Add("-");
-                }
-                else
-                {
-                    item = _counterList.Items[actualCounter.Name];
-                }
+                    var item = _counterList.Items[actualCounter.Name];
 
-                Counter currentCounter = null;
-                CurrentPlaybook?.Counters?.TryGetValue(actualCounter.Name, out currentCounter);
-                item.SubItems[1].Text = currentCounter?.ValueToString ?? "-";
-                item.SubItems[2].Text = actualCounter.ValueToString;
+                    if (!_counterList.Items.ContainsKey(actualCounter.Name))
+                    {
+                        item = _counterList.Items.Add(actualCounter.Name, actualCounter.Name, -1);
+                        item.SubItems.Add("-");
+                        item.SubItems.Add("-");
+                    }
+                    else
+                    {
+                        item = _counterList.Items[actualCounter.Name];
+                    }
+
+                    Counter currentCounter = null;
+                    CurrentPlaybook?.Counters?.TryGetValue(actualCounter.Name, out currentCounter);
+                    item.SubItems[1].Text = currentCounter?.ValueToString ?? "-";
+                    item.SubItems[2].Text = actualCounter.ValueToString;
+                }
+            }
+            finally
+            {
+                _counterList.EndUpdate();
             }
         }
 
@@ -215,10 +353,15 @@
         {
             _processList.Invoke(new Action(() =>
             {
-                var item = _processList.Items.Add(process.Name);
+                var item = _processList.Items.Add(process.Topic);
+                item.SubItems.Add(process.Name);
                 item.SubItems.Add(process.Type);
+                item.SubItems.Add("-");
+                item.SubItems.Add("-");
+                item.SubItems.Add("-");
+                item.SubItems.Add("-");
+                item.SubItems.Add("-");
                 item.Tag = process;
-                // todo: add columns with process row statistics
 
                 Container_Resize(null, EventArgs.Empty);
 
@@ -264,8 +407,9 @@
         {
             _timelineContainer.Bounds = new Rectangle(0, 0, Container.Width, 30);
 
-            _processList.Bounds = new Rectangle(0, _timelineContainer.Height, _processList.Width, (Container.Height - _timelineContainer.Height) / 2);
-            _counterList.Bounds = new Rectangle(0, _processList.Bottom, _counterList.Width, Container.Height - _processList.Bottom);
+            _processList.Bounds = new Rectangle(0, _timelineContainer.Bounds.Height, _processList.Bounds.Width, (Container.Height - _timelineContainer.Bounds.Height) / 2);
+            _counterList.Bounds = new Rectangle(0, _processList.Bounds.Bottom, _counterList.Bounds.Width, Container.Height - _processList.Bounds.Bottom);
+            _dataStoreCommandList.Bounds = new Rectangle(_counterList.Bounds.Right, _counterList.Bounds.Top, Container.Width - _counterList.Bounds.Right, _counterList.Bounds.Height);
 
             _firstEventLabel.Location = new Point(0, 0);
             _lastEventLabel.Location = new Point(_timelineContainer.Width - _lastEventLabel.Width, 0);

@@ -10,14 +10,16 @@
         public IEtlContext Context { get; }
         public IProcess Caller { get; protected set; }
         public string Name { get; }
+        public string Topic { get; }
         public Stopwatch LastInvocation { get; protected set; }
 
         public StatCounterCollection CounterCollection { get; }
 
-        protected AbstractProcess(IEtlContext context, string name = null)
+        protected AbstractProcess(IEtlContext context, string name, string topic)
         {
             Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
             Name = name ?? GetType().GetFriendlyTypeName();
+            Topic = topic;
             CounterCollection = new StatCounterCollection(context.CounterCollection);
 
             UID = Context.GetProcessUid(this);

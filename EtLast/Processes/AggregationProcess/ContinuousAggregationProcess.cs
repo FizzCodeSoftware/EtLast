@@ -16,8 +16,8 @@
     {
         public IContinuousAggregationOperation Operation { get; set; }
 
-        public ContinuousAggregationProcess(IEtlContext context, string name)
-            : base(context, name)
+        public ContinuousAggregationProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 
@@ -43,13 +43,11 @@
             Context.Log(LogSeverity.Information, this, "continuous aggregation started");
 
             var aggregateRows = new Dictionary<string, AggregateRow>();
-            var rows = InputProcess.Evaluate(this);
+            var rows = InputProcess.Evaluate(this).TakeRows(this);
 
             var rowCount = 0;
             foreach (var row in rows)
             {
-                Context.SetRowOwner(row, this);
-
                 rowCount++;
                 var key = GenerateKey(row);
                 if (!aggregateRows.TryGetValue(key, out var aggregateRow))

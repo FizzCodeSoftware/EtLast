@@ -26,8 +26,8 @@
         /// </summary>
         public char Delimiter { get; set; } = ';';
 
-        public DelimitedFileReaderProcess(IEtlContext context, string name)
-            : base(context, name)
+        public DelimitedFileReaderProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 

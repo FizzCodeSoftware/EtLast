@@ -19,13 +19,13 @@
         {
             var context = new EtlContext();
 
-            var unpivotProcess = new OperationHostProcess(context, "UnpivotProcess")
+            var unpivotProcess = new OperationHostProcess(context, "UnpivotProcess", null)
             {
                 Configuration = new OperationHostProcessConfiguration()
                 {
                     MainLoopDelay = 10,
                 },
-                InputProcess = new CreateRowsProcess(context, "UnpivotGenerator")
+                InputProcess = new CreateRowsProcess(context, "UnpivotGenerator", null)
                 {
                     Columns = SampleColumns,
                     InputRows = SampleRows.ToList(),
@@ -39,7 +39,7 @@
                 NewColumnForValue = "Value"
             });
 
-            var result = unpivotProcess.Evaluate().ToList();
+            var result = unpivotProcess.Evaluate().TakeRows(null).ToList();
             Assert.AreEqual(6, result.Count);
             Assert.That.RowsAreEqual(RowHelper.CreateRows(
                 new object[] { "Id", 1, "Name", "A", "InventoryItem", "Cars", "Value", 1 },

@@ -5,6 +5,7 @@
     using System.Drawing;
     using System.Globalization;
     using System.Linq;
+    using System.Text;
     using System.Windows.Forms;
     using FizzCode.EtLast.Diagnostics.Interface;
 
@@ -35,29 +36,45 @@
 
             _output.AppendText("[SESSION STARTED] [" + Session.SessionId + "]" + Environment.NewLine);
 
-            session.OnExecutionContextCreated += executionContext => executionContext.WholePlaybook.OnEventsAdded += OnEventsAdded;
+            session.OnExecutionContextCreated += ec =>
+            {
+                ec.WholePlaybook.OnEventsAdded += OnEventsAdded;
+            };
         }
 
         private void OnEventsAdded(Playbook playbook, List<AbstractEvent> abstractEvents)
         {
-            var logEvents = abstractEvents.OfType<LogEvent>().ToList();
-            if (logEvents.Count == 0)
+            var events = abstractEvents.OfType<LogEvent>().ToList();
+            if (events.Count == 0)
                 return;
 
             _output.Invoke((Action)delegate
             {
-                foreach (var evt in logEvents)
+                var sb = new StringBuilder();
+                foreach (var evt in events)
                 {
-                    _output.AppendText(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + " [" + playbook.ExecutionContext.Name + "] [" + evt.Severity.ToShortString() + "] ");
+                    sb
+                        .Append(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture))
+                        .Append(" [")
+                        .Append(playbook.ExecutionContext.Name)
+                        .Append("] [")
+                        .Append(evt.Severity.ToShortString())
+                        .Append("] ");
 
                     if (evt.ProcessUid != null && playbook.ProcessList.TryGetValue(evt.ProcessUid.Value, out var process))
                     {
-                        _output.AppendText("<" + process.Name + "> ");
+                        sb
+                            .Append('<')
+                            .Append(process.Name)
+                            .Append("> ");
                     }
 
                     if (evt.Operation != null)
                     {
-                        _output.AppendText("(" + evt.Operation.Name + "/#" + evt.Operation.Number + ") ");
+                        sb
+                            .Append('(')
+                            .Append(evt.Operation.ToDisplayValue())
+                            .Append(") ");
                     }
 
                     var text = evt.Text;
@@ -69,9 +86,10 @@
                         }
                     }
 
-                    _output.AppendText(text);
-                    _output.AppendText(Environment.NewLine);
+                    sb.AppendLine(text);
                 }
+
+                _output.AppendText(sb.ToString());
             });
         }
     }

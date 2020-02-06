@@ -85,7 +85,7 @@
                 yield return new CompareWithRowOperation()
                 {
                     InstanceName = nameof(AutoValidityRange),
-                    RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.DwhBuilder.Context, "PreviousValueReader")
+                    RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.DwhBuilder.Context, "PreviousValueReader", builder.TableBuilder.Table.Topic)
                     {
                         ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
                         Sql = "SELECT " + string.Join(",", builder.MatchColumns.Concat(finalValueColumns).Select(x => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(x)))
@@ -137,7 +137,7 @@
             if (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime != null)
                 parameters.Add("InfiniteFuture", builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
 
-            return new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.DwhBuilder.Context, "PreviousValueReader")
+            return new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.DwhBuilder.Context, "PreviousValueReader", builder.TableBuilder.Table.Topic)
             {
                 ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
                 Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(matchColumn)

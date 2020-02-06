@@ -15,8 +15,8 @@
         public List<object[]> InputRows { get; set; } = new List<object[]>();
         public int BatchSize { get; set; } = 100;
 
-        public CreateRowsProcess(IEtlContext context, string name)
-            : base(context, name)
+        public CreateRowsProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 

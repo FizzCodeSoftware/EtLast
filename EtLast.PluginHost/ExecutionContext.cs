@@ -133,7 +133,7 @@
                         {
                             Number = operation.Number,
                             Type = operation.GetType().GetFriendlyTypeName(),
-                            Name = operation.Name,
+                            InstanceName = operation.InstanceName,
                         }
                     });
 
@@ -166,7 +166,7 @@
                     {
                         Number = operation.Number,
                         Type = operation.GetType().GetFriendlyTypeName(),
-                        Name = operation.Name,
+                        InstanceName = operation.InstanceName,
                     },
                     Arguments = arguments,
                 });
@@ -329,7 +329,7 @@
                 {
                     Number = operation.Number,
                     Type = operation.GetType().GetFriendlyTypeName(),
-                    Name = operation.Name,
+                    InstanceName = operation.InstanceName,
                 },
             });
         }
@@ -342,6 +342,7 @@
                 Uid = uid,
                 Type = process.GetType().GetFriendlyTypeName(),
                 Name = process.Name,
+                Topic = process.Topic,
             });
         }
 
@@ -351,9 +352,15 @@
             {
                 Timestamp = DateTime.Now.Ticks,
                 ProcessUid = process.UID,
+                Operation = operation == null ? null : new OperationInfo()
+                {
+                    Number = operation.Number,
+                    Type = operation.GetType().GetFriendlyTypeName(),
+                    InstanceName = operation.InstanceName,
+                },
                 Location = location,
                 Command = command,
-                Arguments = args.Select(kvp => NamedArgument.FromObject(kvp.Key, kvp.Value)).ToArray(),
+                Arguments = args?.Select(kvp => NamedArgument.FromObject(kvp.Key, kvp.Value)).ToArray(),
             });
         }
 

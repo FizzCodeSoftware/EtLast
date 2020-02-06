@@ -14,7 +14,7 @@
 
         private IEnumerable<IExecutable> CreateHelloWorldProcess(IExecutable scope)
         {
-            yield return new CustomActionProcess(Context, "HelloWorldJob")
+            yield return new CustomActionProcess(Context, "HelloWorldJob", scope.Topic)
             {
                 Then = process =>
                 {

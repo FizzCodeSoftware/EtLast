@@ -2,6 +2,7 @@
 {
     using System;
     using System.Globalization;
+    using System.Linq;
     using System.Text.Json.Serialization;
 
     public class Argument
@@ -47,6 +48,7 @@
                 ArgumentType._datetime => new DateTime(long.Parse(TextValue, CultureInfo.InvariantCulture)),
                 ArgumentType._datetimeoffset => DateTimeOffsetFromTextValue(),
                 ArgumentType._timespan => TimeSpan.FromMilliseconds(long.Parse(TextValue, CultureInfo.InvariantCulture)),
+                ArgumentType._stringArray => TextValue.Split("\0"),
                 _ => TextValue,
             };
         }
@@ -66,6 +68,8 @@
             {
                 bool v => v ? "true" : "false",
                 char v => "\'" + v + "\'",
+                string v => "\"" + v + "\"",
+                string[] v => string.Join(", ", v.Select(x => "\"" + x + "\"")),
                 sbyte v => v.ToString("#,0", CultureInfo.InvariantCulture),
                 byte v => v.ToString("#,0", CultureInfo.InvariantCulture),
                 short v => v.ToString("#,0", CultureInfo.InvariantCulture),
@@ -243,6 +247,13 @@
             {
                 TextValue = dto.Ticks.ToString("D", CultureInfo.InvariantCulture) + "|" + dto.Offset.Ticks.ToString("D", CultureInfo.InvariantCulture);
                 Type = ArgumentType._datetimeoffset;
+                return;
+            }
+
+            if (Value is string[] strArr)
+            {
+                TextValue = string.Join("\0", strArr);
+                Type = ArgumentType._stringArray;
                 return;
             }
 

@@ -45,8 +45,8 @@
         /// </summary>
         public bool InlineArrayParameters { get; set; } = true;
 
-        protected AbstractAdoNetDbReaderProcess(IEtlContext context, string name)
-            : base(context, name)
+        protected AbstractAdoNetDbReaderProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
             SqlValueProcessors.Add(new MySqlValueProcessor());
         }
@@ -74,8 +74,9 @@
             IDbCommand cmd = null;
             Stopwatch swQuery;
 
+            Context.LogDataStoreCommand(ConnectionString.Name, this, null, sqlStatement, Parameters);
+
             var sqlStatementProcessed = InlineArrayParametersIfNecessary(sqlStatement);
-            Context.LogDataStoreCommand(ConnectionString.Name, this, null, sqlStatementProcessed, Parameters);
 
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {

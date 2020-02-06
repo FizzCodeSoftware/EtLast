@@ -5,6 +5,7 @@
         _other,
         _error,
         _string,
+        _stringArray,
         _bool,
         _char,
         _sbyte,

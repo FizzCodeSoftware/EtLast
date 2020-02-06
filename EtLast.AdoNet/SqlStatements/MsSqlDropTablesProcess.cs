@@ -23,8 +23,8 @@
 
         private List<string> _tableNames;
 
-        public MsSqlDropTablesProcess(IEtlContext context, string name = null)
-            : base(context, name)
+        public MsSqlDropTablesProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 

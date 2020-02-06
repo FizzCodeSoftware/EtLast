@@ -32,12 +32,10 @@
 
             Process.Context.Log(LogSeverity.Information, Process, this, "evaluating <{InputProcess}>", RightProcess.Name);
 
-            var rightRows = RightProcess.Evaluate(Process);
+            var rightRows = RightProcess.Evaluate(Process).TakeRows(Process, true);
             var rightRowCount = 0;
             foreach (var row in rightRows)
             {
-                Process.Context.SetRowOwner(row, Process);
-
                 rightRowCount++;
                 var key = GetRightKey(row);
                 if (string.IsNullOrEmpty(key))

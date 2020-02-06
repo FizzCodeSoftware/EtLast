@@ -9,8 +9,8 @@
         public string Url { get; set; }
         public string FileName { get; set; }
 
-        public DownloadFileProcess(IEtlContext context, string name = null)
-            : base(context, name)
+        public DownloadFileProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 

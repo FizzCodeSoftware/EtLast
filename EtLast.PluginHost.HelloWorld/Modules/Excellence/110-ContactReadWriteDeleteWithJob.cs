@@ -9,7 +9,7 @@
     {
         public override void Execute()
         {
-            Context.ExecuteOne(true, new BasicScope(Context, null)
+            Context.ExecuteOne(true, new BasicScope(Context, null, null)
             {
                 ProcessCreator = ProcessCreator,
             });
@@ -17,19 +17,19 @@
 
         private IEnumerable<IExecutable> ProcessCreator(IExecutable scope)
         {
-            yield return new DeleteFileProcess(Context)
+            yield return new DeleteFileProcess(Context, "DeleteFile", scope.Topic)
             {
                 FileName = OutputFileName,
             };
 
-            yield return ProcessCreatorInternal();
+            yield return ProcessCreatorInternal(scope);
         }
 
-        private IExecutable ProcessCreatorInternal()
+        private IExecutable ProcessCreatorInternal(IExecutable scope)
         {
-            return new OperationHostProcess(Context, "OperationHost")
+            return new OperationHostProcess(Context, "OperationHost", scope.Topic)
             {
-                InputProcess = new EpPlusExcelReaderProcess(Context, "Read:People")
+                InputProcess = new EpPlusExcelReaderProcess(Context, "Read:People", scope.Topic)
                 {
                     FileName = SourceFileName,
                     SheetName = "People",

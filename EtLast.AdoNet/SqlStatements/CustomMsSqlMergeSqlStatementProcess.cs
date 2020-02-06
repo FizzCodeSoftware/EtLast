@@ -31,8 +31,8 @@
         /// </summary>
         public bool InlineArrayParameters { get; set; } = true;
 
-        public CustomMsSqlMergeSqlStatementProcess(IEtlContext context, string name = null)
-            : base(context, name)
+        public CustomMsSqlMergeSqlStatementProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 

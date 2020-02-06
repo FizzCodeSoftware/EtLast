@@ -7,6 +7,9 @@
         [JsonPropertyName("p")]
         public int? ProcessUid { get; set; }
 
+        [JsonPropertyName("o")]
+        public OperationInfo Operation { get; set; }
+
         [JsonPropertyName("c")]
         public string Command { get; set; }
 

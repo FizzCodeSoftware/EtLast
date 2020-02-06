@@ -10,8 +10,8 @@
 
         private readonly StringBuilder _keyBuilder = new StringBuilder();
 
-        protected AbstractAggregationProcess(IEtlContext context, string name)
-            : base(context, name)
+        protected AbstractAggregationProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 

@@ -12,6 +12,7 @@
         public DwhBuilder DwhBuilder { get; }
         public ResilientTable Table { get; }
         public SqlTable SqlTable { get; }
+        public string Topic => DwhBuilder.ConnectionString.Unescape(Table.TableName);
 
         public SqlColumn RecordTimestampIndicatorColumn { get; }
         public string EtlInsertRunIdColumnNameEscaped { get; }
@@ -117,11 +118,25 @@
 
             operations.Add(CreateTempWriterOperation(Table, SqlTable));
 
-            yield return new OperationHostProcess(Table.Scope.Context, DwhBuilder.ConnectionString.Unescape(Table.TableName))
+            var inputProcess = _inputProcessCreator?.Invoke();
+
+            if (inputProcess is OperationHostProcess opProc)
             {
-                InputProcess = _inputProcessCreator?.Invoke(),
-                Operations = operations,
-            };
+                foreach (var op in operations)
+                {
+                    opProc.AddOperation(op);
+                }
+
+                yield return opProc;
+            }
+            else
+            {
+                yield return new OperationHostProcess(Table.Scope.Context, "Main", Table.Topic)
+                {
+                    InputProcess = inputProcess,
+                    Operations = operations,
+                };
+            }
         }
 
         private IEnumerable<IExecutable> CreateTableFinalizers()

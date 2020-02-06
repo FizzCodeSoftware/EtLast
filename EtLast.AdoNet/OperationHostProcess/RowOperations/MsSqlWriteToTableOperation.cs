@@ -79,6 +79,8 @@
             var recordCount = _reader.RowCount;
             _timer.Restart();
 
+            Process.Context.LogDataStoreCommand(ConnectionString.Name, Process, this, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", null);
+
             try
             {
                 _bulkCopy.WriteToServer(_reader);

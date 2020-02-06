@@ -35,13 +35,13 @@
         {
             var context = new EtlContext();
 
-            var leftProcess = new OperationHostProcess(context, "LeftProcess")
+            var leftProcess = new OperationHostProcess(context, "LeftProcess", null)
             {
                 Configuration = new OperationHostProcessConfiguration()
                 {
                     MainLoopDelay = 10,
                 },
-                InputProcess = new CreateRowsProcess(context, "LeftGenerator")
+                InputProcess = new CreateRowsProcess(context, "LeftGenerator", null)
                 {
                     Columns = SampleColumnsA,
                     InputRows = SampleRowsA.ToList(),
@@ -51,7 +51,7 @@
             leftProcess.AddOperation(new JoinOperation()
             {
                 NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                RightProcess = new CreateRowsProcess(context, "RightGenerator")
+                RightProcess = new CreateRowsProcess(context, "RightGenerator", null)
                 {
                     Columns = SampleColumnsB,
                     InputRows = SampleRowsB.ToList(),
@@ -64,7 +64,7 @@
                 }
             });
 
-            var result = leftProcess.Evaluate().ToList();
+            var result = leftProcess.Evaluate().TakeRows(null).ToList();
             Assert.AreEqual(6, result.Count);
             Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "A") == 3);
             Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "B") == 2);

@@ -42,6 +42,12 @@
                                 continue;
                         }
                         break;
+                    case DataStoreCommandEvent evt:
+                        {
+                            if (evt.ProcessUid != null && !ProcessList.TryGetValue(evt.ProcessUid.Value, out var process))
+                                continue;
+                        }
+                        break;
                     case ContextCountersUpdatedEvent evt:
                         lastContextCountersUpdatedEvent = evt;
                         break;
@@ -49,7 +55,7 @@
                         {
                             if (!ProcessList.TryGetValue(evt.Uid, out var process))
                             {
-                                process = new TrackedProcess(evt.Uid, evt.Type, evt.Name);
+                                process = new TrackedProcess(evt.Uid, evt.Type, evt.Name, evt.Topic);
                                 ProcessList.Add(process.Uid, process);
                                 OnProcessAdded?.Invoke(this, process);
                             }
@@ -78,7 +84,7 @@
 
                             RowList[row.Uid] = row;
 
-                            process.AddRow(row);
+                            process.AddRow(row, null);
                         }
                         break;
                     case RowOwnerChangedEvent evt:
@@ -95,8 +101,8 @@
 
                             if (newProcess != null)
                             {
-                                previousProcess.RemoveRow(row);
-                                newProcess.AddRow(row);
+                                previousProcess.PassedRow(row);
+                                newProcess.AddRow(row, previousProcess);
                             }
                             else
                             {
@@ -140,6 +146,8 @@
                                 store = new TrackedStore(storePath);
                                 StoreList.Add(storePath, store);
                             }
+
+                            process.StoreRow(row);
 
                             var snapshot = row.GetSnapshot();
                             store.Rows.Add(new Tuple<RowStoredEvent, TrackedRowSnapshot>(evt, snapshot));

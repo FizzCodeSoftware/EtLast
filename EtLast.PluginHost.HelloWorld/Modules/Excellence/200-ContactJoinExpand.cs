@@ -9,7 +9,7 @@
     {
         public override void Execute()
         {
-            Context.ExecuteOne(true, new BasicScope(Context, null)
+            Context.ExecuteOne(true, new BasicScope(Context, null, "People")
             {
                 ProcessCreator = ProcessCreator,
             });
@@ -17,19 +17,19 @@
 
         private IEnumerable<IExecutable> ProcessCreator(IExecutable scope)
         {
-            yield return new DeleteFileProcess(Context)
+            yield return new DeleteFileProcess(Context, "DeleteFile", scope.Topic)
             {
                 FileName = OutputFileName,
             };
 
-            yield return ProcessCreatorInternal();
+            yield return ProcessCreatorInternal(scope);
         }
 
-        private IExecutable ProcessCreatorInternal()
+        private IExecutable ProcessCreatorInternal(IExecutable scope)
         {
-            return new OperationHostProcess(Context, "OperationHost")
+            return new OperationHostProcess(Context, "Process", scope.Topic)
             {
-                InputProcess = new EpPlusExcelReaderProcess(Context, "Read:People")
+                InputProcess = new EpPlusExcelReaderProcess(Context, "Read", scope.Topic)
                 {
                     FileName = SourceFileName,
                     SheetName = "People",
@@ -44,9 +44,9 @@
                     new JoinOperation()
                     {
                         NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        RightProcess = new OperationHostProcess(Context, "PrefilterInvalidContacts")
+                        RightProcess = new OperationHostProcess(Context, "PrefilterInvalidContacts", scope.Topic)
                         {
-                            InputProcess = new EpPlusExcelReaderProcess(Context, "Read:Contact")
+                            InputProcess = new EpPlusExcelReaderProcess(Context, "ReadContacts", scope.Topic)
                             {
                                 FileName = SourceFileName,
                                 SheetName = "Contact",
@@ -76,7 +76,7 @@
                     new ExpandOperation()
                     {
                         NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        RightProcess = new EpPlusExcelReaderProcess(Context, "Read:ContactMethod")
+                        RightProcess = new EpPlusExcelReaderProcess(Context, "ReadContactMethod", scope.Topic)
                         {
                             FileName = SourceFileName,
                             SheetName = "ContactMethod",

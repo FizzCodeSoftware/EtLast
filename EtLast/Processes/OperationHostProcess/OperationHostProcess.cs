@@ -58,8 +58,8 @@
             }
         }
 
-        public OperationHostProcess(IEtlContext context, string name = null)
-            : base(context, name)
+        public OperationHostProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 
@@ -265,6 +265,7 @@
                 try
                 {
                     var count = _rows.Count;
+
                     _rows = _rows.Where(x => x.State != RowState.Finished && x.State != RowState.Removed).ToList();
                     if (_rows.Count != count)
                     {
@@ -486,7 +487,7 @@
 
                 var swLoop = Stopwatch.StartNew();
                 ReadingInput = true;
-                var sourceRows = InputProcess.Evaluate(this);
+                var sourceRows = InputProcess.Evaluate(this).TakeRows(this);
                 var buffer = new List<IRow>();
                 var inputRowCount = 0;
                 var wipedRowCount = 0;
@@ -494,8 +495,6 @@
                 var swProcessing = Stopwatch.StartNew();
                 foreach (var row in sourceRows)
                 {
-                    Context.SetRowOwner(row, this);
-
                     row.CurrentOperation = null;
                     row.State = RowState.Normal;
 
@@ -585,7 +584,7 @@
             LogOpCounters();
         }
 
-        public IEnumerable<IRow> Evaluate(IProcess caller = null)
+        public Evaluator Evaluate(IProcess caller = null)
         {
             LastInvocation = Stopwatch.StartNew();
             Caller = caller;
@@ -593,19 +592,19 @@
             Validate();
 
             if (Context.CancellationTokenSource.IsCancellationRequested)
-                return Enumerable.Empty<IRow>();
+                return new Evaluator();
 
             if (If?.Invoke(this) == false)
-                return Enumerable.Empty<IRow>();
+                return new Evaluator();
 
             try
             {
-                return EvaluateImpl();
+                return new Evaluator(EvaluateImpl());
             }
             catch (EtlException ex) { Context.AddException(this, ex); }
             catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
 
-            return Enumerable.Empty<IRow>();
+            return new Evaluator();
         }
 
         private IEnumerable<IRow> EvaluateImpl()
@@ -633,7 +632,7 @@
 
                 var swLoop = Stopwatch.StartNew();
                 ReadingInput = true;
-                var sourceRows = InputProcess.Evaluate(this);
+                var sourceRows = InputProcess.Evaluate(this).TakeRows(this);
                 var buffer = new List<IRow>();
                 var inputRowCount = 0;
                 var wipedRowCount = 0;
@@ -645,8 +644,6 @@
 
                 foreach (var row in sourceRows)
                 {
-                    Context.SetRowOwner(row, this);
-
                     row.CurrentOperation = null;
                     row.State = RowState.Normal;
 

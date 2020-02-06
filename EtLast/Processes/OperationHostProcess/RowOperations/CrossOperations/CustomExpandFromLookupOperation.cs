@@ -77,14 +77,12 @@
             Process.Context.Log(LogSeverity.Information, Process, this, "evaluating <{InputProcess}>", RightProcess.Name);
 
             _lookup.Clear();
-            var rightRows = RightProcess.Evaluate(Process);
+            var rightRows = RightProcess.Evaluate(Process).TakeRows(Process, true);
             var rightRowCount = 0;
             foreach (var row in rightRows)
             {
-                Process.Context.SetRowOwner(row, Process);
-
                 rightRowCount++;
-                var key = GetRightKey(Process, row);
+                var key = GetRightKey(row);
                 if (string.IsNullOrEmpty(key))
                     continue;
 
@@ -109,7 +107,7 @@
             _lookup.Clear();
         }
 
-        protected string GetRightKey(IProcess process, IRow row)
+        protected string GetRightKey(IRow row)
         {
             try
             {
@@ -118,7 +116,7 @@
             catch (EtlException) { throw; }
             catch (Exception)
             {
-                var exception = new OperationExecutionException(process, this, row, nameof(RightKeySelector) + " failed");
+                var exception = new OperationExecutionException(Process, this, row, nameof(RightKeySelector) + " failed");
                 throw exception;
             }
         }

@@ -13,8 +13,8 @@
         public string ColumnName { get; set; }
         public string CustomWhereClause { get; set; }
 
-        public GetTableMaxValueProcess(IEtlContext context, string name = null)
-            : base(context, name)
+        public GetTableMaxValueProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
         }
 
@@ -29,8 +29,8 @@
         protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString, Dictionary<string, object> parameters)
         {
             return string.IsNullOrEmpty(CustomWhereClause)
-                ? "select max(" + ColumnName + ") as maxValue, count(*) as cnt from " + TableName
-                : "select max(" + ColumnName + ") as maxValue, count(*) as cnt from " + TableName + " where " + CustomWhereClause;
+                ? "SELECT MAX(" + ColumnName + ") AS maxValue, COUNT(*) AS cnt FROM " + TableName
+                : "SELECT MAX(" + ColumnName + ") AS maxValue, COUNT(*) AS cnt FROM " + TableName + " WHERE " + CustomWhereClause;
         }
 
         protected override TableMaxValueResult<T> RunCommandAndGetResult(IDbCommand command)

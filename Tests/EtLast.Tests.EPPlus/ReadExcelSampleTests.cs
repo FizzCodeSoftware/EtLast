@@ -19,7 +19,7 @@
         {
             var context = new EtlContext();
 
-            _epPlusExcelReaderProcess = new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess")
+            _epPlusExcelReaderProcess = new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess", null)
             {
                 FileName = @"TestData\Sample.xlsx",
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
@@ -33,7 +33,7 @@
                     }
             };
 
-            _process = new OperationHostProcess(context, "EpPlusProcess")
+            _process = new OperationHostProcess(context, "EpPlusProcess", null)
             {
                 Configuration = new OperationHostProcessConfiguration()
                 {
@@ -50,8 +50,8 @@
         {
             _epPlusExcelReaderProcess.SheetName = "Sheet1";
 
-            var result = _process.Evaluate().ToList();
-            Assert.AreEqual(2, result.Count);
+            var resultCount = _process.Evaluate().CountRows(null);
+            Assert.AreEqual(2, resultCount);
         }
 
         [TestMethod]
@@ -59,8 +59,8 @@
         {
             _epPlusExcelReaderProcess.SheetIndex = 0;
 
-            var result = _process.Evaluate().ToList();
-            Assert.AreEqual(2, result.Count);
+            var resultCount = _process.Evaluate().CountRows(null);
+            Assert.AreEqual(2, resultCount);
         }
 
         [TestMethod]
@@ -68,7 +68,7 @@
         {
             _epPlusExcelReaderProcess.SheetName = "Sheet1";
 
-            var result = _process.Evaluate().ToList();
+            var result = _process.Evaluate().TakeRows(null).ToList();
             Assert.AreEqual(2, result.Count);
 
             Assert.That.RowsAreEqual(RowHelper.CreateRows(

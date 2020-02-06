@@ -16,7 +16,7 @@
         {
             var context = new EtlContext();
 
-            return new OperationHostProcess(context)
+            return new OperationHostProcess(context, null, null)
             {
                 Configuration = new OperationHostProcessConfiguration()
                 {
@@ -28,13 +28,13 @@
 
         public List<IRow> RunEtl(IOperationHostProcess process)
         {
-            process.InputProcess = new CreateRowsProcess(process.Context, "CreateRows")
+            process.InputProcess = new CreateRowsProcess(process.Context, "CreateRows", null)
             {
                 Columns = SampleColumns,
                 InputRows = SampleRows.ToList(),
             };
 
-            var result = process.Evaluate().ToList();
+            var result = process.Evaluate().TakeRows(null).ToList();
             return result;
         }
     }

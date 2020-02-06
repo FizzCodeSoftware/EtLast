@@ -36,7 +36,7 @@
             _configuration = configuration;
         }
 
-        public IExecutable Build(string name = null)
+        public IExecutable Build(string scopeName = null, string scopeTopic = null)
         {
             if (Configuration == null)
 #pragma warning disable CA2208 // Instantiate argument exceptions correctly
@@ -48,7 +48,7 @@
                 tableBuilder.Build();
             }
 
-            return new ResilientSqlScope(Context, name)
+            return new ResilientSqlScope(Context, scopeName, scopeTopic)
             {
                 Configuration = new ResilientSqlScopeConfiguration()
                 {
@@ -69,7 +69,7 @@
             var constraintCheckDisabledOnTables = scope.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
             if (constraintCheckDisabledOnTables != null)
             {
-                yield return new MsSqlEnableConstraintCheckProcess(Context, "EnableConstraintCheckOnAllTables")
+                yield return new MsSqlEnableConstraintCheckProcess(Context, "EnableConstraintCheck", scope.Topic)
                 {
                     ConnectionString = scope.Configuration.ConnectionString,
                     TableNames = constraintCheckDisabledOnTables.Distinct().OrderBy(x => x).ToArray(),
@@ -80,11 +80,13 @@
             var etlRunSqlTable = Model.GetTables().Find(x => x.HasProperty<IsEtlRunInfoTableProperty>());
             if (etlRunSqlTable != null)
             {
-                yield return new CustomSqlStatementProcess(Context, "UpdateEtlRun")
+                yield return new CustomSqlStatementProcess(Context, "UpdateEtlRun", "EtlRun")
                 {
                     ConnectionString = scope.Configuration.ConnectionString,
                     CommandTimeout = 60 * 60,
-                    SqlStatement = "update " + ConnectionString.Escape(etlRunSqlTable.SchemaAndTableName.TableName, etlRunSqlTable.SchemaAndTableName.Schema) + " set FinishedOn = @FinishedOn, Result = @Result where EtlRunId = @EtlRunId",
+                    SqlStatement = "UPDATE " + ConnectionString.Escape(etlRunSqlTable.SchemaAndTableName.TableName, etlRunSqlTable.SchemaAndTableName.Schema)
+                        + " SET FinishedOn = @FinishedOn, Result = @Result"
+                        + " WHERE EtlRunId = @EtlRunId",
                     Parameters = new Dictionary<string, object>
                     {
                         ["FinishedOn"] = DateTimeOffset.Now,
@@ -114,16 +116,16 @@
             var etlRunSqlTable = Model.GetTables().Find(x => x.HasProperty<IsEtlRunInfoTableProperty>());
             if (etlRunSqlTable != null)
             {
-                var maxId = new GetTableMaxValueProcess<int>(Context, "MaxEtlRunIdReader")
+                var maxId = new GetTableMaxValueProcess<int>(Context, "MaxIdReader", "EtlRun")
                 {
                     ConnectionString = ConnectionString,
                     TableName = ConnectionString.Escape(etlRunSqlTable.SchemaAndTableName.TableName, etlRunSqlTable.SchemaAndTableName.Schema),
-                    ColumnName = "EtlRunId",
+                    ColumnName = ConnectionString.Escape("EtlRunId"),
                 }.Execute();
 
-                yield return new OperationHostProcess(Context, "EtlRunIdWriter")
+                yield return new OperationHostProcess(Context, "Writer", "EtlRun")
                 {
-                    InputProcess = new EnumerableImportProcess(Context, "EtlRunIdCreator")
+                    InputProcess = new EnumerableImportProcess(Context, "RowCreator", "EtlRun")
                     {
                         InputGenerator = process =>
                         {

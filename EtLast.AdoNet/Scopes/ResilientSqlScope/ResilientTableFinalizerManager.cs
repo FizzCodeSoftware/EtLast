@@ -9,6 +9,7 @@
         public IEtlContext Context => _scope.Context;
         public int UID { get; }
         public string Name { get; } = "TableFinalizerManager";
+        public string Topic => _scope.Topic;
         public IProcess Caller => _scope;
         public Stopwatch LastInvocation { get; private set; }
         public ProcessTestDelegate If { get; set; }
@@ -31,13 +32,13 @@
             var tempTablesWithoutData = 0;
             foreach (var table in _scope.Configuration.Tables)
             {
-                var recordCount = CountRecordsIn(table.TempTableName);
+                var recordCount = CountTempRecordsIn(table);
 
                 if (table.AdditionalTables?.Count > 0)
                 {
                     foreach (var additionalTable in table.AdditionalTables.Values)
                     {
-                        recordCount += CountRecordsIn(additionalTable.TempTableName);
+                        recordCount += CountTempRecordsIn(additionalTable);
                     }
                 }
 
@@ -82,18 +83,18 @@
             Context.Log(LogSeverity.Information, this, "{TableCount} temp table is empty", tempTablesWithoutData);
         }
 
-        private int CountRecordsIn(string tempTableName)
+        private int CountTempRecordsIn(ResilientTableBase table)
         {
-            var count = new GetTableRecordCountProcess(Context, "TempRecordCountReader:" + _scope.Configuration.ConnectionString.Unescape(tempTableName))
+            var count = new GetTableRecordCountProcess(Context, "TempRecordCountReader", table.Topic)
             {
                 ConnectionString = _scope.Configuration.ConnectionString,
-                TableName = tempTableName,
+                TableName = _scope.Configuration.ConnectionString.Escape(table.TempTableName),
             }.Execute();
 
             if (count > 0)
             {
                 Context.Log(LogSeverity.Information, this, "{TempRecordCount} records found in {ConnectionStringName}/{TableName}",
-                      count, _scope.Configuration.ConnectionString.Name, _scope.Configuration.ConnectionString.Unescape(tempTableName));
+                      count, _scope.Configuration.ConnectionString.Name, _scope.Configuration.ConnectionString.Unescape(table.TempTableName));
             }
 
             return count;
