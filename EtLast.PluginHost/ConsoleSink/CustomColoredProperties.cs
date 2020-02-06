@@ -8,6 +8,7 @@
         {
             ["Module"] = ColorCode.Module,
             ["Plugin"] = ColorCode.Plugin,
+            ["ActiveTopic"] = ColorCode.Topic,
             ["ActiveProcess"] = ColorCode.Process,
             ["Caller"] = ColorCode.Process,
             ["Process"] = ColorCode.Process,

@@ -31,6 +31,7 @@
             [ColorCode.LvlTokenFtl] = "\x1b[38;5;0015m\x1b[48;5;0196m",
             [ColorCode.Module] = "\x1b[38;5;0007m",
             [ColorCode.Plugin] = "\x1b[38;5;0007m",
+            [ColorCode.Topic] = "\x1b[38;5;0133m",
             [ColorCode.Process] = "\x1b[38;5;0228m",
             [ColorCode.Operation] = "\x1b[38;5;0085m",
             [ColorCode.Job] = "\x1b[38;5;0085m",

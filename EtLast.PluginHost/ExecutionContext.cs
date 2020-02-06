@@ -87,15 +87,15 @@
                 }
             }
 
-            if (string.IsNullOrEmpty(ident))
-                ident = " ";
-
             var values = new List<object>();
             if (PluginName != null)
             {
                 values.Add(ModuleName);
                 values.Add(PluginName);
             }
+
+            if (process?.Topic != null)
+                values.Add(process.Topic);
 
             if (process != null)
                 values.Add(process.Name);
@@ -112,8 +112,9 @@
 
             logger.Write(
                 (LogEventLevel)severity,
-                (PluginName != null ? "[{Module}/{Plugin}]" + ident : "")
-                + (process != null ? "<{ActiveProcess}> " : "")
+                (PluginName != null ? "[{Module}/{Plugin}] " : "")
+                + (process?.Topic != null ? "[{ActiveTopic}] " : "")
+                + (process != null ? ident + "<{ActiveProcess}> " : "")
                 + (operation != null ? "({Operation}) " : "")
                 + text,
                 values.ToArray());
@@ -388,20 +389,20 @@
 
             if (PluginName == null)
             {
-                Log(LogSeverity.Information, false, null, null, "----------------");
-                Log(LogSeverity.Information, false, null, null, "SESSION COUNTERS");
-                Log(LogSeverity.Information, false, null, null, "----------------");
+                Log(LogSeverity.Debug, false, null, null, "----------------");
+                Log(LogSeverity.Debug, false, null, null, "SESSION COUNTERS");
+                Log(LogSeverity.Debug, false, null, null, "----------------");
             }
             else
             {
-                Log(LogSeverity.Information, false, null, null, "---------------");
-                Log(LogSeverity.Information, false, null, null, "PLUGIN COUNTERS");
-                Log(LogSeverity.Information, false, null, null, "---------------");
+                Log(LogSeverity.Debug, false, null, null, "---------------");
+                Log(LogSeverity.Debug, false, null, null, "PLUGIN COUNTERS");
+                Log(LogSeverity.Debug, false, null, null, "---------------");
             }
 
             foreach (var counter in counters)
             {
-                Log(LogSeverity.Information, false, null, null, "{Counter} = {Value}",
+                Log(LogSeverity.Debug, false, null, null, "{Counter} = {Value}",
                     counter.Name, counter.TypedValue);
             }
         }

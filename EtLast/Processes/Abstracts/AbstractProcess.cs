@@ -9,8 +9,8 @@
         public ProcessTestDelegate If { get; set; }
         public IEtlContext Context { get; }
         public IProcess Caller { get; protected set; }
-        public string Name { get; }
-        public string Topic { get; }
+        public string Name { get; set; }
+        public string Topic { get; set; }
         public Stopwatch LastInvocation { get; protected set; }
 
         public StatCounterCollection CounterCollection { get; }

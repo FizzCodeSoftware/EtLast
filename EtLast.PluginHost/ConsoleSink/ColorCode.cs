@@ -20,11 +20,12 @@
         TimeSpanValue = 15,
         Module = 16,
         Plugin = 17,
-        Process = 18,
-        Operation = 19,
-        Job = 20,
-        ConnectionStringName = 21,
-        SourceOrTarget = 22,
-        Transaction = 23,
+        Topic = 18,
+        Process = 19,
+        Operation = 20,
+        Job = 21,
+        ConnectionStringName = 22,
+        SourceOrTarget = 23,
+        Transaction = 24,
     }
 }

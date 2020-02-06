@@ -122,6 +122,8 @@
 
             if (inputProcess is OperationHostProcess opProc)
             {
+                opProc.Name = "Main";
+                opProc.Topic = Table.Topic;
                 foreach (var op in operations)
                 {
                     opProc.AddOperation(op);

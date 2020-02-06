@@ -80,7 +80,7 @@
             var etlRunSqlTable = Model.GetTables().Find(x => x.HasProperty<IsEtlRunInfoTableProperty>());
             if (etlRunSqlTable != null)
             {
-                yield return new CustomSqlStatementProcess(Context, "UpdateEtlRun", "EtlRun")
+                yield return new CustomSqlStatementProcess(Context, "UpdateEtlRun", etlRunSqlTable.SchemaAndTableName.SchemaAndName)
                 {
                     ConnectionString = scope.Configuration.ConnectionString,
                     CommandTimeout = 60 * 60,
@@ -116,16 +116,16 @@
             var etlRunSqlTable = Model.GetTables().Find(x => x.HasProperty<IsEtlRunInfoTableProperty>());
             if (etlRunSqlTable != null)
             {
-                var maxId = new GetTableMaxValueProcess<int>(Context, "MaxIdReader", "EtlRun")
+                var maxId = new GetTableMaxValueProcess<int>(Context, "MaxIdReader", etlRunSqlTable.SchemaAndTableName.SchemaAndName)
                 {
                     ConnectionString = ConnectionString,
                     TableName = ConnectionString.Escape(etlRunSqlTable.SchemaAndTableName.TableName, etlRunSqlTable.SchemaAndTableName.Schema),
                     ColumnName = ConnectionString.Escape("EtlRunId"),
                 }.Execute();
 
-                yield return new OperationHostProcess(Context, "Writer", "EtlRun")
+                yield return new OperationHostProcess(Context, "Writer", etlRunSqlTable.SchemaAndTableName.SchemaAndName)
                 {
-                    InputProcess = new EnumerableImportProcess(Context, "RowCreator", "EtlRun")
+                    InputProcess = new EnumerableImportProcess(Context, "RowCreator", etlRunSqlTable.SchemaAndTableName.SchemaAndName)
                     {
                         InputGenerator = process =>
                         {

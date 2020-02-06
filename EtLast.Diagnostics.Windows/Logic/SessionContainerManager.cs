@@ -15,8 +15,6 @@
         public Control Container { get; }
 
         private readonly TabControl _tabs;
-        private readonly LogManager _logManager;
-        private readonly DataStoreCommandManager _dataStoreCommandManager;
         private readonly Dictionary<string, ExecutionContextContainerManager> _contextContainerManagers = new Dictionary<string, ExecutionContextContainerManager>();
 
         public SessionContainerManager(Session session, Control container)
@@ -47,7 +45,7 @@
                 };
                 _tabs.TabPages.Add(logContainer);
 
-                _logManager = new LogManager(logContainer, Session);
+                var logManager = new LogManager(logContainer, Session);
 
                 /*var dataStoreCommandContainer = new Panel()
                 {
@@ -62,7 +60,7 @@
                 };
                 _tabs.TabPages.Add(dataStoreCommandContainer);
 
-                _dataStoreCommandManager = new DataStoreCommandManager(dataStoreCommandContainer, Session);
+                var dataStoreCommandManager = new DataStoreCommandManager(dataStoreCommandContainer, Session);
 
                 Session.OnExecutionContextCreated += OnExecutionContextCreated;
 
