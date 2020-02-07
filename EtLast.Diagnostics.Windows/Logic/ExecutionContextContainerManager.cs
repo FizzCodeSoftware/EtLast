@@ -124,7 +124,7 @@
                 _processList.Columns.Add("STAY", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
                 _processList.Columns.Add("OUT", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
                 _processList.ShowItemToolTips = true;
-                _processList.MouseMove += _processList_MouseMove;
+                _processList.MouseMove += ProcessList_MouseMove;
                 //_processList.MouseLeave += (s, a) => _toolTip.SetToolTip(s as Control, null);
 
                 _counterList = new ListView()
@@ -182,7 +182,7 @@
             }
         }
 
-        private void _processList_MouseMove(object sender, MouseEventArgs e)
+        private void ProcessList_MouseMove(object sender, MouseEventArgs e)
         {
             var list = sender as ListView;
             var item = list.GetItemAt(e.X, e.Y);

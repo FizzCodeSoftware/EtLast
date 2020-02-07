@@ -202,10 +202,7 @@
             }
             finally
             {
-                if (_counterSenderTimer != null)
-                {
-                    _counterSenderTimer.Change(500, Timeout.Infinite);
-                }
+                _counterSenderTimer?.Change(500, Timeout.Infinite);
             }
         }
 

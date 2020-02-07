@@ -14,7 +14,19 @@
     /// </summary>
     public class ContinuousAggregationProcess : AbstractAggregationProcess
     {
-        public IContinuousAggregationOperation Operation { get; set; }
+        private IContinuousAggregationOperation _operation;
+
+        public IContinuousAggregationOperation Operation
+        {
+            get => _operation;
+            set
+            {
+                _operation?.SetProcess(null);
+
+                _operation = value;
+                _operation.SetProcess(this);
+            }
+        }
 
         public ContinuousAggregationProcess(IEtlContext context, string name, string topic)
             : base(context, name, topic)
