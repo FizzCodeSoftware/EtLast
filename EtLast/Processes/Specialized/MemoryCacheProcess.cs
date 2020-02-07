@@ -47,7 +47,7 @@
                 Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", InputProcess.Name);
 
                 _cache = new List<IRow>();
-                var inputRows = InputProcess.Evaluate(this).TakeRows(this, true);
+                var inputRows = InputProcess.Evaluate(this).TakeRowsAndReleaseOwnership(this);
                 foreach (var row in inputRows)
                 {
                     if (IgnoreRowsWithError && row.HasError())

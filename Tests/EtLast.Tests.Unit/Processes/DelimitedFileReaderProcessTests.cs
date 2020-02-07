@@ -52,7 +52,7 @@
                 Value = null
             });
 
-            var result = _process.Evaluate().TakeRows(null).ToList();
+            var result = _process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
             Assert.AreEqual(2, result.Count);
 
             Assert.That.RowsAreEqual(RowHelper.CreateRows(
@@ -66,7 +66,7 @@
         public void InvalidConversion()
         {
             _delimitedFileReaderProcess.FileName = @"TestData\SampleInvalidConversion.csv";
-            var result = _process.Evaluate().TakeRows(null).ToList();
+            var result = _process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
 
             Assert.AreEqual(2, result.Count);
             Assert.That.RowsAreEqual(RowHelper.CreateRows(

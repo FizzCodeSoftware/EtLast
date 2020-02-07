@@ -31,7 +31,7 @@
 
             process.InputProcess = inputProcess;
 
-            var result = process.Evaluate().TakeRows(null).ToList();
+            var result = process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
             return result;
         }
     }

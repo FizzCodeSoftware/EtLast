@@ -55,7 +55,7 @@
             Context.Log(LogSeverity.Information, this, "continuous aggregation started");
 
             var aggregateRows = new Dictionary<string, AggregateRow>();
-            var rows = InputProcess.Evaluate(this).TakeRows(this);
+            var rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership(this);
 
             var rowCount = 0;
             foreach (var row in rows)
@@ -91,7 +91,7 @@
 
                 aggregateRow.RowsInGroup++;
 
-                Context.SetRowOwner(row, null);
+                Context.SetRowOwner(row, null, null);
             }
 
             Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}", rowCount, aggregateRows.Count, LastInvocation.Elapsed);

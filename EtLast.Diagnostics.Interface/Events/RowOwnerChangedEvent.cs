@@ -12,5 +12,8 @@
 
         [JsonPropertyName("np")]
         public int? NewProcessUid { get; set; }
+
+        [JsonPropertyName("o")]
+        public int? OperationUid { get; set; }
     }
 }

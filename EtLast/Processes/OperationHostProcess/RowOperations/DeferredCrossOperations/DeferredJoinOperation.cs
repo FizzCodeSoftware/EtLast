@@ -146,7 +146,7 @@
             Process.Context.Log(LogSeverity.Debug, Process, this, "evaluating <{InputProcess}> to process {RowCount} rows with {KeyCount} distinct foreign keys", rightProcess.Name,
                 _batchRows.Count, _batchRowKeys.Count);
 
-            var rightRows = rightProcess.Evaluate(Process).TakeRows(Process, true);
+            var rightRows = rightProcess.Evaluate(Process).TakeRowsAndReleaseOwnership(this);
             var rightRowCount = 0;
             foreach (var row in rightRows)
             {

@@ -7,11 +7,15 @@
     public class TrackedRow
     {
         public int Uid { get; set; }
-        public List<object> AllEvents { get; } = new List<object>();
+
+        // todo: possible memory issues
+        public List<AbstractEvent> AllEvents { get; } = new List<AbstractEvent>();
 
         public RowCreatedEvent CreatedByEvent { get; set; }
+        public RowOwnerChangedEvent DroppedByEvent { get; set; }
         public TrackedProcess CurrentOwner { get; set; }
 
+        // todo: possible memory issues
         public Dictionary<string, Argument> Values { get; } = new Dictionary<string, Argument>();
 
         public TrackedRowSnapshot GetSnapshot()

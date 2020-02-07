@@ -124,7 +124,13 @@
                                 continue;
 
                             TrackedProcess newProcess = null;
-                            if (evt.NewProcessUid != null && !ProcessList.TryGetValue(evt.NewProcessUid.Value, out newProcess))
+                            if (evt.NewProcessUid != null)
+                            {
+                                if (!ProcessList.TryGetValue(evt.NewProcessUid.Value, out newProcess))
+                                    continue;
+                            }
+
+                            if (evt.OperationUid != null && !OperationList.ContainsKey(evt.OperationUid.Value))
                                 continue;
 
                             if (newProcess != null)
@@ -135,6 +141,7 @@
                             else
                             {
                                 previousProcess.DropRow(row);
+                                row.DroppedByEvent = evt;
                             }
 
                             row.AllEvents.Add(evt);

@@ -238,7 +238,14 @@
         {
             var previousProcess = row.CurrentProcess;
             row.CurrentProcess = currentProcess;
-            OnRowOwnerChanged?.Invoke(row, previousProcess, currentProcess);
+            OnRowOwnerChanged?.Invoke(row, previousProcess, currentProcess, null);
+        }
+
+        public void SetRowOwner(IRow row, IProcess currentProcess, IOperation operation)
+        {
+            var previousProcess = row.CurrentProcess;
+            row.CurrentProcess = currentProcess;
+            OnRowOwnerChanged?.Invoke(row, previousProcess, currentProcess, operation);
         }
 
         public int GetProcessUid(IProcess process)

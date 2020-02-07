@@ -37,7 +37,7 @@
                 },
             };
 
-            var result = process.Evaluate().TakeRows(null).ToList();
+            var result = process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
             Assert.IsTrue(result.Count == 3);
             Assert.IsTrue(result.Any(x => x.GetAs<string>("name") == "A" && x.GetAs<double>("height") == 160));
             Assert.IsTrue(result.Any(x => x.GetAs<string>("name") == "B" && x.GetAs<double>("height") == 165));

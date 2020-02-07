@@ -64,7 +64,7 @@
                 }
             });
 
-            var result = leftProcess.Evaluate().TakeRows(null).ToList();
+            var result = leftProcess.Evaluate().TakeRowsAndReleaseOwnership().ToList();
             Assert.AreEqual(6, result.Count);
             Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "A") == 3);
             Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "B") == 2);

@@ -66,7 +66,7 @@
 
             AddOperation(hierarchyParentIdCalculatorProcess);
 
-            var result = hierarchyParentIdCalculatorProcess.Evaluate().TakeRows(null).ToList();
+            var result = hierarchyParentIdCalculatorProcess.Evaluate().TakeRowsAndReleaseOwnership().ToList();
             var exceptions = hierarchyParentIdCalculatorProcess.Context.GetExceptions();
 
             Assert.AreEqual(6, result.Count);

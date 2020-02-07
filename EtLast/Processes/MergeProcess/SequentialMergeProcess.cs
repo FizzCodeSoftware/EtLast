@@ -22,7 +22,7 @@
                 if (Context.CancellationTokenSource.IsCancellationRequested)
                     yield break;
 
-                var rows = inputProcess.Evaluate(this).TakeRows(this);
+                var rows = inputProcess.Evaluate(this).TakeRowsAndTransferOwnership(this);
                 foreach (var row in rows)
                 {
                     yield return row;

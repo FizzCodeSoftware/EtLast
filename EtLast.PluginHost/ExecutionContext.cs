@@ -311,7 +311,7 @@
             });
         }
 
-        private void LifecycleRowOwnerChanged(IRow row, IProcess previousProcess, IProcess currentProcess)
+        private void LifecycleRowOwnerChanged(IRow row, IProcess previousProcess, IProcess currentProcess, IOperation operation)
         {
             _diagnosticsSender?.SendDiagnostics("row-owner-changed", new RowOwnerChangedEvent()
             {
@@ -319,6 +319,7 @@
                 RowUid = row.UID,
                 PreviousProcessUid = previousProcess.UID,
                 NewProcessUid = currentProcess?.UID,
+                OperationUid = operation?.UID,
             });
         }
 

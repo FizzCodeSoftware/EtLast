@@ -46,7 +46,7 @@
             Context.Log(LogSeverity.Information, this, "unordered aggregation started");
 
             var groups = new Dictionary<string, List<IRow>>();
-            var rows = InputProcess.Evaluate(this).TakeRows(this);
+            var rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership(this);
 
             var rowCount = 0;
             foreach (var row in rows)
@@ -88,7 +88,7 @@
 
                 foreach (var row in group)
                 {
-                    Context.SetRowOwner(row, null);
+                    Context.SetRowOwner(row, null, null);
                 }
 
                 if (aggregateRow != null)

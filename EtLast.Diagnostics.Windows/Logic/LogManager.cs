@@ -83,7 +83,7 @@
                             var operation = process.OperationList[evt.OperationUid.Value];
                             sb
                                 .Append('(')
-                                .Append(operation.ToDisplayValue())
+                                .Append(operation.DisplayName)
                                 .Append(") ");
                         }
                     }

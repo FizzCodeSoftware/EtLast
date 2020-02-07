@@ -382,7 +382,7 @@
 
         public void RemoveRow(IRow row, IRowOperation operation)
         {
-            Context.SetRowOwner(row, null);
+            Context.SetRowOwner(row, null, operation);
 
             row.State = RowState.Removed;
             operation.CounterCollection.IncrementCounter("rows removed", 1, true);
@@ -394,7 +394,7 @@
             var n = 0;
             foreach (var row in rows)
             {
-                Context.SetRowOwner(row, null);
+                Context.SetRowOwner(row, null, operation);
 
                 row.State = RowState.Removed;
                 n++;
@@ -487,7 +487,7 @@
 
                 var swLoop = Stopwatch.StartNew();
                 ReadingInput = true;
-                var sourceRows = InputProcess.Evaluate(this).TakeRows(this);
+                var sourceRows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership(this);
                 var buffer = new List<IRow>();
                 var inputRowCount = 0;
                 var wipedRowCount = 0;
@@ -632,7 +632,7 @@
 
                 var swLoop = Stopwatch.StartNew();
                 ReadingInput = true;
-                var sourceRows = InputProcess.Evaluate(this).TakeRows(this);
+                var sourceRows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership(this);
                 var buffer = new List<IRow>();
                 var inputRowCount = 0;
                 var wipedRowCount = 0;

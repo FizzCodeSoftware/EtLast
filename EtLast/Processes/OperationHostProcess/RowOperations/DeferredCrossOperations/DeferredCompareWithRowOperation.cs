@@ -108,7 +108,7 @@
             Process.Context.Log(LogSeverity.Debug, Process, this, "evaluating <{InputProcess}> to process {RowCount} rows", rightProcess.Name,
                 _batchRows.Count);
 
-            var rightRows = rightProcess.Evaluate(Process).TakeRows(Process, true);
+            var rightRows = rightProcess.Evaluate(Process).TakeRowsAndReleaseOwnership(this);
             var rightRowCount = 0;
             foreach (var row in rightRows)
             {

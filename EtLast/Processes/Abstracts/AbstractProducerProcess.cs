@@ -45,7 +45,7 @@
 
                 var fetchedRowCount = 0;
                 var returnedRowCount = 0;
-                var inputRows = InputProcess.Evaluate(this).TakeRows(this);
+                var inputRows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership(this);
                 foreach (var row in inputRows)
                 {
                     fetchedRowCount++;

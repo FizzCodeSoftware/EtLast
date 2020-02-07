@@ -10,7 +10,7 @@
         public void KeepOrderTrue()
         {
             var process = CreateKeepOrderProcess(true);
-            var rows = process.Evaluate().TakeRows(null);
+            var rows = process.Evaluate().TakeRowsAndReleaseOwnership();
 
             IRow prevRow = null;
             foreach (var row in rows)

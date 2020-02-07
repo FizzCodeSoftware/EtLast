@@ -42,6 +42,7 @@
         int ExceptionCount { get; }
 
         void SetRowOwner(IRow row, IProcess currentProcess);
+        void SetRowOwner(IRow row, IProcess currentProcess, IOperation operation);
 
         EventHandler<ContextExceptionEventArgs> OnException { get; set; }
         ContextOnLogDelegate OnLog { get; set; }
