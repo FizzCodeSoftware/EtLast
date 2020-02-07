@@ -85,7 +85,9 @@
                 digitSum += digit * _checkSumNumbers[i];
             }
 
-            var checkSum = 10 - (digitSum % 10);
+            var checkSum = digitSum % 10;
+            if (checkSum != 0)
+                checkSum = 10 - checkSum;
 
             if (!int.TryParse(firstPart[7].ToString(CultureInfo.InvariantCulture), out var lastDigit))
                 return false;
