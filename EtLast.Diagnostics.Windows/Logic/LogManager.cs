@@ -61,20 +61,31 @@
                         .Append(evt.Severity.ToShortString())
                         .Append("] ");
 
-                    if (evt.ProcessUid != null && playbook.ProcessList.TryGetValue(evt.ProcessUid.Value, out var process))
+                    if (evt.ProcessUid != null)
                     {
+                        var process = playbook.ProcessList[evt.ProcessUid.Value];
+
+                        if (process.Topic != null)
+                        {
+                            sb
+                                .Append('[')
+                                .Append(process.Topic)
+                                .Append("] ");
+                        }
+
                         sb
                             .Append('<')
                             .Append(process.Name)
                             .Append("> ");
-                    }
 
-                    if (evt.Operation != null)
-                    {
-                        sb
-                            .Append('(')
-                            .Append(evt.Operation.ToDisplayValue())
-                            .Append(") ");
+                        if (evt.OperationUid != null)
+                        {
+                            var operation = process.OperationList[evt.OperationUid.Value];
+                            sb
+                                .Append('(')
+                                .Append(operation.ToDisplayValue())
+                                .Append(") ");
+                        }
                     }
 
                     var text = evt.Text;

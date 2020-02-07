@@ -19,7 +19,7 @@
             var initialValues = groupingColumns.Select(x => new KeyValuePair<string, object>(x, rows[0][x]))
                 .Concat(ColumnAggregators.Select(agg => new KeyValuePair<string, object>(agg.Key, agg.Value.Invoke(rows, agg.Key))));
 
-            return process.Context.CreateRow(process, initialValues);
+            return process.Context.CreateRow(this, initialValues);
         }
     }
 

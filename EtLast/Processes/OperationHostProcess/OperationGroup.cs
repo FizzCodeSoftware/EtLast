@@ -97,7 +97,7 @@
             }
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
             if (Then.Count == 0)
                 throw new OperationParameterNullException(this, nameof(Then));

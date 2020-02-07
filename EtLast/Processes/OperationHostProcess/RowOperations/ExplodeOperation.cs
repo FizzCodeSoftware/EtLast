@@ -59,7 +59,7 @@
             }
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
             if (Then == null)
                 throw new OperationParameterNullException(this, nameof(Then));

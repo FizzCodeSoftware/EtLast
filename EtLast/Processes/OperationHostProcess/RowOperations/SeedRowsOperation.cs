@@ -18,7 +18,7 @@
             {
                 var values = Columns.Select(col => new KeyValuePair<string, object>(col, CreateRandomValue(id, col, rnd)));
 
-                var newRow = Process.Context.CreateRow(Process, values);
+                var newRow = Process.Context.CreateRow(this, values);
                 newRow.CurrentOperation = this;
 
                 buffer.Add(newRow);
@@ -84,7 +84,7 @@
             }
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
             if (RowCount <= 0)
                 throw new InvalidOperationParameterException(this, nameof(RowCount), RowCount, "value must be greater than 0");

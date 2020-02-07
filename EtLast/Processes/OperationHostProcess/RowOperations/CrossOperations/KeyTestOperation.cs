@@ -67,9 +67,8 @@
             }
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
-            base.Prepare();
             if (MatchAction == null && NoMatchAction == null)
                 throw new InvalidOperationParameterException(this, nameof(MatchAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must be specified: " + nameof(MatchAction) + " or " + nameof(NoMatchAction));
 

@@ -8,8 +8,9 @@
     public abstract class AbstractRowOperation : IRowOperation
     {
         public IOperationHostProcess Process { get; private set; }
-        IProcess IBaseOperation.Process => Process;
+        IProcess IOperation.Process => Process;
 
+        public int UID { get; private set; }
         public string InstanceName { get; set; }
         public string Name { get; private set; }
         public int Number { get; private set; }
@@ -40,11 +41,19 @@
         public virtual void SetProcess(IOperationHostProcess process)
         {
             Process = process;
-            CounterCollection = new StatCounterCollection(process.CounterCollection);
+            CounterCollection = process != null
+                ? new StatCounterCollection(process.CounterCollection)
+                : null;
         }
 
         public void SetProcess(IProcess process)
         {
+            if (process == null)
+            {
+                SetProcess(null);
+                return;
+            }
+
             if (!(process is IOperationHostProcess operationProcess))
                 throw new InvalidOperationParameterException(this, "parent process", process, "parent process must be an IOperationHostProcess");
 
@@ -67,7 +76,11 @@
 
         public virtual void Prepare()
         {
+            UID = Process.Context.GetOperationUid(this);
+            PrepareImpl();
         }
+
+        protected abstract void PrepareImpl();
 
         public virtual void Shutdown()
         {

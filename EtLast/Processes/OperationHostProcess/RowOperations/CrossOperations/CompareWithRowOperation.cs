@@ -12,9 +12,8 @@
 
         private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
-            base.Prepare();
             if (MatchAndEqualsAction == null && NoMatchAction == null && MatchButDifferentAction == null)
                 throw new InvalidOperationParameterException(this, nameof(MatchAndEqualsAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must be specified: " + nameof(MatchAndEqualsAction) + " or " + nameof(NoMatchAction) + " or " + nameof(MatchButDifferentAction));
 

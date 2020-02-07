@@ -19,7 +19,7 @@
             ToColumn = fromColumn;
         }
 
-        public void Copy(IBaseOperation operation, IRow sourceRow, IRow targetRow)
+        public void Copy(IOperation operation, IRow sourceRow, IRow targetRow)
         {
             var value = sourceRow[FromColumn];
             if (value != null)

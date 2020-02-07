@@ -84,7 +84,7 @@
             }
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
             if (ClientCreator == null)
                 throw new OperationParameterNullException(this, nameof(ClientCreator));

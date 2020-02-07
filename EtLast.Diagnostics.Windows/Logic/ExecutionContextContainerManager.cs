@@ -25,6 +25,7 @@
         private readonly Label _firstEventLabel;
         private readonly Label _lastEventLabel;
         private readonly Label _currentEventLabel;
+        private readonly ToolTip _toolTip;
 
         public ExecutionContextContainerManager(ExecutionContext context, Control container)
         {
@@ -34,6 +35,15 @@
 
             try
             {
+                _toolTip = new ToolTip()
+                {
+                    ShowAlways = true,
+                    AutoPopDelay = 5000,
+                    InitialDelay = 0,
+                    ReshowDelay = 500,
+                    IsBalloon = true,
+                };
+
                 _timelineContainer = new Panel()
                 {
                     Parent = container,
@@ -99,19 +109,23 @@
                     FullRowSelect = true,
                     BackColor = Color.Black,
                     ForeColor = Color.LightGray,
-                    Width = 700,
+                    Width = 800,
                     BorderStyle = BorderStyle.FixedSingle,
                 };
 
-                _processList.Columns.Add("topic", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Right;
-                _processList.Columns.Add("process name", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Right;
-                _processList.Columns.Add("type", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("topic", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Left;
+                _processList.Columns.Add("process name", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Left;
+                _processList.Columns.Add("type", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Left;
 
-                _processList.Columns.Add("create", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
-                _processList.Columns.Add("drop", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
-                _processList.Columns.Add("store", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
-                _processList.Columns.Add("alive", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
-                _processList.Columns.Add("OUT", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("INPUT", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("CREATE", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("store", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("DROP", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("STAY", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("OUT", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
+                _processList.ShowItemToolTips = true;
+                _processList.MouseMove += _processList_MouseMove;
+                //_processList.MouseLeave += (s, a) => _toolTip.SetToolTip(s as Control, null);
 
                 _counterList = new ListView()
                 {
@@ -168,6 +182,26 @@
             }
         }
 
+        private void _processList_MouseMove(object sender, MouseEventArgs e)
+        {
+            var list = sender as ListView;
+            var item = list.GetItemAt(e.X, e.Y);
+            var info = list.HitTest(e.X, e.Y);
+
+            if (item != null && info.SubItem?.Tag is string text)
+            {
+                _toolTip.Show(text, list, e.X, e.Y);
+            }
+            else if (item != null && info.SubItem?.Tag is Func<string> textFunc)
+            {
+                _toolTip.Show(textFunc.Invoke(), list, e.X, e.Y);
+            }
+            else
+            {
+                _toolTip.SetToolTip(list, null);
+            }
+        }
+
         private void UpdateProcessStats()
         {
             _processStatUpdaterTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
@@ -179,11 +213,12 @@
                 {
                     if (item.Tag is TrackedProcess p)
                     {
-                        if (item.SubItems[3].Text != p.CreatedRowCount.ToString("D", CultureInfo.InvariantCulture)
-                            || item.SubItems[4].Text != p.DroppedRowList.Count.ToString("D", CultureInfo.InvariantCulture)
-                            || item.SubItems[5].Text != p.StoredRowList.Count.ToString("D", CultureInfo.InvariantCulture)
-                            || item.SubItems[6].Text != p.AliveRowList.Count.ToString("D", CultureInfo.InvariantCulture)
-                            || item.SubItems[7].Text != p.PassedRowCount.ToString("D", CultureInfo.InvariantCulture))
+                        if (item.SubItems[3].Text != p.InputRowCount.ToString("D", CultureInfo.InvariantCulture)
+                            || item.SubItems[4].Text != p.CreatedRowCount.ToString("D", CultureInfo.InvariantCulture)
+                            || item.SubItems[5].Text != p.DroppedRowList.Count.ToString("D", CultureInfo.InvariantCulture)
+                            || item.SubItems[6].Text != p.StoredRowList.Count.ToString("D", CultureInfo.InvariantCulture)
+                            || item.SubItems[7].Text != p.AliveRowList.Count.ToString("D", CultureInfo.InvariantCulture)
+                            || item.SubItems[8].Text != p.PassedRowCount.ToString("D", CultureInfo.InvariantCulture))
                         {
                             changed = true;
                             break;
@@ -200,11 +235,14 @@
                         {
                             if (item.Tag is TrackedProcess p)
                             {
-                                item.SubItems[3].SetIfNotChanged(p.CreatedRowCount.ToString("D", CultureInfo.InvariantCulture));
-                                item.SubItems[4].SetIfNotChanged(p.DroppedRowList.Count.ToString("D", CultureInfo.InvariantCulture));
-                                item.SubItems[5].SetIfNotChanged(p.StoredRowList.Count.ToString("D", CultureInfo.InvariantCulture));
-                                item.SubItems[6].SetIfNotChanged(p.AliveRowList.Count.ToString("D", CultureInfo.InvariantCulture));
-                                item.SubItems[7].SetIfNotChanged(p.PassedRowCount.ToString("D", CultureInfo.InvariantCulture));
+                                item.SubItems[3].SetIfChanged(p.InputRowCount.ToString("D", CultureInfo.InvariantCulture),
+                                    () => string.Join("\n", p.InputRowCountByByPreviousProcess.Select(x => Context.WholePlaybook.ProcessList[x.Key].DisplayName + "  =  " + x.Value.ToString("D", CultureInfo.InvariantCulture))));
+                                item.SubItems[4].SetIfChanged(p.CreatedRowCount.ToString("D", CultureInfo.InvariantCulture));
+                                item.SubItems[5].SetIfChanged(p.DroppedRowList.Count.ToString("D", CultureInfo.InvariantCulture));
+                                item.SubItems[6].SetIfChanged(p.StoredRowList.Count.ToString("D", CultureInfo.InvariantCulture));
+                                item.SubItems[7].SetIfChanged(p.AliveRowList.Count.ToString("D", CultureInfo.InvariantCulture));
+                                item.SubItems[8].SetIfChanged(p.PassedRowCount.ToString("D", CultureInfo.InvariantCulture),
+                                    () => string.Join("\n", p.PassedRowCountByByNextProcess.Select(x => Context.WholePlaybook.ProcessList[x.Key].DisplayName + "  =  " + x.Value.ToString("D", CultureInfo.InvariantCulture))));
                             }
                         }
                     }
@@ -220,10 +258,10 @@
 
         private void OnEventsAdded(Playbook playbook, List<AbstractEvent> abstractEvents)
         {
+            ProcessNewDataStoreCommands(abstractEvents);
+
             if (playbook.Events.Count < 3)
                 return;
-
-            ProcessNewDataStoreCommands(abstractEvents);
 
             _timelineContainer.Invoke(new Action(() =>
             {
@@ -270,15 +308,14 @@
                     {
                         var item = _dataStoreCommandList.Items.Add(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture), -1);
 
-                        TrackedProcess process = null;
-                        if (evt.ProcessUid != null)
-                            Context.WholePlaybook.ProcessList.TryGetValue(evt.ProcessUid.Value, out process);
+                        var process = Context.WholePlaybook.ProcessList[evt.ProcessUid];
+                        var operation = evt.OperationUid == null ? null : Context.WholePlaybook.OperationList[evt.OperationUid.Value];
 
-                        item.SubItems.Add(process?.Topic);
-                        item.SubItems.Add(process?.Name);
-                        item.SubItems.Add(process?.Type);
-                        item.SubItems.Add(evt.Operation?.Type);
-                        item.SubItems.Add(evt.Operation?.InstanceName);
+                        item.SubItems.Add(process.Topic);
+                        item.SubItems.Add(process.Name);
+                        item.SubItems.Add(process.Type);
+                        item.SubItems.Add(operation?.Type);
+                        item.SubItems.Add(operation?.InstanceName);
                         item.SubItems.Add(evt.Command);
                         item.SubItems.Add(evt.Arguments != null
                             ? string.Join(",", evt.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Name + "=" + x.ToDisplayValue()))
@@ -309,10 +346,10 @@
 
         private void OnCurrentCountersUpdated(Playbook playbook)
         {
-            _counterList.Invoke(new Action(() =>
+            //_counterList.Invoke(new Action(() =>
             {
                 UpdateCounters();
-            }));
+            }//));
         }
 
         private void UpdateCounters()
@@ -325,22 +362,17 @@
                 foreach (var actualCounter in counters)
                 {
                     var item = _counterList.Items[actualCounter.Name];
-
-                    if (!_counterList.Items.ContainsKey(actualCounter.Name))
+                    if (item == null)
                     {
                         item = _counterList.Items.Add(actualCounter.Name, actualCounter.Name, -1);
                         item.SubItems.Add("-");
                         item.SubItems.Add("-");
                     }
-                    else
-                    {
-                        item = _counterList.Items[actualCounter.Name];
-                    }
 
                     Counter currentCounter = null;
                     CurrentPlaybook?.Counters?.TryGetValue(actualCounter.Name, out currentCounter);
-                    item.SubItems[1].Text = currentCounter?.ValueToString ?? "-";
-                    item.SubItems[2].Text = actualCounter.ValueToString;
+                    item.SubItems[1].SetIfChanged(currentCounter?.ValueToString ?? "-");
+                    item.SubItems[2].SetIfChanged(actualCounter.ValueToString);
                 }
             }
             finally
@@ -356,11 +388,12 @@
                 var item = _processList.Items.Add(process.Topic);
                 item.SubItems.Add(process.Name);
                 item.SubItems.Add(process.Type);
-                item.SubItems.Add("-");
-                item.SubItems.Add("-");
-                item.SubItems.Add("-");
-                item.SubItems.Add("-");
-                item.SubItems.Add("-");
+                item.SubItems.Add("0");
+                item.SubItems.Add("0");
+                item.SubItems.Add("0");
+                item.SubItems.Add("0");
+                item.SubItems.Add("0");
+                item.SubItems.Add("0");
                 item.Tag = process;
 
                 Container_Resize(null, EventArgs.Empty);

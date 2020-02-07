@@ -129,11 +129,10 @@
                     {
                         InputGenerator = process =>
                         {
-                            var mid = maxId?.MaxValue ?? 0;
-                            var currentId = mid + 1;
+                            var currentId = (maxId?.MaxValue ?? 0) + 1;
                             Context.AdditionalData["CurrentEtlRunId"] = currentId;
 
-                            var initialValues = new Dictionary<string, object>
+                            var initialValues = new Dictionary<string, object>()
                             {
                                 ["EtlRunId"] = currentId,
                                 ["MachineName"] = Environment.MachineName,

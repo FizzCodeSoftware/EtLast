@@ -31,9 +31,11 @@
         public ContextOnRowValueChangedDelegate OnRowValueChanged { get; set; }
         public ContextOnRowStoredDelegate OnRowStored { get; set; }
         public ContextOnProcessCreatedDelegate OnProcessCreated { get; set; }
+        public ContextOnOperationCreatedDelegate OnOperationCreated { get; set; }
 
         private int _nextRowUid;
         private int _nextProcessUid;
+        private int _nextOperationUid;
         private readonly List<Exception> _exceptions = new List<Exception>();
 
         public EtlContext(StatCounterCollection forwardCountersToCollection = null)
@@ -123,7 +125,7 @@
             OnLog?.Invoke(severity, false, process, null, text, args);
         }
 
-        public void Log(LogSeverity severity, IProcess process, IBaseOperation operation, string text, params object[] args)
+        public void Log(LogSeverity severity, IProcess process, IOperation operation, string text, params object[] args)
         {
             if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
                 Result.WarningCount++;
@@ -136,7 +138,7 @@
             OnLog?.Invoke(severity, true, process, null, text, args);
         }
 
-        public void LogOps(LogSeverity severity, IProcess process, IBaseOperation operation, string text, params object[] args)
+        public void LogOps(LogSeverity severity, IProcess process, IOperation operation, string text, params object[] args)
         {
             OnLog?.Invoke(severity, true, process, operation, text, args);
         }
@@ -151,24 +153,34 @@
             OnCustomLog?.Invoke(true, fileName, process, text, args);
         }
 
-        public void LogDataStoreCommand(string location, IProcess process, IBaseOperation operation, string command, IEnumerable<KeyValuePair<string, object>> args)
+        public void LogDataStoreCommand(string location, IProcess process, IOperation operation, string command, IEnumerable<KeyValuePair<string, object>> args)
         {
             OnContextDataStoreCommand?.Invoke(location, process, operation, command, args);
         }
 
-        public IRow CreateRow(IProcess creatorProcess, IEnumerable<KeyValuePair<string, object>> initialValues)
+        public IRow CreateRow(IOperation operation, IEnumerable<KeyValuePair<string, object>> initialValues)
+        {
+            return CreateRowInternal(operation.Process, operation, initialValues);
+        }
+
+        public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues)
+        {
+            return CreateRowInternal(process, null, initialValues);
+        }
+
+        private IRow CreateRowInternal(IProcess process, IOperation operation, IEnumerable<KeyValuePair<string, object>> initialValues)
         {
             var row = (IRow)Activator.CreateInstance(RowType);
-            row.Init(this, creatorProcess, Interlocked.Increment(ref _nextRowUid) - 1, initialValues);
+            row.Init(this, process, Interlocked.Increment(ref _nextRowUid) - 1, initialValues);
 
             CounterCollection.IncrementCounter("in-memory rows created", 1);
 
-            OnRowCreated?.Invoke(row, creatorProcess);
+            OnRowCreated?.Invoke(row, process, operation);
 
             return row;
         }
 
-        public void AddException(IProcess process, Exception ex, IBaseOperation operation = null)
+        public void AddException(IProcess process, Exception ex, IOperation operation = null)
         {
             if (ex is OperationCanceledException)
                 return;
@@ -217,7 +229,7 @@
             }
         }
 
-        public EtlTransactionScope BeginScope(IProcess process, IBaseOperation operation, TransactionScopeKind kind, LogSeverity logSeverity)
+        public EtlTransactionScope BeginScope(IProcess process, IOperation operation, TransactionScopeKind kind, LogSeverity logSeverity)
         {
             return new EtlTransactionScope(this, process, operation, kind, TransactionScopeTimeout, logSeverity);
         }
@@ -233,6 +245,13 @@
         {
             var uid = Interlocked.Increment(ref _nextProcessUid) - 1;
             OnProcessCreated?.Invoke(uid, process);
+            return uid;
+        }
+
+        public int GetOperationUid(IOperation operation)
+        {
+            var uid = Interlocked.Increment(ref _nextOperationUid) - 1;
+            OnOperationCreated?.Invoke(uid, operation);
             return uid;
         }
     }

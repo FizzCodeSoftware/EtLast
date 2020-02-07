@@ -47,7 +47,7 @@
             }
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
             if (Stream == null)
                 throw new OperationParameterNullException(this, nameof(Stream));

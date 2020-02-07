@@ -28,7 +28,7 @@
             }
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
             if (!Process.Configuration.KeepOrder)
                 throw new InvalidOperationParameterException(this, nameof(Process), null, nameof(HierarchyParentIdCalculatorOperation) + " can be used only if process.Configuration." + nameof(OperationHostProcessConfiguration.KeepOrder) + " is set to true");

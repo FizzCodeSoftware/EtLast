@@ -76,9 +76,8 @@
 
         protected abstract void ProcessRows(IRow[] rows);
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
-            base.Prepare();
             if (LeftKeySelector == null)
                 throw new OperationParameterNullException(this, nameof(LeftKeySelector));
 

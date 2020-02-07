@@ -19,7 +19,7 @@
             row.SetValue(Column, id, this);
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
             _nextId = FirstId;
         }

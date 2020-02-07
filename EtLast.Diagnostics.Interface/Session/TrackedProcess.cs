@@ -7,16 +7,22 @@
     [DebuggerDisplay("{Name}")]
     public class TrackedProcess
     {
-        public int Uid { get; set; }
-        public string Type { get; set; }
-        public string Name { get; set; }
-        public string Topic { get; set; }
+        public int Uid { get; }
+        public string Type { get; }
+        public string Name { get; }
+        public string Topic { get; }
 
-        public Dictionary<int, TrackedRow> StoredRowList { get; set; } = new Dictionary<int, TrackedRow>();
-        public Dictionary<int, TrackedRow> AliveRowList { get; set; } = new Dictionary<int, TrackedRow>();
-        public Dictionary<int, TrackedRow> DroppedRowList { get; set; } = new Dictionary<int, TrackedRow>();
+        public string DisplayName { get; }
+
+        public Dictionary<int, TrackedOperation> OperationList { get; } = new Dictionary<int, TrackedOperation>();
+        public Dictionary<int, TrackedRow> StoredRowList { get; } = new Dictionary<int, TrackedRow>();
+        public Dictionary<int, TrackedRow> AliveRowList { get; } = new Dictionary<int, TrackedRow>();
+        public Dictionary<int, TrackedRow> DroppedRowList { get; } = new Dictionary<int, TrackedRow>();
         public int PassedRowCount { get; private set; }
+        public Dictionary<int, int> PassedRowCountByByNextProcess { get; } = new Dictionary<int, int>();
         public int CreatedRowCount { get; private set; }
+        public Dictionary<int, int> InputRowCountByByPreviousProcess { get; } = new Dictionary<int, int>();
+        public int InputRowCount { get; private set; }
 
         public TrackedProcess(int uid, string type, string name, string topic)
         {
@@ -24,6 +30,15 @@
             Type = type;
             Name = name;
             Topic = topic;
+
+            DisplayName = topic != null
+                ? topic + " :: " + Name
+                : name;
+        }
+
+        public void AddOperation(TrackedOperation operation)
+        {
+            OperationList.Add(operation.Uid, operation);
         }
 
         public void AddRow(TrackedRow row, TrackedProcess previousProcess)
@@ -34,7 +49,14 @@
             AliveRowList.Add(row.Uid, row);
             row.CurrentOwner = this;
 
-            if (previousProcess == null)
+            if (previousProcess != null)
+            {
+                InputRowCountByByPreviousProcess.TryGetValue(previousProcess.Uid, out var cnt);
+                cnt++;
+                InputRowCountByByPreviousProcess[previousProcess.Uid] = cnt;
+                InputRowCount++;
+            }
+            else
             {
                 CreatedRowCount++;
             }
@@ -50,13 +72,17 @@
             row.CurrentOwner = null;
         }
 
-        public void PassedRow(TrackedRow row)
+        public void PassedRow(TrackedRow row, TrackedProcess newProcess)
         {
             if (!AliveRowList.ContainsKey(row.Uid))
                 throw new Exception("ohh");
 
             AliveRowList.Remove(row.Uid);
             row.CurrentOwner = null;
+
+            PassedRowCountByByNextProcess.TryGetValue(newProcess.Uid, out var cnt);
+            cnt++;
+            PassedRowCountByByNextProcess[newProcess.Uid] = cnt;
             PassedRowCount++;
         }
 

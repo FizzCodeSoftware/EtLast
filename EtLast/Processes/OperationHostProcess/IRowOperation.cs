@@ -2,7 +2,7 @@
 {
     using System.ComponentModel;
 
-    public interface IRowOperation : IBaseOperation
+    public interface IRowOperation : IOperation
     {
         IRowOperation NextOperation { get; }
         IRowOperation PrevOperation { get; }

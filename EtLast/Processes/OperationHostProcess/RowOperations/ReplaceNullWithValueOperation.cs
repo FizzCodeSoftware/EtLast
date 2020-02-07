@@ -20,7 +20,7 @@
             }
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
             if (Column == null)
                 throw new OperationParameterNullException(this, nameof(Column));

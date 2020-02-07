@@ -195,7 +195,7 @@
             return sb.ToString();
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
             if (ConnectionString == null)
                 throw new OperationParameterNullException(this, nameof(ConnectionString));

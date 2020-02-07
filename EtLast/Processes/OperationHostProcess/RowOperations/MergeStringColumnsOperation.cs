@@ -28,7 +28,7 @@
             row.SetValue(TargetColumn, newValue, this);
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
             if (string.IsNullOrEmpty(TargetColumn))
                 throw new OperationParameterNullException(this, nameof(TargetColumn));

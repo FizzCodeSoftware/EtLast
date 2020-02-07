@@ -27,7 +27,7 @@
             }
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
             if (string.IsNullOrEmpty(Column))
                 throw new OperationParameterNullException(this, nameof(Column));

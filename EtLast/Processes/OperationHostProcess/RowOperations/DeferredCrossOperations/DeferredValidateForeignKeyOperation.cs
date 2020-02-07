@@ -174,10 +174,8 @@
             }
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
-            base.Prepare();
-
             _batchRows = new List<IRow>(BatchSize);
             _batchRowKeys = new HashSet<string>();
             _lastNewRowSeenOn = Stopwatch.StartNew();

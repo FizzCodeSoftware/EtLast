@@ -16,13 +16,7 @@
         [JsonPropertyName("v")]
         public Argument CurrentValue { get; set; }
 
-        [JsonPropertyName("ot")]
-        public string OperationType { get; set; }
-
-        [JsonPropertyName("onu")]
-        public int? OperationNumber { get; set; }
-
-        [JsonPropertyName("ona")]
-        public string OperationName { get; set; }
+        [JsonPropertyName("o")]
+        public int? OperationUid { get; set; }
     }
 }

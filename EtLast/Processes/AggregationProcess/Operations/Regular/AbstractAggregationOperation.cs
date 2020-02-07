@@ -4,6 +4,7 @@
 
     public abstract class AbstractAggregationOperation : IAggregationOperation
     {
+        public int UID { get; private set; }
         public string Name { get; private set; }
 
         private string _instanceName;
@@ -40,6 +41,7 @@
 
         public void Prepare()
         {
+            UID = Process.Context.GetOperationUid(this);
         }
 
         public void Shutdown()

@@ -30,14 +30,14 @@
             return this;
         }
 
-        public IRow SetValue(string column, object newValue, IBaseOperation operation)
+        public IRow SetValue(string column, object newValue, IOperation operation)
         {
             SetValueImpl(column, newValue, operation.Process, operation);
             return this;
         }
 
         protected abstract object GetValueImpl(string column);
-        protected abstract void SetValueImpl(string column, object value, IProcess process, IBaseOperation operation);
+        protected abstract void SetValueImpl(string column, object value, IProcess process, IOperation operation);
 
         public string ToDebugString()
         {

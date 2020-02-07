@@ -2,6 +2,7 @@
 {
     public abstract class AbstractContinuousAggregationOperation : IContinuousAggregationOperation
     {
+        public int UID { get; private set; }
         public string Name { get; set; }
         public string InstanceName { get; set; }
         public int Number { get; private set; }
@@ -26,6 +27,7 @@
 
         public void Prepare()
         {
+            UID = Process.Context.GetOperationUid(this);
         }
 
         public void Shutdown()

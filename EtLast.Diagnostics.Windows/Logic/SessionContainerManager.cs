@@ -97,14 +97,14 @@
                     Tag = executionContext,
                 };
 
-                executionContext.OnStartedOnSet += OnExecutionContextStartedOnChanged;
-
                 var contextManager = new ExecutionContextContainerManager(executionContext, contextContainer);
                 _contextContainerManagers.Add(executionContext.Name, contextManager);
 
                 _tabs.TabPages.Add(contextContainer);
 
                 contextManager.FocusProcessList();
+
+                executionContext.OnStartedOnSet += OnExecutionContextStartedOnChanged;
             }));
         }
 

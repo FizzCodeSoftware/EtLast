@@ -27,5 +27,5 @@
         }
     }
 
-    public delegate void ContextOnLogDelegate(LogSeverity severity, bool forOps, IProcess process, IBaseOperation operation, string text, params object[] args);
+    public delegate void ContextOnLogDelegate(LogSeverity severity, bool forOps, IProcess process, IOperation operation, string text, params object[] args);
 }

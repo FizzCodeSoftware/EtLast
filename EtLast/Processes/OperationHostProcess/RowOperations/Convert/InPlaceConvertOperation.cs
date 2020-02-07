@@ -94,7 +94,7 @@
             }
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
             if (TypeConverter == null)
                 throw new OperationParameterNullException(this, nameof(TypeConverter));

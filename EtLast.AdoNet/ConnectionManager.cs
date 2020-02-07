@@ -14,7 +14,7 @@
     {
         private static readonly Dictionary<string, DatabaseConnection> Connections = new Dictionary<string, DatabaseConnection>();
 
-        internal static DatabaseConnection GetConnection(ConnectionStringWithProvider connectionString, IProcess process, IBaseOperation operation, int maxRetryCount = 5, int retryDelayMilliseconds = 2000)
+        internal static DatabaseConnection GetConnection(ConnectionStringWithProvider connectionString, IProcess process, IOperation operation, int maxRetryCount = 5, int retryDelayMilliseconds = 2000)
         {
             if (string.IsNullOrEmpty(connectionString.ProviderName))
             {
@@ -118,7 +118,7 @@
             throw exception;
         }
 
-        public static DatabaseConnection GetNewConnection(ConnectionStringWithProvider connectionString, IProcess process, IBaseOperation operation, int maxRetryCount = 5, int retryDelayMilliseconds = 2000)
+        public static DatabaseConnection GetNewConnection(ConnectionStringWithProvider connectionString, IProcess process, IOperation operation, int maxRetryCount = 5, int retryDelayMilliseconds = 2000)
         {
             if (string.IsNullOrEmpty(connectionString.ProviderName))
             {
@@ -196,7 +196,7 @@
             throw exception;
         }
 
-        public static void ReleaseConnection(IProcess process, IBaseOperation operation, ref DatabaseConnection connection)
+        public static void ReleaseConnection(IProcess process, IOperation operation, ref DatabaseConnection connection)
         {
             if (connection == null)
                 return;

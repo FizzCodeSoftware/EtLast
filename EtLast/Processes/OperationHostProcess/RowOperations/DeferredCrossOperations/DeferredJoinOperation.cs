@@ -74,9 +74,8 @@
             }
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
-            base.Prepare();
             if (ColumnConfiguration == null)
                 throw new OperationParameterNullException(this, nameof(ColumnConfiguration));
 
@@ -219,7 +218,7 @@
                 config.Copy(rightRow, values);
             }
 
-            var newRow = Process.Context.CreateRow(Process, values);
+            var newRow = Process.Context.CreateRow(this, values);
             newRow.CurrentOperation = this;
 
             return newRow;

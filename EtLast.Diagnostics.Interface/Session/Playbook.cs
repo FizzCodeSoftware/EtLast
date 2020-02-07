@@ -6,6 +6,7 @@
 
     public delegate void OnEventAddedDelegate(Playbook playbook, List<AbstractEvent> abstractEvents);
     public delegate void OnProcessAddedDelegate(Playbook playbook, TrackedProcess process);
+    public delegate void OnOperationAddedDelegate(Playbook playbook, TrackedOperation operation);
     public delegate void OnCountersUpdatedDelegate(Playbook playbook);
 
     public class Playbook
@@ -16,9 +17,11 @@
         public Dictionary<int, TrackedRow> RowList { get; } = new Dictionary<int, TrackedRow>();
         public Dictionary<string, TrackedStore> StoreList { get; } = new Dictionary<string, TrackedStore>();
         public Dictionary<int, TrackedProcess> ProcessList { get; } = new Dictionary<int, TrackedProcess>();
+        public Dictionary<int, TrackedOperation> OperationList { get; } = new Dictionary<int, TrackedOperation>();
         public Dictionary<string, Counter> Counters { get; } = new Dictionary<string, Counter>();
 
         public OnProcessAddedDelegate OnProcessAdded { get; set; }
+        public OnOperationAddedDelegate OnOperationAdded { get; set; }
         public OnCountersUpdatedDelegate OnCountersUpdated { get; set; }
         public OnEventAddedDelegate OnEventsAdded { get; set; }
 
@@ -38,13 +41,22 @@
                 {
                     case LogEvent evt:
                         {
-                            if (evt.ProcessUid != null && !ProcessList.TryGetValue(evt.ProcessUid.Value, out var process))
-                                continue;
+                            if (evt.ProcessUid != null)
+                            {
+                                if (!ProcessList.TryGetValue(evt.ProcessUid.Value, out var process))
+                                    continue;
+
+                                if (evt.OperationUid != null && !process.OperationList.ContainsKey(evt.OperationUid.Value))
+                                    continue;
+                            }
                         }
                         break;
                     case DataStoreCommandEvent evt:
                         {
-                            if (evt.ProcessUid != null && !ProcessList.TryGetValue(evt.ProcessUid.Value, out var process))
+                            if (!ProcessList.TryGetValue(evt.ProcessUid, out var process))
+                                continue;
+
+                            if (evt.OperationUid != null && !process.OperationList.ContainsKey(evt.OperationUid.Value))
                                 continue;
                         }
                         break;
@@ -61,9 +73,25 @@
                             }
                         }
                         break;
+                    case OperationCreatedEvent evt:
+                        {
+                            if (!ProcessList.TryGetValue(evt.ProcessUid, out var process))
+                                continue;
+
+                            var operation = new TrackedOperation(evt.Uid, evt.Type, evt.InstanceName, process);
+                            process.AddOperation(operation);
+
+                            OperationList.Add(operation.Uid, operation);
+
+                            OnOperationAdded?.Invoke(this, operation);
+                        }
+                        break;
                     case RowCreatedEvent evt:
                         {
                             if (!ProcessList.TryGetValue(evt.ProcessUid, out var process))
+                                continue;
+
+                            if (evt.OperationUid != null && !process.OperationList.ContainsKey(evt.OperationUid.Value))
                                 continue;
 
                             var row = new TrackedRow()
@@ -101,7 +129,7 @@
 
                             if (newProcess != null)
                             {
-                                previousProcess.PassedRow(row);
+                                previousProcess.PassedRow(row, newProcess);
                                 newProcess.AddRow(row, previousProcess);
                             }
                             else
@@ -117,8 +145,14 @@
                             if (!RowList.TryGetValue(evt.RowUid, out var row))
                                 continue;
 
-                            if (evt.ProcessUid != null && !ProcessList.TryGetValue(evt.ProcessUid.Value, out var process))
-                                continue;
+                            if (evt.ProcessUid != null)
+                            {
+                                if (!ProcessList.TryGetValue(evt.ProcessUid.Value, out var process))
+                                    continue;
+
+                                if (evt.OperationUid != null && !process.OperationList.ContainsKey(evt.OperationUid.Value))
+                                    continue;
+                            }
 
                             row.AllEvents.Add(evt);
                             if (evt.CurrentValue != null)
@@ -137,6 +171,9 @@
                                 continue;
 
                             if (!ProcessList.TryGetValue(evt.ProcessUid, out var process))
+                                continue;
+
+                            if (evt.OperationUid != null && !process.OperationList.ContainsKey(evt.OperationUid.Value))
                                 continue;
 
                             row.AllEvents.Add(evt);

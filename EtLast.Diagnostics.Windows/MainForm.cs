@@ -13,10 +13,13 @@ namespace FizzCode.EtLast.Diagnostics.Windows
         private readonly TabControl _sessionTabs;
         private readonly DiagnosticsStateManager _stateManager;
         private readonly Dictionary<string, SessionContainerManager> _sessionTabManagers = new Dictionary<string, SessionContainerManager>();
+        private readonly Timer _timer;
 
         public MainForm()
         {
             InitializeComponent();
+
+            Font = new Font(Font.FontFamily, 9, FontStyle.Regular);
 
             _stateManager = new DiagnosticsStateManager("http://+:8642/");
             _stateManager.OnSessionCreated += SessionCreated;
@@ -27,7 +30,22 @@ namespace FizzCode.EtLast.Diagnostics.Windows
                 Parent = this,
             };
 
+            _timer = new Timer()
+            {
+                Interval = 500,
+                Enabled = false,
+            };
+            _timer.Tick += UpdateTimerTick;
+
             _stateManager.Start();
+            _timer.Start();
+        }
+
+        private void UpdateTimerTick(object sender, EventArgs e)
+        {
+            _timer.Stop();
+            _stateManager.ProcessEvents();
+            _timer.Start();
         }
 
         private void SessionCreated(Session session)

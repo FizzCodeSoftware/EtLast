@@ -66,7 +66,7 @@
             }
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
             if (string.IsNullOrEmpty(FileName))
                 throw new OperationParameterNullException(this, nameof(FileName));

@@ -25,7 +25,7 @@
             }
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
             if (Columns == null || Columns.Length == 0)
                 throw new OperationParameterNullException(this, nameof(Columns));

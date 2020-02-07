@@ -56,7 +56,7 @@
 
         protected abstract void ProcessRows(IRow[] rows);
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
             _batchRows = new List<IRow>(BatchSize);
             _lastNewRowSeenOn = Stopwatch.StartNew();

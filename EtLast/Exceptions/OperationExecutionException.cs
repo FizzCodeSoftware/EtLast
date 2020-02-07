@@ -7,21 +7,21 @@
     [Serializable]
     public class OperationExecutionException : EtlException
     {
-        public OperationExecutionException(IProcess process, IBaseOperation operation, IRow row, string message)
+        public OperationExecutionException(IProcess process, IOperation operation, IRow row, string message)
             : base(process, message)
         {
             Data.Add("Operation", operation.Name);
             Data.Add("Row", row.ToDebugString());
         }
 
-        public OperationExecutionException(IProcess process, IBaseOperation operation, IRow row, string message, Exception innerException)
+        public OperationExecutionException(IProcess process, IOperation operation, IRow row, string message, Exception innerException)
             : base(process, message, innerException)
         {
             Data.Add("Operation", operation.Name);
             Data.Add("Row", row.ToDebugString());
         }
 
-        public OperationExecutionException(IProcess process, IBaseOperation operation, string message, Exception innerException)
+        public OperationExecutionException(IProcess process, IOperation operation, string message, Exception innerException)
             : base(process, message, innerException)
         {
             Data.Add("Operation", operation.Name);

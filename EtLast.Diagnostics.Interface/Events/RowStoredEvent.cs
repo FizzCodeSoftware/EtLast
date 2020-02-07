@@ -12,7 +12,7 @@
         public int ProcessUid { get; set; }
 
         [JsonPropertyName("o")]
-        public OperationInfo Operation { get; set; }
+        public int? OperationUid { get; set; }
 
         [JsonPropertyName("l")]
         public List<KeyValuePair<string, string>> Locations { get; set; }

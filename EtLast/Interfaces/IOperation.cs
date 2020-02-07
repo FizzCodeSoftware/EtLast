@@ -1,7 +1,8 @@
 ﻿namespace FizzCode.EtLast
 {
-    public interface IBaseOperation
+    public interface IOperation
     {
+        int UID { get; }
         string InstanceName { get; }
         string Name { get; }
         int Number { get; }

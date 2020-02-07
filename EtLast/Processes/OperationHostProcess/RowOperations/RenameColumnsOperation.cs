@@ -41,7 +41,7 @@
             }
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
             if (ColumnConfiguration == null)
                 throw new OperationParameterNullException(this, nameof(ColumnConfiguration));

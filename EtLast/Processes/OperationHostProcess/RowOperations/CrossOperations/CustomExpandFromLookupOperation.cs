@@ -58,10 +58,8 @@
             MatchCustomAction?.Invoke(this, row, match);
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
-            base.Prepare();
-
             if (MatchingRowSelector == null)
                 throw new OperationParameterNullException(this, nameof(MatchingRowSelector));
 

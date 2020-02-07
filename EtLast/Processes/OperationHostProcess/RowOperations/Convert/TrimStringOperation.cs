@@ -27,7 +27,7 @@
             }
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
         }
     }

@@ -8,7 +8,7 @@
     {
         public IEtlContext Context { get; }
         public IProcess Process { get; }
-        public IBaseOperation Operation { get; }
+        public IOperation Operation { get; }
         public TransactionScopeKind Kind { get; }
         public TransactionScope Scope { get; private set; }
         public LogSeverity LogSeverity { get; }
@@ -18,7 +18,7 @@
 
         private bool _isDisposed;
 
-        public EtlTransactionScope(IEtlContext context, IProcess process, IBaseOperation operation, TransactionScopeKind kind, TimeSpan scopeTimeout, LogSeverity logSeverity)
+        public EtlTransactionScope(IEtlContext context, IProcess process, IOperation operation, TransactionScopeKind kind, TimeSpan scopeTimeout, LogSeverity logSeverity)
         {
             Context = context;
             Process = process;

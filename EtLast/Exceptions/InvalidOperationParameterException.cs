@@ -7,7 +7,7 @@
     [Serializable]
     public class InvalidOperationParameterException : EtlException
     {
-        public InvalidOperationParameterException(IBaseOperation operation, string parameterName, object value, string cause)
+        public InvalidOperationParameterException(IOperation operation, string parameterName, object value, string cause)
             : base(operation.Process, "invalid operation parameter")
         {
             Data.Add("Operation", operation.Name);

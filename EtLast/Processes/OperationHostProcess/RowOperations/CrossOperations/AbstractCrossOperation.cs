@@ -4,9 +4,8 @@
     {
         public IEvaluable RightProcess { get; set; }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
-            base.Prepare();
             if (RightProcess == null)
                 throw new OperationParameterNullException(this, nameof(RightProcess));
         }

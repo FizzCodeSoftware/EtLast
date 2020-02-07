@@ -71,10 +71,11 @@
             Context.OnRowValueChanged = LifecycleRowValueChanged;
             Context.OnRowStored = LifecycleRowStored;
             Context.OnProcessCreated = LifecycleProcessCreated;
+            Context.OnOperationCreated = LifecycleOperationCreated;
             Context.OnContextDataStoreCommand = LifecycleContextDataStoreCommand;
         }
 
-        public void Log(LogSeverity severity, bool forOps, IProcess process, IBaseOperation operation, string text, params object[] args)
+        public void Log(LogSeverity severity, bool forOps, IProcess process, IOperation operation, string text, params object[] args)
         {
             var ident = "";
             if (process != null)
@@ -130,12 +131,7 @@
                         Severity = severity,
                         ForOps = forOps,
                         ProcessUid = process?.UID,
-                        Operation = operation == null ? null : new OperationInfo()
-                        {
-                            Number = operation.Number,
-                            Type = operation.GetType().GetFriendlyTypeName(),
-                            InstanceName = operation.InstanceName,
-                        }
+                        OperationUid = operation?.UID,
                     });
 
                     return;
@@ -163,12 +159,7 @@
                     Severity = severity,
                     ForOps = forOps,
                     ProcessUid = process?.UID,
-                    Operation = operation == null ? null : new OperationInfo()
-                    {
-                        Number = operation.Number,
-                        Type = operation.GetType().GetFriendlyTypeName(),
-                        InstanceName = operation.InstanceName,
-                    },
+                    OperationUid = operation?.UID,
                     Arguments = arguments,
                 });
             }
@@ -178,28 +169,43 @@
 
         internal void SendContextCountersToDiagnostics()
         {
-            var counters = (CustomCounterCollection ?? Context.CounterCollection).GetCounters();
-            if (counters.Count == _lastCountersSent.Count)
-            {
-                var same = counters.All(counter => _lastCountersSent.TryGetValue(counter.Code, out var value) && value == counter.Value);
-                if (same)
-                    return;
-            }
+            _counterSenderTimer?.Change(Timeout.Infinite, Timeout.Infinite);
 
-            _diagnosticsSender.SendDiagnostics("context-counters-updated", new ContextCountersUpdatedEvent()
+            try
             {
-                Timestamp = DateTime.Now.Ticks,
-                Counters = counters.Select(c => new Counter()
+                var counters = (CustomCounterCollection ?? Context.CounterCollection).GetCounters();
+                if (counters.Count == _lastCountersSent.Count)
                 {
-                    Name = c.Name,
-                    Value = c.Value,
-                    ValueType = c.ValueType,
-                }).ToArray(),
-            });
+                    var same = counters.All(counter => _lastCountersSent.TryGetValue(counter.Code, out var value) && value == counter.Value);
+                    if (same)
+                        return;
+                }
 
-            foreach (var counter in counters)
+                _diagnosticsSender.SendDiagnostics("context-counters-updated", new ContextCountersUpdatedEvent()
+                {
+                    Timestamp = DateTime.Now.Ticks,
+                    Counters = counters.Select(c => new Counter()
+                    {
+                        Name = c.Name,
+                        Value = c.Value,
+                        ValueType = c.ValueType,
+                    }).ToArray(),
+                });
+
+                foreach (var counter in counters)
+                {
+                    _lastCountersSent[counter.Code] = counter.Value;
+                }
+            }
+            catch (Exception)
             {
-                _lastCountersSent[counter.Code] = counter.Value;
+            }
+            finally
+            {
+                if (_counterSenderTimer != null)
+                {
+                    _counterSenderTimer.Change(500, Timeout.Infinite);
+                }
             }
         }
 
@@ -296,12 +302,13 @@
             }
         }
 
-        private void LifecycleRowCreated(IRow row, IProcess creatorProcess)
+        private void LifecycleRowCreated(IRow row, IProcess process, IOperation operation)
         {
             _diagnosticsSender?.SendDiagnostics("row-created", new RowCreatedEvent()
             {
                 Timestamp = DateTime.Now.Ticks,
-                ProcessUid = creatorProcess.UID,
+                ProcessUid = process.UID,
+                OperationUid = operation?.UID,
                 RowUid = row.UID,
                 Values = row.Values.Select(kvp => NamedArgument.FromObject(kvp.Key, kvp.Value)).ToArray(),
             });
@@ -326,12 +333,7 @@
                 RowUid = row.UID,
                 Locations = location,
                 ProcessUid = process.UID,
-                Operation = operation == null ? null : new OperationInfo()
-                {
-                    Number = operation.Number,
-                    Type = operation.GetType().GetFriendlyTypeName(),
-                    InstanceName = operation.InstanceName,
-                },
+                OperationUid = operation?.UID,
             });
         }
 
@@ -347,25 +349,32 @@
             });
         }
 
-        private void LifecycleContextDataStoreCommand(string location, IProcess process, IBaseOperation operation, string command, IEnumerable<KeyValuePair<string, object>> args)
+        private void LifecycleOperationCreated(int uid, IOperation operation)
+        {
+            _diagnosticsSender?.SendDiagnostics("operation-created", new OperationCreatedEvent()
+            {
+                Timestamp = DateTime.Now.Ticks,
+                Uid = uid,
+                Type = operation.GetType().GetFriendlyTypeName(),
+                InstanceName = operation.InstanceName,
+                ProcessUid = operation.Process.UID,
+            });
+        }
+
+        private void LifecycleContextDataStoreCommand(string location, IProcess process, IOperation operation, string command, IEnumerable<KeyValuePair<string, object>> args)
         {
             _diagnosticsSender?.SendDiagnostics("data-store-command", new DataStoreCommandEvent()
             {
                 Timestamp = DateTime.Now.Ticks,
                 ProcessUid = process.UID,
-                Operation = operation == null ? null : new OperationInfo()
-                {
-                    Number = operation.Number,
-                    Type = operation.GetType().GetFriendlyTypeName(),
-                    InstanceName = operation.InstanceName,
-                },
+                OperationUid = operation?.UID,
                 Location = location,
                 Command = command,
                 Arguments = args?.Select(kvp => NamedArgument.FromObject(kvp.Key, kvp.Value)).ToArray(),
             });
         }
 
-        private void LifecycleRowValueChanged(IRow row, string column, object currentValue, IProcess process, IBaseOperation operation)
+        private void LifecycleRowValueChanged(IRow row, string column, object currentValue, IProcess process, IOperation operation)
         {
             _diagnosticsSender?.SendDiagnostics("row-value-changed", new RowValueChangedEvent()
             {
@@ -374,9 +383,7 @@
                 Column = column,
                 CurrentValue = Argument.FromObject(currentValue),
                 ProcessUid = process?.UID,
-                OperationName = operation?.Name,
-                OperationType = operation?.GetType().GetFriendlyTypeName(),
-                OperationNumber = operation?.Number,
+                OperationUid = operation?.UID,
             });
         }
 
@@ -425,7 +432,7 @@
                 _counterSenderTimer = new Timer(timer =>
                 {
                     SendContextCountersToDiagnostics();
-                }, null, 500, 500);
+                }, null, 500, Timeout.Infinite);
             }
         }
 
@@ -445,6 +452,7 @@
             {
                 _counterSenderTimer.Change(Timeout.Infinite, Timeout.Infinite);
                 _counterSenderTimer.Dispose();
+                _counterSenderTimer = null;
             }
 
             if (_diagnosticsSender != null)

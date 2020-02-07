@@ -78,18 +78,17 @@
                         var item = _list.Items.Add(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture), -1);
                         item.SubItems.Add(playbook.ExecutionContext.Name);
 
-                        TrackedProcess process = null;
-                        if (evt.ProcessUid != null)
-                            playbook.ProcessList.TryGetValue(evt.ProcessUid.Value, out process);
+                        var process = playbook.ExecutionContext.WholePlaybook.ProcessList[evt.ProcessUid];
+                        var operation = evt.OperationUid == null ? null : playbook.ExecutionContext.WholePlaybook.OperationList[evt.OperationUid.Value];
 
                         item.SubItems.Add(process?.Topic);
                         item.SubItems.Add(process?.Name);
                         item.SubItems.Add(process?.Type);
-                        item.SubItems.Add(evt.Operation?.Type);
-                        item.SubItems.Add(evt.Operation?.InstanceName);
+                        item.SubItems.Add(operation?.Type);
+                        item.SubItems.Add(operation?.InstanceName);
                         item.SubItems.Add(evt.Command);
                         item.SubItems.Add(evt.Arguments != null
-                            ? string.Join(",", evt.Arguments.Select(x => x.Name + "=" + x.ToDisplayValue()))
+                            ? string.Join(",", evt.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Name + "=" + x.ToDisplayValue()))
                             : null);
                     }
                 }

@@ -7,9 +7,8 @@
         public MatchKeySelector LeftKeySelector { get; set; }
         public MatchKeySelector RightKeySelector { get; set; }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
-            base.Prepare();
             if (LeftKeySelector == null)
                 throw new OperationParameterNullException(this, nameof(LeftKeySelector));
 

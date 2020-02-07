@@ -41,7 +41,7 @@
                 initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, cell.Key));
                 initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, cell.Value));
 
-                var newRow = Process.Context.CreateRow(Process, initialValues);
+                var newRow = Process.Context.CreateRow(this, initialValues);
                 newRow.CurrentOperation = this;
 
                 Process.AddRow(newRow, this);
@@ -50,7 +50,7 @@
             Process.RemoveRow(row, this);
         }
 
-        public override void Prepare()
+        protected override void PrepareImpl()
         {
             if (FixColumns == null)
                 throw new OperationParameterNullException(this, nameof(FixColumns));

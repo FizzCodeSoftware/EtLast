@@ -8,7 +8,7 @@
     public class Argument
     {
         [JsonPropertyName("v")]
-        public string TextValue { get; set; }
+        public string TransportValue { get; set; }
 
         [JsonPropertyName("t")]
         public ArgumentType Type { get; set; }
@@ -32,30 +32,32 @@
         {
             Value = Type switch
             {
-                ArgumentType._bool => TextValue == "1",
-                ArgumentType._char => TextValue[0],
-                ArgumentType._sbyte => sbyte.Parse(TextValue, CultureInfo.InvariantCulture),
-                ArgumentType._byte => byte.Parse(TextValue, CultureInfo.InvariantCulture),
-                ArgumentType._short => short.Parse(TextValue, CultureInfo.InvariantCulture),
-                ArgumentType._ushort => ushort.Parse(TextValue, CultureInfo.InvariantCulture),
-                ArgumentType._int => int.Parse(TextValue, CultureInfo.InvariantCulture),
-                ArgumentType._uint => uint.Parse(TextValue, CultureInfo.InvariantCulture),
-                ArgumentType._long => long.Parse(TextValue, CultureInfo.InvariantCulture),
-                ArgumentType._ulong => ulong.Parse(TextValue, CultureInfo.InvariantCulture),
-                ArgumentType._float => float.Parse(TextValue, CultureInfo.InvariantCulture),
-                ArgumentType._double => double.Parse(TextValue, CultureInfo.InvariantCulture),
-                ArgumentType._decimal => decimal.Parse(TextValue, CultureInfo.InvariantCulture),
-                ArgumentType._datetime => new DateTime(long.Parse(TextValue, CultureInfo.InvariantCulture)),
+                ArgumentType._bool => TransportValue == "1",
+                ArgumentType._char => TransportValue[0],
+                ArgumentType._sbyte => sbyte.Parse(TransportValue, CultureInfo.InvariantCulture),
+                ArgumentType._byte => byte.Parse(TransportValue, CultureInfo.InvariantCulture),
+                ArgumentType._short => short.Parse(TransportValue, CultureInfo.InvariantCulture),
+                ArgumentType._ushort => ushort.Parse(TransportValue, CultureInfo.InvariantCulture),
+                ArgumentType._int => int.Parse(TransportValue, CultureInfo.InvariantCulture),
+                ArgumentType._uint => uint.Parse(TransportValue, CultureInfo.InvariantCulture),
+                ArgumentType._long => long.Parse(TransportValue, CultureInfo.InvariantCulture),
+                ArgumentType._ulong => ulong.Parse(TransportValue, CultureInfo.InvariantCulture),
+                ArgumentType._float => float.Parse(TransportValue, CultureInfo.InvariantCulture),
+                ArgumentType._double => double.Parse(TransportValue, CultureInfo.InvariantCulture),
+                ArgumentType._decimal => decimal.Parse(TransportValue, CultureInfo.InvariantCulture),
+                ArgumentType._datetime => new DateTime(long.Parse(TransportValue, CultureInfo.InvariantCulture)),
                 ArgumentType._datetimeoffset => DateTimeOffsetFromTextValue(),
-                ArgumentType._timespan => TimeSpan.FromMilliseconds(long.Parse(TextValue, CultureInfo.InvariantCulture)),
-                ArgumentType._stringArray => TextValue.Split("\0"),
-                _ => TextValue,
+                ArgumentType._timespan => TimeSpan.FromMilliseconds(long.Parse(TransportValue, CultureInfo.InvariantCulture)),
+                ArgumentType._stringArray => TransportValue.Split("\0"),
+                _ => TransportValue,
             };
+
+            TransportValue = null;
         }
 
         private DateTimeOffset DateTimeOffsetFromTextValue()
         {
-            var parts = TextValue.Split("|");
+            var parts = TransportValue.Split("|");
             return new DateTimeOffset(long.Parse(parts[0], CultureInfo.InvariantCulture), new TimeSpan(long.Parse(parts[1], CultureInfo.InvariantCulture)));
         }
 
@@ -84,7 +86,7 @@
                 TimeSpan v => TimeSpanToString(v),
                 DateTime v => v.ToString("yyyy.MM.dd HH:mm:ss.fff", CultureInfo.InvariantCulture),
                 DateTimeOffset v => v.ToString("yyyy.MM.dd HH:mm:ss.fff zzz", CultureInfo.InvariantCulture),
-                _ => TextValue,
+                _ => TransportValue,
             };
         }
 
@@ -119,140 +121,140 @@
         {
             if (Value == null)
             {
-                TextValue = null;
+                TransportValue = null;
                 Type = ArgumentType._other;
                 return;
             }
 
             if (Value is EtlRowError rowErr)
             {
-                TextValue = rowErr.Message;
+                TransportValue = rowErr.Message;
                 Type = ArgumentType._error;
                 return;
             }
 
             if (Value is string sv)
             {
-                TextValue = sv;
+                TransportValue = sv;
                 Type = ArgumentType._string;
                 return;
             }
 
             if (Value is bool bv)
             {
-                TextValue = bv ? "1" : "0";
+                TransportValue = bv ? "1" : "0";
                 Type = ArgumentType._bool;
                 return;
             }
 
             if (Value is char cv)
             {
-                TextValue = cv.ToString();
+                TransportValue = cv.ToString();
                 Type = ArgumentType._char;
                 return;
             }
 
             if (Value is sbyte sbytev)
             {
-                TextValue = sbytev.ToString("D", CultureInfo.InvariantCulture);
+                TransportValue = sbytev.ToString("D", CultureInfo.InvariantCulture);
                 Type = ArgumentType._sbyte;
                 return;
             }
 
             if (Value is byte bytev)
             {
-                TextValue = bytev.ToString("D", CultureInfo.InvariantCulture);
+                TransportValue = bytev.ToString("D", CultureInfo.InvariantCulture);
                 Type = ArgumentType._byte;
                 return;
             }
 
             if (Value is short shortv)
             {
-                TextValue = shortv.ToString("D", CultureInfo.InvariantCulture);
+                TransportValue = shortv.ToString("D", CultureInfo.InvariantCulture);
                 Type = ArgumentType._short;
                 return;
             }
 
             if (Value is short ushortv)
             {
-                TextValue = ushortv.ToString("D", CultureInfo.InvariantCulture);
+                TransportValue = ushortv.ToString("D", CultureInfo.InvariantCulture);
                 Type = ArgumentType._ushort;
                 return;
             }
 
             if (Value is int iv)
             {
-                TextValue = iv.ToString("D", CultureInfo.InvariantCulture);
+                TransportValue = iv.ToString("D", CultureInfo.InvariantCulture);
                 Type = ArgumentType._int;
                 return;
             }
 
             if (Value is uint uintv)
             {
-                TextValue = uintv.ToString("D", CultureInfo.InvariantCulture);
+                TransportValue = uintv.ToString("D", CultureInfo.InvariantCulture);
                 Type = ArgumentType._uint;
                 return;
             }
 
             if (Value is long lv)
             {
-                TextValue = lv.ToString("D", CultureInfo.InvariantCulture);
+                TransportValue = lv.ToString("D", CultureInfo.InvariantCulture);
                 Type = ArgumentType._long;
                 return;
             }
 
             if (Value is ulong ulongv)
             {
-                TextValue = ulongv.ToString("D", CultureInfo.InvariantCulture);
+                TransportValue = ulongv.ToString("D", CultureInfo.InvariantCulture);
                 Type = ArgumentType._ulong;
                 return;
             }
 
             if (Value is float fv)
             {
-                TextValue = fv.ToString("G", CultureInfo.InvariantCulture);
+                TransportValue = fv.ToString("G", CultureInfo.InvariantCulture);
                 Type = ArgumentType._float;
                 return;
             }
 
             if (Value is double dv)
             {
-                TextValue = dv.ToString("G", CultureInfo.InvariantCulture);
+                TransportValue = dv.ToString("G", CultureInfo.InvariantCulture);
                 Type = ArgumentType._double;
                 return;
             }
 
             if (Value is decimal dev)
             {
-                TextValue = dev.ToString("G", CultureInfo.InvariantCulture);
+                TransportValue = dev.ToString("G", CultureInfo.InvariantCulture);
                 Type = ArgumentType._decimal;
                 return;
             }
 
             if (Value is TimeSpan ts)
             {
-                TextValue = Convert.ToInt64(ts.TotalMilliseconds).ToString("D", CultureInfo.InvariantCulture);
+                TransportValue = Convert.ToInt64(ts.TotalMilliseconds).ToString("D", CultureInfo.InvariantCulture);
                 Type = ArgumentType._timespan;
                 return;
             }
 
             if (Value is DateTime dt)
             {
-                TextValue = dt.Ticks.ToString("D", CultureInfo.InvariantCulture);
+                TransportValue = dt.Ticks.ToString("D", CultureInfo.InvariantCulture);
                 Type = ArgumentType._datetime;
                 return;
             }
 
             if (Value is DateTimeOffset dto)
             {
-                TextValue = dto.Ticks.ToString("D", CultureInfo.InvariantCulture) + "|" + dto.Offset.Ticks.ToString("D", CultureInfo.InvariantCulture);
+                TransportValue = dto.Ticks.ToString("D", CultureInfo.InvariantCulture) + "|" + dto.Offset.Ticks.ToString("D", CultureInfo.InvariantCulture);
                 Type = ArgumentType._datetimeoffset;
                 return;
             }
 
             if (Value is string[] strArr)
             {
-                TextValue = string.Join("\0", strArr);
+                TransportValue = string.Join("\0", strArr);
                 Type = ArgumentType._stringArray;
                 return;
             }
@@ -260,12 +262,12 @@
             var valueType = Value.GetType();
             if (valueType.IsClass)
             {
-                TextValue = valueType.Name;
+                TransportValue = valueType.Name;
                 Type = ArgumentType._other;
                 return;
             }
 
-            TextValue = Value.ToString();
+            TransportValue = Value.ToString();
             Type = ArgumentType._other;
         }
     }

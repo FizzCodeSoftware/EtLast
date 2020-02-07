@@ -18,8 +18,8 @@
         public OnSessionCreatedDelegate OnSessionCreated { get; set; }
 
         private readonly HttpListener _listener;
-        private readonly Dictionary<string, Session> _sessions = new Dictionary<string, Session>();
-        public IEnumerable<Session> Session => _sessions.Values;
+        private readonly Dictionary<string, Session> _sessionList = new Dictionary<string, Session>();
+        public IEnumerable<Session> Session => _sessionList.Values;
 
         public DiagnosticsStateManager(string uriPrefix)
         {
@@ -89,7 +89,7 @@
             using var contentReader = new StringReader(body);
             var eventCount = int.Parse(contentReader.ReadLine(), CultureInfo.InvariantCulture);
 
-            var events = new List<AbstractEvent>();
+            var events = new List<AbstractEvent>(eventCount);
             for (var i = 0; i < eventCount; i++)
             {
                 var eventType = contentReader.ReadLine();
@@ -108,6 +108,7 @@
                     "row-stored" => ProcessRowStoredEvent(payload),
                     "context-counters-updated" => ProcessContextCountersUpdatedEvent(payload),
                     "process-created" => ProcessProcessCreatedEvent(payload),
+                    "operation-created" => ProcessOperationCreatedEvent(payload),
                     "data-store-command" => ProcessDataStoreCommandEvent(payload),
                     _ => null,
                 };
@@ -123,15 +124,26 @@
                 }
             }
 
-            context.WholePlaybook.AddEvents(events);
+            context.AddUnprocessedEvents(events);
+        }
+
+        public void ProcessEvents()
+        {
+            foreach (var session in _sessionList.Values)
+            {
+                foreach (var context in session.ContextList)
+                {
+                    context.ProcessEvents();
+                }
+            }
         }
 
         private Session GetSession(string sessionId)
         {
-            if (!_sessions.TryGetValue(sessionId, out var session))
+            if (!_sessionList.TryGetValue(sessionId, out var session))
             {
                 session = new Session(sessionId);
-                _sessions.Add(sessionId, session);
+                _sessionList.Add(sessionId, session);
 
                 OnSessionCreated?.Invoke(session);
             }
@@ -142,6 +154,12 @@
         private static AbstractEvent ProcessProcessCreatedEvent(string payload)
         {
             var evt = JsonSerializer.Deserialize<ProcessCreatedEvent>(payload);
+            return evt;
+        }
+
+        private static AbstractEvent ProcessOperationCreatedEvent(string payload)
+        {
+            var evt = JsonSerializer.Deserialize<OperationCreatedEvent>(payload);
             return evt;
         }
 

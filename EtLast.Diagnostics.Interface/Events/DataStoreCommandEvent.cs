@@ -5,10 +5,10 @@
     public class DataStoreCommandEvent : AbstractEvent
     {
         [JsonPropertyName("p")]
-        public int? ProcessUid { get; set; }
+        public int ProcessUid { get; set; }
 
         [JsonPropertyName("o")]
-        public OperationInfo Operation { get; set; }
+        public int? OperationUid { get; set; }
 
         [JsonPropertyName("c")]
         public string Command { get; set; }

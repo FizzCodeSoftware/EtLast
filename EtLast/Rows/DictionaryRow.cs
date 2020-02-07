@@ -32,7 +32,7 @@
                 : null;
         }
 
-        protected override void SetValueImpl(string column, object value, IProcess process, IBaseOperation operation)
+        protected override void SetValueImpl(string column, object value, IProcess process, IOperation operation)
         {
             Context.OnRowValueChanged?.Invoke(this, column, value, process, operation);
 

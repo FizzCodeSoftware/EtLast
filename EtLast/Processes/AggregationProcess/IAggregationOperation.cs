@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public interface IAggregationOperation : IBaseOperation
+    public interface IAggregationOperation : IOperation
     {
         IRow TransformGroup(string[] groupingColumns, IProcess process, List<IRow> rows);
     }
