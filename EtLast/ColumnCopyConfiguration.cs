@@ -19,12 +19,12 @@
             ToColumn = fromColumn;
         }
 
-        public void Copy(IOperation operation, IRow sourceRow, IRow targetRow)
+        public void Copy(IProcess process, IRow sourceRow, IRow targetRow)
         {
             var value = sourceRow[FromColumn];
             if (value != null)
             {
-                targetRow.SetValue(ToColumn, value, operation);
+                targetRow.SetValue(ToColumn, value, process);
             }
         }
 

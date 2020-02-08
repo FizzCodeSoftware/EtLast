@@ -14,12 +14,11 @@
                 if (builder.RecordTimestampIndicatorColumn == null)
                     continue;
 
-                builder.AddOperationCreator(builder => new[]
+                builder.AddMutatorCreator(builder => new[]
                 {
-                    new CustomOperation()
+                    new CustomMutator(builder.DwhBuilder.Context, nameof(SetValidFromToRecordTimestampIfAvailable), builder.Topic)
                     {
-                        InstanceName = nameof(SetValidFromToRecordTimestampIfAvailable),
-                        Then = (op, row) =>
+                        Then = (proc, row) =>
                         {
                             var value = row[builder.RecordTimestampIndicatorColumn.Name];
                             if (value != null)
@@ -31,13 +30,15 @@
 
                                 if (value is DateTimeOffset)
                                 {
-                                    row.SetValue(builder.ValidFromColumnName, value, op);
+                                    row.SetValue(builder.ValidFromColumnName, value, proc);
                                 }
                                 else
                                 {
-                                    op.Process.Context.Log(LogSeverity.Warning, op.Process, op, "record timestamp is not DateTimeOffset in: {Row}", row.ToDebugString());
+                                    proc.Context.Log(LogSeverity.Warning, proc, "record timestamp is not DateTimeOffset in: {Row}", row.ToDebugString());
                                 }
                             }
+
+                            return true;
                         },
                     },
                 });

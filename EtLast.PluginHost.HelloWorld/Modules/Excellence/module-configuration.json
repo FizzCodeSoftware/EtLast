@@ -1,5 +1,5 @@
 ﻿{
   "Module": {
-    "PluginsToExecute": [ "ContactReadWrite", "ContactReadWriteDeleteWithJob", "ContactJoinExpand" ]
+    "PluginsToExecute": [ "ContactReadWrite", "ContactJoinExpand" ]
   }
 }

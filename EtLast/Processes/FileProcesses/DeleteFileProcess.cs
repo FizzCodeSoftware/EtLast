@@ -13,7 +13,7 @@
         {
         }
 
-        public override void ValidateImpl()
+        protected override void ValidateImpl()
         {
             if (string.IsNullOrEmpty(FileName))
                 throw new ProcessParameterNullException(this, nameof(FileName));
@@ -27,7 +27,7 @@
                 return;
             }
 
-            Context.Log(LogSeverity.Information, this, null, "deleting file '{FileName}'", PathHelpers.GetFriendlyPathName(FileName));
+            Context.Log(LogSeverity.Information, this, "deleting file '{FileName}'", PathHelpers.GetFriendlyPathName(FileName));
 
             try
             {

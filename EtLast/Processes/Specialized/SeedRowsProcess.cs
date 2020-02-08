@@ -14,7 +14,7 @@
         {
         }
 
-        public override void ValidateImpl()
+        protected override void ValidateImpl()
         {
             if (Count == 0)
                 throw new InvalidProcessParameterException(this, nameof(Count), Count, "value must be greater than zero");

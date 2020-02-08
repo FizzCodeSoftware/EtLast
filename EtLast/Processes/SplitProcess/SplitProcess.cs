@@ -4,7 +4,7 @@
     using System.Threading;
     using System.Transactions;
 
-    public class SplitProcess<TRowQueue> : AbstractEvaluableProcess, ISplitProcess
+    public class SplitProcess<TRowQueue> : AbstractEvaluableProcess, IMutator
         where TRowQueue : IRowQueue, new()
     {
         public IEvaluable InputProcess { get; set; }
@@ -19,7 +19,7 @@
         {
         }
 
-        public override void ValidateImpl()
+        protected override void ValidateImpl()
         {
             if (InputProcess == null)
                 throw new ProcessParameterNullException(this, nameof(InputProcess));

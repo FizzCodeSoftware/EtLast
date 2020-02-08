@@ -4,9 +4,12 @@
     using System.Collections.Generic;
     using System.Diagnostics;
 
+    public delegate void EvaluableInitializerDelegate(IEvaluable evaluable);
+
     public abstract class AbstractEvaluableProcess : AbstractProcess, IEvaluable
     {
         public virtual bool ConsumerShouldNotBuffer { get; }
+        public EvaluableInitializerDelegate Initializer { get; set; }
 
         protected AbstractEvaluableProcess(IEtlContext context, string name, string topic)
             : base(context, name, topic)
@@ -23,8 +26,13 @@
             if (Context.CancellationTokenSource.IsCancellationRequested)
                 return new Evaluator();
 
-            if (If?.Invoke(this) == false)
-                return new Evaluator();
+            if (Initializer != null)
+            {
+                Initializer.Invoke(this);
+
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    return new Evaluator();
+            }
 
             try
             {
@@ -37,5 +45,11 @@
         }
 
         protected abstract IEnumerable<IRow> EvaluateImpl();
+
+        public void Execute(IProcess caller)
+        {
+            var evaluator = Evaluate();
+            _ = evaluator.CountRows(null);
+        }
     }
 }

@@ -14,12 +14,12 @@
             return this;
         }
 
-        public override IRow TransformGroup(string[] groupingColumns, IProcess process, List<IRow> rows)
+        public override IRow TransformGroup(string[] groupingColumns, List<IRow> rows)
         {
             var initialValues = groupingColumns.Select(x => new KeyValuePair<string, object>(x, rows[0][x]))
                 .Concat(ColumnAggregators.Select(agg => new KeyValuePair<string, object>(agg.Key, agg.Value.Invoke(rows, agg.Key))));
 
-            return process.Context.CreateRow(this, initialValues);
+            return Process.Context.CreateRow(Process, initialValues);
         }
     }
 

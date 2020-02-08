@@ -14,7 +14,6 @@
 
         public string DisplayName { get; }
 
-        public Dictionary<int, TrackedOperation> OperationList { get; } = new Dictionary<int, TrackedOperation>();
         public Dictionary<int, TrackedRow> StoredRowList { get; } = new Dictionary<int, TrackedRow>();
         public Dictionary<int, TrackedRow> AliveRowList { get; } = new Dictionary<int, TrackedRow>();
         public Dictionary<int, TrackedRow> DroppedRowList { get; } = new Dictionary<int, TrackedRow>();
@@ -23,7 +22,6 @@
         public Dictionary<int, int> PassedRowCountByNextProcess { get; } = new Dictionary<int, int>();
 
         public int CreatedRowCount { get; private set; }
-        public Dictionary<int, int> CreatedRowCountByOperation { get; } = new Dictionary<int, int>();
 
         public Dictionary<int, int> InputRowCountByByPreviousProcess { get; } = new Dictionary<int, int>();
         public int InputRowCount { get; private set; }
@@ -40,11 +38,6 @@
                 : name;
         }
 
-        public void AddOperation(TrackedOperation operation)
-        {
-            OperationList.Add(operation.Uid, operation);
-        }
-
         public void InputRow(TrackedRow row, TrackedProcess previousProcess)
         {
             if (AliveRowList.ContainsKey(row.Uid))
@@ -59,7 +52,7 @@
             InputRowCount++;
         }
 
-        public void CreateRow(TrackedRow row, TrackedOperation operation)
+        public void CreateRow(TrackedRow row)
         {
             if (AliveRowList.ContainsKey(row.Uid))
                 throw new Exception("ohh");
@@ -68,12 +61,6 @@
             row.CurrentOwner = this;
 
             CreatedRowCount++;
-            if (operation != null)
-            {
-                CreatedRowCountByOperation.TryGetValue(operation.Uid, out var cnt);
-                cnt++;
-                CreatedRowCountByOperation[operation.Uid] = cnt;
-            }
         }
 
         public void DropRow(TrackedRow row)

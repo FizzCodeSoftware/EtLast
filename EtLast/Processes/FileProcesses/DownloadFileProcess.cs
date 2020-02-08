@@ -14,7 +14,7 @@
         {
         }
 
-        public override void ValidateImpl()
+        protected override void ValidateImpl()
         {
             if (string.IsNullOrEmpty(Url))
                 throw new ProcessParameterNullException(this, nameof(Url));
@@ -22,7 +22,7 @@
             if (string.IsNullOrEmpty(FileName))
                 throw new ProcessParameterNullException(this, nameof(FileName));
 
-            Context.Log(LogSeverity.Information, this, null, "downloading file from '{Url}' to '{FileName}'", Url,
+            Context.Log(LogSeverity.Information, this, "downloading file from '{Url}' to '{FileName}'", Url,
                 PathHelpers.GetFriendlyPathName(FileName));
         }
 

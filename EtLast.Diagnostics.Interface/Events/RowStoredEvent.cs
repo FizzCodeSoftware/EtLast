@@ -11,9 +11,6 @@
         [JsonPropertyName("p")]
         public int ProcessUid { get; set; }
 
-        [JsonPropertyName("o")]
-        public int? OperationUid { get; set; }
-
         [JsonPropertyName("l")]
         public List<KeyValuePair<string, string>> Locations { get; set; }
     }

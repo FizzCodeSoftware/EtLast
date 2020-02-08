@@ -22,14 +22,9 @@
                 FileName = OutputFileName,
             };
 
-            yield return ProcessCreatorInternal(scope);
-        }
-
-        private IExecutable ProcessCreatorInternal(IExecutable scope)
-        {
-            return new OperationHostProcess(Context, "Process", scope.Topic)
+            yield return new MutatorBuilder()
             {
-                InputProcess = new EpPlusExcelReaderProcess(Context, "Read", scope.Topic)
+                InputProcess = new EpPlusExcelReaderProcess(Context, "PeopleReader", scope.Topic)
                 {
                     FileName = SourceFileName,
                     SheetName = "People",
@@ -39,12 +34,12 @@
                         new ReaderColumnConfiguration("Name", new StringConverter(formatProviderHint: CultureInfo.InvariantCulture)),
                     },
                 },
-                Operations = new List<IRowOperation>()
+                Mutators = new List<IMutator>()
                 {
-                    new JoinOperation()
+                    new JoinMutator(Context, "JoinContact", scope.Topic)
                     {
                         NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        RightProcess = new OperationHostProcess(Context, "PrefilterInvalidContacts", scope.Topic)
+                        RightProcess = new MutatorBuilder()
                         {
                             InputProcess = new EpPlusExcelReaderProcess(Context, "ReadContacts", scope.Topic)
                             {
@@ -57,14 +52,14 @@
                                     new ReaderColumnConfiguration("Value", new StringConverter(formatProviderHint: CultureInfo.InvariantCulture)), // will be renamed to ContactValue
                                 },
                             },
-                            Operations = new List<IRowOperation>()
+                            Mutators = new List<IMutator>()
                             {
-                                new RemoveRowOperation()
+                                new RemoveRowMutator(Context, "RemoveInvalidContacts", scope.Topic)
                                 {
                                     If = row => row.IsNullOrEmpty("Value"),
                                 },
                             }
-                        },
+                        }.BuildEvaluable(),
                         LeftKeySelector = row => row.GetAs<int>("ID").ToString("D", CultureInfo.InvariantCulture),
                         RightKeySelector = row => row.GetAs<int>("PeopleID").ToString("D", CultureInfo.InvariantCulture),
                         ColumnConfiguration = new List<ColumnCopyConfiguration>()
@@ -73,7 +68,7 @@
                             new ColumnCopyConfiguration("Value", "ContactValue"),
                         },
                     },
-                    new ExpandOperation()
+                    new ExpandMutator(Context, "ExpandContactMethod", scope.Topic)
                     {
                         NoMatchAction = new NoMatchAction(MatchMode.Remove),
                         RightProcess = new EpPlusExcelReaderProcess(Context, "ReadContactMethod", scope.Topic)
@@ -93,7 +88,7 @@
                             new ColumnCopyConfiguration("Name", "ContactMethod"),
                         },
                     },
-                    new EpPlusSimpleRowWriterOperation()
+                    new EpPlusSimpleRowWriterMutator(Context, "Writer", scope.Topic)
                     {
                         FileName = OutputFileName,
                         SheetName = "output",
@@ -106,7 +101,7 @@
                         Finalize = (package, state) => state.LastWorksheet.Cells.AutoFitColumns(),
                     }
                 },
-            };
+            }.BuildEvaluable();
         }
     }
 }

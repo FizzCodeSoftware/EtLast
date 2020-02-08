@@ -11,64 +11,80 @@
     [TestClass]
     public class ReadExcelSampleTests
     {
-        private IOperationHostProcess _process;
-        private EpPlusExcelReaderProcess _epPlusExcelReaderProcess;
-
-        [TestInitialize]
-        public void Initialize()
+        private EpPlusExcelReaderProcess GetReader(EtlContext context, string fileName)
         {
-            var context = new EtlContext();
-
-            _epPlusExcelReaderProcess = new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess", null)
+            return new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess", null)
             {
-                FileName = @"TestData\Sample.xlsx",
+                FileName = fileName,
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
-                    {
-                        new ReaderColumnConfiguration("Id", new IntConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
-                        new ReaderColumnConfiguration("Name", new StringConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
-                        new ReaderColumnConfiguration("Value1", "ValueString", new StringConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
-                        new ReaderColumnConfiguration("Value2", "ValueInt", new IntConverter()),
-                        new ReaderColumnConfiguration("Value3", "ValueDate", new DateConverter()),
-                        new ReaderColumnConfiguration("Value4", "ValueDouble", new DoubleConverter())
-                    }
-            };
-
-            _process = new OperationHostProcess(context, "EpPlusProcess", null)
-            {
-                Configuration = new OperationHostProcessConfiguration()
                 {
-                    MainLoopDelay = 10,
-                },
-                InputProcess = _epPlusExcelReaderProcess
+                    new ReaderColumnConfiguration("Id", new IntConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
+                    new ReaderColumnConfiguration("Name", new StringConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
+                    new ReaderColumnConfiguration("Value1", "ValueString", new StringConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
+                    new ReaderColumnConfiguration("Value2", "ValueInt", new IntConverter()),
+                    new ReaderColumnConfiguration("Value3", "ValueDate", new DateConverter()),
+                    new ReaderColumnConfiguration("Value4", "ValueDouble", new DoubleConverter())
+                }
             };
-
-            _process.AddOperation(new ThrowExceptionOnRowErrorOperation());
         }
 
         [TestMethod]
         public void SheetName()
         {
-            _epPlusExcelReaderProcess.SheetName = "Sheet1";
+            var context = new EtlContext();
+            var reader = GetReader(context, @".\TestData\Sample.xlsx");
+            reader.SheetName = "Sheet1";
 
-            var resultCount = _process.Evaluate().CountRows(null);
+            var process = new MutatorBuilder()
+            {
+                InputProcess = reader,
+                Mutators = new List<IMutator>()
+                {
+                    new ThrowExceptionOnRowErrorMutator(context, null, null),
+                }
+            }.BuildEvaluable();
+
+            var resultCount = process.Evaluate().CountRows(null);
             Assert.AreEqual(2, resultCount);
         }
 
         [TestMethod]
         public void SheetIndex()
         {
-            _epPlusExcelReaderProcess.SheetIndex = 0;
+            var context = new EtlContext();
+            var reader = GetReader(context, @".\TestData\Sample.xlsx");
+            reader.SheetIndex = 0;
 
-            var resultCount = _process.Evaluate().CountRows(null);
+            var process = new MutatorBuilder()
+            {
+                InputProcess = reader,
+                Mutators = new List<IMutator>()
+                {
+                    new ThrowExceptionOnRowErrorMutator(context, null, null),
+                }
+            }.BuildEvaluable();
+
+            var resultCount = process.Evaluate().CountRows(null);
             Assert.AreEqual(2, resultCount);
         }
 
         [TestMethod]
         public void CheckContent()
         {
-            _epPlusExcelReaderProcess.SheetName = "Sheet1";
+            var context = new EtlContext();
+            var reader = GetReader(context, @".\TestData\Sample.xlsx");
+            reader.SheetName = "Sheet1";
 
-            var result = _process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
+            var process = new MutatorBuilder()
+            {
+                InputProcess = reader,
+                Mutators = new List<IMutator>()
+                {
+                    new ThrowExceptionOnRowErrorMutator(context, null, null),
+                }
+            }.BuildEvaluable();
+
+            var result = process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
             Assert.AreEqual(2, result.Count);
 
             Assert.That.RowsAreEqual(RowHelper.CreateRows(

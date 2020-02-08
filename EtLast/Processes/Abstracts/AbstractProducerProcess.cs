@@ -7,7 +7,7 @@
     /// <summary>
     /// Producer processes create rows. They may create or generate, read from different sources, copy from existing rows.
     /// </summary>
-    public abstract class AbstractProducerProcess : AbstractEvaluableProcess
+    public abstract class AbstractProducerProcess : AbstractEvaluableProcess, IMutator
     {
         /// <summary>
         /// Default false.
@@ -112,7 +112,6 @@
                     NullSourceHandler.WrapError => new EtlRowError()
                     {
                         Process = this,
-                        Operation = null,
                         OriginalValue = null,
                         Message = string.Format(CultureInfo.InvariantCulture, "failed to convert by {0}", configuration.Converter.GetType().GetFriendlyTypeName()),
                     },
@@ -134,7 +133,6 @@
                     InvalidSourceHandler.WrapError => new EtlRowError()
                     {
                         Process = this,
-                        Operation = null,
                         OriginalValue = value,
                         Message = string.Format(CultureInfo.InvariantCulture, "failed to convert by {0}", configuration.Converter.GetType().GetFriendlyTypeName()),
                     },

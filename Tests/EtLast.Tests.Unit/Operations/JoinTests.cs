@@ -35,36 +35,34 @@
         {
             var context = new EtlContext();
 
-            var leftProcess = new OperationHostProcess(context, "LeftProcess", null)
+            var process = new MutatorBuilder()
             {
-                Configuration = new OperationHostProcessConfiguration()
-                {
-                    MainLoopDelay = 10,
-                },
-                InputProcess = new CreateRowsProcess(context, "LeftGenerator", null)
+                InputProcess = new CreateRowsProcess(context, "DataGenerator", null)
                 {
                     Columns = SampleColumnsA,
                     InputRows = SampleRowsA.ToList(),
                 },
-            };
-
-            leftProcess.AddOperation(new JoinOperation()
-            {
-                NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                RightProcess = new CreateRowsProcess(context, "RightGenerator", null)
+                Mutators = new List<IMutator>()
                 {
-                    Columns = SampleColumnsB,
-                    InputRows = SampleRowsB.ToList(),
+                    new JoinMutator(context, "Joiner", null)
+                    {
+                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
+                        RightProcess = new CreateRowsProcess(context, "RightGenerator", null)
+                        {
+                            Columns = SampleColumnsB,
+                            InputRows = SampleRowsB.ToList(),
+                        },
+                        LeftKeySelector = row => row.GetAs<int>("id").ToString("D", CultureInfo.InvariantCulture),
+                        RightKeySelector = row => row.GetAs<int>("fk").ToString("D", CultureInfo.InvariantCulture),
+                        ColumnConfiguration = new List<ColumnCopyConfiguration>
+                        {
+                            new ColumnCopyConfiguration("color"),
+                        }
+                    }
                 },
-                LeftKeySelector = row => row.GetAs<int>("id").ToString("D", CultureInfo.InvariantCulture),
-                RightKeySelector = row => row.GetAs<int>("fk").ToString("D", CultureInfo.InvariantCulture),
-                ColumnConfiguration = new List<ColumnCopyConfiguration>
-                {
-                    new ColumnCopyConfiguration("color"),
-                }
-            });
+            }.BuildEvaluable();
 
-            var result = leftProcess.Evaluate().TakeRowsAndReleaseOwnership().ToList();
+            var result = process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
             Assert.AreEqual(6, result.Count);
             Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "A") == 3);
             Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "B") == 2);

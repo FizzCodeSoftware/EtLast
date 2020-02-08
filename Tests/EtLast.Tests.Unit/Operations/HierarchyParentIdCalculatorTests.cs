@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast.Tests.Unit
 {
+    using System.Collections.Generic;
     using System.Linq;
     using FizzCode.EtLast.Tests.Base;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -19,55 +20,22 @@
         };
 
         [TestMethod]
-        public void OnlyOrderedOperationProcess()
-        {
-            var context = new EtlContext();
-
-            var hierarchyParentIdCalculatorProcess = new OperationHostProcess(context, "HierarchyParentIdCalculatorProcess", null)
-            {
-                Configuration = new OperationHostProcessConfiguration()
-                {
-                    MainLoopDelay = 10,
-                },
-                InputProcess = new CreateRowsProcess(context, "HierarchyParentIdCalculatorGenerator", null)
-                {
-                    Columns = SampleColumns,
-                    InputRows = SampleRows.ToList(),
-                }
-            };
-
-            AddOperation(hierarchyParentIdCalculatorProcess);
-
-            var result = hierarchyParentIdCalculatorProcess.Evaluate().CountRows(null);
-            var exceptions = hierarchyParentIdCalculatorProcess.Context.GetExceptions();
-
-            Assert.IsTrue(exceptions[0] is InvalidOperationParameterException);
-            Assert.AreEqual(0, result);
-        }
-
-        [TestMethod]
         public void HierarchyParentIdCalculatorTest()
         {
             var context = new EtlContext();
 
-            var hierarchyParentIdCalculatorProcess = new OperationHostProcess(context, "HierarchyParentIdCalculatorProcess", null)
+            var process = new MutatorBuilder()
             {
-                Configuration = new OperationHostProcessConfiguration()
-                {
-                    MainLoopDelay = 10,
-                    KeepOrder = true,
-                },
                 InputProcess = new CreateRowsProcess(context, "HierarchyParentIdCalculatorGenerator", null)
                 {
                     Columns = SampleColumns,
                     InputRows = SampleRows.ToList(),
-                }
+                },
+                Mutators = GetMutators(context).ToList(),
             };
 
-            AddOperation(hierarchyParentIdCalculatorProcess);
-
-            var result = hierarchyParentIdCalculatorProcess.Evaluate().TakeRowsAndReleaseOwnership().ToList();
-            var exceptions = hierarchyParentIdCalculatorProcess.Context.GetExceptions();
+            var result = process.BuildEvaluable().Evaluate().TakeRowsAndReleaseOwnership().ToList();
+            var exceptions = context.GetExceptions();
 
             Assert.AreEqual(6, result.Count);
             Assert.AreEqual(0, exceptions.Count);
@@ -80,14 +48,14 @@
                 new object[] { "id", 5, "name", "F", "parentId", 0, "level1", null, "level2", "FFF" }), result);
         }
 
-        private static void AddOperation(IOperationHostProcess operationProcess)
+        private static IEnumerable<IMutator> GetMutators(EtlContext context)
         {
-            operationProcess.AddOperation(new HierarchyParentIdCalculatorOperation()
+            yield return new HierarchyParentIdCalculatorMutator(context, null, null)
             {
                 IntegerIdColumn = "id",
                 NewColumnWithParentId = "parentId",
                 LevelColumns = new[] { "level1", "level2", "level3" }
-            });
+            };
         }
     }
 }

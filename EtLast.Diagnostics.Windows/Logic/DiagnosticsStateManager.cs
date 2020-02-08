@@ -108,7 +108,6 @@
                     "row-stored" => ProcessRowStoredEvent(payload),
                     "context-counters-updated" => ProcessContextCountersUpdatedEvent(payload),
                     "process-created" => ProcessProcessCreatedEvent(payload),
-                    "operation-created" => ProcessOperationCreatedEvent(payload),
                     "data-store-command" => ProcessDataStoreCommandEvent(payload),
                     _ => null,
                 };
@@ -154,12 +153,6 @@
         private static AbstractEvent ProcessProcessCreatedEvent(string payload)
         {
             var evt = JsonSerializer.Deserialize<ProcessCreatedEvent>(payload);
-            return evt;
-        }
-
-        private static AbstractEvent ProcessOperationCreatedEvent(string payload)
-        {
-            var evt = JsonSerializer.Deserialize<OperationCreatedEvent>(payload);
             return evt;
         }
 

@@ -13,7 +13,7 @@
         {
             if (!_readerConnections.TryGetValue(connectionString.Name, out var t))
             {
-                var conn = ConnectionManager.GetNewConnection(connectionString, process, null);
+                var conn = ConnectionManager.GetNewConnection(connectionString, process);
                 var tran = conn.Connection.BeginTransaction();
                 t = new Tuple<DatabaseConnection, IDbTransaction>(conn, tran);
                 _readerConnections.Add(connectionString.Name, t);

@@ -39,7 +39,7 @@
             public int RowsInGroup { get; set; }
         }
 
-        public override void ValidateImpl()
+        protected override void ValidateImpl()
         {
             if (GroupingColumns == null || GroupingColumns.Length == 0)
                 throw new ProcessParameterNullException(this, nameof(GroupingColumns));
@@ -50,8 +50,6 @@
 
         protected override IEnumerable<IRow> EvaluateImpl()
         {
-            Operation.Prepare();
-
             Context.Log(LogSeverity.Information, this, "continuous aggregation started");
 
             var aggregateRows = new Dictionary<string, AggregateRow>();
@@ -78,20 +76,20 @@
                 {
                     try
                     {
-                        Operation.TransformGroup(GroupingColumns, this, row, aggregateRow.Row, aggregateRow.RowsInGroup);
+                        Operation.TransformGroup(GroupingColumns, row, aggregateRow.Row, aggregateRow.RowsInGroup);
                     }
                     catch (EtlException) { throw; }
                     catch (Exception ex) { throw new ContinuousAggregationOperationExecutionException(this, Operation, row, aggregateRow.Row, ex); }
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ex, Operation);
+                    Context.AddException(this, ex);
                     break;
                 }
 
                 aggregateRow.RowsInGroup++;
 
-                Context.SetRowOwner(row, null, null);
+                Context.SetRowOwner(row, null);
             }
 
             Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}", rowCount, aggregateRows.Count, LastInvocation.Elapsed);
@@ -103,8 +101,6 @@
             {
                 yield return aggregateRow.Row;
             }
-
-            Operation.Shutdown();
 
             Context.Log(LogSeverity.Debug, this, "finished and returned {GroupCount} groups in {Elapsed}", aggregateRows.Count, LastInvocation.Elapsed);
         }

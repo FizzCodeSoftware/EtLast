@@ -13,7 +13,7 @@
         {
         }
 
-        public override void ValidateImpl()
+        protected override void ValidateImpl()
         {
             if (ProcessList == null || ProcessList.Count == 0)
                 throw new ProcessParameterNullException(this, nameof(ProcessList));
@@ -36,7 +36,7 @@
                 var process = ProcessList[i];
 
                 var processStartedOn = Stopwatch.StartNew();
-                Context.Log(LogSeverity.Information, this, null, "executing <{Process}> ({ProcessIndex} of {ProcessCount}}",
+                Context.Log(LogSeverity.Information, this, "executing <{Process}> ({ProcessIndex} of {ProcessCount}}",
                     process.Name, i + 1, ProcessList.Count);
 
                 try
@@ -60,7 +60,7 @@
                     break;
                 }
 
-                Context.Log(LogSeverity.Debug, this, null, "<{Process}> finished in {Elapsed}",
+                Context.Log(LogSeverity.Debug, this, "<{Process}> finished in {Elapsed}",
                     process.Name, processStartedOn.Elapsed);
             }
 

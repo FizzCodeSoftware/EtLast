@@ -1,4 +1,4 @@
 ﻿namespace FizzCode.EtLast
 {
-    public delegate void ContextOnRowCreatedDelegate(IRow row, IProcess process, IOperation operation);
+    public delegate void ContextOnRowCreatedDelegate(IRow row, IProcess process);
 }

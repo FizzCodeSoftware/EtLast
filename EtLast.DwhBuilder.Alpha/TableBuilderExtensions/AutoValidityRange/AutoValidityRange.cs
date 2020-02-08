@@ -19,13 +19,13 @@
                 if (tempBuilder.MatchColumns == null)
                     throw new NotSupportedException("you must specify the key columns of " + nameof(AutoValidityRange) + " for table " + tableBuilder.Table.TableName);
 
-                tableBuilder.AddOperationCreator(_ => CreateAutoValidityRangeOperations(tempBuilder));
+                tableBuilder.AddMutatorCreator(_ => CreateAutoValidityRangeMutators(tempBuilder));
             }
 
             return builders;
         }
 
-        private static IEnumerable<IRowOperation> CreateAutoValidityRangeOperations(AutoValidityRangeBuilder builder)
+        private static IEnumerable<IMutator> CreateAutoValidityRangeMutators(AutoValidityRangeBuilder builder)
         {
             var pk = builder.TableBuilder.SqlTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
 
@@ -42,9 +42,8 @@
 
             if (builder.MatchColumns.Length == 1)
             {
-                yield return new DeferredCompareWithRowOperation()
+                yield return new BatchedCompareWithRowMutator(builder.TableBuilder.DwhBuilder.Context, nameof(AutoValidityRange), builder.TableBuilder.Topic)
                 {
-                    InstanceName = nameof(AutoValidityRange),
                     If = row => !row.IsNullOrEmpty(builder.MatchColumns[0]),
                     RightProcessCreator = rows => CreateAutoValidity_ExpandDeferredReaderProcess(builder, builder.MatchColumns[0], finalValueColumns, rows),
                     LeftKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
@@ -82,9 +81,8 @@
                 if (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime != null)
                     parameters.Add("InfiniteFuture", builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
 
-                yield return new CompareWithRowOperation()
+                yield return new CompareWithRowMutator(builder.TableBuilder.DwhBuilder.Context, nameof(AutoValidityRange), builder.TableBuilder.Topic)
                 {
-                    InstanceName = nameof(AutoValidityRange),
                     RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.DwhBuilder.Context, "PreviousValueReader", builder.TableBuilder.Table.Topic)
                     {
                         ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,

@@ -31,7 +31,7 @@
         {
         }
 
-        public override void ValidateImpl()
+        protected override void ValidateImpl()
         {
             if (GroupingColumns == null || GroupingColumns.Length == 0)
                 throw new ProcessParameterNullException(this, nameof(GroupingColumns));
@@ -42,8 +42,6 @@
 
         protected override IEnumerable<IRow> EvaluateImpl()
         {
-            Operation.Prepare();
-
             Context.Log(LogSeverity.Information, this, "unordered aggregation started");
 
             var groups = new Dictionary<string, List<IRow>>();
@@ -76,20 +74,20 @@
                 {
                     try
                     {
-                        aggregateRow = Operation.TransformGroup(GroupingColumns, this, group);
+                        aggregateRow = Operation.TransformGroup(GroupingColumns, group);
                     }
                     catch (EtlException) { throw; }
                     catch (Exception ex) { throw new AggregationOperationExecutionException(this, Operation, group, ex); }
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ex, Operation);
+                    Context.AddException(this, ex);
                     break;
                 }
 
                 foreach (var row in group)
                 {
-                    Context.SetRowOwner(row, null, null);
+                    Context.SetRowOwner(row, null);
                 }
 
                 if (aggregateRow != null)
@@ -98,8 +96,6 @@
                     yield return aggregateRow;
                 }
             }
-
-            Operation.Shutdown();
 
             Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, LastInvocation.Elapsed);
         }

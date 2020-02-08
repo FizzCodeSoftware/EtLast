@@ -22,13 +22,13 @@
                 if (tempBuilder.CompareValueColumns == null && tempBuilder.MatchButDifferentAction != null)
                     throw new NotSupportedException("you must specify the comparable value columns of " + nameof(RemoveExistingRows) + " for table " + tableBuilder.Table.TableName + " if you specify the " + nameof(tempBuilder.MatchButDifferentAction));
 
-                tableBuilder.AddOperationCreator(_ => CreateRemoveExistingIdenticalRowsOperations(tempBuilder));
+                tableBuilder.AddMutatorCreator(_ => CreateRemoveExistingIdenticalRowsMutators(tempBuilder));
             }
 
             return builders;
         }
 
-        private static IEnumerable<IRowOperation> CreateRemoveExistingIdenticalRowsOperations(RemoveExistingRowsBuilder builder)
+        private static IEnumerable<IMutator> CreateRemoveExistingIdenticalRowsMutators(RemoveExistingRowsBuilder builder)
         {
             if (builder.CompareValueColumns != null)
             {
@@ -46,9 +46,8 @@
 
                 if (builder.MatchColumns.Length == 1)
                 {
-                    yield return new DeferredCompareWithRowOperation()
+                    yield return new BatchedCompareWithRowMutator(builder.TableBuilder.DwhBuilder.Context, nameof(RemoveExistingRows), builder.TableBuilder.Topic)
                     {
-                        InstanceName = nameof(RemoveExistingRows),
                         If = row => !row.IsNullOrEmpty(builder.MatchColumns[0]),
                         EqualityComparer = equalityComparer,
                         LeftKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
@@ -75,9 +74,8 @@
                 }
                 else
                 {
-                    yield return new CompareWithRowOperation()
+                    yield return new CompareWithRowMutator(builder.TableBuilder.DwhBuilder.Context, nameof(RemoveExistingRows), builder.TableBuilder.Topic)
                     {
-                        InstanceName = nameof(RemoveExistingRows),
                         EqualityComparer = equalityComparer,
                         LeftKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
                         RightKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
@@ -94,9 +92,8 @@
             }
             else if (builder.MatchColumns.Length == 1)
             {
-                yield return new DeferredKeyTestOperation()
+                yield return new BatchedKeyTestMutator(builder.TableBuilder.DwhBuilder.Context, nameof(RemoveExistingRows), builder.TableBuilder.Topic)
                 {
-                    InstanceName = nameof(RemoveExistingRows),
                     If = row => !row.IsNullOrEmpty(builder.MatchColumns[0]),
                     LeftKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
                     RightKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
@@ -120,9 +117,8 @@
             }
             else
             {
-                yield return new KeyTestOperation()
+                yield return new KeyTestMutator(builder.TableBuilder.DwhBuilder.Context, nameof(RemoveExistingRows), builder.TableBuilder.Topic)
                 {
-                    InstanceName = nameof(RemoveExistingRows),
                     LeftKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
                     RightKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
                     RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.DwhBuilder.Context, nameof(RemoveExistingRows) + "Reader", builder.TableBuilder.Table.Topic)

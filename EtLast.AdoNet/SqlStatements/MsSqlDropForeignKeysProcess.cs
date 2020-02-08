@@ -32,7 +32,7 @@
 
         private List<Tuple<string, int>> _tableNamesAndCounts;
 
-        public override void ValidateImpl()
+        protected override void ValidateImpl()
         {
             base.ValidateImpl();
 
@@ -146,7 +146,7 @@ from
                         command.Parameters.Add(parameter);
                     }
 
-                    Context.LogDataStoreCommand(ConnectionString.Name, this, null, command.CommandText, parameters);
+                    Context.LogDataStoreCommand(ConnectionString.Name, this, command.CommandText, parameters);
 
                     Context.Log(LogSeverity.Debug, this, null, "querying foreign key names from {ConnectionStringName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                         command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());

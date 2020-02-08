@@ -161,11 +161,9 @@
                 };
 
                 _dataStoreCommandList.Columns.Add("timestamp", 85);
-                _dataStoreCommandList.Columns.Add("topic", 250);
-                _dataStoreCommandList.Columns.Add("process name", 250);
-                _dataStoreCommandList.Columns.Add("process type", 250);
-                _dataStoreCommandList.Columns.Add("operation type", 250);
-                _dataStoreCommandList.Columns.Add("operation name", 150);
+                _dataStoreCommandList.Columns.Add("topic", 300);
+                _dataStoreCommandList.Columns.Add("process name", 300);
+                _dataStoreCommandList.Columns.Add("process type", 300);
                 _dataStoreCommandList.Columns.Add("text", 700);
                 _dataStoreCommandList.Columns.Add("arguments", 200);
 
@@ -237,14 +235,9 @@
                             {
                                 item.SubItems[3].SetIfChanged(p.InputRowCount.ToString("D", CultureInfo.InvariantCulture),
                                     () => string.Join("\n", p.InputRowCountByByPreviousProcess.Select(x => Context.WholePlaybook.ProcessList[x.Key].DisplayName + "  =  " + x.Value.ToString("D", CultureInfo.InvariantCulture))));
-                                item.SubItems[4].SetIfChanged(p.CreatedRowCount.ToString("D", CultureInfo.InvariantCulture),
-                                    () => string.Join("\n", p.CreatedRowCountByOperation.Select(x => p.OperationList[x.Key].DisplayName + "  =  " + x.Value.ToString("D", CultureInfo.InvariantCulture))));
+                                item.SubItems[4].SetIfChanged(p.CreatedRowCount.ToString("D", CultureInfo.InvariantCulture));
                                 item.SubItems[5].SetIfChanged(p.StoredRowList.Count.ToString("D", CultureInfo.InvariantCulture));
-                                item.SubItems[6].SetIfChanged(p.DroppedRowList.Count.ToString("D", CultureInfo.InvariantCulture),
-                                    () => "by operations\n\n" + string.Join("\n", p.DroppedRowList
-                                    .Where(x => x.Value.DroppedByEvent.OperationUid != null)
-                                    .GroupBy(x => x.Value.DroppedByEvent.OperationUid.Value)
-                                    .Select(x => p.OperationList[x.Key].DisplayName + "  =  " + x.Count())));
+                                item.SubItems[6].SetIfChanged(p.DroppedRowList.Count.ToString("D", CultureInfo.InvariantCulture));
                                 item.SubItems[7].SetIfChanged(p.AliveRowList.Count.ToString("D", CultureInfo.InvariantCulture));
                                 item.SubItems[8].SetIfChanged(p.PassedRowCount.ToString("D", CultureInfo.InvariantCulture),
                                     () => string.Join("\n", p.PassedRowCountByNextProcess.Select(x => Context.WholePlaybook.ProcessList[x.Key].DisplayName + "  =  " + x.Value.ToString("D", CultureInfo.InvariantCulture))));
@@ -314,13 +307,10 @@
                         var item = _dataStoreCommandList.Items.Add(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture), -1);
 
                         var process = Context.WholePlaybook.ProcessList[evt.ProcessUid];
-                        var operation = evt.OperationUid == null ? null : Context.WholePlaybook.OperationList[evt.OperationUid.Value];
 
                         item.SubItems.Add(process.Topic);
                         item.SubItems.Add(process.Name);
                         item.SubItems.Add(process.Type);
-                        item.SubItems.Add(operation?.Type);
-                        item.SubItems.Add(operation?.InstanceName);
                         item.SubItems.Add(evt.Command);
                         item.SubItems.Add(evt.Arguments != null
                             ? string.Join(",", evt.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Name + "=" + x.ToDisplayValue()))

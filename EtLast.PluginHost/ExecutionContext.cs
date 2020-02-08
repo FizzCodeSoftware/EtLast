@@ -71,11 +71,10 @@
             Context.OnRowValueChanged = LifecycleRowValueChanged;
             Context.OnRowStored = LifecycleRowStored;
             Context.OnProcessCreated = LifecycleProcessCreated;
-            Context.OnOperationCreated = LifecycleOperationCreated;
             Context.OnContextDataStoreCommand = LifecycleContextDataStoreCommand;
         }
 
-        public void Log(LogSeverity severity, bool forOps, IProcess process, IOperation operation, string text, params object[] args)
+        public void Log(LogSeverity severity, bool forOps, IProcess process, string text, params object[] args)
         {
             var ident = "";
             if (process != null)
@@ -101,9 +100,6 @@
             if (process != null)
                 values.Add(process.Name);
 
-            if (operation != null)
-                values.Add(operation.Name);
-
             if (args != null)
                 values.AddRange(args);
 
@@ -116,7 +112,6 @@
                 (PluginName != null ? "[{Module}/{Plugin}] " : "")
                 + (process?.Topic != null ? "[{ActiveTopic}] " : "")
                 + (process != null ? ident + "<{ActiveProcess}> " : "")
-                + (operation != null ? "({Operation}) " : "")
                 + text,
                 values.ToArray());
 
@@ -131,7 +126,6 @@
                         Severity = severity,
                         ForOps = forOps,
                         ProcessUid = process?.UID,
-                        OperationUid = operation?.UID,
                     });
 
                     return;
@@ -159,7 +153,6 @@
                     Severity = severity,
                     ForOps = forOps,
                     ProcessUid = process?.UID,
-                    OperationUid = operation?.UID,
                     Arguments = arguments,
                 });
             }
@@ -212,11 +205,11 @@
             GetOpsMessagesRecursive(args.Exception, opsErrors);
             foreach (var opsError in opsErrors)
             {
-                Log(LogSeverity.Fatal, true, args.Process, args.Operation, opsError);
+                Log(LogSeverity.Fatal, true, args.Process, opsError);
             }
 
             var msg = args.Exception.FormatExceptionWithDetails();
-            Log(LogSeverity.Fatal, false, args.Process, args.Operation, "{Message}", msg);
+            Log(LogSeverity.Fatal, false, args.Process, "{Message}", msg);
         }
 
         private void GetOpsMessagesRecursive(Exception ex, List<string> messages)
@@ -299,19 +292,18 @@
             }
         }
 
-        private void LifecycleRowCreated(IRow row, IProcess process, IOperation operation)
+        private void LifecycleRowCreated(IRow row, IProcess process)
         {
             _diagnosticsSender?.SendDiagnostics("row-created", new RowCreatedEvent()
             {
                 Timestamp = DateTime.Now.Ticks,
                 ProcessUid = process.UID,
-                OperationUid = operation?.UID,
                 RowUid = row.UID,
                 Values = row.Values.Select(kvp => NamedArgument.FromObject(kvp.Key, kvp.Value)).ToArray(),
             });
         }
 
-        private void LifecycleRowOwnerChanged(IRow row, IProcess previousProcess, IProcess currentProcess, IOperation operation)
+        private void LifecycleRowOwnerChanged(IRow row, IProcess previousProcess, IProcess currentProcess)
         {
             _diagnosticsSender?.SendDiagnostics("row-owner-changed", new RowOwnerChangedEvent()
             {
@@ -319,11 +311,10 @@
                 RowUid = row.UID,
                 PreviousProcessUid = previousProcess.UID,
                 NewProcessUid = currentProcess?.UID,
-                OperationUid = operation?.UID,
             });
         }
 
-        private void LifecycleRowStored(IProcess process, IRowOperation operation, IRow row, List<KeyValuePair<string, string>> location)
+        private void LifecycleRowStored(IProcess process, IRow row, List<KeyValuePair<string, string>> location)
         {
             _diagnosticsSender?.SendDiagnostics("row-stored", new RowStoredEvent()
             {
@@ -331,7 +322,6 @@
                 RowUid = row.UID,
                 Locations = location,
                 ProcessUid = process.UID,
-                OperationUid = operation?.UID,
             });
         }
 
@@ -347,32 +337,19 @@
             });
         }
 
-        private void LifecycleOperationCreated(int uid, IOperation operation)
-        {
-            _diagnosticsSender?.SendDiagnostics("operation-created", new OperationCreatedEvent()
-            {
-                Timestamp = DateTime.Now.Ticks,
-                Uid = uid,
-                Type = operation.GetType().GetFriendlyTypeName(),
-                InstanceName = operation.InstanceName,
-                ProcessUid = operation.Process.UID,
-            });
-        }
-
-        private void LifecycleContextDataStoreCommand(string location, IProcess process, IOperation operation, string command, IEnumerable<KeyValuePair<string, object>> args)
+        private void LifecycleContextDataStoreCommand(string location, IProcess process, string command, IEnumerable<KeyValuePair<string, object>> args)
         {
             _diagnosticsSender?.SendDiagnostics("data-store-command", new DataStoreCommandEvent()
             {
                 Timestamp = DateTime.Now.Ticks,
                 ProcessUid = process.UID,
-                OperationUid = operation?.UID,
                 Location = location,
                 Command = command,
                 Arguments = args?.Select(kvp => NamedArgument.FromObject(kvp.Key, kvp.Value)).ToArray(),
             });
         }
 
-        private void LifecycleRowValueChanged(IRow row, string column, object currentValue, IProcess process, IOperation operation)
+        private void LifecycleRowValueChanged(IRow row, string column, object currentValue, IProcess process)
         {
             _diagnosticsSender?.SendDiagnostics("row-value-changed", new RowValueChangedEvent()
             {
@@ -381,7 +358,6 @@
                 Column = column,
                 CurrentValue = Argument.FromObject(currentValue),
                 ProcessUid = process?.UID,
-                OperationUid = operation?.UID,
             });
         }
 

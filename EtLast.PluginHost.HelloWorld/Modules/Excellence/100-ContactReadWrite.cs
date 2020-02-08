@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.Globalization;
-    using System.IO;
     using FizzCode.EtLast;
     using FizzCode.EtLast.EPPlus;
 
@@ -10,7 +9,7 @@
     {
         public override void Execute()
         {
-            Context.ExecuteOne(true, new BasicScope(Context, null)
+            Context.ExecuteOne(true, new BasicScope(Context, null, null)
             {
                 ProcessCreator = ProcessCreator,
             });
@@ -18,11 +17,14 @@
 
         private IEnumerable<IExecutable> ProcessCreator(IExecutable scope)
         {
-            File.Delete(OutputFileName);
-
-            yield return new OperationHostProcess(Context, "OperationHost", scope.Topic)
+            yield return new DeleteFileProcess(Context, "DeleteFile", scope.Topic)
             {
-                InputProcess = new EpPlusExcelReaderProcess(Context, "Read:People", scope.Topic)
+                FileName = OutputFileName,
+            };
+
+            yield return new MutatorBuilder()
+            {
+                InputProcess = new EpPlusExcelReaderProcess(Context, "Reader", scope.Topic)
                 {
                     FileName = SourceFileName,
                     SheetName = "People",
@@ -32,9 +34,9 @@
                         new ReaderColumnConfiguration("Age", new IntConverterAuto(formatProviderHint: CultureInfo.InvariantCulture)),
                     },
                 },
-                Operations = new List<IRowOperation>()
+                Mutators = new List<IMutator>()
                 {
-                    new EpPlusSimpleRowWriterOperation()
+                    new EpPlusSimpleRowWriterMutator(Context, "Writer", scope.Topic)
                     {
                         FileName = OutputFileName,
                         SheetName = "output",
@@ -46,7 +48,7 @@
                         Finalize = (package, state) => state.LastWorksheet.Cells.AutoFitColumns(),
                     }
                 },
-            };
+            }.BuildEvaluable();
         }
     }
 }

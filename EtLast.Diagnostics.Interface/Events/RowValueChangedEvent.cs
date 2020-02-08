@@ -15,8 +15,5 @@
 
         [JsonPropertyName("v")]
         public Argument CurrentValue { get; set; }
-
-        [JsonPropertyName("o")]
-        public int? OperationUid { get; set; }
     }
 }

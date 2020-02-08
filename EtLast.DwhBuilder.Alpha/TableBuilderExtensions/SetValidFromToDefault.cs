@@ -9,14 +9,14 @@
                 if (string.IsNullOrEmpty(builder.ValidFromColumnName))
                     continue;
 
-                builder.AddOperationCreator(builder => new[]
+                builder.AddMutatorCreator(builder => new[]
                 {
-                    new CustomOperation()
+                    new CustomMutator(builder.DwhBuilder.Context, nameof(SetValidFromToDefault), builder.Topic)
                     {
-                        InstanceName = nameof(SetValidFromToDefault),
-                        Then = (op, row) =>
+                        Then = (proc, row) =>
                         {
-                            row.SetValue(builder.ValidFromColumnName, builder.DwhBuilder.DefaultValidFromDateTime, op);
+                            row.SetValue(builder.ValidFromColumnName, builder.DwhBuilder.DefaultValidFromDateTime, proc);
+                            return true;
                         },
                     },
                 });

@@ -32,17 +32,17 @@
                 : null;
         }
 
-        protected override void SetValueImpl(string column, object value, IProcess process, IOperation operation)
+        protected override void SetValueImpl(string column, object value, IProcess process)
         {
-            Context.OnRowValueChanged?.Invoke(this, column, value, process, operation);
-
             var hasPreviousValue = _values.TryGetValue(column, out var previousValue);
             if (value == null && hasPreviousValue)
             {
+                Context.OnRowValueChanged?.Invoke(this, column, value, process);
                 _values.Remove(column);
             }
             else if (!hasPreviousValue || value != previousValue)
             {
+                Context.OnRowValueChanged?.Invoke(this, column, value, process);
                 _values[column] = value;
             }
         }

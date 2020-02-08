@@ -12,7 +12,6 @@
         public string Topic => _scope.Topic;
         public IProcess Caller => _scope;
         public Stopwatch LastInvocation { get; private set; }
-        public ProcessTestDelegate If { get; set; }
         public StatCounterCollection CounterCollection { get; }
 
         public ResilientTableFinalizerManager(ResilientSqlScope scope)
@@ -54,7 +53,7 @@
                         : TransactionScopeKind.None;
 
                     IExecutable[] finalizers;
-                    using (var creatorScope = Context.BeginScope(this, null, creatorScopeKind, LogSeverity.Information))
+                    using (var creatorScope = Context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
                     {
                         finalizers = table.FinalizerCreator
                             .Invoke(table)

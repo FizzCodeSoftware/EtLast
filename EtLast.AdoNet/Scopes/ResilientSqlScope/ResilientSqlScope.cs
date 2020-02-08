@@ -36,7 +36,7 @@
         {
         }
 
-        public override void ValidateImpl()
+        protected override void ValidateImpl()
         {
             if (Configuration == null)
                 throw new ProcessParameterNullException(this, nameof(Configuration));
@@ -116,7 +116,7 @@
 
                             IExecutable[] mainProcessList;
 
-                            using (var creatorScope = Context.BeginScope(this, null, creatorScopeKind, LogSeverity.Information))
+                            using (var creatorScope = Context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
                             {
                                 mainProcessList = table.MainProcessCreator
                                     .Invoke(table)
@@ -142,7 +142,7 @@
 
                         IEvaluable mainEvaluableProcess;
 
-                        using (var creatorScope = Context.BeginScope(this, null, creatorScopeKind, LogSeverity.Information))
+                        using (var creatorScope = Context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
                         {
                             mainEvaluableProcess = table.PartitionedMainProcessCreator.Invoke(table, partitionIndex);
                         }
@@ -160,7 +160,7 @@
                 for (var retryCounter = 0; retryCounter <= maxRetryCount; retryCounter++)
                 {
                     Context.Log(LogSeverity.Information, this, "finalization round {FinalizationRound} started", retryCounter);
-                    using (var scope = Context.BeginScope(this, null, Configuration.FinalizerTransactionScopeKind, LogSeverity.Information))
+                    using (var scope = Context.BeginScope(this, Configuration.FinalizerTransactionScopeKind, LogSeverity.Information))
                     {
                         if (Configuration.PreFinalizerCreator != null)
                         {
@@ -212,7 +212,7 @@
             for (var retryCounter = 0; retryCounter <= maxRetryCount; retryCounter++)
             {
                 Context.Log(LogSeverity.Information, this, "initialization round {InitializationRound} started", retryCounter);
-                using (var scope = Context.BeginScope(this, null, Configuration.InitializationTransactionScopeKind, LogSeverity.Information))
+                using (var scope = Context.BeginScope(this, Configuration.InitializationTransactionScopeKind, LogSeverity.Information))
                 {
                     var manager = new ResilientSqlScopeInitializerManager(this);
                     manager.Execute();

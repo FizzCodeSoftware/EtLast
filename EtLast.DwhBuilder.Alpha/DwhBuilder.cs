@@ -8,8 +8,6 @@
     using FizzCode.EtLast;
     using FizzCode.EtLast.AdoNet;
 
-    public delegate IEnumerable<IRowOperation> CommonOperationsCreatorDelegate(DwhTableBuilder tableBuilder);
-
     public class DwhBuilder
     {
         public IEtlContext Context { get; }
@@ -123,7 +121,7 @@
                     ColumnName = ConnectionString.Escape("EtlRunId"),
                 }.Execute();
 
-                yield return new OperationHostProcess(Context, "Writer", etlRunSqlTable.SchemaAndTableName.SchemaAndName)
+                yield return new MutatorBuilder()
                 {
                     InputProcess = new EnumerableImportProcess(Context, "RowCreator", etlRunSqlTable.SchemaAndTableName.SchemaAndName)
                     {
@@ -143,9 +141,9 @@
                             return new[] { Context.CreateRow(process, initialValues) };
                         }
                     },
-                    Operations = new List<IRowOperation>()
+                    Mutators = new List<IMutator>()
                     {
-                        new MsSqlWriteToTableWithMicroTransactionsOperation()
+                        new MsSqlWriteToTableWithMicroTransactionsMutator(Context, "Writer", etlRunSqlTable.SchemaAndTableName.SchemaAndName)
                         {
                             ConnectionString = ConnectionString,
                             TableDefinition = new DbTableDefinition()
@@ -157,7 +155,7 @@
                             },
                         },
                     },
-                };
+                }.BuildEvaluable();
             }
         }
 

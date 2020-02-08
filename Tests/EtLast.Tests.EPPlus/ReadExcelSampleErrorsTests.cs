@@ -11,40 +11,29 @@
     [TestClass]
     public class ReadExcelSampleErrorsTests
     {
-        private IOperationHostProcess _process;
-        private EpPlusExcelReaderProcess _epPlusExcelReaderProcess;
-
-        [TestInitialize]
-        public void Initialize()
+        private EpPlusExcelReaderProcess GetReader(EtlContext context, string fileName)
         {
-            var context = new EtlContext();
-
-            _epPlusExcelReaderProcess = new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess", null)
+            return new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess", null)
             {
-                FileName = @"TestData\SampleErrors.xlsx",
+                FileName = fileName,
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
-                    {
-                        new ReaderColumnConfiguration("Id", new IntConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
-                        new ReaderColumnConfiguration("Date", new DateConverter()),
-                    }
-            };
-
-            _process = new OperationHostProcess(context, "EpPlusProcess", null)
-            {
-                Configuration = new OperationHostProcessConfiguration()
                 {
-                    MainLoopDelay = 10,
-                },
-                InputProcess = _epPlusExcelReaderProcess
+                    new ReaderColumnConfiguration("Id", new IntConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
+                    new ReaderColumnConfiguration("Date", new DateConverter()),
+                }
             };
         }
 
         [TestMethod]
         public void CheckContent()
         {
-            _epPlusExcelReaderProcess.SheetName = "Date0";
+            var context = new EtlContext();
+            var reader = GetReader(context, @".\TestData\SampleErrors.xlsx");
+            reader.SheetName = "Date0";
 
-            var result = _process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
+            var process = reader;
+
+            var result = process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
             Assert.AreEqual(2, result.Count);
 
             Assert.That.RowsAreEqual(RowHelper.CreateRows(

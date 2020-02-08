@@ -9,17 +9,11 @@
     [TestClass]
     public class DelimitedFileReaderProcessTests
     {
-        private IOperationHostProcess _process;
-        private DelimitedFileReaderProcess _delimitedFileReaderProcess;
-
-        [TestInitialize]
-        public void Initialize()
+        private IEvaluable GetReader(EtlContext context, string fileName)
         {
-            var context = new EtlContext();
-
-            _delimitedFileReaderProcess = new DelimitedFileReaderProcess(context, "DelimitedFileReaderProcess", null)
+            return new DelimitedFileReaderProcess(context, "DelimitedFileReaderProcess", null)
             {
-                FileName = @"TestData\Sample.csv",
+                FileName = fileName,
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
                 {
                     new ReaderColumnConfiguration("Id", new IntConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
@@ -32,27 +26,26 @@
                 HasHeaderRow = true,
                 TreatEmptyStringAsNull = false,
             };
-
-            _process = new OperationHostProcess(context, "DelimitedFileReaderOperationProcess", null)
-            {
-                Configuration = new OperationHostProcessConfiguration()
-                {
-                    MainLoopDelay = 10,
-                },
-                InputProcess = _delimitedFileReaderProcess
-            };
         }
 
         [TestMethod]
         public void CheckContent()
         {
-            _process.AddOperation(new ReplaceErrorWithValueOperation()
+            var context = new EtlContext();
+            var process = new MutatorBuilder()
             {
-                Columns = new[] { "ValueDate" },
-                Value = null
-            });
+                InputProcess = GetReader(context, @"TestData\Sample.csv"),
+                Mutators = new List<IMutator>()
+                {
+                    new ReplaceErrorWithValueMutator(context, null, null)
+                    {
+                        Columns = new[] { "ValueDate" },
+                        Value = null
+                    },
+                }
+            }.BuildEvaluable();
 
-            var result = _process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
+            var result = process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
             Assert.AreEqual(2, result.Count);
 
             Assert.That.RowsAreEqual(RowHelper.CreateRows(
@@ -65,8 +58,10 @@
         [TestMethod]
         public void InvalidConversion()
         {
-            _delimitedFileReaderProcess.FileName = @"TestData\SampleInvalidConversion.csv";
-            var result = _process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
+            var context = new EtlContext();
+            var process = GetReader(context, @"TestData\SampleInvalidConversion.csv");
+
+            var result = process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
 
             Assert.AreEqual(2, result.Count);
             Assert.That.RowsAreEqual(RowHelper.CreateRows(

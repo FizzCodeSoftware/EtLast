@@ -1,7 +1,9 @@
 ﻿namespace FizzCode.EtLast
 {
-    public interface IContinuousAggregationOperation : IOperation
+    public interface IContinuousAggregationOperation
     {
-        void TransformGroup(string[] groupingColumns, IProcess process, IRow row, IRow aggregateRow, int rowsInGroup);
+        IProcess Process { get; }
+        void SetProcess(IProcess process);
+        void TransformGroup(string[] groupingColumns, IRow row, IRow aggregateRow, int rowsInGroup);
     }
 }

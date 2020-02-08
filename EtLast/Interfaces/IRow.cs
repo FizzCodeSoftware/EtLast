@@ -3,9 +3,6 @@
     using System;
     using System.Collections.Generic;
 
-    public enum RowState { Normal, Removed, Finished }
-    public enum DeferState { None, DeferWait, DeferDone }
-
     public interface IRow
     {
         IEtlContext Context { get; }
@@ -17,7 +14,6 @@
         void Init(IEtlContext context, IProcess creatorProcess, int uid, IEnumerable<KeyValuePair<string, object>> initialValues); // called right after creation
 
         IRow SetValue(string column, object newValue, IProcess process);
-        IRow SetValue(string column, object newValue, IOperation operation);
 
         object this[string column] { get; set; }
         IEnumerable<KeyValuePair<string, object>> Values { get; }
@@ -42,9 +38,5 @@
         string FormatToString(string column, IFormatProvider formatProvider = null);
 
         string ToDebugString();
-
-        IRowOperation CurrentOperation { get; set; }
-        RowState State { get; set; }
-        DeferState DeferState { get; set; }
     }
 }

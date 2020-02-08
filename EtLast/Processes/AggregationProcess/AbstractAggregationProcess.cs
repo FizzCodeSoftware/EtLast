@@ -2,7 +2,7 @@
 {
     using System.Text;
 
-    public abstract class AbstractAggregationProcess : AbstractEvaluableProcess
+    public abstract class AbstractAggregationProcess : AbstractEvaluableProcess, IMutator
     {
         public IEvaluable InputProcess { get; set; }
 

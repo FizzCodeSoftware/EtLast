@@ -14,30 +14,20 @@
         public IProcess CurrentProcess { get; set; }
         public int UID { get; private set; }
 
-        public IRowOperation CurrentOperation { get; set; }
-        public RowState State { get; set; }
-        public DeferState DeferState { get; set; }
-
         public virtual IEnumerable<KeyValuePair<string, object>> Values { get; }
 
         public abstract int ColumnCount { get; }
 
-        public object this[string column] { get => GetValueImpl(column); set => SetValueImpl(column, value, null, null); }
+        public object this[string column] { get => GetValueImpl(column); set => SetValueImpl(column, value, null); }
 
         public IRow SetValue(string column, object newValue, IProcess process)
         {
-            SetValueImpl(column, newValue, process, null);
-            return this;
-        }
-
-        public IRow SetValue(string column, object newValue, IOperation operation)
-        {
-            SetValueImpl(column, newValue, operation.Process, operation);
+            SetValueImpl(column, newValue, process);
             return this;
         }
 
         protected abstract object GetValueImpl(string column);
-        protected abstract void SetValueImpl(string column, object value, IProcess process, IOperation operation);
+        protected abstract void SetValueImpl(string column, object value, IProcess process);
 
         public string ToDebugString()
         {

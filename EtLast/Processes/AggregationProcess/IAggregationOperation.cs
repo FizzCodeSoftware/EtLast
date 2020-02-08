@@ -2,8 +2,10 @@
 {
     using System.Collections.Generic;
 
-    public interface IAggregationOperation : IOperation
+    public interface IAggregationOperation
     {
-        IRow TransformGroup(string[] groupingColumns, IProcess process, List<IRow> rows);
+        IProcess Process { get; }
+        void SetProcess(IProcess process);
+        IRow TransformGroup(string[] groupingColumns, List<IRow> rows);
     }
 }

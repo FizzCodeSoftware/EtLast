@@ -39,25 +39,14 @@
         {
             foreach (var row in _input)
             {
-                row.Context.SetRowOwner(row, process, null);
-                row.Context.SetRowOwner(row, null, null);
+                row.Context.SetRowOwner(row, process);
+                row.Context.SetRowOwner(row, null);
 
                 yield return row;
             }
         }
 
-        public IEnumerable<IRow> TakeRowsAndReleaseOwnership(IOperation operation)
-        {
-            foreach (var row in _input)
-            {
-                row.Context.SetRowOwner(row, operation.Process, operation);
-                row.Context.SetRowOwner(row, null, operation);
-
-                yield return row;
-            }
-        }
-
-        public int CountRows(IProcess newOwner, IOperation operation = null)
+        public int CountRows(IProcess newOwner)
         {
             var count = 0;
             foreach (var row in _input)
@@ -65,7 +54,7 @@
                 row.Context.SetRowOwner(row, newOwner);
 
                 if (newOwner != null)
-                    row.Context.SetRowOwner(row, null, operation);
+                    row.Context.SetRowOwner(row, null);
 
                 count++;
             }

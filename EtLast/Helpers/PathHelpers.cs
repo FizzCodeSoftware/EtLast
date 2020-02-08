@@ -24,9 +24,7 @@
             {
                 try
                 {
-                    return new Uri(BaseFolder.Value)
-                        .MakeRelativeUri(new Uri(path))
-                        .OriginalString
+                    return Path.Combine(BaseFolder.Value, path)
                         .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
                 }
                 catch (Exception)

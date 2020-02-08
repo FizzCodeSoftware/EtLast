@@ -6,7 +6,6 @@
     public abstract class AbstractProcess : IProcess
     {
         public int UID { get; }
-        public ProcessTestDelegate If { get; set; }
         public IEtlContext Context { get; }
         public IProcess Caller { get; protected set; }
         public string Name { get; set; }
@@ -35,7 +34,7 @@
             catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
         }
 
-        public abstract void ValidateImpl();
+        protected abstract void ValidateImpl();
 
         protected void LogCounters()
         {

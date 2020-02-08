@@ -39,4 +39,8 @@
     <ProjectReference Condition="'$(Configuration)' == 'LocalProjects'" Include="..\..\DbTools\DbTools.Configuration\DbTools.Configuration.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Processes\OperationHostProcess\" />
+  </ItemGroup>
+
 </Project>

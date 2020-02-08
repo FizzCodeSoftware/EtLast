@@ -31,11 +31,9 @@
         public ContextOnRowValueChangedDelegate OnRowValueChanged { get; set; }
         public ContextOnRowStoredDelegate OnRowStored { get; set; }
         public ContextOnProcessCreatedDelegate OnProcessCreated { get; set; }
-        public ContextOnOperationCreatedDelegate OnOperationCreated { get; set; }
 
         private int _nextRowUid;
         private int _nextProcessUid;
-        private int _nextOperationUid;
         private readonly List<Exception> _exceptions = new List<Exception>();
 
         public EtlContext(StatCounterCollection forwardCountersToCollection = null)
@@ -122,25 +120,12 @@
             if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
                 Result.WarningCount++;
 
-            OnLog?.Invoke(severity, false, process, null, text, args);
-        }
-
-        public void Log(LogSeverity severity, IProcess process, IOperation operation, string text, params object[] args)
-        {
-            if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
-                Result.WarningCount++;
-
-            OnLog?.Invoke(severity, false, process, operation, text, args);
+            OnLog?.Invoke(severity, false, process, text, args);
         }
 
         public void LogOps(LogSeverity severity, IProcess process, string text, params object[] args)
         {
-            OnLog?.Invoke(severity, true, process, null, text, args);
-        }
-
-        public void LogOps(LogSeverity severity, IProcess process, IOperation operation, string text, params object[] args)
-        {
-            OnLog?.Invoke(severity, true, process, operation, text, args);
+            OnLog?.Invoke(severity, true, process, text, args);
         }
 
         public void LogCustom(string fileName, IProcess process, string text, params object[] args)
@@ -153,34 +138,24 @@
             OnCustomLog?.Invoke(true, fileName, process, text, args);
         }
 
-        public void LogDataStoreCommand(string location, IProcess process, IOperation operation, string command, IEnumerable<KeyValuePair<string, object>> args)
+        public void LogDataStoreCommand(string location, IProcess process, string command, IEnumerable<KeyValuePair<string, object>> args)
         {
-            OnContextDataStoreCommand?.Invoke(location, process, operation, command, args);
-        }
-
-        public IRow CreateRow(IOperation operation, IEnumerable<KeyValuePair<string, object>> initialValues)
-        {
-            return CreateRowInternal(operation.Process, operation, initialValues);
+            OnContextDataStoreCommand?.Invoke(location, process, command, args);
         }
 
         public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues)
-        {
-            return CreateRowInternal(process, null, initialValues);
-        }
-
-        private IRow CreateRowInternal(IProcess process, IOperation operation, IEnumerable<KeyValuePair<string, object>> initialValues)
         {
             var row = (IRow)Activator.CreateInstance(RowType);
             row.Init(this, process, Interlocked.Increment(ref _nextRowUid) - 1, initialValues);
 
             CounterCollection.IncrementCounter("in-memory rows created", 1);
 
-            OnRowCreated?.Invoke(row, process, operation);
+            OnRowCreated?.Invoke(row, process);
 
             return row;
         }
 
-        public void AddException(IProcess process, Exception ex, IOperation operation = null)
+        public void AddException(IProcess process, Exception ex)
         {
             if (ex is OperationCanceledException)
                 return;
@@ -201,7 +176,6 @@
             OnException?.Invoke(this, new ContextExceptionEventArgs()
             {
                 Process = process,
-                Operation = operation,
                 Exception = ex,
             });
 
@@ -229,36 +203,22 @@
             }
         }
 
-        public EtlTransactionScope BeginScope(IProcess process, IOperation operation, TransactionScopeKind kind, LogSeverity logSeverity)
+        public EtlTransactionScope BeginScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity)
         {
-            return new EtlTransactionScope(this, process, operation, kind, TransactionScopeTimeout, logSeverity);
+            return new EtlTransactionScope(this, process, kind, TransactionScopeTimeout, logSeverity);
         }
 
         public void SetRowOwner(IRow row, IProcess currentProcess)
         {
             var previousProcess = row.CurrentProcess;
             row.CurrentProcess = currentProcess;
-            OnRowOwnerChanged?.Invoke(row, previousProcess, currentProcess, null);
-        }
-
-        public void SetRowOwner(IRow row, IProcess currentProcess, IOperation operation)
-        {
-            var previousProcess = row.CurrentProcess;
-            row.CurrentProcess = currentProcess;
-            OnRowOwnerChanged?.Invoke(row, previousProcess, currentProcess, operation);
+            OnRowOwnerChanged?.Invoke(row, previousProcess, currentProcess);
         }
 
         public int GetProcessUid(IProcess process)
         {
             var uid = Interlocked.Increment(ref _nextProcessUid) - 1;
             OnProcessCreated?.Invoke(uid, process);
-            return uid;
-        }
-
-        public int GetOperationUid(IOperation operation)
-        {
-            var uid = Interlocked.Increment(ref _nextOperationUid) - 1;
-            OnOperationCreated?.Invoke(uid, operation);
             return uid;
         }
     }

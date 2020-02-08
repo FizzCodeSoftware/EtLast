@@ -12,13 +12,14 @@
         {
             const int rowCount = 100;
 
-            var process = CreateProcess();
-            process.AddOperation(new RemoveColumnsOperation()
+            var context = new EtlContext();
+            var process = CreateMutatorBuilder(rowCount, context);
+            process.Mutators.Add(new RemoveColumnsMutator(context, null, null)
             {
                 Columns = new[] { "id", "name", "age", "fkid", "date", "time", "datetime" },
             });
 
-            var etl = RunEtl(process, rowCount);
+            var etl = RunEtl(process);
             var result = etl.Sum(x => x.ColumnCount);
             const int expected = 0;
 
@@ -30,13 +31,14 @@
         {
             const int rowCount = 100;
 
-            var process = CreateProcess();
-            process.AddOperation(new RemoveColumnsOperation()
+            var context = new EtlContext();
+            var process = CreateMutatorBuilder(rowCount, context);
+            process.Mutators.Add(new RemoveColumnsMutator(context, null, null)
             {
                 Columns = new[] { "name", "fkid" },
             });
 
-            var etl = RunEtl(process, rowCount);
+            var etl = RunEtl(process);
             var result = etl.Sum(x => x.ColumnCount);
             var expected = rowCount * 5;
 
@@ -48,13 +50,14 @@
         {
             const int rowCount = 100;
 
-            var process = CreateProcess();
-            process.AddOperation(new RemoveColumnsOperation()
+            var context = new EtlContext();
+            var process = CreateMutatorBuilder(rowCount, context);
+            process.Mutators.Add(new RemoveColumnsMutator(context, null, null)
             {
                 Columns = new[] { "id" },
             });
 
-            var etl = RunEtl(process, rowCount);
+            var etl = RunEtl(process);
             var result = etl.Sum(x => x.ColumnCount);
             var expected = rowCount * 6;
 

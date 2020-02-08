@@ -13,13 +13,13 @@
             return this;
         }
 
-        public override void TransformGroup(string[] groupingColumns, IProcess process, IRow row, IRow aggregateRow, int rowsInGroup)
+        public override void TransformGroup(string[] groupingColumns, IRow row, IRow aggregateRow, int rowsInGroup)
         {
             foreach (var kvp in ColumnAggregators)
             {
                 var column = kvp.Key;
                 var aggregatedValue = kvp.Value.Invoke(aggregateRow, rowsInGroup, row, column);
-                aggregateRow.SetValue(column, aggregatedValue, this);
+                aggregateRow.SetValue(column, aggregatedValue, Process);
             }
         }
     }

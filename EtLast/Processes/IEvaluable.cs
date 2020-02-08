@@ -4,7 +4,7 @@
 
     public delegate IEnumerable<IRow> EvaluateDelegate(IProcess caller);
 
-    public interface IEvaluable : IProcess
+    public interface IEvaluable : IExecutable
     {
         /// <summary>
         /// Some consumer processes use buffering to process the rows enumerated from their input.

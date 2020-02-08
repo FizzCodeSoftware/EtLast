@@ -23,7 +23,7 @@
         /// </summary>
         public bool SuppressExistingTransactionScope { get; set; }
 
-        public override void ValidateImpl()
+        protected override void ValidateImpl()
         {
             if (ConnectionString == null)
                 throw new ProcessParameterNullException(this, nameof(ConnectionString));
@@ -33,7 +33,7 @@
         {
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
-                var connection = ConnectionManager.GetConnection(ConnectionString, this, null);
+                var connection = ConnectionManager.GetConnection(ConnectionString, this);
                 try
                 {
                     lock (connection.Lock)
@@ -50,7 +50,7 @@
                             for (var i = 0; i < sqlStatements.Count; i++)
                             {
                                 var sqlStatement = sqlStatements[i];
-                                Context.LogDataStoreCommand(ConnectionString.Name, this, null, sqlStatement, null);
+                                Context.LogDataStoreCommand(ConnectionString.Name, this, sqlStatement, null);
 
                                 cmd.CommandText = sqlStatement;
                                 try
@@ -71,7 +71,7 @@
                 }
                 finally
                 {
-                    ConnectionManager.ReleaseConnection(this, null, ref connection);
+                    ConnectionManager.ReleaseConnection(this, ref connection);
                 }
             }
         }

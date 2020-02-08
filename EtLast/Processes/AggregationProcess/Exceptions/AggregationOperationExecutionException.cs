@@ -12,7 +12,7 @@
         public AggregationOperationExecutionException(IProcess process, IAggregationOperation operation, List<IRow> group, Exception innerException)
             : base(process, "error raised during the execution of an aggregation operation", innerException)
         {
-            Data.Add("Operation", operation.Name);
+            Data.Add("Operation", operation.GetType().GetFriendlyTypeName());
             Data.Add("Group", string.Join("\n", group.Select(x => x.ToDebugString())));
         }
     }

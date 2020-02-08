@@ -13,14 +13,21 @@
         {
             var context = new EtlContext();
 
-            var process = CreateProcess(context);
-            process.AddOperation(new CustomOperation() { Then = (op, row) => { var x = row.GetAs<int>("x"); } });
+            var process = CreateMutatorBuilder(1, context);
+            process.Mutators.Add(new CustomMutator(context, null, null)
+            {
+                Then = (proc, row) =>
+                {
+                    var x = row.GetAs<int>("x");
+                    return true;
+                }
+            });
 
-            RunEtl(process, 1);
+            RunEtl(process);
 
             var exceptions = context.GetExceptions();
-            Assert.IsTrue(exceptions.Any(ex => ex is OperationExecutionException));
-            Assert.IsTrue(exceptions.All(ex => ex is OperationExecutionException));
+            Assert.IsTrue(exceptions.Any(ex => ex is ProcessExecutionException));
+            Assert.IsTrue(exceptions.All(ex => ex is ProcessExecutionException));
             Assert.IsTrue(exceptions.All(ex => ex.InnerException is InvalidCastException));
         }
 
@@ -29,14 +36,22 @@
         {
             var context = new EtlContext();
 
-            var process = CreateProcess(context);
-            process.AddOperation(new CustomOperation() { Then = (op, row) => { int? x = null; var y = x.Value; } });
+            var process = CreateMutatorBuilder(1, context);
+            process.Mutators.Add(new CustomMutator(context, null, null)
+            {
+                Then = (proc, row) =>
+                {
+                    int? x = null;
+                    var y = x.Value;
+                    return true;
+                }
+            });
 
-            RunEtl(process, 1);
+            RunEtl(process);
 
             var exceptions = context.GetExceptions();
-            Assert.IsTrue(exceptions.Any(ex => ex is OperationExecutionException));
-            Assert.IsTrue(exceptions.All(ex => ex is OperationExecutionException));
+            Assert.IsTrue(exceptions.Any(ex => ex is ProcessExecutionException));
+            Assert.IsTrue(exceptions.All(ex => ex is ProcessExecutionException));
             Assert.IsTrue(exceptions.All(ex => ex.InnerException is InvalidOperationException));
         }
 
@@ -44,14 +59,14 @@
         public void InvalidOperationParameter()
         {
             var context = new EtlContext();
-            var process = CreateProcess(context);
-            process.AddOperation(new CustomOperation());
+            var process = CreateMutatorBuilder(1, context);
+            process.Mutators.Add(new CustomMutator(context, null, null));
 
-            RunEtl(process, 1);
+            RunEtl(process);
 
             var exceptions = context.GetExceptions();
-            Assert.IsTrue(exceptions.Any(ex => ex is InvalidOperationParameterException));
-            Assert.IsTrue(exceptions.All(ex => ex is InvalidOperationParameterException));
+            Assert.IsTrue(exceptions.Any(ex => ex is InvalidProcessParameterException));
+            Assert.IsTrue(exceptions.All(ex => ex is InvalidProcessParameterException));
         }
     }
 }

@@ -25,7 +25,7 @@
         {
         }
 
-        public override void ValidateImpl()
+        protected override void ValidateImpl()
         {
             if (ClientCreator == null)
                 throw new ProcessParameterNullException(this, nameof(ClientCreator));

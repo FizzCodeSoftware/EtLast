@@ -20,9 +20,6 @@
             if (Context.CancellationTokenSource.IsCancellationRequested)
                 return;
 
-            if (If?.Invoke(this) == false)
-                return;
-
             try
             {
                 ExecuteImpl();

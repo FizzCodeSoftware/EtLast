@@ -11,7 +11,6 @@
         IProcess Caller { get; }
         Stopwatch LastInvocation { get; }
 
-        public ProcessTestDelegate If { get; set; }
         void Validate();
 
         StatCounterCollection CounterCollection { get; }

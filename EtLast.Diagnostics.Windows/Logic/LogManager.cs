@@ -77,15 +77,6 @@
                             .Append('<')
                             .Append(process.Name)
                             .Append("> ");
-
-                        if (evt.OperationUid != null)
-                        {
-                            var operation = process.OperationList[evt.OperationUid.Value];
-                            sb
-                                .Append('(')
-                                .Append(operation.DisplayName)
-                                .Append(") ");
-                        }
                     }
 
                     var text = evt.Text;

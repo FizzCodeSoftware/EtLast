@@ -25,7 +25,7 @@
         public string ValidToColumnNameEscaped { get; }
 
         private readonly List<Func<DwhTableBuilder, IEnumerable<IExecutable>>> _finalizerCreators = new List<Func<DwhTableBuilder, IEnumerable<IExecutable>>>();
-        private readonly List<Func<DwhTableBuilder, IEnumerable<IRowOperation>>> _operationCreators = new List<Func<DwhTableBuilder, IEnumerable<IRowOperation>>>();
+        private readonly List<Func<DwhTableBuilder, IEnumerable<IMutator>>> _mutatorCreators = new List<Func<DwhTableBuilder, IEnumerable<IMutator>>>();
         private Func<IEvaluable> _inputProcessCreator;
 
         public DwhTableBuilder(DwhBuilder builder, ResilientTable table, SqlTable sqlTable)
@@ -59,9 +59,9 @@
             ValidToColumnNameEscaped = ValidToColumnName != null ? builder.ConnectionString.Escape(ValidToColumnName) : null;
         }
 
-        internal void AddOperationCreator(Func<DwhTableBuilder, IEnumerable<IRowOperation>> creator)
+        internal void AddMutatorCreator(Func<DwhTableBuilder, IEnumerable<IMutator>> creator)
         {
-            _operationCreators.Add(creator);
+            _mutatorCreators.Add(creator);
         }
 
         internal void AddFinalizerCreator(Func<DwhTableBuilder, IEnumerable<IExecutable>> creator)
@@ -80,7 +80,7 @@
             Table.MainProcessCreator = t => CreateTableMainProcess();
         }
 
-        private IRowOperation CreateTempWriterOperation(ResilientTable table, SqlTable sqlTable)
+        private IMutator CreateTempWriter(ResilientTable table, SqlTable sqlTable)
         {
             var pk = sqlTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
             var okIsIdentity = pk.SqlColumns.Any(c => c.SqlColumn.HasProperty<Identity>());
@@ -94,9 +94,8 @@
                     .Where(x => pk.SqlColumns.All(pkc => !string.Equals(pkc.SqlColumn.Name, x.Name, StringComparison.InvariantCultureIgnoreCase)));
             }
 
-            return new MsSqlWriteToTableWithMicroTransactionsOperation()
+            return new MsSqlWriteToTableWithMicroTransactionsMutator(DwhBuilder.Context, "Writer", table.Topic)
             {
-                InstanceName = "Write",
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 TableDefinition = new DbTableDefinition()
                 {
@@ -110,35 +109,21 @@
 
         private IEnumerable<IExecutable> CreateTableMainProcess()
         {
-            var operations = new List<IRowOperation>();
-            foreach (var operationCreator in _operationCreators)
+            var mutators = new List<IMutator>();
+            foreach (var creator in _mutatorCreators)
             {
-                operations.AddRange(operationCreator?.Invoke(this));
+                mutators.AddRange(creator?.Invoke(this));
             }
 
-            operations.Add(CreateTempWriterOperation(Table, SqlTable));
+            mutators.Add(CreateTempWriter(Table, SqlTable));
 
             var inputProcess = _inputProcessCreator?.Invoke();
 
-            if (inputProcess is OperationHostProcess opProc)
+            yield return new MutatorBuilder()
             {
-                opProc.Name = "Main";
-                opProc.Topic = Table.Topic;
-                foreach (var op in operations)
-                {
-                    opProc.AddOperation(op);
-                }
-
-                yield return opProc;
-            }
-            else
-            {
-                yield return new OperationHostProcess(Table.Scope.Context, "Main", Table.Topic)
-                {
-                    InputProcess = inputProcess,
-                    Operations = operations,
-                };
-            }
+                InputProcess = inputProcess,
+                Mutators = mutators,
+            }.BuildEvaluable();
         }
 
         private IEnumerable<IExecutable> CreateTableFinalizers()

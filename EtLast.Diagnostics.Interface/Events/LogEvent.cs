@@ -8,9 +8,6 @@
         [JsonPropertyName("p")]
         public int? ProcessUid { get; set; }
 
-        [JsonPropertyName("o")]
-        public int? OperationUid { get; set; }
-
         [JsonPropertyName("t")]
         public string Text { get; set; }
 

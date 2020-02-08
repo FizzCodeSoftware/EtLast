@@ -51,7 +51,7 @@
             SqlValueProcessors.Add(new MySqlValueProcessor());
         }
 
-        public override void ValidateImpl()
+        protected override void ValidateImpl()
         {
             if (ConnectionString == null)
                 throw new ProcessParameterNullException(this, nameof(ConnectionString));
@@ -74,7 +74,7 @@
             IDbCommand cmd = null;
             Stopwatch swQuery;
 
-            Context.LogDataStoreCommand(ConnectionString.Name, this, null, sqlStatement, Parameters);
+            Context.LogDataStoreCommand(ConnectionString.Name, this, sqlStatement, Parameters);
 
             var sqlStatementProcessed = InlineArrayParametersIfNecessary(sqlStatement);
 
@@ -86,7 +86,7 @@
                 }
                 else
                 {
-                    connection = ConnectionManager.GetConnection(ConnectionString, this, null);
+                    connection = ConnectionManager.GetConnection(ConnectionString, this);
                 }
 
                 cmd = connection.Connection.CreateCommand();
@@ -206,7 +206,7 @@
 
             if (CustomConnectionCreator == null)
             {
-                ConnectionManager.ReleaseConnection(this, null, ref connection);
+                ConnectionManager.ReleaseConnection(this, ref connection);
             }
         }
 

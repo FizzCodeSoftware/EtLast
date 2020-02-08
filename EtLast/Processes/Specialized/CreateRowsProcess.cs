@@ -20,7 +20,7 @@
         {
         }
 
-        public override void ValidateImpl()
+        protected override void ValidateImpl()
         {
             if (InputRows == null)
                 throw new ProcessParameterNullException(this, nameof(InputRows));

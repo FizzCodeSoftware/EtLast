@@ -41,11 +41,9 @@
 
             _list.Columns.Add("timestamp", 85);
             _list.Columns.Add("context", 200);
-            _list.Columns.Add("topic", 250);
-            _list.Columns.Add("process name", 250);
-            _list.Columns.Add("process type", 250);
-            _list.Columns.Add("operation type", 250);
-            _list.Columns.Add("operation name", 150);
+            _list.Columns.Add("topic", 300);
+            _list.Columns.Add("process name", 300);
+            _list.Columns.Add("process type", 300);
             _list.Columns.Add("text", 700);
             _list.Columns.Add("arguments", 200);
 
@@ -79,13 +77,10 @@
                         item.SubItems.Add(playbook.ExecutionContext.Name);
 
                         var process = playbook.ExecutionContext.WholePlaybook.ProcessList[evt.ProcessUid];
-                        var operation = evt.OperationUid == null ? null : playbook.ExecutionContext.WholePlaybook.OperationList[evt.OperationUid.Value];
 
-                        item.SubItems.Add(process?.Topic);
-                        item.SubItems.Add(process?.Name);
-                        item.SubItems.Add(process?.Type);
-                        item.SubItems.Add(operation?.Type);
-                        item.SubItems.Add(operation?.InstanceName);
+                        item.SubItems.Add(process.Topic);
+                        item.SubItems.Add(process.Name);
+                        item.SubItems.Add(process.Type);
                         item.SubItems.Add(evt.Command);
                         item.SubItems.Add(evt.Arguments != null
                             ? string.Join(",", evt.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Name + "=" + x.ToDisplayValue()))

@@ -36,7 +36,7 @@
         {
         }
 
-        public override void ValidateImpl()
+        protected override void ValidateImpl()
         {
         }
 
@@ -44,7 +44,7 @@
         {
             Context.Log(LogSeverity.Information, this, "scope started");
 
-            using (var scope = Context.BeginScope(this, null, TransactionScopeKind, LogSeverity.Information))
+            using (var scope = Context.BeginScope(this, TransactionScopeKind, LogSeverity.Information))
             {
                 var failed = false;
 
@@ -58,7 +58,7 @@
                 foreach (var creator in creators)
                 {
                     IExecutable[] processes = null;
-                    using (var creatorScope = Context.BeginScope(this, null, CreationTransactionScopeKind, LogSeverity.Information))
+                    using (var creatorScope = Context.BeginScope(this, CreationTransactionScopeKind, LogSeverity.Information))
                     {
                         processes = creator.Invoke(this).Where(x => x != null).ToArray();
                     }

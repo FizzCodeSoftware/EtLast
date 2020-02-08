@@ -4,42 +4,13 @@
 
     public abstract class AbstractAggregationOperation : IAggregationOperation
     {
-        public int UID { get; private set; }
-        public string Name { get; private set; }
-
-        private string _instanceName;
-
-        public string InstanceName
-        {
-            get => _instanceName;
-            set
-            {
-                _instanceName = value;
-                Name = value;
-            }
-        }
-
         public IProcess Process { get; private set; }
 
-        protected AbstractAggregationOperation()
-        {
-            Name = GetType().GetFriendlyTypeName();
-        }
-
-        public abstract IRow TransformGroup(string[] groupingColumns, IProcess process, List<IRow> rows);
+        public abstract IRow TransformGroup(string[] groupingColumns, List<IRow> rows);
 
         public void SetProcess(IProcess process)
         {
             Process = process;
-        }
-
-        public void Prepare()
-        {
-            UID = Process.Context.GetOperationUid(this);
-        }
-
-        public void Shutdown()
-        {
         }
     }
 }
