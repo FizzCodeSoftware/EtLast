@@ -7,8 +7,6 @@
     using System.Threading;
     using System.Transactions;
 
-    public delegate void OperationHostProcessPrepareDelegate(OperationHostProcess process);
-
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
     public class OperationHostProcess : AbstractProcess, IOperationHostProcess
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
@@ -29,8 +27,6 @@
 
         private readonly CancellationTokenSource _workerCancellationTokenSource = new CancellationTokenSource();
         private readonly List<IRowOperation> _operations = new List<IRowOperation>();
-
-        public OperationHostProcessPrepareDelegate OnPrepare { get; set; }
 
         public List<IRowOperation> Operations
         {
@@ -67,7 +63,6 @@
             where T : IRowOperation
         {
             operation.SetProcess(this);
-            operation.SetNumber(_operations.Count + 1);
 
             if (_operations.Count > 0)
             {
@@ -168,11 +163,7 @@
             IRowOperation nextOp = null;
             if (row.CurrentOperation != null)
             {
-                var currentIndex = row.CurrentOperation.Number - 1;
-                if (currentIndex < _operations.Count - 1)
-                {
-                    nextOp = _operations[currentIndex + 1];
-                }
+                nextOp = row.CurrentOperation.NextOperation;
             }
             else
             {
@@ -284,16 +275,6 @@
         private void CreateRowQueue()
         {
             _rowQueue = (IRowQueue)Activator.CreateInstance(Configuration.RowQueueType);
-        }
-
-        private void InvokeOnPrepare()
-        {
-            try
-            {
-                OnPrepare?.Invoke(this);
-            }
-            catch (EtlException) { throw; }
-            catch (Exception ex) { throw new ProcessExecutionException(this, "exception raised during OnPrepare invocation", ex); }
         }
 
         private bool PrepareOperations()
@@ -477,8 +458,6 @@
                 if (!PrepareOperations() || Context.CancellationTokenSource.IsCancellationRequested)
                     return;
 
-                InvokeOnPrepare();
-
                 CreateWorker();
                 if (Context.CancellationTokenSource.IsCancellationRequested)
                     return;
@@ -621,8 +600,6 @@
 
                 if (!PrepareOperations() || Context.CancellationTokenSource.IsCancellationRequested)
                     yield break;
-
-                InvokeOnPrepare();
 
                 CreateWorker();
                 if (Context.CancellationTokenSource.IsCancellationRequested)

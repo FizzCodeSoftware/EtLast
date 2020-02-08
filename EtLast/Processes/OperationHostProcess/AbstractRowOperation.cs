@@ -2,7 +2,8 @@
 {
     using System;
     using System.Diagnostics;
-    using System.Globalization;
+
+    public delegate void CustomPrepareDelegate(IRowOperation op);
 
     [DebuggerDisplay("{" + nameof(Name) + "}")]
     public abstract class AbstractRowOperation : IRowOperation
@@ -11,21 +12,29 @@
         IProcess IOperation.Process => Process;
 
         public int UID { get; private set; }
-        public string InstanceName { get; set; }
+        private string _instanceName;
+
+        public string InstanceName
+        {
+            get => _instanceName; set
+            {
+                _instanceName = value;
+                Name = value;
+            }
+        }
+
         public string Name { get; private set; }
-        public int Number { get; private set; }
 
         public IRowOperation NextOperation { get; private set; }
         public IRowOperation PrevOperation { get; private set; }
 
         public StatCounterCollection CounterCollection { get; private set; }
 
-        private int _hash;
+        public CustomPrepareDelegate OnCustomPrepare { get; set; }
 
         protected AbstractRowOperation()
         {
-            Name = "??." + GetType().GetFriendlyTypeName();
-            _hash = Name.GetHashCode(StringComparison.InvariantCultureIgnoreCase);
+            Name = GetType().GetFriendlyTypeName();
         }
 
         public void SetNextOperation(IRowOperation operation)
@@ -60,16 +69,9 @@
             SetProcess(operationProcess);
         }
 
-        public virtual void SetNumber(int number)
-        {
-            Number = number;
-            Name = Number.ToString("D2", CultureInfo.InvariantCulture) + "." + (InstanceName ?? GetType().GetFriendlyTypeName());
-            _hash = Name.GetHashCode(StringComparison.InvariantCultureIgnoreCase);
-        }
-
         public override int GetHashCode()
         {
-            return _hash;
+            return Name.GetHashCode(StringComparison.InvariantCultureIgnoreCase);
         }
 
         public abstract void Apply(IRow row);
@@ -78,6 +80,8 @@
         {
             UID = Process.Context.GetOperationUid(this);
             PrepareImpl();
+
+            OnCustomPrepare?.Invoke(this);
         }
 
         protected abstract void PrepareImpl();

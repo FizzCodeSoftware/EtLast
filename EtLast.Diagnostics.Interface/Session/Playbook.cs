@@ -91,7 +91,8 @@
                             if (!ProcessList.TryGetValue(evt.ProcessUid, out var process))
                                 continue;
 
-                            if (evt.OperationUid != null && !process.OperationList.ContainsKey(evt.OperationUid.Value))
+                            TrackedOperation operation = null;
+                            if (evt.OperationUid != null && !process.OperationList.TryGetValue(evt.OperationUid.Value, out operation))
                                 continue;
 
                             var row = new TrackedRow()
@@ -112,7 +113,7 @@
 
                             RowList[row.Uid] = row;
 
-                            process.AddRow(row, null);
+                            process.CreateRow(row, operation);
                         }
                         break;
                     case RowOwnerChangedEvent evt:
@@ -136,7 +137,7 @@
                             if (newProcess != null)
                             {
                                 previousProcess.PassedRow(row, newProcess);
-                                newProcess.AddRow(row, previousProcess);
+                                newProcess.InputRow(row, previousProcess);
                             }
                             else
                             {

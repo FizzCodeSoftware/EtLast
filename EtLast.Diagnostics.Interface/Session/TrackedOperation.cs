@@ -19,9 +19,9 @@
             InstanceName = instanceName;
             Process = process;
             DisplayName = Uid.ToString("D2", CultureInfo.InvariantCulture) + "."
-                + InstanceName != null
+                + (InstanceName != null
                     ? InstanceName + " (" + Type + ")"
-                    : Type;
+                    : Type);
         }
     }
 }

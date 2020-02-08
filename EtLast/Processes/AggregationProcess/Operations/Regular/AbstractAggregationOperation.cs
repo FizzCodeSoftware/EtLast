@@ -19,7 +19,6 @@
             }
         }
 
-        public int Number { get; private set; }
         public IProcess Process { get; private set; }
 
         protected AbstractAggregationOperation()
@@ -32,11 +31,6 @@
         public void SetProcess(IProcess process)
         {
             Process = process;
-        }
-
-        public void SetNumber(int number)
-        {
-            Number = number;
         }
 
         public void Prepare()

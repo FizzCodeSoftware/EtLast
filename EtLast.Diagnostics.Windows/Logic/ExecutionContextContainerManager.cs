@@ -237,16 +237,17 @@
                             {
                                 item.SubItems[3].SetIfChanged(p.InputRowCount.ToString("D", CultureInfo.InvariantCulture),
                                     () => string.Join("\n", p.InputRowCountByByPreviousProcess.Select(x => Context.WholePlaybook.ProcessList[x.Key].DisplayName + "  =  " + x.Value.ToString("D", CultureInfo.InvariantCulture))));
-                                item.SubItems[4].SetIfChanged(p.CreatedRowCount.ToString("D", CultureInfo.InvariantCulture));
+                                item.SubItems[4].SetIfChanged(p.CreatedRowCount.ToString("D", CultureInfo.InvariantCulture),
+                                    () => string.Join("\n", p.CreatedRowCountByOperation.Select(x => p.OperationList[x.Key].DisplayName + "  =  " + x.Value.ToString("D", CultureInfo.InvariantCulture))));
                                 item.SubItems[5].SetIfChanged(p.StoredRowList.Count.ToString("D", CultureInfo.InvariantCulture));
                                 item.SubItems[6].SetIfChanged(p.DroppedRowList.Count.ToString("D", CultureInfo.InvariantCulture),
                                     () => "by operations\n\n" + string.Join("\n", p.DroppedRowList
                                     .Where(x => x.Value.DroppedByEvent.OperationUid != null)
                                     .GroupBy(x => x.Value.DroppedByEvent.OperationUid.Value)
-                                    .Select(x => Context.WholePlaybook.OperationList[x.Key].DisplayName + "  =  " + x.Count())));
+                                    .Select(x => p.OperationList[x.Key].DisplayName + "  =  " + x.Count())));
                                 item.SubItems[7].SetIfChanged(p.AliveRowList.Count.ToString("D", CultureInfo.InvariantCulture));
                                 item.SubItems[8].SetIfChanged(p.PassedRowCount.ToString("D", CultureInfo.InvariantCulture),
-                                    () => string.Join("\n", p.PassedRowCountByByNextProcess.Select(x => Context.WholePlaybook.ProcessList[x.Key].DisplayName + "  =  " + x.Value.ToString("D", CultureInfo.InvariantCulture))));
+                                    () => string.Join("\n", p.PassedRowCountByNextProcess.Select(x => Context.WholePlaybook.ProcessList[x.Key].DisplayName + "  =  " + x.Value.ToString("D", CultureInfo.InvariantCulture))));
                             }
                         }
                     }

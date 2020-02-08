@@ -18,9 +18,13 @@
         public Dictionary<int, TrackedRow> StoredRowList { get; } = new Dictionary<int, TrackedRow>();
         public Dictionary<int, TrackedRow> AliveRowList { get; } = new Dictionary<int, TrackedRow>();
         public Dictionary<int, TrackedRow> DroppedRowList { get; } = new Dictionary<int, TrackedRow>();
+
         public int PassedRowCount { get; private set; }
-        public Dictionary<int, int> PassedRowCountByByNextProcess { get; } = new Dictionary<int, int>();
+        public Dictionary<int, int> PassedRowCountByNextProcess { get; } = new Dictionary<int, int>();
+
         public int CreatedRowCount { get; private set; }
+        public Dictionary<int, int> CreatedRowCountByOperation { get; } = new Dictionary<int, int>();
+
         public Dictionary<int, int> InputRowCountByByPreviousProcess { get; } = new Dictionary<int, int>();
         public int InputRowCount { get; private set; }
 
@@ -41,7 +45,7 @@
             OperationList.Add(operation.Uid, operation);
         }
 
-        public void AddRow(TrackedRow row, TrackedProcess previousProcess)
+        public void InputRow(TrackedRow row, TrackedProcess previousProcess)
         {
             if (AliveRowList.ContainsKey(row.Uid))
                 throw new Exception("ohh");
@@ -49,16 +53,26 @@
             AliveRowList.Add(row.Uid, row);
             row.CurrentOwner = this;
 
-            if (previousProcess != null)
+            InputRowCountByByPreviousProcess.TryGetValue(previousProcess.Uid, out var cnt);
+            cnt++;
+            InputRowCountByByPreviousProcess[previousProcess.Uid] = cnt;
+            InputRowCount++;
+        }
+
+        public void CreateRow(TrackedRow row, TrackedOperation operation)
+        {
+            if (AliveRowList.ContainsKey(row.Uid))
+                throw new Exception("ohh");
+
+            AliveRowList.Add(row.Uid, row);
+            row.CurrentOwner = this;
+
+            CreatedRowCount++;
+            if (operation != null)
             {
-                InputRowCountByByPreviousProcess.TryGetValue(previousProcess.Uid, out var cnt);
+                CreatedRowCountByOperation.TryGetValue(operation.Uid, out var cnt);
                 cnt++;
-                InputRowCountByByPreviousProcess[previousProcess.Uid] = cnt;
-                InputRowCount++;
-            }
-            else
-            {
-                CreatedRowCount++;
+                CreatedRowCountByOperation[operation.Uid] = cnt;
             }
         }
 
@@ -80,9 +94,9 @@
             AliveRowList.Remove(row.Uid);
             row.CurrentOwner = null;
 
-            PassedRowCountByByNextProcess.TryGetValue(newProcess.Uid, out var cnt);
+            PassedRowCountByNextProcess.TryGetValue(newProcess.Uid, out var cnt);
             cnt++;
-            PassedRowCountByByNextProcess[newProcess.Uid] = cnt;
+            PassedRowCountByNextProcess[newProcess.Uid] = cnt;
             PassedRowCount++;
         }
 

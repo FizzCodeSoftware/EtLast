@@ -19,9 +19,10 @@
             get => _operation;
             set
             {
+                _operation?.SetProcess(null);
+
                 _operation = value;
                 _operation.SetProcess(this);
-                _operation.SetNumber(1);
             }
         }
 

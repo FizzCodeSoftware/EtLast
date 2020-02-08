@@ -5,7 +5,6 @@
         public int UID { get; private set; }
         public string Name { get; set; }
         public string InstanceName { get; set; }
-        public int Number { get; private set; }
         public IProcess Process { get; private set; }
 
         protected AbstractContinuousAggregationOperation()
@@ -18,11 +17,6 @@
         public void SetProcess(IProcess process)
         {
             Process = process;
-        }
-
-        public void SetNumber(int number)
-        {
-            Number = number;
         }
 
         public void Prepare()
