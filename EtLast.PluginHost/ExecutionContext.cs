@@ -370,20 +370,20 @@
 
             if (PluginName == null)
             {
-                Log(LogSeverity.Debug, false, null, null, "----------------");
-                Log(LogSeverity.Debug, false, null, null, "SESSION COUNTERS");
-                Log(LogSeverity.Debug, false, null, null, "----------------");
+                Log(LogSeverity.Debug, false, null, "----------------");
+                Log(LogSeverity.Debug, false, null, "SESSION COUNTERS");
+                Log(LogSeverity.Debug, false, null, "----------------");
             }
             else
             {
-                Log(LogSeverity.Debug, false, null, null, "---------------");
-                Log(LogSeverity.Debug, false, null, null, "PLUGIN COUNTERS");
-                Log(LogSeverity.Debug, false, null, null, "---------------");
+                Log(LogSeverity.Debug, false, null, "---------------");
+                Log(LogSeverity.Debug, false, null, "PLUGIN COUNTERS");
+                Log(LogSeverity.Debug, false, null, "---------------");
             }
 
             foreach (var counter in counters)
             {
-                Log(LogSeverity.Debug, false, null, null, "{Counter} = {Value}",
+                Log(LogSeverity.Debug, false, null, "{Counter} = {Value}",
                     counter.Name, counter.TypedValue);
             }
         }
