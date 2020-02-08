@@ -4,10 +4,8 @@
 
     public delegate IEnumerable<IRow> ExplodeDelegate(ExplodeMutator process, IRow row);
 
-    public class ExplodeMutator : AbstractEvaluableProcess, IMutator
+    public class ExplodeMutator : AbstractMutator
     {
-        public IEvaluable InputProcess { get; set; }
-
         /// <summary>
         /// Default true.
         /// </summary>
@@ -20,38 +18,23 @@
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
+            if (!RemoveOriginalRow)
+                yield return row;
 
-            foreach (var row in rows)
+            var newRows = RowCreator.Invoke(this, row);
+            if (newRows != null)
             {
-                var newRows = RowCreator.Invoke(this, row);
-
-                if (RemoveOriginalRow)
+                foreach (var newRow in newRows)
                 {
-                    Context.SetRowOwner(row, null);
-                }
-                else
-                {
-                    yield return row;
-                }
-
-                if (newRows != null)
-                {
-                    foreach (var newRow in newRows)
-                    {
-                        yield return newRow;
-                    }
+                    yield return newRow;
                 }
             }
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
-
             if (RowCreator == null)
                 throw new ProcessParameterNullException(this, nameof(RowCreator));
         }

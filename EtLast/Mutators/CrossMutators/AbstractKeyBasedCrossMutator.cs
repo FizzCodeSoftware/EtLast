@@ -12,9 +12,9 @@
         {
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            base.ValidateImpl();
+            base.ValidateMutator();
 
             if (LeftKeySelector == null)
                 throw new ProcessParameterNullException(this, nameof(LeftKeySelector));

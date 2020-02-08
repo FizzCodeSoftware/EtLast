@@ -2,10 +2,8 @@
 {
     using System.Collections.Generic;
 
-    public class AddIncrementalIdMutator : AbstractEvaluableProcess, IMutator
+    public class AddIncrementalIdMutator : AbstractMutator
     {
-        public IEvaluable InputProcess { get; set; }
-
         public string Column { get; set; }
 
         /// <summary>
@@ -13,30 +11,27 @@
         /// </summary>
         public int FirstId { get; set; }
 
+        private int _nextId;
+
         public AddIncrementalIdMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override void StartMutator()
         {
-            var nextId = FirstId;
-
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
-            {
-                row.SetValue(Column, nextId, this);
-
-                yield return row;
-                nextId++;
-            }
+            _nextId = FirstId;
         }
 
-        protected override void ValidateImpl()
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
+            row.SetValue(Column, _nextId, this);
+            _nextId++;
+            yield return row;
+        }
 
+        protected override void ValidateMutator()
+        {
             if (string.IsNullOrEmpty(Column))
                 throw new ProcessParameterNullException(this, nameof(Column));
         }

@@ -1,8 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
-    public abstract class AbstractCrossMutator : AbstractEvaluableProcess, IMutator
+    public abstract class AbstractCrossMutator : AbstractMutator
     {
-        public IEvaluable InputProcess { get; set; }
         public IEvaluable RightProcess { get; set; }
 
         protected AbstractCrossMutator(IEtlContext context, string name, string topic)
@@ -10,11 +9,8 @@
         {
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
-
             if (RightProcess == null)
                 throw new ProcessParameterNullException(this, nameof(RightProcess));
         }

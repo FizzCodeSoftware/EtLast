@@ -4,11 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public class ReplaceEmptyStringWithNullMutator : AbstractEvaluableProcess, IMutator
+    public class ReplaceEmptyStringWithNullMutator : AbstractMutator
     {
-        public IEvaluable InputProcess { get; set; }
-
-        public RowTestDelegate If { get; set; }
         public string[] Columns { get; set; }
 
         public ReplaceEmptyStringWithNullMutator(IEtlContext context, string name, string topic)
@@ -16,36 +13,20 @@
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
+            var columns = Columns ?? row.Values.Select(kvp => kvp.Key).ToArray();
+            foreach (var column in Columns)
             {
-                if (If?.Invoke(row) == false)
-                {
-                    yield return row;
-                    continue;
-                }
-
-                var columns = Columns ?? row.Values.Select(kvp => kvp.Key).ToArray();
-                foreach (var column in Columns)
-                {
 #pragma warning disable CA1820 // Test for empty strings using string length
-                    if (string.Equals(row.GetAs<string>(column, null), string.Empty, StringComparison.InvariantCultureIgnoreCase))
+                if (string.Equals(row.GetAs<string>(column, null), string.Empty, StringComparison.InvariantCultureIgnoreCase))
 #pragma warning restore CA1820 // Test for empty strings using string length
-                    {
-                        row.SetValue(column, null, this);
-                    }
+                {
+                    row.SetValue(column, null, this);
                 }
-
-                yield return row;
             }
-        }
 
-        protected override void ValidateImpl()
-        {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
+            yield return row;
         }
     }
 }

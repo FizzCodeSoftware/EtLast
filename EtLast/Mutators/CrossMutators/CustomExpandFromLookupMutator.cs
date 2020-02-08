@@ -5,23 +5,23 @@
 
     public class CustomExpandFromLookupMutator : AbstractCrossMutator
     {
-        public RowTestDelegate If { get; set; }
         public MatchingRowFromLookupSelector MatchingRowSelector { get; set; }
         public MatchKeySelector RightKeySelector { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         public NoMatchAction NoMatchAction { get; set; }
         public MatchActionDelegate MatchCustomAction { get; set; }
+        private Dictionary<string, List<IRow>> _lookup;
 
         public CustomExpandFromLookupMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override void StartMutator()
         {
             Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", RightProcess.Name);
 
-            var lookup = new Dictionary<string, List<IRow>>();
+            _lookup = new Dictionary<string, List<IRow>>();
             var allRightRows = RightProcess.Evaluate(this).TakeRowsAndReleaseOwnership(this);
             var rightRowCount = 0;
             foreach (var row in allRightRows)
@@ -31,78 +31,66 @@
                 if (string.IsNullOrEmpty(key))
                     continue;
 
-                if (!lookup.TryGetValue(key, out var list))
+                if (!_lookup.TryGetValue(key, out var list))
                 {
                     list = new List<IRow>();
-                    lookup.Add(key, list);
+                    _lookup.Add(key, list);
                 }
 
                 list.Add(row);
             }
 
             Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows, lookup size is {LookupSize}",
-                rightRowCount, lookup.Count);
+                rightRowCount, _lookup.Count);
 
             CounterCollection.IncrementCounter("right rows loaded", rightRowCount, true);
-
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
-            {
-                if (If?.Invoke(row) == false)
-                {
-                    CounterCollection.IncrementCounter("ignored", 1);
-                    yield return row;
-                    continue;
-                }
-
-                CounterCollection.IncrementCounter("processed", 1);
-
-                var removeRow = false;
-                var rightRow = MatchingRowSelector(row, lookup);
-                if (rightRow == null)
-                {
-                    if (NoMatchAction != null)
-                    {
-                        switch (NoMatchAction.Mode)
-                        {
-                            case MatchMode.Remove:
-                                removeRow = true;
-                                break;
-                            case MatchMode.Throw:
-                                var exception = new ProcessExecutionException(this, row, "no match");
-                                throw exception;
-                            case MatchMode.Custom:
-                                NoMatchAction.CustomAction.Invoke(this, row);
-                                break;
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (var config in ColumnConfiguration)
-                    {
-                        config.Copy(this, rightRow, row);
-                    }
-
-                    MatchCustomAction?.Invoke(this, row, rightRow);
-                }
-
-                if (removeRow)
-                {
-                    Context.SetRowOwner(row, null);
-                }
-                else
-                {
-                    yield return row;
-                }
-            }
-
-            lookup.Clear();
         }
 
-        protected override void ValidateImpl()
+        protected override void CloseMutator()
         {
-            base.ValidateImpl();
+            _lookup.Clear();
+            _lookup = null;
+        }
+
+        protected override IEnumerable<IRow> MutateRow(IRow row)
+        {
+            var removeRow = false;
+            var rightRow = MatchingRowSelector(row, _lookup);
+            if (rightRow == null)
+            {
+                if (NoMatchAction != null)
+                {
+                    switch (NoMatchAction.Mode)
+                    {
+                        case MatchMode.Remove:
+                            removeRow = true;
+                            break;
+                        case MatchMode.Throw:
+                            var exception = new ProcessExecutionException(this, row, "no match");
+                            throw exception;
+                        case MatchMode.Custom:
+                            NoMatchAction.CustomAction.Invoke(this, row);
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var config in ColumnConfiguration)
+                {
+                    config.Copy(this, rightRow, row);
+                }
+
+                MatchCustomAction?.Invoke(this, row, rightRow);
+            }
+
+            if (!removeRow)
+                yield return row;
+        }
+
+        protected override void ValidateMutator()
+        {
+            base.ValidateMutator();
 
             if (MatchingRowSelector == null)
                 throw new ProcessParameterNullException(this, nameof(MatchingRowSelector));

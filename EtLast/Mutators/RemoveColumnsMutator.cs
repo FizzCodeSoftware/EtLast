@@ -2,10 +2,8 @@
 {
     using System.Collections.Generic;
 
-    public class RemoveColumnsMutator : AbstractEvaluableProcess, IMutator
+    public class RemoveColumnsMutator : AbstractMutator
     {
-        public IEvaluable InputProcess { get; set; }
-        public RowTestDelegate If { get; set; }
         public string[] Columns { get; set; }
 
         public RemoveColumnsMutator(IEtlContext context, string name, string topic)
@@ -13,31 +11,18 @@
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
+            foreach (var column in Columns)
             {
-                if (If?.Invoke(row) == false)
-                {
-                    yield return row;
-                    continue;
-                }
-
-                foreach (var column in Columns)
-                {
-                    row.SetValue(column, null, this);
-                }
-
-                yield return row;
+                row.SetValue(column, null, this);
             }
+
+            yield return row;
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
-
             if (Columns == null || Columns.Length == 0)
                 throw new ProcessParameterNullException(this, nameof(Columns));
         }

@@ -4,48 +4,36 @@
     using System.Globalization;
     using System.Linq;
 
-    public class ThrowExceptionOnRowErrorMutator : AbstractEvaluableProcess, IMutator
+    public class ThrowExceptionOnRowErrorMutator : AbstractMutator
     {
-        public IEvaluable InputProcess { get; set; }
-
         public ThrowExceptionOnRowErrorMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
+            if (row.HasError())
             {
-                if (row.HasError())
+                var exception = new EtlException(this, "invalid value(s) found");
+
+                var index = 0;
+                foreach (var kvp in row.Values.Where(kvp => kvp.Value is EtlRowError))
                 {
-                    var exception = new EtlException(this, "invalid value(s) found");
-
-                    var index = 0;
-                    foreach (var kvp in row.Values.Where(kvp => kvp.Value is EtlRowError))
-                    {
-                        var error = kvp.Value as EtlRowError;
-                        exception.Data.Add("Column" + index.ToString("D", CultureInfo.InvariantCulture), kvp.Key);
-                        exception.Data.Add("Value" + index.ToString("D", CultureInfo.InvariantCulture), error.OriginalValue != null
-                            ? error.OriginalValue + " (" + error.OriginalValue.GetType().GetFriendlyTypeName() + ")"
-                            : "NULL");
-                        index++;
-                    }
-
-                    exception.Data.Add("Row", row.ToDebugString());
-
-                    throw exception;
+                    var error = kvp.Value as EtlRowError;
+                    exception.Data.Add("Column" + index.ToString("D", CultureInfo.InvariantCulture), kvp.Key);
+                    exception.Data.Add("Value" + index.ToString("D", CultureInfo.InvariantCulture), error.OriginalValue != null
+                        ? error.OriginalValue + " (" + error.OriginalValue.GetType().GetFriendlyTypeName() + ")"
+                        : "NULL");
+                    index++;
                 }
 
-                yield return row;
-            }
-        }
+                exception.Data.Add("Row", row.ToDebugString());
 
-        protected override void ValidateImpl()
-        {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
+                throw exception;
+            }
+
+            yield return row;
         }
     }
 }

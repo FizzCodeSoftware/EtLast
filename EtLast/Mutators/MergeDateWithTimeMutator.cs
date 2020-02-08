@@ -3,11 +3,8 @@
     using System;
     using System.Collections.Generic;
 
-    public class MergeDateWithTimeMutator : AbstractEvaluableProcess, IMutator
+    public class MergeDateWithTimeMutator : AbstractMutator
     {
-        public IEvaluable InputProcess { get; set; }
-
-        public RowTestDelegate If { get; set; }
         public string TargetColumn { get; set; }
         public string SourceDateColumn { get; set; }
         public string SourceTimeColumn { get; set; }
@@ -19,69 +16,50 @@
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
+            var sourceDate = row[SourceDateColumn];
+            var sourceTime = row[SourceTimeColumn];
+            if (sourceDate != null && sourceDate is DateTime date && sourceTime != null)
             {
-                if (If?.Invoke(row) == false)
+                if (sourceTime is DateTime dt)
                 {
+                    var value = new DateTime(date.Year, date.Month, date.Day, dt.Hour, dt.Minute, dt.Second);
+                    row.SetValue(TargetColumn, value, this);
                     yield return row;
-                    continue;
+                    yield break;
                 }
-
-                var sourceDate = row[SourceDateColumn];
-                var sourceTime = row[SourceTimeColumn];
-                if (sourceDate != null && sourceDate is DateTime date && sourceTime != null)
+                else if (sourceTime is TimeSpan ts)
                 {
-                    if (sourceTime is DateTime dt)
-                    {
-                        var value = new DateTime(date.Year, date.Month, date.Day, dt.Hour, dt.Minute, dt.Second);
-                        row.SetValue(TargetColumn, value, this);
-                        yield return row;
-                        continue;
-                    }
-                    else if (sourceTime is TimeSpan ts)
-                    {
-                        var value = new DateTime(date.Year, date.Month, date.Day, ts.Hours, ts.Minutes, ts.Seconds);
-                        row.SetValue(TargetColumn, value, this);
-                        yield return row;
-                        continue;
-                    }
-                }
-
-                var removeRow = false;
-                switch (ActionIfInvalid)
-                {
-                    case InvalidValueAction.SetSpecialValue:
-                        row.SetValue(TargetColumn, SpecialValueIfInvalid, this);
-                        break;
-                    case InvalidValueAction.RemoveRow:
-                        removeRow = true;
-                        break;
-                    default:
-                        var exception = new ProcessExecutionException(this, row, "invalid value found");
-                        exception.Data.Add("SourceDate", sourceDate != null ? sourceDate.ToString() + " (" + sourceDate.GetType().GetFriendlyTypeName() + ")" : "NULL");
-                        exception.Data.Add("SourceTime", sourceTime != null ? sourceTime.ToString() + " (" + sourceTime.GetType().GetFriendlyTypeName() + ")" : "NULL");
-                        throw exception;
-                }
-
-                if (removeRow)
-                {
-                    Context.SetRowOwner(row, null);
-                }
-                else
-                {
+                    var value = new DateTime(date.Year, date.Month, date.Day, ts.Hours, ts.Minutes, ts.Seconds);
+                    row.SetValue(TargetColumn, value, this);
                     yield return row;
+                    yield break;
                 }
             }
+
+            var removeRow = false;
+            switch (ActionIfInvalid)
+            {
+                case InvalidValueAction.SetSpecialValue:
+                    row.SetValue(TargetColumn, SpecialValueIfInvalid, this);
+                    break;
+                case InvalidValueAction.RemoveRow:
+                    removeRow = true;
+                    break;
+                default:
+                    var exception = new ProcessExecutionException(this, row, "invalid value found");
+                    exception.Data.Add("SourceDate", sourceDate != null ? sourceDate.ToString() + " (" + sourceDate.GetType().GetFriendlyTypeName() + ")" : "NULL");
+                    exception.Data.Add("SourceTime", sourceTime != null ? sourceTime.ToString() + " (" + sourceTime.GetType().GetFriendlyTypeName() + ")" : "NULL");
+                    throw exception;
+            }
+
+            if (!removeRow)
+                yield return row;
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
-
             if (string.IsNullOrEmpty(TargetColumn))
                 throw new ProcessParameterNullException(this, nameof(TargetColumn));
 

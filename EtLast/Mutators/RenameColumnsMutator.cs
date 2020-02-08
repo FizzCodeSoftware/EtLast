@@ -2,11 +2,8 @@
 {
     using System.Collections.Generic;
 
-    public class RenameColumnsMutator : AbstractEvaluableProcess, IMutator
+    public class RenameColumnsMutator : AbstractMutator
     {
-        public IEvaluable InputProcess { get; set; }
-
-        public RowTestDelegate If { get; set; }
         public List<ColumnRenameConfiguration> ColumnConfiguration { get; set; }
         public InvalidColumnAction ActionIfInvalid { get; set; } = InvalidColumnAction.Throw;
 
@@ -15,59 +12,39 @@
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-
-            foreach (var row in rows)
+            var removeRow = false;
+            foreach (var config in ColumnConfiguration)
             {
-                if (If?.Invoke(row) == false)
+                if (row.HasValue(config.NewName))
                 {
-                    yield return row;
-                    continue;
-                }
-
-                var removeRow = false;
-                foreach (var config in ColumnConfiguration)
-                {
-                    if (row.HasValue(config.NewName))
+                    switch (ActionIfInvalid)
                     {
-                        switch (ActionIfInvalid)
-                        {
-                            case InvalidColumnAction.RemoveRow:
-                                removeRow = true;
-                                continue;
-                            case InvalidColumnAction.Skip:
-                                continue;
-                            default:
-                                var exception = new ProcessExecutionException(this, row, "specified target column already exists");
-                                exception.Data.Add("CurrentName", config.CurrentName);
-                                exception.Data.Add("NewName", config.NewName);
-                                throw exception;
-                        }
+                        case InvalidColumnAction.RemoveRow:
+                            removeRow = true;
+                            continue;
+                        case InvalidColumnAction.Skip:
+                            continue;
+                        default:
+                            var exception = new ProcessExecutionException(this, row, "specified target column already exists");
+                            exception.Data.Add("CurrentName", config.CurrentName);
+                            exception.Data.Add("NewName", config.NewName);
+                            throw exception;
                     }
-
-                    var value = row[config.CurrentName];
-                    row.SetValue(config.CurrentName, null, this);
-                    row.SetValue(config.NewName, value, this);
                 }
 
-                if (removeRow)
-                {
-                    Context.SetRowOwner(row, null);
-                }
-                else
-                {
-                    yield return row;
-                }
+                var value = row[config.CurrentName];
+                row.SetValue(config.CurrentName, null, this);
+                row.SetValue(config.NewName, value, this);
             }
+
+            if (!removeRow)
+                yield return row;
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
-
             if (ColumnConfiguration == null)
                 throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
         }

@@ -7,7 +7,7 @@
     /// <summary>
     /// Producer processes create rows. They may create or generate, read from different sources, copy from existing rows.
     /// </summary>
-    public abstract class AbstractProducerProcess : AbstractEvaluableProcess, IMutator
+    public abstract class AbstractProducerProcess : AbstractEvaluableProcess
     {
         /// <summary>
         /// Default false.

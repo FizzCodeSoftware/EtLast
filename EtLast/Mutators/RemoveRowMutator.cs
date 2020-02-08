@@ -1,33 +1,19 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
+    using System.Linq;
 
-    public class RemoveRowMutator : AbstractEvaluableProcess, IMutator
+    public class RemoveRowMutator : AbstractMutator
     {
-        public IEvaluable InputProcess { get; set; }
-        public RowTestDelegate If { get; set; }
-
         public RemoveRowMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
+            InvertSkipBehavior = true;
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
-            {
-                if (If?.Invoke(row) == false)
-                {
-                    yield return row;
-                }
-            }
-        }
-
-        protected override void ValidateImpl()
-        {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
+            return Enumerable.Empty<IRow>();
         }
     }
 }

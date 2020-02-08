@@ -8,14 +8,12 @@
     using System.Linq;
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
+    using FizzCode.EtLast;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
-    public class MsSqlWriteToTableMutator : AbstractEvaluableProcess, IMutator
+    public class MsSqlWriteToTableMutator : AbstractMutator
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        public IEvaluable InputProcess { get; set; }
-
-        public RowTestDelegate If { get; set; }
         public ConnectionStringWithProvider ConnectionString { get; set; }
         public int CommandTimeout { get; set; } = 30;
 
@@ -48,7 +46,7 @@
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override void StartMutator()
         {
             _rowsWritten = 0;
             _timer = new Stopwatch();
@@ -60,43 +58,10 @@
             }
 
             _reader = new RowShadowReader(BatchSize, TableDefinition.Columns.Select(x => x.DbColumn).ToArray(), columnIndexes);
+        }
 
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
-            {
-                if (If?.Invoke(row) == false)
-                {
-                    yield return row;
-                    continue;
-                }
-
-                Context.OnRowStored?.Invoke(this, row, new List<KeyValuePair<string, string>>()
-                {
-                    new KeyValuePair<string, string>("Connection", ConnectionString.Name),
-                    new KeyValuePair<string, string>("Table", TableDefinition.TableName),
-                });
-
-                var rc = _reader.RowCount;
-                for (var i = 0; i < TableDefinition.Columns.Length; i++)
-                {
-                    _reader.Rows[rc, i] = row[TableDefinition.Columns[i].RowColumn];
-                }
-
-                rc++;
-                _reader.RowCount = rc;
-
-                if (rc >= BatchSize)
-                {
-                    InitConnection();
-                    lock (_connection.Lock)
-                    {
-                        WriteToSql(false);
-                    }
-                }
-
-                yield return row;
-            }
-
+        protected override void CloseMutator()
+        {
             if (_reader.RowCount > 0)
             {
                 InitConnection();
@@ -118,6 +83,35 @@
             }
 
             ConnectionManager.ReleaseConnection(this, ref _connection);
+        }
+
+        protected override IEnumerable<IRow> MutateRow(IRow row)
+        {
+            Context.OnRowStored?.Invoke(this, row, new List<KeyValuePair<string, string>>()
+            {
+                new KeyValuePair<string, string>("Connection", ConnectionString.Name),
+                new KeyValuePair<string, string>("Table", TableDefinition.TableName),
+            });
+
+            var rc = _reader.RowCount;
+            for (var i = 0; i < TableDefinition.Columns.Length; i++)
+            {
+                _reader.Rows[rc, i] = row[TableDefinition.Columns[i].RowColumn];
+            }
+
+            rc++;
+            _reader.RowCount = rc;
+
+            if (rc >= BatchSize)
+            {
+                InitConnection();
+                lock (_connection.Lock)
+                {
+                    WriteToSql(false);
+                }
+            }
+
+            yield return row;
         }
 
         private void WriteToSql(bool shutdown)
@@ -177,10 +171,9 @@
             _reader.Reset();
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
+            base.ValidateMutator();
 
             if (ConnectionString == null)
                 throw new ProcessParameterNullException(this, nameof(ConnectionString));

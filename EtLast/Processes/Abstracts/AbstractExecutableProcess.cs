@@ -12,10 +12,16 @@
 
         public void Execute(IProcess caller = null)
         {
+            UID = Context.GetProcessUid(this);
             LastInvocation = Stopwatch.StartNew();
             Caller = caller;
 
-            Validate();
+            try
+            {
+                ValidateImpl();
+            }
+            catch (EtlException ex) { Context.AddException(this, ex); }
+            catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
 
             if (Context.CancellationTokenSource.IsCancellationRequested)
                 return;
@@ -29,5 +35,6 @@
         }
 
         protected abstract void ExecuteImpl();
+        protected abstract void ValidateImpl();
     }
 }

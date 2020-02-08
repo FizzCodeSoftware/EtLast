@@ -1,11 +1,10 @@
 ﻿namespace FizzCode.EtLast
 {
-    using System;
     using System.Diagnostics;
 
     public abstract class AbstractProcess : IProcess
     {
-        public int UID { get; }
+        public int UID { get; protected set; }
         public IEtlContext Context { get; }
         public IProcess Caller { get; protected set; }
         public string Name { get; set; }
@@ -20,21 +19,7 @@
             Name = name ?? GetType().GetFriendlyTypeName();
             Topic = topic;
             CounterCollection = new StatCounterCollection(context.CounterCollection);
-
-            UID = Context.GetProcessUid(this);
         }
-
-        public void Validate()
-        {
-            try
-            {
-                ValidateImpl();
-            }
-            catch (EtlException ex) { Context.AddException(this, ex); }
-            catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
-        }
-
-        protected abstract void ValidateImpl();
 
         protected void LogCounters()
         {

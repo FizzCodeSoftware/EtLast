@@ -12,29 +12,29 @@
         public ConnectionStringWithProvider ConnectionString { get; set; }
         public int CommandTimeout { get; set; } = 300;
 
-        protected AbstractSqlStatementWithResultProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
-        {
-        }
-
         /// <summary>
         /// If true, this statement will be executed out of ambient transaction scope.
         /// See <see cref="TransactionScopeOption.Suppress"/>>.
         /// </summary>
         public bool SuppressExistingTransactionScope { get; set; }
 
-        protected override void ValidateImpl()
+        protected AbstractSqlStatementWithResultProcess(IEtlContext context, string name, string topic)
+            : base(context, name, topic)
         {
-            if (ConnectionString == null)
-                throw new ProcessParameterNullException(this, nameof(ConnectionString));
         }
 
         public T Execute(IProcess caller = null)
         {
+            UID = Context.GetProcessUid(this);
             LastInvocation = Stopwatch.StartNew();
             Caller = caller;
 
-            Validate();
+            try
+            {
+                ValidateImpl();
+            }
+            catch (EtlException ex) { Context.AddException(this, ex); }
+            catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
 
             if (Context.CancellationTokenSource.IsCancellationRequested)
                 return default;
@@ -47,6 +47,12 @@
             catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
 
             return default;
+        }
+
+        protected virtual void ValidateImpl()
+        {
+            if (ConnectionString == null)
+                throw new ProcessParameterNullException(this, nameof(ConnectionString));
         }
 
         private T ExecuteImpl()

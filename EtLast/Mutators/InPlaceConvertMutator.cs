@@ -3,11 +3,8 @@
     using System.Collections.Generic;
     using System.Globalization;
 
-    public class InPlaceConvertMutator : AbstractEvaluableProcess, IMutator
+    public class InPlaceConvertMutator : AbstractMutator
     {
-        public IEvaluable InputProcess { get; set; }
-
-        public RowTestDelegate If { get; set; }
         public string[] Columns { get; set; }
         public ITypeConverter TypeConverter { get; set; }
 
@@ -36,61 +33,28 @@
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
+            var removeRow = false;
 
-            foreach (var row in rows)
+            foreach (var column in Columns)
             {
-                if (If?.Invoke(row) == false)
+                var source = row[column];
+                if (source != null)
                 {
-                    yield return row;
-                    continue;
-                }
-
-                var removeRow = false;
-
-                foreach (var column in Columns)
-                {
-                    var source = row[column];
-                    if (source != null)
+                    var value = TypeConverter.Convert(source);
+                    if (value != null)
                     {
-                        var value = TypeConverter.Convert(source);
-                        if (value != null)
-                        {
-                            row.SetValue(column, value, this);
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        switch (ActionIfNull)
-                        {
-                            case InvalidValueAction.SetSpecialValue:
-                                row.SetValue(column, SpecialValueIfNull, this);
-                                break;
-                            case InvalidValueAction.Throw:
-                                throw new InvalidValueException(this, TypeConverter, row, column);
-                            case InvalidValueAction.RemoveRow:
-                                removeRow = true;
-                                break;
-                            case InvalidValueAction.WrapError:
-                                row.SetValue(column, new EtlRowError
-                                {
-                                    Process = this,
-                                    OriginalValue = source,
-                                    Message = string.Format(CultureInfo.InvariantCulture, "null source detected by {0}", Name),
-                                }, this);
-                                break;
-                        }
-
+                        row.SetValue(column, value, this);
                         continue;
                     }
-
-                    switch (ActionIfInvalid)
+                }
+                else
+                {
+                    switch (ActionIfNull)
                     {
                         case InvalidValueAction.SetSpecialValue:
-                            row.SetValue(column, SpecialValueIfInvalid, this);
+                            row.SetValue(column, SpecialValueIfNull, this);
                             break;
                         case InvalidValueAction.Throw:
                             throw new InvalidValueException(this, TypeConverter, row, column);
@@ -102,28 +66,41 @@
                             {
                                 Process = this,
                                 OriginalValue = source,
-                                Message = string.Format(CultureInfo.InvariantCulture, "invalid source detected by {0}", Name),
+                                Message = string.Format(CultureInfo.InvariantCulture, "null source detected by {0}", Name),
                             }, this);
                             break;
                     }
+
+                    continue;
                 }
 
-                if (removeRow)
+                switch (ActionIfInvalid)
                 {
-                    Context.SetRowOwner(row, null);
-                }
-                else
-                {
-                    yield return row;
+                    case InvalidValueAction.SetSpecialValue:
+                        row.SetValue(column, SpecialValueIfInvalid, this);
+                        break;
+                    case InvalidValueAction.Throw:
+                        throw new InvalidValueException(this, TypeConverter, row, column);
+                    case InvalidValueAction.RemoveRow:
+                        removeRow = true;
+                        break;
+                    case InvalidValueAction.WrapError:
+                        row.SetValue(column, new EtlRowError
+                        {
+                            Process = this,
+                            OriginalValue = source,
+                            Message = string.Format(CultureInfo.InvariantCulture, "invalid source detected by {0}", Name),
+                        }, this);
+                        break;
                 }
             }
+
+            if (!removeRow)
+                yield return row;
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
-
             if (TypeConverter == null)
                 throw new ProcessParameterNullException(this, nameof(TypeConverter));
 

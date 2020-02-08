@@ -3,59 +3,43 @@
     using System.Collections.Generic;
     using System.Text;
 
-    public class MergeStringColumnsMutator : AbstractEvaluableProcess, IMutator
+    public class MergeStringColumnsMutator : AbstractMutator
     {
-        public IEvaluable InputProcess { get; set; }
-
-        public RowTestDelegate If { get; set; }
         public string[] ColumnsToMerge { get; set; }
         public string TargetColumn { get; set; }
         public string Separator { get; set; }
+
+        private readonly StringBuilder _sb = new StringBuilder();
 
         public MergeStringColumnsMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var sb = new StringBuilder();
-
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
+            foreach (var column in ColumnsToMerge)
             {
-                if (If?.Invoke(row) == false)
+                if (_sb.Length > 0)
+                    _sb.Append(Separator);
+
+                var value = row.GetAs<string>(column, null);
+                if (!string.IsNullOrEmpty(value))
                 {
-                    yield return row;
-                    continue;
+                    _sb.Append(value);
                 }
 
-                foreach (var column in ColumnsToMerge)
-                {
-                    if (sb.Length > 0)
-                        sb.Append(Separator);
-
-                    var value = row.GetAs<string>(column, null);
-                    if (!string.IsNullOrEmpty(value))
-                    {
-                        sb.Append(value);
-                    }
-
-                    row.SetValue(column, null, this);
-                }
-
-                row.SetValue(TargetColumn, sb.ToString(), this);
-                sb.Clear();
-
-                yield return row;
+                row.SetValue(column, null, this);
             }
+
+            row.SetValue(TargetColumn, _sb.ToString(), this);
+            _sb.Clear();
+
+            yield return row;
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
-
             if (string.IsNullOrEmpty(TargetColumn))
                 throw new ProcessParameterNullException(this, nameof(TargetColumn));
 

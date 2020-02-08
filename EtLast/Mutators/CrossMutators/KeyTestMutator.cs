@@ -4,20 +4,20 @@
 
     public class KeyTestMutator : AbstractKeyBasedCrossMutator
     {
-        public RowTestDelegate If { get; set; }
         public NoMatchAction NoMatchAction { get; set; }
         public MatchAction MatchAction { get; set; }
+        private HashSet<string> _lookup;
 
         public KeyTestMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override void StartMutator()
         {
             Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", RightProcess.Name);
 
-            var lookup = new HashSet<string>();
+            _lookup = new HashSet<string>();
             var allRightRows = RightProcess.Evaluate(this).TakeRowsAndReleaseOwnership(this);
             var rightRowCount = 0;
             foreach (var row in allRightRows)
@@ -27,81 +27,70 @@
                 if (string.IsNullOrEmpty(key))
                     continue;
 
-                lookup.Add(key);
+                _lookup.Add(key);
             }
 
             Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows, lookup size is {LookupSize}",
-                rightRowCount, lookup.Count);
+                rightRowCount, _lookup.Count);
 
             CounterCollection.IncrementCounter("right rows loaded", rightRowCount, true);
 
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
+        }
+
+        protected override void CloseMutator()
+        {
+            _lookup.Clear();
+            _lookup = null;
+        }
+
+        protected override IEnumerable<IRow> MutateRow(IRow row)
+        {
+            var leftKey = GetLeftKey(row);
+
+            var removeRow = false;
+            if (leftKey == null || !_lookup.Contains(leftKey))
             {
-                if (If?.Invoke(row) == false)
+                if (NoMatchAction != null)
                 {
-                    CounterCollection.IncrementCounter("ignored", 1);
-                    yield return row;
-                    continue;
-                }
-
-                CounterCollection.IncrementCounter("processed", 1);
-
-                var leftKey = GetLeftKey(row);
-
-                var removeRow = false;
-                if (leftKey == null || !lookup.Contains(leftKey))
-                {
-                    if (NoMatchAction != null)
-                    {
-                        switch (NoMatchAction.Mode)
-                        {
-                            case MatchMode.Remove:
-                                removeRow = true;
-                                break;
-                            case MatchMode.Throw:
-                                var exception = new ProcessExecutionException(this, row, "no match");
-                                exception.Data.Add("LeftKey", leftKey);
-                                throw exception;
-                            case MatchMode.Custom:
-                                NoMatchAction.CustomAction.Invoke(this, row);
-                                break;
-                        }
-                    }
-                }
-                else if (MatchAction != null)
-                {
-                    switch (MatchAction.Mode)
+                    switch (NoMatchAction.Mode)
                     {
                         case MatchMode.Remove:
                             removeRow = true;
                             break;
                         case MatchMode.Throw:
-                            var exception2 = new ProcessExecutionException(this, row, "match");
-                            exception2.Data.Add("LeftKey", leftKey);
-                            throw exception2;
+                            var exception = new ProcessExecutionException(this, row, "no match");
+                            exception.Data.Add("LeftKey", leftKey);
+                            throw exception;
                         case MatchMode.Custom:
-                            MatchAction.CustomAction.Invoke(this, row, row);
+                            NoMatchAction.CustomAction.Invoke(this, row);
                             break;
                     }
                 }
-
-                if (removeRow)
+            }
+            else if (MatchAction != null)
+            {
+                switch (MatchAction.Mode)
                 {
-                    Context.SetRowOwner(row, null);
-                }
-                else
-                {
-                    yield return row;
+                    case MatchMode.Remove:
+                        removeRow = true;
+                        break;
+                    case MatchMode.Throw:
+                        var exception2 = new ProcessExecutionException(this, row, "match");
+                        exception2.Data.Add("LeftKey", leftKey);
+                        throw exception2;
+                    case MatchMode.Custom:
+                        MatchAction.CustomAction.Invoke(this, row, row);
+                        break;
                 }
             }
 
-            lookup.Clear();
+            if (!removeRow)
+                yield return row;
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            base.ValidateImpl();
+            base.ValidateMutator();
 
             if (MatchAction == null && NoMatchAction == null)
                 throw new InvalidProcessParameterException(this, nameof(MatchAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must be specified: " + nameof(MatchAction) + " or " + nameof(NoMatchAction));

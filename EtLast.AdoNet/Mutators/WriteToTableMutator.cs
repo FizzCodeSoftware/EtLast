@@ -9,12 +9,10 @@
     using System.Text;
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
+    using FizzCode.EtLast;
 
-    public class WriteToTableMutator : AbstractEvaluableProcess, IMutator
+    public class WriteToTableMutator : AbstractMutator
     {
-        public IEvaluable InputProcess { get; set; }
-
-        public RowTestDelegate If { get; set; }
         public ConnectionStringWithProvider ConnectionString { get; set; }
         public int CommandTimeout { get; set; } = 30;
         public int MaximumParameterCount { get; set; } = 30;
@@ -38,7 +36,7 @@
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override void StartMutator()
         {
             SqlStatementCreator.Prepare(this, TableDefinition);
 
@@ -46,44 +44,10 @@
             _fullTime = new Stopwatch();
 
             _statements = new List<string>();
+        }
 
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
-            {
-                if (If?.Invoke(row) == false)
-                {
-                    yield return row;
-                    continue;
-                }
-
-                Context.OnRowStored?.Invoke(this, row, new List<KeyValuePair<string, string>>()
-                {
-                    new KeyValuePair<string, string>("Connection", ConnectionString.Name),
-                    new KeyValuePair<string, string>("Table", TableDefinition.TableName),
-                });
-
-                InitConnection();
-
-                lock (_connection.Lock)
-                {
-                    if (_command == null)
-                    {
-                        _command = _connection.Connection.CreateCommand();
-                        _command.CommandTimeout = CommandTimeout;
-                    }
-
-                    var statement = SqlStatementCreator.CreateRowStatement(ConnectionString, row, this);
-                    _statements.Add(statement);
-
-                    if (_command.Parameters.Count >= MaximumParameterCount - 1)
-                    {
-                        WriteStatements(false);
-                    }
-                }
-
-                yield return row;
-            }
-
+        protected override void CloseMutator()
+        {
             if (_command != null)
             {
                 WriteStatements(true);
@@ -95,6 +59,36 @@
             _fullTime = null;
 
             ConnectionManager.ReleaseConnection(this, ref _connection);
+        }
+
+        protected override IEnumerable<IRow> MutateRow(IRow row)
+        {
+            Context.OnRowStored?.Invoke(this, row, new List<KeyValuePair<string, string>>()
+            {
+                new KeyValuePair<string, string>("Connection", ConnectionString.Name),
+                new KeyValuePair<string, string>("Table", TableDefinition.TableName),
+            });
+
+            InitConnection();
+
+            lock (_connection.Lock)
+            {
+                if (_command == null)
+                {
+                    _command = _connection.Connection.CreateCommand();
+                    _command.CommandTimeout = CommandTimeout;
+                }
+
+                var statement = SqlStatementCreator.CreateRowStatement(ConnectionString, row, this);
+                _statements.Add(statement);
+
+                if (_command.Parameters.Count >= MaximumParameterCount - 1)
+                {
+                    WriteStatements(false);
+                }
+            }
+
+            yield return row;
         }
 
         private void InitConnection()
@@ -229,10 +223,9 @@
             return sb.ToString();
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
+            base.ValidateMutator();
 
             if (ConnectionString == null)
                 throw new ProcessParameterNullException(this, nameof(ConnectionString));

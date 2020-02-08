@@ -11,8 +11,6 @@
         IProcess Caller { get; }
         Stopwatch LastInvocation { get; }
 
-        void Validate();
-
         StatCounterCollection CounterCollection { get; }
     }
 }

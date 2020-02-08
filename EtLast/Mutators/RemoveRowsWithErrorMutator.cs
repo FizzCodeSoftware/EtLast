@@ -2,31 +2,17 @@
 {
     using System.Collections.Generic;
 
-    public class RemoveRowsWithErrorMutator : AbstractEvaluableProcess, IMutator
+    public class RemoveRowsWithErrorMutator : AbstractMutator
     {
-        public IEvaluable InputProcess { get; set; }
-
         public RemoveRowsWithErrorMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
-            {
-                if (row.HasError())
-                    continue;
-
+            if (!row.HasError())
                 yield return row;
-            }
-        }
-
-        protected override void ValidateImpl()
-        {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
         }
     }
 }

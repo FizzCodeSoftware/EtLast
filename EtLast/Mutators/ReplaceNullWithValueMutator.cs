@@ -3,11 +3,8 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public class ReplaceNullWithValueMutator : AbstractEvaluableProcess, IMutator
+    public class ReplaceNullWithValueMutator : AbstractMutator
     {
-        public IEvaluable InputProcess { get; set; }
-
-        public RowTestDelegate If { get; set; }
         public string[] Columns { get; set; }
         public object Value { get; set; }
 
@@ -16,35 +13,22 @@
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
+            var columns = Columns ?? row.Values.Select(kvp => kvp.Key).ToArray();
+            foreach (var column in Columns)
             {
-                if (If?.Invoke(row) == false)
+                if (row.IsNull(column))
                 {
-                    yield return row;
-                    continue;
+                    row.SetValue(column, Value, this);
                 }
-
-                var columns = Columns ?? row.Values.Select(kvp => kvp.Key).ToArray();
-                foreach (var column in Columns)
-                {
-                    if (row.IsNull(column))
-                    {
-                        row.SetValue(column, Value, this);
-                    }
-                }
-
-                yield return row;
             }
+
+            yield return row;
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
-
             if (Value == null)
                 throw new ProcessParameterNullException(this, nameof(Value));
         }

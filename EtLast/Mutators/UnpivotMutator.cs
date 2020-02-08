@@ -19,54 +19,54 @@
     /// 2, B, Houses, 1
     /// 2, B, Kids, 3
     /// </summary>
-    public class UnpivotMutator : AbstractEvaluableProcess, IMutator
+    public class UnpivotMutator : AbstractMutator
     {
-        public IEvaluable InputProcess { get; set; }
-
         public string[] FixColumns { get; set; }
         public string NewColumnForDimension { get; set; }
         public string NewColumnForValue { get; set; }
         public bool IgnoreIfValueIsNull { get; set; } = true;
+
+        private HashSet<string> _fixColumns;
 
         public UnpivotMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override void StartMutator()
         {
-            var fixColumns = FixColumns.Length > 0
+            _fixColumns = FixColumns.Length > 0
                 ? new HashSet<string>(FixColumns)
                 : null;
+        }
 
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
+        protected override void CloseMutator()
+        {
+            _fixColumns.Clear();
+            _fixColumns = null;
+        }
+
+        protected override IEnumerable<IRow> MutateRow(IRow row)
+        {
+            foreach (var cell in row.Values)
             {
-                foreach (var cell in row.Values)
-                {
-                    if (cell.Value == null && IgnoreIfValueIsNull)
-                        continue;
+                if (cell.Value == null && IgnoreIfValueIsNull)
+                    continue;
 
-                    if (fixColumns?.Contains(cell.Key) == true)
-                        continue;
+                if (_fixColumns?.Contains(cell.Key) == true)
+                    continue;
 
-                    var initialValues = FixColumns.Select(x => new KeyValuePair<string, object>(x, row[x])).ToList();
-                    initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, cell.Key));
-                    initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, cell.Value));
+                var initialValues = FixColumns.Select(x => new KeyValuePair<string, object>(x, row[x])).ToList();
+                initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, cell.Key));
+                initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, cell.Value));
 
-                    var newRow = Context.CreateRow(this, initialValues);
-                    yield return newRow;
-                }
-
-                Context.SetRowOwner(row, null);
+                var newRow = Context.CreateRow(this, initialValues);
+                yield return newRow;
             }
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
-
             if (FixColumns == null)
                 throw new ProcessParameterNullException(this, nameof(FixColumns));
 

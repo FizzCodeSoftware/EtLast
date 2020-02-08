@@ -18,10 +18,16 @@
 
         public Evaluator Evaluate(IProcess caller = null)
         {
+            UID = Context.GetProcessUid(this);
             LastInvocation = Stopwatch.StartNew();
             Caller = caller;
 
-            Validate();
+            try
+            {
+                ValidateImpl();
+            }
+            catch (EtlException ex) { Context.AddException(this, ex); }
+            catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
 
             if (Context.CancellationTokenSource.IsCancellationRequested)
                 return new Evaluator();
@@ -45,6 +51,7 @@
         }
 
         protected abstract IEnumerable<IRow> EvaluateImpl();
+        protected abstract void ValidateImpl();
 
         public void Execute(IProcess caller)
         {

@@ -4,22 +4,22 @@
 
     public class CompareWithRowMutator : AbstractKeyBasedCrossMutator
     {
-        public RowTestDelegate If { get; set; }
         public IRowEqualityComparer EqualityComparer { get; set; }
         public MatchAction MatchAndEqualsAction { get; set; }
         public MatchAction MatchButDifferentAction { get; set; }
         public NoMatchAction NoMatchAction { get; set; }
+        private Dictionary<string, IRow> _lookup;
 
         public CompareWithRowMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override void StartMutator()
         {
             Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", RightProcess.Name);
 
-            var lookup = new Dictionary<string, IRow>();
+            _lookup = new Dictionary<string, IRow>();
             var allRightRows = RightProcess.Evaluate(this).TakeRowsAndReleaseOwnership(this);
             var rightRowCount = 0;
             foreach (var row in allRightRows)
@@ -29,103 +29,91 @@
                 if (string.IsNullOrEmpty(key))
                     continue;
 
-                lookup[key] = row;
+                _lookup[key] = row;
             }
 
             Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows, lookup size is {LookupSize}",
-                rightRowCount, lookup.Count);
+                rightRowCount, _lookup.Count);
 
             CounterCollection.IncrementCounter("right rows loaded", rightRowCount, true);
+        }
 
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
+        protected override void CloseMutator()
+        {
+            _lookup.Clear();
+            _lookup = null;
+        }
+
+        protected override IEnumerable<IRow> MutateRow(IRow row)
+        {
+            var leftKey = GetLeftKey(row);
+            var removeRow = false;
+            if (leftKey == null || !_lookup.TryGetValue(leftKey, out var match))
             {
-                if (If?.Invoke(row) == false)
+                if (NoMatchAction != null)
                 {
-                    CounterCollection.IncrementCounter("ignored", 1);
-                    yield return row;
-                    continue;
-                }
-
-                CounterCollection.IncrementCounter("processed", 1);
-
-                var leftKey = GetLeftKey(row);
-                var removeRow = false;
-                if (leftKey == null || !lookup.TryGetValue(leftKey, out var match))
-                {
-                    if (NoMatchAction != null)
+                    switch (NoMatchAction.Mode)
                     {
-                        switch (NoMatchAction.Mode)
+                        case MatchMode.Remove:
+                            removeRow = true;
+                            break;
+                        case MatchMode.Throw:
+                            var exception = new ProcessExecutionException(this, row, "no match");
+                            exception.Data.Add("LeftKey", leftKey);
+                            throw exception;
+                        case MatchMode.Custom:
+                            NoMatchAction.CustomAction.Invoke(this, row);
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                var isSame = EqualityComparer.Equals(row, match);
+                if (isSame)
+                {
+                    if (MatchAndEqualsAction != null)
+                    {
+                        switch (MatchAndEqualsAction.Mode)
                         {
                             case MatchMode.Remove:
                                 removeRow = true;
                                 break;
                             case MatchMode.Throw:
-                                var exception = new ProcessExecutionException(this, row, "no match");
+                                var exception = new ProcessExecutionException(this, row, "match");
                                 exception.Data.Add("LeftKey", leftKey);
                                 throw exception;
                             case MatchMode.Custom:
-                                NoMatchAction.CustomAction.Invoke(this, row);
+                                MatchAndEqualsAction.CustomAction.Invoke(this, row, match);
                                 break;
                         }
                     }
                 }
-                else
+                else if (MatchButDifferentAction != null)
                 {
-                    var isSame = EqualityComparer.Equals(row, match);
-                    if (isSame)
+                    switch (MatchButDifferentAction.Mode)
                     {
-                        if (MatchAndEqualsAction != null)
-                        {
-                            switch (MatchAndEqualsAction.Mode)
-                            {
-                                case MatchMode.Remove:
-                                    removeRow = true;
-                                    break;
-                                case MatchMode.Throw:
-                                    var exception = new ProcessExecutionException(this, row, "match");
-                                    exception.Data.Add("LeftKey", leftKey);
-                                    throw exception;
-                                case MatchMode.Custom:
-                                    MatchAndEqualsAction.CustomAction.Invoke(this, row, match);
-                                    break;
-                            }
-                        }
+                        case MatchMode.Remove:
+                            removeRow = true;
+                            break;
+                        case MatchMode.Throw:
+                            var exception = new ProcessExecutionException(this, row, "no match");
+                            exception.Data.Add("LeftKey", leftKey);
+                            throw exception;
+                        case MatchMode.Custom:
+                            MatchButDifferentAction.CustomAction.Invoke(this, row, match);
+                            break;
                     }
-                    else if (MatchButDifferentAction != null)
-                    {
-                        switch (MatchButDifferentAction.Mode)
-                        {
-                            case MatchMode.Remove:
-                                removeRow = true;
-                                break;
-                            case MatchMode.Throw:
-                                var exception = new ProcessExecutionException(this, row, "no match");
-                                exception.Data.Add("LeftKey", leftKey);
-                                throw exception;
-                            case MatchMode.Custom:
-                                MatchButDifferentAction.CustomAction.Invoke(this, row, match);
-                                break;
-                        }
-                    }
-                }
-
-                if (removeRow)
-                {
-                    Context.SetRowOwner(row, null);
-                }
-                else
-                {
-                    yield return row;
                 }
             }
 
-            lookup.Clear();
+            if (!removeRow)
+                yield return row;
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            base.ValidateImpl();
+            base.ValidateMutator();
 
             if (MatchAndEqualsAction == null && NoMatchAction == null && MatchButDifferentAction == null)
                 throw new InvalidProcessParameterException(this, nameof(MatchAndEqualsAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must be specified: " + nameof(MatchAndEqualsAction) + " or " + nameof(NoMatchAction) + " or " + nameof(MatchButDifferentAction));

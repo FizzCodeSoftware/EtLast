@@ -146,7 +146,7 @@
         public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues)
         {
             var row = (IRow)Activator.CreateInstance(RowType);
-            row.Init(this, process, Interlocked.Increment(ref _nextRowUid) - 1, initialValues);
+            row.Init(this, process, Interlocked.Increment(ref _nextRowUid), initialValues);
 
             CounterCollection.IncrementCounter("in-memory rows created", 1);
 
@@ -217,7 +217,7 @@
 
         public int GetProcessUid(IProcess process)
         {
-            var uid = Interlocked.Increment(ref _nextProcessUid) - 1;
+            var uid = Interlocked.Increment(ref _nextProcessUid);
             OnProcessCreated?.Invoke(uid, process);
             return uid;
         }

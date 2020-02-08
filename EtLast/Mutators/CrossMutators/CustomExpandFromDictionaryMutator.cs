@@ -5,23 +5,23 @@
 
     public class CustomExpandFromDictionaryMutator : AbstractCrossMutator
     {
-        public RowTestDelegate If { get; set; }
         public MatchingRowFromDictionarySelector MatchingRowSelector { get; set; }
         public MatchKeySelector RightKeySelector { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         public NoMatchAction NoMatchAction { get; set; }
         public MatchActionDelegate MatchCustomAction { get; set; }
+        private Dictionary<string, IRow> _dictionary;
 
         public CustomExpandFromDictionaryMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override void StartMutator()
         {
             Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", RightProcess.Name);
 
-            var dictionary = new Dictionary<string, IRow>();
+            _dictionary = new Dictionary<string, IRow>();
             var allRightRows = RightProcess.Evaluate(this).TakeRowsAndReleaseOwnership(this);
             var rightRowCount = 0;
             foreach (var row in allRightRows)
@@ -31,72 +31,60 @@
                 if (string.IsNullOrEmpty(key))
                     continue;
 
-                dictionary[key] = row;
+                _dictionary[key] = row;
             }
 
             Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows, dictionary size is {DictionarySize}",
-                rightRowCount, dictionary.Count);
+                rightRowCount, _dictionary.Count);
 
             CounterCollection.IncrementCounter("right rows loaded", rightRowCount, true);
-
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
-            {
-                if (If?.Invoke(row) == false)
-                {
-                    CounterCollection.IncrementCounter("ignored", 1);
-                    yield return row;
-                    continue;
-                }
-
-                CounterCollection.IncrementCounter("processed", 1);
-
-                var removeRow = false;
-                var rightRow = MatchingRowSelector(row, dictionary);
-                if (rightRow == null)
-                {
-                    if (NoMatchAction != null)
-                    {
-                        switch (NoMatchAction.Mode)
-                        {
-                            case MatchMode.Remove:
-                                removeRow = true;
-                                break;
-                            case MatchMode.Throw:
-                                var exception = new ProcessExecutionException(this, row, "no match");
-                                throw exception;
-                            case MatchMode.Custom:
-                                NoMatchAction.CustomAction.Invoke(this, row);
-                                break;
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (var config in ColumnConfiguration)
-                    {
-                        config.Copy(this, rightRow, row);
-                    }
-
-                    MatchCustomAction?.Invoke(this, row, rightRow);
-                }
-
-                if (removeRow)
-                {
-                    Context.SetRowOwner(row, null);
-                }
-                else
-                {
-                    yield return row;
-                }
-            }
-
-            dictionary.Clear();
         }
 
-        protected override void ValidateImpl()
+        protected override void CloseMutator()
         {
-            base.ValidateImpl();
+            _dictionary.Clear();
+            _dictionary = null;
+        }
+
+        protected override IEnumerable<IRow> MutateRow(IRow row)
+        {
+            var removeRow = false;
+            var rightRow = MatchingRowSelector(row, _dictionary);
+            if (rightRow == null)
+            {
+                if (NoMatchAction != null)
+                {
+                    switch (NoMatchAction.Mode)
+                    {
+                        case MatchMode.Remove:
+                            removeRow = true;
+                            break;
+                        case MatchMode.Throw:
+                            var exception = new ProcessExecutionException(this, row, "no match");
+                            throw exception;
+                        case MatchMode.Custom:
+                            NoMatchAction.CustomAction.Invoke(this, row);
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var config in ColumnConfiguration)
+                {
+                    config.Copy(this, rightRow, row);
+                }
+
+                MatchCustomAction?.Invoke(this, row, rightRow);
+            }
+
+            if (!removeRow)
+                yield return row;
+        }
+
+        protected override void ValidateMutator()
+        {
+            base.ValidateMutator();
 
             if (MatchingRowSelector == null)
                 throw new ProcessParameterNullException(this, nameof(MatchingRowSelector));

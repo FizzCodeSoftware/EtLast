@@ -7,7 +7,7 @@
     {
         private readonly ResilientSqlScope _scope;
         public IEtlContext Context => _scope.Context;
-        public int UID { get; }
+        public int UID { get; private set; }
         public string Name { get; } = "PostFinalizerManager";
         public string Topic => _scope.Topic;
         public IProcess Caller => _scope;
@@ -18,11 +18,11 @@
         {
             _scope = scope;
             CounterCollection = new StatCounterCollection(scope.Context.CounterCollection);
-            UID = Context.GetProcessUid(this);
         }
 
         public void Execute()
         {
+            UID = Context.GetProcessUid(this);
             LastInvocation = Stopwatch.StartNew();
 
             IExecutable[] finalizers;
@@ -51,10 +51,6 @@
                     }
                 }
             }
-        }
-
-        public void Validate()
-        {
         }
     }
 }
