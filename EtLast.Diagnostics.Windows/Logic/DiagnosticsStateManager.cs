@@ -107,7 +107,7 @@
                     "row-value-changed" => ProcessRowValueChangedEvent(payload),
                     "row-stored" => ProcessRowStoredEvent(payload),
                     "context-counters-updated" => ProcessContextCountersUpdatedEvent(payload),
-                    "process-created" => ProcessProcessCreatedEvent(payload),
+                    "process-invocation" => ProcessProcessInvocationEvent(payload),
                     "data-store-command" => ProcessDataStoreCommandEvent(payload),
                     _ => null,
                 };
@@ -130,7 +130,7 @@
         {
             foreach (var session in _sessionList.Values)
             {
-                foreach (var context in session.ContextList)
+                foreach (var context in session.ContextList.ToArray())
                 {
                     context.ProcessEvents();
                 }
@@ -150,9 +150,9 @@
             return session;
         }
 
-        private static AbstractEvent ProcessProcessCreatedEvent(string payload)
+        private static AbstractEvent ProcessProcessInvocationEvent(string payload)
         {
-            var evt = JsonSerializer.Deserialize<ProcessCreatedEvent>(payload);
+            var evt = JsonSerializer.Deserialize<ProcessInvocationEvent>(payload);
             return evt;
         }
 

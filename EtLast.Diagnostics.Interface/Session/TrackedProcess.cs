@@ -3,11 +3,14 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
 
     [DebuggerDisplay("{Name}")]
     public class TrackedProcess
     {
-        public int Uid { get; }
+        public int InvocationUID { get; }
+        public int InstanceUID { get; }
+        public int InvocationCounter { get; }
         public string Type { get; }
         public string Name { get; }
         public string Topic { get; }
@@ -26,16 +29,23 @@
         public Dictionary<int, int> InputRowCountByByPreviousProcess { get; } = new Dictionary<int, int>();
         public int InputRowCount { get; private set; }
 
-        public TrackedProcess(int uid, string type, string name, string topic)
+        public TrackedProcess(int invocationUID, int instanceUID, int invocationCounter, string type, string name, string topic)
         {
-            Uid = uid;
+            InvocationUID = invocationUID;
+            InstanceUID = instanceUID;
+            InvocationCounter = invocationCounter;
             Type = type;
             Name = name;
             Topic = topic;
 
-            DisplayName = topic != null
+            DisplayName = (topic != null
                 ? topic + " :: " + Name
-                : name;
+                : name)
+                + " (" + instanceUID.ToString("D", CultureInfo.InvariantCulture)
+                + (InvocationCounter > 1
+                    ? "/" + InvocationCounter.ToString("D", CultureInfo.InvariantCulture)
+                    : "") + ")";
+            ;
         }
 
         public void InputRow(TrackedRow row, TrackedProcess previousProcess)
@@ -46,9 +56,9 @@
             AliveRowList.Add(row.Uid, row);
             row.CurrentOwner = this;
 
-            InputRowCountByByPreviousProcess.TryGetValue(previousProcess.Uid, out var cnt);
+            InputRowCountByByPreviousProcess.TryGetValue(previousProcess.InvocationUID, out var cnt);
             cnt++;
-            InputRowCountByByPreviousProcess[previousProcess.Uid] = cnt;
+            InputRowCountByByPreviousProcess[previousProcess.InvocationUID] = cnt;
             InputRowCount++;
         }
 
@@ -81,9 +91,9 @@
             AliveRowList.Remove(row.Uid);
             row.CurrentOwner = null;
 
-            PassedRowCountByNextProcess.TryGetValue(newProcess.Uid, out var cnt);
+            PassedRowCountByNextProcess.TryGetValue(newProcess.InvocationUID, out var cnt);
             cnt++;
-            PassedRowCountByNextProcess[newProcess.Uid] = cnt;
+            PassedRowCountByNextProcess[newProcess.InvocationUID] = cnt;
             PassedRowCount++;
         }
 

@@ -61,9 +61,9 @@
                         .Append(evt.Severity.ToShortString())
                         .Append("] ");
 
-                    if (evt.ProcessUid != null)
+                    if (evt.ProcessInvocationUID != null)
                     {
-                        var process = playbook.ProcessList[evt.ProcessUid.Value];
+                        var process = playbook.ProcessList[evt.ProcessInvocationUID.Value];
 
                         if (process.Topic != null)
                         {

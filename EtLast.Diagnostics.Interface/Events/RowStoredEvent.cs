@@ -9,7 +9,7 @@
         public int RowUid { get; set; }
 
         [JsonPropertyName("p")]
-        public int ProcessUid { get; set; }
+        public int ProcessInvocationUID { get; set; }
 
         [JsonPropertyName("l")]
         public List<KeyValuePair<string, string>> Locations { get; set; }

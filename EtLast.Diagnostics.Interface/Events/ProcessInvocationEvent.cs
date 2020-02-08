@@ -2,10 +2,16 @@
 {
     using System.Text.Json.Serialization;
 
-    public class ProcessCreatedEvent : AbstractEvent
+    public class ProcessInvocationEvent : AbstractEvent
     {
-        [JsonPropertyName("u")]
-        public int Uid { get; set; }
+        [JsonPropertyName("uid")]
+        public int InvocationUID { get; set; }
+
+        [JsonPropertyName("iuid")]
+        public int InstanceUID { get; set; }
+
+        [JsonPropertyName("c")]
+        public int InvocationCounter { get; set; }
 
         [JsonPropertyName("ty")]
         public string Type { get; set; }

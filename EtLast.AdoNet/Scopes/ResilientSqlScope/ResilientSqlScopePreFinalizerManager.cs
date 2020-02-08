@@ -7,7 +7,9 @@
     {
         private readonly ResilientSqlScope _scope;
         public IEtlContext Context => _scope.Context;
-        public int UID { get; private set; }
+        public int InvocationUID { get; set; }
+        public int InstanceUID { get; set; }
+        public int InvocationCounter { get; set; }
         public string Name { get; } = "PreFinalizerManager";
         public string Topic => _scope.Topic;
         public IProcess Caller => _scope;
@@ -22,7 +24,8 @@
 
         public void Execute()
         {
-            UID = Context.GetProcessUid(this);
+            Context.GetProcessUid(this);
+
             LastInvocation = Stopwatch.StartNew();
 
             IExecutable[] finalizers;

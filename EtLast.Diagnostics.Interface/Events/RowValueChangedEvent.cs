@@ -8,7 +8,7 @@
         public int RowUid { get; set; }
 
         [JsonPropertyName("p")]
-        public int? ProcessUid { get; set; }
+        public int? ProcessInvocationUID { get; set; }
 
         [JsonPropertyName("c")]
         public string Column { get; set; }

@@ -4,7 +4,10 @@
 
     public abstract class AbstractProcess : IProcess
     {
-        public int UID { get; protected set; }
+        public int InvocationUID { get; set; }
+        public int InstanceUID { get; set; }
+        public int InvocationCounter { get; set; }
+
         public IEtlContext Context { get; }
         public IProcess Caller { get; protected set; }
         public string Name { get; set; }

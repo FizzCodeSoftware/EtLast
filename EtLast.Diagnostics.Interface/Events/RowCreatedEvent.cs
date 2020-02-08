@@ -5,7 +5,7 @@
     public class RowCreatedEvent : AbstractEvent
     {
         [JsonPropertyName("p")]
-        public int ProcessUid { get; set; }
+        public int ProcessInvocationUID { get; set; }
 
         [JsonPropertyName("r")]
         public int RowUid { get; set; }

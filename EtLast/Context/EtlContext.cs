@@ -30,10 +30,11 @@
         public ContextOnRowOwnerChangedDelegate OnRowOwnerChanged { get; set; }
         public ContextOnRowValueChangedDelegate OnRowValueChanged { get; set; }
         public ContextOnRowStoredDelegate OnRowStored { get; set; }
-        public ContextOnProcessCreatedDelegate OnProcessCreated { get; set; }
+        public ContextOnProcessInvokedDelegate OnProcessInvoked { get; set; }
 
         private int _nextRowUid;
-        private int _nextProcessUid;
+        private int _nextProcessInstanceUID;
+        private int _nextProcessInvocationUID;
         private readonly List<Exception> _exceptions = new List<Exception>();
 
         public EtlContext(StatCounterCollection forwardCountersToCollection = null)
@@ -215,11 +216,17 @@
             OnRowOwnerChanged?.Invoke(row, previousProcess, currentProcess);
         }
 
-        public int GetProcessUid(IProcess process)
+        public void GetProcessUid(IProcess process)
         {
-            var uid = Interlocked.Increment(ref _nextProcessUid);
-            OnProcessCreated?.Invoke(uid, process);
-            return uid;
+            process.InvocationUID = Interlocked.Increment(ref _nextProcessInvocationUID);
+            process.InvocationCounter++;
+
+            if (process.InstanceUID == 0)
+            {
+                process.InstanceUID = Interlocked.Increment(ref _nextProcessInstanceUID);
+            }
+
+            OnProcessInvoked?.Invoke(process);
         }
     }
 }

@@ -8,9 +8,9 @@
         public int RowUid { get; set; }
 
         [JsonPropertyName("pp")]
-        public int PreviousProcessUid { get; set; }
+        public int PreviousProcessInvocationUID { get; set; }
 
         [JsonPropertyName("np")]
-        public int? NewProcessUid { get; set; }
+        public int? NewProcessInvocationUID { get; set; }
     }
 }

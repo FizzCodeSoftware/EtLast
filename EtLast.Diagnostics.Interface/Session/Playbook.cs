@@ -18,7 +18,7 @@
         public Dictionary<int, TrackedProcess> ProcessList { get; } = new Dictionary<int, TrackedProcess>();
         public Dictionary<string, Counter> Counters { get; } = new Dictionary<string, Counter>();
 
-        public OnProcessAddedDelegate OnProcessAdded { get; set; }
+        public OnProcessAddedDelegate OnProcessInvoked { get; set; }
         public OnCountersUpdatedDelegate OnCountersUpdated { get; set; }
         public OnEventAddedDelegate OnEventsAdded { get; set; }
 
@@ -38,7 +38,7 @@
                 {
                     case LogEvent evt:
                         {
-                            if (evt.ProcessUid != null && !ProcessList.TryGetValue(evt.ProcessUid.Value, out var process))
+                            if (evt.ProcessInvocationUID != null && !ProcessList.TryGetValue(evt.ProcessInvocationUID.Value, out var process))
                             {
                                 continue;
                             }
@@ -46,26 +46,26 @@
                         break;
                     case DataStoreCommandEvent evt:
                         {
-                            if (!ProcessList.TryGetValue(evt.ProcessUid, out var process))
+                            if (!ProcessList.TryGetValue(evt.ProcessInvocationUID, out var process))
                                 continue;
                         }
                         break;
                     case ContextCountersUpdatedEvent evt:
                         lastContextCountersUpdatedEvent = evt;
                         break;
-                    case ProcessCreatedEvent evt:
+                    case ProcessInvocationEvent evt:
                         {
-                            if (!ProcessList.TryGetValue(evt.Uid, out var process))
+                            if (!ProcessList.TryGetValue(evt.InvocationUID, out var process))
                             {
-                                process = new TrackedProcess(evt.Uid, evt.Type, evt.Name, evt.Topic);
-                                ProcessList.Add(process.Uid, process);
-                                OnProcessAdded?.Invoke(this, process);
+                                process = new TrackedProcess(evt.InvocationUID, evt.InstanceUID, evt.InvocationCounter, evt.Type, evt.Name, evt.Topic);
+                                ProcessList.Add(process.InvocationUID, process);
+                                OnProcessInvoked?.Invoke(this, process);
                             }
                         }
                         break;
                     case RowCreatedEvent evt:
                         {
-                            if (!ProcessList.TryGetValue(evt.ProcessUid, out var process))
+                            if (!ProcessList.TryGetValue(evt.ProcessInvocationUID, out var process))
                                 continue;
 
                             var row = new TrackedRow()
@@ -91,14 +91,14 @@
                         break;
                     case RowOwnerChangedEvent evt:
                         {
-                            if (!ProcessList.TryGetValue(evt.PreviousProcessUid, out var previousProcess))
+                            if (!ProcessList.TryGetValue(evt.PreviousProcessInvocationUID, out var previousProcess))
                                 continue;
 
                             if (!RowList.TryGetValue(evt.RowUid, out var row))
                                 continue;
 
                             TrackedProcess newProcess = null;
-                            if (evt.NewProcessUid != null && !ProcessList.TryGetValue(evt.NewProcessUid.Value, out newProcess))
+                            if (evt.NewProcessInvocationUID != null && !ProcessList.TryGetValue(evt.NewProcessInvocationUID.Value, out newProcess))
                                 continue;
 
                             if (newProcess != null)
@@ -120,7 +120,7 @@
                             if (!RowList.TryGetValue(evt.RowUid, out var row))
                                 continue;
 
-                            if (evt.ProcessUid != null && !ProcessList.TryGetValue(evt.ProcessUid.Value, out var process))
+                            if (evt.ProcessInvocationUID != null && !ProcessList.TryGetValue(evt.ProcessInvocationUID.Value, out var process))
                                 continue;
 
                             row.AllEvents.Add(evt);
@@ -139,7 +139,7 @@
                             if (!RowList.TryGetValue(evt.RowUid, out var row))
                                 continue;
 
-                            if (!ProcessList.TryGetValue(evt.ProcessUid, out var process))
+                            if (!ProcessList.TryGetValue(evt.ProcessInvocationUID, out var process))
                                 continue;
 
                             row.AllEvents.Add(evt);

@@ -6,7 +6,7 @@
     public class LogEvent : AbstractEvent
     {
         [JsonPropertyName("p")]
-        public int? ProcessUid { get; set; }
+        public int? ProcessInvocationUID { get; set; }
 
         [JsonPropertyName("t")]
         public string Text { get; set; }

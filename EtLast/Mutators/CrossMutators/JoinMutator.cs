@@ -41,7 +41,7 @@
                 list.Add(row);
             }
 
-            Context.Log(LogSeverity.Debug, this, null, "fetched {RowCount} rows, lookup size is {LookupSize}",
+            Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows, lookup size is {LookupSize}",
                 rightRowCount, _lookup.Count);
 
             CounterCollection.IncrementCounter("right rows loaded", rightRowCount, true);

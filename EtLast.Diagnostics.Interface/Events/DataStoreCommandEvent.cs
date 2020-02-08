@@ -5,7 +5,7 @@
     public class DataStoreCommandEvent : AbstractEvent
     {
         [JsonPropertyName("p")]
-        public int ProcessUid { get; set; }
+        public int ProcessInvocationUID { get; set; }
 
         [JsonPropertyName("c")]
         public string Command { get; set; }

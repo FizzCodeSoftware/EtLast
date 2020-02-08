@@ -109,7 +109,7 @@
                     FullRowSelect = true,
                     BackColor = Color.Black,
                     ForeColor = Color.LightGray,
-                    Width = 800,
+                    Width = 1200,
                     BorderStyle = BorderStyle.FixedSingle,
                 };
 
@@ -117,12 +117,13 @@
                 _processList.Columns.Add("process name", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Left;
                 _processList.Columns.Add("type", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Left;
 
-                _processList.Columns.Add("INPUT", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
-                _processList.Columns.Add("CREATE", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
-                _processList.Columns.Add("store", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
-                _processList.Columns.Add("DROP", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
-                _processList.Columns.Add("STAY", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
-                _processList.Columns.Add("OUT", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("invocation", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 7).TextAlign = HorizontalAlignment.Center;
+                _processList.Columns.Add("INPUT", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 7).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("CREATE", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 7).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("store", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 7).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("DROP", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 7).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("STAY", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 7).TextAlign = HorizontalAlignment.Right;
+                _processList.Columns.Add("OUT", (_processList.Width - SystemInformation.VerticalScrollBarWidth - 4) / 3 * 1 / 7).TextAlign = HorizontalAlignment.Right;
                 _processList.ShowItemToolTips = true;
                 _processList.MouseMove += ProcessList_MouseMove;
                 //_processList.MouseLeave += (s, a) => _toolTip.SetToolTip(s as Control, null);
@@ -167,7 +168,7 @@
                 _dataStoreCommandList.Columns.Add("text", 700);
                 _dataStoreCommandList.Columns.Add("arguments", 200);
 
-                context.WholePlaybook.OnProcessAdded += OnProcessAdded;
+                context.WholePlaybook.OnProcessInvoked += OnProcessInvoked;
                 context.WholePlaybook.OnCountersUpdated += OnCurrentCountersUpdated;
                 context.WholePlaybook.OnEventsAdded += OnEventsAdded;
 
@@ -211,12 +212,12 @@
                 {
                     if (item.Tag is TrackedProcess p)
                     {
-                        if (item.SubItems[3].Text != p.InputRowCount.ToString("D", CultureInfo.InvariantCulture)
-                            || item.SubItems[4].Text != p.CreatedRowCount.ToString("D", CultureInfo.InvariantCulture)
-                            || item.SubItems[5].Text != p.StoredRowList.Count.ToString("D", CultureInfo.InvariantCulture)
-                            || item.SubItems[6].Text != p.DroppedRowList.Count.ToString("D", CultureInfo.InvariantCulture)
-                            || item.SubItems[7].Text != p.AliveRowList.Count.ToString("D", CultureInfo.InvariantCulture)
-                            || item.SubItems[8].Text != p.PassedRowCount.ToString("D", CultureInfo.InvariantCulture))
+                        if (item.SubItems[4].Text != p.InputRowCount.ToString("D", CultureInfo.InvariantCulture)
+                            || item.SubItems[5].Text != p.CreatedRowCount.ToString("D", CultureInfo.InvariantCulture)
+                            || item.SubItems[6].Text != p.StoredRowList.Count.ToString("D", CultureInfo.InvariantCulture)
+                            || item.SubItems[7].Text != p.DroppedRowList.Count.ToString("D", CultureInfo.InvariantCulture)
+                            || item.SubItems[8].Text != p.AliveRowList.Count.ToString("D", CultureInfo.InvariantCulture)
+                            || item.SubItems[9].Text != p.PassedRowCount.ToString("D", CultureInfo.InvariantCulture))
                         {
                             changed = true;
                             break;
@@ -233,13 +234,13 @@
                         {
                             if (item.Tag is TrackedProcess p)
                             {
-                                item.SubItems[3].SetIfChanged(p.InputRowCount.ToString("D", CultureInfo.InvariantCulture),
+                                item.SubItems[4].SetIfChanged(p.InputRowCount.ToString("D", CultureInfo.InvariantCulture),
                                     () => string.Join("\n", p.InputRowCountByByPreviousProcess.Select(x => Context.WholePlaybook.ProcessList[x.Key].DisplayName + "  =  " + x.Value.ToString("D", CultureInfo.InvariantCulture))));
-                                item.SubItems[4].SetIfChanged(p.CreatedRowCount.ToString("D", CultureInfo.InvariantCulture));
-                                item.SubItems[5].SetIfChanged(p.StoredRowList.Count.ToString("D", CultureInfo.InvariantCulture));
-                                item.SubItems[6].SetIfChanged(p.DroppedRowList.Count.ToString("D", CultureInfo.InvariantCulture));
-                                item.SubItems[7].SetIfChanged(p.AliveRowList.Count.ToString("D", CultureInfo.InvariantCulture));
-                                item.SubItems[8].SetIfChanged(p.PassedRowCount.ToString("D", CultureInfo.InvariantCulture),
+                                item.SubItems[5].SetIfChanged(p.CreatedRowCount.ToString("D", CultureInfo.InvariantCulture));
+                                item.SubItems[6].SetIfChanged(p.StoredRowList.Count.ToString("D", CultureInfo.InvariantCulture));
+                                item.SubItems[7].SetIfChanged(p.DroppedRowList.Count.ToString("D", CultureInfo.InvariantCulture));
+                                item.SubItems[8].SetIfChanged(p.AliveRowList.Count.ToString("D", CultureInfo.InvariantCulture));
+                                item.SubItems[9].SetIfChanged(p.PassedRowCount.ToString("D", CultureInfo.InvariantCulture),
                                     () => string.Join("\n", p.PassedRowCountByNextProcess.Select(x => Context.WholePlaybook.ProcessList[x.Key].DisplayName + "  =  " + x.Value.ToString("D", CultureInfo.InvariantCulture))));
                             }
                         }
@@ -306,7 +307,7 @@
                     {
                         var item = _dataStoreCommandList.Items.Add(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture), -1);
 
-                        var process = Context.WholePlaybook.ProcessList[evt.ProcessUid];
+                        var process = Context.WholePlaybook.ProcessList[evt.ProcessInvocationUID];
 
                         item.SubItems.Add(process.Topic);
                         item.SubItems.Add(process.Name);
@@ -376,13 +377,17 @@
             }
         }
 
-        private void OnProcessAdded(Playbook playbook, TrackedProcess process)
+        private void OnProcessInvoked(Playbook playbook, TrackedProcess process)
         {
             _processList.Invoke(new Action(() =>
             {
                 var item = _processList.Items.Add(process.Topic);
                 item.SubItems.Add(process.Name);
                 item.SubItems.Add(process.Type);
+                item.SubItems.Add(process.InstanceUID.ToString("D", CultureInfo.InvariantCulture)
+                    + (process.InvocationCounter > 1
+                        ? "/" + process.InvocationCounter.ToString("D", CultureInfo.InvariantCulture)
+                        : ""));
                 item.SubItems.Add("0");
                 item.SubItems.Add("0");
                 item.SubItems.Add("0");

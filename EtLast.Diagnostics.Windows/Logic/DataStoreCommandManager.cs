@@ -60,7 +60,7 @@
 
             var eventsQuery = abstractEvents.OfType<DataStoreCommandEvent>();
             if (ProcessUidFilter != null)
-                eventsQuery = eventsQuery.Where(x => x.ProcessUid == ProcessUidFilter.Value);
+                eventsQuery = eventsQuery.Where(x => x.ProcessInvocationUID == ProcessUidFilter.Value);
 
             var events = eventsQuery.ToList();
             if (events.Count == 0)
@@ -76,7 +76,7 @@
                         var item = _list.Items.Add(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture), -1);
                         item.SubItems.Add(playbook.ExecutionContext.Name);
 
-                        var process = playbook.ExecutionContext.WholePlaybook.ProcessList[evt.ProcessUid];
+                        var process = playbook.ExecutionContext.WholePlaybook.ProcessList[evt.ProcessInvocationUID];
 
                         item.SubItems.Add(process.Topic);
                         item.SubItems.Add(process.Name);

@@ -34,7 +34,6 @@
                 rightRowCount, _lookup.Count);
 
             CounterCollection.IncrementCounter("right rows loaded", rightRowCount, true);
-
         }
 
         protected override void CloseMutator()

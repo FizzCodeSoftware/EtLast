@@ -12,7 +12,8 @@
 
         public void Execute(IProcess caller = null)
         {
-            UID = Context.GetProcessUid(this);
+            Context.GetProcessUid(this);
+
             LastInvocation = Stopwatch.StartNew();
             Caller = caller;
 

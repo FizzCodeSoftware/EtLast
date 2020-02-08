@@ -81,7 +81,6 @@
             CloseMutator();
         }
 
-
         protected sealed override void ValidateImpl()
         {
             if (InputProcess == null)
