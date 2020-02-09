@@ -46,9 +46,9 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var leftKey = GetLeftKey(row);
             var removeRow = false;
-            if (leftKey == null || !_lookup.TryGetValue(leftKey, out var match))
+            var key = GetLeftKey(row);
+            if (key == null || !_lookup.TryGetValue(key, out var match))
             {
                 if (NoMatchAction != null)
                 {
@@ -59,7 +59,7 @@
                             break;
                         case MatchMode.Throw:
                             var exception = new ProcessExecutionException(this, row, "no match");
-                            exception.Data.Add("LeftKey", leftKey);
+                            exception.Data.Add("LeftKey", key);
                             throw exception;
                         case MatchMode.Custom:
                             NoMatchAction.CustomAction.Invoke(this, row);
@@ -81,7 +81,7 @@
                                 break;
                             case MatchMode.Throw:
                                 var exception = new ProcessExecutionException(this, row, "match");
-                                exception.Data.Add("LeftKey", leftKey);
+                                exception.Data.Add("LeftKey", key);
                                 throw exception;
                             case MatchMode.Custom:
                                 MatchAndEqualsAction.CustomAction.Invoke(this, row, match);
@@ -98,7 +98,7 @@
                             break;
                         case MatchMode.Throw:
                             var exception = new ProcessExecutionException(this, row, "no match");
-                            exception.Data.Add("LeftKey", leftKey);
+                            exception.Data.Add("LeftKey", key);
                             throw exception;
                         case MatchMode.Custom:
                             MatchButDifferentAction.CustomAction.Invoke(this, row, match);

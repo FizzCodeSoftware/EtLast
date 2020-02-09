@@ -8,8 +8,6 @@
         public IEvaluable InputProcess { get; set; }
         public RowTestDelegate If { get; set; }
 
-        protected bool InvertSkipBehavior { get; set; }
-
         protected AbstractMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
@@ -25,19 +23,20 @@
             var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
             foreach (var row in rows)
             {
-                var skip = false;
+                var apply = false;
                 try
                 {
-                    skip = If?.Invoke(row) == false;
+                    apply = If?.Invoke(row) != false;
                 }
                 catch (ProcessExecutionException) { throw; }
                 catch (Exception ex)
                 {
                     var exception = new ProcessExecutionException(this, row, ex);
                     Context.AddException(this, exception);
+                    break;
                 }
 
-                if (skip)
+                if (!apply)
                 {
                     CounterCollection.IncrementCounter("skipped", 1);
                     yield return row;
@@ -46,20 +45,18 @@
 
                 CounterCollection.IncrementCounter("processed", 1);
 
+                var kept = false;
                 try
                 {
-                    var found = false;
                     foreach (var mutatedRow in MutateRow(row))
                     {
                         if (mutatedRow == row)
-                            found = true;
+                            kept = true;
+
+                        if (mutatedRow.CurrentProcess != this)
+                            throw new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership");
 
                         mutatedRows.Add(mutatedRow);
-                    }
-
-                    if (!found)
-                    {
-                        Context.SetRowOwner(row, null);
                     }
                 }
                 catch (ProcessExecutionException) { throw; }
@@ -68,6 +65,11 @@
                     var exception = new ProcessExecutionException(this, row, ex);
                     Context.AddException(this, exception);
                     continue;
+                }
+
+                if (!kept)
+                {
+                    Context.SetRowOwner(row, null);
                 }
 
                 foreach (var mutatedRow in mutatedRows)

@@ -4,8 +4,6 @@
 
     public class BatchedExpandMutator : AbstractBatchedKeyBasedCrossMutator
     {
-        public RowTestDelegate If { get; set; }
-
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         public NoMatchAction NoMatchAction { get; set; }
         public MatchActionDelegate MatchCustomAction { get; set; }
@@ -13,7 +11,7 @@
         /// <summary>
         /// The amount of rows processed in a batch. Default value is 1000.
         /// </summary>
-        public int BatchSize { get; set; } = 1000;
+        public override int BatchSize { get; set; } = 1000;
 
         /// <summary>
         /// Default value is 10.000
@@ -25,70 +23,42 @@
         public BatchedExpandMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
+            UseBatchKeys = true;
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override string GetBatchKey(IRow row)
         {
-            var batch = new List<IRow>();
-            var batchKeys = new List<string>();
+            return GetLeftKey(row);
+        }
 
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
+        protected override void MutateRow(IRow row, List<IRow> mutatedRows, out bool removeOriginal, out bool processed)
+        {
+            removeOriginal = false;
+
+            var key = GetLeftKey(row);
+            if (key != null && _lookup.TryGetValue(key, out var match))
             {
-                if (If?.Invoke(row) == false)
+                processed = true;
+                CounterCollection.IncrementCounter("served from cache", 1, true);
+
+                foreach (var config in ColumnConfiguration)
                 {
-                    CounterCollection.IncrementCounter("ignored", 1);
-                    yield return row;
-                    continue;
+                    config.Copy(this, match, row);
                 }
 
-                CounterCollection.IncrementCounter("processed", 1);
+                MatchCustomAction?.Invoke(this, row, match);
 
-                var key = GetLeftKey(row);
-                if (key != null && _lookup.TryGetValue(key, out var match))
-                {
-                    CounterCollection.IncrementCounter("served from cache", 1, true);
-
-                    foreach (var config in ColumnConfiguration)
-                    {
-                        config.Copy(this, match, row);
-                    }
-
-                    MatchCustomAction?.Invoke(this, row, match);
-
-                    yield return row;
-                    continue;
-                }
-
-                batch.Add(row);
-                batchKeys.Add(key);
-
-                if (batchKeys.Count >= BatchSize)
-                {
-                    foreach (var r in ProcessBatch(batch))
-                    {
-                        yield return r;
-                    }
-
-                    batch.Clear();
-                    batchKeys.Clear();
-                }
+                mutatedRows.Add(row);
             }
-
-            if (batch.Count > 0)
+            else
             {
-                foreach (var r in ProcessBatch(batch))
-                {
-                    yield return r;
-                }
-
-                batch.Clear();
+                processed = false;
             }
         }
 
-        private IEnumerable<IRow> ProcessBatch(List<IRow> batch)
+        protected override void MutateBatch(List<IRow> rows, List<IRow> mutatedRows, List<IRow> removedRows)
         {
-            var rightProcess = RightProcessCreator.Invoke(batch.ToArray());
+            var rightProcess = RightProcessCreator.Invoke(rows.ToArray());
 
             Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", rightProcess.Name);
 
@@ -109,12 +79,12 @@
 
             CounterCollection.IncrementCounter("right rows loaded", rightRowCount, true);
 
-            foreach (var row in batch)
+            foreach (var row in rows)
             {
-                var leftKey = GetLeftKey(row);
+                var key = GetLeftKey(row);
 
                 var removeRow = false;
-                if (leftKey == null || !_lookup.TryGetValue(leftKey, out var match))
+                if (key == null || !_lookup.TryGetValue(key, out var match))
                 {
                     if (NoMatchAction != null)
                     {
@@ -125,7 +95,7 @@
                                 break;
                             case MatchMode.Throw:
                                 var exception = new ProcessExecutionException(this, row, "no match");
-                                exception.Data.Add("LeftKey", leftKey);
+                                exception.Data.Add("LeftKey", key);
                                 throw exception;
                             case MatchMode.Custom:
                                 NoMatchAction.CustomAction.Invoke(this, row);
@@ -144,13 +114,9 @@
                 }
 
                 if (removeRow)
-                {
-                    Context.SetRowOwner(row, null);
-                }
+                    removedRows.Add(row);
                 else
-                {
-                    yield return row;
-                }
+                    mutatedRows.Add(row);
             }
 
             if (_lookup.Count >= CacheSizeLimit)
@@ -159,9 +125,9 @@
             }
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            base.ValidateImpl();
+            base.ValidateMutator();
 
             if (ColumnConfiguration == null)
                 throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));

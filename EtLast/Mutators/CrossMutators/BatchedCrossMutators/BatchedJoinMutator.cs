@@ -5,8 +5,6 @@
 
     public class BatchedJoinMutator : AbstractBatchedKeyBasedCrossMutator
     {
-        public RowTestDelegate If { get; set; }
-
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         public NoMatchAction NoMatchAction { get; set; }
         public MatchActionDelegate MatchCustomAction { get; set; }
@@ -14,60 +12,28 @@
         /// <summary>
         /// The amount of rows processed in a batch. Default value is 1000.
         /// </summary>
-        public int BatchSize { get; set; } = 1000;
+        public override int BatchSize { get; set; } = 1000;
 
         public BatchedJoinMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
+            UseBatchKeys = true;
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override string GetBatchKey(IRow row)
         {
-            var batch = new List<IRow>();
-            var batchKeys = new List<string>();
-
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
-            {
-                if (If?.Invoke(row) == false)
-                {
-                    CounterCollection.IncrementCounter("ignored", 1);
-                    yield return row;
-                    continue;
-                }
-
-                CounterCollection.IncrementCounter("processed", 1);
-
-                var key = GetLeftKey(row);
-                batch.Add(row);
-                batchKeys.Add(key);
-
-                if (batchKeys.Count >= BatchSize)
-                {
-                    foreach (var r in ProcessBatch(batch))
-                    {
-                        yield return r;
-                    }
-
-                    batch.Clear();
-                    batchKeys.Clear();
-                }
-            }
-
-            if (batch.Count > 0)
-            {
-                foreach (var r in ProcessBatch(batch))
-                {
-                    yield return r;
-                }
-
-                batch.Clear();
-            }
+            return GetLeftKey(row);
         }
 
-        private IEnumerable<IRow> ProcessBatch(List<IRow> batch)
+        protected override void MutateRow(IRow row, List<IRow> mutatedRows, out bool removeOriginal, out bool processed)
         {
-            var rightProcess = RightProcessCreator.Invoke(batch.ToArray());
+            removeOriginal = false;
+            processed = false;
+        }
+
+        protected override void MutateBatch(List<IRow> rows, List<IRow> mutatedRows, List<IRow> removedRows)
+        {
+            var rightProcess = RightProcessCreator.Invoke(rows.ToArray());
 
             Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", rightProcess.Name);
 
@@ -95,7 +61,7 @@
 
             CounterCollection.IncrementCounter("right rows loaded", rightRowCount, true);
 
-            foreach (var row in batch)
+            foreach (var row in rows)
             {
                 var leftKey = GetLeftKey(row);
                 List<IRow> rightRows = null;
@@ -112,26 +78,20 @@
                 var removeRow = false;
                 if (rightRows?.Count > 0)
                 {
-                    if (rightRows.Count > 1)
+                    removeRow = true;
+
+                    foreach (var rightRow in rightRows)
                     {
-                        for (var i = 1; i < rightRows.Count; i++)
+                        var initialValues = row.Values.ToList();
+                        foreach (var config in ColumnConfiguration)
                         {
-                            var initialValues = row.Values.ToList();
-                            foreach (var config in ColumnConfiguration)
-                            {
-                                config.Copy(rightRows[i], initialValues);
-                            }
-
-                            var newRow = Context.CreateRow(this, initialValues);
-
-                            MatchCustomAction?.Invoke(this, newRow, rightRows[i]);
-                            yield return newRow;
+                            config.Copy(rightRow, initialValues);
                         }
-                    }
 
-                    foreach (var config in ColumnConfiguration)
-                    {
-                        config.Copy(this, rightRows[0], row);
+                        var newRow = Context.CreateRow(this, initialValues);
+
+                        MatchCustomAction?.Invoke(this, newRow, rightRow);
+                        mutatedRows.Add(newRow);
                     }
 
                     MatchCustomAction?.Invoke(this, row, rightRows[0]);
@@ -154,21 +114,17 @@
                 }
 
                 if (removeRow)
-                {
-                    Context.SetRowOwner(row, null);
-                }
+                    removedRows.Add(row);
                 else
-                {
-                    yield return row;
-                }
+                    mutatedRows.Add(row);
             }
 
             lookup.Clear();
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            base.ValidateImpl();
+            base.ValidateMutator();
 
             if (ColumnConfiguration == null)
                 throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));

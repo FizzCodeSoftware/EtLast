@@ -2,9 +2,8 @@
 {
     using System;
 
-    public abstract class AbstractBatchedCrossMutator : AbstractEvaluableProcess, IMutator
+    public abstract class AbstractBatchedCrossMutator : AbstractBatchedMutator
     {
-        public IEvaluable InputProcess { get; set; }
         public Func<IRow[], IEvaluable> RightProcessCreator { get; set; }
 
         protected AbstractBatchedCrossMutator(IEtlContext context, string name, string topic)
@@ -12,10 +11,9 @@
         {
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
+            base.ValidateMutator();
 
             if (RightProcessCreator == null)
                 throw new ProcessParameterNullException(this, nameof(RightProcessCreator));

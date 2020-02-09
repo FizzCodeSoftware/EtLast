@@ -8,7 +8,6 @@
         public RemoveRowMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
-            InvertSkipBehavior = true;
         }
 
         protected override IEnumerable<IRow> MutateRow(IRow row)

@@ -86,9 +86,6 @@
             if ((currentValue != null && value == null) || (currentValue == null && value != null))
                 return false;
 
-            if (currentValue.GetType() != typeof(T))
-                return false;
-
             return currentValue.Equals(value);
         }
 

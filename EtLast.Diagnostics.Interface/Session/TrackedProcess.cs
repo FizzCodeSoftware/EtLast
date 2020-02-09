@@ -45,7 +45,6 @@
                 + (InvocationCounter > 1
                     ? "/" + InvocationCounter.ToString("D", CultureInfo.InvariantCulture)
                     : "") + ")";
-            ;
         }
 
         public void InputRow(TrackedRow row, TrackedProcess previousProcess)

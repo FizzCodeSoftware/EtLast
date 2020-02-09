@@ -4,8 +4,6 @@
 
     public class BatchedCompareWithRowMutator : AbstractBatchedKeyBasedCrossMutator
     {
-        public RowTestDelegate If { get; set; }
-
         public IRowEqualityComparer EqualityComparer { get; set; }
         public MatchAction MatchAndEqualsAction { get; set; }
         public MatchAction MatchButDifferentAction { get; set; }
@@ -14,56 +12,23 @@
         /// <summary>
         /// The amount of rows processed in a batch. Default value is 1000.
         /// </summary>
-        public int BatchSize { get; set; } = 1000;
+        public override int BatchSize { get; set; } = 1000;
 
         public BatchedCompareWithRowMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
+            UseBatchKeys = false;
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override void MutateRow(IRow row, List<IRow> mutatedRows, out bool removeOriginal, out bool processed)
         {
-            var batch = new List<IRow>();
-
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
-            foreach (var row in rows)
-            {
-                if (If?.Invoke(row) == false)
-                {
-                    CounterCollection.IncrementCounter("ignored", 1);
-                    yield return row;
-                    continue;
-                }
-
-                CounterCollection.IncrementCounter("processed", 1);
-
-                batch.Add(row);
-
-                if (batch.Count >= BatchSize)
-                {
-                    foreach (var r in ProcessBatch(batch))
-                    {
-                        yield return r;
-                    }
-
-                    batch.Clear();
-                }
-            }
-
-            if (batch.Count > 0)
-            {
-                foreach (var r in ProcessBatch(batch))
-                {
-                    yield return r;
-                }
-
-                batch.Clear();
-            }
+            removeOriginal = false;
+            processed = false;
         }
 
-        private IEnumerable<IRow> ProcessBatch(List<IRow> batch)
+        protected override void MutateBatch(List<IRow> rows, List<IRow> mutatedRows, List<IRow> removedRows)
         {
-            var rightProcess = RightProcessCreator.Invoke(batch.ToArray());
+            var rightProcess = RightProcessCreator.Invoke(rows.ToArray());
 
             Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", rightProcess.Name);
 
@@ -85,7 +50,7 @@
 
             CounterCollection.IncrementCounter("right rows loaded", rightRowCount, true);
 
-            foreach (var row in batch)
+            foreach (var row in rows)
             {
                 var key = GetLeftKey(row);
 
@@ -150,21 +115,17 @@
                 }
 
                 if (removeRow)
-                {
-                    Context.SetRowOwner(row, null);
-                }
+                    removedRows.Add(row);
                 else
-                {
-                    yield return row;
-                }
+                    mutatedRows.Add(row);
             }
 
             lookup.Clear();
         }
 
-        protected override void ValidateImpl()
+        protected override void ValidateMutator()
         {
-            base.ValidateImpl();
+            base.ValidateMutator();
 
             if (MatchAndEqualsAction == null && NoMatchAction == null)
                 throw new InvalidProcessParameterException(this, nameof(MatchAndEqualsAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must be specified: " + nameof(MatchAndEqualsAction) + " or " + nameof(NoMatchAction));
