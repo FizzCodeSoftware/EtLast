@@ -23,7 +23,7 @@
                     var trimmed = str.Trim();
                     if (trimmed != str)
                     {
-                        row.Staging[column] = trimmed;
+                        row.SetStagedValue(column, trimmed);
                     }
                 }
             }

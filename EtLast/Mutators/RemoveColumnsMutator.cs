@@ -15,8 +15,10 @@
         {
             foreach (var column in Columns)
             {
-                row.SetValue(this, column, null);
+                row.SetStagedValue(column, null);
             }
+
+            row.ApplyStaging(this);
 
             yield return row;
         }

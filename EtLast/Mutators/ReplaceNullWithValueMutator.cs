@@ -20,7 +20,7 @@
             {
                 if (row.IsNull(column))
                 {
-                    row.Staging[column] = Value;
+                    row.SetStagedValue(column, Value);
                 }
             }
 

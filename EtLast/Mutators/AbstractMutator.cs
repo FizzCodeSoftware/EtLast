@@ -53,8 +53,11 @@
                         if (mutatedRow == row)
                             kept = true;
 
+                        if (mutatedRow.HasStaging)
+                            throw new ProcessExecutionException(this, mutatedRow, "unfinished staging");
+
                         if (mutatedRow.CurrentProcess != this)
-                            throw new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership");
+                            throw new ProcessExecutionException(this, mutatedRow, "mutator returned a row without ownership");
 
                         mutatedRows.Add(mutatedRow);
                     }

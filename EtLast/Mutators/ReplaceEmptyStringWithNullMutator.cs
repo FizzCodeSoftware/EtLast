@@ -22,7 +22,7 @@
                 if (string.Equals(row.GetAs<string>(column, null), string.Empty, StringComparison.InvariantCultureIgnoreCase))
 #pragma warning restore CA1820 // Test for empty strings using string length
                 {
-                    row.Staging[column] = null;
+                    row.SetStagedValue(column, null);
                 }
             }
 

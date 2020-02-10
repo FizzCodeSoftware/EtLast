@@ -28,15 +28,15 @@
         {
             foreach (var config in configurations)
             {
-                targetRow.Staging[config.ToColumn] = sourceRow[config.FromColumn];
+                targetRow.SetStagedValue(config.ToColumn, sourceRow[config.FromColumn]);
             }
         }
 
         public static void CopyMany(IRow sourceRow, Dictionary<string, object> targetValues, List<ColumnCopyConfiguration> configurations)
         {
-            foreach (var x in configurations)
+            foreach (var config in configurations)
             {
-                targetValues[x.ToColumn] = sourceRow[x.FromColumn];
+                targetValues[config.ToColumn] = sourceRow[config.FromColumn];
             }
         }
     }

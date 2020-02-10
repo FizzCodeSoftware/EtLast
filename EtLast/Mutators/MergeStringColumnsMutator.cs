@@ -29,10 +29,10 @@
                     _sb.Append(value);
                 }
 
-                row.Staging[column] = null;
+                row.SetStagedValue(column, null);
             }
 
-            row.Staging[TargetColumn] = _sb.ToString();
+            row.SetStagedValue(TargetColumn, _sb.ToString());
             _sb.Clear();
 
             row.ApplyStaging(this);

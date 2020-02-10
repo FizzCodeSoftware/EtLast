@@ -18,14 +18,10 @@
 
         public abstract int ColumnCount { get; }
 
-        protected Dictionary<string, object> ValueStackInternal { get; private set; }
-        public Dictionary<string, object> Staging => ValueStackInternal ??= new Dictionary<string, object>();
+        protected Dictionary<string, object> Staging { get; private set; }
+        public bool HasStaging => Staging?.Count >= 0;
 
-        public object this[string column]
-        {
-            get => GetValueImpl(column);
-            set => SetValue(null, column, value);
-        }
+        public object this[string column] => GetValueImpl(column);
 
         public abstract void SetValue(IProcess process, string column, object newValue);
 
@@ -149,6 +145,24 @@
         }
 
         public abstract bool HasValue(string column);
+
+        public void SetStagedValue(string column, object newValue)
+        {
+            var previousValue = GetValueImpl(column);
+            if ((previousValue == null && newValue == null)
+                || (previousValue != null && newValue == previousValue))
+            {
+                if (Staging?.ContainsKey(column) == true)
+                    Staging.Remove(column);
+
+                return;
+            }
+
+            if (Staging == null)
+                Staging = new Dictionary<string, object>();
+
+            Staging[column] = newValue;
+        }
 
         public abstract void ApplyStaging(IProcess process);
     }

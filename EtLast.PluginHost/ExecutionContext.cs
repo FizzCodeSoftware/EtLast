@@ -368,7 +368,7 @@
             });
         }
 
-        private void LifecycleRowValueChanged(IProcess process, IRow row, IEnumerable<KeyValuePair<string, object>> values)
+        private void LifecycleRowValueChanged(IProcess process, IRow row, KeyValuePair<string, object>[] values)
         {
             _diagnosticsSender.SendDiagnostics("row-value-changed", new RowValueChangedEvent()
             {

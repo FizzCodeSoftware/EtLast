@@ -36,6 +36,9 @@
 
         public override void SetValue(IProcess process, string column, object newValue)
         {
+            if (HasStaging)
+                throw new ProcessExecutionException(process, this, "can't call " + nameof(SetValue) + " on a row with uncommitted staging");
+
             var hasPreviousValue = _values.TryGetValue(column, out var previousValue);
             if (newValue == null && hasPreviousValue)
             {
@@ -44,27 +47,18 @@
             }
             else if (!hasPreviousValue || newValue != previousValue)
             {
-                Context.OnRowValueChanged?.Invoke(process, this, new[] { new KeyValuePair<string, object>(column, newValue) });
+                Context.OnRowValueChanged?.Invoke(process, this, new KeyValuePair<string, object>(column, newValue));
                 _values[column] = newValue;
             }
         }
 
         public override void ApplyStaging(IProcess process)
         {
-            if (ValueStackInternal == null || ValueStackInternal.Count == 0)
+            if (!HasStaging)
                 return;
 
-            var changes = ValueStackInternal.Where(kvp =>
+            foreach (var kvp in Staging)
             {
-                var hasPreviousValue = _values.TryGetValue(kvp.Key, out var previousValue);
-                return (!hasPreviousValue && kvp.Value != null) || (hasPreviousValue && kvp.Value != previousValue);
-            }).ToArray();
-
-            ValueStackInternal.Clear();
-
-            foreach (var kvp in changes)
-            {
-                var hasPreviousValue = _values.TryGetValue(kvp.Key, out var previousValue);
                 if (kvp.Value == null)
                 {
                     _values.Remove(kvp.Key);
@@ -75,7 +69,9 @@
                 }
             }
 
-            Context.OnRowValueChanged?.Invoke(process, this, changes);
+            Context.OnRowValueChanged?.Invoke(process, this, Staging.ToArray());
+
+            Staging.Clear();
         }
     }
 }

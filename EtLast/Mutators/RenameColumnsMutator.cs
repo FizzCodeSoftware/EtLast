@@ -35,8 +35,8 @@
                 }
 
                 var value = row[config.CurrentName];
-                row.Staging[config.CurrentName] = null;
-                row.Staging[config.NewName] = value;
+                row.SetStagedValue(config.CurrentName, null);
+                row.SetStagedValue(config.NewName, value);
             }
 
             if (!removeRow)

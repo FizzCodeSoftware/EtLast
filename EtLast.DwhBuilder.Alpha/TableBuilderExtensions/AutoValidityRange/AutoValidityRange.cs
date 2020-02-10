@@ -54,8 +54,9 @@
                         CustomAction = (proc, row) =>
                         {
                             // this is the first version
-                            row.SetValue(proc, builder.TableBuilder.ValidFromColumnName, builder.TableBuilder.DwhBuilder.DefaultValidFromDateTime);
-                            row.SetValue(proc, builder.TableBuilder.ValidToColumnName, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
+                            row.SetStagedValue(builder.TableBuilder.ValidFromColumnName, builder.TableBuilder.DwhBuilder.DefaultValidFromDateTime);
+                            row.SetStagedValue(builder.TableBuilder.ValidToColumnName, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
+                            row.ApplyStaging(proc);
                         }
                     },
                     MatchButDifferentAction = new MatchAction(MatchMode.Custom)
@@ -65,11 +66,12 @@
                             foreach (var kvp in builder.PreviousValueColumnNameMap)
                             {
                                 var previousValue = match[kvp.Key];
-                                row.SetValue(proc, kvp.Value, previousValue);
+                                row.SetStagedValue(kvp.Value, previousValue);
                             }
 
-                            row.SetValue(proc, builder.TableBuilder.ValidFromColumnName, builder.TableBuilder.DwhBuilder.Context.CreatedOnLocal);
-                            row.SetValue(proc, builder.TableBuilder.ValidToColumnName, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
+                            row.SetStagedValue(builder.TableBuilder.ValidFromColumnName, builder.TableBuilder.DwhBuilder.Context.CreatedOnLocal);
+                            row.SetStagedValue(builder.TableBuilder.ValidToColumnName, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
+                            row.ApplyStaging(proc);
                         },
                     },
                     MatchAndEqualsAction = new MatchAction(MatchMode.Remove)
@@ -98,8 +100,8 @@
                     {
                         CustomAction = (proc, row) =>
                         {
-                            row.Staging[builder.TableBuilder.ValidFromColumnName] = builder.TableBuilder.DwhBuilder.DefaultValidFromDateTime;
-                            row.Staging[builder.TableBuilder.ValidToColumnName] = builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime;
+                            row.SetStagedValue(builder.TableBuilder.ValidFromColumnName, builder.TableBuilder.DwhBuilder.DefaultValidFromDateTime);
+                            row.SetStagedValue(builder.TableBuilder.ValidToColumnName, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
                             row.ApplyStaging(proc);
                         }
                     },
@@ -110,11 +112,11 @@
                             foreach (var kvp in builder.PreviousValueColumnNameMap)
                             {
                                 var previousValue = match[kvp.Key];
-                                row.Staging[kvp.Value] = previousValue;
+                                row.SetStagedValue(kvp.Value, previousValue);
                             }
 
-                            row.Staging[builder.TableBuilder.ValidFromColumnName] = builder.TableBuilder.DwhBuilder.Context.CreatedOnLocal;
-                            row.Staging[builder.TableBuilder.ValidToColumnName] = builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime;
+                            row.SetStagedValue(builder.TableBuilder.ValidFromColumnName, builder.TableBuilder.DwhBuilder.Context.CreatedOnLocal);
+                            row.SetStagedValue(builder.TableBuilder.ValidToColumnName, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
                             row.ApplyStaging(proc);
                         },
                     },

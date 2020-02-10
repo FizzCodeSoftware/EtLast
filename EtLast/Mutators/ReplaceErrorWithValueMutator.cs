@@ -20,7 +20,7 @@
             {
                 if (row[column] is EtlRowError)
                 {
-                    row.Staging[column] = Value;
+                    row.SetStagedValue(column, Value);
                 }
             }
 

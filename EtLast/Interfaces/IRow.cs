@@ -15,10 +15,11 @@
 
         void SetValue(IProcess process, string column, object newValue);
 
-        public Dictionary<string, object> Staging { get; }
+        public void SetStagedValue(string column, object newValue);
         void ApplyStaging(IProcess process);
+        bool HasStaging { get; }
 
-        object this[string column] { get; set; }
+        object this[string column] { get; }
         IEnumerable<KeyValuePair<string, object>> Values { get; }
 
         bool HasValue(string column);
