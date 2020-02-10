@@ -132,8 +132,8 @@
 
             _command.CommandText = sqlStatement;
 
-            Context.LogDataStoreCommand(ConnectionString.Name, this, sqlStatement, null);
-            Context.Log(LogSeverity.Verbose, this, "executing SQL statement: {SqlStatement}", sqlStatement);
+            Context.OnContextDataStoreCommand?.Invoke(ConnectionString.Name, this, sqlStatement, null);
+            Context.LogNoDiag(LogSeverity.Verbose, this, "executing SQL statement: {SqlStatement}", sqlStatement);
 
             try
             {
@@ -155,7 +155,7 @@
                 if (shutdown || (_rowsWritten / 10000 != (_rowsWritten - recordCount) / 10000))
                 {
                     var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
-                    Context.Log(severity, this, "{TotalRowCount} records written to {ConnectionStringName}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow)", _rowsWritten,
+                    Context.LogNoDiag(severity, this, "{TotalRowCount} records written to {ConnectionStringName}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow)", _rowsWritten,
                         ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), Transaction.Current.ToIdentifierString(), Math.Round(_fullTime.ElapsedMilliseconds * 1000 / (double)_rowsWritten, 1));
                 }
             }

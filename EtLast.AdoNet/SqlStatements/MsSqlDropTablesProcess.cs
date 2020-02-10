@@ -91,9 +91,9 @@
                                 command.Parameters.Add(parameter);
                             }
 
-                            Context.LogDataStoreCommand(ConnectionString.Name, this, command.CommandText, parameters);
+                            Context.OnContextDataStoreCommand?.Invoke(ConnectionString.Name, this, command.CommandText, parameters);
 
-                            Context.Log(LogSeverity.Debug, this, "querying table names from {ConnectionStringName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+                            Context.LogNoDiag(LogSeverity.Debug, this, "querying table names from {ConnectionStringName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                                 command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
                             _tableNames = new List<string>();
@@ -141,7 +141,7 @@
         {
             var tableName = _tableNames[statementIndex];
 
-            Context.Log(LogSeverity.Debug, this, "drop table {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+            Context.LogNoDiag(LogSeverity.Debug, this, "drop table {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(tableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
@@ -150,7 +150,7 @@
 
                 var time = startedOn.Elapsed;
 
-                Context.Log(LogSeverity.Debug, this, "table {ConnectionStringName}/{TableName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
+                Context.LogNoDiag(LogSeverity.Debug, this, "table {ConnectionStringName}/{TableName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(tableName), time, Transaction.Current.ToIdentifierString());
 
                 CounterCollection.IncrementCounter("db drop table count", 1);

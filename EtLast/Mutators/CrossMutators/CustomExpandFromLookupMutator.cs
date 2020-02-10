@@ -19,8 +19,6 @@
 
         protected override void StartMutator()
         {
-            Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", RightProcess.Name);
-
             _lookup = new Dictionary<string, List<IRow>>();
             var allRightRows = RightProcess.Evaluate(this).TakeRowsAndReleaseOwnership(this);
             var rightRowCount = 0;

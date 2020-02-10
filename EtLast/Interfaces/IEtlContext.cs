@@ -28,10 +28,10 @@
         void Log(LogSeverity severity, IProcess process, string text, params object[] args);
         void LogOps(LogSeverity severity, IProcess process, string text, params object[] args);
 
+        void LogNoDiag(LogSeverity severity, IProcess process, string text, params object[] args);
+
         void LogCustom(string fileName, IProcess process, string text, params object[] args);
         void LogCustomOps(string fileName, IProcess process, string text, params object[] args);
-
-        void LogDataStoreCommand(string location, IProcess process, string command, IEnumerable<KeyValuePair<string, object>> args);
 
         void AddException(IProcess process, Exception ex);
         List<Exception> GetExceptions();
@@ -48,6 +48,9 @@
         ContextOnRowOwnerChangedDelegate OnRowOwnerChanged { get; set; }
         ContextOnRowValueChangedDelegate OnRowValueChanged { get; set; }
         ContextOnRowStoredDelegate OnRowStored { get; set; }
+        public ContextOnProcessInvocationDelegate OnProcessInvocationStart { get; set; }
+        public ContextOnProcessInvocationDelegate OnProcessInvocationEnd { get; set; }
+        public ContextOnDataStoreCommandDelegate OnContextDataStoreCommand { get; set; }
 
         void RegisterProcessInvocationStart(IProcess process, IProcess caller);
         void RegisterProcessInvocationEnd(IProcess process);

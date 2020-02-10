@@ -51,14 +51,13 @@
                 var request = context.Request;
                 var response = context.Response;
 
+                var query = HttpUtility.ParseQueryString(request.Url.Query);
+
                 using (var bodyReader = new StreamReader(context.Request.InputStream))
                 {
-                    var body = bodyReader.ReadToEnd();
-                    var query = HttpUtility.ParseQueryString(request.Url.Query);
-
                     if (context.Request.Url.AbsolutePath == "/diag" && request.HttpMethod == "POST")
                     {
-                        HandleRequest(body, query);
+                        HandleRequest(bodyReader, query);
                     }
                 }
 
@@ -79,7 +78,9 @@
             }
         }
 
-        private void HandleRequest(string body, NameValueCollection query)
+        private char[] _bodyBuffer = new char[1024 * 1024];
+
+        private void HandleRequest(StreamReader bodyReader, NameValueCollection query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -89,21 +90,28 @@
                 return;
 
             var contextName = query["ctx"];
-
             var context = GetExecutionContext(sessionId, contextName);
+
+            // todo: use body as a binary stream for less memory allocations, faster processing and smaller requests
+            var body = bodyReader.ReadToEnd();
 
             using var contentReader = new StringReader(body);
             var eventCount = int.Parse(contentReader.ReadLine(), CultureInfo.InvariantCulture);
 
             var events = new List<AbstractEvent>(eventCount);
+
             for (var i = 0; i < eventCount; i++)
             {
                 var eventType = contentReader.ReadLine();
                 var payloadLength = int.Parse(contentReader.ReadLine(), CultureInfo.InvariantCulture);
-                var payloadChars = new char[payloadLength];
-                contentReader.ReadBlock(payloadChars, 0, payloadLength);
+
+                if (_bodyBuffer.Length < payloadLength)
+                    _bodyBuffer = new char[payloadLength];
+
+                contentReader.ReadBlock(_bodyBuffer, 0, payloadLength);
                 contentReader.ReadLine();
-                var payload = new string(payloadChars);
+
+                var payload = new string(_bodyBuffer, 0, payloadLength);
 
                 var abstractEvent = eventType switch
                 {

@@ -25,7 +25,6 @@
         public EventHandler<ContextExceptionEventArgs> OnException { get; set; }
         public ContextOnLogDelegate OnLog { get; set; }
         public ContextOnCustomLogDelegate OnCustomLog { get; set; }
-        public ContextOnDataStoreCommandDelegate OnContextDataStoreCommand { get; set; }
 
         public ContextOnRowCreatedDelegate OnRowCreated { get; set; }
         public ContextOnRowOwnerChangedDelegate OnRowOwnerChanged { get; set; }
@@ -33,6 +32,7 @@
         public ContextOnRowStoredDelegate OnRowStored { get; set; }
         public ContextOnProcessInvocationDelegate OnProcessInvocationStart { get; set; }
         public ContextOnProcessInvocationDelegate OnProcessInvocationEnd { get; set; }
+        public ContextOnDataStoreCommandDelegate OnContextDataStoreCommand { get; set; }
 
         private int _nextRowUid;
         private int _nextProcessInstanceUID;
@@ -123,12 +123,20 @@
             if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
                 Result.WarningCount++;
 
-            OnLog?.Invoke(severity, false, process, text, args);
+            OnLog?.Invoke(severity, false, false, process, text, args);
         }
 
         public void LogOps(LogSeverity severity, IProcess process, string text, params object[] args)
         {
-            OnLog?.Invoke(severity, true, process, text, args);
+            OnLog?.Invoke(severity, true, false, process, text, args);
+        }
+
+        public void LogNoDiag(LogSeverity severity, IProcess process, string text, params object[] args)
+        {
+            if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
+                Result.WarningCount++;
+
+            OnLog?.Invoke(severity, false, true, process, text, args);
         }
 
         public void LogCustom(string fileName, IProcess process, string text, params object[] args)
@@ -139,11 +147,6 @@
         public void LogCustomOps(string fileName, IProcess process, string text, params object[] args)
         {
             OnCustomLog?.Invoke(true, fileName, process, text, args);
-        }
-
-        public void LogDataStoreCommand(string location, IProcess process, string command, IEnumerable<KeyValuePair<string, object>> args)
-        {
-            OnContextDataStoreCommand?.Invoke(location, process, command, args);
         }
 
         public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues)

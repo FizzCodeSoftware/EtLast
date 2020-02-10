@@ -12,7 +12,7 @@
         public DwhBuilder DwhBuilder { get; }
         public ResilientTable Table { get; }
         public SqlTable SqlTable { get; }
-        public string Topic => DwhBuilder.ConnectionString.Unescape(Table.TableName);
+        public string Topic => SqlTable.SchemaAndTableName.SchemaAndName;
 
         public SqlColumn RecordTimestampIndicatorColumn { get; }
         public string EtlInsertRunIdColumnNameEscaped { get; }

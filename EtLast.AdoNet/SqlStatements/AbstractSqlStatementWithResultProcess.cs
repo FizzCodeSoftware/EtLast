@@ -63,7 +63,7 @@
             var parameters = new Dictionary<string, object>();
             var sqlStatement = CreateSqlStatement(ConnectionString, parameters);
 
-            Context.LogDataStoreCommand(ConnectionString.Name, this, sqlStatement, parameters);
+            Context.OnContextDataStoreCommand?.Invoke(ConnectionString.Name, this, sqlStatement, parameters);
 
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {

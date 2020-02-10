@@ -57,5 +57,55 @@
 
             return true;
         }
+
+        public bool Equals(IRow leftRow, Dictionary<string, object> values)
+        {
+            if (Columns != null)
+            {
+                if (ColumnsToIgnore != null)
+                    throw new ArgumentException(nameof(ColumnsToIgnore) + " can not be set if " + nameof(Columns) + " is set");
+
+                foreach (var column in Columns)
+                {
+                    var leftValue = leftRow[column];
+                    values.TryGetValue(column, out var rightValue);
+                    if (leftValue != null && rightValue != null)
+                    {
+                        if (!leftValue.Equals(rightValue))
+                            return false;
+                    }
+                    else if (leftValue != rightValue)
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                var columnsToIgnore = ColumnsToIgnore != null
+                    ? new HashSet<string>(ColumnsToIgnore)
+                    : null;
+
+                foreach (var kvp in leftRow.Values)
+                {
+                    if (columnsToIgnore?.Contains(kvp.Key) == true)
+                        continue;
+
+                    var leftValue = kvp.Value;
+                    values.TryGetValue(kvp.Key, out var rightValue);
+                    if (leftValue != null && rightValue != null)
+                    {
+                        if (leftValue.Equals(rightValue))
+                            return false;
+                    }
+                    else if (leftValue != rightValue)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
     }
 }

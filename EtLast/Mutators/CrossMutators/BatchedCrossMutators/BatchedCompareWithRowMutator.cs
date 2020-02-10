@@ -30,8 +30,6 @@
         {
             var rightProcess = RightProcessCreator.Invoke(rows.ToArray());
 
-            Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", rightProcess.Name);
-
             var lookup = new Dictionary<string, IRow>();
             var allRightRows = rightProcess.Evaluate(this).TakeRowsAndReleaseOwnership(this);
             var rightRowCount = 0;

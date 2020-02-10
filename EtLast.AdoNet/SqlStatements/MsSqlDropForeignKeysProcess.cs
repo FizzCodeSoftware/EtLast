@@ -146,9 +146,9 @@ from
                         command.Parameters.Add(parameter);
                     }
 
-                    Context.LogDataStoreCommand(ConnectionString.Name, this, command.CommandText, parameters);
+                    Context.OnContextDataStoreCommand?.Invoke(ConnectionString.Name, this, command.CommandText, parameters);
 
-                    Context.Log(LogSeverity.Debug, this, "querying foreign key names from {ConnectionStringName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+                    Context.LogNoDiag(LogSeverity.Debug, this, "querying foreign key names from {ConnectionStringName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                         command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
                     var tablesNamesHashSet = Mode == MsSqlDropForeignKeysProcessMode.InSpecifiedTables || Mode == MsSqlDropForeignKeysProcessMode.ToSpecifiedTables
@@ -215,7 +215,7 @@ from
         {
             var t = _tableNamesAndCounts[statementIndex];
 
-            Context.Log(LogSeverity.Debug, this, "drop foreign keys of {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+            Context.LogNoDiag(LogSeverity.Debug, this, "drop foreign keys of {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(t.Item1), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
@@ -224,7 +224,7 @@ from
 
                 var time = startedOn.Elapsed;
 
-                Context.Log(LogSeverity.Debug, this, "foreign keys on {ConnectionStringName}/{TableName} are dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
+                Context.LogNoDiag(LogSeverity.Debug, this, "foreign keys on {ConnectionStringName}/{TableName} are dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(t.Item1), time, Transaction.Current.ToIdentifierString());
 
                 CounterCollection.IncrementCounter("db drop foreign key count", 1);

@@ -74,7 +74,7 @@
             IDbCommand cmd = null;
             Stopwatch swQuery;
 
-            Context.LogDataStoreCommand(ConnectionString.Name, this, sqlStatement, Parameters);
+            Context.OnContextDataStoreCommand?.Invoke(ConnectionString.Name, this, sqlStatement, Parameters);
 
             var sqlStatementProcessed = InlineArrayParametersIfNecessary(sqlStatement);
 
@@ -101,7 +101,7 @@
                     ? "custom (" + cmd.Transaction.IsolationLevel.ToString() + ")"
                     : Transaction.Current.ToIdentifierString();
 
-                Context.Log(LogSeverity.Debug, this, "executing query {SqlStatement} on {ConnectionStringName}, timeout: {Timeout} sec, transaction: {Transaction}",
+                Context.LogNoDiag(LogSeverity.Debug, this, "executing query {SqlStatement} on {ConnectionStringName}, timeout: {Timeout} sec, transaction: {Transaction}",
                     HideStatementInLog ? "<hidden>" : sqlStatement, ConnectionString.Name, cmd.CommandTimeout, transactionName);
 
                 if (Parameters != null)
@@ -124,7 +124,7 @@
                 catch (Exception ex) { Context.AddException(this, new EtlException(this, string.Format(CultureInfo.InvariantCulture, "error during executing query: " + (HideStatementInLog ? "<hidden>" : sqlStatement)), ex)); yield break; }
             }
 
-            Context.Log(LogSeverity.Debug, this, "query executed in {Elapsed}", swQuery.Elapsed);
+            Context.LogNoDiag(LogSeverity.Debug, this, "query executed in {Elapsed}", swQuery.Elapsed);
 
             LastDataRead = DateTimeOffset.Now;
 

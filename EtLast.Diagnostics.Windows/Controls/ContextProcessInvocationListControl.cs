@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using System.Windows.Forms;
@@ -13,6 +14,8 @@
         public ExecutionContext Context { get; }
         public ListView ListView { get; }
         private readonly System.Threading.Timer _processStatUpdaterTimer;
+
+        private readonly Dictionary<int, ListViewItem> _listViewItemsByProcessInvocationUID = new Dictionary<int, ListViewItem>();
 
         public ContextProcessInvocationListControl(Control container, ExecutionContext context)
         {
@@ -60,57 +63,52 @@
 
         private void OnProcessInvoked(Playbook playbook, TrackedProcessInvocation process)
         {
-            //_processList.Invoke(new Action(() =>
+            var item = new ListViewItem(process.InstanceUID.ToString("D", CultureInfo.InvariantCulture)
+                + (process.InvocationCounter > 1
+                    ? "/" + process.InvocationCounter.ToString("D", CultureInfo.InvariantCulture)
+                    : ""))
             {
-                var invokerItem = process.Invoker != null
-                    ? ListView.Items.ToEnumerable<ListViewItem>().FirstOrDefault(x => x.Tag == process.Invoker)
-                    : null;
+                Tag = process,
+            };
 
-                var item = new ListViewItem(process.InstanceUID.ToString("D", CultureInfo.InvariantCulture)
-                    + (process.InvocationCounter > 1
-                        ? "/" + process.InvocationCounter.ToString("D", CultureInfo.InvariantCulture)
-                        : ""))
+            item.SubItems.Add("-");
+            item.SubItems.Add(process.Topic);
+            item.SubItems.Add(process.IdentedName);
+            item.SubItems.Add(process.KindToString());
+            item.SubItems.Add(process.ShortType);
+            item.SubItems.Add("0");
+            item.SubItems.Add("0");
+            item.SubItems.Add("0");
+            item.SubItems.Add("0");
+            item.SubItems.Add("0");
+            item.SubItems.Add("0");
+            item.Tag = process;
+
+            if (ListView.SelectedItems.Count == 0)
+            {
+                item.Selected = true;
+            }
+
+            if (process.Invoker != null && _listViewItemsByProcessInvocationUID.TryGetValue(process.Invoker.InvocationUID, out var invokerItem))
+            {
+                var nextIndex = invokerItem.Index + 1;
+                while (nextIndex < ListView.Items.Count)
                 {
-                    Tag = process,
-                };
+                    var p = ListView.Items[nextIndex].Tag as TrackedProcessInvocation;
+                    if (!p.IsParent(process.Invoker))
+                        break;
 
-                item.SubItems.Add("-");
-                item.SubItems.Add(process.Topic);
-                item.SubItems.Add(process.IdentedName);
-                item.SubItems.Add(process.KindToString());
-                item.SubItems.Add(process.ShortType);
-                item.SubItems.Add("0");
-                item.SubItems.Add("0");
-                item.SubItems.Add("0");
-                item.SubItems.Add("0");
-                item.SubItems.Add("0");
-                item.SubItems.Add("0");
-                item.Tag = process;
-
-                if (ListView.SelectedItems.Count == 0)
-                {
-                    item.Selected = true;
+                    nextIndex++;
                 }
 
-                if (invokerItem != null)
-                {
-                    var nextIndex = invokerItem.Index + 1;
-                    while (nextIndex < ListView.Items.Count)
-                    {
-                        var p = ListView.Items[nextIndex].Tag as TrackedProcessInvocation;
-                        if (!p.IsParent(process.Invoker))
-                            break;
+                ListView.Items.Insert(nextIndex, item);
+            }
+            else
+            {
+                ListView.Items.Add(item);
+            }
 
-                        nextIndex++;
-                    }
-
-                    ListView.Items.Insert(nextIndex, item);
-                }
-                else
-                {
-                    ListView.Items.Add(item);
-                }
-            }//));
+            _listViewItemsByProcessInvocationUID.Add(process.InvocationUID, item);
         }
 
         private void UpdateProcessStats()

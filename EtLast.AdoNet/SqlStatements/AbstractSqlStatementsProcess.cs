@@ -47,10 +47,11 @@
 
                             var startedOn = Stopwatch.StartNew();
 
+                            Context.OnContextDataStoreCommand?.Invoke(ConnectionString.Name, this, string.Join("\n---\n", sqlStatements), null);
+
                             for (var i = 0; i < sqlStatements.Count; i++)
                             {
                                 var sqlStatement = sqlStatements[i];
-                                Context.LogDataStoreCommand(ConnectionString.Name, this, sqlStatement, null);
 
                                 cmd.CommandText = sqlStatement;
                                 try

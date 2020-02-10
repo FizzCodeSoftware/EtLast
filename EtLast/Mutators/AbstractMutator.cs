@@ -19,7 +19,6 @@
 
             var mutatedRows = new List<IRow>();
 
-            Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", InputProcess.Name);
             var rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership(this);
             foreach (var row in rows)
             {

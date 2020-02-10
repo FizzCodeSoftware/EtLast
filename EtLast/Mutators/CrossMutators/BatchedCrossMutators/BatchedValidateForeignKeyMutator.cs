@@ -70,8 +70,6 @@
         {
             var rightProcess = RightProcessCreator.Invoke(rows.ToArray());
 
-            Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", rightProcess.Name);
-
             var allRightRows = rightProcess.Evaluate(this).TakeRowsAndReleaseOwnership(this);
             var rightRowCount = 0;
             foreach (var row in allRightRows)

@@ -91,9 +91,9 @@
                                 command.Parameters.Add(parameter);
                             }
 
-                            Context.LogDataStoreCommand(ConnectionString.Name, this, command.CommandText, parameters);
+                            Context.OnContextDataStoreCommand?.Invoke(ConnectionString.Name, this, command.CommandText, parameters);
 
-                            Context.Log(LogSeverity.Debug, this, "querying view names from {ConnectionStringName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+                            Context.LogNoDiag(LogSeverity.Debug, this, "querying view names from {ConnectionStringName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                                 command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
                             _viewNames = new List<string>();
@@ -141,7 +141,7 @@
         {
             var viewName = _viewNames[statementIndex];
 
-            Context.Log(LogSeverity.Debug, this, "drop view {ConnectionStringName}/{ViewName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+            Context.LogNoDiag(LogSeverity.Debug, this, "drop view {ConnectionStringName}/{ViewName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(viewName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
@@ -150,7 +150,7 @@
 
                 var time = startedOn.Elapsed;
 
-                Context.Log(LogSeverity.Debug, this, "view {ConnectionStringName}/{ViewName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
+                Context.LogNoDiag(LogSeverity.Debug, this, "view {ConnectionStringName}/{ViewName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(viewName), time, Transaction.Current.ToIdentifierString());
 
                 CounterCollection.IncrementCounter("db drop view count", 1);

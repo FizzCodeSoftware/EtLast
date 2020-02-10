@@ -144,7 +144,7 @@
                             bulkCopy.ColumnMappings.Add(column.RowColumn, column.DbColumn);
                         }
 
-                        Context.LogDataStoreCommand(ConnectionString.Name, this, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records" + (retry > 0 ? ", retry #" + retry.ToString("D", CultureInfo.InvariantCulture) : ""), null);
+                        Context.OnContextDataStoreCommand?.Invoke(ConnectionString.Name, this, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records" + (retry > 0 ? ", retry #" + retry.ToString("D", CultureInfo.InvariantCulture) : ""), null);
 
                         bulkCopy.WriteToServer(_reader);
                         bulkCopy.Close();
@@ -171,7 +171,7 @@
                             ? LogSeverity.Information
                             : LogSeverity.Debug;
 
-                        Context.Log(severity, this, "{TotalRowCount} records written to {ConnectionStringName}/{TableName}, micro-transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}", _rowsWritten,
+                        Context.LogNoDiag(severity, this, "{TotalRowCount} records written to {ConnectionStringName}/{TableName}, micro-transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}", _rowsWritten,
                             ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), transactionId, Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
                         break;
                     }

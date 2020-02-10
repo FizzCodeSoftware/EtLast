@@ -19,8 +19,6 @@
 
         protected override IEnumerable<IRow> Produce()
         {
-            Context.Log(LogSeverity.Information, this, "evaluating input generator");
-
             var inputRows = InputGenerator.Invoke(this);
             foreach (var row in inputRows)
             {

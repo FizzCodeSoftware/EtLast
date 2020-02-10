@@ -47,6 +47,7 @@
                     if (buffer.Count >= 1000 || swLastSent.ElapsedMilliseconds > 500)
                     {
                         SendBuffer(buffer);
+                        buffer.Clear();
                         swLastSent.Restart();
                     }
                 }
@@ -56,6 +57,7 @@
             }
 
             SendBuffer(buffer);
+            buffer.Clear();
         }
 
         private void SendBuffer(List<Tuple<string, object>> buffer)
@@ -73,7 +75,7 @@
             }
 
             var content = builder.ToString();
-            Console.WriteLine("send diagnostics context, payload size = " + content.Length);
+            //Console.WriteLine("send diagnostics context, payload size = " + content.Length);
 
             using (var textContent = new StringContent(content, Encoding.UTF8, "application/json"))
             {
@@ -86,8 +88,6 @@
                 {
                 }
             }
-
-            buffer.Clear();
         }
 
         public void SendDiagnostics(string category, object content)

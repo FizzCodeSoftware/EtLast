@@ -79,7 +79,7 @@
             }
         }
 
-        public void Log(LogSeverity severity, bool forOps, IProcess process, string text, params object[] args)
+        public void Log(LogSeverity severity, bool forOps, bool noDiag, IProcess process, string text, params object[] args)
         {
             var ident = "";
             if (process != null)
@@ -120,7 +120,7 @@
                 + text,
                 values.ToArray());
 
-            if (_diagnosticsSender != null)
+            if (!noDiag && (severity >= LogSeverity.Debug) && _diagnosticsSender != null)
             {
                 if (args.Length == 0)
                 {
@@ -210,11 +210,11 @@
             GetOpsMessagesRecursive(args.Exception, opsErrors);
             foreach (var opsError in opsErrors)
             {
-                Log(LogSeverity.Fatal, true, args.Process, opsError);
+                Log(LogSeverity.Fatal, true, false, args.Process, opsError);
             }
 
             var msg = args.Exception.FormatExceptionWithDetails();
-            Log(LogSeverity.Fatal, false, args.Process, "{Message}", msg);
+            Log(LogSeverity.Fatal, false, false, args.Process, "{Message}", msg);
         }
 
         private void GetOpsMessagesRecursive(Exception ex, List<string> messages)
@@ -388,20 +388,20 @@
 
             if (PluginName == null)
             {
-                Log(LogSeverity.Debug, false, null, "----------------");
-                Log(LogSeverity.Debug, false, null, "SESSION COUNTERS");
-                Log(LogSeverity.Debug, false, null, "----------------");
+                Log(LogSeverity.Debug, false, false, null, "----------------");
+                Log(LogSeverity.Debug, false, false, null, "SESSION COUNTERS");
+                Log(LogSeverity.Debug, false, false, null, "----------------");
             }
             else
             {
-                Log(LogSeverity.Debug, false, null, "---------------");
-                Log(LogSeverity.Debug, false, null, "PLUGIN COUNTERS");
-                Log(LogSeverity.Debug, false, null, "---------------");
+                Log(LogSeverity.Debug, false, false, null, "---------------");
+                Log(LogSeverity.Debug, false, false, null, "PLUGIN COUNTERS");
+                Log(LogSeverity.Debug, false, false, null, "---------------");
             }
 
             foreach (var counter in counters)
             {
-                Log(LogSeverity.Debug, false, null, "{Counter} = {Value}",
+                Log(LogSeverity.Debug, false, false, null, "{Counter} = {Value}",
                     counter.Name, counter.TypedValue);
             }
         }

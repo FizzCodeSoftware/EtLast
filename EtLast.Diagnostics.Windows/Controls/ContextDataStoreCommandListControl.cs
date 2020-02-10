@@ -91,7 +91,12 @@
                         item.SubItems.Add(process.Topic);
                         item.SubItems.Add(process.Name).Tag = process;
                         item.SubItems.Add(process.Type);
-                        item.SubItems.Add(evt.Command);
+                        item.SubItems.Add(evt.Command
+                            .Trim()
+                            .Replace("\n", " ", StringComparison.InvariantCultureIgnoreCase)
+                            .Replace("\t", " ", StringComparison.InvariantCultureIgnoreCase)
+                            .Replace("  ", " ", StringComparison.InvariantCultureIgnoreCase)
+                            .Trim());
                         item.SubItems.Add(evt.Arguments != null
                             ? string.Join(",", evt.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Name + "=" + x.ToDisplayValue()))
                             : null);

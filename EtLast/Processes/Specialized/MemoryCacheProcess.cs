@@ -32,7 +32,6 @@
                     throw new EtlException(this, "the memory cache is not built yet before the second call on " + nameof(MemoryCacheProcess) + "." + nameof(Evaluate));
                 }
 
-                Context.Log(LogSeverity.Information, this, "returning rows from cache");
                 foreach (var row in _cache)
                 {
                     if (Context.CancellationTokenSource.IsCancellationRequested)
@@ -48,8 +47,6 @@
             }
             else
             {
-                Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", InputProcess.Name);
-
                 _cache = new List<IRow>();
                 var inputRows = InputProcess.Evaluate(this).TakeRowsAndReleaseOwnership(this);
                 foreach (var row in inputRows)
