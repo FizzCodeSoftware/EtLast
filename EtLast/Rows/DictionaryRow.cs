@@ -52,6 +52,24 @@
             }
         }
 
+        public override void SetStagedValue(string column, object newValue)
+        {
+            var hasPreviousValue = _values.TryGetValue(column, out var previousValue);
+            if ((!hasPreviousValue && newValue == null)
+                || (hasPreviousValue && newValue == previousValue))
+            {
+                if (Staging?.ContainsKey(column) == true)
+                    Staging.Remove(column);
+
+                return;
+            }
+
+            if (Staging == null)
+                Staging = new Dictionary<string, object>();
+
+            Staging[column] = newValue;
+        }
+
         public override void ApplyStaging(IProcess process)
         {
             if (!HasStaging)

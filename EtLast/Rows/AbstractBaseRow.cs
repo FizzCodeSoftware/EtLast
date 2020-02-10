@@ -18,8 +18,8 @@
 
         public abstract int ColumnCount { get; }
 
-        protected Dictionary<string, object> Staging { get; private set; }
-        public bool HasStaging => Staging?.Count >= 0;
+        protected Dictionary<string, object> Staging { get; set; }
+        public bool HasStaging => Staging?.Count > 0;
 
         public object this[string column] => GetValueImpl(column);
 
@@ -146,24 +146,8 @@
 
         public abstract bool HasValue(string column);
 
-        public void SetStagedValue(string column, object newValue)
-        {
-            var previousValue = GetValueImpl(column);
-            if ((previousValue == null && newValue == null)
-                || (previousValue != null && newValue == previousValue))
-            {
-                if (Staging?.ContainsKey(column) == true)
-                    Staging.Remove(column);
-
-                return;
-            }
-
-            if (Staging == null)
-                Staging = new Dictionary<string, object>();
-
-            Staging[column] = newValue;
-        }
-
         public abstract void ApplyStaging(IProcess process);
+
+        public abstract void SetStagedValue(string column, object newValue);
     }
 }
