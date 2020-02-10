@@ -49,6 +49,6 @@
         ContextOnRowValueChangedDelegate OnRowValueChanged { get; set; }
         ContextOnRowStoredDelegate OnRowStored { get; set; }
 
-        void GetProcessUid(IProcess process);
+        void RegisterProcessInvocation(IProcess process, IProcess caller);
     }
 }

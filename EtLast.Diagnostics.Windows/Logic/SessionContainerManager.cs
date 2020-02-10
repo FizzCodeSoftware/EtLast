@@ -17,7 +17,7 @@
         private readonly TabControl _tabs;
         private readonly Dictionary<string, ExecutionContextContainerManager> _contextContainerManagers = new Dictionary<string, ExecutionContextContainerManager>();
 
-        public SessionContainerManager(Session session, Control container)
+        public SessionContainerManager(Session session, Control container, DiagnosticsStateManager diagnosticsStateManager)
         {
             Session = session;
             Container = container;
@@ -45,7 +45,7 @@
                 };
                 _tabs.TabPages.Add(logContainer);
 
-                var logManager = new LogManager(logContainer, Session);
+                var logManager = new LogManager(logContainer, diagnosticsStateManager, Session);
 
                 /*var dataStoreCommandContainer = new Panel()
                 {
@@ -60,9 +60,15 @@
                 };
                 _tabs.TabPages.Add(dataStoreCommandContainer);
 
-                var dataStoreCommandManager = new DataStoreCommandManager(dataStoreCommandContainer, Session);
+                var dataStoreCommandManager = new DataStoreCommandManager(dataStoreCommandContainer, diagnosticsStateManager, Session);
 
-                Session.OnExecutionContextCreated += OnExecutionContextCreated;
+                diagnosticsStateManager.OnExecutionContextCreated += ec =>
+                {
+                    if (ec.Session == session)
+                    {
+                        OnExecutionContextCreated(ec);
+                    }
+                };
 
                 container.Resize += Container_Resize;
                 Container_Resize(null, EventArgs.Empty);
@@ -89,6 +95,7 @@
             if (_contextContainerManagers.ContainsKey(executionContext.Name))
                 return;
 
+            // sessions and execution contexts are created on the state manager's thread
             _tabs.Invoke(new Action(() =>
             {
                 var contextContainer = new TabPage(executionContext.Name)

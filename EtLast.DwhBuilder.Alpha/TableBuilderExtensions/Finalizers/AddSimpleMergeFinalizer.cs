@@ -8,11 +8,11 @@
 
     public static partial class TableBuilderExtensions
     {
-        public static DwhTableBuilder[] AddSimpleMergeFinalizer(this DwhTableBuilder[] builders, Action<SimpleMergeFinalizerBuilder> customizer)
+        public static DwhTableBuilder[] AddSimpleMergeFinalizer(this DwhTableBuilder[] builders, Action<KeyBasedFinalizerBuilder> customizer)
         {
             foreach (var tableBuilder in builders)
             {
-                var tempBuilder = new SimpleMergeFinalizerBuilder(tableBuilder);
+                var tempBuilder = new KeyBasedFinalizerBuilder(tableBuilder);
                 customizer.Invoke(tempBuilder);
 
                 if (tempBuilder.KeyColumns == null)
@@ -24,7 +24,7 @@
             return builders;
         }
 
-        private static IEnumerable<IExecutable> CreateAddSimpleMergeFinalizer(SimpleMergeFinalizerBuilder builder)
+        private static IEnumerable<IExecutable> CreateAddSimpleMergeFinalizer(KeyBasedFinalizerBuilder builder)
         {
             var pk = builder.TableBuilder.SqlTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
             var pkIsIdentity = pk.SqlColumns.Any(c => c.SqlColumn.HasProperty<Identity>());

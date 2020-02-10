@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading;
 
     public class EtlContext : IEtlContext
@@ -30,7 +31,7 @@
         public ContextOnRowOwnerChangedDelegate OnRowOwnerChanged { get; set; }
         public ContextOnRowValueChangedDelegate OnRowValueChanged { get; set; }
         public ContextOnRowStoredDelegate OnRowStored { get; set; }
-        public ContextOnProcessInvokedDelegate OnProcessInvoked { get; set; }
+        public ContextOnProcessInvocationDelegate OnProcessInvocation { get; set; }
 
         private int _nextRowUid;
         private int _nextProcessInstanceUID;
@@ -216,7 +217,7 @@
             OnRowOwnerChanged?.Invoke(row, previousProcess, currentProcess);
         }
 
-        public void GetProcessUid(IProcess process)
+        public void RegisterProcessInvocation(IProcess process, IProcess caller)
         {
             process.InvocationUID = Interlocked.Increment(ref _nextProcessInvocationUID);
             process.InvocationCounter++;
@@ -226,7 +227,10 @@
                 process.InstanceUID = Interlocked.Increment(ref _nextProcessInstanceUID);
             }
 
-            OnProcessInvoked?.Invoke(process);
+            process.LastInvocation = Stopwatch.StartNew();
+            process.Caller = caller;
+
+            OnProcessInvocation?.Invoke(process, caller);
         }
     }
 }

@@ -50,18 +50,18 @@ namespace FizzCode.EtLast.Diagnostics.Windows
 
         private void SessionCreated(Session session)
         {
-            Invoke((Action)delegate
+            //Invoke((Action)delegate
             {
                 var sessionContainer = new TabPage(session.SessionId)
                 {
                     BorderStyle = BorderStyle.None,
                 };
 
-                var manager = new SessionContainerManager(session, sessionContainer);
+                var manager = new SessionContainerManager(session, sessionContainer, _stateManager);
                 _sessionTabManagers.Add(session.SessionId, manager);
                 _sessionTabs.TabPages.Add(sessionContainer);
                 _sessionTabs.SelectedTab = sessionContainer;
-            });
+            }//);
         }
 
         protected override void OnLoad(EventArgs e)

@@ -5,6 +5,7 @@
     using System.Collections.Specialized;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Net;
     using System.Text;
     using System.Text.Json;
@@ -12,14 +13,19 @@
     using FizzCode.EtLast.Diagnostics.Interface;
 
     internal delegate void OnSessionCreatedDelegate(Session session);
+    internal delegate void OnExecutionContextCreatedDelegate(ExecutionContext executionContext);
 
     internal class DiagnosticsStateManager : IDisposable
     {
         public OnSessionCreatedDelegate OnSessionCreated { get; set; }
+        public OnExecutionContextCreatedDelegate OnExecutionContextCreated { get; set; }
 
         private readonly HttpListener _listener;
         private readonly Dictionary<string, Session> _sessionList = new Dictionary<string, Session>();
         public IEnumerable<Session> Session => _sessionList.Values;
+
+        private readonly List<Session> _newSessions = new List<Session>();
+        private readonly List<ExecutionContext> _newExecutionContexts = new List<ExecutionContext>();
 
         public DiagnosticsStateManager(string uriPrefix)
         {
@@ -83,8 +89,8 @@
                 return;
 
             var contextName = query["ctx"];
-            var session = GetSession(sessionId);
-            var context = session.GetExecutionContext(contextName);
+
+            var context = GetExecutionContext(sessionId, contextName);
 
             using var contentReader = new StringReader(body);
             var eventCount = int.Parse(contentReader.ReadLine(), CultureInfo.InvariantCulture);
@@ -128,26 +134,63 @@
 
         public void ProcessEvents()
         {
-            foreach (var session in _sessionList.Values)
+            List<ExecutionContext> allContextList;
+            List<ExecutionContext> newContexts;
+            List<Session> newSessions;
+            lock (_sessionList)
             {
-                foreach (var context in session.ContextList.ToArray())
-                {
-                    context.ProcessEvents();
-                }
+                newSessions = new List<Session>(_newSessions);
+                _newSessions.Clear();
+
+                newContexts = new List<ExecutionContext>(_newExecutionContexts);
+                _newExecutionContexts.Clear();
+
+                allContextList = _sessionList.Values.SelectMany(x => x.ContextList).ToList();
+            }
+
+            foreach (var session in newSessions)
+                OnSessionCreated?.Invoke(session);
+
+            foreach (var executionContext in newContexts)
+                OnExecutionContextCreated?.Invoke(executionContext);
+
+            foreach (var executionContext in allContextList)
+            {
+                executionContext.ProcessEvents();
             }
         }
 
-        private Session GetSession(string sessionId)
+        public ExecutionContext GetExecutionContext(string sessionId, string name)
         {
             if (!_sessionList.TryGetValue(sessionId, out var session))
             {
                 session = new Session(sessionId);
-                _sessionList.Add(sessionId, session);
 
-                OnSessionCreated?.Invoke(session);
+                lock (_sessionList)
+                {
+                    _sessionList.Add(sessionId, session);
+
+                    _newSessions.Add(session);
+                }
             }
 
-            return session;
+            if (name == null)
+                name = "/";
+
+            if (!session.ExecutionContextListByName.TryGetValue(name, out var context))
+            {
+                context = new ExecutionContext(session, name);
+
+                lock (_sessionList)
+                {
+                    session.ContextList.Add(context);
+                    session.ExecutionContextListByName.Add(name, context);
+
+                    _newExecutionContexts.Add(context);
+                }
+            }
+
+            return context;
         }
 
         private static AbstractEvent ProcessProcessInvocationEvent(string payload)

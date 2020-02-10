@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using FizzCode.DbTools.Configuration;
 
-    public delegate IEnumerable<IExecutable> ResilientSqlScopeExecutableCreatorDelegate(ResilientSqlScope scope);
+    public delegate IEnumerable<IExecutable> ResilientSqlScopeExecutableCreatorDelegate(ResilientSqlScope scope, IProcess caller);
 
     public enum ResilientSqlScopeTempTableMode
     {

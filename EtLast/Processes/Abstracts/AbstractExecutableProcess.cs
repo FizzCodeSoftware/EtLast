@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
-    using System.Diagnostics;
 
     public abstract class AbstractExecutableProcess : AbstractProcess, IExecutable
     {
@@ -12,10 +11,7 @@
 
         public void Execute(IProcess caller = null)
         {
-            Context.GetProcessUid(this);
-
-            LastInvocation = Stopwatch.StartNew();
-            Caller = caller;
+            Context.RegisterProcessInvocation(this, caller);
 
             try
             {

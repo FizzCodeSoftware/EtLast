@@ -28,7 +28,7 @@
             var removedRows = new List<IRow>();
 
             Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", InputProcess.Name);
-            var rows = InputProcess.Evaluate().TakeRowsAndTransferOwnership(this);
+            var rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership(this);
 
             var batch = new List<IRow>();
             var batchKeys = new HashSet<string>();

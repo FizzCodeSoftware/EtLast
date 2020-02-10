@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Diagnostics;
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
@@ -25,10 +24,7 @@
 
         public T Execute(IProcess caller = null)
         {
-            Context.GetProcessUid(this);
-
-            LastInvocation = Stopwatch.StartNew();
-            Caller = caller;
+            Context.RegisterProcessInvocation(this, caller);
 
             try
             {

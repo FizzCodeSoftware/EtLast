@@ -6,11 +6,12 @@
     using System.Globalization;
 
     [DebuggerDisplay("{Name}")]
-    public class TrackedProcess
+    public class TrackedProcessInvocation
     {
         public int InvocationUID { get; }
         public int InstanceUID { get; }
         public int InvocationCounter { get; }
+        public int? CallerInvocationUID { get; }
         public string Type { get; }
         public string Name { get; }
         public string Topic { get; }
@@ -29,11 +30,12 @@
         public Dictionary<int, int> InputRowCountByByPreviousProcess { get; } = new Dictionary<int, int>();
         public int InputRowCount { get; private set; }
 
-        public TrackedProcess(int invocationUID, int instanceUID, int invocationCounter, string type, string name, string topic)
+        public TrackedProcessInvocation(int invocationUID, int instanceUID, int invocationCounter, int? callerInvocationUID, string type, string name, string topic)
         {
             InvocationUID = invocationUID;
             InstanceUID = instanceUID;
             InvocationCounter = invocationCounter;
+            CallerInvocationUID = callerInvocationUID;
             Type = type;
             Name = name;
             Topic = topic;
@@ -47,7 +49,7 @@
                     : "") + ")";
         }
 
-        public void InputRow(TrackedRow row, TrackedProcess previousProcess)
+        public void InputRow(TrackedRow row, TrackedProcessInvocation previousProcess)
         {
             if (AliveRowList.ContainsKey(row.Uid))
                 throw new Exception("ohh");
@@ -82,7 +84,7 @@
             row.CurrentOwner = null;
         }
 
-        public void PassedRow(TrackedRow row, TrackedProcess newProcess)
+        public void PassedRow(TrackedRow row, TrackedProcessInvocation newProcess)
         {
             if (!AliveRowList.ContainsKey(row.Uid))
                 throw new Exception("ohh");

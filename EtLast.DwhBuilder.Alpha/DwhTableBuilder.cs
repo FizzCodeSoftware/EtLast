@@ -18,7 +18,6 @@
         public string EtlInsertRunIdColumnNameEscaped { get; }
         public string EtlUpdateRunIdColumnNameEscaped { get; }
 
-        public bool BaseHasValidToColumn { get; }
         public string ValidFromColumnName { get; }
         public string ValidToColumnName { get; }
         public string ValidFromColumnNameEscaped { get; }
@@ -51,9 +50,6 @@
                 .FirstOrDefault();
 
             ValidFromColumnNameEscaped = ValidFromColumnName != null ? builder.ConnectionString.Escape(ValidFromColumnName) : null;
-
-            BaseHasValidToColumn = SqlTable.Columns
-                .Any(x => string.Equals(x.Name, builder.Configuration.ValidToColumnName, StringComparison.InvariantCultureIgnoreCase));
 
             ValidToColumnName = ValidFromColumnName != null ? builder.Configuration.ValidToColumnName : null;
             ValidToColumnNameEscaped = ValidToColumnName != null ? builder.ConnectionString.Escape(ValidToColumnName) : null;

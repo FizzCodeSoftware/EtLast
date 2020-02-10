@@ -7,12 +7,12 @@
         public int InvocationUID { get; set; }
         public int InstanceUID { get; set; }
         public int InvocationCounter { get; set; }
+        public IProcess Caller { get; set; }
+        public Stopwatch LastInvocation { get; set; }
 
         public IEtlContext Context { get; }
-        public IProcess Caller { get; protected set; }
         public string Name { get; set; }
         public string Topic { get; set; }
-        public Stopwatch LastInvocation { get; protected set; }
 
         public StatCounterCollection CounterCollection { get; }
 

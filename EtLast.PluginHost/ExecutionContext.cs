@@ -70,7 +70,7 @@
             Context.OnRowOwnerChanged = LifecycleRowOwnerChanged;
             Context.OnRowValueChanged = LifecycleRowValueChanged;
             Context.OnRowStored = LifecycleRowStored;
-            Context.OnProcessInvoked = LifecycleProcessInvocation;
+            Context.OnProcessInvocation = LifecycleProcessInvocation;
             Context.OnContextDataStoreCommand = LifecycleContextDataStoreCommand;
         }
 
@@ -325,7 +325,7 @@
             });
         }
 
-        private void LifecycleProcessInvocation(IProcess process)
+        private void LifecycleProcessInvocation(IProcess process, IProcess caller)
         {
             _diagnosticsSender?.SendDiagnostics("process-invocation", new ProcessInvocationEvent()
             {
@@ -336,6 +336,7 @@
                 Type = process.GetType().GetFriendlyTypeName(),
                 Name = process.Name,
                 Topic = process.Topic,
+                CallerInvocationUID = caller?.InvocationUID,
             });
         }
 

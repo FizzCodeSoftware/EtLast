@@ -19,7 +19,7 @@
         public ExecutionContext ExecutionContextFilter { get; set; }
         public int? ProcessUidFilter { get; set; }
 
-        public DataStoreCommandManager(Control container, Session session)
+        public DataStoreCommandManager(Control container, DiagnosticsStateManager diagnosticsStateManager, Session session)
         {
             Container = container;
             Session = session;
@@ -47,9 +47,12 @@
             _list.Columns.Add("text", 700);
             _list.Columns.Add("arguments", 200);
 
-            session.OnExecutionContextCreated += ec =>
+            diagnosticsStateManager.OnExecutionContextCreated += ec =>
             {
-                ec.WholePlaybook.OnEventsAdded += OnEventsAdded;
+                if (ec.Session == session)
+                {
+                    ec.WholePlaybook.OnEventsAdded += OnEventsAdded;
+                }
             };
         }
 

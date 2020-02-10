@@ -4,17 +4,17 @@
     using System.Linq;
     using FizzCode.DbTools.DataDefinition;
 
-    public class StandardFinalizerBuilder
+    public class KeyBasedFinalizerBuilder
     {
         internal DwhTableBuilder TableBuilder { get; }
         internal string[] KeyColumns { get; private set; }
 
-        internal StandardFinalizerBuilder(DwhTableBuilder tableBuilder)
+        internal KeyBasedFinalizerBuilder(DwhTableBuilder tableBuilder)
         {
             TableBuilder = tableBuilder;
         }
 
-        public StandardFinalizerBuilder UsePrimaryKey()
+        public KeyBasedFinalizerBuilder MatchByPrimaryKey()
         {
             var pk = TableBuilder.SqlTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
             if (pk == null)
@@ -24,7 +24,7 @@
             return this;
         }
 
-        public StandardFinalizerBuilder UseSpecificKeyColumns(params string[] keyColumns)
+        public KeyBasedFinalizerBuilder MatchBySpecificColumns(params string[] keyColumns)
         {
             KeyColumns = keyColumns;
             return this;

@@ -13,7 +13,7 @@
 
         public RowCreatedEvent CreatedByEvent { get; set; }
         public RowOwnerChangedEvent DroppedByEvent { get; set; }
-        public TrackedProcess CurrentOwner { get; set; }
+        public TrackedProcessInvocation CurrentOwner { get; set; }
 
         // todo: possible memory issues
         public Dictionary<string, Argument> Values { get; } = new Dictionary<string, Argument>();

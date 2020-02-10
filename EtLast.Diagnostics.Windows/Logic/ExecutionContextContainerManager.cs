@@ -210,7 +210,7 @@
                 var changed = false;
                 foreach (ListViewItem item in _processList.Items)
                 {
-                    if (item.Tag is TrackedProcess p)
+                    if (item.Tag is TrackedProcessInvocation p)
                     {
                         if (item.SubItems[4].Text != p.InputRowCount.ToString("D", CultureInfo.InvariantCulture)
                             || item.SubItems[5].Text != p.CreatedRowCount.ToString("D", CultureInfo.InvariantCulture)
@@ -232,7 +232,7 @@
                     {
                         foreach (ListViewItem item in _processList.Items)
                         {
-                            if (item.Tag is TrackedProcess p)
+                            if (item.Tag is TrackedProcessInvocation p)
                             {
                                 item.SubItems[4].SetIfChanged(p.InputRowCount.ToString("D", CultureInfo.InvariantCulture),
                                     () => string.Join("\n", p.InputRowCountByByPreviousProcess.Select(x => Context.WholePlaybook.ProcessList[x.Key].DisplayName + "  =  " + x.Value.ToString("D", CultureInfo.InvariantCulture))));
@@ -377,12 +377,13 @@
             }
         }
 
-        private void OnProcessInvoked(Playbook playbook, TrackedProcess process)
+        private void OnProcessInvoked(Playbook playbook, TrackedProcessInvocation process)
         {
-            _processList.Invoke(new Action(() =>
+            //_processList.Invoke(new Action(() =>
             {
+                var caller = process.CallerInvocationUID != null ? Context.WholePlaybook.ProcessList[process.CallerInvocationUID.Value] : null;
                 var item = _processList.Items.Add(process.Topic);
-                item.SubItems.Add(process.Name);
+                item.SubItems.Add((caller != null ? caller.Name + " -> " : null) + process.Name);
                 item.SubItems.Add(process.Type);
                 item.SubItems.Add(process.InstanceUID.ToString("D", CultureInfo.InvariantCulture)
                     + (process.InvocationCounter > 1
@@ -402,7 +403,7 @@
                 {
                     item.Selected = true;
                 }
-            }));
+            }//));
         }
 
         private void Snapshot(int tickDiff)

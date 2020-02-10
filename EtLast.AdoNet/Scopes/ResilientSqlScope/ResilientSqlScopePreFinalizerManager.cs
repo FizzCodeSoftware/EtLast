@@ -5,15 +5,16 @@
 
     internal class ResilientSqlScopePreFinalizerManager : IProcess
     {
-        private readonly ResilientSqlScope _scope;
-        public IEtlContext Context => _scope.Context;
         public int InvocationUID { get; set; }
         public int InstanceUID { get; set; }
         public int InvocationCounter { get; set; }
+        public IProcess Caller { get; set; }
+        public Stopwatch LastInvocation { get; set; }
+
+        private readonly ResilientSqlScope _scope;
+        public IEtlContext Context => _scope.Context;
         public string Name { get; } = "PreFinalizerManager";
         public string Topic => _scope.Topic;
-        public IProcess Caller => _scope;
-        public Stopwatch LastInvocation { get; private set; }
         public StatCounterCollection CounterCollection { get; }
 
         public ResilientSqlScopePreFinalizerManager(ResilientSqlScope scope)
@@ -24,16 +25,14 @@
 
         public void Execute()
         {
-            Context.GetProcessUid(this);
-
-            LastInvocation = Stopwatch.StartNew();
+            Context.RegisterProcessInvocation(this, _scope);
 
             IExecutable[] finalizers;
 
             Context.Log(LogSeverity.Information, this, "started");
             using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
             {
-                finalizers = _scope.Configuration.PreFinalizerCreator.Invoke(_scope)
+                finalizers = _scope.Configuration.PreFinalizerCreator.Invoke(_scope, this)
                     ?.Where(x => x != null)
                     .ToArray();
 

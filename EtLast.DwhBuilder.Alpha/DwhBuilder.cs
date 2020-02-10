@@ -61,7 +61,7 @@
             };
         }
 
-        private IEnumerable<IExecutable> CreatePostFinalizers(ResilientSqlScope scope)
+        private IEnumerable<IExecutable> CreatePostFinalizers(ResilientSqlScope scope, IProcess caller)
         {
             // todo: this should be built and configured by DisableConstraintCheck
             var constraintCheckDisabledOnTables = scope.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
@@ -109,7 +109,7 @@
             return ConnectionString.Escape(sqlTable.SchemaAndTableName.TableName + "Hist", sqlTable.SchemaAndTableName.Schema);
         }
 
-        private IEnumerable<IExecutable> CreateInitializers(ResilientSqlScope scope)
+        private IEnumerable<IExecutable> CreateInitializers(ResilientSqlScope scope, IProcess caller)
         {
             var etlRunSqlTable = Model.GetTables().Find(x => x.HasProperty<IsEtlRunInfoTableProperty>());
             if (etlRunSqlTable != null)
@@ -119,7 +119,7 @@
                     ConnectionString = ConnectionString,
                     TableName = ConnectionString.Escape(etlRunSqlTable.SchemaAndTableName.TableName, etlRunSqlTable.SchemaAndTableName.Schema),
                     ColumnName = ConnectionString.Escape("EtlRunId"),
-                }.Execute();
+                }.Execute(caller);
 
                 yield return new MutatorBuilder()
                 {

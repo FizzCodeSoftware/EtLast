@@ -17,7 +17,7 @@
         public Session Session { get; }
         private readonly RichTextBox _output;
 
-        public LogManager(Control container, Session session)
+        public LogManager(Control container, DiagnosticsStateManager diagnosticsStateManager, Session session)
         {
             Container = container;
             Session = session;
@@ -36,9 +36,12 @@
 
             _output.AppendText("[SESSION STARTED] [" + Session.SessionId + "]" + Environment.NewLine);
 
-            session.OnExecutionContextCreated += ec =>
+            diagnosticsStateManager.OnExecutionContextCreated += ec =>
             {
-                ec.WholePlaybook.OnEventsAdded += OnEventsAdded;
+                if (ec.Session == session)
+                {
+                    ec.WholePlaybook.OnEventsAdded += OnEventsAdded;
+                }
             };
         }
 

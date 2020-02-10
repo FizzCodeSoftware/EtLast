@@ -5,7 +5,7 @@
     using System.Linq;
 
     public delegate void OnEventAddedDelegate(Playbook playbook, List<AbstractEvent> abstractEvents);
-    public delegate void OnProcessAddedDelegate(Playbook playbook, TrackedProcess process);
+    public delegate void OnProcessAddedDelegate(Playbook playbook, TrackedProcessInvocation process);
     public delegate void OnCountersUpdatedDelegate(Playbook playbook);
 
     public class Playbook
@@ -15,7 +15,7 @@
         public List<AbstractEvent> Events { get; } = new List<AbstractEvent>();
         public Dictionary<int, TrackedRow> RowList { get; } = new Dictionary<int, TrackedRow>();
         public Dictionary<string, TrackedStore> StoreList { get; } = new Dictionary<string, TrackedStore>();
-        public Dictionary<int, TrackedProcess> ProcessList { get; } = new Dictionary<int, TrackedProcess>();
+        public Dictionary<int, TrackedProcessInvocation> ProcessList { get; } = new Dictionary<int, TrackedProcessInvocation>();
         public Dictionary<string, Counter> Counters { get; } = new Dictionary<string, Counter>();
 
         public OnProcessAddedDelegate OnProcessInvoked { get; set; }
@@ -57,7 +57,7 @@
                         {
                             if (!ProcessList.TryGetValue(evt.InvocationUID, out var process))
                             {
-                                process = new TrackedProcess(evt.InvocationUID, evt.InstanceUID, evt.InvocationCounter, evt.Type, evt.Name, evt.Topic);
+                                process = new TrackedProcessInvocation(evt.InvocationUID, evt.InstanceUID, evt.InvocationCounter, evt.CallerInvocationUID, evt.Type, evt.Name, evt.Topic);
                                 ProcessList.Add(process.InvocationUID, process);
                                 OnProcessInvoked?.Invoke(this, process);
                             }
@@ -97,7 +97,7 @@
                             if (!RowList.TryGetValue(evt.RowUid, out var row))
                                 continue;
 
-                            TrackedProcess newProcess = null;
+                            TrackedProcessInvocation newProcess = null;
                             if (evt.NewProcessInvocationUID != null && !ProcessList.TryGetValue(evt.NewProcessInvocationUID.Value, out newProcess))
                                 continue;
 

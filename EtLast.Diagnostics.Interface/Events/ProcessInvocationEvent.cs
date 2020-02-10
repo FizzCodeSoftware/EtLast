@@ -21,5 +21,8 @@
 
         [JsonPropertyName("to")]
         public string Topic { get; set; }
+
+        [JsonPropertyName("cuid")]
+        public int? CallerInvocationUID { get; set; }
     }
 }

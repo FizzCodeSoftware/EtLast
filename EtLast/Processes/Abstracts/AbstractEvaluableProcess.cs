@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
 
     public delegate void EvaluableInitializerDelegate(IEvaluable evaluable);
 
@@ -18,10 +17,7 @@
 
         public Evaluator Evaluate(IProcess caller = null)
         {
-            Context.GetProcessUid(this);
-
-            LastInvocation = Stopwatch.StartNew();
-            Caller = caller;
+            Context.RegisterProcessInvocation(this, caller);
 
             try
             {
@@ -56,7 +52,7 @@
 
         public void Execute(IProcess caller)
         {
-            var evaluator = Evaluate();
+            var evaluator = Evaluate(caller);
             _ = evaluator.CountRows(null);
         }
     }

@@ -5,15 +5,16 @@
 
     internal class ResilientTableFinalizerManager : IProcess
     {
-        private readonly ResilientSqlScope _scope;
-        public IEtlContext Context => _scope.Context;
         public int InvocationUID { get; set; }
         public int InstanceUID { get; set; }
         public int InvocationCounter { get; set; }
+        public IProcess Caller { get; set; }
+        public Stopwatch LastInvocation { get; set; }
+
+        private readonly ResilientSqlScope _scope;
+        public IEtlContext Context => _scope.Context;
         public string Name { get; } = "TableFinalizerManager";
         public string Topic => _scope.Topic;
-        public IProcess Caller => _scope;
-        public Stopwatch LastInvocation { get; private set; }
         public StatCounterCollection CounterCollection { get; }
 
         public ResilientTableFinalizerManager(ResilientSqlScope scope)
@@ -24,9 +25,7 @@
 
         public void Execute()
         {
-            Context.GetProcessUid(this);
-
-            LastInvocation = Stopwatch.StartNew();
+            Context.RegisterProcessInvocation(this, _scope);
 
             Context.Log(LogSeverity.Information, this, "started");
 
@@ -91,7 +90,7 @@
             {
                 ConnectionString = _scope.Configuration.ConnectionString,
                 TableName = _scope.Configuration.ConnectionString.Escape(table.TempTableName),
-            }.Execute();
+            }.Execute(this);
 
             if (count > 0)
             {
