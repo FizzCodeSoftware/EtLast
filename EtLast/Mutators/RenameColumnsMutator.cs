@@ -35,12 +35,15 @@
                 }
 
                 var value = row[config.CurrentName];
-                row.SetValue(config.CurrentName, null, this);
-                row.SetValue(config.NewName, value, this);
+                row.Staging[config.CurrentName] = null;
+                row.Staging[config.NewName] = value;
             }
 
             if (!removeRow)
+            {
+                row.ApplyStaging(this);
                 yield return row;
+            }
         }
 
         protected override void ValidateMutator()

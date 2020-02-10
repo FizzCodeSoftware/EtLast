@@ -42,7 +42,7 @@
                         obj = ser.ReadObject(reader, true);
                     }
 
-                    row.SetValue(ColumnConfiguration.ToColumn, obj, this);
+                    row.SetValue(this, ColumnConfiguration.ToColumn, obj);
 
                     var time = startedOn.Elapsed;
 
@@ -65,7 +65,7 @@
                 switch (ActionIfFailed)
                 {
                     case InvalidValueAction.SetSpecialValue:
-                        row.SetValue(ColumnConfiguration.ToColumn, SpecialValueIfFailed, this);
+                        row.SetValue(this, ColumnConfiguration.ToColumn, SpecialValueIfFailed);
                         break;
                     case InvalidValueAction.Throw:
                         throw new ProcessExecutionException(this, row, "DataContract XML deserialization failed", ex);
@@ -73,12 +73,12 @@
                         removeRow = true;
                         break;
                     case InvalidValueAction.WrapError:
-                        row.SetValue(ColumnConfiguration.ToColumn, new EtlRowError
+                        row.SetValue(this, ColumnConfiguration.ToColumn, new EtlRowError
                         {
                             Process = this,
                             OriginalValue = null,
                             Message = "DataContract XML deserialization failed: " + ex.Message,
-                        }, this);
+                        });
                         break;
                 }
             }

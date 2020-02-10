@@ -49,6 +49,7 @@
         ContextOnRowValueChangedDelegate OnRowValueChanged { get; set; }
         ContextOnRowStoredDelegate OnRowStored { get; set; }
 
-        void RegisterProcessInvocation(IProcess process, IProcess caller);
+        void RegisterProcessInvocationStart(IProcess process, IProcess caller);
+        void RegisterProcessInvocationEnd(IProcess process);
     }
 }

@@ -6,7 +6,7 @@
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
-    public abstract class AbstractSqlStatementWithResultProcess<T> : AbstractProcess
+    public abstract class AbstractSqlStatementWithResultProcess<T> : AbstractProcess, IExecutableWithResult<T>
     {
         public ConnectionStringWithProvider ConnectionString { get; set; }
         public int CommandTimeout { get; set; } = 300;
@@ -24,7 +24,7 @@
 
         public T Execute(IProcess caller = null)
         {
-            Context.RegisterProcessInvocation(this, caller);
+            Context.RegisterProcessInvocationStart(this, caller);
 
             try
             {
@@ -34,16 +34,22 @@
             catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
 
             if (Context.CancellationTokenSource.IsCancellationRequested)
+            {
+                Context.RegisterProcessInvocationEnd(this);
                 return default;
+            }
 
+            T result = default;
             try
             {
-                return ExecuteImpl();
+                result = ExecuteImpl();
             }
             catch (EtlException ex) { Context.AddException(this, ex); }
             catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
 
-            return default;
+            Context.RegisterProcessInvocationEnd(this);
+
+            return result;
         }
 
         protected virtual void ValidateImpl()

@@ -1,4 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
-    public delegate void ContextOnRowValueChangedDelegate(IRow row, string column, object currentValue, IProcess process);
+    using System.Collections.Generic;
+
+    public delegate void ContextOnRowValueChangedDelegate(IProcess process, IRow row, IEnumerable<KeyValuePair<string, object>> values);
 }

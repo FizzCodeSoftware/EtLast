@@ -7,7 +7,7 @@
     using FizzCode.EtLast;
     using OfficeOpenXml;
 
-    public class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
+    public class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator, IRowWriter
         where TState : BaseExcelWriterState, new()
     {
         public string FileName { get; set; }

@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
+    using System;
     using System.Diagnostics;
     using System.Linq;
     using FizzCode.EtLast;
@@ -10,12 +11,14 @@
         public int InstanceUID { get; set; }
         public int InvocationCounter { get; set; }
         public IProcess Caller { get; set; }
-        public Stopwatch LastInvocation { get; set; }
+        public Stopwatch LastInvocationStarted { get; set; }
+        public DateTimeOffset? LastInvocationFinished { get; set; }
 
         private readonly ResilientSqlScope _scope;
         public IEtlContext Context => _scope.Context;
         public string Name { get; } = "InitializerManager";
         public string Topic => _scope.Topic;
+        public ProcessKind Kind => ProcessKind.unknown;
         public StatCounterCollection CounterCollection { get; }
 
         public ResilientSqlScopeInitializerManager(ResilientSqlScope scope)
@@ -26,7 +29,7 @@
 
         public void Execute()
         {
-            Context.RegisterProcessInvocation(this, _scope);
+            Context.RegisterProcessInvocationStart(this, _scope);
 
             IExecutable[] initializers;
 
@@ -54,6 +57,8 @@
                     }
                 }
             }
+
+            Context.RegisterProcessInvocationEnd(this);
         }
     }
 }

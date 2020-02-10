@@ -19,7 +19,7 @@
             {
                 var column = kvp.Key;
                 var aggregatedValue = kvp.Value.Invoke(aggregateRow, rowsInGroup, row, column);
-                aggregateRow.SetValue(column, aggregatedValue, Process);
+                aggregateRow.SetValue(Process, column, aggregatedValue);
             }
         }
     }

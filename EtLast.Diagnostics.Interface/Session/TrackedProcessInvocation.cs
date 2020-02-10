@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
+    using System.Linq;
 
     [DebuggerDisplay("{Name}")]
     public class TrackedProcessInvocation
@@ -11,10 +12,32 @@
         public int InvocationUID { get; }
         public int InstanceUID { get; }
         public int InvocationCounter { get; }
-        public int? CallerInvocationUID { get; }
+
+        public TrackedProcessInvocation Invoker { get; }
+        public int ParentInvokerCount { get; }
+        public string IdentedName { get; }
+
         public string Type { get; }
+        public string ShortType { get; }
         public string Name { get; }
         public string Topic { get; }
+        public ProcessKind Kind { get; }
+
+        private TimeSpan? _elapsedMillisecondsAfterFinished;
+
+        public TimeSpan? ElapsedMillisecondsAfterFinished
+        {
+            get => _elapsedMillisecondsAfterFinished;
+            set
+            {
+                _elapsedMillisecondsAfterFinished = value;
+                ElapsedMillisecondsAfterFinishedAsString = value != null
+                    ? Argument.TimeSpanToString(_elapsedMillisecondsAfterFinished.Value, false)
+                    : "-";
+            }
+        }
+
+        public string ElapsedMillisecondsAfterFinishedAsString { get; private set; } = "-";
 
         public string DisplayName { get; }
 
@@ -30,15 +53,26 @@
         public Dictionary<int, int> InputRowCountByByPreviousProcess { get; } = new Dictionary<int, int>();
         public int InputRowCount { get; private set; }
 
-        public TrackedProcessInvocation(int invocationUID, int instanceUID, int invocationCounter, int? callerInvocationUID, string type, string name, string topic)
+        public TrackedProcessInvocation(int invocationUID, int instanceUID, int invocationCounter, TrackedProcessInvocation invoker, string type, ProcessKind kind, string name, string topic)
         {
             InvocationUID = invocationUID;
             InstanceUID = instanceUID;
             InvocationCounter = invocationCounter;
-            CallerInvocationUID = callerInvocationUID;
+
             Type = type;
+            ShortType = GetShortTypeName(type, "Process", "Mutator", "Scope");
+
+            Kind = kind;
             Name = name;
             Topic = topic;
+
+            Invoker = invoker;
+            ParentInvokerCount = invoker != null
+                ? invoker.ParentInvokerCount + 1
+                : 0;
+            IdentedName = ParentInvokerCount > 0
+                ? string.Concat(Enumerable.Range(1, ParentInvokerCount).Select(x => "   ")) + Name
+                : Name;
 
             DisplayName = (topic != null
                 ? topic + " :: " + Name
@@ -47,6 +81,43 @@
                 + (InvocationCounter > 1
                     ? "/" + InvocationCounter.ToString("D", CultureInfo.InvariantCulture)
                     : "") + ")";
+        }
+
+        private string GetShortTypeName(string type, params string[] endings)
+        {
+            foreach (var ending in endings)
+            {
+                if (type.EndsWith(ending))
+                {
+                    return type.Substring(0, type.Length - ending.Length);
+                }
+            }
+
+            return type;
+        }
+
+        public bool IsParent(TrackedProcessInvocation process)
+        {
+            var invoker = Invoker;
+            while (invoker != null)
+            {
+                if (invoker == process)
+                    return true;
+
+                invoker = invoker.Invoker;
+            }
+
+            return false;
+        }
+
+        public string KindToString()
+        {
+            return Kind switch
+            {
+                ProcessKind.jobWithResult => "job+res.",
+                ProcessKind.unknown => null,
+                _ => Kind.ToString(),
+            };
         }
 
         public void InputRow(TrackedRow row, TrackedProcessInvocation previousProcess)

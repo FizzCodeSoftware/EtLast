@@ -4,12 +4,12 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public delegate IEnumerable<IExecutable> ProcessCreatorDelegate(IBasicScope scope);
+    public delegate IEnumerable<IExecutable> ProcessCreatorDelegate(BasicScope scope);
 
     /// <summary>
     /// The default etl scope to execute multiple processes, optionally supporting ambient transaction scopes.
     /// </summary>
-    public class BasicScope : AbstractExecutableProcess, IBasicScope
+    public class BasicScope : AbstractExecutableProcess, IScope
     {
         public ProcessCreatorDelegate ProcessCreator { get; set; }
         public IEnumerable<ProcessCreatorDelegate> ProcessCreators { get; set; }

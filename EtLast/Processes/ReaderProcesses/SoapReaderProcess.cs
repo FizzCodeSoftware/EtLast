@@ -7,7 +7,7 @@
     public delegate T SoapReaderClientCreatorDelegate<T>(SoapReaderProcess<T> process);
     public delegate IEnumerable<Dictionary<string, object>> SoapReaderClientInvokerDelegate<T>(SoapReaderProcess<T> process, T client);
 
-    public class SoapReaderProcess<T> : AbstractProducerProcess
+    public class SoapReaderProcess<T> : AbstractProducerProcess, IRowReader
     {
         /// <summary>
         /// Default true.

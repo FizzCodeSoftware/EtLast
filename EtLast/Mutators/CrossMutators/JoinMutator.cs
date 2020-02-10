@@ -70,29 +70,17 @@
             var removeRow = false;
             if (rightRows?.Count > 0)
             {
-                if (rightRows.Count > 1)
+                removeRow = true;
+                foreach (var rightRow in rightRows)
                 {
-                    for (var i = 1; i < rightRows.Count; i++)
-                    {
-                        var initialValues = row.Values.ToList();
-                        foreach (var config in ColumnConfiguration)
-                        {
-                            config.Copy(rightRows[i], initialValues);
-                        }
+                    var initialValues = new Dictionary<string, object>(row.Values);
+                    ColumnCopyConfiguration.CopyMany(rightRow, initialValues, ColumnConfiguration);
 
-                        var newRow = Context.CreateRow(this, initialValues);
+                    var newRow = Context.CreateRow(this, initialValues);
 
-                        MatchCustomAction?.Invoke(this, newRow, rightRows[i]);
-                        yield return newRow;
-                    }
+                    MatchCustomAction?.Invoke(this, newRow, rightRow);
+                    yield return newRow;
                 }
-
-                foreach (var config in ColumnConfiguration)
-                {
-                    config.Copy(this, rightRows[0], row);
-                }
-
-                MatchCustomAction?.Invoke(this, row, rightRows[0]);
             }
             else if (NoMatchAction != null)
             {

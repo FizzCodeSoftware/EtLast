@@ -41,7 +41,7 @@
             {
                 var recordCount = command.ExecuteNonQuery();
                 Context.Log(LogSeverity.Information, this, "{RecordCount} records deleted in {ConnectionStringName}/{TableName} in {Elapsed}, transaction: {Transaction}", recordCount,
-                    ConnectionString.Name, ConnectionString.Unescape(TableName), LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
+                    ConnectionString.Name, ConnectionString.Unescape(TableName), LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
             }
             catch (Exception ex)
             {
@@ -53,7 +53,7 @@
                 exception.Data.Add("TableName", ConnectionString.Unescape(TableName));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", CommandTimeout);
-                exception.Data.Add("Elapsed", LastInvocation.Elapsed);
+                exception.Data.Add("Elapsed", LastInvocationStarted.Elapsed);
                 throw exception;
             }
         }

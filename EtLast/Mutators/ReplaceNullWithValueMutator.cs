@@ -20,9 +20,11 @@
             {
                 if (row.IsNull(column))
                 {
-                    row.SetValue(column, Value, this);
+                    row.Staging[column] = Value;
                 }
             }
+
+            row.ApplyStaging(this);
 
             yield return row;
         }

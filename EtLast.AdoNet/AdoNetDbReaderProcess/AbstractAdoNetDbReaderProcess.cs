@@ -12,7 +12,7 @@
 
     public delegate void ConnectionCreatorDelegate(ConnectionStringWithProvider connectionString, AbstractAdoNetDbReaderProcess process, out DatabaseConnection connection, out IDbTransaction transaction);
 
-    public abstract class AbstractAdoNetDbReaderProcess : AbstractProducerProcess
+    public abstract class AbstractAdoNetDbReaderProcess : AbstractProducerProcess, IRowReader
     {
         public ConnectionStringWithProvider ConnectionString { get; set; }
 

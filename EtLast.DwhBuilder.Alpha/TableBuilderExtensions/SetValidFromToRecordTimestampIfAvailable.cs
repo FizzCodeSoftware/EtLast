@@ -30,7 +30,7 @@
 
                                 if (value is DateTimeOffset)
                                 {
-                                    row.SetValue(builder.ValidFromColumnName, value, proc);
+                                    row.SetValue(proc, builder.ValidFromColumnName, value);
                                 }
                                 else
                                 {

@@ -76,10 +76,8 @@
             }
             else
             {
-                foreach (var config in ColumnConfiguration)
-                {
-                    config.Copy(this, rightRow, row);
-                }
+                ColumnCopyConfiguration.CopyManyToRowStage(rightRow, row, ColumnConfiguration);
+                row.ApplyStaging(this);
 
                 MatchCustomAction?.Invoke(this, row, rightRow);
             }

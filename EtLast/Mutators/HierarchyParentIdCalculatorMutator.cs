@@ -32,7 +32,7 @@
 
                     if (level > 0)
                     {
-                        row.SetValue(NewColumnWithParentId, _lastIdOfLevel[level - 1], this);
+                        row.SetValue(this, NewColumnWithParentId, _lastIdOfLevel[level - 1]);
                     }
 
                     break;

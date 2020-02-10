@@ -4,8 +4,8 @@
     using System.Collections.Generic;
     using System.Diagnostics;
 
-    public delegate T SoapExpanderClientCreatorDelegate<T>(SoapExpandMutator<T> op, IRow row);
-    public delegate object SoapExpanderClientInvokerDelegate<T>(SoapExpandMutator<T> op, IRow row, T client);
+    public delegate T SoapExpanderClientCreatorDelegate<T>(SoapExpandMutator<T> process, IRow row);
+    public delegate object SoapExpanderClientInvokerDelegate<T>(SoapExpandMutator<T> process, IRow row, T client);
 
     public class SoapExpandMutator<T> : AbstractMutator
     {
@@ -49,7 +49,7 @@
                         var result = ClientInvoker.Invoke(this, row, _client);
                         if (result != null)
                         {
-                            row.SetValue(TargetColumn, result, this);
+                            row.SetValue(this, TargetColumn, result);
                         }
 
                         CounterCollection.IncrementTimeSpan("SOAP time - success", startedOn.Elapsed);
@@ -72,7 +72,7 @@
                 switch (ActionIfFailed)
                 {
                     case InvalidValueAction.SetSpecialValue:
-                        row.SetValue(TargetColumn, SpecialValueIfFailed, this);
+                        row.SetValue(this, TargetColumn, SpecialValueIfFailed);
                         break;
                     case InvalidValueAction.Throw:
                         throw new ProcessExecutionException(this, row, "SOAP invocation failed");
@@ -80,12 +80,12 @@
                         removeRow = true;
                         break;
                     case InvalidValueAction.WrapError:
-                        row.SetValue(TargetColumn, new EtlRowError
+                        row.SetValue(this, TargetColumn, new EtlRowError
                         {
                             Process = this,
                             OriginalValue = null,
                             Message = "SOAP invocation failed",
-                        }, this);
+                        });
                         break;
                 }
             }

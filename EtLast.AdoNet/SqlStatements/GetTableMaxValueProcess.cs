@@ -56,7 +56,7 @@
                 }
 
                 Context.Log(LogSeverity.Debug, this, "Maximum value {MaxValue} and {RecordCount} records found in {ConnectionStringName}/{TableName} in column {ColumnName} in {Elapsed}, transaction: {Transaction}",
-                    result.MaxValue, result.RecordCount, ConnectionString.Name, ConnectionString.Unescape(TableName), ConnectionString.Unescape(ColumnName), LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
+                    result.MaxValue, result.RecordCount, ConnectionString.Name, ConnectionString.Unescape(TableName), ConnectionString.Unescape(ColumnName), LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
 
                 return result;
             }
@@ -71,7 +71,7 @@
                 exception.Data.Add("ColumnName", ConnectionString.Unescape(ColumnName));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", CommandTimeout);
-                exception.Data.Add("Elapsed", LastInvocation.Elapsed);
+                exception.Data.Add("Elapsed", LastInvocationStarted.Elapsed);
                 throw exception;
             }
         }

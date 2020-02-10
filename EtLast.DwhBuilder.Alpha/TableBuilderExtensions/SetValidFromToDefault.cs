@@ -15,7 +15,7 @@
                     {
                         Then = (proc, row) =>
                         {
-                            row.SetValue(builder.ValidFromColumnName, builder.DwhBuilder.DefaultValidFromDateTime, proc);
+                            row.SetValue(proc, builder.ValidFromColumnName, builder.DwhBuilder.DefaultValidFromDateTime);
                             return true;
                         },
                     },

@@ -8,16 +8,16 @@
     using FizzCode.EtLast.Diagnostics.Interface;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
-    internal class SessionContainerManager
+    internal class SessionControl
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public Session Session { get; }
         public Control Container { get; }
 
         private readonly TabControl _tabs;
-        private readonly Dictionary<string, ExecutionContextContainerManager> _contextContainerManagers = new Dictionary<string, ExecutionContextContainerManager>();
+        private readonly Dictionary<string, ContextControl> _contextContainerManagers = new Dictionary<string, ContextControl>();
 
-        public SessionContainerManager(Session session, Control container, DiagnosticsStateManager diagnosticsStateManager)
+        public SessionControl(Session session, Control container, DiagnosticsStateManager diagnosticsStateManager)
         {
             Session = session;
             Container = container;
@@ -45,7 +45,7 @@
                 };
                 _tabs.TabPages.Add(logContainer);
 
-                var logManager = new LogManager(logContainer, diagnosticsStateManager, Session);
+                var logManager = new LogListControl(logContainer, diagnosticsStateManager, Session);
 
                 /*var dataStoreCommandContainer = new Panel()
                 {
@@ -60,7 +60,7 @@
                 };
                 _tabs.TabPages.Add(dataStoreCommandContainer);
 
-                var dataStoreCommandManager = new DataStoreCommandManager(dataStoreCommandContainer, diagnosticsStateManager, Session);
+                var dataStoreCommandManager = new SessionDataStoreCommandListControl(dataStoreCommandContainer, diagnosticsStateManager, Session);
 
                 diagnosticsStateManager.OnExecutionContextCreated += ec =>
                 {
@@ -104,7 +104,7 @@
                     Tag = executionContext,
                 };
 
-                var contextManager = new ExecutionContextContainerManager(executionContext, contextContainer);
+                var contextManager = new ContextControl(executionContext, contextContainer);
                 _contextContainerManagers.Add(executionContext.Name, contextManager);
 
                 _tabs.TabPages.Add(contextContainer);

@@ -17,7 +17,7 @@
 
         public Evaluator Evaluate(IProcess caller = null)
         {
-            Context.RegisterProcessInvocation(this, caller);
+            Context.RegisterProcessInvocationStart(this, caller);
 
             try
             {
@@ -27,7 +27,10 @@
             catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
 
             if (Context.CancellationTokenSource.IsCancellationRequested)
+            {
+                Context.RegisterProcessInvocationEnd(this);
                 return new Evaluator();
+            }
 
             if (Initializer != null)
             {
@@ -39,7 +42,7 @@
 
             try
             {
-                return new Evaluator(EvaluateImpl());
+                return new Evaluator(this, EvaluateImpl());
             }
             catch (EtlException ex) { Context.AddException(this, ex); }
             catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }

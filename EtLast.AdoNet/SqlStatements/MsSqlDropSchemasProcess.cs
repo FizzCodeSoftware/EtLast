@@ -81,7 +81,7 @@
                 return;
 
             Context.Log(LogSeverity.Information, this, "{SchemaCount} schema(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
-                ConnectionString.Name, LastInvocation.Elapsed, Transaction.Current.ToIdentifierString());
+                ConnectionString.Name, LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }
 }

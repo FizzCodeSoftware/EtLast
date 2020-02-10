@@ -20,11 +20,6 @@
         public bool IgnoreNullOrEmptyRows { get; set; } = true;
 
         /// <summary>
-        /// The process evaluates and yields the rows from the input process.
-        /// </summary>
-        public IEvaluable InputProcess { get; set; }
-
-        /// <summary>
         /// First row index is (integer) 1
         /// </summary>
         public string AddRowIndexToColumn { get; set; }
@@ -39,27 +34,6 @@
 
         protected sealed override IEnumerable<IRow> EvaluateImpl()
         {
-            if (AutomaticallyEvaluateAndYieldInputProcessRows && InputProcess != null)
-            {
-                Context.Log(LogSeverity.Information, this, "evaluating <{InputProcess}>", InputProcess.Name);
-
-                var fetchedRowCount = 0;
-                var returnedRowCount = 0;
-                var inputRows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership(this);
-                foreach (var row in inputRows)
-                {
-                    fetchedRowCount++;
-                    if (ProcessRowBeforeYield(row))
-                    {
-                        returnedRowCount++;
-                        yield return row;
-                    }
-                }
-
-                Context.Log(LogSeverity.Debug, this, "fetched {FetchedRowCount} and returned {ReturnedRowCount} rows from {InputProcess} in {Elapsed}",
-                    fetchedRowCount, returnedRowCount, InputProcess.Name, LastInvocation.Elapsed);
-            }
-
             if (Context.CancellationTokenSource.IsCancellationRequested)
                 yield break;
 
@@ -74,7 +48,7 @@
                 }
             }
 
-            Context.Log(LogSeverity.Debug, this, "produced and returned {RowCount} rows in {Elapsed}", resultCount, LastInvocation.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "produced and returned {RowCount} rows in {Elapsed}", resultCount, LastInvocationStarted.Elapsed);
 
             LogCounters();
         }
@@ -98,7 +72,7 @@
             _currentRowIndex++;
 
             if (AddRowIndexToColumn != null && !row.HasValue(AddRowIndexToColumn))
-                row.SetValue(AddRowIndexToColumn, _currentRowIndex, this);
+                row.SetValue(this, AddRowIndexToColumn, _currentRowIndex);
 
             return true;
         }

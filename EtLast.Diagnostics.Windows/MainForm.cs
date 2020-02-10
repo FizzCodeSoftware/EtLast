@@ -12,7 +12,7 @@ namespace FizzCode.EtLast.Diagnostics.Windows
     {
         private readonly TabControl _sessionTabs;
         private readonly DiagnosticsStateManager _stateManager;
-        private readonly Dictionary<string, SessionContainerManager> _sessionTabManagers = new Dictionary<string, SessionContainerManager>();
+        private readonly Dictionary<string, SessionControl> _sessionTabManagers = new Dictionary<string, SessionControl>();
         private readonly Timer _timer;
 
         public MainForm()
@@ -57,7 +57,7 @@ namespace FizzCode.EtLast.Diagnostics.Windows
                     BorderStyle = BorderStyle.None,
                 };
 
-                var manager = new SessionContainerManager(session, sessionContainer, _stateManager);
+                var manager = new SessionControl(session, sessionContainer, _stateManager);
                 _sessionTabManagers.Add(session.SessionId, manager);
                 _sessionTabs.TabPages.Add(sessionContainer);
                 _sessionTabs.SelectedTab = sessionContainer;

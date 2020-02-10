@@ -10,14 +10,14 @@
     using FizzCode.EtLast.Diagnostics.Interface;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
-    internal class LogManager
+    internal class LogListControl
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public Control Container { get; }
         public Session Session { get; }
         private readonly RichTextBox _output;
 
-        public LogManager(Control container, DiagnosticsStateManager diagnosticsStateManager, Session session)
+        public LogListControl(Control container, DiagnosticsStateManager diagnosticsStateManager, Session session)
         {
             Container = container;
             Session = session;
@@ -28,7 +28,7 @@
                 Dock = DockStyle.Fill,
                 ReadOnly = true,
                 BackColor = Color.Black,
-                ForeColor = Color.LightGray,
+                ForeColor = Color.White,
                 Font = new Font("CONSOLAS", 11.0f),
                 HideSelection = false,
                 BorderStyle = BorderStyle.FixedSingle,

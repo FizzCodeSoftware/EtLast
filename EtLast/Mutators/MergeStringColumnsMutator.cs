@@ -29,11 +29,13 @@
                     _sb.Append(value);
                 }
 
-                row.SetValue(column, null, this);
+                row.Staging[column] = null;
             }
 
-            row.SetValue(TargetColumn, _sb.ToString(), this);
+            row.Staging[TargetColumn] = _sb.ToString();
             _sb.Clear();
+
+            row.ApplyStaging(this);
 
             yield return row;
         }

@@ -18,16 +18,18 @@
 
         public abstract int ColumnCount { get; }
 
-        public object this[string column] { get => GetValueImpl(column); set => SetValueImpl(column, value, null); }
+        protected Dictionary<string, object> ValueStackInternal { get; private set; }
+        public Dictionary<string, object> Staging => ValueStackInternal ??= new Dictionary<string, object>();
 
-        public IRow SetValue(string column, object newValue, IProcess process)
+        public object this[string column]
         {
-            SetValueImpl(column, newValue, process);
-            return this;
+            get => GetValueImpl(column);
+            set => SetValue(null, column, value);
         }
 
+        public abstract void SetValue(IProcess process, string column, object newValue);
+
         protected abstract object GetValueImpl(string column);
-        protected abstract void SetValueImpl(string column, object value, IProcess process);
 
         public string ToDebugString()
         {
@@ -147,5 +149,7 @@
         }
 
         public abstract bool HasValue(string column);
+
+        public abstract void ApplyStaging(IProcess process);
     }
 }

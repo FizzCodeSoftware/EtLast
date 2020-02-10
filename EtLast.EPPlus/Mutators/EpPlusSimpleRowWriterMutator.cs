@@ -7,7 +7,7 @@
     using FizzCode.EtLast;
     using OfficeOpenXml;
 
-    public class EpPlusSimpleRowWriterMutator : AbstractMutator
+    public class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowWriter
     {
         public string FileName { get; set; }
         public ExcelPackage ExistingPackage { get; set; }

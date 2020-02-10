@@ -95,7 +95,7 @@
             return value.ToString("#,0", CultureInfo.InvariantCulture);
         }
 
-        public static string TimeSpanToString(TimeSpan value)
+        public static string TimeSpanToString(TimeSpan value, bool detailedMilliseconds = true)
         {
             if (value.Days > 0)
             {
@@ -109,12 +109,10 @@
             {
                 return value.ToString(@"m\:ss", CultureInfo.InvariantCulture);
             }
-            else if (value.Seconds > 0)
+            else
             {
-                return value.ToString(@"s\.fff", CultureInfo.InvariantCulture);
+                return value.ToString(@"s\.f" + (detailedMilliseconds ? "ff" : ""), CultureInfo.InvariantCulture);
             }
-
-            return value.ToString(@"\.fff", CultureInfo.InvariantCulture);
         }
 
         public void CalculateTextValue()

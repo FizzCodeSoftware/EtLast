@@ -92,7 +92,7 @@
                 Context.SetRowOwner(row, null);
             }
 
-            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}", rowCount, aggregateRows.Count, LastInvocation.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}", rowCount, aggregateRows.Count, LastInvocationStarted.Elapsed);
 
             if (Context.CancellationTokenSource.IsCancellationRequested)
                 yield break;
@@ -102,7 +102,7 @@
                 yield return aggregateRow.Row;
             }
 
-            Context.Log(LogSeverity.Debug, this, "finished and returned {GroupCount} groups in {Elapsed}", aggregateRows.Count, LastInvocation.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished and returned {GroupCount} groups in {Elapsed}", aggregateRows.Count, LastInvocationStarted.Elapsed);
         }
     }
 }

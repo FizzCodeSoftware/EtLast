@@ -113,7 +113,7 @@
             {
                 var recordCount = command.ExecuteNonQuery();
 
-                var time = LastInvocation.Elapsed;
+                var time = LastInvocationStarted.Elapsed;
 
                 Context.Log(LogSeverity.Information, this, "{RecordCount} records merged to {ConnectionStringName}/{TargetTableName} from {SourceTableName} in {Elapsed}, transaction: {Transaction}", recordCount,
                     ConnectionString.Name, ConnectionString.Unescape(TargetTableName), ConnectionString.Unescape(SourceTableName), time, Transaction.Current.ToIdentifierString());
@@ -136,7 +136,7 @@
                 exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", CommandTimeout);
-                exception.Data.Add("Elapsed", LastInvocation.Elapsed);
+                exception.Data.Add("Elapsed", LastInvocationStarted.Elapsed);
                 throw exception;
             }
         }

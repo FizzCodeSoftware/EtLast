@@ -13,7 +13,10 @@
 
         void Init(IEtlContext context, IProcess creatorProcess, int uid, IEnumerable<KeyValuePair<string, object>> initialValues); // called right after creation
 
-        IRow SetValue(string column, object newValue, IProcess process);
+        void SetValue(IProcess process, string column, object newValue);
+
+        public Dictionary<string, object> Staging { get; }
+        void ApplyStaging(IProcess process);
 
         object this[string column] { get; set; }
         IEnumerable<KeyValuePair<string, object>> Values { get; }

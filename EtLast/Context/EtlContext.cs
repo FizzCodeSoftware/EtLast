@@ -31,7 +31,8 @@
         public ContextOnRowOwnerChangedDelegate OnRowOwnerChanged { get; set; }
         public ContextOnRowValueChangedDelegate OnRowValueChanged { get; set; }
         public ContextOnRowStoredDelegate OnRowStored { get; set; }
-        public ContextOnProcessInvocationDelegate OnProcessInvocation { get; set; }
+        public ContextOnProcessInvocationDelegate OnProcessInvocationStart { get; set; }
+        public ContextOnProcessInvocationDelegate OnProcessInvocationEnd { get; set; }
 
         private int _nextRowUid;
         private int _nextProcessInstanceUID;
@@ -217,7 +218,7 @@
             OnRowOwnerChanged?.Invoke(row, previousProcess, currentProcess);
         }
 
-        public void RegisterProcessInvocation(IProcess process, IProcess caller)
+        public void RegisterProcessInvocationStart(IProcess process, IProcess caller)
         {
             process.InvocationUID = Interlocked.Increment(ref _nextProcessInvocationUID);
             process.InvocationCounter++;
@@ -227,10 +228,16 @@
                 process.InstanceUID = Interlocked.Increment(ref _nextProcessInstanceUID);
             }
 
-            process.LastInvocation = Stopwatch.StartNew();
+            process.LastInvocationStarted = Stopwatch.StartNew();
             process.Caller = caller;
 
-            OnProcessInvocation?.Invoke(process, caller);
+            OnProcessInvocationStart?.Invoke(process);
+        }
+
+        public void RegisterProcessInvocationEnd(IProcess process)
+        {
+            process.LastInvocationFinished = DateTimeOffset.Now;
+            OnProcessInvocationEnd?.Invoke(process);
         }
     }
 }

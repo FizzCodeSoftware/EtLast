@@ -7,10 +7,14 @@
         private bool _firstEvaluationFinished;
         private List<IRow> _cache;
 
+        /// <summary>
+        /// The process evaluates and yields the rows from the input process.
+        /// </summary>
+        public IEvaluable InputProcess { get; set; }
+
         public MemoryCacheProcess(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
-            AutomaticallyEvaluateAndYieldInputProcessRows = false;
         }
 
         protected override void ValidateImpl()

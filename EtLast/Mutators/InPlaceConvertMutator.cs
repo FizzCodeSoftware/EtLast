@@ -45,7 +45,7 @@
                     var value = TypeConverter.Convert(source);
                     if (value != null)
                     {
-                        row.SetValue(column, value, this);
+                        row.Staging[column] = value;
                         continue;
                     }
                 }
@@ -54,7 +54,7 @@
                     switch (ActionIfNull)
                     {
                         case InvalidValueAction.SetSpecialValue:
-                            row.SetValue(column, SpecialValueIfNull, this);
+                            row.Staging[column] = SpecialValueIfNull;
                             break;
                         case InvalidValueAction.Throw:
                             throw new InvalidValueException(this, TypeConverter, row, column);
@@ -62,12 +62,12 @@
                             removeRow = true;
                             break;
                         case InvalidValueAction.WrapError:
-                            row.SetValue(column, new EtlRowError
+                            row.Staging[column] = new EtlRowError
                             {
                                 Process = this,
                                 OriginalValue = source,
                                 Message = string.Format(CultureInfo.InvariantCulture, "null source detected by {0}", Name),
-                            }, this);
+                            };
                             break;
                     }
 
@@ -77,7 +77,7 @@
                 switch (ActionIfInvalid)
                 {
                     case InvalidValueAction.SetSpecialValue:
-                        row.SetValue(column, SpecialValueIfInvalid, this);
+                        row.Staging[column] = SpecialValueIfInvalid;
                         break;
                     case InvalidValueAction.Throw:
                         throw new InvalidValueException(this, TypeConverter, row, column);
@@ -85,18 +85,22 @@
                         removeRow = true;
                         break;
                     case InvalidValueAction.WrapError:
-                        row.SetValue(column, new EtlRowError
+                        row.Staging[column] = new EtlRowError
                         {
                             Process = this,
                             OriginalValue = source,
                             Message = string.Format(CultureInfo.InvariantCulture, "invalid source detected by {0}", Name),
-                        }, this);
+                        };
                         break;
                 }
             }
 
             if (!removeRow)
+            {
+                row.ApplyStaging(this);
+
                 yield return row;
+            }
         }
 
         protected override void ValidateMutator()

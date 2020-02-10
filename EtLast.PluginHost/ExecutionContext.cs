@@ -66,12 +66,17 @@
             Context.OnException = (sender, args) => LogException(args);
             Context.OnLog = Log;
             Context.OnCustomLog = LogCustom;
-            Context.OnRowCreated = LifecycleRowCreated;
-            Context.OnRowOwnerChanged = LifecycleRowOwnerChanged;
-            Context.OnRowValueChanged = LifecycleRowValueChanged;
-            Context.OnRowStored = LifecycleRowStored;
-            Context.OnProcessInvocation = LifecycleProcessInvocation;
-            Context.OnContextDataStoreCommand = LifecycleContextDataStoreCommand;
+
+            if (_commandContext.HostConfiguration.DiagnosticsUri != null)
+            {
+                Context.OnRowCreated = LifecycleRowCreated;
+                Context.OnRowOwnerChanged = LifecycleRowOwnerChanged;
+                Context.OnRowValueChanged = LifecycleRowValueChanged;
+                Context.OnRowStored = LifecycleRowStored;
+                Context.OnProcessInvocationStart = LifecycleProcessInvocationStart;
+                Context.OnProcessInvocationEnd = LifecycleProcessInvocationEnd;
+                Context.OnContextDataStoreCommand = LifecycleContextDataStoreCommand;
+            }
         }
 
         public void Log(LogSeverity severity, bool forOps, IProcess process, string text, params object[] args)
@@ -294,7 +299,7 @@
 
         private void LifecycleRowCreated(IRow row, IProcess process)
         {
-            _diagnosticsSender?.SendDiagnostics("row-created", new RowCreatedEvent()
+            _diagnosticsSender.SendDiagnostics("row-created", new RowCreatedEvent()
             {
                 Timestamp = DateTime.Now.Ticks,
                 ProcessInvocationUID = process.InvocationUID,
@@ -305,7 +310,7 @@
 
         private void LifecycleRowOwnerChanged(IRow row, IProcess previousProcess, IProcess currentProcess)
         {
-            _diagnosticsSender?.SendDiagnostics("row-owner-changed", new RowOwnerChangedEvent()
+            _diagnosticsSender.SendDiagnostics("row-owner-changed", new RowOwnerChangedEvent()
             {
                 Timestamp = DateTime.Now.Ticks,
                 RowUid = row.UID,
@@ -316,7 +321,7 @@
 
         private void LifecycleRowStored(IProcess process, IRow row, List<KeyValuePair<string, string>> location)
         {
-            _diagnosticsSender?.SendDiagnostics("row-stored", new RowStoredEvent()
+            _diagnosticsSender.SendDiagnostics("row-stored", new RowStoredEvent()
             {
                 Timestamp = DateTime.Now.Ticks,
                 RowUid = row.UID,
@@ -325,24 +330,35 @@
             });
         }
 
-        private void LifecycleProcessInvocation(IProcess process, IProcess caller)
+        private void LifecycleProcessInvocationStart(IProcess process)
         {
-            _diagnosticsSender?.SendDiagnostics("process-invocation", new ProcessInvocationEvent()
+            _diagnosticsSender.SendDiagnostics("process-invocation-start", new ProcessInvocationStartEvent()
             {
                 Timestamp = DateTime.Now.Ticks,
                 InvocationUID = process.InvocationUID,
                 InstanceUID = process.InstanceUID,
                 InvocationCounter = process.InvocationCounter,
                 Type = process.GetType().GetFriendlyTypeName(),
+                Kind = process.Kind,
                 Name = process.Name,
                 Topic = process.Topic,
-                CallerInvocationUID = caller?.InvocationUID,
+                CallerInvocationUID = process.Caller?.InvocationUID,
+            });
+        }
+
+        private void LifecycleProcessInvocationEnd(IProcess process)
+        {
+            _diagnosticsSender.SendDiagnostics("process-invocation-end", new ProcessInvocationEndEvent()
+            {
+                Timestamp = DateTime.Now.Ticks,
+                InvocationUID = process.InvocationUID,
+                ElapsedMilliseconds = process.LastInvocationStarted.ElapsedMilliseconds,
             });
         }
 
         private void LifecycleContextDataStoreCommand(string location, IProcess process, string command, IEnumerable<KeyValuePair<string, object>> args)
         {
-            _diagnosticsSender?.SendDiagnostics("data-store-command", new DataStoreCommandEvent()
+            _diagnosticsSender.SendDiagnostics("data-store-command", new DataStoreCommandEvent()
             {
                 Timestamp = DateTime.Now.Ticks,
                 ProcessInvocationUID = process.InvocationUID,
@@ -352,15 +368,14 @@
             });
         }
 
-        private void LifecycleRowValueChanged(IRow row, string column, object currentValue, IProcess process)
+        private void LifecycleRowValueChanged(IProcess process, IRow row, IEnumerable<KeyValuePair<string, object>> values)
         {
-            _diagnosticsSender?.SendDiagnostics("row-value-changed", new RowValueChangedEvent()
+            _diagnosticsSender.SendDiagnostics("row-value-changed", new RowValueChangedEvent()
             {
                 Timestamp = DateTime.Now.Ticks,
                 RowUid = row.UID,
-                Column = column,
-                CurrentValue = Argument.FromObject(currentValue),
                 ProcessInvocationUID = process?.InvocationUID,
+                Values = values.Select(kvp => NamedArgument.FromObject(kvp.Key, kvp.Value)).ToArray()
             });
         }
 

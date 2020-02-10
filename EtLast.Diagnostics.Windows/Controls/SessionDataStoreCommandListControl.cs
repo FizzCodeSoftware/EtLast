@@ -2,14 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Drawing;
     using System.Globalization;
     using System.Linq;
     using System.Windows.Forms;
     using FizzCode.EtLast.Diagnostics.Interface;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
-    internal class DataStoreCommandManager
+    internal class SessionDataStoreCommandListControl
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public Control Container { get; }
@@ -19,7 +18,7 @@
         public ExecutionContext ExecutionContextFilter { get; set; }
         public int? ProcessUidFilter { get; set; }
 
-        public DataStoreCommandManager(Control container, DiagnosticsStateManager diagnosticsStateManager, Session session)
+        public SessionDataStoreCommandListControl(Control container, DiagnosticsStateManager diagnosticsStateManager, Session session)
         {
             Container = container;
             Session = session;
@@ -34,8 +33,6 @@
                 GridLines = false,
                 AllowColumnReorder = false,
                 FullRowSelect = true,
-                BackColor = Color.Black,
-                ForeColor = Color.LightGray,
                 BorderStyle = BorderStyle.FixedSingle,
             };
 

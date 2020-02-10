@@ -41,10 +41,8 @@
                 processed = true;
                 CounterCollection.IncrementCounter("served from cache", 1, true);
 
-                foreach (var config in ColumnConfiguration)
-                {
-                    config.Copy(this, match, row);
-                }
+                ColumnCopyConfiguration.CopyManyToRowStage(match, row, ColumnConfiguration);
+                row.ApplyStaging(this);
 
                 MatchCustomAction?.Invoke(this, row, match);
 
@@ -105,10 +103,8 @@
                 }
                 else
                 {
-                    foreach (var config in ColumnConfiguration)
-                    {
-                        config.Copy(this, match, row);
-                    }
+                    ColumnCopyConfiguration.CopyManyToRowStage(match, row, ColumnConfiguration);
+                    row.ApplyStaging(this);
 
                     MatchCustomAction?.Invoke(this, row, match);
                 }

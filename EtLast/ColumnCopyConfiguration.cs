@@ -19,21 +19,24 @@
             ToColumn = fromColumn;
         }
 
-        public void Copy(IProcess process, IRow sourceRow, IRow targetRow)
+        public void Copy(IRow sourceRow, List<KeyValuePair<string, object>> targetValues)
         {
-            var value = sourceRow[FromColumn];
-            if (value != null)
+            targetValues.Add(new KeyValuePair<string, object>(ToColumn, sourceRow[FromColumn]));
+        }
+
+        public static void CopyManyToRowStage(IRow sourceRow, IRow targetRow, List<ColumnCopyConfiguration> configurations)
+        {
+            foreach (var config in configurations)
             {
-                targetRow.SetValue(ToColumn, value, process);
+                targetRow.Staging[config.ToColumn] = sourceRow[config.FromColumn];
             }
         }
 
-        public void Copy(IRow sourceRow, List<KeyValuePair<string, object>> targetValues)
+        public static void CopyMany(IRow sourceRow, Dictionary<string, object> targetValues, List<ColumnCopyConfiguration> configurations)
         {
-            var value = sourceRow[FromColumn];
-            if (value != null)
+            foreach (var x in configurations)
             {
-                targetValues.Add(new KeyValuePair<string, object>(FromColumn, value));
+                targetValues[x.ToColumn] = sourceRow[x.FromColumn];
             }
         }
     }

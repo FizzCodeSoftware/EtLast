@@ -113,7 +113,8 @@
                     "row-value-changed" => ProcessRowValueChangedEvent(payload),
                     "row-stored" => ProcessRowStoredEvent(payload),
                     "context-counters-updated" => ProcessContextCountersUpdatedEvent(payload),
-                    "process-invocation" => ProcessProcessInvocationEvent(payload),
+                    "process-invocation-start" => ProcessProcessInvocationStartEvent(payload),
+                    "process-invocation-end" => ProcessProcessInvocationEndEvent(payload),
                     "data-store-command" => ProcessDataStoreCommandEvent(payload),
                     _ => null,
                 };
@@ -193,9 +194,15 @@
             return context;
         }
 
-        private static AbstractEvent ProcessProcessInvocationEvent(string payload)
+        private static AbstractEvent ProcessProcessInvocationStartEvent(string payload)
         {
-            var evt = JsonSerializer.Deserialize<ProcessInvocationEvent>(payload);
+            var evt = JsonSerializer.Deserialize<ProcessInvocationStartEvent>(payload);
+            return evt;
+        }
+
+        private static AbstractEvent ProcessProcessInvocationEndEvent(string payload)
+        {
+            var evt = JsonSerializer.Deserialize<ProcessInvocationEndEvent>(payload);
             return evt;
         }
 
@@ -237,7 +244,14 @@
         private static AbstractEvent ProcessRowValueChangedEvent(string payload)
         {
             var evt = JsonSerializer.Deserialize<RowValueChangedEvent>(payload);
-            evt.CurrentValue.CalculateValue();
+            if (evt.Values != null)
+            {
+                foreach (var value in evt.Values)
+                {
+                    value.CalculateValue();
+                }
+            }
+
             return evt;
         }
 

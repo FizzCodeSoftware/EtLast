@@ -23,10 +23,12 @@
                     var trimmed = str.Trim();
                     if (trimmed != str)
                     {
-                        row.SetValue(column, trimmed, this);
+                        row.Staging[column] = trimmed;
                     }
                 }
             }
+
+            row.ApplyStaging(this);
 
             yield return row;
         }

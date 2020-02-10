@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
-    using System.Linq;
 
     public class BatchedJoinMutator : AbstractBatchedKeyBasedCrossMutator
     {
@@ -79,22 +78,16 @@
                 if (rightRows?.Count > 0)
                 {
                     removeRow = true;
-
                     foreach (var rightRow in rightRows)
                     {
-                        var initialValues = row.Values.ToList();
-                        foreach (var config in ColumnConfiguration)
-                        {
-                            config.Copy(rightRow, initialValues);
-                        }
+                        var initialValues = new Dictionary<string, object>(row.Values);
+                        ColumnCopyConfiguration.CopyMany(rightRow, initialValues, ColumnConfiguration);
 
                         var newRow = Context.CreateRow(this, initialValues);
 
                         MatchCustomAction?.Invoke(this, newRow, rightRow);
                         mutatedRows.Add(newRow);
                     }
-
-                    MatchCustomAction?.Invoke(this, row, rightRows[0]);
                 }
                 else if (NoMatchAction != null)
                 {

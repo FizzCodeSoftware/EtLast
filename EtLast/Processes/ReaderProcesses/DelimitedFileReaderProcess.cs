@@ -6,7 +6,7 @@
     using System.IO;
     using System.Linq;
 
-    public class DelimitedFileReaderProcess : AbstractProducerProcess
+    public class DelimitedFileReaderProcess : AbstractProducerProcess, IRowReader
     {
         public string FileName { get; set; }
 

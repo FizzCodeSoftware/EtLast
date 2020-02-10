@@ -7,7 +7,7 @@
     using FizzCode.EtLast;
     using OfficeOpenXml;
 
-    public class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutator
+    public class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutator, IRowWriter
         where TState : BaseExcelWriterState, new()
     {
         public Stream Stream { get; set; }

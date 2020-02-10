@@ -20,10 +20,10 @@
         {
             MatchButDifferentAction = new MatchAction(MatchMode.Custom)
             {
-                CustomAction = (op, row, match) =>
+                CustomAction = (proc, row, match) =>
                 {
-                    row.SetValue(TableBuilder.ValidFromColumnName, TableBuilder.DwhBuilder.Context.CreatedOnLocal, op);
-                    row.SetValue(TableBuilder.ValidToColumnName, TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime, op);
+                    row.SetValue(proc, TableBuilder.ValidFromColumnName, TableBuilder.DwhBuilder.Context.CreatedOnLocal);
+                    row.SetValue(proc, TableBuilder.ValidToColumnName, TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
                 },
             };
 

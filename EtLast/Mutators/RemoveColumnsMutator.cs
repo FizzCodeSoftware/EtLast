@@ -15,7 +15,7 @@
         {
             foreach (var column in Columns)
             {
-                row.SetValue(column, null, this);
+                row.SetValue(this, column, null);
             }
 
             yield return row;

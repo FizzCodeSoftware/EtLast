@@ -17,12 +17,12 @@
         {
             if (ErrorIf(row))
             {
-                row.SetValue(Column, new EtlRowError()
+                row.SetValue(this, Column, new EtlRowError()
                 {
                     Process = this,
                     OriginalValue = row[Column],
                     Message = "validation failed",
-                }, this);
+                });
             }
 
             yield return row;

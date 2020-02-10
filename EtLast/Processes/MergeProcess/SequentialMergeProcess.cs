@@ -29,7 +29,7 @@
                 }
             }
 
-            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", LastInvocation.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", LastInvocationStarted.Elapsed);
         }
     }
 }

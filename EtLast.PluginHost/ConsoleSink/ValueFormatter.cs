@@ -111,7 +111,7 @@
                         {
                             if (ts.Days > 0)
                             {
-                                value.Render(builder, @"d\.hh\:mm");
+                                value.Render(builder, @"d\.hh\:mm", CultureInfo.InvariantCulture);
                             }
                             else if (ts.Hours > 0)
                             {

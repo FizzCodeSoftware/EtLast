@@ -8,15 +8,15 @@
     [TestClass]
     public class JoinTests
     {
-        protected string[] SampleColumnsA { get; } = { "id", "name", "age", "height" };
+        protected string[] SampleColumnsA { get; } = { "id", "name", "age", "height", "color" };
 
         protected object[][] SampleRowsA { get; } = {
-                new object[] { 0, "A", 7, 160 },
-                new object[] { 1, "B", 8, 190 },
-                new object[] { 2, "C", 7, 170 },
-                new object[] { 3, "A", 9, 160 },
-                new object[] { 4, "A", 9, 160 },
-                new object[] { 5, "B", 11, 140 },
+                new object[] { 0, "A", 7, 160, null },
+                new object[] { 1, "B", 8, 190, null, },
+                new object[] { 2, "C", 7, 170, "green" },
+                new object[] { 3, "A", 9, 160, "unused" },
+                new object[] { 4, "A", 9, 160, null },
+                new object[] { 5, "B", 11, 140, null },
         };
 
         protected string[] SampleColumnsB { get; } = { "id", "fk", "color" };
@@ -28,10 +28,11 @@
                 new object[] { 3, 1, "blue" },
                 new object[] { 4, 1, "yellow" },
                 new object[] { 5, 2, "black" },
+                new object[] { 6, 100, "unused" },
         };
 
         [TestMethod]
-        public void InnerJoinTest()
+        public void JoinMutatorTest()
         {
             var context = new EtlContext();
 
@@ -64,6 +65,70 @@
 
             var result = process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
             Assert.AreEqual(6, result.Count);
+            Assert.IsTrue(result.Count(x => x.GetAs<string>("color") == "yellow") == 2);
+            Assert.IsTrue(result.Count(x => x.GetAs<string>("color") == "red") == 1);
+            Assert.IsTrue(result.Count(x => x.GetAs<string>("color") == "green") == 1);
+            Assert.IsTrue(result.Count(x => x.GetAs<string>("color") == "blue") == 1);
+            Assert.IsTrue(result.Count(x => x.GetAs<string>("color") == "black") == 1);
+            Assert.IsTrue(!result.Any(x => x.GetAs<string>("color") == "unused"));
+            Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "A") == 3);
+            Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "B") == 2);
+            Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "C") == 1);
+            Assert.IsTrue(!result.Any(x => x.GetAs<int>("id") == 3));
+            Assert.IsTrue(!result.Any(x => x.GetAs<int>("id") == 4));
+            Assert.IsTrue(!result.Any(x => x.GetAs<int>("id") == 5));
+        }
+
+        [TestMethod]
+        public void BatchedJoinMutatorTest()
+        {
+            var context = new EtlContext();
+
+            var executedBatchCount = 0;
+
+            var process = new MutatorBuilder()
+            {
+                InputProcess = new CreateRowsProcess(context, "DataGenerator", null)
+                {
+                    Columns = SampleColumnsA,
+                    InputRows = SampleRowsA.ToList(),
+                },
+                Mutators = new List<IMutator>()
+                {
+                    new BatchedJoinMutator(context, "Joiner", null)
+                    {
+                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
+                        BatchSize = 4,
+                        RightProcessCreator = rows =>
+                        {
+                            executedBatchCount++;
+                            return new CreateRowsProcess(context, "RightGenerator", null)
+                            {
+                                Columns = SampleColumnsB,
+                                InputRows = SampleRowsB
+                                    .Where(right => rows.Any(left => left.GetAs<int>("id") == (int)right[1]))
+                                    .ToList(),
+                            };
+                        },
+                        LeftKeySelector = row => row.GetAs<int>("id").ToString("D", CultureInfo.InvariantCulture),
+                        RightKeySelector = row => row.GetAs<int>("fk").ToString("D", CultureInfo.InvariantCulture),
+                        ColumnConfiguration = new List<ColumnCopyConfiguration>
+                        {
+                            new ColumnCopyConfiguration("color"),
+                        }
+                    }
+                },
+            }.BuildEvaluable();
+
+            var result = process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
+            Assert.AreEqual(6, result.Count);
+            Assert.AreEqual(2, executedBatchCount);
+            Assert.IsTrue(result.Count(x => x.GetAs<string>("color") == "yellow") == 2);
+            Assert.IsTrue(result.Count(x => x.GetAs<string>("color") == "red") == 1);
+            Assert.IsTrue(result.Count(x => x.GetAs<string>("color") == "green") == 1);
+            Assert.IsTrue(result.Count(x => x.GetAs<string>("color") == "blue") == 1);
+            Assert.IsTrue(result.Count(x => x.GetAs<string>("color") == "black") == 1);
+            Assert.IsTrue(!result.Any(x => x.GetAs<string>("color") == "unused"));
             Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "A") == 3);
             Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "B") == 2);
             Assert.IsTrue(result.Count(x => x.GetAs<string>("name") == "C") == 1);

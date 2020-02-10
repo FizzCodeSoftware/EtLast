@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
+    using System;
     using System.Diagnostics;
     using System.Linq;
 
@@ -9,12 +10,14 @@
         public int InstanceUID { get; set; }
         public int InvocationCounter { get; set; }
         public IProcess Caller { get; set; }
-        public Stopwatch LastInvocation { get; set; }
+        public Stopwatch LastInvocationStarted { get; set; }
+        public DateTimeOffset? LastInvocationFinished { get; set; }
 
         private readonly ResilientSqlScope _scope;
         public IEtlContext Context => _scope.Context;
         public string Name { get; } = "TableFinalizerManager";
         public string Topic => _scope.Topic;
+        public ProcessKind Kind => ProcessKind.unknown;
         public StatCounterCollection CounterCollection { get; }
 
         public ResilientTableFinalizerManager(ResilientSqlScope scope)
@@ -25,7 +28,7 @@
 
         public void Execute()
         {
-            Context.RegisterProcessInvocation(this, _scope);
+            Context.RegisterProcessInvocationStart(this, _scope);
 
             Context.Log(LogSeverity.Information, this, "started");
 
@@ -82,6 +85,7 @@
 
             Context.Log(LogSeverity.Information, this, "{TableCount} temp table contains data", tempTablesWithData);
             Context.Log(LogSeverity.Information, this, "{TableCount} temp table is empty", tempTablesWithoutData);
+            Context.RegisterProcessInvocationEnd(this);
         }
 
         private int CountTempRecordsIn(ResilientTableBase table)

@@ -6,7 +6,7 @@
     using System.IO;
     using OfficeOpenXml;
 
-    public class EpPlusExcelSheetListReaderProcess : AbstractProducerProcess
+    public class EpPlusExcelSheetListReaderProcess : AbstractProducerProcess, IRowReader
     {
         public string FileName { get; set; }
 

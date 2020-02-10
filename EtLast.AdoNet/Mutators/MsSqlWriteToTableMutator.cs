@@ -11,7 +11,7 @@
     using FizzCode.EtLast;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
-    public class MsSqlWriteToTableMutator : AbstractMutator
+    public class MsSqlWriteToTableMutator : AbstractMutator, IRowWriter
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public ConnectionStringWithProvider ConnectionString { get; set; }

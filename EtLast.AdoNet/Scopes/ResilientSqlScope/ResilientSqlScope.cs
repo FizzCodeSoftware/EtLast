@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public class ResilientSqlScope : AbstractExecutableProcess
+    public class ResilientSqlScope : AbstractExecutableProcess, IScope
     {
         private ResilientSqlScopeConfiguration _configuration;
 
@@ -96,7 +96,7 @@
 
                     if (!initializationSuccessful)
                     {
-                        Context.Log(LogSeverity.Information, this, "initialization failed after {Elapsed}", LastInvocation.Elapsed);
+                        Context.Log(LogSeverity.Information, this, "initialization failed after {Elapsed}", LastInvocationStarted.Elapsed);
                         return;
                     }
                 }
@@ -204,7 +204,7 @@
                 }
             }
 
-            Context.Log(LogSeverity.Information, this, success ? "finished in {Elapsed}" : "failed after {Elapsed}", LastInvocation.Elapsed);
+            Context.Log(LogSeverity.Information, this, success ? "finished in {Elapsed}" : "failed after {Elapsed}", LastInvocationStarted.Elapsed);
         }
 
         private void Initialize(int maxRetryCount, ref int initialExceptionCount, ref bool initializationSuccessful)

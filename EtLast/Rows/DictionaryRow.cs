@@ -2,12 +2,14 @@
 {
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
 
     [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
     public class DictionaryRow : AbstractBaseRow
     {
-        private Dictionary<string, object> _values;
         public override IEnumerable<KeyValuePair<string, object>> Values => _values;
+
+        private Dictionary<string, object> _values;
 
         public override bool HasValue(string column)
         {
@@ -32,19 +34,48 @@
                 : null;
         }
 
-        protected override void SetValueImpl(string column, object value, IProcess process)
+        public override void SetValue(IProcess process, string column, object newValue)
         {
             var hasPreviousValue = _values.TryGetValue(column, out var previousValue);
-            if (value == null && hasPreviousValue)
+            if (newValue == null && hasPreviousValue)
             {
-                Context.OnRowValueChanged?.Invoke(this, column, value, process);
+                Context.OnRowValueChanged?.Invoke(process, this, new[] { new KeyValuePair<string, object>(column, newValue) });
                 _values.Remove(column);
             }
-            else if (!hasPreviousValue || value != previousValue)
+            else if (!hasPreviousValue || newValue != previousValue)
             {
-                Context.OnRowValueChanged?.Invoke(this, column, value, process);
-                _values[column] = value;
+                Context.OnRowValueChanged?.Invoke(process, this, new[] { new KeyValuePair<string, object>(column, newValue) });
+                _values[column] = newValue;
             }
+        }
+
+        public override void ApplyStaging(IProcess process)
+        {
+            if (ValueStackInternal == null || ValueStackInternal.Count == 0)
+                return;
+
+            var changes = ValueStackInternal.Where(kvp =>
+            {
+                var hasPreviousValue = _values.TryGetValue(kvp.Key, out var previousValue);
+                return (!hasPreviousValue && kvp.Value != null) || (hasPreviousValue && kvp.Value != previousValue);
+            }).ToArray();
+
+            ValueStackInternal.Clear();
+
+            foreach (var kvp in changes)
+            {
+                var hasPreviousValue = _values.TryGetValue(kvp.Key, out var previousValue);
+                if (kvp.Value == null)
+                {
+                    _values.Remove(kvp.Key);
+                }
+                else
+                {
+                    _values[kvp.Key] = kvp.Value;
+                }
+            }
+
+            Context.OnRowValueChanged?.Invoke(process, this, changes);
         }
     }
 }

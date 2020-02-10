@@ -33,7 +33,7 @@
             {
                 File.Delete(FileName);
                 Context.Log(LogSeverity.Debug, this, "successfully deleted file '{FileName}' in {Elapsed}", PathHelpers.GetFriendlyPathName(FileName),
-                    LastInvocation.Elapsed);
+                    LastInvocationStarted.Elapsed);
             }
             catch (Exception ex)
             {

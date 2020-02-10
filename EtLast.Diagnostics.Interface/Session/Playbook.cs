@@ -53,14 +53,26 @@
                     case ContextCountersUpdatedEvent evt:
                         lastContextCountersUpdatedEvent = evt;
                         break;
-                    case ProcessInvocationEvent evt:
+                    case ProcessInvocationStartEvent evt:
                         {
                             if (!ProcessList.TryGetValue(evt.InvocationUID, out var process))
                             {
-                                process = new TrackedProcessInvocation(evt.InvocationUID, evt.InstanceUID, evt.InvocationCounter, evt.CallerInvocationUID, evt.Type, evt.Name, evt.Topic);
+                                TrackedProcessInvocation invoker = null;
+                                if (evt.CallerInvocationUID != null && !ProcessList.TryGetValue(evt.CallerInvocationUID.Value, out invoker))
+                                    continue;
+
+                                process = new TrackedProcessInvocation(evt.InvocationUID, evt.InstanceUID, evt.InvocationCounter, invoker, evt.Type, evt.Kind, evt.Name, evt.Topic);
                                 ProcessList.Add(process.InvocationUID, process);
                                 OnProcessInvoked?.Invoke(this, process);
                             }
+                        }
+                        break;
+                    case ProcessInvocationEndEvent evt:
+                        {
+                            if (!ProcessList.TryGetValue(evt.InvocationUID, out var process))
+                                continue;
+
+                            process.ElapsedMillisecondsAfterFinished = TimeSpan.FromMilliseconds(evt.ElapsedMilliseconds);
                         }
                         break;
                     case RowCreatedEvent evt:
@@ -124,13 +136,17 @@
                                 continue;
 
                             row.AllEvents.Add(evt);
-                            if (evt.CurrentValue != null)
+
+                            foreach (var value in evt.Values)
                             {
-                                row.Values[evt.Column] = evt.CurrentValue;
-                            }
-                            else
-                            {
-                                row.Values.Remove(evt.Column);
+                                if (value.Value != null)
+                                {
+                                    row.Values[value.Name] = value;
+                                }
+                                else
+                                {
+                                    row.Values.Remove(value.Name);
+                                }
                             }
                         }
                         break;

@@ -11,7 +11,7 @@
 
         public void Execute(IProcess caller = null)
         {
-            Context.RegisterProcessInvocation(this, caller);
+            Context.RegisterProcessInvocationStart(this, caller);
 
             try
             {
@@ -29,6 +29,8 @@
             }
             catch (EtlException ex) { Context.AddException(this, ex); }
             catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
+
+            Context.RegisterProcessInvocationEnd(this);
         }
 
         protected abstract void ExecuteImpl();

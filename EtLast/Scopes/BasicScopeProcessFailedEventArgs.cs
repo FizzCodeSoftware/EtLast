@@ -4,10 +4,10 @@
 
     public class BasicScopeProcessFailedEventArgs : EventArgs
     {
-        public IBasicScope Scope { get; }
+        public BasicScope Scope { get; }
         public IExecutable Process { get; }
 
-        public BasicScopeProcessFailedEventArgs(IBasicScope scope, IExecutable process)
+        public BasicScopeProcessFailedEventArgs(BasicScope scope, IExecutable process)
         {
             Scope = scope;
             Process = process;

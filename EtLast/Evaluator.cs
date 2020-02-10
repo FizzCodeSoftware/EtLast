@@ -6,14 +6,16 @@
     public class Evaluator
     {
         private readonly IEnumerable<IRow> _input;
+        private readonly IProcess _process;
 
         public Evaluator()
         {
             _input = Enumerable.Empty<IRow>();
         }
 
-        public Evaluator(IEnumerable<IRow> input)
+        public Evaluator(IProcess process, IEnumerable<IRow> input)
         {
+            _process = process;
             _input = input;
         }
 
@@ -24,6 +26,9 @@
                 row.Context.SetRowOwner(row, newOwner);
                 yield return row;
             }
+
+            if (_process != null)
+                _process.Context.RegisterProcessInvocationEnd(_process);
         }
 
         public IEnumerable<IRow> TakeRowsAndReleaseOwnership()
@@ -33,6 +38,9 @@
                 row.Context.SetRowOwner(row, null);
                 yield return row;
             }
+
+            if (_process != null)
+                _process.Context.RegisterProcessInvocationEnd(_process);
         }
 
         public IEnumerable<IRow> TakeRowsAndReleaseOwnership(IProcess process)
@@ -44,6 +52,9 @@
 
                 yield return row;
             }
+
+            if (_process != null)
+                _process.Context.RegisterProcessInvocationEnd(_process);
         }
 
         public int CountRows(IProcess newOwner)
@@ -58,6 +69,9 @@
 
                 count++;
             }
+
+            if (_process != null)
+                _process.Context.RegisterProcessInvocationEnd(_process);
 
             return count;
         }

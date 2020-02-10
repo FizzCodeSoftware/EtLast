@@ -11,7 +11,7 @@
     using FizzCode.DbTools.Configuration;
     using FizzCode.EtLast;
 
-    public class WriteToTableMutator : AbstractMutator
+    public class WriteToTableMutator : AbstractMutator, IRowWriter
     {
         public ConnectionStringWithProvider ConnectionString { get; set; }
         public int CommandTimeout { get; set; } = 30;
