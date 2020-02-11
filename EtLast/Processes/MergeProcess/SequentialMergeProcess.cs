@@ -15,8 +15,6 @@
 
         protected override IEnumerable<IRow> EvaluateImpl()
         {
-            Context.Log(LogSeverity.Information, this, "started");
-
             foreach (var inputProcess in ProcessList)
             {
                 if (Context.CancellationTokenSource.IsCancellationRequested)

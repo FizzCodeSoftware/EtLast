@@ -31,7 +31,7 @@
 
         protected override void RunCommand(IDbCommand command)
         {
-            Context.Log(LogSeverity.Debug, this, "truncating {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+            Context.LogNoDiag(LogSeverity.Debug, this, "truncating {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(TableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             var originalStatement = command.CommandText;

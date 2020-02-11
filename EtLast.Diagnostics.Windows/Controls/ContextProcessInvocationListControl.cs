@@ -2,10 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Drawing;
     using System.Globalization;
     using System.Linq;
     using System.Windows.Forms;
     using FizzCode.EtLast.Diagnostics.Interface;
+
+    public delegate void OnProcessInvocationListSelectionChanged(TrackedProcessInvocation process);
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
     internal class ContextProcessInvocationListControl
@@ -13,9 +16,14 @@
     {
         public ExecutionContext Context { get; }
         public ListView ListView { get; }
-        private readonly System.Threading.Timer _processStatUpdaterTimer;
+        public OnProcessInvocationListSelectionChanged OnSelectionChanged { get; set; }
 
+        private readonly System.Threading.Timer _processStatUpdaterTimer;
         private readonly Dictionary<int, ListViewItem> _listViewItemsByProcessInvocationUID = new Dictionary<int, ListViewItem>();
+
+        private Color IsOutputBackColor { get; set; } = Color.FromArgb(180, 255, 180);
+        private Color IsInputBackColor { get; set; } = Color.FromArgb(255, 230, 185);
+        private Color IsSameTopicBackColor { get; set; } = Color.FromArgb(220, 220, 255);
 
         public ContextProcessInvocationListControl(Control container, ExecutionContext context)
         {
@@ -36,7 +44,7 @@
                 BorderStyle = BorderStyle.FixedSingle,
             };
 
-            var fix = 40 + 40 + 60;
+            var fix = 40 + 40 + 60 + 100;
             ListView.Columns.Add("#", 40);
             ListView.Columns.Add("time", 40);
 
@@ -45,20 +53,101 @@
             ListView.Columns.Add("kind", 60).TextAlign = HorizontalAlignment.Left;
             ListView.Columns.Add("type", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Left;
 
-            ListView.Columns.Add("INPUT", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
-            ListView.Columns.Add("+", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
-            ListView.Columns.Add("-", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
-            ListView.Columns.Add("store", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
-            ListView.Columns.Add("pending", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
-            ListView.Columns.Add("OUT", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 6).TextAlign = HorizontalAlignment.Right;
+            ListView.Columns.Add("IN", 100).TextAlign = HorizontalAlignment.Right;
+            ListView.Columns.Add("+", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
+            ListView.Columns.Add("-", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
+            ListView.Columns.Add("store", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
+            ListView.Columns.Add("pending", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
+            ListView.Columns.Add("OUT", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
             ListView.ShowItemToolTips = true;
-            ListView.MouseMove += ProcessList_MouseMove;
+            ListView.MouseMove += ListView_MouseMove;
             ListView.MouseLeave += (s, a) => ToolTipSingleton.Remove(s as Control);
             ListView.MultiSelect = false;
+            ListView.HideSelection = false;
 
             _processStatUpdaterTimer.Change(500, System.Threading.Timeout.Infinite);
 
             context.WholePlaybook.OnProcessInvoked += OnProcessInvoked;
+
+            ListView.ItemSelectionChanged += ListView_SelectedIndexChanged;
+        }
+
+        internal void SelectProcess(TrackedProcessInvocation process)
+        {
+            foreach (ListViewItem item in ListView.Items)
+            {
+                if (item.Tag == process)
+                {
+                    if (!item.Selected)
+                    {
+                        ListView.EnsureVisible(item.Index);
+
+                        ListView.Focus();
+                        item.Selected = true;
+                    }
+                }
+            }
+        }
+
+        private void ListView_SelectedIndexChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            if (!e.IsSelected)
+                return;
+
+            var selectedProcess = e.Item.Tag as TrackedProcessInvocation;
+
+            OnSelectionChanged?.Invoke(selectedProcess);
+
+            foreach (var item in ListView.Items.ToEnumerable<ListViewItem>())
+            {
+                if (!(item.Tag is TrackedProcessInvocation itemProcess))
+                    continue;
+
+                if (selectedProcess != null)
+                {
+                    item.UseItemStyleForSubItems = false;
+
+                    var itemIsInput = itemProcess.InputRowCountByByPreviousProcess.ContainsKey(selectedProcess.InvocationUID);
+                    var itemIsOutput = selectedProcess.InputRowCountByByPreviousProcess.ContainsKey(itemProcess.InvocationUID);
+                    var isSameTopic = selectedProcess.Topic == itemProcess.Topic/* || itemProcess.HasParentWithTopic(selectedProcess.Topic)*/;
+
+                    item.SubItems[2].BackColor = isSameTopic
+                        ? IsSameTopicBackColor
+                        : item.BackColor;
+
+                    if (itemIsInput)
+                    {
+                        item.SubItems[3].BackColor = item.SubItems[6].BackColor = IsInputBackColor;
+                        item.SubItems[11].BackColor = ListView.BackColor;
+                    }
+                    else if (itemIsOutput)
+                    {
+                        item.SubItems[3].BackColor = item.SubItems[11].BackColor = IsOutputBackColor;
+                        item.SubItems[6].BackColor = ListView.BackColor;
+                    }
+                    else if (isSameTopic)
+                    {
+                        item.SubItems[3].BackColor = IsSameTopicBackColor;
+                        item.SubItems[6].BackColor = item.SubItems[11].BackColor = ListView.BackColor;
+                    }
+                    else
+                    {
+                        item.SubItems[3].BackColor = item.SubItems[11].BackColor = item.SubItems[6].BackColor = ListView.BackColor;
+                    }
+
+                    /*item.BackColor = itemIsOutput
+                        ? IsOutputBackColor
+                        : itemIsInput
+                            ? IsInputBackColor
+                            : isSameTopic
+                                ? IsSameTopicBackColor
+                                : ListView.BackColor;*/
+                }
+                else
+                {
+                    item.UseItemStyleForSubItems = true;
+                }
+            }
         }
 
         private void OnProcessInvoked(Playbook playbook, TrackedProcessInvocation process)
@@ -95,7 +184,7 @@
                 while (nextIndex < ListView.Items.Count)
                 {
                     var p = ListView.Items[nextIndex].Tag as TrackedProcessInvocation;
-                    if (!p.IsParent(process.Invoker))
+                    if (!p.HasParent(process.Invoker))
                         break;
 
                     nextIndex++;
@@ -128,12 +217,12 @@
                             break;
                         }
 
-                        if (item.SubItems[6].Text != p.InputRowCount.ToString("D", CultureInfo.InvariantCulture)
-                            || item.SubItems[7].Text != p.CreatedRowCount.ToString("D", CultureInfo.InvariantCulture)
-                            || item.SubItems[8].Text != p.DroppedRowList.Count.ToString("D", CultureInfo.InvariantCulture)
-                            || item.SubItems[9].Text != p.StoredRowList.Count.ToString("D", CultureInfo.InvariantCulture)
-                            || item.SubItems[10].Text != p.AliveRowList.Count.ToString("D", CultureInfo.InvariantCulture)
-                            || item.SubItems[11].Text != p.PassedRowCount.ToString("D", CultureInfo.InvariantCulture))
+                        if (item.SubItems[6].Text != p.GetFormattedInputRowCount()
+                            || item.SubItems[7].Text != p.CreatedRowCount.ToStringNoZero()
+                            || item.SubItems[8].Text != p.DroppedRowList.Count.ToStringNoZero()
+                            || item.SubItems[9].Text != p.StoredRowList.Count.ToStringNoZero()
+                            || item.SubItems[10].Text != p.AliveRowList.Count.ToStringNoZero()
+                            || item.SubItems[11].Text != p.PassedRowCount.ToStringNoZero())
                         {
                             changed = true;
                             break;
@@ -152,14 +241,14 @@
                             {
                                 item.SubItems[1].SetIfChanged(p.ElapsedMillisecondsAfterFinishedAsString);
 
-                                item.SubItems[6].SetIfChanged(p.InputRowCount.ToString("D", CultureInfo.InvariantCulture),
-                                    () => string.Join("\n", p.InputRowCountByByPreviousProcess.Select(x => Context.WholePlaybook.ProcessList[x.Key].DisplayName + "  =  " + x.Value.ToString("D", CultureInfo.InvariantCulture))));
-                                item.SubItems[7].SetIfChanged(p.CreatedRowCount.ToString("D", CultureInfo.InvariantCulture));
-                                item.SubItems[8].SetIfChanged(p.DroppedRowList.Count.ToString("D", CultureInfo.InvariantCulture));
-                                item.SubItems[9].SetIfChanged(p.StoredRowList.Count.ToString("D", CultureInfo.InvariantCulture));
-                                item.SubItems[10].SetIfChanged(p.AliveRowList.Count.ToString("D", CultureInfo.InvariantCulture));
-                                item.SubItems[11].SetIfChanged(p.PassedRowCount.ToString("D", CultureInfo.InvariantCulture),
-                                    () => string.Join("\n", p.PassedRowCountByNextProcess.Select(x => Context.WholePlaybook.ProcessList[x.Key].DisplayName + "  =  " + x.Value.ToString("D", CultureInfo.InvariantCulture))));
+                                item.SubItems[6].SetIfChanged(p.GetFormattedInputRowCount(),
+                                    () => "INPUT:\n" + string.Join("\n", p.InputRowCountByByPreviousProcess.Select(x => Context.WholePlaybook.ProcessList[x.Key].DisplayName + "  =  " + x.Value.ToStringNoZero())));
+                                item.SubItems[7].SetIfChanged(p.CreatedRowCount.ToStringNoZero());
+                                item.SubItems[8].SetIfChanged(p.DroppedRowList.Count.ToStringNoZero());
+                                item.SubItems[9].SetIfChanged(p.StoredRowList.Count.ToStringNoZero());
+                                item.SubItems[10].SetIfChanged(p.AliveRowList.Count.ToStringNoZero());
+                                item.SubItems[11].SetIfChanged(p.PassedRowCount.ToStringNoZero(),
+                                    () => string.Join("\n", p.PassedRowCountByNextProcess.Select(x => Context.WholePlaybook.ProcessList[x.Key].DisplayName + "  =  " + x.Value.ToStringNoZero())));
                             }
                         }
                     }
@@ -173,19 +262,14 @@
             _processStatUpdaterTimer.Change(500, System.Threading.Timeout.Infinite);
         }
 
-        private void ProcessList_MouseMove(object sender, MouseEventArgs e)
+        private void ListView_MouseMove(object sender, MouseEventArgs e)
         {
             var list = sender as ListView;
-            var item = list.GetItemAt(e.X, e.Y);
             var info = list.HitTest(e.X, e.Y);
 
-            if (item != null && info.SubItem?.Tag is string text)
+            if (info.SubItem?.Tag != null)
             {
-                ToolTipSingleton.Show(text, list, e.X, e.Y);
-            }
-            else if (item != null && info.SubItem?.Tag is Func<string> textFunc)
-            {
-                ToolTipSingleton.Show(textFunc.Invoke(), list, e.X, e.Y);
+                ToolTipSingleton.Show(info.SubItem.Tag, list, e.X, e.Y);
             }
             else
             {

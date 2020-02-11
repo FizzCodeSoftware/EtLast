@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows
 {
+    using System;
     using System.Windows.Forms;
 
     public static class ToolTipSingleton
@@ -13,9 +14,29 @@
             IsBalloon = true,
         };
 
-        public static void Show(string text, Control control, int x, int y)
+        public static void Show(object value, Control control, int x, int y)
         {
-            _toolTip.Show(text, control, x + 8, y + 8);
+            x += 8;
+            y += 8;
+
+            var displayText = value switch
+            {
+                string text => text,
+                Func<string> textFunc => textFunc.Invoke(),
+                _ => null,
+            };
+
+            if (!string.IsNullOrEmpty(displayText))
+                displayText = displayText.Trim();
+
+            if (!string.IsNullOrEmpty(displayText))
+            {
+                _toolTip.Show(displayText, control, x, y);
+            }
+            else
+            {
+                Remove(control);
+            }
         }
 
         public static void Remove(Control control)

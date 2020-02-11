@@ -16,7 +16,7 @@
                 customizer.Invoke(tempBuilder);
 
                 if (tempBuilder.KeyColumns == null)
-                    throw new NotSupportedException("you must specify the key columns of " + nameof(RemoveExistingRows) + " for table " + tableBuilder.Table.TableName);
+                    throw new NotSupportedException("you must specify the key columns of " + nameof(BaseIsHistoryFinalizer) + " for table " + tableBuilder.Table.TableName);
 
                 tableBuilder.AddFinalizerCreator(_ => CreateBaseIsHistoryFinalizer(tempBuilder));
             }
@@ -26,7 +26,6 @@
 
         private static IEnumerable<IExecutable> CreateBaseIsHistoryFinalizer(KeyBasedFinalizerBuilder builder)
         {
-            var hasHistoryTable = builder.TableBuilder.SqlTable.HasProperty<WithHistoryTableProperty>();
             var pk = builder.TableBuilder.SqlTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
             var pkIsIdentity = pk.SqlColumns.Any(c => c.SqlColumn.HasProperty<Identity>());
             var currentEtlRunId = builder.TableBuilder.DwhBuilder.Context.AdditionalData.GetAs("CurrentEtlRunId", 0);

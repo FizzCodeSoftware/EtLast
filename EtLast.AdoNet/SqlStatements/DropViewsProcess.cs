@@ -41,7 +41,7 @@
         {
             var viewName = TableNames[statementIndex];
 
-            Context.Log(LogSeverity.Debug, this, "drop view {ConnectionStringName}/{ViewName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+            Context.LogNoDiag(LogSeverity.Debug, this, "drop view {ConnectionStringName}/{ViewName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(viewName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
@@ -80,7 +80,7 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            Context.Log(LogSeverity.Information, this, "{ViewCount} view(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
+            Context.Log(LogSeverity.Debug, this, "{ViewCount} view(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
                 ConnectionString.Name, LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }

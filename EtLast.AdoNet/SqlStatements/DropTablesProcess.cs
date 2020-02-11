@@ -37,7 +37,7 @@
         {
             var tableName = TableNames[statementIndex];
 
-            Context.Log(LogSeverity.Debug, this, "drop table {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+            Context.LogNoDiag(LogSeverity.Debug, this, "drop table {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(tableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
@@ -76,7 +76,7 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            Context.Log(LogSeverity.Information, this, "{TableCount} table(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
+            Context.Log(LogSeverity.Debug, this, "{TableCount} table(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
                 ConnectionString.Name, LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }

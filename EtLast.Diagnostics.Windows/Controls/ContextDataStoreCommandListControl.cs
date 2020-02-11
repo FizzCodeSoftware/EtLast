@@ -14,9 +14,9 @@
     {
         public ExecutionContext Context { get; }
         public ListView ListView { get; }
-        public Color HighlightedProcessForeColor { get; set; } = Color.White;
-        public Color HighlightedTopicBackColor { get; set; } = Color.Red;
-        public Color HighlightedTopicForeColor { get; set; } = Color.Black;
+        public Color HighlightedProcessForeColor { get; set; } = Color.Black;
+        public Color HighlightedProcessBackColor { get; set; } = Color.FromArgb(150, 255, 255);
+        public ContextProcessInvocationListControl LinkedProcessInvocationList { get; set; }
 
         private TrackedProcessInvocation _highlightedProcess;
 
@@ -25,8 +25,9 @@
             get => _highlightedProcess;
             set
             {
+                var topicChanged = _highlightedProcess?.Topic != value?.Topic;
                 _highlightedProcess = value;
-                UpdateHighlight();
+                UpdateHighlight(topicChanged);
             }
         }
 
@@ -39,93 +40,129 @@
                 View = View.Details,
                 Parent = container,
                 HeaderStyle = ColumnHeaderStyle.Nonclickable,
-                HideSelection = false,
-                GridLines = false,
+                HideSelection = true,
+                GridLines = true,
                 AllowColumnReorder = false,
                 FullRowSelect = true,
                 BorderStyle = BorderStyle.FixedSingle,
             };
 
             ListView.Columns.Add("timestamp", 85);
-            ListView.Columns.Add("topic", 300).TextAlign = HorizontalAlignment.Right;
             ListView.Columns.Add("process", 300);
-            ListView.Columns.Add("process type", 300);
-            ListView.Columns.Add("text", 700);
+            ListView.Columns.Add("kind", 60);
+            ListView.Columns.Add("type", 300);
+            ListView.Columns.Add("transaction", 85);
+            ListView.Columns.Add("kind", 85);
+            ListView.Columns.Add("location", 100);
+            ListView.Columns.Add("command", 700);
             ListView.Columns.Add("arguments", 200);
+
+            ListView.MouseDoubleClick += ListView_MouseDoubleClick;
         }
 
-        internal void ProcessNewDataStoreCommands(List<AbstractEvent> abstractEvents)
+        private void ListView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            var eventsQuery = abstractEvents.OfType<DataStoreCommandEvent>();
-            /*if (ProcessUidFilter != null)
-                eventsQuery = eventsQuery.Where(x => x.ProcessUid == ProcessUidFilter.Value);*/
+            var list = sender as ListView;
+            var info = list.HitTest(e.X, e.Y);
+
+            if (info.SubItem?.Tag is TrackedProcessInvocation process)
+            {
+                LinkedProcessInvocationList?.SelectProcess(process);
+            }
+        }
+
+        internal void ProcessNewDataStoreCommands(List<AbstractEvent> abstractEvents, bool clearList)
+        {
+            if (HighlightedProcess == null)
+                return;
+
+            var eventsQuery = abstractEvents.OfType<DataStoreCommandEvent>()
+                .Where(evt => Context.WholePlaybook.ProcessList[evt.ProcessInvocationUID].Topic == HighlightedProcess.Topic);
 
             var events = eventsQuery.ToList();
             if (events.Count == 0)
                 return;
 
-            ListView.Invoke((Action)delegate
+            ListView.BeginUpdate();
+
+            try
+            {
+                if (clearList)
+                    ListView.Items.Clear();
+
+                foreach (var evt in events)
+                {
+                    var item = new ListViewItem(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture))
+                    {
+                        Tag = evt,
+                    };
+
+                    var process = Context.WholePlaybook.ProcessList[evt.ProcessInvocationUID];
+
+                    item.ForeColor = HighlightedProcess != null && process == HighlightedProcess
+                        ? HighlightedProcessForeColor
+                        : ListView.ForeColor;
+
+                    item.BackColor = HighlightedProcess != null && process == HighlightedProcess
+                        ? HighlightedProcessBackColor
+                        : ListView.BackColor;
+
+                    item.SubItems.Add(process.Name).Tag = process;
+                    item.SubItems.Add(process.KindToString());
+                    item.SubItems.Add(process.ShortType);
+                    item.SubItems.Add(evt.TransactionId);
+                    item.SubItems.Add(evt.Kind.ToString());
+                    item.SubItems.Add(evt.Location);
+                    item.SubItems.Add(evt.Command
+                        .Trim()
+                        .Replace("\n", " ", StringComparison.InvariantCultureIgnoreCase)
+                        .Replace("\t", " ", StringComparison.InvariantCultureIgnoreCase)
+                        .Replace("  ", " ", StringComparison.InvariantCultureIgnoreCase)
+                        .Trim()
+                        .MaxLengthWithEllipsis(300));
+                    item.SubItems.Add(evt.Arguments != null
+                        ? string.Join(",", evt.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Name + "=" + x.ToDisplayValue()))
+                        : null);
+
+                    ListView.Items.Add(item);
+                }
+            }
+            finally
+            {
+                ListView.EndUpdate();
+            }
+        }
+
+        private void UpdateHighlight(bool topicChanged)
+        {
+            if (topicChanged)
+            {
+                ProcessNewDataStoreCommands(Context.WholePlaybook.Events, true);
+            }
+            else
             {
                 ListView.BeginUpdate();
+
                 try
                 {
-                    foreach (var evt in events)
+                    foreach (var item in ListView.Items.ToEnumerable<ListViewItem>())
                     {
-                        var item = new ListViewItem(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture))
-                        {
-                            Tag = evt,
-                        };
-
+                        var evt = item.Tag as DataStoreCommandEvent;
                         var process = Context.WholePlaybook.ProcessList[evt.ProcessInvocationUID];
 
                         item.ForeColor = HighlightedProcess != null && process == HighlightedProcess
                             ? HighlightedProcessForeColor
-                            : HighlightedProcess != null && process.Topic == HighlightedProcess.Topic
-                                ? HighlightedTopicForeColor
-                                : ListView.ForeColor;
+                            : ListView.ForeColor;
 
-                        item.BackColor = HighlightedProcess != null && process.Topic == HighlightedProcess.Topic
-                            ? HighlightedTopicBackColor
+                        item.BackColor = HighlightedProcess != null && process == HighlightedProcess
+                            ? HighlightedProcessBackColor
                             : ListView.BackColor;
-
-                        item.SubItems.Add(process.Topic);
-                        item.SubItems.Add(process.Name).Tag = process;
-                        item.SubItems.Add(process.Type);
-                        item.SubItems.Add(evt.Command
-                            .Trim()
-                            .Replace("\n", " ", StringComparison.InvariantCultureIgnoreCase)
-                            .Replace("\t", " ", StringComparison.InvariantCultureIgnoreCase)
-                            .Replace("  ", " ", StringComparison.InvariantCultureIgnoreCase)
-                            .Trim());
-                        item.SubItems.Add(evt.Arguments != null
-                            ? string.Join(",", evt.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Name + "=" + x.ToDisplayValue()))
-                            : null);
-
-                        ListView.Items.Add(item);
                     }
                 }
                 finally
                 {
                     ListView.EndUpdate();
                 }
-            });
-        }
-
-        private void UpdateHighlight()
-        {
-            foreach (var item in ListView.Items.ToEnumerable<ListViewItem>())
-            {
-                var process = item.SubItems[2].Tag as TrackedProcessInvocation;
-
-                item.ForeColor = HighlightedProcess != null && process == HighlightedProcess
-                    ? HighlightedProcessForeColor
-                    : HighlightedProcess != null && process.Topic == HighlightedProcess.Topic
-                        ? HighlightedTopicForeColor
-                        : ListView.ForeColor;
-
-                item.BackColor = HighlightedProcess != null && process.Topic == HighlightedProcess.Topic
-                    ? HighlightedTopicBackColor
-                    : ListView.BackColor;
             }
         }
     }

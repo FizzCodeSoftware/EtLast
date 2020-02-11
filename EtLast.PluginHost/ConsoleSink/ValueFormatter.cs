@@ -123,7 +123,7 @@
                             }
                             else if (ts.Seconds > 0)
                             {
-                                value.Render(builder, @"s\.fff", CultureInfo.InvariantCulture);
+                                value.Render(builder, @"s\.f", CultureInfo.InvariantCulture);
                             }
                             else
                             {

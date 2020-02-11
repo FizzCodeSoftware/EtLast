@@ -33,7 +33,6 @@
 
             IExecutable[] initializers;
 
-            Context.Log(LogSeverity.Information, this, "started");
             using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
             {
                 initializers = _scope.Configuration.InitializerCreator.Invoke(_scope, this)

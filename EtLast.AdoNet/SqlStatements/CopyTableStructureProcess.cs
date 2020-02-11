@@ -65,7 +65,7 @@
         {
             var config = Configuration[statementIndex];
 
-            Context.Log(LogSeverity.Debug, this, "create new table {ConnectionStringName}/{TargetTableName} based on {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+            Context.LogNoDiag(LogSeverity.Debug, this, "create new table {ConnectionStringName}/{TargetTableName} based on {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(config.TargetTableName), ConnectionString.Unescape(config.SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
@@ -101,7 +101,7 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            Context.Log(LogSeverity.Information, this, "{TableCount} table(s) successfully created on {ConnectionStringName} in {Elapsed}", lastSucceededIndex + 1,
+            Context.Log(LogSeverity.Debug, this, "{TableCount} table(s) successfully created on {ConnectionStringName} in {Elapsed}", lastSucceededIndex + 1,
                 ConnectionString.Name, LastInvocationStarted.Elapsed);
         }
     }

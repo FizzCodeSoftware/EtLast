@@ -132,7 +132,7 @@
 
             _command.CommandText = sqlStatement;
 
-            Context.OnContextDataStoreCommand?.Invoke(ConnectionString.Name, this, sqlStatement, null);
+            Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.one, ConnectionString.Name, this, sqlStatement, Transaction.Current.ToIdentifierString(), null);
             Context.LogNoDiag(LogSeverity.Verbose, this, "executing SQL statement: {SqlStatement}", sqlStatement);
 
             try
@@ -154,15 +154,18 @@
 
                 if (shutdown || (_rowsWritten / 10000 != (_rowsWritten - recordCount) / 10000))
                 {
-                    var severity = shutdown ? LogSeverity.Information : LogSeverity.Debug;
+                    var severity = shutdown
+                        ? LogSeverity.Debug
+                        : LogSeverity.Debug;
+
                     Context.LogNoDiag(severity, this, "{TotalRowCount} records written to {ConnectionStringName}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow)", _rowsWritten,
                         ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), Transaction.Current.ToIdentifierString(), Math.Round(_fullTime.ElapsedMilliseconds * 1000 / (double)_rowsWritten, 1));
                 }
             }
             catch (Exception ex)
             {
-                var exception = new ProcessExecutionException(this, "db records written failed", ex);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db records written failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",
+                var exception = new ProcessExecutionException(this, "db write failed", ex);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db write failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",
                     ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message, sqlStatement));
                 exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                 exception.Data.Add("TableName", ConnectionString.Unescape(TableDefinition.TableName));

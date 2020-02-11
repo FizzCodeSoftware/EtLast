@@ -146,7 +146,7 @@ from
                         command.Parameters.Add(parameter);
                     }
 
-                    Context.OnContextDataStoreCommand?.Invoke(ConnectionString.Name, this, command.CommandText, parameters);
+                    Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.read, ConnectionString.Name, this, command.CommandText, Transaction.Current.ToIdentifierString(), parameters);
 
                     Context.LogNoDiag(LogSeverity.Debug, this, "querying foreign key names from {ConnectionStringName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                         command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
@@ -192,7 +192,7 @@ from
                         statements.Add("ALTER TABLE " + kvp.Key + " DROP CONSTRAINT " + string.Join(", ", kvp.Value) + ";");
                     }
 
-                    Context.Log(LogSeverity.Information, this, "{ForeignKeyCount} foreign keys aquired from information schema of {ConnectionStringName} in {Elapsed} for {TableCount} tables",
+                    Context.Log(LogSeverity.Debug, this, "{ForeignKeyCount} foreign keys aquired from information schema of {ConnectionStringName} in {Elapsed} for {TableCount} tables",
                         constraintsByTable.Sum(x => x.Value.Count), ConnectionString.Name, startedOn.Elapsed, _tableNamesAndCounts.Count);
 
                     return statements;
@@ -258,7 +258,7 @@ from
                     .Take(lastSucceededIndex + 1)
                     .Sum(x => x.Item2);
 
-            Context.Log(LogSeverity.Information, this, "{ForeignKeyCount} foreign keys for {TableCount} table(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", fkCount,
+            Context.Log(LogSeverity.Debug, this, "{ForeignKeyCount} foreign keys for {TableCount} table(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", fkCount,
                 lastSucceededIndex + 1, ConnectionString.Name, LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }

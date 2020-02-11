@@ -42,8 +42,6 @@
 
         protected override void ExecuteImpl()
         {
-            Context.Log(LogSeverity.Information, this, "scope started");
-
             using (var scope = Context.BeginScope(this, TransactionScopeKind, LogSeverity.Information))
             {
                 var failed = false;
@@ -70,7 +68,6 @@
                     {
                         var initialExceptionCount = Context.ExceptionCount;
 
-                        Context.Log(LogSeverity.Information, this, "executing <{Process}>", process.Name);
                         process.Execute(this);
 
                         if (Context.ExceptionCount != initialExceptionCount)

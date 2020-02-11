@@ -50,8 +50,6 @@
 
         protected override void ExecuteImpl()
         {
-            Context.Log(LogSeverity.Information, this, "scope started");
-
             var maxRetryCount = Configuration.FinalizerRetryCount;
             if (Configuration.FinalizerTransactionScopeKind != TransactionScopeKind.RequiresNew && maxRetryCount > 0)
                 throw new InvalidProcessParameterException(this, nameof(Configuration.FinalizerRetryCount), null, "retrying finalizers can be possible only if the " + nameof(Configuration.FinalizerTransactionScopeKind) + " is set to " + nameof(TransactionScopeKind.RequiresNew));
@@ -137,7 +135,7 @@
                             break;
                         }
 
-                        Context.Log(LogSeverity.Information, this, "creating main process for table {TableName}, (partition #{PartitionIndex})",
+                        Context.Log(LogSeverity.Information, this, "processing table {TableName}, (partition #{PartitionIndex})",
                             Configuration.ConnectionString.Unescape(table.TableName), partitionIndex);
 
                         IEvaluable mainEvaluableProcess;

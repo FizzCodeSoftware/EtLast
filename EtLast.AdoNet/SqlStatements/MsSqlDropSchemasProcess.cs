@@ -41,7 +41,7 @@
         {
             var schemaName = SchemaNames[statementIndex];
 
-            Context.Log(LogSeverity.Debug, this, "drop schema {ConnectionStringName}/{SchemaName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+            Context.LogNoDiag(LogSeverity.Debug, this, "drop schema {ConnectionStringName}/{SchemaName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(schemaName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
@@ -80,7 +80,7 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            Context.Log(LogSeverity.Information, this, "{SchemaCount} schema(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
+            Context.Log(LogSeverity.Debug, this, "{SchemaCount} schema(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
                 ConnectionString.Name, LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }

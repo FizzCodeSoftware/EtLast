@@ -16,7 +16,7 @@
                 customizer.Invoke(tempBuilder);
 
                 if (tempBuilder.KeyColumns == null)
-                    throw new NotSupportedException("you must specify the key columns of " + nameof(RemoveExistingRows) + " for table " + tableBuilder.Table.TableName);
+                    throw new NotSupportedException("you must specify the key columns of " + nameof(BaseIsCurrentFinalizer) + " for table " + tableBuilder.Table.TableName);
 
                 tableBuilder.AddFinalizerCreator(_ => CreateBaseIsCurrentFinalizer(tempBuilder));
             }

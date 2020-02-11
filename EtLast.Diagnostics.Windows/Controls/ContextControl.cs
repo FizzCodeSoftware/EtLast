@@ -88,11 +88,14 @@
 
                 ProcessInvocationList = new ContextProcessInvocationListControl(container, context);
                 CounterList = new ContextCounterListControl(container, context);
-                DataStoreCommandList = new ContextDataStoreCommandListControl(container, context);
+                DataStoreCommandList = new ContextDataStoreCommandListControl(container, context)
+                {
+                    LinkedProcessInvocationList = ProcessInvocationList
+                };
 
                 context.WholePlaybook.OnEventsAdded += OnEventsAdded;
 
-                ProcessInvocationList.ListView.SelectedIndexChanged += ProcessInvocationList_SelectedIndexChanged;
+                ProcessInvocationList.OnSelectionChanged += ProcessInvocationList_OnSelectionChanged;
 
                 container.Resize += Container_Resize;
                 Container_Resize(null, EventArgs.Empty);
@@ -103,16 +106,14 @@
             }
         }
 
-        private void ProcessInvocationList_SelectedIndexChanged(object sender, EventArgs e)
+        private void ProcessInvocationList_OnSelectionChanged(TrackedProcessInvocation process)
         {
-            DataStoreCommandList.HighlightedProcess = ProcessInvocationList.ListView.SelectedItems.Count == 0
-                ? null
-                : ProcessInvocationList.ListView.SelectedItems[0].Tag as TrackedProcessInvocation;
+            DataStoreCommandList.HighlightedProcess = process;
         }
 
         private void OnEventsAdded(Playbook playbook, List<AbstractEvent> abstractEvents)
         {
-            DataStoreCommandList.ProcessNewDataStoreCommands(abstractEvents);
+            DataStoreCommandList.ProcessNewDataStoreCommands(abstractEvents, false);
 
             if (playbook.Events.Count < 3)
                 return;
@@ -193,10 +194,10 @@
         {
             _timelineContainer.Bounds = new Rectangle(0, 0, Container.Width, 30);
 
-            ProcessInvocationList.ListView.Bounds = new Rectangle(0, _timelineContainer.Bounds.Height, ProcessInvocationList.ListView.Bounds.Width, (Container.Height - _timelineContainer.Bounds.Height) / 2);
+            ProcessInvocationList.ListView.Bounds = new Rectangle(0, _timelineContainer.Bounds.Height, Container.Width - CounterList.CounterList.Width, (Container.Height - _timelineContainer.Bounds.Height) / 2);
 
-            CounterList.CounterList.Bounds = new Rectangle(0, ProcessInvocationList.ListView.Bounds.Bottom, CounterList.CounterList.Bounds.Width, Container.Height - ProcessInvocationList.ListView.Bounds.Bottom);
-            DataStoreCommandList.ListView.Bounds = new Rectangle(CounterList.CounterList.Bounds.Right, CounterList.CounterList.Bounds.Top, Container.Width - CounterList.CounterList.Bounds.Right, CounterList.CounterList.Bounds.Height);
+            CounterList.CounterList.Bounds = new Rectangle(Container.Width - CounterList.CounterList.Width, ProcessInvocationList.ListView.Bounds.Top, CounterList.CounterList.Width, ProcessInvocationList.ListView.Bounds.Height);
+            DataStoreCommandList.ListView.Bounds = new Rectangle(0, ProcessInvocationList.ListView.Bounds.Bottom, Container.Width, Container.Height - ProcessInvocationList.ListView.Bounds.Bottom);
 
             _firstEventLabel.Location = new Point(0, 0);
             _lastEventLabel.Location = new Point(_timelineContainer.Width - _lastEventLabel.Width, 0);

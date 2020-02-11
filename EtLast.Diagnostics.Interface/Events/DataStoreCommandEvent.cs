@@ -10,6 +10,12 @@
         [JsonPropertyName("c")]
         public string Command { get; set; }
 
+        [JsonPropertyName("t")]
+        public string TransactionId { get; set; }
+
+        [JsonPropertyName("k")]
+        public DataStoreCommandKind Kind { get; set; }
+
         [JsonPropertyName("l")]
         public string Location { get; set; }
 

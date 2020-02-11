@@ -144,7 +144,7 @@
                             bulkCopy.ColumnMappings.Add(column.RowColumn, column.DbColumn);
                         }
 
-                        Context.OnContextDataStoreCommand?.Invoke(ConnectionString.Name, this, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records" + (retry > 0 ? ", retry #" + retry.ToString("D", CultureInfo.InvariantCulture) : ""), null);
+                        Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.bulk, ConnectionString.Name, this, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records" + (retry > 0 ? ", retry #" + retry.ToString("D", CultureInfo.InvariantCulture) : ""), Transaction.Current.ToIdentifierString(), null);
 
                         bulkCopy.WriteToServer(_reader);
                         bulkCopy.Close();
@@ -168,7 +168,7 @@
                         _reader.Reset();
 
                         var severity = shutdown
-                            ? LogSeverity.Information
+                            ? LogSeverity.Debug
                             : LogSeverity.Debug;
 
                         Context.LogNoDiag(severity, this, "{TotalRowCount} records written to {ConnectionStringName}/{TableName}, micro-transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}", _rowsWritten,
@@ -188,18 +188,18 @@
 
                     if (retry < MaxRetryCount)
                     {
-                        Context.Log(LogSeverity.Error, this, "db records written failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", RetryDelayMilliseconds * (retry + 1),
+                        Context.Log(LogSeverity.Error, this, "db write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", RetryDelayMilliseconds * (retry + 1),
                             retry, ex.Message);
 
-                        Context.LogOps(LogSeverity.Error, this, "db records written failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", Name,
+                        Context.LogOps(LogSeverity.Error, this, "db write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", Name,
                             RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
 
                         Thread.Sleep(RetryDelayMilliseconds * (retry + 1));
                     }
                     else
                     {
-                        var exception = new ProcessExecutionException(this, "db records written failed", ex);
-                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db records written failed, connection string key: {0}, table: {1}, message: {2}",
+                        var exception = new ProcessExecutionException(this, "db write failed", ex);
+                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db write failed, connection string key: {0}, table: {1}, message: {2}",
                             ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message));
                         exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                         exception.Data.Add("TableName", ConnectionString.Unescape(TableDefinition.TableName));

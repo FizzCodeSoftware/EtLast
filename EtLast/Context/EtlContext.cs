@@ -34,7 +34,7 @@
         public ContextOnProcessInvocationDelegate OnProcessInvocationEnd { get; set; }
         public ContextOnDataStoreCommandDelegate OnContextDataStoreCommand { get; set; }
 
-        private int _nextRowUid;
+        private int _nextRowUID;
         private int _nextProcessInstanceUID;
         private int _nextProcessInvocationUID;
         private readonly List<Exception> _exceptions = new List<Exception>();
@@ -152,7 +152,7 @@
         public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues)
         {
             var row = (IRow)Activator.CreateInstance(RowType);
-            row.Init(this, process, Interlocked.Increment(ref _nextRowUid), initialValues);
+            row.Init(this, process, Interlocked.Increment(ref _nextRowUID), initialValues);
 
             CounterCollection.IncrementCounter("in-memory rows created", 1);
 

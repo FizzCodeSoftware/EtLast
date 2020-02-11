@@ -74,8 +74,6 @@
             IDbCommand cmd = null;
             Stopwatch swQuery;
 
-            Context.OnContextDataStoreCommand?.Invoke(ConnectionString.Name, this, sqlStatement, Parameters);
-
             var sqlStatementProcessed = InlineArrayParametersIfNecessary(sqlStatement);
 
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
@@ -97,12 +95,14 @@
                     cmd.Transaction = transaction;
                 }
 
-                var transactionName = (CustomConnectionCreator != null && cmd.Transaction != null)
+                var transactionId = (CustomConnectionCreator != null && cmd.Transaction != null)
                     ? "custom (" + cmd.Transaction.IsolationLevel.ToString() + ")"
                     : Transaction.Current.ToIdentifierString();
 
+                Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.read, ConnectionString.Name, this, sqlStatement, transactionId, Parameters);
+
                 Context.LogNoDiag(LogSeverity.Debug, this, "executing query {SqlStatement} on {ConnectionStringName}, timeout: {Timeout} sec, transaction: {Transaction}",
-                    HideStatementInLog ? "<hidden>" : sqlStatement, ConnectionString.Name, cmd.CommandTimeout, transactionName);
+                    HideStatementInLog ? "<hidden>" : sqlStatement, ConnectionString.Name, cmd.CommandTimeout, transactionId);
 
                 if (Parameters != null)
                 {

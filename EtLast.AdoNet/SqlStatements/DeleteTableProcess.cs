@@ -34,13 +34,13 @@
 
         protected override void RunCommand(IDbCommand command)
         {
-            Context.Log(LogSeverity.Debug, this, "deleting records from {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+            Context.LogNoDiag(LogSeverity.Debug, this, "deleting records from {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(TableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
             {
                 var recordCount = command.ExecuteNonQuery();
-                Context.Log(LogSeverity.Information, this, "{RecordCount} records deleted in {ConnectionStringName}/{TableName} in {Elapsed}, transaction: {Transaction}", recordCount,
+                Context.Log(LogSeverity.Debug, this, "{RecordCount} records deleted in {ConnectionStringName}/{TableName} in {Elapsed}, transaction: {Transaction}", recordCount,
                     ConnectionString.Name, ConnectionString.Unescape(TableName), LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
             }
             catch (Exception ex)

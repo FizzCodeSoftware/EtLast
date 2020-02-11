@@ -41,7 +41,7 @@
 
         protected override void RunCommand(IDbCommand command)
         {
-            Context.Log(LogSeverity.Debug, this, "executing custom SQL statement {SqlStatement} on {ConnectionStringName}, timeout: {Timeout} sec, transaction: {Transaction}", command.CommandText,
+            Context.LogNoDiag(LogSeverity.Debug, this, "executing custom SQL statement {SqlStatement} on {ConnectionStringName}, timeout: {Timeout} sec, transaction: {Transaction}", command.CommandText,
                 ConnectionString.Name, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             if (Parameters != null)
@@ -58,7 +58,7 @@
             try
             {
                 var recordCount = command.ExecuteNonQuery();
-                Context.Log(LogSeverity.Information, this, "custom SQL statement affected {RecordCount} records in {Elapsed}, transaction: {Transaction}", recordCount,
+                Context.LogNoDiag(LogSeverity.Debug, this, "custom SQL statement affected {RecordCount} records in {Elapsed}, transaction: {Transaction}", recordCount,
                     LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
             }
             catch (Exception ex)

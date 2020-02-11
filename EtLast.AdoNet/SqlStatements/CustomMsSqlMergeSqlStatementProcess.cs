@@ -95,7 +95,7 @@
 
         protected override void RunCommand(IDbCommand command)
         {
-            Context.Log(LogSeverity.Debug, this, "merging to {ConnectionStringName}/{TargetTableName} from {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
+            Context.LogNoDiag(LogSeverity.Debug, this, "merging to {ConnectionStringName}/{TargetTableName} from {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                 ConnectionString.Unescape(TargetTableName), ConnectionString.Unescape(SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             if (Parameters != null)
@@ -115,7 +115,7 @@
 
                 var time = LastInvocationStarted.Elapsed;
 
-                Context.Log(LogSeverity.Information, this, "{RecordCount} records merged to {ConnectionStringName}/{TargetTableName} from {SourceTableName} in {Elapsed}, transaction: {Transaction}", recordCount,
+                Context.Log(LogSeverity.Debug, this, "{RecordCount} records merged to {ConnectionStringName}/{TargetTableName} from {SourceTableName} in {Elapsed}, transaction: {Transaction}", recordCount,
                     ConnectionString.Name, ConnectionString.Unescape(TargetTableName), ConnectionString.Unescape(SourceTableName), time, Transaction.Current.ToIdentifierString());
 
                 CounterCollection.IncrementCounter("db record merge count", recordCount);

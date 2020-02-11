@@ -91,7 +91,7 @@
                                 command.Parameters.Add(parameter);
                             }
 
-                            Context.OnContextDataStoreCommand?.Invoke(ConnectionString.Name, this, command.CommandText, parameters);
+                            Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.read, ConnectionString.Name, this, command.CommandText, Transaction.Current.ToIdentifierString(), parameters);
 
                             Context.LogNoDiag(LogSeverity.Debug, this, "querying view names from {ConnectionStringName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                                 command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
@@ -114,7 +114,7 @@
                                 _ => null,
                             };
 
-                            Context.Log(LogSeverity.Information, this, "{ViewCount} views aquired from information schema of {ConnectionStringName} in {Elapsed}" + modeInfo,
+                            Context.Log(LogSeverity.Debug, this, "{ViewCount} views aquired from information schema of {ConnectionStringName} in {Elapsed}" + modeInfo,
                                 _viewNames.Count, ConnectionString.Name, startedOn.Elapsed);
                         }
                         catch (Exception ex)
@@ -180,7 +180,7 @@
             if (lastSucceededIndex == -1)
                 return;
 
-            Context.Log(LogSeverity.Information, this, "{ViewCount} view(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
+            Context.Log(LogSeverity.Debug, this, "{ViewCount} view(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
                 ConnectionString.Name, LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }

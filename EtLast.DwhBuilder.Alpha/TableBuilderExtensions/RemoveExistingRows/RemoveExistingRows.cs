@@ -52,7 +52,7 @@
                         EqualityComparer = equalityComparer,
                         LeftKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
                         RightKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
-                        RightProcessCreator = rows => new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Scope.Context, nameof(RemoveExistingRows) + "Reader", builder.TableBuilder.Table.Topic)
+                        RightProcessCreator = rows => new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Scope.Context, "ExistingRowsReader", builder.TableBuilder.Table.Topic)
                         {
                             Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0])
                                     + "," + string.Join(", ", finalValueColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
@@ -79,7 +79,7 @@
                         EqualityComparer = equalityComparer,
                         LeftKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
                         RightKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
-                        RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.DwhBuilder.Context, nameof(RemoveExistingRows) + "Reader", builder.TableBuilder.Table.Topic)
+                        RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.DwhBuilder.Context, "ExistingRowsReader", builder.TableBuilder.Table.Topic)
                         {
                             ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
                             Sql = "SELECT " + string.Join(",", builder.MatchColumns.Concat(finalValueColumns).Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
@@ -97,7 +97,7 @@
                     If = row => !row.IsNullOrEmpty(builder.MatchColumns[0]),
                     LeftKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
                     RightKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
-                    RightProcessCreator = rows => new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Scope.Context, nameof(RemoveExistingRows) + "Reader", builder.TableBuilder.Table.Topic)
+                    RightProcessCreator = rows => new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Scope.Context, "ExistingRowsReader", builder.TableBuilder.Table.Topic)
                     {
                         Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0])
                             + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema)
@@ -121,7 +121,7 @@
                 {
                     LeftKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
                     RightKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
-                    RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.DwhBuilder.Context, nameof(RemoveExistingRows) + "Reader", builder.TableBuilder.Table.Topic)
+                    RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.DwhBuilder.Context, "ExistingRowsReader", builder.TableBuilder.Table.Topic)
                     {
                         ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
                         Sql = "SELECT " + string.Join(",", builder.MatchColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))

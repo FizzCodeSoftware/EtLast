@@ -356,14 +356,16 @@
             });
         }
 
-        private void LifecycleContextDataStoreCommand(string location, IProcess process, string command, IEnumerable<KeyValuePair<string, object>> args)
+        private void LifecycleContextDataStoreCommand(DataStoreCommandKind kind, string location, IProcess process, string command, string transactionId, IEnumerable<KeyValuePair<string, object>> args)
         {
             _diagnosticsSender.SendDiagnostics("data-store-command", new DataStoreCommandEvent()
             {
                 Timestamp = DateTime.Now.Ticks,
                 ProcessInvocationUID = process.InvocationUID,
+                Kind = kind,
                 Location = location,
                 Command = command,
+                TransactionId = transactionId,
                 Arguments = args?.Select(kvp => NamedArgument.FromObject(kvp.Key, kvp.Value)).ToArray(),
             });
         }
@@ -388,20 +390,20 @@
 
             if (PluginName == null)
             {
-                Log(LogSeverity.Debug, false, false, null, "----------------");
-                Log(LogSeverity.Debug, false, false, null, "SESSION COUNTERS");
-                Log(LogSeverity.Debug, false, false, null, "----------------");
+                Log(LogSeverity.Debug, false, true, null, "----------------");
+                Log(LogSeverity.Debug, false, true, null, "SESSION COUNTERS");
+                Log(LogSeverity.Debug, false, true, null, "----------------");
             }
             else
             {
-                Log(LogSeverity.Debug, false, false, null, "---------------");
-                Log(LogSeverity.Debug, false, false, null, "PLUGIN COUNTERS");
-                Log(LogSeverity.Debug, false, false, null, "---------------");
+                Log(LogSeverity.Debug, false, true, null, "---------------");
+                Log(LogSeverity.Debug, false, true, null, "PLUGIN COUNTERS");
+                Log(LogSeverity.Debug, false, true, null, "---------------");
             }
 
             foreach (var counter in counters)
             {
-                Log(LogSeverity.Debug, false, false, null, "{Counter} = {Value}",
+                Log(LogSeverity.Debug, false, true, null, "{Counter} = {Value}",
                     counter.Name, counter.TypedValue);
             }
         }

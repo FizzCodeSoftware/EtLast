@@ -51,51 +51,48 @@
             if (events.Count == 0)
                 return;
 
-            _output.Invoke((Action)delegate
+            var sb = new StringBuilder();
+            foreach (var evt in events)
             {
-                var sb = new StringBuilder();
-                foreach (var evt in events)
+                sb
+                    .Append(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture))
+                    .Append(" [")
+                    .Append(playbook.ExecutionContext.Name)
+                    .Append("] [")
+                    .Append(evt.Severity.ToShortString())
+                    .Append("] ");
+
+                if (evt.ProcessInvocationUID != null)
                 {
-                    sb
-                        .Append(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture))
-                        .Append(" [")
-                        .Append(playbook.ExecutionContext.Name)
-                        .Append("] [")
-                        .Append(evt.Severity.ToShortString())
-                        .Append("] ");
+                    var process = playbook.ProcessList[evt.ProcessInvocationUID.Value];
 
-                    if (evt.ProcessInvocationUID != null)
+                    if (process.Topic != null)
                     {
-                        var process = playbook.ProcessList[evt.ProcessInvocationUID.Value];
-
-                        if (process.Topic != null)
-                        {
-                            sb
-                                .Append('[')
-                                .Append(process.Topic)
-                                .Append("] ");
-                        }
-
                         sb
-                            .Append('<')
-                            .Append(process.Name)
-                            .Append("> ");
+                            .Append('[')
+                            .Append(process.Topic)
+                            .Append("] ");
                     }
 
-                    var text = evt.Text;
-                    if (evt.Arguments != null)
-                    {
-                        foreach (var arg in evt.Arguments)
-                        {
-                            text = text.Replace(arg.Name, arg.ToDisplayValue(), StringComparison.InvariantCultureIgnoreCase);
-                        }
-                    }
-
-                    sb.AppendLine(text);
+                    sb
+                        .Append('<')
+                        .Append(process.Name)
+                        .Append("> ");
                 }
 
-                _output.AppendText(sb.ToString());
-            });
+                var text = evt.Text;
+                if (evt.Arguments != null)
+                {
+                    foreach (var arg in evt.Arguments)
+                    {
+                        text = text.Replace(arg.Name, arg.ToDisplayValue(), StringComparison.InvariantCultureIgnoreCase);
+                    }
+                }
+
+                sb.AppendLine(text);
+            }
+
+            _output.AppendText(sb.ToString());
         }
     }
 }

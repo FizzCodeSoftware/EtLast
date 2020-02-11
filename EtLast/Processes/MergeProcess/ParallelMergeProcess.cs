@@ -19,8 +19,6 @@
 
         protected override IEnumerable<IRow> EvaluateImpl()
         {
-            Context.Log(LogSeverity.Information, this, "started");
-
             var threads = new List<Thread>();
             var finished = new bool[ProcessList.Count];
             using var queue = new DefaultRowQueue();

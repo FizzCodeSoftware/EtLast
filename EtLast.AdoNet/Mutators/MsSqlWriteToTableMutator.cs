@@ -122,7 +122,7 @@
             var recordCount = _reader.RowCount;
             _timer.Restart();
 
-            Context.OnContextDataStoreCommand?.Invoke(ConnectionString.Name, this, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", null);
+            Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.bulk, ConnectionString.Name, this, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", Transaction.Current.ToIdentifierString(), null);
 
             try
             {
@@ -144,7 +144,7 @@
                 _rowsWritten += recordCount;
 
                 var severity = shutdown
-                    ? LogSeverity.Information
+                    ? LogSeverity.Debug
                     : LogSeverity.Debug;
 
                 Context.LogNoDiag(severity, this, "{TotalRowCount} records written to {ConnectionStringName}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}", _rowsWritten,
@@ -156,8 +156,8 @@
                 _bulkCopy.Close();
                 _bulkCopy = null;
 
-                var exception = new ProcessExecutionException(this, "db records written failed", ex);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db records written failed, connection string key: {0}, table: {1}, message: {2}",
+                var exception = new ProcessExecutionException(this, "db write failed", ex);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db write failed, connection string key: {0}, table: {1}, message: {2}",
                     ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message));
                 exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                 exception.Data.Add("TableName", ConnectionString.Unescape(TableDefinition.TableName));

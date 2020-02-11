@@ -35,7 +35,7 @@
 
         protected override TableMaxValueResult<T> RunCommandAndGetResult(IDbCommand command)
         {
-            Context.Log(LogSeverity.Debug, this, "getting max value from {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
+            Context.LogNoDiag(LogSeverity.Debug, this, "getting max value from {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
                 ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
             try
@@ -55,7 +55,7 @@
                     }
                 }
 
-                Context.Log(LogSeverity.Debug, this, "Maximum value {MaxValue} and {RecordCount} records found in {ConnectionStringName}/{TableName} in column {ColumnName} in {Elapsed}, transaction: {Transaction}",
+                Context.Log(LogSeverity.Debug, this, "maximum value {MaxValue} and {RecordCount} records found in {ConnectionStringName}/{TableName} in column {ColumnName} in {Elapsed}, transaction: {Transaction}",
                     result.MaxValue, result.RecordCount, ConnectionString.Name, ConnectionString.Unescape(TableName), ConnectionString.Unescape(ColumnName), LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
 
                 return result;

@@ -13,9 +13,8 @@
     {
         public Control Container { get; }
         public Session Session { get; }
-        private readonly ListView _list;
+        public ListView ListView;
 
-        public ExecutionContext ExecutionContextFilter { get; set; }
         public int? ProcessUidFilter { get; set; }
 
         public SessionDataStoreCommandListControl(Control container, DiagnosticsStateManager diagnosticsStateManager, Session session)
@@ -23,7 +22,7 @@
             Container = container;
             Session = session;
 
-            _list = new ListView()
+            ListView = new ListView()
             {
                 View = View.Details,
                 Dock = DockStyle.Fill,
@@ -36,13 +35,17 @@
                 BorderStyle = BorderStyle.FixedSingle,
             };
 
-            _list.Columns.Add("timestamp", 85);
-            _list.Columns.Add("context", 200);
-            _list.Columns.Add("topic", 300);
-            _list.Columns.Add("process name", 300);
-            _list.Columns.Add("process type", 300);
-            _list.Columns.Add("text", 700);
-            _list.Columns.Add("arguments", 200);
+            ListView.Columns.Add("timestamp", 85);
+            ListView.Columns.Add("context", 200);
+            ListView.Columns.Add("topic", 300);
+            ListView.Columns.Add("process", 300);
+            ListView.Columns.Add("kind", 60);
+            ListView.Columns.Add("type", 300);
+            ListView.Columns.Add("transaction", 85);
+            ListView.Columns.Add("kind", 85);
+            ListView.Columns.Add("location", 100);
+            ListView.Columns.Add("command", 700);
+            ListView.Columns.Add("arguments", 200);
 
             diagnosticsStateManager.OnExecutionContextCreated += ec =>
             {
@@ -55,9 +58,6 @@
 
         private void OnEventsAdded(Playbook playbook, List<AbstractEvent> abstractEvents)
         {
-            if (ExecutionContextFilter != null && playbook?.ExecutionContext != ExecutionContextFilter)
-                return;
-
             var eventsQuery = abstractEvents.OfType<DataStoreCommandEvent>();
             if (ProcessUidFilter != null)
                 eventsQuery = eventsQuery.Where(x => x.ProcessInvocationUID == ProcessUidFilter.Value);
@@ -66,37 +66,39 @@
             if (events.Count == 0)
                 return;
 
-            _list.Invoke((Action)delegate
+            ListView.BeginUpdate();
+            try
             {
-                _list.BeginUpdate();
-                try
+                foreach (var evt in events)
                 {
-                    foreach (var evt in events)
-                    {
-                        var item = _list.Items.Add(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture), -1);
-                        item.SubItems.Add(playbook.ExecutionContext.Name);
+                    var item = ListView.Items.Add(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture), -1);
+                    item.SubItems.Add(playbook.ExecutionContext.Name);
 
-                        var process = playbook.ExecutionContext.WholePlaybook.ProcessList[evt.ProcessInvocationUID];
+                    var process = playbook.ExecutionContext.WholePlaybook.ProcessList[evt.ProcessInvocationUID];
 
-                        item.SubItems.Add(process.Topic);
-                        item.SubItems.Add(process.Name);
-                        item.SubItems.Add(process.Type);
-                        item.SubItems.Add(evt.Command
-                            .Trim()
-                            .Replace("\n", " ", StringComparison.InvariantCultureIgnoreCase)
-                            .Replace("\t", " ", StringComparison.InvariantCultureIgnoreCase)
-                            .Replace("  ", " ", StringComparison.InvariantCultureIgnoreCase)
-                            .Trim());
-                        item.SubItems.Add(evt.Arguments != null
-                            ? string.Join(",", evt.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Name + "=" + x.ToDisplayValue()))
-                            : null);
-                    }
+                    item.SubItems.Add(process.Topic);
+                    item.SubItems.Add(process.Name);
+                    item.SubItems.Add(process.KindToString());
+                    item.SubItems.Add(process.ShortType);
+                    item.SubItems.Add(evt.TransactionId);
+                    item.SubItems.Add(evt.Kind.ToString());
+                    item.SubItems.Add(evt.Location);
+                    item.SubItems.Add(evt.Command
+                        .Trim()
+                        .Replace("\n", " ", StringComparison.InvariantCultureIgnoreCase)
+                        .Replace("\t", " ", StringComparison.InvariantCultureIgnoreCase)
+                        .Replace("  ", " ", StringComparison.InvariantCultureIgnoreCase)
+                        .Trim()
+                        .MaxLengthWithEllipsis(300));
+                    item.SubItems.Add(evt.Arguments != null
+                        ? string.Join(",", evt.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Name + "=" + x.ToDisplayValue()))
+                        : null);
                 }
-                finally
-                {
-                    _list.EndUpdate();
-                }
-            });
+            }
+            finally
+            {
+                ListView.EndUpdate();
+            }
         }
     }
 }

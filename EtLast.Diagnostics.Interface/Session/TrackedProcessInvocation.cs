@@ -83,6 +83,21 @@
                     : "") + ")";
         }
 
+        public string GetFormattedInputRowCount()
+        {
+            if (InputRowCount == 0)
+                return "";
+
+            if (InputRowCountByByPreviousProcess.Count == 0)
+                return null;
+
+            if (InputRowCountByByPreviousProcess.Count == 1)
+                return InputRowCount.ToString("D", CultureInfo.InvariantCulture);
+
+            return InputRowCount.ToString("D", CultureInfo.InvariantCulture) + " = " +
+                string.Join(" + ", InputRowCountByByPreviousProcess.Select(x => x.Value.ToStringNoZero()));
+        }
+
         private string GetShortTypeName(string type, params string[] endings)
         {
             foreach (var ending in endings)
@@ -96,12 +111,26 @@
             return type;
         }
 
-        public bool IsParent(TrackedProcessInvocation process)
+        public bool HasParent(TrackedProcessInvocation process)
         {
             var invoker = Invoker;
             while (invoker != null)
             {
                 if (invoker == process)
+                    return true;
+
+                invoker = invoker.Invoker;
+            }
+
+            return false;
+        }
+
+        public bool HasParentWithTopic(string topic)
+        {
+            var invoker = Invoker;
+            while (invoker != null)
+            {
+                if (invoker.Topic == topic)
                     return true;
 
                 invoker = invoker.Invoker;

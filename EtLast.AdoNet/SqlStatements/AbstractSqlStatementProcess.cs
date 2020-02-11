@@ -32,8 +32,6 @@
             var parameters = new Dictionary<string, object>();
             var sqlStatement = CreateSqlStatement(ConnectionString, parameters);
 
-            Context.OnContextDataStoreCommand?.Invoke(ConnectionString.Name, this, sqlStatement, parameters);
-
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
                 var connection = ConnectionManager.GetConnection(ConnectionString, this);
@@ -45,6 +43,8 @@
                         {
                             cmd.CommandTimeout = CommandTimeout;
                             cmd.CommandText = sqlStatement;
+
+                            Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.one, ConnectionString.Name, this, sqlStatement, Transaction.Current.ToIdentifierString(), parameters);
 
                             foreach (var kvp in parameters)
                             {

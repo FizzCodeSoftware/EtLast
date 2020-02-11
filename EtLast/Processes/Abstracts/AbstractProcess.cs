@@ -53,10 +53,10 @@
             if (counters.Count == 0)
                 return;
 
-            Context.Log(LogSeverity.Debug, this, "PROCESS COUNTERS");
+            Context.LogNoDiag(LogSeverity.Debug, this, "PROCESS COUNTERS");
             foreach (var counter in counters)
             {
-                Context.Log(LogSeverity.Debug, this, "{Counter} = {Value}", counter.Name, counter.TypedValue);
+                Context.LogNoDiag(LogSeverity.Debug, this, "{Counter} = {Value}", counter.Name, counter.TypedValue);
             }
         }
     }

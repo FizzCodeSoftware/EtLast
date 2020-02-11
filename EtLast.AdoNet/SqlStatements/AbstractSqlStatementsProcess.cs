@@ -40,33 +40,35 @@
                     {
                         // todo: support returning parameters
                         var sqlStatements = CreateSqlStatements(ConnectionString, connection.Connection);
-
-                        using (var cmd = connection.Connection.CreateCommand())
+                        if (sqlStatements.Count > 0)
                         {
-                            cmd.CommandTimeout = CommandTimeout;
-
-                            var startedOn = Stopwatch.StartNew();
-
-                            Context.OnContextDataStoreCommand?.Invoke(ConnectionString.Name, this, string.Join("\n---\n", sqlStatements), null);
-
-                            for (var i = 0; i < sqlStatements.Count; i++)
+                            using (var cmd = connection.Connection.CreateCommand())
                             {
-                                var sqlStatement = sqlStatements[i];
+                                cmd.CommandTimeout = CommandTimeout;
 
-                                cmd.CommandText = sqlStatement;
-                                try
+                                var startedOn = Stopwatch.StartNew();
+
+                                Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.many, ConnectionString.Name, this, string.Join("\n---\n", sqlStatements), Transaction.Current.ToIdentifierString(), null);
+
+                                for (var i = 0; i < sqlStatements.Count; i++)
                                 {
-                                    startedOn.Restart();
-                                    RunCommand(cmd, i, startedOn);
+                                    var sqlStatement = sqlStatements[i];
+
+                                    cmd.CommandText = sqlStatement;
+                                    try
+                                    {
+                                        startedOn.Restart();
+                                        RunCommand(cmd, i, startedOn);
+                                    }
+                                    catch (Exception)
+                                    {
+                                        LogSucceeded(i - 1);
+                                        throw;
+                                    }
                                 }
-                                catch (Exception)
-                                {
-                                    LogSucceeded(i - 1);
-                                    throw;
-                                }
+
+                                LogSucceeded(sqlStatements.Count - 1);
                             }
-
-                            LogSucceeded(sqlStatements.Count - 1);
                         }
                     }
                 }
