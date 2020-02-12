@@ -21,6 +21,8 @@
         private readonly System.Threading.Timer _processStatUpdaterTimer;
         private readonly Dictionary<int, ListViewItem> _listViewItemsByProcessInvocationUID = new Dictionary<int, ListViewItem>();
 
+        private Color IsSelectedForeColor { get; set; } = Color.White;
+        private Color IsSelectedBackColor { get; set; } = Color.FromArgb(100, 100, 200);
         private Color IsOutputBackColor { get; set; } = Color.FromArgb(180, 255, 180);
         private Color IsInputBackColor { get; set; } = Color.FromArgb(255, 230, 185);
         private Color IsSameTopicBackColor { get; set; } = Color.FromArgb(220, 220, 255);
@@ -36,13 +38,19 @@
                 View = View.Details,
                 Parent = container,
                 HeaderStyle = ColumnHeaderStyle.Nonclickable,
-                HideSelection = false,
                 GridLines = true,
                 AllowColumnReorder = false,
-                FullRowSelect = true,
+                FullRowSelect = false,
                 Width = 1200,
                 BorderStyle = BorderStyle.FixedSingle,
+                ShowItemToolTips = true,
+                MultiSelect = false,
+                HideSelection = false,
             };
+
+            ListView.MouseMove += ListView_MouseMove;
+            ListView.MouseLeave += (s, a) => ToolTipSingleton.Remove(s as Control);
+            ListView.MouseUp += ListView_MouseUp;
 
             var fix = 40 + 40 + 60 + 100;
             ListView.Columns.Add("#", 40);
@@ -59,17 +67,12 @@
             ListView.Columns.Add("store", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
             ListView.Columns.Add("pending", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
             ListView.Columns.Add("OUT", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
-            ListView.ShowItemToolTips = true;
-            ListView.MouseMove += ListView_MouseMove;
-            ListView.MouseLeave += (s, a) => ToolTipSingleton.Remove(s as Control);
-            ListView.MultiSelect = false;
-            ListView.HideSelection = false;
 
             _processStatUpdaterTimer.Change(500, System.Threading.Timeout.Infinite);
 
             context.WholePlaybook.OnProcessInvoked += OnProcessInvoked;
 
-            ListView.ItemSelectionChanged += ListView_SelectedIndexChanged;
+            ListView.ItemSelectionChanged += ListView_ItemSelectionChanged;
         }
 
         internal void SelectProcess(TrackedProcessInvocation process)
@@ -89,7 +92,7 @@
             }
         }
 
-        private void ListView_SelectedIndexChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        private void ListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
             if (!e.IsSelected)
                 return;
@@ -107,32 +110,58 @@
                 {
                     item.UseItemStyleForSubItems = false;
 
+                    var itemIsSelected = itemProcess == selectedProcess;
                     var itemIsInput = itemProcess.InputRowCountByByPreviousProcess.ContainsKey(selectedProcess.InvocationUID);
                     var itemIsOutput = selectedProcess.InputRowCountByByPreviousProcess.ContainsKey(itemProcess.InvocationUID);
                     var isSameTopic = selectedProcess.Topic == itemProcess.Topic/* || itemProcess.HasParentWithTopic(selectedProcess.Topic)*/;
 
-                    item.SubItems[2].BackColor = isSameTopic
-                        ? IsSameTopicBackColor
-                        : item.BackColor;
+                    for (var i = 0; i < item.SubItems.Count; i++)
+                    {
+                        var subItem = item.SubItems[i];
+                        if (itemIsSelected)
+                        {
+                            subItem.BackColor = IsSelectedBackColor;
+                            if (i != 6 && i != 11)
+                                subItem.ForeColor = IsSelectedForeColor;
+                        }
+                        else
+                        {
+                            subItem.BackColor = ListView.BackColor;
+                            if (i != 6 && i != 11)
+                                subItem.ForeColor = ListView.ForeColor;
+                        }
+                    }
 
-                    if (itemIsInput)
+                    if (!itemIsSelected)
+                    {
+                        item.SubItems[2].BackColor = isSameTopic
+                            ? IsSameTopicBackColor
+                            : item.BackColor;
+                    }
+
+                    if (itemIsSelected)
+                    {
+                        item.SubItems[6].BackColor = IsOutputBackColor;
+                        item.SubItems[11].BackColor = IsInputBackColor;
+                    }
+                    else if (itemIsInput)
                     {
                         item.SubItems[3].BackColor = item.SubItems[6].BackColor = IsInputBackColor;
-                        item.SubItems[11].BackColor = ListView.BackColor;
+                        item.SubItems[11].BackColor = item.BackColor;
                     }
                     else if (itemIsOutput)
                     {
                         item.SubItems[3].BackColor = item.SubItems[11].BackColor = IsOutputBackColor;
-                        item.SubItems[6].BackColor = ListView.BackColor;
+                        item.SubItems[6].BackColor = item.BackColor;
                     }
                     else if (isSameTopic)
                     {
                         item.SubItems[3].BackColor = IsSameTopicBackColor;
-                        item.SubItems[6].BackColor = item.SubItems[11].BackColor = ListView.BackColor;
+                        item.SubItems[6].BackColor = item.SubItems[11].BackColor = item.BackColor;
                     }
                     else
                     {
-                        item.SubItems[3].BackColor = item.SubItems[11].BackColor = item.SubItems[6].BackColor = ListView.BackColor;
+                        item.SubItems[3].BackColor = item.SubItems[6].BackColor = item.SubItems[11].BackColor = item.BackColor;
                     }
 
                     /*item.BackColor = itemIsOutput
@@ -274,6 +303,17 @@
             else
             {
                 ToolTipSingleton.Remove(list);
+            }
+        }
+
+        private void ListView_MouseUp(object sender, MouseEventArgs e)
+        {
+            var list = sender as ListView;
+            var info = list.HitTest(e.X, e.Y);
+            if (info.Item != null)
+            {
+                if (!info.Item.Selected)
+                    info.Item.Selected = true;
             }
         }
     }
