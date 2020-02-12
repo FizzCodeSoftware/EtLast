@@ -8,7 +8,7 @@
         public string Column { get; set; }
         public Func<IRow, bool> ErrorIf { get; set; }
 
-        protected ColumnValidationMutator(IEtlContext context, string name, string topic)
+        public ColumnValidationMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
         }

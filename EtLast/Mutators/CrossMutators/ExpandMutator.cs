@@ -7,6 +7,7 @@
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         public NoMatchAction NoMatchAction { get; set; }
         public MatchActionDelegate MatchCustomAction { get; set; }
+
         private Dictionary<string, IRow> _lookup;
 
         public ExpandMutator(IEtlContext context, string name, string topic)
@@ -44,9 +45,12 @@
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
             var leftKey = GetLeftKey(row);
+            IRow match = null;
+            if (leftKey != null)
+                _lookup.TryGetValue(leftKey, out match);
 
             var removeRow = false;
-            if (leftKey == null || !_lookup.TryGetValue(leftKey, out var match))
+            if (match != null)
             {
                 if (NoMatchAction != null)
                 {

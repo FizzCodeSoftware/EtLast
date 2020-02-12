@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+    using System.Text;
 
     [DebuggerDisplay("{Name}")]
     public class TrackedProcessInvocation
@@ -44,13 +45,17 @@
         public Dictionary<int, TrackedRow> StoredRowList { get; } = new Dictionary<int, TrackedRow>();
         public Dictionary<int, TrackedRow> AliveRowList { get; } = new Dictionary<int, TrackedRow>();
         public Dictionary<int, TrackedRow> DroppedRowList { get; } = new Dictionary<int, TrackedRow>();
+        public Dictionary<int, HashSet<int>> AliveRowsByPreviousProcess { get; } = new Dictionary<int, HashSet<int>>();
 
         public int PassedRowCount { get; private set; }
-        public Dictionary<int, int> PassedRowCountByNextProcess { get; } = new Dictionary<int, int>();
 
         public int CreatedRowCount { get; private set; }
 
-        public Dictionary<int, int> InputRowCountByByPreviousProcess { get; } = new Dictionary<int, int>();
+        public Dictionary<int, int> StoredRowCountByPreviousProcess { get; } = new Dictionary<int, int>();
+        public Dictionary<int, int> DroppedRowCountByPreviousProcess { get; } = new Dictionary<int, int>();
+        public Dictionary<int, int> PassedRowCountByPreviousProcess { get; } = new Dictionary<int, int>();
+
+        public Dictionary<int, int> InputRowCountByPreviousProcess { get; } = new Dictionary<int, int>();
         public int InputRowCount { get; private set; }
 
         public TrackedProcessInvocation(int invocationUID, int instanceUID, int invocationCounter, TrackedProcessInvocation invoker, string type, ProcessKind kind, string name, string topic)
@@ -88,14 +93,92 @@
             if (InputRowCount == 0)
                 return "";
 
-            if (InputRowCountByByPreviousProcess.Count == 0)
+            if (InputRowCountByPreviousProcess.Count == 0)
                 return null;
 
-            if (InputRowCountByByPreviousProcess.Count == 1)
+            if (InputRowCountByPreviousProcess.Count == 1)
                 return InputRowCount.ToString("D", CultureInfo.InvariantCulture);
 
             return InputRowCount.ToString("D", CultureInfo.InvariantCulture) + " = " +
-                string.Join(" + ", InputRowCountByByPreviousProcess.Select(x => x.Value.ToStringNoZero()));
+                string.Join(" + ", InputRowCountByPreviousProcess.Select(x => x.Value.FormatToStringNoZero()));
+        }
+
+        public string GetFormattedRowFlow(ExecutionContext executionContext)
+        {
+            var sb = new StringBuilder();
+
+            foreach (var kvp in InputRowCountByPreviousProcess)
+            {
+                var inputProcess = executionContext.WholePlaybook.ProcessList[kvp.Key];
+
+                if (sb.Length > 0)
+                {
+                    sb.AppendLine();
+                }
+
+                sb.AppendLine(inputProcess.DisplayName);
+
+                sb.Append("IN: ").AppendLine(kvp.Value.FormatToString());
+
+                if (DroppedRowCountByPreviousProcess.TryGetValue(kvp.Key, out var dropped))
+                {
+                    sb.Append("DROP: ").AppendLine(dropped.FormatToString());
+                }
+
+                if (StoredRowCountByPreviousProcess.TryGetValue(kvp.Key, out var stored))
+                {
+                    sb.Append("STORE: ").AppendLine(stored.FormatToString());
+                }
+
+                if (PassedRowCountByPreviousProcess.TryGetValue(kvp.Key, out var passed))
+                {
+                    sb.Append("OUT: ").AppendLine(passed.FormatToString());
+                }
+            }
+
+            if (CreatedRowCount > 0)
+            {
+                if (sb.Length > 0)
+                {
+                    sb.AppendLine();
+                }
+
+                sb.AppendLine("SELF");
+
+                sb.Append("CREATE: ").AppendLine(CreatedRowCount.FormatToString());
+
+                var createdAndDroppedCount = DroppedRowList.Count - DroppedRowCountByPreviousProcess.Sum(x => x.Value);
+                if (createdAndDroppedCount > 0)
+                {
+                    sb.Append("DROP: ").AppendLine(createdAndDroppedCount.FormatToString());
+                }
+
+                var createdAndStoredCount = StoredRowList.Count - StoredRowCountByPreviousProcess.Sum(x => x.Value);
+                if (createdAndStoredCount > 0)
+                {
+                    sb.Append("STORE: ").AppendLine(createdAndStoredCount.FormatToString());
+                }
+
+                var createdAndPassedCount = PassedRowCount - PassedRowCountByPreviousProcess.Sum(x => x.Value);
+                if (createdAndPassedCount > 0)
+                {
+                    sb.Append("OUT: ").AppendLine(createdAndPassedCount.FormatToString());
+                }
+            }
+
+            if (sb.Length > 0)
+            {
+                sb.AppendLine();
+            }
+
+            sb.AppendLine("TOTAL");
+            sb.Append("IN: ").AppendLine(InputRowCount.FormatToStringNoZero());
+            sb.Append("CREATE: ").AppendLine(CreatedRowCount.FormatToStringNoZero());
+            sb.Append("DROP: ").AppendLine(DroppedRowList.Count.FormatToStringNoZero());
+            sb.Append("STORE: ").AppendLine(StoredRowList.Count.FormatToStringNoZero());
+            sb.Append("OUT: ").AppendLine(PassedRowCount.FormatToStringNoZero());
+
+            return sb.ToString();
         }
 
         private string GetShortTypeName(string type, params string[] endings)
@@ -155,11 +238,20 @@
                 throw new Exception("ohh");
 
             AliveRowList.Add(row.Uid, row);
+
+            if (!AliveRowsByPreviousProcess.TryGetValue(previousProcess.InvocationUID, out var list))
+            {
+                list = new HashSet<int>();
+                AliveRowsByPreviousProcess.Add(previousProcess.InvocationUID, list);
+            }
+
+            list.Add(row.Uid);
+
             row.CurrentOwner = this;
 
-            InputRowCountByByPreviousProcess.TryGetValue(previousProcess.InvocationUID, out var cnt);
+            InputRowCountByPreviousProcess.TryGetValue(previousProcess.InvocationUID, out var cnt);
             cnt++;
-            InputRowCountByByPreviousProcess[previousProcess.InvocationUID] = cnt;
+            InputRowCountByPreviousProcess[previousProcess.InvocationUID] = cnt;
             InputRowCount++;
         }
 
@@ -179,6 +271,17 @@
             if (!AliveRowList.ContainsKey(row.Uid))
                 throw new Exception("ohh");
 
+            foreach (var list in AliveRowsByPreviousProcess)
+            {
+                if (list.Value.Contains(row.Uid))
+                {
+                    DroppedRowCountByPreviousProcess.TryGetValue(list.Key, out var count);
+                    DroppedRowCountByPreviousProcess[list.Key] = count + 1;
+
+                    list.Value.Remove(row.Uid);
+                }
+            }
+
             AliveRowList.Remove(row.Uid);
             DroppedRowList.Add(row.Uid, row);
             row.CurrentOwner = null;
@@ -189,12 +292,20 @@
             if (!AliveRowList.ContainsKey(row.Uid))
                 throw new Exception("ohh");
 
+            foreach (var list in AliveRowsByPreviousProcess)
+            {
+                if (list.Value.Contains(row.Uid))
+                {
+                    PassedRowCountByPreviousProcess.TryGetValue(list.Key, out var count);
+                    PassedRowCountByPreviousProcess[list.Key] = count + 1;
+
+                    list.Value.Remove(row.Uid);
+                }
+            }
+
             AliveRowList.Remove(row.Uid);
             row.CurrentOwner = null;
 
-            PassedRowCountByNextProcess.TryGetValue(newProcess.InvocationUID, out var cnt);
-            cnt++;
-            PassedRowCountByNextProcess[newProcess.InvocationUID] = cnt;
             PassedRowCount++;
         }
 
@@ -202,6 +313,17 @@
         {
             if (!StoredRowList.ContainsKey(row.Uid))
                 StoredRowList.Add(row.Uid, row);
+
+            foreach (var list in AliveRowsByPreviousProcess)
+            {
+                if (list.Value.Contains(row.Uid))
+                {
+                    StoredRowCountByPreviousProcess.TryGetValue(list.Key, out var count);
+                    StoredRowCountByPreviousProcess[list.Key] = count + 1;
+
+                    list.Value.Remove(row.Uid);
+                }
+            }
         }
     }
 }

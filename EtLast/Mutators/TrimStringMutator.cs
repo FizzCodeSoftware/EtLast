@@ -7,7 +7,7 @@
     {
         public string[] Columns { get; set; }
 
-        protected TrimStringMutator(IEtlContext context, string name, string topic)
+        public TrimStringMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
         {
         }

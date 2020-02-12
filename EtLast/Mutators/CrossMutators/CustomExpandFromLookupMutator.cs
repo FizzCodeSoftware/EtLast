@@ -1,15 +1,14 @@
 ﻿namespace FizzCode.EtLast
 {
-    using System;
     using System.Collections.Generic;
 
-    public class CustomExpandFromLookupMutator : AbstractCrossMutator
+    public class CustomExpandFromLookupMutator : AbstractKeyBasedCrossMutator
     {
-        public MatchingRowFromLookupSelector MatchingRowSelector { get; set; }
-        public MatchKeySelector RightKeySelector { get; set; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         public NoMatchAction NoMatchAction { get; set; }
         public MatchActionDelegate MatchCustomAction { get; set; }
+        public MatchSelector MatchSelector { get; set; }
+
         private Dictionary<string, List<IRow>> _lookup;
 
         public CustomExpandFromLookupMutator(IEtlContext context, string name, string topic)
@@ -52,11 +51,23 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
+            var leftKey = GetLeftKey(row);
+            List<IRow> rightRows = null;
+            if (leftKey != null)
+                _lookup.TryGetValue(leftKey, out rightRows);
+
             var removeRow = false;
-            var rightRow = MatchingRowSelector(row, _lookup);
-            if (rightRow == null)
+            if (rightRows != null)
             {
-                if (NoMatchAction != null)
+                var match = MatchSelector(row, rightRows);
+                if (match != null)
+                {
+                    ColumnCopyConfiguration.CopyManyToRowStage(match, row, ColumnConfiguration);
+                    row.ApplyStaging(this);
+
+                    MatchCustomAction?.Invoke(this, row, match);
+                }
+                else if (NoMatchAction != null)
                 {
                     switch (NoMatchAction.Mode)
                     {
@@ -72,12 +83,20 @@
                     }
                 }
             }
-            else
+            else if (NoMatchAction != null)
             {
-                ColumnCopyConfiguration.CopyManyToRowStage(rightRow, row, ColumnConfiguration);
-                row.ApplyStaging(this);
-
-                MatchCustomAction?.Invoke(this, row, rightRow);
+                switch (NoMatchAction.Mode)
+                {
+                    case MatchMode.Remove:
+                        removeRow = true;
+                        break;
+                    case MatchMode.Throw:
+                        var exception = new ProcessExecutionException(this, row, "no match");
+                        throw exception;
+                    case MatchMode.Custom:
+                        NoMatchAction.CustomAction.Invoke(this, row);
+                        break;
+                }
             }
 
             if (!removeRow)
@@ -88,31 +107,14 @@
         {
             base.ValidateMutator();
 
-            if (MatchingRowSelector == null)
-                throw new ProcessParameterNullException(this, nameof(MatchingRowSelector));
-
-            if (RightKeySelector == null)
-                throw new ProcessParameterNullException(this, nameof(RightKeySelector));
+            if (MatchSelector == null)
+                throw new ProcessParameterNullException(this, nameof(MatchSelector));
 
             if (ColumnConfiguration == null)
                 throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
 
             if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
                 throw new ProcessParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));
-        }
-
-        protected string GetRightKey(IRow row)
-        {
-            try
-            {
-                return RightKeySelector(row);
-            }
-            catch (EtlException) { throw; }
-            catch (Exception)
-            {
-                var exception = new ProcessExecutionException(this, row, nameof(RightKeySelector) + " failed");
-                throw exception;
-            }
         }
     }
 }

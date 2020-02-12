@@ -13,9 +13,7 @@
     {
         public Control Container { get; }
         public Session Session { get; }
-        public ListView ListView;
-
-        public int? ProcessUidFilter { get; set; }
+        public ListView ListView { get; }
 
         public SessionDataStoreCommandListControl(Control container, DiagnosticsStateManager diagnosticsStateManager, Session session)
         {
@@ -59,8 +57,6 @@
         private void OnEventsAdded(Playbook playbook, List<AbstractEvent> abstractEvents)
         {
             var eventsQuery = abstractEvents.OfType<DataStoreCommandEvent>();
-            if (ProcessUidFilter != null)
-                eventsQuery = eventsQuery.Where(x => x.ProcessInvocationUID == ProcessUidFilter.Value);
 
             var events = eventsQuery.ToList();
             if (events.Count == 0)

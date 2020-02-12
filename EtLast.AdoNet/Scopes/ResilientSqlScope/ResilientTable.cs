@@ -30,6 +30,12 @@
         public string TempTableName { get; set; }
         public string[] Columns { get; set; }
 
-        public string Topic => Scope.Configuration.ConnectionString.Unescape(TableName);
+        private string _topic;
+
+        public string Topic
+        {
+            get => _topic ?? Scope.Configuration.ConnectionString.Unescape(TableName);
+            set => _topic = value;
+        }
     }
 }
