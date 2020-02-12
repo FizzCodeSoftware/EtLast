@@ -32,7 +32,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.1" />
-    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.Configuration" Version="1.0.136.5340" />
+    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.Configuration" Version="1.0.137.5369" />
   </ItemGroup>
 
   <ItemGroup>
