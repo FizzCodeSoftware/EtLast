@@ -10,6 +10,12 @@
 
         public bool Equals(IRow leftRow, IRow rightRow)
         {
+            if (leftRow == rightRow)
+                return true;
+
+            if (leftRow == null || rightRow == null)
+                return false;
+
             if (Columns != null)
             {
                 if (ColumnsToIgnore != null)
@@ -17,17 +23,8 @@
 
                 foreach (var column in Columns)
                 {
-                    var leftValue = leftRow[column];
-                    var rightValue = rightRow[column];
-                    if (leftValue != null && rightValue != null)
-                    {
-                        if (!leftValue.Equals(rightValue))
-                            return false;
-                    }
-                    else if (leftValue != rightValue)
-                    {
+                    if (!AbstractBaseRow.ValuesAreEqual(leftRow[column], rightRow[column]))
                         return false;
-                    }
                 }
             }
             else
@@ -41,17 +38,8 @@
                     if (columnsToIgnore?.Contains(kvp.Key) == true)
                         continue;
 
-                    var leftValue = kvp.Value;
-                    var rightValue = rightRow[kvp.Key];
-                    if (leftValue != null && rightValue != null)
-                    {
-                        if (leftValue.Equals(rightValue))
-                            return false;
-                    }
-                    else if (leftValue != rightValue)
-                    {
+                    if (!AbstractBaseRow.ValuesAreEqual(kvp.Value, rightRow[kvp.Key]))
                         return false;
-                    }
                 }
             }
 
@@ -67,17 +55,9 @@
 
                 foreach (var column in Columns)
                 {
-                    var leftValue = leftRow[column];
                     values.TryGetValue(column, out var rightValue);
-                    if (leftValue != null && rightValue != null)
-                    {
-                        if (!leftValue.Equals(rightValue))
-                            return false;
-                    }
-                    else if (leftValue != rightValue)
-                    {
+                    if (!AbstractBaseRow.ValuesAreEqual(leftRow[column], rightValue))
                         return false;
-                    }
                 }
             }
             else
@@ -91,17 +71,10 @@
                     if (columnsToIgnore?.Contains(kvp.Key) == true)
                         continue;
 
-                    var leftValue = kvp.Value;
                     values.TryGetValue(kvp.Key, out var rightValue);
-                    if (leftValue != null && rightValue != null)
-                    {
-                        if (leftValue.Equals(rightValue))
-                            return false;
-                    }
-                    else if (leftValue != rightValue)
-                    {
+
+                    if (!AbstractBaseRow.ValuesAreEqual(kvp.Value, rightValue))
                         return false;
-                    }
                 }
             }
 

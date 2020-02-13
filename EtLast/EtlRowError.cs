@@ -9,6 +9,15 @@
         public IProcess Process { get; set; }
         public string Message { get; set; }
 
+        public EtlRowError()
+        {
+        }
+
+        public EtlRowError(object originalValue)
+        {
+            OriginalValue = originalValue;
+        }
+
         public override string ToString()
         {
             return string.Format(CultureInfo.InvariantCulture, "{0}\nvalue: {1}\nprocess: {2}",

@@ -65,7 +65,7 @@
 
             Assert.AreEqual(2, result.Count);
             Assert.That.RowsAreEqual(RowHelper.CreateRows(
-                new object[] { "Id", new EtlRowErrorTest("X"), "Name", "A", "ValueString", "AAA", "ValueInt", -1, "ValueDate", new EtlRowErrorTest(""), "ValueDouble", new EtlRowErrorTest("") },
+                new object[] { "Id", new EtlRowError("X"), "Name", "A", "ValueString", "AAA", "ValueInt", -1, "ValueDate", new EtlRowError(""), "ValueDouble", new EtlRowError("") },
                 new object[] { "Id", 1, "Name", "B", "ValueString", string.Empty, "ValueInt", 3, "ValueDate", new DateTime(2019, 04, 25), "ValueDouble", 1.234D })
                 , result
             );

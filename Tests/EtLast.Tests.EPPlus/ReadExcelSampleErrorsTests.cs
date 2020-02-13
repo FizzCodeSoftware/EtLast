@@ -37,7 +37,7 @@
             Assert.AreEqual(2, result.Count);
 
             Assert.That.RowsAreEqual(RowHelper.CreateRows(
-                new object[] { "Id", 0, "Date", new EtlRowErrorTest(0D) }, // EPPLUS will provide value as double
+                new object[] { "Id", 0, "Date", new EtlRowError(0D) }, // EPPLUS will provide value as double
                 new object[] { "Id", 1, "Date", new DateTime(2019, 04, 25) })
                 , result
             );

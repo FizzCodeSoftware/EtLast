@@ -75,16 +75,31 @@
             }
         }
 
+        public static bool ValuesAreEqual(object leftValue, object rightValue)
+        {
+            if (leftValue == null && rightValue == null)
+                return true;
+
+            if ((leftValue != null && rightValue == null) || (leftValue == null && rightValue != null))
+                return false;
+
+            if (leftValue is EtlRowError e1 && rightValue is EtlRowError e2)
+            {
+                return (e1.OriginalValue != null && e1.OriginalValue != null)
+                    ? e1.OriginalValue.Equals(e1.OriginalValue)
+                    : e1.OriginalValue != e2.OriginalValue;
+            }
+
+            return leftValue.Equals(rightValue);
+        }
+
         public bool Equals<T>(string column, T value)
         {
             var currentValue = GetValueImpl(column);
             if (currentValue == null && value == null)
                 return false;
 
-            if ((currentValue != null && value == null) || (currentValue == null && value != null))
-                return false;
-
-            return currentValue.Equals(value);
+            return ValuesAreEqual(currentValue, value);
         }
 
         public bool IsNull(string column)

@@ -26,6 +26,11 @@
         /// </summary>
         public bool TreatEmptyStringAsNull { get; set; } = true;
 
+        /// <summary>
+        /// Default true.
+        /// </summary>
+        public bool AutomaticallyTrimAllStringValues { get; set; } = true;
+
         public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
         public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
 
@@ -120,7 +125,10 @@
                 if (workbook == null || workbook.Worksheets.Count == 0)
                     yield break;
 
-                var sheet = !string.IsNullOrEmpty(SheetName) ? workbook.Worksheets[SheetName] : workbook.Worksheets[SheetIndex];
+                var sheet = !string.IsNullOrEmpty(SheetName)
+                    ? workbook.Worksheets[SheetName]
+                    : workbook.Worksheets[SheetIndex];
+
                 if (sheet == null)
                 {
                     if (!string.IsNullOrEmpty(SheetName))
@@ -227,9 +235,15 @@
                         var ci = !Transpose ? kvp.Value.Index : rowIndex;
 
                         var value = GetCellUnmerged(sheet, ri, ci)?.Value;
-                        if (value != null && TreatEmptyStringAsNull && (value is string str) && string.IsNullOrEmpty(str))
+                        if (TreatEmptyStringAsNull && value != null && (value is string str))
                         {
-                            value = null;
+                            if (AutomaticallyTrimAllStringValues)
+                                str = str.Trim();
+
+                            if (TreatEmptyStringAsNull && string.IsNullOrEmpty(str))
+                                str = null;
+
+                            value = str;
                         }
 
                         value = HandleConverter(value, kvp.Value.Configuration);

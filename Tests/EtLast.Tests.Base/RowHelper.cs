@@ -44,12 +44,10 @@
 
         public static List<IRow> OrderRows(List<IRow> rows)
         {
-            var resultArray = new IRow[rows.Count];
-            rows.CopyTo(resultArray);
-            var result = resultArray.ToList();
-
             if (rows == null || rows.Count < 2)
                 return rows;
+
+            var result = rows.ToList();
 
             var first = rows[0];
             IOrderedEnumerable<IRow> order = null;
@@ -57,7 +55,9 @@
             {
                 if (!(kvp.Value is EtlRowError))
                 {
-                    order = order is null ? result.OrderBy(r => r[kvp.Key]) : order.ThenBy(r => r[kvp.Key]);
+                    order = order is null
+                        ? result.OrderBy(r => r[kvp.Key])
+                        : order.ThenBy(r => r[kvp.Key]);
                 }
             }
 

@@ -93,5 +93,32 @@
                 , result
             );
         }
+
+        [TestMethod]
+        public void CheckContentNoTrim()
+        {
+            var context = new EtlContext();
+            var reader = GetReader(context, @".\TestData\Sample.xlsx");
+            reader.SheetName = "Sheet1";
+            reader.AutomaticallyTrimAllStringValues = false;
+
+            var process = new ProcessBuilder()
+            {
+                InputProcess = reader,
+                Mutators = new MutatorList()
+                {
+                    new ThrowExceptionOnRowErrorMutator(context, null, null),
+                }
+            }.Build();
+
+            var result = process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
+            Assert.AreEqual(2, result.Count);
+
+            Assert.That.RowsAreEqual(RowHelper.CreateRows(
+                new object[] { "Id", 0, "Name", "A", "ValueString", "AAA   ", "ValueInt", -1, "ValueDate", null },
+                new object[] { "Id", 1, "Name", "B", "ValueString", string.Empty, "ValueInt", 3, "ValueDate", new DateTime(2019, 04, 25), "ValueDouble", 1.234D })
+                , result
+            );
+        }
     }
 }

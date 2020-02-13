@@ -5,17 +5,16 @@
 
     public static class RowComparerHelper
     {
-        public static string CompareMessage(IRow row1, IRow row2, RowComparer.RowComparerMode rowComparerMode = RowComparer.RowComparerMode.Test)
+        public static string CompareMessage(IRow row1, IRow row2)
         {
             if ((row1 == null && row2 != null) || (row1 != null && row2 == null))
                 return null;
 
             var sb = new StringBuilder();
-            var rowComparer = new RowComparer(rowComparerMode);
 
             foreach (var kvp in row1.Values)
             {
-                if (rowComparer.Equals(kvp, row2))
+                if (AbstractBaseRow.ValuesAreEqual(kvp.Value, row2[kvp.Key]))
                     sb.Append("  ");
                 else
                     sb.Append("! ");

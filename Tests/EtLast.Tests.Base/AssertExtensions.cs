@@ -7,7 +7,7 @@
 
     public static class AssertExtensions
     {
-        private static readonly RowComparer RowComparer = new RowComparer(RowComparer.RowComparerMode.Test);
+        private static readonly ColumnBasedRowEqualityComparer RowComparer = new ColumnBasedRowEqualityComparer();
 
         public static void RowsAreEqual(this Assert assert, IRow expected, IRow actual)
         {
@@ -26,6 +26,9 @@
         {
             if (assert == null)
                 throw new System.ArgumentNullException(nameof(assert));
+
+            if (expecteds.Count != actuals.Count)
+                throw new AssertFailedException("Assert.That.Equals failed.\r\n\r\nDifferent amount of rows.");
 
             expecteds = RowHelper.OrderRows(expecteds);
             actuals = RowHelper.OrderRows(actuals);
