@@ -4,7 +4,7 @@
     using System.Threading;
     using System.Transactions;
 
-    public class SplitProcess<TRowQueue> : AbstractEvaluableProcess, IMutator
+    public class SplitProcess<TRowQueue> : AbstractEvaluableProcess
         where TRowQueue : IRowQueue, new()
     {
         public IEvaluable InputProcess { get; set; }

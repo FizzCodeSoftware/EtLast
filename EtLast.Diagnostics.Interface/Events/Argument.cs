@@ -69,7 +69,7 @@
             return Value switch
             {
                 bool v => v ? "true" : "false",
-                char v => "\'" + v + "\'",
+                char v => "\'" + v.ToString(CultureInfo.InvariantCulture) + "\'",
                 string v => "\"" + v + "\"",
                 string[] v => string.Join(", ", v.Select(x => "\"" + x + "\"")),
                 sbyte v => v.ToString("#,0", CultureInfo.InvariantCulture),

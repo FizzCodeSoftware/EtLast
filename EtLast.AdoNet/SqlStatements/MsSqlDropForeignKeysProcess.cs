@@ -152,7 +152,7 @@ from
                         command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
 
                     var tablesNamesHashSet = Mode == MsSqlDropForeignKeysProcessMode.InSpecifiedTables || Mode == MsSqlDropForeignKeysProcessMode.ToSpecifiedTables
-                        ? TableNames.Select(x => x.ToLowerInvariant()).ToHashSet()
+                        ? TableNames.Select(x => x.ToUpperInvariant()).ToHashSet()
                         : null;
 
                     var constraintsByTable = new Dictionary<string, List<string>>();
@@ -162,14 +162,15 @@ from
                         while (reader.Read())
                         {
                             var sourceTableName = ConnectionString.Escape((string)reader["tableName"], (string)reader["schemaName"]);
+                            var sourceTableNameUpper = sourceTableName.ToUpperInvariant();
 
-                            if (Mode == MsSqlDropForeignKeysProcessMode.InSpecifiedTables && !tablesNamesHashSet.Contains(sourceTableName))
+                            if (Mode == MsSqlDropForeignKeysProcessMode.InSpecifiedTables && !tablesNamesHashSet.Contains(sourceTableNameUpper))
                                 continue;
 
                             if (Mode == MsSqlDropForeignKeysProcessMode.ToSpecifiedTables)
                             {
                                 var referredTableName = ConnectionString.Escape((string)reader["refTableName"], (string)reader["refSchemaName"]);
-                                if (!tablesNamesHashSet.Contains(sourceTableName))
+                                if (!tablesNamesHashSet.Contains(sourceTableNameUpper))
                                     continue;
                             }
 

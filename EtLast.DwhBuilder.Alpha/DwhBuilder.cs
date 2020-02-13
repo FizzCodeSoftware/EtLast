@@ -121,7 +121,7 @@
                     ColumnName = ConnectionString.Escape("EtlRunId"),
                 }.Execute(caller);
 
-                yield return new MutatorBuilder()
+                yield return new ProcessBuilder()
                 {
                     InputProcess = new EnumerableImportProcess(Context, "RowCreator", etlRunSqlTable.SchemaAndTableName.SchemaAndName)
                     {
@@ -141,7 +141,7 @@
                             return new[] { Context.CreateRow(process, initialValues) };
                         }
                     },
-                    Mutators = new List<IMutator>()
+                    Mutators = new MutatorList()
                     {
                         new MsSqlWriteToTableWithMicroTransactionsMutator(Context, "Writer", etlRunSqlTable.SchemaAndTableName.SchemaAndName)
                         {
@@ -155,7 +155,7 @@
                             },
                         },
                     },
-                }.BuildEvaluable();
+                }.Build();
             }
         }
 

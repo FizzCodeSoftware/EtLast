@@ -24,17 +24,20 @@
         {
             var context = new EtlContext();
 
-            var process = new MutatorBuilder()
+            var process = new ProcessBuilder()
             {
                 InputProcess = new CreateRowsProcess(context, "HierarchyParentIdCalculatorGenerator", null)
                 {
                     Columns = SampleColumns,
                     InputRows = SampleRows.ToList(),
                 },
-                Mutators = GetMutators(context).ToList(),
+                Mutators = new MutatorList()
+                {
+                    GetMutators(context),
+                },
             };
 
-            var result = process.BuildEvaluable().Evaluate().TakeRowsAndReleaseOwnership().ToList();
+            var result = process.Build().Evaluate().TakeRowsAndReleaseOwnership().ToList();
             var exceptions = context.GetExceptions();
 
             Assert.AreEqual(6, result.Count);

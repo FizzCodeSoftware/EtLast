@@ -213,7 +213,7 @@
                     .Append("-- ")
                     .Append(p.ParameterName)
                     .Append(" (DB: ")
-                    .Append(p.DbType)
+                    .Append(p.DbType.ToString())
                     .Append(") = ")
                     .Append(p.Value != null ? Convert.ToString(p.Value, CultureInfo.InvariantCulture) + " (" + p.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")
                     .Append(", prec: ")

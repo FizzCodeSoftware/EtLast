@@ -32,10 +32,10 @@
         public void CheckContent()
         {
             var context = new EtlContext();
-            var process = new MutatorBuilder()
+            var process = new ProcessBuilder()
             {
                 InputProcess = GetReader(context, @"TestData\Sample.csv"),
-                Mutators = new List<IMutator>()
+                Mutators = new MutatorList()
                 {
                     new ReplaceErrorWithValueMutator(context, null, null)
                     {
@@ -43,7 +43,7 @@
                         Value = null
                     },
                 }
-            }.BuildEvaluable();
+            }.Build();
 
             var result = process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
             Assert.AreEqual(2, result.Count);

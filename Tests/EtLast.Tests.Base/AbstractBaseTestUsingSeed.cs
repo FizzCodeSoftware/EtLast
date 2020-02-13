@@ -7,22 +7,22 @@
     {
         public string[] SeedColumnNames { get; } = { "id", "name", "age", "fkid", "date", "time", "datetime" };
 
-        public MutatorBuilder CreateMutatorBuilder(int rowCount, IEtlContext context)
+        public ProcessBuilder CreateProcessBuilder(int rowCount, IEtlContext context)
         {
-            return new MutatorBuilder()
+            return new ProcessBuilder()
             {
                 InputProcess = new SeedRowsProcess(context, "SeedRows", null)
                 {
                     Count = rowCount,
                     Columns = SeedColumnNames,
                 },
-                Mutators = new List<IMutator>(),
+                Mutators = new MutatorList(),
             };
         }
 
-        public static List<IRow> RunEtl(MutatorBuilder builder)
+        public static List<IRow> RunEtl(ProcessBuilder builder)
         {
-            var result = builder.BuildEvaluable().Evaluate().TakeRowsAndReleaseOwnership().ToList();
+            var result = builder.Build().Evaluate().TakeRowsAndReleaseOwnership().ToList();
             return result;
         }
     }

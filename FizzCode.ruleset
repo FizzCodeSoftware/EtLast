@@ -93,12 +93,12 @@
   </Rules>
   <Rules AnalyzerId="Microsoft.NetCore.Analyzers" RuleNamespace="Microsoft.NetCore.Analyzers">
     <Rule Id="CA1303" Action="None" />
-    <Rule Id="CA1308" Action="None" />
     <Rule Id="CA2229" Action="None" />
   </Rules>
   <Rules AnalyzerId="Roslynator.CSharp.Analyzers" RuleNamespace="Roslynator.CSharp.Analyzers">
     <Rule Id="RCS1005" Action="Info" />
     <Rule Id="RCS1006" Action="Info" />
+    <Rule Id="RCS1013" Action="Warning" />
     <Rule Id="RCS1021" Action="None" />
     <Rule Id="RCS1023" Action="Info" />
     <Rule Id="RCS1030" Action="Info" />
@@ -128,6 +128,7 @@
     <Rule Id="RCS1168" Action="Info" />
     <Rule Id="RCS1191" Action="None" />
     <Rule Id="RCS1194" Action="None" />
+    <Rule Id="RCS1198" Action="Warning" />
     <Rule Id="RCS1202" Action="Hidden" />
     <Rule Id="RCS1207" Action="Info" />
     <Rule Id="RCS1211" Action="Info" />

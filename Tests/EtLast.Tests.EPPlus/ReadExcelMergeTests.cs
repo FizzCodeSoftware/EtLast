@@ -35,14 +35,14 @@
             var reader = GetReader(context, @".\TestData\Merge.xlsx");
             reader.SheetName = "Sheet1";
 
-            var process = new MutatorBuilder()
+            var process = new ProcessBuilder()
             {
                 InputProcess = reader,
-                Mutators = new List<IMutator>()
+                Mutators = new MutatorList()
                 {
                     new ThrowExceptionOnRowErrorMutator(context, null, null),
                 }
-            }.BuildEvaluable();
+            }.Build();
 
             var resultCount = process.Evaluate().CountRows(null);
             Assert.AreEqual(3, resultCount);
@@ -55,14 +55,14 @@
             var reader = GetReader(context, @".\TestData\Merge.xlsx");
             reader.SheetIndex = 0;
 
-            var process = new MutatorBuilder()
+            var process = new ProcessBuilder()
             {
                 InputProcess = reader,
-                Mutators = new List<IMutator>()
+                Mutators = new MutatorList()
                 {
                     new ThrowExceptionOnRowErrorMutator(context, null, null),
                 }
-            }.BuildEvaluable();
+            }.Build();
 
             var resultCount = process.Evaluate().CountRows(null);
             Assert.AreEqual(3, resultCount);
@@ -75,14 +75,14 @@
             var reader = GetReader(context, @".\TestData\Merge.xlsx");
             reader.SheetName = "Sheet1";
 
-            var process = new MutatorBuilder()
+            var process = new ProcessBuilder()
             {
                 InputProcess = reader,
-                Mutators = new List<IMutator>()
+                Mutators = new MutatorList()
                 {
                     new ThrowExceptionOnRowErrorMutator(context, null, null),
                 }
-            }.BuildEvaluable();
+            }.Build();
 
             var result = process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
             Assert.AreEqual(3, result.Count);

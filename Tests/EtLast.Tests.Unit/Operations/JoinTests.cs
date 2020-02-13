@@ -36,14 +36,14 @@
         {
             var context = new EtlContext();
 
-            var process = new MutatorBuilder()
+            var process = new ProcessBuilder()
             {
                 InputProcess = new CreateRowsProcess(context, "DataGenerator", null)
                 {
                     Columns = SampleColumnsA,
                     InputRows = SampleRowsA.ToList(),
                 },
-                Mutators = new List<IMutator>()
+                Mutators = new MutatorList()
                 {
                     new JoinMutator(context, "Joiner", null)
                     {
@@ -61,7 +61,7 @@
                         }
                     }
                 },
-            }.BuildEvaluable();
+            }.Build();
 
             var result = process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
             Assert.AreEqual(6, result.Count);
@@ -86,14 +86,14 @@
 
             var executedBatchCount = 0;
 
-            var process = new MutatorBuilder()
+            var process = new ProcessBuilder()
             {
                 InputProcess = new CreateRowsProcess(context, "DataGenerator", null)
                 {
                     Columns = SampleColumnsA,
                     InputRows = SampleRowsA.ToList(),
                 },
-                Mutators = new List<IMutator>()
+                Mutators = new MutatorList()
                 {
                     new BatchedJoinMutator(context, "Joiner", null)
                     {
@@ -118,7 +118,7 @@
                         }
                     }
                 },
-            }.BuildEvaluable();
+            }.Build();
 
             var result = process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
             Assert.AreEqual(6, result.Count);

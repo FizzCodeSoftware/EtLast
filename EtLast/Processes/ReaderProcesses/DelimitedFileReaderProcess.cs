@@ -52,7 +52,7 @@
 
             Context.Log(LogSeverity.Debug, this, "reading from {FileName}", PathHelpers.GetFriendlyPathName(FileName));
 
-            var columnConfig = ColumnConfiguration.ToDictionary(x => x.SourceColumn.ToLowerInvariant());
+            var columnConfig = ColumnConfiguration.ToDictionary(x => x.SourceColumn.ToUpperInvariant());
 
             using (var reader = new StreamReader(FileName))
             {
@@ -95,7 +95,7 @@
                             value = null;
                         }
 
-                        columnConfig.TryGetValue(columnNames[i].ToLowerInvariant(), out var columnConfiguration);
+                        columnConfig.TryGetValue(columnNames[i].ToUpperInvariant(), out var columnConfiguration);
                         if (columnConfiguration != null)
                         {
                             var column = columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn;

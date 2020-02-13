@@ -14,7 +14,7 @@
             const int rowCount = 100;
 
             var context = new EtlContext();
-            var process = CreateMutatorBuilder(rowCount, context);
+            var process = CreateProcessBuilder(rowCount, context);
 
             var etl = RunEtl(process);
             var result = etl.Select(row => (int)row["id"]);
@@ -29,7 +29,7 @@
             const int rowCount = 100;
 
             var context = new EtlContext();
-            var process = CreateMutatorBuilder(rowCount, context);
+            var process = CreateProcessBuilder(rowCount, context);
 
             var etl = RunEtl(process);
             var result = etl.Select(row => (int)row["fkid"]).Count();
@@ -44,7 +44,7 @@
             const int rowCount = 100;
 
             var context = new EtlContext();
-            var process = CreateMutatorBuilder(rowCount, context);
+            var process = CreateProcessBuilder(rowCount, context);
 
             var etl = RunEtl(process);
             var result = etl.Select(row => (string)row["name"]).Count(name => !string.IsNullOrEmpty(name));
@@ -59,7 +59,7 @@
             const int rowCount = 100;
 
             var context = new EtlContext();
-            var process = CreateMutatorBuilder(rowCount, context);
+            var process = CreateProcessBuilder(rowCount, context);
 
             var etl = RunEtl(process);
             var result = etl.Select(row => (DateTime)row["date"]).Count(dt => dt.Hour == 0);
@@ -74,7 +74,7 @@
             const int rowCount = 100;
 
             var context = new EtlContext();
-            var process = CreateMutatorBuilder(rowCount, context);
+            var process = CreateProcessBuilder(rowCount, context);
 
             var etl = RunEtl(process);
             var result = etl.Select(row => (DateTime)row["datetime"]).Count(dt => dt.Year > 0);
@@ -89,7 +89,7 @@
             const int rowCount = 100;
 
             var context = new EtlContext();
-            var process = CreateMutatorBuilder(rowCount, context);
+            var process = CreateProcessBuilder(rowCount, context);
 
             var etl = RunEtl(process);
             var result = etl.Select(row => (TimeSpan)row["time"]).Count();
@@ -104,7 +104,7 @@
             const int rowCount = 100;
 
             var context = new EtlContext();
-            var process = CreateMutatorBuilder(rowCount, context);
+            var process = CreateProcessBuilder(rowCount, context);
 
             var etl = RunEtl(process);
             var result = etl.Count;

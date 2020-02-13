@@ -22,7 +22,7 @@
                 FileName = OutputFileName,
             };
 
-            yield return new MutatorBuilder()
+            yield return new ProcessBuilder()
             {
                 InputProcess = new EpPlusExcelReaderProcess(Context, "Reader", scope.Topic)
                 {
@@ -34,7 +34,7 @@
                         new ReaderColumnConfiguration("Age", new IntConverterAuto(formatProviderHint: CultureInfo.InvariantCulture)),
                     },
                 },
-                Mutators = new List<IMutator>()
+                Mutators = new MutatorList()
                 {
                     new EpPlusSimpleRowWriterMutator(Context, "Writer", scope.Topic)
                     {
@@ -48,7 +48,7 @@
                         Finalize = (package, state) => state.LastWorksheet.Cells.AutoFitColumns(),
                     }
                 },
-            }.BuildEvaluable();
+            }.Build();
         }
     }
 }

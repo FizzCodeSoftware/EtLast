@@ -49,7 +49,7 @@
 
             var initialValues = new List<KeyValuePair<string, object>>();
 
-            var columnConfig = ColumnConfiguration.ToDictionary(x => x.SourceColumn.ToLowerInvariant());
+            var columnConfig = ColumnConfiguration.ToDictionary(x => x.SourceColumn.ToUpperInvariant());
 
             foreach (var rowData in result)
             {
@@ -66,7 +66,7 @@
                         value = null;
                     }
 
-                    columnConfig.TryGetValue(kvp.Key.ToLowerInvariant(), out var columnConfiguration);
+                    columnConfig.TryGetValue(kvp.Key.ToUpperInvariant(), out var columnConfiguration);
                     if (columnConfiguration != null)
                     {
                         var column = columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn;

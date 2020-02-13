@@ -105,21 +105,21 @@
 
         private IEnumerable<IExecutable> CreateTableMainProcess()
         {
-            var mutators = new List<IMutator>();
+            var mutators = new MutatorList();
             foreach (var creator in _mutatorCreators)
             {
-                mutators.AddRange(creator?.Invoke(this));
+                mutators.Add(creator?.Invoke(this));
             }
 
             mutators.Add(CreateTempWriter(Table, SqlTable));
 
             var inputProcess = _inputProcessCreator?.Invoke();
 
-            yield return new MutatorBuilder()
+            yield return new ProcessBuilder()
             {
                 InputProcess = inputProcess,
                 Mutators = mutators,
-            }.BuildEvaluable();
+            }.Build();
         }
 
         private IEnumerable<IExecutable> CreateTableFinalizers()

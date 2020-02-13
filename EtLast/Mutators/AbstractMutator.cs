@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
 
     public abstract class AbstractMutator : AbstractEvaluableProcess, IMutator
@@ -106,5 +107,15 @@
         }
 
         protected abstract IEnumerable<IRow> MutateRow(IRow row);
+
+        public IEnumerator<IMutator> GetEnumerator()
+        {
+            yield return this;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            yield return this;
+        }
     }
 }

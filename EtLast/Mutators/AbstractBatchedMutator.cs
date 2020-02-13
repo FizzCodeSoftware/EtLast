@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
 
     public abstract class AbstractBatchedMutator : AbstractEvaluableProcess, IMutator
@@ -199,6 +200,21 @@
         protected virtual string GetBatchKey(IRow row)
         {
             return null;
+        }
+
+        public IEnumerable<IMutator> GetMutators()
+        {
+            yield return this;
+        }
+
+        public IEnumerator<IMutator> GetEnumerator()
+        {
+            yield return this;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            yield return this;
         }
     }
 }

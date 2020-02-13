@@ -13,7 +13,7 @@
         {
             var context = new EtlContext();
 
-            var process = CreateMutatorBuilder(1, context);
+            var process = CreateProcessBuilder(1, context);
             process.Mutators.Add(new CustomMutator(context, null, null)
             {
                 Then = (proc, row) =>
@@ -36,7 +36,7 @@
         {
             var context = new EtlContext();
 
-            var process = CreateMutatorBuilder(1, context);
+            var process = CreateProcessBuilder(1, context);
             process.Mutators.Add(new CustomMutator(context, null, null)
             {
                 Then = (proc, row) =>
@@ -59,7 +59,7 @@
         public void InvalidOperationParameter()
         {
             var context = new EtlContext();
-            var process = CreateMutatorBuilder(1, context);
+            var process = CreateProcessBuilder(1, context);
             process.Mutators.Add(new CustomMutator(context, null, null));
 
             RunEtl(process);

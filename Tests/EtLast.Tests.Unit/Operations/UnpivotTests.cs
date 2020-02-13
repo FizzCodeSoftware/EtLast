@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast.Tests.Unit
 {
-    using System.Collections.Generic;
     using System.Linq;
     using FizzCode.EtLast.Tests.Base;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,14 +19,14 @@
         {
             var context = new EtlContext();
 
-            var unpivotProcess = new MutatorBuilder()
+            var unpivotProcess = new ProcessBuilder()
             {
                 InputProcess = new CreateRowsProcess(context, "UnpivotGenerator", null)
                 {
                     Columns = SampleColumns,
                     InputRows = SampleRows.ToList(),
                 },
-                Mutators = new List<IMutator>()
+                Mutators = new MutatorList()
                 {
                     new UnpivotMutator(context, "UnpivotProcess", null)
                     {
@@ -36,7 +35,7 @@
                         NewColumnForValue = "Value"
                     },
                 },
-            }.BuildEvaluable();
+            }.Build();
 
             var result = unpivotProcess.Evaluate().TakeRowsAndReleaseOwnership().ToList();
             Assert.AreEqual(6, result.Count);

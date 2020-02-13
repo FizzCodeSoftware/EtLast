@@ -13,7 +13,7 @@
             const int rowCount = 100;
 
             var context = new EtlContext();
-            var process = CreateMutatorBuilder(rowCount, context);
+            var process = CreateProcessBuilder(rowCount, context);
             process.Mutators.Add(new RemoveColumnsMutator(context, null, null)
             {
                 Columns = new[] { "id", "name", "age", "fkid", "date", "time", "datetime" },
@@ -32,7 +32,7 @@
             const int rowCount = 100;
 
             var context = new EtlContext();
-            var process = CreateMutatorBuilder(rowCount, context);
+            var process = CreateProcessBuilder(rowCount, context);
             process.Mutators.Add(new RemoveColumnsMutator(context, null, null)
             {
                 Columns = new[] { "name", "fkid" },
@@ -51,7 +51,7 @@
             const int rowCount = 100;
 
             var context = new EtlContext();
-            var process = CreateMutatorBuilder(rowCount, context);
+            var process = CreateProcessBuilder(rowCount, context);
             process.Mutators.Add(new RemoveColumnsMutator(context, null, null)
             {
                 Columns = new[] { "id" },

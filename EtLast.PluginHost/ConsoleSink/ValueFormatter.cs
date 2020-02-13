@@ -65,7 +65,7 @@
                     ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.BooleanValue, bv ? "true" : "false");
                     break;
                 case char chv:
-                    ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.ScalarValue, "\'" + chv + "\'");
+                    ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.ScalarValue, "\'" + chv.ToString(CultureInfo.InvariantCulture) + "\'");
                     break;
                 case sbyte _:
                 case byte _:

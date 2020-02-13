@@ -1,5 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Text;
 
     public abstract class AbstractAggregationProcess : AbstractEvaluableProcess, IMutator
@@ -27,6 +29,16 @@
             }
 
             return _keyBuilder.ToString();
+        }
+
+        public IEnumerator<IMutator> GetEnumerator()
+        {
+            yield return this;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            yield return this;
         }
     }
 }

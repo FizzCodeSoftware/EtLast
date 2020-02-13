@@ -22,7 +22,7 @@
                 FileName = OutputFileName,
             };
 
-            yield return new MutatorBuilder()
+            yield return new ProcessBuilder()
             {
                 InputProcess = new EpPlusExcelReaderProcess(Context, "PeopleReader", scope.Topic)
                 {
@@ -34,12 +34,12 @@
                         new ReaderColumnConfiguration("Name", new StringConverter(formatProviderHint: CultureInfo.InvariantCulture)),
                     },
                 },
-                Mutators = new List<IMutator>()
+                Mutators = new MutatorList()
                 {
                     new JoinMutator(Context, "JoinContact", scope.Topic)
                     {
                         NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        RightProcess = new MutatorBuilder()
+                        RightProcess = new ProcessBuilder()
                         {
                             InputProcess = new EpPlusExcelReaderProcess(Context, "ReadContacts", scope.Topic)
                             {
@@ -52,14 +52,14 @@
                                     new ReaderColumnConfiguration("Value", new StringConverter(formatProviderHint: CultureInfo.InvariantCulture)), // will be renamed to ContactValue
                                 },
                             },
-                            Mutators = new List<IMutator>()
+                            Mutators = new MutatorList()
                             {
                                 new RemoveRowMutator(Context, "RemoveInvalidContacts", scope.Topic)
                                 {
                                     If = row => row.IsNullOrEmpty("Value"),
                                 },
                             }
-                        }.BuildEvaluable(),
+                        }.Build(),
                         LeftKeySelector = row => row.GetAs<int>("ID").ToString("D", CultureInfo.InvariantCulture),
                         RightKeySelector = row => row.GetAs<int>("PeopleID").ToString("D", CultureInfo.InvariantCulture),
                         ColumnConfiguration = new List<ColumnCopyConfiguration>()
@@ -101,7 +101,7 @@
                         Finalize = (package, state) => state.LastWorksheet.Cells.AutoFitColumns(),
                     }
                 },
-            }.BuildEvaluable();
+            }.Build();
         }
     }
 }
