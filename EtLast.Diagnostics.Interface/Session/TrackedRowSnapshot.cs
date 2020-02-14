@@ -7,6 +7,6 @@
     public class TrackedRowSnapshot
     {
         public TrackedRow Row { get; set; }
-        public Dictionary<string, Argument> Values { get; } = new Dictionary<string, Argument>();
+        public List<KeyValuePair<string, object>> Values { get; set; }
     }
 }

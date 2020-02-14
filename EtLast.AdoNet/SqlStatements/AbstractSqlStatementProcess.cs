@@ -44,7 +44,7 @@
                             cmd.CommandTimeout = CommandTimeout;
                             cmd.CommandText = sqlStatement;
 
-                            Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.one, ConnectionString.Name, this, sqlStatement, Transaction.Current.ToIdentifierString(), parameters);
+                            Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.one, ConnectionString.Name, this, sqlStatement, Transaction.Current.ToIdentifierString(), () => parameters);
 
                             foreach (var kvp in parameters)
                             {

@@ -10,9 +10,9 @@
     {
         public object[,] Rows { get; }
         public int RowCount { get; set; }
+        public Dictionary<string, int> ColumnIndexes { get; }
 
         private readonly string[] _dbColumns;
-        private readonly Dictionary<string, int> _columnIndexes;
 
         private DataTable _schemaTable;
         private int _currentIndex;
@@ -21,7 +21,7 @@
         public RowShadowReader(int batchSize, string[] dbColumns, Dictionary<string, int> columnIndexes)
         {
             _dbColumns = dbColumns;
-            _columnIndexes = columnIndexes;
+            ColumnIndexes = columnIndexes;
 
             Rows = new object[batchSize, dbColumns.Length];
             RowCount = 0;
@@ -226,7 +226,7 @@
 
         public override int GetOrdinal(string name)
         {
-            return _columnIndexes[name];
+            return ColumnIndexes[name];
         }
 
         public override string GetString(int ordinal)
@@ -260,7 +260,7 @@
             return this[ordinal] is DBNull;
         }
 
-        public override object this[string name] => Rows[_currentIndex, _columnIndexes[name]] ?? DBNull.Value;
+        public override object this[string name] => Rows[_currentIndex, ColumnIndexes[name]] ?? DBNull.Value;
 
         public override object this[int ordinal] => Rows[_currentIndex, ordinal] ?? DBNull.Value;
     }

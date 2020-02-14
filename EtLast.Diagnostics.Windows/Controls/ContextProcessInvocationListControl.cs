@@ -240,7 +240,7 @@
                         if (item.SubItems[6].Text != p.GetFormattedInputRowCount()
                             || item.SubItems[7].Text != p.CreatedRowCount.FormatToStringNoZero()
                             || item.SubItems[8].Text != p.DroppedRowList.Count.FormatToStringNoZero()
-                            || item.SubItems[9].Text != p.StoredRowList.Count.FormatToStringNoZero()
+                            || item.SubItems[9].Text != p.StoredRowCount.FormatToStringNoZero()
                             || item.SubItems[10].Text != p.AliveRowList.Count.FormatToStringNoZero()
                             || item.SubItems[11].Text != p.PassedRowCount.FormatToStringNoZero())
                         {
@@ -264,7 +264,7 @@
                                 item.SubItems[6].SetIfChanged(p.GetFormattedInputRowCount());
                                 item.SubItems[7].SetIfChanged(p.CreatedRowCount.FormatToStringNoZero());
                                 item.SubItems[8].SetIfChanged(p.DroppedRowList.Count.FormatToStringNoZero());
-                                item.SubItems[9].SetIfChanged(p.StoredRowList.Count.FormatToStringNoZero());
+                                item.SubItems[9].SetIfChanged(p.StoredRowCount.FormatToStringNoZero());
                                 item.SubItems[10].SetIfChanged(p.AliveRowList.Count.FormatToStringNoZero());
                                 item.SubItems[11].SetIfChanged(p.PassedRowCount.FormatToStringNoZero());
                             }

@@ -3,12 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.Specialized;
-    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Net;
     using System.Text;
-    using System.Text.Json;
     using System.Web;
     using FizzCode.EtLast.Diagnostics.Interface;
 
@@ -51,13 +49,18 @@
                 var request = context.Request;
                 var response = context.Response;
 
-                var query = HttpUtility.ParseQueryString(request.Url.Query);
-
-                using (var bodyReader = new StreamReader(context.Request.InputStream))
+                if (context.Request.Url.AbsolutePath == "/diag" && request.HttpMethod == "POST")
                 {
-                    if (context.Request.Url.AbsolutePath == "/diag" && request.HttpMethod == "POST")
+                    using (var ms = new MemoryStream())
                     {
-                        HandleRequest(bodyReader, query);
+                        context.Request.InputStream.CopyTo(ms);
+                        ms.Position = 0;
+
+                        using (var bodyReader = new BinaryReader(ms, Encoding.UTF8))
+                        {
+                            var query = HttpUtility.ParseQueryString(request.Url.Query);
+                            HandleRequest(bodyReader, query);
+                        }
                     }
                 }
 
@@ -78,9 +81,7 @@
             }
         }
 
-        private char[] _bodyBuffer = new char[1024 * 1024];
-
-        private void HandleRequest(StreamReader bodyReader, NameValueCollection query)
+        private void HandleRequest(BinaryReader bodyReader, NameValueCollection query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -92,48 +93,30 @@
             var contextName = query["ctx"];
             var context = GetExecutionContext(sessionId, contextName);
 
-            // todo: use body as a binary stream for less memory allocations, faster processing and smaller requests
-            var body = bodyReader.ReadToEnd();
+            var events = new List<AbstractEvent>();
 
-            using var contentReader = new StringReader(body);
-            var eventCount = int.Parse(contentReader.ReadLine(), CultureInfo.InvariantCulture);
-
-            var events = new List<AbstractEvent>(eventCount);
-
-            for (var i = 0; i < eventCount; i++)
+            while (bodyReader.BaseStream.Position < bodyReader.BaseStream.Length)
             {
-                var eventType = contentReader.ReadLine();
-                var payloadLength = int.Parse(contentReader.ReadLine(), CultureInfo.InvariantCulture);
+                var eventKind = (DiagnosticsEventKind)bodyReader.ReadByte();
+                var timestamp = bodyReader.ReadInt64();
 
-                if (_bodyBuffer.Length < payloadLength)
-                    _bodyBuffer = new char[payloadLength];
-
-                contentReader.ReadBlock(_bodyBuffer, 0, payloadLength);
-                contentReader.ReadLine();
-
-                var payload = new string(_bodyBuffer, 0, payloadLength);
-
-                var abstractEvent = eventType switch
+                var abstractEvent = eventKind switch
                 {
-                    "log" => ProcessLogEvent(payload),
-                    "row-created" => ProcessRowCreatedEvent(payload),
-                    "row-owner-changed" => ProcessRowOwnerChangedEvent(payload),
-                    "row-value-changed" => ProcessRowValueChangedEvent(payload),
-                    "row-stored" => ProcessRowStoredEvent(payload),
-                    "context-counters-updated" => ProcessContextCountersUpdatedEvent(payload),
-                    "process-invocation-start" => ProcessProcessInvocationStartEvent(payload),
-                    "process-invocation-end" => ProcessProcessInvocationEndEvent(payload),
-                    "data-store-command" => ProcessDataStoreCommandEvent(payload),
+                    DiagnosticsEventKind.Log => ProcessLogEvent(bodyReader),
+                    DiagnosticsEventKind.RowCreated => ProcessRowCreatedEvent(bodyReader),
+                    DiagnosticsEventKind.RowOwnerChanged => ProcessRowOwnerChangedEvent(bodyReader),
+                    DiagnosticsEventKind.RowValueChanged => ProcessRowValueChangedEvent(bodyReader),
+                    DiagnosticsEventKind.RowStored => ProcessRowStoredEvent(bodyReader),
+                    DiagnosticsEventKind.ContextCountersUpdated => ProcessContextCountersUpdatedEvent(bodyReader),
+                    DiagnosticsEventKind.ProcessInvocationStart => ProcessProcessInvocationStartEvent(bodyReader),
+                    DiagnosticsEventKind.ProcessInvocationEnd => ProcessProcessInvocationEndEvent(bodyReader),
+                    DiagnosticsEventKind.DataStoreCommand => ProcessDataStoreCommandEvent(bodyReader),
                     _ => null,
                 };
 
                 if (abstractEvent != null)
                 {
-                    if (context.StartedOn == null)
-                    {
-                        context.SetStartedOn(new DateTime(abstractEvent.Timestamp));
-                    }
-
+                    abstractEvent.Timestamp = timestamp;
                     events.Add(abstractEvent);
                 }
             }
@@ -202,87 +185,171 @@
             return context;
         }
 
-        private static AbstractEvent ProcessProcessInvocationStartEvent(string payload)
+        private static AbstractEvent ProcessProcessInvocationStartEvent(BinaryReader reader)
         {
-            var evt = JsonSerializer.Deserialize<ProcessInvocationStartEvent>(payload);
-            return evt;
-        }
-
-        private static AbstractEvent ProcessProcessInvocationEndEvent(string payload)
-        {
-            var evt = JsonSerializer.Deserialize<ProcessInvocationEndEvent>(payload);
-            return evt;
-        }
-
-        private static AbstractEvent ProcessDataStoreCommandEvent(string payload)
-        {
-            var evt = JsonSerializer.Deserialize<DataStoreCommandEvent>(payload);
-            if (evt.Arguments != null)
+            return new ProcessInvocationStartEvent
             {
-                foreach (var arg in evt.Arguments)
+                InvocationUID = reader.ReadInt32(),
+                InstanceUID = reader.ReadInt32(),
+                InvocationCounter = reader.ReadInt32(),
+                Type = reader.ReadString(),
+                Kind = (ProcessKind)reader.ReadByte(),
+                Name = reader.ReadString(),
+                Topic = reader.ReadNullableString(),
+                CallerInvocationUID = reader.ReadNullableInt32()
+            };
+        }
+
+        private static AbstractEvent ProcessProcessInvocationEndEvent(BinaryReader reader)
+        {
+            return new ProcessInvocationEndEvent
+            {
+                InvocationUID = reader.ReadInt32(),
+                ElapsedMilliseconds = reader.ReadInt64()
+            };
+        }
+
+        private static AbstractEvent ProcessDataStoreCommandEvent(BinaryReader reader)
+        {
+            var evt = new DataStoreCommandEvent
+            {
+                ProcessInvocationUID = reader.ReadInt32(),
+                Kind = (DataStoreCommandKind)reader.ReadByte(),
+                Location = reader.ReadNullableString(),
+                Command = reader.ReadString(),
+                TransactionId = reader.ReadNullableString()
+            };
+
+            var argCount = reader.ReadUInt16();
+            if (argCount > 0)
+            {
+                evt.Arguments = new KeyValuePair<string, object>[argCount];
+                for (var i = 0; i < argCount; i++)
                 {
-                    arg.CalculateValue();
+                    var name = string.Intern(reader.ReadString());
+                    var value = reader.ReadObject();
+                    evt.Arguments[i] = new KeyValuePair<string, object>(name, value);
                 }
             }
 
             return evt;
         }
 
-        private static AbstractEvent ProcessRowCreatedEvent(string payload)
+        private static AbstractEvent ProcessRowCreatedEvent(BinaryReader reader)
         {
-            var evt = JsonSerializer.Deserialize<RowCreatedEvent>(payload);
-
-            if (evt.Values != null)
+            var evt = new RowCreatedEvent
             {
-                foreach (var value in evt.Values)
+                ProcessInvocationUID = reader.ReadInt32(),
+                RowUid = reader.ReadInt32()
+            };
+
+            var valueCount = reader.ReadUInt16();
+            if (valueCount > 0)
+            {
+                evt.Values = new KeyValuePair<string, object>[valueCount];
+                for (var i = 0; i < valueCount; i++)
                 {
-                    value.CalculateValue();
+                    var column = string.Intern(reader.ReadString());
+                    var value = reader.ReadObject();
+                    evt.Values[i] = new KeyValuePair<string, object>(column, value);
                 }
             }
 
             return evt;
         }
 
-        private static AbstractEvent ProcessRowOwnerChangedEvent(string payload)
+        private static AbstractEvent ProcessRowOwnerChangedEvent(BinaryReader reader)
         {
-            var evt = JsonSerializer.Deserialize<RowOwnerChangedEvent>(payload);
-            return evt;
+            return new RowOwnerChangedEvent
+            {
+                RowUid = reader.ReadInt32(),
+                PreviousProcessInvocationUID = reader.ReadInt32(),
+                NewProcessInvocationUID = reader.ReadNullableInt32()
+            };
         }
 
-        private static AbstractEvent ProcessRowValueChangedEvent(string payload)
+        private static AbstractEvent ProcessRowValueChangedEvent(BinaryReader reader)
         {
-            var evt = JsonSerializer.Deserialize<RowValueChangedEvent>(payload);
-            if (evt.Values != null)
+            var evt = new RowValueChangedEvent
             {
-                foreach (var value in evt.Values)
+                RowUid = reader.ReadInt32(),
+                ProcessInvocationUID = reader.ReadNullableInt32()
+            };
+
+            var valueCount = reader.ReadUInt16();
+            if (valueCount > 0)
+            {
+                evt.Values = new KeyValuePair<string, object>[valueCount];
+                for (var i = 0; i < valueCount; i++)
                 {
-                    value.CalculateValue();
+                    var column = string.Intern(reader.ReadString());
+                    var value = reader.ReadObject();
+                    evt.Values[i] = new KeyValuePair<string, object>(column, value);
                 }
             }
 
             return evt;
         }
 
-        private static AbstractEvent ProcessRowStoredEvent(string payload)
+        private static AbstractEvent ProcessRowStoredEvent(BinaryReader reader)
         {
-            var evt = JsonSerializer.Deserialize<RowStoredEvent>(payload);
-            return evt;
-        }
-
-        private static AbstractEvent ProcessContextCountersUpdatedEvent(string payload)
-        {
-            var evt = JsonSerializer.Deserialize<ContextCountersUpdatedEvent>(payload);
-            return evt;
-        }
-
-        private static AbstractEvent ProcessLogEvent(string payload)
-        {
-            var evt = JsonSerializer.Deserialize<LogEvent>(payload);
-            if (evt.Arguments != null)
+            var evt = new RowStoredEvent
             {
-                foreach (var arg in evt.Arguments)
+                RowUid = reader.ReadInt32(),
+                ProcessInvocationUID = reader.ReadInt32()
+            };
+
+            var locationCount = reader.ReadUInt16();
+            if (locationCount > 0)
+            {
+                evt.Locations = new KeyValuePair<string, string>[locationCount];
+                for (var i = 0; i < locationCount; i++)
                 {
-                    arg.CalculateValue();
+                    var key = string.Intern(reader.ReadString());
+                    var value = string.Intern(reader.ReadString());
+                    evt.Locations[i] = new KeyValuePair<string, string>(key, value);
+                }
+            }
+
+            return evt;
+        }
+
+        private static AbstractEvent ProcessContextCountersUpdatedEvent(BinaryReader reader)
+        {
+            var evt = new ContextCountersUpdatedEvent();
+            int counterCount = reader.ReadUInt16();
+            evt.Counters = new Counter[counterCount];
+            for (var i = 0; i < counterCount; i++)
+            {
+                evt.Counters[i] = new Counter()
+                {
+                    Name = string.Intern(reader.ReadString()),
+                    Value = reader.ReadInt64(),
+                    ValueType = (StatCounterValueType)reader.ReadByte(),
+                };
+            }
+
+            return evt;
+        }
+
+        private static AbstractEvent ProcessLogEvent(BinaryReader reader)
+        {
+            var evt = new LogEvent
+            {
+                Text = reader.ReadString(),
+                Severity = (LogSeverity)reader.ReadByte(),
+                ProcessInvocationUID = reader.ReadNullableInt32()
+            };
+
+            var argCount = reader.ReadUInt16();
+            if (argCount > 0)
+            {
+                evt.Arguments = new KeyValuePair<string, object>[argCount];
+                for (var i = 0; i < argCount; i++)
+                {
+                    var key = string.Intern(reader.ReadString());
+                    var value = reader.ReadObject();
+                    evt.Arguments[i] = new KeyValuePair<string, object>(key, value);
                 }
             }
 

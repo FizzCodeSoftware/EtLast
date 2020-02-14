@@ -87,7 +87,7 @@
                         .Trim()
                         .MaxLengthWithEllipsis(300));
                     item.SubItems.Add(evt.Arguments != null
-                        ? string.Join(",", evt.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Name + "=" + x.ToDisplayValue()))
+                        ? string.Join(",", evt.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Key + "=" + FormattingHelpers.ToDisplayValue(x.Value)))
                         : null);
                 }
             }

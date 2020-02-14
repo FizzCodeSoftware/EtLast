@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Drawing;
-    using System.Linq;
     using System.Windows.Forms;
     using FizzCode.EtLast.Diagnostics.Interface;
 
@@ -95,44 +94,22 @@
             if (_contextContainerManagers.ContainsKey(executionContext.Name))
                 return;
 
-            // sessions and execution contexts are created on the state manager's thread
-            _tabs.Invoke(new Action(() =>
+            var contextContainer = new TabPage(executionContext.Name)
             {
-                var contextContainer = new TabPage(executionContext.Name)
-                {
-                    BorderStyle = BorderStyle.None,
-                    Tag = executionContext,
-                };
+                BorderStyle = BorderStyle.None,
+                Tag = executionContext,
+            };
 
-                var contextManager = new ContextControl(executionContext, contextContainer);
-                _contextContainerManagers.Add(executionContext.Name, contextManager);
+            var contextManager = new ContextControl(executionContext, contextContainer);
+            _contextContainerManagers.Add(executionContext.Name, contextManager);
 
-                _tabs.TabPages.Add(contextContainer);
+            _tabs.TabPages.Add(contextContainer);
 
-                contextManager.FocusProcessList();
-
-                executionContext.OnStartedOnSet += OnExecutionContextStartedOnChanged;
-            }));
-        }
-
-        private void OnExecutionContextStartedOnChanged(ExecutionContext executionContext)
-        {
-            _tabs.Invoke(new Action(() =>
-            {
-                var manager = _contextContainerManagers[executionContext.Name];
-                var page = manager.Container as TabPage;
-                _tabs.TabPages.Remove(page);
-                var idx = Session.ContextList.OrderBy(x => x.StartedOn).ToList().IndexOf(executionContext);
-                idx += 2; // LOGS, DATA STORE COMMANDS
-
-                _tabs.TabPages.Insert(idx, page);
-            }));
+            contextManager.FocusProcessList();
         }
 
         private void Container_Resize(object sender, EventArgs e)
         {
-            //_logManager.Container.Bounds = new Rectangle(0, Container.Height - (Container.Bounds.Height / 4), Container.Width - 500, Container.Bounds.Height / 4);
-            //_dataStoreCommandManager.Container.Bounds = new Rectangle(_logManager.Container.Bounds.Right, Container.Height - (Container.Bounds.Height / 4), Container.Width - _logManager.Container.Bounds.Right, Container.Bounds.Height / 4);
             _tabs.Bounds = new Rectangle(0, 0, Container.Width, Container.Height);
         }
     }

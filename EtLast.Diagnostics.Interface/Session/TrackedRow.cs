@@ -16,21 +16,15 @@
         public TrackedProcessInvocation CurrentOwner { get; set; }
 
         // todo: possible memory issues
-        public Dictionary<string, Argument> Values { get; } = new Dictionary<string, Argument>();
+        public Dictionary<string, object> Values { get; } = new Dictionary<string, object>();
 
         public TrackedRowSnapshot GetSnapshot()
         {
-            var snapshot = new TrackedRowSnapshot()
+            return new TrackedRowSnapshot()
             {
                 Row = this,
+                Values = new List<KeyValuePair<string, object>>(Values),
             };
-
-            foreach (var kvp in Values)
-            {
-                snapshot.Values[kvp.Key] = kvp.Value;
-            }
-
-            return snapshot;
         }
     }
 }

@@ -49,7 +49,7 @@
                     else
                     {
                         Context.Log(logSeverity, Process, "new transaction started and merged with previous: {Transaction}", newId);
-                        Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.transaction, null, process, "new transaction started and merged with previous", newId, new[] { new KeyValuePair<string, object>("previous transaction", previousId) });
+                        Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.transaction, null, process, "new transaction started and merged with previous", newId, () => new[] { new KeyValuePair<string, object>("previous transaction", previousId) });
                     }
 
                     break;
@@ -98,7 +98,7 @@
                 Context.Log(LogSeverity, Process, "transaction completition failed after {Elapsed}: {Transaction}, error message: {ExceptionMessage}", startedOn.Elapsed,
                     transactionId, ex.Message);
 
-                Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.transaction, null, Process, "transaction completition failed", transactionId, new[] { new KeyValuePair<string, object>("error message", ex.Message) });
+                Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.transaction, null, Process, "transaction completition failed", transactionId, () => new[] { new KeyValuePair<string, object>("error message", ex.Message) });
             }
         }
 

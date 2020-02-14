@@ -23,7 +23,7 @@
 
                 foreach (var column in Columns)
                 {
-                    if (!AbstractBaseRow.ValuesAreEqual(leftRow[column], rightRow[column]))
+                    if (!RowValueComparer.ValuesAreEqual(leftRow[column], rightRow[column]))
                         return false;
                 }
             }
@@ -38,7 +38,7 @@
                     if (columnsToIgnore?.Contains(kvp.Key) == true)
                         continue;
 
-                    if (!AbstractBaseRow.ValuesAreEqual(kvp.Value, rightRow[kvp.Key]))
+                    if (!RowValueComparer.ValuesAreEqual(kvp.Value, rightRow[kvp.Key]))
                         return false;
                 }
             }
@@ -56,7 +56,7 @@
                 foreach (var column in Columns)
                 {
                     values.TryGetValue(column, out var rightValue);
-                    if (!AbstractBaseRow.ValuesAreEqual(leftRow[column], rightValue))
+                    if (!RowValueComparer.ValuesAreEqual(leftRow[column], rightValue))
                         return false;
                 }
             }
@@ -73,7 +73,7 @@
 
                     values.TryGetValue(kvp.Key, out var rightValue);
 
-                    if (!AbstractBaseRow.ValuesAreEqual(kvp.Value, rightValue))
+                    if (!RowValueComparer.ValuesAreEqual(kvp.Value, rightValue))
                         return false;
                 }
             }

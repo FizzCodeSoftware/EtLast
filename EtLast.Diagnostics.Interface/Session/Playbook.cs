@@ -88,11 +88,11 @@
 
                             row.AllEvents.Add(evt);
 
-                            foreach (var value in evt.Values)
+                            foreach (var kvp in evt.Values)
                             {
-                                if (value.Value != null)
+                                if (kvp.Value != null)
                                 {
-                                    row.Values[value.Name] = value;
+                                    row.Values[kvp.Key] = kvp.Value;
                                 }
                             }
 
@@ -137,15 +137,15 @@
 
                             row.AllEvents.Add(evt);
 
-                            foreach (var value in evt.Values)
+                            foreach (var kvp in evt.Values)
                             {
-                                if (value.Value != null)
+                                if (kvp.Value != null)
                                 {
-                                    row.Values[value.Name] = value;
+                                    row.Values[kvp.Key] = kvp.Value;
                                 }
                                 else
                                 {
-                                    row.Values.Remove(value.Name);
+                                    row.Values.Remove(kvp.Key);
                                 }
                             }
                         }

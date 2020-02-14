@@ -146,7 +146,7 @@ from
                         command.Parameters.Add(parameter);
                     }
 
-                    Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.read, ConnectionString.Name, this, command.CommandText, Transaction.Current.ToIdentifierString(), parameters);
+                    Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.read, ConnectionString.Name, this, command.CommandText, Transaction.Current.ToIdentifierString(), () => parameters);
 
                     Context.LogNoDiag(LogSeverity.Debug, this, "querying foreign key names from {ConnectionStringName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
                         command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());

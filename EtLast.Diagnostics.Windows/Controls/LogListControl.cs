@@ -85,7 +85,7 @@
                 {
                     foreach (var arg in evt.Arguments)
                     {
-                        text = text.Replace(arg.Name, arg.ToDisplayValue(), StringComparison.InvariantCultureIgnoreCase);
+                        text = text.Replace(arg.Key, FormattingHelpers.ToDisplayValue(arg.Value), StringComparison.InvariantCultureIgnoreCase);
                     }
                 }
 

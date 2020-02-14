@@ -118,30 +118,27 @@
             if (playbook.Events.Count < 3)
                 return;
 
-            _timelineContainer.Invoke(new Action(() =>
+            if (!_timelineContainer.Enabled)
             {
-                if (!_timelineContainer.Enabled)
-                {
-                    _timelineContainer.Enabled = true;
-                    _firstEventLabel.Text = new DateTime(Context.WholePlaybook.Events[0].Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
+                _timelineContainer.Enabled = true;
+                _firstEventLabel.Text = new DateTime(Context.WholePlaybook.Events[0].Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
 
-                    _firstEventLabel.Visible = true;
-                    _lastEventLabel.Visible = true;
+                _firstEventLabel.Visible = true;
+                _lastEventLabel.Visible = true;
 
-                    _firstEventLabel.BringToFront();
-                    _lastEventLabel.BringToFront();
-                    _currentEventLabel.BringToFront();
+                _firstEventLabel.BringToFront();
+                _lastEventLabel.BringToFront();
+                _currentEventLabel.BringToFront();
 
-                    _firstEventLabel.Location = new Point(0, 0);
-                }
+                _firstEventLabel.Location = new Point(0, 0);
+            }
 
-                var last = Context.WholePlaybook.Events[Context.WholePlaybook.Events.Count - 1];
-                _lastEventLabel.Text = new DateTime(last.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
-                _lastEventLabel.Location = new Point(_timelineContainer.Width - _lastEventLabel.Width, 0);
+            var last = Context.WholePlaybook.Events[Context.WholePlaybook.Events.Count - 1];
+            _lastEventLabel.Text = new DateTime(last.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
+            _lastEventLabel.Location = new Point(_timelineContainer.Width - _lastEventLabel.Width, 0);
 
-                _timelineTrackbar.Maximum = (int)(playbook.Events[playbook.Events.Count - 1].Timestamp - playbook.Events[0].Timestamp);
-                UpdateCurrentEventLabelPosition();
-            }));
+            _timelineTrackbar.Maximum = (int)(playbook.Events[playbook.Events.Count - 1].Timestamp - playbook.Events[0].Timestamp);
+            UpdateCurrentEventLabelPosition();
         }
 
         private void UpdateCurrentEventLabelPosition()

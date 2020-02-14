@@ -33,7 +33,7 @@
             {
                 _elapsedMillisecondsAfterFinished = value;
                 ElapsedMillisecondsAfterFinishedAsString = value != null
-                    ? Argument.TimeSpanToString(_elapsedMillisecondsAfterFinished.Value, false)
+                    ? FormattingHelpers.TimeSpanToString(_elapsedMillisecondsAfterFinished.Value, false)
                     : "-";
             }
         }
@@ -42,7 +42,11 @@
 
         public string DisplayName { get; }
 
+        public int StoredRowCount { get; private set; }
+
+        // todo: unused
         public Dictionary<int, TrackedRow> StoredRowList { get; } = new Dictionary<int, TrackedRow>();
+
         public Dictionary<int, TrackedRow> AliveRowList { get; } = new Dictionary<int, TrackedRow>();
         public Dictionary<int, TrackedRow> DroppedRowList { get; } = new Dictionary<int, TrackedRow>();
         public Dictionary<int, HashSet<int>> AliveRowsByPreviousProcess { get; } = new Dictionary<int, HashSet<int>>();
@@ -153,7 +157,7 @@
                     sb.Append("DROP: ").AppendLine(createdAndDroppedCount.FormatToString());
                 }
 
-                var createdAndStoredCount = StoredRowList.Count - StoredRowCountByPreviousProcess.Sum(x => x.Value);
+                var createdAndStoredCount = StoredRowCount - StoredRowCountByPreviousProcess.Sum(x => x.Value);
                 if (createdAndStoredCount > 0)
                 {
                     sb.Append("STORE: ").AppendLine(createdAndStoredCount.FormatToString());
@@ -175,7 +179,7 @@
             sb.Append("IN: ").AppendLine(InputRowCount.FormatToStringNoZero());
             sb.Append("CREATE: ").AppendLine(CreatedRowCount.FormatToStringNoZero());
             sb.Append("DROP: ").AppendLine(DroppedRowList.Count.FormatToStringNoZero());
-            sb.Append("STORE: ").AppendLine(StoredRowList.Count.FormatToStringNoZero());
+            sb.Append("STORE: ").AppendLine(StoredRowCount.FormatToStringNoZero());
             sb.Append("OUT: ").AppendLine(PassedRowCount.FormatToStringNoZero());
 
             return sb.ToString();
@@ -311,6 +315,8 @@
 
         public void StoreRow(TrackedRow row)
         {
+            StoredRowCount++;
+
             if (!StoredRowList.ContainsKey(row.Uid))
                 StoredRowList.Add(row.Uid, row);
 

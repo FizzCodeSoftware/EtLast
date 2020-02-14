@@ -14,7 +14,7 @@
 
             foreach (var kvp in row1.Values)
             {
-                if (AbstractBaseRow.ValuesAreEqual(kvp.Value, row2[kvp.Key]))
+                if (RowValueComparer.ValuesAreEqual(kvp.Value, row2[kvp.Key]))
                     sb.Append("  ");
                 else
                     sb.Append("! ");

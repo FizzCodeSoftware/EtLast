@@ -1,16 +1,11 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface
 {
-    using System.Text.Json.Serialization;
+    using System.Collections.Generic;
 
     public class RowCreatedEvent : AbstractEvent
     {
-        [JsonPropertyName("p")]
         public int ProcessInvocationUID { get; set; }
-
-        [JsonPropertyName("r")]
         public int RowUid { get; set; }
-
-        [JsonPropertyName("v")]
-        public NamedArgument[] Values { get; set; }
+        public KeyValuePair<string, object>[] Values { get; set; }
     }
 }

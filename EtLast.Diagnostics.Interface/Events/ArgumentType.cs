@@ -2,7 +2,6 @@
 {
     public enum ArgumentType
     {
-        _other,
         _error,
         _string,
         _stringArray,

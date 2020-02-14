@@ -186,6 +186,26 @@
 
                     _reader.ResetCurrentIndex();
 
+                    if (retry == 0 && ex is InvalidOperationException)
+                    {
+                        var fileName = "bulk-copy-error-" + Context.CreatedOnLocal.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + ".tsv";
+                        Context.LogCustom(fileName, this, "bulk copy error: " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName) + ", exception: " + ex.GetType().GetFriendlyTypeName() + ": " + ex.Message);
+                        Context.LogCustom(fileName, this, string.Join("\t", _reader.ColumnIndexes.Select(kvp => kvp.Key)));
+
+                        for (var row = 0; row < _reader.RowCount; row++)
+                        {
+                            var text = string.Join("\t", _reader.ColumnIndexes.Select(kvp =>
+                            {
+                                var v = _reader.Rows[row, kvp.Value];
+                                return v == null
+                                    ? "NULL"
+                                    : "'" + v.ToString() + "' (" + v.GetType().GetFriendlyTypeName() + ")";
+                            }));
+
+                            Context.LogCustom(fileName, this, text);
+                        }
+                    }
+
                     if (retry < MaxRetryCount)
                     {
                         Context.Log(LogSeverity.Error, this, "db write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", RetryDelayMilliseconds * (retry + 1),
@@ -207,6 +227,12 @@
                         exception.Data.Add("Timeout", CommandTimeout);
                         exception.Data.Add("Elapsed", _timer.Elapsed);
                         exception.Data.Add("TotalRowsWritten", _rowsWritten);
+                        if (ex is InvalidOperationException)
+                        {
+                            var fileName = "bulk-copy-error-" + Context.CreatedOnLocal.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + ".tsv";
+                            exception.Data.Add("DetailedRowLogFileName", fileName);
+                        }
+
                         throw exception;
                     }
                 }

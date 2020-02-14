@@ -39,14 +39,15 @@
                             continue;
 
                         if (!(v is string strv))
-                        {
                             continue;
-                        }
 
                         if (strv.Length > col.Type.Length.Value)
                         {
-                            strv = strv.Substring(0, col.Type.Length.Value);
-                            row.SetStagedValue(col.Name, strv);
+                            var trimv = strv.Substring(0, col.Type.Length.Value);
+                            row.SetStagedValue(col.Name, trimv);
+
+                            proc.Context.Log(LogSeverity.Warning, proc, "too long string trimmed on {ConnectionStringName}/{TableName}, column: {Column}, max length: {MaxLength}, original value: {Value}, trimmed value: {TrimValue}",
+                                builder.DwhBuilder.ConnectionString.Name, builder.Table.TableName, col.Name, col.Type.Length.Value, strv, trimv);
                         }
                     }
 

@@ -1,23 +1,24 @@
 ﻿namespace FizzCode.EtLast.PluginHost
 {
     using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Globalization;
+    using System.IO;
     using System.Net.Http;
     using System.Text;
-    using System.Text.Json;
     using System.Threading;
+    using System.Threading.Tasks;
+    using FizzCode.EtLast.Diagnostics.Interface;
 
     public class HttpDiagnosticsSender : IDiagnosticsSender
     {
         private readonly Uri _uri;
         private HttpClient _client;
-        private BlockingCollection<Tuple<string, object>> _queue = new BlockingCollection<Tuple<string, object>>();
         private readonly Thread _workerThread;
         private readonly string _sessionId;
         private readonly string _contextName;
+        private BinaryWriter _currentWriter;
+        private readonly object _currentWriterLock = new object();
+        private bool _finished;
 
         public HttpDiagnosticsSender(string sessionId, string contextName, Uri diagnosticsUri)
         {
@@ -29,26 +30,70 @@
                 Timeout = TimeSpan.FromMilliseconds(1500),
             };
 
+            SendWriter(null);
+
             _workerThread = new Thread(WorkerMethod);
             _workerThread.Start();
         }
 
         private void WorkerMethod()
         {
-            var consumer = _queue.GetConsumingEnumerable();
             var swLastSent = Stopwatch.StartNew();
 
-            var buffer = new List<Tuple<string, object>>();
-            foreach (var element in consumer)
+            while (!_finished)
+            {
+                BinaryWriter writerToSend = null;
+                lock (_currentWriterLock)
+                {
+                    if (_currentWriter != null &&
+                        (_currentWriter.BaseStream.Length >= 1024 * 1024
+                        || (_currentWriter.BaseStream.Length > 0 && swLastSent.ElapsedMilliseconds > 500)))
+                    {
+                        writerToSend = _currentWriter;
+                        _currentWriter = null;
+                    }
+                }
+
+                if (writerToSend != null)
+                {
+                    writerToSend.Flush();
+                    SendWriter(writerToSend);
+                }
+
+                Thread.Sleep(10);
+            }
+
+            if (_currentWriter != null)
+            {
+                _currentWriter.Flush();
+                if (_currentWriter.BaseStream.Length > 0)
+                {
+                    SendWriter(_currentWriter);
+                }
+
+                _currentWriter = null;
+            }
+        }
+
+        private void SendWriter(BinaryWriter writer)
+        {
+            var fullUri = new Uri(_uri, "diag?sid=" + _sessionId + (_contextName != null ? "&ctx=" + _contextName : ""));
+
+            var binaryContent = writer != null
+                ? (writer.BaseStream as MemoryStream).ToArray()
+                : Array.Empty<byte>();
+
+            using (var content = new ByteArrayContent(binaryContent))
             {
                 try
                 {
-                    buffer.Add(element);
-                    if (buffer.Count >= 1000 || swLastSent.ElapsedMilliseconds > 500)
+                    var task = Task.Run(() => _client.PostAsync(fullUri, content));
+                    task.Wait();
+                    var response = task.Result;
+                    var responseBody = response.Content.ReadAsStringAsync().Result;
+                    if (responseBody != "ACK")
                     {
-                        SendBuffer(buffer);
-                        buffer.Clear();
-                        swLastSent.Restart();
+                        throw new Exception("SHT");
                     }
                 }
                 catch (Exception)
@@ -56,46 +101,26 @@
                 }
             }
 
-            SendBuffer(buffer);
-            buffer.Clear();
+            writer?.BaseStream.Dispose();
+            writer?.Dispose();
         }
 
-        private void SendBuffer(List<Tuple<string, object>> buffer)
+        public void SendDiagnostics(DiagnosticsEventKind kind, Action<BinaryWriter> writerDelegate)
         {
-            var fullUri = new Uri(_uri, "diag?sid=" + _sessionId + (_contextName != null ? "&ctx=" + _contextName : ""));
-            var builder = new StringBuilder();
-            builder.AppendLine(buffer.Count.ToString("D", CultureInfo.InvariantCulture));
-            foreach (var element in buffer)
+            lock (_currentWriterLock)
             {
-                var type = element.Item1;
-                var jsonContent = JsonSerializer.Serialize(element.Item2);
-                builder.AppendLine(type);
-                builder.AppendLine(jsonContent.Length.ToString("D", CultureInfo.InvariantCulture));
-                builder.AppendLine(jsonContent);
+                if (_finished)
+                    throw new Exception("unexpected call of " + nameof(SendDiagnostics));
+
+#pragma warning disable RCS1180 // Inline lazy initialization.
+                if (_currentWriter == null)
+                    _currentWriter = new BinaryWriter(new MemoryStream(), Encoding.UTF8);
+#pragma warning restore RCS1180 // Inline lazy initialization.
+
+                _currentWriter.Write((byte)kind);
+                _currentWriter.Write(DateTime.Now.Ticks);
+                writerDelegate?.Invoke(_currentWriter);
             }
-
-            var content = builder.ToString();
-            //Console.WriteLine("send diagnostics context, payload size = " + content.Length);
-
-            using (var textContent = new StringContent(content, Encoding.UTF8, "application/json"))
-            {
-                try
-                {
-                    var response = _client.PostAsync(fullUri, textContent).Result;
-                    var responseBody = response.Content.ReadAsStringAsync().Result;
-                }
-                catch (Exception)
-                {
-                }
-            }
-        }
-
-        public void SendDiagnostics(string category, object content)
-        {
-            if (_queue.IsAddingCompleted)
-                throw new Exception("unexpected call of " + nameof(SendDiagnostics));
-
-            _queue.Add(new Tuple<string, object>(category, content));
         }
 
         private bool _isDisposed;
@@ -107,10 +132,10 @@
                 if (disposing)
                 {
                     _client?.Dispose();
-                    _queue?.Dispose();
-
                     _client = null;
-                    _queue = null;
+
+                    _currentWriter?.Dispose();
+                    _currentWriter = null;
                 }
 
                 _isDisposed = true;
@@ -125,7 +150,7 @@
 
         public void Flush()
         {
-            _queue.CompleteAdding();
+            _finished = true;
             _workerThread.Join();
         }
     }

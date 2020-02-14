@@ -120,45 +120,48 @@
                 + text,
                 values.ToArray());
 
-            if (!noDiag && (severity >= LogSeverity.Debug) && _diagnosticsSender != null)
+            if (!noDiag && (severity >= LogSeverity.Debug) && _diagnosticsSender != null && !string.IsNullOrEmpty(text) && !forOps)
             {
                 if (args.Length == 0)
                 {
-                    _diagnosticsSender.SendDiagnostics("log", new Diagnostics.Interface.LogEvent()
+                    _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.Log, writer =>
                     {
-                        Timestamp = DateTime.Now.Ticks,
-                        Text = text,
-                        Severity = severity,
-                        ForOps = forOps,
-                        ProcessInvocationUID = process?.InvocationUID,
+                        writer.Write(text);
+                        writer.Write((byte)severity);
+                        writer.WriteNullable(process?.InvocationUID);
+                        writer.Write((ushort)0);
                     });
 
                     return;
                 }
 
                 var template = GetMessageTemplate(text);
-
-                var arguments = new NamedArgument[args.Length];
-                var idx = 0;
                 var tokens = template.Tokens.ToList();
-                for (var i = 0; i < tokens.Count && idx < args.Length; i++)
-                {
-                    if (tokens[i] is PropertyToken pt)
-                    {
-                        var rawText = text.Substring(pt.StartIndex, pt.Length);
-                        arguments[idx] = NamedArgument.FromObject(rawText, args[idx]);
-                        idx++;
-                    }
-                }
 
-                _diagnosticsSender.SendDiagnostics("log", new Diagnostics.Interface.LogEvent()
+                _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.Log, writer =>
                 {
-                    Timestamp = DateTime.Now.Ticks,
-                    Text = text,
-                    Severity = severity,
-                    ForOps = forOps,
-                    ProcessInvocationUID = process?.InvocationUID,
-                    Arguments = arguments,
+                    writer.Write(text);
+                    writer.Write((byte)severity);
+                    writer.WriteNullable(process?.InvocationUID);
+
+                    var argCount = 0;
+                    for (var i = 0; i < tokens.Count && argCount < args.Length; i++)
+                    {
+                        if (tokens[i] is PropertyToken pt)
+                            argCount++;
+                    }
+
+                    writer.Write((ushort)argCount);
+                    for (int i = 0, idx = 0; i < tokens.Count && idx < args.Length; i++)
+                    {
+                        if (tokens[i] is PropertyToken pt)
+                        {
+                            var rawText = text.Substring(pt.StartIndex, pt.Length);
+                            writer.Write(rawText);
+                            writer.WriteObject(args[idx]);
+                            idx++;
+                        }
+                    }
                 });
             }
         }
@@ -179,15 +182,15 @@
                         return;
                 }
 
-                _diagnosticsSender.SendDiagnostics("context-counters-updated", new ContextCountersUpdatedEvent()
+                _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.ContextCountersUpdated, writer =>
                 {
-                    Timestamp = DateTime.Now.Ticks,
-                    Counters = counters.Select(c => new Counter()
+                    writer.Write((ushort)counters.Count);
+                    foreach (var counter in counters)
                     {
-                        Name = c.Name,
-                        Value = c.Value,
-                        ValueType = c.ValueType,
-                    }).ToArray(),
+                        writer.Write(counter.Name);
+                        writer.Write(counter.Value);
+                        writer.Write((byte)counter.ValueType);
+                    }
                 });
 
                 foreach (var counter in counters)
@@ -299,85 +302,108 @@
 
         private void LifecycleRowCreated(IRow row, IProcess process)
         {
-            _diagnosticsSender.SendDiagnostics("row-created", new RowCreatedEvent()
+            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowCreated, writer =>
             {
-                Timestamp = DateTime.Now.Ticks,
-                ProcessInvocationUID = process.InvocationUID,
-                RowUid = row.UID,
-                Values = row.Values.Select(kvp => NamedArgument.FromObject(kvp.Key, kvp.Value)).ToArray(),
+                writer.Write(process.InvocationUID);
+                writer.Write(row.UID);
+                writer.Write((short)row.ColumnCount);
+                foreach (var kvp in row.Values)
+                {
+                    writer.Write(kvp.Key);
+                    writer.WriteObject(kvp.Value);
+                }
             });
         }
 
         private void LifecycleRowOwnerChanged(IRow row, IProcess previousProcess, IProcess currentProcess)
         {
-            _diagnosticsSender.SendDiagnostics("row-owner-changed", new RowOwnerChangedEvent()
+            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowOwnerChanged, writer =>
             {
-                Timestamp = DateTime.Now.Ticks,
-                RowUid = row.UID,
-                PreviousProcessInvocationUID = previousProcess.InvocationUID,
-                NewProcessInvocationUID = currentProcess?.InvocationUID,
+                writer.Write(row.UID);
+                writer.Write(previousProcess.InvocationUID);
+                writer.WriteNullable(currentProcess?.InvocationUID);
             });
         }
 
         private void LifecycleRowStored(IProcess process, IRow row, List<KeyValuePair<string, string>> location)
         {
-            _diagnosticsSender.SendDiagnostics("row-stored", new RowStoredEvent()
+            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowStored, writer =>
             {
-                Timestamp = DateTime.Now.Ticks,
-                RowUid = row.UID,
-                Locations = location,
-                ProcessInvocationUID = process.InvocationUID,
+                writer.Write(row.UID);
+                writer.Write(process.InvocationUID);
+                writer.Write((ushort)location.Count);
+                foreach (var kvp in location)
+                {
+                    writer.Write(kvp.Key);
+                    writer.Write(kvp.Value);
+                }
             });
         }
 
         private void LifecycleProcessInvocationStart(IProcess process)
         {
-            _diagnosticsSender.SendDiagnostics("process-invocation-start", new ProcessInvocationStartEvent()
+            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.ProcessInvocationStart, writer =>
             {
-                Timestamp = DateTime.Now.Ticks,
-                InvocationUID = process.InvocationUID,
-                InstanceUID = process.InstanceUID,
-                InvocationCounter = process.InvocationCounter,
-                Type = process.GetType().GetFriendlyTypeName(),
-                Kind = process.Kind,
-                Name = process.Name,
-                Topic = process.Topic,
-                CallerInvocationUID = process.Caller?.InvocationUID,
+                writer.Write(process.InvocationUID);
+                writer.Write(process.InstanceUID);
+                writer.Write(process.InvocationCounter);
+                writer.Write(process.GetType().GetFriendlyTypeName());
+                writer.Write((byte)process.Kind);
+                writer.Write(process.Name);
+                writer.WriteNullable(process.Topic);
+                writer.WriteNullable(process.Caller?.InvocationUID);
             });
         }
 
         private void LifecycleProcessInvocationEnd(IProcess process)
         {
-            _diagnosticsSender.SendDiagnostics("process-invocation-end", new ProcessInvocationEndEvent()
+            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.ProcessInvocationEnd, writer =>
             {
-                Timestamp = DateTime.Now.Ticks,
-                InvocationUID = process.InvocationUID,
-                ElapsedMilliseconds = process.LastInvocationStarted.ElapsedMilliseconds,
+                writer.Write(process.InvocationUID);
+                writer.Write(process.LastInvocationStarted.ElapsedMilliseconds);
             });
         }
 
-        private void LifecycleContextDataStoreCommand(DataStoreCommandKind kind, string location, IProcess process, string command, string transactionId, IEnumerable<KeyValuePair<string, object>> args)
+        private void LifecycleContextDataStoreCommand(DataStoreCommandKind kind, string location, IProcess process, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter)
         {
-            _diagnosticsSender.SendDiagnostics("data-store-command", new DataStoreCommandEvent()
+            var arguments = argumentListGetter?.Invoke()?.ToArray();
+
+            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.DataStoreCommand, writer =>
             {
-                Timestamp = DateTime.Now.Ticks,
-                ProcessInvocationUID = process.InvocationUID,
-                Kind = kind,
-                Location = location,
-                Command = command,
-                TransactionId = transactionId,
-                Arguments = args?.Select(kvp => NamedArgument.FromObject(kvp.Key, kvp.Value)).ToArray(),
+                writer.Write(process.InvocationUID);
+                writer.Write((byte)kind);
+                writer.WriteNullable(location);
+                writer.Write(command);
+                writer.WriteNullable(transactionId);
+                if (arguments?.Length > 0)
+                {
+                    writer.Write((ushort)arguments.Length);
+                    foreach (var arg in arguments)
+                    {
+                        writer.Write(arg.Key);
+                        writer.WriteObject(arg.Value);
+                    }
+                }
+                else
+                {
+                    writer.Write((ushort)0);
+                }
             });
         }
 
         private void LifecycleRowValueChanged(IProcess process, IRow row, KeyValuePair<string, object>[] values)
         {
-            _diagnosticsSender.SendDiagnostics("row-value-changed", new RowValueChangedEvent()
+            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowValueChanged, writer =>
             {
-                Timestamp = DateTime.Now.Ticks,
-                RowUid = row.UID,
-                ProcessInvocationUID = process?.InvocationUID,
-                Values = values.Select(kvp => NamedArgument.FromObject(kvp.Key, kvp.Value)).ToArray()
+                writer.Write(row.UID);
+                writer.WriteNullable(process?.InvocationUID);
+
+                writer.Write(values.Length);
+                foreach (var kvp in values)
+                {
+                    writer.Write(kvp.Key);
+                    writer.WriteObject(kvp.Value);
+                }
             });
         }
 

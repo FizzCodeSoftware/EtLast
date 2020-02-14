@@ -12,8 +12,7 @@
         public string Name { get; }
         public Session Session { get; }
         public Playbook WholePlaybook { get; }
-        public DateTime? StartedOn { get; private set; }
-        public OnExecutionContextStartedOnSetDelegate OnStartedOnSet { get; set; }
+        public DateTime StartedOn { get; }
 
         private readonly List<AbstractEvent> _unprocessedEvents = new List<AbstractEvent>();
 
@@ -22,15 +21,7 @@
             Session = session;
             Name = name;
             WholePlaybook = new Playbook(this);
-        }
-
-        public void SetStartedOn(DateTime value)
-        {
-            if (StartedOn == null)
-            {
-                StartedOn = value;
-                OnStartedOnSet?.Invoke(this);
-            }
+            StartedOn = DateTime.Now;
         }
 
         public void AddUnprocessedEvents(List<AbstractEvent> newEvents)
