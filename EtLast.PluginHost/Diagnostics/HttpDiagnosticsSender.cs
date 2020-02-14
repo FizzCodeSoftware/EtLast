@@ -1,12 +1,12 @@
 ﻿namespace FizzCode.EtLast.PluginHost
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Net.Http;
     using System.Text;
     using System.Threading;
-    using System.Threading.Tasks;
     using FizzCode.EtLast.Diagnostics.Interface;
 
     public class HttpDiagnosticsSender : IDiagnosticsSender
@@ -16,8 +16,10 @@
         private readonly Thread _workerThread;
         private readonly string _sessionId;
         private readonly string _contextName;
-        private BinaryWriter _currentWriter;
+        private ExtendedBinaryWriter _currentWriter;
+        private ExtendedBinaryWriter _currentDictionaryWriter;
         private readonly object _currentWriterLock = new object();
+        private readonly Dictionary<string, int> _textDictionary = new Dictionary<string, int>();
         private bool _finished;
 
         public HttpDiagnosticsSender(string sessionId, string contextName, Uri diagnosticsUri)
@@ -42,41 +44,51 @@
 
             while (!_finished)
             {
-                BinaryWriter writerToSend = null;
+                ExtendedBinaryWriter dictionaryWriterToSend = null;
+                ExtendedBinaryWriter writerToSend = null;
                 lock (_currentWriterLock)
                 {
                     if (_currentWriter != null &&
                         (_currentWriter.BaseStream.Length >= 1024 * 1024
                         || (_currentWriter.BaseStream.Length > 0 && swLastSent.ElapsedMilliseconds > 500)))
                     {
+                        dictionaryWriterToSend = _currentDictionaryWriter;
                         writerToSend = _currentWriter;
+                        _currentDictionaryWriter = null;
                         _currentWriter = null;
                     }
                 }
 
+                if (dictionaryWriterToSend != null)
+                    SendWriter(dictionaryWriterToSend);
+
                 if (writerToSend != null)
-                {
-                    writerToSend.Flush();
                     SendWriter(writerToSend);
-                }
 
                 Thread.Sleep(10);
             }
 
+            if (_currentDictionaryWriter != null)
+            {
+                if (_currentDictionaryWriter.BaseStream.Length > 0)
+                    SendWriter(_currentDictionaryWriter);
+
+                _currentDictionaryWriter = null;
+            }
+
             if (_currentWriter != null)
             {
-                _currentWriter.Flush();
                 if (_currentWriter.BaseStream.Length > 0)
-                {
                     SendWriter(_currentWriter);
-                }
 
                 _currentWriter = null;
             }
         }
 
-        private void SendWriter(BinaryWriter writer)
+        private void SendWriter(ExtendedBinaryWriter writer)
         {
+            writer?.Flush();
+
             var fullUri = new Uri(_uri, "diag?sid=" + _sessionId + (_contextName != null ? "&ctx=" + _contextName : ""));
 
             var binaryContent = writer != null
@@ -87,9 +99,7 @@
             {
                 try
                 {
-                    var task = Task.Run(() => _client.PostAsync(fullUri, content));
-                    task.Wait();
-                    var response = task.Result;
+                    var response = _client.PostAsync(fullUri, content).Result;
                     var responseBody = response.Content.ReadAsStringAsync().Result;
                     if (responseBody != "ACK")
                     {
@@ -105,7 +115,33 @@
             writer?.Dispose();
         }
 
-        public void SendDiagnostics(DiagnosticsEventKind kind, Action<BinaryWriter> writerDelegate)
+        public int GetTextDictionaryKey(string text)
+        {
+            if (text == null)
+                return 0;
+
+            lock (_textDictionary)
+            {
+                if (!_textDictionary.TryGetValue(text, out var key))
+                {
+                    key = _textDictionary.Count + 1;
+                    _textDictionary.Add(text, key);
+
+#pragma warning disable RCS1180 // Inline lazy initialization.
+                    if (_currentDictionaryWriter == null)
+                        _currentDictionaryWriter = new ExtendedBinaryWriter(new MemoryStream(), Encoding.UTF8);
+#pragma warning restore RCS1180 // Inline lazy initialization.
+
+                    _currentDictionaryWriter.Write((byte)DiagnosticsEventKind.TextDictionaryKeyAdded);
+                    _currentDictionaryWriter.Write7BitEncodedInt(key);
+                    _currentDictionaryWriter.WriteNullable(text);
+                }
+
+                return key;
+            }
+        }
+
+        public void SendDiagnostics(DiagnosticsEventKind kind, Action<ExtendedBinaryWriter> writerDelegate)
         {
             lock (_currentWriterLock)
             {
@@ -114,7 +150,7 @@
 
 #pragma warning disable RCS1180 // Inline lazy initialization.
                 if (_currentWriter == null)
-                    _currentWriter = new BinaryWriter(new MemoryStream(), Encoding.UTF8);
+                    _currentWriter = new ExtendedBinaryWriter(new MemoryStream(), Encoding.UTF8);
 #pragma warning restore RCS1180 // Inline lazy initialization.
 
                 _currentWriter.Write((byte)kind);
@@ -136,6 +172,9 @@
 
                     _currentWriter?.Dispose();
                     _currentWriter = null;
+
+                    _currentDictionaryWriter?.Dispose();
+                    _currentDictionaryWriter = null;
                 }
 
                 _isDisposed = true;

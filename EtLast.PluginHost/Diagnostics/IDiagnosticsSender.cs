@@ -1,12 +1,12 @@
 ﻿namespace FizzCode.EtLast.PluginHost
 {
     using System;
-    using System.IO;
     using FizzCode.EtLast.Diagnostics.Interface;
 
     public interface IDiagnosticsSender : IDisposable
     {
-        void SendDiagnostics(DiagnosticsEventKind kind, Action<BinaryWriter> writerDelegate);
+        int GetTextDictionaryKey(string text);
+        void SendDiagnostics(DiagnosticsEventKind kind, Action<ExtendedBinaryWriter> writerDelegate);
         void Flush();
     }
 }

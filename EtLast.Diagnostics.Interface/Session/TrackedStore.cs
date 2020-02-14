@@ -8,7 +8,7 @@
     public class TrackedStore
     {
         public string Path { get; }
-        public List<Tuple<RowStoredEvent, TrackedRowSnapshot>> Rows { get; set; } = new List<Tuple<RowStoredEvent, TrackedRowSnapshot>>();
+        public List<Tuple<RowStoredEvent, TrackedRowSnapshot>> Rows { get; } = new List<Tuple<RowStoredEvent, TrackedRowSnapshot>>();
 
         public TrackedStore(string path)
         {

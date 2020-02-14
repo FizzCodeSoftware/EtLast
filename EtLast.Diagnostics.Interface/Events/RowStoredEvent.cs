@@ -2,9 +2,8 @@
 {
     using System.Collections.Generic;
 
-    public class RowStoredEvent : AbstractEvent
+    public class RowStoredEvent : AbstractRowEvent
     {
-        public int RowUid { get; set; }
         public int ProcessInvocationUID { get; set; }
         public KeyValuePair<string, string>[] Locations { get; set; }
     }

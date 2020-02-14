@@ -2,6 +2,7 @@
 {
     public enum DiagnosticsEventKind
     {
+        TextDictionaryKeyAdded,
         RowValueChanged,
         RowStored,
         RowOwnerChanged,

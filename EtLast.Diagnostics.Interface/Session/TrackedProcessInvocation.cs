@@ -52,7 +52,6 @@
         public Dictionary<int, HashSet<int>> AliveRowsByPreviousProcess { get; } = new Dictionary<int, HashSet<int>>();
 
         public int PassedRowCount { get; private set; }
-
         public int CreatedRowCount { get; private set; }
 
         public Dictionary<int, int> StoredRowCountByPreviousProcess { get; } = new Dictionary<int, int>();
@@ -251,7 +250,7 @@
 
             list.Add(row.Uid);
 
-            row.CurrentOwner = this;
+            row.CurrentProcess = this;
 
             InputRowCountByPreviousProcess.TryGetValue(previousProcess.InvocationUID, out var cnt);
             cnt++;
@@ -265,7 +264,7 @@
                 throw new Exception("ohh");
 
             AliveRowList.Add(row.Uid, row);
-            row.CurrentOwner = this;
+            row.CurrentProcess = this;
 
             CreatedRowCount++;
         }
@@ -288,7 +287,7 @@
 
             AliveRowList.Remove(row.Uid);
             DroppedRowList.Add(row.Uid, row);
-            row.CurrentOwner = null;
+            row.CurrentProcess = null;
         }
 
         public void PassedRow(TrackedRow row, TrackedProcessInvocation newProcess)
@@ -308,12 +307,12 @@
             }
 
             AliveRowList.Remove(row.Uid);
-            row.CurrentOwner = null;
+            row.CurrentProcess = null;
 
             PassedRowCount++;
         }
 
-        public void StoreRow(TrackedRow row)
+        public void StoreRow(TrackedRow row, TrackedStore store)
         {
             StoredRowCount++;
 

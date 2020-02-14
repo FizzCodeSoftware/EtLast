@@ -20,6 +20,8 @@
 
         private TrackedProcessInvocation _highlightedProcess;
 
+        private readonly List<AbstractEvent> _allEvents = new List<AbstractEvent>();
+
         public TrackedProcessInvocation HighlightedProcess
         {
             get => _highlightedProcess;
@@ -71,24 +73,31 @@
             }
         }
 
-        internal void ProcessNewDataStoreCommands(List<AbstractEvent> abstractEvents, bool clearList)
+        internal void ProcessNewDataStoreCommands(List<AbstractEvent> abstractEvents)
         {
             if (HighlightedProcess == null)
                 return;
 
-            var eventsQuery = abstractEvents.OfType<DataStoreCommandEvent>()
+            var eventsQuery = (abstractEvents ?? _allEvents).OfType<DataStoreCommandEvent>()
                 .Where(evt => Context.WholePlaybook.ProcessList[evt.ProcessInvocationUID].Topic == HighlightedProcess.Topic);
 
             var events = eventsQuery.ToList();
             if (events.Count == 0)
                 return;
 
+            if (abstractEvents != null)
+            {
+                _allEvents.AddRange(events);
+            }
+
             ListView.BeginUpdate();
 
             try
             {
-                if (clearList)
+                if (abstractEvents == null)
+                {
                     ListView.Items.Clear();
+                }
 
                 foreach (var evt in events)
                 {
@@ -137,7 +146,7 @@
         {
             if (topicChanged)
             {
-                ProcessNewDataStoreCommands(Context.WholePlaybook.Events, true);
+                ProcessNewDataStoreCommands(null);
             }
             else
             {

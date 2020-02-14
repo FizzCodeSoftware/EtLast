@@ -51,7 +51,7 @@
             ListView.MouseLeave += (s, a) => ToolTipSingleton.Remove(s as Control);
             ListView.MouseUp += ListView_MouseUp;
 
-            var fix = 40 + 40 + 60 + 100 + 150;
+            var fix = 40 + 40 + 60 + 140;
             ListView.Columns.Add("#", 40);
             ListView.Columns.Add("time", 40);
 
@@ -60,7 +60,7 @@
             ListView.Columns.Add("kind", 60).TextAlign = HorizontalAlignment.Left;
             ListView.Columns.Add("type", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Left;
 
-            ListView.Columns.Add("IN", 100).TextAlign = HorizontalAlignment.Right;
+            ListView.Columns.Add("IN", 140).TextAlign = HorizontalAlignment.Right;
             ListView.Columns.Add("+", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
             ListView.Columns.Add("-", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
             ListView.Columns.Add("store", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;

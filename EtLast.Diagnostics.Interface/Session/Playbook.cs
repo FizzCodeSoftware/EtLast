@@ -12,7 +12,9 @@
     {
         public ExecutionContext ExecutionContext { get; }
 
-        public List<AbstractEvent> Events { get; } = new List<AbstractEvent>();
+        public DateTime? FirstEventTimestamp { get; set; }
+        public DateTime? LastEventTimestamp { get; set; }
+
         public Dictionary<int, TrackedRow> RowList { get; } = new Dictionary<int, TrackedRow>();
         public Dictionary<string, TrackedStore> StoreList { get; } = new Dictionary<string, TrackedStore>();
         public Dictionary<int, TrackedProcessInvocation> ProcessList { get; } = new Dictionary<int, TrackedProcessInvocation>();
@@ -27,7 +29,7 @@
             ExecutionContext = sessionContext;
         }
 
-        public void AddEvents(List<AbstractEvent> abstactEvents)
+        public void AddEvents(IEnumerable<AbstractEvent> abstactEvents)
         {
             var newEvents = new List<AbstractEvent>();
 
@@ -83,7 +85,7 @@
                             var row = new TrackedRow()
                             {
                                 Uid = evt.RowUid,
-                                CreatedByEvent = evt,
+                                CreatorProcess = process,
                             };
 
                             row.AllEvents.Add(evt);
@@ -120,8 +122,8 @@
                             }
                             else
                             {
+                                row.DroppedByProcess = previousProcess;
                                 previousProcess.DropRow(row);
-                                row.DroppedByEvent = evt;
                             }
 
                             row.AllEvents.Add(evt);
@@ -159,14 +161,14 @@
                                 continue;
 
                             row.AllEvents.Add(evt);
-                            var storePath = string.Join("/", evt.Locations.Select(x => x.Value));
+                            var storePath = string.Intern(string.Join("/", evt.Locations.Select(x => x.Value)));
                             if (!StoreList.TryGetValue(storePath, out var store))
                             {
                                 store = new TrackedStore(storePath);
                                 StoreList.Add(storePath, store);
                             }
 
-                            process.StoreRow(row);
+                            process.StoreRow(row, store);
 
                             var snapshot = row.GetSnapshot();
                             store.Rows.Add(new Tuple<RowStoredEvent, TrackedRowSnapshot>(evt, snapshot));
@@ -175,11 +177,15 @@
                 }
 
                 newEvents.Add(abstactEvent);
-                Events.Add(abstactEvent);
             }
 
             if (newEvents.Count == 0)
                 return;
+
+            if (FirstEventTimestamp == null)
+                FirstEventTimestamp = new DateTime(newEvents[0].Timestamp);
+
+            LastEventTimestamp = new DateTime(newEvents[newEvents.Count - 1].Timestamp);
 
             OnEventsAdded?.Invoke(this, newEvents);
 

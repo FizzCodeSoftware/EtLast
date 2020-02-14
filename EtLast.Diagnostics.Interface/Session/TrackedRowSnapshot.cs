@@ -7,6 +7,6 @@
     public class TrackedRowSnapshot
     {
         public TrackedRow Row { get; set; }
-        public List<KeyValuePair<string, object>> Values { get; set; }
+        public KeyValuePair<string, object>[] Values { get; set; }
     }
 }

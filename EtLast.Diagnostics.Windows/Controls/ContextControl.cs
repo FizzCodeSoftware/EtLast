@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Drawing;
     using System.Globalization;
-    using System.Linq;
     using System.Windows.Forms;
     using FizzCode.EtLast.Diagnostics.Interface;
 
@@ -113,15 +112,18 @@
 
         private void OnEventsAdded(Playbook playbook, List<AbstractEvent> abstractEvents)
         {
-            DataStoreCommandList.ProcessNewDataStoreCommands(abstractEvents, false);
+            DataStoreCommandList.ProcessNewDataStoreCommands(abstractEvents);
 
-            if (playbook.Events.Count < 3)
+            if (playbook.FirstEventTimestamp == null || playbook.LastEventTimestamp == null)
+                return;
+
+            if (playbook.FirstEventTimestamp.Value == playbook.LastEventTimestamp.Value)
                 return;
 
             if (!_timelineContainer.Enabled)
             {
                 _timelineContainer.Enabled = true;
-                _firstEventLabel.Text = new DateTime(Context.WholePlaybook.Events[0].Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
+                _firstEventLabel.Text = playbook.FirstEventTimestamp.Value.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
 
                 _firstEventLabel.Visible = true;
                 _lastEventLabel.Visible = true;
@@ -133,11 +135,10 @@
                 _firstEventLabel.Location = new Point(0, 0);
             }
 
-            var last = Context.WholePlaybook.Events[Context.WholePlaybook.Events.Count - 1];
-            _lastEventLabel.Text = new DateTime(last.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
+            _lastEventLabel.Text = playbook.LastEventTimestamp.Value.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
             _lastEventLabel.Location = new Point(_timelineContainer.Width - _lastEventLabel.Width, 0);
 
-            _timelineTrackbar.Maximum = (int)(playbook.Events[playbook.Events.Count - 1].Timestamp - playbook.Events[0].Timestamp);
+            _timelineTrackbar.Maximum = Convert.ToInt32(playbook.LastEventTimestamp.Value.Subtract(playbook.FirstEventTimestamp.Value).TotalMilliseconds);
             UpdateCurrentEventLabelPosition();
         }
 
@@ -156,26 +157,16 @@
             ProcessInvocationList.ListView.Focus();
         }
 
-        private void Snapshot(int tickDiff)
+        private void Snapshot(int msecDiff)
         {
             CurrentPlaybook = new Playbook(Context);
 
-            var selectedTick = Context.WholePlaybook.Events[0].Timestamp + tickDiff;
+            var selectedTime = Context.WholePlaybook.FirstEventTimestamp.Value.AddMilliseconds(msecDiff);
 
-            var events = new List<AbstractEvent>();
-            var idx = 0;
-            while (idx < Context.WholePlaybook.Events.Count)
-            {
-                var evt = Context.WholePlaybook.Events[idx++];
-                if (evt.Timestamp > selectedTick)
-                    break;
-
-                events.Add(evt);
-            }
-
+            var events = Context.GetEventsUntil(selectedTime);
             CurrentPlaybook.AddEvents(events);
 
-            _currentEventLabel.Text = new DateTime(CurrentPlaybook.Events.Last().Timestamp).ToString("HH:mm:ss", CultureInfo.InvariantCulture);
+            _currentEventLabel.Text = CurrentPlaybook.LastEventTimestamp.Value.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
             if (!_currentEventLabel.Visible)
             {
                 _currentEventLabel.Visible = true;
