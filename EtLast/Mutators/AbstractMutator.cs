@@ -38,12 +38,12 @@
 
                 if (!apply)
                 {
-                    CounterCollection.IncrementCounter("skipped", 1);
+                    CounterCollection.IncrementCounter("skipped", 1, true);
                     yield return row;
                     continue;
                 }
 
-                CounterCollection.IncrementCounter("processed", 1);
+                CounterCollection.IncrementCounter("processed", 1, true);
 
                 var kept = false;
                 try

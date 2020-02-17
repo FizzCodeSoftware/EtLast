@@ -11,8 +11,8 @@
         public string DataFolder { get; }
         public DateTime StartedOn { get; }
 
-        public List<ExecutionContext> ContextList { get; } = new List<ExecutionContext>();
-        public Dictionary<string, ExecutionContext> ExecutionContextListByName { get; } = new Dictionary<string, ExecutionContext>();
+        public List<AbstractExecutionContext> ContextList { get; } = new List<AbstractExecutionContext>();
+        public Dictionary<string, AbstractExecutionContext> ExecutionContextListByName { get; } = new Dictionary<string, AbstractExecutionContext>();
 
         public Session(string name, string dataFolder, DateTime startedOn)
         {

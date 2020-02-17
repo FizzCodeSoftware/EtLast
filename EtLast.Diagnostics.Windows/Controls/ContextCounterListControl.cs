@@ -1,5 +1,7 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows
 {
+    using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Windows.Forms;
     using FizzCode.EtLast.Diagnostics.Interface;
@@ -8,26 +10,16 @@
     internal class ContextCounterListControl
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        public ExecutionContext Context { get; }
-        public ListView CounterList { get; }
+        public AbstractExecutionContext Context { get; }
+        public ListView ListView { get; }
 
-        private Playbook _currentPlaybook;
+        private readonly System.Threading.Timer _statUpdateTimer;
 
-        public Playbook CurrentPlaybook
-        {
-            get => _currentPlaybook;
-            set
-            {
-                _currentPlaybook = value;
-                UpdateCounters();
-            }
-        }
-
-        public ContextCounterListControl(Control container, ExecutionContext context)
+        public ContextCounterListControl(Control container, AbstractExecutionContext context)
         {
             Context = context;
 
-            CounterList = new ListView()
+            ListView = new ListView()
             {
                 View = View.Details,
                 Parent = container,
@@ -40,39 +32,71 @@
                 BorderStyle = BorderStyle.FixedSingle,
             };
 
-            CounterList.Columns.Add("value", 75);
-            CounterList.Columns.Add("actual", 75);
-            CounterList.Columns.Add("counter name", CounterList.Width - 150 - SystemInformation.VerticalScrollBarWidth - 4);
+            ListView.Columns.Add("value", 75);
+            ListView.Columns.Add("counter name", 1000);
 
-            context.WholePlaybook.OnCountersUpdated += _ => UpdateCounters();
+            _statUpdateTimer = new System.Threading.Timer((state) => UpdateStats());
+            _statUpdateTimer.Change(500, System.Threading.Timeout.Infinite);
         }
 
-        internal void UpdateCounters()
+        private void UpdateStats()
         {
-            var counters = Context.WholePlaybook.Counters.Values.OrderBy(x => x.Name);
+            _statUpdateTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
 
-            CounterList.BeginUpdate();
-            try
+            ListView.Invoke(new Action(() =>
             {
-                foreach (var actualCounter in counters)
+                var foundInList = new HashSet<string>();
+
+                var changed = false;
+                foreach (ListViewItem item in ListView.Items)
                 {
-                    var item = CounterList.Items[actualCounter.Name];
-                    if (item == null)
+                    if (item.Tag is Counter counter)
                     {
-                        item = CounterList.Items.Add(actualCounter.Name, "-", -1);
-                        item.SubItems.Add("-");
-                        item.SubItems.Add(actualCounter.Name);
-                    }
+                        foundInList.Add(counter.Name);
+                        if (item.SubItems[0].Text != counter.ValueToString)
+                        {
+                            changed = true;
+                            break;
+                        }
 
-                    Counter currentCounter = null;
-                    CurrentPlaybook?.Counters?.TryGetValue(actualCounter.Name, out currentCounter);
-                    item.SubItems[0].SetIfChanged(currentCounter?.ValueToString ?? "-");
-                    item.SubItems[1].SetIfChanged(actualCounter.ValueToString);
+                        changed = false;
+                    }
                 }
-            }
-            finally
+
+                if (foundInList.Count != Context.WholePlaybook.Counters.Count)
+                    changed = true;
+
+                if (changed)
+                {
+                    ListView.BeginUpdate();
+                    try
+                    {
+                        var missingCounters = Context.WholePlaybook.Counters.Values.Where(x => !foundInList.Contains(x.Name));
+                        foreach (var counter in missingCounters)
+                        {
+                            var item = ListView.Items.Add(counter.ValueToString);
+                            item.Tag = counter;
+                            item.SubItems.Add(counter.Name);
+                        }
+
+                        foreach (ListViewItem item in ListView.Items)
+                        {
+                            if (item.Tag is Counter counter)
+                            {
+                                item.SubItems[0].SetIfChanged(counter.ValueToString);
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        ListView.EndUpdate();
+                    }
+                }
+            }));
+
+            if (Context.EndedOn == null)
             {
-                CounterList.EndUpdate();
+                _statUpdateTimer.Change(500, System.Threading.Timeout.Infinite);
             }
         }
     }

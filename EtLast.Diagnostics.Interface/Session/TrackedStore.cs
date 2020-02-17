@@ -1,18 +1,19 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface
 {
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
 
     [DebuggerDisplay("{Path}")]
     public class TrackedStore
     {
-        public string Path { get; }
-        public List<Tuple<RowStoredEvent, TrackedRowSnapshot>> Rows { get; } = new List<Tuple<RowStoredEvent, TrackedRowSnapshot>>();
+        public int UID { get; }
+        public KeyValuePair<string, string>[] Descriptor { get; }
+        public int RowCount { get; set; }
 
-        public TrackedStore(string path)
+        public TrackedStore(int uid, KeyValuePair<string, string>[] descriptor)
         {
-            Path = path;
+            UID = uid;
+            Descriptor = descriptor;
         }
     }
 }

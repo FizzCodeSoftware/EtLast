@@ -4,9 +4,11 @@
     using System.Diagnostics;
 
     [DebuggerDisplay("{Row}")]
-    public class TrackedRowSnapshot
+    public class StoredRow
     {
-        public TrackedRow Row { get; set; }
+        public int Uid { get; set; }
+        public TrackedStore Store { get; set; }
+        public TrackedProcessInvocation Process { get; set; }
         public KeyValuePair<string, object>[] Values { get; set; }
     }
 }

@@ -49,6 +49,7 @@
         private Stopwatch _timer;
         private double _fullTime;
         private RowShadowReader _reader;
+        private int _storeUid;
 
         public MsSqlWriteToTableWithMicroTransactionsMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
@@ -67,6 +68,12 @@
             }
 
             _reader = new RowShadowReader(BatchSize, TableDefinition.Columns.Select(x => x.DbColumn).ToArray(), columnIndexes);
+
+            _storeUid = Context.GetStoreUid(new List<KeyValuePair<string, string>>()
+            {
+                new KeyValuePair<string, string>("ConnectionString", ConnectionString.Name),
+                new KeyValuePair<string, string>("Table", ConnectionString.Unescape(TableDefinition.TableName)),
+            });
         }
 
         protected override void CloseMutator()
@@ -84,11 +91,7 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            Context.OnRowStored?.Invoke(this, row, new List<KeyValuePair<string, string>>()
-            {
-                new KeyValuePair<string, string>("Connection", ConnectionString.Name),
-                new KeyValuePair<string, string>("Table", TableDefinition.TableName),
-            });
+            Context.OnRowStored?.Invoke(this, row, _storeUid);
 
             var rc = _reader.RowCount;
             for (var i = 0; i < TableDefinition.Columns.Length; i++)

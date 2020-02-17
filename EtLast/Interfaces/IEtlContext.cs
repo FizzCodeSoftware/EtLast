@@ -54,5 +54,6 @@
 
         void RegisterProcessInvocationStart(IProcess process, IProcess caller);
         void RegisterProcessInvocationEnd(IProcess process);
+        int GetStoreUid(List<KeyValuePair<string, string>> descriptor);
     }
 }

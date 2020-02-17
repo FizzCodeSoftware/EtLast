@@ -72,6 +72,7 @@
                 Context.OnRowCreated = LifecycleRowCreated;
                 Context.OnRowOwnerChanged = LifecycleRowOwnerChanged;
                 Context.OnRowValueChanged = LifecycleRowValueChanged;
+                Context.OnRowStoreStarted = LifecycleRowStoreStarted;
                 Context.OnRowStored = LifecycleRowStored;
                 Context.OnProcessInvocationStart = LifecycleProcessInvocationStart;
                 Context.OnProcessInvocationEnd = LifecycleProcessInvocationEnd;
@@ -325,17 +326,32 @@
             });
         }
 
-        private void LifecycleRowStored(IProcess process, IRow row, List<KeyValuePair<string, string>> location)
+        private void LifecycleRowStoreStarted(int storeUid, List<KeyValuePair<string, string>> descriptor)
+        {
+            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowStoreStarted, writer =>
+            {
+                writer.Write7BitEncodedInt(storeUid);
+                writer.Write7BitEncodedInt(descriptor.Count);
+                foreach (var kvp in descriptor)
+                {
+                    writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(kvp.Key));
+                    writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(kvp.Value));
+                }
+            });
+        }
+
+        private void LifecycleRowStored(IProcess process, IRow row, int storeUid)
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowStored, writer =>
             {
                 writer.Write7BitEncodedInt(row.UID);
                 writer.Write7BitEncodedInt(process.InvocationUID);
-                writer.Write7BitEncodedInt(location.Count);
-                foreach (var kvp in location)
+                writer.Write7BitEncodedInt(storeUid);
+                writer.Write7BitEncodedInt(row.ColumnCount);
+                foreach (var kvp in row.Values)
                 {
                     writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(kvp.Key));
-                    writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(kvp.Value));
+                    writer.WriteObject(kvp.Value);
                 }
             });
         }
@@ -478,6 +494,10 @@
             if (_diagnosticsSender != null)
             {
                 SendContextCountersToDiagnostics();
+
+                _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.ContextEnded, writer =>
+                {
+                });
 
                 _diagnosticsSender.Flush();
                 _diagnosticsSender.Dispose();

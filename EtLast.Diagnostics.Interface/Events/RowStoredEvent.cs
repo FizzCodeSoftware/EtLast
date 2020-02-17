@@ -5,6 +5,7 @@
     public class RowStoredEvent : AbstractRowEvent
     {
         public int ProcessInvocationUID { get; set; }
-        public KeyValuePair<string, string>[] Locations { get; set; }
+        public int StoreUID { get; set; }
+        public KeyValuePair<string, object>[] Values { get; set; }
     }
 }

@@ -2,8 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Drawing;
     using System.Globalization;
+    using System.Linq;
     using System.Windows.Forms;
     using FizzCode.EtLast.Diagnostics.Interface;
 
@@ -13,7 +15,7 @@
     internal class ContextProcessInvocationListControl
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        public ExecutionContext Context { get; }
+        public AbstractExecutionContext Context { get; }
         public ListView ListView { get; }
         public OnProcessInvocationListSelectionChanged OnSelectionChanged { get; set; }
 
@@ -26,11 +28,11 @@
         private Color IsInputBackColor { get; set; } = Color.FromArgb(255, 230, 185);
         private Color IsSameTopicBackColor { get; set; } = Color.FromArgb(220, 220, 255);
 
-        public ContextProcessInvocationListControl(Control container, ExecutionContext context)
+        public Button _testSearchButton;
+
+        public ContextProcessInvocationListControl(Control container, AbstractExecutionContext context)
         {
             Context = context;
-
-            _processStatUpdaterTimer = new System.Threading.Timer((state) => UpdateProcessStats());
 
             ListView = new ListView()
             {
@@ -67,11 +69,60 @@
             ListView.Columns.Add("pending", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
             ListView.Columns.Add("OUT", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
 
+            _testSearchButton = new Button()
+            {
+                Parent = container,
+                Text = "search",
+            };
+            _testSearchButton.Click += TestSearchButton_Click;
+            _testSearchButton.BringToFront();
+
+            _processStatUpdaterTimer = new System.Threading.Timer((state) => UpdateProcessStats());
             _processStatUpdaterTimer.Change(500, System.Threading.Timeout.Infinite);
 
             context.WholePlaybook.OnProcessInvoked += OnProcessInvoked;
 
             ListView.ItemSelectionChanged += ListView_ItemSelectionChanged;
+        }
+
+        private void TestSearchButton_Click(object sender, EventArgs e)
+        {
+            var relatedRowUIDs = new HashSet<int>();
+            var startedOn = Stopwatch.StartNew();
+            var allEventCount = 0;
+            var rowEventCount = 0;
+            Context.EnumerateThroughEvents(evt =>
+            {
+                allEventCount++;
+                if (evt is AbstractRowEvent are)
+                {
+                    rowEventCount++;
+                    if (relatedRowUIDs.Contains(are.RowUid))
+                        return;
+
+                    if ((evt is RowCreatedEvent rce && rce.Values.Any(x => x.Value != null && x.Value is string str && str.Contains("ab", StringComparison.InvariantCultureIgnoreCase)))
+                        || (evt is RowValueChangedEvent rvce && rvce.Values.Any(x => x.Value != null && x.Value is string str && str.Contains("ab", StringComparison.InvariantCultureIgnoreCase))))
+                    {
+                        relatedRowUIDs.Add(are.RowUid);
+                    }
+                }
+            }, DiagnosticsEventKind.RowCreated, DiagnosticsEventKind.RowValueChanged);
+
+            Debug.WriteLine(startedOn.ElapsedMilliseconds);
+
+            var resultEvents = new List<AbstractRowEvent>();
+            Context.EnumerateThroughEvents(evt =>
+            {
+                if (evt is AbstractRowEvent are && relatedRowUIDs.Contains(are.RowUid))
+                {
+                    resultEvents.Add(are);
+                }
+            }, DiagnosticsEventKind.RowOwnerChanged, DiagnosticsEventKind.RowCreated, DiagnosticsEventKind.RowValueChanged, DiagnosticsEventKind.RowStored);
+
+            Debug.WriteLine(startedOn.ElapsedMilliseconds);
+            Debug.WriteLine(allEventCount);
+            Debug.WriteLine(rowEventCount);
+            Debug.WriteLine(resultEvents.Count);
         }
 
         internal void SelectProcess(TrackedProcessInvocation process)
@@ -239,9 +290,9 @@
 
                         if (item.SubItems[6].Text != p.GetFormattedInputRowCount()
                             || item.SubItems[7].Text != p.CreatedRowCount.FormatToStringNoZero()
-                            || item.SubItems[8].Text != p.DroppedRowList.Count.FormatToStringNoZero()
+                            || item.SubItems[8].Text != p.DroppedRowCount.FormatToStringNoZero()
                             || item.SubItems[9].Text != p.StoredRowCount.FormatToStringNoZero()
-                            || item.SubItems[10].Text != p.AliveRowList.Count.FormatToStringNoZero()
+                            || item.SubItems[10].Text != p.AliveRowCount.FormatToStringNoZero()
                             || item.SubItems[11].Text != p.PassedRowCount.FormatToStringNoZero())
                         {
                             changed = true;
@@ -263,9 +314,9 @@
 
                                 item.SubItems[6].SetIfChanged(p.GetFormattedInputRowCount());
                                 item.SubItems[7].SetIfChanged(p.CreatedRowCount.FormatToStringNoZero());
-                                item.SubItems[8].SetIfChanged(p.DroppedRowList.Count.FormatToStringNoZero());
+                                item.SubItems[8].SetIfChanged(p.DroppedRowCount.FormatToStringNoZero());
                                 item.SubItems[9].SetIfChanged(p.StoredRowCount.FormatToStringNoZero());
-                                item.SubItems[10].SetIfChanged(p.AliveRowList.Count.FormatToStringNoZero());
+                                item.SubItems[10].SetIfChanged(p.AliveRowCount.FormatToStringNoZero());
                                 item.SubItems[11].SetIfChanged(p.PassedRowCount.FormatToStringNoZero());
                             }
                         }
@@ -277,7 +328,10 @@
                 }
             }));
 
-            _processStatUpdaterTimer.Change(500, System.Threading.Timeout.Infinite);
+            if (Context.EndedOn == null)
+            {
+                _processStatUpdaterTimer.Change(500, System.Threading.Timeout.Infinite);
+            }
         }
 
         private void ListView_MouseMove(object sender, MouseEventArgs e)

@@ -4,6 +4,7 @@
     {
         TextDictionaryKeyAdded,
         RowValueChanged,
+        RowStoreStarted,
         RowStored,
         RowOwnerChanged,
         RowCreated,
@@ -12,5 +13,6 @@
         Log,
         DataStoreCommand,
         ContextCountersUpdated,
+        ContextEnded,
     }
 }

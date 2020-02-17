@@ -154,8 +154,17 @@
 #pragma warning restore RCS1180 // Inline lazy initialization.
 
                 _currentWriter.Write((byte)kind);
+                var eventDataLengthPos = (int)_currentWriter.BaseStream.Position;
+                _currentWriter.Write(0);
+
+                var startPos = (int)_currentWriter.BaseStream.Position;
                 _currentWriter.Write(DateTime.Now.Ticks);
+
                 writerDelegate?.Invoke(_currentWriter);
+                var endPos = (int)_currentWriter.BaseStream.Position;
+                _currentWriter.Seek(eventDataLengthPos, SeekOrigin.Begin);
+                _currentWriter.Write(endPos - startPos);
+                _currentWriter.Seek(endPos, SeekOrigin.Begin);
             }
         }
 

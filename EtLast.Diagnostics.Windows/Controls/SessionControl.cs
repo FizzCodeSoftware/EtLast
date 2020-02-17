@@ -83,13 +83,13 @@
             if (_tabs.SelectedIndex < 0)
                 return;
 
-            if (_tabs.TabPages[_tabs.SelectedIndex].Tag is ExecutionContext context)
+            if (_tabs.TabPages[_tabs.SelectedIndex].Tag is AbstractExecutionContext context)
             {
                 _contextContainerManagers[context.Name].FocusProcessList();
             }
         }
 
-        private void OnExecutionContextCreated(ExecutionContext executionContext)
+        private void OnExecutionContextCreated(AbstractExecutionContext executionContext)
         {
             if (_contextContainerManagers.ContainsKey(executionContext.Name))
                 return;

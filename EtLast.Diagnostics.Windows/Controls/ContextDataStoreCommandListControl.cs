@@ -12,7 +12,7 @@
     internal class ContextDataStoreCommandListControl
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        public ExecutionContext Context { get; }
+        public AbstractExecutionContext Context { get; }
         public ListView ListView { get; }
         public Color HighlightedProcessForeColor { get; set; } = Color.Black;
         public Color HighlightedProcessBackColor { get; set; } = Color.FromArgb(150, 255, 255);
@@ -33,7 +33,7 @@
             }
         }
 
-        public ContextDataStoreCommandListControl(Control container, ExecutionContext context)
+        public ContextDataStoreCommandListControl(Control container, AbstractExecutionContext context)
         {
             Context = context;
 
@@ -73,7 +73,7 @@
             }
         }
 
-        internal void ProcessNewDataStoreCommands(List<AbstractEvent> abstractEvents)
+        internal void ProcessNewEvents(List<AbstractEvent> abstractEvents)
         {
             if (HighlightedProcess == null)
                 return;
@@ -146,7 +146,7 @@
         {
             if (topicChanged)
             {
-                ProcessNewDataStoreCommands(null);
+                ProcessNewEvents(null);
             }
             else
             {

@@ -12,7 +12,7 @@
     using FizzCode.EtLast.Diagnostics.Interface;
 
     internal delegate void OnSessionCreatedDelegate(Session session);
-    internal delegate void OnExecutionContextCreatedDelegate(ExecutionContext executionContext);
+    internal delegate void OnExecutionContextCreatedDelegate(FileBasedExecutionContext executionContext);
 
     internal class DiagnosticsStateManager : IDisposable
     {
@@ -24,7 +24,7 @@
         public IEnumerable<Session> Session => _sessionList.Values;
 
         private readonly List<Session> _newSessions = new List<Session>();
-        private readonly List<ExecutionContext> _newExecutionContexts = new List<ExecutionContext>();
+        private readonly List<FileBasedExecutionContext> _newExecutionContexts = new List<FileBasedExecutionContext>();
 
         public DiagnosticsStateManager(string uriPrefix)
         {
@@ -90,7 +90,7 @@
                     }
                 }
 
-                if (!session.ExecutionContextListByName.TryGetValue(contextName, out var executionContext))
+                if (!session.ExecutionContextListByName.TryGetValue(contextName, out var ec) || !(ec is FileBasedExecutionContext executionContext))
                 {
                     var folder = Path.Combine(session.DataFolder, contextName.Replace("/", "-", StringComparison.InvariantCultureIgnoreCase));
                     if (!Directory.Exists(folder))
@@ -102,7 +102,7 @@
                         "started-on\t" + now.ToString("yyyy.MM.dd HH:mm:ss.fff", CultureInfo.InvariantCulture),
                     });
 
-                    executionContext = new ExecutionContext(session, contextName, folder, now, 1);
+                    executionContext = new FileBasedExecutionContext(session, contextName, now, folder, 1);
 
                     lock (_sessionList)
                     {
@@ -118,25 +118,7 @@
                     listenerContext.Request.InputStream.CopyTo(tempMemoryStream);
                     tempMemoryStream.Position = 0;
 
-                    if (executionContext.LastWrittenFileSize + tempMemoryStream.Length > 1024 * 1024 * 50)
-                    {
-                        executionContext.FileCount++;
-                        executionContext.LastWrittenFileSize = 0;
-                    }
-
-                    var fileName = executionContext.GetBinaryFileName(executionContext.FileCount);
-                    using (var fw = new FileStream(fileName, FileMode.Append))
-                    {
-                        tempMemoryStream.CopyTo(fw);
-                        executionContext.LastWrittenFileSize += tempMemoryStream.Length;
-                    }
-
-                    tempMemoryStream.Position = 0;
-
-                    using (var reader = new ExtendedBinaryReader(tempMemoryStream, Encoding.UTF8))
-                    {
-                        executionContext.ProcessBinary(reader);
-                    }
+                    executionContext.StageEvents(tempMemoryStream);
                 }
 
                 var acceptedResponse = Encoding.UTF8.GetBytes("ACK");
@@ -158,18 +140,18 @@
 
         public void ProcessEvents()
         {
-            List<ExecutionContext> allContextList;
-            List<ExecutionContext> newContexts;
+            List<FileBasedExecutionContext> allContextList;
+            List<FileBasedExecutionContext> newContexts;
             List<Session> newSessions;
             lock (_sessionList)
             {
                 newSessions = new List<Session>(_newSessions);
                 _newSessions.Clear();
 
-                newContexts = new List<ExecutionContext>(_newExecutionContexts);
+                newContexts = new List<FileBasedExecutionContext>(_newExecutionContexts);
                 _newExecutionContexts.Clear();
 
-                allContextList = _sessionList.Values.SelectMany(x => x.ContextList).ToList();
+                allContextList = _sessionList.Values.SelectMany(x => x.ContextList.Select(y => y as FileBasedExecutionContext)).ToList();
             }
 
             foreach (var session in newSessions)
@@ -180,7 +162,7 @@
 
             foreach (var executionContext in allContextList)
             {
-                executionContext.ProcessEvents();
+                executionContext.LoadStagedEvents();
             }
         }
 

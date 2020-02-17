@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Threading;
 
     public class EtlContext : IEtlContext
@@ -29,6 +30,7 @@
         public ContextOnRowCreatedDelegate OnRowCreated { get; set; }
         public ContextOnRowOwnerChangedDelegate OnRowOwnerChanged { get; set; }
         public ContextOnRowValueChangedDelegate OnRowValueChanged { get; set; }
+        public ContextOnRowStoreStartedDelegate OnRowStoreStarted { get; set; }
         public ContextOnRowStoredDelegate OnRowStored { get; set; }
         public ContextOnProcessInvocationDelegate OnProcessInvocationStart { get; set; }
         public ContextOnProcessInvocationDelegate OnProcessInvocationEnd { get; set; }
@@ -37,7 +39,9 @@
         private int _nextRowUID;
         private int _nextProcessInstanceUID;
         private int _nextProcessInvocationUID;
+        private int _nextRowStoreUID;
         private readonly List<Exception> _exceptions = new List<Exception>();
+        private readonly Dictionary<string, int> _rowStores = new Dictionary<string, int>();
 
         public EtlContext(StatCounterCollection forwardCountersToCollection = null)
         {
@@ -241,6 +245,19 @@
         {
             process.LastInvocationFinished = DateTimeOffset.Now;
             OnProcessInvocationEnd?.Invoke(process);
+        }
+
+        public int GetStoreUid(List<KeyValuePair<string, string>> descriptor)
+        {
+            var key = string.Join(",", descriptor.Select(x => x.Key + "=" + x.Value));
+            if (!_rowStores.TryGetValue(key, out var storeUid))
+            {
+                storeUid = Interlocked.Increment(ref _nextRowStoreUID);
+                _rowStores.Add(key, storeUid);
+                OnRowStoreStarted?.Invoke(storeUid, descriptor);
+            }
+
+            return storeUid;
         }
     }
 }

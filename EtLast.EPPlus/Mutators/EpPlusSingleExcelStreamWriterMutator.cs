@@ -17,6 +17,7 @@
         public ExcelPackage ExistingPackage { get; set; }
         private TState _state;
         private ExcelPackage _package;
+        private int? _storeUid;
 
         public EpPlusSingleExcelStreamWriterMutator(IEtlContext context, string name, string topic)
             : base(context, name, topic)
@@ -47,11 +48,6 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            Context.OnRowStored?.Invoke(this, row, new List<KeyValuePair<string, string>>()
-            {
-                new KeyValuePair<string, string>("Sheet", _state.LastWorksheet?.Name),
-            });
-
             if (_package == null) // lazy load here instead of prepare
             {
 #pragma warning disable CA2000 // Dispose objects before losing scope
@@ -63,6 +59,9 @@
             try
             {
                 Action.Invoke(row, _package, _state);
+
+                if (_storeUid != null)
+                    Context.OnRowStored?.Invoke(this, row, _storeUid.Value);
             }
             catch (Exception ex)
             {
@@ -86,6 +85,15 @@
 
             if (Action == null)
                 throw new ProcessParameterNullException(this, nameof(Action));
+        }
+
+        public void AddWorkSheet(string name)
+        {
+            _state.LastWorksheet = _package.Workbook.Worksheets.Add(name);
+            _storeUid = Context.GetStoreUid(new List<KeyValuePair<string, string>>()
+            {
+                new KeyValuePair<string, string>("Sheet", name),
+            });
         }
     }
 }
