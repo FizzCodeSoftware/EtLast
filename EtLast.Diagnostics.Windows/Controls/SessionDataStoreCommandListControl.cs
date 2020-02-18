@@ -12,10 +12,10 @@
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public Control Container { get; }
-        public Session Session { get; }
+        public DiagSession Session { get; }
         public ListView ListView { get; }
 
-        public SessionDataStoreCommandListControl(Control container, DiagnosticsStateManager diagnosticsStateManager, Session session)
+        public SessionDataStoreCommandListControl(Control container, DiagnosticsStateManager diagnosticsStateManager, DiagSession session)
         {
             Container = container;
             Session = session;
@@ -45,7 +45,7 @@
             ListView.Columns.Add("command", 700);
             ListView.Columns.Add("arguments", 200);
 
-            diagnosticsStateManager.OnExecutionContextCreated += ec =>
+            diagnosticsStateManager.OnDiagContextCreated += ec =>
             {
                 if (ec.Session == session)
                 {
@@ -68,9 +68,9 @@
                 foreach (var evt in events)
                 {
                     var item = ListView.Items.Add(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture), -1);
-                    item.SubItems.Add(playbook.ExecutionContext.Name);
+                    item.SubItems.Add(playbook.DiagContext.Name);
 
-                    var process = playbook.ExecutionContext.WholePlaybook.ProcessList[evt.ProcessInvocationUID];
+                    var process = playbook.DiagContext.WholePlaybook.ProcessList[evt.ProcessInvocationUID];
 
                     item.SubItems.Add(process.Topic);
                     item.SubItems.Add(process.Name);

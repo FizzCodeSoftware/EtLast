@@ -15,7 +15,7 @@
     internal class ContextProcessInvocationListControl
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        public AbstractExecutionContext Context { get; }
+        public AbstractDiagContext Context { get; }
         public ListView ListView { get; }
         public OnProcessInvocationListSelectionChanged OnSelectionChanged { get; set; }
 
@@ -30,7 +30,7 @@
 
         public Button _testSearchButton;
 
-        public ContextProcessInvocationListControl(Control container, AbstractExecutionContext context)
+        public ContextProcessInvocationListControl(Control container, AbstractDiagContext context)
         {
             Context = context;
 
@@ -328,7 +328,7 @@
                 }
             }));
 
-            if (Context.EndedOn == null)
+            if (!Context.FullyLoaded)
             {
                 _processStatUpdaterTimer.Change(500, System.Threading.Timeout.Infinite);
             }

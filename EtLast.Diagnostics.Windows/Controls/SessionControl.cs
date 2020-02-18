@@ -10,13 +10,13 @@
     internal class SessionControl
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        public Session Session { get; }
+        public DiagSession Session { get; }
         public Control Container { get; }
 
         private readonly TabControl _tabs;
         private readonly Dictionary<string, ContextControl> _contextContainerManagers = new Dictionary<string, ContextControl>();
 
-        public SessionControl(Session session, Control container, DiagnosticsStateManager diagnosticsStateManager)
+        public SessionControl(DiagSession session, Control container, DiagnosticsStateManager diagnosticsStateManager)
         {
             Session = session;
             Container = container;
@@ -61,11 +61,11 @@
 
                 var dataStoreCommandManager = new SessionDataStoreCommandListControl(dataStoreCommandContainer, diagnosticsStateManager, Session);
 
-                diagnosticsStateManager.OnExecutionContextCreated += ec =>
+                diagnosticsStateManager.OnDiagContextCreated += ec =>
                 {
                     if (ec.Session == session)
                     {
-                        OnExecutionContextCreated(ec);
+                        OnDiagContextCreated(ec);
                     }
                 };
 
@@ -83,25 +83,25 @@
             if (_tabs.SelectedIndex < 0)
                 return;
 
-            if (_tabs.TabPages[_tabs.SelectedIndex].Tag is AbstractExecutionContext context)
+            if (_tabs.TabPages[_tabs.SelectedIndex].Tag is AbstractDiagContext context)
             {
                 _contextContainerManagers[context.Name].FocusProcessList();
             }
         }
 
-        private void OnExecutionContextCreated(AbstractExecutionContext executionContext)
+        private void OnDiagContextCreated(AbstractDiagContext diagContext)
         {
-            if (_contextContainerManagers.ContainsKey(executionContext.Name))
+            if (_contextContainerManagers.ContainsKey(diagContext.Name))
                 return;
 
-            var contextContainer = new TabPage(executionContext.Name)
+            var contextContainer = new TabPage(diagContext.Name)
             {
                 BorderStyle = BorderStyle.None,
-                Tag = executionContext,
+                Tag = diagContext,
             };
 
-            var contextManager = new ContextControl(executionContext, contextContainer);
-            _contextContainerManagers.Add(executionContext.Name, contextManager);
+            var contextManager = new ContextControl(diagContext, contextContainer);
+            _contextContainerManagers.Add(diagContext.Name, contextManager);
 
             _tabs.TabPages.Add(contextContainer);
 

@@ -103,13 +103,13 @@
                 string.Join(" + ", InputRowCountByPreviousProcess.Select(x => x.Value.FormatToStringNoZero()));
         }
 
-        public string GetFormattedRowFlow(AbstractExecutionContext executionContext)
+        public string GetFormattedRowFlow(AbstractDiagContext diagContext)
         {
             var sb = new StringBuilder();
 
             foreach (var kvp in InputRowCountByPreviousProcess)
             {
-                var inputProcess = executionContext.WholePlaybook.ProcessList[kvp.Key];
+                var inputProcess = diagContext.WholePlaybook.ProcessList[kvp.Key];
 
                 if (sb.Length > 0)
                 {

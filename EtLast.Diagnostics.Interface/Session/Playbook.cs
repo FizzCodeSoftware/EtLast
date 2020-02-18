@@ -11,7 +11,7 @@
 
     public class Playbook
     {
-        public AbstractExecutionContext ExecutionContext { get; }
+        public AbstractDiagContext DiagContext { get; }
 
         public Dictionary<int, TrackedStore> StoreList { get; } = new Dictionary<int, TrackedStore>();
         public Dictionary<int, TrackedProcessInvocation> ProcessList { get; } = new Dictionary<int, TrackedProcessInvocation>();
@@ -22,9 +22,9 @@
         public OnRowStoreStartedDelegate OnRowStoreStarted { get; set; }
         public OnRowStoredDelegate OnRowStored { get; set; }
 
-        public Playbook(AbstractExecutionContext sessionContext)
+        public Playbook(AbstractDiagContext sessionContext)
         {
-            ExecutionContext = sessionContext;
+            DiagContext = sessionContext;
         }
 
         public void AddEvents(IEnumerable<AbstractEvent> abstactEvents)

@@ -11,20 +11,20 @@
     using System.Web;
     using FizzCode.EtLast.Diagnostics.Interface;
 
-    internal delegate void OnSessionCreatedDelegate(Session session);
-    internal delegate void OnExecutionContextCreatedDelegate(FileBasedExecutionContext executionContext);
+    internal delegate void OnSessionCreatedDelegate(DiagSession session);
+    internal delegate void OnDiagContextCreatedDelegate(AbstractDiagContext diagContext);
 
     internal class DiagnosticsStateManager : IDisposable
     {
-        public OnSessionCreatedDelegate OnSessionCreated { get; set; }
-        public OnExecutionContextCreatedDelegate OnExecutionContextCreated { get; set; }
+        public OnSessionCreatedDelegate OnDiagSessionCreated { get; set; }
+        public OnDiagContextCreatedDelegate OnDiagContextCreated { get; set; }
 
         private readonly HttpListener _listener;
-        private readonly Dictionary<string, Session> _sessionList = new Dictionary<string, Session>();
-        public IEnumerable<Session> Session => _sessionList.Values;
+        private readonly Dictionary<string, DiagSession> _sessionList = new Dictionary<string, DiagSession>();
+        public IEnumerable<DiagSession> Session => _sessionList.Values;
 
-        private readonly List<Session> _newSessions = new List<Session>();
-        private readonly List<FileBasedExecutionContext> _newExecutionContexts = new List<FileBasedExecutionContext>();
+        private readonly List<DiagSession> _newSessions = new List<DiagSession>();
+        private readonly List<StagingDiagContext> _newDiagContexts = new List<StagingDiagContext>();
 
         public DiagnosticsStateManager(string uriPrefix)
         {
@@ -82,7 +82,7 @@
                         "started-on\t" + now.ToString("yyyy.MM.dd HH:mm:ss.fff", CultureInfo.InvariantCulture),
                     });
 
-                    session = new Session(sessionId, folder, now);
+                    session = new DiagSession(sessionId, folder, now);
                     lock (_sessionList)
                     {
                         _sessionList.Add(sessionId, session);
@@ -90,7 +90,7 @@
                     }
                 }
 
-                if (!session.ExecutionContextListByName.TryGetValue(contextName, out var ec) || !(ec is FileBasedExecutionContext executionContext))
+                if (!session.ContextListByName.TryGetValue(contextName, out var ec) || !(ec is StagingDiagContext context))
                 {
                     var folder = Path.Combine(session.DataFolder, contextName.Replace("/", "-", StringComparison.InvariantCultureIgnoreCase));
                     if (!Directory.Exists(folder))
@@ -102,14 +102,14 @@
                         "started-on\t" + now.ToString("yyyy.MM.dd HH:mm:ss.fff", CultureInfo.InvariantCulture),
                     });
 
-                    executionContext = new FileBasedExecutionContext(session, contextName, now, folder, 1);
+                    context = new FileDiagContext(session, contextName, now, folder, 1);
 
                     lock (_sessionList)
                     {
-                        session.ContextList.Add(executionContext);
-                        session.ExecutionContextListByName.Add(contextName, executionContext);
+                        session.ContextList.Add(context);
+                        session.ContextListByName.Add(contextName, context);
 
-                        _newExecutionContexts.Add(executionContext);
+                        _newDiagContexts.Add(context);
                     }
                 }
 
@@ -118,7 +118,7 @@
                     listenerContext.Request.InputStream.CopyTo(tempMemoryStream);
                     tempMemoryStream.Position = 0;
 
-                    executionContext.StageEvents(tempMemoryStream);
+                    context.StageEvents(tempMemoryStream);
                 }
 
                 var acceptedResponse = Encoding.UTF8.GetBytes("ACK");
@@ -140,29 +140,29 @@
 
         public void ProcessEvents()
         {
-            List<FileBasedExecutionContext> allContextList;
-            List<FileBasedExecutionContext> newContexts;
-            List<Session> newSessions;
+            List<StagingDiagContext> allContextList;
+            List<StagingDiagContext> newContexts;
+            List<DiagSession> newSessions;
             lock (_sessionList)
             {
-                newSessions = new List<Session>(_newSessions);
+                newSessions = new List<DiagSession>(_newSessions);
                 _newSessions.Clear();
 
-                newContexts = new List<FileBasedExecutionContext>(_newExecutionContexts);
-                _newExecutionContexts.Clear();
+                newContexts = new List<StagingDiagContext>(_newDiagContexts);
+                _newDiagContexts.Clear();
 
-                allContextList = _sessionList.Values.SelectMany(x => x.ContextList.Select(y => y as FileBasedExecutionContext)).ToList();
+                allContextList = _sessionList.Values.SelectMany(x => x.ContextList.Select(y => y as StagingDiagContext)).ToList();
             }
 
             foreach (var session in newSessions)
-                OnSessionCreated?.Invoke(session);
+                OnDiagSessionCreated?.Invoke(session);
 
-            foreach (var executionContext in newContexts)
-                OnExecutionContextCreated?.Invoke(executionContext);
+            foreach (var context in newContexts)
+                OnDiagContextCreated?.Invoke(context);
 
-            foreach (var executionContext in allContextList)
+            foreach (var context in allContextList)
             {
-                executionContext.LoadStagedEvents();
+                context.LoadStagedEvents();
             }
         }
 

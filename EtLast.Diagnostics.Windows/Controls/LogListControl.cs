@@ -14,10 +14,10 @@
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public Control Container { get; }
-        public Session Session { get; }
+        public DiagSession Session { get; }
         private readonly RichTextBox _output;
 
-        public LogListControl(Control container, DiagnosticsStateManager diagnosticsStateManager, Session session)
+        public LogListControl(Control container, DiagnosticsStateManager diagnosticsStateManager, DiagSession session)
         {
             Container = container;
             Session = session;
@@ -36,7 +36,7 @@
 
             _output.AppendText("[SESSION STARTED] [" + Session.SessionId + "]" + Environment.NewLine);
 
-            diagnosticsStateManager.OnExecutionContextCreated += ec =>
+            diagnosticsStateManager.OnDiagContextCreated += ec =>
             {
                 if (ec.Session == session)
                 {
@@ -57,7 +57,7 @@
                 sb
                     .Append(new DateTime(evt.Timestamp).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture))
                     .Append(" [")
-                    .Append(playbook.ExecutionContext.Name)
+                    .Append(playbook.DiagContext.Name)
                     .Append("] [")
                     .Append(evt.Severity.ToShortString())
                     .Append("] ");

@@ -10,12 +10,12 @@
     internal class ContextCounterListControl
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        public AbstractExecutionContext Context { get; }
+        public AbstractDiagContext Context { get; }
         public ListView ListView { get; }
 
         private readonly System.Threading.Timer _statUpdateTimer;
 
-        public ContextCounterListControl(Control container, AbstractExecutionContext context)
+        public ContextCounterListControl(Control container, AbstractDiagContext context)
         {
             Context = context;
 
@@ -94,7 +94,7 @@
                 }
             }));
 
-            if (Context.EndedOn == null)
+            if (!Context.FullyLoaded)
             {
                 _statUpdateTimer.Change(500, System.Threading.Timeout.Infinite);
             }

@@ -11,6 +11,7 @@
 
     public class HttpDiagnosticsSender : IDiagnosticsSender
     {
+        public int MaxCommunicationErrorCount { get; } = 3;
         private readonly Uri _uri;
         private HttpClient _client;
         private readonly Thread _workerThread;
@@ -21,6 +22,7 @@
         private readonly object _currentWriterLock = new object();
         private readonly Dictionary<string, int> _textDictionary = new Dictionary<string, int>();
         private bool _finished;
+        private int _communicationErrorCount;
 
         public HttpDiagnosticsSender(string sessionId, string contextName, Uri diagnosticsUri)
         {
@@ -29,7 +31,7 @@
             _uri = diagnosticsUri;
             _client = new HttpClient
             {
-                Timeout = TimeSpan.FromMilliseconds(1500),
+                Timeout = TimeSpan.FromMilliseconds(30000),
             };
 
             SendWriter(null);
@@ -42,7 +44,7 @@
         {
             var swLastSent = Stopwatch.StartNew();
 
-            while (!_finished)
+            while (!_finished && (_communicationErrorCount <= MaxCommunicationErrorCount))
             {
                 ExtendedBinaryWriter dictionaryWriterToSend = null;
                 ExtendedBinaryWriter writerToSend = null;
@@ -108,6 +110,7 @@
                 }
                 catch (Exception)
                 {
+                    _communicationErrorCount++;
                 }
             }
 
@@ -143,6 +146,9 @@
 
         public void SendDiagnostics(DiagnosticsEventKind kind, Action<ExtendedBinaryWriter> writerDelegate)
         {
+            if (_communicationErrorCount > MaxCommunicationErrorCount)
+                return;
+
             lock (_currentWriterLock)
             {
                 if (_finished)

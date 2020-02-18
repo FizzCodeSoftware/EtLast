@@ -10,12 +10,12 @@
     internal class ContextRowStoreListControl
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        public AbstractExecutionContext Context { get; }
+        public AbstractDiagContext Context { get; }
         public ListView ListView { get; }
         private readonly Dictionary<int, ListViewItem> _listItemByStoreUid = new Dictionary<int, ListViewItem>();
         private readonly System.Threading.Timer _statUpdateTimer;
 
-        public ContextRowStoreListControl(Control container, AbstractExecutionContext context)
+        public ContextRowStoreListControl(Control container, AbstractDiagContext context)
         {
             Context = context;
 
@@ -66,7 +66,6 @@
             }
         }
 
-
         private void UpdateStats()
         {
             _statUpdateTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
@@ -108,7 +107,7 @@
                 }
             }));
 
-            if (Context.EndedOn == null)
+            if (!Context.FullyLoaded)
             {
                 _statUpdateTimer.Change(500, System.Threading.Timeout.Infinite);
             }
@@ -132,7 +131,6 @@
                 };
 
                 var control = new ContextRowStoreControl(form, Context, store);
-                control.ListView.Dock = DockStyle.Fill;
                 control.Refresh();
 
                 form.ShowDialog();

@@ -4,19 +4,20 @@
     using System.Collections.Generic;
     using System.Diagnostics;
 
-    public delegate void OnExecutionContextStartedOnSetDelegate(AbstractExecutionContext executionContext);
+    public delegate void OnDiagContextStartedOnSetDelegate(AbstractDiagContext diagContext);
 
     [DebuggerDisplay("{Name}")]
-    public abstract class AbstractExecutionContext
+    public abstract class AbstractDiagContext
     {
         public string Name { get; }
-        public Session Session { get; }
+        public DiagSession Session { get; }
         public Playbook WholePlaybook { get; }
         public DateTime StartedOn { get; }
         public DateTime? EndedOn { get; protected set; }
+        public abstract bool FullyLoaded { get; }
         public Dictionary<int, string> TextDictionary { get; }
 
-        protected AbstractExecutionContext(Session session, string name, DateTime startedOn)
+        protected AbstractDiagContext(DiagSession session, string name, DateTime startedOn)
         {
             Session = session;
             Name = name;

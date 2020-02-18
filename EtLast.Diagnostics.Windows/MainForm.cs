@@ -22,7 +22,7 @@ namespace FizzCode.EtLast.Diagnostics.Windows
             Font = new Font(Font.FontFamily, 9, FontStyle.Regular);
 
             _stateManager = new DiagnosticsStateManager("http://+:8642/");
-            _stateManager.OnSessionCreated += SessionCreated;
+            _stateManager.OnDiagSessionCreated += SessionCreated;
 
             _sessionTabs = new TabControl()
             {
@@ -48,7 +48,7 @@ namespace FizzCode.EtLast.Diagnostics.Windows
             _timer.Start();
         }
 
-        private void SessionCreated(Session session)
+        private void SessionCreated(DiagSession session)
         {
             //Invoke((Action)delegate
             {
