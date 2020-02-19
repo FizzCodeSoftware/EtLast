@@ -25,7 +25,7 @@
             if (SchemaNames == null || SchemaNames.Length == 0)
                 throw new ProcessParameterNullException(this, nameof(SchemaNames));
 
-            if (ConnectionString.KnownProvider != KnownProvider.SqlServer)
+            if (ConnectionString.SqlEngine != SqlEngine.MsSql)
                 throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be System.Data.SqlClient");
         }
 

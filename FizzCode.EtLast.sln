@@ -49,6 +49,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbTools.Configuration", "..
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbTools.Common", "..\DbTools\DbTools.Common\DbTools.Common.csproj", "{5EB5E993-CFDD-4C59-8FF3-260C56621D9C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbTools.DataDefinition.MsSql", "..\DbTools\DbTools.DataDefinition.MsSql\DbTools.DataDefinition.MsSql.csproj", "{6EBEAB2A-2CC5-4BE0-90D6-8C539FC9EE21}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -146,6 +148,10 @@ Global
 		{5EB5E993-CFDD-4C59-8FF3-260C56621D9C}.LocalProjects|Any CPU.ActiveCfg = Debug|Any CPU
 		{5EB5E993-CFDD-4C59-8FF3-260C56621D9C}.LocalProjects|Any CPU.Build.0 = Debug|Any CPU
 		{5EB5E993-CFDD-4C59-8FF3-260C56621D9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EBEAB2A-2CC5-4BE0-90D6-8C539FC9EE21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EBEAB2A-2CC5-4BE0-90D6-8C539FC9EE21}.LocalProjects|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EBEAB2A-2CC5-4BE0-90D6-8C539FC9EE21}.LocalProjects|Any CPU.Build.0 = Debug|Any CPU
+		{6EBEAB2A-2CC5-4BE0-90D6-8C539FC9EE21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -158,6 +164,7 @@ Global
 		{2F2CBD52-1D64-486E-B26B-7096CF136B34} = {00F868FC-395E-4028-B104-9FEE8D0956D1}
 		{BADAC2B1-0CAF-4021-87CF-E82A9FD96BA6} = {00F868FC-395E-4028-B104-9FEE8D0956D1}
 		{5EB5E993-CFDD-4C59-8FF3-260C56621D9C} = {00F868FC-395E-4028-B104-9FEE8D0956D1}
+		{6EBEAB2A-2CC5-4BE0-90D6-8C539FC9EE21} = {00F868FC-395E-4028-B104-9FEE8D0956D1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2B1A4546-5839-4F14-8E4D-8404CA122935}

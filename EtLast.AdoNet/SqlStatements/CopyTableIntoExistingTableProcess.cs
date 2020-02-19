@@ -43,7 +43,7 @@
         protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString, Dictionary<string, object> parameters)
         {
             var statement = "";
-            if (CopyIdentityColumns && ConnectionString.KnownProvider == KnownProvider.SqlServer)
+            if (CopyIdentityColumns && ConnectionString.SqlEngine == SqlEngine.MsSql)
             {
                 if (Configuration.ColumnConfiguration == null || Configuration.ColumnConfiguration.Count == 0)
                     throw new InvalidProcessParameterException(this, nameof(Configuration) + "." + nameof(TableCopyConfiguration.ColumnConfiguration), null, "identity columns can be copied only if the column list is specified");
@@ -81,7 +81,7 @@
                 statement += " WHERE " + WhereClause.Trim();
             }
 
-            if (CopyIdentityColumns && ConnectionString.KnownProvider == KnownProvider.SqlServer)
+            if (CopyIdentityColumns && ConnectionString.SqlEngine == SqlEngine.MsSql)
             {
                 statement += "; SET IDENTITY_INSERT " + Configuration.TargetTableName + " OFF; ";
             }

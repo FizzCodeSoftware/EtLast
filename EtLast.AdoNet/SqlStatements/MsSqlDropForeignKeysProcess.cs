@@ -64,7 +64,7 @@
                     break;
             }
 
-            if (ConnectionString.KnownProvider != KnownProvider.SqlServer)
+            if (ConnectionString.SqlEngine != SqlEngine.MsSql)
                 throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be System.Data.SqlClient");
         }
 

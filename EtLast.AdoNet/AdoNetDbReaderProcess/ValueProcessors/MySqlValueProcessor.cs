@@ -12,7 +12,7 @@
 
         public bool Init(ConnectionStringWithProvider connectionString)
         {
-            return connectionString.KnownProvider == KnownProvider.MySql;
+            return connectionString.SqlEngine == SqlEngine.MySql;
         }
 
         public object ProcessValue(object value, string column)

@@ -252,7 +252,7 @@
             if (TableDefinition == null)
                 throw new ProcessParameterNullException(this, nameof(TableDefinition));
 
-            if (ConnectionString.KnownProvider != KnownProvider.SqlServer)
+            if (ConnectionString.SqlEngine != SqlEngine.MsSql)
                 throw new InvalidProcessParameterException(this, "ConnectionString", nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
         }
     }

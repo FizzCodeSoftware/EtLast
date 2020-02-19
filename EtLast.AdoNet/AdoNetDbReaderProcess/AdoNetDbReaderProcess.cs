@@ -48,7 +48,7 @@
 
             if (RecordCountLimit > 0)
             {
-                if (ConnectionString.KnownProvider == KnownProvider.MySql)
+                if (ConnectionString.SqlEngine == SqlEngine.MySql)
                 {
                     postfix += (string.IsNullOrEmpty(postfix) ? "" : " ") + "LIMIT " + RecordCountLimit.ToString("D", CultureInfo.InvariantCulture);
                 }
