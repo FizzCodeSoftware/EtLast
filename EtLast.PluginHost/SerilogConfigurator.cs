@@ -7,7 +7,6 @@
     using FizzCode.EtLast.PluginHost.SerilogSink;
     using Serilog;
     using Serilog.Events;
-    using Serilog.Exceptions;
     using Serilog.Formatting.Compact;
 
     internal static class SerilogConfigurator
@@ -18,7 +17,6 @@
         public static ILogger CreateLogger(HostConfiguration hostConfiguration)
         {
             var config = new LoggerConfiguration()
-                .Enrich.WithExceptionDetails()
 
                 .WriteTo.File(new CompactJsonFormatter(), Path.Combine(DevLogFolder, "events-.json"),
                     restrictedToMinimumLevel: hostConfiguration?.MinimumLogLevelInFile ?? LogEventLevel.Debug,
