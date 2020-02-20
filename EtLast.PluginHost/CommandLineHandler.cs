@@ -149,7 +149,7 @@
                 Help = new AppHelpSettings()
                 {
                     TextStyle = HelpTextStyle.Basic,
-                    UsageAppNameStyle = UsageAppNameStyle.GlobalTool,
+                    UsageAppName = ">",
                     PrintHelpOption = false,
                 },
             };
