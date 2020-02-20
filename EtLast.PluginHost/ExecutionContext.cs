@@ -102,7 +102,7 @@
             }
 
             if (process?.Topic != null)
-                values.Add(process.Topic);
+                values.Add(process.Topic.Name);
 
             if (process != null)
                 values.Add(process.Name);
