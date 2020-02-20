@@ -41,7 +41,7 @@
                 InputProcess = reader,
                 Mutators = new MutatorList()
                 {
-                    new ThrowExceptionOnRowErrorMutator(topic, null),
+                    new ThrowExceptionOnRowErrorMutator(topic),
                 }
             }.Build();
 
@@ -62,7 +62,7 @@
                 InputProcess = reader,
                 Mutators = new MutatorList()
                 {
-                    new ThrowExceptionOnRowErrorMutator(topic, null),
+                    new ThrowExceptionOnRowErrorMutator(topic),
                 }
             }.Build();
 
@@ -83,7 +83,7 @@
                 InputProcess = reader,
                 Mutators = new MutatorList()
                 {
-                    new ThrowExceptionOnRowErrorMutator(topic, null),
+                    new ThrowExceptionOnRowErrorMutator(topic),
                 }
             }.Build();
 
