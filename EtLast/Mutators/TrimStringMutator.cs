@@ -7,8 +7,8 @@
     {
         public string[] Columns { get; set; }
 
-        public TrimStringMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public TrimStringMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -28,7 +28,7 @@
                 }
             }
 
-            row.ApplyStaging(this);
+            row.ApplyStaging();
 
             yield return row;
         }

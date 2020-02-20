@@ -11,10 +11,10 @@
         [TestMethod]
         public void InvalidCastInOperation()
         {
-            var context = new EtlContext();
+            var topic = new Topic("test", new EtlContext());
 
-            var process = CreateProcessBuilder(1, context);
-            process.Mutators.Add(new CustomMutator(context, null, null)
+            var process = CreateProcessBuilder(1, topic);
+            process.Mutators.Add(new CustomMutator(topic, null)
             {
                 Then = (proc, row) =>
                 {
@@ -25,7 +25,7 @@
 
             RunEtl(process);
 
-            var exceptions = context.GetExceptions();
+            var exceptions = topic.Context.GetExceptions();
             Assert.IsTrue(exceptions.Any(ex => ex is ProcessExecutionException));
             Assert.IsTrue(exceptions.All(ex => ex is ProcessExecutionException));
             Assert.IsTrue(exceptions.All(ex => ex.InnerException is InvalidCastException));
@@ -34,10 +34,10 @@
         [TestMethod]
         public void InvalidOperationInOperation()
         {
-            var context = new EtlContext();
+            var topic = new Topic("test", new EtlContext());
 
-            var process = CreateProcessBuilder(1, context);
-            process.Mutators.Add(new CustomMutator(context, null, null)
+            var process = CreateProcessBuilder(1, topic);
+            process.Mutators.Add(new CustomMutator(topic, null)
             {
                 Then = (proc, row) =>
                 {
@@ -49,7 +49,7 @@
 
             RunEtl(process);
 
-            var exceptions = context.GetExceptions();
+            var exceptions = topic.Context.GetExceptions();
             Assert.IsTrue(exceptions.Any(ex => ex is ProcessExecutionException));
             Assert.IsTrue(exceptions.All(ex => ex is ProcessExecutionException));
             Assert.IsTrue(exceptions.All(ex => ex.InnerException is InvalidOperationException));
@@ -58,13 +58,14 @@
         [TestMethod]
         public void InvalidOperationParameter()
         {
-            var context = new EtlContext();
-            var process = CreateProcessBuilder(1, context);
-            process.Mutators.Add(new CustomMutator(context, null, null));
+            var topic = new Topic("test", new EtlContext());
+
+            var process = CreateProcessBuilder(1, topic);
+            process.Mutators.Add(new CustomMutator(topic, null));
 
             RunEtl(process);
 
-            var exceptions = context.GetExceptions();
+            var exceptions = topic.Context.GetExceptions();
             Assert.IsTrue(exceptions.Any(ex => ex is InvalidProcessParameterException));
             Assert.IsTrue(exceptions.All(ex => ex is InvalidProcessParameterException));
         }

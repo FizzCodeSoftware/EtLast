@@ -26,8 +26,8 @@
             }
         }
 
-        public AggregationProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public AggregationProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

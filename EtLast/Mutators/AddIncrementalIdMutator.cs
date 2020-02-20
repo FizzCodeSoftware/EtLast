@@ -13,8 +13,8 @@
 
         private int _nextId;
 
-        public AddIncrementalIdMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public AddIncrementalIdMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -25,7 +25,7 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            row.SetValue(this, Column, _nextId);
+            row.SetValue(Column, _nextId);
             _nextId++;
             yield return row;
         }

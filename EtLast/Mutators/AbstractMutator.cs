@@ -9,8 +9,8 @@
         public IEvaluable InputProcess { get; set; }
         public RowTestDelegate If { get; set; }
 
-        protected AbstractMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        protected AbstractMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

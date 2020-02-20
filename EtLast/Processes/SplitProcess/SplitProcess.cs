@@ -14,8 +14,8 @@
         private Thread _feederThread;
         private readonly object _lock = new object();
 
-        public SplitProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public SplitProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

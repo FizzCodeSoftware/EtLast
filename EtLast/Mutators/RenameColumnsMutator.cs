@@ -7,8 +7,8 @@
         public List<ColumnRenameConfiguration> ColumnConfiguration { get; set; }
         public InvalidColumnAction ActionIfInvalid { get; set; } = InvalidColumnAction.Throw;
 
-        public RenameColumnsMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public RenameColumnsMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -41,7 +41,7 @@
 
             if (!removeRow)
             {
-                row.ApplyStaging(this);
+                row.ApplyStaging();
                 yield return row;
             }
         }

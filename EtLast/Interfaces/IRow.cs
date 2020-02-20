@@ -13,10 +13,10 @@
 
         void Init(IEtlContext context, IProcess creatorProcess, int uid, IEnumerable<KeyValuePair<string, object>> initialValues); // called right after creation
 
-        void SetValue(IProcess process, string column, object newValue);
+        void SetValue(string column, object newValue);
 
         public void SetStagedValue(string column, object newValue);
-        void ApplyStaging(IProcess process);
+        void ApplyStaging();
         bool HasStaging { get; }
 
         object this[string column] { get; }

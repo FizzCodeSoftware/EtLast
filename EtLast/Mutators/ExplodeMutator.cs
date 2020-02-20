@@ -13,8 +13,8 @@
 
         public ExplodeDelegate RowCreator { get; set; }
 
-        public ExplodeMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public ExplodeMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

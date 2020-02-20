@@ -23,7 +23,7 @@
 
         public object this[string column] => GetValueImpl(column);
 
-        public abstract void SetValue(IProcess process, string column, object newValue);
+        public abstract void SetValue(string column, object newValue);
 
         protected abstract object GetValueImpl(string column);
 
@@ -143,7 +143,7 @@
 
         public abstract bool HasValue(string column);
 
-        public abstract void ApplyStaging(IProcess process);
+        public abstract void ApplyStaging();
 
         public abstract void SetStagedValue(string column, object newValue);
     }

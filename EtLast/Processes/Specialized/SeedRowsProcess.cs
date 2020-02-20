@@ -9,8 +9,8 @@
         public int Count { get; set; }
         public string[] Columns { get; set; }
 
-        public SeedRowsProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public SeedRowsProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

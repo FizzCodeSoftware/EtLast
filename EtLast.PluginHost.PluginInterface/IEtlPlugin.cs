@@ -4,9 +4,10 @@
     {
         ModuleConfiguration ModuleConfiguration { get; }
         IEtlContext Context { get; }
+        ITopic PluginTopic { get; }
         string Name { get; }
 
-        void Init(IEtlContext context, ModuleConfiguration moduleConfiguration);
+        void Init(ITopic topic, ModuleConfiguration moduleConfiguration);
         void BeforeExecute();
         void Execute();
     }

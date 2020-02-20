@@ -8,8 +8,8 @@
     {
         public string FileName { get; set; }
 
-        public DeleteFileProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public DeleteFileProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

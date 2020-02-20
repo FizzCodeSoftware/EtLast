@@ -12,8 +12,8 @@
         public ConnectionStringWithProvider ConnectionString { get; set; }
         public int CommandTimeout { get; set; } = 300;
 
-        protected AbstractSqlStatementsProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        protected AbstractSqlStatementsProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

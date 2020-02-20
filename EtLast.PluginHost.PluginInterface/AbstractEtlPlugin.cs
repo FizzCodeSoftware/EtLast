@@ -13,14 +13,15 @@
         public string Name => _nameCached ?? (_nameCached = GetType().GetFriendlyTypeName());
 
         public ModuleConfiguration ModuleConfiguration { get; private set; }
-        public IEtlContext Context { get; private set; }
+        public IEtlContext Context => PluginTopic.Context;
+        public ITopic PluginTopic { get; private set; }
 
         protected TimeSpan TransactionScopeTimeout { get; private set; }
 
-        public void Init(IEtlContext context, ModuleConfiguration moduleConfiguration)
+        public void Init(ITopic topic, ModuleConfiguration moduleConfiguration)
         {
             ModuleConfiguration = moduleConfiguration;
-            Context = context;
+            PluginTopic = topic;
         }
 
         public virtual void BeforeExecute()

@@ -11,8 +11,8 @@
         public InvalidValueAction ActionIfInvalid { get; set; } = InvalidValueAction.WrapError;
         public object SpecialValueIfInvalid { get; set; }
 
-        public MergeDateWithTimeMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public MergeDateWithTimeMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -25,14 +25,14 @@
                 if (sourceTime is DateTime dt)
                 {
                     var value = new DateTime(date.Year, date.Month, date.Day, dt.Hour, dt.Minute, dt.Second);
-                    row.SetValue(this, TargetColumn, value);
+                    row.SetValue(TargetColumn, value);
                     yield return row;
                     yield break;
                 }
                 else if (sourceTime is TimeSpan ts)
                 {
                     var value = new DateTime(date.Year, date.Month, date.Day, ts.Hours, ts.Minutes, ts.Seconds);
-                    row.SetValue(this, TargetColumn, value);
+                    row.SetValue(TargetColumn, value);
                     yield return row;
                     yield break;
                 }
@@ -42,7 +42,7 @@
             switch (ActionIfInvalid)
             {
                 case InvalidValueAction.SetSpecialValue:
-                    row.SetValue(this, TargetColumn, SpecialValueIfInvalid);
+                    row.SetValue(TargetColumn, SpecialValueIfInvalid);
                     break;
                 case InvalidValueAction.RemoveRow:
                     removeRow = true;

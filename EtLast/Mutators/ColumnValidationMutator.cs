@@ -8,8 +8,8 @@
         public string Column { get; set; }
         public Func<IRow, bool> ErrorIf { get; set; }
 
-        public ColumnValidationMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public ColumnValidationMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -17,7 +17,7 @@
         {
             if (ErrorIf(row))
             {
-                row.SetValue(this, Column, new EtlRowError()
+                row.SetValue(Column, new EtlRowError()
                 {
                     Process = this,
                     OriginalValue = row[Column],

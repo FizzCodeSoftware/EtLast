@@ -45,8 +45,8 @@
         /// </summary>
         public bool InlineArrayParameters { get; set; } = true;
 
-        protected AbstractAdoNetDbReaderProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        protected AbstractAdoNetDbReaderProcess(ITopic topic, string name)
+            : base(topic, name)
         {
             SqlValueProcessors.Add(new MySqlValueProcessor());
         }

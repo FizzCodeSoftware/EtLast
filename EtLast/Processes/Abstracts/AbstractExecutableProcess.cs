@@ -4,8 +4,8 @@
 
     public abstract class AbstractExecutableProcess : AbstractProcess, IExecutable
     {
-        protected AbstractExecutableProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        protected AbstractExecutableProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

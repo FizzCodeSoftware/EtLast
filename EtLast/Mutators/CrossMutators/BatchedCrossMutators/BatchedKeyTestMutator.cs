@@ -19,8 +19,8 @@
 
         private readonly HashSet<string> _lookup = new HashSet<string>();
 
-        public BatchedKeyTestMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public BatchedKeyTestMutator(ITopic topic, string name)
+            : base(topic, name)
         {
             UseBatchKeys = true;
         }

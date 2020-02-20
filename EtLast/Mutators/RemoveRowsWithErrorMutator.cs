@@ -4,8 +4,8 @@
 
     public class RemoveRowsWithErrorMutator : AbstractMutator
     {
-        public RemoveRowsWithErrorMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public RemoveRowsWithErrorMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

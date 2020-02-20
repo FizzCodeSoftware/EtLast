@@ -20,8 +20,8 @@
 
         private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();
 
-        public BatchedExpandMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public BatchedExpandMutator(ITopic topic, string name)
+            : base(topic, name)
         {
             UseBatchKeys = true;
         }
@@ -42,7 +42,7 @@
                 CounterCollection.IncrementCounter("served from cache", 1, true);
 
                 ColumnCopyConfiguration.CopyManyToRowStage(match, row, ColumnConfiguration);
-                row.ApplyStaging(this);
+                row.ApplyStaging();
 
                 MatchCustomAction?.Invoke(this, row, match);
 
@@ -102,7 +102,7 @@
                 else
                 {
                     ColumnCopyConfiguration.CopyManyToRowStage(match, row, ColumnConfiguration);
-                    row.ApplyStaging(this);
+                    row.ApplyStaging();
 
                     MatchCustomAction?.Invoke(this, row, match);
                 }

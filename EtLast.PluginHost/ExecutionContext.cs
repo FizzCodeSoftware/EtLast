@@ -21,7 +21,8 @@
 
         public string ModuleName { get; }
         public string PluginName { get; }
-        public EtlContext Context { get; set; }
+        public ITopic Topic { get; set; }
+        public IEtlContext Context => Topic.Context;
         public StatCounterCollection CustomCounterCollection { get; set; }
         public string Name { get; }
 
@@ -366,7 +367,7 @@
                 writer.Write(process.GetType().GetFriendlyTypeName());
                 writer.Write((byte)process.Kind);
                 writer.Write(process.Name);
-                writer.WriteNullable(process.Topic);
+                writer.WriteNullable(process.Topic.Name);
                 writer.WriteNullable(process.Caller?.InvocationUID);
             });
         }

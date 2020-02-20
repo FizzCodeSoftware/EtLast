@@ -13,8 +13,8 @@
         DateTimeOffset? LastInvocationFinished { get; set; }
 
         IEtlContext Context { get; }
+        ITopic Topic { get; }
         string Name { get; }
-        string Topic { get; }
 
         ProcessKind Kind { get; }
 

@@ -20,8 +20,8 @@
         public SoapReaderClientCreatorDelegate<T> ClientCreator { get; set; }
         public SoapReaderClientInvokerDelegate<T> ClientInvoker { get; set; }
 
-        public SoapReaderProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public SoapReaderProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

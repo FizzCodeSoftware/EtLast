@@ -13,8 +13,8 @@
     {
         public string[] TableNames { get; set; }
 
-        public MsSqlDisableConstraintCheckProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public MsSqlDisableConstraintCheckProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

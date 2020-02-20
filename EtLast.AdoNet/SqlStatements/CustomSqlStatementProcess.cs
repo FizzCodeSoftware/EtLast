@@ -20,8 +20,8 @@
         /// </summary>
         public bool InlineArrayParameters { get; set; } = true;
 
-        public CustomSqlStatementProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public CustomSqlStatementProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

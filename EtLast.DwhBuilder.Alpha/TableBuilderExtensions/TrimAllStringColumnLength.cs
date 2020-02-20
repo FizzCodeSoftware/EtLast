@@ -28,7 +28,7 @@
             if (limitedLengthStringColumns.Count == 0)
                 yield break;
 
-            yield return new CustomMutator(builder.DwhBuilder.Context, nameof(TrimAllStringColumnLength), builder.Topic)
+            yield return new CustomMutator(builder.Table.Topic, nameof(TrimAllStringColumnLength))
             {
                 Then = (proc, row) =>
                 {
@@ -51,7 +51,7 @@
                         }
                     }
 
-                    row.ApplyStaging(proc);
+                    row.ApplyStaging();
 
                     return true;
                 }

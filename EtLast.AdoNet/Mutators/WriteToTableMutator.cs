@@ -32,8 +32,8 @@
         private static readonly DbType[] _quotedParameterTypes = { DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength };
         private int _storeUid;
 
-        public WriteToTableMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public WriteToTableMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

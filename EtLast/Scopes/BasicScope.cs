@@ -31,8 +31,8 @@
 
         public EventHandler<BasicScopeProcessFailedEventArgs> OnError { get; set; }
 
-        public BasicScope(IEtlContext context, string name = null, string topic = null)
-            : base(context, name, topic)
+        public BasicScope(ITopic topic, string name = null)
+            : base(topic, name)
         {
         }
 

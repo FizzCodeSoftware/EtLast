@@ -9,22 +9,22 @@
     {
         public override void Execute()
         {
-            Context.ExecuteOne(true, new BasicScope(Context, null, null)
+            Context.ExecuteOne(true, new BasicScope(PluginTopic)
             {
                 ProcessCreator = ProcessCreator,
             });
         }
 
-        private IEnumerable<IExecutable> ProcessCreator(IExecutable scope)
+        private IEnumerable<IExecutable> ProcessCreator(BasicScope scope)
         {
-            yield return new DeleteFileProcess(Context, "DeleteFile", scope.Topic)
+            yield return new DeleteFileProcess(scope.Topic, "DeleteFile")
             {
                 FileName = OutputFileName,
             };
 
             yield return new ProcessBuilder()
             {
-                InputProcess = new EpPlusExcelReaderProcess(Context, "Reader", scope.Topic)
+                InputProcess = new EpPlusExcelReaderProcess(scope.Topic, "Reader")
                 {
                     FileName = SourceFileName,
                     SheetName = "People",
@@ -36,7 +36,7 @@
                 },
                 Mutators = new MutatorList()
                 {
-                    new EpPlusSimpleRowWriterMutator(Context, "Writer", scope.Topic)
+                    new EpPlusSimpleRowWriterMutator(scope.Topic, "Writer")
                     {
                         FileName = OutputFileName,
                         SheetName = "output",

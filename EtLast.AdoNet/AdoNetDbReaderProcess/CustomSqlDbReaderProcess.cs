@@ -6,8 +6,8 @@
     {
         public string Sql { get; set; }
 
-        public CustomSqlAdoNetDbReaderProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public CustomSqlAdoNetDbReaderProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

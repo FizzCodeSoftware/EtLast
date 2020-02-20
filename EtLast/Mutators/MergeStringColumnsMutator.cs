@@ -11,8 +11,8 @@
 
         private readonly StringBuilder _sb = new StringBuilder();
 
-        public MergeStringColumnsMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public MergeStringColumnsMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -35,7 +35,7 @@
             row.SetStagedValue(TargetColumn, _sb.ToString());
             _sb.Clear();
 
-            row.ApplyStaging(this);
+            row.ApplyStaging();
 
             yield return row;
         }

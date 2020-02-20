@@ -10,7 +10,7 @@
 
     public class DwhBuilder
     {
-        public IEtlContext Context { get; }
+        public ITopic Topic { get; }
 
         public DatabaseDefinition Model { get; set; }
         public ConnectionStringWithProvider ConnectionString { get; set; }
@@ -21,11 +21,11 @@
         public IEnumerable<SqlTable> Tables => _tables.Select(x => x.SqlTable);
         protected readonly List<DwhTableBuilder> _tables = new List<DwhTableBuilder>();
 
-        public DateTimeOffset? DefaultValidFromDateTime => Configuration.UseContextCreationTimeForNewRecords ? Context.CreatedOnLocal : Configuration.InfinitePastDateTime;
+        public DateTimeOffset? DefaultValidFromDateTime => Configuration.UseContextCreationTimeForNewRecords ? Topic.Context.CreatedOnLocal : Configuration.InfinitePastDateTime;
 
-        public DwhBuilder(IEtlContext context)
+        public DwhBuilder(ITopic topic)
         {
-            Context = context;
+            Topic = topic;
         }
 
         private void SetConfiguration(DwhConfiguration configuration)
@@ -34,7 +34,7 @@
             _configuration = configuration;
         }
 
-        public IExecutable Build(string scopeName = null, string scopeTopic = null)
+        public IExecutable Build(string scopeName = null)
         {
             if (Configuration == null)
 #pragma warning disable CA2208 // Instantiate argument exceptions correctly
@@ -46,7 +46,7 @@
                 tableBuilder.Build();
             }
 
-            return new ResilientSqlScope(Context, scopeName, scopeTopic)
+            return new ResilientSqlScope(Topic, scopeName)
             {
                 Configuration = new ResilientSqlScopeConfiguration()
                 {
@@ -67,7 +67,7 @@
             var constraintCheckDisabledOnTables = scope.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
             if (constraintCheckDisabledOnTables != null)
             {
-                yield return new MsSqlEnableConstraintCheckProcess(Context, "EnableConstraintCheck", scope.Topic)
+                yield return new MsSqlEnableConstraintCheckProcess(Topic, "EnableConstraintCheck")
                 {
                     ConnectionString = scope.Configuration.ConnectionString,
                     TableNames = constraintCheckDisabledOnTables.Distinct().OrderBy(x => x).ToArray(),
@@ -78,7 +78,7 @@
             var etlRunSqlTable = Model.GetTables().Find(x => x.HasProperty<IsEtlRunInfoTableProperty>());
             if (etlRunSqlTable != null)
             {
-                yield return new CustomSqlStatementProcess(Context, "UpdateEtlRun", etlRunSqlTable.SchemaAndTableName.SchemaAndName)
+                yield return new CustomSqlStatementProcess(Topic.Child(etlRunSqlTable.SchemaAndTableName.SchemaAndName), "UpdateEtlRun")
                 {
                     ConnectionString = scope.Configuration.ConnectionString,
                     CommandTimeout = 60 * 60,
@@ -89,7 +89,7 @@
                     {
                         ["FinishedOn"] = DateTimeOffset.Now,
                         ["Result"] = "success",
-                        ["EtlRunid"] = Context.AdditionalData.GetAs("CurrentEtlRunId", 0),
+                        ["EtlRunid"] = Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", 0),
                     },
                 };
             }
@@ -114,7 +114,7 @@
             var etlRunSqlTable = Model.GetTables().Find(x => x.HasProperty<IsEtlRunInfoTableProperty>());
             if (etlRunSqlTable != null)
             {
-                var maxId = new GetTableMaxValueProcess<int>(Context, "MaxIdReader", etlRunSqlTable.SchemaAndTableName.SchemaAndName)
+                var maxId = new GetTableMaxValueProcess<int>(Topic.Child(etlRunSqlTable.SchemaAndTableName.SchemaAndName), "MaxIdReader")
                 {
                     ConnectionString = ConnectionString,
                     TableName = ConnectionString.Escape(etlRunSqlTable.SchemaAndTableName.TableName, etlRunSqlTable.SchemaAndTableName.Schema),
@@ -123,27 +123,27 @@
 
                 yield return new ProcessBuilder()
                 {
-                    InputProcess = new EnumerableImportProcess(Context, "RowCreator", etlRunSqlTable.SchemaAndTableName.SchemaAndName)
+                    InputProcess = new EnumerableImportProcess(Topic.Child(etlRunSqlTable.SchemaAndTableName.SchemaAndName), "RowCreator")
                     {
                         InputGenerator = process =>
                         {
                             var currentId = (maxId?.MaxValue ?? 0) + 1;
-                            Context.AdditionalData["CurrentEtlRunId"] = currentId;
+                            Topic.Context.AdditionalData["CurrentEtlRunId"] = currentId;
 
                             var initialValues = new Dictionary<string, object>()
                             {
                                 ["EtlRunId"] = currentId,
                                 ["MachineName"] = Environment.MachineName,
                                 ["UserName"] = Environment.UserName,
-                                ["StartedOn"] = Context.CreatedOnLocal,
+                                ["StartedOn"] = Topic.Context.CreatedOnLocal,
                             };
 
-                            return new[] { Context.CreateRow(process, initialValues) };
+                            return new[] { Topic.Context.CreateRow(process, initialValues) };
                         }
                     },
                     Mutators = new MutatorList()
                     {
-                        new MsSqlWriteToTableWithMicroTransactionsMutator(Context, "Writer", etlRunSqlTable.SchemaAndTableName.SchemaAndName)
+                        new MsSqlWriteToTableWithMicroTransactionsMutator(Topic.Child(etlRunSqlTable.SchemaAndTableName.SchemaAndName), "Writer")
                         {
                             ConnectionString = ConnectionString,
                             TableDefinition = new DbTableDefinition()

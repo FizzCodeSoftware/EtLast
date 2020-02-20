@@ -20,17 +20,17 @@
         [TestMethod]
         public void GroupByName_AverageHeight()
         {
-            var context = new EtlContext();
+            var topic = new Topic("test", new EtlContext());
 
             var groupingColumns = new string[] { "name" };
             var groupByOperation = new GroupByOperation();
             groupByOperation.AddIntAverage("height");
 
-            var process = new AggregationProcess(context, "p1", null)
+            var process = new AggregationProcess(topic, "p1")
             {
                 GroupingColumns = groupingColumns,
                 Operation = groupByOperation,
-                InputProcess = new CreateRowsProcess(context, "CreateRows", null)
+                InputProcess = new CreateRowsProcess(topic, "CreateRows")
                 {
                     Columns = SampleColumns,
                     InputRows = SampleRows.ToList(),

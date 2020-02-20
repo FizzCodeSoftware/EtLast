@@ -11,9 +11,10 @@
         {
             const int rowCount = 1000;
 
-            var context = new EtlContext();
-            var process = CreateProcessBuilder(rowCount, context);
-            process.Mutators.Add(new RemoveRowMutator(context, null, null)
+            var topic = new Topic("test", new EtlContext());
+
+            var process = CreateProcessBuilder(rowCount, topic);
+            process.Mutators.Add(new RemoveRowMutator(topic, null)
             {
                 If = row => true,
             });
@@ -30,9 +31,10 @@
         {
             const int rowCount = 1000;
 
-            var context = new EtlContext();
-            var process = CreateProcessBuilder(rowCount, context);
-            process.Mutators.Add(new RemoveRowMutator(context, null, null)
+            var topic = new Topic("test", new EtlContext());
+
+            var process = CreateProcessBuilder(rowCount, topic);
+            process.Mutators.Add(new RemoveRowMutator(topic, null)
             {
                 If = row => false,
             });
@@ -50,9 +52,10 @@
             const int rowCount = 1000;
             const int keepAbove = 200;
 
-            var context = new EtlContext();
-            var process = CreateProcessBuilder(rowCount, context);
-            process.Mutators.Add(new RemoveRowMutator(context, null, null)
+            var topic = new Topic("test", new EtlContext());
+
+            var process = CreateProcessBuilder(rowCount, topic);
+            process.Mutators.Add(new RemoveRowMutator(topic, null)
             {
                 If = row => (int)row["id"] < keepAbove,
             });

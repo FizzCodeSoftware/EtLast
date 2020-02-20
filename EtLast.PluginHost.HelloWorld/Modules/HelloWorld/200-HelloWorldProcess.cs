@@ -6,7 +6,7 @@
     {
         public override void Execute()
         {
-            Context.ExecuteOne(true, new BasicScope(Context, null)
+            Context.ExecuteOne(true, new BasicScope(PluginTopic)
             {
                 ProcessCreator = CreateHelloWorldProcess,
             });
@@ -14,7 +14,7 @@
 
         private IEnumerable<IExecutable> CreateHelloWorldProcess(IExecutable scope)
         {
-            yield return new CustomActionProcess(Context, "HelloWorldJob", scope.Topic)
+            yield return new CustomActionProcess(scope.Topic, "HelloWorldJob")
             {
                 Then = process =>
                 {

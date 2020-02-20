@@ -11,11 +11,11 @@
 
                 builder.AddMutatorCreator(builder => new[]
                 {
-                    new CustomMutator(builder.DwhBuilder.Context, nameof(SetValidFromToDefault), builder.Topic)
+                    new CustomMutator(builder.Table.Topic, nameof(SetValidFromToDefault))
                     {
                         Then = (proc, row) =>
                         {
-                            row.SetValue(proc, builder.ValidFromColumnName, builder.DwhBuilder.DefaultValidFromDateTime);
+                            row.SetValue(builder.ValidFromColumnName, builder.DwhBuilder.DefaultValidFromDateTime);
                             return true;
                         },
                     },

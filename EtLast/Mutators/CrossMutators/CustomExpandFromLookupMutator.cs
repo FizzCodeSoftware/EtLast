@@ -11,8 +11,8 @@
 
         private Dictionary<string, List<IRow>> _lookup;
 
-        public CustomExpandFromLookupMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public CustomExpandFromLookupMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -63,7 +63,7 @@
                 if (match != null)
                 {
                     ColumnCopyConfiguration.CopyManyToRowStage(match, row, ColumnConfiguration);
-                    row.ApplyStaging(this);
+                    row.ApplyStaging();
 
                     MatchCustomAction?.Invoke(this, row, match);
                 }

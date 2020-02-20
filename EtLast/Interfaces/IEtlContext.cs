@@ -47,6 +47,7 @@
         ContextOnRowCreatedDelegate OnRowCreated { get; set; }
         ContextOnRowOwnerChangedDelegate OnRowOwnerChanged { get; set; }
         ContextOnRowValueChangedDelegate OnRowValueChanged { get; set; }
+        ContextOnRowStoreStartedDelegate OnRowStoreStarted { get; set; }
         ContextOnRowStoredDelegate OnRowStored { get; set; }
         public ContextOnProcessInvocationDelegate OnProcessInvocationStart { get; set; }
         public ContextOnProcessInvocationDelegate OnProcessInvocationEnd { get; set; }

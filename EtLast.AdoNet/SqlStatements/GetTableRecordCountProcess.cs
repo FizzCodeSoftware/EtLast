@@ -12,8 +12,8 @@
         public string TableName { get; set; }
         public string CustomWhereClause { get; set; }
 
-        public GetTableRecordCountProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public GetTableRecordCountProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

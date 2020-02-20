@@ -9,9 +9,9 @@
     [TestClass]
     public class DelimitedFileReaderProcessTests
     {
-        private IEvaluable GetReader(EtlContext context, string fileName)
+        private IEvaluable GetReader(ITopic topic, string fileName)
         {
-            return new DelimitedFileReaderProcess(context, "DelimitedFileReaderProcess", null)
+            return new DelimitedFileReaderProcess(topic, "DelimitedFileReaderProcess")
             {
                 FileName = fileName,
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
@@ -31,13 +31,13 @@
         [TestMethod]
         public void CheckContent()
         {
-            var context = new EtlContext();
+            var topic = new Topic("test", new EtlContext());
             var process = new ProcessBuilder()
             {
-                InputProcess = GetReader(context, @"TestData\Sample.csv"),
+                InputProcess = GetReader(topic, @"TestData\Sample.csv"),
                 Mutators = new MutatorList()
                 {
-                    new ReplaceErrorWithValueMutator(context, null, null)
+                    new ReplaceErrorWithValueMutator(topic, null)
                     {
                         Columns = new[] { "ValueDate" },
                         Value = null
@@ -58,8 +58,8 @@
         [TestMethod]
         public void InvalidConversion()
         {
-            var context = new EtlContext();
-            var process = GetReader(context, @"TestData\SampleInvalidConversion.csv");
+            var topic = new Topic("test", new EtlContext());
+            var process = GetReader(topic, @"TestData\SampleInvalidConversion.csv");
 
             var result = process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
 

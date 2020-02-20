@@ -56,8 +56,8 @@
         public int FirstDataRow { get; set; } = 2;
         public int FirstDataColumn { get; set; } = 1;
 
-        public EpPlusExcelReaderProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public EpPlusExcelReaderProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

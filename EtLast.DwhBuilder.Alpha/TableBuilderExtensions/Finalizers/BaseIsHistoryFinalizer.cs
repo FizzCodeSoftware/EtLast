@@ -28,7 +28,7 @@
         {
             var pk = builder.TableBuilder.SqlTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
             var pkIsIdentity = pk.SqlColumns.Any(c => c.SqlColumn.HasProperty<Identity>());
-            var currentEtlRunId = builder.TableBuilder.DwhBuilder.Context.AdditionalData.GetAs("CurrentEtlRunId", 0);
+            var currentEtlRunId = builder.TableBuilder.Table.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", 0);
 
             var mergeIntoBaseColumns = builder.TableBuilder.SqlTable.Columns
                 .Where(x => !x.HasProperty<IsEtlRunInfoColumnProperty>());
@@ -56,7 +56,7 @@
 
             // todo: support NoHistoryColumnProperty
 
-            yield return new CustomMsSqlMergeSqlStatementProcess(builder.TableBuilder.DwhBuilder.Context, "CloseOpenEndedBaseRecords", builder.TableBuilder.Table.Topic)
+            yield return new CustomMsSqlMergeSqlStatementProcess(builder.TableBuilder.Table.Topic, "CloseOpenEndedBaseRecords")
             {
                 ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                 CommandTimeout = 60 * 60,
@@ -80,7 +80,7 @@
             if (builder.TableBuilder.EtlUpdateRunIdColumnNameEscaped != null)
                 columnDefaults.Add(builder.TableBuilder.EtlUpdateRunIdColumnNameEscaped, currentEtlRunId);
 
-            yield return new CopyTableIntoExistingTableProcess(builder.TableBuilder.DwhBuilder.Context, "CopyToBase", builder.TableBuilder.Table.Topic)
+            yield return new CopyTableIntoExistingTableProcess(builder.TableBuilder.Table.Topic, "CopyToBase")
             {
                 ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                 Configuration = new TableCopyConfiguration()

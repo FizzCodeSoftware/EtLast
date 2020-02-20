@@ -23,8 +23,8 @@
         /// </summary>
         public int MaxRetryCount { get; set; } = 5;
 
-        public SoapExpandMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public SoapExpandMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -49,7 +49,7 @@
                         var result = ClientInvoker.Invoke(this, row, _client);
                         if (result != null)
                         {
-                            row.SetValue(this, TargetColumn, result);
+                            row.SetValue(TargetColumn, result);
                         }
 
                         CounterCollection.IncrementTimeSpan("SOAP time - success", startedOn.Elapsed);
@@ -72,7 +72,7 @@
                 switch (ActionIfFailed)
                 {
                     case InvalidValueAction.SetSpecialValue:
-                        row.SetValue(this, TargetColumn, SpecialValueIfFailed);
+                        row.SetValue(TargetColumn, SpecialValueIfFailed);
                         break;
                     case InvalidValueAction.Throw:
                         throw new ProcessExecutionException(this, row, "SOAP invocation failed");
@@ -80,7 +80,7 @@
                         removeRow = true;
                         break;
                     case InvalidValueAction.WrapError:
-                        row.SetValue(this, TargetColumn, new EtlRowError
+                        row.SetValue(TargetColumn, new EtlRowError
                         {
                             Process = this,
                             OriginalValue = null,

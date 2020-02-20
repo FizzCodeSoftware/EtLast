@@ -13,8 +13,8 @@
 
     public class MsSqlDropForeignKeysProcess : AbstractSqlStatementsProcess
     {
-        public MsSqlDropForeignKeysProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public MsSqlDropForeignKeysProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

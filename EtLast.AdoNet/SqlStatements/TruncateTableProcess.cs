@@ -11,8 +11,8 @@
     {
         public string TableName { get; set; }
 
-        public TruncateTableProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public TruncateTableProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

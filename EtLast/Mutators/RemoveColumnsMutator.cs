@@ -6,8 +6,8 @@
     {
         public string[] Columns { get; set; }
 
-        public RemoveColumnsMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public RemoveColumnsMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -18,7 +18,7 @@
                 row.SetStagedValue(column, null);
             }
 
-            row.ApplyStaging(this);
+            row.ApplyStaging();
 
             yield return row;
         }

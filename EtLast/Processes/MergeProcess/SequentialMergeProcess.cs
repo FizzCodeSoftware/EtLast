@@ -4,8 +4,8 @@
 
     public class SequentialMergeProcess : AbstractMergeProcess
     {
-        public SequentialMergeProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public SequentialMergeProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

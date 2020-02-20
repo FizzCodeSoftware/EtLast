@@ -9,8 +9,8 @@
         public string Url { get; set; }
         public string FileName { get; set; }
 
-        public DownloadFileProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public DownloadFileProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

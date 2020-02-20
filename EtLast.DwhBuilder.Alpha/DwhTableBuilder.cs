@@ -12,7 +12,6 @@
         public DwhBuilder DwhBuilder { get; }
         public ResilientTable Table { get; }
         public SqlTable SqlTable { get; }
-        public string Topic => SqlTable.SchemaAndTableName.SchemaAndName;
 
         public SqlColumn RecordTimestampIndicatorColumn { get; }
         public string EtlInsertRunIdColumnNameEscaped { get; }
@@ -90,7 +89,7 @@
                     .Where(x => pk.SqlColumns.All(pkc => !string.Equals(pkc.SqlColumn.Name, x.Name, StringComparison.InvariantCultureIgnoreCase)));
             }
 
-            return new MsSqlWriteToTableWithMicroTransactionsMutator(DwhBuilder.Context, "Writer", table.Topic)
+            return new MsSqlWriteToTableWithMicroTransactionsMutator(table.Topic, "Writer")
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 TableDefinition = new DbTableDefinition()

@@ -19,8 +19,8 @@
         private ExcelPackage _package;
         private int? _storeUid;
 
-        public EpPlusSingleExcelFileWriterMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public EpPlusSingleExcelFileWriterMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

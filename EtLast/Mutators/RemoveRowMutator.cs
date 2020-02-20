@@ -5,8 +5,8 @@
 
     public class RemoveRowMutator : AbstractMutator
     {
-        public RemoveRowMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public RemoveRowMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

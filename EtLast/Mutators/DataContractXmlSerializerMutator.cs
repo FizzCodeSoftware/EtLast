@@ -14,8 +14,8 @@
         public InvalidValueAction ActionIfFailed { get; set; }
         public object SpecialValueIfFailed { get; set; }
 
-        public DataContractXmlSerializerMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public DataContractXmlSerializerMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -41,7 +41,7 @@
                     }
 
                     var data = ms.ToArray();
-                    row.SetValue(this, ColumnConfiguration.ToColumn, data);
+                    row.SetValue(ColumnConfiguration.ToColumn, data);
 
                     var time = startedOn.Elapsed;
 
@@ -64,7 +64,7 @@
                 switch (ActionIfFailed)
                 {
                     case InvalidValueAction.SetSpecialValue:
-                        row.SetValue(this, ColumnConfiguration.ToColumn, SpecialValueIfFailed);
+                        row.SetValue(ColumnConfiguration.ToColumn, SpecialValueIfFailed);
                         break;
                     case InvalidValueAction.Throw:
                         throw new ProcessExecutionException(this, row, "DataContract XML serialization failed", ex);
@@ -72,7 +72,7 @@
                         removeRow = true;
                         break;
                     case InvalidValueAction.WrapError:
-                        row.SetValue(this, ColumnConfiguration.ToColumn, new EtlRowError
+                        row.SetValue(ColumnConfiguration.ToColumn, new EtlRowError
                         {
                             Process = this,
                             OriginalValue = null,

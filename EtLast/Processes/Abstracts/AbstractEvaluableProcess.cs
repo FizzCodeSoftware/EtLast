@@ -10,8 +10,8 @@
         public virtual bool ConsumerShouldNotBuffer { get; }
         public EvaluableInitializerDelegate Initializer { get; set; }
 
-        protected AbstractEvaluableProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        protected AbstractEvaluableProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

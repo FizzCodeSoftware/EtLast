@@ -7,8 +7,8 @@
         public MatchKeySelector LeftKeySelector { get; set; }
         public MatchKeySelector RightKeySelector { get; set; }
 
-        protected AbstractKeyBasedCrossMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        protected AbstractKeyBasedCrossMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

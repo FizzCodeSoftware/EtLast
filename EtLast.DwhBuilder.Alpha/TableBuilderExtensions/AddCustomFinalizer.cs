@@ -13,7 +13,7 @@
                 builder.AddFinalizerCreator(builder =>
                 {
                     var currentRunId = builder.EtlInsertRunIdColumnNameEscaped != null || builder.EtlUpdateRunIdColumnNameEscaped != null
-                        ? builder.DwhBuilder.Context.AdditionalData.GetAs("CurrentEtlRunId", 0)
+                        ? builder.DwhBuilder.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", 0)
                         : (int?)null;
 
                     return creator(builder, currentRunId);

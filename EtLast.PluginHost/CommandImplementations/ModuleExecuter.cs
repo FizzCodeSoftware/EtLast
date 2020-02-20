@@ -38,10 +38,10 @@
                     {
                         var pluginContext = new ExecutionContext(sessionId, plugin, module, commandContext)
                         {
-                            Context = new EtlContext(mainContext.CustomCounterCollection)
+                            Topic = new Topic(plugin.Name, new EtlContext(mainContext.CustomCounterCollection)
                             {
                                 TransactionScopeTimeout = commandContext.HostConfiguration.TransactionScopeTimeout,
-                            },
+                            }),
                         };
 
                         contextList.Add(pluginContext);
@@ -54,7 +54,7 @@
                         {
                             try
                             {
-                                plugin.Init(pluginContext.Context, module.ModuleConfiguration);
+                                plugin.Init(pluginContext.Topic, module.ModuleConfiguration);
                                 plugin.BeforeExecute();
                                 plugin.Execute();
 

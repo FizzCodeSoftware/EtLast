@@ -6,8 +6,8 @@
     {
         public Func<IRow[], IEvaluable> RightProcessCreator { get; set; }
 
-        protected AbstractBatchedCrossMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        protected AbstractBatchedCrossMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

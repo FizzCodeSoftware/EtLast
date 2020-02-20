@@ -34,21 +34,21 @@
         [TestMethod]
         public void JoinMutatorTest()
         {
-            var context = new EtlContext();
+            var topic = new Topic("test", new EtlContext());
 
             var process = new ProcessBuilder()
             {
-                InputProcess = new CreateRowsProcess(context, "DataGenerator", null)
+                InputProcess = new CreateRowsProcess(topic, "DataGenerator")
                 {
                     Columns = SampleColumnsA,
                     InputRows = SampleRowsA.ToList(),
                 },
                 Mutators = new MutatorList()
                 {
-                    new JoinMutator(context, "Joiner", null)
+                    new JoinMutator(topic, "Joiner")
                     {
                         NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        RightProcess = new CreateRowsProcess(context, "RightGenerator", null)
+                        RightProcess = new CreateRowsProcess(topic, "RightGenerator")
                         {
                             Columns = SampleColumnsB,
                             InputRows = SampleRowsB.ToList(),
@@ -82,27 +82,27 @@
         [TestMethod]
         public void BatchedJoinMutatorTest()
         {
-            var context = new EtlContext();
+            var topic = new Topic("test", new EtlContext());
 
             var executedBatchCount = 0;
 
             var process = new ProcessBuilder()
             {
-                InputProcess = new CreateRowsProcess(context, "DataGenerator", null)
+                InputProcess = new CreateRowsProcess(topic, "DataGenerator")
                 {
                     Columns = SampleColumnsA,
                     InputRows = SampleRowsA.ToList(),
                 },
                 Mutators = new MutatorList()
                 {
-                    new BatchedJoinMutator(context, "Joiner", null)
+                    new BatchedJoinMutator(topic, "Joiner")
                     {
                         NoMatchAction = new NoMatchAction(MatchMode.Remove),
                         BatchSize = 4,
                         RightProcessCreator = rows =>
                         {
                             executedBatchCount++;
-                            return new CreateRowsProcess(context, "RightGenerator", null)
+                            return new CreateRowsProcess(topic, "RightGenerator")
                             {
                                 Columns = SampleColumnsB,
                                 InputRows = SampleRowsB

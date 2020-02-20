@@ -14,8 +14,8 @@
         /// </summary>
         public override int BatchSize { get; set; } = 1000;
 
-        public BatchedCompareWithRowMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public BatchedCompareWithRowMutator(ITopic topic, string name)
+            : base(topic, name)
         {
             UseBatchKeys = false;
         }

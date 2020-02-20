@@ -42,7 +42,7 @@
 
             if (builder.MatchColumns.Length == 1)
             {
-                yield return new BatchedCompareWithRowMutator(builder.TableBuilder.DwhBuilder.Context, nameof(AutoValidityRange), builder.TableBuilder.Topic)
+                yield return new BatchedCompareWithRowMutator(builder.TableBuilder.Table.Topic, nameof(AutoValidityRange))
                 {
                     If = row => !row.IsNullOrEmpty(builder.MatchColumns[0]),
                     RightProcessCreator = rows => CreateAutoValidity_ExpandDeferredReaderProcess(builder, builder.MatchColumns[0], finalValueColumns, rows),
@@ -56,7 +56,7 @@
                             // this is the first version
                             row.SetStagedValue(builder.TableBuilder.ValidFromColumnName, builder.TableBuilder.DwhBuilder.DefaultValidFromDateTime);
                             row.SetStagedValue(builder.TableBuilder.ValidToColumnName, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
-                            row.ApplyStaging(proc);
+                            row.ApplyStaging();
                         }
                     },
                     MatchButDifferentAction = new MatchAction(MatchMode.Custom)
@@ -69,9 +69,9 @@
                                 row.SetStagedValue(kvp.Value, previousValue);
                             }
 
-                            row.SetStagedValue(builder.TableBuilder.ValidFromColumnName, builder.TableBuilder.DwhBuilder.Context.CreatedOnLocal);
+                            row.SetStagedValue(builder.TableBuilder.ValidFromColumnName, builder.TableBuilder.Table.Topic.Context.CreatedOnLocal);
                             row.SetStagedValue(builder.TableBuilder.ValidToColumnName, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
-                            row.ApplyStaging(proc);
+                            row.ApplyStaging();
                         },
                     },
                     MatchAndEqualsAction = new MatchAction(MatchMode.Remove)
@@ -83,9 +83,9 @@
                 if (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime != null)
                     parameters.Add("InfiniteFuture", builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
 
-                yield return new CompareWithRowMutator(builder.TableBuilder.DwhBuilder.Context, nameof(AutoValidityRange), builder.TableBuilder.Topic)
+                yield return new CompareWithRowMutator(builder.TableBuilder.Table.Topic, nameof(AutoValidityRange))
                 {
-                    RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.DwhBuilder.Context, "PreviousValueReader", builder.TableBuilder.Table.Topic)
+                    RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "PreviousValueReader")
                     {
                         ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
                         Sql = "SELECT " + string.Join(",", builder.MatchColumns.Concat(finalValueColumns).Select(x => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(x)))
@@ -102,7 +102,7 @@
                         {
                             row.SetStagedValue(builder.TableBuilder.ValidFromColumnName, builder.TableBuilder.DwhBuilder.DefaultValidFromDateTime);
                             row.SetStagedValue(builder.TableBuilder.ValidToColumnName, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
-                            row.ApplyStaging(proc);
+                            row.ApplyStaging();
                         }
                     },
                     MatchButDifferentAction = new MatchAction(MatchMode.Custom)
@@ -115,9 +115,9 @@
                                 row.SetStagedValue(kvp.Value, previousValue);
                             }
 
-                            row.SetStagedValue(builder.TableBuilder.ValidFromColumnName, builder.TableBuilder.DwhBuilder.Context.CreatedOnLocal);
+                            row.SetStagedValue(builder.TableBuilder.ValidFromColumnName, builder.TableBuilder.Table.Topic.Context.CreatedOnLocal);
                             row.SetStagedValue(builder.TableBuilder.ValidToColumnName, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
-                            row.ApplyStaging(proc);
+                            row.ApplyStaging();
                         },
                     },
                     MatchAndEqualsAction = new MatchAction(MatchMode.Remove)
@@ -138,7 +138,7 @@
             if (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime != null)
                 parameters.Add("InfiniteFuture", builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
 
-            return new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.DwhBuilder.Context, "PreviousValueReader", builder.TableBuilder.Table.Topic)
+            return new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "PreviousValueReader")
             {
                 ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
                 Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(matchColumn)

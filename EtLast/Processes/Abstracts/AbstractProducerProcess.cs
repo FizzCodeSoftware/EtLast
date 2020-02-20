@@ -32,8 +32,8 @@
         private int _currentRowIndex;
         protected bool AutomaticallyEvaluateAndYieldInputProcessRows { get; set; } = true;
 
-        protected AbstractProducerProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        protected AbstractProducerProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -77,7 +77,7 @@
             _currentRowIndex++;
 
             if (AddRowIndexToColumn != null && !row.HasValue(AddRowIndexToColumn))
-                row.SetValue(this, AddRowIndexToColumn, _currentRowIndex);
+                row.SetValue(AddRowIndexToColumn, _currentRowIndex);
 
             return true;
         }

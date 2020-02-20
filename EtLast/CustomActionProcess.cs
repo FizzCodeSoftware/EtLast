@@ -6,8 +6,8 @@
     {
         public Action<CustomActionProcess> Then { get; set; }
 
-        public CustomActionProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public CustomActionProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

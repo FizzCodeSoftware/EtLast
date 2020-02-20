@@ -11,9 +11,9 @@
     [TestClass]
     public class ReadExcelSampleTests
     {
-        private EpPlusExcelReaderProcess GetReader(EtlContext context, string fileName)
+        private EpPlusExcelReaderProcess GetReader(ITopic topic, string fileName)
         {
-            return new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess", null)
+            return new EpPlusExcelReaderProcess(topic, "EpPlusExcelReaderProcess")
             {
                 FileName = fileName,
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
@@ -31,8 +31,9 @@
         [TestMethod]
         public void SheetName()
         {
-            var context = new EtlContext();
-            var reader = GetReader(context, @".\TestData\Sample.xlsx");
+            var topic = new Topic("test", new EtlContext());
+
+            var reader = GetReader(topic, @".\TestData\Sample.xlsx");
             reader.SheetName = "Sheet1";
 
             var process = new ProcessBuilder()
@@ -40,7 +41,7 @@
                 InputProcess = reader,
                 Mutators = new MutatorList()
                 {
-                    new ThrowExceptionOnRowErrorMutator(context, null, null),
+                    new ThrowExceptionOnRowErrorMutator(topic, null),
                 }
             }.Build();
 
@@ -51,8 +52,9 @@
         [TestMethod]
         public void SheetIndex()
         {
-            var context = new EtlContext();
-            var reader = GetReader(context, @".\TestData\Sample.xlsx");
+            var topic = new Topic("test", new EtlContext());
+
+            var reader = GetReader(topic, @".\TestData\Sample.xlsx");
             reader.SheetIndex = 0;
 
             var process = new ProcessBuilder()
@@ -60,7 +62,7 @@
                 InputProcess = reader,
                 Mutators = new MutatorList()
                 {
-                    new ThrowExceptionOnRowErrorMutator(context, null, null),
+                    new ThrowExceptionOnRowErrorMutator(topic, null),
                 }
             }.Build();
 
@@ -71,8 +73,9 @@
         [TestMethod]
         public void CheckContent()
         {
-            var context = new EtlContext();
-            var reader = GetReader(context, @".\TestData\Sample.xlsx");
+            var topic = new Topic("test", new EtlContext());
+
+            var reader = GetReader(topic, @".\TestData\Sample.xlsx");
             reader.SheetName = "Sheet1";
 
             var process = new ProcessBuilder()
@@ -80,7 +83,7 @@
                 InputProcess = reader,
                 Mutators = new MutatorList()
                 {
-                    new ThrowExceptionOnRowErrorMutator(context, null, null),
+                    new ThrowExceptionOnRowErrorMutator(topic, null),
                 }
             }.Build();
 
@@ -97,8 +100,9 @@
         [TestMethod]
         public void CheckContentNoTrim()
         {
-            var context = new EtlContext();
-            var reader = GetReader(context, @".\TestData\Sample.xlsx");
+            var topic = new Topic("test", new EtlContext());
+
+            var reader = GetReader(topic, @".\TestData\Sample.xlsx");
             reader.SheetName = "Sheet1";
             reader.AutomaticallyTrimAllStringValues = false;
 
@@ -107,7 +111,7 @@
                 InputProcess = reader,
                 Mutators = new MutatorList()
                 {
-                    new ThrowExceptionOnRowErrorMutator(context, null, null),
+                    new ThrowExceptionOnRowErrorMutator(topic, null),
                 }
             }.Build();
 

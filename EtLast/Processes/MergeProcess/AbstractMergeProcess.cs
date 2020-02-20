@@ -9,8 +9,8 @@
 
         public override bool ConsumerShouldNotBuffer => ProcessList?.Any(x => x is IEvaluable p && p.ConsumerShouldNotBuffer) == true;
 
-        protected AbstractMergeProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        protected AbstractMergeProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
     }

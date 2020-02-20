@@ -13,20 +13,20 @@
         public Stopwatch LastInvocationStarted { get; set; }
         public DateTimeOffset? LastInvocationFinished { get; set; }
 
-        public IEtlContext Context { get; }
+        public IEtlContext Context => Topic.Context;
+        public ITopic Topic { get; set; }
         public string Name { get; set; }
-        public string Topic { get; set; }
 
         public StatCounterCollection CounterCollection { get; }
 
         public ProcessKind Kind { get; }
 
-        protected AbstractProcess(IEtlContext context, string name, string topic)
+        protected AbstractProcess(ITopic topic, string name)
         {
-            Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
+            Topic = topic ?? throw new ProcessParameterNullException(this, nameof(topic));
             Name = name ?? GetType().GetFriendlyTypeName();
             Topic = topic;
-            CounterCollection = new StatCounterCollection(context.CounterCollection);
+            CounterCollection = new StatCounterCollection(Context.CounterCollection);
             Kind = GetProcessKind(this);
         }
 

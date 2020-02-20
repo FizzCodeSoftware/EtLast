@@ -22,9 +22,9 @@
             {
                 CustomAction = (proc, row, match) =>
                 {
-                    row.SetStagedValue(TableBuilder.ValidFromColumnName, TableBuilder.DwhBuilder.Context.CreatedOnLocal);
+                    row.SetStagedValue(TableBuilder.ValidFromColumnName, TableBuilder.DwhBuilder.Topic.Context.CreatedOnLocal);
                     row.SetStagedValue(TableBuilder.ValidToColumnName, TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
-                    row.ApplyStaging(proc);
+                    row.ApplyStaging();
                 },
             };
 

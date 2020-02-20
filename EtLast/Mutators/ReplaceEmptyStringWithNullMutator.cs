@@ -8,8 +8,8 @@
     {
         public string[] Columns { get; set; }
 
-        public ReplaceEmptyStringWithNullMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public ReplaceEmptyStringWithNullMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -26,7 +26,7 @@
                 }
             }
 
-            row.ApplyStaging(this);
+            row.ApplyStaging();
 
             yield return row;
         }

@@ -28,8 +28,8 @@
 
         private HashSet<string> _fixColumns;
 
-        public UnpivotMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public UnpivotMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

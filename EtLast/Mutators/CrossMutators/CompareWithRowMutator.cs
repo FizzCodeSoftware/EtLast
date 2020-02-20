@@ -10,8 +10,8 @@
         public NoMatchAction NoMatchAction { get; set; }
         private Dictionary<string, IRow> _lookup;
 
-        public CompareWithRowMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public CompareWithRowMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

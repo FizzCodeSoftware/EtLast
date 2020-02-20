@@ -28,8 +28,8 @@
             }
         }
 
-        public ContinuousAggregationProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public ContinuousAggregationProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

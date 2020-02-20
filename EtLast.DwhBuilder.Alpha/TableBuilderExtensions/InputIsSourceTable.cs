@@ -47,7 +47,7 @@
                 .GetTables()
                 .First(x => string.Equals(x.SchemaAndTableName.TableName, sourceTableName, StringComparison.InvariantCultureIgnoreCase));
 
-            return new AdoNetDbReaderProcess(builder.Table.Scope.Context, "SourceTableReader", builder.Table.Topic)
+            return new AdoNetDbReaderProcess(builder.Table.Topic, "SourceTableReader")
             {
                 ConnectionString = sourceConnectionString,
                 CustomConnectionCreator = readerScope != null ? readerScope.GetConnection : (ConnectionCreatorDelegate)null,
@@ -67,7 +67,7 @@
             if (builder.RecordTimestampIndicatorColumn == null)
                 return null;
 
-            var result = new GetTableMaxValueProcess<DateTimeOffset?>(builder.DwhBuilder.Context, nameof(GetMaxRecordTimestamp) + "Reader", builder.Table.Topic)
+            var result = new GetTableMaxValueProcess<DateTimeOffset?>(builder.Table.Topic, nameof(GetMaxRecordTimestamp) + "Reader")
             {
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 TableName = builder.Table.TableName,

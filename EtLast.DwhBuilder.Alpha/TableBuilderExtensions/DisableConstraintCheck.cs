@@ -23,7 +23,7 @@
 
             var hasHistoryTable = builder.SqlTable.HasProperty<WithHistoryTableProperty>();
 
-            yield return new MsSqlDisableConstraintCheckProcess(builder.DwhBuilder.Context, "DisableConstraintCheck", builder.Table.Topic)
+            yield return new MsSqlDisableConstraintCheckProcess(builder.Table.Topic, "DisableConstraintCheck")
             {
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 TableNames = !hasHistoryTable
@@ -32,15 +32,15 @@
                 CommandTimeout = 60 * 60,
             };
 
-            yield return new CustomActionProcess(builder.DwhBuilder.Context, "UpdateConstraintList", builder.Table.Topic)
+            yield return new CustomActionProcess(builder.Table.Topic, "UpdateConstraintList")
             {
                 Then = process =>
                 {
-                    var list = builder.DwhBuilder.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
+                    var list = builder.DwhBuilder.Topic.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
                     if (list == null)
                     {
                         list = new List<string>();
-                        builder.DwhBuilder.Context.AdditionalData["ConstraintCheckDisabledOnTables"] = list;
+                        builder.DwhBuilder.Topic.Context.AdditionalData["ConstraintCheckDisabledOnTables"] = list;
                     }
 
                     list.AddRange(!hasHistoryTable

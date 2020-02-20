@@ -8,8 +8,8 @@
         public string[] Columns { get; set; }
         public object Value { get; set; }
 
-        public ReplaceErrorWithValueMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public ReplaceErrorWithValueMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -24,7 +24,7 @@
                 }
             }
 
-            row.ApplyStaging(this);
+            row.ApplyStaging();
 
             yield return row;
         }

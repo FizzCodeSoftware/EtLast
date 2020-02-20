@@ -4,8 +4,8 @@
     {
         public IEvaluable RightProcess { get; set; }
 
-        protected AbstractCrossMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        protected AbstractCrossMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

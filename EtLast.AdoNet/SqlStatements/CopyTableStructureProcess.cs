@@ -14,8 +14,8 @@
     {
         public List<TableCopyConfiguration> Configuration { get; set; }
 
-        public CopyTableStructureProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public CopyTableStructureProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

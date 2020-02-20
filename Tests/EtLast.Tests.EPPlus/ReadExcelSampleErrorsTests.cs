@@ -11,9 +11,9 @@
     [TestClass]
     public class ReadExcelSampleErrorsTests
     {
-        private EpPlusExcelReaderProcess GetReader(EtlContext context, string fileName)
+        private EpPlusExcelReaderProcess GetReader(ITopic topic, string fileName)
         {
-            return new EpPlusExcelReaderProcess(context, "EpPlusExcelReaderProcess", null)
+            return new EpPlusExcelReaderProcess(topic, "EpPlusExcelReaderProcess")
             {
                 FileName = fileName,
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
@@ -27,8 +27,9 @@
         [TestMethod]
         public void CheckContent()
         {
-            var context = new EtlContext();
-            var reader = GetReader(context, @".\TestData\SampleErrors.xlsx");
+            var topic = new Topic("test", new EtlContext());
+
+            var reader = GetReader(topic, @".\TestData\SampleErrors.xlsx");
             reader.SheetName = "Date0";
 
             var process = reader;

@@ -21,8 +21,8 @@
 
         public Dictionary<string, object> ColumnDefaults { get; set; }
 
-        public CopyTableIntoExistingTableProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public CopyTableIntoExistingTableProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

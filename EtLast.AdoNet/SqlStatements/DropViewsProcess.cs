@@ -13,8 +13,8 @@
     {
         public string[] TableNames { get; set; }
 
-        public DropViewsProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public DropViewsProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

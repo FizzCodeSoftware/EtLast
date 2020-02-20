@@ -16,8 +16,8 @@
         /// </summary>
         protected bool UseBatchKeys { get; set; }
 
-        protected AbstractBatchedMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        protected AbstractBatchedMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

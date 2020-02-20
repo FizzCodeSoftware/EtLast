@@ -9,22 +9,22 @@
     {
         public override void Execute()
         {
-            Context.ExecuteOne(true, new BasicScope(Context, null, "People")
+            Context.ExecuteOne(true, new BasicScope(PluginTopic)
             {
                 ProcessCreator = ProcessCreator,
             });
         }
 
-        private IEnumerable<IExecutable> ProcessCreator(IExecutable scope)
+        private IEnumerable<IExecutable> ProcessCreator(BasicScope scope)
         {
-            yield return new DeleteFileProcess(Context, "DeleteFile", scope.Topic)
+            yield return new DeleteFileProcess(scope.Topic, "DeleteFile")
             {
                 FileName = OutputFileName,
             };
 
             yield return new ProcessBuilder()
             {
-                InputProcess = new EpPlusExcelReaderProcess(Context, "PeopleReader", scope.Topic)
+                InputProcess = new EpPlusExcelReaderProcess(scope.Topic, "PeopleReader")
                 {
                     FileName = SourceFileName,
                     SheetName = "People",
@@ -36,12 +36,12 @@
                 },
                 Mutators = new MutatorList()
                 {
-                    new JoinMutator(Context, "JoinContact", scope.Topic)
+                    new JoinMutator(scope.Topic, "JoinContact")
                     {
                         NoMatchAction = new NoMatchAction(MatchMode.Remove),
                         RightProcess = new ProcessBuilder()
                         {
-                            InputProcess = new EpPlusExcelReaderProcess(Context, "ReadContacts", scope.Topic)
+                            InputProcess = new EpPlusExcelReaderProcess(scope.Topic, "ReadContacts")
                             {
                                 FileName = SourceFileName,
                                 SheetName = "Contact",
@@ -54,7 +54,7 @@
                             },
                             Mutators = new MutatorList()
                             {
-                                new RemoveRowMutator(Context, "RemoveInvalidContacts", scope.Topic)
+                                new RemoveRowMutator(scope.Topic, "RemoveInvalidContacts")
                                 {
                                     If = row => row.IsNullOrEmpty("Value"),
                                 },
@@ -68,10 +68,10 @@
                             new ColumnCopyConfiguration("Value", "ContactValue"),
                         },
                     },
-                    new ExpandMutator(Context, "ExpandContactMethod", scope.Topic)
+                    new ExpandMutator(scope.Topic, "ExpandContactMethod")
                     {
                         NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        RightProcess = new EpPlusExcelReaderProcess(Context, "ReadContactMethod", scope.Topic)
+                        RightProcess = new EpPlusExcelReaderProcess(scope.Topic, "ReadContactMethod")
                         {
                             FileName = SourceFileName,
                             SheetName = "ContactMethod",
@@ -88,7 +88,7 @@
                             new ColumnCopyConfiguration("Name", "ContactMethod"),
                         },
                     },
-                    new EpPlusSimpleRowWriterMutator(Context, "Writer", scope.Topic)
+                    new EpPlusSimpleRowWriterMutator(scope.Topic, "Writer")
                     {
                         FileName = OutputFileName,
                         SheetName = "output",

@@ -8,8 +8,8 @@
         public MatchAction MatchAction { get; set; }
         private Dictionary<string, IRow> _lookup;
 
-        public ValidateForeignKeyMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public ValidateForeignKeyMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

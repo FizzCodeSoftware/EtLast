@@ -10,8 +10,8 @@
 
         private int[] _lastIdOfLevel;
 
-        public HierarchyParentIdCalculatorMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public HierarchyParentIdCalculatorMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -32,7 +32,7 @@
 
                     if (level > 0)
                     {
-                        row.SetValue(this, NewColumnWithParentId, _lastIdOfLevel[level - 1]);
+                        row.SetValue(NewColumnWithParentId, _lastIdOfLevel[level - 1]);
                     }
 
                     break;

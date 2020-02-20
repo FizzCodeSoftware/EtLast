@@ -19,8 +19,8 @@
         private ExcelPackage _package;
         private int _storeUid;
 
-        public EpPlusSimpleRowWriterMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public EpPlusSimpleRowWriterMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

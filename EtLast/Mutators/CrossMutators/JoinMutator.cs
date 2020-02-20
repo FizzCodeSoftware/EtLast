@@ -13,8 +13,8 @@
         public MatchActionDelegate MatchCustomAction { get; set; }
         private Dictionary<string, List<IRow>> _lookup;
 
-        public JoinMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public JoinMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

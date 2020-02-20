@@ -12,8 +12,8 @@
         /// </summary>
         public IEvaluable InputProcess { get; set; }
 
-        public MemoryCacheProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public MemoryCacheProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

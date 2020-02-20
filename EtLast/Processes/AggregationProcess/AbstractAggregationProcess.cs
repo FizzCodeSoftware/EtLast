@@ -12,8 +12,8 @@
 
         private readonly StringBuilder _keyBuilder = new StringBuilder();
 
-        protected AbstractAggregationProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        protected AbstractAggregationProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

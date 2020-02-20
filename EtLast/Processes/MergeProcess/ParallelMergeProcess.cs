@@ -8,8 +8,8 @@
 
     public class ParallelMergeProcess : AbstractMergeProcess
     {
-        public ParallelMergeProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public ParallelMergeProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

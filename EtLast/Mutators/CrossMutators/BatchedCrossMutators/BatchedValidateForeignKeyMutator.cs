@@ -20,8 +20,8 @@
 
         private readonly Dictionary<string, IRow> _lookup = new Dictionary<string, IRow>();
 
-        public BatchedValidateForeignKeyMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public BatchedValidateForeignKeyMutator(ITopic topic, string name)
+            : base(topic, name)
         {
             UseBatchKeys = true;
         }

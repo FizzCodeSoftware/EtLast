@@ -34,20 +34,20 @@
                 : null;
         }
 
-        public override void SetValue(IProcess process, string column, object newValue)
+        public override void SetValue(string column, object newValue)
         {
             if (HasStaging)
-                throw new ProcessExecutionException(process, this, "can't call " + nameof(SetValue) + " on a row with uncommitted staging");
+                throw new ProcessExecutionException(CurrentProcess, this, "can't call " + nameof(SetValue) + " on a row with uncommitted staging");
 
             var hasPreviousValue = _values.TryGetValue(column, out var previousValue);
             if (newValue == null && hasPreviousValue)
             {
-                Context.OnRowValueChanged?.Invoke(process, this, new[] { new KeyValuePair<string, object>(column, newValue) });
+                Context.OnRowValueChanged?.Invoke(CurrentProcess, this, new[] { new KeyValuePair<string, object>(column, newValue) });
                 _values.Remove(column);
             }
             else if (!hasPreviousValue || newValue != previousValue)
             {
-                Context.OnRowValueChanged?.Invoke(process, this, new KeyValuePair<string, object>(column, newValue));
+                Context.OnRowValueChanged?.Invoke(CurrentProcess, this, new KeyValuePair<string, object>(column, newValue));
                 _values[column] = newValue;
             }
         }
@@ -70,7 +70,7 @@
             Staging[column] = newValue;
         }
 
-        public override void ApplyStaging(IProcess process)
+        public override void ApplyStaging()
         {
             if (!HasStaging)
                 return;
@@ -87,7 +87,7 @@
                 }
             }
 
-            Context.OnRowValueChanged?.Invoke(process, this, Staging.ToArray());
+            Context.OnRowValueChanged?.Invoke(CurrentProcess, this, Staging.ToArray());
 
             Staging.Clear();
         }

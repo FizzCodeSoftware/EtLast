@@ -8,8 +8,8 @@
         public MatchAction MatchAction { get; set; }
         private HashSet<string> _lookup;
 
-        public KeyTestMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public KeyTestMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

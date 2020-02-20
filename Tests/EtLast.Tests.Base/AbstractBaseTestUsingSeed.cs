@@ -7,11 +7,11 @@
     {
         public string[] SeedColumnNames { get; } = { "id", "name", "age", "fkid", "date", "time", "datetime" };
 
-        public ProcessBuilder CreateProcessBuilder(int rowCount, IEtlContext context)
+        public ProcessBuilder CreateProcessBuilder(int rowCount, ITopic topic)
         {
             return new ProcessBuilder()
             {
-                InputProcess = new SeedRowsProcess(context, "SeedRows", null)
+                InputProcess = new SeedRowsProcess(topic, "SeedRows")
                 {
                     Count = rowCount,
                     Columns = SeedColumnNames,

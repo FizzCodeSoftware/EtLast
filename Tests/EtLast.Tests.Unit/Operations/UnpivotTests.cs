@@ -17,18 +17,18 @@
         [TestMethod]
         public void UnpivotTest()
         {
-            var context = new EtlContext();
+            var topic = new Topic("test", new EtlContext());
 
             var unpivotProcess = new ProcessBuilder()
             {
-                InputProcess = new CreateRowsProcess(context, "UnpivotGenerator", null)
+                InputProcess = new CreateRowsProcess(topic, "UnpivotGenerator")
                 {
                     Columns = SampleColumns,
                     InputRows = SampleRows.ToList(),
                 },
                 Mutators = new MutatorList()
                 {
-                    new UnpivotMutator(context, "UnpivotProcess", null)
+                    new UnpivotMutator(topic, "UnpivotProcess")
                     {
                         FixColumns = new[] { "Id", "Name" },
                         NewColumnForDimension = "InventoryItem",

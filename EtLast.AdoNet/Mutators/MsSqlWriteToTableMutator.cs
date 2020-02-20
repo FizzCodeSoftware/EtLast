@@ -42,8 +42,8 @@
         private RowShadowReader _reader;
         private int _storeUid;
 
-        public MsSqlWriteToTableMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public MsSqlWriteToTableMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

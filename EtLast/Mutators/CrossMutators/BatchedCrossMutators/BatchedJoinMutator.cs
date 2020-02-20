@@ -13,8 +13,8 @@
         /// </summary>
         public override int BatchSize { get; set; } = 1000;
 
-        public BatchedJoinMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public BatchedJoinMutator(ITopic topic, string name)
+            : base(topic, name)
         {
             UseBatchKeys = true;
         }

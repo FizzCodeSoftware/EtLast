@@ -22,23 +22,23 @@
         [TestMethod]
         public void HierarchyParentIdCalculatorTest()
         {
-            var context = new EtlContext();
+            var topic = new Topic("test", new EtlContext());
 
             var process = new ProcessBuilder()
             {
-                InputProcess = new CreateRowsProcess(context, "HierarchyParentIdCalculatorGenerator", null)
+                InputProcess = new CreateRowsProcess(topic, "HierarchyParentIdCalculatorGenerator")
                 {
                     Columns = SampleColumns,
                     InputRows = SampleRows.ToList(),
                 },
                 Mutators = new MutatorList()
                 {
-                    GetMutators(context),
+                    GetMutators(topic),
                 },
             };
 
             var result = process.Build().Evaluate().TakeRowsAndReleaseOwnership().ToList();
-            var exceptions = context.GetExceptions();
+            var exceptions = topic.Context.GetExceptions();
 
             Assert.AreEqual(6, result.Count);
             Assert.AreEqual(0, exceptions.Count);
@@ -51,9 +51,9 @@
                 new object[] { "id", 5, "name", "F", "parentId", 0, "level1", null, "level2", "FFF" }), result);
         }
 
-        private static IEnumerable<IMutator> GetMutators(EtlContext context)
+        private static IEnumerable<IMutator> GetMutators(ITopic topic)
         {
-            yield return new HierarchyParentIdCalculatorMutator(context, null, null)
+            yield return new HierarchyParentIdCalculatorMutator(topic, null)
             {
                 IntegerIdColumn = "id",
                 NewColumnWithParentId = "parentId",

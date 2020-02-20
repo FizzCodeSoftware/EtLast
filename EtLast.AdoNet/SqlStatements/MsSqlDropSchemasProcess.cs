@@ -11,8 +11,8 @@
 
     public class MsSqlDropSchemasProcess : AbstractSqlStatementsProcess
     {
-        public MsSqlDropSchemasProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public MsSqlDropSchemasProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

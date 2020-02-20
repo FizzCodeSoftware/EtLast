@@ -46,13 +46,13 @@
 
                 if (builder.MatchColumns.Length == 1)
                 {
-                    yield return new BatchedCompareWithRowMutator(builder.TableBuilder.DwhBuilder.Context, nameof(RemoveExistingRows), builder.TableBuilder.Topic)
+                    yield return new BatchedCompareWithRowMutator(builder.TableBuilder.Table.Topic, nameof(RemoveExistingRows))
                     {
                         If = row => !row.IsNullOrEmpty(builder.MatchColumns[0]),
                         EqualityComparer = equalityComparer,
                         LeftKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
                         RightKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
-                        RightProcessCreator = rows => new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Scope.Context, "ExistingRowsReader", builder.TableBuilder.Table.Topic)
+                        RightProcessCreator = rows => new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
                         {
                             Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0])
                                     + "," + string.Join(", ", finalValueColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
@@ -74,12 +74,12 @@
                 }
                 else
                 {
-                    yield return new CompareWithRowMutator(builder.TableBuilder.DwhBuilder.Context, nameof(RemoveExistingRows), builder.TableBuilder.Topic)
+                    yield return new CompareWithRowMutator(builder.TableBuilder.Table.Topic, nameof(RemoveExistingRows))
                     {
                         EqualityComparer = equalityComparer,
                         LeftKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
                         RightKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
-                        RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.DwhBuilder.Context, "ExistingRowsReader", builder.TableBuilder.Table.Topic)
+                        RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
                         {
                             ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
                             Sql = "SELECT " + string.Join(",", builder.MatchColumns.Concat(finalValueColumns).Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
@@ -92,12 +92,12 @@
             }
             else if (builder.MatchColumns.Length == 1)
             {
-                yield return new BatchedKeyTestMutator(builder.TableBuilder.DwhBuilder.Context, nameof(RemoveExistingRows), builder.TableBuilder.Topic)
+                yield return new BatchedKeyTestMutator(builder.TableBuilder.Table.Topic, nameof(RemoveExistingRows))
                 {
                     If = row => !row.IsNullOrEmpty(builder.MatchColumns[0]),
                     LeftKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
                     RightKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
-                    RightProcessCreator = rows => new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Scope.Context, "ExistingRowsReader", builder.TableBuilder.Table.Topic)
+                    RightProcessCreator = rows => new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
                     {
                         Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0])
                             + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema)
@@ -117,11 +117,11 @@
             }
             else
             {
-                yield return new KeyTestMutator(builder.TableBuilder.DwhBuilder.Context, nameof(RemoveExistingRows), builder.TableBuilder.Topic)
+                yield return new KeyTestMutator(builder.TableBuilder.Table.Topic, nameof(RemoveExistingRows))
                 {
                     LeftKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
                     RightKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
-                    RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.DwhBuilder.Context, "ExistingRowsReader", builder.TableBuilder.Table.Topic)
+                    RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
                     {
                         ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
                         Sql = "SELECT " + string.Join(",", builder.MatchColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))

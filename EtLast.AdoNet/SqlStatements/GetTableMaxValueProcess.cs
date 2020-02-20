@@ -13,8 +13,8 @@
         public string ColumnName { get; set; }
         public string CustomWhereClause { get; set; }
 
-        public GetTableMaxValueProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public GetTableMaxValueProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

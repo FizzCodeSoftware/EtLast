@@ -22,7 +22,7 @@
                 aggregateRow.SetStagedValue(column, aggregatedValue);
             }
 
-            aggregateRow.ApplyStaging(Process);
+            aggregateRow.ApplyStaging();
         }
     }
 

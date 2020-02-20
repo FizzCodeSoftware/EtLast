@@ -12,8 +12,8 @@
         public MatchActionDelegate MatchCustomAction { get; set; }
         private Dictionary<string, IRow> _dictionary;
 
-        public CustomExpandFromDictionaryMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public CustomExpandFromDictionaryMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -69,7 +69,7 @@
             else
             {
                 ColumnCopyConfiguration.CopyManyToRowStage(rightRow, row, ColumnConfiguration);
-                row.ApplyStaging(this);
+                row.ApplyStaging();
 
                 MatchCustomAction?.Invoke(this, row, rightRow);
             }

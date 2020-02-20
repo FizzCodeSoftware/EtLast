@@ -31,8 +31,8 @@
             }
         }
 
-        public ResilientSqlScope(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public ResilientSqlScope(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -82,7 +82,7 @@
 
             try
             {
-                CreateTempTables(Context);
+                CreateTempTables();
 
                 if (Context.ExceptionCount > initialExceptionCount)
                     return;
@@ -197,7 +197,7 @@
                 {
                     if (success || Configuration.TempTableMode == ResilientSqlScopeTempTableMode.AlwaysDrop)
                     {
-                        DropTempTables(Context);
+                        DropTempTables();
                     }
                 }
             }
@@ -231,7 +231,7 @@
 
         public static IEnumerable<IExecutable> DeleteTargetTableFinalizer(ResilientTableBase table, int commandTimeout = 60)
         {
-            yield return new DeleteTableProcess(table.Scope.Context, "DeleteContentFromTargetTable", table.Topic)
+            yield return new DeleteTableProcess(table.Topic, "DeleteContentFromTargetTable")
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 TableName = table.TableName,
@@ -245,7 +245,7 @@
                 throw new EtlException(table.Scope, "identity columns can be copied only if the " + nameof(ResilientTable) + "." + nameof(ResilientTableBase.Columns) + " is specified");
 
 #pragma warning disable RCS1227 // Validate arguments correctly.
-            yield return new CopyTableIntoExistingTableProcess(table.Scope.Context, "CopyTempToTargetTable", table.Topic)
+            yield return new CopyTableIntoExistingTableProcess(table.Topic, "CopyTempToTargetTable")
 #pragma warning restore RCS1227 // Validate arguments correctly.
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
@@ -265,7 +265,7 @@
 
         public static IEnumerable<IExecutable> SimpleMergeFinalizer(ResilientTableBase table, string[] keyColumns, int commandTimeout = 60)
         {
-            yield return new CustomMsSqlMergeSqlStatementProcess(table.Scope.Context, "MergeTempToTargetTable", table.Topic)
+            yield return new CustomMsSqlMergeSqlStatementProcess(table.Topic, "MergeTempToTargetTable")
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 CommandTimeout = commandTimeout,
@@ -279,7 +279,7 @@
             };
         }
 
-        private void CreateTempTables(IEtlContext context)
+        private void CreateTempTables()
         {
             var config = new List<TableCopyConfiguration>();
             foreach (var table in Configuration.Tables)
@@ -309,7 +309,7 @@
                 }
             }
 
-            new CopyTableStructureProcess(context, "RecreateTempTables", Topic)
+            new CopyTableStructureProcess(Topic, "RecreateTempTables")
             {
                 ConnectionString = Configuration.ConnectionString,
                 SuppressExistingTransactionScope = true,
@@ -317,7 +317,7 @@
             }.Execute(this);
         }
 
-        private void DropTempTables(IEtlContext context)
+        private void DropTempTables()
         {
             var tempTableNames = Configuration.Tables
                 .Select(x => x.TempTableName);
@@ -326,7 +326,7 @@
                 .Where(x => x.AdditionalTables != null)
                 .SelectMany(x => x.AdditionalTables.Values.Select(y => y.TempTableName));
 
-            new DropTablesProcess(context, "DropTempTables", Topic)
+            new DropTablesProcess(Topic, "DropTempTables")
             {
                 ConnectionString = Configuration.ConnectionString,
                 TableNames = tempTableNames

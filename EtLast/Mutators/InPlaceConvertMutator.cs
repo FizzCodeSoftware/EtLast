@@ -28,8 +28,8 @@
         /// </summary>
         public object SpecialValueIfInvalid { get; set; }
 
-        public InPlaceConvertMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public InPlaceConvertMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -97,7 +97,7 @@
 
             if (!removeRow)
             {
-                row.ApplyStaging(this);
+                row.ApplyStaging();
 
                 yield return row;
             }

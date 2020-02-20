@@ -8,8 +8,8 @@
     {
         public CustomMutatorDelegate Then { get; set; }
 
-        public CustomMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public CustomMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

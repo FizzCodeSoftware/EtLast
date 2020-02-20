@@ -16,7 +16,7 @@
 
                 builder.AddMutatorCreator(builder => new[]
                 {
-                    new CustomMutator(builder.DwhBuilder.Context, nameof(SetValidFromToRecordTimestampIfAvailable), builder.Topic)
+                    new CustomMutator(builder.Table.Topic, nameof(SetValidFromToRecordTimestampIfAvailable))
                     {
                         Then = (proc, row) =>
                         {
@@ -30,7 +30,7 @@
 
                                 if (value is DateTimeOffset)
                                 {
-                                    row.SetValue(proc, builder.ValidFromColumnName, value);
+                                    row.SetValue(builder.ValidFromColumnName, value);
                                 }
                                 else
                                 {

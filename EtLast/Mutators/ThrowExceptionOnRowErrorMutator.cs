@@ -6,8 +6,8 @@
 
     public class ThrowExceptionOnRowErrorMutator : AbstractMutator
     {
-        public ThrowExceptionOnRowErrorMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public ThrowExceptionOnRowErrorMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

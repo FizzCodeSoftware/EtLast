@@ -6,8 +6,8 @@
     {
         public EvaluateDelegate InputGenerator { get; set; }
 
-        public EnumerableImportProcess(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public EnumerableImportProcess(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 

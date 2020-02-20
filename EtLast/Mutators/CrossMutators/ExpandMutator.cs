@@ -10,8 +10,8 @@
 
         private Dictionary<string, IRow> _lookup;
 
-        public ExpandMutator(IEtlContext context, string name, string topic)
-            : base(context, name, topic)
+        public ExpandMutator(ITopic topic, string name)
+            : base(topic, name)
         {
         }
 
@@ -72,7 +72,7 @@
             else
             {
                 ColumnCopyConfiguration.CopyManyToRowStage(match, row, ColumnConfiguration);
-                row.ApplyStaging(this);
+                row.ApplyStaging();
 
                 MatchCustomAction?.Invoke(this, row, match);
             }

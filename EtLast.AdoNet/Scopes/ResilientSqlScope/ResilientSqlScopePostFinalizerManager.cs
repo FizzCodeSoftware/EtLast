@@ -16,7 +16,7 @@
         private readonly ResilientSqlScope _scope;
         public IEtlContext Context => _scope.Context;
         public string Name { get; } = "PostFinalizerManager";
-        public string Topic => _scope.Topic;
+        public ITopic Topic => _scope.Topic;
         public ProcessKind Kind => ProcessKind.unknown;
         public StatCounterCollection CounterCollection { get; }
 
