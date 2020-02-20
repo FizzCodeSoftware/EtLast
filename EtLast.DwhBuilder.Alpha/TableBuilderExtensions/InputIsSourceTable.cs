@@ -56,8 +56,8 @@
                     ? null
                     : string.Join(" and ", whereClauseList),
                 Parameters = parameterList,
-                ColumnConfiguration = sourceSqlTable.Columns.Select(x =>
-                    new ReaderColumnConfiguration(x.Name, GetConverter(x), NullSourceHandler.SetSpecialValue, InvalidSourceHandler.WrapError)
+                ColumnConfiguration = sourceSqlTable.Columns.Select(column =>
+                    new ReaderColumnConfiguration(column.Name, GetConverter(column.Type.SqlTypeInfo), NullSourceHandler.SetSpecialValue, InvalidSourceHandler.WrapError)
                 ).ToList(),
             };
         }
@@ -88,9 +88,9 @@
             return result.MaxValue;
         }
 
-        private static ITypeConverter GetConverter(SqlColumn column)
+        private static ITypeConverter GetConverter(SqlTypeInfo sqlTypeInfo)
         {
-            return column.Type.SqlTypeInfo switch
+            return sqlTypeInfo switch
             {
                 SqlBit _ => new BoolConverter(),
                 SqlTinyInt _ => new ByteConverter(),

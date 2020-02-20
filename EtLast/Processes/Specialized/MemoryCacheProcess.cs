@@ -48,7 +48,7 @@
             else
             {
                 _cache = new List<IRow>();
-                var inputRows = InputProcess.Evaluate(this).TakeRowsAndReleaseOwnership(this);
+                var inputRows = InputProcess.Evaluate(this).TakeRowsAndReleaseOwnership();
                 foreach (var row in inputRows)
                 {
                     if (IgnoreRowsWithError && row.HasError())

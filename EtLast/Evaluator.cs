@@ -19,11 +19,11 @@
             _input = input;
         }
 
-        public IEnumerable<IRow> TakeRowsAndTransferOwnership(IProcess newOwner)
+        public IEnumerable<IRow> TakeRowsAndTransferOwnership()
         {
             foreach (var row in _input)
             {
-                row.Context.SetRowOwner(row, newOwner);
+                row.Context.SetRowOwner(row, _process.Caller);
                 yield return row;
             }
 
@@ -35,19 +35,7 @@
         {
             foreach (var row in _input)
             {
-                row.Context.SetRowOwner(row, null);
-                yield return row;
-            }
-
-            if (_process != null)
-                _process.Context.RegisterProcessInvocationEnd(_process);
-        }
-
-        public IEnumerable<IRow> TakeRowsAndReleaseOwnership(IProcess process)
-        {
-            foreach (var row in _input)
-            {
-                row.Context.SetRowOwner(row, process);
+                row.Context.SetRowOwner(row, _process.Caller);
                 row.Context.SetRowOwner(row, null);
 
                 yield return row;
@@ -57,16 +45,29 @@
                 _process.Context.RegisterProcessInvocationEnd(_process);
         }
 
-        public int CountRows(IProcess newOwner)
+        public int CountRows()
         {
             var count = 0;
             foreach (var row in _input)
             {
-                row.Context.SetRowOwner(row, newOwner);
+                row.Context.SetRowOwner(row, _process.Caller);
+                row.Context.SetRowOwner(row, null);
 
-                if (newOwner != null)
-                    row.Context.SetRowOwner(row, null);
+                count++;
+            }
 
+            if (_process != null)
+                _process.Context.RegisterProcessInvocationEnd(_process);
+
+            return count;
+        }
+
+        public int CountRowsWithoutTransfer()
+        {
+            var count = 0;
+            foreach (var row in _input)
+            {
+                row.Context.SetRowOwner(row, null);
                 count++;
             }
 

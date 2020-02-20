@@ -20,7 +20,7 @@
         protected override void StartMutator()
         {
             _dictionary = new Dictionary<string, IRow>();
-            var allRightRows = RightProcess.Evaluate(this).TakeRowsAndReleaseOwnership(this);
+            var allRightRows = RightProcess.Evaluate(this).TakeRowsAndReleaseOwnership();
             var rightRowCount = 0;
             foreach (var row in allRightRows)
             {

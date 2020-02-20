@@ -44,7 +44,7 @@
                 }
             }.Build();
 
-            var resultCount = process.Evaluate().CountRows(null);
+            var resultCount = process.Evaluate().CountRows();
             Assert.AreEqual(2, resultCount);
         }
 
@@ -64,7 +64,7 @@
                 }
             }.Build();
 
-            var resultCount = process.Evaluate().CountRows(null);
+            var resultCount = process.Evaluate().CountRows();
             Assert.AreEqual(2, resultCount);
         }
 

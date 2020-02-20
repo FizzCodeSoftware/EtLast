@@ -56,7 +56,7 @@
         public void Execute(IProcess caller)
         {
             var evaluator = Evaluate(caller);
-            _ = evaluator.CountRows(null);
+            _ = evaluator.CountRowsWithoutTransfer();
         }
     }
 }

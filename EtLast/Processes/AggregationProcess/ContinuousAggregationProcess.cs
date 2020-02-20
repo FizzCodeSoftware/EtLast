@@ -53,7 +53,7 @@
             Context.Log(LogSeverity.Information, this, "continuous aggregation started");
 
             var aggregateRows = new Dictionary<string, AggregateRow>();
-            var rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership(this);
+            var rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership();
 
             var rowCount = 0;
             foreach (var row in rows)

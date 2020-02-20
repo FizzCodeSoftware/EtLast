@@ -19,7 +19,7 @@
         protected override void StartMutator()
         {
             _lookup = new Dictionary<string, List<IRow>>();
-            var allRightRows = RightProcess.Evaluate(this).TakeRowsAndReleaseOwnership(this);
+            var allRightRows = RightProcess.Evaluate(this).TakeRowsAndReleaseOwnership();
             var rightRowCount = 0;
             foreach (var row in allRightRows)
             {

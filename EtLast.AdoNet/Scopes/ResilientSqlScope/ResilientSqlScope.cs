@@ -145,7 +145,7 @@
                             mainEvaluableProcess = table.PartitionedMainProcessCreator.Invoke(table, partitionIndex);
                         }
 
-                        var rowCount = mainEvaluableProcess.Evaluate().CountRows(this);
+                        var rowCount = mainEvaluableProcess.Evaluate(this).CountRowsWithoutTransfer();
 
                         if (Context.ExceptionCount > initialExceptionCount)
                             return;

@@ -20,7 +20,7 @@
 
             var mutatedRows = new List<IRow>();
 
-            var rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership(this);
+            var rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership();
             foreach (var row in rows)
             {
                 var apply = false;

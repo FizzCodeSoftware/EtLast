@@ -58,7 +58,7 @@
         {
             var rightProcess = RightProcessCreator.Invoke(rows.ToArray());
 
-            var allRightRows = rightProcess.Evaluate(this).TakeRowsAndReleaseOwnership(this);
+            var allRightRows = rightProcess.Evaluate(this).TakeRowsAndReleaseOwnership();
             var rightRowCount = 0;
             foreach (var row in allRightRows)
             {

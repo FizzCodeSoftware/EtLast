@@ -28,7 +28,7 @@
             var mutatedRows = new List<IRow>();
             var removedRows = new List<IRow>();
 
-            var rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership(this);
+            var rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership();
 
             var batch = new List<IRow>();
             var batchKeys = new HashSet<string>();

@@ -34,7 +34,7 @@
                     {
                         using (var ts = depTran != null ? new TransactionScope(depTran, TimeSpan.FromDays(1)) : null)
                         {
-                            var rows = inputProcess.Evaluate(this).TakeRowsAndTransferOwnership(this);
+                            var rows = inputProcess.Evaluate(this).TakeRowsAndTransferOwnership();
 
                             foreach (var row in rows)
                             {

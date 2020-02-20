@@ -49,7 +49,7 @@
         {
             Transaction.Current = tran as Transaction;
 
-            var rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership(this);
+            var rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership();
             foreach (var row in rows)
             {
                 _queue.AddRow(row);
