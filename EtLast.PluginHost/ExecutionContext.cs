@@ -101,7 +101,7 @@
                 values.Add(PluginName);
             }
 
-            if (process?.Topic != null)
+            if (process?.Topic?.Name != null)
                 values.Add(process.Topic.Name);
 
             if (process != null)
@@ -117,7 +117,7 @@
             logger.Write(
                 (LogEventLevel)severity,
                 (PluginName != null ? "[{Module}/{Plugin}] " : "")
-                + (process?.Topic != null ? "[{ActiveTopic}] " : "")
+                + (process?.Topic?.Name != null ? "[{ActiveTopic}] " : "")
                 + (process != null ? ident + "<{ActiveProcess}> " : "")
                 + text,
                 values.ToArray());
