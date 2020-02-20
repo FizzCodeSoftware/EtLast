@@ -112,9 +112,11 @@
                 .OrderByDescending(x => new DirectoryInfo(x).CreationTime)
                 .FirstOrDefault();
 
-            var referenceAssemblyPattern = "System*.dll";
-            commandContext.Logger.Information("using reference assemblies from {ReferenceAssemblyFolder} using pattern: {ReferenceAssemblyPattern}", referenceAssemblyFolder, referenceAssemblyPattern);
-            var referenceDllFileNames = Directory.GetFiles(referenceAssemblyFolder, referenceAssemblyPattern, SearchOption.TopDirectoryOnly);
+            commandContext.Logger.Information("using sssemblies from {ReferenceAssemblyFolder}", referenceAssemblyFolder);
+
+            var referenceDllFileNames = new List<string>();
+            referenceDllFileNames.AddRange(Directory.GetFiles(referenceAssemblyFolder, "System*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(referenceAssemblyFolder, "netstandard.dll", SearchOption.TopDirectoryOnly));
 
             var referenceFileNames = new List<string>();
             referenceFileNames.AddRange(referenceDllFileNames);
