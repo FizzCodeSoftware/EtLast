@@ -6,8 +6,8 @@
 
     public class ThrowExceptionOnRowErrorMutator : AbstractMutator
     {
-        public ThrowExceptionOnRowErrorMutator(ITopic topic, string name)
-            : base(topic, name)
+        public ThrowExceptionOnRowErrorMutator(ITopic topic)
+            : base(topic, null)
         {
         }
 
