@@ -200,12 +200,9 @@
             if (plugins == null || plugins.Count == 0)
                 return new List<IEtlPlugin>();
 
-            return plugins
-                .Where(plugin =>
-                {
-                    var pluginName = plugin.GetType().Name;
-                    return moduleConfiguration.EnabledPluginList.Any(enabledName => string.Equals(enabledName, pluginName, StringComparison.InvariantCultureIgnoreCase));
-                })
+            return moduleConfiguration.EnabledPluginList
+                .Select(enabledName => plugins.Find(plugin => string.Equals(enabledName, plugin.GetType().Name, StringComparison.InvariantCultureIgnoreCase)))
+                .Where(plugin => plugin != null)
                 .ToList();
         }
 
