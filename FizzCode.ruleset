@@ -135,4 +135,9 @@
     <Rule Id="RCS1213" Action="None" />
     <Rule Id="RCS1239" Action="None" />
   </Rules>
+  <Rules AnalyzerId="Roslynator.Formatting.Analyzers" RuleNamespace="Roslynator.Formatting.Analyzers">
+    <Rule Id="RCS0027" Action="Info" />
+    <Rule Id="RCS0028" Action="Info" />
+    <Rule Id="RCS0029" Action="Info" />
+  </Rules>
 </RuleSet>

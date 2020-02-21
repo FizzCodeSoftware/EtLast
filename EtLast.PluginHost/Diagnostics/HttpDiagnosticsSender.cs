@@ -50,9 +50,9 @@
                 ExtendedBinaryWriter writerToSend = null;
                 lock (_currentWriterLock)
                 {
-                    if (_currentWriter != null &&
-                        (_currentWriter.BaseStream.Length >= 1024 * 1024
-                        || (_currentWriter.BaseStream.Length > 0 && swLastSent.ElapsedMilliseconds > 500)))
+                    if (_currentWriter != null
+                        && (_currentWriter.BaseStream.Length >= 1024 * 1024
+                            || (_currentWriter.BaseStream.Length > 0 && swLastSent.ElapsedMilliseconds > 500)))
                     {
                         dictionaryWriterToSend = _currentDictionaryWriter;
                         writerToSend = _currentWriter;

@@ -99,12 +99,6 @@
                 TableName = _scope.Configuration.ConnectionString.Escape(table.TempTableName),
             }.Execute(this);
 
-            if (count > 0)
-            {
-                Context.Log(LogSeverity.Debug, this, "{TempRecordCount} records found in {ConnectionStringName}/{TableName}",
-                      count, _scope.Configuration.ConnectionString.Name, _scope.Configuration.ConnectionString.Unescape(table.TempTableName));
-            }
-
             return count;
         }
     }

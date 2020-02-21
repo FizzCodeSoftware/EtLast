@@ -18,11 +18,12 @@
 
         private static IEnumerable<IMutator> CreateTrimAllStringColumnLength(DwhTableBuilder builder)
         {
-            var limitedLengthStringColumns = builder.SqlTable.Columns.Where(x => x.Type.Length != null && x.Type.Length.Value != -1 &&
-                (x.Type.SqlTypeInfo == DbTools.DataDefinition.MsSqlType2016.VarChar
-                || x.Type.SqlTypeInfo == DbTools.DataDefinition.MsSqlType2016.NVarChar
-                || x.Type.SqlTypeInfo == DbTools.DataDefinition.MsSqlType2016.NChar
-                || x.Type.SqlTypeInfo == DbTools.DataDefinition.MsSqlType2016.Char))
+            var limitedLengthStringColumns = builder.SqlTable.Columns
+                .Where(x => x.Type.Length != null && x.Type.Length.Value != -1
+                    && (x.Type.SqlTypeInfo == DbTools.DataDefinition.MsSqlType2016.VarChar
+                        || x.Type.SqlTypeInfo == DbTools.DataDefinition.MsSqlType2016.NVarChar
+                        || x.Type.SqlTypeInfo == DbTools.DataDefinition.MsSqlType2016.NChar
+                        || x.Type.SqlTypeInfo == DbTools.DataDefinition.MsSqlType2016.Char))
                 .ToList();
 
             if (limitedLengthStringColumns.Count == 0)

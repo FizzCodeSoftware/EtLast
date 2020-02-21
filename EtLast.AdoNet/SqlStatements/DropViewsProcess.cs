@@ -25,8 +25,8 @@
             if (TableNames == null || TableNames.Length == 0)
                 throw new ProcessParameterNullException(this, nameof(TableNames));
 
-            if ((ConnectionString.SqlEngine != SqlEngine.MsSql) &&
-                (ConnectionString.SqlEngine != SqlEngine.MySql))
+            if ((ConnectionString.SqlEngine != SqlEngine.MsSql)
+                && (ConnectionString.SqlEngine != SqlEngine.MySql))
             {
                 throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be System.Data.SqlClient or MySql.Data.MySqlClient");
             }

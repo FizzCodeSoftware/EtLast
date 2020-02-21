@@ -29,6 +29,10 @@
   <ItemGroup>
     <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.DataDefinition" Version="1.0.141.5391" />
     <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.DataDefinition.MsSql" Version="1.0.141.5391" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="1.0.0-rc">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

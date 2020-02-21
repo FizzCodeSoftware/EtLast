@@ -33,6 +33,10 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.2" />
     <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.Configuration" Version="1.0.141.5391" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="1.0.0-rc">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
