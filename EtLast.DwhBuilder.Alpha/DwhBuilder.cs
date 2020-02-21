@@ -21,7 +21,9 @@
         public IEnumerable<SqlTable> Tables => _tables.Select(x => x.SqlTable);
         protected readonly List<DwhTableBuilder> _tables = new List<DwhTableBuilder>();
 
-        public DateTimeOffset? DefaultValidFromDateTime => Configuration.UseContextCreationTimeForNewRecords ? Topic.Context.CreatedOnLocal : Configuration.InfinitePastDateTime;
+        internal DateTimeOffset? DefaultValidFromDateTime => Configuration.UseContextCreationTimeForNewRecords ? Topic.Context.CreatedOnLocal : Configuration.InfinitePastDateTime;
+
+        private readonly List<ResilientSqlScopeExecutableCreatorDelegate> _postFinalizerCreators = new List<ResilientSqlScopeExecutableCreatorDelegate>();
 
         public DwhBuilder(ITopic topic)
         {
@@ -34,7 +36,7 @@
             _configuration = configuration;
         }
 
-        public IExecutable Build(string scopeName = null)
+        public ResilientSqlScope Build(string scopeName = null)
         {
             if (Configuration == null)
 #pragma warning disable CA2208 // Instantiate argument exceptions correctly
@@ -92,6 +94,16 @@
                         ["EtlRunid"] = Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", 0),
                     },
                 };
+            }
+
+            foreach (var creator in _postFinalizerCreators)
+            {
+                var result = creator.Invoke(scope, caller);
+                if (result != null)
+                {
+                    foreach (var process in result)
+                        yield return process;
+                }
             }
         }
 
@@ -193,6 +205,11 @@
             }
 
             return result;
+        }
+
+        public void AddPostFinalizer(ResilientSqlScopeExecutableCreatorDelegate creator)
+        {
+            _postFinalizerCreators.Add(creator);
         }
     }
 }
