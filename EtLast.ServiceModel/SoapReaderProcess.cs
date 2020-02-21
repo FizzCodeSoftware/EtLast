@@ -3,11 +3,19 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.ServiceModel;
 
-    public delegate T SoapReaderClientCreatorDelegate<T>(SoapReaderProcess<T> process);
-    public delegate IEnumerable<Dictionary<string, object>> SoapReaderClientInvokerDelegate<T>(SoapReaderProcess<T> process, T client);
+    public delegate TClient SoapReaderClientCreatorDelegate<TChannel, TClient>(SoapReaderProcess<TChannel, TClient> process)
+        where TChannel : class
+        where TClient : ClientBase<TChannel>;
 
-    public class SoapReaderProcess<T> : AbstractProducerProcess, IRowReader
+    public delegate IEnumerable<Dictionary<string, object>> SoapReaderClientInvokerDelegate<TChannel, TClient>(SoapReaderProcess<TChannel, TClient> process, TClient client)
+        where TChannel : class
+        where TClient : ClientBase<TChannel>;
+
+    public class SoapReaderProcess<TChannel, TClient> : AbstractProducerProcess, IRowReader
+        where TChannel : class
+        where TClient : ClientBase<TChannel>
     {
         /// <summary>
         /// Default true.
@@ -17,8 +25,8 @@
         public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
         public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
 
-        public SoapReaderClientCreatorDelegate<T> ClientCreator { get; set; }
-        public SoapReaderClientInvokerDelegate<T> ClientInvoker { get; set; }
+        public SoapReaderClientCreatorDelegate<TChannel, TClient> ClientCreator { get; set; }
+        public SoapReaderClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; set; }
 
         public SoapReaderProcess(ITopic topic, string name)
             : base(topic, name)
@@ -42,6 +50,13 @@
             var startedOn = Stopwatch.StartNew();
 
             var client = ClientCreator.Invoke(this);
+
+            Context.Log(LogSeverity.Debug, this, "SOAP client created, endpoint address: {EndpointAddress}",
+                client.Endpoint.Address);
+
+            Context.Log(LogSeverity.Debug, this, "sending SOAP request, endpoint address: {EndpointAddress}",
+                client.Endpoint.Address);
+
             var result = ClientInvoker.Invoke(this, client);
 
             CounterCollection.IncrementTimeSpan("SOAP time - success", startedOn.Elapsed);

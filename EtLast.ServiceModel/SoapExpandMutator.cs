@@ -3,20 +3,28 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.ServiceModel;
 
-    public delegate T SoapExpanderClientCreatorDelegate<T>(SoapExpandMutator<T> process, IRow row);
-    public delegate object SoapExpanderClientInvokerDelegate<T>(SoapExpandMutator<T> process, IRow row, T client);
+    public delegate TClient SoapExpanderClientCreatorDelegate<TChannel, TClient>(SoapExpandMutator<TChannel, TClient> process, IRow row)
+        where TChannel : class
+        where TClient : ClientBase<TChannel>;
 
-    public class SoapExpandMutator<T> : AbstractMutator
+    public delegate object SoapExpanderClientInvokerDelegate<TChannel, TClient>(SoapExpandMutator<TChannel, TClient> process, IRow row, TClient client)
+        where TChannel : class
+        where TClient : ClientBase<TChannel>;
+
+    public class SoapExpandMutator<TChannel, TClient> : AbstractMutator
+        where TChannel : class
+        where TClient : ClientBase<TChannel>
     {
-        public SoapExpanderClientCreatorDelegate<T> ClientCreator { get; set; }
-        public SoapExpanderClientInvokerDelegate<T> ClientInvoker { get; set; }
+        public SoapExpanderClientCreatorDelegate<TChannel, TClient> ClientCreator { get; set; }
+        public SoapExpanderClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; set; }
         public string TargetColumn { get; set; }
 
         public InvalidValueAction ActionIfFailed { get; set; }
         public object SpecialValueIfFailed { get; set; }
 
-        private T _client;
+        private TClient _client;
 
         /// <summary>
         /// Default value is 5.
@@ -42,10 +50,19 @@
                     if (_client == null)
                     {
                         _client = ClientCreator.Invoke(this, row);
+
+                        if (_client != null)
+                        {
+                            Context.Log(LogSeverity.Debug, this, "SOAP client created, endpoint address: {EndpointAddress}",
+                                _client.Endpoint.Address);
+                        }
                     }
 
                     if (_client != null)
                     {
+                        Context.Log(LogSeverity.Debug, this, "sending SOAP request, endpoint address: {EndpointAddress}",
+                            _client.Endpoint.Address);
+
                         var result = ClientInvoker.Invoke(this, row, _client);
                         if (result != null)
                         {
