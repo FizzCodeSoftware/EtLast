@@ -260,7 +260,7 @@ from
                     .Sum(x => x.Item2);
 
             Context.Log(LogSeverity.Debug, this, "{ForeignKeyCount} foreign keys for {TableCount} table(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", fkCount,
-                lastSucceededIndex + 1, ConnectionString.Name, LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
+                lastSucceededIndex + 1, ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }
 }

@@ -30,6 +30,13 @@
                 Write7BitEncodedInt(value.Value);
         }
 
+        public void WriteNullable(long? value)
+        {
+            Write(value != null);
+            if (value != null)
+                Write(value.Value);
+        }
+
         public void WriteObject(object value)
         {
             Write(value != null);

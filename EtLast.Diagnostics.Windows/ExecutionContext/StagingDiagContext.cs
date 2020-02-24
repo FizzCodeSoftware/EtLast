@@ -39,7 +39,8 @@
             return new ProcessInvocationEndEvent
             {
                 InvocationUID = reader.Read7BitEncodedInt(),
-                ElapsedMilliseconds = reader.ReadInt64()
+                ElapsedMilliseconds = reader.ReadInt64(),
+                NetTimeMilliseconds = reader.ReadNullableInt64(),
             };
         }
 

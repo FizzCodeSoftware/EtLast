@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading;
     using System.Transactions;
@@ -17,7 +18,7 @@
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
             var threads = new List<Thread>();
             var finished = new bool[ProcessList.Count];
@@ -73,7 +74,8 @@
                 thread.Join();
             }
 
-            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", LastInvocationStarted.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
+            Context.RegisterProcessInvocationEnd(this);
         }
     }
 }

@@ -16,7 +16,7 @@
             var topic = new Topic("test", new EtlContext());
             var process = CreateProcessBuilder(rowCount, topic);
 
-            var etl = RunEtl(process);
+            var etl = RunBuilder(process);
             var result = etl.Select(row => (int)row["id"]);
             var expected = Enumerable.Range(0, rowCount);
 
@@ -31,7 +31,7 @@
             var topic = new Topic("test", new EtlContext());
             var process = CreateProcessBuilder(rowCount, topic);
 
-            var etl = RunEtl(process);
+            var etl = RunBuilder(process);
             var result = etl.Select(row => (int)row["fkid"]).Count();
             var expected = rowCount;
 
@@ -46,7 +46,7 @@
             var topic = new Topic("test", new EtlContext());
             var process = CreateProcessBuilder(rowCount, topic);
 
-            var etl = RunEtl(process);
+            var etl = RunBuilder(process);
             var result = etl.Select(row => (string)row["name"]).Count(name => !string.IsNullOrEmpty(name));
             var expected = rowCount;
 
@@ -61,7 +61,7 @@
             var topic = new Topic("test", new EtlContext());
             var process = CreateProcessBuilder(rowCount, topic);
 
-            var etl = RunEtl(process);
+            var etl = RunBuilder(process);
             var result = etl.Select(row => (DateTime)row["date"]).Count(dt => dt.Hour == 0);
             var expected = rowCount;
 
@@ -76,7 +76,7 @@
             var topic = new Topic("test", new EtlContext());
             var process = CreateProcessBuilder(rowCount, topic);
 
-            var etl = RunEtl(process);
+            var etl = RunBuilder(process);
             var result = etl.Select(row => (DateTime)row["datetime"]).Count(dt => dt.Year > 0);
             var expected = rowCount;
 
@@ -91,7 +91,7 @@
             var topic = new Topic("test", new EtlContext());
             var process = CreateProcessBuilder(rowCount, topic);
 
-            var etl = RunEtl(process);
+            var etl = RunBuilder(process);
             var result = etl.Select(row => (TimeSpan)row["time"]).Count();
             var expected = rowCount;
 
@@ -106,7 +106,7 @@
             var topic = new Topic("test", new EtlContext());
             var process = CreateProcessBuilder(rowCount, topic);
 
-            var etl = RunEtl(process);
+            var etl = RunBuilder(process);
             var result = etl.Count;
             var expected = rowCount;
 

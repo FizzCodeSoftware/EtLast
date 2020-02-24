@@ -50,7 +50,7 @@
                 _lookup.TryGetValue(leftKey, out match);
 
             var removeRow = false;
-            if (match != null)
+            if (match == null)
             {
                 if (NoMatchAction != null)
                 {

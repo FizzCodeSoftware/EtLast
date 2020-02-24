@@ -23,7 +23,7 @@
         {
             foreach (var row in _input)
             {
-                row.Context.SetRowOwner(row, _process.Caller);
+                row.Context.SetRowOwner(row, _process.InvocationInfo?.Caller);
                 yield return row;
             }
 
@@ -35,14 +35,13 @@
         {
             foreach (var row in _input)
             {
-                row.Context.SetRowOwner(row, _process.Caller);
-                row.Context.SetRowOwner(row, null);
+                row.Context.SetRowOwner(row, _process.InvocationInfo?.Caller);
+
+                if (_process.InvocationInfo?.Caller != null)
+                    row.Context.SetRowOwner(row, null);
 
                 yield return row;
             }
-
-            if (_process != null)
-                _process.Context.RegisterProcessInvocationEnd(_process);
         }
 
         public int CountRows()
@@ -50,14 +49,12 @@
             var count = 0;
             foreach (var row in _input)
             {
-                row.Context.SetRowOwner(row, _process.Caller);
-                row.Context.SetRowOwner(row, null);
+                row.Context.SetRowOwner(row, _process.InvocationInfo?.Caller);
+                if (_process.InvocationInfo?.Caller != null)
+                    row.Context.SetRowOwner(row, null);
 
                 count++;
             }
-
-            if (_process != null)
-                _process.Context.RegisterProcessInvocationEnd(_process);
 
             return count;
         }
@@ -70,9 +67,6 @@
                 row.Context.SetRowOwner(row, null);
                 count++;
             }
-
-            if (_process != null)
-                _process.Context.RegisterProcessInvocationEnd(_process);
 
             return count;
         }

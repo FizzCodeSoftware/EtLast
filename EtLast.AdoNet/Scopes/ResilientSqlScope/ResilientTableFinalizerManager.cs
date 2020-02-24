@@ -1,17 +1,10 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
-    using System;
-    using System.Diagnostics;
     using System.Linq;
 
     internal class ResilientTableFinalizerManager : IProcess
     {
-        public int InvocationUID { get; set; }
-        public int InstanceUID { get; set; }
-        public int InvocationCounter { get; set; }
-        public IProcess Caller { get; set; }
-        public Stopwatch LastInvocationStarted { get; set; }
-        public DateTimeOffset? LastInvocationFinished { get; set; }
+        public ProcessInvocationInfo InvocationInfo { get; set; }
 
         private readonly ResilientSqlScope _scope;
         public IEtlContext Context => _scope.Context;

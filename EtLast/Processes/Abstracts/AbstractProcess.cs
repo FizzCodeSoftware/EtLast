@@ -1,17 +1,10 @@
 ﻿namespace FizzCode.EtLast
 {
-    using System;
-    using System.Diagnostics;
     using System.Linq;
 
     public abstract class AbstractProcess : IProcess
     {
-        public int InvocationUID { get; set; }
-        public int InstanceUID { get; set; }
-        public int InvocationCounter { get; set; }
-        public IProcess Caller { get; set; }
-        public Stopwatch LastInvocationStarted { get; set; }
-        public DateTimeOffset? LastInvocationFinished { get; set; }
+        public ProcessInvocationInfo InvocationInfo { get; set; }
 
         public IEtlContext Context => Topic.Context;
         public ITopic Topic { get; set; }

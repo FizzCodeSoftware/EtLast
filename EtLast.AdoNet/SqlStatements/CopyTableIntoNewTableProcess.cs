@@ -61,7 +61,7 @@
             {
                 var recordCount = command.ExecuteNonQuery();
 
-                var time = LastInvocationStarted.Elapsed;
+                var time = InvocationInfo.LastInvocationStarted.Elapsed;
 
                 Context.Log(LogSeverity.Information, this, "table {ConnectionStringName}/{TargetTableName} created and {RecordCount} records copied from {SourceTableName} in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
                     ConnectionString.Unescape(Configuration.TargetTableName), recordCount, ConnectionString.Unescape(Configuration.SourceTableName), time, Transaction.Current.ToIdentifierString());
@@ -95,7 +95,7 @@
 
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
-                exception.Data.Add("Elapsed", LastInvocationStarted.Elapsed);
+                exception.Data.Add("Elapsed", InvocationInfo.LastInvocationStarted.Elapsed);
                 throw exception;
             }
         }

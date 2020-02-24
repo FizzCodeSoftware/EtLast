@@ -59,7 +59,7 @@
             {
                 var recordCount = command.ExecuteNonQuery();
                 Context.LogNoDiag(LogSeverity.Debug, this, "custom SQL statement affected {RecordCount} records in {Elapsed}, transaction: {Transaction}", recordCount,
-                    LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
+                    InvocationInfo.LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
             }
             catch (Exception ex)
             {
@@ -70,7 +70,7 @@
                 exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
-                exception.Data.Add("Elapsed", LastInvocationStarted.Elapsed);
+                exception.Data.Add("Elapsed", InvocationInfo.LastInvocationStarted.Elapsed);
                 throw exception;
             }
         }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
 
     public delegate void EvaluableInitializerDelegate(IEvaluable evaluable);
 
@@ -19,38 +20,52 @@
         {
             Context.RegisterProcessInvocationStart(this, caller);
 
+            var netTimeStopwatch = Stopwatch.StartNew();
             try
             {
-                ValidateImpl();
-            }
-            catch (EtlException ex) { Context.AddException(this, ex); }
-            catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
-
-            if (Context.CancellationTokenSource.IsCancellationRequested)
-            {
-                Context.RegisterProcessInvocationEnd(this);
-                return new Evaluator();
-            }
-
-            if (Initializer != null)
-            {
-                Initializer.Invoke(this);
+                try
+                {
+                    ValidateImpl();
+                }
+                catch (EtlException ex)
+                {
+                    Context.AddException(this, ex);
+                    return new Evaluator();
+                }
+                catch (Exception ex)
+                {
+                    Context.AddException(this, new ProcessExecutionException(this, ex));
+                    return new Evaluator();
+                }
 
                 if (Context.CancellationTokenSource.IsCancellationRequested)
                     return new Evaluator();
-            }
 
-            try
-            {
-                return new Evaluator(this, EvaluateImpl());
+                if (Initializer != null)
+                {
+                    Initializer.Invoke(this);
+
+                    if (Context.CancellationTokenSource.IsCancellationRequested)
+                        return new Evaluator();
+                }
+
+                try
+                {
+                    return new Evaluator(this, EvaluateImpl(netTimeStopwatch));
+                }
+                catch (EtlException ex) { Context.AddException(this, ex); }
+                catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
             }
-            catch (EtlException ex) { Context.AddException(this, ex); }
-            catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
+            finally
+            {
+                netTimeStopwatch.Stop();
+                Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+            }
 
             return new Evaluator();
         }
 
-        protected abstract IEnumerable<IRow> EvaluateImpl();
+        protected abstract IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch);
         protected abstract void ValidateImpl();
 
         public void Execute(IProcess caller)

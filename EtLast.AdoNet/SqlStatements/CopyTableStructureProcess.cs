@@ -102,7 +102,7 @@
                 return;
 
             Context.Log(LogSeverity.Debug, this, "{TableCount} table(s) successfully created on {ConnectionStringName} in {Elapsed}", lastSucceededIndex + 1,
-                ConnectionString.Name, LastInvocationStarted.Elapsed);
+                ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed);
         }
     }
 }

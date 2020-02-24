@@ -94,7 +94,7 @@
 
                     if (!initializationSuccessful)
                     {
-                        Context.Log(LogSeverity.Information, this, "initialization failed after {Elapsed}", LastInvocationStarted.Elapsed);
+                        Context.Log(LogSeverity.Information, this, "initialization failed after {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
                         return;
                     }
                 }
@@ -202,7 +202,7 @@
                 }
             }
 
-            Context.Log(LogSeverity.Information, this, success ? "finished in {Elapsed}" : "failed after {Elapsed}", LastInvocationStarted.Elapsed);
+            Context.Log(LogSeverity.Information, this, success ? "finished in {Elapsed}" : "failed after {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
         }
 
         private void Initialize(int maxRetryCount, ref int initialExceptionCount, ref bool initializationSuccessful)

@@ -19,7 +19,7 @@
                 If = row => true,
             });
 
-            var etl = RunEtl(process);
+            var etl = RunBuilder(process);
             var result = etl.Count;
             const int expected = 0;
 
@@ -39,7 +39,7 @@
                 If = row => false,
             });
 
-            var etl = RunEtl(process);
+            var etl = RunBuilder(process);
             var result = etl.Count;
             var expected = rowCount;
 
@@ -60,7 +60,7 @@
                 If = row => (int)row["id"] < keepAbove,
             });
 
-            var etl = RunEtl(process);
+            var etl = RunBuilder(process);
             var result = etl.Count;
             var expected = rowCount - keepAbove;
 

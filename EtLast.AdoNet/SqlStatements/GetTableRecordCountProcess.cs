@@ -45,7 +45,7 @@
                     recordCount = 0;
 
                 Context.Log(LogSeverity.Debug, this, "{RecordCount} records found in {ConnectionStringName}/{TableName} in {Elapsed}, transaction: {Transaction}", recordCount,
-                    ConnectionString.Name, ConnectionString.Unescape(TableName), LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
+                    ConnectionString.Name, ConnectionString.Unescape(TableName), InvocationInfo.LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
 
                 return recordCount;
             }
@@ -59,7 +59,7 @@
                 exception.Data.Add("TableName", ConnectionString.Unescape(TableName));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", CommandTimeout);
-                exception.Data.Add("Elapsed", LastInvocationStarted.Elapsed);
+                exception.Data.Add("Elapsed", InvocationInfo.LastInvocationStarted.Elapsed);
                 throw exception;
             }
         }

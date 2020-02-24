@@ -62,14 +62,11 @@
             CounterCollection.IncrementTimeSpan("SOAP time - success", startedOn.Elapsed);
             CounterCollection.IncrementCounter("SOAP incovations - success", 1);
 
-            var initialValues = new List<KeyValuePair<string, object>>();
-
+            var initialValues = new Dictionary<string, object>();
             var columnConfig = ColumnConfiguration.ToDictionary(x => x.SourceColumn.ToUpperInvariant());
-
             foreach (var rowData in result)
             {
                 initialValues.Clear();
-
                 CounterCollection.IncrementCounter("SOAP rows read", 1);
 
                 foreach (var kvp in rowData)
@@ -86,18 +83,17 @@
                     {
                         var column = columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn;
                         value = HandleConverter(value, columnConfiguration);
-                        initialValues.Add(new KeyValuePair<string, object>(column, value));
+                        initialValues[column] = value;
                     }
                     else if (DefaultColumnConfiguration != null)
                     {
                         var column = kvp.Key;
                         value = HandleConverter(value, DefaultColumnConfiguration);
-                        initialValues.Add(new KeyValuePair<string, object>(column, value));
+                        initialValues[column] = value;
                     }
-
-                    var row = Context.CreateRow(this, initialValues);
-                    yield return row;
                 }
+
+                yield return Context.CreateRow(this, initialValues);
             }
         }
     }

@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics;
 
     public abstract class AbstractBatchedMutator : AbstractEvaluableProcess, IMutator
     {
@@ -21,57 +22,81 @@
         {
         }
 
-        protected sealed override IEnumerable<IRow> EvaluateImpl()
+        protected sealed override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
             StartMutator();
 
             var mutatedRows = new List<IRow>();
             var removedRows = new List<IRow>();
 
-            var rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership();
+            netTimeStopwatch.Stop();
+            var enumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+            netTimeStopwatch.Start();
 
             var batch = new List<IRow>();
             var batchKeys = new HashSet<string>();
 
             var failed = false;
+            var mutatedRowCount = 0;
+            var ignoredRowCount = 0;
+            var batchCount = 0;
 
-            foreach (var row in rows)
+            while (!Context.CancellationTokenSource.IsCancellationRequested)
             {
+                netTimeStopwatch.Stop();
+                var finished = !enumerator.MoveNext();
+                netTimeStopwatch.Start();
+                if (finished)
+                    break;
+
+                var row = enumerator.Current;
                 var apply = false;
                 try
                 {
                     apply = If?.Invoke(row) != false;
                 }
-                catch (ProcessExecutionException) { throw; }
+                catch (ProcessExecutionException ex)
+                {
+                    Context.AddException(this, ex);
+                    failed = true;
+                    break;
+                }
                 catch (Exception ex)
                 {
-                    var exception = new ProcessExecutionException(this, row, ex);
-                    Context.AddException(this, exception);
+                    Context.AddException(this, new ProcessExecutionException(this, row, ex));
                     failed = true;
                     break;
                 }
 
                 if (!apply)
                 {
-                    CounterCollection.IncrementCounter("skipped", 1, true);
+                    ignoredRowCount++;
+                    CounterCollection.IncrementCounter("ignored", 1, true);
+                    netTimeStopwatch.Stop();
                     yield return row;
+                    netTimeStopwatch.Start();
                     continue;
                 }
 
-                CounterCollection.IncrementCounter("processed", 1, true);
+                mutatedRowCount++;
+                CounterCollection.IncrementCounter("mutated", 1, true);
 
-                var mutationHappened = false;
-                var removeOriginal = false;
+                bool mutationHappened, removeOriginal;
                 try
                 {
                     MutateRow(row, mutatedRows, out removeOriginal, out mutationHappened);
                 }
-                catch (ProcessExecutionException) { throw; }
+                catch (ProcessExecutionException ex)
+                {
+                    Context.AddException(this, ex);
+                    failed = true;
+                    break;
+                }
                 catch (Exception ex)
                 {
-                    var exception = new ProcessExecutionException(this, ex);
-                    Context.AddException(this, exception);
-                    continue;
+                    Context.AddException(this, new ProcessExecutionException(this, row, ex));
+                    failed = true;
+                    break;
                 }
 
                 if (mutationHappened)
@@ -81,12 +106,27 @@
                         Context.SetRowOwner(row, null);
                     }
 
+                    netTimeStopwatch.Stop();
+
                     foreach (var mutatedRow in mutatedRows)
                     {
-                        if (mutatedRow.CurrentProcess != this)
-                            throw new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership");
+                        if (mutatedRow.HasStaging)
+                        {
+                            Context.AddException(this, new ProcessExecutionException(this, mutatedRow, "unfinished staging"));
+                            failed = true;
+                            break;
+                        }
 
+                        if (mutatedRow.CurrentProcess != this)
+                        {
+                            Context.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
+                            failed = true;
+                            break;
+                        }
+
+                        netTimeStopwatch.Stop();
                         yield return mutatedRow;
+                        netTimeStopwatch.Start();
                     }
 
                     mutatedRows.Clear();
@@ -103,15 +143,21 @@
 
                     if ((UseBatchKeys && batchKeys.Count >= BatchSize) || (!UseBatchKeys && batch.Count >= BatchSize))
                     {
+                        batchCount++;
+                        CounterCollection.IncrementCounter("batches", 1, true);
                         try
                         {
                             MutateBatch(batch, mutatedRows, removedRows);
                         }
-                        catch (ProcessExecutionException) { throw; }
+                        catch (ProcessExecutionException ex)
+                        {
+                            Context.AddException(this, ex);
+                            failed = true;
+                            break;
+                        }
                         catch (Exception ex)
                         {
-                            var exception = new ProcessExecutionException(this, ex);
-                            Context.AddException(this, exception);
+                            Context.AddException(this, new ProcessExecutionException(this, row, ex));
                             failed = true;
                             break;
                         }
@@ -121,13 +167,27 @@
                             Context.SetRowOwner(removedRow, null);
                         }
 
+                        netTimeStopwatch.Stop();
                         foreach (var mutatedRow in mutatedRows)
                         {
+                            if (mutatedRow.HasStaging)
+                            {
+                                Context.AddException(this, new ProcessExecutionException(this, mutatedRow, "unfinished staging"));
+                                failed = true;
+                                break;
+                            }
+
                             if (mutatedRow.CurrentProcess != this)
-                                throw new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership");
+                            {
+                                Context.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
+                                failed = true;
+                                break;
+                            }
 
                             yield return mutatedRow;
                         }
+
+                        netTimeStopwatch.Start();
 
                         mutatedRows.Clear();
                         removedRows.Clear();
@@ -137,17 +197,23 @@
                 }
             }
 
+            // process remaining rows
             if (batch.Count > 0 && !failed)
             {
+                batchCount++;
+                CounterCollection.IncrementCounter("batches", 1, true);
                 try
                 {
                     MutateBatch(batch, mutatedRows, removedRows);
                 }
-                catch (ProcessExecutionException) { throw; }
+                catch (ProcessExecutionException ex)
+                {
+                    Context.AddException(this, ex);
+                    failed = true;
+                }
                 catch (Exception ex)
                 {
-                    var exception = new ProcessExecutionException(this, ex);
-                    Context.AddException(this, exception);
+                    Context.AddException(this, new ProcessExecutionException(this, ex));
                     failed = true;
                 }
 
@@ -160,7 +226,9 @@
 
                     foreach (var mutatedRow in mutatedRows)
                     {
+                        netTimeStopwatch.Stop();
                         yield return mutatedRow;
+                        netTimeStopwatch.Start();
                     }
                 }
 
@@ -171,6 +239,11 @@
             }
 
             CloseMutator();
+            netTimeStopwatch.Stop();
+            Context.Log(LogSeverity.Debug, this, "mutated {MutatedRowCount}/{TotalRowCount} rows in {Elapsed}/{ElapsedWallClock} in {BatchCount} batches",
+                mutatedRowCount, mutatedRowCount + ignoredRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed, batchCount);
+
+            Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
         }
 
         protected sealed override void ValidateImpl()

@@ -101,11 +101,11 @@
         private static string GetCallChain(IProcess process)
         {
             var callChain = process.Name;
-            var p = process.Caller;
+            var p = process.InvocationInfo?.Caller;
             while (p != null)
             {
                 callChain = p.Name + " -> " + callChain;
-                p = p.Caller;
+                p = p.InvocationInfo?.Caller;
             }
 
             return "| -> " + callChain;

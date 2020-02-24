@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
 
     public class SequentialMergeProcess : AbstractMergeProcess
     {
@@ -13,7 +14,7 @@
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
             foreach (var inputProcess in ProcessList)
             {
@@ -27,7 +28,8 @@
                 }
             }
 
-            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", LastInvocationStarted.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
+            Context.RegisterProcessInvocationEnd(this);
         }
     }
 }

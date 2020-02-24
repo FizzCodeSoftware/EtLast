@@ -66,7 +66,7 @@
                 return;
 
             Context.Log(LogSeverity.Debug, this, "constraint check successfully disabled on {TableCount} tables on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
-                ConnectionString.Name, LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
+                ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
         }
     }
 }

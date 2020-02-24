@@ -87,10 +87,10 @@
             if (process != null)
             {
                 var p = process;
-                while (p.Caller != null)
+                while (p.InvocationInfo?.Caller != null)
                 {
                     ident += "   ";
-                    p = p.Caller;
+                    p = p.InvocationInfo.Caller;
                 }
             }
 
@@ -130,7 +130,7 @@
                     {
                         writer.Write(text);
                         writer.Write((byte)severity);
-                        writer.WriteNullable(process?.InvocationUID);
+                        writer.WriteNullable(process?.InvocationInfo?.InvocationUID);
                         writer.Write7BitEncodedInt(0);
                     });
 
@@ -144,7 +144,7 @@
                 {
                     writer.Write(text);
                     writer.Write((byte)severity);
-                    writer.WriteNullable(process?.InvocationUID);
+                    writer.WriteNullable(process?.InvocationInfo?.InvocationUID);
 
                     var argCount = 0;
                     for (var i = 0; i < tokens.Count && argCount < args.Length; i++)
@@ -306,7 +306,7 @@
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowCreated, writer =>
             {
-                writer.Write7BitEncodedInt(process.InvocationUID);
+                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUID);
                 writer.Write7BitEncodedInt(row.UID);
                 writer.Write7BitEncodedInt(row.ColumnCount);
                 foreach (var kvp in row.Values)
@@ -322,8 +322,8 @@
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowOwnerChanged, writer =>
             {
                 writer.Write7BitEncodedInt(row.UID);
-                writer.Write7BitEncodedInt(previousProcess.InvocationUID);
-                writer.WriteNullable(currentProcess?.InvocationUID);
+                writer.Write7BitEncodedInt(previousProcess.InvocationInfo.InvocationUID);
+                writer.WriteNullable(currentProcess?.InvocationInfo?.InvocationUID);
             });
         }
 
@@ -346,7 +346,7 @@
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowStored, writer =>
             {
                 writer.Write7BitEncodedInt(row.UID);
-                writer.Write7BitEncodedInt(process.InvocationUID);
+                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUID);
                 writer.Write7BitEncodedInt(storeUid);
                 writer.Write7BitEncodedInt(row.ColumnCount);
                 foreach (var kvp in row.Values)
@@ -361,14 +361,14 @@
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.ProcessInvocationStart, writer =>
             {
-                writer.Write7BitEncodedInt(process.InvocationUID);
-                writer.Write7BitEncodedInt(process.InstanceUID);
-                writer.Write7BitEncodedInt(process.InvocationCounter);
+                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUID);
+                writer.Write7BitEncodedInt(process.InvocationInfo.InstanceUID);
+                writer.Write7BitEncodedInt(process.InvocationInfo.Number);
                 writer.Write(process.GetType().GetFriendlyTypeName());
                 writer.Write((byte)process.Kind);
                 writer.Write(process.Name);
                 writer.WriteNullable(process.Topic.Name);
-                writer.WriteNullable(process.Caller?.InvocationUID);
+                writer.WriteNullable(process.InvocationInfo.Caller?.InvocationInfo?.InvocationUID);
             });
         }
 
@@ -376,8 +376,9 @@
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.ProcessInvocationEnd, writer =>
             {
-                writer.Write7BitEncodedInt(process.InvocationUID);
-                writer.Write(process.LastInvocationStarted.ElapsedMilliseconds);
+                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUID);
+                writer.Write(process.InvocationInfo.LastInvocationStarted.ElapsedMilliseconds);
+                writer.WriteNullable(process.InvocationInfo.LastInvocationNetTimeMilliseconds);
             });
         }
 
@@ -387,7 +388,7 @@
 
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.DataStoreCommand, writer =>
             {
-                writer.Write7BitEncodedInt(process.InvocationUID);
+                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUID);
                 writer.Write((byte)kind);
                 writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(location));
                 writer.Write(command);
@@ -413,7 +414,7 @@
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowValueChanged, writer =>
             {
                 writer.Write7BitEncodedInt(row.UID);
-                writer.WriteNullable(process?.InvocationUID);
+                writer.WriteNullable(process?.InvocationInfo?.InvocationUID);
 
                 writer.Write7BitEncodedInt(values.Length);
                 foreach (var kvp in values)

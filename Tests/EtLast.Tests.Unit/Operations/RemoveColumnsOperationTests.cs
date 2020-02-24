@@ -20,7 +20,7 @@
                 Columns = new[] { "id", "name", "age", "fkid", "date", "time", "datetime" },
             });
 
-            var etl = RunEtl(process);
+            var etl = RunBuilder(process);
             var result = etl.Sum(x => x.ColumnCount);
             const int expected = 0;
 
@@ -40,7 +40,7 @@
                 Columns = new[] { "name", "fkid" },
             });
 
-            var etl = RunEtl(process);
+            var etl = RunBuilder(process);
             var result = etl.Sum(x => x.ColumnCount);
             var expected = rowCount * 5;
 
@@ -60,7 +60,7 @@
                 Columns = new[] { "id" },
             });
 
-            var etl = RunEtl(process);
+            var etl = RunBuilder(process);
             var result = etl.Sum(x => x.ColumnCount);
             var expected = rowCount * 6;
 

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
 
     /// <summary>
     /// Input can be unordered. Group key generation is applied on the input rows on-the-fly, but group processing is started only after all groups are created.
@@ -40,16 +41,26 @@
                 throw new ProcessParameterNullException(this, nameof(Operation));
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
             Context.Log(LogSeverity.Information, this, "unordered aggregation started");
 
             var groups = new Dictionary<string, List<IRow>>();
-            var rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership();
+
+            netTimeStopwatch.Stop();
+            var enumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+            netTimeStopwatch.Start();
 
             var rowCount = 0;
-            foreach (var row in rows)
+            while (!Context.CancellationTokenSource.IsCancellationRequested)
             {
+                netTimeStopwatch.Stop();
+                var finished = !enumerator.MoveNext();
+                netTimeStopwatch.Start();
+                if (finished)
+                    break;
+
+                var row = enumerator.Current;
                 rowCount++;
                 var key = GenerateKey(row);
                 if (!groups.TryGetValue(key, out var list))
@@ -61,14 +72,15 @@
                 list.Add(row);
             }
 
-            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}", rowCount, groups.Count, LastInvocationStarted.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}",
+                rowCount, groups.Count, InvocationInfo.LastInvocationStarted.Elapsed);
 
-            if (Context.CancellationTokenSource.IsCancellationRequested)
-                yield break;
-
-            var resultCount = 0;
+            var aggregateRowCount = 0;
             foreach (var group in groups.Values)
             {
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    break;
+
                 IRow aggregateRow;
                 try
                 {
@@ -92,12 +104,18 @@
 
                 if (aggregateRow != null)
                 {
-                    resultCount++;
+                    aggregateRowCount++;
+                    netTimeStopwatch.Stop();
                     yield return aggregateRow;
+                    netTimeStopwatch.Start();
                 }
             }
 
-            Context.Log(LogSeverity.Debug, this, "finished and returned {RowCount} rows in {Elapsed}", resultCount, LastInvocationStarted.Elapsed);
+            netTimeStopwatch.Stop();
+            Context.Log(LogSeverity.Debug, this, "created {AggregateRowCount} aggregates in {Elapsed}/{ElapsedWallClock}",
+                aggregateRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+
+            Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
         }
     }
 }

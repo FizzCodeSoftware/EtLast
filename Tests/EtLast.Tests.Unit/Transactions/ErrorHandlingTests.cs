@@ -23,12 +23,33 @@
                 }
             });
 
-            RunEtl(process);
+            RunBuilder(process);
 
             var exceptions = topic.Context.GetExceptions();
             Assert.IsTrue(exceptions.Any(ex => ex is ProcessExecutionException));
             Assert.IsTrue(exceptions.All(ex => ex is ProcessExecutionException));
             Assert.IsTrue(exceptions.All(ex => ex.InnerException is InvalidCastException));
+        }
+
+        [TestMethod]
+        public void MutatorTerminatesProperly()
+        {
+            var topic = new Topic("test", new EtlContext());
+
+            var builder = CreateProcessBuilder(10, topic);
+            var invocationCount = 0;
+            builder.Mutators.Add(new CustomMutator(topic, null)
+            {
+                Then = (proc, row) =>
+                {
+                    invocationCount++;
+                    throw new IndexOutOfRangeException();
+                }
+            });
+
+            RunBuilder(builder);
+
+            Assert.AreEqual(invocationCount, 1);
         }
 
         [TestMethod]
@@ -47,7 +68,7 @@
                 }
             });
 
-            RunEtl(process);
+            RunBuilder(process);
 
             var exceptions = topic.Context.GetExceptions();
             Assert.IsTrue(exceptions.Any(ex => ex is ProcessExecutionException));
@@ -63,7 +84,7 @@
             var process = CreateProcessBuilder(1, topic);
             process.Mutators.Add(new CustomMutator(topic, null));
 
-            RunEtl(process);
+            RunBuilder(process);
 
             var exceptions = topic.Context.GetExceptions();
             Assert.IsTrue(exceptions.Any(ex => ex is InvalidProcessParameterException));

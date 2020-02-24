@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Diagnostics;
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
@@ -26,30 +27,41 @@
         {
             Context.RegisterProcessInvocationStart(this, caller);
 
+            var netTimeStopwatch = Stopwatch.StartNew();
             try
             {
-                ValidateImpl();
-            }
-            catch (EtlException ex) { Context.AddException(this, ex); }
-            catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
+                try
+                {
+                    ValidateImpl();
+                }
+                catch (EtlException ex)
+                {
+                    Context.AddException(this, ex);
+                    return default;
+                }
+                catch (Exception ex)
+                {
+                    Context.AddException(this, new ProcessExecutionException(this, ex));
+                    return default;
+                }
 
-            if (Context.CancellationTokenSource.IsCancellationRequested)
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    return default;
+
+                try
+                {
+                    return ExecuteImpl();
+                }
+                catch (EtlException ex) { Context.AddException(this, ex); }
+                catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
+            }
+            finally
             {
-                Context.RegisterProcessInvocationEnd(this);
-                return default;
+                netTimeStopwatch.Stop();
+                Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
             }
 
-            T result = default;
-            try
-            {
-                result = ExecuteImpl();
-            }
-            catch (EtlException ex) { Context.AddException(this, ex); }
-            catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
-
-            Context.RegisterProcessInvocationEnd(this);
-
-            return result;
+            return default;
         }
 
         protected virtual void ValidateImpl()

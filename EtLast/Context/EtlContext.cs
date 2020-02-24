@@ -227,23 +227,28 @@
 
         public void RegisterProcessInvocationStart(IProcess process, IProcess caller)
         {
-            process.InvocationUID = Interlocked.Increment(ref _nextProcessInvocationUID);
-            process.InvocationCounter++;
-
-            if (process.InstanceUID == 0)
+            process.InvocationInfo = new ProcessInvocationInfo()
             {
-                process.InstanceUID = Interlocked.Increment(ref _nextProcessInstanceUID);
-            }
-
-            process.LastInvocationStarted = Stopwatch.StartNew();
-            process.Caller = caller;
+                InstanceUID = process.InvocationInfo?.InstanceUID ?? Interlocked.Increment(ref _nextProcessInstanceUID),
+                Number = (process.InvocationInfo?.Number ?? 0) + 1,
+                InvocationUID = Interlocked.Increment(ref _nextProcessInvocationUID),
+                LastInvocationStarted = Stopwatch.StartNew(),
+                Caller = caller,
+            };
 
             OnProcessInvocationStart?.Invoke(process);
         }
 
         public void RegisterProcessInvocationEnd(IProcess process)
         {
-            process.LastInvocationFinished = DateTimeOffset.Now;
+            process.InvocationInfo.LastInvocationFinished = DateTimeOffset.Now;
+            OnProcessInvocationEnd?.Invoke(process);
+        }
+
+        public void RegisterProcessInvocationEnd(IProcess process, long netElapsedMilliseconds)
+        {
+            process.InvocationInfo.LastInvocationFinished = DateTimeOffset.Now;
+            process.InvocationInfo.LastInvocationNetTimeMilliseconds = netElapsedMilliseconds;
             OnProcessInvocationEnd?.Invoke(process);
         }
 

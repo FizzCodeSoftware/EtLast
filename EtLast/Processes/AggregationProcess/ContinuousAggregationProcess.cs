@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
 
     /// <summary>
@@ -48,16 +49,26 @@
                 throw new ProcessParameterNullException(this, nameof(Operation));
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
             Context.Log(LogSeverity.Information, this, "continuous aggregation started");
 
             var aggregateRows = new Dictionary<string, AggregateRow>();
-            var rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership();
+
+            netTimeStopwatch.Stop();
+            var enumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+            netTimeStopwatch.Start();
 
             var rowCount = 0;
-            foreach (var row in rows)
+            while (!Context.CancellationTokenSource.IsCancellationRequested)
             {
+                netTimeStopwatch.Stop();
+                var finished = !enumerator.MoveNext();
+                netTimeStopwatch.Start();
+                if (finished)
+                    break;
+
+                var row = enumerator.Current;
                 rowCount++;
                 var key = GenerateKey(row);
                 if (!aggregateRows.TryGetValue(key, out var aggregateRow))
@@ -92,17 +103,23 @@
                 Context.SetRowOwner(row, null);
             }
 
-            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}", rowCount, aggregateRows.Count, LastInvocationStarted.Elapsed);
-
-            if (Context.CancellationTokenSource.IsCancellationRequested)
-                yield break;
+            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}",
+                rowCount, aggregateRows.Count, InvocationInfo.LastInvocationStarted.Elapsed);
 
             foreach (var aggregateRow in aggregateRows.Values)
             {
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    break;
+
+                netTimeStopwatch.Stop();
                 yield return aggregateRow.Row;
+                netTimeStopwatch.Start();
             }
 
-            Context.Log(LogSeverity.Debug, this, "finished and returned {GroupCount} groups in {Elapsed}", aggregateRows.Count, LastInvocationStarted.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "created {AggregateRowCount} aggregates in {Elapsed}/{ElapsedWallClock}",
+                aggregateRows.Count, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+
+            Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
         }
     }
 }

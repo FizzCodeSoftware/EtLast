@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
+    using System.Diagnostics;
 
     public abstract class AbstractExecutableProcess : AbstractProcess, IExecutable
     {
@@ -13,24 +14,39 @@
         {
             Context.RegisterProcessInvocationStart(this, caller);
 
+            var netTimeStopwatch = Stopwatch.StartNew();
             try
             {
-                ValidateImpl();
+                try
+                {
+                    ValidateImpl();
+                }
+                catch (EtlException ex)
+                {
+                    Context.AddException(this, ex);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Context.AddException(this, new ProcessExecutionException(this, ex));
+                    return;
+                }
+
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    return;
+
+                try
+                {
+                    ExecuteImpl();
+                }
+                catch (EtlException ex) { Context.AddException(this, ex); }
+                catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
             }
-            catch (EtlException ex) { Context.AddException(this, ex); }
-            catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
-
-            if (Context.CancellationTokenSource.IsCancellationRequested)
-                return;
-
-            try
+            finally
             {
-                ExecuteImpl();
+                netTimeStopwatch.Stop();
+                Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
             }
-            catch (EtlException ex) { Context.AddException(this, ex); }
-            catch (Exception ex) { Context.AddException(this, new ProcessExecutionException(this, ex)); }
-
-            Context.RegisterProcessInvocationEnd(this);
         }
 
         protected abstract void ExecuteImpl();

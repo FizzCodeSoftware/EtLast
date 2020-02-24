@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Globalization;
 
     /// <summary>
@@ -37,11 +38,8 @@
         {
         }
 
-        protected sealed override IEnumerable<IRow> EvaluateImpl()
+        protected sealed override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
-            if (Context.CancellationTokenSource.IsCancellationRequested)
-                yield break;
-
             var resultCount = 0;
             foreach (var row in Produce())
             {
@@ -49,13 +47,19 @@
                 {
                     resultCount++;
                     CounterCollection.IncrementCounter("produced rows", 1, true);
+                    netTimeStopwatch.Stop();
                     yield return row;
+                    netTimeStopwatch.Start();
                 }
             }
 
-            Context.Log(LogSeverity.Debug, this, "produced and returned {RowCount} rows in {Elapsed}", resultCount, LastInvocationStarted.Elapsed);
+            netTimeStopwatch.Stop();
+            Context.Log(LogSeverity.Debug, this, "produced {RowCount} rows in {Elapsed}/{ElapsedWallClock}",
+                resultCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 
             LogCounters();
+
+            Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
         }
 
         protected abstract IEnumerable<IRow> Produce();

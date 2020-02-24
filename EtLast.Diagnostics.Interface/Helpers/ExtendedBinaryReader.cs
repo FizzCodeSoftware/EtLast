@@ -32,6 +32,14 @@
             return Read7BitEncodedInt();
         }
 
+        public long? ReadNullableInt64()
+        {
+            if (!ReadBoolean())
+                return null;
+
+            return ReadInt64();
+        }
+
         public object ReadObject()
         {
             var hasValue = ReadBoolean();

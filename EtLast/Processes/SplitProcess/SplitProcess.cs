@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading;
     using System.Transactions;
 
@@ -25,7 +26,7 @@
                 throw new ProcessParameterNullException(this, nameof(InputProcess));
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl()
+        protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
             StartQueueFeeder();
             return _queue.GetConsumer(Context.CancellationTokenSource.Token);
@@ -59,6 +60,7 @@
 
             _queue = default;
             _feederThread = null;
+            Context.RegisterProcessInvocationEnd(this);
         }
     }
 }

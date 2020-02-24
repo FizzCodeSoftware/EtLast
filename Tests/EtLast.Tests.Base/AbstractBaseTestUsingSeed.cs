@@ -20,7 +20,7 @@
             };
         }
 
-        public static List<IRow> RunEtl(ProcessBuilder builder)
+        public static List<IRow> RunBuilder(ProcessBuilder builder)
         {
             var result = builder.Build().Evaluate().TakeRowsAndReleaseOwnership().ToList();
             return result;

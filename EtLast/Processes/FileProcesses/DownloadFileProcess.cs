@@ -36,7 +36,7 @@
                     {
                         clt.DownloadFile(Url, FileName);
                         Context.Log(LogSeverity.Debug, this, "successfully downloaded from '{Url}' to '{FileName}' in {Elapsed}", Url,
-                            PathHelpers.GetFriendlyPathName(FileName), LastInvocationStarted.Elapsed);
+                            PathHelpers.GetFriendlyPathName(FileName), InvocationInfo.LastInvocationStarted.Elapsed);
                     }
                 }
                 catch (Exception ex)
