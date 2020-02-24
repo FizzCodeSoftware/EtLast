@@ -5,15 +5,15 @@
     using System.Linq;
     using System.ServiceModel;
 
-    public delegate TClient SoapReaderClientCreatorDelegate<TChannel, TClient>(SoapReaderProcess<TChannel, TClient> process)
+    public delegate TClient SoapReaderClientCreatorDelegate<TChannel, TClient>(ServiceModelReaderProcess<TChannel, TClient> process)
         where TChannel : class
         where TClient : ClientBase<TChannel>;
 
-    public delegate IEnumerable<Dictionary<string, object>> SoapReaderClientInvokerDelegate<TChannel, TClient>(SoapReaderProcess<TChannel, TClient> process, TClient client)
+    public delegate IEnumerable<Dictionary<string, object>> SoapReaderClientInvokerDelegate<TChannel, TClient>(ServiceModelReaderProcess<TChannel, TClient> process, TClient client)
         where TChannel : class
         where TClient : ClientBase<TChannel>;
 
-    public class SoapReaderProcess<TChannel, TClient> : AbstractProducerProcess, IRowReader
+    public class ServiceModelReaderProcess<TChannel, TClient> : AbstractProducerProcess, IRowReader
         where TChannel : class
         where TClient : ClientBase<TChannel>
     {
@@ -28,7 +28,7 @@
         public SoapReaderClientCreatorDelegate<TChannel, TClient> ClientCreator { get; set; }
         public SoapReaderClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; set; }
 
-        public SoapReaderProcess(ITopic topic, string name)
+        public ServiceModelReaderProcess(ITopic topic, string name)
             : base(topic, name)
         {
         }
@@ -70,10 +70,10 @@
             {
                 initialValues.Clear();
 
+                CounterCollection.IncrementCounter("SOAP rows read", 1);
+
                 foreach (var kvp in rowData)
                 {
-                    CounterCollection.IncrementCounter("SOAP rows read", 1);
-
                     var value = kvp.Value;
 
                     if (value != null && TreatEmptyStringAsNull && (value is string str) && string.IsNullOrEmpty(str))

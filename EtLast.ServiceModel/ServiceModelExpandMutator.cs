@@ -5,15 +5,15 @@
     using System.Diagnostics;
     using System.ServiceModel;
 
-    public delegate TClient SoapExpanderClientCreatorDelegate<TChannel, TClient>(SoapExpandMutator<TChannel, TClient> process, IRow row)
+    public delegate TClient SoapExpanderClientCreatorDelegate<TChannel, TClient>(ServiceModelExpandMutator<TChannel, TClient> process, IRow row)
         where TChannel : class
         where TClient : ClientBase<TChannel>;
 
-    public delegate object SoapExpanderClientInvokerDelegate<TChannel, TClient>(SoapExpandMutator<TChannel, TClient> process, IRow row, TClient client)
+    public delegate object SoapExpanderClientInvokerDelegate<TChannel, TClient>(ServiceModelExpandMutator<TChannel, TClient> process, IRow row, TClient client)
         where TChannel : class
         where TClient : ClientBase<TChannel>;
 
-    public class SoapExpandMutator<TChannel, TClient> : AbstractMutator
+    public class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutator
         where TChannel : class
         where TClient : ClientBase<TChannel>
     {
@@ -31,7 +31,7 @@
         /// </summary>
         public int MaxRetryCount { get; set; } = 5;
 
-        public SoapExpandMutator(ITopic topic, string name)
+        public ServiceModelExpandMutator(ITopic topic, string name)
             : base(topic, name)
         {
         }

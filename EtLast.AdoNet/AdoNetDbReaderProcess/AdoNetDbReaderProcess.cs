@@ -59,7 +59,12 @@
                 // todo: support Oracle Syntax: https://www.w3schools.com/sql/sql_top.asp
             }
 
-            return "SELECT " + (!string.IsNullOrEmpty(prefix) ? prefix + " " : "") + columnList + " FROM " + TableName + (!string.IsNullOrEmpty(postfix) ? " " + postfix : "");
+            return "SELECT "
+                + (!string.IsNullOrEmpty(prefix) ? prefix + " " : "")
+                + columnList
+                + " FROM "
+                + TableName
+                + (!string.IsNullOrEmpty(postfix) ? " " + postfix : "");
         }
 
         protected override void LogAction()
