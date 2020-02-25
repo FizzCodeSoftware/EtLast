@@ -34,7 +34,7 @@
         public static string ToDisplayValue(object value)
         {
             if (value == null)
-                return "NULL";
+                return "<null>";
 
             return value switch
             {

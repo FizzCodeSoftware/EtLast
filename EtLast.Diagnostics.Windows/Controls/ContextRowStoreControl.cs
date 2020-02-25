@@ -25,8 +25,6 @@
             Context = context;
             Store = store;
 
-            container.SizeChanged += Container_SizeChanged;
-
             SearchBox = new TextBox()
             {
                 Parent = container,
@@ -35,25 +33,11 @@
 
             SearchBox.TextChanged += SearchBox_TextChanged;
 
-            ListView = new FastObjectListView()
-            {
-                Parent = container,
-                BorderStyle = BorderStyle.FixedSingle,
-                ShowItemToolTips = true,
-                ShowGroups = false,
-                UseFiltering = true,
-                ShowCommandMenuOnRightClick = true,
-                ShowFilterMenuOnRightClick = true,
-                FullRowSelect = true,
-                UseAlternatingBackColors = true,
-                HeaderUsesThemes = true,
-                GridLines = true,
-                AlternateRowBackColor = Color.FromArgb(240, 240, 240),
-                FilterMenuBuildStrategy = new CustomFilterMenuBuilder()
-                {
-                    MaxObjectsToConsider = int.MaxValue,
-                },
-            };
+            ListView = ListViewHelpers.CreateListView(container);
+            ListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
+            ListView.Bounds = new Rectangle(Container.ClientRectangle.Left, Container.ClientRectangle.Top + 40, Container.ClientRectangle.Width, Container.ClientRectangle.Height - 40);
+            ListView.FormatCell += ListView_FormatCell;
+            ListView.UseCellFormatEvents = true;
 
             ListView.AllColumns.Add(new OLVColumn()
             {
@@ -68,18 +52,24 @@
                 Text = "Process",
                 AspectGetter = x => (x as Model).ProcessName,
             });
+
             ListView.Columns.AddRange(ListView.AllColumns.ToArray());
+
             _fixColumnCount = ListView.Columns.Count;
+        }
+
+        private void ListView_FormatCell(object sender, FormatCellEventArgs e)
+        {
+            if (string.IsNullOrEmpty(e.Column.Text))
+                e.SubItem.ForeColor = Color.DarkGray;
         }
 
         private void SearchBox_TextChanged(object sender, EventArgs e)
         {
-            ListView.ModelFilter = TextMatchFilter.Contains(ListView, SearchBox.Text);
-        }
-
-        private void Container_SizeChanged(object sender, EventArgs e)
-        {
-            ListView.Bounds = new Rectangle(0, 40, Container.ClientSize.Width, Container.ClientSize.Height - 40);
+            var text = (sender as TextBox).Text;
+            ListView.AdditionalFilter = !string.IsNullOrEmpty(text)
+                ? TextMatchFilter.Contains(ListView, text)
+                : null;
         }
 
         public void Refresh()

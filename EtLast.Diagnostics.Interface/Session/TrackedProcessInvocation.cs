@@ -40,6 +40,22 @@
 
         public string ElapsedMillisecondsAfterFinishedAsString { get; private set; } = "-";
 
+        private TimeSpan? _netTimeAfterFinished;
+
+        public TimeSpan? NetTimeAfterFinished
+        {
+            get => _netTimeAfterFinished;
+            set
+            {
+                _netTimeAfterFinished = value;
+                NetTimeAfterFinishedAsString = value != null
+                    ? FormattingHelpers.TimeSpanToString(_netTimeAfterFinished.Value, true)
+                    : "-";
+            }
+        }
+
+        public string NetTimeAfterFinishedAsString { get; private set; } = "-";
+
         public string DisplayName { get; }
 
         public int StoredRowCount { get; private set; }

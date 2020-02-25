@@ -20,6 +20,7 @@ namespace FizzCode.EtLast.Diagnostics.Windows
             InitializeComponent();
 
             Font = new Font(Font.FontFamily, 9, FontStyle.Regular);
+            Text = "EtLast Diagnostics";
 
             _stateManager = new DiagnosticsStateManager("http://+:8642/");
             _stateManager.OnDiagSessionCreated += SessionCreated;

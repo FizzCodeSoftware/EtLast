@@ -52,10 +52,10 @@
             var client = ClientCreator.Invoke(this);
 
             Context.Log(LogSeverity.Debug, this, "SOAP client created, endpoint address: {EndpointAddress}",
-                client.Endpoint.Address);
+                client.Endpoint.Address.ToString());
 
             Context.Log(LogSeverity.Debug, this, "sending SOAP request, endpoint address: {EndpointAddress}",
-                client.Endpoint.Address);
+                client.Endpoint.Address.ToString());
 
             var result = ClientInvoker.Invoke(this, client);
 

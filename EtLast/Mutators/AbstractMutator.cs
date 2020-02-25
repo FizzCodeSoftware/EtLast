@@ -130,8 +130,12 @@
 
             CloseMutator();
             netTimeStopwatch.Stop();
-            Context.Log(LogSeverity.Debug, this, "mutated {MutatedRowCount}/{TotalRowCount} rows in {Elapsed}/{ElapsedWallClock}",
-                mutatedRowCount, mutatedRowCount + ignoredRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+
+            if (mutatedRowCount + ignoredRowCount > 0)
+            {
+                Context.Log(LogSeverity.Debug, this, "mutated {MutatedRowCount}/{TotalRowCount} rows in {Elapsed}/{ElapsedWallClock}",
+                    mutatedRowCount, mutatedRowCount + ignoredRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+            }
 
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
         }

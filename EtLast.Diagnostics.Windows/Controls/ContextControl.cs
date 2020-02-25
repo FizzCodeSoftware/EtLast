@@ -68,9 +68,9 @@
 
         private void Container_Resize(object sender, EventArgs e)
         {
-            ProcessInvocationList.ListView.Bounds = new Rectangle(0, 0, Container.Width - CounterList.ListView.Width - RowStoreList.ListView.Width, Container.Height / 2);
-            CounterList.ListView.Bounds = new Rectangle(Container.Width - RowStoreList.ListView.Width - CounterList.ListView.Width, ProcessInvocationList.ListView.Bounds.Top, CounterList.ListView.Width, ProcessInvocationList.ListView.Bounds.Height);
+            ProcessInvocationList.ListView.Bounds = new Rectangle(0, 0, ProcessInvocationList.ListView.Width, Container.Height / 2);
             DataStoreCommandList.ListView.Bounds = new Rectangle(0, ProcessInvocationList.ListView.Bounds.Bottom, Container.Width - RowStoreList.ListView.Width, Container.Height - ProcessInvocationList.ListView.Bounds.Bottom);
+            CounterList.ListView.Bounds = new Rectangle(ProcessInvocationList.ListView.Bounds.Right, ProcessInvocationList.ListView.Bounds.Top, DataStoreCommandList.ListView.Width - ProcessInvocationList.ListView.Bounds.Right, ProcessInvocationList.ListView.Bounds.Height);
 
             RowStoreList.ListView.Bounds = new Rectangle(Container.Width - RowStoreList.ListView.Width, 0, RowStoreList.ListView.Width, Container.Height);
         }

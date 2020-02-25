@@ -40,7 +40,7 @@
         private DatabaseConnection _connection;
         private SqlBulkCopy _bulkCopy;
         private RowShadowReader _reader;
-        private int _storeUid;
+        private int? _storeUid;
 
         public MsSqlWriteToTableMutator(ITopic topic, string name)
             : base(topic, name)
@@ -51,11 +51,6 @@
         {
             _rowsWritten = 0;
             _timer = new Stopwatch();
-            _storeUid = Context.GetStoreUid(new List<KeyValuePair<string, string>>()
-            {
-                new KeyValuePair<string, string>("ConnectionString", ConnectionString.Name),
-                new KeyValuePair<string, string>("Table", ConnectionString.Unescape(TableDefinition.TableName)),
-            });
 
             var columnIndexes = new Dictionary<string, int>();
             for (var i = 0; i < TableDefinition.Columns.Length; i++)
@@ -93,7 +88,16 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            Context.OnRowStored?.Invoke(this, row, _storeUid);
+            if (_storeUid == null)
+            {
+                _storeUid = Context.GetStoreUid(new List<KeyValuePair<string, string>>()
+                {
+                    new KeyValuePair<string, string>("ConnectionString", ConnectionString.Name),
+                    new KeyValuePair<string, string>("Table", ConnectionString.Unescape(TableDefinition.TableName)),
+                });
+            }
+
+            Context.OnRowStored?.Invoke(this, row, _storeUid.Value);
 
             var rc = _reader.RowCount;
             for (var i = 0; i < TableDefinition.Columns.Length; i++)

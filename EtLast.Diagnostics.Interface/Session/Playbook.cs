@@ -71,6 +71,10 @@
                                 continue;
 
                             process.ElapsedMillisecondsAfterFinished = TimeSpan.FromMilliseconds(evt.ElapsedMilliseconds);
+                            if (evt.NetTimeMilliseconds != null)
+                            {
+                                process.NetTimeAfterFinished = TimeSpan.FromMilliseconds(evt.NetTimeMilliseconds.Value);
+                            }
                         }
                         break;
                     case RowCreatedEvent evt:

@@ -17,7 +17,7 @@
 
         private SimpleExcelWriterState _state;
         private ExcelPackage _package;
-        private int _storeUid;
+        private int? _storeUid;
 
         public EpPlusSimpleRowWriterMutator(ITopic topic, string name)
             : base(topic, name)
@@ -27,11 +27,6 @@
         protected override void StartMutator()
         {
             _state = new SimpleExcelWriterState();
-            _storeUid = Context.GetStoreUid(new List<KeyValuePair<string, string>>()
-            {
-                new KeyValuePair<string, string>("File", PathHelpers.GetFriendlyPathName(FileName)),
-                new KeyValuePair<string, string>("Sheet", SheetName),
-            });
         }
 
         protected override void CloseMutator()
@@ -53,7 +48,16 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            Context.OnRowStored?.Invoke(this, row, _storeUid);
+            if (_storeUid == null)
+            {
+                _storeUid = Context.GetStoreUid(new List<KeyValuePair<string, string>>()
+                {
+                    new KeyValuePair<string, string>("File", PathHelpers.GetFriendlyPathName(FileName)),
+                    new KeyValuePair<string, string>("Sheet", SheetName),
+                });
+            }
+
+            Context.OnRowStored?.Invoke(this, row, _storeUid.Value);
 
             if (_package == null) // lazy load here instead of prepare
             {

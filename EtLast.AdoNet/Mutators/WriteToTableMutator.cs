@@ -30,7 +30,7 @@
 
         private IDbCommand _command;
         private static readonly DbType[] _quotedParameterTypes = { DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength };
-        private int _storeUid;
+        private int? _storeUid;
 
         public WriteToTableMutator(ITopic topic, string name)
             : base(topic, name)
@@ -45,12 +45,6 @@
             _fullTime = new Stopwatch();
 
             _statements = new List<string>();
-
-            _storeUid = Context.GetStoreUid(new List<KeyValuePair<string, string>>()
-            {
-                new KeyValuePair<string, string>("ConnectionString", ConnectionString.Name),
-                new KeyValuePair<string, string>("Table", ConnectionString.Unescape(TableDefinition.TableName)),
-            });
         }
 
         protected override void CloseMutator()
@@ -70,7 +64,16 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            Context.OnRowStored?.Invoke(this, row, _storeUid);
+            if (_storeUid == null)
+            {
+                _storeUid = Context.GetStoreUid(new List<KeyValuePair<string, string>>()
+                {
+                    new KeyValuePair<string, string>("ConnectionString", ConnectionString.Name),
+                    new KeyValuePair<string, string>("Table", ConnectionString.Unescape(TableDefinition.TableName)),
+                });
+            }
+
+            Context.OnRowStored?.Invoke(this, row, _storeUid.Value);
 
             InitConnection();
 

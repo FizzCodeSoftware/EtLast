@@ -28,7 +28,7 @@
         private Color IsInputBackColor { get; set; } = Color.FromArgb(255, 230, 185);
         private Color IsSameTopicBackColor { get; set; } = Color.FromArgb(220, 220, 255);
 
-        public Button _testSearchButton;
+        //public Button _testSearchButton;
 
         public ContextProcessInvocationListControl(Control container, AbstractDiagContext context)
         {
@@ -53,9 +53,9 @@
             ListView.MouseLeave += (s, a) => ToolTipSingleton.Remove(s as Control);
             ListView.MouseUp += ListView_MouseUp;
 
-            var fix = 40 + 40 + 60 + 140;
+            var fix = 40 + 60 + 60 + 140;
             ListView.Columns.Add("#", 40);
-            ListView.Columns.Add("time", 40);
+            ListView.Columns.Add("time", 60);
 
             ListView.Columns.Add("topic", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Right;
             ListView.Columns.Add("process", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Left;
@@ -69,13 +69,13 @@
             ListView.Columns.Add("pending", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
             ListView.Columns.Add("OUT", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
 
-            _testSearchButton = new Button()
+            /*_testSearchButton = new Button()
             {
                 Parent = container,
                 Text = "search",
             };
             _testSearchButton.Click += TestSearchButton_Click;
-            _testSearchButton.BringToFront();
+            _testSearchButton.BringToFront();*/
 
             _processStatUpdaterTimer = new System.Threading.Timer((state) => UpdateProcessStats());
             _processStatUpdaterTimer.Change(500, System.Threading.Timeout.Infinite);
@@ -282,7 +282,7 @@
                 {
                     if (item.Tag is TrackedProcessInvocation p)
                     {
-                        if (item.SubItems[1].Text != p.ElapsedMillisecondsAfterFinishedAsString)
+                        if (item.SubItems[1].Text != p.NetTimeAfterFinishedAsString)
                         {
                             changed = true;
                             break;
@@ -310,7 +310,7 @@
                         {
                             if (item.Tag is TrackedProcessInvocation p)
                             {
-                                item.SubItems[1].SetIfChanged(p.ElapsedMillisecondsAfterFinishedAsString);
+                                item.SubItems[1].SetIfChanged(p.NetTimeAfterFinishedAsString);
 
                                 item.SubItems[6].SetIfChanged(p.GetFormattedInputRowCount());
                                 item.SubItems[7].SetIfChanged(p.CreatedRowCount.FormatToStringNoZero());

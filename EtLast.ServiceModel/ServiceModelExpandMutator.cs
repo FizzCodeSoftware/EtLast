@@ -54,14 +54,14 @@
                         if (_client != null)
                         {
                             Context.Log(LogSeverity.Debug, this, "SOAP client created, endpoint address: {EndpointAddress}",
-                                _client.Endpoint.Address);
+                                _client.Endpoint.Address.ToString());
                         }
                     }
 
                     if (_client != null)
                     {
                         Context.Log(LogSeverity.Debug, this, "sending SOAP request, endpoint address: {EndpointAddress}",
-                            _client.Endpoint.Address);
+                            _client.Endpoint.Address.ToString());
 
                         var result = ClientInvoker.Invoke(this, row, _client);
                         if (result != null)

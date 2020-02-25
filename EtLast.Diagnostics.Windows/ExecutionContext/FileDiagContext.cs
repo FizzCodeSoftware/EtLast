@@ -111,13 +111,16 @@
                         var eventBytes = input.ReadFrom(position, eventDataSize + 4);
 
                         var storeFileName = GetStoreFileName(rse.StoreUID);
-                        if (!_storeWriterStreams.TryGetValue(storeFileName, out var storeStream))
+                        if (!_storeWriterStreams.TryGetValue(storeFileName, out var storeWriterStream))
                         {
-                            storeStream = new FileStream(storeFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
-                            _storeWriterStreams.Add(storeFileName, storeStream);
+                            storeWriterStream = new FileStream(storeFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 512 * 1024);
+                            _storeWriterStreams.Add(storeFileName, storeWriterStream);
                         }
 
-                        storeStream.Write(eventBytes, 0, eventBytes.Length);
+                        lock (_storeWriterStreams)
+                        {
+                            storeWriterStream.Write(eventBytes, 0, eventBytes.Length);
+                        }
                     }
                 }
             }
@@ -203,9 +206,20 @@
 
         public override void EnumerateThroughStoredRows(int storeUid, Action<RowStoredEvent> callback)
         {
-            var fileName = GetStoreFileName(storeUid);
+            var storeFileName = GetStoreFileName(storeUid);
 
-            using (var fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            if (!File.Exists(storeFileName))
+                return;
+
+            if (_storeWriterStreams.TryGetValue(storeFileName, out var storeWriterStream))
+            {
+                lock (_storeWriterStreams)
+                {
+                    storeWriterStream.Flush();
+                }
+            }
+
+            using (var fileStream = new FileStream(storeFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var memoryCache = new MemoryStream())
             {
                 fileStream.CopyTo(memoryCache);
