@@ -30,6 +30,11 @@
         public string TempTableName { get; set; }
         public string[] Columns { get; set; }
 
+        /// <summary>
+        /// Default true.
+        /// </summary>
+        public bool SkipFinalizersIfTempTableIsEmpty { get; set; } = true;
+
         private ITopic _topic;
 
         public ITopic Topic

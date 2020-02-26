@@ -20,13 +20,15 @@
         public OnProcessInvocationListSelectionChanged OnSelectionChanged { get; set; }
 
         private readonly System.Threading.Timer _processStatUpdaterTimer;
-        private readonly Dictionary<int, ListViewItem> _listViewItemsByProcessInvocationUID = new Dictionary<int, ListViewItem>();
 
         private Color IsSelectedForeColor { get; set; } = Color.White;
         private Color IsSelectedBackColor { get; set; } = Color.FromArgb(100, 100, 200);
         private Color IsOutputBackColor { get; set; } = Color.FromArgb(180, 255, 180);
         private Color IsInputBackColor { get; set; } = Color.FromArgb(255, 230, 185);
         private Color IsSameTopicBackColor { get; set; } = Color.FromArgb(220, 220, 255);
+
+        private readonly List<ListViewItem> _allItems = new List<ListViewItem>();
+        private readonly Dictionary<int, ListViewItem> _itemsByProcessInvocationUid = new Dictionary<int, ListViewItem>();
 
         //public Button _testSearchButton;
 
@@ -127,18 +129,13 @@
 
         internal void SelectProcess(TrackedProcessInvocation process)
         {
-            foreach (ListViewItem item in ListView.Items)
+            var item = _allItems.Find(x => x.Tag == process);
+            if (item?.Selected == false)
             {
-                if (item.Tag == process)
-                {
-                    if (!item.Selected)
-                    {
-                        ListView.EnsureVisible(item.Index);
+                ListView.EnsureVisible(item.Index);
 
-                        ListView.Focus();
-                        item.Selected = true;
-                    }
-                }
+                ListView.Focus();
+                item.Selected = true;
             }
         }
 
@@ -151,10 +148,9 @@
 
             OnSelectionChanged?.Invoke(selectedProcess);
 
-            foreach (var item in ListView.Items.ToEnumerable<ListViewItem>())
+            foreach (var item in _allItems)
             {
-                if (!(item.Tag is TrackedProcessInvocation itemProcess))
-                    continue;
+                var itemProcess = item.Tag as TrackedProcessInvocation;
 
                 if (selectedProcess != null)
                 {
@@ -249,26 +245,28 @@
                 item.Selected = true;
             }
 
-            if (process.Invoker != null && _listViewItemsByProcessInvocationUID.TryGetValue(process.Invoker.InvocationUID, out var invokerItem))
+            if (process.Invoker != null && _itemsByProcessInvocationUid.TryGetValue(process.Invoker.InvocationUID, out var invokerItem))
             {
                 var nextIndex = invokerItem.Index + 1;
-                while (nextIndex < ListView.Items.Count)
+                while (nextIndex < _allItems.Count)
                 {
-                    var p = ListView.Items[nextIndex].Tag as TrackedProcessInvocation;
+                    var p = _allItems[nextIndex].Tag as TrackedProcessInvocation;
                     if (!p.HasParent(process.Invoker))
                         break;
 
                     nextIndex++;
                 }
 
+                _allItems.Insert(nextIndex, item);
                 ListView.Items.Insert(nextIndex, item);
             }
             else
             {
+                _allItems.Add(item);
                 ListView.Items.Add(item);
             }
 
-            _listViewItemsByProcessInvocationUID.Add(process.InvocationUID, item);
+            _itemsByProcessInvocationUid.Add(process.InvocationUID, item);
         }
 
         private void UpdateProcessStats()
@@ -278,26 +276,25 @@
             ListView.Invoke(new Action(() =>
             {
                 var changed = false;
-                foreach (ListViewItem item in ListView.Items)
+                foreach (var item in _allItems)
                 {
-                    if (item.Tag is TrackedProcessInvocation p)
-                    {
-                        if (item.SubItems[1].Text != p.NetTimeAfterFinishedAsString)
-                        {
-                            changed = true;
-                            break;
-                        }
+                    var process = item.Tag as TrackedProcessInvocation;
 
-                        if (item.SubItems[6].Text != p.GetFormattedInputRowCount()
-                            || item.SubItems[7].Text != p.CreatedRowCount.FormatToStringNoZero()
-                            || item.SubItems[8].Text != p.DroppedRowCount.FormatToStringNoZero()
-                            || item.SubItems[9].Text != p.StoredRowCount.FormatToStringNoZero()
-                            || item.SubItems[10].Text != p.AliveRowCount.FormatToStringNoZero()
-                            || item.SubItems[11].Text != p.PassedRowCount.FormatToStringNoZero())
-                        {
-                            changed = true;
-                            break;
-                        }
+                    if (item.SubItems[1].Text != process.NetTimeAfterFinishedAsString)
+                    {
+                        changed = true;
+                        break;
+                    }
+
+                    if (item.SubItems[6].Text != process.GetFormattedInputRowCount()
+                        || item.SubItems[7].Text != process.CreatedRowCount.FormatToStringNoZero()
+                        || item.SubItems[8].Text != process.DroppedRowCount.FormatToStringNoZero()
+                        || item.SubItems[9].Text != process.StoredRowCount.FormatToStringNoZero()
+                        || item.SubItems[10].Text != process.AliveRowCount.FormatToStringNoZero()
+                        || item.SubItems[11].Text != process.PassedRowCount.FormatToStringNoZero())
+                    {
+                        changed = true;
+                        break;
                     }
                 }
 
@@ -306,19 +303,16 @@
                     ListView.BeginUpdate();
                     try
                     {
-                        foreach (ListViewItem item in ListView.Items)
+                        foreach (var item in _allItems)
                         {
-                            if (item.Tag is TrackedProcessInvocation p)
-                            {
-                                item.SubItems[1].SetIfChanged(p.NetTimeAfterFinishedAsString);
-
-                                item.SubItems[6].SetIfChanged(p.GetFormattedInputRowCount());
-                                item.SubItems[7].SetIfChanged(p.CreatedRowCount.FormatToStringNoZero());
-                                item.SubItems[8].SetIfChanged(p.DroppedRowCount.FormatToStringNoZero());
-                                item.SubItems[9].SetIfChanged(p.StoredRowCount.FormatToStringNoZero());
-                                item.SubItems[10].SetIfChanged(p.AliveRowCount.FormatToStringNoZero());
-                                item.SubItems[11].SetIfChanged(p.PassedRowCount.FormatToStringNoZero());
-                            }
+                            var process = item.Tag as TrackedProcessInvocation;
+                            item.SubItems[1].SetIfChanged(process.NetTimeAfterFinishedAsString);
+                            item.SubItems[6].SetIfChanged(process.GetFormattedInputRowCount());
+                            item.SubItems[7].SetIfChanged(process.CreatedRowCount.FormatToStringNoZero());
+                            item.SubItems[8].SetIfChanged(process.DroppedRowCount.FormatToStringNoZero());
+                            item.SubItems[9].SetIfChanged(process.StoredRowCount.FormatToStringNoZero());
+                            item.SubItems[10].SetIfChanged(process.AliveRowCount.FormatToStringNoZero());
+                            item.SubItems[11].SetIfChanged(process.PassedRowCount.FormatToStringNoZero());
                         }
                     }
                     finally

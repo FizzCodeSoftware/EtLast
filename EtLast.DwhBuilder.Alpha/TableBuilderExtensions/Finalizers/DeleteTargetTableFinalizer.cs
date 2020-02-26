@@ -18,6 +18,8 @@
 
         private static IEnumerable<IExecutable> CreateDeleteTargetTableFinalizer(DwhTableBuilder builder)
         {
+            builder.Table.SkipFinalizersIfTempTableIsEmpty = false;
+
             yield return new DeleteTableProcess(builder.Table.Topic, "DeleteBase")
             {
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,

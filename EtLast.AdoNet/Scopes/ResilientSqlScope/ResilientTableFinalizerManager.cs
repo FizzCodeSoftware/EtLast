@@ -50,8 +50,7 @@
             for (var i = 0; i < _scope.Configuration.Tables.Count; i++)
             {
                 var table = _scope.Configuration.Tables[i];
-                var recordCount = recordCounts[i];
-                if (recordCount == 0)
+                if (table.SkipFinalizersIfTempTableIsEmpty && recordCounts[i] == 0)
                     continue;
 
                 Context.Log(LogSeverity.Information, this, "finalizing table {TableName}",

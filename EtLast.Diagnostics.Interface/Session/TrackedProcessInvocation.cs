@@ -90,6 +90,7 @@
 
             Invoker = invoker;
             Invoker?.Children.Add(this);
+            Invoker?.InputRowCountByPreviousProcess.Add(InvocationUID, 0);
 
             ParentInvokerCount = invoker != null
                 ? invoker.ParentInvokerCount + 1
@@ -119,7 +120,7 @@
                 return InputRowCount.ToString("D", CultureInfo.InvariantCulture);
 
             return InputRowCount.ToString("D", CultureInfo.InvariantCulture) + " = " +
-                string.Join(" + ", InputRowCountByPreviousProcess.Select(x => x.Value.FormatToStringNoZero()));
+                string.Join(" + ", InputRowCountByPreviousProcess.Select(x => x.Value.FormatToString()));
         }
 
         public string GetFormattedRowFlow(AbstractDiagContext diagContext)
