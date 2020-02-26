@@ -40,7 +40,7 @@
                 throw new ProcessParameterNullException(this, nameof(Configuration.TargetTableName));
         }
 
-        protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString, Dictionary<string, object> parameters)
+        protected override string CreateSqlStatement(Dictionary<string, object> parameters)
         {
             var statement = "";
             if (CopyIdentityColumns && ConnectionString.SqlEngine == SqlEngine.MsSql)
@@ -65,10 +65,10 @@
                     var index = 0;
                     foreach (var kvp in ColumnDefaults)
                     {
-                        var parameName = "@colDef" + index.ToString("D", CultureInfo.InvariantCulture);
-                        sourceColumnList += ", " + parameName + " as " + kvp.Key;
+                        var paramName = "_" + ConnectionString.Unescape(kvp.Key);
+                        sourceColumnList += ", @" + paramName + " as " + kvp.Key;
                         targetColumnList += ", " + kvp.Key;
-                        parameters.Add(parameName, kvp.Value ?? DBNull.Value);
+                        parameters.Add(paramName, kvp.Value ?? DBNull.Value);
                         index++;
                     }
                 }

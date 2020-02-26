@@ -5,7 +5,6 @@
     using System.Data;
     using System.Globalization;
     using System.Transactions;
-    using FizzCode.DbTools.Configuration;
 
     public class GetTableMaxValueProcess<T> : AbstractSqlStatementWithResultProcess<TableMaxValueResult<T>>
     {
@@ -26,7 +25,7 @@
                 throw new ProcessParameterNullException(this, nameof(TableName));
         }
 
-        protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString, Dictionary<string, object> parameters)
+        protected override string CreateSqlStatement(Dictionary<string, object> parameters)
         {
             return string.IsNullOrEmpty(CustomWhereClause)
                 ? "SELECT MAX(" + ColumnName + ") AS maxValue, COUNT(*) AS cnt FROM " + TableName

@@ -6,7 +6,6 @@
     using System.Globalization;
     using System.Linq;
     using System.Transactions;
-    using FizzCode.DbTools.Configuration;
 
     public class CopyTableIntoNewTableProcess : AbstractSqlStatementProcess
     {
@@ -36,7 +35,7 @@
                 throw new ProcessParameterNullException(this, nameof(Configuration.TargetTableName));
         }
 
-        protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString, Dictionary<string, object> parameters)
+        protected override string CreateSqlStatement(Dictionary<string, object> parameters)
         {
             var columnList = (Configuration.ColumnConfiguration == null || Configuration.ColumnConfiguration.Count == 0)
                  ? "*"

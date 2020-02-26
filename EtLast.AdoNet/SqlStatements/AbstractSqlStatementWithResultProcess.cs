@@ -73,7 +73,7 @@
         private T ExecuteImpl()
         {
             var parameters = new Dictionary<string, object>();
-            var sqlStatement = CreateSqlStatement(ConnectionString, parameters);
+            var sqlStatement = CreateSqlStatement(parameters);
 
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
@@ -109,7 +109,7 @@
             }
         }
 
-        protected abstract string CreateSqlStatement(ConnectionStringWithProvider connectionString, Dictionary<string, object> parameters);
+        protected abstract string CreateSqlStatement(Dictionary<string, object> parameters);
 
         protected abstract T RunCommandAndGetResult(IDbCommand command);
     }

@@ -7,7 +7,6 @@
     using System.Linq;
     using System.Text;
     using System.Transactions;
-    using FizzCode.DbTools.Configuration;
 
     public class CustomMsSqlMergeSqlStatementProcess : AbstractSqlStatementProcess
     {
@@ -47,7 +46,7 @@
                 throw new ProcessParameterNullException(this, nameof(TargetTableName));
         }
 
-        protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString, Dictionary<string, object> parameters)
+        protected override string CreateSqlStatement(Dictionary<string, object> parameters)
         {
             var sb = new StringBuilder();
             sb

@@ -6,7 +6,6 @@
     using System.Globalization;
     using System.Linq;
     using System.Transactions;
-    using FizzCode.DbTools.Configuration;
 
     public class CustomSqlStatementProcess : AbstractSqlStatementProcess
     {
@@ -33,7 +32,7 @@
                 throw new ProcessParameterNullException(this, nameof(SqlStatement));
         }
 
-        protected override string CreateSqlStatement(ConnectionStringWithProvider connectionString, Dictionary<string, object> parameters)
+        protected override string CreateSqlStatement(Dictionary<string, object> parameters)
         {
             var sqlStatementProcessed = InlineArrayParametersIfNecessary(SqlStatement);
             return sqlStatementProcessed;
