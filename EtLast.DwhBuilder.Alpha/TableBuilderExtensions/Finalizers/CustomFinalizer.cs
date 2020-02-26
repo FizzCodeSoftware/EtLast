@@ -6,7 +6,7 @@
 
     public static partial class TableBuilderExtensions
     {
-        public static DwhTableBuilder[] AddCustomFinalizer(this DwhTableBuilder[] builders, CustomFinalizerCreatorDelegate creator)
+        public static DwhTableBuilder[] CustomFinalizer(this DwhTableBuilder[] builders, CustomFinalizerCreatorDelegate creator)
         {
             foreach (var builder in builders)
             {
