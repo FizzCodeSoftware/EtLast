@@ -4,7 +4,7 @@
     "RetainedLogFileCountLimit": {
       "Important": 30,
       "Info": 14,
-      "Low": 1
+      "Low": 4
     },
     "TransactionScopeTimeoutMinutes": 60,
     "MinimumLogLevel": { // Verbose, Debug, Information, Warning, Error, Fatal

@@ -25,7 +25,7 @@
                             {
                                 if (value is DateTime dt)
                                 {
-                                    value = (DateTimeOffset)dt;
+                                    value = new DateTimeOffset(dt, TimeSpan.Zero);
                                 }
 
                                 if (value is DateTimeOffset)
