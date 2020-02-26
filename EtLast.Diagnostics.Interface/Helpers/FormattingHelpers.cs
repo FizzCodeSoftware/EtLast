@@ -11,23 +11,26 @@
             return value.ToString("#,0", CultureInfo.InvariantCulture);
         }
 
-        public static string TimeSpanToString(TimeSpan value, bool detailedMilliseconds = true)
+        public static string TimeSpanToString(TimeSpan? value, bool detailedMilliseconds = true)
         {
-            if (value.Days > 0)
+            if (value == null)
+                return null;
+
+            if (value.Value.Days > 0)
             {
-                return value.ToString(@"d\.hh\:mm", CultureInfo.InvariantCulture);
+                return value.Value.ToString(@"d\.hh\:mm", CultureInfo.InvariantCulture);
             }
-            else if (value.Hours > 0)
+            else if (value.Value.Hours > 0)
             {
-                return value.ToString(@"h\:mm\:ss", CultureInfo.InvariantCulture);
+                return value.Value.ToString(@"h\:mm\:ss", CultureInfo.InvariantCulture);
             }
-            else if (value.Minutes > 0)
+            else if (value.Value.Minutes > 0)
             {
-                return value.ToString(@"m\:ss", CultureInfo.InvariantCulture);
+                return value.Value.ToString(@"m\:ss", CultureInfo.InvariantCulture);
             }
             else
             {
-                return value.ToString(@"s\.f" + (detailedMilliseconds ? "ff" : ""), CultureInfo.InvariantCulture);
+                return value.Value.ToString(@"s\.f" + (detailedMilliseconds ? "ff" : ""), CultureInfo.InvariantCulture);
             }
         }
 

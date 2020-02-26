@@ -29,7 +29,6 @@
                     Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom,
                     Appearance = TabAppearance.FlatButtons,
                 };
-                _tabs.SelectedIndexChanged += SelectedContextTabChanged;
 
                 /*var logContainer = new Panel()
                 {
@@ -78,17 +77,6 @@
             }
         }
 
-        private void SelectedContextTabChanged(object sender, EventArgs e)
-        {
-            if (_tabs.SelectedIndex < 0)
-                return;
-
-            if (_tabs.TabPages[_tabs.SelectedIndex].Tag is AbstractDiagContext context)
-            {
-                _contextContainerManagers[context.Name].FocusProcessList();
-            }
-        }
-
         private void OnDiagContextCreated(AbstractDiagContext diagContext)
         {
             if (_contextContainerManagers.ContainsKey(diagContext.Name))
@@ -104,8 +92,6 @@
             _contextContainerManagers.Add(diagContext.Name, contextManager);
 
             _tabs.TabPages.Add(contextContainer);
-
-            contextManager.FocusProcessList();
         }
 
         private void Container_Resize(object sender, EventArgs e)

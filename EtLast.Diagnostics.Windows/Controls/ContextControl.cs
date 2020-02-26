@@ -56,16 +56,6 @@
             DataStoreCommandList.ProcessNewEvents(abstractEvents);
         }
 
-        internal void FocusProcessList()
-        {
-            if (ProcessInvocationList.ListView.SelectedItems.Count == 0 && ProcessInvocationList.ListView.Items.Count > 0)
-            {
-                ProcessInvocationList.ListView.Items[0].Selected = true;
-            }
-
-            ProcessInvocationList.ListView.Focus();
-        }
-
         private void Container_Resize(object sender, EventArgs e)
         {
             ProcessInvocationList.ListView.Bounds = new Rectangle(0, 0, ProcessInvocationList.ListView.Width, Container.Height / 2);

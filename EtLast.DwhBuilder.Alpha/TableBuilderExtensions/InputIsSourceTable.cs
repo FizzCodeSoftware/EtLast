@@ -37,7 +37,7 @@
                 var lastTimestamp = GetMaxRecordTimestamp(builder);
                 if (lastTimestamp != null)
                 {
-                    whereClauseList.Add(builder.RecordTimestampIndicatorColumn.Name + " > @MaxRecordTimestamp");
+                    whereClauseList.Add(builder.RecordTimestampIndicatorColumn.Name + " >= @MaxRecordTimestamp");
                     parameterList.Add("MaxRecordTimestamp", lastTimestamp.Value);
                 }
             }

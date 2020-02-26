@@ -18,8 +18,8 @@
             etlRunTable.AddInt("EtlRunId").SetIdentity().SetPK();
             etlRunTable.AddVarChar("MachineName", 200, false);
             etlRunTable.AddVarChar("UserName", 200, false);
-            etlRunTable.AddDateTimeOffset("StartedOn", 2, false);
-            etlRunTable.AddDateTimeOffset("FinishedOn", 2, true);
+            etlRunTable.AddDateTimeOffset("StartedOn", 7, false);
+            etlRunTable.AddDateTimeOffset("FinishedOn", 7, true);
             etlRunTable.AddVarChar("Result", 20, true);
 
             model.AddAutoNaming(new List<SqlTable> { etlRunTable });
@@ -104,9 +104,9 @@
                 }
             }
 
-            baseTable.AddDateTimeOffset(configuration.ValidFromColumnName, 2, configuration.InfinitePastDateTime == null && !configuration.UseContextCreationTimeForNewRecords);
-            historyTable.AddDateTimeOffset(configuration.ValidFromColumnName, 2, configuration.InfinitePastDateTime == null && !configuration.UseContextCreationTimeForNewRecords);
-            historyTable.AddDateTimeOffset(configuration.ValidToColumnName, 2, configuration.InfiniteFutureDateTime == null);
+            baseTable.AddDateTimeOffset(configuration.ValidFromColumnName, 7, configuration.InfinitePastDateTime == null && !configuration.UseContextCreationTimeForNewRecords);
+            historyTable.AddDateTimeOffset(configuration.ValidFromColumnName, 7, configuration.InfinitePastDateTime == null && !configuration.UseContextCreationTimeForNewRecords);
+            historyTable.AddDateTimeOffset(configuration.ValidToColumnName, 7, configuration.InfiniteFutureDateTime == null);
 
             return historyTable;
         }

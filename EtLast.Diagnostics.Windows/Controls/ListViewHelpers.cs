@@ -28,6 +28,8 @@ namespace FizzCode.EtLast.Diagnostics.Windows
                 {
                     MaxObjectsToConsider = int.MaxValue,
                 },
+                MultiSelect = false,
+                HideSelection = false,
             };
         }
     }

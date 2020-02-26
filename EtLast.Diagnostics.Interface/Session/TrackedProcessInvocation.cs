@@ -15,6 +15,7 @@
         public int InvocationCounter { get; }
 
         public TrackedProcessInvocation Invoker { get; }
+        public List<TrackedProcessInvocation> Children { get; } = new List<TrackedProcessInvocation>();
         public int ParentInvokerCount { get; }
         public string IdentedName { get; }
 
@@ -88,6 +89,8 @@
             Topic = topic;
 
             Invoker = invoker;
+            Invoker?.Children.Add(this);
+
             ParentInvokerCount = invoker != null
                 ? invoker.ParentInvokerCount + 1
                 : 0;
