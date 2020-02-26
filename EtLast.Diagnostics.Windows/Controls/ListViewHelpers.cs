@@ -1,9 +1,9 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
-using BrightIdeasSoftware;
-
-namespace FizzCode.EtLast.Diagnostics.Windows
+﻿namespace FizzCode.EtLast.Diagnostics.Windows
 {
+    using System.Drawing;
+    using System.Windows.Forms;
+    using BrightIdeasSoftware;
+
     internal static class ListViewHelpers
     {
         public static ObjectListView CreateListView(Control container)

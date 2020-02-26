@@ -16,6 +16,7 @@
             etlRunTable.Properties.Add(new IsEtlRunInfoTableProperty(etlRunTable));
 
             etlRunTable.AddInt("EtlRunId").SetIdentity().SetPK();
+            etlRunTable.AddVarChar("Name", 200, false);
             etlRunTable.AddVarChar("MachineName", 200, false);
             etlRunTable.AddVarChar("UserName", 200, false);
             etlRunTable.AddDateTimeOffset("StartedOn", 7, false);

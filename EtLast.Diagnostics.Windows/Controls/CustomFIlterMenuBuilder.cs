@@ -7,7 +7,7 @@
 
     public class CustomFilterMenuBuilder : FilterMenuBuilder
     {
-        private bool alreadyInHandleItemChecked = false;
+        private bool _insideHandleItemCheckedWrapped;
 
 #pragma warning disable CA1810 // Initialize reference type static fields inline
         static CustomFilterMenuBuilder()
@@ -81,17 +81,17 @@
 
         private void HandleItemCheckedWrapped(object sender, ItemCheckEventArgs e)
         {
-            if (alreadyInHandleItemChecked)
+            if (_insideHandleItemCheckedWrapped)
                 return;
 
             try
             {
-                alreadyInHandleItemChecked = true;
+                _insideHandleItemCheckedWrapped = true;
                 ItemChecked(sender, e);
             }
             finally
             {
-                alreadyInHandleItemChecked = false;
+                _insideHandleItemCheckedWrapped = false;
             }
         }
 

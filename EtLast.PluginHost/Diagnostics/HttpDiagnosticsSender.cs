@@ -11,7 +11,7 @@
 
     public class HttpDiagnosticsSender : IDiagnosticsSender
     {
-        public int MaxCommunicationErrorCount { get; } = 3;
+        public int MaxCommunicationErrorCount { get; } = 2;
         private readonly Uri _uri;
         private HttpClient _client;
         private readonly Thread _workerThread;
@@ -31,7 +31,7 @@
             _uri = diagnosticsUri;
             _client = new HttpClient
             {
-                Timeout = TimeSpan.FromMilliseconds(30000),
+                Timeout = TimeSpan.FromMilliseconds(5000),
             };
 
             SendWriter(null);
@@ -72,15 +72,17 @@
 
             if (_currentDictionaryWriter != null)
             {
-                if (_currentDictionaryWriter.BaseStream.Length > 0)
+                if (_currentDictionaryWriter.BaseStream.Length > 0 && _communicationErrorCount <= MaxCommunicationErrorCount)
+                {
                     SendWriter(_currentDictionaryWriter);
+                }
 
                 _currentDictionaryWriter = null;
             }
 
             if (_currentWriter != null)
             {
-                if (_currentWriter.BaseStream.Length > 0)
+                if (_currentWriter.BaseStream.Length > 0 && _communicationErrorCount <= MaxCommunicationErrorCount)
                     SendWriter(_currentWriter);
 
                 _currentWriter = null;

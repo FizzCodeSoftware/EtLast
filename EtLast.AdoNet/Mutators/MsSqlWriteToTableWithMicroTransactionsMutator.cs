@@ -192,7 +192,7 @@
 
                     _reader.ResetCurrentIndex();
 
-                    if (retry == 0 && ex is InvalidOperationException)
+                    if (retry == 0 && (ex is InvalidOperationException || ex is SqlException))
                     {
                         var fileName = "bulk-copy-error-" + Context.CreatedOnLocal.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + ".tsv";
                         Context.LogCustom(fileName, this, "bulk copy error: " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName) + ", exception: " + ex.GetType().GetFriendlyTypeName() + ": " + ex.Message);
@@ -233,7 +233,7 @@
                         exception.Data.Add("Timeout", CommandTimeout);
                         exception.Data.Add("Elapsed", _timer.Elapsed);
                         exception.Data.Add("TotalRowsWritten", _rowsWritten);
-                        if (ex is InvalidOperationException)
+                        if (ex is InvalidOperationException || ex is SqlException)
                         {
                             var fileName = "bulk-copy-error-" + Context.CreatedOnLocal.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + ".tsv";
                             exception.Data.Add("DetailedRowLogFileName", fileName);
