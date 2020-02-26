@@ -18,7 +18,9 @@
         public ObjectListView ListView { get; }
         public TextBox SearchBox { get; }
         public Timer AutoSizeTimer { get; }
+        public CheckBox ShowTransactionKind { get; }
         private bool _newData;
+        private readonly List<Model> AllItems = new List<Model>();
 
         public SessionDataStoreCommandListControl(Control container, DiagnosticsStateManager diagnosticsStateManager, DiagSession session)
         {
@@ -32,6 +34,16 @@
             };
 
             SearchBox.TextChanged += SearchBox_TextChanged;
+
+            ShowTransactionKind = new CheckBox()
+            {
+                Parent = container,
+                Bounds = new Rectangle(SearchBox.Right + 20, SearchBox.Top, 200, SearchBox.Height),
+                Text = "Show transaction commands",
+                CheckAlign = ContentAlignment.MiddleLeft,
+            };
+
+            ShowTransactionKind.CheckedChanged += (s, a) => RefreshItems();
 
             ListView = ListViewHelpers.CreateListView(container);
             ListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
@@ -111,6 +123,21 @@
             };
         }
 
+        private bool ItemVisible(Model item)
+        {
+#pragma warning disable RCS1073 // Convert 'if' to 'return' statement.
+            if (item.Event.Kind == DataStoreCommandKind.transaction && !ShowTransactionKind.Checked)
+                return false;
+#pragma warning restore RCS1073 // Convert 'if' to 'return' statement.
+
+            return true;
+        }
+
+        private void RefreshItems()
+        {
+            ListView.SetObjects(AllItems.Where(ItemVisible));
+        }
+
         private void AutoSizeTimer_Tick(object sender, EventArgs e)
         {
             if (!_newData || !ListView.Visible)
@@ -157,11 +184,11 @@
             ListView.BeginUpdate();
             try
             {
-                var modelList = new List<Model>();
+                var newItems = new List<Model>();
 
                 foreach (var evt in events)
                 {
-                    var model = new Model()
+                    var item = new Model()
                     {
                         Timestamp = new DateTime(evt.Timestamp),
                         Playbook = playbook,
@@ -179,10 +206,15 @@
                             : null,
                     };
 
-                    modelList.Add(model);
+                    AllItems.Add(item);
+
+                    if (ItemVisible(item))
+                    {
+                        newItems.Add(item);
+                    }
                 }
 
-                ListView.AddObjects(modelList);
+                ListView.AddObjects(newItems);
                 _newData = true;
             }
             finally
