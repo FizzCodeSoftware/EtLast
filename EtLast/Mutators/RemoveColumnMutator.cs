@@ -2,11 +2,11 @@
 {
     using System.Collections.Generic;
 
-    public class RemoveColumnsMutator : AbstractMutator
+    public class RemoveColumnMutator : AbstractMutator
     {
         public string[] Columns { get; set; }
 
-        public RemoveColumnsMutator(ITopic topic, string name)
+        public RemoveColumnMutator(ITopic topic, string name)
             : base(topic, name)
         {
         }

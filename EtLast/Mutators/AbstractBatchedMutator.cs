@@ -137,8 +137,23 @@
 
                     if (UseBatchKeys)
                     {
-                        var key = GetBatchKey(row);
-                        batchKeys.Add(key);
+                        try
+                        {
+                            var key = GetBatchKey(row);
+                            batchKeys.Add(key);
+                        }
+                        catch (ProcessExecutionException ex)
+                        {
+                            Context.AddException(this, ex);
+                            failed = true;
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            Context.AddException(this, new ProcessExecutionException(this, row, ex));
+                            failed = true;
+                            break;
+                        }
                     }
 
                     if ((UseBatchKeys && batchKeys.Count >= BatchSize) || (!UseBatchKeys && batch.Count >= BatchSize))

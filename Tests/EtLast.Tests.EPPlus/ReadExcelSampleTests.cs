@@ -5,7 +5,6 @@
     using System.Linq;
     using FizzCode.EtLast;
     using FizzCode.EtLast.EPPlus;
-    using FizzCode.EtLast.Tests.Base;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]

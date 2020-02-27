@@ -4,11 +4,17 @@
 
     public class HierarchyParentIdCalculatorMutator : AbstractMutator
     {
-        public string IntegerIdColumn { get; set; }
+        public string IdentityColumn { get; set; }
         public string[] LevelColumns { get; set; }
         public string NewColumnWithParentId { get; set; }
+        public string NewColumnWithLevel { get; set; }
 
-        private int[] _lastIdOfLevel;
+        /// <summary>
+        /// Default false.
+        /// </summary>
+        public bool RemoveLevelColumns { get; set; }
+
+        private object[] _lastIdOfLevel;
 
         public HierarchyParentIdCalculatorMutator(ITopic topic, string name)
             : base(topic, name)
@@ -17,7 +23,7 @@
 
         protected override void StartMutator()
         {
-            _lastIdOfLevel = new int[LevelColumns.Length];
+            _lastIdOfLevel = new object[LevelColumns.Length];
         }
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
@@ -28,16 +34,31 @@
 
                 if (!string.IsNullOrEmpty(row.GetAs<string>(levelColumn)))
                 {
-                    _lastIdOfLevel[level] = row.GetAs<int>(IntegerIdColumn);
+                    _lastIdOfLevel[level] = row[IdentityColumn];
 
                     if (level > 0)
                     {
-                        row.SetValue(NewColumnWithParentId, _lastIdOfLevel[level - 1]);
+                        row.SetStagedValue(NewColumnWithParentId, _lastIdOfLevel[level - 1]);
+                    }
+
+                    if (!string.IsNullOrEmpty(NewColumnWithLevel))
+                    {
+                        row.SetStagedValue(NewColumnWithLevel, level);
                     }
 
                     break;
                 }
             }
+
+            if (RemoveLevelColumns)
+            {
+                foreach (var levelColumn in LevelColumns)
+                {
+                    row.SetStagedValue(levelColumn, null);
+                }
+            }
+
+            row.ApplyStaging();
 
             yield return row;
         }
@@ -47,8 +68,8 @@
             if (string.IsNullOrEmpty(NewColumnWithParentId))
                 throw new ProcessParameterNullException(this, nameof(NewColumnWithParentId));
 
-            if (string.IsNullOrEmpty(IntegerIdColumn))
-                throw new ProcessParameterNullException(this, nameof(IntegerIdColumn));
+            if (string.IsNullOrEmpty(IdentityColumn))
+                throw new ProcessParameterNullException(this, nameof(IdentityColumn));
 
             if (LevelColumns == null || LevelColumns.Length == 0)
                 throw new ProcessParameterNullException(this, nameof(LevelColumns));

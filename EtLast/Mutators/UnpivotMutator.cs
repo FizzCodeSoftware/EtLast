@@ -3,30 +3,17 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    /// <summary>
-    /// Id, Name, Cars, Houses, Kids
-    /// 1, A, 1, 1, 2
-    /// 2, B, 2, 1, 3
-    /// FixColumns: Id, Name
-    /// NewColumnForDimension: InventoryItem (values will contains non-fix column names: Cars, Houses, Kids)
-    /// NewColumnForValue: Amount (values will contain values in cells: 1, 2, 3)
-    /// result:
-    /// Id, Name, InventoryItem, Amount
-    /// 1, A, Cars, 1
-    /// 1, A, Houses, 1
-    /// 1, A, Kids, 2
-    /// 2, B, Cars, 2
-    /// 2, B, Houses, 1
-    /// 2, B, Kids, 3
-    /// </summary>
     public class UnpivotMutator : AbstractMutator
     {
-        public string[] FixColumns { get; set; }
+        public List<ColumnCopyConfiguration> FixColumns { get; set; }
         public string NewColumnForDimension { get; set; }
         public string NewColumnForValue { get; set; }
-        public bool IgnoreIfValueIsNull { get; set; } = true;
 
-        private HashSet<string> _fixColumns;
+        public bool IgnoreIfValueIsNull { get; set; } = true;
+        public string[] ValueColumns { get; set; }
+
+        private HashSet<string> _fixColumnNames;
+        private HashSet<string> _valueColumnNames;
 
         public UnpivotMutator(ITopic topic, string name)
             : base(topic, name)
@@ -35,46 +22,73 @@
 
         protected override void StartMutator()
         {
-            _fixColumns = FixColumns.Length > 0
-                ? new HashSet<string>(FixColumns)
-                : null;
+            _fixColumnNames = FixColumns != null
+                ? new HashSet<string>(FixColumns.Select(x => x.FromColumn))
+                : new HashSet<string>();
+
+            _valueColumnNames = ValueColumns != null
+                ? new HashSet<string>(ValueColumns)
+                : new HashSet<string>();
         }
 
         protected override void CloseMutator()
         {
-            _fixColumns.Clear();
-            _fixColumns = null;
+            _fixColumnNames.Clear();
+            _fixColumnNames = null;
+            _valueColumnNames.Clear();
+            _valueColumnNames = null;
         }
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            foreach (var cell in row.Values)
+            if (ValueColumns == null)
             {
-                if (cell.Value == null && IgnoreIfValueIsNull)
-                    continue;
+                foreach (var kvp in row.Values)
+                {
+                    if (_fixColumnNames.Contains(kvp.Key))
+                        continue;
 
-                if (_fixColumns?.Contains(cell.Key) == true)
-                    continue;
+                    var initialValues = FixColumns.Select(x => new KeyValuePair<string, object>(x.ToColumn, row[x.FromColumn])).ToList();
+                    initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, kvp.Key));
+                    initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, kvp.Value));
 
-                var initialValues = FixColumns.Select(x => new KeyValuePair<string, object>(x, row[x])).ToList();
-                initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, cell.Key));
-                initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, cell.Value));
+                    var newRow = Context.CreateRow(this, initialValues);
+                    yield return newRow;
+                }
+            }
+            else
+            {
+                foreach (var col in ValueColumns)
+                {
+                    var value = row[col];
+                    if (value == null && IgnoreIfValueIsNull)
+                        continue;
 
-                var newRow = Context.CreateRow(this, initialValues);
-                yield return newRow;
+                    var initialValues = FixColumns != null
+                        ? FixColumns.Select(x => new KeyValuePair<string, object>(x.ToColumn, row[x.FromColumn])).ToList()
+                        : row.Values.Where(kvp => !_valueColumnNames.Contains(kvp.Key)).ToList();
+                    initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, col));
+                    initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, value));
+
+                    var newRow = Context.CreateRow(this, initialValues);
+                    yield return newRow;
+                }
             }
         }
 
         protected override void ValidateMutator()
         {
-            if (FixColumns == null)
-                throw new ProcessParameterNullException(this, nameof(FixColumns));
+            if (ValueColumns == null && FixColumns == null)
+                throw new InvalidProcessParameterException(this, nameof(ValueColumns), null, "if " + nameof(ValueColumns) + " is null then " + nameof(FixColumns) + " must be set");
 
             if (NewColumnForValue == null)
                 throw new ProcessParameterNullException(this, nameof(NewColumnForValue));
 
             if (NewColumnForDimension == null)
                 throw new ProcessParameterNullException(this, nameof(NewColumnForDimension));
+
+            if (!IgnoreIfValueIsNull && ValueColumns == null)
+                throw new InvalidProcessParameterException(this, nameof(ValueColumns), null, "if " + nameof(IgnoreIfValueIsNull) + " is false then " + nameof(ValueColumns) + " must be set");
         }
     }
 }

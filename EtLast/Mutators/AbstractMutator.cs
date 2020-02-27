@@ -17,7 +17,24 @@
 
         protected sealed override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
-            StartMutator();
+            try
+            {
+                StartMutator();
+            }
+            catch (ProcessExecutionException ex)
+            {
+                Context.AddException(this, ex);
+                netTimeStopwatch.Stop();
+                Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+                yield break;
+            }
+            catch (Exception ex)
+            {
+                Context.AddException(this, new ProcessExecutionException(this, ex));
+                netTimeStopwatch.Stop();
+                Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+                yield break;
+            }
 
             var mutatedRows = new List<IRow>();
 

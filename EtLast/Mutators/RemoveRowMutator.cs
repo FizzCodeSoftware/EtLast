@@ -14,5 +14,13 @@
         {
             return Enumerable.Empty<IRow>();
         }
+
+        protected override void ValidateMutator()
+        {
+            base.ValidateMutator();
+
+            if (If == null)
+                throw new ProcessParameterNullException(this, nameof(If));
+        }
     }
 }

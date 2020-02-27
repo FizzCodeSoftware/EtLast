@@ -2,12 +2,12 @@
 {
     using System.Collections.Generic;
 
-    public class RenameColumnsMutator : AbstractMutator
+    public class RenameColumnMutator : AbstractMutator
     {
         public List<ColumnRenameConfiguration> ColumnConfiguration { get; set; }
         public InvalidColumnAction ActionIfInvalid { get; set; } = InvalidColumnAction.Throw;
 
-        public RenameColumnsMutator(ITopic topic, string name)
+        public RenameColumnMutator(ITopic topic, string name)
             : base(topic, name)
         {
         }

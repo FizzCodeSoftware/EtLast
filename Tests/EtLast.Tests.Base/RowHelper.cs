@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.Tests.Base
+﻿namespace FizzCode.EtLast.Tests
 {
     using System.Collections.Generic;
     using System.Linq;

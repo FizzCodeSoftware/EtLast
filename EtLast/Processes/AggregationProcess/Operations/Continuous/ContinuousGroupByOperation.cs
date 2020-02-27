@@ -33,7 +33,7 @@
         /// </summary>
         public static ContinuousGroupByOperation AddIntAverage(this ContinuousGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => ((aggregateRow.GetAs(col, 0.0d) * rowsInGroup) + row.GetAs(col, 0)) / (rowsInGroup + 1.0d));
+            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => ((aggregateRow.GetAs(col, 0.0d) * rowsInGroup) + row.GetAs(col, 0)) / (rowsInGroup + 1));
         }
 
         /// <summary>
@@ -41,7 +41,7 @@
         /// </summary>
         public static ContinuousGroupByOperation AddLongAverage(this ContinuousGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => ((aggregateRow.GetAs(col, 0.0d) * rowsInGroup) + row.GetAs(col, 0L)) / (rowsInGroup + 1.0d));
+            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => ((aggregateRow.GetAs(col, 0.0d) * rowsInGroup) + row.GetAs(col, 0L)) / (rowsInGroup + 1));
         }
 
         /// <summary>
@@ -49,7 +49,7 @@
         /// </summary>
         public static ContinuousGroupByOperation AddDoubleAverage(this ContinuousGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => ((aggregateRow.GetAs(col, 0.0d) * rowsInGroup) + row.GetAs(col, 0.0d)) / (rowsInGroup + 1.0d));
+            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => ((aggregateRow.GetAs(col, 0.0d) * rowsInGroup) + row.GetAs(col, 0.0d)) / (rowsInGroup + 1));
         }
 
         /// <summary>
@@ -97,7 +97,9 @@
         /// </summary>
         public static ContinuousGroupByOperation AddIntMax(this ContinuousGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => Math.Max(aggregateRow.GetAs(col, 0), row.GetAs<int>(col)));
+            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => aggregateRow.HasValue(col)
+                ? Math.Max(aggregateRow.GetAs(col, 0), row.GetAs(col, 0))
+                : row.GetAs(col, 0));
         }
 
         /// <summary>
@@ -105,7 +107,9 @@
         /// </summary>
         public static ContinuousGroupByOperation AddLongMax(this ContinuousGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => Math.Max(aggregateRow.GetAs(col, 0L), row.GetAs(col, 0L)));
+            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => aggregateRow.HasValue(col)
+                ? Math.Max(aggregateRow.GetAs(col, 0L), row.GetAs(col, 0L))
+                : row.GetAs(col, 0L));
         }
 
         /// <summary>
@@ -113,7 +117,9 @@
         /// </summary>
         public static ContinuousGroupByOperation AddDoubleMax(this ContinuousGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => Math.Max(aggregateRow.GetAs(col, 0.0d), row.GetAs(col, 0.0d)));
+            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => aggregateRow.HasValue(col)
+                ? Math.Max(aggregateRow.GetAs(col, 0.0d), row.GetAs(col, 0.0d))
+                : row.GetAs(col, 0.0d));
         }
 
         /// <summary>
@@ -121,7 +127,9 @@
         /// </summary>
         public static ContinuousGroupByOperation AddDecimalMax(this ContinuousGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => Math.Max(aggregateRow.GetAs(col, 0m), row.GetAs(col, 0m)));
+            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => aggregateRow.HasValue(col)
+                ? Math.Max(aggregateRow.GetAs(col, 0m), row.GetAs(col, 0m))
+                : row.GetAs(col, 0m));
         }
 
         /// <summary>
@@ -129,7 +137,9 @@
         /// </summary>
         public static ContinuousGroupByOperation AddIntMin(this ContinuousGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => Math.Min(aggregateRow.GetAs(col, 0), row.GetAs(col, 0)));
+            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => aggregateRow.HasValue(col)
+                ? Math.Min(aggregateRow.GetAs(col, 0), row.GetAs(col, 0))
+                : row.GetAs(col, 0));
         }
 
         /// <summary>
@@ -137,7 +147,9 @@
         /// </summary>
         public static ContinuousGroupByOperation AddLongMin(this ContinuousGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => Math.Min(aggregateRow.GetAs(col, 0L), row.GetAs(col, 0L)));
+            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => aggregateRow.HasValue(col)
+                ? Math.Min(aggregateRow.GetAs(col, 0L), row.GetAs(col, 0L))
+                : row.GetAs(col, 0L));
         }
 
         /// <summary>
@@ -145,7 +157,9 @@
         /// </summary>
         public static ContinuousGroupByOperation AddDoubleMin(this ContinuousGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => Math.Min(aggregateRow.GetAs(col, 0.0d), row.GetAs(col, 0.0d)));
+            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => aggregateRow.HasValue(col)
+                ? Math.Min(aggregateRow.GetAs(col, 0.0d), row.GetAs(col, 0.0d))
+                : row.GetAs(col, 0.0d));
         }
 
         /// <summary>
@@ -153,7 +167,9 @@
         /// </summary>
         public static ContinuousGroupByOperation AddDecimalMin(this ContinuousGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => Math.Min(aggregateRow.GetAs(col, 0m), row.GetAs(col, 0m)));
+            return op.AddColumnAggregator(column, (aggregateRow, rowsInGroup, row, col) => aggregateRow.HasValue(col)
+                ? Math.Min(aggregateRow.GetAs(col, 0m), row.GetAs(col, 0m))
+                : row.GetAs(col, 0m));
         }
     }
 }

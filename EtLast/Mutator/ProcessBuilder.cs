@@ -13,10 +13,16 @@
             var last = InputProcess;
             foreach (var list in Mutators)
             {
-                foreach (var mutator in list)
+                if (list != null)
                 {
-                    mutator.InputProcess = last;
-                    last = mutator;
+                    foreach (var mutator in list)
+                    {
+                        if (mutator != null)
+                        {
+                            mutator.InputProcess = last;
+                            last = mutator;
+                        }
+                    }
                 }
             }
 

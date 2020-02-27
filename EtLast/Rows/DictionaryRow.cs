@@ -24,7 +24,7 @@
 
             _values = initialValues == null
                 ? new Dictionary<string, object>()
-                : new Dictionary<string, object>(initialValues);
+                : new Dictionary<string, object>(initialValues.Where(kvp => kvp.Value != null));
         }
 
         protected override object GetValueImpl(string column)

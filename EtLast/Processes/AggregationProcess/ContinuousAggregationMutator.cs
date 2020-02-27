@@ -13,7 +13,7 @@
     ///   - sum, max, min, avg are trivial functions, but some others can be tricky
     ///  - 1 group always results 1 aggregated row
     /// </summary>
-    public class ContinuousAggregationProcess : AbstractAggregationProcess
+    public class ContinuousAggregationMutator : AbstractAggregationProcess
     {
         private IContinuousAggregationOperation _operation;
 
@@ -29,7 +29,7 @@
             }
         }
 
-        public ContinuousAggregationProcess(ITopic topic, string name)
+        public ContinuousAggregationMutator(ITopic topic, string name)
             : base(topic, name)
         {
         }

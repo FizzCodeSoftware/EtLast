@@ -2,9 +2,9 @@
 {
     using System.Collections.Generic;
 
-    public class RemoveRowsWithErrorMutator : AbstractMutator
+    public class RemoveRowWithErrorMutator : AbstractMutator
     {
-        public RemoveRowsWithErrorMutator(ITopic topic, string name)
+        public RemoveRowWithErrorMutator(ITopic topic, string name)
             : base(topic, name)
         {
         }
