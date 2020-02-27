@@ -28,29 +28,6 @@
             };
         }
 
-        public static IEvaluable RandomPersons(int rowCount, ITopic topic)
-        {
-            return new ProcessBuilder()
-            {
-                InputProcess = new SeedRowsProcess(topic, nameof(RandomPersons))
-                {
-                    Count = rowCount,
-                    Columns = PersonColumns,
-                },
-                Mutators = new MutatorList()
-                {
-                    new CustomMutator(topic, "SetHeight")
-                    {
-                        Then = (proc, row) =>
-                        {
-                            row.SetValue("height", _rnd.Next(150, 200));
-                            return true;
-                        },
-                    },
-                },
-            }.Build();
-        }
-
         public static IEvaluable Person(ITopic topic)
         {
             return new CreateRowsProcess(topic, nameof(Person))

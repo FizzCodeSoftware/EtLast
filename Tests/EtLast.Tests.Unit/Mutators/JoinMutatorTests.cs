@@ -22,7 +22,7 @@
                 InputProcess = TestData.Person(topic),
                 Mutators = new MutatorList()
                 {
-                    new JoinMutator(topic, "Joiner")
+                    new JoinMutator(topic, null)
                     {
                         RightProcess = TestData.PersonEyeColor(topic),
                         LeftKeySelector = row => row.FormatToString("id"),
@@ -65,7 +65,7 @@
                 InputProcess = TestData.Person(topic),
                 Mutators = new MutatorList()
                 {
-                    new JoinMutator(topic, "Joiner")
+                    new JoinMutator(topic, null)
                     {
                         RightProcess = TestData.PersonEyeColor(topic),
                         LeftKeySelector = row => row.FormatToString("id"),
@@ -101,7 +101,7 @@
                 InputProcess = TestData.Person(topic),
                 Mutators = new MutatorList()
                 {
-                    new JoinMutator(topic, "Joiner")
+                    new JoinMutator(topic, null)
                     {
                         RightProcess = TestData.PersonEyeColor(topic),
                         LeftKeySelector = row => row.FormatToString("id"),
@@ -140,7 +140,7 @@
                 InputProcess = TestData.Person(topic),
                 Mutators = new MutatorList()
                 {
-                    new JoinMutator(topic, "Joiner")
+                    new JoinMutator(topic, null)
                     {
                         RightProcess = TestData.PersonEyeColor(topic),
                         LeftKeySelector = row => { executedLeftKeyDelegateCount++; return executedLeftKeyDelegateCount < 3 ? row.FormatToString("id") : row.GetAs<double>("id").ToString("D", CultureInfo.InvariantCulture); },
@@ -180,7 +180,7 @@
                 InputProcess = TestData.Person(topic),
                 Mutators = new MutatorList()
                 {
-                    new JoinMutator(topic, "Joiner")
+                    new JoinMutator(topic, null)
                     {
                         RightProcess = TestData.PersonEyeColor(topic),
                         LeftKeySelector = row => { executedLeftKeyDelegateCount++; return row.FormatToString("id"); },

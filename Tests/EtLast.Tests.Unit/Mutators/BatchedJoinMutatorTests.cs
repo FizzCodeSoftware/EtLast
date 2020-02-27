@@ -23,7 +23,7 @@
                 InputProcess = TestData.Person(topic),
                 Mutators = new MutatorList()
                 {
-                    new BatchedJoinMutator(topic, "Joiner")
+                    new BatchedJoinMutator(topic, null)
                     {
                         BatchSize = 4,
                         RightProcessCreator = rows =>
@@ -73,7 +73,7 @@
                 InputProcess = TestData.Person(topic),
                 Mutators = new MutatorList()
                 {
-                    new BatchedJoinMutator(topic, "Joiner")
+                    new BatchedJoinMutator(topic, null)
                     {
                         BatchSize = 4,
                         RightProcessCreator = rows =>
@@ -116,7 +116,7 @@
                 InputProcess = TestData.Person(topic),
                 Mutators = new MutatorList()
                 {
-                    new BatchedJoinMutator(topic, "Joiner")
+                    new BatchedJoinMutator(topic, null)
                     {
                         BatchSize = 1,
                         RightProcessCreator = rows =>
@@ -160,7 +160,7 @@
                 InputProcess = TestData.Person(topic),
                 Mutators = new MutatorList()
                 {
-                    new BatchedJoinMutator(topic, "Joiner")
+                    new BatchedJoinMutator(topic, null)
                     {
                         BatchSize = 4,
                         RightProcessCreator = rows =>
@@ -199,7 +199,7 @@
                 InputProcess = TestData.Person(topic),
                 Mutators = new MutatorList()
                 {
-                    new BatchedJoinMutator(topic, "Joiner")
+                    new BatchedJoinMutator(topic, null)
                     {
                         BatchSize = 2,
                         RightProcessCreator = rows =>
@@ -240,7 +240,7 @@
                 InputProcess = TestData.Person(topic),
                 Mutators = new MutatorList()
                 {
-                    new BatchedJoinMutator(topic, "Joiner")
+                    new BatchedJoinMutator(topic, null)
                     {
                         BatchSize = 1,
                         RightProcessCreator = rows =>
