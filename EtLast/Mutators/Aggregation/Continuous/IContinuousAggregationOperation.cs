@@ -2,8 +2,8 @@
 {
     public interface IContinuousAggregationOperation
     {
-        IProcess Process { get; }
-        void SetProcess(IProcess process);
-        void TransformGroup(string[] groupingColumns, IRow row, IRow aggregateRow, int rowsInGroup);
+        ContinuousAggregationMutator Process { get; }
+        void SetProcess(ContinuousAggregationMutator process);
+        void TransformAggregate(IRow row, ValueCollection aggregate, int rowsInGroup);
     }
 }

@@ -1,25 +1,26 @@
 ﻿namespace FizzCode.EtLast
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
     public class MemoryGroupByOperation : AbstractMemoryAggregationOperation
     {
-        public Dictionary<string, Func<List<IRow>, string, object>> ColumnAggregators { get; set; } = new Dictionary<string, Func<List<IRow>, string, object>>();
+        public delegate object MemoryGroupByAggregatorDelegate(List<IRow> groupRows, string column);
 
-        public MemoryGroupByOperation AddColumnAggregator(string column, Func<List<IRow>, string, object> aggregator)
+        public Dictionary<string, MemoryGroupByAggregatorDelegate> ColumnAggregators { get; set; } = new Dictionary<string, MemoryGroupByAggregatorDelegate>();
+
+        public MemoryGroupByOperation AddColumnAggregator(string column, MemoryGroupByAggregatorDelegate aggregator)
         {
             ColumnAggregators.Add(column, aggregator);
             return this;
         }
 
-        public override IRow TransformGroup(string[] groupingColumns, List<IRow> rows)
+        public override void TransformGroup(List<IRow> rows, ValueCollection aggregate)
         {
-            var initialValues = groupingColumns.Select(x => new KeyValuePair<string, object>(x, rows[0][x]))
-                .Concat(ColumnAggregators.Select(agg => new KeyValuePair<string, object>(agg.Key, agg.Value.Invoke(rows, agg.Key))));
-
-            return Process.Context.CreateRow(Process, initialValues);
+            foreach (var agg in ColumnAggregators)
+            {
+                aggregate.SetValue(agg.Key, agg.Value.Invoke(rows, agg.Key));
+            }
         }
     }
 
@@ -30,7 +31,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddIntAverage(this MemoryGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Average(x => x.GetAs<int>(col, 0)));
+            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Average(x => x.GetAs(col, 0)));
         }
 
         /// <summary>
@@ -38,7 +39,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddLongAverage(this MemoryGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Average(x => x.GetAs<long>(col, 0L)));
+            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Average(x => x.GetAs(col, 0L)));
         }
 
         /// <summary>
@@ -46,7 +47,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddDoubleAverage(this MemoryGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Average(x => x.GetAs<double>(col, 0.0d)));
+            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Average(x => x.GetAs(col, 0.0d)));
         }
 
         /// <summary>
@@ -54,7 +55,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddDecimalAverage(this MemoryGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Average(x => x.GetAs<decimal>(col, 0m)));
+            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Average(x => x.GetAs(col, 0m)));
         }
 
         /// <summary>
@@ -62,7 +63,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddIntSum(this MemoryGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Sum(x => x.GetAs<int>(col, 0)));
+            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Sum(x => x.GetAs(col, 0)));
         }
 
         /// <summary>
@@ -70,7 +71,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddLongSum(this MemoryGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Sum(x => x.GetAs<long>(col, 0L)));
+            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Sum(x => x.GetAs(col, 0L)));
         }
 
         /// <summary>
@@ -78,7 +79,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddDoubleSum(this MemoryGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Sum(x => x.GetAs<double>(col, 0.0d)));
+            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Sum(x => x.GetAs(col, 0.0d)));
         }
 
         /// <summary>
@@ -86,7 +87,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddDecimalSum(this MemoryGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Sum(x => x.GetAs<decimal>(col, 0m)));
+            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Sum(x => x.GetAs(col, 0m)));
         }
 
         /// <summary>
@@ -94,7 +95,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddIntMax(this MemoryGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Max(x => x.GetAs<int>(col, 0)));
+            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Max(x => x.GetAs(col, 0)));
         }
 
         /// <summary>
@@ -102,7 +103,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddLongMax(this MemoryGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Max(x => x.GetAs<long>(col, 0L)));
+            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Max(x => x.GetAs(col, 0L)));
         }
 
         /// <summary>
@@ -110,7 +111,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddDoubleMax(this MemoryGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Max(x => x.GetAs<double>(col, 0.0d)));
+            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Max(x => x.GetAs(col, 0.0d)));
         }
 
         /// <summary>
@@ -118,7 +119,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddDecimalMax(this MemoryGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Max(x => x.GetAs<decimal>(col, 0m)));
+            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Max(x => x.GetAs(col, 0m)));
         }
 
         /// <summary>
@@ -126,7 +127,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddIntMin(this MemoryGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Min(x => x.GetAs<int>(col, 0)));
+            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Min(x => x.GetAs(col, 0)));
         }
 
         /// <summary>
@@ -134,7 +135,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddLongMin(this MemoryGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Min(x => x.GetAs<long>(col, 0L)));
+            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Min(x => x.GetAs(col, 0L)));
         }
 
         /// <summary>
@@ -142,7 +143,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddDoubleMin(this MemoryGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Min(x => x.GetAs<double>(col, 0.0d)));
+            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Min(x => x.GetAs(col, 0.0d)));
         }
 
         /// <summary>
@@ -150,7 +151,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddDecimalMin(this MemoryGroupByOperation op, string column)
         {
-            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Min(x => x.GetAs<decimal>(col, 0m)));
+            return op.AddColumnAggregator(column, (groupRows, col) => groupRows.Min(x => x.GetAs(col, 0m)));
         }
     }
 }

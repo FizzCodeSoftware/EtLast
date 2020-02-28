@@ -34,7 +34,7 @@
 
         protected override void ValidateImpl()
         {
-            if (GroupingColumns == null || GroupingColumns.Length == 0)
+            if (GroupingColumns == null || GroupingColumns.Count == 0)
                 throw new ProcessParameterNullException(this, nameof(GroupingColumns));
 
             if (Operation == null)
@@ -81,12 +81,17 @@
                 if (Context.CancellationTokenSource.IsCancellationRequested)
                     break;
 
-                IRow aggregate;
+                var aggregate = new ValueCollection();
+                foreach (var column in GroupingColumns)
+                {
+                    aggregate.SetValue(column.ToColumn, group[0][column.FromColumn]);
+                }
+
                 try
                 {
                     try
                     {
-                        aggregate = Operation.TransformGroup(GroupingColumns, group);
+                        Operation.TransformGroup(group, aggregate);
                     }
                     catch (EtlException) { throw; }
                     catch (Exception ex) { throw new MemoryAggregationException(this, Operation, group, ex); }
@@ -105,8 +110,10 @@
                 if (aggregate != null)
                 {
                     aggregateRowCount++;
+                    var row = Context.CreateRow(this, aggregate.Values);
+
                     netTimeStopwatch.Stop();
-                    yield return aggregate;
+                    yield return row;
                     netTimeStopwatch.Start();
                 }
             }

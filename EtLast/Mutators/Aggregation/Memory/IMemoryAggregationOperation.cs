@@ -4,8 +4,8 @@
 
     public interface IMemoryAggregationOperation
     {
-        IProcess Process { get; }
-        void SetProcess(IProcess process);
-        IRow TransformGroup(string[] groupingColumns, List<IRow> rows);
+        MemoryAggregationMutator Process { get; }
+        void SetProcess(MemoryAggregationMutator process);
+        void TransformGroup(List<IRow> rows, ValueCollection aggregate);
     }
 }

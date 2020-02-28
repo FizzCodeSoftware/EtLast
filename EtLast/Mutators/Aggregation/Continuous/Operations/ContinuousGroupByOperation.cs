@@ -5,24 +5,22 @@
 
     public class ContinuousGroupByOperation : AbstractContinuousAggregationOperation
     {
-        public Dictionary<string, Func<IRow, int, IRow, string, object>> ColumnAggregators { get; set; } = new Dictionary<string, Func<IRow, int, IRow, string, object>>();
+        public Dictionary<string, Func<ValueCollection, int, IRow, string, object>> ColumnAggregators { get; set; } = new Dictionary<string, Func<ValueCollection, int, IRow, string, object>>();
 
-        public ContinuousGroupByOperation AddColumnAggregator(string column, Func<IRow, int, IRow, string, object> aggregator)
+        public ContinuousGroupByOperation AddColumnAggregator(string column, Func<ValueCollection, int, IRow, string, object> aggregator)
         {
             ColumnAggregators.Add(column, aggregator);
             return this;
         }
 
-        public override void TransformGroup(string[] groupingColumns, IRow row, IRow aggregateRow, int rowsInGroup)
+        public override void TransformAggregate(IRow row, ValueCollection aggregate, int rowsInGroup)
         {
             foreach (var kvp in ColumnAggregators)
             {
                 var column = kvp.Key;
-                var aggregatedValue = kvp.Value.Invoke(aggregateRow, rowsInGroup, row, column);
-                aggregateRow.SetStagedValue(column, aggregatedValue);
+                var aggregatedValue = kvp.Value.Invoke(aggregate, rowsInGroup, row, column);
+                aggregate.SetValue(column, aggregatedValue);
             }
-
-            aggregateRow.ApplyStaging();
         }
     }
 

@@ -2,11 +2,11 @@
 {
     public abstract class AbstractContinuousAggregationOperation : IContinuousAggregationOperation
     {
-        public IProcess Process { get; private set; }
+        public ContinuousAggregationMutator Process { get; private set; }
 
-        public abstract void TransformGroup(string[] groupingColumns, IRow row, IRow aggregateRow, int rowsInGroup);
+        public abstract void TransformAggregate(IRow row, ValueCollection aggregate, int rowsInGroup);
 
-        public void SetProcess(IProcess process)
+        public void SetProcess(ContinuousAggregationMutator process)
         {
             Process = process;
         }

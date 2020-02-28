@@ -18,7 +18,7 @@
 
         protected override void ValidateImpl()
         {
-            if (GroupingColumns == null || GroupingColumns.Length == 0)
+            if (GroupingColumns == null || GroupingColumns.Count == 0)
                 throw new ProcessParameterNullException(this, nameof(GroupingColumns));
         }
 
@@ -47,7 +47,7 @@
                 if (!returnedKeys.Contains(key))
                 {
                     var initialValues = GroupingColumns
-                        .Select(column => new KeyValuePair<string, object>(column, row[column]));
+                        .Select(column => new KeyValuePair<string, object>(column.ToColumn, row[column.FromColumn]));
 
                     var newRow = Context.CreateRow(this, initialValues);
                     netTimeStopwatch.Stop();

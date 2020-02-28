@@ -4,11 +4,11 @@
 
     public abstract class AbstractMemoryAggregationOperation : IMemoryAggregationOperation
     {
-        public IProcess Process { get; private set; }
+        public MemoryAggregationMutator Process { get; private set; }
 
-        public abstract IRow TransformGroup(string[] groupingColumns, List<IRow> rows);
+        public abstract void TransformGroup(List<IRow> rows, ValueCollection aggregate);
 
-        public void SetProcess(IProcess process)
+        public void SetProcess(MemoryAggregationMutator process)
         {
             Process = process;
         }

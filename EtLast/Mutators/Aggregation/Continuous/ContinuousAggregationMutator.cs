@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
 
     /// <summary>
     /// Input can be unordered. Group key generation is applied on the input rows on-the-fly. Aggregates are maintained on-the-fly using the current row.
@@ -36,13 +35,13 @@
 
         private class Aggregate
         {
-            public IRow Row { get; set; }
+            public ValueCollection ValueCollection { get; } = new ValueCollection();
             public int RowsInGroup { get; set; }
         }
 
         protected override void ValidateImpl()
         {
-            if (GroupingColumns == null || GroupingColumns.Length == 0)
+            if (GroupingColumns == null || GroupingColumns.Count == 0)
                 throw new ProcessParameterNullException(this, nameof(GroupingColumns));
 
             if (Operation == null)
@@ -73,13 +72,12 @@
                 var key = GetKey(row);
                 if (!aggregates.TryGetValue(key, out var aggregate))
                 {
-                    var initialValues = GroupingColumns
-                        .Select(column => new KeyValuePair<string, object>(column, row[column]));
+                    aggregate = new Aggregate();
 
-                    aggregate = new Aggregate
+                    foreach (var column in GroupingColumns)
                     {
-                        Row = Context.CreateRow(this, initialValues),
-                    };
+                        aggregate.ValueCollection.SetValue(column.ToColumn, row[column.FromColumn]);
+                    }
 
                     aggregates.Add(key, aggregate);
                 }
@@ -88,10 +86,10 @@
                 {
                     try
                     {
-                        Operation.TransformGroup(GroupingColumns, row, aggregate.Row, aggregate.RowsInGroup);
+                        Operation.TransformAggregate(row, aggregate.ValueCollection, aggregate.RowsInGroup);
                     }
                     catch (EtlException) { throw; }
-                    catch (Exception ex) { throw new ContinuousAggregationException(this, Operation, row, aggregate.Row, ex); }
+                    catch (Exception ex) { throw new ContinuousAggregationException(this, Operation, row, ex); }
                 }
                 catch (Exception ex)
                 {
@@ -112,8 +110,10 @@
                 if (Context.CancellationTokenSource.IsCancellationRequested)
                     break;
 
+                var row = Context.CreateRow(this, aggregate.ValueCollection.Values);
+
                 netTimeStopwatch.Stop();
-                yield return aggregate.Row;
+                yield return row;
                 netTimeStopwatch.Start();
             }
 

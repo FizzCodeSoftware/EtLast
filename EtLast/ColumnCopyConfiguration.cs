@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     public class ColumnCopyConfiguration
     {
@@ -38,6 +39,13 @@
             {
                 targetValues[config.ToColumn] = sourceRow[config.FromColumn];
             }
+        }
+
+        public static List<ColumnCopyConfiguration> StraightCopy(params string[] columnNames)
+        {
+            return columnNames
+                .Select(col => new ColumnCopyConfiguration(col))
+                .ToList();
         }
     }
 }

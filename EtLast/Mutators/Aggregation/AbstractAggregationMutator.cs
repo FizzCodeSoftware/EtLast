@@ -8,7 +8,7 @@
     {
         public IEvaluable InputProcess { get; set; }
 
-        public string[] GroupingColumns { get; set; }
+        public List<ColumnCopyConfiguration> GroupingColumns { get; set; }
 
         private readonly StringBuilder _keyBuilder = new StringBuilder();
 
@@ -19,18 +19,20 @@
 
         protected string GetKey(IRow row)
         {
-            if (GroupingColumns.Length == 1)
+            if (GroupingColumns.Count == 1)
             {
                 var col = GroupingColumns[0];
-                return !row.IsNull(col) ? row.FormatToString(col) : "\0";
+                return !row.IsNull(col.FromColumn)
+                    ? row.FormatToString(col.FromColumn)
+                    : "\0";
             }
 
             _keyBuilder.Clear();
-            for (var i = 0; i < GroupingColumns.Length; i++)
+            for (var i = 0; i < GroupingColumns.Count; i++)
             {
                 var col = GroupingColumns[i];
-                if (!row.IsNull(col))
-                    _keyBuilder.Append(row.FormatToString(col));
+                if (!row.IsNull(col.FromColumn))
+                    _keyBuilder.Append(row.FormatToString(col.FromColumn));
 
                 _keyBuilder.Append('\0');
             }
