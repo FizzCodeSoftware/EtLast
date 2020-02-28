@@ -5,9 +5,9 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class ContinuousAggregationMutatorTests
+    public class MemoryAggregationMutatorTests
     {
-        private static ProcessBuilder GetBuilder(ITopic topic, IContinuousAggregationOperation op, ITypeConverter converter)
+        private static ProcessBuilder GetBuilder(ITopic topic, IMemoryAggregationOperation op, ITypeConverter converter)
         {
             return new ProcessBuilder()
             {
@@ -19,7 +19,7 @@
                         Columns = new[] { "age", "height" },
                         TypeConverter = converter,
                     },
-                    new ContinuousAggregationMutator(topic, null)
+                    new MemoryAggregationMutator(topic, null)
                     {
                         GroupingColumns = (new[] { "name" }),
                         Operation = op,
@@ -38,7 +38,7 @@
         public void DecimalAverage()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDecimalAverage("height"), new DecimalConverter());
+            var builder = GetBuilder(topic, new MemoryGroupByOperation().AddDecimalAverage("height"), new DecimalConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -57,7 +57,7 @@
         public void DecimalMax()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDecimalMax("age"), new DecimalConverter());
+            var builder = GetBuilder(topic, new MemoryGroupByOperation().AddDecimalMax("age"), new DecimalConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -76,7 +76,7 @@
         public void DecimalMin()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDecimalMin("age"), new DecimalConverter());
+            var builder = GetBuilder(topic, new MemoryGroupByOperation().AddDecimalMin("age"), new DecimalConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -95,7 +95,7 @@
         public void DecimalSum()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDecimalSum("age"), new DecimalConverter());
+            var builder = GetBuilder(topic, new MemoryGroupByOperation().AddDecimalSum("age"), new DecimalConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -114,7 +114,7 @@
         public void DoubleAverage()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDoubleAverage("height"), new DoubleConverter());
+            var builder = GetBuilder(topic, new MemoryGroupByOperation().AddDoubleAverage("height"), new DoubleConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -133,7 +133,7 @@
         public void DoubleMax()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDoubleMax("age"), new DoubleConverter());
+            var builder = GetBuilder(topic, new MemoryGroupByOperation().AddDoubleMax("age"), new DoubleConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -152,7 +152,7 @@
         public void DoubleMin()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDoubleMin("age"), new DoubleConverter());
+            var builder = GetBuilder(topic, new MemoryGroupByOperation().AddDoubleMin("age"), new DoubleConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -171,7 +171,7 @@
         public void DoubleSum()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDoubleSum("age"), new DoubleConverter());
+            var builder = GetBuilder(topic, new MemoryGroupByOperation().AddDoubleSum("age"), new DoubleConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -190,7 +190,7 @@
         public void IntAverage()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddIntAverage("height"), null);
+            var builder = GetBuilder(topic, new MemoryGroupByOperation().AddIntAverage("height"), null);
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -209,7 +209,7 @@
         public void IntMax()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddIntMax("age"), null);
+            var builder = GetBuilder(topic, new MemoryGroupByOperation().AddIntMax("age"), null);
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -228,7 +228,7 @@
         public void IntMin()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddIntMin("age"), null);
+            var builder = GetBuilder(topic, new MemoryGroupByOperation().AddIntMin("age"), null);
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -247,7 +247,7 @@
         public void IntSum()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddIntSum("age"), null);
+            var builder = GetBuilder(topic, new MemoryGroupByOperation().AddIntSum("age"), null);
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -266,7 +266,7 @@
         public void LongAverage()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddLongAverage("height"), new LongConverter());
+            var builder = GetBuilder(topic, new MemoryGroupByOperation().AddLongAverage("height"), new LongConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -285,7 +285,7 @@
         public void LongMax()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddLongMax("age"), new LongConverter());
+            var builder = GetBuilder(topic, new MemoryGroupByOperation().AddLongMax("age"), new LongConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -304,7 +304,7 @@
         public void LongMin()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddLongMin("age"), new LongConverter());
+            var builder = GetBuilder(topic, new MemoryGroupByOperation().AddLongMin("age"), new LongConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -323,7 +323,7 @@
         public void LongSum()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddLongSum("age"), new LongConverter());
+            var builder = GetBuilder(topic, new MemoryGroupByOperation().AddLongSum("age"), new LongConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -342,12 +342,12 @@
         public void TypeConversionError()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddLongSum("age"), null);
+            var builder = GetBuilder(topic, new MemoryGroupByOperation().AddLongSum("age"), null);
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(0, result.MutatedRows.Count);
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
-            Assert.IsTrue(exceptions[0] is ContinuousAggregationException);
+            Assert.IsTrue(exceptions[0] is MemoryAggregationException);
         }
     }
 }

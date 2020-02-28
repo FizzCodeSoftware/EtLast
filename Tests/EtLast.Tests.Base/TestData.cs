@@ -10,7 +10,6 @@
         public static string[] PersonEyeColorColumns { get; } = { "id", "personId", "color" };
         public static string[] RoleHierarchyColumns { get; } = { "id", "name", "level1", "level2", "level3" };
         public static string[] PersonalAssetsPivotColumns { get; } = { "id", "personName", "cars", "houses", "kids" };
-        private static readonly Random _rnd = new Random();
 
         public static IEvaluable Country(ITopic topic)
         {

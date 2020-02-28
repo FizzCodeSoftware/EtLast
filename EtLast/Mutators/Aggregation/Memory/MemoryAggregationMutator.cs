@@ -7,15 +7,15 @@
     /// <summary>
     /// Input can be unordered. Group key generation is applied on the input rows on-the-fly, but group processing is started only after all groups are created.
     /// - keeps all input rows in memory (!)
-    /// - keeps all grouped rows in memory (!)
-    /// - uses very flexible IAggregationOperation which takes all rows in a group and generates 0..N "group rows"
-    ///  - 1 group results 0..N aggregated row
+    /// - keeps all aggregates in memory (!)
+    /// - uses very flexible <see cref="IMemoryAggregationOperation"/> which takes all rows in a group and generates the aggregate.
+    ///  - each group results 0 or 1 aggregate per group
     /// </summary>
-    public class AggregationProcess : AbstractAggregationProcess
+    public class MemoryAggregationMutator : AbstractAggregationMutator
     {
-        private IAggregationOperation _operation;
+        private IMemoryAggregationOperation _operation;
 
-        public IAggregationOperation Operation
+        public IMemoryAggregationOperation Operation
         {
             get => _operation;
             set
@@ -27,7 +27,7 @@
             }
         }
 
-        public AggregationProcess(ITopic topic, string name)
+        public MemoryAggregationMutator(ITopic topic, string name)
             : base(topic, name)
         {
         }
@@ -62,7 +62,7 @@
 
                 var row = enumerator.Current;
                 rowCount++;
-                var key = GenerateKey(row);
+                var key = GetKey(row);
                 if (!groups.TryGetValue(key, out var list))
                 {
                     list = new List<IRow>();
@@ -81,15 +81,15 @@
                 if (Context.CancellationTokenSource.IsCancellationRequested)
                     break;
 
-                IRow aggregateRow;
+                IRow aggregate;
                 try
                 {
                     try
                     {
-                        aggregateRow = Operation.TransformGroup(GroupingColumns, group);
+                        aggregate = Operation.TransformGroup(GroupingColumns, group);
                     }
                     catch (EtlException) { throw; }
-                    catch (Exception ex) { throw new AggregationOperationExecutionException(this, Operation, group, ex); }
+                    catch (Exception ex) { throw new MemoryAggregationException(this, Operation, group, ex); }
                 }
                 catch (Exception ex)
                 {
@@ -102,11 +102,11 @@
                     Context.SetRowOwner(row, null);
                 }
 
-                if (aggregateRow != null)
+                if (aggregate != null)
                 {
                     aggregateRowCount++;
                     netTimeStopwatch.Stop();
-                    yield return aggregateRow;
+                    yield return aggregate;
                     netTimeStopwatch.Start();
                 }
             }

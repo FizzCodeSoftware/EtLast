@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public interface IAggregationOperation
+    public interface IMemoryAggregationOperation
     {
         IProcess Process { get; }
         void SetProcess(IProcess process);

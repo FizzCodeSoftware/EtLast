@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Text;
 
-    public abstract class AbstractAggregationProcess : AbstractEvaluableProcess, IMutator
+    public abstract class AbstractAggregationMutator : AbstractEvaluableProcess, IMutator
     {
         public IEvaluable InputProcess { get; set; }
 
@@ -12,20 +12,27 @@
 
         private readonly StringBuilder _keyBuilder = new StringBuilder();
 
-        protected AbstractAggregationProcess(ITopic topic, string name)
+        protected AbstractAggregationMutator(ITopic topic, string name)
             : base(topic, name)
         {
         }
 
-        protected string GenerateKey(IRow row)
+        protected string GetKey(IRow row)
         {
+            if (GroupingColumns.Length == 1)
+            {
+                var col = GroupingColumns[0];
+                return !row.IsNull(col) ? row.FormatToString(col) : "\0";
+            }
+
             _keyBuilder.Clear();
             for (var i = 0; i < GroupingColumns.Length; i++)
             {
-                var v = row[GroupingColumns[i]];
-                _keyBuilder
-                    .Append(v != null ? v.ToString() : "NULL")
-                    .Append("|");
+                var col = GroupingColumns[i];
+                if (!row.IsNull(col))
+                    _keyBuilder.Append(row.FormatToString(col));
+
+                _keyBuilder.Append('\0');
             }
 
             return _keyBuilder.ToString();

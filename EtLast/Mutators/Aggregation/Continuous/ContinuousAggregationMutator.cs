@@ -6,14 +6,14 @@
     using System.Linq;
 
     /// <summary>
-    /// Input can be unordered. Group key generation is applied on the input rows on-the-fly. Group rows are maintained on-the-fly using the current row.
+    /// Input can be unordered. Group key generation is applied on the input rows on-the-fly. Aggregates are maintained on-the-fly using the current row.
     /// - discards input rows on-the-fly
-    /// - keeps all grouped rows in memory (!)
-    /// - uses restricted IContinuousAggregationOperation which takes the aggregated row + the actual row + the amount of rows already processed in the group
+    /// - keeps all aggregates in memory (!)
+    /// - uses limited <see cref="IContinuousAggregationOperation"/> which takes the aggregate + the actual row + the amount of rows already processed in the group
     ///   - sum, max, min, avg are trivial functions, but some others can be tricky
-    ///  - 1 group always results 1 aggregated row
+    ///  - each group results 0 or 1 aggregate per group
     /// </summary>
-    public class ContinuousAggregationMutator : AbstractAggregationProcess
+    public class ContinuousAggregationMutator : AbstractAggregationMutator
     {
         private IContinuousAggregationOperation _operation;
 
@@ -34,7 +34,7 @@
         {
         }
 
-        private class AggregateRow
+        private class Aggregate
         {
             public IRow Row { get; set; }
             public int RowsInGroup { get; set; }
@@ -53,7 +53,7 @@
         {
             Context.Log(LogSeverity.Information, this, "continuous aggregation started");
 
-            var aggregateRows = new Dictionary<string, AggregateRow>();
+            var aggregates = new Dictionary<string, Aggregate>();
 
             netTimeStopwatch.Stop();
             var enumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
@@ -70,27 +70,28 @@
 
                 var row = enumerator.Current;
                 rowCount++;
-                var key = GenerateKey(row);
-                if (!aggregateRows.TryGetValue(key, out var aggregateRow))
+                var key = GetKey(row);
+                if (!aggregates.TryGetValue(key, out var aggregate))
                 {
-                    var initialValues = GroupingColumns.Select(column => new KeyValuePair<string, object>(column, row[column]));
+                    var initialValues = GroupingColumns
+                        .Select(column => new KeyValuePair<string, object>(column, row[column]));
 
-                    aggregateRow = new AggregateRow
+                    aggregate = new Aggregate
                     {
                         Row = Context.CreateRow(this, initialValues),
                     };
 
-                    aggregateRows.Add(key, aggregateRow);
+                    aggregates.Add(key, aggregate);
                 }
 
                 try
                 {
                     try
                     {
-                        Operation.TransformGroup(GroupingColumns, row, aggregateRow.Row, aggregateRow.RowsInGroup);
+                        Operation.TransformGroup(GroupingColumns, row, aggregate.Row, aggregate.RowsInGroup);
                     }
                     catch (EtlException) { throw; }
-                    catch (Exception ex) { throw new ContinuousAggregationOperationExecutionException(this, Operation, row, aggregateRow.Row, ex); }
+                    catch (Exception ex) { throw new ContinuousAggregationException(this, Operation, row, aggregate.Row, ex); }
                 }
                 catch (Exception ex)
                 {
@@ -98,26 +99,26 @@
                     break;
                 }
 
-                aggregateRow.RowsInGroup++;
+                aggregate.RowsInGroup++;
 
                 Context.SetRowOwner(row, null);
             }
 
             Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}",
-                rowCount, aggregateRows.Count, InvocationInfo.LastInvocationStarted.Elapsed);
+                rowCount, aggregates.Count, InvocationInfo.LastInvocationStarted.Elapsed);
 
-            foreach (var aggregateRow in aggregateRows.Values)
+            foreach (var aggregate in aggregates.Values)
             {
                 if (Context.CancellationTokenSource.IsCancellationRequested)
                     break;
 
                 netTimeStopwatch.Stop();
-                yield return aggregateRow.Row;
+                yield return aggregate.Row;
                 netTimeStopwatch.Start();
             }
 
             Context.Log(LogSeverity.Debug, this, "created {AggregateRowCount} aggregates in {Elapsed}/{ElapsedWallClock}",
-                aggregateRows.Count, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+                aggregates.Count, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
         }

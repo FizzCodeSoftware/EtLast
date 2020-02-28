@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public abstract class AbstractAggregationOperation : IAggregationOperation
+    public abstract class AbstractMemoryAggregationOperation : IMemoryAggregationOperation
     {
         public IProcess Process { get; private set; }
 
