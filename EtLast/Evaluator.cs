@@ -36,9 +36,7 @@
             foreach (var row in _input)
             {
                 row.Context.SetRowOwner(row, _process.InvocationInfo?.Caller);
-
-                if (_process.InvocationInfo?.Caller != null)
-                    row.Context.SetRowOwner(row, null);
+                row.Context.SetRowOwner(row, null);
 
                 yield return row;
             }
@@ -50,8 +48,7 @@
             foreach (var row in _input)
             {
                 row.Context.SetRowOwner(row, _process.InvocationInfo?.Caller);
-                if (_process.InvocationInfo?.Caller != null)
-                    row.Context.SetRowOwner(row, null);
+                row.Context.SetRowOwner(row, null);
 
                 count++;
             }

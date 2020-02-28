@@ -220,6 +220,9 @@
 
         public void SetRowOwner(IRow row, IProcess currentProcess)
         {
+            if (row.CurrentProcess == currentProcess)
+                return;
+
             var previousProcess = row.CurrentProcess;
             row.CurrentProcess = currentProcess;
             OnRowOwnerChanged?.Invoke(row, previousProcess, currentProcess);

@@ -4,8 +4,14 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class RemoveDuplicatesMutatorTests
+    public class RemoveDuplicateRowsMutatorTests
     {
+        [TestMethod]
+        public void ThrowsInvalidProcessParameterException()
+        {
+            Assert.That.ThrowsInvalidProcessParameterException<RemoveDuplicateRowsMutator>();
+        }
+
         [TestMethod]
         public void RemoveDuplicates1()
         {
@@ -15,7 +21,7 @@
                 InputProcess = TestData.Person(topic),
                 Mutators = new MutatorList()
                 {
-                    new RemoveDuplicatesMutator(topic, null)
+                    new RemoveDuplicateRowsMutator(topic, null)
                     {
                         GroupingColumns = new[] { "name" },
                     },
@@ -44,7 +50,7 @@
                 InputProcess = TestData.Person(topic),
                 Mutators = new MutatorList()
                 {
-                    new RemoveDuplicatesMutator(topic, null)
+                    new RemoveDuplicateRowsMutator(topic, null)
                     {
                         GroupingColumns = new[] { "id", "name" },
                     },
@@ -74,7 +80,7 @@
                 InputProcess = TestData.Person(topic),
                 Mutators = new MutatorList()
                 {
-                    new RemoveDuplicatesMutator(topic, null)
+                    new RemoveDuplicateRowsMutator(topic, null)
                     {
                         GroupingColumns = new[] { "eyeColor" },
                     },

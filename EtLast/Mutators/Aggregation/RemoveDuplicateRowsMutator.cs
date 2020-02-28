@@ -7,14 +7,11 @@
     /// <summary>
     /// Input can be unordered.
     /// - discards input rows on-the-fly
-    /// - keeps all aggregates in memory (!)
-    /// - uses limited <see cref="IContinuousAggregationOperation"/> which takes the aggregate + the actual row + the amount of rows already processed in the group
-    ///   - sum, max, min, avg are trivial functions, but some others can be tricky
-    ///  - each group results 0 or 1 aggregate per group
+    /// - keeps already yielded row keys in memory (!)
     /// </summary>
-    public class RemoveDuplicatesMutator : AbstractAggregationMutator
+    public class RemoveDuplicateRowsMutator : AbstractAggregationMutator
     {
-        public RemoveDuplicatesMutator(ITopic topic, string name)
+        public RemoveDuplicateRowsMutator(ITopic topic, string name)
             : base(topic, name)
         {
         }
