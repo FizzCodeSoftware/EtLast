@@ -120,7 +120,7 @@
                 return InputRowCount.ToString("D", CultureInfo.InvariantCulture);
 
             return InputRowCount.ToString("D", CultureInfo.InvariantCulture) + " = " +
-                string.Join(" + ", InputRowCountByPreviousProcess.Select(x => x.Value.FormatToString()));
+                string.Join(" + ", InputRowCountByPreviousProcess.Where(x => x.Value > 0).Select(x => x.Value.FormatToString()));
         }
 
         public string GetFormattedRowFlow(AbstractDiagContext diagContext)
@@ -130,6 +130,13 @@
             foreach (var kvp in InputRowCountByPreviousProcess)
             {
                 var inputProcess = diagContext.WholePlaybook.ProcessList[kvp.Key];
+                if (kvp.Value == 0
+                    && !DroppedRowCountByPreviousProcess.ContainsKey(kvp.Key)
+                    && !StoredRowCountByPreviousProcess.ContainsKey(kvp.Key)
+                    && !PassedRowCountByPreviousProcess.ContainsKey(kvp.Key))
+                {
+                    continue;
+                }
 
                 if (sb.Length > 0)
                 {

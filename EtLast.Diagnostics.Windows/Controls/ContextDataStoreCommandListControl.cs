@@ -73,28 +73,29 @@
             }
         }
 
-        internal void ProcessNewEvents(List<AbstractEvent> abstractEvents)
+        internal void ProcessNewEvents(List<AbstractEvent> abstractEvents, bool clear)
         {
+            var unfilteredEvents = abstractEvents.OfType<DataStoreCommandEvent>().ToList();
+            if (!clear)
+            {
+                _allEvents.AddRange(unfilteredEvents);
+            }
+
             if (HighlightedProcess == null)
                 return;
 
-            var eventsQuery = (abstractEvents ?? _allEvents).OfType<DataStoreCommandEvent>()
-                .Where(evt => Context.WholePlaybook.ProcessList[evt.ProcessInvocationUID].Topic == HighlightedProcess.Topic);
+            var events = unfilteredEvents
+                .Where(evt => Context.WholePlaybook.ProcessList[evt.ProcessInvocationUID].Topic == HighlightedProcess.Topic)
+                .ToList();
 
-            var events = eventsQuery.ToList();
             if (events.Count == 0)
                 return;
-
-            if (abstractEvents != null)
-            {
-                _allEvents.AddRange(events);
-            }
 
             ListView.BeginUpdate();
 
             try
             {
-                if (abstractEvents == null)
+                if (clear)
                 {
                     ListView.Items.Clear();
                 }
@@ -146,7 +147,7 @@
         {
             if (topicChanged)
             {
-                ProcessNewEvents(null);
+                ProcessNewEvents(_allEvents, true);
             }
             else
             {

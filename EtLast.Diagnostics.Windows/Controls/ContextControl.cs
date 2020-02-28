@@ -53,7 +53,7 @@
 
         private void OnEventsAdded(Playbook playbook, List<AbstractEvent> abstractEvents)
         {
-            DataStoreCommandList.ProcessNewEvents(abstractEvents);
+            DataStoreCommandList.ProcessNewEvents(abstractEvents, false);
         }
 
         private void Container_Resize(object sender, EventArgs e)
