@@ -11,9 +11,14 @@
         public Func<IRow, bool> MatchFilter { get; set; }
 
         /// <summary>
-        /// Default null
+        /// Default null. If value is set, and <see cref="TooManyMatchAction"/> is null,
+        /// then the excess rows will be removed, otherwise the action will be invoked.
         /// </summary>
         public int? MatchCountLimit { get; set; }
+
+        /// <summary>
+        /// Executed if the match count for a row exceeds <see cref="MatchCountLimit"/>.
+        /// </summary>
         public TooManyMatchAction TooManyMatchAction { get; set; }
 
         /// <summary>
