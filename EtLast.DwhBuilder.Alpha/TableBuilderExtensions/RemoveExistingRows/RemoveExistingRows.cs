@@ -50,24 +50,27 @@
                     {
                         If = row => !row.IsNullOrEmpty(builder.MatchColumns[0]),
                         EqualityComparer = equalityComparer,
-                        LeftKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
-                        RightKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
-                        RightProcessCreator = rows => new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
+                        LookupBuilder = new FilteredRowLookupBuilder()
                         {
-                            Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0])
-                                    + "," + string.Join(", ", finalValueColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
-                                + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema)
-                                + " WHERE " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0]) + " IN (@keyList)",
-                            ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
-                            InlineArrayParameters = true,
-                            Parameters = new Dictionary<string, object>()
+                            ProcessCreator = filterRows => new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
                             {
-                                ["keyList"] = rows
-                                    .Select(row => row.FormatToString(builder.MatchColumns[0]))
-                                    .Distinct()
-                                    .ToArray(),
+                                Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0])
+                                        + "," + string.Join(", ", finalValueColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
+                                    + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema)
+                                    + " WHERE " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0]) + " IN (@keyList)",
+                                ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
+                                InlineArrayParameters = true,
+                                Parameters = new Dictionary<string, object>()
+                                {
+                                    ["keyList"] = filterRows
+                                        .Select(row => row.FormatToString(builder.MatchColumns[0]))
+                                        .Distinct()
+                                        .ToArray(),
+                                },
                             },
+                            KeyGenerator = row => row.GenerateKey(builder.MatchColumns[0]),
                         },
+                        RowKeyGenerator = row => row.GenerateKey(builder.MatchColumns[0]),
                         MatchAndEqualsAction = new MatchAction(MatchMode.Remove),
                         MatchButDifferentAction = builder.MatchButDifferentAction,
                     };
@@ -77,14 +80,17 @@
                     yield return new CompareWithRowMutator(builder.TableBuilder.Table.Topic, nameof(RemoveExistingRows))
                     {
                         EqualityComparer = equalityComparer,
-                        LeftKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
-                        RightKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
-                        RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
+                        LookupBuilder = new RowLookupBuilder()
                         {
-                            ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
-                            Sql = "SELECT " + string.Join(",", builder.MatchColumns.Concat(finalValueColumns).Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
+                            Process = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
+                            {
+                                ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
+                                Sql = "SELECT " + string.Join(",", builder.MatchColumns.Concat(finalValueColumns).Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
                                 + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema),
+                            },
+                            KeyGenerator = row => row.GenerateKey(builder.MatchColumns),
                         },
+                        RowKeyGenerator = row => row.GenerateKey(builder.MatchColumns),
                         MatchAndEqualsAction = new MatchAction(MatchMode.Remove),
                         MatchButDifferentAction = builder.MatchButDifferentAction,
                     };
@@ -95,23 +101,27 @@
                 yield return new BatchedKeyTestMutator(builder.TableBuilder.Table.Topic, nameof(RemoveExistingRows))
                 {
                     If = row => !row.IsNullOrEmpty(builder.MatchColumns[0]),
-                    LeftKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
-                    RightKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
-                    RightProcessCreator = rows => new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
+                    LookupBuilder = new FilteredRowLookupBuilder()
                     {
-                        Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0])
-                            + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema)
-                            + " WHERE " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0]) + " IN (@keyList)",
-                        ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
-                        InlineArrayParameters = true,
-                        Parameters = new Dictionary<string, object>()
+                        ProcessCreator = filterRows => new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
                         {
-                            ["keyList"] = rows
-                                .Select(row => row.FormatToString(builder.MatchColumns[0]))
-                                .Distinct()
-                                .ToArray(),
+                            Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0])
+                                + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema)
+                                + " WHERE " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0]) + " IN (@keyList)",
+                            ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
+                            InlineArrayParameters = true,
+                            Parameters = new Dictionary<string, object>()
+                            {
+                                ["keyList"] = filterRows
+                                    .Select(row => row.FormatToString(builder.MatchColumns[0]))
+                                    .Distinct()
+                                    .ToArray(),
+                            },
                         },
+                        KeyGenerator = row => row.GenerateKey(builder.MatchColumns[0]),
                     },
+                    RowKeyGenerator = row => row.GenerateKey(builder.MatchColumns[0]),
+                    MatchActionContainsMatch = false,
                     MatchAction = new MatchAction(MatchMode.Remove),
                 };
             }
@@ -119,14 +129,18 @@
             {
                 yield return new KeyTestMutator(builder.TableBuilder.Table.Topic, nameof(RemoveExistingRows))
                 {
-                    LeftKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
-                    RightKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
-                    RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
+                    LookupBuilder = new RowLookupBuilder()
                     {
-                        ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
-                        Sql = "SELECT " + string.Join(",", builder.MatchColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
-                            + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema),
+                        Process = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
+                        {
+                            ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
+                            Sql = "SELECT " + string.Join(",", builder.MatchColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
+                                + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema),
+                        },
+                        KeyGenerator = row => row.GenerateKey(builder.MatchColumns),
                     },
+                    RowKeyGenerator = row => row.GenerateKey(builder.MatchColumns),
+                    MatchActionContainsMatch = false,
                     MatchAction = new MatchAction(MatchMode.Remove),
                 };
             }

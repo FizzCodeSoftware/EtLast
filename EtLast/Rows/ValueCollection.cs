@@ -133,5 +133,21 @@
         {
             return Values.Any(x => x.Value is EtlRowError);
         }
+
+        public string GenerateKey(params string[] columns)
+        {
+            if (columns.Length == 1)
+                return FormatToString(columns[0], CultureInfo.InvariantCulture) ?? "-";
+
+            return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-"));
+        }
+
+        public string GenerateKeyUpper(params string[] columns)
+        {
+            if (columns.Length == 1)
+                return (FormatToString(columns[0], CultureInfo.InvariantCulture) ?? "-").ToUpperInvariant();
+
+            return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-")).ToUpperInvariant();
+        }
     }
 }

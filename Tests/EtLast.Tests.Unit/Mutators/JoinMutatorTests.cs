@@ -24,16 +24,19 @@
                 {
                     new JoinMutator(topic, null)
                     {
-                        RightProcess = TestData.PersonEyeColor(topic),
-                        LeftKeySelector = row => row.FormatToString("id"),
-                        RightKeySelector = row => row.FormatToString("personId"),
+                        LookupBuilder = new RowLookupBuilder()
+                        {
+                            Process = TestData.PersonEyeColor(topic),
+                            KeyGenerator = row => row.GenerateKey("personId"),
+                        },
+                        RowKeyGenerator = row => row.GenerateKey("id"),
                         NoMatchAction = new NoMatchAction(MatchMode.Custom)
                         {
                             CustomAction = (proc, row) => row.SetValue("eyeColor", "not found"),
                         },
                         ColumnConfiguration = new List<ColumnCopyConfiguration>
                         {
-                            new ColumnCopyConfiguration("color", "eyecolor"),
+                            new ColumnCopyConfiguration("color", "eyeColor"),
                         }
                     }
                 },
@@ -42,12 +45,12 @@
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(10, result.MutatedRows.Count);
             Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = null, ["eyeColor"] = "brown" },
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = null, ["eyeColor"] = "brown" },
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = null, ["eyeColor"] = "brown" },
-                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["color"] = null, ["eyeColor"] = null },
-                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["color"] = null, ["eyeColor"] = null },
-                new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["color"] = null, ["eyeColor"] = "green" },
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = null, ["eyeColor"] = "yellow" },
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = null, ["eyeColor"] = "red" },
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = null, ["eyeColor"] = "green" },
+                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["color"] = null, ["eyeColor"] = "blue" },
+                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["color"] = null, ["eyeColor"] = "yellow" },
+                new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["color"] = null, ["eyeColor"] = "black" },
                 new Dictionary<string, object>() { ["id"] = 3, ["name"] = "D", ["color"] = null, ["eyeColor"] = "not found" },
                 new Dictionary<string, object>() { ["id"] = 4, ["name"] = "E", ["color"] = null, ["eyeColor"] = "not found" },
                 new Dictionary<string, object>() { ["id"] = 5, ["name"] = "A", ["color"] = null, ["eyeColor"] = "not found" },
@@ -67,9 +70,12 @@
                 {
                     new JoinMutator(topic, null)
                     {
-                        RightProcess = TestData.PersonEyeColor(topic),
-                        LeftKeySelector = row => row.FormatToString("id"),
-                        RightKeySelector = row => row.FormatToString("personId"),
+                        LookupBuilder = new RowLookupBuilder()
+                        {
+                            Process = TestData.PersonEyeColor(topic),
+                            KeyGenerator = row => row.GenerateKey("personId"),
+                        },
+                        RowKeyGenerator = row => row.GenerateKey("id"),
                         NoMatchAction = new NoMatchAction(MatchMode.Remove),
                         ColumnConfiguration = new List<ColumnCopyConfiguration>
                         {
@@ -103,13 +109,16 @@
                 {
                     new JoinMutator(topic, null)
                     {
-                        RightProcess = TestData.PersonEyeColor(topic),
-                        LeftKeySelector = row => row.FormatToString("id"),
-                        RightKeySelector = row => row.FormatToString("personId"),
+                        LookupBuilder = new RowLookupBuilder()
+                        {
+                            Process = TestData.PersonEyeColor(topic),
+                            KeyGenerator = row => row.GenerateKey("personId"),
+                        },
+                        RowKeyGenerator = row => row.GenerateKey("id"),
                         NoMatchAction = new NoMatchAction(MatchMode.Throw),
                         ColumnConfiguration = new List<ColumnCopyConfiguration>
                         {
-                            new ColumnCopyConfiguration("color", "eyecolor"),
+                            new ColumnCopyConfiguration("color", "eyeColor"),
                         }
                     }
                 },
@@ -118,19 +127,19 @@
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
             Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = null, ["eyeColor"] = "brown" },
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = null, ["eyeColor"] = "brown" },
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = null, ["eyeColor"] = "brown" },
-                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["color"] = null, ["eyeColor"] = null },
-                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["color"] = null, ["eyeColor"] = null },
-                new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["color"] = null, ["eyeColor"] = "green" } });
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = null, ["eyeColor"] = "yellow" },
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = null, ["eyeColor"] = "red" },
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = null, ["eyeColor"] = "green" },
+                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["color"] = null, ["eyeColor"] = "blue" },
+                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["color"] = null, ["eyeColor"] = "yellow" },
+                new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["color"] = null, ["eyeColor"] = "black" } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
             Assert.IsTrue(exceptions[0] is ProcessExecutionException);
         }
 
         [TestMethod]
-        public void DelegateThrowsExceptionLeftKey()
+        public void DelegateThrowsExceptionRowKeyGenerator()
         {
             var topic = TestExecuter.GetTopic();
             var executedLeftKeyDelegateCount = 0;
@@ -142,14 +151,14 @@
                 {
                     new JoinMutator(topic, null)
                     {
-                        RightProcess = TestData.PersonEyeColor(topic),
-                        LeftKeySelector = row => { executedLeftKeyDelegateCount++; return executedLeftKeyDelegateCount < 3 ? row.FormatToString("id") : row.GetAs<double>("id").ToString("D", CultureInfo.InvariantCulture); },
-                        RightKeySelector = row => { executedRightKeyDelegateCount++; return row.FormatToString("personId"); },
-                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        ColumnConfiguration = new List<ColumnCopyConfiguration>
+                        LookupBuilder = new RowLookupBuilder()
                         {
-                            new ColumnCopyConfiguration("color"),
-                        }
+                            Process = TestData.PersonEyeColor(topic),
+                            KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GenerateKey("personId"); },
+                        },
+                        RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return executedLeftKeyDelegateCount < 3 ? row.GenerateKey("id") : row.GetAs<double>("id").ToString("D", CultureInfo.InvariantCulture); },
+                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
+                        ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
                     }
                 },
             };
@@ -170,7 +179,7 @@
         }
 
         [TestMethod]
-        public void DelegateThrowsExceptionRightKey()
+        public void DelegateThrowsExceptionLookupBuilderKeyGenerator()
         {
             var topic = TestExecuter.GetTopic();
             var executedLeftKeyDelegateCount = 0;
@@ -182,14 +191,14 @@
                 {
                     new JoinMutator(topic, null)
                     {
-                        RightProcess = TestData.PersonEyeColor(topic),
-                        LeftKeySelector = row => { executedLeftKeyDelegateCount++; return row.FormatToString("id"); },
-                        RightKeySelector = row => { executedRightKeyDelegateCount++; return row.GetAs<double>("personId").ToString("D", CultureInfo.InvariantCulture); },
-                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        ColumnConfiguration = new List<ColumnCopyConfiguration>
+                        LookupBuilder = new RowLookupBuilder()
                         {
-                            new ColumnCopyConfiguration("color"),
-                        }
+                            Process = TestData.PersonEyeColor(topic),
+                            KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GetAs<double>("personId").ToString("D", CultureInfo.InvariantCulture); },
+                        },
+                        RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return row.GenerateKey("id"); },
+                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
+                        ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
                     }
                 },
             };
@@ -197,6 +206,41 @@
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(0, executedLeftKeyDelegateCount);
             Assert.AreEqual(1, executedRightKeyDelegateCount);
+            Assert.AreEqual(0, result.MutatedRows.Count);
+            var exceptions = topic.Context.GetExceptions();
+            Assert.AreEqual(1, exceptions.Count);
+            Assert.IsTrue(exceptions[0] is ProcessExecutionException);
+        }
+
+        [TestMethod]
+        public void DelegateThrowsExceptionMatchFilter()
+        {
+            var topic = TestExecuter.GetTopic();
+            var executedLeftKeyDelegateCount = 0;
+            var executedRightKeyDelegateCount = 0;
+            var builder = new ProcessBuilder()
+            {
+                InputProcess = TestData.Person(topic),
+                Mutators = new MutatorList()
+                {
+                    new JoinMutator(topic, null)
+                    {
+                        LookupBuilder = new RowLookupBuilder()
+                        {
+                            Process = TestData.PersonEyeColor(topic),
+                            KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GenerateKey("personId"); },
+                        },
+                        RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return row.GenerateKey("id"); },
+                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
+                        MatchFilter = match => match.GetAs<double>("id") == 7,
+                        ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
+                    }
+                },
+            };
+
+            var result = TestExecuter.Execute(builder);
+            Assert.AreEqual(1, executedLeftKeyDelegateCount);
+            Assert.AreEqual(7, executedRightKeyDelegateCount);
             Assert.AreEqual(0, result.MutatedRows.Count);
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);

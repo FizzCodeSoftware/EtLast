@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public class BatchedCompareWithRowMutator : AbstractBatchedKeyBasedCrossMutator
+    public class BatchedCompareWithRowMutator : AbstractBatchedCrossMutator
     {
         public IRowEqualityComparer EqualityComparer { get; set; }
         public MatchAction MatchAndEqualsAction { get; set; }
@@ -28,32 +28,13 @@
 
         protected override void MutateBatch(List<IRow> rows, List<IRow> mutatedRows, List<IRow> removedRows)
         {
-            var rightProcess = RightProcessCreator.Invoke(rows.ToArray());
-
-            var lookup = new Dictionary<string, IRow>();
-            var allRightRows = rightProcess.Evaluate(this).TakeRowsAndReleaseOwnership();
-            var rightRowCount = 0;
-            foreach (var row in allRightRows)
-            {
-                rightRowCount++;
-                var key = GetRightKey(row);
-                if (string.IsNullOrEmpty(key))
-                    continue;
-
-                lookup[key] = row;
-            }
-
-            Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows, lookup size is {LookupSize}",
-                rightRowCount, lookup.Count);
-
-            CounterCollection.IncrementCounter("right rows loaded", rightRowCount, true);
-
+            var lookup = LookupBuilder.Build(this, rows.ToArray());
             foreach (var row in rows)
             {
-                var key = GetLeftKey(row);
-
+                var key = GeneratorRowKey(row);
                 var removeRow = false;
-                if (key == null || !lookup.TryGetValue(key, out var match))
+                var matchCount = lookup.GetRowCountByKey(key);
+                if (matchCount == 0)
                 {
                     if (NoMatchAction != null)
                     {
@@ -64,7 +45,7 @@
                                 break;
                             case MatchMode.Throw:
                                 var exception = new ProcessExecutionException(this, row, "no match");
-                                exception.Data.Add("LeftKey", key);
+                                exception.Data.Add("Key", key);
                                 throw exception;
                             case MatchMode.Custom:
                                 NoMatchAction.CustomAction.Invoke(this, row);
@@ -74,6 +55,8 @@
                 }
                 else
                 {
+                    // todo: handle > 1 matches
+                    var match = lookup.GetSingleRowByKey(key);
                     var isSame = EqualityComparer.Equals(row, match);
                     if (!isSame)
                     {

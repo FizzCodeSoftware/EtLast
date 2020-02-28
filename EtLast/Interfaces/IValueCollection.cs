@@ -25,6 +25,8 @@
 
         bool Is<T>(string column);
         string FormatToString(string column, IFormatProvider formatProvider = null);
+        string GenerateKey(params string[] columns);
+        string GenerateKeyUpper(params string[] columns);
 
         string ToDebugString();
     }

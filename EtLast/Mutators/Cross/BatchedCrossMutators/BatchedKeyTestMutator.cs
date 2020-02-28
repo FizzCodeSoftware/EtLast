@@ -2,10 +2,15 @@
 {
     using System.Collections.Generic;
 
-    public class BatchedKeyTestMutator : AbstractBatchedKeyBasedCrossMutator
+    public class BatchedKeyTestMutator : AbstractBatchedCrossMutator
     {
         public NoMatchAction NoMatchAction { get; set; }
         public MatchAction MatchAction { get; set; }
+
+        /// <summary>
+        /// Default true. Setting to false results to significantly less memory usage.
+        /// </summary>
+        public bool MatchActionContainsMatch { get; set; } = true;
 
         /// <summary>
         /// The amount of rows processed in a batch. Default value is 1000.
@@ -17,7 +22,7 @@
         /// </summary>
         public int CacheSizeLimit { get; set; } = 100000;
 
-        private readonly HashSet<string> _lookup = new HashSet<string>();
+        private ICountableLookup _lookup;
 
         public BatchedKeyTestMutator(ITopic topic, string name)
             : base(topic, name)
@@ -25,68 +30,77 @@
             UseBatchKeys = true;
         }
 
+        protected override void StartMutator()
+        {
+            _lookup = MatchActionContainsMatch
+                ? (ICountableLookup)new RowLookup()
+                : new CountableOnlyLookup();
+
+            base.StartMutator();
+        }
+
+        protected override void CloseMutator()
+        {
+            _lookup.Clear();
+
+            base.CloseMutator();
+        }
+
         protected override void MutateRow(IRow row, List<IRow> mutatedRows, out bool removeOriginal, out bool processed)
         {
             removeOriginal = false;
 
-            var key = GetLeftKey(row);
-            if (MatchAction != null && key != null && _lookup.Contains(key))
+            if (MatchAction != null)
             {
-                processed = true;
-                CounterCollection.IncrementCounter("served from cache", 1, true);
-
-                switch (MatchAction.Mode)
+                var key = GeneratorRowKey(row);
+                var matchCount = _lookup.GetRowCountByKey(key);
+                if (matchCount > 0)
                 {
-                    case MatchMode.Remove:
-                        removeOriginal = true;
-                        break;
-                    case MatchMode.Throw:
-                        var exception = new ProcessExecutionException(this, row, "match");
-                        exception.Data.Add("Key", key);
-                        throw exception;
-                    case MatchMode.Custom:
-                        MatchAction.CustomAction.Invoke(this, row, row);
-                        break;
-                }
+                    CounterCollection.IncrementCounter("served from cache", 1, true);
 
-                if (!removeOriginal)
-                {
-                    mutatedRows.Add(row);
+                    switch (MatchAction.Mode)
+                    {
+                        case MatchMode.Remove:
+                            removeOriginal = true;
+                            break;
+                        case MatchMode.Throw:
+                            var exception = new ProcessExecutionException(this, row, "match");
+                            exception.Data.Add("Key", key);
+                            throw exception;
+                        case MatchMode.Custom:
+                            IRow match = null;
+                            if (MatchActionContainsMatch)
+                            {
+                                match = (_lookup as RowLookup).GetSingleRowByKey(key);
+                            }
+
+                            MatchAction.CustomAction.Invoke(this, row, match);
+                            break;
+                    }
+
+                    if (!removeOriginal)
+                    {
+                        mutatedRows.Add(row);
+                    }
+
+                    processed = true;
+                    return;
                 }
             }
-            else
-            {
-                processed = false;
-            }
+
+            processed = false;
         }
 
         protected override void MutateBatch(List<IRow> rows, List<IRow> mutatedRows, List<IRow> removedRows)
         {
-            var rightProcess = RightProcessCreator.Invoke(rows.ToArray());
-
-            var allRightRows = rightProcess.Evaluate(this).TakeRowsAndReleaseOwnership();
-            var rightRowCount = 0;
-            foreach (var row in allRightRows)
-            {
-                rightRowCount++;
-                var key = GetRightKey(row);
-                if (string.IsNullOrEmpty(key))
-                    continue;
-
-                _lookup.Add(key);
-            }
-
-            Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows, lookup size is {LookupSize}",
-                rightRowCount, _lookup.Count);
-
-            CounterCollection.IncrementCounter("right rows loaded", rightRowCount, true);
+            LookupBuilder.Append(_lookup, this, rows.ToArray());
 
             foreach (var row in rows)
             {
-                var key = GetLeftKey(row);
+                var key = GeneratorRowKey(row);
 
                 var removeRow = false;
-                if (key == null || !_lookup.Contains(key))
+                if (_lookup.GetRowCountByKey(key) == 0)
                 {
                     if (NoMatchAction != null)
                     {
@@ -97,7 +111,7 @@
                                 break;
                             case MatchMode.Throw:
                                 var exception = new ProcessExecutionException(this, row, "no match");
-                                exception.Data.Add("LeftKey", key);
+                                exception.Data.Add("Key", key);
                                 throw exception;
                             case MatchMode.Custom:
                                 NoMatchAction.CustomAction.Invoke(this, row);
@@ -114,10 +128,16 @@
                             break;
                         case MatchMode.Throw:
                             var exception2 = new ProcessExecutionException(this, row, "match");
-                            exception2.Data.Add("LeftKey", key);
+                            exception2.Data.Add("Key", key);
                             throw exception2;
                         case MatchMode.Custom:
-                            MatchAction.CustomAction.Invoke(this, row, row);
+                            IRow match = null;
+                            if (MatchActionContainsMatch)
+                            {
+                                match = (_lookup as RowLookup).GetSingleRowByKey(key);
+                            }
+
+                            MatchAction.CustomAction.Invoke(this, row, match);
                             break;
                     }
                 }

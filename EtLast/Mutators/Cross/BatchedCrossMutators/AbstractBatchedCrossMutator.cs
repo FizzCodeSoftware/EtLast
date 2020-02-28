@@ -4,7 +4,8 @@
 
     public abstract class AbstractBatchedCrossMutator : AbstractBatchedMutator
     {
-        public Func<IRow[], IEvaluable> RightProcessCreator { get; set; }
+        public FilteredRowLookupBuilder LookupBuilder { get; set; }
+        public RowKeyGenerator RowKeyGenerator { get; set; }
 
         protected AbstractBatchedCrossMutator(ITopic topic, string name)
             : base(topic, name)
@@ -15,8 +16,25 @@
         {
             base.ValidateMutator();
 
-            if (RightProcessCreator == null)
-                throw new ProcessParameterNullException(this, nameof(RightProcessCreator));
+            if (LookupBuilder == null)
+                throw new ProcessParameterNullException(this, nameof(LookupBuilder));
+
+            if (RowKeyGenerator == null)
+                throw new ProcessParameterNullException(this, nameof(RowKeyGenerator));
+        }
+
+        protected string GeneratorRowKey(IRow row)
+        {
+            try
+            {
+                return RowKeyGenerator(row);
+            }
+            catch (EtlException) { throw; }
+            catch (Exception)
+            {
+                var exception = new ProcessExecutionException(this, row, nameof(RowKeyGenerator) + " failed");
+                throw exception;
+            }
         }
     }
 }

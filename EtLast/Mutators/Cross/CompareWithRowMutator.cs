@@ -1,14 +1,16 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Collections.Generic;
 
-    public class CompareWithRowMutator : AbstractKeyBasedCrossMutator
+    public class CompareWithRowMutator : AbstractCrossMutator
     {
+        public RowKeyGenerator RowKeyGenerator { get; set; }
         public IRowEqualityComparer EqualityComparer { get; set; }
         public MatchAction MatchAndEqualsAction { get; set; }
         public MatchAction MatchButDifferentAction { get; set; }
         public NoMatchAction NoMatchAction { get; set; }
-        private Dictionary<string, IRow> _lookup;
+        private RowLookup _lookup;
 
         public CompareWithRowMutator(ITopic topic, string name)
             : base(topic, name)
@@ -17,36 +19,19 @@
 
         protected override void StartMutator()
         {
-            _lookup = new Dictionary<string, IRow>();
-            var allRightRows = RightProcess.Evaluate(this).TakeRowsAndReleaseOwnership();
-            var rightRowCount = 0;
-            foreach (var row in allRightRows)
-            {
-                rightRowCount++;
-                var key = GetRightKey(row);
-                if (string.IsNullOrEmpty(key))
-                    continue;
-
-                _lookup[key] = row;
-            }
-
-            Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows, lookup size is {LookupSize}",
-                rightRowCount, _lookup.Count);
-
-            CounterCollection.IncrementCounter("right rows loaded", rightRowCount, true);
+            _lookup = LookupBuilder.Build(this);
         }
 
         protected override void CloseMutator()
         {
             _lookup.Clear();
-            _lookup = null;
         }
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
             var removeRow = false;
-            var key = GetLeftKey(row);
-            if (key == null || !_lookup.TryGetValue(key, out var match))
+            var key = GenerateRowKey(row);
+            if (_lookup.GetRowCountByKey(key) == 0)
             {
                 if (NoMatchAction != null)
                 {
@@ -57,7 +42,7 @@
                             break;
                         case MatchMode.Throw:
                             var exception = new ProcessExecutionException(this, row, "no match");
-                            exception.Data.Add("LeftKey", key);
+                            exception.Data.Add("Key", key);
                             throw exception;
                         case MatchMode.Custom:
                             NoMatchAction.CustomAction.Invoke(this, row);
@@ -67,6 +52,7 @@
             }
             else
             {
+                var match = _lookup.GetSingleRowByKey(key);
                 var isSame = EqualityComparer.Equals(row, match);
                 if (isSame)
                 {
@@ -79,7 +65,7 @@
                                 break;
                             case MatchMode.Throw:
                                 var exception = new ProcessExecutionException(this, row, "match");
-                                exception.Data.Add("LeftKey", key);
+                                exception.Data.Add("Key", key);
                                 throw exception;
                             case MatchMode.Custom:
                                 MatchAndEqualsAction.CustomAction.Invoke(this, row, match);
@@ -96,7 +82,7 @@
                             break;
                         case MatchMode.Throw:
                             var exception = new ProcessExecutionException(this, row, "no match");
-                            exception.Data.Add("LeftKey", key);
+                            exception.Data.Add("Key", key);
                             throw exception;
                         case MatchMode.Custom:
                             MatchButDifferentAction.CustomAction.Invoke(this, row, match);
@@ -113,6 +99,9 @@
         {
             base.ValidateMutator();
 
+            if (RowKeyGenerator == null)
+                throw new ProcessParameterNullException(this, nameof(RowKeyGenerator));
+
             if (MatchAndEqualsAction == null && NoMatchAction == null && MatchButDifferentAction == null)
                 throw new InvalidProcessParameterException(this, nameof(MatchAndEqualsAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must be specified: " + nameof(MatchAndEqualsAction) + " or " + nameof(NoMatchAction) + " or " + nameof(MatchButDifferentAction));
 
@@ -127,6 +116,20 @@
 
             if (EqualityComparer == null)
                 throw new ProcessParameterNullException(this, nameof(EqualityComparer));
+        }
+
+        private string GenerateRowKey(IRow row)
+        {
+            try
+            {
+                return RowKeyGenerator(row);
+            }
+            catch (EtlException) { throw; }
+            catch (Exception)
+            {
+                var exception = new ProcessExecutionException(this, row, nameof(RowKeyGenerator) + " failed");
+                throw exception;
+            }
         }
     }
 }

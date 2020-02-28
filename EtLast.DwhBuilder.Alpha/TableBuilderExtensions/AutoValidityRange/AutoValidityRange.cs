@@ -45,9 +45,12 @@
                 yield return new BatchedCompareWithRowMutator(builder.TableBuilder.Table.Topic, nameof(AutoValidityRange))
                 {
                     If = row => !row.IsNullOrEmpty(builder.MatchColumns[0]),
-                    RightProcessCreator = rows => CreateAutoValidity_ExpandDeferredReaderProcess(builder, builder.MatchColumns[0], finalValueColumns, rows),
-                    LeftKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
-                    RightKeySelector = row => row.FormatToString(builder.MatchColumns[0]),
+                    LookupBuilder = new FilteredRowLookupBuilder()
+                    {
+                        ProcessCreator = filterRows => CreateAutoValidity_ExpandDeferredReaderProcess(builder, builder.MatchColumns[0], finalValueColumns, filterRows),
+                        KeyGenerator = row => row.GenerateKey(builder.MatchColumns[0]),
+                    },
+                    RowKeyGenerator = row => row.GenerateKey(builder.MatchColumns[0]),
                     EqualityComparer = equalityComparer,
                     NoMatchAction = new NoMatchAction(MatchMode.Custom)
                     {
@@ -85,16 +88,19 @@
 
                 yield return new CompareWithRowMutator(builder.TableBuilder.Table.Topic, nameof(AutoValidityRange))
                 {
-                    RightProcess = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "PreviousValueReader")
+                    LookupBuilder = new RowLookupBuilder()
                     {
-                        ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
-                        Sql = "SELECT " + string.Join(",", builder.MatchColumns.Concat(finalValueColumns).Select(x => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(x)))
-                            + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema)
-                            + " WHERE " + builder.TableBuilder.ValidToColumnNameEscaped + (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime == null ? " IS NULL" : "=@InfiniteFuture"),
-                        Parameters = parameters,
+                        Process = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "PreviousValueReader")
+                        {
+                            ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
+                            Sql = "SELECT " + string.Join(",", builder.MatchColumns.Concat(finalValueColumns).Select(x => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(x)))
+                                + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema)
+                                + " WHERE " + builder.TableBuilder.ValidToColumnNameEscaped + (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime == null ? " IS NULL" : "=@InfiniteFuture"),
+                            Parameters = parameters,
+                        },
+                        KeyGenerator = row => row.GenerateKey(builder.MatchColumns),
                     },
-                    LeftKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
-                    RightKeySelector = row => string.Join("\0", builder.MatchColumns.Select(c => row.FormatToString(c) ?? "-")),
+                    RowKeyGenerator = row => row.GenerateKey(builder.MatchColumns),
                     EqualityComparer = equalityComparer,
                     NoMatchAction = new NoMatchAction(MatchMode.Custom)
                     {

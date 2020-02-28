@@ -2,54 +2,33 @@
 {
     using System.Collections.Generic;
 
-    public class ExpandMutator : AbstractKeyBasedCrossMutator
+    public class ExpandFromLookupMutator : AbstractCrossMutator
     {
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         public NoMatchAction NoMatchAction { get; set; }
         public MatchActionDelegate MatchCustomAction { get; set; }
+        public SelectRowFromLookupDelegate MatchSelector { get; set; }
+        private RowLookup _lookup;
 
-        private Dictionary<string, IRow> _lookup;
-
-        public ExpandMutator(ITopic topic, string name)
+        public ExpandFromLookupMutator(ITopic topic, string name)
             : base(topic, name)
         {
         }
 
         protected override void StartMutator()
         {
-            _lookup = new Dictionary<string, IRow>();
-            var allRightRows = RightProcess.Evaluate(this).TakeRowsAndReleaseOwnership();
-            var rightRowCount = 0;
-            foreach (var row in allRightRows)
-            {
-                rightRowCount++;
-                var key = GetRightKey(row);
-                if (string.IsNullOrEmpty(key))
-                    continue;
-
-                _lookup[key] = row;
-            }
-
-            Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows, lookup size is {LookupSize}",
-                rightRowCount, _lookup.Count);
-
-            CounterCollection.IncrementCounter("right rows loaded", rightRowCount, true);
+            _lookup = LookupBuilder.Build(this);
         }
 
         protected override void CloseMutator()
         {
             _lookup.Clear();
-            _lookup = null;
         }
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var leftKey = GetLeftKey(row);
-            IRow match = null;
-            if (leftKey != null)
-                _lookup.TryGetValue(leftKey, out match);
-
             var removeRow = false;
+            var match = MatchSelector(row, _lookup);
             if (match == null)
             {
                 if (NoMatchAction != null)
@@ -61,7 +40,6 @@
                             break;
                         case MatchMode.Throw:
                             var exception = new ProcessExecutionException(this, row, "no match");
-                            exception.Data.Add("LeftKey", leftKey);
                             throw exception;
                         case MatchMode.Custom:
                             NoMatchAction.CustomAction.Invoke(this, row);
@@ -84,6 +62,9 @@
         protected override void ValidateMutator()
         {
             base.ValidateMutator();
+
+            if (MatchSelector == null)
+                throw new ProcessParameterNullException(this, nameof(MatchSelector));
 
             if (ColumnConfiguration == null)
                 throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));

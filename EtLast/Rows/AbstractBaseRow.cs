@@ -128,9 +128,25 @@
                 return str;
 
             if (v is IFormattable fmt)
-                return fmt.ToString(null, CultureInfo.InvariantCulture);
+                return fmt.ToString(null, formatProvider ?? CultureInfo.InvariantCulture);
 
             return v.ToString();
+        }
+
+        public string GenerateKey(params string[] columns)
+        {
+            if (columns.Length == 1)
+                return FormatToString(columns[0], CultureInfo.InvariantCulture) ?? "-";
+
+            return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-"));
+        }
+
+        public string GenerateKeyUpper(params string[] columns)
+        {
+            if (columns.Length == 1)
+                return (FormatToString(columns[0], CultureInfo.InvariantCulture) ?? "-").ToUpperInvariant();
+
+            return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-")).ToUpperInvariant();
         }
 
         public virtual void Init(IEtlContext context, IProcess creatorProcess, int uid, IEnumerable<KeyValuePair<string, object>> initialValues)

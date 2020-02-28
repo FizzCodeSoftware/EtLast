@@ -1,12 +1,20 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Collections.Generic;
 
-    public class BatchedJoinMutator : AbstractBatchedKeyBasedCrossMutator
+    public class BatchedJoinMutator : AbstractBatchedCrossMutator
     {
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         public NoMatchAction NoMatchAction { get; set; }
         public MatchActionDelegate MatchCustomAction { get; set; }
+        public Func<IRow, bool> MatchFilter { get; set; }
+
+        /// <summary>
+        /// Default null
+        /// </summary>
+        public int? MatchCountLimit { get; set; }
+        public TooManyMatchAction TooManyMatchAction { get; set; }
 
         /// <summary>
         /// The amount of rows processed in a batch. Default value is 1000.
@@ -21,7 +29,7 @@
 
         protected override string GetBatchKey(IRow row)
         {
-            return GetLeftKey(row);
+            return GeneratorRowKey(row);
         }
 
         protected override void MutateRow(IRow row, List<IRow> mutatedRows, out bool removeOriginal, out bool processed)
@@ -32,58 +40,47 @@
 
         protected override void MutateBatch(List<IRow> rows, List<IRow> mutatedRows, List<IRow> removedRows)
         {
-            var rightProcess = RightProcessCreator.Invoke(rows.ToArray());
-
-            var lookup = new Dictionary<string, List<IRow>>();
-            var allRightRows = rightProcess.Evaluate(this).TakeRowsAndReleaseOwnership();
-            var rightRowCount = 0;
-            foreach (var row in allRightRows)
-            {
-                rightRowCount++;
-                var key = GetRightKey(row);
-                if (string.IsNullOrEmpty(key))
-                    continue;
-
-                if (!lookup.TryGetValue(key, out var list))
-                {
-                    list = new List<IRow>();
-                    lookup.Add(key, list);
-                }
-
-                list.Add(row);
-            }
-
-            Context.Log(LogSeverity.Debug, this, "fetched {RowCount} rows, lookup size is {LookupSize}",
-                rightRowCount, lookup.Count);
-
-            CounterCollection.IncrementCounter("right rows loaded", rightRowCount, true);
-
+            var lookup = LookupBuilder.Build(this, rows.ToArray());
             foreach (var row in rows)
             {
-                var leftKey = GetLeftKey(row);
-                List<IRow> rightRows = null;
-                if (leftKey != null)
-                    lookup.TryGetValue(leftKey, out rightRows);
-
-                /*if (rightRows != null && RightRowFilter != null)
-                {
-                    rightRows = rightRows
-                        .Where(rightRow => RightRowFilter.Invoke(row, rightRow))
-                        .ToList();
-                }*/
-
+                var key = GeneratorRowKey(row);
                 var removeRow = false;
-                if (rightRows?.Count > 0)
+                var matches = lookup.GetManyByKey(key, MatchFilter);
+                if (MatchCountLimit != null && matches?.Count > MatchCountLimit.Value)
+                {
+                    if (TooManyMatchAction != null)
+                    {
+                        switch (TooManyMatchAction.Mode)
+                        {
+                            case MatchMode.Remove:
+                                removeRow = true;
+                                break;
+                            case MatchMode.Throw:
+                                var exception = new ProcessExecutionException(this, row, "too many match");
+                                exception.Data.Add("Key", key);
+                                throw exception;
+                            case MatchMode.Custom:
+                                TooManyMatchAction.CustomAction.Invoke(this, row, matches);
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        matches.RemoveRange(MatchCountLimit.Value, matches.Count - MatchCountLimit.Value);
+                    }
+                }
+
+                if (!removeRow && matches?.Count > 0)
                 {
                     removeRow = true;
-                    foreach (var rightRow in rightRows)
+                    foreach (var match in matches)
                     {
                         var initialValues = new Dictionary<string, object>(row.Values);
-                        ColumnCopyConfiguration.CopyMany(rightRow, initialValues, ColumnConfiguration);
+                        ColumnCopyConfiguration.CopyMany(match, initialValues, ColumnConfiguration);
 
                         var newRow = Context.CreateRow(this, initialValues);
 
-                        MatchCustomAction?.Invoke(this, newRow, rightRow);
+                        MatchCustomAction?.Invoke(this, newRow, match);
                         mutatedRows.Add(newRow);
                     }
                 }
@@ -96,7 +93,7 @@
                             break;
                         case MatchMode.Throw:
                             var exception = new ProcessExecutionException(this, row, "no match");
-                            exception.Data.Add("LeftKey", leftKey);
+                            exception.Data.Add("Key", key);
                             throw exception;
                         case MatchMode.Custom:
                             NoMatchAction.CustomAction.Invoke(this, row);
