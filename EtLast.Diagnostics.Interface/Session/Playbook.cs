@@ -42,9 +42,9 @@
                                 continue;
                         }
                         break;
-                    case DataStoreCommandEvent evt:
+                    case DataStoreCommandStartEvent evt:
                         {
-                            if (!ProcessList.ContainsKey(evt.ProcessInvocationUID))
+                            if (!ProcessList.ContainsKey(evt.ProcessInvocationUid))
                                 continue;
                         }
                         break;

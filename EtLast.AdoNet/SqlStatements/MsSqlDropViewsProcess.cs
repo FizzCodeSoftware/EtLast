@@ -6,7 +6,6 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
     public enum MsSqlDropViewsProcessMode { All, SpecifiedViews, SpecifiedSchema }
@@ -58,7 +57,7 @@
                 throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be System.Data.SqlClient");
         }
 
-        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection)
+        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection, string transactionId)
         {
             switch (Mode)
             {
@@ -71,38 +70,40 @@
                     var startedOn = Stopwatch.StartNew();
                     using (var command = connection.CreateCommand())
                     {
+                        var parameters = new Dictionary<string, object>();
+
+                        command.CommandTimeout = CommandTimeout;
+                        command.CommandText = "select * from INFORMATION_SCHEMA.VIEWS";
+                        if (Mode == MsSqlDropViewsProcessMode.SpecifiedSchema)
+                        {
+                            command.CommandText += " where TABLE_SCHEMA = @schemaName";
+                            parameters.Add("schemaName", SchemaName);
+                        }
+
+                        foreach (var kvp in parameters)
+                        {
+                            var parameter = command.CreateParameter();
+                            parameter.ParameterName = kvp.Key;
+                            parameter.Value = kvp.Value;
+                            command.Parameters.Add(parameter);
+                        }
+
+                        Context.Log(transactionId, LogSeverity.Debug, this, "querying view names from {ConnectionStringName}",
+                            ConnectionString.Name);
+
+                        _viewNames = new List<string>();
+
+                        var dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.read, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, () => parameters);
                         try
                         {
-                            var parameters = new Dictionary<string, object>();
-
-                            command.CommandTimeout = CommandTimeout;
-                            command.CommandText = "select * from INFORMATION_SCHEMA.VIEWS";
-                            if (Mode == MsSqlDropViewsProcessMode.SpecifiedSchema)
-                            {
-                                command.CommandText += " where TABLE_SCHEMA = @schemaName";
-                                parameters.Add("schemaName", SchemaName);
-                            }
-
-                            foreach (var kvp in parameters)
-                            {
-                                var parameter = command.CreateParameter();
-                                parameter.ParameterName = kvp.Key;
-                                parameter.Value = kvp.Value;
-                                command.Parameters.Add(parameter);
-                            }
-
-                            Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.read, ConnectionString.Name, this, command.CommandText, Transaction.Current.ToIdentifierString(), () => parameters);
-
-                            Context.LogNoDiag(LogSeverity.Debug, this, "querying view names from {ConnectionStringName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
-                                command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
-
-                            _viewNames = new List<string>();
                             using (var reader = command.ExecuteReader())
                             {
                                 while (reader.Read())
                                 {
                                     _viewNames.Add(ConnectionString.Escape((string)reader["TABLE_NAME"], (string)reader["TABLE_SCHEMA"]));
                                 }
+
+                                Context.RegisterDataStoreCommandEnd(this, dscUid, _viewNames.Count, null);
                             }
 
                             _viewNames.Sort();
@@ -119,6 +120,8 @@
                         }
                         catch (Exception ex)
                         {
+                            Context.RegisterDataStoreCommandEnd(this, dscUid, 0, ex.Message);
+
                             var exception = new ProcessExecutionException(this, "failed to query view names from information schema", ex);
                             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "view list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                                 ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
@@ -137,21 +140,27 @@
                 .ToList();
         }
 
-        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
+        protected override void LogAction(int statementIndex, string transactionId)
         {
             var viewName = _viewNames[statementIndex];
 
-            Context.LogNoDiag(LogSeverity.Debug, this, "drop view {ConnectionStringName}/{ViewName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
-                ConnectionString.Unescape(viewName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
+            Context.Log(transactionId, LogSeverity.Debug, this, "drop view {ConnectionStringName}/{ViewName}",
+                ConnectionString.Name, ConnectionString.Unescape(viewName));
+        }
 
+        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
+        {
+            var viewName = _viewNames[statementIndex];
+            var dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.one, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, null);
             try
             {
                 command.ExecuteNonQuery();
+                Context.RegisterDataStoreCommandEnd(this, dscUid, 0, null);
 
                 var time = startedOn.Elapsed;
 
-                Context.LogNoDiag(LogSeverity.Debug, this, "view {ConnectionStringName}/{ViewName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
-                    ConnectionString.Unescape(viewName), time, Transaction.Current.ToIdentifierString());
+                Context.Log(transactionId, LogSeverity.Debug, this, "view {ConnectionStringName}/{ViewName} is dropped in {Elapsed}",
+                    ConnectionString.Name, ConnectionString.Unescape(viewName), time);
 
                 CounterCollection.IncrementCounter("db drop view count", 1);
                 CounterCollection.IncrementTimeSpan("db drop view time", time);
@@ -162,6 +171,8 @@
             }
             catch (Exception ex)
             {
+                Context.RegisterDataStoreCommandEnd(this, dscUid, 0, ex.Message);
+
                 var exception = new ProcessExecutionException(this, "failed to drop view", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop view, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionString.Name, ConnectionString.Unescape(viewName), ex.Message, command.CommandText, command.CommandTimeout));
@@ -175,13 +186,13 @@
             }
         }
 
-        protected override void LogSucceeded(int lastSucceededIndex)
+        protected override void LogSucceeded(int lastSucceededIndex, string transactionId)
         {
             if (lastSucceededIndex == -1)
                 return;
 
-            Context.Log(LogSeverity.Debug, this, "{ViewCount} view(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
-                ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
+            Context.Log(transactionId, LogSeverity.Debug, this, "{ViewCount} view(s) successfully dropped on {ConnectionStringName} in {Elapsed}", lastSucceededIndex + 1,
+                ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed);
         }
     }
 }

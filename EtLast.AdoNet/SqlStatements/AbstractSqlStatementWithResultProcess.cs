@@ -87,7 +87,8 @@
                             cmd.CommandTimeout = CommandTimeout;
                             cmd.CommandText = sqlStatement;
 
-                            Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.many, ConnectionString.Name, this, sqlStatement, Transaction.Current.ToIdentifierString(), () => parameters);
+                            var transactionId = Transaction.Current.ToIdentifierString();
+                            LogAction(transactionId);
 
                             foreach (var kvp in parameters)
                             {
@@ -97,7 +98,7 @@
                                 cmd.Parameters.Add(parameter);
                             }
 
-                            var result = RunCommandAndGetResult(cmd);
+                            var result = RunCommandAndGetResult(cmd, transactionId, parameters);
                             return result;
                         }
                     }
@@ -109,8 +110,8 @@
             }
         }
 
+        protected abstract void LogAction(string transactionId);
         protected abstract string CreateSqlStatement(Dictionary<string, object> parameters);
-
-        protected abstract T RunCommandAndGetResult(IDbCommand command);
+        protected abstract T RunCommandAndGetResult(IDbCommand command, string transactionId, Dictionary<string, object> parameters);
     }
 }

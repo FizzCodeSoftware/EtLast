@@ -34,11 +34,6 @@
         public Dictionary<string, object> Parameters { get; set; }
 
         /// <summary>
-        /// Only the following text will be written into logs if this is set to true: "&lt;hidden&gt;". Default value is false.
-        /// </summary>
-        public bool HideStatementInLog { get; set; }
-
-        /// <summary>
         /// Some SQL connector implementations does not support passing arrays due to parameters (like MySQL).
         /// If set to true, then all int[], long[], List&lt;int&gt; and List&lt;long&gt; parameters will be converted to a comma separated list and inlined into the SQL statement right before execution.
         /// Default value is true.
@@ -65,7 +60,6 @@
 
             var resultCount = 0;
 
-            LogAction();
             var sqlStatement = CreateSqlStatement();
 
             DatabaseConnection connection = null;
@@ -75,6 +69,7 @@
             Stopwatch swQuery;
 
             var sqlStatementProcessed = InlineArrayParametersIfNecessary(sqlStatement);
+            int dscUid;
 
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
@@ -99,10 +94,9 @@
                     ? "custom (" + cmd.Transaction.IsolationLevel.ToString() + ")"
                     : Transaction.Current.ToIdentifierString();
 
-                Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.read, ConnectionString.Name, this, sqlStatement, transactionId, () => Parameters);
+                LogAction(transactionId);
 
-                Context.LogNoDiag(LogSeverity.Debug, this, "executing query {SqlStatement} on {ConnectionStringName}, timeout: {Timeout} sec, transaction: {Transaction}",
-                    HideStatementInLog ? "<hidden>" : sqlStatement, ConnectionString.Name, cmd.CommandTimeout, transactionId);
+                dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.read, ConnectionString.Name, cmd.CommandTimeout, sqlStatement, transactionId, () => Parameters);
 
                 if (Parameters != null)
                 {
@@ -120,11 +114,15 @@
                 {
                     reader = cmd.ExecuteReader();
                 }
-                catch (EtlException ex) { Context.AddException(this, ex); yield break; }
-                catch (Exception ex) { Context.AddException(this, new EtlException(this, string.Format(CultureInfo.InvariantCulture, "error during executing query: " + (HideStatementInLog ? "<hidden>" : sqlStatement)), ex)); yield break; }
+                catch (Exception ex)
+                {
+                    Context.RegisterDataStoreCommandEnd(this, dscUid, 0, ex.Message);
+                    Context.AddException(this, new EtlException(this, string.Format(CultureInfo.InvariantCulture, "error during executing query: " + sqlStatement), ex));
+                    yield break;
+                }
             }
 
-            Context.LogNoDiag(LogSeverity.Debug, this, "query executed in {Elapsed}", swQuery.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "query executed in {Elapsed}", swQuery.Elapsed);
 
             LastDataRead = DateTimeOffset.Now;
 
@@ -145,7 +143,9 @@
                     {
                         var exception = new EtlException(this, string.Format(CultureInfo.InvariantCulture, "error while reading data at row index {0}, {1} after last read", resultCount, LastDataRead.Subtract(DateTimeOffset.Now)), ex);
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query after successfully reading {0} rows, message: {1}, connection string key: {2}, SQL statement: {3}", resultCount, ex.Message, ConnectionString.Name, sqlStatement));
-                        throw exception;
+                        Context.RegisterDataStoreCommandEnd(this, dscUid, resultCount, exception.Message);
+                        Context.AddException(this, exception);
+                        yield break;
                     }
 
                     LastDataRead = DateTimeOffset.Now;
@@ -190,6 +190,8 @@
                     yield return row;
                 }
             }
+
+            Context.RegisterDataStoreCommandEnd(this, dscUid, resultCount, null);
 
             if (reader != null)
             {
@@ -295,7 +297,7 @@
             return sqlStatement;
         }
 
-        protected abstract void LogAction();
+        protected abstract void LogAction(string transactionId);
         protected abstract string CreateSqlStatement();
         protected abstract void IncrementCounter();
     }

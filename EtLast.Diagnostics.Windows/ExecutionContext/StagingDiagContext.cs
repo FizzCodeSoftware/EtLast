@@ -44,13 +44,15 @@
             };
         }
 
-        protected virtual AbstractEvent ReadDataStoreCommandEvent(ExtendedBinaryReader reader)
+        protected virtual AbstractEvent ReadDataStoreCommandStartEvent(ExtendedBinaryReader reader)
         {
-            var evt = new DataStoreCommandEvent
+            var evt = new DataStoreCommandStartEvent
             {
-                ProcessInvocationUID = reader.Read7BitEncodedInt(),
+                Uid = reader.Read7BitEncodedInt(),
+                ProcessInvocationUid = reader.Read7BitEncodedInt(),
                 Kind = (DataStoreCommandKind)reader.ReadByte(),
                 Location = TextDictionary[reader.Read7BitEncodedInt()],
+                TimeoutSeconds = reader.ReadNullableInt32(),
                 Command = reader.ReadString(),
                 TransactionId = TextDictionary[reader.Read7BitEncodedInt()],
             };
@@ -66,6 +68,18 @@
                     evt.Arguments[i] = new KeyValuePair<string, object>(name, value);
                 }
             }
+
+            return evt;
+        }
+
+        protected virtual AbstractEvent ReadDataStoreCommandEndEvent(ExtendedBinaryReader reader)
+        {
+            var evt = new DataStoreCommandEndEvent
+            {
+                Uid = reader.Read7BitEncodedInt(),
+                AffectedDataCount = reader.Read7BitEncodedInt(),
+                ErrorMessage = reader.ReadNullableString(),
+            };
 
             return evt;
         }
@@ -192,6 +206,7 @@
         {
             var evt = new LogEvent
             {
+                TransactionId = TextDictionary[reader.Read7BitEncodedInt()],
                 Text = reader.ReadString(),
                 Severity = (LogSeverity)reader.ReadByte(),
                 ProcessInvocationUID = reader.ReadNullableInt32()

@@ -12,7 +12,7 @@
         public IEtlContext Context { get; private set; }
         public IProcess CreatorProcess { get; private set; }
         public IProcess CurrentProcess { get; set; }
-        public int UID { get; private set; }
+        public int Uid { get; private set; }
 
         public virtual IEnumerable<KeyValuePair<string, object>> Values { get; }
 
@@ -29,7 +29,7 @@
 
         public string ToDebugString()
         {
-            return "UID=" + UID.ToString("D", CultureInfo.InvariantCulture) + ", " + string.Join(", ", Values.Select(kvp => kvp.Key + "=" + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")));
+            return "UID=" + Uid.ToString("D", CultureInfo.InvariantCulture) + ", " + string.Join(", ", Values.Select(kvp => kvp.Key + "=" + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")));
         }
 
         /// <summary>
@@ -154,7 +154,7 @@
             Context = context;
             CreatorProcess = creatorProcess;
             CurrentProcess = creatorProcess;
-            UID = uid;
+            Uid = uid;
         }
 
         public abstract bool HasValue(string column);

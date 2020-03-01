@@ -11,7 +11,8 @@
         ProcessInvocationStart,
         ProcessInvocationEnd,
         Log,
-        DataStoreCommand,
+        DataStoreCommandStart,
+        DataStoreCommandEnd,
         ContextCountersUpdated,
         ContextEnded,
     }

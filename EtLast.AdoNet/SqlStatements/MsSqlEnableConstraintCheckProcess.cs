@@ -6,7 +6,6 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
     public class MsSqlEnableConstraintCheckProcess : AbstractSqlStatementsProcess
@@ -26,29 +25,37 @@
                 throw new ProcessParameterNullException(this, nameof(TableNames));
         }
 
-        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection)
+        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection, string transactionId)
         {
             return TableNames.Select(tableName => "ALTER TABLE " + tableName + " WITH CHECK CHECK CONSTRAINT ALL;").ToList();
         }
 
-        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
+        protected override void LogAction(int statementIndex, string transactionId)
         {
             var tableName = TableNames[statementIndex];
 
-            Context.LogNoDiag(LogSeverity.Debug, this, "enable constraint check on {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
-                ConnectionString.Unescape(tableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
+            Context.Log(transactionId, LogSeverity.Debug, this, "enable constraint check on {ConnectionStringName}/{TableName}",
+                ConnectionString.Name, ConnectionString.Unescape(tableName));
+        }
 
+        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
+        {
+            var tableName = TableNames[statementIndex];
+            var dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.one, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, null);
             try
             {
                 command.ExecuteNonQuery();
+                Context.RegisterDataStoreCommandEnd(this, dscUid, 0, null);
 
                 var time = startedOn.Elapsed;
 
-                Context.Log(LogSeverity.Debug, this, "constraint check on {ConnectionStringName}/{TableName} is enabled in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
-                    ConnectionString.Unescape(tableName), time, Transaction.Current.ToIdentifierString());
+                Context.Log(transactionId, LogSeverity.Debug, this, "constraint check on {ConnectionStringName}/{TableName} is enabled in {Elapsed}",
+                    ConnectionString.Name, ConnectionString.Unescape(tableName), time);
             }
             catch (Exception ex)
             {
+                Context.RegisterDataStoreCommandEnd(this, dscUid, 0, ex.Message);
+
                 var exception = new ProcessExecutionException(this, "failed to enable constraint check", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to enable constraint check, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionString.Name, tableName, ex.Message, command.CommandText, command.CommandTimeout));
@@ -62,13 +69,13 @@
             }
         }
 
-        protected override void LogSucceeded(int lastSucceededIndex)
+        protected override void LogSucceeded(int lastSucceededIndex, string transactionId)
         {
             if (lastSucceededIndex == -1)
                 return;
 
-            Context.Log(LogSeverity.Debug, this, "constraint check successfully enabled on {TableCount} tables on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
-                ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
+            Context.Log(transactionId, LogSeverity.Debug, this, "constraint check successfully enabled on {TableCount} tables on {ConnectionStringName} in {Elapsed}",
+                lastSucceededIndex + 1, ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed);
         }
     }
 }

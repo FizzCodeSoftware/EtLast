@@ -5,7 +5,7 @@
     public interface IRow : IValueCollection
     {
         IEtlContext Context { get; }
-        int UID { get; }
+        int Uid { get; }
 
         IProcess CreatorProcess { get; }
         IProcess CurrentProcess { get; set; }

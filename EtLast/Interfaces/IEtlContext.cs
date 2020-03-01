@@ -25,6 +25,7 @@
 
         IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues);
 
+        void Log(string transactionId, LogSeverity severity, IProcess process, string text, params object[] args);
         void Log(LogSeverity severity, IProcess process, string text, params object[] args);
         void LogOps(LogSeverity severity, IProcess process, string text, params object[] args);
 
@@ -32,6 +33,9 @@
 
         void LogCustom(string fileName, IProcess process, string text, params object[] args);
         void LogCustomOps(string fileName, IProcess process, string text, params object[] args);
+
+        int RegisterDataStoreCommandStart(IProcess process, DataStoreCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter);
+        void RegisterDataStoreCommandEnd(IProcess process, int uid, int affectedDataCount, string errorMessage);
 
         void AddException(IProcess process, Exception ex);
         List<Exception> GetExceptions();
@@ -51,7 +55,8 @@
         ContextOnRowStoredDelegate OnRowStored { get; set; }
         public ContextOnProcessInvocationDelegate OnProcessInvocationStart { get; set; }
         public ContextOnProcessInvocationDelegate OnProcessInvocationEnd { get; set; }
-        public ContextOnDataStoreCommandDelegate OnContextDataStoreCommand { get; set; }
+        public ContextOnDataStoreCommandStartDelegate OnContextDataStoreCommandStart { get; set; }
+        public ContextOnDataStoreCommandEndDelegate OnContextDataStoreCommandEnd { get; set; }
 
         void RegisterProcessInvocationStart(IProcess process, IProcess caller);
         void RegisterProcessInvocationEnd(IProcess process);

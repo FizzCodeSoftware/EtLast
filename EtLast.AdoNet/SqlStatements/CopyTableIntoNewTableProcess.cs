@@ -5,7 +5,6 @@
     using System.Data;
     using System.Globalization;
     using System.Linq;
-    using System.Transactions;
 
     public class CopyTableIntoNewTableProcess : AbstractSqlStatementProcess
     {
@@ -51,19 +50,24 @@
             return statement;
         }
 
-        protected override void RunCommand(IDbCommand command)
+        protected override void LogAction(string transactionId)
         {
-            Context.LogNoDiag(LogSeverity.Debug, this, "creating new table {ConnectionStringName}/{TargetTableName} and copying records from {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
-                ConnectionString.Unescape(Configuration.TargetTableName), ConnectionString.Unescape(Configuration.SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
+            Context.Log(transactionId, LogSeverity.Debug, this, "creating new table {ConnectionStringName}/{TargetTableName} and copying records from {SourceTableName}",
+                ConnectionString.Name, ConnectionString.Unescape(Configuration.TargetTableName), ConnectionString.Unescape(Configuration.SourceTableName));
+        }
 
+        protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
+        {
+            var dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.one, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, () => parameters);
             try
             {
                 var recordCount = command.ExecuteNonQuery();
+                Context.RegisterDataStoreCommandEnd(this, dscUid, recordCount, null);
 
                 var time = InvocationInfo.LastInvocationStarted.Elapsed;
 
-                Context.Log(LogSeverity.Information, this, "table {ConnectionStringName}/{TargetTableName} created and {RecordCount} records copied from {SourceTableName} in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
-                    ConnectionString.Unescape(Configuration.TargetTableName), recordCount, ConnectionString.Unescape(Configuration.SourceTableName), time, Transaction.Current.ToIdentifierString());
+                Context.Log(transactionId, LogSeverity.Information, this, "table {ConnectionStringName}/{TargetTableName} created and {RecordCount} records copied from {SourceTableName} in {Elapsed}",
+                    ConnectionString.Name, ConnectionString.Unescape(Configuration.TargetTableName), recordCount, ConnectionString.Unescape(Configuration.SourceTableName), time);
 
                 CounterCollection.IncrementCounter("db record copy count", recordCount);
                 CounterCollection.IncrementTimeSpan("db record copy time", time);
@@ -76,6 +80,8 @@
             }
             catch (Exception ex)
             {
+                Context.RegisterDataStoreCommandEnd(this, dscUid, 0, ex.Message);
+
                 var exception = new ProcessExecutionException(this, "database table creation and copy failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table creation and copy failed, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message: {4}, command: {5}, timeout: {6}",
                     ConnectionString.Name, ConnectionString.Unescape(Configuration.SourceTableName), ConnectionString.Unescape(Configuration.TargetTableName),

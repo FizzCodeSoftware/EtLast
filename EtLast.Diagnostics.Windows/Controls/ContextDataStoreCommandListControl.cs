@@ -56,6 +56,7 @@
             ListView.Columns.Add("transaction", 85);
             ListView.Columns.Add("kind", 85);
             ListView.Columns.Add("location", 100);
+            // todo: add timeout
             ListView.Columns.Add("command", 700);
             ListView.Columns.Add("arguments", 200);
 
@@ -75,7 +76,7 @@
 
         internal void ProcessNewEvents(List<AbstractEvent> abstractEvents, bool clear)
         {
-            var unfilteredEvents = abstractEvents.OfType<DataStoreCommandEvent>().ToList();
+            var unfilteredEvents = abstractEvents.OfType<DataStoreCommandStartEvent>().ToList();
             if (!clear)
             {
                 _allEvents.AddRange(unfilteredEvents);
@@ -85,7 +86,7 @@
                 return;
 
             var events = unfilteredEvents
-                .Where(evt => Context.WholePlaybook.ProcessList[evt.ProcessInvocationUID].Topic == HighlightedProcess.Topic)
+                .Where(evt => Context.WholePlaybook.ProcessList[evt.ProcessInvocationUid].Topic == HighlightedProcess.Topic)
                 .ToList();
 
             if (events.Count == 0)
@@ -107,7 +108,7 @@
                         Tag = evt,
                     };
 
-                    var process = Context.WholePlaybook.ProcessList[evt.ProcessInvocationUID];
+                    var process = Context.WholePlaybook.ProcessList[evt.ProcessInvocationUid];
 
                     item.ForeColor = HighlightedProcess != null && process == HighlightedProcess
                         ? HighlightedProcessForeColor
@@ -157,8 +158,8 @@
                 {
                     foreach (var item in ListView.Items.ToEnumerable<ListViewItem>())
                     {
-                        var evt = item.Tag as DataStoreCommandEvent;
-                        var process = Context.WholePlaybook.ProcessList[evt.ProcessInvocationUID];
+                        var evt = item.Tag as DataStoreCommandStartEvent;
+                        var process = Context.WholePlaybook.ProcessList[evt.ProcessInvocationUid];
 
                         item.ForeColor = HighlightedProcess != null && process == HighlightedProcess
                             ? HighlightedProcessForeColor

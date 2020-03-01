@@ -74,7 +74,7 @@
         {
             if (_reader.RowCount > 0)
             {
-                WriteToSql(true);
+                WriteToSql();
             }
 
             _reader = null;
@@ -107,13 +107,13 @@
 
             if (rc >= BatchSize)
             {
-                WriteToSql(false);
+                WriteToSql();
             }
 
             yield return row;
         }
 
-        private void WriteToSql(bool shutdown)
+        private void WriteToSql()
         {
             var recordCount = _reader.RowCount;
             _timer.Restart();
@@ -123,40 +123,43 @@
                 DatabaseConnection connection = null;
                 SqlBulkCopy bulkCopy = null;
 
-                try
+                using (var scope = Context.BeginScope(this, TransactionScopeKind.RequiresNew, LogSeverity.Debug))
                 {
-                    using (var scope = Context.BeginScope(this, TransactionScopeKind.RequiresNew, LogSeverity.Debug))
+                    var transactionId = Transaction.Current.ToIdentifierString();
+
+                    connection = ConnectionManager.GetConnection(ConnectionString, this, 0);
+
+                    var options = SqlBulkCopyOptions.Default;
+
+                    if (BulkCopyKeepIdentity)
+                        options |= SqlBulkCopyOptions.KeepIdentity;
+
+                    if (BulkCopyCheckConstraints)
+                        options |= SqlBulkCopyOptions.CheckConstraints;
+
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                    bulkCopy = new SqlBulkCopy(connection.Connection as SqlConnection, options, null)
                     {
-                        var transactionId = Transaction.Current.ToIdentifierString();
+                        DestinationTableName = TableDefinition.TableName,
+                        BulkCopyTimeout = CommandTimeout,
+                    };
+#pragma warning restore CA2000 // Dispose objects before losing scope
 
-                        connection = ConnectionManager.GetConnection(ConnectionString, this, 0);
+                    foreach (var column in TableDefinition.Columns)
+                    {
+                        bulkCopy.ColumnMappings.Add(column.RowColumn, column.DbColumn);
+                    }
 
-                        var options = SqlBulkCopyOptions.Default;
+                    var dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.bulk, ConnectionString.Name, bulkCopy.BulkCopyTimeout, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records" + (retry > 0 ? ", retry #" + retry.ToString("D", CultureInfo.InvariantCulture) : ""), Transaction.Current.ToIdentifierString(), null);
 
-                        if (BulkCopyKeepIdentity)
-                            options |= SqlBulkCopyOptions.KeepIdentity;
-
-                        if (BulkCopyCheckConstraints)
-                            options |= SqlBulkCopyOptions.CheckConstraints;
-
-                        bulkCopy = new SqlBulkCopy(connection.Connection as SqlConnection, options, null)
-                        {
-                            DestinationTableName = TableDefinition.TableName,
-                            BulkCopyTimeout = CommandTimeout,
-                        };
-
-                        foreach (var column in TableDefinition.Columns)
-                        {
-                            bulkCopy.ColumnMappings.Add(column.RowColumn, column.DbColumn);
-                        }
-
-                        Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.bulk, ConnectionString.Name, this, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records" + (retry > 0 ? ", retry #" + retry.ToString("D", CultureInfo.InvariantCulture) : ""), Transaction.Current.ToIdentifierString(), null);
-
+                    try
+                    {
                         bulkCopy.WriteToServer(_reader);
                         bulkCopy.Close();
                         ConnectionManager.ReleaseConnection(this, ref connection);
 
                         scope.Complete();
+                        Context.RegisterDataStoreCommandEnd(this, dscUid, recordCount, null);
 
                         _timer.Stop();
                         var time = _timer.Elapsed;
@@ -173,73 +176,71 @@
                         _rowsWritten += recordCount;
                         _reader.Reset();
 
-                        var severity = shutdown
-                            ? LogSeverity.Debug
-                            : LogSeverity.Debug;
-
-                        Context.LogNoDiag(severity, this, "{TotalRowCount} records written to {ConnectionStringName}/{TableName}, micro-transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}", _rowsWritten,
-                            ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), transactionId, Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
+                        Context.Log(transactionId, LogSeverity.Debug, this, "{TotalRowCount} records written to {ConnectionStringName}/{TableName}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}", _rowsWritten,
+                            ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
                         break;
                     }
-                }
-                catch (Exception ex)
-                {
-                    if (connection != null)
+                    catch (Exception ex)
                     {
-                        ConnectionManager.ConnectionFailed(ref connection);
-                        bulkCopy?.Close();
-                    }
+                        Context.RegisterDataStoreCommandEnd(this, dscUid, recordCount, ex.Message);
 
-                    _reader.ResetCurrentIndex();
-
-                    if (retry == 0 && (ex is InvalidOperationException || ex is SqlException))
-                    {
-                        var fileName = "bulk-copy-error-" + Context.CreatedOnLocal.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + ".tsv";
-                        Context.LogCustom(fileName, this, "bulk copy error: " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName) + ", exception: " + ex.GetType().GetFriendlyTypeName() + ": " + ex.Message);
-                        Context.LogCustom(fileName, this, string.Join("\t", _reader.ColumnIndexes.Select(kvp => kvp.Key)));
-
-                        for (var row = 0; row < _reader.RowCount; row++)
+                        if (connection != null)
                         {
-                            var text = string.Join("\t", _reader.ColumnIndexes.Select(kvp =>
-                            {
-                                var v = _reader.Rows[row, kvp.Value];
-                                return v == null
-                                    ? "NULL"
-                                    : "'" + v.ToString() + "' (" + v.GetType().GetFriendlyTypeName() + ")";
-                            }));
-
-                            Context.LogCustom(fileName, this, text);
+                            ConnectionManager.ConnectionFailed(ref connection);
+                            bulkCopy?.Close();
                         }
-                    }
 
-                    if (retry < MaxRetryCount)
-                    {
-                        Context.Log(LogSeverity.Error, this, "db write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", RetryDelayMilliseconds * (retry + 1),
-                            retry, ex.Message);
+                        _reader.ResetCurrentIndex();
 
-                        Context.LogOps(LogSeverity.Error, this, "db write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", Name,
-                            RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
-
-                        Thread.Sleep(RetryDelayMilliseconds * (retry + 1));
-                    }
-                    else
-                    {
-                        var exception = new ProcessExecutionException(this, "db write failed", ex);
-                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db write failed, connection string key: {0}, table: {1}, message: {2}",
-                            ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message));
-                        exception.Data.Add("ConnectionStringName", ConnectionString.Name);
-                        exception.Data.Add("TableName", ConnectionString.Unescape(TableDefinition.TableName));
-                        exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + ConnectionString.Unescape(x.DbColumn))));
-                        exception.Data.Add("Timeout", CommandTimeout);
-                        exception.Data.Add("Elapsed", _timer.Elapsed);
-                        exception.Data.Add("TotalRowsWritten", _rowsWritten);
-                        if (ex is InvalidOperationException || ex is SqlException)
+                        if (retry == 0 && (ex is InvalidOperationException || ex is SqlException))
                         {
                             var fileName = "bulk-copy-error-" + Context.CreatedOnLocal.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + ".tsv";
-                            exception.Data.Add("DetailedRowLogFileName", fileName);
+                            Context.LogCustom(fileName, this, "bulk copy error: " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName) + ", exception: " + ex.GetType().GetFriendlyTypeName() + ": " + ex.Message);
+                            Context.LogCustom(fileName, this, string.Join("\t", _reader.ColumnIndexes.Select(kvp => kvp.Key)));
+
+                            for (var row = 0; row < _reader.RowCount; row++)
+                            {
+                                var text = string.Join("\t", _reader.ColumnIndexes.Select(kvp =>
+                                {
+                                    var v = _reader.Rows[row, kvp.Value];
+                                    return v == null
+                                        ? "NULL"
+                                        : "'" + v.ToString() + "' (" + v.GetType().GetFriendlyTypeName() + ")";
+                                }));
+
+                                Context.LogCustom(fileName, this, text);
+                            }
                         }
 
-                        throw exception;
+                        if (retry < MaxRetryCount)
+                        {
+                            Context.Log(LogSeverity.Error, this, "db write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", RetryDelayMilliseconds * (retry + 1),
+                                retry, ex.Message);
+
+                            Context.LogOps(LogSeverity.Error, this, "db write failed, retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}", Name,
+                                RetryDelayMilliseconds * (retry + 1), retry, ex.Message);
+
+                            Thread.Sleep(RetryDelayMilliseconds * (retry + 1));
+                        }
+                        else
+                        {
+                            var exception = new ProcessExecutionException(this, "db write failed", ex);
+                            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db write failed, connection string key: {0}, table: {1}, message: {2}",
+                                ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message));
+                            exception.Data.Add("ConnectionStringName", ConnectionString.Name);
+                            exception.Data.Add("TableName", ConnectionString.Unescape(TableDefinition.TableName));
+                            exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + ConnectionString.Unescape(x.DbColumn))));
+                            exception.Data.Add("Timeout", CommandTimeout);
+                            exception.Data.Add("Elapsed", _timer.Elapsed);
+                            exception.Data.Add("TotalRowsWritten", _rowsWritten);
+                            if (ex is InvalidOperationException || ex is SqlException)
+                            {
+                                var fileName = "bulk-copy-error-" + Context.CreatedOnLocal.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + ".tsv";
+                                exception.Data.Add("DetailedRowLogFileName", fileName);
+                            }
+
+                            throw exception;
+                        }
                     }
                 }
             }

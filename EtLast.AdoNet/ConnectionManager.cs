@@ -49,8 +49,8 @@
 
                     var startedOn = Stopwatch.StartNew();
 
-                    process.Context.Log(LogSeverity.Debug, process, "opening database connection to {ConnectionStringName} ({Provider}), transaction: {Transaction}", connectionString.Name,
-                        connectionString.GetFriendlyProviderName(), Transaction.Current.ToIdentifierString());
+                    process.Context.Log(Transaction.Current.ToIdentifierString(), LogSeverity.Debug, process, "opening database connection to {ConnectionStringName} ({Provider})",
+                        connectionString.Name, connectionString.GetFriendlyProviderName());
 
                     try
                     {
@@ -133,8 +133,8 @@
             for (var retry = 0; retry <= maxRetryCount; retry++)
             {
                 var startedOn = Stopwatch.StartNew();
-                process.Context.Log(LogSeverity.Debug, process, "opening database connection to {ConnectionStringName} ({Provider}), transaction: {Transaction}", connectionString.Name,
-                    connectionString.GetFriendlyProviderName(), Transaction.Current.ToIdentifierString());
+                process.Context.Log(Transaction.Current.ToIdentifierString(), LogSeverity.Debug, process, "opening database connection to {ConnectionStringName} ({Provider})",
+                    connectionString.Name, connectionString.GetFriendlyProviderName());
 
                 try
                 {

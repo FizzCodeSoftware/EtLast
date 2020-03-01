@@ -99,7 +99,8 @@
                         DiagnosticsEventKind.ContextCountersUpdated => ReadContextCountersUpdatedEvent(reader),
                         DiagnosticsEventKind.ProcessInvocationStart => ReadProcessInvocationStartEvent(reader),
                         DiagnosticsEventKind.ProcessInvocationEnd => ReadProcessInvocationEndEvent(reader),
-                        DiagnosticsEventKind.DataStoreCommand => ReadDataStoreCommandEvent(reader),
+                        DiagnosticsEventKind.DataStoreCommandStart => ReadDataStoreCommandStartEvent(reader),
+                        DiagnosticsEventKind.DataStoreCommandEnd => ReadDataStoreCommandEndEvent(reader),
                         _ => null,
                     };
 
@@ -191,7 +192,8 @@
                             DiagnosticsEventKind.ContextCountersUpdated => ReadContextCountersUpdatedEvent(reader),
                             DiagnosticsEventKind.ProcessInvocationStart => ReadProcessInvocationStartEvent(reader),
                             DiagnosticsEventKind.ProcessInvocationEnd => ReadProcessInvocationEndEvent(reader),
-                            DiagnosticsEventKind.DataStoreCommand => ReadDataStoreCommandEvent(reader),
+                            DiagnosticsEventKind.DataStoreCommandStart => ReadDataStoreCommandStartEvent(reader),
+                            DiagnosticsEventKind.DataStoreCommandEnd => ReadDataStoreCommandEndEvent(reader),
                             _ => null,
                         };
 
@@ -285,7 +287,8 @@
                                 DiagnosticsEventKind.ContextCountersUpdated => ReadContextCountersUpdatedEvent(reader),
                                 DiagnosticsEventKind.ProcessInvocationStart => ReadProcessInvocationStartEvent(reader),
                                 DiagnosticsEventKind.ProcessInvocationEnd => ReadProcessInvocationEndEvent(reader),
-                                DiagnosticsEventKind.DataStoreCommand => ReadDataStoreCommandEvent(reader),
+                                DiagnosticsEventKind.DataStoreCommandStart => ReadDataStoreCommandStartEvent(reader),
+                                DiagnosticsEventKind.DataStoreCommandEnd => ReadDataStoreCommandEndEvent(reader),
                                 _ => null,
                             };
 

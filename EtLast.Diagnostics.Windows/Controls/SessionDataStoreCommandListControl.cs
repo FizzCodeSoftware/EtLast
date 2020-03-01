@@ -21,6 +21,7 @@
         public CheckBox ShowTransactionKind { get; }
         private bool _newData;
         private readonly List<Model> AllItems = new List<Model>();
+        private readonly Dictionary<string, Dictionary<int, Model>> ItemByUid = new Dictionary<string, Dictionary<int, Model>>();
 
         public SessionDataStoreCommandListControl(Control container, DiagnosticsStateManager diagnosticsStateManager, DiagSession session)
         {
@@ -83,17 +84,33 @@
             ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Transaction",
-                AspectGetter = x => (x as Model)?.Event.TransactionId,
+                AspectGetter = x => (x as Model)?.StartEvent.TransactionId,
             });
             ListView.Columns.Add(new OLVColumn()
             {
-                Text = "Kind",
-                AspectGetter = x => (x as Model)?.Event.Kind.ToString(),
+                Text = "Tr. kind",
+                AspectGetter = x => (x as Model)?.StartEvent.Kind.ToString(),
             });
             ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Location",
-                AspectGetter = x => (x as Model)?.Event.Location,
+                AspectGetter = x => (x as Model)?.StartEvent.Location,
+            });
+            ListView.Columns.Add(new OLVColumn()
+            {
+                Text = "Timeout",
+                AspectGetter = x => (x as Model)?.StartEvent.TimeoutSeconds,
+            });
+            ListView.Columns.Add(new OLVColumn()
+            {
+                Text = "Elapsed",
+                AspectGetter = x => (x as Model)?.EndEvent == null ? (TimeSpan?)null : new TimeSpan((x as Model).EndEvent.Timestamp - (x as Model).StartEvent.Timestamp),
+                AspectToStringConverter = x => x is TimeSpan ts ? FormattingHelpers.TimeSpanToString(ts) : null,
+            });
+            ListView.Columns.Add(new OLVColumn()
+            {
+                Text = "Error",
+                AspectGetter = x => (x as Model)?.EndEvent?.ErrorMessage,
             });
             ListView.Columns.Add(new OLVColumn()
             {
@@ -126,7 +143,7 @@
         private bool ItemVisible(Model item)
         {
 #pragma warning disable RCS1073 // Convert 'if' to 'return' statement.
-            if (item.Event.Kind == DataStoreCommandKind.transaction && !ShowTransactionKind.Checked)
+            if (item.StartEvent.Kind == DataStoreCommandKind.transaction && !ShowTransactionKind.Checked)
                 return false;
 #pragma warning restore RCS1073 // Convert 'if' to 'return' statement.
 
@@ -188,29 +205,50 @@
 
                 foreach (var evt in events)
                 {
-                    var item = new Model()
+                    if (evt is DataStoreCommandStartEvent startEvent)
                     {
-                        Timestamp = new DateTime(evt.Timestamp),
-                        Playbook = playbook,
-                        Event = evt,
-                        Process = playbook.DiagContext.WholePlaybook.ProcessList[evt.ProcessInvocationUID],
-                        CommandPreview = evt.Command
-                            .Trim()
-                            .Replace("\n", " ", StringComparison.InvariantCultureIgnoreCase)
-                            .Replace("\t", " ", StringComparison.InvariantCultureIgnoreCase)
-                            .Replace("  ", " ", StringComparison.InvariantCultureIgnoreCase)
-                            .Trim()
-                            .MaxLengthWithEllipsis(300),
-                        ArgumentsPreview = evt.Arguments != null
-                            ? string.Join(",", evt.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Key + "=" + FormattingHelpers.ToDisplayValue(x.Value)))
-                            : null,
-                    };
+                        var item = new Model()
+                        {
+                            Timestamp = new DateTime(evt.Timestamp),
+                            Playbook = playbook,
+                            StartEvent = startEvent,
+                            Process = playbook.DiagContext.WholePlaybook.ProcessList[startEvent.ProcessInvocationUid],
+                            CommandPreview = startEvent.Command
+                                .Trim()
+                                .Replace("\n", " ", StringComparison.InvariantCultureIgnoreCase)
+                                .Replace("\t", " ", StringComparison.InvariantCultureIgnoreCase)
+                                .Replace("  ", " ", StringComparison.InvariantCultureIgnoreCase)
+                                .Trim()
+                                .MaxLengthWithEllipsis(300),
+                            ArgumentsPreview = startEvent.Arguments != null
+                                ? string.Join(",", startEvent.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Key + "=" + FormattingHelpers.ToDisplayValue(x.Value)))
+                                : null,
+                        };
 
-                    AllItems.Add(item);
+                        AllItems.Add(item);
 
-                    if (ItemVisible(item))
+                        if (!ItemByUid.TryGetValue(playbook.DiagContext.Name, out var itemListByContext))
+                        {
+                            itemListByContext = new Dictionary<int, Model>();
+                            ItemByUid.Add(playbook.DiagContext.Name, itemListByContext);
+                        }
+
+                        itemListByContext.Add(startEvent.Uid, item);
+                        if (ItemVisible(item))
+                        {
+                            newItems.Add(item);
+                        }
+                    }
+                    else if (evt is DataStoreCommandEndEvent endEvent)
                     {
-                        newItems.Add(item);
+                        if (ItemByUid.TryGetValue(playbook.DiagContext.Name, out var itemListByContext))
+                        {
+                            if (itemListByContext.TryGetValue(endEvent.Uid, out var item))
+                            {
+                                item.EndEvent = endEvent;
+                                //ListView.RefreshObject(item);
+                            }
+                        }
                     }
                 }
 
@@ -228,7 +266,8 @@
             public DateTime Timestamp { get; set; }
             public Playbook Playbook { get; set; }
             public TrackedProcessInvocation Process { get; set; }
-            public DataStoreCommandEvent Event { get; set; }
+            public DataStoreCommandStartEvent StartEvent { get; set; }
+            public DataStoreCommandEndEvent EndEvent { get; set; }
             public string CommandPreview { get; set; }
             public string ArgumentsPreview { get; set; }
         }

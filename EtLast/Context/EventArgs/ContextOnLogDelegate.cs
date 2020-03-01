@@ -27,5 +27,5 @@
         }
     }
 
-    public delegate void ContextOnLogDelegate(LogSeverity severity, bool forOps, bool noDiag, IProcess process, string text, params object[] args);
+    public delegate void ContextOnLogDelegate(LogSeverity severity, bool forOps, bool noDiag, string transactionId, IProcess process, string text, params object[] args);
 }

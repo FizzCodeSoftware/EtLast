@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Data;
     using System.Globalization;
-    using System.Transactions;
 
     public class DeleteTableProcess : AbstractSqlStatementProcess
     {
@@ -31,19 +30,27 @@
                 : "DELETE FROM " + TableName + " WHERE " + CustomWhereClause;
         }
 
-        protected override void RunCommand(IDbCommand command)
+        protected override void LogAction(string transactionId)
         {
-            Context.LogNoDiag(LogSeverity.Debug, this, "deleting records from {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
-                ConnectionString.Unescape(TableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
+            Context.Log(transactionId, LogSeverity.Debug, this, "deleting records from {ConnectionStringName}/{TableName}",
+                ConnectionString.Name, ConnectionString.Unescape(TableName));
+        }
 
+        protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
+        {
+            var dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.one, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, () => parameters);
             try
             {
                 var recordCount = command.ExecuteNonQuery();
-                Context.Log(LogSeverity.Debug, this, "{RecordCount} records deleted in {ConnectionStringName}/{TableName} in {Elapsed}, transaction: {Transaction}", recordCount,
-                    ConnectionString.Name, ConnectionString.Unescape(TableName), InvocationInfo.LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
+                Context.RegisterDataStoreCommandEnd(this, dscUid, recordCount, null);
+
+                Context.Log(transactionId, LogSeverity.Debug, this, "{RecordCount} records deleted in {ConnectionStringName}/{TableName} in {Elapsed}",
+                    recordCount, ConnectionString.Name, ConnectionString.Unescape(TableName), InvocationInfo.LastInvocationStarted.Elapsed);
             }
             catch (Exception ex)
             {
+                Context.RegisterDataStoreCommandEnd(this, dscUid, 0, ex.Message);
+
                 var exception = new ProcessExecutionException(this, "database table content deletion failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table content deletion failed, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionString.Name, ConnectionString.Unescape(TableName), ex.Message, command.CommandText, CommandTimeout));

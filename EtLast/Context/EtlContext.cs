@@ -34,12 +34,14 @@
         public ContextOnRowStoredDelegate OnRowStored { get; set; }
         public ContextOnProcessInvocationDelegate OnProcessInvocationStart { get; set; }
         public ContextOnProcessInvocationDelegate OnProcessInvocationEnd { get; set; }
-        public ContextOnDataStoreCommandDelegate OnContextDataStoreCommand { get; set; }
+        public ContextOnDataStoreCommandStartDelegate OnContextDataStoreCommandStart { get; set; }
+        public ContextOnDataStoreCommandEndDelegate OnContextDataStoreCommandEnd { get; set; }
 
-        private int _nextRowUID;
-        private int _nextProcessInstanceUID;
-        private int _nextProcessInvocationUID;
-        private int _nextRowStoreUID;
+        private int _nextRowUid;
+        private int _nextProcessInstanceUid;
+        private int _nextProcessInvocationUid;
+        private int _nextRowStoreUid;
+        private int _nextDataStoreCommandUid;
         private readonly List<Exception> _exceptions = new List<Exception>();
         private readonly Dictionary<string, int> _rowStores = new Dictionary<string, int>();
 
@@ -122,17 +124,25 @@
             }
         }
 
+        public void Log(string transactionId, LogSeverity severity, IProcess process, string text, params object[] args)
+        {
+            if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
+                Result.WarningCount++;
+
+            OnLog?.Invoke(severity, false, false, transactionId, process, text, args);
+        }
+
         public void Log(LogSeverity severity, IProcess process, string text, params object[] args)
         {
             if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
                 Result.WarningCount++;
 
-            OnLog?.Invoke(severity, false, false, process, text, args);
+            OnLog?.Invoke(severity, false, false, null, process, text, args);
         }
 
         public void LogOps(LogSeverity severity, IProcess process, string text, params object[] args)
         {
-            OnLog?.Invoke(severity, true, false, process, text, args);
+            OnLog?.Invoke(severity, true, false, null, process, text, args);
         }
 
         public void LogNoDiag(LogSeverity severity, IProcess process, string text, params object[] args)
@@ -140,7 +150,7 @@
             if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
                 Result.WarningCount++;
 
-            OnLog?.Invoke(severity, false, true, process, text, args);
+            OnLog?.Invoke(severity, false, true, null, process, text, args);
         }
 
         public void LogCustom(string fileName, IProcess process, string text, params object[] args)
@@ -153,10 +163,22 @@
             OnCustomLog?.Invoke(true, fileName, process, text, args);
         }
 
+        public int RegisterDataStoreCommandStart(IProcess process, DataStoreCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter)
+        {
+            var uid = Interlocked.Increment(ref _nextDataStoreCommandUid);
+            OnContextDataStoreCommandStart?.Invoke(uid, kind, location, process, timeoutSeconds, command, transactionId, argumentListGetter);
+            return uid;
+        }
+
+        public void RegisterDataStoreCommandEnd(IProcess process, int uid, int affectedDataCount, string errorMessage)
+        {
+            OnContextDataStoreCommandEnd?.Invoke(process, uid, affectedDataCount, errorMessage);
+        }
+
         public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues)
         {
             var row = (IRow)Activator.CreateInstance(RowType);
-            row.Init(this, process, Interlocked.Increment(ref _nextRowUID), initialValues);
+            row.Init(this, process, Interlocked.Increment(ref _nextRowUid), initialValues);
 
             CounterCollection.IncrementCounter("in-memory rows created", 1);
 
@@ -232,9 +254,9 @@
         {
             process.InvocationInfo = new ProcessInvocationInfo()
             {
-                InstanceUID = process.InvocationInfo?.InstanceUID ?? Interlocked.Increment(ref _nextProcessInstanceUID),
+                InstanceUid = process.InvocationInfo?.InstanceUid ?? Interlocked.Increment(ref _nextProcessInstanceUid),
                 Number = (process.InvocationInfo?.Number ?? 0) + 1,
-                InvocationUID = Interlocked.Increment(ref _nextProcessInvocationUID),
+                InvocationUid = Interlocked.Increment(ref _nextProcessInvocationUid),
                 LastInvocationStarted = Stopwatch.StartNew(),
                 Caller = caller,
             };
@@ -260,7 +282,7 @@
             var key = string.Join(",", descriptor.Select(x => x.Key + "=" + x.Value));
             if (!_rowStores.TryGetValue(key, out var storeUid))
             {
-                storeUid = Interlocked.Increment(ref _nextRowStoreUID);
+                storeUid = Interlocked.Increment(ref _nextRowStoreUid);
                 _rowStores.Add(key, storeUid);
                 OnRowStoreStarted?.Invoke(storeUid, descriptor);
             }

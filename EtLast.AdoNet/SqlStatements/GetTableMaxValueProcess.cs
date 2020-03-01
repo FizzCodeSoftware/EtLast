@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Data;
     using System.Globalization;
-    using System.Transactions;
 
     public class GetTableMaxValueProcess<T> : AbstractSqlStatementWithResultProcess<TableMaxValueResult<T>>
     {
@@ -32,10 +31,15 @@
                 : "SELECT MAX(" + ColumnName + ") AS maxValue, COUNT(*) AS cnt FROM " + TableName + " WHERE " + CustomWhereClause;
         }
 
-        protected override TableMaxValueResult<T> RunCommandAndGetResult(IDbCommand command)
+        protected override void LogAction(string transactionId)
         {
-            Context.LogNoDiag(LogSeverity.Debug, this, "getting max value from {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
+            Context.Log(transactionId, LogSeverity.Debug, this, "getting max value from {ConnectionStringName}/{TableName}",
+                ConnectionString.Name, ConnectionString.Unescape(TableName));
+        }
+
+        protected override TableMaxValueResult<T> RunCommandAndGetResult(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
+        {
+            var dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.read, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, () => parameters);
 
             try
             {
@@ -54,8 +58,10 @@
                     }
                 }
 
-                Context.Log(LogSeverity.Debug, this, "maximum value {MaxValue} and {RecordCount} records found in {ConnectionStringName}/{TableName} in column {ColumnName} in {Elapsed}, transaction: {Transaction}",
-                    result.MaxValue, result.RecordCount, ConnectionString.Name, ConnectionString.Unescape(TableName), ConnectionString.Unescape(ColumnName), InvocationInfo.LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
+                Context.RegisterDataStoreCommandEnd(this, dscUid, result.RecordCount, null);
+
+                Context.Log(transactionId, LogSeverity.Debug, this, "maximum value {MaxValue} and {RecordCount} records found in {ConnectionStringName}/{TableName} in column {ColumnName} in {Elapsed}",
+                    result.MaxValue, result.RecordCount, ConnectionString.Name, ConnectionString.Unescape(TableName), ConnectionString.Unescape(ColumnName), InvocationInfo.LastInvocationStarted.Elapsed);
 
                 return result;
             }

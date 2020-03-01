@@ -77,11 +77,12 @@
                 Context.OnRowStored = LifecycleRowStored;
                 Context.OnProcessInvocationStart = LifecycleProcessInvocationStart;
                 Context.OnProcessInvocationEnd = LifecycleProcessInvocationEnd;
-                Context.OnContextDataStoreCommand = LifecycleContextDataStoreCommand;
+                Context.OnContextDataStoreCommandStart = LifecycleContextDataStoreCommandStart;
+                Context.OnContextDataStoreCommandEnd = LifecycleContextDataStoreCommandEnd;
             }
         }
 
-        public void Log(LogSeverity severity, bool forOps, bool noDiag, IProcess process, string text, params object[] args)
+        public void Log(LogSeverity severity, bool forOps, bool noDiag, string transactionId, IProcess process, string text, params object[] args)
         {
             var ident = "";
             if (process != null)
@@ -128,9 +129,10 @@
                 {
                     _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.Log, writer =>
                     {
+                        writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(transactionId));
                         writer.Write(text);
                         writer.Write((byte)severity);
-                        writer.WriteNullable(process?.InvocationInfo?.InvocationUID);
+                        writer.WriteNullable(process?.InvocationInfo?.InvocationUid);
                         writer.Write7BitEncodedInt(0);
                     });
 
@@ -142,9 +144,10 @@
 
                 _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.Log, writer =>
                 {
+                    writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(transactionId));
                     writer.Write(text);
                     writer.Write((byte)severity);
-                    writer.WriteNullable(process?.InvocationInfo?.InvocationUID);
+                    writer.WriteNullable(process?.InvocationInfo?.InvocationUid);
 
                     var argCount = 0;
                     for (var i = 0; i < tokens.Count && argCount < args.Length; i++)
@@ -215,11 +218,11 @@
             GetOpsMessagesRecursive(args.Exception, opsErrors);
             foreach (var opsError in opsErrors)
             {
-                Log(LogSeverity.Fatal, true, false, args.Process, opsError);
+                Log(LogSeverity.Fatal, true, false, null, args.Process, opsError);
             }
 
             var msg = args.Exception.FormatExceptionWithDetails();
-            Log(LogSeverity.Fatal, false, false, args.Process, "{Message}", msg);
+            Log(LogSeverity.Fatal, false, false, null, args.Process, "{Message}", msg);
         }
 
         private void GetOpsMessagesRecursive(Exception ex, List<string> messages)
@@ -306,8 +309,8 @@
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowCreated, writer =>
             {
-                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUID);
-                writer.Write7BitEncodedInt(row.UID);
+                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
+                writer.Write7BitEncodedInt(row.Uid);
                 writer.Write7BitEncodedInt(row.ColumnCount);
                 foreach (var kvp in row.Values)
                 {
@@ -321,9 +324,9 @@
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowOwnerChanged, writer =>
             {
-                writer.Write7BitEncodedInt(row.UID);
-                writer.Write7BitEncodedInt(previousProcess.InvocationInfo.InvocationUID);
-                writer.WriteNullable(currentProcess?.InvocationInfo?.InvocationUID);
+                writer.Write7BitEncodedInt(row.Uid);
+                writer.Write7BitEncodedInt(previousProcess.InvocationInfo.InvocationUid);
+                writer.WriteNullable(currentProcess?.InvocationInfo?.InvocationUid);
             });
         }
 
@@ -345,8 +348,8 @@
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowStored, writer =>
             {
-                writer.Write7BitEncodedInt(row.UID);
-                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUID);
+                writer.Write7BitEncodedInt(row.Uid);
+                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
                 writer.Write7BitEncodedInt(storeUid);
                 writer.Write7BitEncodedInt(row.ColumnCount);
                 foreach (var kvp in row.Values)
@@ -361,14 +364,14 @@
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.ProcessInvocationStart, writer =>
             {
-                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUID);
-                writer.Write7BitEncodedInt(process.InvocationInfo.InstanceUID);
+                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
+                writer.Write7BitEncodedInt(process.InvocationInfo.InstanceUid);
                 writer.Write7BitEncodedInt(process.InvocationInfo.Number);
                 writer.Write(process.GetType().GetFriendlyTypeName());
                 writer.Write((byte)process.Kind);
                 writer.Write(process.Name);
                 writer.WriteNullable(process.Topic.Name);
-                writer.WriteNullable(process.InvocationInfo.Caller?.InvocationInfo?.InvocationUID);
+                writer.WriteNullable(process.InvocationInfo.Caller?.InvocationInfo?.InvocationUid);
             });
         }
 
@@ -376,21 +379,36 @@
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.ProcessInvocationEnd, writer =>
             {
-                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUID);
+                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
                 writer.Write(process.InvocationInfo.LastInvocationStarted.ElapsedMilliseconds);
                 writer.WriteNullable(process.InvocationInfo.LastInvocationNetTimeMilliseconds);
             });
         }
 
-        private void LifecycleContextDataStoreCommand(DataStoreCommandKind kind, string location, IProcess process, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter)
+        private void LifecycleContextDataStoreCommandStart(int uid, DataStoreCommandKind kind, string location, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter)
         {
             var arguments = argumentListGetter?.Invoke()?.ToArray();
 
-            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.DataStoreCommand, writer =>
+            // todo: add host configuration option to disable logging data store commands
+
+            LogCustom(false, "data-store-commands.tsv", process,
+                uid.ToString("D", CultureInfo.InvariantCulture)
+                + "\t"
+                + location
+                + "\t"
+                + transactionId
+                + "\t"
+                + (timeoutSeconds != null ? timeoutSeconds.Value.ToString("D", CultureInfo.InvariantCulture) : "-")
+                + "\t"
+                + command);
+
+            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.DataStoreCommandStart, writer =>
             {
-                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUID);
+                writer.Write7BitEncodedInt(uid);
+                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
                 writer.Write((byte)kind);
                 writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(location));
+                writer.WriteNullable(timeoutSeconds);
                 writer.Write(command);
                 writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(transactionId));
                 if (arguments?.Length > 0)
@@ -409,12 +427,29 @@
             });
         }
 
+        private void LifecycleContextDataStoreCommandEnd(IProcess process, int uid, int affectedDataCount, string errorMessage)
+        {
+            LogCustom(false, "data-store-commands.tsv", process,
+                uid.ToString("D", CultureInfo.InvariantCulture)
+                + "\t"
+                + affectedDataCount.ToString("D", CultureInfo.InvariantCulture)
+                + "\t"
+                + errorMessage ?? "success");
+
+            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.DataStoreCommandEnd, writer =>
+            {
+                writer.Write7BitEncodedInt(uid);
+                writer.Write7BitEncodedInt(affectedDataCount);
+                writer.WriteNullable(errorMessage);
+            });
+        }
+
         private void LifecycleRowValueChanged(IProcess process, IRow row, KeyValuePair<string, object>[] values)
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowValueChanged, writer =>
             {
-                writer.Write7BitEncodedInt(row.UID);
-                writer.WriteNullable(process?.InvocationInfo?.InvocationUID);
+                writer.Write7BitEncodedInt(row.Uid);
+                writer.WriteNullable(process?.InvocationInfo?.InvocationUid);
 
                 writer.Write7BitEncodedInt(values.Length);
                 foreach (var kvp in values)
@@ -434,20 +469,20 @@
 
             if (PluginName == null)
             {
-                Log(LogSeverity.Debug, false, true, null, "----------------");
-                Log(LogSeverity.Debug, false, true, null, "SESSION COUNTERS");
-                Log(LogSeverity.Debug, false, true, null, "----------------");
+                Log(LogSeverity.Debug, false, true, null, null, "----------------");
+                Log(LogSeverity.Debug, false, true, null, null, "SESSION COUNTERS");
+                Log(LogSeverity.Debug, false, true, null, null, "----------------");
             }
             else
             {
-                Log(LogSeverity.Debug, false, true, null, "---------------");
-                Log(LogSeverity.Debug, false, true, null, "PLUGIN COUNTERS");
-                Log(LogSeverity.Debug, false, true, null, "---------------");
+                Log(LogSeverity.Debug, false, true, null, null, "---------------");
+                Log(LogSeverity.Debug, false, true, null, null, "PLUGIN COUNTERS");
+                Log(LogSeverity.Debug, false, true, null, null, "---------------");
             }
 
             foreach (var counter in counters)
             {
-                Log(LogSeverity.Debug, false, true, null, "{Counter} = {Value}",
+                Log(LogSeverity.Debug, false, true, null, null, "{Counter} = {Value}",
                     counter.Name, counter.TypedValue);
             }
         }

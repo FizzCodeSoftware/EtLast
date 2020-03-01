@@ -2,7 +2,6 @@
 {
     using System.Globalization;
     using System.Linq;
-    using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
     public class AdoNetDbReaderProcess : AbstractAdoNetDbReaderProcess
@@ -67,10 +66,10 @@
                 + (!string.IsNullOrEmpty(postfix) ? " " + postfix : "");
         }
 
-        protected override void LogAction()
+        protected override void LogAction(string transactionId)
         {
-            Context.Log(LogSeverity.Debug, this, "reading from {ConnectionStringName}/{TableName}, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionString.Name, ConnectionString.Unescape(TableName), CommandTimeout, Transaction.Current.ToIdentifierString());
+            Context.Log(transactionId, LogSeverity.Debug, this, "querying from {ConnectionStringName}/{TableName}",
+                ConnectionString.Name, ConnectionString.Unescape(TableName));
         }
 
         protected override void IncrementCounter()

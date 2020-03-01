@@ -6,7 +6,6 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
     public enum MsSqlDropForeignKeysProcessMode { All, InSpecifiedTables, InSpecifiedSchema, ToSpecifiedSchema, ToSpecifiedTables }
@@ -68,21 +67,19 @@
                 throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be System.Data.SqlClient");
         }
 
-        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection)
+        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection, string transactionId)
         {
             var startedOn = Stopwatch.StartNew();
             using (var command = connection.CreateCommand())
             {
-                try
-                {
-                    var parameters = new Dictionary<string, object>();
+                var parameters = new Dictionary<string, object>();
 
-                    command.CommandTimeout = CommandTimeout;
-                    switch (Mode)
-                    {
-                        case MsSqlDropForeignKeysProcessMode.ToSpecifiedSchema:
-                            {
-                                command.CommandText = @"
+                command.CommandTimeout = CommandTimeout;
+                switch (Mode)
+                {
+                    case MsSqlDropForeignKeysProcessMode.ToSpecifiedSchema:
+                        {
+                            command.CommandText = @"
 select
 	fk.[name] fkName,
 	SCHEMA_NAME(fk.schema_id) schemaName,
@@ -91,13 +88,13 @@ from
 	sys.foreign_keys fk
 	inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
 	inner join sys.objects o on fkc.referenced_object_id = o.object_id and o.schema_id = SCHEMA_ID(@schemaName)";
-                                parameters.Add("schemaName", SchemaName);
-                                break;
-                            }
+                            parameters.Add("schemaName", SchemaName);
+                            break;
+                        }
 
-                        case MsSqlDropForeignKeysProcessMode.InSpecifiedSchema:
-                            {
-                                command.CommandText = @"
+                    case MsSqlDropForeignKeysProcessMode.InSpecifiedSchema:
+                        {
+                            command.CommandText = @"
 select
 	fk.[name] fkName,
 	SCHEMA_NAME(fk.schema_id) schemaName,
@@ -106,12 +103,12 @@ from
 	sys.foreign_keys fk
 	inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
 where fk.schema_id = SCHEMA_ID(@schemaName)";
-                                parameters.Add("schemaName", SchemaName);
-                                break;
-                            }
+                            parameters.Add("schemaName", SchemaName);
+                            break;
+                        }
 
-                        case MsSqlDropForeignKeysProcessMode.InSpecifiedTables:
-                            command.CommandText = @"
+                    case MsSqlDropForeignKeysProcessMode.InSpecifiedTables:
+                        command.CommandText = @"
 select
 	fk.[name] fkName,
 	SCHEMA_NAME(fk.schema_id) schemaName,
@@ -119,9 +116,9 @@ select
 from
 	sys.foreign_keys fk
 	inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id";
-                            break;
-                        case MsSqlDropForeignKeysProcessMode.ToSpecifiedTables:
-                            command.CommandText = @"
+                        break;
+                    case MsSqlDropForeignKeysProcessMode.ToSpecifiedTables:
+                        command.CommandText = @"
 select
 	fk.[name] fkName,
 	SCHEMA_NAME(fk.schema_id) schemaName,
@@ -132,35 +129,38 @@ from
 	sys.foreign_keys fk
 	inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
 	inner join sys.objects o on fkc.referenced_object_id = o.object_id";
-                            break;
-                    }
+                        break;
+                }
 
-                    // tables are not filtered with an IN clause due to the limitations of the query processor
-                    // this solution will read unnecessary data, but it will work in all conditions
+                // tables are not filtered with an IN clause due to the limitations of the query processor
+                // this solution will read unnecessary data, but it will work in all conditions
 
-                    foreach (var kvp in parameters)
-                    {
-                        var parameter = command.CreateParameter();
-                        parameter.ParameterName = kvp.Key;
-                        parameter.Value = kvp.Value;
-                        command.Parameters.Add(parameter);
-                    }
+                foreach (var kvp in parameters)
+                {
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = kvp.Key;
+                    parameter.Value = kvp.Value;
+                    command.Parameters.Add(parameter);
+                }
 
-                    Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.read, ConnectionString.Name, this, command.CommandText, Transaction.Current.ToIdentifierString(), () => parameters);
+                Context.Log(transactionId, LogSeverity.Debug, this, "querying foreign key names from {ConnectionStringName}",
+                    ConnectionString.Name);
 
-                    Context.LogNoDiag(LogSeverity.Debug, this, "querying foreign key names from {ConnectionStringName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
-                        command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
+                var tablesNamesHashSet = Mode == MsSqlDropForeignKeysProcessMode.InSpecifiedTables || Mode == MsSqlDropForeignKeysProcessMode.ToSpecifiedTables
+                    ? TableNames.Select(x => x.ToUpperInvariant()).ToHashSet()
+                    : null;
 
-                    var tablesNamesHashSet = Mode == MsSqlDropForeignKeysProcessMode.InSpecifiedTables || Mode == MsSqlDropForeignKeysProcessMode.ToSpecifiedTables
-                        ? TableNames.Select(x => x.ToUpperInvariant()).ToHashSet()
-                        : null;
+                var constraintsByTable = new Dictionary<string, List<string>>();
 
-                    var constraintsByTable = new Dictionary<string, List<string>>();
-
+                var dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.read, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, () => parameters);
+                var recordsRead = 0;
+                try
+                {
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
+                            recordsRead++;
                             var sourceTableName = ConnectionString.Escape((string)reader["tableName"], (string)reader["schemaName"]);
                             var sourceTableNameUpper = sourceTableName.ToUpperInvariant();
 
@@ -182,6 +182,8 @@ from
 
                             list.Add(ConnectionString.Escape((string)reader["fkName"]));
                         }
+
+                        Context.RegisterDataStoreCommandEnd(this, dscUid, recordsRead, null);
                     }
 
                     _tableNamesAndCounts = new List<Tuple<string, int>>();
@@ -200,6 +202,8 @@ from
                 }
                 catch (Exception ex)
                 {
+                    Context.RegisterDataStoreCommandEnd(this, dscUid, 0, ex.Message);
+
                     var exception = new ProcessExecutionException(this, "failed to query foreign key names from information schema", ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "foreign key list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                         ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
@@ -212,21 +216,27 @@ from
             }
         }
 
-        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
+        protected override void LogAction(int statementIndex, string transactionId)
         {
             var t = _tableNamesAndCounts[statementIndex];
 
-            Context.LogNoDiag(LogSeverity.Debug, this, "drop foreign keys of {ConnectionStringName}/{TableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
-                ConnectionString.Unescape(t.Item1), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
+            Context.Log(transactionId, LogSeverity.Debug, this, "drop foreign keys of {ConnectionStringName}/{TableName}",
+                ConnectionString.Name, ConnectionString.Unescape(t.Item1));
+        }
 
+        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
+        {
+            var t = _tableNamesAndCounts[statementIndex];
+            var dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.one, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, null);
             try
             {
                 command.ExecuteNonQuery();
+                Context.RegisterDataStoreCommandEnd(this, dscUid, 0, null);
 
                 var time = startedOn.Elapsed;
 
-                Context.LogNoDiag(LogSeverity.Debug, this, "foreign keys on {ConnectionStringName}/{TableName} are dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
-                    ConnectionString.Unescape(t.Item1), time, Transaction.Current.ToIdentifierString());
+                Context.Log(transactionId, LogSeverity.Debug, this, "foreign keys on {ConnectionStringName}/{TableName} are dropped in {Elapsed}",
+                    ConnectionString.Name, ConnectionString.Unescape(t.Item1), time);
 
                 CounterCollection.IncrementCounter("db drop foreign key count", 1);
                 CounterCollection.IncrementTimeSpan("db drop foreign key time", time);
@@ -237,6 +247,8 @@ from
             }
             catch (Exception ex)
             {
+                Context.RegisterDataStoreCommandEnd(this, dscUid, 0, ex.Message);
+
                 var exception = new ProcessExecutionException(this, "failed to drop foreign keys", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop foreign keys, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionString.Name, ConnectionString.Unescape(t.Item1), ex.Message, command.CommandText, command.CommandTimeout));
@@ -250,7 +262,7 @@ from
             }
         }
 
-        protected override void LogSucceeded(int lastSucceededIndex)
+        protected override void LogSucceeded(int lastSucceededIndex, string transactionId)
         {
             if (lastSucceededIndex == -1)
                 return;
@@ -259,8 +271,8 @@ from
                     .Take(lastSucceededIndex + 1)
                     .Sum(x => x.Item2);
 
-            Context.Log(LogSeverity.Debug, this, "{ForeignKeyCount} foreign keys for {TableCount} table(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", fkCount,
-                lastSucceededIndex + 1, ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
+            Context.Log(transactionId, LogSeverity.Debug, this, "{ForeignKeyCount} foreign keys for {TableCount} table(s) successfully dropped on {ConnectionStringName} in {Elapsed}",
+                fkCount, lastSucceededIndex + 1, ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed);
         }
     }
 }

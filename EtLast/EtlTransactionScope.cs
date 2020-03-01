@@ -12,6 +12,7 @@
         public TransactionScopeKind Kind { get; }
         public TransactionScope Scope { get; private set; }
         public LogSeverity LogSeverity { get; }
+        public TimeSpan Timeout { get; }
 
         public bool CompleteCalled { get; private set; }
         public bool Completed { get; private set; }
@@ -24,6 +25,7 @@
             Process = process;
             Kind = kind;
             LogSeverity = logSeverity;
+            Timeout = scopeTimeout;
 
             if (Kind == TransactionScopeKind.None)
                 return;
@@ -37,27 +39,27 @@
             switch (kind)
             {
                 case TransactionScopeKind.RequiresNew:
-                    Context.LogNoDiag(logSeverity, Process, "new transaction started: {Transaction}", newId);
-                    Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.transaction, null, process, "new transaction started", newId, null);
+                    Context.Log(newId, logSeverity, Process, "new transaction started");
+                    Context.RegisterDataStoreCommandStart(Process, DataStoreCommandKind.transaction, null, null, "new transaction started", newId, null);
                     break;
                 case TransactionScopeKind.Required:
                     if (previousId == null || newId != previousId)
                     {
-                        Context.Log(logSeverity, Process, "new transaction started: {Transaction}", newId);
-                        Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.transaction, null, process, "new transaction started", newId, null);
+                        Context.Log(newId, logSeverity, Process, "new transaction started");
+                        Context.RegisterDataStoreCommandStart(Process, DataStoreCommandKind.transaction, null, null, "new transaction started", newId, null);
                     }
                     else
                     {
-                        Context.Log(logSeverity, Process, "new transaction started and merged with previous: {Transaction}", newId);
-                        Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.transaction, null, process, "new transaction started and merged with previous", newId, () => new[] { new KeyValuePair<string, object>("previous transaction", previousId) });
+                        Context.Log(newId, logSeverity, Process, "new transaction started and merged with previous");
+                        Context.RegisterDataStoreCommandStart(Process, DataStoreCommandKind.transaction, null, null, "new transaction started and merged with previous", newId, () => new[] { new KeyValuePair<string, object>("previous transaction", previousId) });
                     }
 
                     break;
                 case TransactionScopeKind.Suppress:
                     if (previousId != null)
                     {
-                        Context.Log(logSeverity, Process, "existing transaction suppressed: {Transaction}", previousId);
-                        Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.transaction, null, process, "existing transaction suppressed", previousId, null);
+                        Context.Log(previousId, logSeverity, Process, "existing transaction suppressed");
+                        Context.RegisterDataStoreCommandStart(Process, DataStoreCommandKind.transaction, null, null, "existing transaction suppressed", previousId, null);
                     }
                     break;
             }
@@ -75,30 +77,31 @@
             }
 
             var transactionId = Transaction.Current.ToIdentifierString();
-            Context.Log(LogSeverity, Process, "completing transaction: {Transaction}", transactionId);
-            Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.transaction, null, Process, "completing transaction", transactionId, null);
+            Context.Log(transactionId, LogSeverity, Process, "completing transaction");
+            Context.RegisterDataStoreCommandStart(Process, DataStoreCommandKind.transaction, null, Convert.ToInt32(Timeout.TotalSeconds), "completing transaction", transactionId, null);
             var startedOn = Stopwatch.StartNew();
 
             CompleteCalled = true;
 
+            var dscUid = Context.RegisterDataStoreCommandStart(Process, DataStoreCommandKind.transaction, null, Convert.ToInt32(Timeout.TotalSeconds), "transaction completed", transactionId, null);
             try
             {
                 Scope.Complete();
                 Completed = true;
 
-                Context.Log(LogSeverity, Process, "transaction completed in {Elapsed}: {Transaction}",
-                    startedOn.Elapsed, transactionId);
+                Context.Log(transactionId, LogSeverity, Process, "transaction completed in {Elapsed}",
+                    startedOn.Elapsed);
 
-                Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.transaction, null, Process, "transaction completed", transactionId, null);
+                Context.RegisterDataStoreCommandEnd(Process, dscUid, 0, null);
             }
             catch (Exception ex)
             {
                 Completed = false;
 
-                Context.Log(LogSeverity, Process, "transaction completition failed after {Elapsed}: {Transaction}, error message: {ExceptionMessage}", startedOn.Elapsed,
-                    transactionId, ex.Message);
+                Context.Log(transactionId, LogSeverity.Warning, Process, "transaction completition failed after {Elapsed}, error message: {ExceptionMessage}",
+                    startedOn.Elapsed, ex.Message);
 
-                Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.transaction, null, Process, "transaction completition failed", transactionId, () => new[] { new KeyValuePair<string, object>("error message", ex.Message) });
+                Context.RegisterDataStoreCommandEnd(Process, dscUid, 0, ex.Message);
             }
         }
 
@@ -113,8 +116,8 @@
                         if (Kind != TransactionScopeKind.Suppress && !CompleteCalled)
                         {
                             var transactionId = Transaction.Current?.ToIdentifierString();
-                            Context.Log(LogSeverity, Process, "reverting transaction {Transaction}", transactionId);
-                            Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.transaction, null, Process, "reverting transaction", transactionId, null);
+                            Context.Log(transactionId, LogSeverity, Process, "reverting transaction");
+                            Context.RegisterDataStoreCommandStart(Process, DataStoreCommandKind.transaction, null, null, "reverting transaction", transactionId, null);
                         }
 
                         Scope.Dispose();
@@ -123,8 +126,8 @@
                         if (Kind == TransactionScopeKind.Suppress && !CompleteCalled)
                         {
                             var transactionId = Transaction.Current?.ToIdentifierString();
-                            Context.Log(LogSeverity, Process, "suppression of transaction {Transaction} is removed", transactionId);
-                            Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.transaction, null, Process, "suppression of transaction is removed", transactionId, null);
+                            Context.Log(transactionId, LogSeverity, Process, "suppression of transaction is removed");
+                            Context.RegisterDataStoreCommandStart(Process, DataStoreCommandKind.transaction, null, null, "suppression of transaction is removed", transactionId, null);
                         }
                     }
                 }

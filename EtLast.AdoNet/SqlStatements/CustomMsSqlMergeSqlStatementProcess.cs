@@ -6,7 +6,6 @@
     using System.Globalization;
     using System.Linq;
     using System.Text;
-    using System.Transactions;
 
     public class CustomMsSqlMergeSqlStatementProcess : AbstractSqlStatementProcess
     {
@@ -89,33 +88,30 @@
             sb.Append(";");
 
             var sqlStatementProcessed = InlineArrayParametersIfNecessary(sb.ToString());
+            foreach (var p in Parameters)
+                parameters.Add(p.Key, p.Value);
+
             return sqlStatementProcessed;
         }
 
-        protected override void RunCommand(IDbCommand command)
+        protected override void LogAction(string transactionId)
         {
-            Context.LogNoDiag(LogSeverity.Debug, this, "merging to {ConnectionStringName}/{TargetTableName} from {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
-                ConnectionString.Unescape(TargetTableName), ConnectionString.Unescape(SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
+            Context.Log(transactionId, LogSeverity.Debug, this, "merging to {ConnectionStringName}/{TargetTableName} from {SourceTableName}",
+                ConnectionString.Name, ConnectionString.Unescape(TargetTableName), ConnectionString.Unescape(SourceTableName));
+        }
 
-            if (Parameters != null)
-            {
-                foreach (var kvp in Parameters)
-                {
-                    var parameter = command.CreateParameter();
-                    parameter.ParameterName = kvp.Key;
-                    parameter.Value = kvp.Value;
-                    command.Parameters.Add(parameter);
-                }
-            }
-
+        protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
+        {
+            var dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.one, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, () => parameters);
             try
             {
                 var recordCount = command.ExecuteNonQuery();
+                Context.RegisterDataStoreCommandEnd(this, dscUid, recordCount, null);
 
                 var time = InvocationInfo.LastInvocationStarted.Elapsed;
 
-                Context.Log(LogSeverity.Debug, this, "{RecordCount} records merged to {ConnectionStringName}/{TargetTableName} from {SourceTableName} in {Elapsed}, transaction: {Transaction}", recordCount,
-                    ConnectionString.Name, ConnectionString.Unescape(TargetTableName), ConnectionString.Unescape(SourceTableName), time, Transaction.Current.ToIdentifierString());
+                Context.Log(transactionId, LogSeverity.Debug, this, "{RecordCount} records merged to {ConnectionStringName}/{TargetTableName} from {SourceTableName} in {Elapsed}", recordCount,
+                    ConnectionString.Name, ConnectionString.Unescape(TargetTableName), ConnectionString.Unescape(SourceTableName), time);
 
                 CounterCollection.IncrementCounter("db record merge count", recordCount);
                 CounterCollection.IncrementTimeSpan("db record merge time", time);
@@ -128,6 +124,8 @@
             }
             catch (Exception ex)
             {
+                Context.RegisterDataStoreCommandEnd(this, dscUid, 0, ex.Message);
+
                 var exception = new ProcessExecutionException(this, "custom merge statement failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "custom merge statement failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                     ConnectionString.Name, ex.Message, command.CommandText, CommandTimeout));

@@ -68,7 +68,7 @@
                 InitConnection();
                 lock (_connection.Lock)
                 {
-                    WriteToSql(true);
+                    WriteToSql();
                 }
             }
 
@@ -113,14 +113,14 @@
                 InitConnection();
                 lock (_connection.Lock)
                 {
-                    WriteToSql(false);
+                    WriteToSql();
                 }
             }
 
             yield return row;
         }
 
-        private void WriteToSql(bool shutdown)
+        private void WriteToSql()
         {
             if (Transaction.Current == null)
                 Context.Log(LogSeverity.Warning, this, "there is no active transaction!");
@@ -128,11 +128,12 @@
             var recordCount = _reader.RowCount;
             _timer.Restart();
 
-            Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.bulk, ConnectionString.Name, this, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", Transaction.Current.ToIdentifierString(), null);
+            var dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.bulk, ConnectionString.Name, _bulkCopy.BulkCopyTimeout, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", Transaction.Current.ToIdentifierString(), null);
 
             try
             {
                 _bulkCopy.WriteToServer(_reader);
+                Context.RegisterDataStoreCommandEnd(this, dscUid, recordCount, null);
 
                 _timer.Stop();
                 var time = _timer.Elapsed;
@@ -149,15 +150,13 @@
 
                 _rowsWritten += recordCount;
 
-                var severity = shutdown
-                    ? LogSeverity.Debug
-                    : LogSeverity.Debug;
-
-                Context.LogNoDiag(severity, this, "{TotalRowCount} records written to {ConnectionStringName}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}", _rowsWritten,
-                    ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), Transaction.Current.ToIdentifierString(), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
+                Context.Log(Transaction.Current.ToIdentifierString(), LogSeverity.Debug, this, "{TotalRowCount} records written to {ConnectionStringName}/{TableName}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}", _rowsWritten,
+                    ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
             }
             catch (Exception ex)
             {
+                Context.RegisterDataStoreCommandEnd(this, dscUid, recordCount, ex.Message);
+
                 ConnectionManager.ReleaseConnection(this, ref _connection);
                 _bulkCopy.Close();
                 _bulkCopy = null;

@@ -7,7 +7,6 @@
     using System.Globalization;
     using System.Linq;
     using System.Text;
-    using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
     public class CopyTableStructureProcess : AbstractSqlStatementsProcess
@@ -33,7 +32,7 @@
                 throw new ProcessParameterNullException(this, nameof(TableCopyConfiguration.TargetTableName));
         }
 
-        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection)
+        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection, string transactionId)
         {
             var statements = new List<string>();
             var sb = new StringBuilder();
@@ -61,22 +60,30 @@
             return statements;
         }
 
-        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
+        protected override void LogAction(int statementIndex, string transactionId)
         {
             var config = Configuration[statementIndex];
 
-            Context.LogNoDiag(LogSeverity.Debug, this, "create new table {ConnectionStringName}/{TargetTableName} based on {SourceTableName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
-                ConnectionString.Unescape(config.TargetTableName), ConnectionString.Unescape(config.SourceTableName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
+            Context.Log(transactionId, LogSeverity.Debug, this, "create new table {ConnectionStringName}/{TargetTableName} based on {SourceTableName}",
+                ConnectionString.Name, ConnectionString.Unescape(config.TargetTableName), ConnectionString.Unescape(config.SourceTableName));
+        }
 
+        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
+        {
+            var config = Configuration[statementIndex];
+            var dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.one, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, null);
             try
             {
                 command.ExecuteNonQuery();
+                Context.RegisterDataStoreCommandEnd(this, dscUid, 0, null);
 
-                Context.Log(LogSeverity.Debug, this, "table {ConnectionStringName}/{TargetTableName} is created from {SourceTableName} in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
-                    ConnectionString.Unescape(config.TargetTableName), ConnectionString.Unescape(config.SourceTableName), startedOn.Elapsed, Transaction.Current.ToIdentifierString());
+                Context.Log(transactionId, LogSeverity.Debug, this, "table {ConnectionStringName}/{TargetTableName} is created from {SourceTableName} in {Elapsed}",
+                    ConnectionString.Name, ConnectionString.Unescape(config.TargetTableName), ConnectionString.Unescape(config.SourceTableName), startedOn.Elapsed);
             }
             catch (Exception ex)
             {
+                Context.RegisterDataStoreCommandEnd(this, dscUid, 0, ex.Message);
+
                 var exception = new ProcessExecutionException(this, "failed to copy table structure", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to copy table structure, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message: {4}, command: {5}, timeout: {6}",
                     ConnectionString.Name, ConnectionString.Unescape(config.SourceTableName), ConnectionString.Unescape(config.TargetTableName), config.ColumnConfiguration != null ? string.Join(",", config.ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, command.CommandTimeout));
@@ -96,12 +103,12 @@
             }
         }
 
-        protected override void LogSucceeded(int lastSucceededIndex)
+        protected override void LogSucceeded(int lastSucceededIndex, string transactionId)
         {
             if (lastSucceededIndex == -1)
                 return;
 
-            Context.Log(LogSeverity.Debug, this, "{TableCount} table(s) successfully created on {ConnectionStringName} in {Elapsed}", lastSucceededIndex + 1,
+            Context.Log(transactionId, LogSeverity.Debug, this, "{TableCount} table(s) successfully created on {ConnectionStringName} in {Elapsed}", lastSucceededIndex + 1,
                 ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed);
         }
     }

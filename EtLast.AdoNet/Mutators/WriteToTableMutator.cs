@@ -51,7 +51,7 @@
         {
             if (_command != null)
             {
-                WriteStatements(true);
+                ExecuteStatements(true);
             }
 
             _statements = null;
@@ -90,7 +90,7 @@
 
                 if (_command.Parameters.Count >= MaximumParameterCount - 1)
                 {
-                    WriteStatements(false);
+                    ExecuteStatements(false);
                 }
             }
 
@@ -125,7 +125,7 @@
             _command.Parameters.Add(parameter);
         }
 
-        private void WriteStatements(bool shutdown)
+        private void ExecuteStatements(bool shutdown)
         {
             if (Transaction.Current == null)
                 Context.Log(LogSeverity.Warning, this, "there is no active transaction!");
@@ -138,12 +138,13 @@
 
             _command.CommandText = sqlStatement;
 
-            Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.one, ConnectionString.Name, this, sqlStatement, Transaction.Current.ToIdentifierString(), null);
-            Context.LogNoDiag(LogSeverity.Verbose, this, "executing SQL statement: {SqlStatement}", sqlStatement);
+            var dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.many, ConnectionString.Name, _command.CommandTimeout, sqlStatement, Transaction.Current.ToIdentifierString(), null);
 
             try
             {
                 _command.ExecuteNonQuery();
+                Context.RegisterDataStoreCommandEnd(this, dscUid, recordCount, null);
+
                 var time = startedOn.Elapsed;
                 _fullTime.Stop();
 
@@ -160,16 +161,14 @@
 
                 if (shutdown || (_rowsWritten / 10000 != (_rowsWritten - recordCount) / 10000))
                 {
-                    var severity = shutdown
-                        ? LogSeverity.Debug
-                        : LogSeverity.Debug;
-
-                    Context.LogNoDiag(severity, this, "{TotalRowCount} records written to {ConnectionStringName}/{TableName}, transaction: {Transaction}, average speed is {AvgSpeed} sec/Mrow)", _rowsWritten,
-                        ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), Transaction.Current.ToIdentifierString(), Math.Round(_fullTime.ElapsedMilliseconds * 1000 / (double)_rowsWritten, 1));
+                    Context.Log(Transaction.Current.ToIdentifierString(), LogSeverity.Debug, this, "{TotalRowCount} records written to {ConnectionStringName}/{TableName}, average speed is {AvgSpeed} sec/Mrow)", _rowsWritten,
+                        ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), Math.Round(_fullTime.ElapsedMilliseconds * 1000 / (double)_rowsWritten, 1));
                 }
             }
             catch (Exception ex)
             {
+                Context.RegisterDataStoreCommandEnd(this, dscUid, recordCount, ex.Message);
+
                 var exception = new ProcessExecutionException(this, "db write failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db write failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",
                     ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message, sqlStatement));

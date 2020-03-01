@@ -44,17 +44,12 @@
                             cmd.CommandTimeout = CommandTimeout;
                             cmd.CommandText = sqlStatement;
 
-                            Context.OnContextDataStoreCommand?.Invoke(DataStoreCommandKind.one, ConnectionString.Name, this, sqlStatement, Transaction.Current.ToIdentifierString(), () => parameters);
+                            var transactionId = Transaction.Current.ToIdentifierString();
+                            LogAction(transactionId);
 
-                            foreach (var kvp in parameters)
-                            {
-                                var parameter = cmd.CreateParameter();
-                                parameter.ParameterName = kvp.Key;
-                                parameter.Value = kvp.Value;
-                                cmd.Parameters.Add(parameter);
-                            }
+                            SetCommandParameters(cmd, parameters);
 
-                            RunCommand(cmd);
+                            RunCommand(cmd, transactionId, parameters);
                         }
                     }
                 }
@@ -65,8 +60,19 @@
             }
         }
 
-        protected abstract string CreateSqlStatement(Dictionary<string, object> parameters);
+        protected static void SetCommandParameters(IDbCommand command, Dictionary<string, object> parameters)
+        {
+            foreach (var kvp in parameters)
+            {
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = kvp.Key;
+                parameter.Value = kvp.Value;
+                command.Parameters.Add(parameter);
+            }
+        }
 
-        protected abstract void RunCommand(IDbCommand command);
+        protected abstract void LogAction(string transactionId);
+        protected abstract string CreateSqlStatement(Dictionary<string, object> parameters);
+        protected abstract void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters);
     }
 }

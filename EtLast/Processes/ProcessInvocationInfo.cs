@@ -5,8 +5,8 @@
 
     public class ProcessInvocationInfo
     {
-        public int InvocationUID { get; set; }
-        public int InstanceUID { get; set; }
+        public int InvocationUid { get; set; }
+        public int InstanceUid { get; set; }
         public int Number { get; set; }
         public IProcess Caller { get; set; }
         public Stopwatch LastInvocationStarted { get; set; }

@@ -6,7 +6,6 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
     public class MsSqlDropSchemasProcess : AbstractSqlStatementsProcess
@@ -29,7 +28,7 @@
                 throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be System.Data.SqlClient");
         }
 
-        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection)
+        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection, string transactionId)
         {
             return SchemaNames
                 .Where(x => !string.Equals(x, "dbo", StringComparison.InvariantCultureIgnoreCase))
@@ -37,21 +36,27 @@
                 .ToList();
         }
 
-        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn)
+        protected override void LogAction(int statementIndex, string transactionId)
         {
             var schemaName = SchemaNames[statementIndex];
 
-            Context.LogNoDiag(LogSeverity.Debug, this, "drop schema {ConnectionStringName}/{SchemaName} with SQL statement {SqlStatement}, timeout: {Timeout} sec, transaction: {Transaction}", ConnectionString.Name,
-                ConnectionString.Unescape(schemaName), command.CommandText, command.CommandTimeout, Transaction.Current.ToIdentifierString());
+            Context.Log(transactionId, LogSeverity.Debug, this, "drop schema {ConnectionStringName}/{SchemaName}",
+                ConnectionString.Name, ConnectionString.Unescape(schemaName));
+        }
 
+        protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
+        {
+            var schemaName = SchemaNames[statementIndex];
+            var dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.one, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, null);
             try
             {
                 command.ExecuteNonQuery();
+                Context.RegisterDataStoreCommandEnd(this, dscUid, 0, null);
 
                 var time = startedOn.Elapsed;
 
-                Context.Log(LogSeverity.Debug, this, "schema {ConnectionStringName}/{SchemaName} is dropped in {Elapsed}, transaction: {Transaction}", ConnectionString.Name,
-                    ConnectionString.Unescape(schemaName), time, Transaction.Current.ToIdentifierString());
+                Context.Log(transactionId, LogSeverity.Debug, this, "schema {ConnectionStringName}/{SchemaName} is dropped in {Elapsed}",
+                    ConnectionString.Name, ConnectionString.Unescape(schemaName), time);
 
                 CounterCollection.IncrementCounter("db drop schema count", 1);
                 CounterCollection.IncrementTimeSpan("db drop schema time", time);
@@ -62,6 +67,8 @@
             }
             catch (Exception ex)
             {
+                Context.RegisterDataStoreCommandEnd(this, dscUid, 0, ex.Message);
+
                 var exception = new ProcessExecutionException(this, "failed to drop schema", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop schema, connection string key: {0}, schema: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionString.Name, ConnectionString.Unescape(schemaName), ex.Message, command.CommandText, command.CommandTimeout));
@@ -75,13 +82,13 @@
             }
         }
 
-        protected override void LogSucceeded(int lastSucceededIndex)
+        protected override void LogSucceeded(int lastSucceededIndex, string transactionId)
         {
             if (lastSucceededIndex == -1)
                 return;
 
-            Context.Log(LogSeverity.Debug, this, "{SchemaCount} schema(s) successfully dropped on {ConnectionStringName} in {Elapsed}, transaction: {Transaction}", lastSucceededIndex + 1,
-                ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed, Transaction.Current.ToIdentifierString());
+            Context.Log(transactionId, LogSeverity.Debug, this, "{SchemaCount} schema(s) successfully dropped on {ConnectionStringName} in {Elapsed}",
+                lastSucceededIndex + 1, ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed);
         }
     }
 }

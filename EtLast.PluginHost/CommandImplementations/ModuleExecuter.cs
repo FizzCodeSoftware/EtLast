@@ -28,7 +28,7 @@
 
             try
             {
-                mainContext.Log(LogSeverity.Information, false, false, null, "session {SessionId} started", sessionId);
+                mainContext.Log(LogSeverity.Information, false, false, null, null, "session {SessionId} started", sessionId);
 
                 var contextList = new List<ExecutionContext>();
 
@@ -48,7 +48,7 @@
 
                         pluginContext.Start();
                         pluginContext.ListenToEtlEvents();
-                        pluginContext.Log(LogSeverity.Information, false, false, null, "plugin started");
+                        pluginContext.Log(LogSeverity.Information, false, false, null, null, "plugin started");
 
                         try
                         {
@@ -63,7 +63,7 @@
 
                                 if (pluginContext.Context.Result.TerminateHost)
                                 {
-                                    pluginContext.Log(LogSeverity.Error, false, false, null, "requested to terminate the execution of the module");
+                                    pluginContext.Log(LogSeverity.Error, false, false, null, null, "requested to terminate the execution of the module");
 
                                     result = ExecutionResult.PluginFailedAndExecutionTerminated;
                                     pluginContext.Finish();
@@ -81,8 +81,8 @@
                                 result = ExecutionResult.PluginFailedAndExecutionTerminated;
                                 pluginContext.Finish();
 
-                                pluginContext.Log(LogSeverity.Error, false, false, null, "unhandled error during plugin execution after {Elapsed}, message: ", pluginContext.RunTime, ex.Message);
-                                pluginContext.Log(LogSeverity.Error, true, false, null, "requested to terminate the execution of the module: {Message}", ex.Message);
+                                pluginContext.Log(LogSeverity.Error, false, false, null, null, "unhandled error during plugin execution after {Elapsed}, message: ", pluginContext.RunTime, ex.Message);
+                                pluginContext.Log(LogSeverity.Error, true, false, null, null, "requested to terminate the execution of the module: {Message}", ex.Message);
 
                                 pluginContext.Close();
                                 break; // stop processing plugins
@@ -93,7 +93,7 @@
                         }
 
                         pluginContext.Finish();
-                        pluginContext.Log(LogSeverity.Information, false, false, null, "plugin finished in {Elapsed}", pluginContext.RunTime);
+                        pluginContext.Log(LogSeverity.Information, false, false, null, null, "plugin finished in {Elapsed}", pluginContext.RunTime);
                         pluginContext.LogCounters();
 
                         pluginContext.Close();
@@ -103,9 +103,9 @@
                 mainContext.Finish();
                 mainContext.LogCounters();
 
-                mainContext.Log(LogSeverity.Information, false, false, null, "--------------");
-                mainContext.Log(LogSeverity.Information, false, false, null, "PLUGIN SUMMARY");
-                mainContext.Log(LogSeverity.Information, false, false, null, "--------------");
+                mainContext.Log(LogSeverity.Information, false, false, null, null, "--------------");
+                mainContext.Log(LogSeverity.Information, false, false, null, null, "PLUGIN SUMMARY");
+                mainContext.Log(LogSeverity.Information, false, false, null, null, "--------------");
 
                 foreach (var pluginContext in contextList)
                 {
@@ -114,29 +114,29 @@
 
                     if (pluginContext.Context.Result.Success)
                     {
-                        mainContext.Log(LogSeverity.Information, false, false, null, "{Plugin} run-time is {Elapsed}, status is {Status}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
+                        mainContext.Log(LogSeverity.Information, false, false, null, null, "{Plugin} run-time is {Elapsed}, status is {Status}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
                             pluginContext.PluginName, pluginContext.RunTime, "success", pluginContext.CpuTime, pluginContext.TotalAllocations, pluginContext.AllocationDifference);
                     }
                     else
                     {
-                        mainContext.Log(LogSeverity.Information, false, false, null, "{Plugin} run-time is {Elapsed}, status is {Status}, requested to terminate execution: {TerminateHost}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
+                        mainContext.Log(LogSeverity.Information, false, false, null, null, "{Plugin} run-time is {Elapsed}, status is {Status}, requested to terminate execution: {TerminateHost}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
                             pluginContext.PluginName, pluginContext.RunTime, "failed", pluginContext.Context.Result.TerminateHost, pluginContext.CpuTime, pluginContext.TotalAllocations, pluginContext.AllocationDifference);
                     }
                 }
 
-                mainContext.Log(LogSeverity.Information, false, false, null, "---------------");
-                mainContext.Log(LogSeverity.Information, false, false, null, "SESSION SUMMARY");
-                mainContext.Log(LogSeverity.Information, false, false, null, "---------------");
+                mainContext.Log(LogSeverity.Information, false, false, null, null, "---------------");
+                mainContext.Log(LogSeverity.Information, false, false, null, null, "SESSION SUMMARY");
+                mainContext.Log(LogSeverity.Information, false, false, null, null, "---------------");
 
                 if (sessionWarningCount > 0)
                 {
-                    mainContext.Log(LogSeverity.Warning, false, false, null, "{Count} warnings/errors occured",
+                    mainContext.Log(LogSeverity.Warning, false, false, null, null, "{Count} warnings/errors occured",
                         sessionWarningCount);
                 }
 
                 if (sessionExceptionCount > 0)
                 {
-                    mainContext.Log(LogSeverity.Warning, false, false, null, "{Count} exceptions raised",
+                    mainContext.Log(LogSeverity.Warning, false, false, null, null, "{Count} exceptions raised",
                         sessionExceptionCount);
                 }
             }
@@ -146,7 +146,7 @@
 
             mainContext.Finish();
 
-            mainContext.Log(LogSeverity.Information, false, false, null, "run-time is {Elapsed}, result is {Result}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
+            mainContext.Log(LogSeverity.Information, false, false, null, null, "run-time is {Elapsed}, result is {Result}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
                 sessionStartedOn.Elapsed, result, mainContext.CpuTime, mainContext.TotalAllocations, mainContext.AllocationDifference);
 
             mainContext.Close();

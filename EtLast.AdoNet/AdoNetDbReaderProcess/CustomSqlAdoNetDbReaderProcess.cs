@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
-    using System.Transactions;
-
     public class CustomSqlAdoNetDbReaderProcess : AbstractAdoNetDbReaderProcess
     {
         public string Sql { get; set; }
@@ -24,10 +22,10 @@
             return Sql;
         }
 
-        protected override void LogAction()
+        protected override void LogAction(string transactionId)
         {
-            Context.Log(LogSeverity.Debug, this, "reading from {ConnectionStringName} using custom query, timeout: {Timeout} sec, transaction: {Transaction}",
-                ConnectionString.Name, CommandTimeout, Transaction.Current.ToIdentifierString());
+            Context.Log(transactionId, LogSeverity.Debug, this, "querying from {ConnectionStringName} using custom query",
+                ConnectionString.Name);
         }
 
         protected override void IncrementCounter()
