@@ -135,13 +135,7 @@ from
                 // tables are not filtered with an IN clause due to the limitations of the query processor
                 // this solution will read unnecessary data, but it will work in all conditions
 
-                foreach (var kvp in parameters)
-                {
-                    var parameter = command.CreateParameter();
-                    parameter.ParameterName = kvp.Key;
-                    parameter.Value = kvp.Value;
-                    command.Parameters.Add(parameter);
-                }
+                command.FillCommandParameters(parameters);
 
                 Context.Log(transactionId, LogSeverity.Debug, this, "querying foreign key names from {ConnectionStringName}",
                     ConnectionString.Name);

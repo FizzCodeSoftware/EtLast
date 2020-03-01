@@ -43,11 +43,10 @@
                         {
                             cmd.CommandTimeout = CommandTimeout;
                             cmd.CommandText = sqlStatement;
+                            cmd.FillCommandParameters(parameters);
 
                             var transactionId = Transaction.Current.ToIdentifierString();
                             LogAction(transactionId);
-
-                            SetCommandParameters(cmd, parameters);
 
                             RunCommand(cmd, transactionId, parameters);
                         }
@@ -57,17 +56,6 @@
                 {
                     ConnectionManager.ReleaseConnection(this, ref connection);
                 }
-            }
-        }
-
-        protected static void SetCommandParameters(IDbCommand command, Dictionary<string, object> parameters)
-        {
-            foreach (var kvp in parameters)
-            {
-                var parameter = command.CreateParameter();
-                parameter.ParameterName = kvp.Key;
-                parameter.Value = kvp.Value;
-                command.Parameters.Add(parameter);
             }
         }
 

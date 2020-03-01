@@ -86,17 +86,10 @@
                         {
                             cmd.CommandTimeout = CommandTimeout;
                             cmd.CommandText = sqlStatement;
+                            cmd.FillCommandParameters(parameters);
 
                             var transactionId = Transaction.Current.ToIdentifierString();
                             LogAction(transactionId);
-
-                            foreach (var kvp in parameters)
-                            {
-                                var parameter = cmd.CreateParameter();
-                                parameter.ParameterName = kvp.Key;
-                                parameter.Value = kvp.Value;
-                                cmd.Parameters.Add(parameter);
-                            }
 
                             var result = RunCommandAndGetResult(cmd, transactionId, parameters);
                             return result;

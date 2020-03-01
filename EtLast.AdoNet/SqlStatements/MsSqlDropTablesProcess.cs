@@ -80,13 +80,7 @@
                             parameters.Add("schemaName", SchemaName);
                         }
 
-                        foreach (var kvp in parameters)
-                        {
-                            var parameter = command.CreateParameter();
-                            parameter.ParameterName = kvp.Key;
-                            parameter.Value = kvp.Value;
-                            command.Parameters.Add(parameter);
-                        }
+                        command.FillCommandParameters(parameters);
 
                         Context.Log(transactionId, LogSeverity.Debug, this, "querying table names from {ConnectionStringName}",
                             ConnectionString.Name);

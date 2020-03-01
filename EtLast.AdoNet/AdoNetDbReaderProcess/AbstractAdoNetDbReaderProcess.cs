@@ -85,10 +85,8 @@
                 cmd = connection.Connection.CreateCommand();
                 cmd.CommandTimeout = CommandTimeout;
                 cmd.CommandText = sqlStatementProcessed;
-                if (transaction != null)
-                {
-                    cmd.Transaction = transaction;
-                }
+                cmd.Transaction = transaction;
+                cmd.FillCommandParameters(Parameters);
 
                 var transactionId = (CustomConnectionCreator != null && cmd.Transaction != null)
                     ? "custom (" + cmd.Transaction.IsolationLevel.ToString() + ")"
@@ -97,17 +95,6 @@
                 LogAction(transactionId);
 
                 dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.read, ConnectionString.Name, cmd.CommandTimeout, sqlStatement, transactionId, () => Parameters);
-
-                if (Parameters != null)
-                {
-                    foreach (var kvp in Parameters)
-                    {
-                        var parameter = cmd.CreateParameter();
-                        parameter.ParameterName = kvp.Key;
-                        parameter.Value = kvp.Value;
-                        cmd.Parameters.Add(parameter);
-                    }
-                }
 
                 swQuery = Stopwatch.StartNew();
                 try
