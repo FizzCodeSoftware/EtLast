@@ -24,8 +24,7 @@
             {
                 try
                 {
-                    return Path.Combine(BaseFolder.Value, path)
-                        .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+                    return Path.GetRelativePath(BaseFolder.Value, path);
                 }
                 catch (Exception)
                 {
