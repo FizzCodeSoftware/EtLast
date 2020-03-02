@@ -88,8 +88,12 @@
             sb.Append(";");
 
             var sqlStatementProcessed = InlineArrayParametersIfNecessary(sb.ToString());
-            foreach (var p in Parameters)
-                parameters.Add(p.Key, p.Value);
+
+            if (Parameters != null)
+            {
+                foreach (var p in Parameters)
+                    parameters.Add(p.Key, p.Value);
+            }
 
             return sqlStatementProcessed;
         }

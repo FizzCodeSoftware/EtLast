@@ -18,7 +18,7 @@
         public EtlException(string message)
             : base(message)
         {
-            var frame = Array.Find(new StackTrace().GetFrames(), sf => !sf.GetMethod().IsConstructor);
+            var frame = Array.Find(new StackTrace().GetFrames(), sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
             if (frame != null)
                 Data.Add("Caller", FrameToString(frame));
         }
@@ -26,7 +26,7 @@
         public EtlException(string message, Exception innerException)
             : base(message, innerException)
         {
-            var frame = Array.Find(new StackTrace().GetFrames(), sf => !sf.GetMethod().IsConstructor);
+            var frame = Array.Find(new StackTrace().GetFrames(), sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
             if (frame != null)
                 Data.Add("Caller", FrameToString(frame));
         }
@@ -34,7 +34,7 @@
         public EtlException(IProcess process, string message)
             : base(message)
         {
-            var frame = Array.Find(new StackTrace().GetFrames(), sf => !sf.GetMethod().IsConstructor);
+            var frame = Array.Find(new StackTrace().GetFrames(), sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
             if (frame != null)
                 Data.Add("Caller", FrameToString(frame));
 
@@ -45,7 +45,7 @@
         public EtlException(IProcess process, string message, Exception innerException)
             : base(message, innerException)
         {
-            var frame = Array.Find(new StackTrace().GetFrames(), sf => !sf.GetMethod().IsConstructor);
+            var frame = Array.Find(new StackTrace().GetFrames(), sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
             if (frame != null)
                 Data.Add("Caller", FrameToString(frame));
 

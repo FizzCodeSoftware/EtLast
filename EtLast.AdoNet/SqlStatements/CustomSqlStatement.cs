@@ -33,8 +33,11 @@
 
         protected override string CreateSqlStatement(Dictionary<string, object> parameters)
         {
-            foreach (var p in Parameters)
-                parameters.Add(p.Key, p.Value);
+            if (Parameters != null)
+            {
+                foreach (var p in Parameters)
+                    parameters.Add(p.Key, p.Value);
+            }
 
             var sqlStatementProcessed = InlineArrayParametersIfNecessary(SqlStatement);
             return sqlStatementProcessed;
