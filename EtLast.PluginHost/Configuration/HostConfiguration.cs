@@ -18,10 +18,10 @@
         public int RetainedLogFileCountLimitInfo { get; set; } = 14;
         public int RetainedLogFileCountLimitLow { get; set; } = 4;
         public string ModulesFolder { get; set; } = @".\modules";
-        public LogEventLevel MinimumLogLevelOnConsole { get; set; } = LogEventLevel.Information;
-        public LogEventLevel MinimumLogLevelInFile { get; set; } = LogEventLevel.Debug;
-        public LogEventLevel MinimumLogLevelIo { get; set; }// = LogEventLevel.Verbose;
-        public DynamicCompilationMode DynamicCompilationMode { get; set; } = DynamicCompilationMode.Default;
+        public LogEventLevel MinimumLogLevelOnConsole { get; set; }
+        public LogEventLevel MinimumLogLevelInFile { get; set; }
+        public LogEventLevel MinimumLogLevelIo { get; set; }
+        public DynamicCompilationMode DynamicCompilationMode { get; set; }
         public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>();
 
         public void LoadFromConfiguration(IConfigurationRoot configuration, string section)
@@ -38,25 +38,25 @@
             TransactionScopeTimeout = TimeSpan.FromMinutes(GetHostSetting(configuration, section, "TransactionScopeTimeoutMinutes", 120));
             ModulesFolder = GetHostSetting(configuration, section, "ModulesFolder", @".\modules");
 
-            var v = GetHostSetting<string>(configuration, section, "DynamicCompilation:Mode", null);
+            var v = GetHostSetting(configuration, section, "DynamicCompilation:Mode", "Default");
             if (!string.IsNullOrEmpty(v) && Enum.TryParse(v, out DynamicCompilationMode mode))
             {
                 DynamicCompilationMode = mode;
             }
 
-            v = GetHostSetting<string>(configuration, section, "MinimumLogLevel:Console", null);
+            v = GetHostSetting(configuration, section, "MinimumLogLevel:Console", "Information");
             if (!string.IsNullOrEmpty(v) && Enum.TryParse(v, out LogEventLevel level))
             {
                 MinimumLogLevelOnConsole = level;
             }
 
-            v = GetHostSetting<string>(configuration, section, "MinimumLogLevel:File", null);
+            v = GetHostSetting(configuration, section, "MinimumLogLevel:File", "Debug");
             if (!string.IsNullOrEmpty(v) && Enum.TryParse(v, out level))
             {
                 MinimumLogLevelInFile = level;
             }
 
-            v = GetHostSetting<string>(configuration, section, "MinimumLogLevel:IoFile", null);
+            v = GetHostSetting(configuration, section, "MinimumLogLevel:IoFile", "Verbose");
             if (!string.IsNullOrEmpty(v) && Enum.TryParse(v, out level))
             {
                 MinimumLogLevelIo = level;

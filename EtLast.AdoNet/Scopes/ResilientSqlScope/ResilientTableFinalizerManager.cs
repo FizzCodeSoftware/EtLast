@@ -38,10 +38,6 @@
                 }
 
                 recordCounts[i] = recordCount;
-                if (recordCount == 0)
-                {
-                    Context.Log(LogSeverity.Debug, this, "no data found for {TableName}, skipping finalizers", _scope.Configuration.ConnectionString.Unescape(table.TableName));
-                }
             }
 
             Context.Log(LogSeverity.Information, this, "{TableCount} temp table contains data", recordCounts.Count(x => x > 0));
@@ -51,7 +47,10 @@
             {
                 var table = _scope.Configuration.Tables[i];
                 if (table.SkipFinalizersIfTempTableIsEmpty && recordCounts[i] == 0)
+                {
+                    Context.Log(LogSeverity.Debug, this, "no data found for {TableName}, skipping finalizers", _scope.Configuration.ConnectionString.Unescape(table.TableName));
                     continue;
+                }
 
                 Context.Log(LogSeverity.Information, this, "finalizing table {TableName}",
                     _scope.Configuration.ConnectionString.Unescape(table.TableName));

@@ -31,6 +31,11 @@
 
             var previousId = Transaction.Current?.ToIdentifierString();
 
+            if (Kind == TransactionScopeKind.Suppress && previousId == null)
+            {
+                return;
+            }
+
             Scope = new TransactionScope((TransactionScopeOption)Kind, scopeTimeout);
 
             var newId = Transaction.Current?.ToIdentifierString();
@@ -55,11 +60,8 @@
 
                     break;
                 case TransactionScopeKind.Suppress:
-                    if (previousId != null)
-                    {
-                        Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, "existing transaction suppressed", previousId, null,
-                            "existing transaction suppressed");
-                    }
+                    Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, "existing transaction suppressed", previousId, null,
+                        "existing transaction suppressed");
                     break;
             }
         }

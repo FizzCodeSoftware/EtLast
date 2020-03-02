@@ -6,11 +6,11 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class DelimitedFileReaderProcessTests
+    public class DelimitedFileReaderTests
     {
         private IEvaluable GetReader(ITopic topic, string fileName)
         {
-            return new DelimitedFileReader(topic, "DelimitedFileReaderProcess")
+            return new DelimitedFileReader(topic, null)
             {
                 FileName = fileName,
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()

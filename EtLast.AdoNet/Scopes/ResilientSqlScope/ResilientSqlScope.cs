@@ -109,7 +109,7 @@
 
                         if (table.MainProcessCreator != null)
                         {
-                            Context.Log(LogSeverity.Information, this, "creating main process for table {TableName}",
+                            Context.Log(LogSeverity.Information, this, "processing table {TableName}",
                                 Configuration.ConnectionString.Unescape(table.TableName));
 
                             IExecutable[] mainProcessList;
