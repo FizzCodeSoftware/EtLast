@@ -18,8 +18,9 @@
         public int RetainedLogFileCountLimitInfo { get; set; } = 14;
         public int RetainedLogFileCountLimitLow { get; set; } = 4;
         public string ModulesFolder { get; set; } = @".\modules";
-        public LogEventLevel MinimumLogLevelOnConsole { get; set; }
-        public LogEventLevel MinimumLogLevelInFile { get; set; }
+        public LogEventLevel MinimumLogLevelOnConsole { get; set; } = LogEventLevel.Information;
+        public LogEventLevel MinimumLogLevelInFile { get; set; } = LogEventLevel.Debug;
+        public LogEventLevel MinimumLogLevelIo { get; set; }// = LogEventLevel.Verbose;
         public DynamicCompilationMode DynamicCompilationMode { get; set; } = DynamicCompilationMode.Default;
         public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>();
 
@@ -53,6 +54,12 @@
             if (!string.IsNullOrEmpty(v) && Enum.TryParse(v, out level))
             {
                 MinimumLogLevelInFile = level;
+            }
+
+            v = GetHostSetting<string>(configuration, section, "MinimumLogLevel:IoFile", null);
+            if (!string.IsNullOrEmpty(v) && Enum.TryParse(v, out level))
+            {
+                MinimumLogLevelIo = level;
             }
 
             GetCommandAliases(configuration, section);

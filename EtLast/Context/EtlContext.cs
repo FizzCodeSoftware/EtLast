@@ -34,14 +34,14 @@
         public ContextOnRowStoredDelegate OnRowStored { get; set; }
         public ContextOnProcessInvocationDelegate OnProcessInvocationStart { get; set; }
         public ContextOnProcessInvocationDelegate OnProcessInvocationEnd { get; set; }
-        public ContextOnDataStoreCommandStartDelegate OnContextDataStoreCommandStart { get; set; }
-        public ContextOnDataStoreCommandEndDelegate OnContextDataStoreCommandEnd { get; set; }
+        public ContextOnIoCommandStartDelegate OnContextIoCommandStart { get; set; }
+        public ContextOnIoCommandEndDelegate OnContextIoCommandEnd { get; set; }
 
         private int _nextRowUid;
         private int _nextProcessInstanceUid;
         private int _nextProcessInvocationUid;
         private int _nextRowStoreUid;
-        private int _nextDataStoreCommandUid;
+        private int _nextIoCommandUid;
         private readonly List<Exception> _exceptions = new List<Exception>();
         private readonly Dictionary<string, int> _rowStores = new Dictionary<string, int>();
 
@@ -163,16 +163,21 @@
             OnCustomLog?.Invoke(true, fileName, process, text, args);
         }
 
-        public int RegisterDataStoreCommandStart(IProcess process, DataStoreCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter)
+        public int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string target, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
         {
-            var uid = Interlocked.Increment(ref _nextDataStoreCommandUid);
-            OnContextDataStoreCommandStart?.Invoke(uid, kind, location, process, timeoutSeconds, command, transactionId, argumentListGetter);
+            var uid = Interlocked.Increment(ref _nextIoCommandUid);
+            OnContextIoCommandStart?.Invoke(uid, kind, target, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageArgs);
             return uid;
         }
 
-        public void RegisterDataStoreCommandEnd(IProcess process, int uid, int affectedDataCount, string errorMessage)
+        public void RegisterIoCommandSuccess(IProcess process, int uid, int affectedDataCount)
         {
-            OnContextDataStoreCommandEnd?.Invoke(process, uid, affectedDataCount, errorMessage);
+            OnContextIoCommandEnd?.Invoke(process, uid, affectedDataCount, null);
+        }
+
+        public void RegisterIoCommandFailed(IProcess process, int uid, int affectedDataCount, Exception exception)
+        {
+            OnContextIoCommandEnd?.Invoke(process, uid, affectedDataCount, exception);
         }
 
         public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues)
@@ -191,6 +196,11 @@
         {
             if (ex is OperationCanceledException)
                 return;
+
+            if (!(ex is EtlException))
+            {
+                ex = new ProcessExecutionException(process, ex);
+            }
 
             Result.Exceptions.Add(ex);
 

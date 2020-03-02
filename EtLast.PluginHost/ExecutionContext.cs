@@ -77,9 +77,10 @@
                 Context.OnRowStored = LifecycleRowStored;
                 Context.OnProcessInvocationStart = LifecycleProcessInvocationStart;
                 Context.OnProcessInvocationEnd = LifecycleProcessInvocationEnd;
-                Context.OnContextDataStoreCommandStart = LifecycleContextDataStoreCommandStart;
-                Context.OnContextDataStoreCommandEnd = LifecycleContextDataStoreCommandEnd;
             }
+
+            Context.OnContextIoCommandStart = ContextIoCommandStart;
+            Context.OnContextIoCommandEnd = ContextIoCommandEnd;
         }
 
         public void Log(LogSeverity severity, bool forOps, bool noDiag, string transactionId, IProcess process, string text, params object[] args)
@@ -222,7 +223,7 @@
             }
 
             var msg = args.Exception.FormatExceptionWithDetails();
-            Log(LogSeverity.Fatal, false, false, null, args.Process, "{Message}", msg);
+            Log(LogSeverity.Fatal, false, false, null, args.Process, "{ErrorMessage}", msg);
         }
 
         private void GetOpsMessagesRecursive(Exception ex, List<string> messages)
@@ -385,32 +386,53 @@
             });
         }
 
-        private void LifecycleContextDataStoreCommandStart(int uid, DataStoreCommandKind kind, string location, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter)
+        private void ContextIoCommandStart(int uid, IoCommandKind kind, string target, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
         {
-            var arguments = argumentListGetter?.Invoke()?.ToArray();
+            if (message != null)
+            {
+                var values = new List<object>();
+                if (PluginName != null)
+                {
+                    values.Add(ModuleName);
+                    values.Add(PluginName);
+                }
 
-            // todo: add host configuration option to disable logging data store commands
+                if (process?.Topic?.Name != null)
+                    values.Add(process.Topic.Name);
 
-            LogCustom(false, "data-store-commands.tsv", process,
-                uid.ToString("D", CultureInfo.InvariantCulture)
-                + "\t"
-                + location
-                + "\t"
-                + transactionId
-                + "\t"
-                + (timeoutSeconds != null ? timeoutSeconds.Value.ToString("D", CultureInfo.InvariantCulture) : "-")
-                + "\t"
-                + command);
+                if (process != null)
+                    values.Add(process.Name);
 
-            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.DataStoreCommandStart, writer =>
+                var text = "uid: {IoCommandUid}, " + message;
+                values.Add(uid);
+
+                if (messageArgs != null)
+                    values.AddRange(messageArgs);
+
+                if (timeoutSeconds != null)
+                {
+                    text += ", timeout: {IoCommandTimeout}";
+                    values.Add(timeoutSeconds.Value);
+                }
+
+                _commandContext.IoLogger.Write(LogEventLevel.Verbose,
+                    (PluginName != null ? "[{Module}/{Plugin}] " : "")
+                    + (process?.Topic?.Name != null ? "[{ActiveTopic}] " : "")
+                    + (process != null ? "<{ActiveProcess}> " : "")
+                    + text,
+                    values.ToArray());
+            }
+
+            _diagnosticsSender?.SendDiagnostics(DiagnosticsEventKind.IoCommandStart, writer =>
             {
                 writer.Write7BitEncodedInt(uid);
                 writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
                 writer.Write((byte)kind);
-                writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(location));
+                writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(target));
                 writer.WriteNullable(timeoutSeconds);
-                writer.Write(command);
+                writer.WriteNullable(command);
                 writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(transactionId));
+                var arguments = argumentListGetter?.Invoke()?.ToArray();
                 if (arguments?.Length > 0)
                 {
                     writer.Write7BitEncodedInt(arguments.Length);
@@ -427,20 +449,40 @@
             });
         }
 
-        private void LifecycleContextDataStoreCommandEnd(IProcess process, int uid, int affectedDataCount, string errorMessage)
+        private void ContextIoCommandEnd(IProcess process, int uid, int affectedDataCount, Exception ex)
         {
-            LogCustom(false, "data-store-commands.tsv", process,
-                uid.ToString("D", CultureInfo.InvariantCulture)
-                + "\t"
-                + affectedDataCount.ToString("D", CultureInfo.InvariantCulture)
-                + "\t"
-                + errorMessage ?? "success");
+            if (ex != null)
+            {
+                var values = new List<object>();
+                if (PluginName != null)
+                {
+                    values.Add(ModuleName);
+                    values.Add(PluginName);
+                }
 
-            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.DataStoreCommandEnd, writer =>
+                if (process?.Topic?.Name != null)
+                    values.Add(process.Topic.Name);
+
+                if (process != null)
+                    values.Add(process.Name);
+
+                var text = " uid: {IoCommandUid}, exception: {ErrorMessage}";
+                values.Add(uid);
+                values.Add(ex.FormatExceptionWithDetails());
+
+                _commandContext.IoLogger.Write(ex == null ? LogEventLevel.Verbose : LogEventLevel.Error,
+                    (PluginName != null ? "[{Module}/{Plugin}] " : "")
+                    + (process?.Topic?.Name != null ? "[{ActiveTopic}] " : "")
+                    + (process != null ? "<{ActiveProcess}> " : "")
+                    + text,
+                    values.ToArray());
+            }
+
+            _diagnosticsSender?.SendDiagnostics(DiagnosticsEventKind.IoCommandEnd, writer =>
             {
                 writer.Write7BitEncodedInt(uid);
                 writer.Write7BitEncodedInt(affectedDataCount);
-                writer.WriteNullable(errorMessage);
+                writer.WriteNullable(ex?.FormatExceptionWithDetails());
             });
         }
 

@@ -10,7 +10,7 @@
         public IEtlContext Context => _scope.Context;
         public string Name { get; } = "TableFinalizerManager";
         public ITopic Topic => _scope.Topic;
-        public ProcessKind Kind => ProcessKind.unknown;
+        public ProcessKind Kind => ProcessKind.scope;
         public StatCounterCollection CounterCollection { get; }
 
         public ResilientTableFinalizerManager(ResilientSqlScope scope)
@@ -85,7 +85,7 @@
 
         private int CountTempRecordsIn(ResilientTableBase table)
         {
-            var count = new GetTableRecordCountProcess(table.Topic, "TempRecordCountReader")
+            var count = new GetTableRecordCount(table.Topic, "TempRecordCountReader")
             {
                 ConnectionString = _scope.Configuration.ConnectionString,
                 TableName = _scope.Configuration.ConnectionString.Escape(table.TempTableName),

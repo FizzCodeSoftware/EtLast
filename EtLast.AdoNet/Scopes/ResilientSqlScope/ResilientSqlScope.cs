@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public class ResilientSqlScope : AbstractExecutableProcess, IScope
+    public class ResilientSqlScope : AbstractExecutable, IScope
     {
         private ResilientSqlScopeConfiguration _configuration;
 
@@ -231,7 +231,7 @@
 
         public static IEnumerable<IExecutable> DeleteTargetTableFinalizer(ResilientTableBase table, int commandTimeout = 60)
         {
-            yield return new DeleteTableProcess(table.Topic, "DeleteContentFromTargetTable")
+            yield return new DeleteTable(table.Topic, "DeleteContentFromTargetTable")
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 TableName = table.TableName,
@@ -245,7 +245,7 @@
                 throw new EtlException(table.Scope, "identity columns can be copied only if the " + nameof(ResilientTable) + "." + nameof(ResilientTableBase.Columns) + " is specified");
 
 #pragma warning disable RCS1227 // Validate arguments correctly.
-            yield return new CopyTableIntoExistingTableProcess(table.Topic, "CopyTempToTargetTable")
+            yield return new CopyTableIntoExistingTable(table.Topic, "CopyTempToTargetTable")
 #pragma warning restore RCS1227 // Validate arguments correctly.
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
@@ -265,7 +265,7 @@
 
         public static IEnumerable<IExecutable> SimpleMergeFinalizer(ResilientTableBase table, string[] keyColumns, int commandTimeout = 60)
         {
-            yield return new CustomMsSqlMergeSqlStatementProcess(table.Topic, "MergeTempToTargetTable")
+            yield return new CustomMsSqlMergeStatement(table.Topic, "MergeTempToTargetTable")
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 CommandTimeout = commandTimeout,
@@ -309,7 +309,7 @@
                 }
             }
 
-            new CopyTableStructureProcess(Topic, "RecreateTempTables")
+            new CopyTableStructure(Topic, "RecreateTempTables")
             {
                 ConnectionString = Configuration.ConnectionString,
                 SuppressExistingTransactionScope = true,
@@ -326,7 +326,7 @@
                 .Where(x => x.AdditionalTables != null)
                 .SelectMany(x => x.AdditionalTables.Values.Select(y => y.TempTableName));
 
-            new DropTablesProcess(Topic, "DropTempTables")
+            new DropTables(Topic, "DropTempTables")
             {
                 ConnectionString = Configuration.ConnectionString,
                 TableNames = tempTableNames

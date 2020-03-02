@@ -52,7 +52,7 @@
                         EqualityComparer = equalityComparer,
                         LookupBuilder = new FilteredRowLookupBuilder()
                         {
-                            ProcessCreator = filterRows => new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
+                            ProcessCreator = filterRows => new CustomSqlAdoNetDbReader(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
                             {
                                 Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0])
                                         + "," + string.Join(", ", finalValueColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
@@ -82,7 +82,7 @@
                         EqualityComparer = equalityComparer,
                         LookupBuilder = new RowLookupBuilder()
                         {
-                            Process = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
+                            Process = new CustomSqlAdoNetDbReader(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
                             {
                                 ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
                                 Sql = "SELECT " + string.Join(",", builder.MatchColumns.Concat(finalValueColumns).Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
@@ -103,7 +103,7 @@
                     If = row => !row.IsNullOrEmpty(builder.MatchColumns[0]),
                     LookupBuilder = new FilteredRowLookupBuilder()
                     {
-                        ProcessCreator = filterRows => new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
+                        ProcessCreator = filterRows => new CustomSqlAdoNetDbReader(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
                         {
                             Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0])
                                 + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema)
@@ -131,7 +131,7 @@
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {
-                        Process = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
+                        Process = new CustomSqlAdoNetDbReader(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
                         {
                             ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
                             Sql = "SELECT " + string.Join(",", builder.MatchColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))

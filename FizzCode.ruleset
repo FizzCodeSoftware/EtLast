@@ -132,7 +132,7 @@
     <Rule Id="RCS1198" Action="Warning" />
     <Rule Id="RCS1202" Action="Hidden" />
     <Rule Id="RCS1207" Action="Info" />
-    <Rule Id="RCS1211" Action="Info" />
+    <Rule Id="RCS1211" Action="None" />
     <Rule Id="RCS1213" Action="None" />
     <Rule Id="RCS1239" Action="None" />
   </Rules>

@@ -38,7 +38,21 @@
 
             if (ExistingPackage == null && _package != null)
             {
-                _package.Save();
+                var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.fileWrite, PathHelpers.GetFriendlyPathName(FileName), null, null, null, null,
+                    "saving file to {FileName}",
+                    PathHelpers.GetFriendlyPathName(FileName));
+
+                try
+                {
+                    _package.Save();
+                    Context.RegisterIoCommandSuccess(this, iocUid, 0);
+                }
+                catch (Exception ex)
+                {
+                    Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                    throw;
+                }
+
                 _package.Dispose();
                 _package = null;
             }

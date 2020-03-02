@@ -13,7 +13,7 @@
 
         public static IEvaluable Country(ITopic topic)
         {
-            return new CreateRowsProcess(topic, nameof(Country))
+            return new RowCreator(topic, nameof(Country))
             {
                 Columns = CountryColumns,
                 InputRows = new List<object[]>()
@@ -29,7 +29,7 @@
 
         public static IEvaluable Person(ITopic topic)
         {
-            return new CreateRowsProcess(topic, nameof(Person))
+            return new RowCreator(topic, nameof(Person))
             {
                 Columns = PersonColumns,
                 InputRows = new List<object[]>()
@@ -48,7 +48,7 @@
 
         public static IEvaluable PersonEyeColor(ITopic topic)
         {
-            return new CreateRowsProcess(topic, nameof(PersonEyeColor))
+            return new RowCreator(topic, nameof(PersonEyeColor))
             {
                 Columns = PersonEyeColorColumns,
                 InputRows = new List<object[]>()
@@ -67,7 +67,7 @@
 
         public static IEvaluable RoleHierarchy(ITopic topic)
         {
-            return new CreateRowsProcess(topic, nameof(RoleHierarchy))
+            return new RowCreator(topic, nameof(RoleHierarchy))
             {
                 Columns = RoleHierarchyColumns,
                 InputRows = new List<object[]>()
@@ -85,7 +85,7 @@
 
         public static IEvaluable PersonalAssetsPivot(ITopic topic)
         {
-            return new CreateRowsProcess(topic, nameof(PersonalAssetsPivot))
+            return new RowCreator(topic, nameof(PersonalAssetsPivot))
             {
                 Columns = PersonalAssetsPivotColumns,
                 InputRows = new List<object[]>()

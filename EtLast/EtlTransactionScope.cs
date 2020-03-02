@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Transactions;
 
     public class EtlTransactionScope : IDisposable
@@ -39,27 +38,27 @@
             switch (kind)
             {
                 case TransactionScopeKind.RequiresNew:
-                    Context.Log(newId, logSeverity, Process, "new transaction started");
-                    Context.RegisterDataStoreCommandStart(Process, DataStoreCommandKind.transaction, null, null, "new transaction started", newId, null);
+                    Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, "new transaction started", newId, null,
+                        "new transaction started");
                     break;
                 case TransactionScopeKind.Required:
                     if (previousId == null || newId != previousId)
                     {
-                        Context.Log(newId, logSeverity, Process, "new transaction started");
-                        Context.RegisterDataStoreCommandStart(Process, DataStoreCommandKind.transaction, null, null, "new transaction started", newId, null);
+                        Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, "new transaction started", newId, null,
+                            "new transaction started");
                     }
                     else
                     {
-                        Context.Log(newId, logSeverity, Process, "new transaction started and merged with previous");
-                        Context.RegisterDataStoreCommandStart(Process, DataStoreCommandKind.transaction, null, null, "new transaction started and merged with previous", newId, () => new[] { new KeyValuePair<string, object>("previous transaction", previousId) });
+                        Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, "new transaction started and merged with previous", newId, () => new[] { new KeyValuePair<string, object>("previous transaction", previousId) },
+                            "new transaction started and merged with previous");
                     }
 
                     break;
                 case TransactionScopeKind.Suppress:
                     if (previousId != null)
                     {
-                        Context.Log(previousId, logSeverity, Process, "existing transaction suppressed");
-                        Context.RegisterDataStoreCommandStart(Process, DataStoreCommandKind.transaction, null, null, "existing transaction suppressed", previousId, null);
+                        Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, "existing transaction suppressed", previousId, null,
+                            "existing transaction suppressed");
                     }
                     break;
             }
@@ -77,31 +76,22 @@
             }
 
             var transactionId = Transaction.Current.ToIdentifierString();
-            Context.Log(transactionId, LogSeverity, Process, "completing transaction");
-            Context.RegisterDataStoreCommandStart(Process, DataStoreCommandKind.transaction, null, Convert.ToInt32(Timeout.TotalSeconds), "completing transaction", transactionId, null);
-            var startedOn = Stopwatch.StartNew();
 
             CompleteCalled = true;
 
-            var dscUid = Context.RegisterDataStoreCommandStart(Process, DataStoreCommandKind.transaction, null, Convert.ToInt32(Timeout.TotalSeconds), "transaction completed", transactionId, null);
+            var iocUid = Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, Convert.ToInt32(Timeout.TotalSeconds), "completing transaction", transactionId, null,
+                "completing transaction");
             try
             {
                 Scope.Complete();
                 Completed = true;
 
-                Context.Log(transactionId, LogSeverity, Process, "transaction completed in {Elapsed}",
-                    startedOn.Elapsed);
-
-                Context.RegisterDataStoreCommandEnd(Process, dscUid, 0, null);
+                Context.RegisterIoCommandSuccess(Process, iocUid, 0);
             }
             catch (Exception ex)
             {
                 Completed = false;
-
-                Context.Log(transactionId, LogSeverity.Warning, Process, "transaction completition failed after {Elapsed}, error message: {ExceptionMessage}",
-                    startedOn.Elapsed, ex.Message);
-
-                Context.RegisterDataStoreCommandEnd(Process, dscUid, 0, ex.Message);
+                Context.RegisterIoCommandFailed(Process, iocUid, 0, ex);
             }
         }
 
@@ -116,8 +106,8 @@
                         if (Kind != TransactionScopeKind.Suppress && !CompleteCalled)
                         {
                             var transactionId = Transaction.Current?.ToIdentifierString();
-                            Context.Log(transactionId, LogSeverity, Process, "reverting transaction");
-                            Context.RegisterDataStoreCommandStart(Process, DataStoreCommandKind.transaction, null, null, "reverting transaction", transactionId, null);
+                            Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, "reverting transaction", transactionId, null,
+                                "reverting transaction");
                         }
 
                         Scope.Dispose();
@@ -126,8 +116,8 @@
                         if (Kind == TransactionScopeKind.Suppress && !CompleteCalled)
                         {
                             var transactionId = Transaction.Current?.ToIdentifierString();
-                            Context.Log(transactionId, LogSeverity, Process, "suppression of transaction is removed");
-                            Context.RegisterDataStoreCommandStart(Process, DataStoreCommandKind.transaction, null, null, "suppression of transaction is removed", transactionId, null);
+                            Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, "suppression of transaction is removed", transactionId, null,
+                                "suppression of transaction is removed");
                         }
                     }
                 }

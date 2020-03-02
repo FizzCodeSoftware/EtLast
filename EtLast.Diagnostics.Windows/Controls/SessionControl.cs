@@ -45,20 +45,13 @@
 
                 var logManager = new LogListControl(logContainer, diagnosticsStateManager, Session);
 
-                /*var dataStoreCommandContainer = new Panel()
-                {
-                    Parent = container,
-                    Anchor = AnchorStyles.Right | AnchorStyles.Bottom,
-                    BorderStyle = BorderStyle.None,
-                };*/
-
-                var dataStoreCommandContainer = new TabPage("DATA STORE COMMANDS")
+                var ioCommandContainer = new TabPage("I/O COMMANDS")
                 {
                     BorderStyle = BorderStyle.None,
                 };
-                _tabs.TabPages.Add(dataStoreCommandContainer);
+                _tabs.TabPages.Add(ioCommandContainer);
 
-                var dataStoreCommandManager = new SessionDataStoreCommandListControl(dataStoreCommandContainer, diagnosticsStateManager, Session);
+                var ioCommandManager = new SessionIoCommandListControl(ioCommandContainer, diagnosticsStateManager, Session);
 
                 diagnosticsStateManager.OnDiagContextCreated += ec =>
                 {

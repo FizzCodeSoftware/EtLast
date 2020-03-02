@@ -4,7 +4,7 @@
     using System.Globalization;
     using System.IO;
 
-    public class DeleteFileProcess : AbstractExecutableProcess
+    public class DeleteFileProcess : AbstractExecutable
     {
         public string FileName { get; set; }
 
@@ -23,7 +23,7 @@
         {
             if (!File.Exists(FileName))
             {
-                Context.Log(LogSeverity.Debug, this, "can't delete file because it doesn't exists '{FileName}'", PathHelpers.GetFriendlyPathName(FileName));
+                Context.Log(LogSeverity.Debug, this, "can't delete file because it doesn't exist '{FileName}'", PathHelpers.GetFriendlyPathName(FileName));
                 return;
             }
 

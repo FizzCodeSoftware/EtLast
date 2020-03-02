@@ -99,8 +99,8 @@
                         DiagnosticsEventKind.ContextCountersUpdated => ReadContextCountersUpdatedEvent(reader),
                         DiagnosticsEventKind.ProcessInvocationStart => ReadProcessInvocationStartEvent(reader),
                         DiagnosticsEventKind.ProcessInvocationEnd => ReadProcessInvocationEndEvent(reader),
-                        DiagnosticsEventKind.DataStoreCommandStart => ReadDataStoreCommandStartEvent(reader),
-                        DiagnosticsEventKind.DataStoreCommandEnd => ReadDataStoreCommandEndEvent(reader),
+                        DiagnosticsEventKind.IoCommandStart => ReadIoCommandStartEvent(reader),
+                        DiagnosticsEventKind.IoCommandEnd => ReadIoCommandEndEvent(reader),
                         _ => null,
                     };
 
@@ -192,8 +192,8 @@
                             DiagnosticsEventKind.ContextCountersUpdated => ReadContextCountersUpdatedEvent(reader),
                             DiagnosticsEventKind.ProcessInvocationStart => ReadProcessInvocationStartEvent(reader),
                             DiagnosticsEventKind.ProcessInvocationEnd => ReadProcessInvocationEndEvent(reader),
-                            DiagnosticsEventKind.DataStoreCommandStart => ReadDataStoreCommandStartEvent(reader),
-                            DiagnosticsEventKind.DataStoreCommandEnd => ReadDataStoreCommandEndEvent(reader),
+                            DiagnosticsEventKind.IoCommandStart => ReadIoCommandStartEvent(reader),
+                            DiagnosticsEventKind.IoCommandEnd => ReadIoCommandEndEvent(reader),
                             _ => null,
                         };
 
@@ -287,8 +287,8 @@
                                 DiagnosticsEventKind.ContextCountersUpdated => ReadContextCountersUpdatedEvent(reader),
                                 DiagnosticsEventKind.ProcessInvocationStart => ReadProcessInvocationStartEvent(reader),
                                 DiagnosticsEventKind.ProcessInvocationEnd => ReadProcessInvocationEndEvent(reader),
-                                DiagnosticsEventKind.DataStoreCommandStart => ReadDataStoreCommandStartEvent(reader),
-                                DiagnosticsEventKind.DataStoreCommandEnd => ReadDataStoreCommandEndEvent(reader),
+                                DiagnosticsEventKind.IoCommandStart => ReadIoCommandStartEvent(reader),
+                                DiagnosticsEventKind.IoCommandEnd => ReadIoCommandEndEvent(reader),
                                 _ => null,
                             };
 

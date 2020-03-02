@@ -20,7 +20,7 @@
         {
             builder.Table.SkipFinalizersIfTempTableIsEmpty = false;
 
-            yield return new DeleteTableProcess(builder.Table.Topic, "DeleteBase")
+            yield return new DeleteTable(builder.Table.Topic, "DeleteBase")
             {
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 TableName = builder.Table.TableName,

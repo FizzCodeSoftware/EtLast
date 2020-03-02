@@ -24,7 +24,7 @@
 
             yield return new ProcessBuilder()
             {
-                InputProcess = new EpPlusExcelReaderProcess(scope.Topic, "PeopleReader")
+                InputProcess = new EpPlusExcelReader(scope.Topic, "PeopleReader")
                 {
                     FileName = SourceFileName,
                     SheetName = "People",
@@ -43,7 +43,7 @@
                         {
                             Process = new ProcessBuilder()
                             {
-                                InputProcess = new EpPlusExcelReaderProcess(scope.Topic, "ReadContacts")
+                                InputProcess = new EpPlusExcelReader(scope.Topic, "ReadContacts")
                                 {
                                     FileName = SourceFileName,
                                     SheetName = "Contact",
@@ -76,7 +76,7 @@
                         NoMatchAction = new NoMatchAction(MatchMode.Remove),
                         LookupBuilder = new RowLookupBuilder()
                         {
-                            Process = new EpPlusExcelReaderProcess(scope.Topic, "ReadContactMethod")
+                            Process = new EpPlusExcelReader(scope.Topic, "ReadContactMethod")
                             {
                                 FileName = SourceFileName,
                                 SheetName = "ContactMethod",

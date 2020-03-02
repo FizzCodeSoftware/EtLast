@@ -13,7 +13,11 @@
         public virtual IEnumerable<KeyValuePair<string, object>> Values => _values;
         public int ColumnCount => _values.Count;
 
-        public object this[string column] => GetValueImpl(column);
+        public object this[string column]
+        {
+            get => GetValueImpl(column);
+            set => SetValue(column, value);
+        }
 
         private object GetValueImpl(string column)
         {

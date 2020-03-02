@@ -42,7 +42,7 @@
                                 continue;
                         }
                         break;
-                    case DataStoreCommandStartEvent evt:
+                    case IoCommandStartEvent evt:
                         {
                             if (!ProcessList.ContainsKey(evt.ProcessInvocationUid))
                                 continue;

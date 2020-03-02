@@ -217,8 +217,14 @@
 
                     if (connection != null)
                     {
-                        connection.Connection.Close();
-                        connection.Connection.Dispose();
+                        try
+                        {
+                            connection.Connection.Close();
+                            connection.Connection.Dispose();
+                        }
+                        catch (Exception)
+                        {
+                        }
                     }
                 }
                 else

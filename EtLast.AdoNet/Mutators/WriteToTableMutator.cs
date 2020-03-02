@@ -51,7 +51,7 @@
         {
             if (_command != null)
             {
-                ExecuteStatements(true);
+                ExecuteStatements();
             }
 
             _statements = null;
@@ -90,7 +90,7 @@
 
                 if (_command.Parameters.Count >= MaximumParameterCount - 1)
                 {
-                    ExecuteStatements(false);
+                    ExecuteStatements();
                 }
             }
 
@@ -125,7 +125,7 @@
             _command.Parameters.Add(parameter);
         }
 
-        private void ExecuteStatements(bool shutdown)
+        private void ExecuteStatements()
         {
             if (Transaction.Current == null)
                 Context.Log(LogSeverity.Warning, this, "there is no active transaction!");
@@ -138,15 +138,19 @@
 
             _command.CommandText = sqlStatement;
 
-            var dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.many, ConnectionString.Name, _command.CommandTimeout, sqlStatement, Transaction.Current.ToIdentifierString(), null);
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbBatchWrite, ConnectionString.Name, _command.CommandTimeout, sqlStatement, Transaction.Current.ToIdentifierString(), null,
+                "write to table: {ConnectionStringName}/{Table}",
+                ConnectionString.Name, TableDefinition.TableName);
 
             try
             {
                 _command.ExecuteNonQuery();
-                Context.RegisterDataStoreCommandEnd(this, dscUid, recordCount, null);
 
                 var time = startedOn.Elapsed;
                 _fullTime.Stop();
+                _rowsWritten += recordCount;
+
+                Context.RegisterIoCommandSuccess(this, iocUid, recordCount);
 
                 CounterCollection.IncrementCounter("db record write count", recordCount);
                 CounterCollection.IncrementTimeSpan("db record write time", time);
@@ -156,18 +160,10 @@
                 Context.CounterCollection.IncrementCounter("db record write count - " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName), recordCount);
                 Context.CounterCollection.IncrementTimeSpan("db record write time - " + ConnectionString.Name, time);
                 Context.CounterCollection.IncrementTimeSpan("db record write time - " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName), time);
-
-                _rowsWritten += recordCount;
-
-                if (shutdown || (_rowsWritten / 10000 != (_rowsWritten - recordCount) / 10000))
-                {
-                    Context.Log(Transaction.Current.ToIdentifierString(), LogSeverity.Debug, this, "{TotalRowCount} records written to {ConnectionStringName}/{TableName}, average speed is {AvgSpeed} sec/Mrow)", _rowsWritten,
-                        ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), Math.Round(_fullTime.ElapsedMilliseconds * 1000 / (double)_rowsWritten, 1));
-                }
             }
             catch (Exception ex)
             {
-                Context.RegisterDataStoreCommandEnd(this, dscUid, recordCount, ex.Message);
+                Context.RegisterIoCommandFailed(this, iocUid, recordCount, ex);
 
                 var exception = new ProcessExecutionException(this, "db write failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db write failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",

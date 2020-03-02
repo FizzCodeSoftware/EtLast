@@ -57,26 +57,36 @@
                                 _client.Endpoint.Address.ToString());
                         }
                     }
-
-                    if (_client != null)
-                    {
-                        Context.Log(LogSeverity.Debug, this, "sending SOAP request, endpoint address: {EndpointAddress}",
-                            _client.Endpoint.Address.ToString());
-
-                        var result = ClientInvoker.Invoke(this, row, _client);
-                        if (result != null)
-                        {
-                            row.SetValue(TargetColumn, result);
-                        }
-
-                        CounterCollection.IncrementTimeSpan("SOAP time - success", startedOn.Elapsed);
-                        CounterCollection.IncrementCounter("SOAP incovations - success", 1);
-                        success = true;
-                        break;
-                    }
                 }
                 catch (Exception)
                 {
+                    CounterCollection.IncrementTimeSpan("SOAP time - failure", startedOn.Elapsed);
+                    CounterCollection.IncrementCounter("SOAP incovations - failure", 1);
+                    _client = default;
+                    continue;
+                }
+
+                var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.serviceRead, _client.Endpoint.Address.ToString(), Convert.ToInt32(_client.InnerChannel.OperationTimeout.TotalSeconds), null, null, null,
+                    "sending request to {EndpointAddress}",
+                    _client.Endpoint.Address.ToString());
+                try
+                {
+                    var result = ClientInvoker.Invoke(this, row, _client);
+                    Context.RegisterIoCommandSuccess(this, iocUid, 0);
+
+                    if (result != null)
+                    {
+                        row.SetValue(TargetColumn, result);
+                    }
+
+                    CounterCollection.IncrementTimeSpan("SOAP time - success", startedOn.Elapsed);
+                    CounterCollection.IncrementCounter("SOAP incovations - success", 1);
+                    success = true;
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
                     CounterCollection.IncrementTimeSpan("SOAP time - failure", startedOn.Elapsed);
                     CounterCollection.IncrementCounter("SOAP incovations - failure", 1);
                     _client = default;

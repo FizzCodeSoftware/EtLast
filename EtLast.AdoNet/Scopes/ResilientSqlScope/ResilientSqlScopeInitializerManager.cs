@@ -11,7 +11,7 @@
         public IEtlContext Context => _scope.Context;
         public string Name { get; } = "InitializerManager";
         public ITopic Topic => _scope.Topic;
-        public ProcessKind Kind => ProcessKind.unknown;
+        public ProcessKind Kind => ProcessKind.scope;
         public StatCounterCollection CounterCollection { get; }
 
         public ResilientSqlScopeInitializerManager(ResilientSqlScope scope)

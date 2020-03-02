@@ -1,7 +1,9 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using System.ServiceModel;
 
@@ -9,11 +11,11 @@
         where TChannel : class
         where TClient : ClientBase<TChannel>;
 
-    public delegate IEnumerable<Dictionary<string, object>> SoapReaderClientInvokerDelegate<TChannel, TClient>(ServiceModelReaderProcess<TChannel, TClient> process, TClient client)
+    public delegate IEnumerable<ValueCollection> SoapReaderClientInvokerDelegate<TChannel, TClient>(ServiceModelReaderProcess<TChannel, TClient> process, TClient client)
         where TChannel : class
         where TClient : ClientBase<TChannel>;
 
-    public class ServiceModelReaderProcess<TChannel, TClient> : AbstractProducerProcess, IRowReader
+    public class ServiceModelReaderProcess<TChannel, TClient> : AbstractProducer, IRowReader
         where TChannel : class
         where TClient : ClientBase<TChannel>
     {
@@ -51,50 +53,83 @@
 
             var client = ClientCreator.Invoke(this);
 
-            Context.Log(LogSeverity.Debug, this, "SOAP client created, endpoint address: {EndpointAddress}",
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.serviceRead, client.Endpoint.Address.ToString(), Convert.ToInt32(client.InnerChannel.OperationTimeout.TotalSeconds), null, null, null,
+                "sending request to {EndpointAddress}",
                 client.Endpoint.Address.ToString());
 
-            Context.Log(LogSeverity.Debug, this, "sending SOAP request, endpoint address: {EndpointAddress}",
-                client.Endpoint.Address.ToString());
-
-            var result = ClientInvoker.Invoke(this, client);
+            IEnumerator<ValueCollection> enumerator;
+            try
+            {
+                enumerator = ClientInvoker.Invoke(this, client).GetEnumerator();
+            }
+            catch (Exception ex)
+            {
+                Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                var exception = new EtlException(this, "error while reading data from service", ex);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from service: {0}", client.Endpoint.Address.ToString()));
+                exception.Data.Add("Endpoint", client.Endpoint.Address.ToString());
+                throw exception;
+            }
 
             CounterCollection.IncrementTimeSpan("SOAP time - success", startedOn.Elapsed);
             CounterCollection.IncrementCounter("SOAP incovations - success", 1);
 
-            var initialValues = new Dictionary<string, object>();
-            var columnConfig = ColumnConfiguration.ToDictionary(x => x.SourceColumn.ToUpperInvariant());
-            foreach (var rowData in result)
+            var resultCount = 0;
+            if (enumerator != null && !Context.CancellationTokenSource.IsCancellationRequested)
             {
-                initialValues.Clear();
-                CounterCollection.IncrementCounter("SOAP rows read", 1);
-
-                foreach (var kvp in rowData)
+                var initialValues = new Dictionary<string, object>();
+                var columnMap = ColumnConfiguration.ToDictionary(x => x.SourceColumn.ToUpperInvariant());
+                while (!Context.CancellationTokenSource.IsCancellationRequested)
                 {
-                    var value = kvp.Value;
-
-                    if (value != null && TreatEmptyStringAsNull && (value is string str) && string.IsNullOrEmpty(str))
+                    try
                     {
-                        value = null;
+                        if (!enumerator.MoveNext())
+                            break;
+                    }
+                    catch (Exception ex)
+                    {
+                        Context.RegisterIoCommandFailed(this, iocUid, resultCount, ex);
+                        var exception = new EtlException(this, "error while reading data from service", ex);
+                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from service: {0}", client.Endpoint.Address.ToString()));
+                        exception.Data.Add("Endpoint", client.Endpoint.Address.ToString());
+                        throw exception;
                     }
 
-                    columnConfig.TryGetValue(kvp.Key.ToUpperInvariant(), out var columnConfiguration);
-                    if (columnConfiguration != null)
+                    var rowData = enumerator.Current;
+
+                    initialValues.Clear();
+                    CounterCollection.IncrementCounter("SOAP rows read", 1);
+
+                    foreach (var kvp in rowData.Values)
                     {
-                        var column = columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn;
-                        value = HandleConverter(value, columnConfiguration);
-                        initialValues[column] = value;
+                        var value = kvp.Value;
+
+                        if (value != null && TreatEmptyStringAsNull && (value is string str) && string.IsNullOrEmpty(str))
+                        {
+                            value = null;
+                        }
+
+                        columnMap.TryGetValue(kvp.Key.ToUpperInvariant(), out var columnConfiguration);
+                        if (columnConfiguration != null)
+                        {
+                            var column = columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn;
+                            value = HandleConverter(value, columnConfiguration);
+                            initialValues[column] = value;
+                        }
+                        else if (DefaultColumnConfiguration != null)
+                        {
+                            var column = kvp.Key;
+                            value = HandleConverter(value, DefaultColumnConfiguration);
+                            initialValues[column] = value;
+                        }
                     }
-                    else if (DefaultColumnConfiguration != null)
-                    {
-                        var column = kvp.Key;
-                        value = HandleConverter(value, DefaultColumnConfiguration);
-                        initialValues[column] = value;
-                    }
+
+                    resultCount++;
+                    yield return Context.CreateRow(this, initialValues);
                 }
-
-                yield return Context.CreateRow(this, initialValues);
             }
+
+            Context.RegisterIoCommandSuccess(this, iocUid, resultCount);
         }
     }
 }

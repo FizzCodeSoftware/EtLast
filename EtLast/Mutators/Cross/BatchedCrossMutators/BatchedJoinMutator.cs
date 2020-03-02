@@ -37,7 +37,7 @@
             return GeneratorRowKey(row);
         }
 
-        protected override void MutateRow(IRow row, List<IRow> mutatedRows, out bool removeOriginal, out bool processed)
+        protected override void MutateSingleRow(IRow row, List<IRow> mutatedRows, out bool removeOriginal, out bool processed)
         {
             removeOriginal = false;
             processed = false;

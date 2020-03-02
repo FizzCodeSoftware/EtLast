@@ -39,18 +39,5 @@
                 _ => ProcessKind.unknown,
             };
         }
-
-        protected void LogCounters()
-        {
-            var counters = CounterCollection.GetCounters();
-            if (counters.Count == 0)
-                return;
-
-            Context.LogNoDiag(LogSeverity.Debug, this, "PROCESS COUNTERS");
-            foreach (var counter in counters)
-            {
-                Context.LogNoDiag(LogSeverity.Debug, this, "{Counter} = {Value}", counter.Name, counter.TypedValue);
-            }
-        }
     }
 }

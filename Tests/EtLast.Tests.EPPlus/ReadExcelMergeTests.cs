@@ -10,9 +10,9 @@
     [TestClass]
     public class ReadExcelMergeTests
     {
-        private EpPlusExcelReaderProcess GetReader(ITopic topic, string fileName)
+        private EpPlusExcelReader GetReader(ITopic topic, string fileName)
         {
-            return new EpPlusExcelReaderProcess(topic, "EpPlusExcelReaderProcess")
+            return new EpPlusExcelReader(topic, "EpPlusExcelReaderProcess")
             {
                 FileName = fileName,
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()

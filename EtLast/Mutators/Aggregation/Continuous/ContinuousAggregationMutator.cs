@@ -50,8 +50,6 @@
 
         protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
-            Context.Log(LogSeverity.Information, this, "continuous aggregation started");
-
             var aggregates = new Dictionary<string, Aggregate>();
 
             netTimeStopwatch.Stop();
@@ -84,16 +82,12 @@
 
                 try
                 {
-                    try
-                    {
-                        Operation.TransformAggregate(row, aggregate.ValueCollection, aggregate.RowsInGroup);
-                    }
-                    catch (EtlException) { throw; }
-                    catch (Exception ex) { throw new ContinuousAggregationException(this, Operation, row, ex); }
+                    Operation.TransformAggregate(row, aggregate.ValueCollection, aggregate.RowsInGroup);
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ex);
+                    var exception = new ContinuousAggregationException(this, Operation, row, ex);
+                    Context.AddException(this, exception);
                     break;
                 }
 
@@ -117,6 +111,7 @@
                 netTimeStopwatch.Start();
             }
 
+            netTimeStopwatch.Stop();
             Context.Log(LogSeverity.Debug, this, "created {AggregateRowCount} aggregates in {Elapsed}/{ElapsedWallClock}",
                 aggregates.Count, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 

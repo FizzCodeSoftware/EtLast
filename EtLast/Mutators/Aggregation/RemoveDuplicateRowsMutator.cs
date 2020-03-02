@@ -24,8 +24,6 @@
 
         protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
-            Context.Log(LogSeverity.Information, this, "started");
-
             var returnedKeys = new HashSet<string>();
 
             netTimeStopwatch.Stop();
@@ -58,6 +56,7 @@
                 }
             }
 
+            netTimeStopwatch.Stop();
             Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and returned {ResultRowCount} rows in {Elapsed}/{ElapsedWallClock}",
                 rowCount, returnedKeys.Count, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 

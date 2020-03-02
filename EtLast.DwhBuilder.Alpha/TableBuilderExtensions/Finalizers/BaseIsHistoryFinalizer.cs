@@ -56,7 +56,7 @@
 
             // todo: support NoHistoryColumnProperty
 
-            yield return new CustomMsSqlMergeSqlStatementProcess(builder.TableBuilder.Table.Topic, "CloseOpenEndedBaseRecords")
+            yield return new CustomMsSqlMergeStatement(builder.TableBuilder.Table.Topic, "CloseOpenEndedBaseRecords")
             {
                 ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                 CommandTimeout = 60 * 60,
@@ -80,7 +80,7 @@
             if (builder.TableBuilder.EtlUpdateRunIdColumnNameEscaped != null)
                 columnDefaults.Add(builder.TableBuilder.EtlUpdateRunIdColumnNameEscaped, currentEtlRunId);
 
-            yield return new CopyTableIntoExistingTableProcess(builder.TableBuilder.Table.Topic, "CopyToBase")
+            yield return new CopyTableIntoExistingTable(builder.TableBuilder.Table.Topic, "CopyToBase")
             {
                 ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                 Configuration = new TableCopyConfiguration()

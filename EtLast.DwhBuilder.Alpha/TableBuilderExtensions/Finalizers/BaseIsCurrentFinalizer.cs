@@ -59,7 +59,7 @@
                 .Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c.Name))
                 .ToArray();
 
-            yield return new CustomMsSqlMergeSqlStatementProcess(builder.TableBuilder.Table.Topic, "MergeIntoBase")
+            yield return new CustomMsSqlMergeStatement(builder.TableBuilder.Table.Topic, "MergeIntoBase")
             {
                 ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                 CommandTimeout = 60 * 60,
@@ -97,7 +97,7 @@
                 if (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime != null)
                     parameters2.Add("InfiniteFuture", builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
 
-                yield return new CustomMsSqlMergeSqlStatementProcess(builder.TableBuilder.Table.Topic, "CloseOpenEndedHistoryRecords")
+                yield return new CustomMsSqlMergeStatement(builder.TableBuilder.Table.Topic, "CloseOpenEndedHistoryRecords")
                 {
                     ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                     CommandTimeout = 60 * 60,
@@ -122,7 +122,7 @@
                     if (builder.TableBuilder.EtlInsertRunIdColumnNameEscaped != null || builder.TableBuilder.EtlUpdateRunIdColumnNameEscaped != null)
                         parameters3.Add("EtlRunId", currentEtlRunId);
 
-                    yield return new CustomMsSqlMergeSqlStatementProcess(builder.TableBuilder.Table.Topic, "UpdateNoHistoryColumns")
+                    yield return new CustomMsSqlMergeStatement(builder.TableBuilder.Table.Topic, "UpdateNoHistoryColumns")
                     {
                         ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                         CommandTimeout = 60 * 60,
@@ -155,7 +155,7 @@
                 if (builder.TableBuilder.EtlUpdateRunIdColumnNameEscaped != null)
                     columnDefaults.Add(builder.TableBuilder.EtlUpdateRunIdColumnNameEscaped, currentEtlRunId);
 
-                yield return new CopyTableIntoExistingTableProcess(builder.TableBuilder.Table.Topic, "CopyToHistory")
+                yield return new CopyTableIntoExistingTable(builder.TableBuilder.Table.Topic, "CopyToHistory")
                 {
                     ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                     Configuration = new TableCopyConfiguration()

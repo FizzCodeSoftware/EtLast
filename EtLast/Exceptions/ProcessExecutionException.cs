@@ -39,5 +39,23 @@
         {
             Data.Add("Row", row.ToDebugString());
         }
+
+        public static ProcessExecutionException Wrap(IProcess process, IRow row, Exception ex)
+        {
+            if (ex is ProcessExecutionException pex && (pex.Data["Row"] is string rowString) && string.Equals(rowString, row.ToDebugString(), StringComparison.Ordinal))
+                return pex;
+
+            return new ProcessExecutionException(process, row, ex);
+        }
+
+        public static EtlException Wrap(IProcess process, Exception ex)
+        {
+            if (ex is InvalidProcessParameterException ppe)
+                return ppe;
+
+            return (ex is ProcessExecutionException pex)
+                ? pex
+                : new ProcessExecutionException(process, ex);
+        }
     }
 }

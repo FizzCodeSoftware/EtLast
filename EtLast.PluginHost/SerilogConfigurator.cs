@@ -17,7 +17,6 @@
         public static ILogger CreateLogger(HostConfiguration hostConfiguration)
         {
             var config = new LoggerConfiguration()
-
                 .WriteTo.File(new CompactJsonFormatter(), Path.Combine(DevLogFolder, "events-.json"),
                     restrictedToMinimumLevel: hostConfiguration?.MinimumLogLevelInFile ?? LogEventLevel.Debug,
                     retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitInfo ?? int.MaxValue,
@@ -92,7 +91,7 @@
 
         public static ILogger CreateOpsLogger(HostConfiguration hostConfiguration)
         {
-            var loggerConfig = new LoggerConfiguration()
+            var config = new LoggerConfiguration()
                 .WriteTo.File(Path.Combine(OpsLogFolder, "2-info-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Information,
                     retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitInfo ?? int.MaxValue,
@@ -125,9 +124,32 @@
                     formatProvider: CultureInfo.InvariantCulture,
                     encoding: Encoding.UTF8);
 
-            loggerConfig = loggerConfig.MinimumLevel.Is(LogEventLevel.Information);
+            config = config.MinimumLevel.Is(LogEventLevel.Information);
 
-            return loggerConfig.CreateLogger();
+            return config.CreateLogger();
+        }
+
+        public static ILogger CreateIoLogger(HostConfiguration hostConfiguration)
+        {
+            var config = new LoggerConfiguration()
+                .WriteTo.File(Path.Combine(DevLogFolder, "io-.txt"),
+                    restrictedToMinimumLevel: hostConfiguration?.MinimumLogLevelIo ?? LogEventLevel.Verbose,
+                    retainedFileCountLimit: hostConfiguration?.RetainedLogFileCountLimitLow ?? int.MaxValue,
+                    outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                    rollingInterval: RollingInterval.Day,
+                    formatProvider: CultureInfo.InvariantCulture,
+                    encoding: Encoding.UTF8);
+
+            config.WriteTo.Sink(new ConsoleSink("{Timestamp:HH:mm:ss.fff} [{Level}] {Message} {Properties}{NewLine}{Exception}"), hostConfiguration?.MinimumLogLevelOnConsole ?? LogEventLevel.Debug);
+
+            config = config.MinimumLevel.Is(LogEventLevel.Verbose);
+
+            if (hostConfiguration != null && !string.IsNullOrEmpty(hostConfiguration.SeqUrl) && hostConfiguration.SeqUrl != "-")
+            {
+                config = config.WriteTo.Seq(hostConfiguration.SeqUrl, apiKey: hostConfiguration.SeqApiKey);
+            }
+
+            return config.CreateLogger();
         }
     }
 }

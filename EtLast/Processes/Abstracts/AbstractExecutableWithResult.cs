@@ -1,0 +1,43 @@
+﻿namespace FizzCode.EtLast
+{
+    using System;
+    using System.Diagnostics;
+
+    public abstract class AbstractExecutableWithResult<T> : AbstractProcess, IExecutableWithResult<T>
+    {
+        protected AbstractExecutableWithResult(ITopic topic, string name)
+            : base(topic, name)
+        {
+        }
+
+        public T Execute(IProcess caller = null)
+        {
+            Context.RegisterProcessInvocationStart(this, caller);
+
+            var netTimeStopwatch = Stopwatch.StartNew();
+            try
+            {
+                ValidateImpl();
+
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    return default;
+
+                return ExecuteImpl();
+            }
+            catch (Exception ex)
+            {
+                Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
+            }
+            finally
+            {
+                netTimeStopwatch.Stop();
+                Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+            }
+
+            return default;
+        }
+
+        protected abstract void ValidateImpl();
+        protected abstract T ExecuteImpl();
+    }
+}

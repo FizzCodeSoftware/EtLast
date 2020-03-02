@@ -34,7 +34,7 @@
                 .Select(c => builder.Table.Scope.Configuration.ConnectionString.Escape(c.Name))
                 .ToArray();
 
-            yield return new CopyTableIntoExistingTableProcess(builder.Table.Topic, "CopyToBase")
+            yield return new CopyTableIntoExistingTable(builder.Table.Topic, "CopyToBase")
             {
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 Configuration = new TableCopyConfiguration()

@@ -71,7 +71,7 @@
             var constraintCheckDisabledOnTables = scope.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
             if (constraintCheckDisabledOnTables != null)
             {
-                yield return new MsSqlEnableConstraintCheckProcess(scope.Topic, "EnableConstraintCheck")
+                yield return new MsSqlEnableConstraintCheck(scope.Topic, "EnableConstraintCheck")
                 {
                     ConnectionString = scope.Configuration.ConnectionString,
                     TableNames = constraintCheckDisabledOnTables.Distinct().OrderBy(x => x).ToArray(),
@@ -82,7 +82,7 @@
             var etlRunSqlTable = Model.GetTables().Find(x => x.HasProperty<IsEtlRunInfoTableProperty>());
             if (etlRunSqlTable != null)
             {
-                yield return new CustomSqlStatementProcess(scope.Topic.Child(etlRunSqlTable.SchemaAndTableName.SchemaAndName), "UpdateEtlRun")
+                yield return new CustomSqlStatement(scope.Topic.Child(etlRunSqlTable.SchemaAndTableName.SchemaAndName), "UpdateEtlRun")
                 {
                     ConnectionString = scope.Configuration.ConnectionString,
                     CommandTimeout = 60 * 60,
@@ -128,7 +128,7 @@
             var etlRunSqlTable = Model.GetTables().Find(x => x.HasProperty<IsEtlRunInfoTableProperty>());
             if (etlRunSqlTable != null)
             {
-                var maxId = new GetTableMaxValueProcess<int>(scope.Topic.Child(etlRunSqlTable.SchemaAndTableName.SchemaAndName), "MaxIdReader")
+                var maxId = new GetTableMaxValue<int>(scope.Topic.Child(etlRunSqlTable.SchemaAndTableName.SchemaAndName), "MaxIdReader")
                 {
                     ConnectionString = ConnectionString,
                     TableName = ConnectionString.Escape(etlRunSqlTable.SchemaAndTableName.TableName, etlRunSqlTable.SchemaAndTableName.Schema),
@@ -137,7 +137,7 @@
 
                 yield return new ProcessBuilder()
                 {
-                    InputProcess = new EnumerableImportProcess(scope.Topic.Child(etlRunSqlTable.SchemaAndTableName.SchemaAndName), "RowCreator")
+                    InputProcess = new EnumerableImporter(scope.Topic.Child(etlRunSqlTable.SchemaAndTableName.SchemaAndName), "RowCreator")
                     {
                         InputGenerator = process =>
                         {

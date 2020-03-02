@@ -43,8 +43,6 @@
 
         protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
-            Context.Log(LogSeverity.Information, this, "unordered aggregation started");
-
             var groups = new Dictionary<string, List<IRow>>();
 
             netTimeStopwatch.Stop();
@@ -89,16 +87,12 @@
 
                 try
                 {
-                    try
-                    {
-                        Operation.TransformGroup(group, aggregate);
-                    }
-                    catch (EtlException) { throw; }
-                    catch (Exception ex) { throw new MemoryAggregationException(this, Operation, group, ex); }
+                    Operation.TransformGroup(group, aggregate);
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ex);
+                    var exception = new MemoryAggregationException(this, Operation, group, ex);
+                    Context.AddException(this, exception);
                     break;
                 }
 

@@ -36,7 +36,6 @@
 
         private int _rowsWritten;
         private Stopwatch _timer;
-        private double _fullTime;
         private DatabaseConnection _connection;
         private SqlBulkCopy _bulkCopy;
         private RowShadowReader _reader;
@@ -128,16 +127,19 @@
             var recordCount = _reader.RowCount;
             _timer.Restart();
 
-            var dscUid = Context.RegisterDataStoreCommandStart(this, DataStoreCommandKind.bulk, ConnectionString.Name, _bulkCopy.BulkCopyTimeout, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", Transaction.Current.ToIdentifierString(), null);
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbBulkWrite, ConnectionString.Name, _bulkCopy.BulkCopyTimeout, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", Transaction.Current.ToIdentifierString(), null,
+                "write to table: {ConnectionStringName}/{Table}",
+                ConnectionString.Name, TableDefinition.TableName);
 
             try
             {
                 _bulkCopy.WriteToServer(_reader);
-                Context.RegisterDataStoreCommandEnd(this, dscUid, recordCount, null);
 
                 _timer.Stop();
                 var time = _timer.Elapsed;
-                _fullTime += time.TotalMilliseconds;
+                _rowsWritten += recordCount;
+
+                Context.RegisterIoCommandSuccess(this, iocUid, recordCount);
 
                 CounterCollection.IncrementCounter("db record write count", recordCount);
                 CounterCollection.IncrementTimeSpan("db record write time", time);
@@ -147,15 +149,10 @@
                 Context.CounterCollection.IncrementCounter("db record write count - " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName), recordCount);
                 Context.CounterCollection.IncrementTimeSpan("db record write time - " + ConnectionString.Name, time);
                 Context.CounterCollection.IncrementTimeSpan("db record write time - " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName), time);
-
-                _rowsWritten += recordCount;
-
-                Context.Log(Transaction.Current.ToIdentifierString(), LogSeverity.Debug, this, "{TotalRowCount} records written to {ConnectionStringName}/{TableName}, average speed is {AvgSpeed} sec/Mrow), last batch time: {BatchElapsed}", _rowsWritten,
-                    ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), Math.Round(_fullTime * 1000 / _rowsWritten, 1), time);
             }
             catch (Exception ex)
             {
-                Context.RegisterDataStoreCommandEnd(this, dscUid, recordCount, ex.Message);
+                Context.RegisterIoCommandFailed(this, iocUid, recordCount, ex);
 
                 ConnectionManager.ReleaseConnection(this, ref _connection);
                 _bulkCopy.Close();

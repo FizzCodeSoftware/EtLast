@@ -10,7 +10,7 @@
     {
         private IEvaluable GetReader(ITopic topic, string fileName)
         {
-            return new DelimitedFileReaderProcess(topic, "DelimitedFileReaderProcess")
+            return new DelimitedFileReader(topic, "DelimitedFileReaderProcess")
             {
                 FileName = fileName,
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()

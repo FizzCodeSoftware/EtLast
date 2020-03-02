@@ -24,7 +24,7 @@
 
             yield return new ProcessBuilder()
             {
-                InputProcess = new EpPlusExcelReaderProcess(scope.Topic, "Reader")
+                InputProcess = new EpPlusExcelReader(scope.Topic, "Reader")
                 {
                     FileName = SourceFileName,
                     SheetName = "People",

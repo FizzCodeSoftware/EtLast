@@ -90,7 +90,7 @@
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {
-                        Process = new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "PreviousValueReader")
+                        Process = new CustomSqlAdoNetDbReader(builder.TableBuilder.Table.Topic, "PreviousValueReader")
                         {
                             ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
                             Sql = "SELECT " + string.Join(",", builder.MatchColumns.Concat(finalValueColumns).Select(x => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(x)))
@@ -131,7 +131,7 @@
             }
         }
 
-        private static CustomSqlAdoNetDbReaderProcess CreateAutoValidity_ExpandDeferredReaderProcess(AutoValidityRangeBuilder builder, string matchColumn, string[] valueColumns, IRow[] rows)
+        private static CustomSqlAdoNetDbReader CreateAutoValidity_ExpandDeferredReaderProcess(AutoValidityRangeBuilder builder, string matchColumn, string[] valueColumns, IRow[] rows)
         {
             var parameters = new Dictionary<string, object>
             {
@@ -144,7 +144,7 @@
             if (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime != null)
                 parameters.Add("InfiniteFuture", builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
 
-            return new CustomSqlAdoNetDbReaderProcess(builder.TableBuilder.Table.Topic, "PreviousValueReader")
+            return new CustomSqlAdoNetDbReader(builder.TableBuilder.Table.Topic, "PreviousValueReader")
             {
                 ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
                 Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(matchColumn)

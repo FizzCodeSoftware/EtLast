@@ -9,7 +9,8 @@
     "TransactionScopeTimeoutMinutes": 60,
     "MinimumLogLevel": { // Verbose, Debug, Information, Warning, Error, Fatal
       "Console": "Information",
-      "File": "Debug"
+      "File": "Debug",
+      "IoFile": "Verbose" // I/O severity can be Verbose or Error
     },
     "DynamicCompilation": {
       // Default: compile .cs files only when the debugger is not attached

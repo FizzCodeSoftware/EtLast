@@ -34,8 +34,9 @@
         void LogCustom(string fileName, IProcess process, string text, params object[] args);
         void LogCustomOps(string fileName, IProcess process, string text, params object[] args);
 
-        int RegisterDataStoreCommandStart(IProcess process, DataStoreCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter);
-        void RegisterDataStoreCommandEnd(IProcess process, int uid, int affectedDataCount, string errorMessage);
+        int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string target, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs);
+        void RegisterIoCommandSuccess(IProcess process, int uid, int affectedDataCount);
+        void RegisterIoCommandFailed(IProcess process, int uid, int affectedDataCount, Exception exception);
 
         void AddException(IProcess process, Exception ex);
         List<Exception> GetExceptions();
@@ -55,8 +56,8 @@
         ContextOnRowStoredDelegate OnRowStored { get; set; }
         public ContextOnProcessInvocationDelegate OnProcessInvocationStart { get; set; }
         public ContextOnProcessInvocationDelegate OnProcessInvocationEnd { get; set; }
-        public ContextOnDataStoreCommandStartDelegate OnContextDataStoreCommandStart { get; set; }
-        public ContextOnDataStoreCommandEndDelegate OnContextDataStoreCommandEnd { get; set; }
+        public ContextOnIoCommandStartDelegate OnContextIoCommandStart { get; set; }
+        public ContextOnIoCommandEndDelegate OnContextIoCommandEnd { get; set; }
 
         void RegisterProcessInvocationStart(IProcess process, IProcess caller);
         void RegisterProcessInvocationEnd(IProcess process);

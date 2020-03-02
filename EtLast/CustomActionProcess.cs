@@ -2,11 +2,11 @@
 {
     using System;
 
-    public class CustomActionProcess : AbstractExecutableProcess
+    public class CustomAction : AbstractExecutable
     {
-        public Action<CustomActionProcess> Then { get; set; }
+        public Action<CustomAction> Then { get; set; }
 
-        public CustomActionProcess(ITopic topic, string name)
+        public CustomAction(ITopic topic, string name)
             : base(topic, name)
         {
         }

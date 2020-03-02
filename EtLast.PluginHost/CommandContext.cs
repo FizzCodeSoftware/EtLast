@@ -10,6 +10,7 @@
     {
         public ILogger Logger { get; private set; }
         public ILogger OpsLogger { get; private set; }
+        public ILogger IoLogger { get; private set; }
         public HostConfiguration HostConfiguration { get; private set; }
 
         public bool Load()
@@ -19,6 +20,7 @@
             {
                 Logger = SerilogConfigurator.CreateLogger(null);
                 OpsLogger = SerilogConfigurator.CreateOpsLogger(null);
+                IoLogger = SerilogConfigurator.CreateIoLogger(null);
 
                 Logger.Error("can't find the host configuration file: {FileName}", hostConfigurationFileName);
                 OpsLogger.Error("can't find the host configuration file: {FileName}", hostConfigurationFileName);
@@ -55,6 +57,7 @@
 
             Logger = SerilogConfigurator.CreateLogger(HostConfiguration);
             OpsLogger = SerilogConfigurator.CreateOpsLogger(HostConfiguration);
+            IoLogger = SerilogConfigurator.CreateIoLogger(HostConfiguration);
             return true;
         }
     }
