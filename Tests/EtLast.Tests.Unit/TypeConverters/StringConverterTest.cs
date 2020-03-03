@@ -15,19 +15,13 @@
         }
 
         [TestMethod]
-        public void IntegerToInv()
+        [DataRow(71.11d, "71.11", DisplayName = "IntegerToInv")]
+        [DataRow(71.11d, "71,11", "hu-HU", DisplayName = "IntegerToHu")]
+        public void AreEqual(object input, string output, string locale = null)
         {
-            var converter = new StringConverter();
-            var result = converter.Convert(71.11d);
-            Assert.AreEqual("71.11", result);
-        }
-
-        [TestMethod]
-        public void IntegerToHu()
-        {
-            var converter = new StringConverter(new CultureInfo("hu-HU"));
-            var result = converter.Convert(71.11d);
-            Assert.AreEqual("71,11", result);
+            var converter = new StringConverter(locale != null ? new CultureInfo(locale) : null);
+            var result = converter.Convert(input);
+            Assert.AreEqual(output, result);
         }
 
         [TestMethod]
