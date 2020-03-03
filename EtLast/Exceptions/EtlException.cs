@@ -53,7 +53,7 @@
             Data.Add("CallChain", GetCallChain(process));
         }
 
-        private static string FrameToString(StackFrame frame)
+        public static string FrameToString(StackFrame frame)
         {
             var sb = new StringBuilder(200);
 
@@ -61,24 +61,49 @@
             if (method == null)
                 return "<unknown method>";
 
-            if (method.DeclaringType != null)
+            var ignoreMethod = false;
+
+            if (!method.Name.StartsWith("<", StringComparison.Ordinal))
             {
-                sb.Append(method.DeclaringType.GetFriendlyTypeName())
-                    .Append(".");
+                if (method.DeclaringType != null)
+                {
+                    if (method.DeclaringType.Name.StartsWith("<", StringComparison.Ordinal))
+                    {
+                        var endIndex = method.DeclaringType.Name.IndexOf('>', StringComparison.Ordinal);
+                        switch (method.DeclaringType.Name[endIndex + 1])
+                        {
+                            case 'd':
+                                sb.Append(TypeHelpers.FixGeneratedName(method.DeclaringType.DeclaringType.Name))
+                                    .Append(".");
+                                ignoreMethod = true;
+                                break;
+                        }
+                    }
+
+                    sb.Append(TypeHelpers.FixGeneratedName(method.DeclaringType.Name));
+                    if (!ignoreMethod)
+                        sb.Append(".");
+                }
+            }
+            else
+            {
             }
 
-            sb.Append(method.Name);
-
-            if (method is MethodInfo mi && mi.IsGenericMethod)
+            if (!ignoreMethod)
             {
-                sb.Append("<")
-                    .Append(string.Join(",", mi.GetGenericArguments().Select(TypeHelpers.GetFriendlyTypeName)))
-                    .Append(">");
-            }
+                sb.Append(TypeHelpers.FixGeneratedName(method.Name));
 
-            sb.Append("(")
-                .Append(string.Join(", ", method.GetParameters().Select(mp => mp.ParameterType.GetFriendlyTypeName() + " " + mp.Name)))
-                .Append(")");
+                if (method is MethodInfo mi && mi.IsGenericMethod)
+                {
+                    sb.Append("<")
+                        .Append(string.Join(",", mi.GetGenericArguments().Select(TypeHelpers.GetFriendlyTypeName)))
+                        .Append(">");
+                }
+
+                sb.Append("(")
+                    .Append(string.Join(", ", method.GetParameters().Select(mp => mp.ParameterType.GetFriendlyTypeName() + " " + mp.Name)))
+                    .Append(")");
+            }
 
             try
             {

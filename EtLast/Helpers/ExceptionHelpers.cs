@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
+    using System.Diagnostics;
 
     public static class ExceptionHelpers
     {
@@ -17,6 +18,22 @@
 
                 msg += cex.GetType().GetFriendlyTypeName() + ": " + cex.Message;
 
+                if (includeCaller)
+                {
+                    if (cex.Data?["Caller"] is string storedCaller)
+                    {
+                        msg += ", CALLER: " + storedCaller;
+                    }
+                    else
+                    {
+                        var frame = new StackTrace(cex).GetFrames()[0];
+                        if (frame != null)
+                        {
+                            msg += ", CALLER: " + EtlException.FrameToString(frame);
+                        }
+                    }
+                }
+
                 if (cex.Data?.Count > 0)
                 {
                     foreach (var key in cex.Data.Keys)
@@ -31,7 +48,7 @@
                         if (k == "OpsMessage")
                             continue;
 
-                        if (!includeCaller && k == "Caller")
+                        if (k == "Caller")
                             continue;
 
                         var value = cex.Data[key];

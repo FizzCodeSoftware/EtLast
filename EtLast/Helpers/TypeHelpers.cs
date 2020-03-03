@@ -41,10 +41,28 @@
                     string.Join(", ", type.GetGenericArguments().Select(GetFriendlyTypeName)));
             }
 
-            if (!_typeNameMap.TryGetValue(type.Name, out var friendlyName))
-                return type.Name.Replace('+', '.');
+            if (_typeNameMap.TryGetValue(type.Name, out var friendlyName))
+                return friendlyName;
 
-            return friendlyName;
+            return type.Name.Replace('+', '.');
+        }
+
+        public static string FixGeneratedName(string name)
+        {
+            if (name.StartsWith("<", StringComparison.Ordinal))
+            {
+                var endIndex = name.IndexOf('>', StringComparison.Ordinal);
+                var fixedName = name[1..endIndex];
+                return fixedName +
+                    (name[endIndex + 1] switch
+                    {
+                        'b' => "+AnonymousMethod",
+                        'd' => "+Iterator",
+                        _ => null,
+                    });
+            }
+
+            return name;
         }
     }
 }
