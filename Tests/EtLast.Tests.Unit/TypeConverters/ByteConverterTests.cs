@@ -6,239 +6,55 @@
     public class ByteConverterTests
     {
         [TestMethod]
-        public void InvString()
+        [DataRow("1", (byte)1)]
+        [DataRow("123", (byte)123)]
+        [DataRow("-1", null)]
+        [DataRow("1234", null)]
+        [DataRow((sbyte)77, (byte)77)]
+        [DataRow(sbyte.MinValue, null)]
+        [DataRow((byte)77, (byte)77)]
+        [DataRow((short)77, (byte)77)]
+        [DataRow(short.MaxValue, null)]
+        [DataRow(short.MinValue, null)]
+        [DataRow((ushort)77, (byte)77)]
+        [DataRow(ushort.MaxValue, null)]
+        [DataRow(77, (byte)77)]
+        [DataRow(int.MaxValue, null)]
+        [DataRow(int.MinValue, null)]
+        [DataRow(77u, (byte)77)]
+        [DataRow(uint.MaxValue, null)]
+        [DataRow(77L, (byte)77)]
+        [DataRow(long.MaxValue, null)]
+        [DataRow(long.MinValue, null)]
+        [DataRow(77ul, (byte)77)]
+        [DataRow(ulong.MaxValue, null)]
+        [DataRow(77.5f, (byte)78)]
+        [DataRow(78.5f, (byte)78)]
+        [DataRow(79.5f, (byte)80)]
+        [DataRow(float.MaxValue, null)]
+        [DataRow(float.MinValue, null)]
+        [DataRow(77.5d, (byte)78)]
+        [DataRow(78.5d, (byte)78)]
+        [DataRow(79.5d, (byte)80)]
+        [DataRow(double.MaxValue, null)]
+        [DataRow(double.MinValue, null)]
+        public void ByteConverter(object input, byte? expected)
         {
             var converter = new ByteConverter();
-            var result = converter.Convert("1");
-            Assert.AreEqual((byte)1, result);
+            var result = converter.Convert(input);
+            Assert.AreEqual(expected, result);
         }
 
         [TestMethod]
-        public void InvStringBigger()
+        public void ByteConverterFromDecimal()
         {
             var converter = new ByteConverter();
-            var result = converter.Convert("123");
-            Assert.AreEqual((byte)123, result);
+            var result = converter.Convert(76.5m);
+            Assert.AreEqual((byte)76, result);
         }
 
         [TestMethod]
-        public void InvStringTooSmall()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert("-1");
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void InvStringTooBig()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert("1234");
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromSByte()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert((sbyte)77);
-            Assert.AreEqual((byte)77, result);
-        }
-
-        [TestMethod]
-        public void FromSByteTooSmall()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(sbyte.MinValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromByte()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert((byte)77);
-            Assert.AreEqual((byte)77, result);
-        }
-
-        [TestMethod]
-        public void FromShort()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert((short)77);
-            Assert.AreEqual((byte)77, result);
-        }
-
-        [TestMethod]
-        public void FromShortTooBig()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(short.MaxValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromShortTooSmall()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(short.MinValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromUShort()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert((ushort)77);
-            Assert.AreEqual((byte)77, result);
-        }
-
-        [TestMethod]
-        public void FromUShortTooBig()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(ushort.MaxValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromInt()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(77);
-            Assert.AreEqual((byte)77, result);
-        }
-
-        [TestMethod]
-        public void FromIntTooBig()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(int.MaxValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromIntTooSmall()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(int.MinValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromUInt()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(77u);
-            Assert.AreEqual((byte)77, result);
-        }
-
-        [TestMethod]
-        public void FromUIntTooBig()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(uint.MaxValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromLong()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(77L);
-            Assert.AreEqual((byte)77, result);
-        }
-
-        [TestMethod]
-        public void FromLongTooBig()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(long.MaxValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromLongTooSmall()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(long.MinValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromULong()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(77ul);
-            Assert.AreEqual((byte)77, result);
-        }
-
-        [TestMethod]
-        public void FromULongTooBig()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(ulong.MaxValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromDouble()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(8d / 3d);
-            Assert.AreEqual(System.Convert.ToByte(8d / 3d), result);
-        }
-
-        [TestMethod]
-        public void FromDoubleTooBig()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(double.MaxValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromDoubleTooSmall()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(double.MinValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromFloat()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(4f / 3f);
-            Assert.AreEqual(System.Convert.ToByte(4f / 3f), result);
-        }
-
-        [TestMethod]
-        public void FromFloatTooBig()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(float.MaxValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromFloatTooSmall()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(float.MinValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromDecimal()
-        {
-            var converter = new ByteConverter();
-            var result = converter.Convert(4m / 3m);
-            Assert.AreEqual(System.Convert.ToByte(4m / 3m), result);
-        }
-
-        [TestMethod]
-        public void FromDecimalTooBig()
+        public void ByteConverterFromDecimalTooBig()
         {
             var converter = new ByteConverter();
             var result = converter.Convert(decimal.MaxValue);
@@ -246,7 +62,7 @@
         }
 
         [TestMethod]
-        public void FromDecimalTooSmall()
+        public void ByteConverterFromDecimalTooSmall()
         {
             var converter = new ByteConverter();
             var result = converter.Convert(decimal.MinValue);

@@ -22,10 +22,14 @@
         [DataRow(long.MaxValue, null)]
         [DataRow(long.MinValue, null)]
         [DataRow(ulong.MaxValue, null)]
-        [DataRow(3.12f, 3)]
+        [DataRow(77.5f, 78)]
+        [DataRow(78.5f, 78)]
+        [DataRow(79.5f, 80)]
         [DataRow(float.MaxValue, null)]
         [DataRow(float.MinValue, null)]
-        [DataRow(3.12d, 3)]
+        [DataRow(77.5d, 78)]
+        [DataRow(78.5d, 78)]
+        [DataRow(79.5d, 80)]
         [DataRow(double.MaxValue, null)]
         [DataRow(double.MinValue, null)]
         public void IntConverter(object input, int? expected)
@@ -39,8 +43,8 @@
         public void IntConverterFromDecimal()
         {
             var converter = new IntConverter();
-            var result = converter.Convert(4m / 5m);
-            Assert.AreEqual(System.Convert.ToInt32(4m / 5m), result);
+            var result = converter.Convert(77.5m);
+            Assert.AreEqual(78, result);
         }
 
         [TestMethod]

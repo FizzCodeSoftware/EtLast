@@ -19,8 +19,12 @@
         [DataRow((long)77, 77L)]
         [DataRow((ulong)77, 77L)]
         [DataRow(ulong.MaxValue, null)]
-        [DataRow(3.12f, 3L)]
-        [DataRow(3.12d, 3L)]
+        [DataRow(77.5f, 78L)]
+        [DataRow(78.5f, 78L)]
+        [DataRow(79.5f, 80L)]
+        [DataRow(77.5d, 78L)]
+        [DataRow(78.5d, 78L)]
+        [DataRow(79.5d, 80L)]
         [DataRow(double.MaxValue, null)]
         [DataRow(double.MinValue, null)]
         public void LongConverter(object input, long? expected)
@@ -34,8 +38,8 @@
         public void LongConverterFromDecimal()
         {
             var converter = new LongConverter();
-            var result = converter.Convert(3.12m);
-            Assert.AreEqual(3L, result);
+            var result = converter.Convert(77.5);
+            Assert.AreEqual(78L, result);
         }
 
         [TestMethod]
