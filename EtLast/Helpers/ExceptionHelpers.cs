@@ -20,27 +20,28 @@
 
                 if (cex.Data?["Process"] is string storedProcess)
                 {
-                    msg += ", PROCESS: " + storedProcess;
+                    msg += "\n\tPROCESS: " + storedProcess;
                 }
 
                 if (includeCaller)
                 {
                     if (cex.Data?["Caller"] is string storedCaller)
                     {
-                        msg += ", CALLER: " + storedCaller;
+                        msg += "\n\tCALLER: " + storedCaller;
                     }
                     else
                     {
                         var frame = new StackTrace(cex, true).GetFrames()[0];
                         if (frame != null)
                         {
-                            msg += ", CALLER: " + EtlException.FrameToString(frame);
+                            msg += "\n\tCALLER: " + EtlException.FrameToString(frame);
                         }
                     }
                 }
 
                 if (cex.Data?.Count > 0)
                 {
+                    var first = true;
                     foreach (var key in cex.Data.Keys)
                     {
                         var k = key.ToString();
@@ -56,9 +57,25 @@
                         if (k == "Caller")
                             continue;
 
+                        if (k == "Row")
+                            continue;
+
+                        if (first)
+                        {
+                            msg += "\n\tDATA: ";
+                            first = false;
+                        }
+                        else
+                            msg += ", ";
+
                         var value = cex.Data[key];
-                        msg += ", " + k + " = " + (value != null ? value.ToString().Trim() : "NULL");
+                        msg += "[" + k + "] = " + (value != null ? value.ToString().Trim() : "NULL");
                     }
+                }
+
+                if (cex.Data?["Row"] is string storedRow)
+                {
+                    msg += "\n\tROW: " + storedRow;
                 }
 
                 cex = cex.InnerException;
