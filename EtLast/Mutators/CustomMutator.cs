@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Collections.Generic;
 
     public delegate bool CustomMutatorDelegate(IEvaluable process, IRow row);
@@ -15,7 +16,17 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            if (Then.Invoke(this, row))
+            var keep = true;
+            try
+            {
+                keep = Then.Invoke(this, row);
+            }
+            catch (Exception ex) when (!(ex is EtlException))
+            {
+                throw new ProcessExecutionException(this, row, ex);
+            }
+
+            if (keep)
                 yield return row;
         }
 

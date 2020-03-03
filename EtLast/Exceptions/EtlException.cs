@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.Globalization;
+    using System.IO;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.InteropServices;
@@ -18,7 +19,7 @@
         public EtlException(string message)
             : base(message)
         {
-            var frame = Array.Find(new StackTrace().GetFrames(), sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
+            var frame = Array.Find(new StackTrace(true).GetFrames(), sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
             if (frame != null)
                 Data.Add("Caller", FrameToString(frame));
         }
@@ -26,7 +27,7 @@
         public EtlException(string message, Exception innerException)
             : base(message, innerException)
         {
-            var frame = Array.Find(new StackTrace().GetFrames(), sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
+            var frame = Array.Find(new StackTrace(true).GetFrames(), sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
             if (frame != null)
                 Data.Add("Caller", FrameToString(frame));
         }
@@ -34,7 +35,7 @@
         public EtlException(IProcess process, string message)
             : base(message)
         {
-            var frame = Array.Find(new StackTrace().GetFrames(), sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
+            var frame = Array.Find(new StackTrace(true).GetFrames(), sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
             if (frame != null)
                 Data.Add("Caller", FrameToString(frame));
 
@@ -45,7 +46,7 @@
         public EtlException(IProcess process, string message, Exception innerException)
             : base(message, innerException)
         {
-            var frame = Array.Find(new StackTrace().GetFrames(), sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
+            var frame = Array.Find(new StackTrace(true).GetFrames(), sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
             if (frame != null)
                 Data.Add("Caller", FrameToString(frame));
 
@@ -63,13 +64,13 @@
 
             var ignoreMethod = false;
 
-            if (!method.Name.StartsWith("<", StringComparison.Ordinal))
+            if (!method.Name.StartsWith("<", StringComparison.Ordinal) && method.DeclaringType != null)
             {
-                if (method.DeclaringType != null)
+                if (method.DeclaringType.Name.StartsWith("<", StringComparison.Ordinal))
                 {
-                    if (method.DeclaringType.Name.StartsWith("<", StringComparison.Ordinal))
+                    var endIndex = method.DeclaringType.Name.IndexOf('>', StringComparison.Ordinal);
+                    if (endIndex > -1 && endIndex < method.DeclaringType.Name.Length)
                     {
-                        var endIndex = method.DeclaringType.Name.IndexOf('>', StringComparison.Ordinal);
                         switch (method.DeclaringType.Name[endIndex + 1])
                         {
                             case 'd':
@@ -79,14 +80,11 @@
                                 break;
                         }
                     }
-
-                    sb.Append(TypeHelpers.FixGeneratedName(method.DeclaringType.Name));
-                    if (!ignoreMethod)
-                        sb.Append(".");
                 }
-            }
-            else
-            {
+
+                sb.Append(TypeHelpers.FixGeneratedName(method.DeclaringType.Name));
+                if (!ignoreMethod)
+                    sb.Append(".");
             }
 
             if (!ignoreMethod)
@@ -110,7 +108,7 @@
                 var fileName = frame.GetFileName();
                 if (frame.GetNativeOffset() != -1 && fileName != null)
                 {
-                    sb.AppendFormat(CultureInfo.InvariantCulture, " in {0}, line {1}", fileName, frame.GetFileLineNumber());
+                    sb.AppendFormat(CultureInfo.InvariantCulture, " in {0}, line {1}", Path.GetFileName(fileName), frame.GetFileLineNumber());
                 }
             }
             catch (NotSupportedException)

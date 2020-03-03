@@ -52,14 +52,17 @@
             if (name.StartsWith("<", StringComparison.Ordinal))
             {
                 var endIndex = name.IndexOf('>', StringComparison.Ordinal);
-                var fixedName = name[1..endIndex];
-                return fixedName +
-                    (name[endIndex + 1] switch
-                    {
-                        'b' => "+AnonymousMethod",
-                        'd' => "+Iterator",
-                        _ => null,
-                    });
+                if (endIndex > -1 && endIndex < name.Length - 1)
+                {
+                    var fixedName = name[1..endIndex];
+                    return fixedName +
+                        (name[endIndex + 1] switch
+                        {
+                            'b' => "+AnonymousMethod",
+                            'd' => "+Iterator",
+                            _ => null,
+                        });
+                }
             }
 
             return name;

@@ -18,6 +18,11 @@
 
                 msg += cex.GetType().GetFriendlyTypeName() + ": " + cex.Message;
 
+                if (cex.Data?["Process"] is string storedProcess)
+                {
+                    msg += ", PROCESS: " + storedProcess;
+                }
+
                 if (includeCaller)
                 {
                     if (cex.Data?["Caller"] is string storedCaller)
@@ -26,7 +31,7 @@
                     }
                     else
                     {
-                        var frame = new StackTrace(cex).GetFrames()[0];
+                        var frame = new StackTrace(cex, true).GetFrames()[0];
                         if (frame != null)
                         {
                             msg += ", CALLER: " + EtlException.FrameToString(frame);
@@ -39,7 +44,7 @@
                     foreach (var key in cex.Data.Keys)
                     {
                         var k = key.ToString();
-                        if (cex == exception && k == "Process")
+                        if (k == "Process")
                             continue;
 
                         if (k == "CallChain")
