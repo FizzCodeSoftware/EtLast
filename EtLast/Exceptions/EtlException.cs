@@ -39,7 +39,7 @@
             if (frame != null)
                 Data.Add("Caller", FrameToString(frame));
 
-            Data.Add("Process", process.Name);
+            Data.Add("Process", process.Name + " (" + process.GetType().GetFriendlyTypeName() + ")");
             Data.Add("CallChain", GetCallChain(process));
         }
 
@@ -50,7 +50,7 @@
             if (frame != null)
                 Data.Add("Caller", FrameToString(frame));
 
-            Data.Add("Process", process.Name);
+            Data.Add("Process", process.Name + " (" + process.GetType().GetFriendlyTypeName() + ")");
             Data.Add("CallChain", GetCallChain(process));
         }
 

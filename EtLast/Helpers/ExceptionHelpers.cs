@@ -31,7 +31,7 @@
                     }
                     else
                     {
-                        var frame = new StackTrace(cex, true).GetFrames()[0];
+                        var frame = Array.Find(new StackTrace(cex, true).GetFrames(), sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
                         if (frame != null)
                         {
                             msg += "\n\tCALLER: " + EtlException.FrameToString(frame);
@@ -66,7 +66,9 @@
                             first = false;
                         }
                         else
+                        {
                             msg += ", ";
+                        }
 
                         var value = cex.Data[key];
                         msg += "[" + k + "] = " + (value != null ? value.ToString().Trim() : "NULL");
