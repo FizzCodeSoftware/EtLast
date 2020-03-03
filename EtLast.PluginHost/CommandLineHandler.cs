@@ -31,7 +31,7 @@
             }
             catch (Exception ex)
             {
-                var msg = ex.FormatExceptionWithDetails();
+                var msg = ex.FormatExceptionWithDetails(false);
                 Console.WriteLine("error during initialization:");
                 Console.WriteLine(msg);
                 if (Debugger.IsAttached)

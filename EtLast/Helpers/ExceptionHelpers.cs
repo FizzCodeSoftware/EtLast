@@ -4,7 +4,7 @@
 
     public static class ExceptionHelpers
     {
-        public static string FormatExceptionWithDetails(this Exception exception)
+        public static string FormatExceptionWithDetails(this Exception exception, bool includeCaller = true)
         {
             var lvl = 0;
             var msg = "EXCEPTION: ";
@@ -29,6 +29,9 @@
                             continue;
 
                         if (k == "OpsMessage")
+                            continue;
+
+                        if (!includeCaller && k == "Caller")
                             continue;
 
                         var value = cex.Data[key];

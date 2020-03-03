@@ -31,6 +31,15 @@
             {
                 configurationBuilder.AddJsonFile(sharedConfigFileName);
                 commandContext.Logger.Debug("using shared configuration file from {FileName}", PathHelpers.GetFriendlyPathName(sharedConfigFileName));
+
+                try
+                {
+                    configurationBuilder.Build();
+                }
+                catch (Exception ex)
+                {
+                    throw new ConfigurationFileException(PathHelpers.GetFriendlyPathName(sharedConfigFileName), "can't read the configuration file", ex);
+                }
             }
 
             var moduleConfigFileName = Path.Combine(moduleFolder, "module-configuration.json");
@@ -44,8 +53,16 @@
             configurationBuilder.AddJsonFile(moduleConfigFileName);
             commandContext.Logger.Debug("using module configuration file from {FileName}", PathHelpers.GetFriendlyPathName(moduleConfigFileName));
 
-            var configuration = configurationBuilder.Build();
-            AddCommandLineArgumentsToModuleConfiguration(configuration, moduleSettingOverrides);
+            IConfigurationRoot configuration;
+            try
+            {
+                configuration = configurationBuilder.Build();
+                AddCommandLineArgumentsToModuleConfiguration(configuration, moduleSettingOverrides);
+            }
+            catch (Exception ex)
+            {
+                throw new ConfigurationFileException(PathHelpers.GetFriendlyPathName(moduleConfigFileName), "can't read the configuration file", ex);
+            }
 
             var pluginNamesToExecute = pluginListOverride;
             if (pluginNamesToExecute == null || pluginNamesToExecute.Length == 0)

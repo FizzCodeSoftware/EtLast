@@ -185,7 +185,7 @@
                 }
                 catch (Exception ex)
                 {
-                    commandContext.Logger.Error("\t\t{Message}", ex.FormatExceptionWithDetails());
+                    commandContext.Logger.Error("\t\t{Message}", ex.FormatExceptionWithDetails(false));
                 }
             }
 

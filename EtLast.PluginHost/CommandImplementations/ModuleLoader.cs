@@ -20,9 +20,30 @@
 
         public static Module LoadModule(CommandContext commandContext, string moduleName, string[] moduleSettingOverrides, string[] pluginListOverride)
         {
-            var moduleConfiguration = ModuleConfigurationLoader.LoadModuleConfiguration(commandContext, moduleName, moduleSettingOverrides, pluginListOverride);
-            if (moduleConfiguration == null)
+            ModuleConfiguration moduleConfiguration;
+            try
+            {
+                moduleConfiguration = ModuleConfigurationLoader.LoadModuleConfiguration(commandContext, moduleName, moduleSettingOverrides, pluginListOverride);
+                if (moduleConfiguration == null)
+                    return null;
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.FormatExceptionWithDetails(false);
+                Console.WriteLine("error during initialization:");
+                Console.WriteLine(msg);
+                if (Debugger.IsAttached)
+                {
+                    Console.WriteLine("press any key to exit...");
+                    Console.ReadKey();
+                }
+                else
+                {
+                    Thread.Sleep(3000);
+                }
+
                 return null;
+            }
 
             if (moduleConfiguration.ConnectionStrings.All.Any())
             {

@@ -24,15 +24,15 @@
             CommandLineHandler.Context.Logger.Information("loading module {Module}", moduleName);
 
             var module = ModuleLoader.LoadModule(CommandLineHandler.Context, moduleName, moduleSettingOverrides?.ToArray(), pluginListOverride?.ToArray());
-            if (module?.EnabledPlugins.Count > 0)
+            if (module == null)
+                return;
+
+            if (module.EnabledPlugins.Count > 0)
             {
                 ModuleExecuter.Execute(CommandLineHandler.Context, module);
             }
 
-            if (module != null)
-            {
-                ModuleLoader.UnloadModule(CommandLineHandler.Context, module);
-            }
+            ModuleLoader.UnloadModule(CommandLineHandler.Context, module);
         }
 
         [Command(Name = "modules", Description = "Execute one or more module.")]

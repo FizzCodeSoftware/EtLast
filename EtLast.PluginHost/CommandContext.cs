@@ -39,8 +39,7 @@
             }
             catch (Exception ex)
             {
-                var exception = new ConfigurationFileException(hostConfigurationFileName, "can't read the configuration file", ex);
-                throw exception;
+                throw new ConfigurationFileException(PathHelpers.GetFriendlyPathName(hostConfigurationFileName), "can't read the configuration file", ex);
             }
 
             if (HostConfiguration.ModulesFolder.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))
