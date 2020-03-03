@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
+    using System.Globalization;
 
     public class TimeConverter : ITypeConverter
     {
@@ -10,56 +11,18 @@
                 return source;
 
             if (source is DateTime dt)
-                return new TimeSpan(0, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
+                return dt.TimeOfDay;
 
             if (source is string str)
             {
-                if (TimeSpan.TryParse(str, out var tsValue))
+                if (TimeSpan.TryParse(str, CultureInfo.InvariantCulture, out var tsValue))
                 {
                     return tsValue;
                 }
 
-                if (DateTime.TryParse(str, out var dtValue))
+                if (DateTime.TryParse(str, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out var dtValue))
                 {
-                    return new TimeSpan(dtValue.Hour, dtValue.Minute, dtValue.Second, dtValue.Millisecond);
-                }
-
-                if (int.TryParse(str, out var iv))
-                {
-                    source = iv;
-                }
-                else if (double.TryParse(str, out var dv))
-                {
-                    source = dv;
-                }
-            }
-
-            if (source is int intValue)
-            {
-                return new TimeSpan(intValue);
-            }
-
-            if (source is double doubleValue)
-            {
-                try
-                {
-                    var value = new TimeSpan(System.Convert.ToInt64(60d * 60d * 24d * 10000000d * doubleValue));
-                    return value;
-                }
-                catch
-                {
-                }
-            }
-
-            if (source is float floatValue)
-            {
-                try
-                {
-                    var value = new TimeSpan(System.Convert.ToInt64(60d * 60d * 24d * 10000000d * floatValue));
-                    return value;
-                }
-                catch
-                {
+                    return new TimeSpan(0, dtValue.Hour, dtValue.Minute, dtValue.Second, dtValue.Millisecond);
                 }
             }
 

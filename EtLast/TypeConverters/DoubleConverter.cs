@@ -1,15 +1,11 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Globalization;
 
     public class DoubleConverter : ITypeConverter
     {
-        public bool UseInvariantCulture { get; }
-
-        public DoubleConverter(bool useInvariantCluture = false)
-        {
-            UseInvariantCulture = useInvariantCluture;
-        }
+        public string[] RemoveSubString { get; set; }
 
         public virtual object Convert(object source)
         {
@@ -50,17 +46,16 @@
 
             if (source is string str)
             {
-                var numberFormatInfo = NumberFormatInfo.CurrentInfo;
-                if (UseInvariantCulture)
-                    numberFormatInfo = CultureInfo.InvariantCulture.NumberFormat;
+                if (RemoveSubString != null)
+                {
+                    foreach (var subStr in RemoveSubString)
+                    {
+                        str = str.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
+                    }
+                }
 
-                if (double.TryParse(str, NumberStyles.Number, numberFormatInfo, out var value))
+                if (double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
                     return value;
-
-                if (float.TryParse(str, NumberStyles.Number, numberFormatInfo, out var sfv))
-                    return System.Convert.ToDouble(sfv);
-                else if (int.TryParse(str, NumberStyles.Number, numberFormatInfo, out var siv))
-                    return System.Convert.ToDouble(siv);
             }
 
             return null;

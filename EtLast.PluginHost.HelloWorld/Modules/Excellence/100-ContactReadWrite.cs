@@ -17,7 +17,7 @@
 
         private IEnumerable<IExecutable> ProcessCreator(BasicScope scope)
         {
-            yield return new DeleteFileProcess(scope.Topic, "DeleteFile")
+            yield return new DeleteFile(scope.Topic, "DeleteFile")
             {
                 FileName = OutputFileName,
             };
@@ -30,8 +30,8 @@
                     SheetName = "People",
                     ColumnConfiguration = new List<ReaderColumnConfiguration>()
                     {
-                        new ReaderColumnConfiguration("Name", new StringConverter(formatProviderHint: CultureInfo.InvariantCulture)),
-                        new ReaderColumnConfiguration("Age", new IntConverterAuto(formatProviderHint: CultureInfo.InvariantCulture)),
+                        new ReaderColumnConfiguration("Name", new StringConverter(CultureInfo.InvariantCulture)),
+                        new ReaderColumnConfiguration("Age", new IntConverterAuto(CultureInfo.InvariantCulture)),
                     },
                 },
                 Mutators = new MutatorList()

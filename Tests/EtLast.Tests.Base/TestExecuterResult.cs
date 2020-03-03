@@ -21,7 +21,7 @@
             sb.Append("\t\t\tAssert.AreEqual(").Append(MutatedRows.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", result.MutatedRows.Count);");
             if (MutatedRows.Count > 0)
             {
-                sb.AppendLine("Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {");
+                sb.AppendLine("Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {");
                 if (columns?.Length == 0)
                 {
                     sb.AppendJoin(",\n", MutatedRows.Select(row => "\t\t\t\tnew Dictionary<string, object>() { " + string.Join(", ", row.Values.Select(kvp => "[\"" + kvp.Key + "\"] = " + FormatToCSharpVariable(row[kvp.Key]))) + " }"));
@@ -58,20 +58,32 @@
             if (v is char cv)
                 return "\"" + cv.ToString(CultureInfo.InvariantCulture) + "\"";
 
+            if (v is byte bv)
+                return "(byte)" + bv.ToString("D", CultureInfo.InvariantCulture);
+
+            if (v is sbyte sbv)
+                return "(sbyte)" + sbv.ToString("D", CultureInfo.InvariantCulture);
+
             if (v is int iv)
                 return iv.ToString("D", CultureInfo.InvariantCulture);
 
+            if (v is uint uiv)
+                return uiv.ToString("D", CultureInfo.InvariantCulture) + "u";
+
             if (v is long lv)
-                return lv.ToString("D", CultureInfo.InvariantCulture) + "l";
+                return lv.ToString("D", CultureInfo.InvariantCulture) + "L";
+
+            if (v is ulong ulv)
+                return ulv.ToString("D", CultureInfo.InvariantCulture) + "ul";
 
             if (v is decimal dev)
                 return dev.ToString("G", CultureInfo.InvariantCulture) + "m";
 
-            if (v is double dov)
-                return dov.ToString("G", CultureInfo.InvariantCulture) + "d";
-
             if (v is float flv)
                 return flv.ToString("G", CultureInfo.InvariantCulture) + "f";
+
+            if (v is double dov)
+                return dov.ToString("G", CultureInfo.InvariantCulture) + "d";
 
             if (v is DateTime dt)
             {
@@ -82,6 +94,11 @@
                     dt.Minute.ToString("G", CultureInfo.InvariantCulture) + ", " +
                     dt.Second.ToString("G", CultureInfo.InvariantCulture) + ", " +
                     dt.Millisecond.ToString("G", CultureInfo.InvariantCulture) + ")";
+            }
+
+            if (v is EtlRowError err)
+            {
+                return "new EtlRowError(" + FormatToCSharpVariable(err.OriginalValue) + ")";
             }
 
             throw new Exception("unexpected test value type: " + v.GetType());

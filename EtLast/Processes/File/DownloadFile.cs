@@ -5,12 +5,12 @@
     using System.IO;
     using System.Net;
 
-    public class DownloadFileProcess : AbstractExecutable
+    public class DownloadFile : AbstractExecutable
     {
         public string Url { get; set; }
         public string FileName { get; set; }
 
-        public DownloadFileProcess(ITopic topic, string name)
+        public DownloadFile(ITopic topic, string name)
             : base(topic, name)
         {
         }

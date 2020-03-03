@@ -11,20 +11,19 @@
             if (source is byte)
                 return source;
 
-            // smaller whole numbers
-            if (source is sbyte sbv)
+            if (source is sbyte sbv && sbv >= byte.MinValue)
                 return System.Convert.ToByte(sbv);
 
-            if (source is byte bv)
-                return System.Convert.ToByte(bv);
-
-            if (source is short sv)
+            // larger whole numbers
+            if (source is short sv && sv >= byte.MinValue && sv <= byte.MaxValue)
                 return System.Convert.ToByte(sv);
 
-            if (source is ushort usv)
+            if (source is ushort usv && usv <= byte.MaxValue)
                 return System.Convert.ToByte(usv);
 
-            // larger whole numbers
+            if (source is int iv && iv >= byte.MinValue && iv <= byte.MaxValue)
+                return System.Convert.ToByte(iv);
+
             if (source is uint uiv && uiv <= byte.MaxValue)
                 return System.Convert.ToByte(uiv);
 
@@ -59,11 +58,6 @@
 
                 if (byte.TryParse(str, out var value))
                     return value;
-
-                if (float.TryParse(str, out var sfv))
-                    return System.Convert.ToByte(sfv);
-                else if (double.TryParse(str, out var sdv))
-                    return System.Convert.ToByte(sdv);
             }
 
             return null;

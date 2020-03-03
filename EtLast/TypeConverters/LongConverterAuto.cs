@@ -5,21 +5,17 @@
 
     public class LongConverterAuto : LongConverter
     {
-        public IFormatProvider FormatProviderHint { get; }
-        public NumberStyles NumberStylesHint { get; }
+        public IFormatProvider FormatProvider { get; }
+        public NumberStyles NumberStyles { get; }
 
-        public LongConverterAuto(IFormatProvider formatProviderHint, NumberStyles numberStylesHint = NumberStyles.None)
+        public LongConverterAuto(IFormatProvider formatProvider, NumberStyles numberStyles = NumberStyles.Any)
         {
-            FormatProviderHint = formatProviderHint;
-            NumberStylesHint = numberStylesHint;
+            FormatProvider = formatProvider;
+            NumberStyles = numberStyles;
         }
 
         public override object Convert(object source)
         {
-            var baseResult = base.Convert(source);
-            if (baseResult != null)
-                return baseResult;
-
             if (source is string str)
             {
                 if (RemoveSubString != null)
@@ -30,13 +26,13 @@
                     }
                 }
 
-                if (long.TryParse(str, NumberStylesHint, FormatProviderHint, out var value))
+                if (long.TryParse(str, NumberStyles, FormatProvider, out var value))
                 {
                     return value;
                 }
             }
 
-            return null;
+            return base.Convert(source);
         }
     }
 }

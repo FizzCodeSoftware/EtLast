@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Runtime.Serialization;
 
     public static class TestData
     {
@@ -10,6 +11,24 @@
         public static string[] PersonEyeColorColumns { get; } = { "id", "personId", "color" };
         public static string[] RoleHierarchyColumns { get; } = { "id", "name", "level1", "level2", "level3" };
         public static string[] PersonalAssetsPivotColumns { get; } = { "id", "personName", "cars", "houses", "kids" };
+
+        [DataContract]
+#pragma warning disable CA1034 // Nested types should not be visible
+        public class PersonModel
+#pragma warning restore CA1034 // Nested types should not be visible
+        {
+            [DataMember]
+            public int Id { get; set; }
+
+            [DataMember]
+            public string Name { get; set; }
+
+            [DataMember]
+            public int? Age { get; set; }
+
+            [DataMember]
+            public DateTime? BirthDate { get; set; }
+        }
 
         public static IEvaluable Country(ITopic topic)
         {

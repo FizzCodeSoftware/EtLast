@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.Tests.Unit
+﻿namespace FizzCode.EtLast.Tests.Unit.Mutators.Aggregation
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -42,7 +42,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["name"] = "A", ["height"] = 150m },
                 new Dictionary<string, object>() { ["name"] = "B", ["height"] = 190m },
                 new Dictionary<string, object>() { ["name"] = "C", ["height"] = 170m },
@@ -61,7 +61,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["name"] = "A", ["age"] = 17m },
                 new Dictionary<string, object>() { ["name"] = "B", ["age"] = 8m },
                 new Dictionary<string, object>() { ["name"] = "C", ["age"] = 27m },
@@ -80,7 +80,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["name"] = "A", ["age"] = 11m },
                 new Dictionary<string, object>() { ["name"] = "B", ["age"] = 8m },
                 new Dictionary<string, object>() { ["name"] = "C", ["age"] = 27m },
@@ -99,7 +99,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["name"] = "A", ["age"] = 28m },
                 new Dictionary<string, object>() { ["name"] = "B", ["age"] = 8m },
                 new Dictionary<string, object>() { ["name"] = "C", ["age"] = 27m },
@@ -118,7 +118,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["name"] = "A", ["height"] = 150d },
                 new Dictionary<string, object>() { ["name"] = "B", ["height"] = 190d },
                 new Dictionary<string, object>() { ["name"] = "C", ["height"] = 170d },
@@ -137,7 +137,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["name"] = "A", ["age"] = 17d },
                 new Dictionary<string, object>() { ["name"] = "B", ["age"] = 8d },
                 new Dictionary<string, object>() { ["name"] = "C", ["age"] = 27d },
@@ -156,7 +156,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["name"] = "A", ["age"] = 11d },
                 new Dictionary<string, object>() { ["name"] = "B", ["age"] = 8d },
                 new Dictionary<string, object>() { ["name"] = "C", ["age"] = 27d },
@@ -175,7 +175,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["name"] = "A", ["age"] = 28d },
                 new Dictionary<string, object>() { ["name"] = "B", ["age"] = 8d },
                 new Dictionary<string, object>() { ["name"] = "C", ["age"] = 27d },
@@ -194,7 +194,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["name"] = "A", ["height"] = 150d },
                 new Dictionary<string, object>() { ["name"] = "B", ["height"] = 190d },
                 new Dictionary<string, object>() { ["name"] = "C", ["height"] = 170d },
@@ -213,7 +213,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["name"] = "A", ["age"] = 17 },
                 new Dictionary<string, object>() { ["name"] = "B", ["age"] = 8 },
                 new Dictionary<string, object>() { ["name"] = "C", ["age"] = 27 },
@@ -232,7 +232,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["name"] = "A", ["age"] = 11 },
                 new Dictionary<string, object>() { ["name"] = "B", ["age"] = 8 },
                 new Dictionary<string, object>() { ["name"] = "C", ["age"] = 27 },
@@ -251,7 +251,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["name"] = "A", ["age"] = 28 },
                 new Dictionary<string, object>() { ["name"] = "B", ["age"] = 8 },
                 new Dictionary<string, object>() { ["name"] = "C", ["age"] = 27 },
@@ -270,7 +270,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["name"] = "A", ["height"] = 150d },
                 new Dictionary<string, object>() { ["name"] = "B", ["height"] = 190d },
                 new Dictionary<string, object>() { ["name"] = "C", ["height"] = 170d },
@@ -289,7 +289,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["name"] = "A", ["age"] = 17L },
                 new Dictionary<string, object>() { ["name"] = "B", ["age"] = 8L },
                 new Dictionary<string, object>() { ["name"] = "C", ["age"] = 27L },
@@ -308,7 +308,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["name"] = "A", ["age"] = 11L },
                 new Dictionary<string, object>() { ["name"] = "B", ["age"] = 8L },
                 new Dictionary<string, object>() { ["name"] = "C", ["age"] = 27L },
@@ -327,7 +327,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["name"] = "A", ["age"] = 28L },
                 new Dictionary<string, object>() { ["name"] = "B", ["age"] = 8L },
                 new Dictionary<string, object>() { ["name"] = "C", ["age"] = 27L },

@@ -1,5 +1,6 @@
-﻿namespace FizzCode.EtLast.Tests.Unit
+﻿namespace FizzCode.EtLast.Tests.Unit.Mutators.Cross
 {
+    using System;
     using System.Collections.Generic;
     using System.Globalization;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -48,17 +49,17 @@
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(2, executedBatchCount);
             Assert.AreEqual(10, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = "yellow", ["eyeColor"] = "brown" },
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = "red", ["eyeColor"] = "brown" },
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = "green", ["eyeColor"] = "brown" },
-                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["color"] = "blue", ["eyeColor"] = null },
-                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["color"] = "yellow", ["eyeColor"] = null },
-                new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["color"] = "black", ["eyeColor"] = "green" },
-                new Dictionary<string, object>() { ["id"] = 3, ["name"] = "D", ["color"] = null, ["eyeColor"] = "not found" },
-                new Dictionary<string, object>() { ["id"] = 4, ["name"] = "E", ["color"] = null, ["eyeColor"] = "not found" },
-                new Dictionary<string, object>() { ["id"] = 5, ["name"] = "A", ["color"] = null, ["eyeColor"] = "not found" },
-                new Dictionary<string, object>() { ["id"] = 6, ["name"] = "fake", ["color"] = null, ["eyeColor"] = "not found" } });
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "yellow" },
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "red" },
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "green" },
+                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0), ["color"] = "blue" },
+                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0), ["color"] = "yellow" },
+                new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["age"] = 27, ["height"] = 170, ["eyeColor"] = "green", ["countryId"] = 2, ["birthDate"] = new DateTime(2014, 1, 21, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 11, 21, 17, 11, 58, 0), ["color"] = "black" },
+                new Dictionary<string, object>() { ["id"] = 3, ["name"] = "D", ["age"] = 39, ["height"] = 160, ["eyeColor"] = "not found", ["countryId"] = 3, ["birthDate"] = "2018.07.11", ["lastChangedTime"] = new DateTime(2017, 8, 1, 4, 9, 1, 0) },
+                new Dictionary<string, object>() { ["id"] = 4, ["name"] = "E", ["age"] = -3, ["height"] = 160, ["countryId"] = 1, ["lastChangedTime"] = new DateTime(2019, 1, 1, 23, 59, 59, 0), ["eyeColor"] = "not found" },
+                new Dictionary<string, object>() { ["id"] = 5, ["name"] = "A", ["age"] = 11, ["height"] = 140, ["countryId"] = 3, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0), ["eyeColor"] = "not found" },
+                new Dictionary<string, object>() { ["id"] = 6, ["name"] = "fake", ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0), ["eyeColor"] = "not found" } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
@@ -95,13 +96,13 @@
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(2, executedBatchCount);
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = "yellow", ["eyeColor"] = "brown" },
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = "red", ["eyeColor"] = "brown" },
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = "green", ["eyeColor"] = "brown" },
-                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["color"] = "blue", ["eyeColor"] = null },
-                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["color"] = "yellow", ["eyeColor"] = null },
-                new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["color"] = "black", ["eyeColor"] = "green" } });
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "yellow" },
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "red" },
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "green" },
+                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0), ["color"] = "blue" },
+                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0), ["color"] = "yellow" },
+                new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["age"] = 27, ["height"] = 170, ["eyeColor"] = "green", ["countryId"] = 2, ["birthDate"] = new DateTime(2014, 1, 21, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 11, 21, 17, 11, 58, 0), ["color"] = "black" } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
@@ -138,13 +139,13 @@
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(4, executedBatchCount);
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = "yellow", ["eyeColor"] = "brown" },
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = "red", ["eyeColor"] = "brown" },
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = "green", ["eyeColor"] = "brown" },
-                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["color"] = "blue", ["eyeColor"] = null },
-                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["color"] = "yellow", ["eyeColor"] = null },
-                new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["color"] = "black", ["eyeColor"] = "green" } });
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "yellow" },
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "red" },
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "green" },
+                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0), ["color"] = "blue" },
+                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0), ["color"] = "yellow" },
+                new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["age"] = 27, ["height"] = 170, ["eyeColor"] = "green", ["countryId"] = 2, ["birthDate"] = new DateTime(2014, 1, 21, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 11, 21, 17, 11, 58, 0), ["color"] = "black" } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
             Assert.IsTrue(exceptions[0] is ProcessExecutionException);
@@ -264,10 +265,10 @@
             Assert.AreEqual(3, executedLeftKeyDelegateCount);
             Assert.AreEqual(8, executedRightKeyDelegateCount);
             Assert.AreEqual(3, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = "yellow", ["eyeColor"] = "brown" },
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = "red", ["eyeColor"] = "brown" },
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["color"] = "green", ["eyeColor"] = "brown" } });
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "yellow" },
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "red" },
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "green" } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
             Assert.IsTrue(exceptions[0] is ProcessExecutionException);

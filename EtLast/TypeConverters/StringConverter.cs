@@ -6,7 +6,7 @@
     public class StringConverter : ITypeConverter
     {
         public string FormatHint { get; }
-        public IFormatProvider FormatProviderHint { get; }
+        public IFormatProvider FormatProvider { get; }
 
         /// <summary>
         /// Default false.
@@ -16,17 +16,22 @@
         /// <summary>
         /// Default false.
         /// </summary>
-        public bool RemoveLineBreaksFromMiddle { get; set; } = false;
+        public bool RemoveLineBreaks { get; set; } = false;
 
         /// <summary>
         /// Default false.
         /// </summary>
-        public bool RemoveSpacesFromMiddle { get; set; } = false;
+        public bool RemoveSpaces { get; set; } = false;
 
-        public StringConverter(string formatHint = null, IFormatProvider formatProviderHint = null)
+        public StringConverter(IFormatProvider formatProvider = null)
         {
-            FormatHint = formatHint;
-            FormatProviderHint = formatProviderHint;
+            FormatProvider = formatProvider;
+        }
+
+        public StringConverter(string format, IFormatProvider formatProvider = null)
+        {
+            FormatHint = format;
+            FormatProvider = formatProvider;
         }
 
         public virtual object Convert(object source)
@@ -39,14 +44,14 @@
                     result = result.Trim();
                 }
 
-                if (RemoveLineBreaksFromMiddle)
+                if (RemoveLineBreaks)
                 {
                     result = result
                         .Replace("\r", "", StringComparison.InvariantCultureIgnoreCase)
                         .Replace("\n", "", StringComparison.InvariantCultureIgnoreCase);
                 }
 
-                if (RemoveSpacesFromMiddle)
+                if (RemoveSpaces)
                 {
                     result = result
                         .Replace(" ", "", StringComparison.InvariantCultureIgnoreCase);
@@ -67,7 +72,7 @@
             {
                 try
                 {
-                    return formattable.ToString(FormatHint, FormatProviderHint ?? CultureInfo.CurrentCulture);
+                    return formattable.ToString(FormatHint, FormatProvider ?? CultureInfo.InvariantCulture);
                 }
                 catch
                 {

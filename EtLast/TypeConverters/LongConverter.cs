@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
+    using System.Globalization;
 
     public class LongConverter : ITypeConverter
     {
@@ -57,17 +58,8 @@
                     }
                 }
 
-                if (long.TryParse(str, out var value))
+                if (long.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
                     return value;
-
-                if (float.TryParse(str, out var sfv))
-                    return System.Convert.ToInt64(sfv);
-                else if (double.TryParse(str, out var sdv))
-                    return System.Convert.ToInt64(sdv);
-                else if (int.TryParse(str, out var siv))
-                    return System.Convert.ToInt64(siv);
-                else if (uint.TryParse(str, out var suiv))
-                    return System.Convert.ToInt64(suiv);
             }
 
             return null;

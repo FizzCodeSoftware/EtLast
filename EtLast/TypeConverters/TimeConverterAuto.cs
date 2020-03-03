@@ -5,68 +5,46 @@
 
     public class TimeConverterAuto : TimeConverter
     {
-        public string FormatHint { get; }
-        public IFormatProvider FormatProviderHint { get; }
+        public string Format { get; }
+        public IFormatProvider FormatProvider { get; }
+        public DateTimeStyles DateTimeStyles { get; }
 
-        public TimeConverterAuto(string formatHint, IFormatProvider formatProviderHint)
+        public TimeConverterAuto(IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces)
         {
-            FormatHint = formatHint;
-            FormatProviderHint = formatProviderHint;
+            FormatProvider = formatProvider;
+            DateTimeStyles = dateTimeStyles;
         }
 
-        public TimeConverterAuto(string formatHint)
+        public TimeConverterAuto(string format, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces)
         {
-            FormatHint = formatHint;
-            FormatProviderHint = null;
-        }
-
-        public TimeConverterAuto(IFormatProvider formatProviderHint)
-        {
-            FormatHint = null;
-            FormatProviderHint = formatProviderHint;
+            Format = format;
+            FormatProvider = formatProvider;
+            DateTimeStyles = dateTimeStyles;
         }
 
         public override object Convert(object source)
         {
-            var baseResult = base.Convert(source);
-            if (baseResult != null)
-                return baseResult;
-
             if (source is string str)
             {
-                if (FormatProviderHint != null)
+                if (Format != null)
                 {
-                    if (TimeSpan.TryParse(str, FormatProviderHint, out var tsValue))
-                    {
+                    if (TimeSpan.TryParseExact(str, Format, FormatProvider, out var tsValue))
                         return tsValue;
-                    }
 
-                    if (DateTime.TryParse(str, FormatProviderHint, DateTimeStyles.AllowWhiteSpaces, out var dtValue))
-                    {
+                    if (DateTime.TryParseExact(str, Format, FormatProvider, DateTimeStyles, out var dtValue))
                         return new TimeSpan(0, dtValue.Hour, dtValue.Minute, dtValue.Second, dtValue.Millisecond);
-                    }
-
-                    if (TimeSpan.TryParse(str, FormatProviderHint, out tsValue))
-                    {
-                        return tsValue;
-                    }
-
-                    if (DateTime.TryParse(str, FormatProviderHint, DateTimeStyles.AllowWhiteSpaces, out dtValue))
-                    {
-                        return new TimeSpan(0, dtValue.Hour, dtValue.Minute, dtValue.Second, dtValue.Millisecond);
-                    }
                 }
-
-                if (FormatHint != null)
+                else
                 {
-                    if (DateTime.TryParseExact(str, FormatHint, FormatProviderHint, DateTimeStyles.None, out var dtValue))
-                    {
+                    if (TimeSpan.TryParse(str, FormatProvider, out var tsValue))
+                        return tsValue;
+
+                    if (DateTime.TryParse(str, FormatProvider, DateTimeStyles, out var dtValue))
                         return new TimeSpan(0, dtValue.Hour, dtValue.Minute, dtValue.Second, dtValue.Millisecond);
-                    }
                 }
             }
 
-            return null;
+            return base.Convert(source);
         }
     }
 }

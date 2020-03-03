@@ -6,12 +6,6 @@
     public class DecimalConverter : ITypeConverter
     {
         public string[] RemoveSubString { get; set; }
-        public bool UseInvariantCulture { get; }
-
-        public DecimalConverter(bool useInvariantCulture = false)
-        {
-            UseInvariantCulture = useInvariantCulture;
-        }
 
         public virtual object Convert(object source)
         {
@@ -60,19 +54,8 @@
                     }
                 }
 
-                var numberFormatInfo = NumberFormatInfo.CurrentInfo;
-
-                if (UseInvariantCulture)
-                    numberFormatInfo = CultureInfo.InvariantCulture.NumberFormat;
-
-                if (decimal.TryParse(str, NumberStyles.Number, numberFormatInfo, out var value))
+                if (decimal.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
                     return value;
-                else if (double.TryParse(str, NumberStyles.Number, numberFormatInfo, out var dfv))
-                    return dfv;
-                else if (float.TryParse(str, NumberStyles.Number, numberFormatInfo, out var sfv))
-                    return System.Convert.ToDouble(sfv);
-                else if (int.TryParse(str, NumberStyles.Number, numberFormatInfo, out var siv))
-                    return System.Convert.ToDouble(siv);
             }
 
             return null;

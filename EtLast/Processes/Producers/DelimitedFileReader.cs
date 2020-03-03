@@ -125,25 +125,23 @@
                             valueString = valueString[1..^1];
                         }
 
-                        object value = valueString;
+                        object sourceValue = valueString;
 
-                        if (value != null && TreatEmptyStringAsNull && (value is string str) && string.IsNullOrEmpty(str))
+                        if (sourceValue != null && TreatEmptyStringAsNull && (sourceValue is string str) && string.IsNullOrEmpty(str))
                         {
-                            value = null;
+                            sourceValue = null;
                         }
 
                         columnConfig.TryGetValue(columnNames[i].ToUpperInvariant(), out var columnConfiguration);
                         if (columnConfiguration != null)
                         {
-                            var column = columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn;
-                            value = HandleConverter(value, columnConfiguration);
-                            initialValues.Add(new KeyValuePair<string, object>(column, value));
+                            var value = HandleConverter(sourceValue, columnConfiguration);
+                            initialValues.Add(new KeyValuePair<string, object>(columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn, value));
                         }
                         else if (DefaultColumnConfiguration != null)
                         {
-                            var column = columnNames[i];
-                            value = HandleConverter(value, DefaultColumnConfiguration);
-                            initialValues.Add(new KeyValuePair<string, object>(column, value));
+                            var value = HandleConverter(sourceValue, DefaultColumnConfiguration);
+                            initialValues.Add(new KeyValuePair<string, object>(columnNames[i], value));
                         }
                     }
 

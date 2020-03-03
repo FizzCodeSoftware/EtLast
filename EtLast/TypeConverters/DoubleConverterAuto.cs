@@ -5,36 +5,34 @@
 
     public class DoubleConverterAuto : DoubleConverter
     {
-        public IFormatProvider FormatProviderHint { get; }
-        public NumberStyles NumberStylesHint { get; }
+        public IFormatProvider FormatProvider { get; }
+        public NumberStyles NumberStyles { get; }
 
-        public bool UseOnlyProvidedHints { get; }
-
-        public DoubleConverterAuto(IFormatProvider formatProviderHint, NumberStyles numberStylesHint = NumberStyles.None, bool useOnlyProvidedHints = false)
+        public DoubleConverterAuto(IFormatProvider formatProvider, NumberStyles numberStyles = NumberStyles.Any)
         {
-            FormatProviderHint = formatProviderHint;
-            NumberStylesHint = numberStylesHint;
-            UseOnlyProvidedHints = useOnlyProvidedHints;
+            FormatProvider = formatProvider;
+            NumberStyles = numberStyles;
         }
 
         public override object Convert(object source)
         {
-            if (!UseOnlyProvidedHints)
-            {
-                var baseResult = base.Convert(source);
-                if (baseResult != null)
-                    return baseResult;
-            }
-
             if (source is string str)
             {
-                if (double.TryParse(str, NumberStylesHint, FormatProviderHint, out var value))
+                if (RemoveSubString != null)
+                {
+                    foreach (var subStr in RemoveSubString)
+                    {
+                        str = str.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
+                    }
+                }
+
+                if (double.TryParse(str, NumberStyles, FormatProvider, out var value))
                 {
                     return value;
                 }
             }
 
-            return null;
+            return base.Convert(source);
         }
     }
 }

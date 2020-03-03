@@ -5,52 +5,41 @@
 
     public class DateTimeConverterAuto : DateTimeConverter
     {
-        public string FormatHint { get; }
-        public IFormatProvider FormatProviderHint { get; }
+        public string Format { get; }
+        public IFormatProvider FormatProvider { get; }
+        public DateTimeStyles DateTimeStyles { get; }
 
-        public DateTimeConverterAuto(string formatHint)
+        public DateTimeConverterAuto(IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces)
         {
-            FormatHint = formatHint;
+            FormatProvider = formatProvider;
+            DateTimeStyles = dateTimeStyles;
         }
 
-        public DateTimeConverterAuto(IFormatProvider formatProviderHint)
+        public DateTimeConverterAuto(string format, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces)
         {
-            FormatHint = null;
-            FormatProviderHint = formatProviderHint;
-        }
-
-        public DateTimeConverterAuto(string formatHint, IFormatProvider formatProviderHint)
-        {
-            FormatHint = formatHint;
-            FormatProviderHint = formatProviderHint;
+            Format = format;
+            FormatProvider = formatProvider;
+            DateTimeStyles = dateTimeStyles;
         }
 
         public override object Convert(object source)
         {
-            var baseResult = base.Convert(source);
-            if (baseResult != null)
-                return baseResult;
-
             if (source is string str)
             {
-                if (FormatProviderHint != null)
+                if (Format != null)
                 {
-                    if (DateTime.TryParse(str, FormatProviderHint, DateTimeStyles.AllowWhiteSpaces, out var value))
+                    if (DateTime.TryParseExact(str, Format, FormatProvider, DateTimeStyles, out var value))
                     {
                         return value;
                     }
                 }
-
-                if (FormatHint != null)
+                else if (DateTime.TryParse(str, FormatProvider, DateTimeStyles, out var value))
                 {
-                    if (DateTime.TryParseExact(str, FormatHint, FormatProviderHint, DateTimeStyles.None, out var value))
-                    {
-                        return value;
-                    }
+                    return value;
                 }
             }
 
-            return null;
+            return base.Convert(source);
         }
     }
 }

@@ -16,8 +16,8 @@
         public HungarianGiroBankAccountConverter(string formatHint = null, IFormatProvider formatProviderHint = null)
             : base(formatHint, formatProviderHint)
         {
-            RemoveSpacesFromMiddle = true;
-            RemoveLineBreaksFromMiddle = true;
+            RemoveSpaces = true;
+            RemoveLineBreaks = true;
             TrimStartEnd = true;
         }
 

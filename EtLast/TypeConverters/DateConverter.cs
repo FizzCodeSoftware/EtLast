@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
+    using System.Globalization;
 
     public class DateConverter : ITypeConverter
     {
@@ -12,29 +13,21 @@
 
         public virtual object Convert(object source)
         {
-            if (source is DateTime)
-                return source;
+            if (source is DateTime dt)
+                return dt.Date;
 
             if (source is DateTimeOffset dto)
-                return dto.DateTime;
+                return dto.DateTime.Date;
 
             if (source is string str)
             {
-                if (DateTime.TryParse(str, out var value))
+                if (EpochDate != null && double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var dv))
+                {
+                    source = dv;
+                }
+                else if (DateTime.TryParse(str, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out var value))
                 {
                     return value.Date;
-                }
-
-                if (EpochDate != null)
-                {
-                    if (double.TryParse(str, out var dv))
-                    {
-                        source = dv;
-                    }
-                    else if (int.TryParse(str, out var iv))
-                    {
-                        source = iv;
-                    }
                 }
             }
 
@@ -44,7 +37,7 @@
                 {
                     try
                     {
-                        return EpochDate.Value.AddDays(doubleValue);
+                        return EpochDate.Value.AddDays(doubleValue).Date;
                     }
                     catch
                     {
@@ -54,7 +47,7 @@
                 {
                     try
                     {
-                        return EpochDate.Value.AddDays(intValue);
+                        return EpochDate.Value.AddDays(intValue).Date;
                     }
                     catch
                     {

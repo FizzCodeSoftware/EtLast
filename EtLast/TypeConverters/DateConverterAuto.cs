@@ -5,73 +5,41 @@
 
     public class DateConverterAuto : DateConverter
     {
-        public string[] FormatHints { get; }
-        public IFormatProvider FormatProviderHint { get; }
+        public string Format { get; }
+        public IFormatProvider FormatProvider { get; }
+        public DateTimeStyles DateTimeStyles { get; }
 
-        public DateConverterAuto(IFormatProvider formatProviderHint)
+        public DateConverterAuto(IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces)
         {
-            FormatHints = null;
-            FormatProviderHint = formatProviderHint;
+            FormatProvider = formatProvider;
+            DateTimeStyles = dateTimeStyles;
         }
 
-        public DateConverterAuto(string formatHint)
+        public DateConverterAuto(string format, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces)
         {
-            FormatHints = new[] { formatHint };
-            FormatProviderHint = null;
-        }
-
-        public DateConverterAuto(string[] formatHints)
-        {
-            FormatHints = formatHints;
-            FormatProviderHint = null;
-        }
-
-        public DateConverterAuto(string formatHint, IFormatProvider formatProviderHint)
-        {
-            FormatHints = new[] { formatHint };
-            FormatProviderHint = formatProviderHint;
-        }
-
-        public DateConverterAuto(string[] formatHints, IFormatProvider formatProviderHint)
-        {
-            FormatHints = formatHints;
-            FormatProviderHint = formatProviderHint;
+            Format = format;
+            FormatProvider = formatProvider;
+            DateTimeStyles = dateTimeStyles;
         }
 
         public override object Convert(object source)
         {
-            var baseResult = base.Convert(source);
-            if (baseResult != null)
-                return baseResult;
-
             if (source is string str)
             {
-                if (FormatHints != null && FormatProviderHint != null)
+                if (Format != null)
                 {
-                    if (DateTime.TryParseExact(str, FormatHints, FormatProviderHint, DateTimeStyles.None, out var value))
+                    if (DateTime.TryParseExact(str, Format, FormatProvider, DateTimeStyles, out var value))
                     {
-                        return value;
+                        return value.Date;
                     }
                 }
-
-                if (FormatHints != null && FormatProviderHint == null)
+                else if (DateTime.TryParse(str, FormatProvider, DateTimeStyles, out var value))
                 {
-                    if (DateTime.TryParseExact(str, FormatHints, null, DateTimeStyles.None, out var value))
-                    {
-                        return value;
-                    }
-                }
-
-                if (FormatProviderHint != null)
-                {
-                    if (DateTime.TryParse(str, FormatProviderHint, DateTimeStyles.AllowWhiteSpaces, out var value))
-                    {
-                        return value;
-                    }
+                    return value.Date;
                 }
             }
 
-            return null;
+            return base.Convert(source);
         }
     }
 }

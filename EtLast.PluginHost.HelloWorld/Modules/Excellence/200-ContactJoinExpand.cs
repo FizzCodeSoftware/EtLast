@@ -17,7 +17,7 @@
 
         private IEnumerable<IExecutable> ProcessCreator(BasicScope scope)
         {
-            yield return new DeleteFileProcess(scope.Topic, "DeleteFile")
+            yield return new DeleteFile(scope.Topic, "DeleteFile")
             {
                 FileName = OutputFileName,
             };
@@ -30,8 +30,8 @@
                     SheetName = "People",
                     ColumnConfiguration = new List<ReaderColumnConfiguration>()
                     {
-                        new ReaderColumnConfiguration("ID", new IntConverterAuto(formatProviderHint: CultureInfo.InvariantCulture)),
-                        new ReaderColumnConfiguration("Name", new StringConverter(formatProviderHint: CultureInfo.InvariantCulture)),
+                        new ReaderColumnConfiguration("ID", new IntConverterAuto(CultureInfo.InvariantCulture)),
+                        new ReaderColumnConfiguration("Name", new StringConverter(CultureInfo.InvariantCulture)),
                     },
                 },
                 Mutators = new MutatorList()
@@ -49,9 +49,9 @@
                                     SheetName = "Contact",
                                     ColumnConfiguration = new List<ReaderColumnConfiguration>()
                                     {
-                                        new ReaderColumnConfiguration("PeopleID", new IntConverterAuto(formatProviderHint: CultureInfo.InvariantCulture)), // used for "RightKey"
-                                        new ReaderColumnConfiguration("MethodTypeID", new StringConverter(formatProviderHint: CultureInfo.InvariantCulture)),
-                                        new ReaderColumnConfiguration("Value", new StringConverter(formatProviderHint: CultureInfo.InvariantCulture)), // will be renamed to ContactValue
+                                        new ReaderColumnConfiguration("PeopleID", new IntConverterAuto(CultureInfo.InvariantCulture)),
+                                        new ReaderColumnConfiguration("MethodTypeID", new StringConverter(CultureInfo.InvariantCulture)),
+                                        new ReaderColumnConfiguration("Value", new StringConverter(CultureInfo.InvariantCulture)),
                                     },
                                 },
                                 Mutators = new MutatorList()
@@ -82,8 +82,8 @@
                                 SheetName = "ContactMethod",
                                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
                                 {
-                                    new ReaderColumnConfiguration("ID", new StringConverter(formatProviderHint: CultureInfo.InvariantCulture)), // used for "RightKey"
-                                    new ReaderColumnConfiguration("Name", new StringConverter(formatProviderHint: CultureInfo.InvariantCulture)), // will be renamed to "ContactMethod"
+                                    new ReaderColumnConfiguration("ID", new StringConverter(CultureInfo.InvariantCulture)), // used for "RightKey"
+                                    new ReaderColumnConfiguration("Name", new StringConverter(CultureInfo.InvariantCulture)), // will be renamed to "ContactMethod"
                                 },
                             },
                             KeyGenerator = row => row.GetAs<string>("ID"),

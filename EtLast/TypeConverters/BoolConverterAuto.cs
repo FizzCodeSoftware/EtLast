@@ -9,10 +9,6 @@
 
         public override object Convert(object source)
         {
-            var baseResult = base.Convert(source);
-            if (baseResult != null)
-                return baseResult;
-
             if (source is string str)
             {
                 switch (str.ToUpperInvariant().Trim())
@@ -25,14 +21,14 @@
                         return false;
                 }
 
-                if (KnownTrueString != null && string.Equals(str, KnownTrueString, StringComparison.InvariantCultureIgnoreCase))
+                if (KnownTrueString != null && string.Equals(str.Trim(), KnownTrueString, StringComparison.InvariantCultureIgnoreCase))
                     return true;
 
-                if (KnownFalseString != null && string.Equals(str, KnownFalseString, StringComparison.InvariantCultureIgnoreCase))
+                if (KnownFalseString != null && string.Equals(str.Trim(), KnownFalseString, StringComparison.InvariantCultureIgnoreCase))
                     return false;
             }
 
-            return null;
+            return base.Convert(source);
         }
     }
 }

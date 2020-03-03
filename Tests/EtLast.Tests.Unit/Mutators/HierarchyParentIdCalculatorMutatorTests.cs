@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.Tests.Unit
+﻿namespace FizzCode.EtLast.Tests.Unit.Mutators
 {
     using System.Collections.Generic;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -39,13 +39,13 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["level"] = 0, ["parentId"] = null, ["level1"] = "AAA", ["level2"] = null, ["level3"] = null },
-                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["level"] = 1, ["parentId"] = 0, ["level1"] = null, ["level2"] = "BBB", ["level3"] = null },
-                new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["level"] = 2, ["parentId"] = 1, ["level1"] = null, ["level2"] = null, ["level3"] = "CCC" },
-                new Dictionary<string, object>() { ["id"] = 3, ["name"] = "D", ["level"] = 2, ["parentId"] = 1, ["level1"] = null, ["level2"] = null, ["level3"] = "DDD" },
-                new Dictionary<string, object>() { ["id"] = 4, ["name"] = "E", ["level"] = 1, ["parentId"] = 0, ["level1"] = null, ["level2"] = "EEE", ["level3"] = null },
-                new Dictionary<string, object>() { ["id"] = 5, ["name"] = "F", ["level"] = 1, ["parentId"] = 0, ["level1"] = null, ["level2"] = "FFF", ["level3"] = null } });
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["level1"] = "AAA", ["level"] = 0 },
+                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["level2"] = "BBB", ["parentId"] = 0, ["level"] = 1 },
+                new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["level3"] = "CCC", ["parentId"] = 1, ["level"] = 2 },
+                new Dictionary<string, object>() { ["id"] = 3, ["name"] = "D", ["level3"] = "DDD", ["parentId"] = 1, ["level"] = 2 },
+                new Dictionary<string, object>() { ["id"] = 4, ["name"] = "E", ["level2"] = "EEE", ["parentId"] = 0, ["level"] = 1 },
+                new Dictionary<string, object>() { ["id"] = 5, ["name"] = "F", ["level2"] = "FFF", ["parentId"] = 0, ["level"] = 1 } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
@@ -72,13 +72,13 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["level"] = 0, ["parentId"] = null, ["level1"] = null, ["level2"] = null, ["level3"] = null },
-                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["level"] = 1, ["parentId"] = 0, ["level1"] = null, ["level2"] = null, ["level3"] = null },
-                new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["level"] = 2, ["parentId"] = 1, ["level1"] = null, ["level2"] = null, ["level3"] = null },
-                new Dictionary<string, object>() { ["id"] = 3, ["name"] = "D", ["level"] = 2, ["parentId"] = 1, ["level1"] = null, ["level2"] = null, ["level3"] = null },
-                new Dictionary<string, object>() { ["id"] = 4, ["name"] = "E", ["level"] = 1, ["parentId"] = 0, ["level1"] = null, ["level2"] = null, ["level3"] = null },
-                new Dictionary<string, object>() { ["id"] = 5, ["name"] = "F", ["level"] = 1, ["parentId"] = 0, ["level1"] = null, ["level2"] = null, ["level3"] = null } });
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["level"] = 0 },
+                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["parentId"] = 0, ["level"] = 1 },
+                new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["parentId"] = 1, ["level"] = 2 },
+                new Dictionary<string, object>() { ["id"] = 3, ["name"] = "D", ["parentId"] = 1, ["level"] = 2 },
+                new Dictionary<string, object>() { ["id"] = 4, ["name"] = "E", ["parentId"] = 0, ["level"] = 1 },
+                new Dictionary<string, object>() { ["id"] = 5, ["name"] = "F", ["parentId"] = 0, ["level"] = 1 } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
@@ -104,13 +104,13 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
-                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["level"] = null, ["parentId"] = null, ["level1"] = null, ["level2"] = null, ["level3"] = null },
-                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["level"] = null, ["parentId"] = 0, ["level1"] = null, ["level2"] = null, ["level3"] = null },
-                new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["level"] = null, ["parentId"] = 1, ["level1"] = null, ["level2"] = null, ["level3"] = null },
-                new Dictionary<string, object>() { ["id"] = 3, ["name"] = "D", ["level"] = null, ["parentId"] = 1, ["level1"] = null, ["level2"] = null, ["level3"] = null },
-                new Dictionary<string, object>() { ["id"] = 4, ["name"] = "E", ["level"] = null, ["parentId"] = 0, ["level1"] = null, ["level2"] = null, ["level3"] = null },
-                new Dictionary<string, object>() { ["id"] = 5, ["name"] = "F", ["level"] = null, ["parentId"] = 0, ["level1"] = null, ["level2"] = null, ["level3"] = null } });
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+                new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A" },
+                new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["parentId"] = 0 },
+                new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["parentId"] = 1 },
+                new Dictionary<string, object>() { ["id"] = 3, ["name"] = "D", ["parentId"] = 1 },
+                new Dictionary<string, object>() { ["id"] = 4, ["name"] = "E", ["parentId"] = 0 },
+                new Dictionary<string, object>() { ["id"] = 5, ["name"] = "F", ["parentId"] = 0 } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
@@ -142,13 +142,13 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.OrderedMatch(result, new List<Dictionary<string, object>>() {
-                new Dictionary<string, object>() { ["id"] = "0", ["name"] = "A", ["level"] = 0, ["parentId"] = null, ["level1"] = "AAA", ["level2"] = null, ["level3"] = null },
-                new Dictionary<string, object>() { ["id"] = "1", ["name"] = "B", ["level"] = 1, ["parentId"] = "0", ["level1"] = null, ["level2"] = "BBB", ["level3"] = null },
-                new Dictionary<string, object>() { ["id"] = "2", ["name"] = "C", ["level"] = 2, ["parentId"] = "1", ["level1"] = null, ["level2"] = null, ["level3"] = "CCC" },
-                new Dictionary<string, object>() { ["id"] = "3", ["name"] = "D", ["level"] = 2, ["parentId"] = "1", ["level1"] = null, ["level2"] = null, ["level3"] = "DDD" },
-                new Dictionary<string, object>() { ["id"] = "4", ["name"] = "E", ["level"] = 1, ["parentId"] = "0", ["level1"] = null, ["level2"] = "EEE", ["level3"] = null },
-                new Dictionary<string, object>() { ["id"] = "5", ["name"] = "F", ["level"] = 1, ["parentId"] = "0", ["level1"] = null, ["level2"] = "FFF", ["level3"] = null } });
+            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+                new Dictionary<string, object>() { ["id"] = "0", ["name"] = "A", ["level1"] = "AAA", ["level"] = 0 },
+                new Dictionary<string, object>() { ["id"] = "1", ["name"] = "B", ["level2"] = "BBB", ["parentId"] = "0", ["level"] = 1 },
+                new Dictionary<string, object>() { ["id"] = "2", ["name"] = "C", ["level3"] = "CCC", ["parentId"] = "1", ["level"] = 2 },
+                new Dictionary<string, object>() { ["id"] = "3", ["name"] = "D", ["level3"] = "DDD", ["parentId"] = "1", ["level"] = 2 },
+                new Dictionary<string, object>() { ["id"] = "4", ["name"] = "E", ["level2"] = "EEE", ["parentId"] = "0", ["level"] = 1 },
+                new Dictionary<string, object>() { ["id"] = "5", ["name"] = "F", ["level2"] = "FFF", ["parentId"] = "0", ["level"] = 1 } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }

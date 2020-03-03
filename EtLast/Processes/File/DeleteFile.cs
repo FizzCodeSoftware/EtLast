@@ -4,11 +4,11 @@
     using System.Globalization;
     using System.IO;
 
-    public class DeleteFileProcess : AbstractExecutable
+    public class DeleteFile : AbstractExecutable
     {
         public string FileName { get; set; }
 
-        public DeleteFileProcess(ITopic topic, string name)
+        public DeleteFile(ITopic topic, string name)
             : base(topic, name)
         {
         }

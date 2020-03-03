@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
+    using System.Globalization;
 
     public class DateTimeConverter : ITypeConverter
     {
@@ -8,22 +9,18 @@
 
         public virtual object Convert(object source)
         {
-            if (source is DateTime)
-                return source;
+            if (source is DateTime dt)
+                return dt;
 
             if (source is string str)
             {
-                if (DateTime.TryParse(str, out var value))
+                if (EpochDate != null && double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var dv))
+                {
+                    source = dv;
+                }
+                else if (DateTime.TryParse(str, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out var value))
                 {
                     return value;
-                }
-
-                if (EpochDate != null)
-                {
-                    if (double.TryParse(str, out var dv))
-                    {
-                        source = dv;
-                    }
                 }
             }
 
