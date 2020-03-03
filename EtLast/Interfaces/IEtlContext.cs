@@ -24,6 +24,7 @@
         void ExecuteSequence(bool terminateHostOnFail, params IExecutable[] executables);
 
         IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues);
+        IRow CreateRow(IProcess process, ValueCollection initialValues);
 
         void Log(string transactionId, LogSeverity severity, IProcess process, string text, params object[] args);
         void Log(LogSeverity severity, IProcess process, string text, params object[] args);

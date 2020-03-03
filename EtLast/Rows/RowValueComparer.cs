@@ -12,8 +12,8 @@
 
             if (leftValue is EtlRowError e1 && rightValue is EtlRowError e2)
             {
-                return (e1.OriginalValue != null && e1.OriginalValue != null)
-                    ? e1.OriginalValue.Equals(e1.OriginalValue)
+                return (e1.OriginalValue != null && e2.OriginalValue != null)
+                    ? e1.OriginalValue.Equals(e2.OriginalValue)
                     : e1.OriginalValue != e2.OriginalValue;
             }
 

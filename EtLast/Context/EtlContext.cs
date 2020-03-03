@@ -192,6 +192,18 @@
             return row;
         }
 
+        public IRow CreateRow(IProcess process, ValueCollection initialValues)
+        {
+            var row = (IRow)Activator.CreateInstance(RowType);
+            row.Init(this, process, Interlocked.Increment(ref _nextRowUid), initialValues.Values);
+
+            CounterCollection.IncrementCounter("in-memory rows created", 1);
+
+            OnRowCreated?.Invoke(row, process);
+
+            return row;
+        }
+
         public void AddException(IProcess process, Exception ex)
         {
             if (ex is OperationCanceledException)

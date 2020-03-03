@@ -52,6 +52,11 @@
             if (v == null)
                 return "null";
 
+            if (v is bool boolv)
+            {
+                return boolv ? "true" : "false";
+            }
+
             if (v is string str)
                 return "\"" + str + "\"";
 
