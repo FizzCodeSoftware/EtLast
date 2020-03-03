@@ -1,180 +1,42 @@
 ﻿namespace FizzCode.EtLast.Tests.Unit.TypeConverters
 {
+    using System.Globalization;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class IntConverterTests
     {
         [TestMethod]
-        public void InvString()
+        [DataRow("1", 1)]
+        [DataRow("1234", 1234)]
+        [DataRow("12345678901234567890", null)]
+        [DataRow((sbyte)77, 77)]
+        [DataRow((byte)77, 77)]
+        [DataRow((short)77, 77)]
+        [DataRow((ushort)77, 77)]
+        [DataRow(77, 77)]
+        [DataRow((uint)77, 77)]
+        [DataRow(uint.MaxValue, null)]
+        [DataRow((long)77, 77)]
+        [DataRow((ulong)77, 77)]
+        [DataRow(long.MaxValue, null)]
+        [DataRow(long.MinValue, null)]
+        [DataRow(ulong.MaxValue, null)]
+        [DataRow(3.12f, 3)]
+        [DataRow(float.MaxValue, null)]
+        [DataRow(float.MinValue, null)]
+        [DataRow(3.12d, 3)]
+        [DataRow(double.MaxValue, null)]
+        [DataRow(double.MinValue, null)]
+        public void IntConverter(object input, int? expected)
         {
             var converter = new IntConverter();
-            var result = converter.Convert("1");
-            Assert.AreEqual(1, result);
+            var result = converter.Convert(input);
+            Assert.AreEqual(expected, result);
         }
 
         [TestMethod]
-        public void InvStringThousands()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert("1234");
-            Assert.AreEqual(1234, result);
-        }
-
-        [TestMethod]
-        public void InvStringTooBig()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert("123456789012");
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromSByte()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert((sbyte)77);
-            Assert.AreEqual(77, result);
-        }
-
-        [TestMethod]
-        public void FromByte()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert((byte)77);
-            Assert.AreEqual(77, result);
-        }
-
-        [TestMethod]
-        public void FromShort()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert((short)77);
-            Assert.AreEqual(77, result);
-        }
-
-        [TestMethod]
-        public void FromUShort()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert((ushort)77);
-            Assert.AreEqual(77, result);
-        }
-
-        [TestMethod]
-        public void FromInt()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert(77);
-            Assert.AreEqual(77, result);
-        }
-
-        [TestMethod]
-        public void FromUInt()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert(77u);
-            Assert.AreEqual(77, result);
-        }
-
-        [TestMethod]
-        public void FromUIntTooBig()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert(uint.MaxValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromLong()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert((long)int.MaxValue);
-            Assert.AreEqual(int.MaxValue, result);
-        }
-
-        [TestMethod]
-        public void FromLongTooBig()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert(long.MaxValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromLongTooSmall()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert(long.MinValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromULong()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert(77ul);
-            Assert.AreEqual(77, result);
-        }
-
-        [TestMethod]
-        public void FromULongTooBig()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert(ulong.MaxValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromDouble()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert(4d / 5d);
-            Assert.AreEqual(System.Convert.ToInt32(4d / 5d), result);
-        }
-
-        [TestMethod]
-        public void FromDoubleTooBig()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert(double.MaxValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromDoubleTooSmall()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert(double.MinValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromFloat()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert(4f / 5f);
-            Assert.AreEqual(System.Convert.ToInt32(4f / 5f), result);
-        }
-
-        [TestMethod]
-        public void FromFloatTooBig()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert(float.MaxValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromFloatTooSmall()
-        {
-            var converter = new IntConverter();
-            var result = converter.Convert(float.MinValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromDecimal()
+        public void IntConverterFromDecimal()
         {
             var converter = new IntConverter();
             var result = converter.Convert(4m / 5m);
@@ -182,7 +44,7 @@
         }
 
         [TestMethod]
-        public void FromDecimalTooBig()
+        public void IntConverterFromDecimalTooBig()
         {
             var converter = new IntConverter();
             var result = converter.Convert(decimal.MaxValue);
@@ -190,11 +52,36 @@
         }
 
         [TestMethod]
-        public void FromDecimalTooSmall()
+        public void IntConverterFromDecimalTooSmall()
         {
             var converter = new IntConverter();
             var result = converter.Convert(decimal.MinValue);
             Assert.AreEqual(null, result);
+        }
+
+        [TestMethod]
+        [DataRow("1234", 1234)]
+        [DataRow("-1234", -1234)]
+        [DataRow("1 234", 1234, "hu-HU")]
+        [DataRow("-1 234", -1234, "hu-HU")]
+        [DataRow("+1 234", 1234, "hu-HU")]
+        [DataRow(" +1 234  ", 1234, "hu-HU")]
+        [DataRow(" + 1 234  ", null, "hu-HU")]
+        [DataRow("1   234 456", 1234456, "hu-HU")]
+        [DataRow("-1 234 456", -1234456, "hu-HU")]
+        [DataRow("- 1 234 456", null, "hu-HU")]
+        [DataRow("1,234", 1234, "hu-HU")]
+        [DataRow("1,234,456", 1234456, "hu-HU")]
+        [DataRow("1 234 456,2", null)]
+        [DataRow("123", 123, "en-US")]
+        [DataRow("1,234,456", 1234456, "en-US")]
+        [DataRow("1234456", 1234456, "en-US")]
+        [DataRow("1.234.456", null, "en-US")]
+        public void IntConverterAuto(string input, int? expected, string locale = null)
+        {
+            var converter = new IntConverterAuto(locale == null ? CultureInfo.InvariantCulture : new CultureInfo(locale));
+            var result = converter.Convert(input);
+            Assert.AreEqual(expected, result);
         }
     }
 }

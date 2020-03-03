@@ -1,144 +1,66 @@
 ﻿namespace FizzCode.EtLast.Tests.Unit.TypeConverters
 {
+    using System.Globalization;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class LongConverterTests
     {
         [TestMethod]
-        public void InvString()
+        [DataRow("1", 1L)]
+        [DataRow("1234", 1234L)]
+        [DataRow("12345678901234567890", null)]
+        [DataRow((sbyte)77, 77L)]
+        [DataRow((byte)77, 77L)]
+        [DataRow((short)77, 77L)]
+        [DataRow((ushort)77, 77L)]
+        [DataRow(77, 77L)]
+        [DataRow((uint)77, 77L)]
+        [DataRow((long)77, 77L)]
+        [DataRow((ulong)77, 77L)]
+        [DataRow(ulong.MaxValue, null)]
+        [DataRow(3.12f, 3L)]
+        [DataRow(3.12d, 3L)]
+        [DataRow(double.MaxValue, null)]
+        [DataRow(double.MinValue, null)]
+        public void LongConverter(object input, long? expected)
         {
             var converter = new LongConverter();
-            var result = converter.Convert("1");
-            Assert.AreEqual(1L, result);
+            var result = converter.Convert(input);
+            Assert.AreEqual(expected, result);
         }
 
         [TestMethod]
-        public void InvStringThousands()
+        public void LongConverterFromDecimal()
         {
             var converter = new LongConverter();
-            var result = converter.Convert("1234");
-            Assert.AreEqual(1234L, result);
+            var result = converter.Convert(3.12m);
+            Assert.AreEqual(3L, result);
         }
 
         [TestMethod]
-        public void InvStringThousandsTooBig()
+        [DataRow("1234", 1234L)]
+        [DataRow("-1234", -1234L)]
+        [DataRow("1 234", 1234L, "hu-HU")]
+        [DataRow("-1 234", -1234L, "hu-HU")]
+        [DataRow("+1 234", 1234L, "hu-HU")]
+        [DataRow(" +1 234  ", 1234L, "hu-HU")]
+        [DataRow(" + 1 234  ", null, "hu-HU")]
+        [DataRow("1   234 456", 1234456L, "hu-HU")]
+        [DataRow("-1 234 456", -1234456L, "hu-HU")]
+        [DataRow("- 1 234 456", null, "hu-HU")]
+        [DataRow("1,234", 1234L, "hu-HU")]
+        [DataRow("1,234,456", 1234456L, "hu-HU")]
+        [DataRow("1 234 456,2", null)]
+        [DataRow("123", 123L, "en-US")]
+        [DataRow("1,234,456", 1234456L, "en-US")]
+        [DataRow("1234456", 1234456L, "en-US")]
+        [DataRow("1.234.456", null, "en-US")]
+        public void LongConverterAuto(string input, long? expected, string locale = null)
         {
-            var converter = new LongConverter();
-            var result = converter.Convert("12345678901234567890");
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromSByte()
-        {
-            var converter = new LongConverter();
-            var result = converter.Convert((sbyte)77);
-            Assert.AreEqual(77L, result);
-        }
-
-        [TestMethod]
-        public void FromByte()
-        {
-            var converter = new LongConverter();
-            var result = converter.Convert((byte)77);
-            Assert.AreEqual(77L, result);
-        }
-
-        [TestMethod]
-        public void FromShort()
-        {
-            var converter = new LongConverter();
-            var result = converter.Convert((short)77);
-            Assert.AreEqual(77L, result);
-        }
-
-        [TestMethod]
-        public void FromUShort()
-        {
-            var converter = new LongConverter();
-            var result = converter.Convert((ushort)77);
-            Assert.AreEqual(77L, result);
-        }
-
-        [TestMethod]
-        public void FromInt()
-        {
-            var converter = new LongConverter();
-            var result = converter.Convert(77);
-            Assert.AreEqual(77L, result);
-        }
-
-        [TestMethod]
-        public void FromUInt()
-        {
-            var converter = new LongConverter();
-            var result = converter.Convert(77u);
-            Assert.AreEqual(77L, result);
-        }
-
-        [TestMethod]
-        public void FromLong()
-        {
-            var converter = new LongConverter();
-            var result = converter.Convert(77L);
-            Assert.AreEqual(77L, result);
-        }
-
-        [TestMethod]
-        public void FromULong()
-        {
-            var converter = new LongConverter();
-            var result = converter.Convert(77ul);
-            Assert.AreEqual(77L, result);
-        }
-
-        [TestMethod]
-        public void FromULongTooBig()
-        {
-            var converter = new LongConverter();
-            var result = converter.Convert(ulong.MaxValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromFloat()
-        {
-            var converter = new LongConverter();
-            var result = converter.Convert(4f / 5f);
-            Assert.AreEqual(System.Convert.ToInt64(4f / 5f), result);
-        }
-
-        [TestMethod]
-        public void FromDouble()
-        {
-            var converter = new LongConverter();
-            var result = converter.Convert(4d / 5d);
-            Assert.AreEqual(System.Convert.ToInt64(4d / 5d), result);
-        }
-
-        [TestMethod]
-        public void FromDoubleTooBig()
-        {
-            var converter = new LongConverter();
-            var result = converter.Convert(double.MaxValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromDoubleTooSmall()
-        {
-            var converter = new LongConverter();
-            var result = converter.Convert(double.MinValue);
-            Assert.AreEqual(null, result);
-        }
-
-        [TestMethod]
-        public void FromDecimal()
-        {
-            var converter = new LongConverter();
-            var result = converter.Convert(4m / 5m);
-            Assert.AreEqual(System.Convert.ToInt64(4m / 5m), result);
+            var converter = new LongConverterAuto(locale == null ? CultureInfo.InvariantCulture : new CultureInfo(locale));
+            var result = converter.Convert(input);
+            Assert.AreEqual(expected, result);
         }
     }
 }
