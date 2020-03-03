@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast.Tests.Unit
 {
+    using System.Drawing;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -110,6 +111,24 @@
         {
             var a = new ValueCollection() { ["person"] = new TestData.PersonModel(), };
             var b = new ValueCollection() { ["person"] = new TestData.PersonModel(), };
+            var result = new ColumnBasedRowEqualityComparer().Equals(a, b);
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public void ColorEquality()
+        {
+            var a = new ValueCollection() { ["color"] = Color.Red, };
+            var b = new ValueCollection() { ["color"] = Color.Red, };
+            var result = new ColumnBasedRowEqualityComparer().Equals(a, b);
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public void ColorUnEquality()
+        {
+            var a = new ValueCollection() { ["color"] = Color.Red, };
+            var b = new ValueCollection() { ["color"] = Color.Black, };
             var result = new ColumnBasedRowEqualityComparer().Equals(a, b);
             Assert.IsFalse(result);
         }
