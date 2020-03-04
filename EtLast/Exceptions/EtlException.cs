@@ -19,25 +19,25 @@
         public EtlException(string message)
             : base(message)
         {
-            var frame = Array.Find(new StackTrace(true).GetFrames(), sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
-            if (frame != null)
-                Data.Add("Caller", FrameToString(frame));
+            var trace = GetTraceFromStackFrames(new StackTrace(true).GetFrames());
+            if (trace != null)
+                Data.Add("Trace", trace);
         }
 
         public EtlException(string message, Exception innerException)
             : base(message, innerException)
         {
-            var frame = Array.Find(new StackTrace(true).GetFrames(), sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
-            if (frame != null)
-                Data.Add("Caller", FrameToString(frame));
+            var trace = GetTraceFromStackFrames(new StackTrace(true).GetFrames());
+            if (trace != null)
+                Data.Add("Trace", trace);
         }
 
         public EtlException(IProcess process, string message)
             : base(message)
         {
-            var frame = Array.Find(new StackTrace(true).GetFrames(), sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
-            if (frame != null)
-                Data.Add("Caller", FrameToString(frame));
+            var trace = GetTraceFromStackFrames(new StackTrace(true).GetFrames());
+            if (trace != null)
+                Data.Add("Trace", trace);
 
             Data.Add("Process", process.Name + " (" + process.GetType().GetFriendlyTypeName() + ")");
             Data.Add("CallChain", GetCallChain(process));
@@ -46,12 +46,71 @@
         public EtlException(IProcess process, string message, Exception innerException)
             : base(message, innerException)
         {
-            var frame = Array.Find(new StackTrace(true).GetFrames(), sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
-            if (frame != null)
-                Data.Add("Caller", FrameToString(frame));
+            var trace = GetTraceFromStackFrames(new StackTrace(true).GetFrames());
+            if (trace != null)
+                Data.Add("Trace", trace);
 
             Data.Add("Process", process.Name + " (" + process.GetType().GetFriendlyTypeName() + ")");
             Data.Add("CallChain", GetCallChain(process));
+        }
+
+        public static string GetTraceFromStackFrames(StackFrame[] frames)
+        {
+            if (frames == null || frames.Length == 0)
+                return null;
+
+            var ctorsFiltered = false;
+            var currentFrameAdded = false;
+            var mainAssembyName = typeof(IEtlContext).Assembly.GetName().Name;
+            var builder = new StringBuilder();
+
+            foreach (var frame in frames)
+            {
+                if (!ctorsFiltered)
+                {
+                    if (frame.GetMethod().IsConstructor || frame.GetMethod().IsStatic)
+                        continue;
+
+                    ctorsFiltered = true;
+                }
+
+                if (!currentFrameAdded)
+                {
+                    builder.AppendLine(FrameToString(frame));
+                    currentFrameAdded = true;
+                    continue;
+                }
+
+                var method = frame.GetMethod();
+                if (method == null)
+                    continue;
+
+                var assemblyName = method.DeclaringType?.Assembly?.GetName()?.Name;
+                if (assemblyName != null)
+                {
+                    /*if (assemblyName == mainAssembyName)
+                        continue;*/
+
+                    try
+                    {
+                        var fileName = frame.GetFileName();
+                        if (string.IsNullOrEmpty(fileName))
+                            continue;
+                    }
+                    catch (NotSupportedException)
+                    {
+                        continue;
+                    }
+                    catch (SecurityException)
+                    {
+                        continue;
+                    }
+                }
+
+                builder.AppendLine(FrameToString(frame));
+            }
+
+            return builder.ToString().Trim();
         }
 
         public static string FrameToString(StackFrame frame)

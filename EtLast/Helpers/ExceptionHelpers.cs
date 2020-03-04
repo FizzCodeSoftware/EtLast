@@ -5,7 +5,7 @@
 
     public static class ExceptionHelpers
     {
-        public static string FormatExceptionWithDetails(this Exception exception, bool includeCaller = true)
+        public static string FormatExceptionWithDetails(this Exception exception, bool includeTrace = true)
         {
             var lvl = 0;
             var msg = "EXCEPTION: ";
@@ -23,26 +23,13 @@
                     msg += "\n\tPROCESS: " + storedProcess;
                 }
 
-                if (includeCaller)
+                if (includeTrace)
                 {
-                    if (cex.Data?["Caller"] is string storedCaller)
-                    {
-                        msg += "\n\tCALLER: " + storedCaller;
-                    }
-                    else
-                    {
-                        var frames = new StackTrace(cex, true).GetFrames();
-                        /*foreach (var frame in frames)
-                        {
-                            msg += "\n\tCALLER: " + EtlException.FrameToString(frame);
-                        }*/
+                    var trace = cex.Data?["Trace"] is string TraceCaller
+                        ? TraceCaller
+                        : EtlException.GetTraceFromStackFrames(new StackTrace(cex, true).GetFrames());
 
-                        var frame = Array.Find(frames, sf => !sf.GetMethod().IsConstructor && !sf.GetMethod().IsStatic);
-                        if (frame != null)
-                        {
-                            msg += "\n\tCALLER: " + EtlException.FrameToString(frame);
-                        }
-                    }
+                    msg += "\n\tTRACE:\n\t\t" + trace.Replace("\n", "\n\t\t", StringComparison.Ordinal);
                 }
 
                 if (cex.Data?.Count > 0)
@@ -60,7 +47,7 @@
                         if (k == "OpsMessage")
                             continue;
 
-                        if (k == "Caller")
+                        if (k == "Trace")
                             continue;
 
                         if (k == "Row")
