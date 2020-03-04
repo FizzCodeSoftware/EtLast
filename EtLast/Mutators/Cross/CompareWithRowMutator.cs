@@ -45,7 +45,7 @@
                             exception.Data.Add("Key", key);
                             throw exception;
                         case MatchMode.Custom:
-                            NoMatchAction.CustomAction.Invoke(this, row);
+                            NoMatchAction.InvokeCustomAction(this, row);
                             break;
                     }
                 }
@@ -68,7 +68,7 @@
                                 exception.Data.Add("Key", key);
                                 throw exception;
                             case MatchMode.Custom:
-                                MatchAndEqualsAction.CustomAction.Invoke(this, row, match);
+                                MatchAndEqualsAction.InvokeCustomAction(this, row, match);
                                 break;
                         }
                     }
@@ -85,7 +85,7 @@
                             exception.Data.Add("Key", key);
                             throw exception;
                         case MatchMode.Custom:
-                            MatchButDifferentAction.CustomAction.Invoke(this, row, match);
+                            MatchButDifferentAction.InvokeCustomAction(this, row, match);
                             break;
                     }
                 }

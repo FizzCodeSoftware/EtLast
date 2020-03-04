@@ -29,7 +29,7 @@
 
         public string ToDebugString()
         {
-            return "UID=" + Uid.ToString("D", CultureInfo.InvariantCulture) + ", " + string.Join(", ", Values.Select(kvp => kvp.Key + "=" + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")));
+            return "UID: " + Uid.ToString("D", CultureInfo.InvariantCulture) + ", " + string.Join(", ", Values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")));
         }
 
         /// <summary>
@@ -136,7 +136,11 @@
         public string GenerateKey(params string[] columns)
         {
             if (columns.Length == 1)
-                return FormatToString(columns[0], CultureInfo.InvariantCulture) ?? "-";
+            {
+                return IsNull(columns[0])
+                    ? null
+                    : FormatToString(columns[0], CultureInfo.InvariantCulture);
+            }
 
             return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-"));
         }
@@ -144,7 +148,11 @@
         public string GenerateKeyUpper(params string[] columns)
         {
             if (columns.Length == 1)
-                return (FormatToString(columns[0], CultureInfo.InvariantCulture) ?? "-").ToUpperInvariant();
+            {
+                return IsNull(columns[0])
+                    ? null
+                    : FormatToString(columns[0], CultureInfo.InvariantCulture).ToUpperInvariant();
+            }
 
             return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-")).ToUpperInvariant();
         }

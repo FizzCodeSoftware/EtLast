@@ -64,6 +64,12 @@
 
             var ignoreMethod = false;
 
+            var assemblyName = method.DeclaringType?.Assembly?.GetName().Name;
+            if (assemblyName != null)
+            {
+                sb.Append("(").Append(assemblyName).Append(") ");
+            }
+
             if (!method.Name.StartsWith("<", StringComparison.Ordinal) && method.DeclaringType != null)
             {
                 if (method.DeclaringType.Name.StartsWith("<", StringComparison.Ordinal))
@@ -94,7 +100,7 @@
                 if (method is MethodInfo mi && mi.IsGenericMethod)
                 {
                     sb.Append("<")
-                        .Append(string.Join(",", mi.GetGenericArguments().Select(TypeHelpers.GetFriendlyTypeName)))
+                        .Append(string.Join(",", mi.GetGenericArguments().Select(x => x.GetFriendlyTypeName(false))))
                         .Append(">");
                 }
 

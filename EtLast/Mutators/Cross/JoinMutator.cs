@@ -58,7 +58,7 @@
                             exception.Data.Add("Key", key);
                             throw exception;
                         case MatchMode.Custom:
-                            TooManyMatchAction.CustomAction.Invoke(this, row, matches);
+                            TooManyMatchAction.InvokeCustomAction(this, row, matches);
                             break;
                     }
                 }
@@ -78,7 +78,8 @@
 
                     var newRow = Context.CreateRow(this, initialValues);
 
-                    MatchCustomAction?.Invoke(this, newRow, match);
+                    InvokeCustomMatchAction(row, newRow, match);
+
                     yield return newRow;
                 }
             }
@@ -94,13 +95,28 @@
                         exception.Data.Add("Key", key);
                         throw exception;
                     case MatchMode.Custom:
-                        NoMatchAction.CustomAction.Invoke(this, row);
+                        NoMatchAction.InvokeCustomAction(this, row);
                         break;
                 }
             }
 
             if (!removeRow)
                 yield return row;
+        }
+
+        private void InvokeCustomMatchAction(IRow row, IRow newRow, IRow match)
+        {
+            try
+            {
+                MatchCustomAction?.Invoke(this, newRow, match);
+            }
+            catch (Exception ex) when (!(ex is EtlException))
+            {
+                var exception = new ProcessExecutionException(this, row, "error during the execution of a " + nameof(MatchCustomAction) + " delegate", ex);
+                exception.Data.Add("Row-New", newRow.ToDebugString());
+                exception.Data.Add("Row-Match", match.ToDebugString());
+                throw exception;
+            }
         }
 
         protected override void ValidateMutator()

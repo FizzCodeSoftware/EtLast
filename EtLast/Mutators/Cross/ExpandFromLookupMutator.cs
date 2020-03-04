@@ -42,7 +42,7 @@
                             var exception = new ProcessExecutionException(this, row, "no match");
                             throw exception;
                         case MatchMode.Custom:
-                            NoMatchAction.CustomAction.Invoke(this, row);
+                            NoMatchAction.InvokeCustomAction(this, row);
                             break;
                     }
                 }
