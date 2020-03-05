@@ -154,12 +154,6 @@
 
                 CounterCollection.IncrementCounter("db record write count", recordCount);
                 CounterCollection.IncrementTimeSpan("db record write time", time);
-
-                // not relevant on operation level
-                Context.CounterCollection.IncrementCounter("db record write count - " + ConnectionString.Name, recordCount);
-                Context.CounterCollection.IncrementCounter("db record write count - " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName), recordCount);
-                Context.CounterCollection.IncrementTimeSpan("db record write time - " + ConnectionString.Name, time);
-                Context.CounterCollection.IncrementTimeSpan("db record write time - " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName), time);
             }
             catch (Exception ex)
             {

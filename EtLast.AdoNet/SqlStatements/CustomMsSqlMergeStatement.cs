@@ -113,12 +113,6 @@
 
                 CounterCollection.IncrementCounter("db record merge count", recordCount);
                 CounterCollection.IncrementTimeSpan("db record merge time", time);
-
-                // not relevant on process level
-                Context.CounterCollection.IncrementCounter("db record merge count - " + ConnectionString.Name, recordCount);
-                Context.CounterCollection.IncrementCounter("db record merge count - " + ConnectionString.Name + "/" + ConnectionString.Unescape(SourceTableName) + " -> " + ConnectionString.Unescape(TargetTableName), recordCount);
-                Context.CounterCollection.IncrementTimeSpan("db record merge time - " + ConnectionString.Name, time);
-                Context.CounterCollection.IncrementTimeSpan("db record merge time - " + ConnectionString.Name + "/" + ConnectionString.Unescape(SourceTableName) + " -> " + ConnectionString.Unescape(TargetTableName), time);
             }
             catch (Exception ex)
             {

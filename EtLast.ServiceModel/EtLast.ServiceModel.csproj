@@ -5,7 +5,7 @@
     <PackageId>FizzCode.EtLast.ServiceModel</PackageId>
     <Authors>FizzCode Ltd.</Authors>
     <Product>EtLast ETL (Extract, Transform and Load) library for .NET Core</Product>
-    <Description>WCF extension for EtLast ETL (Extract, Transform and Load) library</Description>
+    <Description>ServiceModel extension for EtLast ETL (Extract, Transform and Load) library</Description>
     <Copyright>Copyright © 2019-2020 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Platforms>AnyCPU</Platforms>

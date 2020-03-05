@@ -64,7 +64,6 @@
                         }
 
                         process.CounterCollection.IncrementCounter("db connections opened", 1);
-                        process.Context.CounterCollection.IncrementCounter("db connections opened - " + connectionString.Name, 1);
 
                         conn.ConnectionString = connectionString.ConnectionString;
 
@@ -103,7 +102,6 @@
                 } // lock released
 
                 process.CounterCollection.IncrementCounter("db connections failed", 1);
-                process.Context.CounterCollection.IncrementCounter("db connections failed - " + connectionString.Name, 1);
 
                 if (retry < maxRetryCount)
                 {
@@ -159,7 +157,6 @@
                     }
 
                     process.CounterCollection.IncrementCounter("db connections opened", 1);
-                    process.Context.CounterCollection.IncrementCounter("db connections opened - " + connectionString.Name, 1);
 
                     conn.ConnectionString = connectionString.ConnectionString;
 
@@ -193,7 +190,6 @@
                 }
 
                 process.CounterCollection.IncrementCounter("db connections opened", 1);
-                process.Context.CounterCollection.IncrementCounter("db connections opened - " + connectionString.Name, 1);
 
                 if (retry < maxRetryCount)
                 {

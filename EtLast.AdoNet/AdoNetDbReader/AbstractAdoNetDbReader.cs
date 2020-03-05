@@ -140,7 +140,8 @@
                     }
 
                     LastDataRead = DateTimeOffset.Now;
-                    IncrementCounter();
+
+                    CounterCollection.IncrementCounter("db records read", 1);
 
                     initialValues.Clear();
                     for (var i = 0; i < reader.FieldCount; i++)
@@ -303,6 +304,5 @@
 
         protected abstract int RegisterIoCommandStart(string transactionId, int timeout, string statement);
         protected abstract string CreateSqlStatement();
-        protected abstract void IncrementCounter();
     }
 }

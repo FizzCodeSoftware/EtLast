@@ -226,10 +226,6 @@ from
 
                 CounterCollection.IncrementCounter("db drop foreign key count", 1);
                 CounterCollection.IncrementTimeSpan("db drop foreign key time", time);
-
-                // not relevant on process level
-                Context.CounterCollection.IncrementCounter("db drop foreign key count - " + ConnectionString.Name, 1);
-                Context.CounterCollection.IncrementTimeSpan("db drop foreign key time - " + ConnectionString.Name, time);
             }
             catch (Exception ex)
             {

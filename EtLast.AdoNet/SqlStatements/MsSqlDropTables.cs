@@ -140,10 +140,6 @@
 
                 CounterCollection.IncrementCounter("db drop table count", 1);
                 CounterCollection.IncrementTimeSpan("db drop table time", time);
-
-                // not relevant on process level
-                Context.CounterCollection.IncrementCounter("db drop table count - " + ConnectionString.Name, 1);
-                Context.CounterCollection.IncrementTimeSpan("db drop table time - " + ConnectionString.Name, time);
             }
             catch (Exception ex)
             {
