@@ -230,32 +230,25 @@
                         Connections.Remove(connection.Key);
                     }
 
-                    process.Context.Log(LogSeverity.Debug, process, "database connection closed: {ConnectionStringName} ({Provider})", connection.ConnectionString.Name,
-                        connection.ConnectionString.GetFriendlyProviderName());
+                    var conn = connection;
+                    var iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, null, null, "closing", connection.TransactionWhenCreated.ToIdentifierString(),
+                        () => new Dictionary<string, object>
+                        {
+                            ["ConnectionStringName"] = conn.ConnectionString.Name,
+                            ["Provider"] = conn.ConnectionString.ProviderName,
+                        },
+                        "closing database connection to {ConnectionStringName} ({Provider})",
+                            conn.ConnectionString.Name, conn.ConnectionString.GetFriendlyProviderName());
 
-                    if (connection != null)
+                    try
                     {
-                        var conn = connection;
-
-                        var iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, null, null, "closing", connection.TransactionWhenCreated.ToIdentifierString(),
-                            () => new Dictionary<string, object>
-                            {
-                                ["ConnectionStringName"] = conn.ConnectionString.Name,
-                                ["Provider"] = conn.ConnectionString.ProviderName,
-                            },
-                            "closing database connection to {ConnectionStringName} ({Provider})",
-                                conn.ConnectionString.Name, conn.ConnectionString.GetFriendlyProviderName());
-
-                        try
-                        {
-                            connection.Connection.Close();
-                            connection.Connection.Dispose();
-                            process.Context.RegisterIoCommandSuccess(process, iocUid, 0);
-                        }
-                        catch (Exception ex)
-                        {
-                            process.Context.RegisterIoCommandFailed(process, iocUid, 0, ex);
-                        }
+                        connection.Connection.Close();
+                        connection.Connection.Dispose();
+                        process.Context.RegisterIoCommandSuccess(process, iocUid, 0);
+                    }
+                    catch (Exception ex)
+                    {
+                        process.Context.RegisterIoCommandFailed(process, iocUid, 0, ex);
                     }
                 }
                 else

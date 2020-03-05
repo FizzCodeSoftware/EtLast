@@ -531,7 +531,7 @@
                     }
                 }
 
-                sb.Append("{IoCommandUid}, exception: {ErrorMessage}");
+                sb.Append("{IoCommandUid}/EXCEPTION, {ErrorMessage}");
                 values.Add(uid);
                 values.Add(ex.FormatExceptionWithDetails());
 
