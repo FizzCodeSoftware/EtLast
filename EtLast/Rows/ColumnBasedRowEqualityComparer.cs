@@ -8,7 +8,7 @@
         public string[] Columns { get; set; }
         public string[] ColumnsToIgnore { get; set; }
 
-        public bool Equals(IReadOnlyRow leftRow, IReadOnlyRow rightRow)
+        public bool Equals(IReadOnlySlimRow leftRow, IReadOnlySlimRow rightRow)
         {
             if (leftRow == rightRow)
                 return true;

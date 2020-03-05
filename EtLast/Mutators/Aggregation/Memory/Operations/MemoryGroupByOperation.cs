@@ -5,7 +5,7 @@
 
     public class MemoryGroupByOperation : AbstractMemoryAggregationOperation
     {
-        public delegate object MemoryGroupByAggregatorDelegate(List<IReadOnlyRow> groupRows, string column);
+        public delegate object MemoryGroupByAggregatorDelegate(List<IReadOnlySlimRow> groupRows, string column);
         public Dictionary<string, MemoryGroupByAggregatorDelegate> ColumnAggregators { get; set; } = new Dictionary<string, MemoryGroupByAggregatorDelegate>();
 
         public MemoryGroupByOperation AddColumnAggregator(string column, MemoryGroupByAggregatorDelegate aggregator)
@@ -14,7 +14,7 @@
             return this;
         }
 
-        public override void TransformGroup(List<IReadOnlyRow> rows, SlimRow aggregate)
+        public override void TransformGroup(List<IReadOnlySlimRow> rows, SlimRow aggregate)
         {
             foreach (var agg in ColumnAggregators)
             {

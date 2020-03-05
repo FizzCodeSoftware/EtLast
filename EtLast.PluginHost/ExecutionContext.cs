@@ -314,7 +314,7 @@
             }
         }
 
-        private void LifecycleRowCreated(IReadOnlyEtlRow row, IProcess process)
+        private void LifecycleRowCreated(IReadOnlyRow row, IProcess process)
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowCreated, writer =>
             {
@@ -329,7 +329,7 @@
             });
         }
 
-        private void LifecycleRowOwnerChanged(IReadOnlyEtlRow row, IProcess previousProcess, IProcess currentProcess)
+        private void LifecycleRowOwnerChanged(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess)
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowOwnerChanged, writer =>
             {
@@ -353,7 +353,7 @@
             });
         }
 
-        private void LifecycleRowStored(IProcess process, IReadOnlyEtlRow row, int storeUid)
+        private void LifecycleRowStored(IProcess process, IReadOnlyRow row, int storeUid)
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowStored, writer =>
             {
@@ -540,7 +540,7 @@
             });
         }
 
-        private void LifecycleRowValueChanged(IProcess process, IReadOnlyEtlRow row, KeyValuePair<string, object>[] values)
+        private void LifecycleRowValueChanged(IProcess process, IReadOnlyRow row, KeyValuePair<string, object>[] values)
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowValueChanged, writer =>
             {

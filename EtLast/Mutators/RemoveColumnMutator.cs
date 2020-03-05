@@ -11,7 +11,7 @@
         {
         }
 
-        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
             foreach (var column in Columns)
             {

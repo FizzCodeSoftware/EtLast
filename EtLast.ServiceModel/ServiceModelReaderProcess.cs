@@ -47,7 +47,7 @@
                 throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
         }
 
-        protected override IEnumerable<IEtlRow> Produce()
+        protected override IEnumerable<IRow> Produce()
         {
             var startedOn = Stopwatch.StartNew();
 

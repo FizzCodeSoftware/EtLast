@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public interface IEtlRow : IReadOnlyEtlRow, IEditableRow
+    public interface IRow : IReadOnlyRow, IEditableRow
     {
         new IProcess CurrentProcess { get; set; }
 

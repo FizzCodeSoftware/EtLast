@@ -12,7 +12,7 @@
         {
         }
 
-        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
             var removeRow = false;
             foreach (var config in ColumnConfiguration)

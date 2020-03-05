@@ -9,7 +9,7 @@
 
         private readonly Dictionary<string, int> _dictionary = new Dictionary<string, int>();
 
-        public void AddRow(string key, IReadOnlyRow row)
+        public void AddRow(string key, IReadOnlySlimRow row)
         {
             if (string.IsNullOrEmpty(key))
                 return;

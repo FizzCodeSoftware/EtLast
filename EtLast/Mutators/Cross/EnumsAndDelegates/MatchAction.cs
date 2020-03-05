@@ -2,7 +2,7 @@
 {
     using System;
 
-    public delegate void MatchActionDelegate(IProcess process, IEtlRow row, IReadOnlyRow match);
+    public delegate void MatchActionDelegate(IProcess process, IRow row, IReadOnlySlimRow match);
 
     public class MatchAction
     {
@@ -14,7 +14,7 @@
             Mode = mode;
         }
 
-        public void InvokeCustomAction(IProcess process, IEtlRow row, IReadOnlyRow match)
+        public void InvokeCustomAction(IProcess process, IRow row, IReadOnlySlimRow match)
         {
             try
             {

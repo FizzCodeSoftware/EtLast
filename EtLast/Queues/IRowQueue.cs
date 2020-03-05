@@ -6,12 +6,12 @@
 
     public interface IRowQueue : IDisposable
     {
-        void AddRow(IEtlRow row);
+        void AddRow(IRow row);
 
-        void AddRowNoSignal(IEtlRow row);
+        void AddRowNoSignal(IRow row);
         void Signal();
 
         void SignalNoMoreRows();
-        IEnumerable<IEtlRow> GetConsumer(CancellationToken token);
+        IEnumerable<IRow> GetConsumer(CancellationToken token);
     }
 }

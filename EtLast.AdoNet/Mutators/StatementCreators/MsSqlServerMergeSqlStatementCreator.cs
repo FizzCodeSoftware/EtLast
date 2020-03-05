@@ -25,7 +25,7 @@
             _insertDbColumnsSource = string.Join(", ", _tableDefinition.Columns.Where(x => x.Insert).Select(x => "source." + x.DbColumn));
         }
 
-        public string CreateRowStatement(ConnectionStringWithProvider connectionString, IReadOnlyRow row, WriteToTableMutator operation)
+        public string CreateRowStatement(ConnectionStringWithProvider connectionString, IReadOnlySlimRow row, WriteToTableMutator operation)
         {
             var startIndex = operation.ParameterCount;
             foreach (var column in _tableDefinition.Columns)

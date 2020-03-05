@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    public delegate void TooManyMatchActionDelegate(IProcess process, IEtlRow row, List<IReadOnlyRow> matches);
+    public delegate void TooManyMatchActionDelegate(IProcess process, IRow row, List<IReadOnlySlimRow> matches);
 
     public class TooManyMatchAction
     {
@@ -15,7 +15,7 @@
             Mode = mode;
         }
 
-        public void InvokeCustomAction(IProcess process, IEtlRow row, List<IReadOnlyRow> matches)
+        public void InvokeCustomAction(IProcess process, IRow row, List<IReadOnlySlimRow> matches)
         {
             try
             {

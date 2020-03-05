@@ -22,7 +22,7 @@
                 throw new ProcessParameterNullException(this, nameof(GroupingColumns));
         }
 
-        protected override IEnumerable<IEtlRow> EvaluateImpl(Stopwatch netTimeStopwatch)
+        protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
             var returnedKeys = new HashSet<string>();
 

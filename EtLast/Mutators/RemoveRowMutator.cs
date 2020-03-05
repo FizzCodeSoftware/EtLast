@@ -10,9 +10,9 @@
         {
         }
 
-        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            return Enumerable.Empty<IEtlRow>();
+            return Enumerable.Empty<IRow>();
         }
 
         protected override void ValidateMutator()

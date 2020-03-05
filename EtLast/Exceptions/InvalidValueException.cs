@@ -7,7 +7,7 @@
     [Serializable]
     public class InvalidValueException : EtlException
     {
-        public InvalidValueException(IProcess process, IReadOnlyRow row, string column)
+        public InvalidValueException(IProcess process, IReadOnlySlimRow row, string column)
             : base(process, "invalid value found")
         {
             var value = row[column];
@@ -16,7 +16,7 @@
             Data.Add("Row", row.ToDebugString());
         }
 
-        public InvalidValueException(IProcess process, ITypeConverter converter, IReadOnlyRow row, string column)
+        public InvalidValueException(IProcess process, ITypeConverter converter, IReadOnlySlimRow row, string column)
             : base(process, "invalid value found using a type converter")
         {
             var value = row[column];

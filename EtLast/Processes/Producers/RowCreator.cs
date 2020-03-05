@@ -5,7 +5,7 @@
     using System.Linq;
 
     /// <summary>
-    /// Creates <see cref="IEtlRow"/>s from <see cref="InputRows"/>.
+    /// Creates <see cref="IRow"/>s from <see cref="InputRows"/>.
     /// Use to create test input rows, or to inject litaral-like data.
     /// </summary>
     /// <remarks>Do not use to read into <see cref="InputRows"/> from a data source.</remarks>
@@ -26,7 +26,7 @@
                 throw new ProcessParameterNullException(this, nameof(InputRows));
         }
 
-        protected override IEnumerable<IEtlRow> Produce()
+        protected override IEnumerable<IRow> Produce()
         {
             Context.Log(LogSeverity.Debug, this, "returning pre-defined rows");
 

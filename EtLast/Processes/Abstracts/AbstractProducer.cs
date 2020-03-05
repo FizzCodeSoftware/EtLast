@@ -38,7 +38,7 @@
         {
         }
 
-        protected sealed override IEnumerable<IEtlRow> EvaluateImpl(Stopwatch netTimeStopwatch)
+        protected sealed override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
             var resultCount = 0;
 
@@ -48,7 +48,7 @@
 
             while (!Context.CancellationTokenSource.IsCancellationRequested)
             {
-                IEtlRow row;
+                IRow row;
                 try
                 {
                     if (!enumerator.MoveNext())
@@ -78,9 +78,9 @@
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
         }
 
-        protected abstract IEnumerable<IEtlRow> Produce();
+        protected abstract IEnumerable<IRow> Produce();
 
-        private bool ProcessRowBeforeYield(IEtlRow row)
+        private bool ProcessRowBeforeYield(IRow row)
         {
             if (IgnoreRowsWithError && row.HasError())
             {

@@ -2,6 +2,6 @@
 {
     public interface IRowEqualityComparer
     {
-        bool Equals(IReadOnlyRow leftRow, IReadOnlyRow rightRow);
+        bool Equals(IReadOnlySlimRow leftRow, IReadOnlySlimRow rightRow);
     }
 }

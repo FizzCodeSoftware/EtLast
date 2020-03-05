@@ -4,11 +4,11 @@
     using System.Collections.Generic;
     using System.Threading;
 
-    public delegate void ContextOnRowValueChangedDelegate(IProcess process, IReadOnlyEtlRow row, params KeyValuePair<string, object>[] values);
+    public delegate void ContextOnRowValueChangedDelegate(IProcess process, IReadOnlyRow row, params KeyValuePair<string, object>[] values);
     public delegate void ContextOnRowStoreStartedDelegate(int storeUid, List<KeyValuePair<string, string>> descriptor);
-    public delegate void ContextOnRowStoredDelegate(IProcess process, IReadOnlyEtlRow row, int storeUid);
-    public delegate void ContextOnRowOwnerChangedDelegate(IReadOnlyEtlRow row, IProcess previousProcess, IProcess currentProcess);
-    public delegate void ContextOnRowCreatedDelegate(IReadOnlyEtlRow row, IProcess process);
+    public delegate void ContextOnRowStoredDelegate(IProcess process, IReadOnlyRow row, int storeUid);
+    public delegate void ContextOnRowOwnerChangedDelegate(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess);
+    public delegate void ContextOnRowCreatedDelegate(IReadOnlyRow row, IProcess process);
     public delegate void ContextOnProcessInvocationDelegate(IProcess process);
     public delegate void ContextOnIoCommandEndDelegate(IProcess proces, int uid, int affectedDataCount, Exception ex);
     public delegate void ContextOnCustomLogDelegate(bool forOps, string fileName, IProcess process, string text, params object[] args);
@@ -16,7 +16,7 @@
 
     public interface IEtlContext
     {
-        void SetRowType<T>() where T : IEtlRow;
+        void SetRowType<T>() where T : IRow;
 
         StatCounterCollection CounterCollection { get; }
         EtlContextResult Result { get; }
@@ -33,8 +33,8 @@
         void ExecuteOne(bool terminateHostOnFail, IExecutable executable);
         void ExecuteSequence(bool terminateHostOnFail, params IExecutable[] executables);
 
-        IEtlRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues);
-        IEtlRow CreateRow(IProcess process, SlimRow initialValues);
+        IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues);
+        IRow CreateRow(IProcess process, SlimRow initialValues);
 
         void Log(string transactionId, LogSeverity severity, IProcess process, string text, params object[] args);
         void Log(LogSeverity severity, IProcess process, string text, params object[] args);
@@ -54,7 +54,7 @@
 
         int ExceptionCount { get; }
 
-        void SetRowOwner(IEtlRow row, IProcess currentProcess);
+        void SetRowOwner(IRow row, IProcess currentProcess);
 
         ContextOnLogDelegate OnLog { get; set; }
         ContextOnCustomLogDelegate OnCustomLog { get; set; }

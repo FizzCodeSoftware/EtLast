@@ -41,9 +41,9 @@
                 throw new ProcessParameterNullException(this, nameof(Operation));
         }
 
-        protected override IEnumerable<IEtlRow> EvaluateImpl(Stopwatch netTimeStopwatch)
+        protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
-            var groups = new Dictionary<string, List<IReadOnlyRow>>();
+            var groups = new Dictionary<string, List<IReadOnlySlimRow>>();
 
             netTimeStopwatch.Stop();
             var enumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
@@ -63,7 +63,7 @@
                 var key = GetKey(row);
                 if (!groups.TryGetValue(key, out var list))
                 {
-                    list = new List<IReadOnlyRow>();
+                    list = new List<IReadOnlySlimRow>();
                     groups.Add(key, list);
                 }
 
@@ -98,7 +98,7 @@
 
                 foreach (var row in group)
                 {
-                    Context.SetRowOwner(row as IEtlRow, null);
+                    Context.SetRowOwner(row as IRow, null);
                 }
 
                 if (aggregate != null)

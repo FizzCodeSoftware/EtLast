@@ -1,4 +1,4 @@
 ﻿namespace FizzCode.EtLast
 {
-    public delegate bool RowTestDelegate(IReadOnlyRow row);
+    public delegate bool RowTestDelegate(IReadOnlySlimRow row);
 }

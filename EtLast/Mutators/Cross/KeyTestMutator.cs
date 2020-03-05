@@ -35,7 +35,7 @@
             _lookup.Clear();
         }
 
-        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
             var key = GenerateRowKey(row);
             var matchCount = _lookup.CountByKey(key);
@@ -54,7 +54,7 @@
                             exception2.Data.Add("Key", key);
                             throw exception2;
                         case MatchMode.Custom:
-                            IReadOnlyRow match = null;
+                            IReadOnlySlimRow match = null;
                             if (MatchActionContainsMatch)
                             {
                                 match = (_lookup as RowLookup).GetSingleRowByKey(key);
@@ -106,7 +106,7 @@
                 throw new InvalidProcessParameterException(this, nameof(MatchAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must use a different action moode: " + nameof(MatchAction) + " or " + nameof(NoMatchAction));
         }
 
-        private string GenerateRowKey(IReadOnlyRow row)
+        private string GenerateRowKey(IReadOnlySlimRow row)
         {
             try
             {

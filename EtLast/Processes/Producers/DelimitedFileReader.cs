@@ -40,7 +40,7 @@
                 throw new ProcessParameterNullException(this, nameof(ColumnNames));
         }
 
-        protected override IEnumerable<IEtlRow> Produce()
+        protected override IEnumerable<IRow> Produce()
         {
             var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.fileRead, FileName, null, null, null, null,
                 "reading from {FileName}",

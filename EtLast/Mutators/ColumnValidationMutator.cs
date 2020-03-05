@@ -6,14 +6,14 @@
     public class ColumnValidationMutator : AbstractMutator
     {
         public string Column { get; set; }
-        public Func<IReadOnlyRow, bool> ErrorIf { get; set; }
+        public Func<IReadOnlySlimRow, bool> ErrorIf { get; set; }
 
         public ColumnValidationMutator(ITopic topic, string name)
             : base(topic, name)
         {
         }
 
-        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
             if (ErrorIf(row))
             {

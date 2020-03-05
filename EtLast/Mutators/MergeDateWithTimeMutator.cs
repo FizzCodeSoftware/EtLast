@@ -16,7 +16,7 @@
         {
         }
 
-        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
             var sourceDate = row[SourceDateColumn];
             var sourceTime = row[SourceTimeColumn];

@@ -5,7 +5,7 @@
 
     public class ContinuousGroupByOperation : AbstractContinuousAggregationOperation
     {
-        public delegate object ContinuousGroupByAggregatorDelegate(SlimRow aggregate, int rowsInGroup, IReadOnlyRow row, string column);
+        public delegate object ContinuousGroupByAggregatorDelegate(SlimRow aggregate, int rowsInGroup, IReadOnlySlimRow row, string column);
         public Dictionary<string, ContinuousGroupByAggregatorDelegate> ColumnAggregators { get; set; } = new Dictionary<string, ContinuousGroupByAggregatorDelegate>();
 
         public ContinuousGroupByOperation AddColumnAggregator(string column, ContinuousGroupByAggregatorDelegate aggregator)
@@ -14,7 +14,7 @@
             return this;
         }
 
-        public override void TransformAggregate(IReadOnlyRow row, SlimRow aggregate, int rowsInGroup)
+        public override void TransformAggregate(IReadOnlySlimRow row, SlimRow aggregate, int rowsInGroup)
         {
             foreach (var kvp in ColumnAggregators)
             {

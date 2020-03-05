@@ -2,7 +2,7 @@
 {
     using System;
 
-    public delegate void NoMatchActionDelegate(IProcess process, IEtlRow row);
+    public delegate void NoMatchActionDelegate(IProcess process, IRow row);
 
     public class NoMatchAction
     {
@@ -14,7 +14,7 @@
             Mode = mode;
         }
 
-        public void InvokeCustomAction(IProcess process, IEtlRow row)
+        public void InvokeCustomAction(IProcess process, IRow row)
         {
             try
             {

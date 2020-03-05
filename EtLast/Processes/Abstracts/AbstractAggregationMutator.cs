@@ -17,7 +17,7 @@
         {
         }
 
-        protected string GetKey(IEtlRow row)
+        protected string GetKey(IRow row)
         {
             if (GroupingColumns.Count == 1)
             {

@@ -19,7 +19,7 @@
         {
         }
 
-        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
             var sourceByteArray = row.GetAs<byte[]>(ColumnConfiguration.FromColumn);
 

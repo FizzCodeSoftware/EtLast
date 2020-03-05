@@ -5,21 +5,21 @@
 
     public class Evaluator
     {
-        private readonly IEnumerable<IEtlRow> _input;
+        private readonly IEnumerable<IRow> _input;
         private readonly IProcess _process;
 
         public Evaluator()
         {
-            _input = Enumerable.Empty<IEtlRow>();
+            _input = Enumerable.Empty<IRow>();
         }
 
-        public Evaluator(IProcess process, IEnumerable<IEtlRow> input)
+        public Evaluator(IProcess process, IEnumerable<IRow> input)
         {
             _process = process;
             _input = input;
         }
 
-        public IEnumerable<IEtlRow> TakeRowsAndTransferOwnership()
+        public IEnumerable<IRow> TakeRowsAndTransferOwnership()
         {
             foreach (var row in _input)
             {
@@ -31,7 +31,7 @@
                 _process.Context.RegisterProcessInvocationEnd(_process);
         }
 
-        public IEnumerable<IEtlRow> TakeRowsAndReleaseOwnership()
+        public IEnumerable<IRow> TakeRowsAndReleaseOwnership()
         {
             foreach (var row in _input)
             {

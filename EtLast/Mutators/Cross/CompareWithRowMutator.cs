@@ -27,7 +27,7 @@
             _lookup.Clear();
         }
 
-        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
             var removeRow = false;
             var key = GenerateRowKey(row);
@@ -118,7 +118,7 @@
                 throw new ProcessParameterNullException(this, nameof(EqualityComparer));
         }
 
-        private string GenerateRowKey(IReadOnlyRow row)
+        private string GenerateRowKey(IReadOnlySlimRow row)
         {
             try
             {

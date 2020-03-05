@@ -11,7 +11,7 @@
 
         private readonly Dictionary<string, object> _dictionary = new Dictionary<string, object>();
 
-        public void AddRow(string key, IReadOnlyRow row)
+        public void AddRow(string key, IReadOnlySlimRow row)
         {
             if (string.IsNullOrEmpty(key))
                 return;
@@ -19,15 +19,15 @@
             Count++;
             if (_dictionary.TryGetValue(key, out var entry))
             {
-                if (entry is List<IReadOnlyRow> list)
+                if (entry is List<IReadOnlySlimRow> list)
                 {
                     list.Add(row);
                 }
                 else
                 {
-                    _dictionary[key] = new List<IReadOnlyRow>()
+                    _dictionary[key] = new List<IReadOnlySlimRow>()
                     {
-                        entry as IReadOnlyRow,
+                        entry as IReadOnlySlimRow,
                         row,
                     };
                 }
@@ -46,12 +46,12 @@
             if (!_dictionary.TryGetValue(key, out var entry))
                 return 0;
 
-            return (entry is List<IReadOnlyRow> list)
+            return (entry is List<IReadOnlySlimRow> list)
                 ? list.Count
                 : 1;
         }
 
-        public List<IReadOnlyRow> GetManyByKey(string key)
+        public List<IReadOnlySlimRow> GetManyByKey(string key)
         {
             if (key == null)
                 return null;
@@ -59,12 +59,12 @@
             if (!_dictionary.TryGetValue(key, out var entry))
                 return null;
 
-            return (entry is List<IReadOnlyRow> list)
+            return (entry is List<IReadOnlySlimRow> list)
                 ? list
-                : new List<IReadOnlyRow>() { entry as IReadOnlyRow };
+                : new List<IReadOnlySlimRow>() { entry as IReadOnlySlimRow };
         }
 
-        public List<IReadOnlyRow> GetManyByKey(string key, Func<IReadOnlyRow, bool> filter)
+        public List<IReadOnlySlimRow> GetManyByKey(string key, Func<IReadOnlySlimRow, bool> filter)
         {
             if (filter == null)
                 return GetManyByKey(key);
@@ -75,7 +75,7 @@
             if (!_dictionary.TryGetValue(key, out var entry))
                 return null;
 
-            if (entry is List<IReadOnlyRow> list)
+            if (entry is List<IReadOnlySlimRow> list)
             {
                 var result = list.Where(filter).ToList();
                 return result.Count > 0
@@ -83,13 +83,13 @@
                     : null;
             }
 
-            var row = entry as IReadOnlyRow;
+            var row = entry as IReadOnlySlimRow;
             return filter(row)
-                ? new List<IReadOnlyRow> { row }
+                ? new List<IReadOnlySlimRow> { row }
                 : null;
         }
 
-        public IReadOnlyRow GetSingleRowByKey(string key)
+        public IReadOnlySlimRow GetSingleRowByKey(string key)
         {
             if (key == null)
                 return null;
@@ -97,9 +97,9 @@
             if (!_dictionary.TryGetValue(key, out var entry))
                 return null;
 
-            return (entry is List<IReadOnlyRow> list)
+            return (entry is List<IReadOnlySlimRow> list)
                 ? list[0]
-                : entry as IReadOnlyRow;
+                : entry as IReadOnlySlimRow;
         }
 
         public void Clear()

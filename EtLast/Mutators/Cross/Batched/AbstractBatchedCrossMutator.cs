@@ -23,7 +23,7 @@
                 throw new ProcessParameterNullException(this, nameof(RowKeyGenerator));
         }
 
-        protected string GenerateRowKey(IReadOnlyRow row)
+        protected string GenerateRowKey(IReadOnlySlimRow row)
         {
             try
             {

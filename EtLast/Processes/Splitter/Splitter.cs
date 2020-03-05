@@ -26,7 +26,7 @@
                 throw new ProcessParameterNullException(this, nameof(InputProcess));
         }
 
-        protected override IEnumerable<IEtlRow> EvaluateImpl(Stopwatch netTimeStopwatch)
+        protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
             StartQueueFeeder();
             return _queue.GetConsumer(Context.CancellationTokenSource.Token);

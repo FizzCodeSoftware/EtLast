@@ -12,7 +12,7 @@
     {
         public Stream Stream { get; set; }
         public Action<ExcelPackage, TState> Initialize { get; set; }
-        public Action<IEtlRow, ExcelPackage, TState> Action { get; set; }
+        public Action<IRow, ExcelPackage, TState> Action { get; set; }
         public Action<ExcelPackage, TState> Finalize { get; set; }
         public ExcelPackage ExistingPackage { get; set; }
         private TState _state;
@@ -46,7 +46,7 @@
             _state = null;
         }
 
-        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
             if (_package == null) // lazy load here instead of prepare
             {

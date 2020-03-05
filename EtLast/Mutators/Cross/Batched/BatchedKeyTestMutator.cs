@@ -46,7 +46,7 @@
             base.CloseMutator();
         }
 
-        protected override void MutateSingleRow(IEtlRow row, List<IEtlRow> mutatedRows, out bool removeOriginal, out bool processed)
+        protected override void MutateSingleRow(IRow row, List<IRow> mutatedRows, out bool removeOriginal, out bool processed)
         {
             removeOriginal = false;
 
@@ -68,7 +68,7 @@
                             exception.Data.Add("Key", key);
                             throw exception;
                         case MatchMode.Custom:
-                            IReadOnlyRow match = null;
+                            IReadOnlySlimRow match = null;
                             if (MatchActionContainsMatch)
                             {
                                 match = (_lookup as RowLookup).GetSingleRowByKey(key);
@@ -91,7 +91,7 @@
             processed = false;
         }
 
-        protected override void MutateBatch(List<IEtlRow> rows, List<IEtlRow> mutatedRows, List<IEtlRow> removedRows)
+        protected override void MutateBatch(List<IRow> rows, List<IRow> mutatedRows, List<IRow> removedRows)
         {
             LookupBuilder.Append(_lookup, this, rows.ToArray());
 
@@ -131,7 +131,7 @@
                             exception2.Data.Add("Key", key);
                             throw exception2;
                         case MatchMode.Custom:
-                            IReadOnlyRow match = null;
+                            IReadOnlySlimRow match = null;
                             if (MatchActionContainsMatch)
                             {
                                 match = (_lookup as RowLookup).GetSingleRowByKey(key);

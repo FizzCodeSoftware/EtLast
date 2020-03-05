@@ -48,7 +48,7 @@
                 throw new ProcessParameterNullException(this, nameof(Operation));
         }
 
-        protected override IEnumerable<IEtlRow> EvaluateImpl(Stopwatch netTimeStopwatch)
+        protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
             var aggregates = new Dictionary<string, Aggregate>();
 

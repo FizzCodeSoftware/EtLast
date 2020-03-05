@@ -11,8 +11,8 @@
         public IEvaluable Input { get; set; }
         public List<IMutator> Mutators { get; set; }
         public IEvaluable Process { get; set; }
-        public List<IEtlRow> InputRows { get; set; }
-        public List<IEtlRow> MutatedRows { get; set; }
+        public List<IRow> InputRows { get; set; }
+        public List<IRow> MutatedRows { get; set; }
 
         public string GetGenerateAssertOrderedMatch(params string[] columns)
         {

@@ -26,7 +26,7 @@
             _lastIdOfLevel = new object[LevelColumns.Length];
         }
 
-        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
+        protected override IEnumerable<IRow> MutateRow(IRow row)
         {
             for (var level = LevelColumns.Length - 1; level >= 0; level--)
             {

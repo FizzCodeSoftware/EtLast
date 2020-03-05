@@ -6,6 +6,6 @@
     {
         MemoryAggregationMutator Process { get; }
         void SetProcess(MemoryAggregationMutator process);
-        void TransformGroup(List<IReadOnlyRow> rows, SlimRow aggregate);
+        void TransformGroup(List<IReadOnlySlimRow> rows, SlimRow aggregate);
     }
 }
