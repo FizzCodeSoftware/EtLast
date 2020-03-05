@@ -2,21 +2,21 @@
 {
     using System;
 
-    public delegate IEvaluable ProcessCreatorForRowLookupBuilderDelegate(IRow[] filterRows);
+    public delegate IEvaluable ProcessCreatorForRowLookupBuilderDelegate(IReadOnlyRow[] filterRows);
 
     public class FilteredRowLookupBuilder
     {
         public ProcessCreatorForRowLookupBuilderDelegate ProcessCreator { get; set; }
         public RowKeyGenerator KeyGenerator { get; set; }
 
-        public RowLookup Build(IProcess caller, IRow[] filterRows)
+        public RowLookup Build(IProcess caller, IReadOnlyRow[] filterRows)
         {
             var lookup = new RowLookup();
             Append(lookup, caller, filterRows);
             return lookup;
         }
 
-        public void Append(ICountableLookup lookup, IProcess caller, IRow[] filterRows)
+        public void Append(ICountableLookup lookup, IProcess caller, IReadOnlyRow[] filterRows)
         {
             var process = ProcessCreator.Invoke(filterRows);
 

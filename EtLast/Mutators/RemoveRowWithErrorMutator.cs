@@ -9,7 +9,7 @@
         {
         }
 
-        protected override IEnumerable<IRow> MutateRow(IRow row)
+        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
         {
             if (!row.HasError())
                 yield return row;

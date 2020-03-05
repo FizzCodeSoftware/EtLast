@@ -62,7 +62,7 @@
             ConnectionManager.ReleaseConnection(this, ref _connection);
         }
 
-        protected override IEnumerable<IRow> MutateRow(IRow row)
+        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
         {
             if (_storeUid == null)
             {

@@ -27,11 +27,11 @@
             _lookup.Clear();
         }
 
-        protected override IEnumerable<IRow> MutateRow(IRow row)
+        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
         {
             var removeRow = false;
             var key = GenerateRowKey(row);
-            if (_lookup.GetRowCountByKey(key) == 0)
+            if (_lookup.CountByKey(key) == 0)
             {
                 if (NoMatchAction != null)
                 {
@@ -118,7 +118,7 @@
                 throw new ProcessParameterNullException(this, nameof(EqualityComparer));
         }
 
-        private string GenerateRowKey(IRow row)
+        private string GenerateRowKey(IReadOnlyRow row)
         {
             try
             {

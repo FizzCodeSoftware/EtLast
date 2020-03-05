@@ -9,7 +9,7 @@
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         public NoMatchAction NoMatchAction { get; set; }
         public MatchActionDelegate MatchCustomAction { get; set; }
-        public Func<IRow, bool> MatchFilter { get; set; }
+        public Func<IReadOnlyRow, bool> MatchFilter { get; set; }
 
         /// <summary>
         /// Default null. If value is set, and <see cref="TooManyMatchAction"/> is null,
@@ -39,7 +39,7 @@
             _lookup.Clear();
         }
 
-        protected override IEnumerable<IRow> MutateRow(IRow row)
+        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
         {
             var key = GenerateRowKey(row);
             var removeRow = false;
@@ -104,7 +104,7 @@
                 yield return row;
         }
 
-        private void InvokeCustomMatchAction(IRow row, IRow newRow, IRow match)
+        private void InvokeCustomMatchAction(IReadOnlyRow row, IEtlRow newRow, IReadOnlyRow match)
         {
             try
             {
@@ -133,7 +133,7 @@
                 throw new ProcessParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));
         }
 
-        private string GenerateRowKey(IRow row)
+        private string GenerateRowKey(IReadOnlyRow row)
         {
             try
             {

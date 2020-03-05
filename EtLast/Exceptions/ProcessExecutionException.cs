@@ -12,7 +12,7 @@
         {
         }
 
-        public ProcessExecutionException(IProcess process, IRow row, Exception innerException)
+        public ProcessExecutionException(IProcess process, IReadOnlyRow row, Exception innerException)
             : this(process, "error raised during the execution of a process", innerException)
         {
             Data.Add("Row", row.ToDebugString());
@@ -23,7 +23,7 @@
         {
         }
 
-        public ProcessExecutionException(IProcess process, IRow row, string message)
+        public ProcessExecutionException(IProcess process, IReadOnlyRow row, string message)
             : base(process, message)
         {
             Data.Add("Row", row.ToDebugString());
@@ -34,13 +34,13 @@
         {
         }
 
-        public ProcessExecutionException(IProcess process, IRow row, string message, Exception innerException)
+        public ProcessExecutionException(IProcess process, IReadOnlyRow row, string message, Exception innerException)
             : base(process, message, innerException)
         {
             Data.Add("Row", row.ToDebugString());
         }
 
-        public static ProcessExecutionException Wrap(IProcess process, IRow row, Exception ex)
+        public static ProcessExecutionException Wrap(IProcess process, IReadOnlyRow row, Exception ex)
         {
             if (ex is ProcessExecutionException pex && (pex.Data["Row"] is string rowString) && string.Equals(rowString, row.ToDebugString(), StringComparison.Ordinal))
                 return pex;

@@ -5,11 +5,11 @@
     using System.Diagnostics;
     using System.ServiceModel;
 
-    public delegate TClient SoapExpanderClientCreatorDelegate<TChannel, TClient>(ServiceModelExpandMutator<TChannel, TClient> process, IRow row)
+    public delegate TClient SoapExpanderClientCreatorDelegate<TChannel, TClient>(ServiceModelExpandMutator<TChannel, TClient> process, IReadOnlyRow row)
         where TChannel : class
         where TClient : ClientBase<TChannel>;
 
-    public delegate object SoapExpanderClientInvokerDelegate<TChannel, TClient>(ServiceModelExpandMutator<TChannel, TClient> process, IRow row, TClient client)
+    public delegate object SoapExpanderClientInvokerDelegate<TChannel, TClient>(ServiceModelExpandMutator<TChannel, TClient> process, IReadOnlyRow row, TClient client)
         where TChannel : class
         where TClient : ClientBase<TChannel>;
 
@@ -36,7 +36,7 @@
         {
         }
 
-        protected override IEnumerable<IRow> MutateRow(IRow row)
+        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
         {
             var startedOn = Stopwatch.StartNew();
 

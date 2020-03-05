@@ -9,7 +9,7 @@
 
         private readonly Dictionary<string, int> _dictionary = new Dictionary<string, int>();
 
-        public void AddRow(string key, IRow row)
+        public void AddRow(string key, IReadOnlyRow row)
         {
             if (string.IsNullOrEmpty(key))
                 return;
@@ -19,7 +19,7 @@
             _dictionary[key] = count + 1;
         }
 
-        public int GetRowCountByKey(string key)
+        public int CountByKey(string key)
         {
             if (key == null)
                 return 0;

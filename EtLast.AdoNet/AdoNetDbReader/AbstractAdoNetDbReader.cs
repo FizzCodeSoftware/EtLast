@@ -52,7 +52,7 @@
                 throw new ProcessParameterNullException(this, nameof(ConnectionString));
         }
 
-        protected override IEnumerable<IRow> Produce()
+        protected override IEnumerable<IEtlRow> Produce()
         {
             var usedSqlValueProcessors = SqlValueProcessors.Where(x => x.Init(ConnectionString)).ToList();
             if (usedSqlValueProcessors.Count == 0)

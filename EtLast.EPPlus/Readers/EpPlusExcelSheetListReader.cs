@@ -21,7 +21,7 @@
                 throw new ProcessParameterNullException(this, nameof(FileName));
         }
 
-        protected override IEnumerable<IRow> Produce()
+        protected override IEnumerable<IEtlRow> Produce()
         {
             var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.fileRead, PathHelpers.GetFriendlyPathName(FileName), null, null, null, null,
                 "reading from {FileName}",

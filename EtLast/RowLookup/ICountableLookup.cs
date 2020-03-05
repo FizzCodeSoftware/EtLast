@@ -6,8 +6,8 @@
     {
         int Count { get; }
         IEnumerable<string> Keys { get; }
-        void AddRow(string key, IRow row);
+        void AddRow(string key, IReadOnlyRow row);
         void Clear();
-        int GetRowCountByKey(string key);
+        int CountByKey(string key);
     }
 }

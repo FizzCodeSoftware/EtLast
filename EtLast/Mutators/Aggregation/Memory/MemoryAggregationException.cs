@@ -9,7 +9,7 @@
     [Serializable]
     public class MemoryAggregationException : EtlException
     {
-        public MemoryAggregationException(MemoryAggregationMutator mutator, IMemoryAggregationOperation operation, List<IRow> group, Exception innerException)
+        public MemoryAggregationException(MemoryAggregationMutator mutator, IMemoryAggregationOperation operation, List<IReadOnlyRow> group, Exception innerException)
             : base(mutator, "error raised during the execution of an in-memory aggregation", innerException)
         {
             Data.Add("Operation", operation.GetType().GetFriendlyTypeName());

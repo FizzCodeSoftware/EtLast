@@ -9,16 +9,16 @@
     {
         private readonly AutoResetEvent _newRowEvent = new AutoResetEvent(false);
         private readonly ManualResetEvent _noMoreRowsEvent = new ManualResetEvent(false);
-        private readonly ConcurrentQueue<IRow> _queue = new ConcurrentQueue<IRow>();
+        private readonly ConcurrentQueue<IEtlRow> _queue = new ConcurrentQueue<IEtlRow>();
         private bool _noMoreRows;
 
-        public void AddRow(IRow row)
+        public void AddRow(IEtlRow row)
         {
             _queue.Enqueue(row);
             _newRowEvent.Set();
         }
 
-        public void AddRowNoSignal(IRow row)
+        public void AddRowNoSignal(IEtlRow row)
         {
             _queue.Enqueue(row);
         }
@@ -34,7 +34,7 @@
             _noMoreRowsEvent.Set();
         }
 
-        public IEnumerable<IRow> GetConsumer(CancellationToken token)
+        public IEnumerable<IEtlRow> GetConsumer(CancellationToken token)
         {
             var waitHandles = new[] { token.WaitHandle, _newRowEvent, _noMoreRowsEvent };
 
@@ -43,7 +43,7 @@
                 if (token.IsCancellationRequested)
                     yield break;
 
-                IRow row;
+                IEtlRow row;
                 while (!_queue.TryDequeue(out row))
                 {
                     WaitHandle.WaitAny(waitHandles);

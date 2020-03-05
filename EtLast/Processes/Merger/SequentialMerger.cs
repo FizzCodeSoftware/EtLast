@@ -14,7 +14,7 @@
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
+        protected override IEnumerable<IEtlRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
             foreach (var inputProcess in ProcessList)
             {

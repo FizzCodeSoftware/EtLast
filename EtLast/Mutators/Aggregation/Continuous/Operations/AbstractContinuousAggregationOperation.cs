@@ -4,7 +4,7 @@
     {
         public ContinuousAggregationMutator Process { get; private set; }
 
-        public abstract void TransformAggregate(IRow row, ValueCollection aggregate, int rowsInGroup);
+        public abstract void TransformAggregate(IReadOnlyRow row, SlimRow aggregate, int rowsInGroup);
 
         public void SetProcess(ContinuousAggregationMutator process)
         {

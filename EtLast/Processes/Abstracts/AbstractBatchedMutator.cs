@@ -22,7 +22,7 @@
         {
         }
 
-        protected sealed override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
+        protected sealed override IEnumerable<IEtlRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
             try
             {
@@ -36,14 +36,14 @@
                 yield break;
             }
 
-            var mutatedRows = new List<IRow>();
-            var removedRows = new List<IRow>();
+            var mutatedRows = new List<IEtlRow>();
+            var removedRows = new List<IEtlRow>();
 
             netTimeStopwatch.Stop();
             var enumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
             netTimeStopwatch.Start();
 
-            var batch = new List<IRow>();
+            var batch = new List<IEtlRow>();
             var batchKeys = new HashSet<string>();
 
             var failed = false;
@@ -292,11 +292,11 @@
         {
         }
 
-        protected abstract void MutateSingleRow(IRow row, List<IRow> mutatedRows, out bool removeOriginal, out bool processed);
+        protected abstract void MutateSingleRow(IEtlRow row, List<IEtlRow> mutatedRows, out bool removeOriginal, out bool processed);
 
-        protected abstract void MutateBatch(List<IRow> rows, List<IRow> mutatedRows, List<IRow> removedRows);
+        protected abstract void MutateBatch(List<IEtlRow> rows, List<IEtlRow> mutatedRows, List<IEtlRow> removedRows);
 
-        protected virtual string GetBatchKey(IRow row)
+        protected virtual string GetBatchKey(IEtlRow row)
         {
             return null;
         }

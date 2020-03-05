@@ -23,9 +23,9 @@
 
         public CancellationTokenSource CancellationTokenSource { get; }
 
-        public EventHandler<ContextExceptionEventArgs> OnException { get; set; }
         public ContextOnLogDelegate OnLog { get; set; }
         public ContextOnCustomLogDelegate OnCustomLog { get; set; }
+        public ContextOnExceptionDelegate OnException { get; set; }
 
         public ContextOnRowCreatedDelegate OnRowCreated { get; set; }
         public ContextOnRowOwnerChangedDelegate OnRowOwnerChanged { get; set; }
@@ -58,7 +58,7 @@
             CounterCollection = new StatCounterCollection(forwardCountersToCollection);
         }
 
-        public void SetRowType<T>() where T : IRow
+        public void SetRowType<T>() where T : IEtlRow
         {
             RowType = typeof(T);
         }
@@ -180,9 +180,9 @@
             OnContextIoCommandEnd?.Invoke(process, uid, affectedDataCount, exception);
         }
 
-        public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues)
+        public IEtlRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues)
         {
-            var row = (IRow)Activator.CreateInstance(RowType);
+            var row = (IEtlRow)Activator.CreateInstance(RowType);
             row.Init(this, process, Interlocked.Increment(ref _nextRowUid), initialValues);
 
             CounterCollection.IncrementCounter("in-memory rows created", 1);
@@ -192,9 +192,9 @@
             return row;
         }
 
-        public IRow CreateRow(IProcess process, ValueCollection initialValues)
+        public IEtlRow CreateRow(IProcess process, SlimRow initialValues)
         {
-            var row = (IRow)Activator.CreateInstance(RowType);
+            var row = (IEtlRow)Activator.CreateInstance(RowType);
             row.Init(this, process, Interlocked.Increment(ref _nextRowUid), initialValues.Values);
 
             CounterCollection.IncrementCounter("in-memory rows created", 1);
@@ -227,11 +227,7 @@
                 _exceptions.Add(ex);
             }
 
-            OnException?.Invoke(this, new ContextExceptionEventArgs()
-            {
-                Process = process,
-                Exception = ex,
-            });
+            OnException?.Invoke(process, ex);
 
             CounterCollection.IncrementCounter("exceptions", 1);
 
@@ -262,7 +258,7 @@
             return new EtlTransactionScope(this, process, kind, TransactionScopeTimeout, logSeverity);
         }
 
-        public void SetRowOwner(IRow row, IProcess currentProcess)
+        public void SetRowOwner(IEtlRow row, IProcess currentProcess)
         {
             if (row.CurrentProcess == currentProcess)
                 return;

@@ -73,7 +73,7 @@
                 throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
         }
 
-        protected override IEnumerable<IRow> Produce()
+        protected override IEnumerable<IEtlRow> Produce()
         {
             if (Transpose)
             {

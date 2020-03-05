@@ -5,7 +5,7 @@
     public class InMemoryRowCache : AbstractProducer
     {
         private bool _firstEvaluationFinished;
-        private List<IRow> _cache;
+        private List<IEtlRow> _cache;
 
         /// <summary>
         /// The process evaluates and yields the rows from the input process.
@@ -23,7 +23,7 @@
                 throw new ProcessParameterNullException(this, nameof(InputProcess));
         }
 
-        protected override IEnumerable<IRow> Produce()
+        protected override IEnumerable<IEtlRow> Produce()
         {
             if (_cache != null)
             {
@@ -47,7 +47,7 @@
             }
             else
             {
-                _cache = new List<IRow>();
+                _cache = new List<IEtlRow>();
                 var inputRows = InputProcess.Evaluate(this).TakeRowsAndReleaseOwnership();
                 foreach (var row in inputRows)
                 {

@@ -8,7 +8,7 @@
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         public NoMatchAction NoMatchAction { get; set; }
         public MatchActionDelegate MatchCustomAction { get; set; }
-        public Func<IRow, bool> MatchFilter { get; set; }
+        public Func<IReadOnlyRow, bool> MatchFilter { get; set; }
 
         /// <summary>
         /// Default null. If value is set, and <see cref="TooManyMatchAction"/> is null,
@@ -32,23 +32,23 @@
             UseBatchKeys = true;
         }
 
-        protected override string GetBatchKey(IRow row)
+        protected override string GetBatchKey(IEtlRow row)
         {
-            return GeneratorRowKey(row);
+            return GenerateRowKey(row);
         }
 
-        protected override void MutateSingleRow(IRow row, List<IRow> mutatedRows, out bool removeOriginal, out bool processed)
+        protected override void MutateSingleRow(IEtlRow row, List<IEtlRow> mutatedRows, out bool removeOriginal, out bool processed)
         {
             removeOriginal = false;
             processed = false;
         }
 
-        protected override void MutateBatch(List<IRow> rows, List<IRow> mutatedRows, List<IRow> removedRows)
+        protected override void MutateBatch(List<IEtlRow> rows, List<IEtlRow> mutatedRows, List<IEtlRow> removedRows)
         {
             var lookup = LookupBuilder.Build(this, rows.ToArray());
             foreach (var row in rows)
             {
-                var key = GeneratorRowKey(row);
+                var key = GenerateRowKey(row);
                 var removeRow = false;
                 var matches = lookup.GetManyByKey(key, MatchFilter);
                 if (MatchCountLimit != null && matches?.Count > MatchCountLimit.Value)
@@ -116,7 +116,7 @@
             lookup.Clear();
         }
 
-        private void InvokeCustomMatchAction(IRow row, IRow newRow, IRow match)
+        private void InvokeCustomMatchAction(IReadOnlyRow row, IEtlRow newRow, IReadOnlyRow match)
         {
             try
             {

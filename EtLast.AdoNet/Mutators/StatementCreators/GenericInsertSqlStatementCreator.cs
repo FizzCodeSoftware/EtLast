@@ -18,7 +18,7 @@
             _dbColumns = string.Join(", ", _columns.Select(x => x.DbColumn));
         }
 
-        public string CreateRowStatement(ConnectionStringWithProvider connectionString, IRow row, WriteToTableMutator operation)
+        public string CreateRowStatement(ConnectionStringWithProvider connectionString, IReadOnlyRow row, WriteToTableMutator operation)
         {
             var startIndex = operation.ParameterCount;
             foreach (var column in _columns)

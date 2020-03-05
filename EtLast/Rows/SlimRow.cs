@@ -7,7 +7,7 @@
     using System.Linq;
 
     [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
-    public class ValueCollection : IValueCollection
+    public class SlimRow : IEditableRow
     {
         private readonly Dictionary<string, object> _values = new Dictionary<string, object>();
         public virtual IEnumerable<KeyValuePair<string, object>> Values => _values;

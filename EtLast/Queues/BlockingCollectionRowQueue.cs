@@ -7,14 +7,14 @@
 
     public class BlockingCollectionRowQueue : IRowQueue
     {
-        private readonly BlockingCollection<IRow> _collection = new BlockingCollection<IRow>();
+        private readonly BlockingCollection<IEtlRow> _collection = new BlockingCollection<IEtlRow>();
 
-        public void AddRow(IRow row)
+        public void AddRow(IEtlRow row)
         {
             _collection.Add(row);
         }
 
-        public void AddRowNoSignal(IRow row)
+        public void AddRowNoSignal(IEtlRow row)
         {
             _collection.Add(row);
         }
@@ -28,7 +28,7 @@
             _collection.CompleteAdding();
         }
 
-        public IEnumerable<IRow> GetConsumer(CancellationToken token)
+        public IEnumerable<IEtlRow> GetConsumer(CancellationToken token)
         {
             return _collection.GetConsumingEnumerable(token);
         }

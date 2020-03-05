@@ -12,7 +12,7 @@
         {
         }
 
-        protected override IEnumerable<IRow> MutateRow(IRow row)
+        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
         {
             var columns = Columns ?? row.Values.Select(x => x.Key).ToArray();
             foreach (var column in columns)

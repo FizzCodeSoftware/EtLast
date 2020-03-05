@@ -4,9 +4,19 @@
     using System.Collections.Generic;
     using System.Threading;
 
+    public delegate void ContextOnRowValueChangedDelegate(IProcess process, IReadOnlyEtlRow row, params KeyValuePair<string, object>[] values);
+    public delegate void ContextOnRowStoreStartedDelegate(int storeUid, List<KeyValuePair<string, string>> descriptor);
+    public delegate void ContextOnRowStoredDelegate(IProcess process, IReadOnlyEtlRow row, int storeUid);
+    public delegate void ContextOnRowOwnerChangedDelegate(IReadOnlyEtlRow row, IProcess previousProcess, IProcess currentProcess);
+    public delegate void ContextOnRowCreatedDelegate(IReadOnlyEtlRow row, IProcess process);
+    public delegate void ContextOnProcessInvocationDelegate(IProcess process);
+    public delegate void ContextOnIoCommandEndDelegate(IProcess proces, int uid, int affectedDataCount, Exception ex);
+    public delegate void ContextOnCustomLogDelegate(bool forOps, string fileName, IProcess process, string text, params object[] args);
+    public delegate void ContextOnExceptionDelegate(IProcess process, Exception exception);
+
     public interface IEtlContext
     {
-        void SetRowType<T>() where T : IRow;
+        void SetRowType<T>() where T : IEtlRow;
 
         StatCounterCollection CounterCollection { get; }
         EtlContextResult Result { get; }
@@ -23,8 +33,8 @@
         void ExecuteOne(bool terminateHostOnFail, IExecutable executable);
         void ExecuteSequence(bool terminateHostOnFail, params IExecutable[] executables);
 
-        IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues);
-        IRow CreateRow(IProcess process, ValueCollection initialValues);
+        IEtlRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues);
+        IEtlRow CreateRow(IProcess process, SlimRow initialValues);
 
         void Log(string transactionId, LogSeverity severity, IProcess process, string text, params object[] args);
         void Log(LogSeverity severity, IProcess process, string text, params object[] args);
@@ -44,11 +54,11 @@
 
         int ExceptionCount { get; }
 
-        void SetRowOwner(IRow row, IProcess currentProcess);
+        void SetRowOwner(IEtlRow row, IProcess currentProcess);
 
-        EventHandler<ContextExceptionEventArgs> OnException { get; set; }
         ContextOnLogDelegate OnLog { get; set; }
         ContextOnCustomLogDelegate OnCustomLog { get; set; }
+        ContextOnExceptionDelegate OnException { get; set; }
 
         ContextOnRowCreatedDelegate OnRowCreated { get; set; }
         ContextOnRowOwnerChangedDelegate OnRowOwnerChanged { get; set; }

@@ -5,12 +5,12 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class ValueCollectionTests
+    public class SlimRowTests
     {
         [TestMethod]
         public void SingleNullColumnResultsNullKey()
         {
-            var values = new ValueCollection();
+            var values = new SlimRow();
             var result = values.GenerateKey("name");
             Assert.IsNull(result);
         }
@@ -18,7 +18,7 @@
         [TestMethod]
         public void MultipleNullColumnsResultsNonNullKey()
         {
-            var values = new ValueCollection();
+            var values = new SlimRow();
             var result = values.GenerateKey("id", "name");
             Assert.IsNotNull(result);
         }
@@ -26,7 +26,7 @@
         [TestMethod]
         public void DateTimeKeyIsInvariantWithMilliseconds()
         {
-            var values = new ValueCollection()
+            var values = new SlimRow()
             {
                 ["date"] = new DateTime(2020, 02, 20, 12, 12, 0, 666),
             };
@@ -38,7 +38,7 @@
         [TestMethod]
         public void DateTimeOffsetKeyIsInvariantWithMilliseconds()
         {
-            var values = new ValueCollection()
+            var values = new SlimRow()
             {
                 ["dto"] = new DateTimeOffset(2020, 02, 20, 12, 12, 0, 666, new TimeSpan(2, 0, 0)),
             };
@@ -50,7 +50,7 @@
         [TestMethod]
         public void TimeSpanKeyIsInvariantWithDaysAndMilliseconds()
         {
-            var values = new ValueCollection()
+            var values = new SlimRow()
             {
                 ["time"] = new TimeSpan(1, 1, 0),
             };
@@ -62,7 +62,7 @@
         [TestMethod]
         public void IntKeyIsInvariant()
         {
-            var values = new ValueCollection()
+            var values = new SlimRow()
             {
                 ["id"] = 1234567,
                 ["date"] = new DateTime(2020, 02, 20, 12, 12, 0, 666),
@@ -76,7 +76,7 @@
         [TestMethod]
         public void HasErrorFalse()
         {
-            var values = new ValueCollection()
+            var values = new SlimRow()
             {
                 ["id"] = 12,
                 ["name"] = "A",
@@ -88,7 +88,7 @@
         [TestMethod]
         public void HasErrorTrue()
         {
-            var values = new ValueCollection()
+            var values = new SlimRow()
             {
                 ["id"] = 12,
                 ["name"] = "A",
@@ -101,7 +101,7 @@
         [TestMethod]
         public void NullValuesAreNotStored()
         {
-            var values = new ValueCollection()
+            var values = new SlimRow()
             {
                 ["id"] = 12,
                 ["name"] = "A",

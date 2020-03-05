@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public delegate IEnumerable<IRow> EvaluateDelegate(IProcess caller);
+    public delegate IEnumerable<IEtlRow> EvaluateDelegate(IProcess caller);
 
     public interface IEvaluable : IExecutable
     {

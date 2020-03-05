@@ -5,15 +5,16 @@
 
     public class ContinuousGroupByOperation : AbstractContinuousAggregationOperation
     {
-        public Dictionary<string, Func<ValueCollection, int, IRow, string, object>> ColumnAggregators { get; set; } = new Dictionary<string, Func<ValueCollection, int, IRow, string, object>>();
+        public delegate object ContinuousGroupByAggregatorDelegate(SlimRow aggregate, int rowsInGroup, IReadOnlyRow row, string column);
+        public Dictionary<string, ContinuousGroupByAggregatorDelegate> ColumnAggregators { get; set; } = new Dictionary<string, ContinuousGroupByAggregatorDelegate>();
 
-        public ContinuousGroupByOperation AddColumnAggregator(string column, Func<ValueCollection, int, IRow, string, object> aggregator)
+        public ContinuousGroupByOperation AddColumnAggregator(string column, ContinuousGroupByAggregatorDelegate aggregator)
         {
             ColumnAggregators.Add(column, aggregator);
             return this;
         }
 
-        public override void TransformAggregate(IRow row, ValueCollection aggregate, int rowsInGroup)
+        public override void TransformAggregate(IReadOnlyRow row, SlimRow aggregate, int rowsInGroup)
         {
             foreach (var kvp in ColumnAggregators)
             {

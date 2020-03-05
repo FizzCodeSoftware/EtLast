@@ -11,7 +11,7 @@
         where TChannel : class
         where TClient : ClientBase<TChannel>;
 
-    public delegate IEnumerable<ValueCollection> SoapReaderClientInvokerDelegate<TChannel, TClient>(ServiceModelReaderProcess<TChannel, TClient> process, TClient client)
+    public delegate IEnumerable<SlimRow> SoapReaderClientInvokerDelegate<TChannel, TClient>(ServiceModelReaderProcess<TChannel, TClient> process, TClient client)
         where TChannel : class
         where TClient : ClientBase<TChannel>;
 
@@ -47,7 +47,7 @@
                 throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
         }
 
-        protected override IEnumerable<IRow> Produce()
+        protected override IEnumerable<IEtlRow> Produce()
         {
             var startedOn = Stopwatch.StartNew();
 
@@ -57,7 +57,7 @@
                 "sending request to {EndpointAddress}",
                 client.Endpoint.Address.ToString());
 
-            IEnumerator<ValueCollection> enumerator;
+            IEnumerator<SlimRow> enumerator;
             try
             {
                 enumerator = ClientInvoker.Invoke(this, client).GetEnumerator();

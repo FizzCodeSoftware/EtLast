@@ -64,9 +64,9 @@
 
         public void ListenToEtlEvents()
         {
-            Context.OnException = (sender, args) => LogException(args);
             Context.OnLog = Log;
             Context.OnCustomLog = LogCustom;
+            Context.OnException = LogException;
 
             if (_commandContext.HostConfiguration.DiagnosticsUri != null)
             {
@@ -221,17 +221,17 @@
             }
         }
 
-        private void LogException(ContextExceptionEventArgs args)
+        private void LogException(IProcess process, Exception exception)
         {
             var opsErrors = new List<string>();
-            GetOpsMessagesRecursive(args.Exception, opsErrors);
+            GetOpsMessagesRecursive(exception, opsErrors);
             foreach (var opsError in opsErrors)
             {
-                Log(LogSeverity.Fatal, true, false, null, args.Process, opsError);
+                Log(LogSeverity.Fatal, true, false, null, process, opsError);
             }
 
-            var msg = args.Exception.FormatExceptionWithDetails();
-            Log(LogSeverity.Fatal, false, false, null, args.Process, "{ErrorMessage}", msg);
+            var msg = exception.FormatExceptionWithDetails();
+            Log(LogSeverity.Fatal, false, false, null, process, "{ErrorMessage}", msg);
         }
 
         private void GetOpsMessagesRecursive(Exception ex, List<string> messages)
@@ -314,7 +314,7 @@
             }
         }
 
-        private void LifecycleRowCreated(IRow row, IProcess process)
+        private void LifecycleRowCreated(IReadOnlyEtlRow row, IProcess process)
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowCreated, writer =>
             {
@@ -329,7 +329,7 @@
             });
         }
 
-        private void LifecycleRowOwnerChanged(IRow row, IProcess previousProcess, IProcess currentProcess)
+        private void LifecycleRowOwnerChanged(IReadOnlyEtlRow row, IProcess previousProcess, IProcess currentProcess)
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowOwnerChanged, writer =>
             {
@@ -353,7 +353,7 @@
             });
         }
 
-        private void LifecycleRowStored(IProcess process, IRow row, int storeUid)
+        private void LifecycleRowStored(IProcess process, IReadOnlyEtlRow row, int storeUid)
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowStored, writer =>
             {
@@ -540,7 +540,7 @@
             });
         }
 
-        private void LifecycleRowValueChanged(IProcess process, IRow row, KeyValuePair<string, object>[] values)
+        private void LifecycleRowValueChanged(IProcess process, IReadOnlyEtlRow row, KeyValuePair<string, object>[] values)
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowValueChanged, writer =>
             {

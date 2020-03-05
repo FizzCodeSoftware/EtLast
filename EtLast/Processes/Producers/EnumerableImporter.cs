@@ -25,7 +25,7 @@
                 throw new ProcessParameterNullException(this, nameof(InputGenerator));
         }
 
-        protected override IEnumerable<IRow> Produce()
+        protected override IEnumerable<IEtlRow> Produce()
         {
             var inputRows = InputGenerator.Invoke(this);
 

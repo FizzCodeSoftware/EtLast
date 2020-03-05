@@ -15,7 +15,7 @@
         {
         }
 
-        protected sealed override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
+        protected sealed override IEnumerable<IEtlRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
             try
             {
@@ -29,7 +29,7 @@
                 yield break;
             }
 
-            var mutatedRows = new List<IRow>();
+            var mutatedRows = new List<IEtlRow>();
 
             netTimeStopwatch.Stop();
             var enumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
@@ -159,7 +159,7 @@
         {
         }
 
-        protected abstract IEnumerable<IRow> MutateRow(IRow row);
+        protected abstract IEnumerable<IEtlRow> MutateRow(IEtlRow row);
 
         public IEnumerator<IMutator> GetEnumerator()
         {

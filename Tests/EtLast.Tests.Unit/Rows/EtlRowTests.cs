@@ -6,7 +6,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class RowTests
+    public class EtlRowTests
     {
         [TestMethod]
         public void ToDebugStringStartsWithUid()

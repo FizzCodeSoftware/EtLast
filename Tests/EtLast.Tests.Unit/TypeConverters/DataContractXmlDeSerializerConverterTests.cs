@@ -28,7 +28,7 @@
                     {
                         RowCreator = (proc, row) =>
                         {
-                            var initialValues = new Dictionary<string, object>()
+                            var newRow = new SlimRow
                             {
                                 ["personModel"] = new PersonModel()
                                 {
@@ -39,7 +39,7 @@
                                 }
                             };
 
-                            return new IRow[] { proc.Context.CreateRow(proc, initialValues) };
+                            return new[] { newRow };
                         },
                     },
                     new DataContractXmlSerializerMutator<PersonModel>(topic, "serialize to XML byte[]")
@@ -67,7 +67,7 @@
                         RowCreator = (proc, row) =>
                         {
                             var personModel = row.GetAs<PersonModel>("personModel");
-                            var initialValues = new Dictionary<string, object>()
+                            var newRow = new SlimRow()
                             {
                                 ["id"] = personModel.Id,
                                 ["name"] = personModel.Name,
@@ -75,7 +75,7 @@
                                 ["birthDate"] = personModel.BirthDate,
                             };
 
-                            return new IRow[] { proc.Context.CreateRow(proc, initialValues) };
+                            return new[] { newRow };
                         },
                     },
                 },

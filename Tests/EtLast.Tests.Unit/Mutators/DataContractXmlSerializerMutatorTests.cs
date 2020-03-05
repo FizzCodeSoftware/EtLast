@@ -21,13 +21,13 @@
                     {
                         Columns = new[] { "birthDate" },
                         TypeConverter = new DateConverterAuto(new CultureInfo("hu-HU")),
-                         ActionIfInvalid = InvalidValueAction.Throw,
+                        ActionIfInvalid = InvalidValueAction.Throw,
                     },
                     new ExplodeMutator(topic, null)
                     {
                         RowCreator = (proc, row) =>
                         {
-                            var initialValues = new Dictionary<string, object>()
+                            var newRow = new SlimRow
                             {
                                 ["personModel"] = new TestData.PersonModel()
                                 {
@@ -38,7 +38,7 @@
                                 }
                             };
 
-                            return new IRow[] { proc.Context.CreateRow(proc, initialValues) };
+                            return new [] { newRow };
                         },
                     },
                     new DataContractXmlSerializerMutator<TestData.PersonModel>(topic, "serialize to XML byte[]")
@@ -58,7 +58,7 @@
                         RowCreator = (proc, row) =>
                         {
                             var personModel = row.GetAs<TestData.PersonModel>("personModel");
-                            var initialValues = new Dictionary<string, object>()
+                            var newRow = new SlimRow()
                             {
                                 ["id"] = personModel.Id,
                                 ["name"] = personModel.Name,
@@ -66,7 +66,7 @@
                                 ["birthDate"] = personModel.BirthDate,
                             };
 
-                            return new IRow[] { proc.Context.CreateRow(proc, initialValues) };
+                            return new[] { newRow };
                         },
                     },
                 },

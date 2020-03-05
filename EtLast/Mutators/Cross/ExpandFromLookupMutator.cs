@@ -25,7 +25,7 @@
             _lookup.Clear();
         }
 
-        protected override IEnumerable<IRow> MutateRow(IRow row)
+        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
         {
             var removeRow = false;
             var match = MatchSelector(row, _lookup);

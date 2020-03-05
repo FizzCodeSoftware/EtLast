@@ -131,7 +131,7 @@
             }
         }
 
-        private static CustomSqlAdoNetDbReader CreateAutoValidity_ExpandDeferredReaderProcess(AutoValidityRangeBuilder builder, string matchColumn, string[] valueColumns, IRow[] rows)
+        private static CustomSqlAdoNetDbReader CreateAutoValidity_ExpandDeferredReaderProcess(AutoValidityRangeBuilder builder, string matchColumn, string[] valueColumns, IReadOnlyRow[] rows)
         {
             var parameters = new Dictionary<string, object>
             {

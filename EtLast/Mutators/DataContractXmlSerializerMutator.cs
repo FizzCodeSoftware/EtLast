@@ -19,7 +19,7 @@
         {
         }
 
-        protected override IEnumerable<IRow> MutateRow(IRow row)
+        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
         {
             var sourceObject = row.GetAs<T>(ColumnConfiguration.FromColumn);
             if (sourceObject == null)

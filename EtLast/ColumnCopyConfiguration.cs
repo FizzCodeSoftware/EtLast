@@ -20,12 +20,12 @@
             ToColumn = fromColumn;
         }
 
-        public void Copy(IRow sourceRow, List<KeyValuePair<string, object>> targetValues)
+        public void Copy(IReadOnlyRow sourceRow, List<KeyValuePair<string, object>> targetValues)
         {
             targetValues.Add(new KeyValuePair<string, object>(ToColumn, sourceRow[FromColumn]));
         }
 
-        public static void CopyManyToRowStage(IRow sourceRow, IRow targetRow, List<ColumnCopyConfiguration> configurations)
+        public static void CopyManyToRowStage(IReadOnlyRow sourceRow, IEtlRow targetRow, List<ColumnCopyConfiguration> configurations)
         {
             foreach (var config in configurations)
             {
@@ -33,7 +33,7 @@
             }
         }
 
-        public static void CopyMany(IRow sourceRow, Dictionary<string, object> targetValues, List<ColumnCopyConfiguration> configurations)
+        public static void CopyMany(IReadOnlyRow sourceRow, Dictionary<string, object> targetValues, List<ColumnCopyConfiguration> configurations)
         {
             foreach (var config in configurations)
             {

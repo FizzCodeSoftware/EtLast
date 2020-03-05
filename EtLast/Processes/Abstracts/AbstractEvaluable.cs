@@ -55,7 +55,7 @@
             return new Evaluator();
         }
 
-        protected abstract IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch);
+        protected abstract IEnumerable<IEtlRow> EvaluateImpl(Stopwatch netTimeStopwatch);
         protected abstract void ValidateImpl();
 
         public void Execute(IProcess caller)

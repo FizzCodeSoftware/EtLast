@@ -8,7 +8,7 @@
         public string[] Columns { get; set; }
         public string[] ColumnsToIgnore { get; set; }
 
-        public bool Equals(IValueCollection leftRow, IValueCollection rightRow)
+        public bool Equals(IReadOnlyRow leftRow, IReadOnlyRow rightRow)
         {
             if (leftRow == rightRow)
                 return true;

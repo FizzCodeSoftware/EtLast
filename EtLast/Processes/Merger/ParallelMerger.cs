@@ -18,7 +18,7 @@
         {
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
+        protected override IEnumerable<IEtlRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
             var threads = new List<Thread>();
             var finished = new bool[ProcessList.Count];

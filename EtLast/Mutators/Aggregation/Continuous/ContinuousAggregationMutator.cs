@@ -35,7 +35,7 @@
 
         private class Aggregate
         {
-            public ValueCollection ValueCollection { get; } = new ValueCollection();
+            public SlimRow ValueCollection { get; } = new SlimRow();
             public int RowsInGroup { get; set; }
         }
 
@@ -48,7 +48,7 @@
                 throw new ProcessParameterNullException(this, nameof(Operation));
         }
 
-        protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
+        protected override IEnumerable<IEtlRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
             var aggregates = new Dictionary<string, Aggregate>();
 

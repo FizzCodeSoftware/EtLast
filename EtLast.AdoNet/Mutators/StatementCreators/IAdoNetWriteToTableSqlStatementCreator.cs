@@ -6,7 +6,7 @@
     public interface IAdoNetWriteToTableSqlStatementCreator
     {
         void Prepare(WriteToTableMutator process, DetailedDbTableDefinition tableDefinition);
-        string CreateRowStatement(ConnectionStringWithProvider connectionString, IRow row, WriteToTableMutator operation);
+        string CreateRowStatement(ConnectionStringWithProvider connectionString, IReadOnlyRow row, WriteToTableMutator operation);
         string CreateStatement(ConnectionStringWithProvider connectionString, List<string> rowStatements);
     }
 }

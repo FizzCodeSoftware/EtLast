@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    public interface IReadOnlyValueCollection
+    public interface IReadOnlyRow
     {
         object this[string column] { get; }
         IEnumerable<KeyValuePair<string, object>> Values { get; }

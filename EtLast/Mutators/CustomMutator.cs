@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    public delegate bool CustomMutatorDelegate(IEvaluable process, IRow row);
+    public delegate bool CustomMutatorDelegate(IEvaluable process, IEtlRow row);
 
     public class CustomMutator : AbstractMutator
     {
@@ -14,7 +14,7 @@
         {
         }
 
-        protected override IEnumerable<IRow> MutateRow(IRow row)
+        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
         {
             var keep = true;
             try

@@ -23,7 +23,7 @@
             _nextId = FirstId;
         }
 
-        protected override IEnumerable<IRow> MutateRow(IRow row)
+        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
         {
             row.SetValue(Column, _nextId);
             _nextId++;

@@ -1,4 +1,4 @@
 ﻿namespace FizzCode.EtLast
 {
-    public delegate IRow SelectRowFromLookupDelegate(IRow row, RowLookup lookup);
+    public delegate IReadOnlyRow SelectRowFromLookupDelegate(IReadOnlyRow row, RowLookup lookup);
 }

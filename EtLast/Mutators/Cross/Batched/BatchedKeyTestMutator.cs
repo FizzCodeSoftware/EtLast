@@ -46,14 +46,14 @@
             base.CloseMutator();
         }
 
-        protected override void MutateSingleRow(IRow row, List<IRow> mutatedRows, out bool removeOriginal, out bool processed)
+        protected override void MutateSingleRow(IEtlRow row, List<IEtlRow> mutatedRows, out bool removeOriginal, out bool processed)
         {
             removeOriginal = false;
 
             if (MatchAction != null)
             {
-                var key = GeneratorRowKey(row);
-                var matchCount = _lookup.GetRowCountByKey(key);
+                var key = GenerateRowKey(row);
+                var matchCount = _lookup.CountByKey(key);
                 if (matchCount > 0)
                 {
                     CounterCollection.IncrementCounter("served from cache", 1, true);
@@ -68,7 +68,7 @@
                             exception.Data.Add("Key", key);
                             throw exception;
                         case MatchMode.Custom:
-                            IRow match = null;
+                            IReadOnlyRow match = null;
                             if (MatchActionContainsMatch)
                             {
                                 match = (_lookup as RowLookup).GetSingleRowByKey(key);
@@ -91,16 +91,16 @@
             processed = false;
         }
 
-        protected override void MutateBatch(List<IRow> rows, List<IRow> mutatedRows, List<IRow> removedRows)
+        protected override void MutateBatch(List<IEtlRow> rows, List<IEtlRow> mutatedRows, List<IEtlRow> removedRows)
         {
             LookupBuilder.Append(_lookup, this, rows.ToArray());
 
             foreach (var row in rows)
             {
-                var key = GeneratorRowKey(row);
+                var key = GenerateRowKey(row);
 
                 var removeRow = false;
-                if (_lookup.GetRowCountByKey(key) == 0)
+                if (_lookup.CountByKey(key) == 0)
                 {
                     if (NoMatchAction != null)
                     {
@@ -131,7 +131,7 @@
                             exception2.Data.Add("Key", key);
                             throw exception2;
                         case MatchMode.Custom:
-                            IRow match = null;
+                            IReadOnlyRow match = null;
                             if (MatchActionContainsMatch)
                             {
                                 match = (_lookup as RowLookup).GetSingleRowByKey(key);

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
-    public interface IValueCollection : IReadOnlyValueCollection
+    public interface IEditableRow : IReadOnlyRow
     {
         void SetValue(string column, object newValue);
     }

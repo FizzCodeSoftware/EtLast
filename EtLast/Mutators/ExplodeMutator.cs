@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public delegate IEnumerable<IRow> ExplodeDelegate(ExplodeMutator process, IRow row);
+    public delegate IEnumerable<SlimRow> ExplodeDelegate(ExplodeMutator process, IReadOnlyRow row);
 
     public class ExplodeMutator : AbstractMutator
     {
@@ -18,7 +18,7 @@
         {
         }
 
-        protected override IEnumerable<IRow> MutateRow(IRow row)
+        protected override IEnumerable<IEtlRow> MutateRow(IEtlRow row)
         {
             if (!RemoveOriginalRow)
                 yield return row;
@@ -28,7 +28,7 @@
             {
                 foreach (var newRow in newRows)
                 {
-                    yield return newRow;
+                    yield return Context.CreateRow(this, newRow);
                 }
             }
         }

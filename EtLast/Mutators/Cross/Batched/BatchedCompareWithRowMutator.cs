@@ -20,20 +20,20 @@
             UseBatchKeys = false;
         }
 
-        protected override void MutateSingleRow(IRow row, List<IRow> mutatedRows, out bool removeOriginal, out bool processed)
+        protected override void MutateSingleRow(IEtlRow row, List<IEtlRow> mutatedRows, out bool removeOriginal, out bool processed)
         {
             removeOriginal = false;
             processed = false;
         }
 
-        protected override void MutateBatch(List<IRow> rows, List<IRow> mutatedRows, List<IRow> removedRows)
+        protected override void MutateBatch(List<IEtlRow> rows, List<IEtlRow> mutatedRows, List<IEtlRow> removedRows)
         {
             var lookup = LookupBuilder.Build(this, rows.ToArray());
             foreach (var row in rows)
             {
-                var key = GeneratorRowKey(row);
+                var key = GenerateRowKey(row);
                 var removeRow = false;
-                var matchCount = lookup.GetRowCountByKey(key);
+                var matchCount = lookup.CountByKey(key);
                 if (matchCount == 0)
                 {
                     if (NoMatchAction != null)

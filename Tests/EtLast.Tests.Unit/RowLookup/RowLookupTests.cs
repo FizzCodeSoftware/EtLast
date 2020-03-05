@@ -20,13 +20,13 @@
             builder.Append(lookup, null);
             Assert.AreEqual(7, lookup.Keys.Count());
             Assert.AreEqual(7, lookup.Count);
-            Assert.AreEqual(1, lookup.GetRowCountByKey("0"));
-            Assert.AreEqual(1, lookup.GetRowCountByKey("1"));
-            Assert.AreEqual(1, lookup.GetRowCountByKey("2"));
-            Assert.AreEqual(1, lookup.GetRowCountByKey("3"));
-            Assert.AreEqual(1, lookup.GetRowCountByKey("4"));
-            Assert.AreEqual(1, lookup.GetRowCountByKey("5"));
-            Assert.AreEqual(1, lookup.GetRowCountByKey("6"));
+            Assert.AreEqual(1, lookup.CountByKey("0"));
+            Assert.AreEqual(1, lookup.CountByKey("1"));
+            Assert.AreEqual(1, lookup.CountByKey("2"));
+            Assert.AreEqual(1, lookup.CountByKey("3"));
+            Assert.AreEqual(1, lookup.CountByKey("4"));
+            Assert.AreEqual(1, lookup.CountByKey("5"));
+            Assert.AreEqual(1, lookup.CountByKey("6"));
         }
 
         [TestMethod]
@@ -43,13 +43,13 @@
             builder.Append(lookup, null);
             Assert.AreEqual(6, lookup.Keys.Count());
             Assert.AreEqual(6, lookup.Count);
-            Assert.AreEqual(1, lookup.GetRowCountByKey("17"));
-            Assert.AreEqual(1, lookup.GetRowCountByKey("8"));
-            Assert.AreEqual(1, lookup.GetRowCountByKey("27"));
-            Assert.AreEqual(1, lookup.GetRowCountByKey("39"));
-            Assert.AreEqual(1, lookup.GetRowCountByKey("-3"));
-            Assert.AreEqual(1, lookup.GetRowCountByKey("11"));
-            Assert.AreEqual(0, lookup.GetRowCountByKey(null));
+            Assert.AreEqual(1, lookup.CountByKey("17"));
+            Assert.AreEqual(1, lookup.CountByKey("8"));
+            Assert.AreEqual(1, lookup.CountByKey("27"));
+            Assert.AreEqual(1, lookup.CountByKey("39"));
+            Assert.AreEqual(1, lookup.CountByKey("-3"));
+            Assert.AreEqual(1, lookup.CountByKey("11"));
+            Assert.AreEqual(0, lookup.CountByKey(null));
         }
 
         [TestMethod]
@@ -65,12 +65,12 @@
 
             builder.Append(lookup, null);
             Assert.AreEqual(6, lookup.Keys.Count());
-            Assert.AreEqual(2, lookup.GetRowCountByKey("A"));
-            Assert.AreEqual(1, lookup.GetRowCountByKey("B"));
-            Assert.AreEqual(1, lookup.GetRowCountByKey("C"));
-            Assert.AreEqual(1, lookup.GetRowCountByKey("D"));
-            Assert.AreEqual(1, lookup.GetRowCountByKey("E"));
-            Assert.AreEqual(1, lookup.GetRowCountByKey("fake"));
+            Assert.AreEqual(2, lookup.CountByKey("A"));
+            Assert.AreEqual(1, lookup.CountByKey("B"));
+            Assert.AreEqual(1, lookup.CountByKey("C"));
+            Assert.AreEqual(1, lookup.CountByKey("D"));
+            Assert.AreEqual(1, lookup.CountByKey("E"));
+            Assert.AreEqual(1, lookup.CountByKey("fake"));
         }
     }
 }

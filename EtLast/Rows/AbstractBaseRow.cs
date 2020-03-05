@@ -7,7 +7,7 @@
     using System.Linq;
 
     [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
-    public abstract class AbstractBaseRow : IRow
+    public abstract class AbstractBaseRow : IEtlRow
     {
         public IEtlContext Context { get; private set; }
         public IProcess CreatorProcess { get; private set; }
