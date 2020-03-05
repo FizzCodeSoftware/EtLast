@@ -82,7 +82,7 @@
                             if (!ProcessList.TryGetValue(evt.ProcessInvocationUID, out var process))
                                 continue;
 
-                            process.CreateRow(evt.RowUid);
+                            process.CreateRow();
                         }
                         break;
                     case RowOwnerChangedEvent evt:
@@ -96,7 +96,7 @@
 
                             if (newProcess != null)
                             {
-                                previousProcess.PassedRow(evt.RowUid, newProcess);
+                                previousProcess.PassedRow(evt.RowUid);
                                 newProcess.InputRow(evt.RowUid, previousProcess);
                             }
                             else
@@ -122,7 +122,7 @@
                             if (!StoreList.TryGetValue(evt.StoreUID, out var store))
                                 continue;
 
-                            process.StoreRow(evt.RowUid, store);
+                            process.StoreRow(evt.RowUid);
                             OnRowStored?.Invoke(this, store, process, evt.RowUid, evt.Values);
                             store.RowCount++;
                         }

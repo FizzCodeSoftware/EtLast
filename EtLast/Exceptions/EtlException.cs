@@ -61,7 +61,7 @@
 
             var ctorsFiltered = false;
             var currentFrameAdded = false;
-            var mainAssembyName = typeof(IEtlContext).Assembly.GetName().Name;
+            //var mainAssembyName = typeof(IEtlContext).Assembly.GetName().Name;
             var builder = new StringBuilder();
 
             foreach (var frame in frames)

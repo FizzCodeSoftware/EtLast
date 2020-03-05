@@ -85,30 +85,44 @@
 
         public void Log(LogSeverity severity, bool forOps, bool noDiag, string transactionId, IProcess process, string text, params object[] args)
         {
-            var ident = "";
-            if (process != null)
+            var sb = new StringBuilder();
+            var values = new List<object>();
+
+            if (PluginName != null)
             {
-                var p = process;
-                while (p.InvocationInfo?.Caller != null)
+                if (process != null)
                 {
-                    ident += "   ";
-                    p = p.InvocationInfo.Caller;
+                    if (process.Topic?.Name != null)
+                    {
+                        sb.Append("[{Module}/{Plugin}/{ActiveProcess}/{ActiveTopic}] ");
+                        values.Add(ModuleName);
+                        values.Add(PluginName);
+                        values.Add(process.Name);
+                        values.Add(process.Topic?.Name);
+                    }
+                    else
+                    {
+                        sb.Append("[{Module}/{Plugin}/{ActiveProcess}] ");
+                        values.Add(ModuleName);
+                        values.Add(PluginName);
+                        values.Add(process.Name);
+                    }
+                }
+                else
+                {
+                    sb.Append("[{Module}/{Plugin}] ");
+                    values.Add(ModuleName);
+                    values.Add(PluginName);
                 }
             }
 
-            var values = new List<object>();
-            if (PluginName != null)
+            if (transactionId != null)
             {
-                values.Add(ModuleName);
-                values.Add(PluginName);
+                sb.Append("/{ActiveTransaction}/ ");
+                values.Add(transactionId);
             }
 
-            if (process?.Topic?.Name != null)
-                values.Add(process.Topic.Name);
-
-            if (process != null)
-                values.Add(process.Name);
-
+            sb.Append(text);
             if (args != null)
                 values.AddRange(args);
 
@@ -116,13 +130,7 @@
                 ? _commandContext.OpsLogger
                 : _commandContext.Logger;
 
-            logger.Write(
-                (LogEventLevel)severity,
-                (PluginName != null ? "[{Module}/{Plugin}] " : "")
-                + (process?.Topic?.Name != null ? "[{ActiveTopic}] " : "")
-                + (process != null ? ident + "<{ActiveProcess}> " : "")
-                + text,
-                values.ToArray());
+            logger.Write((LogEventLevel)severity, sb.ToString(), values.ToArray());
 
             if (!noDiag && (severity >= LogSeverity.Debug) && _diagnosticsSender != null && !string.IsNullOrEmpty(text) && !forOps)
             {
@@ -390,37 +398,76 @@
         {
             if (message != null)
             {
+                var sb = new StringBuilder();
                 var values = new List<object>();
+
                 if (PluginName != null)
                 {
-                    values.Add(ModuleName);
-                    values.Add(PluginName);
+                    if (process != null)
+                    {
+                        if (process.Topic?.Name != null)
+                        {
+                            sb.Append("[{Module}/{Plugin}/{ActiveProcess}/{ActiveTopic}] ");
+                            values.Add(ModuleName);
+                            values.Add(PluginName);
+                            values.Add(process.Name);
+                            values.Add(process.Topic?.Name);
+                        }
+                        else
+                        {
+                            sb.Append("[{Module}/{Plugin}/{ActiveProcess}] ");
+                            values.Add(ModuleName);
+                            values.Add(PluginName);
+                            values.Add(process.Name);
+                        }
+                    }
+                    else
+                    {
+                        sb.Append("[{Module}/{Plugin}] ");
+                        values.Add(ModuleName);
+                        values.Add(PluginName);
+                    }
                 }
 
-                if (process?.Topic?.Name != null)
-                    values.Add(process.Topic.Name);
+                if (transactionId != null)
+                {
+                    sb.Append("/{ActiveTransaction}/ ");
+                    values.Add(transactionId);
+                }
 
-                if (process != null)
-                    values.Add(process.Name);
-
-                var text = "uid: {IoCommandUid}, " + message;
+                sb.Append("{IoCommandUid}/{IoCommandKind}");
                 values.Add(uid);
+                values.Add(kind.ToString());
 
-                if (messageArgs != null)
-                    values.AddRange(messageArgs);
+                if (target != null)
+                {
+                    sb.Append(", target: {IoCommandTarget}");
+                    values.Add(target);
+                }
 
                 if (timeoutSeconds != null)
                 {
-                    text += ", timeout: {IoCommandTimeout}";
+                    sb.Append(", timeout: {IoCommandTimeout}");
+                    values.Add(timeoutSeconds);
+                }
+
+                if (timeoutSeconds != null)
+                {
+                    sb.Append(", timeout: {IoCommandTimeout}");
                     values.Add(timeoutSeconds.Value);
                 }
 
-                _commandContext.IoLogger.Write(LogEventLevel.Verbose,
-                    (PluginName != null ? "[{Module}/{Plugin}] " : "")
-                    + (process?.Topic?.Name != null ? "[{ActiveTopic}] " : "")
-                    + (process != null ? "<{ActiveProcess}> " : "")
-                    + text,
-                    values.ToArray());
+                sb.Append(", message: ").Append(message);
+                if (messageArgs != null)
+                    values.AddRange(messageArgs);
+
+                if (command != null)
+                {
+                    sb.Append(", command: {IoCommand}");
+                    values.Add(command);
+                }
+
+                _commandContext.IoLogger.Write(LogEventLevel.Verbose, sb.ToString(), values.ToArray());
             }
 
             _diagnosticsSender?.SendDiagnostics(DiagnosticsEventKind.IoCommandStart, writer =>
@@ -453,29 +500,42 @@
         {
             if (ex != null)
             {
+                var sb = new StringBuilder();
                 var values = new List<object>();
+
                 if (PluginName != null)
                 {
-                    values.Add(ModuleName);
-                    values.Add(PluginName);
+                    if (process != null)
+                    {
+                        if (process.Topic?.Name != null)
+                        {
+                            sb.Append("[{Module}/{Plugin}/{ActiveProcess}/{ActiveTopic}] ");
+                            values.Add(ModuleName);
+                            values.Add(PluginName);
+                            values.Add(process.Name);
+                            values.Add(process.Topic?.Name);
+                        }
+                        else
+                        {
+                            sb.Append("[{Module}/{Plugin}/{ActiveProcess}] ");
+                            values.Add(ModuleName);
+                            values.Add(PluginName);
+                            values.Add(process.Name);
+                        }
+                    }
+                    else
+                    {
+                        sb.Append("[{Module}/{Plugin}] ");
+                        values.Add(ModuleName);
+                        values.Add(PluginName);
+                    }
                 }
 
-                if (process?.Topic?.Name != null)
-                    values.Add(process.Topic.Name);
-
-                if (process != null)
-                    values.Add(process.Name);
-
-                var text = " uid: {IoCommandUid}, exception: {ErrorMessage}";
+                sb.Append("{IoCommandUid}, exception: {ErrorMessage}");
                 values.Add(uid);
                 values.Add(ex.FormatExceptionWithDetails());
 
-                _commandContext.IoLogger.Write(ex == null ? LogEventLevel.Verbose : LogEventLevel.Error,
-                    (PluginName != null ? "[{Module}/{Plugin}] " : "")
-                    + (process?.Topic?.Name != null ? "[{ActiveTopic}] " : "")
-                    + (process != null ? "<{ActiveProcess}> " : "")
-                    + text,
-                    values.ToArray());
+                _commandContext.IoLogger.Write(LogEventLevel.Error, sb.ToString(), values.ToArray());
             }
 
             _diagnosticsSender?.SendDiagnostics(DiagnosticsEventKind.IoCommandEnd, writer =>

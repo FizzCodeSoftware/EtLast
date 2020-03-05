@@ -28,7 +28,7 @@
 
             if (Transaction.Current != null)
             {
-                key += Transaction.Current.TransactionInformation.CreationTime.Ticks.ToString("D", CultureInfo.InvariantCulture);
+                key += Transaction.Current.ToIdentifierString();
             }
             else
             {
@@ -48,10 +48,6 @@
                     }
 
                     var startedOn = Stopwatch.StartNew();
-
-                    process.Context.Log(Transaction.Current.ToIdentifierString(), LogSeverity.Debug, process, "opening database connection to {ConnectionStringName} ({Provider})",
-                        connectionString.Name, connectionString.GetFriendlyProviderName());
-
                     try
                     {
                         IDbConnection conn = null;
@@ -71,10 +67,21 @@
                         process.Context.CounterCollection.IncrementCounter("db connections opened - " + connectionString.Name, 1);
 
                         conn.ConnectionString = connectionString.ConnectionString;
-                        conn.Open();
 
-                        process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringName} ({Provider}) in {Elapsed}", connectionString.Name,
-                            connectionString.GetFriendlyProviderName(), startedOn.Elapsed);
+                        var iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, connectionString.Name, conn.ConnectionTimeout, "open", Transaction.Current.ToIdentifierString(), null,
+                            "opening database connection to {ConnectionStringName} ({Provider})",
+                                connectionString.Name, connectionString.GetFriendlyProviderName());
+
+                        try
+                        {
+                            conn.Open();
+                            process.Context.RegisterIoCommandSuccess(process, iocUid, 0);
+                        }
+                        catch (Exception ex)
+                        {
+                            process.Context.RegisterIoCommandFailed(process, iocUid, 0, ex);
+                            throw;
+                        }
 
                         connection = new DatabaseConnection()
                         {
@@ -155,10 +162,21 @@
                     process.Context.CounterCollection.IncrementCounter("db connections opened - " + connectionString.Name, 1);
 
                     conn.ConnectionString = connectionString.ConnectionString;
-                    conn.Open();
 
-                    process.Context.Log(LogSeverity.Debug, process, "database connection opened to {ConnectionStringName} ({Provider}) in {Elapsed}", connectionString.Name,
-                        connectionString.GetFriendlyProviderName(), startedOn.Elapsed);
+                    var iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, connectionString.Name, conn.ConnectionTimeout, "close", Transaction.Current.ToIdentifierString(), null,
+                        "opening database connection to {ConnectionStringName} ({Provider})",
+                            connectionString.Name, connectionString.GetFriendlyProviderName());
+
+                    try
+                    {
+                        conn.Open();
+                        process.Context.RegisterIoCommandSuccess(process, iocUid, 0);
+                    }
+                    catch (Exception ex)
+                    {
+                        process.Context.RegisterIoCommandFailed(process, iocUid, 0, ex);
+                        throw;
+                    }
 
                     return new DatabaseConnection()
                     {
@@ -217,13 +235,26 @@
 
                     if (connection != null)
                     {
+                        var conn = connection;
+
+                        var iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, null, null, "closing", connection.TransactionWhenCreated.ToIdentifierString(),
+                            () => new Dictionary<string, object>
+                            {
+                                ["ConnectionStringName"] = conn.ConnectionString.Name,
+                                ["Provider"] = conn.ConnectionString.ProviderName,
+                            },
+                            "closing database connection to {ConnectionStringName} ({Provider})",
+                                conn.ConnectionString.Name, conn.ConnectionString.GetFriendlyProviderName());
+
                         try
                         {
                             connection.Connection.Close();
                             connection.Connection.Dispose();
+                            process.Context.RegisterIoCommandSuccess(process, iocUid, 0);
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
+                            process.Context.RegisterIoCommandFailed(process, iocUid, 0, ex);
                         }
                     }
                 }

@@ -20,7 +20,6 @@
         public string IdentedName { get; }
 
         public string Type { get; }
-        public string ShortType { get; }
         public string Name { get; }
         public string Topic { get; }
         public ProcessKind Kind { get; }
@@ -82,7 +81,6 @@
             InvocationCounter = invocationCounter;
 
             Type = type;
-            ShortType = GetShortTypeName(type, "Process", "Mutator", "Scope");
 
             Kind = kind;
             Name = name;
@@ -202,19 +200,6 @@
             return sb.ToString();
         }
 
-        private string GetShortTypeName(string type, params string[] endings)
-        {
-            foreach (var ending in endings)
-            {
-                if (type.EndsWith(ending))
-                {
-                    return type.Substring(0, type.Length - ending.Length);
-                }
-            }
-
-            return type;
-        }
-
         public bool HasParent(TrackedProcessInvocation process)
         {
             var invoker = Invoker;
@@ -271,7 +256,7 @@
             InputRowCount++;
         }
 
-        public void CreateRow(int uid)
+        public void CreateRow()
         {
             AliveRowCount++;
             CreatedRowCount++;
@@ -294,7 +279,7 @@
             DroppedRowCount++;
         }
 
-        public void PassedRow(int uid, TrackedProcessInvocation newProcess)
+        public void PassedRow(int uid)
         {
             foreach (var list in AliveRowsByPreviousProcess)
             {
@@ -311,7 +296,7 @@
             PassedRowCount++;
         }
 
-        public void StoreRow(int uid, TrackedStore store)
+        public void StoreRow(int uid)
         {
             foreach (var list in AliveRowsByPreviousProcess)
             {

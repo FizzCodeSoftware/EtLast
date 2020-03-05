@@ -20,7 +20,7 @@
         public DwhConfiguration Configuration { get => _configuration; set => SetConfiguration(value); }
 
         public IEnumerable<SqlTable> Tables => _tables.Select(x => x.SqlTable);
-        protected readonly List<DwhTableBuilder> _tables = new List<DwhTableBuilder>();
+        private readonly List<DwhTableBuilder> _tables = new List<DwhTableBuilder>();
 
         internal DateTimeOffset? DefaultValidFromDateTime => Configuration.UseContextCreationTimeForNewRecords ? Topic.Context.CreatedOnLocal : Configuration.InfinitePastDateTime;
 

@@ -231,7 +231,7 @@
             item.SubItems.Add(process.Topic);
             item.SubItems.Add(process.IdentedName);
             item.SubItems.Add(process.KindToString());
-            item.SubItems.Add(process.ShortType);
+            item.SubItems.Add(process.Type);
             item.SubItems.Add("0").Tag = new Func<string>(() => process.GetFormattedRowFlow(Context));
             item.SubItems.Add("0");
             item.SubItems.Add("0");

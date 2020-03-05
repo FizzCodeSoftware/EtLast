@@ -120,7 +120,7 @@
 
                     item.SubItems.Add(process.Name).Tag = process;
                     item.SubItems.Add(process.KindToString());
-                    item.SubItems.Add(process.ShortType);
+                    item.SubItems.Add(process.Type);
                     item.SubItems.Add(evt.TransactionId);
                     item.SubItems.Add(evt.Kind.ToString());
                     item.SubItems.Add(evt.Location);

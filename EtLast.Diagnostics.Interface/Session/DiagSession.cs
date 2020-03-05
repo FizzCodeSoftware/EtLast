@@ -18,6 +18,7 @@
         {
             SessionId = name;
             DataFolder = dataFolder;
+            StartedOn = startedOn;
         }
     }
 }

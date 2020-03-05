@@ -79,7 +79,7 @@
             ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Process type",
-                AspectGetter = x => (x as Model)?.Process.ShortType,
+                AspectGetter = x => (x as Model)?.Process.Type,
             });
             ListView.Columns.Add(new OLVColumn()
             {
