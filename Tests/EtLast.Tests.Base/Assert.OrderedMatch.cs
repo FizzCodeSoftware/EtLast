@@ -20,14 +20,14 @@
                     var expectedValue = kvp.Value;
                     Assert.AreNotEqual(null, expectedValue, "wrong test data");
                     var value = row[kvp.Key];
-                    Assert.IsTrue(RowValueComparer.ValuesAreEqual(value, expectedValue));
+                    Assert.IsTrue(DefaultValueComparer.ValuesAreEqual(value, expectedValue));
                 }
 
                 foreach (var kvp in row.Values)
                 {
                     var expectedValue = kvp.Value;
                     referenceRow.TryGetValue(kvp.Key, out var value);
-                    Assert.IsTrue(RowValueComparer.ValuesAreEqual(value, expectedValue));
+                    Assert.IsTrue(DefaultValueComparer.ValuesAreEqual(value, expectedValue));
                 }
             }
         }

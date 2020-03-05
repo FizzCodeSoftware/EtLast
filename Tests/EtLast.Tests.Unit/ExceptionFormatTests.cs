@@ -9,16 +9,6 @@
     public class ExceptionFormatTests
     {
         [TestMethod]
-        public void RowToDebugStringStartsWithUid()
-        {
-            var topic = TestExecuter.GetTopic();
-            var row = topic.Context.CreateRow(null, new ValueCollection());
-
-            var debugString = row.ToDebugString();
-            Assert.IsTrue(debugString.StartsWith("uid", StringComparison.InvariantCultureIgnoreCase));
-        }
-
-        [TestMethod]
         public void DummyForDevelopment1()
         {
             var topic = TestExecuter.GetTopic();

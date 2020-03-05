@@ -5,6 +5,11 @@
 
     public static class TestExecuter
     {
+        public static IEtlContext GetContext()
+        {
+            return new EtlContext();
+        }
+
         public static ITopic GetTopic()
         {
             return new Topic("test", new EtlContext());

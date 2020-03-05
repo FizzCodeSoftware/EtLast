@@ -25,7 +25,7 @@
         {
             _lookup = MatchActionContainsMatch
                 ? (ICountableLookup)new RowLookup()
-                : new CountableOnlyLookup();
+                : new CountableOnlyRowLookup();
 
             LookupBuilder.Append(_lookup, this);
         }

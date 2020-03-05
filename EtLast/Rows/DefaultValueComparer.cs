@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
-    public static class RowValueComparer
+    public static class DefaultValueComparer
     {
         public static bool ValuesAreEqual(object leftValue, object rightValue)
         {

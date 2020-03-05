@@ -451,12 +451,6 @@
                     values.Add(timeoutSeconds);
                 }
 
-                if (timeoutSeconds != null)
-                {
-                    sb.Append(", timeout: {IoCommandTimeout}");
-                    values.Add(timeoutSeconds.Value);
-                }
-
                 sb.Append(", message: ").Append(message);
                 if (messageArgs != null)
                     values.AddRange(messageArgs);

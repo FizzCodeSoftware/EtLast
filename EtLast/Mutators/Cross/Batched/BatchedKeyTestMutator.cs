@@ -34,7 +34,7 @@
         {
             _lookup = MatchActionContainsMatch
                 ? (ICountableLookup)new RowLookup()
-                : new CountableOnlyLookup();
+                : new CountableOnlyRowLookup();
 
             base.StartMutator();
         }

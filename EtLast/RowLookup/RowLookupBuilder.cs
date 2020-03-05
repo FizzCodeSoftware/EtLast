@@ -34,13 +34,10 @@
                     throw exception;
                 }
 
-                if (string.IsNullOrEmpty(key))
-                    continue;
-
                 lookup.AddRow(key, row);
             }
 
-            caller.Context.Log(LogSeverity.Debug, caller, "fetched {RowCount} rows, lookup size is {LookupSize}",
+            caller?.Context.Log(LogSeverity.Debug, caller, "fetched {RowCount} rows, lookup size is {LookupSize}",
                 rowCount, lookup.Count);
         }
     }

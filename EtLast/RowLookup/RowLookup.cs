@@ -7,10 +7,15 @@
     public class RowLookup : ICountableLookup
     {
         public int Count { get; private set; }
+        public IEnumerable<string> Keys => _dictionary.Keys;
+
         private readonly Dictionary<string, object> _dictionary = new Dictionary<string, object>();
 
         public void AddRow(string key, IRow row)
         {
+            if (string.IsNullOrEmpty(key))
+                return;
+
             Count++;
             if (_dictionary.TryGetValue(key, out var entry))
             {

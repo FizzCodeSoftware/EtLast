@@ -76,7 +76,7 @@
             if (currentValue == null && value == null)
                 return false;
 
-            return RowValueComparer.ValuesAreEqual(currentValue, value);
+            return DefaultValueComparer.ValuesAreEqual(currentValue, value);
         }
 
         public bool IsNull(string column)
@@ -115,22 +115,20 @@
 
         public string FormatToString(string column, IFormatProvider formatProvider = null)
         {
-            var v = GetValueImpl(column);
-            if (v == null)
-                return null;
-
-            if (v is string str)
-                return str;
-
-            if (v is IFormattable fmt)
-                return fmt.ToString(null, CultureInfo.InvariantCulture);
-
-            return v.ToString();
+            var value = GetValueImpl(column);
+            return DefaultValueFormatter.Format(value);
         }
 
         public void SetValue(string column, object newValue)
         {
-            _values[column] = newValue;
+            if (newValue != null)
+            {
+                _values[column] = newValue;
+            }
+            else
+            {
+                _values.Remove(column);
+            }
         }
 
         public bool HasError()

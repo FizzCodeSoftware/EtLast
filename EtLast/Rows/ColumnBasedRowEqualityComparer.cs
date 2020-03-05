@@ -23,7 +23,7 @@
 
                 foreach (var column in Columns)
                 {
-                    if (!RowValueComparer.ValuesAreEqual(leftRow[column], rightRow[column]))
+                    if (!DefaultValueComparer.ValuesAreEqual(leftRow[column], rightRow[column]))
                         return false;
                 }
             }
@@ -38,7 +38,7 @@
                     if (columnsToIgnore?.Contains(kvp.Key) == true)
                         continue;
 
-                    if (!RowValueComparer.ValuesAreEqual(kvp.Value, rightRow[kvp.Key]))
+                    if (!DefaultValueComparer.ValuesAreEqual(kvp.Value, rightRow[kvp.Key]))
                         return false;
                 }
 
@@ -47,7 +47,7 @@
                     if (columnsToIgnore?.Contains(kvp.Key) == true)
                         continue;
 
-                    if (!RowValueComparer.ValuesAreEqual(kvp.Value, leftRow[kvp.Key]))
+                    if (!DefaultValueComparer.ValuesAreEqual(kvp.Value, leftRow[kvp.Key]))
                         return false;
                 }
             }

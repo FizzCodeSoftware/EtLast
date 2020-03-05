@@ -2,13 +2,18 @@
 {
     using System.Collections.Generic;
 
-    public class CountableOnlyLookup : ICountableLookup
+    public class CountableOnlyRowLookup : ICountableLookup
     {
         public int Count { get; private set; }
+        public IEnumerable<string> Keys => _dictionary.Keys;
+
         private readonly Dictionary<string, int> _dictionary = new Dictionary<string, int>();
 
         public void AddRow(string key, IRow row)
         {
+            if (string.IsNullOrEmpty(key))
+                return;
+
             Count++;
             _dictionary.TryGetValue(key, out var count);
             _dictionary[key] = count + 1;
