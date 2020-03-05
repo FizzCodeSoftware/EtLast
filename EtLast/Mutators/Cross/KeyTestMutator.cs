@@ -106,7 +106,7 @@
                 throw new InvalidProcessParameterException(this, nameof(MatchAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must use a different action moode: " + nameof(MatchAction) + " or " + nameof(NoMatchAction));
         }
 
-        private string GenerateRowKey(IReadOnlySlimRow row)
+        private string GenerateRowKey(IReadOnlyRow row)
         {
             try
             {

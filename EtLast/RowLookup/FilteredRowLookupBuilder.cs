@@ -7,7 +7,7 @@
     public class FilteredRowLookupBuilder
     {
         public ProcessCreatorForRowLookupBuilderDelegate ProcessCreator { get; set; }
-        public RowKeyGenerator KeyGenerator { get; set; }
+        public LookupRowKeyGenerator KeyGenerator { get; set; }
 
         public RowLookup Build(IProcess caller, IReadOnlySlimRow[] filterRows)
         {

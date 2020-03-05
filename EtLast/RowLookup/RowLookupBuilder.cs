@@ -5,7 +5,7 @@
     public class RowLookupBuilder
     {
         public IEvaluable Process { get; set; }
-        public RowKeyGenerator KeyGenerator { get; set; }
+        public LookupRowKeyGenerator KeyGenerator { get; set; }
 
         public RowLookup Build(IProcess caller)
         {

@@ -1,4 +1,4 @@
 ﻿namespace FizzCode.EtLast
 {
-    public delegate string RowKeyGenerator(IReadOnlySlimRow row);
+    public delegate string RowKeyGenerator(IReadOnlyRow row);
 }

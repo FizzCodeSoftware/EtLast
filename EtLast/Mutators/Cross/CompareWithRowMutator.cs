@@ -118,7 +118,7 @@
                 throw new ProcessParameterNullException(this, nameof(EqualityComparer));
         }
 
-        private string GenerateRowKey(IReadOnlySlimRow row)
+        private string GenerateRowKey(IReadOnlyRow row)
         {
             try
             {
