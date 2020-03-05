@@ -5,7 +5,7 @@
     public class InMemoryRowCache : AbstractProducer
     {
         private bool _firstEvaluationFinished;
-        private List<IRow> _cache;
+        private List<IReadOnlySlimRow> _cache;
 
         /// <summary>
         /// The process evaluates and yields the rows from the input process.
@@ -47,7 +47,7 @@
             }
             else
             {
-                _cache = new List<IRow>();
+                _cache = new List<IReadOnlySlimRow>();
                 var inputRows = InputProcess.Evaluate(this).TakeRowsAndReleaseOwnership();
                 foreach (var row in inputRows)
                 {

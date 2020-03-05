@@ -31,7 +31,7 @@
                 _process.Context.RegisterProcessInvocationEnd(_process);
         }
 
-        public IEnumerable<IRow> TakeRowsAndReleaseOwnership()
+        public IEnumerable<ISlimRow> TakeRowsAndReleaseOwnership()
         {
             foreach (var row in _input)
             {

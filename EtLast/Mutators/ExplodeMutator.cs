@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public delegate IEnumerable<SlimRow> ExplodeDelegate(ExplodeMutator process, IReadOnlySlimRow row);
+    public delegate IEnumerable<ISlimRow> ExplodeDelegate(ExplodeMutator process, IReadOnlySlimRow row);
 
     public class ExplodeMutator : AbstractMutator
     {

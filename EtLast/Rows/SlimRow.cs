@@ -7,11 +7,21 @@
     using System.Linq;
 
     [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
-    public class SlimRow : IEditableRow, IReadOnlySlimRow
+    public class SlimRow : ISlimRow
     {
-        private readonly Dictionary<string, object> _values = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> _values;
         public virtual IEnumerable<KeyValuePair<string, object>> Values => _values;
         public int ColumnCount => _values.Count;
+
+        public SlimRow()
+        {
+            _values = new Dictionary<string, object>();
+        }
+
+        public SlimRow(IEnumerable<KeyValuePair<string, object>> initialValues)
+        {
+            _values = new Dictionary<string, object>(initialValues);
+        }
 
         public object this[string column]
         {

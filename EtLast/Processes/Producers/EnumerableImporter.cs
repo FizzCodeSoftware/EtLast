@@ -3,9 +3,11 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    public delegate IEnumerable<IReadOnlySlimRow> EnumerableImporterDelegate(IProcess process);
+
     public class EnumerableImporter : AbstractProducer
     {
-        public EvaluateDelegate InputGenerator { get; set; }
+        public EnumerableImporterDelegate InputGenerator { get; set; }
         public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
         public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
 

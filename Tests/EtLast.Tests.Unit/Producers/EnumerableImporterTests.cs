@@ -8,23 +8,6 @@
     public class EnumerableImporterTests
     {
         [TestMethod]
-        public void RowCreatorIsCorrect()
-        {
-            var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = new EnumerableImporter(topic, null)
-                {
-                    InputGenerator = caller => TestData.Person(topic).Evaluate(caller).TakeRowsAndReleaseOwnership(),
-                },
-                Mutators = new MutatorList(),
-            };
-
-            var result = TestExecuter.Execute(builder);
-            Assert.IsTrue(result.MutatedRows.TrueForAll(x => x.CreatorProcess == result.Process));
-        }
-
-        [TestMethod]
         public void FullCopy()
         {
             var topic = TestExecuter.GetTopic();

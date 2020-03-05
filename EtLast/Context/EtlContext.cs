@@ -192,7 +192,7 @@
             return row;
         }
 
-        public IRow CreateRow(IProcess process, SlimRow initialValues)
+        public IRow CreateRow(IProcess process, IReadOnlySlimRow initialValues)
         {
             var row = (IRow)Activator.CreateInstance(RowType);
             row.Init(this, process, Interlocked.Increment(ref _nextRowUid), initialValues.Values);

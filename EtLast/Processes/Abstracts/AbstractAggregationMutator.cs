@@ -17,7 +17,7 @@
         {
         }
 
-        protected string GetKey(IRow row)
+        protected string GetKey(IReadOnlySlimRow row)
         {
             if (GroupingColumns.Count == 1)
             {
