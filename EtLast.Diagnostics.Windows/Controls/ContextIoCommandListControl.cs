@@ -124,7 +124,7 @@
                     item.SubItems.Add(evt.TransactionId);
                     item.SubItems.Add(evt.Kind.ToString());
                     item.SubItems.Add(evt.Location);
-                    item.SubItems.Add(evt.Command
+                    item.SubItems.Add(evt.Command?
                         .Trim()
                         .Replace("\n", " ", StringComparison.InvariantCultureIgnoreCase)
                         .Replace("\t", " ", StringComparison.InvariantCultureIgnoreCase)

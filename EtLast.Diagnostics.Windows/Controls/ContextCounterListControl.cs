@@ -54,12 +54,7 @@
                     {
                         foundInList.Add(counter.Name);
                         if (item.SubItems[0].Text != counter.ValueToString)
-                        {
                             changed = true;
-                            break;
-                        }
-
-                        changed = false;
                     }
                 }
 

@@ -217,7 +217,7 @@
             }
             finally
             {
-                _counterSenderTimer?.Change(500, Timeout.Infinite);
+                _counterSenderTimer?.Change(2000, Timeout.Infinite);
             }
         }
 
@@ -601,7 +601,7 @@
                 _counterSenderTimer = new Timer(timer =>
                 {
                     SendContextCountersToDiagnostics();
-                }, null, 500, Timeout.Infinite);
+                }, null, 2000, Timeout.Infinite);
             }
         }
 

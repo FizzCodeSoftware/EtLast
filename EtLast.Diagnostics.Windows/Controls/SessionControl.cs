@@ -45,7 +45,7 @@
 
                 var logManager = new LogListControl(logContainer, diagnosticsStateManager, Session);
 
-                var ioCommandContainer = new TabPage("I/O COMMANDS")
+                var ioCommandContainer = new TabPage("I/O")
                 {
                     BorderStyle = BorderStyle.None,
                 };
@@ -75,7 +75,7 @@
 
         private void OnLogDoubleClicked(LogModel logModel)
         {
-            if (_contextContainerManagers.TryGetValue(logModel.Playbook.DiagContext.Name, out var contextManager))
+            if (logModel.Process != null && _contextContainerManagers.TryGetValue(logModel.Playbook.DiagContext.Name, out var contextManager))
             {
                 contextManager.ProcessInvocationList.SelectProcess(logModel.Process);
                 _tabs.SelectedTab = contextManager.Container as TabPage;
@@ -84,7 +84,7 @@
 
         private void OnIoCommandDoubleClicked(IoCommandModel ioCommandModel)
         {
-            if (_contextContainerManagers.TryGetValue(ioCommandModel.Playbook.DiagContext.Name, out var contextManager))
+            if (ioCommandModel.Process != null && _contextContainerManagers.TryGetValue(ioCommandModel.Playbook.DiagContext.Name, out var contextManager))
             {
                 contextManager.ProcessInvocationList.SelectProcess(ioCommandModel.Process);
                 _tabs.SelectedTab = contextManager.Container as TabPage;
@@ -94,6 +94,9 @@
         private void OnDiagContextCreated(AbstractDiagContext diagContext)
         {
             if (_contextContainerManagers.ContainsKey(diagContext.Name))
+                return;
+
+            if (diagContext.Name == "session")
                 return;
 
             var contextContainer = new TabPage(diagContext.Name)
