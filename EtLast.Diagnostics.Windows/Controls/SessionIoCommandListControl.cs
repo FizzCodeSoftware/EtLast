@@ -22,6 +22,7 @@
         public Timer AutoSizeTimer { get; }
         public CheckBox ShowDbTransactionKind { get; }
         public CheckBox ShowDbConnectionKind { get; }
+        public CheckBox HideVeryFast { get; }
         public IoCommandActionDelegate OnIoCommandDoubleClicked { get; set; }
 
         private bool _newData;
@@ -44,8 +45,8 @@
             ShowDbTransactionKind = new CheckBox()
             {
                 Parent = container,
-                Bounds = new Rectangle(SearchBox.Right + 20, SearchBox.Top, 200, SearchBox.Height),
-                Text = "DB Transactions",
+                Bounds = new Rectangle(SearchBox.Right + 20, SearchBox.Top, 130, SearchBox.Height),
+                Text = "DB transactions",
                 CheckAlign = ContentAlignment.MiddleLeft,
             };
 
@@ -54,12 +55,23 @@
             ShowDbConnectionKind = new CheckBox()
             {
                 Parent = container,
-                Bounds = new Rectangle(ShowDbTransactionKind.Right + 20, SearchBox.Top, 200, SearchBox.Height),
+                Bounds = new Rectangle(ShowDbTransactionKind.Right + 20, SearchBox.Top, 130, SearchBox.Height),
                 Text = "DB connections",
                 CheckAlign = ContentAlignment.MiddleLeft,
             };
 
             ShowDbConnectionKind.CheckedChanged += (s, a) => RefreshItems();
+
+            HideVeryFast = new CheckBox()
+            {
+                Parent = container,
+                Bounds = new Rectangle(ShowDbConnectionKind.Right + 20, SearchBox.Top, 130, SearchBox.Height),
+                Text = "Hide very fast",
+                CheckAlign = ContentAlignment.MiddleLeft,
+                Checked = true,
+            };
+
+            HideVeryFast.CheckedChanged += (s, a) => RefreshItems();
 
             ListView = ListViewHelpers.CreateListView(container);
             ListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
@@ -116,18 +128,24 @@
             {
                 Text = "Timeout",
                 AspectGetter = x => (x as IoCommandModel)?.StartEvent.TimeoutSeconds,
+                TextAlign = HorizontalAlignment.Right,
+                HeaderTextAlign = HorizontalAlignment.Right,
             });
             ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Elapsed",
-                AspectGetter = x => (x as IoCommandModel)?.EndEvent == null ? (TimeSpan?)null : new TimeSpan((x as IoCommandModel).EndEvent.Timestamp - (x as IoCommandModel).StartEvent.Timestamp),
-                AspectToStringConverter = x => x is TimeSpan ts ? FormattingHelpers.TimeSpanToString(ts) : null,
+                AspectGetter = x => (x as IoCommandModel)?.Elapsed,
+                AspectToStringConverter = x => x is TimeSpan ts ? FormattingHelpers.RightAlignedTimeSpanToString(ts) : null,
+                TextAlign = HorizontalAlignment.Right,
+                HeaderTextAlign = HorizontalAlignment.Right,
             });
             ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Affected data",
                 AspectGetter = x => (x as IoCommandModel)?.EndEvent?.AffectedDataCount,
                 AspectToStringConverter = x => x is int dc ? dc.FormatToString() : null,
+                TextAlign = HorizontalAlignment.Right,
+                HeaderTextAlign = HorizontalAlignment.Right,
             });
             ListView.Columns.Add(new OLVColumn()
             {
@@ -172,13 +190,14 @@
 
         private bool ItemVisible(IoCommandModel item)
         {
-#pragma warning disable RCS1073 // Convert 'if' to 'return' statement.
             if (item.StartEvent.Kind == IoCommandKind.dbTransaction && !ShowDbTransactionKind.Checked)
                 return false;
 
             if (item.StartEvent.Kind == IoCommandKind.dbConnection && !ShowDbConnectionKind.Checked)
                 return false;
-#pragma warning restore RCS1073 // Convert 'if' to 'return' statement.
+
+            if (item.Elapsed?.TotalMilliseconds < 100 && HideVeryFast.Checked)
+                return false;
 
             return true;
         }
@@ -274,6 +293,7 @@
                         if (itemListByContext.TryGetValue(endEvent.Uid, out var item))
                         {
                             item.EndEvent = endEvent;
+                            item.Elapsed = new TimeSpan(endEvent.Timestamp - item.StartEvent.Timestamp);
                             //ListView.RefreshObject(item);
                         }
                     }
@@ -296,6 +316,7 @@
         public TrackedProcessInvocation Process { get; set; }
         public IoCommandStartEvent StartEvent { get; set; }
         public IoCommandEndEvent EndEvent { get; set; }
+        public TimeSpan? Elapsed { get; set; }
         public string CommandPreview { get; set; }
         public string ArgumentsPreview { get; set; }
     }

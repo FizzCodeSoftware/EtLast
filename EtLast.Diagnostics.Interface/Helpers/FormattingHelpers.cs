@@ -34,6 +34,33 @@
             }
         }
 
+        public static string RightAlignedTimeSpanToString(TimeSpan? value, bool detailedMilliseconds = true)
+        {
+            if (value == null)
+                return null;
+
+            if (value.Value.Days > 0)
+            {
+                return value.Value.ToString(@"d\.hh\:mm\:ss\.f" + (detailedMilliseconds ? "ff" : ""), CultureInfo.InvariantCulture);
+            }
+            else if (value.Value.Hours > 0)
+            {
+                return value.Value.ToString(@"h\:mm\:ss\.f" + (detailedMilliseconds ? "ff" : ""), CultureInfo.InvariantCulture);
+            }
+            else if (value.Value.Minutes > 0)
+            {
+                return value.Value.ToString(@"m\:ss\.f" + (detailedMilliseconds ? "ff" : ""), CultureInfo.InvariantCulture);
+            }
+            else if (value.Value.Seconds > 0)
+            {
+                return value.Value.ToString(@"s\.f" + (detailedMilliseconds ? "ff" : ""), CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                return value.Value.ToString(@"\.f" + (detailedMilliseconds ? "ff" : ""), CultureInfo.InvariantCulture);
+            }
+        }
+
         public static string ToDisplayValue(object value)
         {
             if (value == null)

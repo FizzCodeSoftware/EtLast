@@ -115,9 +115,9 @@
                 return null;
 
             if (InputRowCountByPreviousProcess.Count == 1)
-                return InputRowCount.ToString("D", CultureInfo.InvariantCulture);
+                return InputRowCount.FormatToString();
 
-            return InputRowCount.ToString("D", CultureInfo.InvariantCulture) + " = " +
+            return InputRowCount.FormatToString() + " = " +
                 string.Join(" + ", InputRowCountByPreviousProcess.Where(x => x.Value > 0).Select(x => x.Value.FormatToString()));
         }
 
