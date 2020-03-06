@@ -70,11 +70,11 @@
             try
             {
                 command.ExecuteNonQuery();
-                Context.RegisterIoCommandSuccess(this, iocUid, 0);
+                Context.RegisterIoCommandSuccess(this, iocUid, null);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "failed to copy table structure", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to copy table structure, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message: {4}, command: {5}, timeout: {6}",

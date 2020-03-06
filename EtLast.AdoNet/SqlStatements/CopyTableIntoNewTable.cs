@@ -67,7 +67,7 @@
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "database table creation and copy failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table creation and copy failed, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message: {4}, command: {5}, timeout: {6}",

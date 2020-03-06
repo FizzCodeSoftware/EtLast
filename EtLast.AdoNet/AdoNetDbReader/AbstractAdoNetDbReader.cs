@@ -101,7 +101,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                    Context.RegisterIoCommandFailed(this, iocUid, null, ex);
 
                     var exception = new ProcessExecutionException(this, "error while executing query", ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query, message: {0}, connection string key: {1}, SQL statement: {2}",

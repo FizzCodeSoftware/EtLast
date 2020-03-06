@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast
 {
-    using System;
-    using System.Collections.Generic;
-
     public enum IoCommandKind
     {
         fileRead = 0,
@@ -17,7 +14,7 @@
         dbBulkWrite = 9,
         dbTransaction = 10,
         dbConnection = 11,
+        streamRead = 12,
+        streamWrite = 13,
     }
-
-    public delegate void ContextOnIoCommandStartDelegate(int uid, IoCommandKind kind, string target, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs);
 }

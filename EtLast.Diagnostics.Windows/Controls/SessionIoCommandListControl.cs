@@ -9,6 +9,8 @@
     using BrightIdeasSoftware;
     using FizzCode.EtLast.Diagnostics.Interface;
 
+    internal delegate void IoCommandActionDelegate(IoCommandModel ioCommandModel);
+
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
     internal class SessionIoCommandListControl
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
@@ -19,9 +21,11 @@
         public TextBox SearchBox { get; }
         public Timer AutoSizeTimer { get; }
         public CheckBox ShowTransactionKind { get; }
+        public IoCommandActionDelegate OnIoCommandDoubleClicked { get; set; }
+
         private bool _newData;
-        private readonly List<Model> AllItems = new List<Model>();
-        private readonly Dictionary<string, Dictionary<int, Model>> ItemByUid = new Dictionary<string, Dictionary<int, Model>>();
+        private readonly List<IoCommandModel> _allItems = new List<IoCommandModel>();
+        private readonly Dictionary<string, Dictionary<int, IoCommandModel>> ItemByUid = new Dictionary<string, Dictionary<int, IoCommandModel>>();
 
         public SessionIoCommandListControl(Control container, DiagnosticsStateManager diagnosticsStateManager, DiagSession session)
         {
@@ -49,84 +53,85 @@
             ListView = ListViewHelpers.CreateListView(container);
             ListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
             ListView.Bounds = new Rectangle(Container.ClientRectangle.Left, Container.ClientRectangle.Top + 40, Container.ClientRectangle.Width, Container.ClientRectangle.Height - 40);
+            ListView.ItemActivate += ListView_ItemActivate;
 
             ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Timestamp",
-                AspectGetter = x => (x as Model)?.Timestamp,
+                AspectGetter = x => (x as IoCommandModel)?.Timestamp,
                 AspectToStringConverter = x => ((DateTime)x).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture),
             });
             ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Context",
-                AspectGetter = x => (x as Model)?.Playbook.DiagContext.Name,
-            });
-            ListView.Columns.Add(new OLVColumn()
-            {
-                Text = "Topic",
-                AspectGetter = x => (x as Model)?.Process.Topic,
+                AspectGetter = x => (x as IoCommandModel)?.Playbook.DiagContext.Name,
             });
             ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Process",
-                AspectGetter = x => (x as Model)?.Process.Name,
+                AspectGetter = x => (x as IoCommandModel)?.Process.Name,
             });
             ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Kind",
-                AspectGetter = x => (x as Model)?.Process.KindToString(),
+                AspectGetter = x => (x as IoCommandModel)?.Process.KindToString(),
             });
             ListView.Columns.Add(new OLVColumn()
             {
-                Text = "Process type",
-                AspectGetter = x => (x as Model)?.Process.Type,
+                Text = "Type",
+                AspectGetter = x => (x as IoCommandModel)?.Process.Type,
+            });
+            ListView.Columns.Add(new OLVColumn()
+            {
+                Text = "Topic",
+                AspectGetter = x => (x as IoCommandModel)?.Process.Topic,
             });
             ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Transaction",
-                AspectGetter = x => (x as Model)?.StartEvent.TransactionId,
+                AspectGetter = x => (x as IoCommandModel)?.StartEvent.TransactionId,
             });
             ListView.Columns.Add(new OLVColumn()
             {
-                Text = "Comm. kind",
-                AspectGetter = x => (x as Model)?.StartEvent.Kind.ToString(),
+                Text = "Command kind",
+                AspectGetter = x => (x as IoCommandModel)?.StartEvent.Kind.ToString(),
             });
             ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Target",
-                AspectGetter = x => (x as Model)?.StartEvent.Location,
+                AspectGetter = x => (x as IoCommandModel)?.StartEvent.Location,
             });
             ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Timeout",
-                AspectGetter = x => (x as Model)?.StartEvent.TimeoutSeconds,
+                AspectGetter = x => (x as IoCommandModel)?.StartEvent.TimeoutSeconds,
             });
             ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Elapsed",
-                AspectGetter = x => (x as Model)?.EndEvent == null ? (TimeSpan?)null : new TimeSpan((x as Model).EndEvent.Timestamp - (x as Model).StartEvent.Timestamp),
+                AspectGetter = x => (x as IoCommandModel)?.EndEvent == null ? (TimeSpan?)null : new TimeSpan((x as IoCommandModel).EndEvent.Timestamp - (x as IoCommandModel).StartEvent.Timestamp),
                 AspectToStringConverter = x => x is TimeSpan ts ? FormattingHelpers.TimeSpanToString(ts) : null,
             });
             ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Affected data",
-                AspectGetter = x => (x as Model)?.EndEvent?.AffectedDataCount,
-                AspectToStringConverter = x => x is int dc ? dc.FormatToStringNoZero() : null,
+                AspectGetter = x => (x as IoCommandModel)?.EndEvent?.AffectedDataCount,
+                AspectToStringConverter = x => x is int dc ? dc.FormatToString() : null,
             });
             ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Error",
-                AspectGetter = x => (x as Model)?.EndEvent?.ErrorMessage,
+                AspectGetter = x => (x as IoCommandModel)?.EndEvent?.ErrorMessage,
             });
             ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Arguments",
-                AspectGetter = x => (x as Model)?.ArgumentsPreview,
+                AspectGetter = x => (x as IoCommandModel)?.ArgumentsPreview,
             });
             ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Command",
-                AspectGetter = x => (x as Model)?.CommandPreview,
+                AspectGetter = x => (x as IoCommandModel)?.CommandPreview,
             });
 
             AutoSizeTimer = new Timer()
@@ -146,7 +151,15 @@
             };
         }
 
-        private bool ItemVisible(Model item)
+        private void ListView_ItemActivate(object sender, EventArgs e)
+        {
+            if (ListView.GetItem(ListView.SelectedIndex).RowObject is IoCommandModel item)
+            {
+                OnIoCommandDoubleClicked?.Invoke(item);
+            }
+        }
+
+        private bool ItemVisible(IoCommandModel item)
         {
 #pragma warning disable RCS1073 // Convert 'if' to 'return' statement.
             if (item.StartEvent.Kind == IoCommandKind.dbTransaction && !ShowTransactionKind.Checked)
@@ -158,7 +171,7 @@
 
         private void RefreshItems()
         {
-            ListView.SetObjects(AllItems.Where(ItemVisible));
+            ListView.SetObjects(_allItems.Where(ItemVisible).OrderBy(x => x.Timestamp));
         }
 
         private void AutoSizeTimer_Tick(object sender, EventArgs e)
@@ -198,84 +211,78 @@
 
         private void OnEventsAdded(Playbook playbook, List<AbstractEvent> abstractEvents)
         {
-            var eventsQuery = abstractEvents.OfType<IoCommandEvent>();
-
-            var events = eventsQuery.ToList();
+            var events = abstractEvents.OfType<IoCommandEvent>().ToList();
             if (events.Count == 0)
                 return;
 
-            ListView.BeginUpdate();
-            try
+            var newItems = new List<IoCommandModel>();
+
+            foreach (var evt in events)
             {
-                var newItems = new List<Model>();
-
-                foreach (var evt in events)
+                if (evt is IoCommandStartEvent startEvent)
                 {
-                    if (evt is IoCommandStartEvent startEvent)
+                    var item = new IoCommandModel()
                     {
-                        var item = new Model()
-                        {
-                            Timestamp = new DateTime(evt.Timestamp),
-                            Playbook = playbook,
-                            StartEvent = startEvent,
-                            Process = playbook.DiagContext.WholePlaybook.ProcessList[startEvent.ProcessInvocationUid],
-                            CommandPreview = startEvent.Command?
-                                .Trim()
-                                .Replace("\n", " ", StringComparison.InvariantCultureIgnoreCase)
-                                .Replace("\t", " ", StringComparison.InvariantCultureIgnoreCase)
-                                .Replace("  ", " ", StringComparison.InvariantCultureIgnoreCase)
-                                .Trim()
-                                .MaxLengthWithEllipsis(300),
-                            ArgumentsPreview = startEvent.Arguments != null
-                                ? string.Join(",", startEvent.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Key + "=" + FormattingHelpers.ToDisplayValue(x.Value)))
-                                : null,
-                        };
+                        Timestamp = new DateTime(evt.Timestamp),
+                        Playbook = playbook,
+                        StartEvent = startEvent,
+                        Process = playbook.DiagContext.WholePlaybook.ProcessList[startEvent.ProcessInvocationUid],
+                        CommandPreview = startEvent.Command?
+                            .Trim()
+                            .Replace("\n", " ", StringComparison.InvariantCultureIgnoreCase)
+                            .Replace("\t", " ", StringComparison.InvariantCultureIgnoreCase)
+                            .Replace("  ", " ", StringComparison.InvariantCultureIgnoreCase)
+                            .Trim()
+                            .MaxLengthWithEllipsis(300),
+                        ArgumentsPreview = startEvent.Arguments != null
+                            ? string.Join(",", startEvent.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Key + "=" + FormattingHelpers.ToDisplayValue(x.Value)))
+                            : null,
+                    };
 
-                        AllItems.Add(item);
+                    _allItems.Add(item);
 
-                        if (!ItemByUid.TryGetValue(playbook.DiagContext.Name, out var itemListByContext))
-                        {
-                            itemListByContext = new Dictionary<int, Model>();
-                            ItemByUid.Add(playbook.DiagContext.Name, itemListByContext);
-                        }
-
-                        itemListByContext.Add(startEvent.Uid, item);
-                        if (ItemVisible(item))
-                        {
-                            newItems.Add(item);
-                        }
+                    if (!ItemByUid.TryGetValue(playbook.DiagContext.Name, out var itemListByContext))
+                    {
+                        itemListByContext = new Dictionary<int, IoCommandModel>();
+                        ItemByUid.Add(playbook.DiagContext.Name, itemListByContext);
                     }
-                    else if (evt is IoCommandEndEvent endEvent)
+
+                    itemListByContext.Add(startEvent.Uid, item);
+                    if (ItemVisible(item))
                     {
-                        if (ItemByUid.TryGetValue(playbook.DiagContext.Name, out var itemListByContext))
+                        newItems.Add(item);
+                    }
+                }
+                else if (evt is IoCommandEndEvent endEvent)
+                {
+                    if (ItemByUid.TryGetValue(playbook.DiagContext.Name, out var itemListByContext))
+                    {
+                        if (itemListByContext.TryGetValue(endEvent.Uid, out var item))
                         {
-                            if (itemListByContext.TryGetValue(endEvent.Uid, out var item))
-                            {
-                                item.EndEvent = endEvent;
-                                //ListView.RefreshObject(item);
-                            }
+                            item.EndEvent = endEvent;
+                            //ListView.RefreshObject(item);
                         }
                     }
                 }
+            }
 
-                ListView.AddObjects(newItems);
+            if (newItems.Count > 0)
+            {
+                //ListView.AddObjects(newItems);
+                RefreshItems();
                 _newData = true;
             }
-            finally
-            {
-                ListView.EndUpdate();
-            }
         }
+    }
 
-        private class Model
-        {
-            public DateTime Timestamp { get; set; }
-            public Playbook Playbook { get; set; }
-            public TrackedProcessInvocation Process { get; set; }
-            public IoCommandStartEvent StartEvent { get; set; }
-            public IoCommandEndEvent EndEvent { get; set; }
-            public string CommandPreview { get; set; }
-            public string ArgumentsPreview { get; set; }
-        }
+    public class IoCommandModel
+    {
+        public DateTime Timestamp { get; set; }
+        public Playbook Playbook { get; set; }
+        public TrackedProcessInvocation Process { get; set; }
+        public IoCommandStartEvent StartEvent { get; set; }
+        public IoCommandEndEvent EndEvent { get; set; }
+        public string CommandPreview { get; set; }
+        public string ArgumentsPreview { get; set; }
     }
 }

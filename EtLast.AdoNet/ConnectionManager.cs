@@ -74,11 +74,11 @@
                         try
                         {
                             conn.Open();
-                            process.Context.RegisterIoCommandSuccess(process, iocUid, 0);
+                            process.Context.RegisterIoCommandSuccess(process, iocUid, null);
                         }
                         catch (Exception ex)
                         {
-                            process.Context.RegisterIoCommandFailed(process, iocUid, 0, ex);
+                            process.Context.RegisterIoCommandFailed(process, iocUid, null, ex);
                             throw;
                         }
 
@@ -167,11 +167,11 @@
                     try
                     {
                         conn.Open();
-                        process.Context.RegisterIoCommandSuccess(process, iocUid, 0);
+                        process.Context.RegisterIoCommandSuccess(process, iocUid, null);
                     }
                     catch (Exception ex)
                     {
-                        process.Context.RegisterIoCommandFailed(process, iocUid, 0, ex);
+                        process.Context.RegisterIoCommandFailed(process, iocUid, null, ex);
                         throw;
                     }
 
@@ -240,11 +240,11 @@
                     {
                         connection.Connection.Close();
                         connection.Connection.Dispose();
-                        process.Context.RegisterIoCommandSuccess(process, iocUid, 0);
+                        process.Context.RegisterIoCommandSuccess(process, iocUid, null);
                     }
                     catch (Exception ex)
                     {
-                        process.Context.RegisterIoCommandFailed(process, iocUid, 0, ex);
+                        process.Context.RegisterIoCommandFailed(process, iocUid, null, ex);
                     }
                 }
                 else

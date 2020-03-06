@@ -67,7 +67,7 @@
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
 
                 var exception = new EtlException(this, "error while opening file", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening file: {0}, message: {1}", FileName, ex.Message));

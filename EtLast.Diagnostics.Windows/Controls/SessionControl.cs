@@ -53,6 +53,9 @@
 
                 var ioCommandManager = new SessionIoCommandListControl(ioCommandContainer, diagnosticsStateManager, Session);
 
+                logManager.OnLogDoubleClicked += OnLogDoubleClicked;
+                ioCommandManager.OnIoCommandDoubleClicked += OnIoCommandDoubleClicked;
+
                 diagnosticsStateManager.OnDiagContextCreated += ec =>
                 {
                     if (ec.Session == session)
@@ -67,6 +70,24 @@
             finally
             {
                 Container.ResumeLayout();
+            }
+        }
+
+        private void OnLogDoubleClicked(LogModel logModel)
+        {
+            if (_contextContainerManagers.TryGetValue(logModel.Playbook.DiagContext.Name, out var contextManager))
+            {
+                contextManager.ProcessInvocationList.SelectProcess(logModel.Process);
+                _tabs.SelectedTab = contextManager.Container as TabPage;
+            }
+        }
+
+        private void OnIoCommandDoubleClicked(IoCommandModel ioCommandModel)
+        {
+            if (_contextContainerManagers.TryGetValue(ioCommandModel.Playbook.DiagContext.Name, out var contextManager))
+            {
+                contextManager.ProcessInvocationList.SelectProcess(ioCommandModel.Process);
+                _tabs.SelectedTab = contextManager.Container as TabPage;
             }
         }
 

@@ -64,7 +64,7 @@
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
                 var exception = new EtlException(this, "error while reading data from service", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from service: {0}", client.Endpoint.Address.ToString()));
                 exception.Data.Add("Endpoint", client.Endpoint.Address.ToString());

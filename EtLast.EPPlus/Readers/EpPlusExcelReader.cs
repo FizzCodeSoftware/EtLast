@@ -117,7 +117,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                    Context.RegisterIoCommandFailed(this, iocUid, null, ex);
 
                     var exception = new ProcessExecutionException(this, "excel file read failed", ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel file read failed, file name: {0}, message: {1}",

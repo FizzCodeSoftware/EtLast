@@ -44,7 +44,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                    Context.RegisterIoCommandFailed(this, iocUid, null, ex);
 
                     var exception = new ProcessExecutionException(this, "file download failed", ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "file download failed, url: {0}, file name: {1}, message: {2}",

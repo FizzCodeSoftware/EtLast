@@ -196,7 +196,7 @@ from
                 }
                 catch (Exception ex)
                 {
-                    Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                    Context.RegisterIoCommandFailed(this, iocUid, null, ex);
 
                     var exception = new ProcessExecutionException(this, "failed to query foreign key names from information schema", ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "foreign key list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
@@ -222,14 +222,14 @@ from
                 command.ExecuteNonQuery();
                 var time = startedOn.Elapsed;
 
-                Context.RegisterIoCommandSuccess(this, iocUid, 0);
+                Context.RegisterIoCommandSuccess(this, iocUid, null);
 
                 CounterCollection.IncrementCounter("db drop foreign key count", 1);
                 CounterCollection.IncrementTimeSpan("db drop foreign key time", time);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "failed to drop foreign keys", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop foreign keys, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",

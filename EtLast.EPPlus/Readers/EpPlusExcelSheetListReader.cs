@@ -52,7 +52,7 @@
                     FileName, ex.Message));
                 exception.Data.Add("FileName", FileName);
 
-                Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
                 throw exception;
             }
 

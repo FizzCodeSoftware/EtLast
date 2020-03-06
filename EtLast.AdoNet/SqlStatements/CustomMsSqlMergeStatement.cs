@@ -116,7 +116,7 @@
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "custom merge statement failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "custom merge statement failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",

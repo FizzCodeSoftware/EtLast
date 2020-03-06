@@ -10,7 +10,8 @@
     public delegate void ContextOnRowOwnerChangedDelegate(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess);
     public delegate void ContextOnRowCreatedDelegate(IReadOnlyRow row, IProcess process);
     public delegate void ContextOnProcessInvocationDelegate(IProcess process);
-    public delegate void ContextOnIoCommandEndDelegate(IProcess proces, int uid, int affectedDataCount, Exception ex);
+    public delegate void ContextOnIoCommandStartDelegate(int uid, IoCommandKind kind, string target, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs);
+    public delegate void ContextOnIoCommandEndDelegate(IProcess proces, int uid, int? affectedDataCount, Exception ex);
     public delegate void ContextOnCustomLogDelegate(bool forOps, string fileName, IProcess process, string text, params object[] args);
     public delegate void ContextOnExceptionDelegate(IProcess process, Exception exception);
 
@@ -46,8 +47,8 @@
         void LogCustomOps(string fileName, IProcess process, string text, params object[] args);
 
         int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string target, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs);
-        void RegisterIoCommandSuccess(IProcess process, int uid, int affectedDataCount);
-        void RegisterIoCommandFailed(IProcess process, int uid, int affectedDataCount, Exception exception);
+        void RegisterIoCommandSuccess(IProcess process, int uid, int? affectedDataCount);
+        void RegisterIoCommandFailed(IProcess process, int uid, int? affectedDataCount, Exception exception);
 
         void AddException(IProcess process, Exception ex);
         List<Exception> GetExceptions();

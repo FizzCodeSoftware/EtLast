@@ -48,14 +48,14 @@
                 command.ExecuteNonQuery();
                 var time = startedOn.Elapsed;
 
-                Context.RegisterIoCommandSuccess(this, iocUid, 0);
+                Context.RegisterIoCommandSuccess(this, iocUid, null);
 
                 CounterCollection.IncrementCounter("db drop schema count", 1);
                 CounterCollection.IncrementTimeSpan("db drop schema time", time);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "failed to drop schema", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop schema, connection string key: {0}, schema: {1}, message: {2}, command: {3}, timeout: {4}",

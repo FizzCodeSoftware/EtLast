@@ -170,12 +170,12 @@
             return uid;
         }
 
-        public void RegisterIoCommandSuccess(IProcess process, int uid, int affectedDataCount)
+        public void RegisterIoCommandSuccess(IProcess process, int uid, int? affectedDataCount)
         {
             OnContextIoCommandEnd?.Invoke(process, uid, affectedDataCount, null);
         }
 
-        public void RegisterIoCommandFailed(IProcess process, int uid, int affectedDataCount, Exception exception)
+        public void RegisterIoCommandFailed(IProcess process, int uid, int? affectedDataCount, Exception exception)
         {
             OnContextIoCommandEnd?.Invoke(process, uid, affectedDataCount, exception);
         }

@@ -104,7 +104,7 @@
                         }
                         catch (Exception ex)
                         {
-                            Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                            Context.RegisterIoCommandFailed(this, iocUid, null, ex);
 
                             var exception = new ProcessExecutionException(this, "failed to query table names from information schema", ex);
                             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "table list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
@@ -120,14 +120,32 @@
             }
 
             return _tableNames
-                .Select(tableName => "DROP TABLE IF EXISTS " + tableName + ";")
+                .Select(tableName => "DROP TABLE " + tableName + ";")
                 .ToList();
         }
 
         protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
         {
             var tableName = _tableNames[statementIndex];
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDefinition, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, null,
+            var originalStatement = command.CommandText;
+
+            var recordCount = 0;
+            command.CommandText = "SELECT COUNT(*) FROM " + tableName;
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, null,
+                "querying record count from {ConnectionStringName}/{TableName}",
+                ConnectionString.Name, ConnectionString.Unescape(tableName));
+            try
+            {
+                recordCount = (int)command.ExecuteScalar();
+                Context.RegisterIoCommandSuccess(this, iocUid, recordCount);
+            }
+            catch (Exception)
+            {
+                Context.RegisterIoCommandSuccess(this, iocUid, null);
+            }
+
+            command.CommandText = originalStatement;
+            iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDefinition, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, null,
                 "drop table {ConnectionStringName}/{TableName}",
                 ConnectionString.Name, ConnectionString.Unescape(tableName));
 
@@ -136,14 +154,14 @@
                 command.ExecuteNonQuery();
                 var time = startedOn.Elapsed;
 
-                Context.RegisterIoCommandSuccess(this, iocUid, 0);
+                Context.RegisterIoCommandSuccess(this, iocUid, recordCount);
 
                 CounterCollection.IncrementCounter("db drop table count", 1);
                 CounterCollection.IncrementTimeSpan("db drop table time", time);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "failed to drop table", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop table, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",

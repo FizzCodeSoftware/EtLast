@@ -72,7 +72,7 @@
                 try
                 {
                     var result = ClientInvoker.Invoke(this, row, _client);
-                    Context.RegisterIoCommandSuccess(this, iocUid, 0);
+                    Context.RegisterIoCommandSuccess(this, iocUid, null);
 
                     if (result != null)
                     {
@@ -86,7 +86,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                    Context.RegisterIoCommandFailed(this, iocUid, null, ex);
                     CounterCollection.IncrementTimeSpan("SOAP time - failure", startedOn.Elapsed);
                     CounterCollection.IncrementCounter("SOAP incovations - failure", 1);
                     _client = default;

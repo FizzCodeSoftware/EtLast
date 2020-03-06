@@ -88,12 +88,12 @@
                 Scope.Complete();
                 Completed = true;
 
-                Context.RegisterIoCommandSuccess(Process, iocUid, 0);
+                Context.RegisterIoCommandSuccess(Process, iocUid, null);
             }
             catch (Exception ex)
             {
                 Completed = false;
-                Context.RegisterIoCommandFailed(Process, iocUid, 0, ex);
+                Context.RegisterIoCommandFailed(Process, iocUid, null, ex);
             }
         }
 

@@ -45,11 +45,11 @@
                 try
                 {
                     _package.Save();
-                    Context.RegisterIoCommandSuccess(this, iocUid, 0);
+                    Context.RegisterIoCommandSuccess(this, iocUid, null);
                 }
                 catch (Exception ex)
                 {
-                    Context.RegisterIoCommandFailed(this, iocUid, 0, ex);
+                    Context.RegisterIoCommandFailed(this, iocUid, null, ex);
                     throw;
                 }
 

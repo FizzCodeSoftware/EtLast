@@ -144,7 +144,7 @@
                             var currentId = (maxId?.MaxValue ?? 0) + 1;
                             scope.Topic.Context.AdditionalData["CurrentEtlRunId"] = currentId;
 
-                            var initialValues = new Dictionary<string, object>()
+                            var row = new SlimRow
                             {
                                 ["EtlRunId"] = currentId,
                                 ["Name"] = scope.Name,
@@ -153,7 +153,7 @@
                                 ["StartedOn"] = scope.Topic.Context.CreatedOnLocal,
                             };
 
-                            return new[] { scope.Topic.Context.CreateRow(process, initialValues) };
+                            return new[] { row };
                         }
                     },
                     Mutators = new MutatorList()

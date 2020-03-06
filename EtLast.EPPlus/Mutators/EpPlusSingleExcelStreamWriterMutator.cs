@@ -38,7 +38,21 @@
 
             if (ExistingPackage == null && _package != null)
             {
-                _package.Save();
+                var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.streamWrite, Stream.GetType().GetFriendlyTypeName(), null, null, null, null,
+                    "saving excel package to stream: {StreamType}",
+                    Stream.GetType().GetFriendlyTypeName());
+
+                try
+                {
+                    _package.Save();
+                    Context.RegisterIoCommandSuccess(this, iocUid, null);
+                }
+                catch (Exception ex)
+                {
+                    Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                    throw;
+                }
+
                 _package.Dispose();
                 _package = null;
             }

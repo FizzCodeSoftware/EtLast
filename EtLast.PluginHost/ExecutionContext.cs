@@ -490,7 +490,7 @@
             });
         }
 
-        private void ContextIoCommandEnd(IProcess process, int uid, int affectedDataCount, Exception ex)
+        private void ContextIoCommandEnd(IProcess process, int uid, int? affectedDataCount, Exception ex)
         {
             if (ex != null)
             {
@@ -535,7 +535,7 @@
             _diagnosticsSender?.SendDiagnostics(DiagnosticsEventKind.IoCommandEnd, writer =>
             {
                 writer.Write7BitEncodedInt(uid);
-                writer.Write7BitEncodedInt(affectedDataCount);
+                writer.WriteNullable(affectedDataCount);
                 writer.WriteNullable(ex?.FormatExceptionWithDetails());
             });
         }
