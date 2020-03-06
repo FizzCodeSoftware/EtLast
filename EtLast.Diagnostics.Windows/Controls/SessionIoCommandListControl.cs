@@ -20,7 +20,8 @@
         public ObjectListView ListView { get; }
         public TextBox SearchBox { get; }
         public Timer AutoSizeTimer { get; }
-        public CheckBox ShowTransactionKind { get; }
+        public CheckBox ShowDbTransactionKind { get; }
+        public CheckBox ShowDbConnectionKind { get; }
         public IoCommandActionDelegate OnIoCommandDoubleClicked { get; set; }
 
         private bool _newData;
@@ -40,15 +41,25 @@
 
             SearchBox.TextChanged += SearchBox_TextChanged;
 
-            ShowTransactionKind = new CheckBox()
+            ShowDbTransactionKind = new CheckBox()
             {
                 Parent = container,
                 Bounds = new Rectangle(SearchBox.Right + 20, SearchBox.Top, 200, SearchBox.Height),
-                Text = "Show transaction commands",
+                Text = "DB Transactions",
                 CheckAlign = ContentAlignment.MiddleLeft,
             };
 
-            ShowTransactionKind.CheckedChanged += (s, a) => RefreshItems();
+            ShowDbTransactionKind.CheckedChanged += (s, a) => RefreshItems();
+
+            ShowDbConnectionKind = new CheckBox()
+            {
+                Parent = container,
+                Bounds = new Rectangle(ShowDbTransactionKind.Right + 20, SearchBox.Top, 200, SearchBox.Height),
+                Text = "DB connections",
+                CheckAlign = ContentAlignment.MiddleLeft,
+            };
+
+            ShowDbConnectionKind.CheckedChanged += (s, a) => RefreshItems();
 
             ListView = ListViewHelpers.CreateListView(container);
             ListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
@@ -162,7 +173,10 @@
         private bool ItemVisible(IoCommandModel item)
         {
 #pragma warning disable RCS1073 // Convert 'if' to 'return' statement.
-            if (item.StartEvent.Kind == IoCommandKind.dbTransaction && !ShowTransactionKind.Checked)
+            if (item.StartEvent.Kind == IoCommandKind.dbTransaction && !ShowDbTransactionKind.Checked)
+                return false;
+
+            if (item.StartEvent.Kind == IoCommandKind.dbConnection && !ShowDbConnectionKind.Checked)
                 return false;
 #pragma warning restore RCS1073 // Convert 'if' to 'return' statement.
 
