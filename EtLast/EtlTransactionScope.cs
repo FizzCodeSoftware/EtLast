@@ -55,7 +55,7 @@
                             "new transaction started and merged with previous");
                     break;
                 case TransactionScopeKind.Suppress:
-                    iocUid = Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, "existing transaction suppressed", previousId, null,
+                    iocUid = Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, "transaction suppressed", previousId, null,
                         "existing transaction suppressed");
                     break;
             }
@@ -113,8 +113,8 @@
                         if (Kind == TransactionScopeKind.Suppress && !CompleteCalled)
                         {
                             var transactionId = Transaction.Current?.ToIdentifierString();
-                            iocUid = Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, "removing suppression of trasaction", transactionId, null,
-                                "suppression of transaction is removed");
+                            iocUid = Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, "removing transaction suppression", transactionId, null,
+                                "removing transaction suppression");
                         }
 
                         try
