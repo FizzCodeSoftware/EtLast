@@ -31,7 +31,7 @@
             _uri = diagnosticsUri;
             _client = new HttpClient
             {
-                Timeout = TimeSpan.FromMilliseconds(5000),
+                Timeout = TimeSpan.FromMilliseconds(10000),
             };
 
             SendWriter(null);

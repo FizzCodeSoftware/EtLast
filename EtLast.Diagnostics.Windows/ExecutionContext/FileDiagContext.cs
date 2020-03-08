@@ -246,7 +246,7 @@
         public override void EnumerateThroughEvents(Action<AbstractEvent> callback, params DiagnosticsEventKind[] eventKindFilter)
         {
             var fileNames = Enumerable
-                .Range(0, LastMainFileIndex + 1)
+                .Range(1, LastMainFileIndex)
                 .Select(GetMainFileName);
 
             var eventKinds = eventKindFilter.ToHashSet();
