@@ -5,12 +5,12 @@
     using System.Threading;
 
     public delegate void ContextOnRowValueChangedDelegate(IProcess process, IReadOnlyRow row, params KeyValuePair<string, object>[] values);
-    public delegate void ContextOnRowStoreStartedDelegate(int storeUid, List<KeyValuePair<string, string>> descriptor);
+    public delegate void ContextOnRowStoreStartedDelegate(int storeUid, string location, string path);
     public delegate void ContextOnRowStoredDelegate(IProcess process, IReadOnlyRow row, int storeUid);
     public delegate void ContextOnRowOwnerChangedDelegate(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess);
     public delegate void ContextOnRowCreatedDelegate(IReadOnlyRow row, IProcess process);
     public delegate void ContextOnProcessInvocationDelegate(IProcess process);
-    public delegate void ContextOnIoCommandStartDelegate(int uid, IoCommandKind kind, string target, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs);
+    public delegate void ContextOnIoCommandStartDelegate(int uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs);
     public delegate void ContextOnIoCommandEndDelegate(IProcess proces, int uid, int? affectedDataCount, Exception ex);
     public delegate void ContextOnCustomLogDelegate(bool forOps, string fileName, IProcess process, string text, params object[] args);
     public delegate void ContextOnExceptionDelegate(IProcess process, Exception exception);
@@ -46,7 +46,8 @@
         void LogCustom(string fileName, IProcess process, string text, params object[] args);
         void LogCustomOps(string fileName, IProcess process, string text, params object[] args);
 
-        int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string target, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs);
+        int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs);
+        int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string location, string path, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs);
         void RegisterIoCommandSuccess(IProcess process, int uid, int? affectedDataCount);
         void RegisterIoCommandFailed(IProcess process, int uid, int? affectedDataCount, Exception exception);
 
@@ -74,6 +75,6 @@
         void RegisterProcessInvocationStart(IProcess process, IProcess caller);
         void RegisterProcessInvocationEnd(IProcess process);
         void RegisterProcessInvocationEnd(IProcess process, long netElapsedMilliseconds);
-        int GetStoreUid(List<KeyValuePair<string, string>> descriptor);
+        int GetStoreUid(string location, string path);
     }
 }

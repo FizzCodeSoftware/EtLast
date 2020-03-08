@@ -89,11 +89,7 @@
         {
             if (_storeUid == null)
             {
-                _storeUid = Context.GetStoreUid(new List<KeyValuePair<string, string>>()
-                {
-                    new KeyValuePair<string, string>("ConnectionString", ConnectionString.Name),
-                    new KeyValuePair<string, string>("Table", ConnectionString.Unescape(TableDefinition.TableName)),
-                });
+                _storeUid = Context.GetStoreUid(ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
             }
 
             Context.OnRowStored?.Invoke(this, row, _storeUid.Value);
@@ -127,9 +123,9 @@
             var recordCount = _reader.RowCount;
             _timer.Restart();
 
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbBulkWrite, ConnectionString.Name, _bulkCopy.BulkCopyTimeout, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", Transaction.Current.ToIdentifierString(), null,
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbBulkWrite, ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), _bulkCopy.BulkCopyTimeout, "BULK COPY " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", Transaction.Current.ToIdentifierString(), null,
                 "write to table: {ConnectionStringName}/{Table}",
-                ConnectionString.Name, TableDefinition.TableName);
+                ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
 
             try
             {

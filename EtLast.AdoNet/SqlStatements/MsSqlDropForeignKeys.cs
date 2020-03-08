@@ -143,7 +143,7 @@ from
 
                 var constraintsByTable = new Dictionary<string, List<string>>();
 
-                var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+                var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, "SYS.FOREIGN_KEYS", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
                     "querying foreign key names from {ConnectionStringName}",
                     ConnectionString.Name);
 
@@ -212,10 +212,10 @@ from
 
         protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
         {
-            var t = _tableNamesAndCounts[statementIndex];
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDefinition, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, null,
+            var tableName = _tableNamesAndCounts[statementIndex].Item1;
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDefinition, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
                 "drop foreign keys of {ConnectionStringName}/{TableName}",
-                ConnectionString.Name, ConnectionString.Unescape(t.Item1));
+                ConnectionString.Name, ConnectionString.Unescape(tableName));
 
             try
             {
@@ -233,10 +233,10 @@ from
 
                 var exception = new ProcessExecutionException(this, "failed to drop foreign keys", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop foreign keys, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
-                    ConnectionString.Name, ConnectionString.Unescape(t.Item1), ex.Message, command.CommandText, command.CommandTimeout));
+                    ConnectionString.Name, ConnectionString.Unescape(tableName), ex.Message, command.CommandText, command.CommandTimeout));
 
                 exception.Data.Add("ConnectionStringName", ConnectionString.Name);
-                exception.Data.Add("TableName", ConnectionString.Unescape(t.Item1));
+                exception.Data.Add("TableName", ConnectionString.Unescape(tableName));
                 exception.Data.Add("Statement", command.CommandText);
                 exception.Data.Add("Timeout", command.CommandTimeout);
                 exception.Data.Add("Elapsed", startedOn.Elapsed);

@@ -8,7 +8,7 @@
     using FizzCode.EtLast.Diagnostics.Interface;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
-    internal class ContextRowStoreControl
+    internal class RowStoreControl
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public Control Container { get; }
@@ -19,7 +19,7 @@
         private readonly Dictionary<string, int> _columnIndexes = new Dictionary<string, int>();
         private readonly int _fixColumnCount;
 
-        public ContextRowStoreControl(Control container, AbstractDiagContext context, TrackedStore store)
+        public RowStoreControl(Control container, AbstractDiagContext context, TrackedStore store)
         {
             Container = container;
             Context = context;
@@ -41,16 +41,13 @@
 
             ListView.AllColumns.Add(new OLVColumn()
             {
-                Text = "UID",
-                AspectGetter = x => (x as Model)?.UID,
-                AspectToStringConverter = x => x == null
-                    ? null
-                    : ((int)x).FormatToStringNoZero(),
+                Text = "ID",
+                AspectGetter = x => (x as StoredRowModel)?.UID,
             });
             ListView.AllColumns.Add(new OLVColumn()
             {
                 Text = "Process",
-                AspectGetter = x => (x as Model).ProcessName,
+                AspectGetter = x => (x as StoredRowModel).ProcessName,
             });
 
             ListView.Columns.AddRange(ListView.AllColumns.ToArray());
@@ -78,7 +75,7 @@
             try
             {
                 ListView.Items.Clear();
-                var modelList = new List<Model>();
+                var modelList = new List<StoredRowModel>();
 
                 var newColumns = new List<OLVColumn>();
 
@@ -97,7 +94,12 @@
                             var newColumn = new OLVColumn()
                             {
                                 Text = columnName,
-                                AspectGetter = x => (x as Model).Values[columnIndex],
+                                AspectGetter = x =>
+                                {
+                                    return (x is StoredRowModel r && columnIndex < r.Values.Length)
+                                        ? r.Values[columnIndex]
+                                        : null;
+                                },
                                 AspectToStringConverter = FormattingHelpers.ToDisplayValue,
                             };
 
@@ -107,7 +109,12 @@
                             newColumn = new OLVColumn()
                             {
                                 Text = "",
-                                AspectGetter = x => (x as Model).Values[columnIndex]?.GetType(),
+                                AspectGetter = x =>
+                                {
+                                    return (x is StoredRowModel r && columnIndex < r.Values.Length)
+                                        ? r.Values[columnIndex]?.GetType()
+                                        : null;
+                                },
                                 AspectToStringConverter = value => ((Type)value)?.GetFriendlyTypeName(),
                             };
 
@@ -118,7 +125,7 @@
                         }
                     }
 
-                    var model = new Model()
+                    var model = new StoredRowModel()
                     {
                         UID = evt.RowUid,
                         ProcessName = process.DisplayName,
@@ -158,7 +165,7 @@
             }
         }
 
-        private class Model
+        private class StoredRowModel
         {
             public int UID { get; set; }
             public string ProcessName { get; set; }

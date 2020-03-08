@@ -1,19 +1,20 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface
 {
-    using System.Collections.Generic;
     using System.Diagnostics;
 
     [DebuggerDisplay("{Path}")]
     public class TrackedStore
     {
         public int UID { get; }
-        public KeyValuePair<string, string>[] Descriptor { get; }
+        public string Location { get; }
+        public string Path { get; }
         public int RowCount { get; set; }
 
-        public TrackedStore(int uid, KeyValuePair<string, string>[] descriptor)
+        public TrackedStore(int uid, string location, string path)
         {
             UID = uid;
-            Descriptor = descriptor;
+            Location = location;
+            Path = path;
         }
     }
 }

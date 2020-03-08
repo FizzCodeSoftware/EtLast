@@ -100,7 +100,7 @@
 
         protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
         {
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDefinition, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDefinition, ConnectionString.Name, ConnectionString.Unescape(TargetTableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
                 "merging to {ConnectionStringName}/{TargetTableName} from {SourceTableName}",
                 ConnectionString.Name, ConnectionString.Unescape(TargetTableName), ConnectionString.Unescape(SourceTableName));
 

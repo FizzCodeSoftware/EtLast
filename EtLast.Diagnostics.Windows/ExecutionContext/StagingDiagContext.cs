@@ -52,6 +52,7 @@
                 ProcessInvocationUid = reader.Read7BitEncodedInt(),
                 Kind = (IoCommandKind)reader.ReadByte(),
                 Location = TextDictionary[reader.Read7BitEncodedInt()],
+                Path = TextDictionary[reader.Read7BitEncodedInt()],
                 TimeoutSeconds = reader.ReadNullableInt32(),
                 Command = reader.ReadNullableString(),
                 TransactionId = TextDictionary[reader.Read7BitEncodedInt()],
@@ -145,17 +146,9 @@
             var evt = new RowStoreStartedEvent()
             {
                 UID = reader.Read7BitEncodedInt(),
+                Location = TextDictionary[reader.Read7BitEncodedInt()],
+                Path = TextDictionary[reader.Read7BitEncodedInt()],
             };
-
-            var descriptorCount = reader.Read7BitEncodedInt();
-
-            evt.Descriptor = new KeyValuePair<string, string>[descriptorCount];
-            for (var i = 0; i < descriptorCount; i++)
-            {
-                var key = TextDictionary[reader.Read7BitEncodedInt()];
-                var value = TextDictionary[reader.Read7BitEncodedInt()];
-                evt.Descriptor[i] = new KeyValuePair<string, string>(key, value);
-            }
 
             return evt;
         }
@@ -179,24 +172,6 @@
                     var value = reader.ReadObject();
                     evt.Values[i] = new KeyValuePair<string, object>(column, value);
                 }
-            }
-
-            return evt;
-        }
-
-        protected virtual AbstractEvent ReadContextCountersUpdatedEvent(ExtendedBinaryReader reader)
-        {
-            var evt = new ContextCountersUpdatedEvent();
-            var counterCount = reader.Read7BitEncodedInt();
-            evt.Counters = new Counter[counterCount];
-            for (var i = 0; i < counterCount; i++)
-            {
-                evt.Counters[i] = new Counter()
-                {
-                    Name = TextDictionary[reader.Read7BitEncodedInt()],
-                    Value = reader.ReadInt64(),
-                    ValueType = (StatCounterValueType)reader.ReadByte(),
-                };
             }
 
             return evt;

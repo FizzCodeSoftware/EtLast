@@ -66,11 +66,7 @@
         {
             if (_storeUid == null)
             {
-                _storeUid = Context.GetStoreUid(new List<KeyValuePair<string, string>>()
-                {
-                    new KeyValuePair<string, string>("ConnectionString", ConnectionString.Name),
-                    new KeyValuePair<string, string>("Table", ConnectionString.Unescape(TableDefinition.TableName)),
-                });
+                _storeUid = Context.GetStoreUid(ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
             }
 
             Context.OnRowStored?.Invoke(this, row, _storeUid.Value);
@@ -138,9 +134,9 @@
 
             _command.CommandText = sqlStatement;
 
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbBatchWrite, ConnectionString.Name, _command.CommandTimeout, sqlStatement, Transaction.Current.ToIdentifierString(), null,
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbBatchWrite, ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), _command.CommandTimeout, sqlStatement, Transaction.Current.ToIdentifierString(), null,
                 "write to table: {ConnectionStringName}/{Table}",
-                ConnectionString.Name, TableDefinition.TableName);
+                ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
 
             try
             {

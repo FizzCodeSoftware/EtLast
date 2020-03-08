@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
     using System.Threading;
 
     public class EtlContext : IEtlContext
@@ -163,10 +162,17 @@
             OnCustomLog?.Invoke(true, fileName, process, text, args);
         }
 
-        public int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string target, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
+        public int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
         {
             var uid = Interlocked.Increment(ref _nextIoCommandUid);
-            OnContextIoCommandStart?.Invoke(uid, kind, target, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageArgs);
+            OnContextIoCommandStart?.Invoke(uid, kind, location, null, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageArgs);
+            return uid;
+        }
+
+        public int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string location, string path, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
+        {
+            var uid = Interlocked.Increment(ref _nextIoCommandUid);
+            OnContextIoCommandStart?.Invoke(uid, kind, location, path, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageArgs);
             return uid;
         }
 
@@ -295,14 +301,14 @@
             OnProcessInvocationEnd?.Invoke(process);
         }
 
-        public int GetStoreUid(List<KeyValuePair<string, string>> descriptor)
+        public int GetStoreUid(string location, string path)
         {
-            var key = string.Join(",", descriptor.Select(x => x.Key + "=" + x.Value));
+            var key = location + " / " + path;
             if (!_rowStores.TryGetValue(key, out var storeUid))
             {
                 storeUid = Interlocked.Increment(ref _nextRowStoreUid);
                 _rowStores.Add(key, storeUid);
-                OnRowStoreStarted?.Invoke(storeUid, descriptor);
+                OnRowStoreStarted?.Invoke(storeUid, location, path);
             }
 
             return storeUid;

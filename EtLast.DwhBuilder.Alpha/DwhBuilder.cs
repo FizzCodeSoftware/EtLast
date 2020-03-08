@@ -86,6 +86,7 @@
                 {
                     ConnectionString = scope.Configuration.ConnectionString,
                     CommandTimeout = 60 * 60,
+                    MainTableName = ConnectionString.Escape(etlRunSqlTable.SchemaAndTableName.TableName, etlRunSqlTable.SchemaAndTableName.Schema),
                     SqlStatement = "UPDATE " + ConnectionString.Escape(etlRunSqlTable.SchemaAndTableName.TableName, etlRunSqlTable.SchemaAndTableName.Schema)
                         + " SET FinishedOn = @FinishedOn, Result = @Result"
                         + " WHERE EtlRunId = @EtlRunId",

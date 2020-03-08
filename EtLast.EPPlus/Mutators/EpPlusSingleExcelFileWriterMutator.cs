@@ -104,11 +104,7 @@
         public void AddWorkSheet(string name)
         {
             _state.LastWorksheet = _package.Workbook.Worksheets.Add(name);
-            _storeUid = Context.GetStoreUid(new List<KeyValuePair<string, string>>()
-            {
-                new KeyValuePair<string, string>("File", PathHelpers.GetFriendlyPathName(FileName)),
-                new KeyValuePair<string, string>("Sheet", name),
-            });
+            _storeUid = Context.GetStoreUid(PathHelpers.GetFriendlyPathName(FileName), name);
         }
     }
 }

@@ -33,7 +33,7 @@
 
             var recordCount = 0;
             command.CommandText = "SELECT COUNT(*) FROM " + TableName;
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, null,
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, null,
                 "querying record count from {ConnectionStringName}/{TableName}",
                 ConnectionString.Name, ConnectionString.Unescape(TableName));
 
@@ -59,7 +59,7 @@
             }
 
             command.CommandText = originalStatement;
-            iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDelete, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+            iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDelete, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
                 "truncating {ConnectionStringName}/{TableName}",
                 ConnectionString.Name, ConnectionString.Unescape(TableName));
 

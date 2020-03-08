@@ -13,7 +13,6 @@
         Log,
         IoCommandStart,
         IoCommandEnd,
-        ContextCountersUpdated,
         ContextEnded,
     }
 }

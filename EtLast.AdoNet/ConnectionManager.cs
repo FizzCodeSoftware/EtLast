@@ -67,7 +67,7 @@
 
                         conn.ConnectionString = connectionString.ConnectionString;
 
-                        var iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, connectionString.Name, conn.ConnectionTimeout, "open", Transaction.Current.ToIdentifierString(), null,
+                        var iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, connectionString.Name, conn.ConnectionTimeout, "open connection", Transaction.Current.ToIdentifierString(), null,
                             "opening database connection to {ConnectionStringName} ({Provider})",
                                 connectionString.Name, connectionString.GetFriendlyProviderName());
 
@@ -138,8 +138,6 @@
             for (var retry = 0; retry <= maxRetryCount; retry++)
             {
                 var startedOn = Stopwatch.StartNew();
-                process.Context.Log(Transaction.Current.ToIdentifierString(), LogSeverity.Debug, process, "opening database connection to {ConnectionStringName} ({Provider})",
-                    connectionString.Name, connectionString.GetFriendlyProviderName());
 
                 try
                 {
@@ -160,7 +158,7 @@
 
                     conn.ConnectionString = connectionString.ConnectionString;
 
-                    var iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, connectionString.Name, conn.ConnectionTimeout, "close", Transaction.Current.ToIdentifierString(), null,
+                    var iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, connectionString.Name, conn.ConnectionTimeout, "open connection", Transaction.Current.ToIdentifierString(), null,
                         "opening database connection to {ConnectionStringName} ({Provider})",
                             connectionString.Name, connectionString.GetFriendlyProviderName());
 
@@ -227,12 +225,7 @@
                     }
 
                     var conn = connection;
-                    var iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, null, null, "closing", connection.TransactionWhenCreated.ToIdentifierString(),
-                        () => new Dictionary<string, object>
-                        {
-                            ["ConnectionStringName"] = conn.ConnectionString.Name,
-                            ["Provider"] = conn.ConnectionString.ProviderName,
-                        },
+                    var iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, connection.ConnectionString.Name, null, "close connection", connection.TransactionWhenCreated.ToIdentifierString(), null,
                         "closing database connection to {ConnectionStringName} ({Provider})",
                             conn.ConnectionString.Name, conn.ConnectionString.GetFriendlyProviderName());
 

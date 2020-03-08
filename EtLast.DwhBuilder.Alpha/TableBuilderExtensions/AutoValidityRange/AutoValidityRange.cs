@@ -93,6 +93,7 @@
                         Process = new CustomSqlAdoNetDbReader(builder.TableBuilder.Table.Topic, "PreviousValueReader")
                         {
                             ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
+                            MainTableName = builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema),
                             Sql = "SELECT " + string.Join(",", builder.MatchColumns.Concat(finalValueColumns).Select(x => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(x)))
                                 + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema)
                                 + " WHERE " + builder.TableBuilder.ValidToColumnNameEscaped + (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime == null ? " IS NULL" : "=@InfiniteFuture"),
@@ -147,6 +148,7 @@
             return new CustomSqlAdoNetDbReader(builder.TableBuilder.Table.Topic, "PreviousValueReader")
             {
                 ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
+                MainTableName = builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema),
                 Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(matchColumn)
                     + "," + string.Join(", ", valueColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
                     + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema)

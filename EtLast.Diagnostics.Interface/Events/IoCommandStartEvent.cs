@@ -10,6 +10,7 @@
         public string TransactionId { get; set; }
         public IoCommandKind Kind { get; set; }
         public string Location { get; set; }
+        public string Path { get; set; }
         public KeyValuePair<string, object>[] Arguments { get; set; }
     }
 }

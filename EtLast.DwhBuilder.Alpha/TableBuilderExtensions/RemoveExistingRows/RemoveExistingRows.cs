@@ -54,11 +54,12 @@
                         {
                             ProcessCreator = filterRows => new CustomSqlAdoNetDbReader(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
                             {
+                                ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
+                                MainTableName = builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema),
                                 Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0])
                                         + "," + string.Join(", ", finalValueColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
                                     + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema)
                                     + " WHERE " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0]) + " IN (@keyList)",
-                                ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                                 InlineArrayParameters = true,
                                 Parameters = new Dictionary<string, object>()
                                 {
@@ -85,6 +86,7 @@
                             Process = new CustomSqlAdoNetDbReader(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
                             {
                                 ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
+                                MainTableName = builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema),
                                 Sql = "SELECT " + string.Join(",", builder.MatchColumns.Concat(finalValueColumns).Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
                                 + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema),
                             },
@@ -105,10 +107,11 @@
                     {
                         ProcessCreator = filterRows => new CustomSqlAdoNetDbReader(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
                         {
+                            ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
+                            MainTableName = builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema),
                             Sql = "SELECT " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0])
                                 + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema)
                                 + " WHERE " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.MatchColumns[0]) + " IN (@keyList)",
-                            ConnectionString = builder.TableBuilder.Table.Scope.Configuration.ConnectionString,
                             InlineArrayParameters = true,
                             Parameters = new Dictionary<string, object>()
                             {
@@ -134,6 +137,7 @@
                         Process = new CustomSqlAdoNetDbReader(builder.TableBuilder.Table.Topic, "ExistingRowsReader")
                         {
                             ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
+                            MainTableName = builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema),
                             Sql = "SELECT " + string.Join(",", builder.MatchColumns.Select(c => builder.TableBuilder.DwhBuilder.ConnectionString.Escape(c)))
                                 + " FROM " + builder.TableBuilder.DwhBuilder.ConnectionString.Escape(builder.TableBuilder.SqlTable.SchemaAndTableName.TableName, builder.TableBuilder.SqlTable.SchemaAndTableName.Schema),
                         },

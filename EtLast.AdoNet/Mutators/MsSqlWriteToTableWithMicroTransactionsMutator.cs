@@ -86,11 +86,7 @@
         {
             if (_storeUid == null)
             {
-                _storeUid = Context.GetStoreUid(new List<KeyValuePair<string, string>>()
-                {
-                    new KeyValuePair<string, string>("ConnectionString", ConnectionString.Name),
-                    new KeyValuePair<string, string>("Table", ConnectionString.Unescape(TableDefinition.TableName)),
-                });
+                _storeUid = Context.GetStoreUid(ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
             }
 
             Context.OnRowStored?.Invoke(this, row, _storeUid.Value);
@@ -149,9 +145,9 @@
                         bulkCopy.ColumnMappings.Add(column.RowColumn, column.DbColumn);
                     }
 
-                    var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbBulkWrite, ConnectionString.Name, bulkCopy.BulkCopyTimeout, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records" + (retry > 0 ? ", retry #" + retry.ToString("D", CultureInfo.InvariantCulture) : ""), Transaction.Current.ToIdentifierString(), null,
+                    var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbBulkWrite, ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), bulkCopy.BulkCopyTimeout, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records" + (retry > 0 ? ", retry #" + retry.ToString("D", CultureInfo.InvariantCulture) : ""), Transaction.Current.ToIdentifierString(), null,
                         "write to table: {ConnectionStringName}/{Table}",
-                        ConnectionString.Name, TableDefinition.TableName);
+                        ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
 
                     try
                     {

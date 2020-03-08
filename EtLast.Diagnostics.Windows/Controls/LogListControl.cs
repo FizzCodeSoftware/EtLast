@@ -18,36 +18,32 @@
         public Control Container { get; }
         public DiagSession Session { get; }
         public ObjectListView ListView { get; }
-        public TextBox SearchBox { get; }
-        public Timer AutoSizeTimer { get; }
         public CheckBox ShowDebugLevel { get; }
         public LogActionDelegate OnLogDoubleClicked { get; set; }
 
-        private readonly List<LogModel> _allItems = new List<LogModel>();
-        private bool _newData;
+        private readonly ControlUpdater<LogModel> _updater;
 
         public LogListControl(Control container, DiagnosticsStateManager diagnosticsStateManager, DiagSession session)
         {
             Container = container;
             Session = session;
 
-            SearchBox = new TextBox()
+            _updater = new ControlUpdater<LogModel>(null, Container)
             {
-                Parent = container,
-                Bounds = new Rectangle(10, 10, 150, 20),
+                ItemFilter = ItemFilter,
             };
 
-            SearchBox.TextChanged += SearchBox_TextChanged;
+            _updater.CreateSearchBox(10, 10);
 
             ShowDebugLevel = new CheckBox()
             {
                 Parent = container,
-                Bounds = new Rectangle(SearchBox.Right + 20, SearchBox.Top, 200, SearchBox.Height),
+                Bounds = new Rectangle(_updater.SearchBox.Right + 20, _updater.SearchBox.Top, 200, _updater.SearchBox.Height),
                 Text = "Show debug level",
                 CheckAlign = ContentAlignment.MiddleLeft,
             };
 
-            ShowDebugLevel.CheckedChanged += (s, a) => RefreshItems();
+            ShowDebugLevel.CheckedChanged += (s, a) => _updater.RefreshItems(true);
 
             ListView = ListViewHelpers.CreateListView(container);
             ListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
@@ -96,13 +92,8 @@
                 AspectGetter = x => (x as LogModel)?.Text,
             });
 
-            AutoSizeTimer = new Timer()
-            {
-                Interval = 1000,
-                Enabled = true,
-            };
-
-            AutoSizeTimer.Tick += AutoSizeTimer_Tick;
+            _updater.ListView = ListView;
+            _updater.Start();
 
             diagnosticsStateManager.OnDiagContextCreated += ec =>
             {
@@ -121,7 +112,7 @@
             }
         }
 
-        private bool ItemVisible(LogModel item)
+        private bool ItemFilter(LogModel item)
         {
 #pragma warning disable RCS1073 // Convert 'if' to 'return' statement.
             if (item.Event.Severity <= LogSeverity.Debug && !ShowDebugLevel.Checked)
@@ -131,53 +122,11 @@
             return true;
         }
 
-        private void RefreshItems()
-        {
-            ListView.SetObjects(_allItems.Where(ItemVisible).OrderBy(x => x.Event.Timestamp));
-        }
-
-        private void AutoSizeTimer_Tick(object sender, EventArgs e)
-        {
-            if (!_newData || !ListView.Visible)
-                return;
-
-            _newData = false;
-
-            ListView.BeginUpdate();
-            try
-            {
-                foreach (OLVColumn col in ListView.Columns)
-                {
-                    col.MinimumWidth = 0;
-                    col.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
-                }
-
-                foreach (OLVColumn col in ListView.Columns)
-                {
-                    col.Width += 20;
-                }
-            }
-            finally
-            {
-                ListView.EndUpdate();
-            }
-        }
-
-        private void SearchBox_TextChanged(object sender, EventArgs e)
-        {
-            var text = (sender as TextBox).Text;
-            ListView.AdditionalFilter = !string.IsNullOrEmpty(text)
-                ? TextMatchFilter.Contains(ListView, text)
-                : null;
-        }
-
         private void OnEventsAdded(Playbook playbook, List<AbstractEvent> abstractEvents)
         {
             var events = abstractEvents.OfType<LogEvent>().ToList();
             if (events.Count == 0)
                 return;
-
-            var newItems = new List<LogModel>();
 
             foreach (var evt in events)
             {
@@ -201,19 +150,7 @@
                     Text = text,
                 };
 
-                _allItems.Add(item);
-
-                if (ItemVisible(item))
-                {
-                    newItems.Add(item);
-                }
-            }
-
-            if (newItems.Count > 0)
-            {
-                RefreshItems();
-                //ListView.AddObjects(newItems);
-                _newData = true;
+                _updater.AddItem(item);
             }
         }
     }

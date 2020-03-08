@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows
 {
     using System;
-    using System.Collections.Generic;
     using System.Drawing;
     using System.Windows.Forms;
     using FizzCode.EtLast.Diagnostics.Interface;
@@ -13,9 +12,8 @@
         public AbstractDiagContext Context { get; }
         public Control Container { get; }
         public ContextProcessInvocationListControl ProcessInvocationList { get; }
-        public ContextCounterListControl CounterList { get; }
         public ContextIoCommandListControl IoCommandList { get; }
-        public ContextRowStoreListControl RowStoreList { get; }
+        public ContextStoreListControl StoreList { get; }
 
         public ContextControl(AbstractDiagContext context, Control container)
         {
@@ -26,14 +24,26 @@
             try
             {
                 ProcessInvocationList = new ContextProcessInvocationListControl(container, context);
-                CounterList = new ContextCounterListControl(container, context);
-                IoCommandList = new ContextIoCommandListControl(container, context)
+
+                var ioCommandListContainer = new Panel()
+                {
+                    Parent = container,
+                    BorderStyle = BorderStyle.FixedSingle,
+                };
+
+                IoCommandList = new ContextIoCommandListControl(ioCommandListContainer, context)
                 {
                     LinkedProcessInvocationList = ProcessInvocationList,
                 };
-                RowStoreList = new ContextRowStoreListControl(container, context);
 
-                context.WholePlaybook.OnEventsAdded += OnEventsAdded;
+                var storeListContainer = new Panel()
+                {
+                    Parent = container,
+                    BorderStyle = BorderStyle.FixedSingle,
+                    Width = 300,
+                };
+
+                StoreList = new ContextStoreListControl(storeListContainer, context);
 
                 ProcessInvocationList.OnSelectionChanged += ProcessInvocationList_OnSelectionChanged;
 
@@ -51,18 +61,17 @@
             IoCommandList.HighlightedProcess = process;
         }
 
-        private void OnEventsAdded(Playbook playbook, List<AbstractEvent> abstractEvents)
-        {
-            IoCommandList.ProcessNewEvents(abstractEvents, false);
-        }
-
         private void Container_Resize(object sender, EventArgs e)
         {
-            ProcessInvocationList.ListView.Bounds = new Rectangle(0, 0, ProcessInvocationList.ListView.Width, Container.Height / 2);
-            IoCommandList.ListView.Bounds = new Rectangle(0, ProcessInvocationList.ListView.Bounds.Bottom, Container.Width - RowStoreList.ListView.Width, Container.Height - ProcessInvocationList.ListView.Bounds.Bottom);
-            CounterList.ListView.Bounds = new Rectangle(ProcessInvocationList.ListView.Bounds.Right, ProcessInvocationList.ListView.Bounds.Top, IoCommandList.ListView.Width - ProcessInvocationList.ListView.Bounds.Right, ProcessInvocationList.ListView.Bounds.Height);
+            var cr = Container.ClientRectangle;
+            var y = cr.Top;
+            var h = cr.Height / 2;
+            ProcessInvocationList.ListView.Bounds = new Rectangle(cr.Left, y, cr.Width, h);
 
-            RowStoreList.ListView.Bounds = new Rectangle(Container.Width - RowStoreList.ListView.Width, 0, RowStoreList.ListView.Width, Container.Height);
+            y = ProcessInvocationList.ListView.Bottom;
+            h = cr.Height - y;
+            StoreList.Container.Bounds = new Rectangle(cr.Left, y, StoreList.Container.Width, h);
+            IoCommandList.Container.Bounds = new Rectangle(StoreList.Container.Right, ProcessInvocationList.ListView.Bottom, cr.Width - StoreList.Container.Width, h);
         }
     }
 }

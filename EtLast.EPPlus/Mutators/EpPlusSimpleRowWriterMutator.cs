@@ -64,11 +64,7 @@
         {
             if (_storeUid == null)
             {
-                _storeUid = Context.GetStoreUid(new List<KeyValuePair<string, string>>()
-                {
-                    new KeyValuePair<string, string>("File", PathHelpers.GetFriendlyPathName(FileName)),
-                    new KeyValuePair<string, string>("Sheet", SheetName),
-                });
+                _storeUid = Context.GetStoreUid(PathHelpers.GetFriendlyPathName(FileName), SheetName);
             }
 
             Context.OnRowStored?.Invoke(this, row, _storeUid.Value);

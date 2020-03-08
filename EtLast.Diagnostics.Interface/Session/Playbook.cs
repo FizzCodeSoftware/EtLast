@@ -5,7 +5,6 @@
 
     public delegate void OnEventAddedDelegate(Playbook playbook, List<AbstractEvent> abstractEvents);
     public delegate void OnProcessInvokedDelegate(Playbook playbook, TrackedProcessInvocation process);
-    public delegate void OnCountersUpdatedDelegate(Playbook playbook);
     public delegate void OnRowStoreStartedDelegate(Playbook playbook, TrackedStore store);
     public delegate void OnRowStoredDelegate(Playbook playbook, TrackedStore store, TrackedProcessInvocation process, int rowUid, KeyValuePair<string, object>[] values);
 
@@ -15,7 +14,6 @@
 
         public Dictionary<int, TrackedStore> StoreList { get; } = new Dictionary<int, TrackedStore>();
         public Dictionary<int, TrackedProcessInvocation> ProcessList { get; } = new Dictionary<int, TrackedProcessInvocation>();
-        public Dictionary<string, Counter> Counters { get; } = new Dictionary<string, Counter>();
 
         public OnProcessInvokedDelegate OnProcessInvoked { get; set; }
         public OnEventAddedDelegate OnEventsAdded { get; set; }
@@ -31,7 +29,6 @@
         {
             var newEvents = new List<AbstractEvent>();
 
-            ContextCountersUpdatedEvent lastContextCountersUpdatedEvent = null;
             foreach (var abstactEvent in abstactEvents)
             {
                 switch (abstactEvent)
@@ -47,9 +44,6 @@
                             if (!ProcessList.ContainsKey(evt.ProcessInvocationUid))
                                 continue;
                         }
-                        break;
-                    case ContextCountersUpdatedEvent evt:
-                        lastContextCountersUpdatedEvent = evt;
                         break;
                     case ProcessInvocationStartEvent evt:
                         {
@@ -109,7 +103,7 @@
                         continue;
                     case RowStoreStartedEvent evt:
                         {
-                            var store = new TrackedStore(evt.UID, evt.Descriptor);
+                            var store = new TrackedStore(evt.UID, evt.Location, evt.Path);
                             StoreList.Add(evt.UID, store);
                             OnRowStoreStarted?.Invoke(this, store);
                         }
@@ -136,22 +130,6 @@
                 return;
 
             OnEventsAdded?.Invoke(this, newEvents);
-
-            if (lastContextCountersUpdatedEvent != null)
-            {
-                foreach (var counter in lastContextCountersUpdatedEvent.Counters)
-                {
-                    if (!Counters.TryGetValue(counter.Name, out var existingCounter))
-                    {
-                        Counters.Add(counter.Name, counter);
-                    }
-                    else
-                    {
-                        existingCounter.Value = counter.Value;
-                        existingCounter.ValueType = counter.ValueType;
-                    }
-                }
-            }
         }
     }
 }

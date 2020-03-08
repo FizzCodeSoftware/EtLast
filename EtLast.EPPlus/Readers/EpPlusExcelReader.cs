@@ -81,10 +81,10 @@
             }
 
             var iocUid = !string.IsNullOrEmpty(SheetName)
-                ? Context.RegisterIoCommandStart(this, IoCommandKind.fileRead, PathHelpers.GetFriendlyPathName(FileName) + " [\"" + SheetName + "\"]", null, null, null, null,
+                ? Context.RegisterIoCommandStart(this, IoCommandKind.fileRead, PathHelpers.GetFriendlyPathName(FileName), SheetName, null, null, null, null,
                     "reading from: {FileName}[{SheetName}]",
                     PathHelpers.GetFriendlyPathName(FileName), SheetName)
-                : Context.RegisterIoCommandStart(this, IoCommandKind.fileRead, PathHelpers.GetFriendlyPathName(FileName) + " [" + SheetIndex.ToString("D", CultureInfo.InvariantCulture) + "]", null, null, null, null,
+                : Context.RegisterIoCommandStart(this, IoCommandKind.fileRead, PathHelpers.GetFriendlyPathName(FileName), "#" + SheetIndex.ToString("D", CultureInfo.InvariantCulture), null, null, null, null,
                     "reading from: {FileName}[{SheetIndex}]",
                     PathHelpers.GetFriendlyPathName(FileName), SheetIndex);
 

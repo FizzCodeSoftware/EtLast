@@ -10,6 +10,7 @@
     public class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutator, IRowWriter
         where TState : BaseExcelWriterState, new()
     {
+        public string StoreLocation { get; set; }
         public Stream Stream { get; set; }
         public Action<ExcelPackage, TState> Initialize { get; set; }
         public Action<IRow, ExcelPackage, TState> Action { get; set; }
@@ -99,15 +100,15 @@
 
             if (Action == null)
                 throw new ProcessParameterNullException(this, nameof(Action));
+
+            if (string.IsNullOrEmpty(StoreLocation))
+                throw new ProcessParameterNullException(this, nameof(StoreLocation));
         }
 
         public void AddWorkSheet(string name)
         {
             _state.LastWorksheet = _package.Workbook.Worksheets.Add(name);
-            _storeUid = Context.GetStoreUid(new List<KeyValuePair<string, string>>()
-            {
-                new KeyValuePair<string, string>("Sheet", name),
-            });
+            _storeUid = Context.GetStoreUid(StoreLocation, name);
         }
     }
 }

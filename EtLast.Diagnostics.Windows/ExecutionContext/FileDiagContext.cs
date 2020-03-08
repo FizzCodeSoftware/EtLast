@@ -18,7 +18,7 @@
         public override bool FullyLoaded => EndedOn != null && _stagedEvents.Count == 0;
 
         private readonly List<AbstractEvent> _stagedEvents = new List<AbstractEvent>();
-        private readonly Dictionary<string, FileStream> _storeWriterStreams = new Dictionary<string, FileStream>();
+        private readonly Dictionary<string, FileStream> _openStoreWriterStreams = new Dictionary<string, FileStream>();
 
         public FileDiagContext(DiagSession session, string name, DateTime startedOn, string dataFolder, int fileCount)
             : base(session, name, startedOn)
@@ -78,12 +78,13 @@
 
                     if (eventKind == DiagnosticsEventKind.ContextEnded)
                     {
-                        foreach (var storeStream in _storeWriterStreams)
+                        foreach (var storeStream in _openStoreWriterStreams)
                         {
                             storeStream.Value.Flush();
                             storeStream.Value.Dispose();
                         }
 
+                        _openStoreWriterStreams.Clear();
                         EndedOn = new DateTime(timestamp);
                         continue;
                     }
@@ -96,7 +97,6 @@
                         DiagnosticsEventKind.RowValueChanged => ReadRowValueChangedEvent(reader),
                         DiagnosticsEventKind.RowStoreStarted => ReadRowStoreStartedEvent(reader),
                         DiagnosticsEventKind.RowStored => ReadRowStoredEvent(reader),
-                        DiagnosticsEventKind.ContextCountersUpdated => ReadContextCountersUpdatedEvent(reader),
                         DiagnosticsEventKind.ProcessInvocationStart => ReadProcessInvocationStartEvent(reader),
                         DiagnosticsEventKind.ProcessInvocationEnd => ReadProcessInvocationEndEvent(reader),
                         DiagnosticsEventKind.IoCommandStart => ReadIoCommandStartEvent(reader),
@@ -112,13 +112,13 @@
                         var eventBytes = input.ReadFrom(position, eventDataSize + 4);
 
                         var storeFileName = GetStoreFileName(rse.StoreUID);
-                        if (!_storeWriterStreams.TryGetValue(storeFileName, out var storeWriterStream))
+                        if (!_openStoreWriterStreams.TryGetValue(storeFileName, out var storeWriterStream))
                         {
                             storeWriterStream = new FileStream(storeFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 512 * 1024);
-                            _storeWriterStreams.Add(storeFileName, storeWriterStream);
+                            _openStoreWriterStreams.Add(storeFileName, storeWriterStream);
                         }
 
-                        lock (_storeWriterStreams)
+                        lock (_openStoreWriterStreams)
                         {
                             storeWriterStream.Write(eventBytes, 0, eventBytes.Length);
                         }
@@ -189,7 +189,6 @@
                             DiagnosticsEventKind.RowValueChanged => ReadRowValueChangedEvent(reader),
                             DiagnosticsEventKind.RowStoreStarted => ReadRowStoreStartedEvent(reader),
                             DiagnosticsEventKind.RowStored => ReadRowStoredEvent(reader),
-                            DiagnosticsEventKind.ContextCountersUpdated => ReadContextCountersUpdatedEvent(reader),
                             DiagnosticsEventKind.ProcessInvocationStart => ReadProcessInvocationStartEvent(reader),
                             DiagnosticsEventKind.ProcessInvocationEnd => ReadProcessInvocationEndEvent(reader),
                             DiagnosticsEventKind.IoCommandStart => ReadIoCommandStartEvent(reader),
@@ -213,9 +212,9 @@
             if (!File.Exists(storeFileName))
                 return;
 
-            if (_storeWriterStreams.TryGetValue(storeFileName, out var storeWriterStream))
+            if (_openStoreWriterStreams.TryGetValue(storeFileName, out var storeWriterStream))
             {
-                lock (_storeWriterStreams)
+                lock (_openStoreWriterStreams)
                 {
                     storeWriterStream.Flush();
                 }
@@ -284,7 +283,6 @@
                                 DiagnosticsEventKind.RowValueChanged => ReadRowValueChangedEvent(reader),
                                 DiagnosticsEventKind.RowStoreStarted => ReadRowStoreStartedEvent(reader),
                                 DiagnosticsEventKind.RowStored => ReadRowStoredEvent(reader),
-                                DiagnosticsEventKind.ContextCountersUpdated => ReadContextCountersUpdatedEvent(reader),
                                 DiagnosticsEventKind.ProcessInvocationStart => ReadProcessInvocationStartEvent(reader),
                                 DiagnosticsEventKind.ProcessInvocationEnd => ReadProcessInvocationEndEvent(reader),
                                 DiagnosticsEventKind.IoCommandStart => ReadIoCommandStartEvent(reader),

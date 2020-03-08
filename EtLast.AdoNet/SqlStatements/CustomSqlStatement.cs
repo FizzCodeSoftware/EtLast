@@ -9,6 +9,7 @@
     public class CustomSqlStatement : AbstractSqlStatement
     {
         public string SqlStatement { get; set; }
+        public string MainTableName { get; set; }
         public Dictionary<string, object> Parameters { get; set; }
 
         /// <summary>
@@ -45,9 +46,13 @@
 
         protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
         {
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbCustom, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-                "executing custom SQL statement on {ConnectionStringName}",
-                ConnectionString.Name);
+            var iocUid = MainTableName != null
+                ? Context.RegisterIoCommandStart(this, IoCommandKind.dbCustom, ConnectionString.Name, MainTableName, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+                    "executing custom SQL statement on {ConnectionStringName}/{TableName}",
+                    ConnectionString.Name)
+                : Context.RegisterIoCommandStart(this, IoCommandKind.dbCustom, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+                    "executing custom SQL statement on {ConnectionStringName}",
+                    ConnectionString.Name);
 
             try
             {

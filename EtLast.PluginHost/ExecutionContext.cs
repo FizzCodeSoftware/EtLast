@@ -7,7 +7,6 @@
     using System.IO;
     using System.Linq;
     using System.Text;
-    using System.Threading;
     using FizzCode.EtLast;
     using FizzCode.EtLast.Diagnostics.Interface;
     using Serilog.Events;
@@ -47,8 +46,6 @@
         private readonly Dictionary<string, MessageTemplate> _messageTemplateCache = new Dictionary<string, MessageTemplate>();
         private readonly object _messageTemplateCacheLock = new object();
         private readonly MessageTemplateParser _messageTemplateParser = new MessageTemplateParser();
-
-        private Timer _counterSenderTimer;
 
         public ExecutionContext(string sessionId, IEtlPlugin plugin, Module module, CommandContext commandContext)
         {
@@ -180,47 +177,6 @@
             }
         }
 
-        private readonly Dictionary<string, long> _lastCountersSent = new Dictionary<string, long>();
-
-        internal void SendContextCountersToDiagnostics()
-        {
-            _counterSenderTimer?.Change(Timeout.Infinite, Timeout.Infinite);
-
-            try
-            {
-                var counters = (CustomCounterCollection ?? Context.CounterCollection).GetCounters();
-                if (counters.Count == _lastCountersSent.Count)
-                {
-                    var same = counters.All(counter => _lastCountersSent.TryGetValue(counter.Code, out var value) && value == counter.Value);
-                    if (same)
-                        return;
-                }
-
-                _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.ContextCountersUpdated, writer =>
-                {
-                    writer.Write7BitEncodedInt(counters.Count);
-                    foreach (var counter in counters)
-                    {
-                        writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(counter.Name));
-                        writer.Write(counter.Value);
-                        writer.Write((byte)counter.ValueType);
-                    }
-                });
-
-                foreach (var counter in counters)
-                {
-                    _lastCountersSent[counter.Code] = counter.Value;
-                }
-            }
-            catch (Exception)
-            {
-            }
-            finally
-            {
-                _counterSenderTimer?.Change(2000, Timeout.Infinite);
-            }
-        }
-
         private void LogException(IProcess process, Exception exception)
         {
             var opsErrors = new List<string>();
@@ -339,17 +295,13 @@
             });
         }
 
-        private void LifecycleRowStoreStarted(int storeUid, List<KeyValuePair<string, string>> descriptor)
+        private void LifecycleRowStoreStarted(int storeUid, string location, string path)
         {
             _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowStoreStarted, writer =>
             {
                 writer.Write7BitEncodedInt(storeUid);
-                writer.Write7BitEncodedInt(descriptor.Count);
-                foreach (var kvp in descriptor)
-                {
-                    writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(kvp.Key));
-                    writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(kvp.Value));
-                }
+                writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(location));
+                writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(path));
             });
         }
 
@@ -394,7 +346,7 @@
             });
         }
 
-        private void ContextIoCommandStart(int uid, IoCommandKind kind, string target, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
+        private void ContextIoCommandStart(int uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
         {
             if (message != null)
             {
@@ -439,10 +391,16 @@
                 values.Add(uid);
                 values.Add(kind.ToString());
 
-                if (target != null)
+                if (location != null)
                 {
-                    sb.Append(", target: {IoCommandTarget}");
-                    values.Add(target);
+                    sb.Append(", location: {IoCommandTarget}");
+                    values.Add(location);
+                }
+
+                if (path != null)
+                {
+                    sb.Append(", path: {IoCommandTargetPath}");
+                    values.Add(path);
                 }
 
                 if (timeoutSeconds != null)
@@ -469,7 +427,8 @@
                 writer.Write7BitEncodedInt(uid);
                 writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
                 writer.Write((byte)kind);
-                writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(target));
+                writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(location));
+                writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(path));
                 writer.WriteNullable(timeoutSeconds);
                 writer.WriteNullable(command);
                 writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(transactionId));
@@ -597,11 +556,6 @@
             if (_commandContext.HostConfiguration.DiagnosticsUri != null)
             {
                 _diagnosticsSender = new HttpDiagnosticsSender(SessionId, Name, _commandContext.HostConfiguration.DiagnosticsUri);
-
-                _counterSenderTimer = new Timer(timer =>
-                {
-                    SendContextCountersToDiagnostics();
-                }, null, 2000, Timeout.Infinite);
             }
         }
 
@@ -617,20 +571,9 @@
 
         public void Close()
         {
-            if (_counterSenderTimer != null)
-            {
-                _counterSenderTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                _counterSenderTimer.Dispose();
-                _counterSenderTimer = null;
-            }
-
             if (_diagnosticsSender != null)
             {
-                SendContextCountersToDiagnostics();
-
-                _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.ContextEnded, writer =>
-                {
-                });
+                _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.ContextEnded, null);
 
                 _diagnosticsSender.Flush();
                 _diagnosticsSender.Dispose();
