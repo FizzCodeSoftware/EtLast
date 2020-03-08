@@ -2,7 +2,7 @@
 {
     public class RowOwnerChangedEvent : AbstractRowEvent
     {
-        public int PreviousProcessInvocationUID { get; set; }
-        public int? NewProcessInvocationUID { get; set; }
+        public int PreviousProcessInvocationUid { get; set; }
+        public int? NewProcessInvocationUid { get; set; }
     }
 }

@@ -138,8 +138,17 @@
 #pragma warning restore RCS1180 // Inline lazy initialization.
 
                     _currentDictionaryWriter.Write((byte)DiagnosticsEventKind.TextDictionaryKeyAdded);
+                    var eventDataLengthPos = (int)_currentDictionaryWriter.BaseStream.Position;
+                    _currentDictionaryWriter.Write(0);
+                    var startPos = (int)_currentDictionaryWriter.BaseStream.Position;
+
                     _currentDictionaryWriter.Write7BitEncodedInt(key);
                     _currentDictionaryWriter.WriteNullable(text);
+
+                    var endPos = (int)_currentDictionaryWriter.BaseStream.Position;
+                    _currentDictionaryWriter.Seek(eventDataLengthPos, SeekOrigin.Begin);
+                    _currentDictionaryWriter.Write(endPos - startPos);
+                    _currentDictionaryWriter.Seek(endPos, SeekOrigin.Begin);
                 }
 
                 return key;

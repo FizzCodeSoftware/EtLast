@@ -17,7 +17,6 @@
     {
         public Control Container { get; }
         public DiagSession Session { get; }
-        public ObjectListView ListView { get; }
         public CheckBox ShowDebugLevel { get; }
         public LogActionDelegate OnLogDoubleClicked { get; set; }
 
@@ -45,54 +44,52 @@
 
             ShowDebugLevel.CheckedChanged += (s, a) => _updater.RefreshItems(true);
 
-            ListView = ListViewHelpers.CreateListView(container);
-            ListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
-            ListView.Bounds = new Rectangle(Container.ClientRectangle.Left, Container.ClientRectangle.Top + 40, Container.ClientRectangle.Width, Container.ClientRectangle.Height - 40);
-            ListView.ItemActivate += ListView_ItemActivate;
+            _updater.ListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
+            _updater.ListView.Bounds = new Rectangle(Container.ClientRectangle.Left, Container.ClientRectangle.Top + 40, Container.ClientRectangle.Width, Container.ClientRectangle.Height - 40);
+            _updater.ListView.ItemActivate += ListView_ItemActivate;
 
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Timestamp",
                 AspectGetter = x => (x as LogModel)?.Timestamp,
                 AspectToStringConverter = x => ((DateTime)x).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture),
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Severity",
                 AspectGetter = x => (x as LogModel)?.Event.Severity.ToShortString(),
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Context",
                 AspectGetter = x => (x as LogModel)?.Playbook.DiagContext.Name,
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Process",
                 AspectGetter = x => (x as LogModel)?.Process?.Name,
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Kind",
                 AspectGetter = x => (x as LogModel)?.Process?.KindToString(),
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Type",
                 AspectGetter = x => (x as LogModel)?.Process?.Type,
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Topic",
                 AspectGetter = x => (x as LogModel)?.Process?.Topic,
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Message",
                 AspectGetter = x => (x as LogModel)?.Text,
             });
 
-            _updater.ListView = ListView;
             _updater.Start();
 
             diagnosticsStateManager.OnDiagContextCreated += ec =>
@@ -106,7 +103,7 @@
 
         private void ListView_ItemActivate(object sender, EventArgs e)
         {
-            if (ListView.GetItem(ListView.SelectedIndex).RowObject is LogModel item)
+            if (_updater.ListView.GetItem(_updater.ListView.SelectedIndex).RowObject is LogModel item)
             {
                 OnLogDoubleClicked?.Invoke(item);
             }

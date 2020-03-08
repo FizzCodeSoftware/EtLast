@@ -54,7 +54,7 @@
                                     continue;
 
                                 var process = new TrackedProcessInvocation(evt.InvocationUID, evt.InstanceUID, evt.InvocationCounter, invoker, evt.Type, evt.Kind, evt.Name, evt.Topic);
-                                ProcessList.Add(process.InvocationUID, process);
+                                ProcessList.Add(process.InvocationUid, process);
                                 OnProcessInvoked?.Invoke(this, process);
                             }
                         }
@@ -73,7 +73,7 @@
                         break;
                     case RowCreatedEvent evt:
                         {
-                            if (!ProcessList.TryGetValue(evt.ProcessInvocationUID, out var process))
+                            if (!ProcessList.TryGetValue(evt.ProcessInvocationUid, out var process))
                                 continue;
 
                             process.CreateRow();
@@ -81,11 +81,11 @@
                         break;
                     case RowOwnerChangedEvent evt:
                         {
-                            if (!ProcessList.TryGetValue(evt.PreviousProcessInvocationUID, out var previousProcess))
+                            if (!ProcessList.TryGetValue(evt.PreviousProcessInvocationUid, out var previousProcess))
                                 continue;
 
                             TrackedProcessInvocation newProcess = null;
-                            if (evt.NewProcessInvocationUID != null && !ProcessList.TryGetValue(evt.NewProcessInvocationUID.Value, out newProcess))
+                            if (evt.NewProcessInvocationUid != null && !ProcessList.TryGetValue(evt.NewProcessInvocationUid.Value, out newProcess))
                                 continue;
 
                             if (newProcess != null)

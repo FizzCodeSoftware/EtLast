@@ -29,7 +29,7 @@
             };
         }
 
-        public abstract void EnumerateThroughEvents(Action<AbstractEvent> callback, params DiagnosticsEventKind[] eventKindFilter);
+        public abstract void EnumerateThroughEvents(Func<AbstractEvent, bool> callback, params DiagnosticsEventKind[] eventKindFilter);
         public abstract void EnumerateThroughStoredRows(int storeUid, Action<RowStoredEvent> callback);
     }
 }

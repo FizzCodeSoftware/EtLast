@@ -48,7 +48,7 @@
             }
 
             var mainFileName = GetMainFileName(LastMainFileIndex);
-            using (var fw = new FileStream(mainFileName, FileMode.Append, FileAccess.Write))
+            using (var fw = new FileStream(mainFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
             {
                 input.CopyTo(fw);
                 LastMainFileSize += length;
@@ -64,6 +64,8 @@
                 while (reader.BaseStream.Position < length)
                 {
                     var eventKind = (DiagnosticsEventKind)reader.ReadByte();
+                    var eventDataSize = reader.ReadInt32(); // eventDataSize
+
                     if (eventKind == DiagnosticsEventKind.TextDictionaryKeyAdded)
                     {
                         var key = reader.Read7BitEncodedInt();
@@ -73,7 +75,6 @@
                     }
 
                     var position = input.Position;
-                    var eventDataSize = reader.ReadInt32(); // eventDataSize
                     var timestamp = reader.ReadInt64();
 
                     if (eventKind == DiagnosticsEventKind.ContextEnded)
@@ -161,6 +162,10 @@
                     while (memoryCache.Position < length)
                     {
                         var eventKind = (DiagnosticsEventKind)reader.ReadByte();
+                        var eventDataSize = reader.ReadInt32();
+                        if (memoryCache.Position + eventDataSize > memoryCache.Length)
+                            break;
+
                         if (eventKind == DiagnosticsEventKind.TextDictionaryKeyAdded)
                         {
                             var key = reader.Read7BitEncodedInt();
@@ -168,10 +173,6 @@
                             TextDictionary.Add(key, text == null ? null : string.Intern(text));
                             continue;
                         }
-
-                        var eventDataSize = reader.ReadInt32();
-                        if (memoryCache.Position + eventDataSize > memoryCache.Length)
-                            break;
 
                         var timestamp = reader.ReadInt64();
 
@@ -228,7 +229,7 @@
                 using (var reader = new ExtendedBinaryReader(memoryCache, Encoding.UTF8))
                 {
                     var length = memoryCache.Length;
-                    while (memoryCache.Position < length)
+                    while (memoryCache.Position + 5 < length)
                     {
                         var eventDataSize = reader.ReadInt32();
                         if (memoryCache.Position + eventDataSize > memoryCache.Length)
@@ -243,7 +244,7 @@
             }
         }
 
-        public override void EnumerateThroughEvents(Action<AbstractEvent> callback, params DiagnosticsEventKind[] eventKindFilter)
+        public override void EnumerateThroughEvents(Func<AbstractEvent, bool> callback, params DiagnosticsEventKind[] eventKindFilter)
         {
             var fileNames = Enumerable
                 .Range(1, LastMainFileIndex)
@@ -251,55 +252,60 @@
 
             var eventKinds = eventKindFilter.ToHashSet();
 
+            var eventsRead = 0;
             foreach (var fileName in fileNames)
             {
-                using (var memoryCache = new MemoryStream(File.ReadAllBytes(fileName)))
-                using (var reader = new ExtendedBinaryReader(memoryCache, Encoding.UTF8))
+                using (var fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var memoryCache = new MemoryStream())
                 {
-                    var length = reader.BaseStream.Length;
-                    while (reader.BaseStream.Position < length)
+                    fileStream.CopyTo(memoryCache);
+                    memoryCache.Position = 0;
+
+                    using (var reader = new ExtendedBinaryReader(memoryCache, Encoding.UTF8))
                     {
-                        var eventKind = (DiagnosticsEventKind)reader.ReadByte();
-                        if (eventKind == DiagnosticsEventKind.TextDictionaryKeyAdded)
+                        var length = reader.BaseStream.Length;
+                        while (memoryCache.Position + 5 < length)
                         {
-                            var key = reader.Read7BitEncodedInt();
-                            var text = reader.ReadNullableString();
-                            continue;
-                        }
+                            var eventKind = (DiagnosticsEventKind)reader.ReadByte();
+                            var eventDataSize = reader.ReadInt32();
+                            if (memoryCache.Position + eventDataSize > memoryCache.Length)
+                                break;
 
-                        var eventDataSize = reader.ReadInt32();
+                            eventsRead++;
 
-                        if (eventKind == DiagnosticsEventKind.ContextEnded)
-                            continue;
-
-                        if (eventKinds.Contains(eventKind))
-                        {
-                            var timestamp = reader.ReadInt64();
-                            var evt = eventKind switch
+                            if (eventKinds.Contains(eventKind))
                             {
-                                DiagnosticsEventKind.Log => ReadLogEvent(reader),
-                                DiagnosticsEventKind.RowCreated => ReadRowCreatedEvent(reader),
-                                DiagnosticsEventKind.RowOwnerChanged => ReadRowOwnerChangedEvent(reader),
-                                DiagnosticsEventKind.RowValueChanged => ReadRowValueChangedEvent(reader),
-                                DiagnosticsEventKind.RowStoreStarted => ReadRowStoreStartedEvent(reader),
-                                DiagnosticsEventKind.RowStored => ReadRowStoredEvent(reader),
-                                DiagnosticsEventKind.ProcessInvocationStart => ReadProcessInvocationStartEvent(reader),
-                                DiagnosticsEventKind.ProcessInvocationEnd => ReadProcessInvocationEndEvent(reader),
-                                DiagnosticsEventKind.IoCommandStart => ReadIoCommandStartEvent(reader),
-                                DiagnosticsEventKind.IoCommandEnd => ReadIoCommandEndEvent(reader),
-                                _ => null,
-                            };
+                                var timestamp = reader.ReadInt64();
+                                var evt = eventKind switch
+                                {
+                                    DiagnosticsEventKind.Log => ReadLogEvent(reader),
+                                    DiagnosticsEventKind.RowCreated => ReadRowCreatedEvent(reader),
+                                    DiagnosticsEventKind.RowOwnerChanged => ReadRowOwnerChangedEvent(reader),
+                                    DiagnosticsEventKind.RowValueChanged => ReadRowValueChangedEvent(reader),
+                                    DiagnosticsEventKind.RowStoreStarted => ReadRowStoreStartedEvent(reader),
+                                    DiagnosticsEventKind.RowStored => ReadRowStoredEvent(reader),
+                                    DiagnosticsEventKind.ProcessInvocationStart => ReadProcessInvocationStartEvent(reader),
+                                    DiagnosticsEventKind.ProcessInvocationEnd => ReadProcessInvocationEndEvent(reader),
+                                    DiagnosticsEventKind.IoCommandStart => ReadIoCommandStartEvent(reader),
+                                    DiagnosticsEventKind.IoCommandEnd => ReadIoCommandEndEvent(reader),
+                                    _ => null,
+                                };
 
-                            evt.Timestamp = timestamp;
-                            callback.Invoke(evt);
-                        }
-                        else
-                        {
-                            reader.BaseStream.Seek(eventDataSize, SeekOrigin.Current);
+                                evt.Timestamp = timestamp;
+                                var canContinue = callback.Invoke(evt);
+                                if (!canContinue)
+                                    break;
+                            }
+                            else
+                            {
+                                reader.BaseStream.Seek(eventDataSize, SeekOrigin.Current);
+                            }
                         }
                     }
                 }
             }
+
+            Debug.WriteLine("events read: " + eventsRead.ToString("D", CultureInfo.InvariantCulture));
         }
     }
 }

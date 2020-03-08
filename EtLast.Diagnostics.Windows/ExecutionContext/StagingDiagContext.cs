@@ -89,7 +89,7 @@
         {
             var evt = new RowCreatedEvent
             {
-                ProcessInvocationUID = reader.Read7BitEncodedInt(),
+                ProcessInvocationUid = reader.Read7BitEncodedInt(),
                 RowUid = reader.Read7BitEncodedInt()
             };
 
@@ -113,8 +113,8 @@
             return new RowOwnerChangedEvent
             {
                 RowUid = reader.Read7BitEncodedInt(),
-                PreviousProcessInvocationUID = reader.Read7BitEncodedInt(),
-                NewProcessInvocationUID = reader.ReadNullableInt32()
+                PreviousProcessInvocationUid = reader.Read7BitEncodedInt(),
+                NewProcessInvocationUid = reader.ReadNullableInt32()
             };
         }
 

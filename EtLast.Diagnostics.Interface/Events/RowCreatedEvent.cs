@@ -4,7 +4,7 @@
 
     public class RowCreatedEvent : AbstractRowEvent
     {
-        public int ProcessInvocationUID { get; set; }
+        public int ProcessInvocationUid { get; set; }
         public KeyValuePair<string, object>[] Values { get; set; }
     }
 }

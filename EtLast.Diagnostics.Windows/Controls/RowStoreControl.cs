@@ -33,7 +33,7 @@
 
             SearchBox.TextChanged += SearchBox_TextChanged;
 
-            ListView = ListViewHelpers.CreateListView(container);
+            ListView = ControlUpdater<string>.CreateListView(container);
             ListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
             ListView.Bounds = new Rectangle(Container.ClientRectangle.Left, Container.ClientRectangle.Top + 40, Container.ClientRectangle.Width, Container.ClientRectangle.Height - 40);
             ListView.FormatCell += ListView_FormatCell;
@@ -42,7 +42,7 @@
             ListView.AllColumns.Add(new OLVColumn()
             {
                 Text = "ID",
-                AspectGetter = x => (x as StoredRowModel)?.UID,
+                AspectGetter = x => (x as StoredRowModel)?.RowUid,
             });
             ListView.AllColumns.Add(new OLVColumn()
             {
@@ -127,7 +127,7 @@
 
                     var model = new StoredRowModel()
                     {
-                        UID = evt.RowUid,
+                        RowUid = evt.RowUid,
                         ProcessName = process.DisplayName,
                         Values = new object[ListView.AllColumns.Count - _fixColumnCount],
                         Types = new string[ListView.AllColumns.Count - _fixColumnCount],
@@ -167,7 +167,7 @@
 
         private class StoredRowModel
         {
-            public int UID { get; set; }
+            public int RowUid { get; set; }
             public string ProcessName { get; set; }
             public object[] Values { get; set; }
             public string[] Types { get; set; }

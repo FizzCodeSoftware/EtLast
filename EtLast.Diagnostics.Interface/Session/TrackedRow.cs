@@ -8,11 +8,11 @@
     {
         public int Uid { get; set; }
         public TrackedProcessInvocation CreatorProcess { get; set; }
+        public TrackedProcessInvocation PreviousProcess { get; set; }
+        public TrackedProcessInvocation NextProcess { get; set; }
 
-        // todo: possible memory issues
-        //public List<AbstractRowEvent> AllEvents { get; } = new List<AbstractRowEvent>();
+        public List<AbstractRowEvent> AllEvents { get; } = new List<AbstractRowEvent>();
 
-        // todo: possible memory issues
-        public Dictionary<string, object> Values { get; } = new Dictionary<string, object>();
+        public Dictionary<string, object> Values { get; set; }
     }
 }

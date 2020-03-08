@@ -17,7 +17,6 @@
     {
         public Control Container { get; }
         public DiagSession Session { get; }
-        public ObjectListView ListView { get; }
         public CheckBox ShowDbTransactionKind { get; }
         public CheckBox ShowDbConnectionKind { get; }
         public CheckBox HideVeryFast { get; }
@@ -69,75 +68,74 @@
 
             HideVeryFast.CheckedChanged += (s, a) => _updater.RefreshItems(true);
 
-            ListView = ListViewHelpers.CreateListView(container);
-            ListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
-            ListView.Bounds = new Rectangle(Container.ClientRectangle.Left, Container.ClientRectangle.Top + 40, Container.ClientRectangle.Width, Container.ClientRectangle.Height - 40);
-            ListView.ItemActivate += ListView_ItemActivate;
+            _updater.ListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
+            _updater.ListView.Bounds = new Rectangle(Container.ClientRectangle.Left, Container.ClientRectangle.Top + 40, Container.ClientRectangle.Width, Container.ClientRectangle.Height - 40);
+            _updater.ListView.ItemActivate += ListView_ItemActivate;
 
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "ID",
                 AspectGetter = x => (x as IoCommandModel)?.StartEvent.Uid,
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Timestamp",
                 AspectGetter = x => (x as IoCommandModel)?.Timestamp,
                 AspectToStringConverter = x => ((DateTime)x).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture),
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Context",
                 AspectGetter = x => (x as IoCommandModel)?.Playbook.DiagContext.Name,
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Process",
                 AspectGetter = x => (x as IoCommandModel)?.Process.Name,
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Kind",
                 AspectGetter = x => (x as IoCommandModel)?.Process.KindToString(),
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Type",
                 AspectGetter = x => (x as IoCommandModel)?.Process.Type,
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Topic",
                 AspectGetter = x => (x as IoCommandModel)?.Process.Topic,
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Transaction",
                 AspectGetter = x => (x as IoCommandModel)?.StartEvent.TransactionId,
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Command kind",
                 AspectGetter = x => (x as IoCommandModel)?.StartEvent.Kind.ToString(),
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Location",
                 AspectGetter = x => (x as IoCommandModel)?.StartEvent.Location,
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Path",
                 AspectGetter = x => (x as IoCommandModel)?.StartEvent.Path,
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Timeout",
                 AspectGetter = x => (x as IoCommandModel)?.StartEvent.TimeoutSeconds,
                 TextAlign = HorizontalAlignment.Right,
                 HeaderTextAlign = HorizontalAlignment.Right,
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Elapsed",
                 AspectGetter = x => (x as IoCommandModel)?.Elapsed,
@@ -145,7 +143,7 @@
                 TextAlign = HorizontalAlignment.Right,
                 HeaderTextAlign = HorizontalAlignment.Right,
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Affected data",
                 AspectGetter = x => (x as IoCommandModel)?.EndEvent?.AffectedDataCount,
@@ -153,23 +151,22 @@
                 TextAlign = HorizontalAlignment.Right,
                 HeaderTextAlign = HorizontalAlignment.Right,
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Error",
                 AspectGetter = x => (x as IoCommandModel)?.EndEvent?.ErrorMessage,
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Arguments",
                 AspectGetter = x => (x as IoCommandModel)?.ArgumentsPreview,
             });
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Command",
                 AspectGetter = x => (x as IoCommandModel)?.StartEvent.Command,
             });
 
-            _updater.ListView = ListView;
             _updater.Start();
 
             diagnosticsStateManager.OnDiagContextCreated += ec =>
@@ -183,7 +180,7 @@
 
         private void ListView_ItemActivate(object sender, EventArgs e)
         {
-            if (ListView.GetItem(ListView.SelectedIndex).RowObject is IoCommandModel item)
+            if (_updater.ListView.GetItem(_updater.ListView.SelectedIndex).RowObject is IoCommandModel item)
             {
                 OnIoCommandDoubleClicked?.Invoke(item);
             }
@@ -197,7 +194,7 @@
             if (item.StartEvent.Kind == IoCommandKind.dbConnection && !ShowDbConnectionKind.Checked)
                 return false;
 
-            if (item.Elapsed?.TotalMilliseconds < 100 && HideVeryFast.Checked)
+            if (item.Elapsed?.TotalMilliseconds < 10 && HideVeryFast.Checked)
                 return false;
 
             return true;

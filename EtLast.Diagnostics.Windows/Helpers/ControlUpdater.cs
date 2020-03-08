@@ -15,7 +15,7 @@
         public AbstractDiagContext Context { get; }
         public Control Container { get; }
         public int Interval { get => _timer.Interval; set => _timer.Interval = value; }
-        public ObjectListView ListView { get; set; }
+        public ObjectListView ListView { get; }
         public Func<TItem, bool> ItemFilter { get; set; }
         public TextBox SearchBox { get; private set; }
         public bool AutoUpdateUntilContextLoaded { get; set; }
@@ -34,7 +34,48 @@
                 Enabled = false,
             };
 
+            ListView = CreateListView(container);
+
             _timer.Tick += Timer_Tick;
+        }
+
+#pragma warning disable RCS1158 // Static member in generic type should use a type parameter.
+        public static ObjectListView CreateListView(Control container)
+#pragma warning restore RCS1158 // Static member in generic type should use a type parameter.
+        {
+            return new FastObjectListView()
+            {
+                Parent = container,
+                BorderStyle = BorderStyle.FixedSingle,
+                ShowItemToolTips = true,
+                ShowGroups = false,
+                UseFiltering = true,
+                ShowCommandMenuOnRightClick = true,
+                SelectColumnsOnRightClickBehaviour = ObjectListView.ColumnSelectBehaviour.None,
+                ShowFilterMenuOnRightClick = true,
+                FullRowSelect = true,
+                UseAlternatingBackColors = true,
+                HeaderUsesThemes = true,
+                GridLines = true,
+                AlternateRowBackColor = Color.FromArgb(240, 240, 240),
+                UseFilterIndicator = true,
+                FilterMenuBuildStrategy = new DiagnosticsFilterMenuBuilder()
+                {
+                    MaxObjectsToConsider = int.MaxValue,
+                },
+                MultiSelect = false,
+                HideSelection = false,
+                UseHotItem = true,
+                HotItemStyle = new HotItemStyle()
+                {
+                    Decoration = new RowBorderDecoration()
+                    {
+                        BorderPen = new Pen(Color.DarkBlue, 1),
+                        BoundsPadding = new Size(1, 1),
+                        CornerRounding = 8,
+                    },
+                },
+            };
         }
 
         public void CreateSearchBox(int x, int y, int w = 150, int h = 20)
@@ -76,16 +117,7 @@
                 {
                     ListView.SetObjects(query);
 
-                    foreach (OLVColumn col in ListView.Columns)
-                    {
-                        col.MinimumWidth = 0;
-                        col.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
-                    }
-
-                    foreach (OLVColumn col in ListView.Columns)
-                    {
-                        col.Width += 10;
-                    }
+                    ResizeListView(ListView);
                 }
                 finally
                 {
@@ -95,6 +127,22 @@
             else
             {
                 ListView.SetObjects(query);
+            }
+        }
+
+#pragma warning disable RCS1158 // Static member in generic type should use a type parameter.
+        public static void ResizeListView(ObjectListView listView)
+#pragma warning restore RCS1158 // Static member in generic type should use a type parameter.
+        {
+            foreach (OLVColumn col in listView.Columns)
+            {
+                col.MinimumWidth = 0;
+                col.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
+            }
+
+            foreach (OLVColumn col in listView.Columns)
+            {
+                col.Width += 10;
             }
         }
 

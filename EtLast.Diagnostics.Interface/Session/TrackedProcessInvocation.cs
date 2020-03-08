@@ -10,7 +10,7 @@
     [DebuggerDisplay("{Name}")]
     public class TrackedProcessInvocation
     {
-        public int InvocationUID { get; }
+        public int InvocationUid { get; }
         public int InstanceUID { get; }
         public int InvocationCounter { get; }
 
@@ -76,7 +76,7 @@
 
         public TrackedProcessInvocation(int invocationUID, int instanceUID, int invocationCounter, TrackedProcessInvocation invoker, string type, ProcessKind kind, string name, string topic)
         {
-            InvocationUID = invocationUID;
+            InvocationUid = invocationUID;
             InstanceUID = instanceUID;
             InvocationCounter = invocationCounter;
 
@@ -88,7 +88,7 @@
 
             Invoker = invoker;
             Invoker?.Children.Add(this);
-            Invoker?.InputRowCountByPreviousProcess.Add(InvocationUID, 0);
+            Invoker?.InputRowCountByPreviousProcess.Add(InvocationUid, 0);
 
             ParentInvokerCount = invoker != null
                 ? invoker.ParentInvokerCount + 1
@@ -242,17 +242,17 @@
         {
             AliveRowCount++;
 
-            if (!AliveRowsByPreviousProcess.TryGetValue(previousProcess.InvocationUID, out var list))
+            if (!AliveRowsByPreviousProcess.TryGetValue(previousProcess.InvocationUid, out var list))
             {
                 list = new HashSet<int>();
-                AliveRowsByPreviousProcess.Add(previousProcess.InvocationUID, list);
+                AliveRowsByPreviousProcess.Add(previousProcess.InvocationUid, list);
             }
 
             list.Add(uid);
 
-            InputRowCountByPreviousProcess.TryGetValue(previousProcess.InvocationUID, out var cnt);
+            InputRowCountByPreviousProcess.TryGetValue(previousProcess.InvocationUid, out var cnt);
             cnt++;
-            InputRowCountByPreviousProcess[previousProcess.InvocationUID] = cnt;
+            InputRowCountByPreviousProcess[previousProcess.InvocationUid] = cnt;
             InputRowCount++;
         }
 

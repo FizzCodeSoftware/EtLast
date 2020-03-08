@@ -5,12 +5,12 @@
     using System.Windows.Forms;
     using BrightIdeasSoftware;
 
-    public class CustomFilterMenuBuilder : FilterMenuBuilder
+    public class DiagnosticsFilterMenuBuilder : FilterMenuBuilder
     {
         private bool _insideHandleItemCheckedWrapped;
 
 #pragma warning disable CA1810 // Initialize reference type static fields inline
-        static CustomFilterMenuBuilder()
+        static DiagnosticsFilterMenuBuilder()
 #pragma warning restore CA1810 // Initialize reference type static fields inline
         {
             FILTERING_LABEL = "Column filtering";

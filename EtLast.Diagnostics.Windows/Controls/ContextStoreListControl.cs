@@ -12,7 +12,6 @@
     {
         public Control Container { get; }
         public AbstractDiagContext Context { get; }
-        public ObjectListView ListView { get; }
 
         private readonly ControlUpdater<TrackedStore> _updater;
 
@@ -29,13 +28,12 @@
 
             _updater.CreateSearchBox(10, 10);
 
-            ListView = ListViewHelpers.CreateListView(container);
-            ListView.BorderStyle = BorderStyle.None;
-            ListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
-            ListView.Bounds = new Rectangle(Container.ClientRectangle.Left, Container.ClientRectangle.Top + 40, Container.ClientRectangle.Width, Container.ClientRectangle.Height - 40);
-            ListView.ItemActivate += ListView_ItemActivate;
+            _updater.ListView.BorderStyle = BorderStyle.None;
+            _updater.ListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
+            _updater.ListView.Bounds = new Rectangle(Container.ClientRectangle.Left, Container.ClientRectangle.Top + 40, Container.ClientRectangle.Width, Container.ClientRectangle.Height - 40);
+            _updater.ListView.ItemActivate += ListView_ItemActivate;
 
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Rows",
                 AspectGetter = x => (x as TrackedStore)?.RowCount,
@@ -44,13 +42,13 @@
                 HeaderTextAlign = HorizontalAlignment.Right,
             });
 
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Location",
                 AspectGetter = x => (x as TrackedStore)?.Location,
             });
 
-            ListView.Columns.Add(new OLVColumn()
+            _updater.ListView.Columns.Add(new OLVColumn()
             {
                 Text = "Path",
                 AspectGetter = x => (x as TrackedStore)?.Path,
@@ -58,13 +56,12 @@
 
             context.WholePlaybook.OnRowStoreStarted += OnRowStoreStarted;
 
-            _updater.ListView = ListView;
             _updater.Start();
         }
 
         private void ListView_ItemActivate(object sender, EventArgs e)
         {
-            if (ListView.GetItem(ListView.SelectedIndex).RowObject is TrackedStore store)
+            if (_updater.ListView.GetItem(_updater.ListView.SelectedIndex).RowObject is TrackedStore store)
             {
 #pragma warning disable CA2000 // Dispose objects before losing scope
                 var form = new Form()
