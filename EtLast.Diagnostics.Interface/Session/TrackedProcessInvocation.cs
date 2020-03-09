@@ -121,7 +121,7 @@
                 string.Join(" + ", InputRowCountByPreviousProcess.Where(x => x.Value > 0).Select(x => x.Value.FormatToString()));
         }
 
-        public string GetFormattedRowFlow(AbstractDiagContext diagContext)
+        public string GetFormattedRowFlow(DiagContext diagContext)
         {
             var sb = new StringBuilder();
 

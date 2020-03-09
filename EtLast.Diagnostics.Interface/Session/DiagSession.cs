@@ -11,8 +11,8 @@
         public string DataFolder { get; }
         public DateTime StartedOn { get; }
 
-        public List<AbstractDiagContext> ContextList { get; } = new List<AbstractDiagContext>();
-        public Dictionary<string, AbstractDiagContext> ContextListByName { get; } = new Dictionary<string, AbstractDiagContext>();
+        public List<DiagContext> ContextList { get; } = new List<DiagContext>();
+        public Dictionary<string, DiagContext> ContextListByName { get; } = new Dictionary<string, DiagContext>();
 
         public DiagSession(string name, string dataFolder, DateTime startedOn)
         {

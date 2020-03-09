@@ -10,7 +10,7 @@
 
     public class Playbook
     {
-        public AbstractDiagContext DiagContext { get; }
+        public DiagContext DiagContext { get; }
 
         public Dictionary<int, TrackedStore> StoreList { get; } = new Dictionary<int, TrackedStore>();
         public Dictionary<int, TrackedProcessInvocation> ProcessList { get; } = new Dictionary<int, TrackedProcessInvocation>();
@@ -20,7 +20,7 @@
         public OnRowStoreStartedDelegate OnRowStoreStarted { get; set; }
         public OnRowStoredDelegate OnRowStored { get; set; }
 
-        public Playbook(AbstractDiagContext sessionContext)
+        public Playbook(DiagContext sessionContext)
         {
             DiagContext = sessionContext;
         }
@@ -113,7 +113,7 @@
                             if (!ProcessList.TryGetValue(evt.ProcessInvocationUID, out var process))
                                 continue;
 
-                            if (!StoreList.TryGetValue(evt.StoreUID, out var store))
+                            if (!StoreList.TryGetValue(evt.StoreUid, out var store))
                                 continue;
 
                             process.StoreRow(evt.RowUid);

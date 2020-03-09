@@ -11,11 +11,11 @@
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public Control Container { get; }
-        public AbstractDiagContext Context { get; }
+        public DiagContext Context { get; }
 
         private readonly ControlUpdater<TrackedStore> _updater;
 
-        public ContextStoreListControl(Control container, AbstractDiagContext context)
+        public ContextStoreListControl(Control container, DiagContext context)
         {
             Container = container;
             Context = context;

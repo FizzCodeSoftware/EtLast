@@ -91,7 +91,7 @@
             }
         }
 
-        private void OnDiagContextCreated(AbstractDiagContext diagContext)
+        private void OnDiagContextCreated(DiagContext diagContext)
         {
             if (_contextContainerManagers.ContainsKey(diagContext.Name))
                 return;

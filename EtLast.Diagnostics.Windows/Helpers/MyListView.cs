@@ -4,17 +4,17 @@
 
     public class MyListView : ListView
     {
-        protected override void WndProc(ref Message message)
+        protected override void WndProc(ref Message m)
         {
-            if (message.Msg == 0x203)
+            if (m.Msg == 0x203)
             {
-                var x = (short)message.LParam;
-                var y = (short)((int)message.LParam >> 16);
+                var x = (short)m.LParam;
+                var y = (short)((int)m.LParam >> 16);
                 var e = new MouseEventArgs(MouseButtons.Left, 2, x, y, 0);
                 OnMouseDoubleClick(e);
             }
 
-            base.WndProc(ref message);
+            base.WndProc(ref m);
         }
     }
 }

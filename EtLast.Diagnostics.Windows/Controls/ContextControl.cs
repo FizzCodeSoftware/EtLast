@@ -9,13 +9,13 @@
     internal class ContextControl
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        public AbstractDiagContext Context { get; }
+        public DiagContext Context { get; }
         public Control Container { get; }
         public ContextProcessInvocationListControl ProcessInvocationList { get; }
         public ContextIoCommandListControl IoCommandList { get; }
         public ContextStoreListControl StoreList { get; }
 
-        public ContextControl(AbstractDiagContext context, Control container)
+        public ContextControl(DiagContext context, Control container)
         {
             Context = context;
             Container = container;

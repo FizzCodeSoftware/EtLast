@@ -1,25 +1,21 @@
-﻿namespace FizzCode.EtLast.Diagnostics
+﻿#pragma warning disable CA1822 // Mark members as static
+namespace FizzCode.EtLast.Diagnostics.Interface
 {
     using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.IO;
-    using FizzCode.EtLast.Diagnostics.Interface;
 
-    [DebuggerDisplay("{Name}")]
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable
-    public abstract class StagingDiagContext : AbstractDiagContext
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable
+    public class EventParser
     {
-        protected StagingDiagContext(DiagSession session, string name, System.DateTime startedOn)
-            : base(session, name, startedOn)
+        public Dictionary<int, string> TextDictionary { get; }
+
+        public EventParser()
         {
+            TextDictionary = new Dictionary<int, string>()
+            {
+                [0] = null,
+            };
         }
 
-        public abstract void StageEvents(MemoryStream input);
-
-        public abstract void LoadStagedEvents();
-
-        protected virtual AbstractEvent ReadProcessInvocationStartEvent(ExtendedBinaryReader reader)
+        public ProcessInvocationStartEvent ReadProcessInvocationStartEvent(ExtendedBinaryReader reader)
         {
             return new ProcessInvocationStartEvent
             {
@@ -34,7 +30,7 @@
             };
         }
 
-        protected virtual AbstractEvent ReadProcessInvocationEndEvent(ExtendedBinaryReader reader)
+        public ProcessInvocationEndEvent ReadProcessInvocationEndEvent(ExtendedBinaryReader reader)
         {
             return new ProcessInvocationEndEvent
             {
@@ -44,7 +40,7 @@
             };
         }
 
-        protected virtual AbstractEvent ReadIoCommandStartEvent(ExtendedBinaryReader reader)
+        public IoCommandStartEvent ReadIoCommandStartEvent(ExtendedBinaryReader reader)
         {
             var evt = new IoCommandStartEvent
             {
@@ -73,7 +69,7 @@
             return evt;
         }
 
-        protected virtual AbstractEvent ReadIoCommandEndEvent(ExtendedBinaryReader reader)
+        public IoCommandEndEvent ReadIoCommandEndEvent(ExtendedBinaryReader reader)
         {
             var evt = new IoCommandEndEvent
             {
@@ -85,7 +81,7 @@
             return evt;
         }
 
-        protected virtual AbstractEvent ReadRowCreatedEvent(ExtendedBinaryReader reader)
+        public RowCreatedEvent ReadRowCreatedEvent(ExtendedBinaryReader reader)
         {
             var evt = new RowCreatedEvent
             {
@@ -108,7 +104,7 @@
             return evt;
         }
 
-        protected virtual AbstractEvent ReadRowOwnerChangedEvent(ExtendedBinaryReader reader)
+        public RowOwnerChangedEvent ReadRowOwnerChangedEvent(ExtendedBinaryReader reader)
         {
             return new RowOwnerChangedEvent
             {
@@ -118,7 +114,7 @@
             };
         }
 
-        protected virtual AbstractEvent ReadRowValueChangedEvent(ExtendedBinaryReader reader)
+        public RowValueChangedEvent ReadRowValueChangedEvent(ExtendedBinaryReader reader)
         {
             var evt = new RowValueChangedEvent
             {
@@ -141,9 +137,9 @@
             return evt;
         }
 
-        protected virtual AbstractEvent ReadRowStoreStartedEvent(ExtendedBinaryReader reader)
+        public RowStoreStartedEvent ReadRowStoreStartedEvent(ExtendedBinaryReader reader)
         {
-            var evt = new RowStoreStartedEvent()
+            var evt = new RowStoreStartedEvent
             {
                 UID = reader.Read7BitEncodedInt(),
                 Location = TextDictionary[reader.Read7BitEncodedInt()],
@@ -153,13 +149,13 @@
             return evt;
         }
 
-        protected virtual RowStoredEvent ReadRowStoredEvent(ExtendedBinaryReader reader)
+        public RowStoredEvent ReadRowStoredEvent(ExtendedBinaryReader reader)
         {
             var evt = new RowStoredEvent
             {
                 RowUid = reader.Read7BitEncodedInt(),
                 ProcessInvocationUID = reader.Read7BitEncodedInt(),
-                StoreUID = reader.Read7BitEncodedInt()
+                StoreUid = reader.Read7BitEncodedInt()
             };
 
             var columnCount = reader.Read7BitEncodedInt();
@@ -177,7 +173,7 @@
             return evt;
         }
 
-        protected virtual AbstractEvent ReadLogEvent(ExtendedBinaryReader reader)
+        public LogEvent ReadLogEvent(ExtendedBinaryReader reader)
         {
             var evt = new LogEvent
             {
@@ -203,3 +199,4 @@
         }
     }
 }
+#pragma warning restore CA1822 // Mark members as static

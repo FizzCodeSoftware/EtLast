@@ -12,14 +12,14 @@
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public Control Container { get; }
-        public AbstractDiagContext Context { get; }
+        public DiagContext Context { get; }
         public TrackedStore Store { get; }
         public ObjectListView ListView { get; }
         public TextBox SearchBox { get; }
         private readonly Dictionary<string, int> _columnIndexes = new Dictionary<string, int>();
         private readonly int _fixColumnCount;
 
-        public RowStoreControl(Control container, AbstractDiagContext context, TrackedStore store)
+        public RowStoreControl(Control container, DiagContext context, TrackedStore store)
         {
             Container = container;
             Context = context;
@@ -79,7 +79,7 @@
 
                 var newColumns = new List<OLVColumn>();
 
-                Context.EnumerateThroughStoredRows(Store.UID, evt =>
+                Context.Index.EnumerateThroughStore(Store.UID, evt =>
                 {
                     if (!Context.WholePlaybook.ProcessList.TryGetValue(evt.ProcessInvocationUID, out var process))
                         return;

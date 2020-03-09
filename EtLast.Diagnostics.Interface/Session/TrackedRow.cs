@@ -13,6 +13,7 @@
 
         public List<AbstractRowEvent> AllEvents { get; } = new List<AbstractRowEvent>();
 
-        public Dictionary<string, object> Values { get; set; }
+        public Dictionary<string, object> PreviousValues { get; set; }
+        public Dictionary<string, object> NewValues { get; set; }
     }
 }

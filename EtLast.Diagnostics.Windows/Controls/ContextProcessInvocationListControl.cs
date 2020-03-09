@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Drawing;
     using System.Globalization;
     using System.Linq;
@@ -15,7 +14,7 @@
     internal class ContextProcessInvocationListControl
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        public AbstractDiagContext Context { get; }
+        public DiagContext Context { get; }
         public MyListView ListView { get; }
         public OnProcessInvocationListSelectionChanged OnSelectionChanged { get; set; }
 
@@ -30,9 +29,7 @@
         private readonly List<ListViewItem> _allItems = new List<ListViewItem>();
         private readonly Dictionary<int, ListViewItem> _itemsByProcessInvocationUid = new Dictionary<int, ListViewItem>();
 
-        //public Button _testSearchButton;
-
-        public ContextProcessInvocationListControl(Control container, AbstractDiagContext context)
+        public ContextProcessInvocationListControl(Control container, DiagContext context)
         {
             Context = context;
 
@@ -71,14 +68,6 @@
             ListView.Columns.Add("pending", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
             ListView.Columns.Add("OUT", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
 
-            /*_testSearchButton = new Button()
-            {
-                Parent = container,
-                Text = "search",
-            };
-            _testSearchButton.Click += TestSearchButton_Click;
-            _testSearchButton.BringToFront();*/
-
             ListView.MouseDoubleClick += ListView_MouseDoubleClick;
 
             _processStatUpdaterTimer = new System.Threading.Timer((state) => UpdateProcessStats());
@@ -96,31 +85,15 @@
 
             if (info.Item?.Tag is TrackedProcessInvocation process)
             {
-                var relevantRowUids = new HashSet<int>();
-                Context.EnumerateThroughEvents(e =>
-                {
-                    if (e is RowCreatedEvent rce)
-                    {
-                        if (rce.ProcessInvocationUid == process.InvocationUid)
-                            relevantRowUids.Add(rce.RowUid);
-                    }
-                    else if (e is RowOwnerChangedEvent roce)
-                    {
-                        if (roce.NewProcessInvocationUid == process.InvocationUid)
-                            relevantRowUids.Add(roce.RowUid);
-                    }
-
-                    return true;
-                }, DiagnosticsEventKind.RowCreated, DiagnosticsEventKind.RowOwnerChanged);
+                var relevantRowUids = Context.Index.GetProcessRowMap(process.InvocationUid);
 
                 var finishedRows = new HashSet<int>();
                 var currentProcesses = new Dictionary<int, TrackedProcessInvocation>();
 
                 var rows = new Dictionary<int, TrackedRow>();
-                Context.EnumerateThroughEvents(e =>
+                Context.Index.EnumerateThroughRowEvents(e =>
                 {
-                    var are = e as AbstractRowEvent;
-                    if (relevantRowUids.Contains(are.RowUid) && !finishedRows.Contains(are.RowUid))
+                    if (relevantRowUids.Contains(e.RowUid) && !finishedRows.Contains(e.RowUid))
                     {
                         if (e is RowCreatedEvent rce)
                         {
@@ -128,10 +101,18 @@
                             var row = new TrackedRow()
                             {
                                 Uid = rce.RowUid,
-                                Values = new Dictionary<string, object>(rce.Values),
                                 CreatorProcess = creatorProc,
                                 PreviousProcess = null,
                             };
+
+                            if (creatorProc == process)
+                            {
+                                row.NewValues = new Dictionary<string, object>(rce.Values);
+                            }
+                            else
+                            {
+                                row.PreviousValues = new Dictionary<string, object>(rce.Values);
+                            }
 
                             currentProcesses[row.Uid] = creatorProc;
 
@@ -142,12 +123,17 @@
                         {
                             var row = rows[rvce.RowUid];
                             row.AllEvents.Add(rvce);
+
+                            var values = currentProcesses[row.Uid] == process
+                                ? row.NewValues
+                                : row.PreviousValues;
+
                             foreach (var kvp in rvce.Values)
                             {
                                 if (kvp.Value == null)
-                                    row.Values.Remove(kvp.Key);
+                                    values.Remove(kvp.Key);
                                 else
-                                    row.Values[kvp.Key] = kvp.Value;
+                                    values[kvp.Key] = kvp.Value;
                             }
                         }
                         else if (e is RowOwnerChangedEvent roce)
@@ -163,6 +149,7 @@
 
                             if (newProc == process)
                             {
+                                row.NewValues = new Dictionary<string, object>(row.PreviousValues);
                                 row.PreviousProcess = currentProcess;
                             }
                             else if (currentProcess == process)
@@ -180,66 +167,30 @@
                     return true;
                 }, DiagnosticsEventKind.RowCreated, DiagnosticsEventKind.RowValueChanged, DiagnosticsEventKind.RowOwnerChanged);
 
-#pragma warning disable CA2000 // Dispose objects before losing scope
-                var form = new Form()
-#pragma warning restore CA2000 // Dispose objects before losing scope
+                if (rows.Values.Count > 0)
                 {
-                    FormBorderStyle = FormBorderStyle.Sizable,
-                    Text = "Process output: " + process.Name,
-                    Bounds = new Rectangle(Screen.PrimaryScreen.Bounds.Left + 100, Screen.PrimaryScreen.Bounds.Top + 100, Screen.PrimaryScreen.Bounds.Width - 200, Screen.PrimaryScreen.Bounds.Height - 200),
-                    WindowState = FormWindowState.Normal,
-                };
-
-                ToolTipSingleton.Remove(ListView);
-
-                var _ = new ProcessRowListControl(form, process, rows.Values.ToList());
-
-                form.ShowDialog();
-            }
-        }
-
-        private void TestSearchButton_Click(object sender, EventArgs e)
-        {
-            var relatedRowUIDs = new HashSet<int>();
-            var startedOn = Stopwatch.StartNew();
-            var allEventCount = 0;
-            var rowEventCount = 0;
-            Context.EnumerateThroughEvents(evt =>
-            {
-                allEventCount++;
-                if (evt is AbstractRowEvent are)
-                {
-                    rowEventCount++;
-                    if (!relatedRowUIDs.Contains(are.RowUid))
+                    using (var form = new Form())
                     {
-                        if ((evt is RowCreatedEvent rce && rce.Values.Any(x => x.Value != null && x.Value is string str && str.Contains("ab", StringComparison.InvariantCultureIgnoreCase)))
-                            || (evt is RowValueChangedEvent rvce && rvce.Values.Any(x => x.Value != null && x.Value is string str && str.Contains("ab", StringComparison.InvariantCultureIgnoreCase))))
+                        form.FormBorderStyle = FormBorderStyle.Sizable;
+                        form.Text = "Process output: " + process.Name;
+                        form.WindowState = FormWindowState.Normal;
+                        form.Bounds = new Rectangle(Screen.PrimaryScreen.Bounds.Left + 100, Screen.PrimaryScreen.Bounds.Top + 100, Screen.PrimaryScreen.Bounds.Width - 200, Screen.PrimaryScreen.Bounds.Height - 200);
+                        form.KeyPreview = true;
+                        form.KeyPress += (s, e) =>
                         {
-                            relatedRowUIDs.Add(are.RowUid);
-                        }
+                            if (e.KeyChar == (char)Keys.Escape)
+                            {
+                                form.Close();
+                            }
+                        };
+
+                        ToolTipSingleton.Remove(ListView);
+                        var _ = new ProcessRowListControl(form, process, rows.Values.ToList());
+                        form.ShowDialog();
+                        form.BringToFront();
                     }
                 }
-
-                return true;
-            }, DiagnosticsEventKind.RowCreated, DiagnosticsEventKind.RowValueChanged);
-
-            Debug.WriteLine(startedOn.ElapsedMilliseconds);
-
-            var resultEvents = new List<AbstractRowEvent>();
-            Context.EnumerateThroughEvents(evt =>
-            {
-                if (evt is AbstractRowEvent are && relatedRowUIDs.Contains(are.RowUid))
-                {
-                    resultEvents.Add(are);
-                }
-
-                return true;
-            }, DiagnosticsEventKind.RowOwnerChanged, DiagnosticsEventKind.RowCreated, DiagnosticsEventKind.RowValueChanged, DiagnosticsEventKind.RowStored);
-
-            Debug.WriteLine(startedOn.ElapsedMilliseconds);
-            Debug.WriteLine(allEventCount);
-            Debug.WriteLine(rowEventCount);
-            Debug.WriteLine(resultEvents.Count);
+            }
         }
 
         internal void SelectProcess(TrackedProcessInvocation process)

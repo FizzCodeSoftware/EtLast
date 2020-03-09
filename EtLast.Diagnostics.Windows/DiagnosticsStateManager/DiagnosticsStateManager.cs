@@ -12,7 +12,7 @@
     using FizzCode.EtLast.Diagnostics.Interface;
 
     internal delegate void OnSessionCreatedDelegate(DiagSession session);
-    internal delegate void OnDiagContextCreatedDelegate(AbstractDiagContext diagContext);
+    internal delegate void OnDiagContextCreatedDelegate(DiagContext diagContext);
 
     internal class DiagnosticsStateManager : IDisposable
     {
@@ -24,7 +24,7 @@
         public IEnumerable<DiagSession> Session => _sessionList.Values;
 
         private readonly List<DiagSession> _newSessions = new List<DiagSession>();
-        private readonly List<StagingDiagContext> _newDiagContexts = new List<StagingDiagContext>();
+        private readonly List<DiagContext> _newDiagContexts = new List<DiagContext>();
 
         public DiagnosticsStateManager(string uriPrefix)
         {
@@ -90,7 +90,7 @@
                     }
                 }
 
-                if (!session.ContextListByName.TryGetValue(contextName, out var ec) || !(ec is StagingDiagContext context))
+                if (!session.ContextListByName.TryGetValue(contextName, out var context))
                 {
                     var folder = Path.Combine(session.DataFolder, contextName.Replace("/", "-", StringComparison.InvariantCultureIgnoreCase));
                     if (!Directory.Exists(folder))
@@ -102,7 +102,7 @@
                         "started-on\t" + now.ToString("yyyy.MM.dd HH:mm:ss.fff", CultureInfo.InvariantCulture),
                     });
 
-                    context = new FileDiagContext(session, contextName, now, folder, 1);
+                    context = new DiagContext(session, contextName, now, folder);
 
                     lock (_sessionList)
                     {
@@ -118,7 +118,7 @@
                     listenerContext.Request.InputStream.CopyTo(tempMemoryStream);
                     tempMemoryStream.Position = 0;
 
-                    context.StageEvents(tempMemoryStream);
+                    context.Stage(tempMemoryStream);
                 }
 
                 var acceptedResponse = Encoding.UTF8.GetBytes("ACK");
@@ -140,18 +140,18 @@
 
         public void ProcessEvents()
         {
-            List<StagingDiagContext> allContextList;
-            List<StagingDiagContext> newContexts;
+            List<DiagContext> allContextList;
+            List<DiagContext> newContexts;
             List<DiagSession> newSessions;
             lock (_sessionList)
             {
                 newSessions = new List<DiagSession>(_newSessions);
                 _newSessions.Clear();
 
-                newContexts = new List<StagingDiagContext>(_newDiagContexts);
+                newContexts = new List<DiagContext>(_newDiagContexts);
                 _newDiagContexts.Clear();
 
-                allContextList = _sessionList.Values.SelectMany(x => x.ContextList.Select(y => y as StagingDiagContext)).ToList();
+                allContextList = _sessionList.Values.SelectMany(x => x.ContextList).ToList();
             }
 
             foreach (var session in newSessions)
@@ -162,7 +162,7 @@
 
             foreach (var context in allContextList)
             {
-                context.LoadStagedEvents();
+                context.FlushToPlaybook();
             }
         }
 

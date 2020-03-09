@@ -14,7 +14,7 @@
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public Control Container { get; }
-        public AbstractDiagContext Context { get; }
+        public DiagContext Context { get; }
         public CheckBox ShowDbTransactionKind { get; }
         public CheckBox ShowDbConnectionKind { get; }
         public CheckBox HideVeryFast { get; }
@@ -37,7 +37,7 @@
             }
         }
 
-        public ContextIoCommandListControl(Control container, AbstractDiagContext context)
+        public ContextIoCommandListControl(Control container, DiagContext context)
         {
             Container = container;
             Context = context;

@@ -12,7 +12,7 @@
     internal class ControlUpdater<TItem>
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        public AbstractDiagContext Context { get; }
+        public DiagContext Context { get; }
         public Control Container { get; }
         public int Interval { get => _timer.Interval; set => _timer.Interval = value; }
         public ObjectListView ListView { get; }
@@ -24,7 +24,7 @@
         private readonly List<TItem> _allItems = new List<TItem>();
         private bool _newItem;
 
-        public ControlUpdater(AbstractDiagContext context, Control container, int interval = 1000)
+        public ControlUpdater(DiagContext context, Control container, int interval = 1000)
         {
             Context = context;
             Container = container;
@@ -43,7 +43,7 @@
         public static ObjectListView CreateListView(Control container)
 #pragma warning restore RCS1158 // Static member in generic type should use a type parameter.
         {
-            return new FastObjectListView()
+            var listView = new FastObjectListView()
             {
                 Parent = container,
                 BorderStyle = BorderStyle.FixedSingle,
@@ -65,7 +65,7 @@
                 },
                 MultiSelect = false,
                 HideSelection = false,
-                UseHotItem = true,
+                /*UseHotItem = true,
                 HotItemStyle = new HotItemStyle()
                 {
                     Decoration = new RowBorderDecoration()
@@ -74,8 +74,12 @@
                         BoundsPadding = new Size(1, 1),
                         CornerRounding = 8,
                     },
-                },
+                },*/
             };
+
+            listView.CellToolTip.IsBalloon = true;
+
+            return listView;
         }
 
         public void CreateSearchBox(int x, int y, int w = 150, int h = 20)
@@ -137,12 +141,12 @@
             foreach (OLVColumn col in listView.Columns)
             {
                 col.MinimumWidth = 0;
-                col.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
+                col.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
             }
 
             foreach (OLVColumn col in listView.Columns)
             {
-                col.Width += 10;
+                col.Width += 5;
             }
         }
 
@@ -151,19 +155,18 @@
             if (ListView?.Visible == true)
             {
                 var refresh = _newItem;
-
-                if (AutoUpdateUntilContextLoaded)
+                if (refresh)
                 {
-                    refresh = true;
+                    RefreshItems(true);
+                }
+                else if (AutoUpdateUntilContextLoaded)
+                {
                     if (Context?.FullyLoaded == true)
                     {
                         AutoUpdateUntilContextLoaded = false;
                     }
-                }
 
-                if (refresh)
-                {
-                    RefreshItems(true);
+                    ListView.Invalidate();
                 }
             }
         }

@@ -38,6 +38,7 @@
             ListView.Bounds = new Rectangle(Container.ClientRectangle.Left, Container.ClientRectangle.Top + 40, Container.ClientRectangle.Width, Container.ClientRectangle.Height - 40);
             ListView.FormatCell += ListView_FormatCell;
             ListView.UseCellFormatEvents = true;
+            ListView.CellToolTipShowing += ListView_CellToolTipShowing;
 
             ListView.AllColumns.Add(new OLVColumn()
             {
@@ -65,44 +66,16 @@
             var items = new List<ProcessRowModel>();
             foreach (var row in rows)
             {
-                foreach (var kvp in row.Values)
+                foreach (var kvp in row.NewValues)
                 {
-                    var columnName = kvp.Key;
-                    if (!_columnIndexes.TryGetValue(columnName, out var columnIndex))
+                    AddColumnByValue(newColumns, kvp);
+                }
+
+                if (row.PreviousValues != null)
+                {
+                    foreach (var kvp in row.PreviousValues)
                     {
-                        columnIndex = ListView.AllColumns.Count - _fixColumnCount;
-
-                        var newColumn = new OLVColumn()
-                        {
-                            Text = columnName,
-                            AspectGetter = x =>
-                            {
-                                return (x is ProcessRowModel r && columnIndex < r.Values.Length)
-                                    ? r.Values[columnIndex]
-                                    : null;
-                            },
-                            AspectToStringConverter = FormattingHelpers.ToDisplayValue,
-                        };
-
-                        ListView.AllColumns.Add(newColumn);
-                        newColumns.Add(newColumn);
-
-                        newColumn = new OLVColumn()
-                        {
-                            Text = "",
-                            AspectGetter = x =>
-                            {
-                                return (x is ProcessRowModel r && columnIndex < r.Values.Length)
-                                    ? r.Values[columnIndex]?.GetType()
-                                    : null;
-                            },
-                            AspectToStringConverter = value => ((Type)value)?.GetFriendlyTypeName(),
-                        };
-
-                        ListView.AllColumns.Add(newColumn);
-                        newColumns.Add(newColumn);
-
-                        _columnIndexes.Add(columnName, columnIndex);
+                        AddColumnByValue(newColumns, kvp);
                     }
                 }
 
@@ -110,16 +83,27 @@
                 {
                     TrackedRow = row,
                     RowUid = row.Uid,
-                    Values = new object[ListView.AllColumns.Count - _fixColumnCount],
-                    Types = new string[ListView.AllColumns.Count - _fixColumnCount],
+                    NewValues = new object[newColumns.Count / 2],
+                    NewTypes = new string[newColumns.Count / 2],
+                    PreviousValues = row.PreviousValues != null ? new object[newColumns.Count / 2] : null,
+                    PreviousTypes = row.PreviousValues != null ? new string[newColumns.Count / 2] : null,
                 };
 
-                foreach (var kvp in row.Values)
+                if (row.PreviousValues != null)
                 {
-                    var columnIndex = _columnIndexes[kvp.Key];
+                    foreach (var kvp in row.PreviousValues)
+                    {
+                        var valueIndex = _columnIndexes[kvp.Key] / 2;
+                        item.PreviousValues[valueIndex] = kvp.Value;
+                        item.PreviousTypes[valueIndex] = kvp.Value?.GetType().GetFriendlyTypeName();
+                    }
+                }
 
-                    item.Values[columnIndex] = kvp.Value;
-                    item.Types[columnIndex] = kvp.Value?.GetType().GetFriendlyTypeName();
+                foreach (var kvp in row.NewValues)
+                {
+                    var valueIndex = _columnIndexes[kvp.Key] / 2;
+                    item.NewValues[valueIndex] = kvp.Value;
+                    item.NewTypes[valueIndex] = kvp.Value?.GetType().GetFriendlyTypeName();
                 }
 
                 items.Add(item);
@@ -131,10 +115,102 @@
             ControlUpdater<int>.ResizeListView(ListView);
         }
 
+        private void AddColumnByValue(List<OLVColumn> newColumns, KeyValuePair<string, object> kvp)
+        {
+            var columnName = kvp.Key;
+            if (!_columnIndexes.TryGetValue(columnName, out var columnIndex))
+            {
+                columnIndex = ListView.AllColumns.Count - _fixColumnCount;
+                var valueIndex = columnIndex / 2;
+
+                var newColumn = new OLVColumn()
+                {
+                    Text = columnName,
+                    AspectGetter = x =>
+                    {
+                        return (x is ProcessRowModel r && valueIndex < r.NewValues.Length)
+                            ? r.NewValues[valueIndex]
+                            : null;
+                    },
+                    AspectToStringConverter = FormattingHelpers.ToDisplayValue,
+                };
+
+                ListView.AllColumns.Add(newColumn);
+                newColumns.Add(newColumn);
+
+                newColumn = new OLVColumn()
+                {
+                    Text = "",
+                    AspectGetter = x =>
+                    {
+                        return (x is ProcessRowModel r && valueIndex < r.NewValues.Length)
+                            ? r.NewValues[valueIndex]?.GetType()
+                            : null;
+                    },
+                    AspectToStringConverter = value => ((Type)value)?.GetFriendlyTypeName(),
+                };
+
+                ListView.AllColumns.Add(newColumn);
+                newColumns.Add(newColumn);
+
+                _columnIndexes.Add(columnName, columnIndex);
+            }
+        }
+
+        private void ListView_CellToolTipShowing(object sender, ToolTipShowingEventArgs e)
+        {
+            if (e.Model is ProcessRowModel model && model.PreviousValues != null)
+            {
+                var columnIndex = e.ColumnIndex - _fixColumnCount;
+                if (columnIndex >= 0)
+                {
+                    var valueIndex = columnIndex / 2;
+
+                    var previousValue = valueIndex < model.PreviousValues.Length ? model.PreviousValues[valueIndex] : null;
+                    var newValue = valueIndex < model.NewValues.Length ? model.NewValues[valueIndex] : null;
+                    if (previousValue != newValue)
+                    {
+                        e.Text = "previous value: " + FormattingHelpers.ToDisplayValue(previousValue)
+                            + (previousValue == null ? "" : " (" + previousValue.GetType().GetFriendlyTypeName() + ")")
+                            + "\r\nnew value: " + FormattingHelpers.ToDisplayValue(newValue)
+                            + (newValue == null ? "" : " (" + newValue.GetType().GetFriendlyTypeName() + ")");
+                    }
+                }
+            }
+        }
+
         private void ListView_FormatCell(object sender, FormatCellEventArgs e)
         {
             if (string.IsNullOrEmpty(e.Column.Text))
                 e.SubItem.ForeColor = Color.DarkGray;
+
+            if (e.Model is ProcessRowModel model && model.PreviousValues != null)
+            {
+                var columnIndex = e.ColumnIndex - _fixColumnCount;
+                if (columnIndex >= 0)
+                {
+                    var valueIndex = columnIndex / 2;
+
+                    var previousValue = valueIndex < model.PreviousValues.Length ? model.PreviousValues[valueIndex] : null;
+                    var newValue = valueIndex < model.NewValues.Length ? model.NewValues[valueIndex] : null;
+
+                    if (valueIndex % 2 == 0)
+                    {
+                        if (!DefaultValueComparer.ValuesAreEqual(previousValue, newValue))
+                        {
+                            e.SubItem.BackColor = Color.LightBlue;
+                        }
+                    }
+                    else
+                    {
+                        if ((previousValue == null != (newValue == null))
+                            || (previousValue != null && newValue != null && previousValue.GetType() != newValue.GetType()))
+                        {
+                            e.SubItem.BackColor = Color.LightBlue;
+                        }
+                    }
+                }
+            }
         }
 
         private void SearchBox_TextChanged(object sender, EventArgs e)
@@ -149,8 +225,11 @@
         {
             public TrackedRow TrackedRow { get; set; }
             public int RowUid { get; set; }
-            public object[] Values { get; set; }
-            public string[] Types { get; set; }
+            public object[] NewValues { get; set; }
+            public string[] NewTypes { get; set; }
+
+            public object[] PreviousValues { get; set; }
+            public string[] PreviousTypes { get; set; }
         }
     }
 }
