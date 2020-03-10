@@ -201,13 +201,10 @@
                             e.SubItem.BackColor = Color.LightBlue;
                         }
                     }
-                    else
+                    else if ((previousValue == null != (newValue == null))
+                        || (previousValue != null && newValue != null && previousValue.GetType() != newValue.GetType()))
                     {
-                        if ((previousValue == null != (newValue == null))
-                            || (previousValue != null && newValue != null && previousValue.GetType() != newValue.GetType()))
-                        {
-                            e.SubItem.BackColor = Color.LightBlue;
-                        }
+                        e.SubItem.BackColor = Color.LightBlue;
                     }
                 }
             }
