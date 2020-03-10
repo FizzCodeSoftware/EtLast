@@ -9,7 +9,7 @@
         public ITypeConverter TypeConverter { get; set; }
 
         /// <summary>
-        /// Default value is <see cref="InvalidValueAction.RemoveRow"/>
+        /// Default value is <see cref="InvalidValueAction.SetSpecialValue"/>
         /// </summary>
         public InvalidValueAction ActionIfNull { get; set; } = InvalidValueAction.SetSpecialValue;
 
