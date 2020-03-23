@@ -21,7 +21,7 @@
         RemoveRow,
 
         /// <summary>
-        /// Throw exception. 
+        /// Throw exception.
         /// </summary>
         Throw,
 

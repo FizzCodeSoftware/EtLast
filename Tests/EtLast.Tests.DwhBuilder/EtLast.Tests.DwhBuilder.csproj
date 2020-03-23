@@ -4,8 +4,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
     <Platforms>AnyCPU</Platforms>
-    <AssemblyName>FizzCode.EtLast.Tests.Base</AssemblyName>
-    <RootNamespace>FizzCode.EtLast.Tests.Base</RootNamespace>
+    <AssemblyName>FizzCode.EtLast.Tests.DwhBuilder</AssemblyName>
+    <RootNamespace>FizzCode.EtLast.Tests.DwhBuilder</RootNamespace>
     <CodeAnalysisRuleSet>..\..\FizzCode.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
@@ -28,6 +28,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
+    <ProjectReference Include="..\..\EtLast.DwhBuilder.Extenders.DataDefinition.MsSql\EtLast.DwhBuilder.Extenders.DataDefinition.MsSql.csproj" />
+    <ProjectReference Include="..\..\EtLast.DwhBuilder.MsSql\EtLast.DwhBuilder.MsSql.csproj" />
+    <ProjectReference Include="..\..\EtLast.DwhBuilder\EtLast.DwhBuilder.csproj" />
     <ProjectReference Include="..\..\EtLast\EtLast.csproj" />
   </ItemGroup>
 

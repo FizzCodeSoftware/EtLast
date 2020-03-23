@@ -20,11 +20,11 @@
 
         private readonly System.Threading.Timer _processStatUpdaterTimer;
 
-        private Color IsSelectedForeColor { get; set; } = Color.White;
-        private Color IsSelectedBackColor { get; set; } = Color.FromArgb(100, 100, 200);
-        private Color IsOutputBackColor { get; set; } = Color.FromArgb(180, 255, 180);
-        private Color IsInputBackColor { get; set; } = Color.FromArgb(255, 230, 185);
-        private Color IsSameTopicBackColor { get; set; } = Color.FromArgb(220, 220, 255);
+        private Color IsSelectedForeColor { get; } = Color.White;
+        private Color IsSelectedBackColor { get; } = Color.FromArgb(100, 100, 200);
+        private Color IsOutputBackColor { get; } = Color.FromArgb(180, 255, 180);
+        private Color IsInputBackColor { get; } = Color.FromArgb(255, 230, 185);
+        private Color IsSameTopicBackColor { get; } = Color.FromArgb(220, 220, 255);
 
         private readonly List<ListViewItem> _allItems = new List<ListViewItem>();
         private readonly Dictionary<int, ListViewItem> _itemsByProcessInvocationUid = new Dictionary<int, ListViewItem>();

@@ -16,8 +16,6 @@
         public IEtlContext Context => PluginTopic.Context;
         public ITopic PluginTopic { get; private set; }
 
-        protected TimeSpan TransactionScopeTimeout { get; private set; }
-
         public void Init(ITopic topic, ModuleConfiguration moduleConfiguration)
         {
             ModuleConfiguration = moduleConfiguration;
