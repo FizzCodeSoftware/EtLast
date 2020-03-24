@@ -45,7 +45,8 @@
         private static void CreateHistoryTable(RelationalTable baseTable, DwhBuilderConfiguration configuration)
         {
             var historyTable = baseTable.Schema.AddTable(baseTable.Name + configuration.HistoryTableNamePostfix).SetIsHistoryTable();
-            historyTable.AddColumn(historyTable.Name + configuration.HistoryTableIdColumnPostfix, true).SetIdentity();
+            var identityColumnName = (configuration.HistoryTableIdentityColumnBase ?? historyTable.Name) + configuration.HistoryTableIdentityColumnPostfix;
+            historyTable.AddColumn(identityColumnName, true).SetIdentity();
 
             foreach (var column in baseTable.Columns)
             {

@@ -80,7 +80,7 @@
                     case MsSqlDropForeignKeysProcessMode.ToSpecifiedSchema:
                         {
                             command.CommandText = @"
-select
+select distinct
 	fk.[name] fkName,
 	SCHEMA_NAME(fk.schema_id) schemaName,
 	OBJECT_NAME(fk.parent_object_id) tableName
@@ -95,7 +95,7 @@ from
                     case MsSqlDropForeignKeysProcessMode.InSpecifiedSchema:
                         {
                             command.CommandText = @"
-select
+select distinct
 	fk.[name] fkName,
 	SCHEMA_NAME(fk.schema_id) schemaName,
 	OBJECT_NAME(fk.parent_object_id) tableName
@@ -109,7 +109,7 @@ where fk.schema_id = SCHEMA_ID(@schemaName)";
 
                     case MsSqlDropForeignKeysProcessMode.InSpecifiedTables:
                         command.CommandText = @"
-select
+select distinct
 	fk.[name] fkName,
 	SCHEMA_NAME(fk.schema_id) schemaName,
 	OBJECT_NAME(fk.parent_object_id) tableName
@@ -119,7 +119,7 @@ from
                         break;
                     case MsSqlDropForeignKeysProcessMode.ToSpecifiedTables:
                         command.CommandText = @"
-select
+select distinct
 	fk.[name] fkName,
 	SCHEMA_NAME(fk.schema_id) schemaName,
 	OBJECT_NAME(fk.parent_object_id) tableName, 

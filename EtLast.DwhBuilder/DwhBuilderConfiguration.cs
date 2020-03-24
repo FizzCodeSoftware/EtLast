@@ -21,9 +21,14 @@
         public string HistoryTableNamePostfix { get; set; } = "_hist";
 
         /// <summary>
+        /// Default "Base". If not set then the table's name will be used instead.
+        /// </summary>
+        public string HistoryTableIdentityColumnBase { get; set; } = "HistoryEntry";
+
+        /// <summary>
         /// Default "ID"
         /// </summary>
-        public string HistoryTableIdColumnPostfix { get; set; } = "ID";
+        public string HistoryTableIdentityColumnPostfix { get; set; } = "ID";
 
         /// <summary>
         /// Default "_temp_"

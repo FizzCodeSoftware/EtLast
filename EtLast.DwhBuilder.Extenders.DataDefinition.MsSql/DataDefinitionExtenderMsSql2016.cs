@@ -32,8 +32,8 @@
                 if (baseTable == etlRunTable)
                     continue;
 
-                baseTable.AddInt(configuration.EtlInsertRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName);
-                baseTable.AddInt(configuration.EtlUpdateRunIdColumnName, false).SetForeignKeyTo(configuration.EtlRunTableName);
+                baseTable.AddInt(configuration.EtlInsertRunIdColumnName, false).SetForeignKeyTo(etlRunTable.SchemaAndTableName);
+                baseTable.AddInt(configuration.EtlUpdateRunIdColumnName, false).SetForeignKeyTo(etlRunTable.SchemaAndTableName);
             }
         }
 
@@ -62,7 +62,8 @@
             var historyTable = new SqlTable(baseTable.SchemaAndTableName.Schema, baseTable.SchemaAndTableName.TableName + configuration.HistoryTableNamePostfix);
             baseTable.DatabaseDefinition.AddTable(historyTable);
 
-            historyTable.AddInt(historyTable.SchemaAndTableName.TableName + configuration.HistoryTableIdColumnPostfix).SetIdentity().SetPK();
+            var identityColumnName = (configuration.HistoryTableIdentityColumnBase ?? historyTable.SchemaAndTableName.TableName) + configuration.HistoryTableIdentityColumnPostfix;
+            historyTable.AddInt(identityColumnName).SetIdentity().SetPK();
 
             // step #1: copy all columns (including foreign keys)
             foreach (var column in baseTable.Columns)
