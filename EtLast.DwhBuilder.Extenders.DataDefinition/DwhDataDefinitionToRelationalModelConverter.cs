@@ -19,7 +19,7 @@
 
             foreach (var sourceTable in sourceTablesOrdered)
             {
-                var newSchemaName = schemaNameMap?[sourceTable.SchemaAndTableName.Schema] ?? sourceTable.SchemaAndTableName.Schema;
+                var newSchemaName = schemaNameMap?[sourceTable.SchemaAndTableName.Schema] ?? sourceTable.SchemaAndTableName.Schema ?? newDefaultSchemaName;
 
                 var newSchema = newModel[newSchemaName]
                     ?? newModel.AddSchema(newSchemaName);
@@ -52,14 +52,14 @@
 
             foreach (var table in sourceTablesOrdered)
             {
-                var newSourceSchemaName = schemaNameMap?[table.SchemaAndTableName.Schema] ?? table.SchemaAndTableName.Schema;
+                var newSourceSchemaName = schemaNameMap?[table.SchemaAndTableName.Schema] ?? table.SchemaAndTableName.Schema ?? newDefaultSchemaName;
 
                 var newSourceSchema = newModel[newSourceSchemaName];
                 var newSourceTable = newSourceSchema[table.SchemaAndTableName.TableName];
 
                 foreach (var fk in table.Properties.OfType<ForeignKey>())
                 {
-                    var newTargetSchemaName = schemaNameMap?[fk.ReferredTable.SchemaAndTableName.Schema] ?? fk.ReferredTable.SchemaAndTableName.Schema;
+                    var newTargetSchemaName = schemaNameMap?[fk.ReferredTable.SchemaAndTableName.Schema] ?? fk.ReferredTable.SchemaAndTableName.Schema ?? newDefaultSchemaName;
 
                     var newTargetSchema = newModel[newTargetSchemaName];
                     var newTargetTable = newTargetSchema[fk.ReferredTable.SchemaAndTableName.TableName];
