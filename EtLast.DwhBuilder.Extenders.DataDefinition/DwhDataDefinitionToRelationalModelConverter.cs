@@ -42,6 +42,9 @@
                     var partOfPrimaryKey = primaryKey?.SqlColumns.Any(x => x.SqlColumn == sourceColumn) == true;
                     var newColumn = newTable.AddColumn(sourceColumn.Name, partOfPrimaryKey);
 
+                    if (sourceColumn.HasProperty<Identity>())
+                        newColumn.SetIdentity();
+
                     if (sourceColumn.HasProperty<HistoryDisabledProperty>())
                         newColumn.SetHistoryDisabled();
 
