@@ -260,7 +260,12 @@
 
             var line = new StringBuilder()
                 .Append(Name != null ? (string.Join("\t", Name) + "\t") : "")
-                .Append(process != null ? process.Name + "\t" : "")
+                .Append(!string.IsNullOrEmpty(process?.Topic?.Name)
+                    ? process.Topic.Name + "\t"
+                    : "")
+                .Append(process != null
+                    ? process.Name + "\t"
+                    : "")
                 .AppendFormat(CultureInfo.InvariantCulture, text, args)
                 .ToString();
 

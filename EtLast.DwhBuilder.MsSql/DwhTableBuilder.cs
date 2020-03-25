@@ -2,11 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using FizzCode.EtLast;
     using FizzCode.EtLast.AdoNet;
     using FizzCode.LightWeight.RelationalModel;
 
+    [DebuggerDisplay("{Table}")]
     public class DwhTableBuilder : IDwhTableBuilder
     {
         public DwhBuilder DwhBuilder { get; }
