@@ -5,9 +5,9 @@
 
     public static class RelationalModelExtender
     {
-        public static void ExtendWithEtlRunInfo(RelationalSchema schema, DwhBuilderConfiguration configuration)
+        public static void ExtendWithEtlRunInfo(RelationalSchema etlRunTableSchema, DwhBuilderConfiguration configuration)
         {
-            var etlRunTable = schema.AddTable(configuration.EtlRunTableName).SetEtlRunInfo();
+            var etlRunTable = etlRunTableSchema.AddTable(configuration.EtlRunTableName).SetEtlRunInfo();
 
             var etlRunTableId = etlRunTable.AddColumn("EtlRunId", true);
             etlRunTable.AddColumn("Name", false);
@@ -17,16 +17,19 @@
             etlRunTable.AddColumn("FinishedOn", false);
             etlRunTable.AddColumn("Result", false);
 
-            foreach (var baseTable in schema.Tables)
+            foreach (var schema in etlRunTableSchema.Model.Schemas)
             {
-                if (baseTable.GetEtlRunInfoDisabled() || baseTable == etlRunTable)
-                    continue;
+                foreach (var baseTable in schema.Tables)
+                {
+                    if (baseTable.GetEtlRunInfoDisabled() || baseTable == etlRunTable)
+                        continue;
 
-                var etlInsertRunIdColumn = baseTable.AddColumn(configuration.EtlInsertRunIdColumnName, false).SetUsedByEtlRunInfo();
-                var etlUpdateRunIdColumn = baseTable.AddColumn(configuration.EtlUpdateRunIdColumnName, false).SetUsedByEtlRunInfo();
+                    var etlInsertRunIdColumn = baseTable.AddColumn(configuration.EtlInsertRunIdColumnName, false).SetUsedByEtlRunInfo();
+                    var etlUpdateRunIdColumn = baseTable.AddColumn(configuration.EtlUpdateRunIdColumnName, false).SetUsedByEtlRunInfo();
 
-                baseTable.AddForeignKeyTo(etlRunTable).AddColumnPair(etlInsertRunIdColumn, etlRunTableId);
-                baseTable.AddForeignKeyTo(etlRunTable).AddColumnPair(etlUpdateRunIdColumn, etlRunTableId);
+                    baseTable.AddForeignKeyTo(etlRunTable).AddColumnPair(etlInsertRunIdColumn, etlRunTableId);
+                    baseTable.AddForeignKeyTo(etlRunTable).AddColumnPair(etlUpdateRunIdColumn, etlRunTableId);
+                }
             }
         }
 
