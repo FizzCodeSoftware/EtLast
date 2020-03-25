@@ -30,7 +30,7 @@
                 columnDefaults.Add(builder.EtlUpdateRunIdColumnNameEscaped, currentEtlRunId);
 
             var columnNames = builder.Table.Columns
-                .Where(x => x.GetUsedByEtlRunInfo())
+                .Where(x => !x.GetUsedByEtlRunInfo())
                 .Select(c => c.NameEscaped(builder.ResilientTable.Scope.Configuration.ConnectionString))
                 .ToArray();
 
