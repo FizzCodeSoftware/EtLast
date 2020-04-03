@@ -21,7 +21,7 @@
                 table.HasHistoryTable();
                 table.AddInt("Id").SetPK().RecordTimestampIndicator();
                 table.AddNVarChar("Name", 100).HistoryDisabled();
-                table.AddInt("FavoritePetId").SetForeignKeyTo(nameof(SecondaryꜗPet));
+                table.AddInt("FavoritePetId").SetForeignKeyToTable(nameof(SecondaryꜗPet));
             });
 
             public SqlTable SecondaryꜗPet { get; } = AddTable(table =>
@@ -29,7 +29,7 @@
                 table.SourceTableNameOverride("animal");
                 table.AddInt("Id").SetPK();
                 table.AddNVarChar("Name", 100);
-                table.AddInt("OwnerPeopleId").SetForeignKeyTo(nameof(People));
+                table.AddInt("OwnerPeopleId").SetForeignKeyToTable(nameof(People));
             });
         }
 

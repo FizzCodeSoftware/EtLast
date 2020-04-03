@@ -22,14 +22,14 @@
             {
                 table.AddInt("Id").SetPK();
                 table.AddNVarChar("Name", 100);
-                table.AddInt("FavoritePetId").SetForeignKeyTo(nameof(SecondaryꜗPet));
+                table.AddInt("FavoritePetId").SetForeignKeyToTable(nameof(SecondaryꜗPet));
             });
 
             public SqlTable SecondaryꜗPet { get; } = AddTable(table =>
             {
                 table.AddInt("Id").SetPK();
                 table.AddNVarChar("Name", 100);
-                table.AddInt("OwnerPeopleId").SetForeignKeyTo(nameof(People));
+                table.AddInt("OwnerPeopleId").SetForeignKeyToTable(nameof(People));
             });
         }
 
