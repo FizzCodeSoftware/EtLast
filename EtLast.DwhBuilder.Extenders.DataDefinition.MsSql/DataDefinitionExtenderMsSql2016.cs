@@ -32,8 +32,8 @@
                 if (baseTable == etlRunTable)
                     continue;
 
-                baseTable.AddInt(configuration.EtlInsertRunIdColumnName, false).SetForeignKeyTo(etlRunTable.SchemaAndTableName);
-                baseTable.AddInt(configuration.EtlUpdateRunIdColumnName, false).SetForeignKeyTo(etlRunTable.SchemaAndTableName);
+                baseTable.AddInt(configuration.EtlInsertRunIdColumnName, false).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
+                baseTable.AddInt(configuration.EtlUpdateRunIdColumnName, false).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
             }
         }
 
