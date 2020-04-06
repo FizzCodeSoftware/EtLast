@@ -25,11 +25,13 @@
         internal DateTimeOffset? DefaultValidFromDateTime => Configuration.UseContextCreationTimeForNewRecords ? Topic.Context.CreatedOnLocal : Configuration.InfinitePastDateTime;
 
         private readonly List<ResilientSqlScopeExecutableCreatorDelegate> _postFinalizerCreators = new List<ResilientSqlScopeExecutableCreatorDelegate>();
+        private readonly DateTimeOffset? _etlRunIdOverride;
 
-        public DwhBuilder(ITopic topic, string scopeName)
+        public DwhBuilder(ITopic topic, string scopeName, DateTimeOffset? etlRunIdOverride = null)
         {
             Topic = topic;
             ScopeName = scopeName;
+            _etlRunIdOverride = etlRunIdOverride;
         }
 
         private void SetConfiguration(DwhBuilderConfiguration configuration)
@@ -134,7 +136,7 @@
                     {
                         InputGenerator = process =>
                         {
-                            var currentId = scope.Topic.Context.CreatedOnLocal;
+                            var currentId = _etlRunIdOverride ?? DateTimeOffset.Now;
                             scope.Topic.Context.AdditionalData["CurrentEtlRunId"] = currentId;
 
                             var row = new SlimRow

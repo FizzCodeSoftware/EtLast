@@ -56,12 +56,6 @@
             CounterCollection = new StatCounterCollection(forwardCountersToCollection);
         }
 
-        public void SetCreatedOn(DateTimeOffset specificDateTime)
-        {
-            CreatedOnLocal = specificDateTime;
-            CreatedOnUtc = CreatedOnUtc.ToUniversalTime();
-        }
-
         public void SetRowType<T>() where T : IRow
         {
             RowType = typeof(T);

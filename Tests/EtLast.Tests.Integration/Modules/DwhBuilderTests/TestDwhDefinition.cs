@@ -3,6 +3,7 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
 {
     using FizzCode.DbTools.DataDefinition;
     using FizzCode.DbTools.DataDefinition.MsSql2016;
+    using FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition;
 
     public class TestDwhDefinition : DatabaseDeclaration
     {
@@ -16,6 +17,7 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
             table.AddInt("Id").SetPK();
             table.AddNVarChar("Name", 100);
             table.AddInt("FavoritePetId", true).SetForeignKeyToTable(nameof(secꜗPet));
+            table.AddDateTime("LastChangedOn").RecordTimestampIndicator();
         });
 
         public SqlTable secꜗPet { get; } = AddTable(table =>
@@ -23,6 +25,7 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
             table.AddInt("Id").SetPK();
             table.AddNVarChar("Name", 100);
             table.AddInt("OwnerPeopleId", false).SetForeignKeyToTable(nameof(People));
+            table.AddDateTime("LastChangedOn").RecordTimestampIndicator();
         });
     }
 }

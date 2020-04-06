@@ -9,7 +9,7 @@
     using FizzCode.EtLast.DwhBuilder.MsSql;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    public class EtlRunInfoTest : AbstractDwhBuilderTestPlugin
+    public class EtlRunInfoOptimizedTest : AbstractDwhBuilderTestPlugin
     {
         public override void Execute()
         {
@@ -35,6 +35,9 @@
                 builder.AddTables(model["dbo"]["People"])
                     .InputIsCustomProcess(CreatePeople1)
                     .AddMutators(PeopleMutators)
+                    .RemoveExistingRows(b => b
+                        .MatchByPrimaryKey()
+                        .CompareAllColumnsButValidity())
                     .DisableConstraintCheck()
                     .BaseIsCurrentFinalizer(b => b
                         .MatchByPrimaryKey());
@@ -42,6 +45,9 @@
                 builder.AddTables(model["sec"]["Pet"])
                     .InputIsCustomProcess(CreatePet1)
                     .AddMutators(PetMutators)
+                    .RemoveExistingRows(b => b
+                        .MatchByPrimaryKey()
+                        .CompareAllColumnsButValidity())
                     .DisableConstraintCheck()
                     .BaseIsCurrentFinalizer(b => b
                         .MatchByPrimaryKey());
@@ -84,6 +90,9 @@
                 builder.AddTables(model["dbo"]["People"])
                     .InputIsCustomProcess(CreatePeople2)
                     .AddMutators(PeopleMutators)
+                    .RemoveExistingRows(b => b
+                        .MatchByPrimaryKey()
+                        .CompareAllColumnsButValidity())
                     .DisableConstraintCheck()
                     .BaseIsCurrentFinalizer(b => b
                         .MatchByPrimaryKey());
@@ -91,6 +100,9 @@
                 builder.AddTables(model["sec"]["Pet"])
                     .InputIsCustomProcess(CreatePet2)
                     .AddMutators(PetMutators)
+                    .RemoveExistingRows(b => b
+                        .MatchByPrimaryKey()
+                        .CompareAllColumnsButValidity())
                     .DisableConstraintCheck()
                     .BaseIsCurrentFinalizer(b => b
                         .MatchByPrimaryKey());
@@ -101,11 +113,11 @@
                 var result = ReadRows("dbo", "People");
                 Assert.AreEqual(5, result.Count);
                 Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
-                new Dictionary<string, object>() { ["Id"] = 0, ["Name"] = "A", ["FavoritePetId"] = 2, ["LastChangedOn"] = new DateTime(2010, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTimeOffset(new DateTime(2001, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 2, 0, 0,0)), ["EtlRunUpdate"] = new DateTimeOffset(new DateTime(2022, 2, 2, 2, 2, 2, 0), new TimeSpan(0, 2, 0, 0,0)) },
+                new Dictionary<string, object>() { ["Id"] = 0, ["Name"] = "A", ["FavoritePetId"] = 2, ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTimeOffset(new DateTime(2001, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 2, 0, 0,0)), ["EtlRunUpdate"] = new DateTimeOffset(new DateTime(2001, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 2, 0, 0,0)) },
                 new Dictionary<string, object>() { ["Id"] = 1, ["Name"] = "Bx", ["LastChangedOn"] = new DateTime(2010, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTimeOffset(new DateTime(2001, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 2, 0, 0,0)), ["EtlRunUpdate"] = new DateTimeOffset(new DateTime(2022, 2, 2, 2, 2, 2, 0), new TimeSpan(0, 2, 0, 0,0)) },
-                new Dictionary<string, object>() { ["Id"] = 2, ["Name"] = "C", ["FavoritePetId"] = 3, ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTimeOffset(new DateTime(2001, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 2, 0, 0,0)), ["EtlRunUpdate"] = new DateTimeOffset(new DateTime(2022, 2, 2, 2, 2, 2, 0), new TimeSpan(0, 2, 0, 0,0)) },
+                new Dictionary<string, object>() { ["Id"] = 2, ["Name"] = "C", ["FavoritePetId"] = 3, ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTimeOffset(new DateTime(2001, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 2, 0, 0,0)), ["EtlRunUpdate"] = new DateTimeOffset(new DateTime(2001, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 2, 0, 0,0)) },
                 new Dictionary<string, object>() { ["Id"] = 3, ["Name"] = "Dx", ["LastChangedOn"] = new DateTime(2010, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTimeOffset(new DateTime(2001, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 2, 0, 0,0)), ["EtlRunUpdate"] = new DateTimeOffset(new DateTime(2022, 2, 2, 2, 2, 2, 0), new TimeSpan(0, 2, 0, 0,0)) },
-                new Dictionary<string, object>() { ["Id"] = 4, ["Name"] = "E", ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTimeOffset(new DateTime(2001, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 2, 0, 0,0)), ["EtlRunUpdate"] = new DateTimeOffset(new DateTime(2022, 2, 2, 2, 2, 2, 0), new TimeSpan(0, 2, 0, 0,0)) } });
+                new Dictionary<string, object>() { ["Id"] = 4, ["Name"] = "E", ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTimeOffset(new DateTime(2001, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 2, 0, 0,0)), ["EtlRunUpdate"] = new DateTimeOffset(new DateTime(2001, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 2, 0, 0,0)) } });
 
                 result = ReadRows("sec", "Pet");
                 Assert.AreEqual(4, result.Count);
@@ -116,10 +128,10 @@
                 new Dictionary<string, object>() { ["Id"] = 4, ["Name"] = "pet#4x", ["OwnerPeopleId"] = 0, ["LastChangedOn"] = new DateTime(2010, 1, 1, 1, 1, 1, 0) } });
 
                 result = ReadRows("dbo", "_temp_People");
-                Assert.AreEqual(5, result.Count);
+                Assert.AreEqual(2, result.Count);
 
                 result = ReadRows("sec", "_temp_Pet");
-                Assert.AreEqual(4, result.Count);
+                Assert.AreEqual(2, result.Count);
             }
         }
 

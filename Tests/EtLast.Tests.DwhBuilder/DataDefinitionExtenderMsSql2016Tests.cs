@@ -45,7 +45,7 @@
 
             var etlRunTable = model.GetTable("dbo", "_EtlRun");
             Assert.IsNotNull(etlRunTable);
-            Assert.AreEqual(7, etlRunTable.Columns.Count);
+            Assert.AreEqual(6, etlRunTable.Columns.Count);
 
             Assert.AreEqual(3 + 2, model.GetTable("dbo", "People").Columns.Count);
             Assert.AreEqual(3, model.GetTable("Secondary", "Pet").Columns.Count);
