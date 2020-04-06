@@ -1,8 +1,9 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.MsSql
 {
+    using System;
     using System.Collections.Generic;
 
-    public delegate IEnumerable<IExecutable> CustomFinalizerCreatorDelegate(DwhTableBuilder builder, int? currentEtlRunId);
+    public delegate IEnumerable<IExecutable> CustomFinalizerCreatorDelegate(DwhTableBuilder builder, DateTimeOffset? currentEtlRunId);
 
     public static partial class TableBuilderExtensions
     {
@@ -12,9 +13,9 @@
             {
                 builder.AddFinalizerCreator(builder =>
                 {
-                    var currentRunId = builder.EtlInsertRunIdColumnNameEscaped != null || builder.EtlUpdateRunIdColumnNameEscaped != null
-                        ? builder.DwhBuilder.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", 0)
-                        : (int?)null;
+                    var currentRunId = builder.EtlRunInsertColumnNameEscaped != null || builder.EtlRunUpdateColumnNameEscaped != null
+                        ? builder.DwhBuilder.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", DateTimeOffset.Now)
+                        : (DateTimeOffset?)null;
 
                     return creator(builder, currentRunId);
                 });

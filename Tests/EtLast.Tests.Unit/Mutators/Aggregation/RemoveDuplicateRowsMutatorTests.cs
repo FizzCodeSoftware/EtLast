@@ -30,7 +30,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["name"] = "A" },
                 new Dictionary<string, object>() { ["name"] = "B" },
                 new Dictionary<string, object>() { ["name"] = "C" },
@@ -59,7 +59,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(7, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A" },
                 new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B" },
                 new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C" },
@@ -89,7 +89,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(4, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["eyeColor"] = "brown" },
                 new Dictionary<string, object>(),
                 new Dictionary<string, object>() { ["eyeColor"] = "green" },

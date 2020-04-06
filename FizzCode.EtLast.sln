@@ -67,6 +67,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.DwhBuilder.Extenders
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.DwhBuilder.Extenders.DataDefinition.MsSql", "EtLast.DwhBuilder.Extenders.DataDefinition.MsSql\EtLast.DwhBuilder.Extenders.DataDefinition.MsSql.csproj", "{82B8E8A5-00E6-4C5F-A2B5-D08F8004A6F5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Tests.Integration", "Tests\EtLast.Tests.Integration\EtLast.Tests.Integration.csproj", "{455E8BA4-C33B-438F-BBF5-C2E868D0CE79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -206,6 +208,12 @@ Global
 		{82B8E8A5-00E6-4C5F-A2B5-D08F8004A6F5}.LocalProjects|Any CPU.Build.0 = LocalProjects|Any CPU
 		{82B8E8A5-00E6-4C5F-A2B5-D08F8004A6F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82B8E8A5-00E6-4C5F-A2B5-D08F8004A6F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{455E8BA4-C33B-438F-BBF5-C2E868D0CE79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{455E8BA4-C33B-438F-BBF5-C2E868D0CE79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{455E8BA4-C33B-438F-BBF5-C2E868D0CE79}.LocalProjects|Any CPU.ActiveCfg = LocalProjects|Any CPU
+		{455E8BA4-C33B-438F-BBF5-C2E868D0CE79}.LocalProjects|Any CPU.Build.0 = LocalProjects|Any CPU
+		{455E8BA4-C33B-438F-BBF5-C2E868D0CE79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{455E8BA4-C33B-438F-BBF5-C2E868D0CE79}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -223,6 +231,7 @@ Global
 		{1678F987-D336-4354-8701-8C591560F04B} = {8A4E53E7-07C7-42A8-A0F4-C7094094F390}
 		{E367D4CD-4E90-467A-84B1-30EEFCD07F6A} = {8A4E53E7-07C7-42A8-A0F4-C7094094F390}
 		{EA481A88-9A5E-4C04-ADF9-3ADF79AA89C9} = {31564631-1C65-4B5D-BBC6-7831C887D0D8}
+		{455E8BA4-C33B-438F-BBF5-C2E868D0CE79} = {31564631-1C65-4B5D-BBC6-7831C887D0D8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2B1A4546-5839-4F14-8E4D-8404CA122935}

@@ -81,7 +81,7 @@
                                 result = ExecutionResult.PluginFailedAndExecutionTerminated;
                                 pluginContext.Finish();
 
-                                pluginContext.Log(LogSeverity.Error, false, false, null, null, "unhandled error during plugin execution after {Elapsed}, message: ", pluginContext.RunTime, ex.Message);
+                                pluginContext.Log(LogSeverity.Error, false, false, null, null, "unhandled error during plugin execution after {Elapsed}, message: {Message}", pluginContext.RunTime, ex.Message);
                                 pluginContext.Log(LogSeverity.Error, true, false, null, null, "requested to terminate the execution of the module: {Message}", ex.Message);
 
                                 pluginContext.Close();

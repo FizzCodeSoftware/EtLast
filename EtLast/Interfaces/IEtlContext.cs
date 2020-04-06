@@ -25,6 +25,7 @@
 
         DateTimeOffset CreatedOnUtc { get; }
         DateTimeOffset CreatedOnLocal { get; }
+        void SetCreatedOn(DateTimeOffset specificDateTime);
 
         TimeSpan TransactionScopeTimeout { get; }
         EtlTransactionScope BeginScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity);

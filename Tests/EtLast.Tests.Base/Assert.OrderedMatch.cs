@@ -6,14 +6,14 @@
     public static class OrderedMatchHelper
     {
 #pragma warning disable RCS1175 // Unused this parameter.
-        public static void ExactMatch(this Assert assert, TestExecuterResult result, List<Dictionary<string, object>> referenceRows)
+        public static void ExactMatch(this Assert assert, List<ISlimRow> rows, List<Dictionary<string, object>> referenceRows)
 #pragma warning restore RCS1175 // Unused this parameter.
         {
-            Assert.AreEqual(referenceRows.Count, result.MutatedRows.Count);
+            Assert.AreEqual(referenceRows.Count, rows.Count);
             for (var i = 0; i < referenceRows.Count; i++)
             {
                 var referenceRow = referenceRows[i];
-                var row = result.MutatedRows[i];
+                var row = rows[i];
 
                 foreach (var kvp in referenceRow)
                 {

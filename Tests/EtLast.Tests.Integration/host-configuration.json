@@ -1,0 +1,32 @@
+﻿{
+  "EtlHost": {
+    "ModulesFolder": ".\\Modules",
+    "RetainedLogFileCountLimit": {
+      "Important": 30,
+      "Info": 14,
+      "Low": 4
+    },
+    "TransactionScopeTimeoutMinutes": 60,
+    "MinimumLogLevel": { // Verbose, Debug, Information, Warning, Error, Fatal
+      "Console": "Information",
+      "File": "Debug",
+      "IoFile": "Verbose" // I/O severity can be Verbose or Error
+    },
+    "DynamicCompilation": {
+      // Default: compile .cs files only when the debugger is not attached
+      // Never: never compile .cs files
+      // Always: always compile .cs files
+      "Mode": "Never"
+    },
+    "Seq": {
+      "Url": null,
+      "ApiKey": null
+    },
+    "RemoteDiagnostics": {
+      "Url": null
+    },
+    "Aliases": {
+      "Do": "run modules DwhBuilderTests"
+    }
+  }
+}

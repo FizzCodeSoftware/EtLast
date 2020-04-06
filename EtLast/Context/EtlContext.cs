@@ -12,8 +12,8 @@
         public EtlContextResult Result { get; } = new EtlContextResult();
         public AdditionalData AdditionalData { get; }
 
-        public DateTimeOffset CreatedOnUtc { get; }
-        public DateTimeOffset CreatedOnLocal { get; }
+        public DateTimeOffset CreatedOnUtc { get; private set; }
+        public DateTimeOffset CreatedOnLocal { get; private set; }
 
         /// <summary>
         /// Default value: 10 minutes.
@@ -50,11 +50,16 @@
             CancellationTokenSource = new CancellationTokenSource();
             AdditionalData = new AdditionalData();
 
-            var utcNow = DateTimeOffset.UtcNow;
-            CreatedOnUtc = utcNow;
-            CreatedOnLocal = utcNow.ToLocalTime();
+            CreatedOnLocal = DateTimeOffset.Now;
+            CreatedOnUtc = CreatedOnUtc.ToUniversalTime();
 
             CounterCollection = new StatCounterCollection(forwardCountersToCollection);
+        }
+
+        public void SetCreatedOn(DateTimeOffset specificDateTime)
+        {
+            CreatedOnLocal = specificDateTime;
+            CreatedOnUtc = CreatedOnUtc.ToUniversalTime();
         }
 
         public void SetRowType<T>() where T : IRow

@@ -43,7 +43,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(4, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1},
                 new Dictionary<string, object>() { ["Id"] = 1, ["Name"] = "B", ["ValueString"] = "AAA", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 12, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
                 new Dictionary<string, object>() { ["Id"] = 2, ["Name"] = "C", ["ValueString"] = "C", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
@@ -69,7 +69,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(4, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1 },
                 new Dictionary<string, object>() { ["Id"] = 1, ["Name"] = "B", ["ValueString"] = "AAA", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 12, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
                 new Dictionary<string, object>() { ["Id"] = 2, ["Name"] = "C", ["ValueString"] = "C", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
@@ -97,7 +97,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(4, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["Id"] = 0, ["Name"] = "A   ", ["ValueString"] = "AAA", ["ValueInt"] = -1,},
                 new Dictionary<string, object>() { ["Id"] = 1, ["Name"] = "B", ["ValueString"] = "AAA", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 12, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
                 new Dictionary<string, object>() { ["Id"] = 2, ["Name"] = "C", ["ValueString"] = "C", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },

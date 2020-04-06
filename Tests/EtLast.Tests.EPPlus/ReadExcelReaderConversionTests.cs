@@ -30,7 +30,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(2, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["Id"] = 0, ["Date"] = new EtlRowError(0d) },
                 new Dictionary<string, object>() { ["Id"] = 1, ["Date"] = new DateTime(2019, 4, 25, 0, 0, 0, 0) } });
             var exceptions = topic.Context.GetExceptions();

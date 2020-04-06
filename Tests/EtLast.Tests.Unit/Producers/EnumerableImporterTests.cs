@@ -22,7 +22,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(7, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
                 new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0) },
                 new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["age"] = 27, ["height"] = 170, ["eyeColor"] = "green", ["countryId"] = 2, ["birthDate"] = new DateTime(2014, 1, 21, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 11, 21, 17, 11, 58, 0) },
@@ -54,7 +54,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(7, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["ID"] = "0", ["age"] = 17L, ["name"] = "A", ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
                 new Dictionary<string, object>() { ["ID"] = "1", ["age"] = 8L, ["name"] = "B", ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0) },
                 new Dictionary<string, object>() { ["ID"] = "2", ["age"] = 27L, ["name"] = "C", ["height"] = 170, ["eyeColor"] = "green", ["countryId"] = 2, ["birthDate"] = new DateTime(2014, 1, 21, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 11, 21, 17, 11, 58, 0) },
@@ -87,7 +87,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(7, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["ID"] = "0", ["age"] = 17L },
                 new Dictionary<string, object>() { ["ID"] = "1", ["age"] = 8L },
                 new Dictionary<string, object>() { ["ID"] = "2", ["age"] = 27L },

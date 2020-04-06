@@ -39,7 +39,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["level1"] = "AAA", ["level"] = 0 },
                 new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["level2"] = "BBB", ["parentId"] = 0, ["level"] = 1 },
                 new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["level3"] = "CCC", ["parentId"] = 1, ["level"] = 2 },
@@ -72,7 +72,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A", ["level"] = 0 },
                 new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["parentId"] = 0, ["level"] = 1 },
                 new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["parentId"] = 1, ["level"] = 2 },
@@ -104,7 +104,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["id"] = 0, ["name"] = "A" },
                 new Dictionary<string, object>() { ["id"] = 1, ["name"] = "B", ["parentId"] = 0 },
                 new Dictionary<string, object>() { ["id"] = 2, ["name"] = "C", ["parentId"] = 1 },
@@ -142,7 +142,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["id"] = "0", ["name"] = "A", ["level1"] = "AAA", ["level"] = 0 },
                 new Dictionary<string, object>() { ["id"] = "1", ["name"] = "B", ["level2"] = "BBB", ["parentId"] = "0", ["level"] = 1 },
                 new Dictionary<string, object>() { ["id"] = "2", ["name"] = "C", ["level3"] = "CCC", ["parentId"] = "1", ["level"] = 2 },

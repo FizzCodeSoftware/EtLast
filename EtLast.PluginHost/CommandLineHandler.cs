@@ -27,7 +27,8 @@
 
             try
             {
-                Context.Load();
+                if (!Context.Load())
+                    return;
             }
             catch (Exception ex)
             {

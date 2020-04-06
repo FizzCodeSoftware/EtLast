@@ -1,0 +1,69 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <PackageId>FizzCode.EtLast.Tests.Integration</PackageId>
+    <Authors>FizzCode Ltd.</Authors>
+    <Product>EtLast ETL (Extract, Transform and Load) library for .NET Core</Product>
+    <Description>Intgration tests for the EtLast Plugin host library</Description>
+    <Copyright>Copyright © 2019-2020 FizzCode Ltd.</Copyright>
+    <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
+    <Platforms>AnyCPU</Platforms>
+    <CodeAnalysisRuleSet>..\..\FizzCode.ruleset</CodeAnalysisRuleSet>
+    <AssemblyName>FizzCode.EtLast.Tests.Integration</AssemblyName>
+    <RootNamespace>FizzCode.EtLast.Tests.Integration</RootNamespace>
+    <Configurations>Debug;Release;LocalProjects</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="1.0.0-rc">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
+    <ProjectReference Include="..\..\EtLast.DwhBuilder.Extenders.DataDefinition.MsSql\EtLast.DwhBuilder.Extenders.DataDefinition.MsSql.csproj" />
+    <ProjectReference Include="..\..\EtLast.DwhBuilder.Extenders.DataDefinition\EtLast.DwhBuilder.Extenders.DataDefinition.csproj" />
+    <ProjectReference Include="..\..\EtLast.DwhBuilder.MsSql\EtLast.DwhBuilder.MsSql.csproj" />
+    <ProjectReference Include="..\..\EtLast.DwhBuilder\EtLast.DwhBuilder.csproj" />
+    <ProjectReference Include="..\..\EtLast.EPPlus\EtLast.EPPlus.csproj" />
+    <ProjectReference Include="..\..\EtLast.PluginHost.PluginInterface\EtLast.PluginHost.PluginInterface.csproj" />
+    <ProjectReference Include="..\..\EtLast.PluginHost\EtLast.PluginHost.csproj" />
+    <ProjectReference Include="..\..\EtLast\EtLast.csproj" />
+    <ProjectReference Include="..\EtLast.Tests.Base\EtLast.Tests.Base.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Modules\DwhBuilderTests\100-EtlRunInfoTest.cs">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\DwhBuilderTests\AbstractDwhBuilderTestPlugin.cs">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="host-configuration.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Modules\DwhBuilderTests\module-configuration.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Modules\Shared\shared-configuration.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

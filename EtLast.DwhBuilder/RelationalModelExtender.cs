@@ -9,11 +9,10 @@
         {
             var etlRunTable = etlRunTableSchema.AddTable(configuration.EtlRunTableName).SetEtlRunInfo();
 
-            var etlRunTableId = etlRunTable.AddColumn("EtlRunId", true);
+            etlRunTable.AddColumn("StartedOn", false);
             etlRunTable.AddColumn("Name", false);
             etlRunTable.AddColumn("MachineName", false);
             etlRunTable.AddColumn("UserName", false);
-            etlRunTable.AddColumn("StartedOn", false);
             etlRunTable.AddColumn("FinishedOn", false);
             etlRunTable.AddColumn("Result", false);
 
@@ -24,11 +23,11 @@
                     if (baseTable.GetEtlRunInfoDisabled() || baseTable == etlRunTable)
                         continue;
 
-                    var etlInsertRunIdColumn = baseTable.AddColumn(configuration.EtlInsertRunIdColumnName, false).SetUsedByEtlRunInfo();
-                    var etlUpdateRunIdColumn = baseTable.AddColumn(configuration.EtlUpdateRunIdColumnName, false).SetUsedByEtlRunInfo();
+                    var etlRunInsertColumn = baseTable.AddColumn(configuration.EtlRunInsertColumnName, false).SetUsedByEtlRunInfo();
+                    var etlRunUpdateColumn = baseTable.AddColumn(configuration.EtlRunUpdateColumnName, false).SetUsedByEtlRunInfo();
 
-                    baseTable.AddForeignKeyTo(etlRunTable).AddColumnPair(etlInsertRunIdColumn, etlRunTableId);
-                    baseTable.AddForeignKeyTo(etlRunTable).AddColumnPair(etlUpdateRunIdColumn, etlRunTableId);
+                    baseTable.AddForeignKeyTo(etlRunTable).AddColumnPair(etlRunInsertColumn, etlRunTable["StartedOn"]);
+                    baseTable.AddForeignKeyTo(etlRunTable).AddColumnPair(etlRunUpdateColumn, etlRunTable["StartedOn"]);
                 }
             }
         }
@@ -39,13 +38,17 @@
                 .Where(x => x.GetHasHistoryTable() && !x.GetIsEtlRunInfo())
                 .ToList();
 
+            var etlRunTable = model.Schemas
+                .SelectMany(x => x.Tables)
+                .FirstOrDefault(x => x.GetIsEtlRunInfo());
+
             foreach (var baseTable in baseTablesWithHistory)
             {
-                CreateHistoryTable(baseTable, configuration);
+                CreateHistoryTable(baseTable, configuration, etlRunTable);
             }
         }
 
-        private static void CreateHistoryTable(RelationalTable baseTable, DwhBuilderConfiguration configuration)
+        private static void CreateHistoryTable(RelationalTable baseTable, DwhBuilderConfiguration configuration, RelationalTable etlRunTable)
         {
             var historyTable = baseTable.Schema.AddTable(baseTable.Name + configuration.HistoryTableNamePostfix).SetIsHistoryTable();
             var identityColumnName = (configuration.HistoryTableIdentityColumnBase ?? historyTable.Name) + configuration.HistoryTableIdentityColumnPostfix;
@@ -78,6 +81,15 @@
             baseTable.AddColumn(configuration.ValidFromColumnName, false);
             historyTable.AddColumn(configuration.ValidFromColumnName, false);
             historyTable.AddColumn(configuration.ValidToColumnName, false);
+
+            if (etlRunTable != null)
+            {
+                var c1 = historyTable.AddColumn(configuration.EtlRunFromColumnName, false);
+                var c2 = historyTable.AddColumn(configuration.EtlRunToColumnName, false);
+
+                historyTable.AddForeignKeyTo(etlRunTable).AddColumnPair(c1, etlRunTable["StartedOn"]);
+                historyTable.AddForeignKeyTo(etlRunTable).AddColumnPair(c2, etlRunTable["StartedOn"]);
+            }
         }
     }
 }

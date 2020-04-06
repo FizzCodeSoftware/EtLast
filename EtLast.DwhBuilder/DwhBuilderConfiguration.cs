@@ -71,13 +71,23 @@
         public string EtlRunTableName { get; set; } = "_EtlRun";
 
         /// <summary>
-        /// Default "EtlInsertRunId"
+        /// Default "EtlRunInsert"
         /// </summary>
-        public string EtlInsertRunIdColumnName { get; set; } = "EtlInsertRunId";
+        public string EtlRunInsertColumnName { get; set; } = "EtlRunInsert";
 
         /// <summary>
         /// Default "EtlUpdateRunId"
         /// </summary>
-        public string EtlUpdateRunIdColumnName { get; set; } = "EtlUpdateRunId";
+        public string EtlRunUpdateColumnName { get; set; } = "EtlRunUpdate";
+
+        /// <summary>
+        /// Default "EtlRunFrom"
+        /// </summary>
+        public string EtlRunFromColumnName { get; set; } = "EtlRunFrom";
+
+        /// <summary>
+        /// Default "EtlRunTo"
+        /// </summary>
+        public string EtlRunToColumnName { get; set; } = "EtlRunTo";
     }
 }

@@ -89,12 +89,12 @@
                     MainTableName = etlRunInfoTable.EscapedName(ConnectionString),
                     SqlStatement = "UPDATE " + etlRunInfoTable.EscapedName(ConnectionString)
                         + " SET FinishedOn = @FinishedOn, Result = @Result"
-                        + " WHERE EtlRunId = @EtlRunId",
+                        + " WHERE StartedOn = @EtlRunId",
                     Parameters = new Dictionary<string, object>
                     {
                         ["FinishedOn"] = DateTimeOffset.Now,
                         ["Result"] = "success",
-                        ["EtlRunid"] = scope.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", 0),
+                        ["EtlRunid"] = scope.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", DateTimeOffset.Now),
                     },
                 };
             }
@@ -128,29 +128,21 @@
             var etlRunInfoTable = Model.GetEtlRunInfoTable();
             if (etlRunInfoTable != null)
             {
-                var maxId = new GetTableMaxValue<int>(scope.Topic.Child(etlRunInfoTable.SchemaAndName), "MaxIdReader")
-                {
-                    ConnectionString = ConnectionString,
-                    TableName = etlRunInfoTable.EscapedName(ConnectionString),
-                    ColumnName = ConnectionString.Escape("EtlRunId"),
-                }.Execute(caller);
-
                 yield return new ProcessBuilder()
                 {
                     InputProcess = new EnumerableImporter(scope.Topic.Child(etlRunInfoTable.SchemaAndName), "RowCreator")
                     {
                         InputGenerator = process =>
                         {
-                            var currentId = (maxId?.MaxValue ?? 0) + 1;
+                            var currentId = scope.Topic.Context.CreatedOnLocal;
                             scope.Topic.Context.AdditionalData["CurrentEtlRunId"] = currentId;
 
                             var row = new SlimRow
                             {
-                                ["EtlRunId"] = currentId,
+                                ["StartedOn"] = currentId,
                                 ["Name"] = scope.Name,
                                 ["MachineName"] = Environment.MachineName,
                                 ["UserName"] = Environment.UserName,
-                                ["StartedOn"] = scope.Topic.Context.CreatedOnLocal,
                             };
 
                             return new[] { row };
@@ -164,7 +156,7 @@
                             TableDefinition = new DbTableDefinition()
                             {
                                 TableName = etlRunInfoTable.EscapedName(ConnectionString),
-                                Columns = new[] { "EtlRunId", "Name", "MachineName", "UserName", "StartedOn" }
+                                Columns = new[] { "StartedOn", "Name", "MachineName", "UserName" }
                                     .Select(c => new DbColumnDefinition(c, ConnectionString.Escape(c)))
                                     .ToArray(),
                             },

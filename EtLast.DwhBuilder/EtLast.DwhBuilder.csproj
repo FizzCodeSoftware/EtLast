@@ -27,7 +27,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.LightWeight.RelationalModel" Version="1.0.11.5596" />
+    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.LightWeight.RelationalModel" Version="1.0.12.5616" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

@@ -1,11 +1,10 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.MsSql
 {
-    using System;
     using System.Collections.Generic;
 
     public static partial class TableBuilderExtensions
     {
-        public static DwhTableBuilder[] AddMutators(this DwhTableBuilder[] builders, Func<DwhTableBuilder, IEnumerable<IMutator>> creator)
+        public static DwhTableBuilder[] AddMutators(this DwhTableBuilder[] builders, MutatorCreatorDelegate creator)
         {
             foreach (var builder in builders)
             {

@@ -8,6 +8,8 @@
     using FizzCode.EtLast.AdoNet;
     using FizzCode.LightWeight.RelationalModel;
 
+    public delegate IEnumerable<IMutator> MutatorCreatorDelegate(DwhTableBuilder tableBuilder);
+
     [DebuggerDisplay("{Table}")]
     public class DwhTableBuilder : IDwhTableBuilder
     {
@@ -15,8 +17,10 @@
         public ResilientTable ResilientTable { get; }
         public RelationalTable Table { get; }
 
-        public string EtlInsertRunIdColumnNameEscaped { get; }
-        public string EtlUpdateRunIdColumnNameEscaped { get; }
+        public string EtlRunInsertColumnNameEscaped { get; }
+        public string EtlRunUpdateColumnNameEscaped { get; }
+        public string EtlRunFromColumnNameEscaped { get; }
+        public string EtlRunToColumnNameEscaped { get; }
 
         public RelationalColumn ValidFromColumn { get; }
         public string ValidFromColumnNameEscaped { get; }
@@ -25,7 +29,7 @@
         public string ValidToColumnNameEscaped { get; }
 
         private readonly List<Func<DwhTableBuilder, IEnumerable<IExecutable>>> _finalizerCreators = new List<Func<DwhTableBuilder, IEnumerable<IExecutable>>>();
-        private readonly List<Func<DwhTableBuilder, IEnumerable<IMutator>>> _mutatorCreators = new List<Func<DwhTableBuilder, IEnumerable<IMutator>>>();
+        private readonly List<MutatorCreatorDelegate> _mutatorCreators = new List<MutatorCreatorDelegate>();
         private Func<IEvaluable> _inputProcessCreator;
 
         public DwhTableBuilder(DwhBuilder builder, ResilientTable resilientTable, RelationalTable table)
@@ -34,15 +38,10 @@
             ResilientTable = resilientTable;
             Table = table;
 
-            EtlInsertRunIdColumnNameEscaped = Table.Columns
-                .Where(x => string.Equals(x.Name, builder.Configuration.EtlInsertRunIdColumnName, StringComparison.InvariantCultureIgnoreCase))
-                .Select(x => x.NameEscaped(builder.ConnectionString))
-                .FirstOrDefault();
-
-            EtlUpdateRunIdColumnNameEscaped = Table.Columns
-                .Where(x => string.Equals(x.Name, builder.Configuration.EtlUpdateRunIdColumnName, StringComparison.InvariantCultureIgnoreCase))
-                .Select(x => x.NameEscaped(builder.ConnectionString))
-                .FirstOrDefault();
+            EtlRunInsertColumnNameEscaped = Table[builder.Configuration.EtlRunInsertColumnName]?.NameEscaped(builder.ConnectionString);
+            EtlRunUpdateColumnNameEscaped = Table[builder.Configuration.EtlRunUpdateColumnName]?.NameEscaped(builder.ConnectionString);
+            EtlRunFromColumnNameEscaped = Table[builder.Configuration.EtlRunFromColumnName]?.NameEscaped(builder.ConnectionString);
+            EtlRunToColumnNameEscaped = Table[builder.Configuration.EtlRunToColumnName]?.NameEscaped(builder.ConnectionString);
 
             ValidFromColumn = Table[builder.Configuration.ValidFromColumnName];
             ValidFromColumnNameEscaped = ValidFromColumn?.NameEscaped(builder.ConnectionString);
@@ -51,7 +50,7 @@
             ValidToColumnNameEscaped = ValidToColumnName != null ? builder.ConnectionString.Escape(ValidToColumnName) : null;
         }
 
-        internal void AddMutatorCreator(Func<DwhTableBuilder, IEnumerable<IMutator>> creator)
+        internal void AddMutatorCreator(MutatorCreatorDelegate creator)
         {
             _mutatorCreators.Add(creator);
         }

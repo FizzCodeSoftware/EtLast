@@ -36,7 +36,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(11, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
                 new Dictionary<string, object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
                 new Dictionary<string, object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
@@ -77,7 +77,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(11, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
                 new Dictionary<string, object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
                 new Dictionary<string, object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
@@ -119,7 +119,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(12, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
                 new Dictionary<string, object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
                 new Dictionary<string, object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
@@ -156,7 +156,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(11, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
                 new Dictionary<string, object>() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
                 new Dictionary<string, object>() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
@@ -193,7 +193,7 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(12, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {
+            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
                 new Dictionary<string, object>() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
                 new Dictionary<string, object>() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
                 new Dictionary<string, object>() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
