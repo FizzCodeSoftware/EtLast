@@ -26,7 +26,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.LightWeight.Collections" Version="1.0.12.5616" />
+    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.LightWeight.Collections" Version="1.0.13.5621" />
   </ItemGroup>
 
   <ItemGroup>
