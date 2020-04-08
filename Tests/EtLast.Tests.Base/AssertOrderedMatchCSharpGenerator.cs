@@ -8,19 +8,19 @@
 
     public static class AssertOrderedMatchCSharpGenerator
     {
-        public static string GetGenerateAssertOrderedMatch(List<ISlimRow> rows, IEtlContext context)
+        public static string GetGenerateAssertOrderedMatch(TestExecuterResult result)
         {
             var sb = new StringBuilder();
 
-            sb.Append("\t\t\tAssert.AreEqual(").Append(rows.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", result.MutatedRows.Count);");
-            if (rows.Count > 0)
+            sb.Append("\t\t\tAssert.AreEqual(").Append(result.MutatedRows.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", result.MutatedRows.Count);");
+            if (result.MutatedRows.Count > 0)
             {
-                sb.AppendLine("Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {");
-                sb.AppendJoin(",\n", rows.Select(row => "\t\t\t\tnew Dictionary<string, object>() { " + string.Join(", ", row.Values.Select(kvp => "[\"" + kvp.Key + "\"] = " + FormatToCSharpVariable(row[kvp.Key]))) + " }"));
+                sb.AppendLine("Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {");
+                sb.AppendJoin(",\n", result.MutatedRows.Select(row => "\t\t\t\tnew CaseInsensitiveStringKeyDictionary<object>() { " + string.Join(", ", row.Values.Select(kvp => "[\"" + kvp.Key + "\"] = " + FormatToCSharpVariable(row[kvp.Key]))) + " }"));
                 sb.AppendLine(" });");
             }
 
-            var exceptions = context.GetExceptions();
+            var exceptions = result.Input.Topic.Context.GetExceptions();
             sb.AppendLine("\t\t\tvar exceptions = topic.Context.GetExceptions();");
             sb.Append("\t\t\tAssert.AreEqual(").Append(exceptions.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", exceptions.Count);");
 
@@ -40,8 +40,8 @@
             sb.Append("\t\t\tAssert.AreEqual(").Append(rows.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", result.Count);");
             if (rows.Count > 0)
             {
-                sb.AppendLine("Assert.That.ExactMatch(result, new List<Dictionary<string, object>>() {");
-                sb.AppendJoin(",\n", rows.Select(row => "\t\t\t\tnew Dictionary<string, object>() { " + string.Join(", ", row.Values.Select(kvp => "[\"" + kvp.Key + "\"] = " + FormatToCSharpVariable(row[kvp.Key]))) + " }"));
+                sb.AppendLine("Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {");
+                sb.AppendJoin(",\n", rows.Select(row => "\t\t\t\t\tnew CaseInsensitiveStringKeyDictionary<object>() { " + string.Join(", ", row.Values.Select(kvp => "[\"" + kvp.Key + "\"] = " + FormatToCSharpVariable(row[kvp.Key]))) + " }"));
                 sb.AppendLine(" });");
             }
 

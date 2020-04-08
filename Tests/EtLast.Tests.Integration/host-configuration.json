@@ -8,7 +8,7 @@
     },
     "TransactionScopeTimeoutMinutes": 60,
     "MinimumLogLevel": { // Verbose, Debug, Information, Warning, Error, Fatal
-      "Console": "Information",
+      "Console": "Debug",
       "File": "Debug",
       "IoFile": "Verbose" // I/O severity can be Verbose or Error
     },

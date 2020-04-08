@@ -20,7 +20,7 @@
 
         private static IEnumerable<IExecutable> CreateSimpleCopyFinalizer(DwhTableBuilder builder)
         {
-            var currentEtlRunId = builder.ResilientTable.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", DateTimeOffset.Now);
+            var currentEtlRunId = builder.ResilientTable.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", DateTime.UtcNow);
 
             var columnDefaults = new Dictionary<string, object>();
 

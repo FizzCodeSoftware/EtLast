@@ -25,13 +25,13 @@
         internal DateTimeOffset? DefaultValidFromDateTime => Configuration.UseContextCreationTimeForNewRecords ? Topic.Context.CreatedOnLocal : Configuration.InfinitePastDateTime;
 
         private readonly List<ResilientSqlScopeExecutableCreatorDelegate> _postFinalizerCreators = new List<ResilientSqlScopeExecutableCreatorDelegate>();
-        private readonly DateTimeOffset? _etlRunIdOverride;
+        private readonly DateTime? _etlRunIdUtcOverride;
 
-        public DwhBuilder(ITopic topic, string scopeName, DateTimeOffset? etlRunIdOverride = null)
+        public DwhBuilder(ITopic topic, string scopeName, DateTime? etlRunIdUtcOverride = null)
         {
             Topic = topic;
             ScopeName = scopeName;
-            _etlRunIdOverride = etlRunIdOverride;
+            _etlRunIdUtcOverride = etlRunIdUtcOverride;
         }
 
         private void SetConfiguration(DwhBuilderConfiguration configuration)
@@ -94,9 +94,9 @@
                         + " WHERE StartedOn = @EtlRunId",
                     Parameters = new Dictionary<string, object>
                     {
-                        ["FinishedOn"] = DateTimeOffset.Now,
+                        ["FinishedOn"] = DateTime.UtcNow,
                         ["Result"] = "success",
-                        ["EtlRunid"] = scope.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", DateTimeOffset.Now),
+                        ["EtlRunid"] = scope.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", DateTime.UtcNow),
                     },
                 };
             }
@@ -122,7 +122,7 @@
             if (!dwhTable.GetHasHistoryTable())
                 return null;
 
-            return ConnectionString.Escape(dwhTable.Name + "Hist", dwhTable.Schema.Name);
+            return ConnectionString.Escape(dwhTable.Name + Configuration.HistoryTableNamePostfix, dwhTable.Schema.Name);
         }
 
         private IEnumerable<IExecutable> CreateInitializers(ResilientSqlScope scope, IProcess caller)
@@ -136,7 +136,18 @@
                     {
                         InputGenerator = process =>
                         {
-                            var currentId = _etlRunIdOverride ?? DateTimeOffset.Now;
+                            var currentId = _etlRunIdUtcOverride ?? DateTime.UtcNow;
+
+                            currentId = new DateTime(
+                                currentId.Year,
+                                currentId.Month,
+                                currentId.Day,
+                                currentId.Hour,
+                                currentId.Minute,
+                                currentId.Second,
+                                0,
+                                DateTimeKind.Utc);
+
                             scope.Topic.Context.AdditionalData["CurrentEtlRunId"] = currentId;
 
                             var row = new SlimRow

@@ -14,8 +14,8 @@
                 builder.AddFinalizerCreator(builder =>
                 {
                     var currentRunId = builder.EtlRunInsertColumnNameEscaped != null || builder.EtlRunUpdateColumnNameEscaped != null
-                        ? builder.DwhBuilder.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", DateTimeOffset.Now)
-                        : (DateTimeOffset?)null;
+                        ? builder.DwhBuilder.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", DateTime.UtcNow)
+                        : (DateTime?)null;
 
                     return creator(builder, currentRunId);
                 });

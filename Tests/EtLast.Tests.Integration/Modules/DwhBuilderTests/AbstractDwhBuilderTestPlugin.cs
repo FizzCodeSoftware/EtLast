@@ -15,8 +15,8 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
 
     public abstract class AbstractDwhBuilderTestPlugin : AbstractEtlPlugin
     {
-        protected DateTimeOffset EtlRunId1 { get; } = new DateTimeOffset(2001, 1, 1, 1, 1, 1, new TimeSpan(2, 0, 0));
-        protected DateTimeOffset EtlRunId2 { get; } = new DateTimeOffset(2022, 2, 2, 2, 2, 2, new TimeSpan(2, 0, 0));
+        protected DateTime EtlRunId1 { get; } = new DateTime(2001, 1, 1, 1, 1, 1, DateTimeKind.Utc);
+        protected DateTime EtlRunId2 { get; } = new DateTime(2022, 2, 2, 2, 2, 2, DateTimeKind.Utc);
 
         public string DatabaseName { get; } = "EtLastIntegrationTest";
         public ConnectionStringWithProvider TestConnectionString { get; } = new ConnectionStringWithProvider("test", "System.Data.SqlClient", "Data Source=(local);Initial Catalog=\"EtLastIntegrationTest\";Integrated Security=SSPI;Connection Timeout=5", "2016");
@@ -43,18 +43,20 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
 
         protected void CreateDatabase(DatabaseDefinition definition)
         {
-            Context.ExecuteOne(true, new BasicScope(PluginTopic.Child(nameof(CreateDatabase)))
+            Context.ExecuteOne(true, new BasicScope(PluginTopic)
             {
-                ProcessCreator = scope => CreateDatabaseProcess(scope, definition),
+                ProcessCreator = scope => ReCreateDatabaseProcess(scope, definition),
             });
         }
 
-        private IEnumerable<IExecutable> CreateDatabaseProcess(BasicScope scope, DatabaseDefinition definition)
+        private IEnumerable<IExecutable> ReCreateDatabaseProcess(BasicScope scope, DatabaseDefinition definition)
         {
-            yield return new CustomAction(scope.Topic, nameof(CreateDatabaseProcess))
+            yield return new CustomAction(scope.Topic, nameof(ReCreateDatabaseProcess))
             {
                 Then = proc =>
                 {
+                    System.Data.SqlClient.SqlConnection.ClearAllPools();
+
                     proc.Context.Log(LogSeverity.Information, proc, "opening connection to {DatabaseName}", "master");
                     using var connection = DbProviderFactories.GetFactory(TestConnectionString.ProviderName).CreateConnection();
                     connection.ConnectionString = "Data Source=(local);Initial Catalog=\"master\";Integrated Security=SSPI;Connection Timeout=5";

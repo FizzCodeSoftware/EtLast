@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
@@ -23,8 +24,8 @@
             base.Init(context, creatorProcess, uid, initialValues);
 
             _values = initialValues == null
-                ? new Dictionary<string, object>()
-                : new Dictionary<string, object>(initialValues.Where(kvp => kvp.Value != null));
+                ? new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase)
+                : new Dictionary<string, object>(initialValues.Where(kvp => kvp.Value != null), StringComparer.InvariantCultureIgnoreCase);
         }
 
         protected override object GetValueImpl(string column)
@@ -65,7 +66,7 @@
             }
 
             if (Staging == null)
-                Staging = new Dictionary<string, object>();
+                Staging = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
 
             Staging[column] = newValue;
         }

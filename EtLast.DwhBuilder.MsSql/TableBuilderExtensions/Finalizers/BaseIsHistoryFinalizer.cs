@@ -25,7 +25,7 @@
 
         private static IEnumerable<IExecutable> CreateBaseIsHistoryFinalizer(KeyBasedFinalizerBuilder builder)
         {
-            var currentEtlRunId = builder.TableBuilder.ResilientTable.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", DateTimeOffset.Now);
+            var currentEtlRunId = builder.TableBuilder.ResilientTable.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", DateTime.UtcNow);
 
             var mergeIntoBaseColumns = builder.TableBuilder.Table.Columns
                 .Where(x => !x.GetUsedByEtlRunInfo());

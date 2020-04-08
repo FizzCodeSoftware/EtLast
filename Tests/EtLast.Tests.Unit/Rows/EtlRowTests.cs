@@ -27,6 +27,22 @@
         }
 
         [TestMethod]
+        public void KeyCaseIgnored()
+        {
+            var context = TestExecuter.GetContext();
+            context.SetRowType<DictionaryRow>();
+
+            var initialValues = new Dictionary<string, object>()
+            {
+                ["date"] = new DateTime(2020, 02, 20, 12, 12, 0, 666),
+            };
+
+            var row = context.CreateRow(null, initialValues);
+            var result = row["DATE"];
+            Assert.AreEqual(new DateTime(2020, 02, 20, 12, 12, 0, 666), result);
+        }
+
+        [TestMethod]
         public void SingleNullColumnResultsNullKey()
         {
             var context = TestExecuter.GetContext();

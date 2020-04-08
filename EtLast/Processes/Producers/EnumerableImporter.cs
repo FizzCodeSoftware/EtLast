@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -33,7 +34,7 @@
 
             if (ColumnConfiguration != null)
             {
-                var initialValues = new Dictionary<string, object>();
+                var initialValues = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
 
                 if (CopyOnlySpecifiedColumns)
                 {

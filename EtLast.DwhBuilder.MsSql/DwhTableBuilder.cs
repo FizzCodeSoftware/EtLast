@@ -40,8 +40,8 @@
 
             EtlRunInsertColumnNameEscaped = Table[builder.Configuration.EtlRunInsertColumnName]?.NameEscaped(builder.ConnectionString);
             EtlRunUpdateColumnNameEscaped = Table[builder.Configuration.EtlRunUpdateColumnName]?.NameEscaped(builder.ConnectionString);
-            EtlRunFromColumnNameEscaped = Table[builder.Configuration.EtlRunFromColumnName]?.NameEscaped(builder.ConnectionString);
-            EtlRunToColumnNameEscaped = Table[builder.Configuration.EtlRunToColumnName]?.NameEscaped(builder.ConnectionString);
+            EtlRunFromColumnNameEscaped = EtlRunInsertColumnNameEscaped == null || builder.Configuration.EtlRunFromColumnName == null ? null : builder.ConnectionString.Escape(builder.Configuration.EtlRunFromColumnName);
+            EtlRunToColumnNameEscaped = EtlRunInsertColumnNameEscaped == null || builder.Configuration.EtlRunToColumnName == null ? null : builder.ConnectionString.Escape(builder.Configuration.EtlRunToColumnName);
 
             ValidFromColumn = Table[builder.Configuration.ValidFromColumnName];
             ValidFromColumnNameEscaped = ValidFromColumn?.NameEscaped(builder.ConnectionString);

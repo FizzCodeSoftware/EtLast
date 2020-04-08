@@ -8,6 +8,18 @@
     public class SlimRowTests
     {
         [TestMethod]
+        public void KeyCaseIgnored()
+        {
+            var values = new SlimRow()
+            {
+                ["date"] = new DateTime(2020, 02, 20, 12, 12, 0, 666),
+            };
+
+            var result = values["DATE"];
+            Assert.AreEqual(new DateTime(2020, 02, 20, 12, 12, 0, 666), result);
+        }
+
+        [TestMethod]
         public void SingleNullColumnResultsNullKey()
         {
             var values = new SlimRow();

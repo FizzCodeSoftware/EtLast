@@ -46,7 +46,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Modules\DwhBuilderTests\100-EtlRunInfoTest.cs">
+    <Compile Update="Modules\DwhBuilderTests\1100-EtlRunInfoTest.cs">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Compile>
     <Compile Update="Modules\DwhBuilderTests\AbstractDwhBuilderTestPlugin.cs">

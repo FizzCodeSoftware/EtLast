@@ -13,11 +13,11 @@
             var etlRunTable = new SqlTable(dataDeclaration.DefaultSchema, configuration.EtlRunTableName);
             dataDeclaration.AddTable(etlRunTable);
 
-            etlRunTable.AddDateTimeOffset("StartedOn", 7, false).SetPK();
+            etlRunTable.AddDateTime2("StartedOn", 7, false).SetPK();
             etlRunTable.AddNVarChar("Name", 200, false);
             etlRunTable.AddNVarChar("MachineName", 200, false);
             etlRunTable.AddNVarChar("UserName", 200, false);
-            etlRunTable.AddDateTimeOffset("FinishedOn", 7, true);
+            etlRunTable.AddDateTime2("FinishedOn", 7, true);
             etlRunTable.AddNVarChar("Result", 20, true);
 
             dataDeclaration.AddAutoNaming(new List<SqlTable> { etlRunTable });
@@ -28,8 +28,8 @@
                 if (baseTable.HasProperty<EtlRunInfoDisabledProperty>() || baseTable == etlRunTable)
                     continue;
 
-                baseTable.AddDateTimeOffset(configuration.EtlRunInsertColumnName, 7, false).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
-                baseTable.AddDateTimeOffset(configuration.EtlRunUpdateColumnName, 7, false).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
+                baseTable.AddDateTime2(configuration.EtlRunInsertColumnName, 7, false).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
+                baseTable.AddDateTime2(configuration.EtlRunUpdateColumnName, 7, false).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
             }
         }
 
@@ -105,8 +105,8 @@
 
             if (etlRunTable != null)
             {
-                historyTable.AddDateTimeOffset(configuration.EtlRunFromColumnName, 7, false).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
-                historyTable.AddDateTimeOffset(configuration.EtlRunToColumnName, 7, false).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
+                historyTable.AddDateTime2(configuration.EtlRunFromColumnName, 7, false).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
+                historyTable.AddDateTime2(configuration.EtlRunToColumnName, 7, true).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
             }
 
             return historyTable;

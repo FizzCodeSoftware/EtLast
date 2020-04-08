@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using FizzCode.EtLast;
     using FizzCode.EtLast.EPPlus;
+    using FizzCode.LightWeight.Collections;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -30,9 +31,9 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(2, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result.MutatedRows, new List<Dictionary<string, object>>() {
-                new Dictionary<string, object>() { ["Id"] = 0, ["Date"] = new EtlRowError(0d) },
-                new Dictionary<string, object>() { ["Id"] = 1, ["Date"] = new DateTime(2019, 4, 25, 0, 0, 0, 0) } });
+            Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Date"] = new EtlRowError(0d) },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Date"] = new DateTime(2019, 4, 25, 0, 0, 0, 0) } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }

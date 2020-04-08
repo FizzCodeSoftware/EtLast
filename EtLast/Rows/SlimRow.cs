@@ -15,12 +15,12 @@
 
         public SlimRow()
         {
-            _values = new Dictionary<string, object>();
+            _values = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
         }
 
         public SlimRow(IEnumerable<KeyValuePair<string, object>> initialValues)
         {
-            _values = new Dictionary<string, object>(initialValues);
+            _values = new Dictionary<string, object>(initialValues, StringComparer.InvariantCultureIgnoreCase);
         }
 
         public object this[string column]

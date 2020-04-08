@@ -7,6 +7,7 @@
     <AssemblyName>FizzCode.EtLast.Tests.Base</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Tests.Base</RootNamespace>
     <CodeAnalysisRuleSet>..\..\FizzCode.ruleset</CodeAnalysisRuleSet>
+    <Configurations>Debug;Release;LocalProjects</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -25,10 +26,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.LightWeight.Collections" Version="1.0.12.5616" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\EtLast\EtLast.csproj" />
+    <ProjectReference Condition="'$(Configuration)' == 'LocalProjects'" Include="..\..\..\LightWeight\LightWeight.Collections\LightWeight.Collections.csproj" />
   </ItemGroup>
 
 </Project>

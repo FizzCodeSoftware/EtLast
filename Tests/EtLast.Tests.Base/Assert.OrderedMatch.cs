@@ -1,12 +1,13 @@
 ﻿namespace FizzCode.EtLast.Tests
 {
     using System.Collections.Generic;
+    using FizzCode.LightWeight.Collections;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     public static class OrderedMatchHelper
     {
 #pragma warning disable RCS1175 // Unused this parameter.
-        public static void ExactMatch(this Assert assert, List<ISlimRow> rows, List<Dictionary<string, object>> referenceRows)
+        public static void ExactMatch(this Assert assert, List<ISlimRow> rows, List<CaseInsensitiveStringKeyDictionary<object>> referenceRows)
 #pragma warning restore RCS1175 // Unused this parameter.
         {
             Assert.AreEqual(referenceRows.Count, rows.Count);
@@ -26,7 +27,7 @@
                 foreach (var kvp in row.Values)
                 {
                     var expectedValue = kvp.Value;
-                    referenceRow.TryGetValue(kvp.Key, out var value);
+                    var value = referenceRow[kvp.Key];
                     Assert.IsTrue(DefaultValueComparer.ValuesAreEqual(value, expectedValue));
                 }
             }
