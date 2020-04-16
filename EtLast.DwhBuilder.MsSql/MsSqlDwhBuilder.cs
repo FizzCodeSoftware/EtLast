@@ -23,7 +23,7 @@
         public IEnumerable<RelationalTable> Tables => _tables.Select(x => x.Table);
         private readonly List<DwhTableBuilder> _tables = new List<DwhTableBuilder>();
 
-        internal DateTimeOffset? DefaultValidFromDateTime => Configuration.UseEtlRunIdTimeForDefaultValidFrom
+        internal DateTimeOffset? DefaultValidFromDateTime => Configuration.UseEtlRunIdForDefaultValidFrom
             ? EtlRunId
             : Configuration.InfinitePastDateTime;
 

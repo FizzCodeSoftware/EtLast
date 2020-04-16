@@ -94,8 +94,8 @@
                 }
             }
 
-            baseTable.AddDateTimeOffset(configuration.ValidFromColumnName, 7, configuration.InfinitePastDateTime == null && !configuration.UseEtlRunIdTimeForDefaultValidFrom);
-            historyTable.AddDateTimeOffset(configuration.ValidFromColumnName, 7, configuration.InfinitePastDateTime == null && !configuration.UseEtlRunIdTimeForDefaultValidFrom);
+            baseTable.AddDateTimeOffset(configuration.ValidFromColumnName, 7, configuration.InfinitePastDateTime == null && !configuration.UseEtlRunIdForDefaultValidFrom);
+            historyTable.AddDateTimeOffset(configuration.ValidFromColumnName, 7, configuration.InfinitePastDateTime == null && !configuration.UseEtlRunIdForDefaultValidFrom);
             historyTable.AddDateTimeOffset(configuration.ValidToColumnName, 7, configuration.InfiniteFutureDateTime == null);
 
             return historyTable;

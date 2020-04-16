@@ -53,7 +53,7 @@
         /// <summary>
         /// Default false.
         /// </summary>
-        public bool UseEtlRunIdTimeForDefaultValidFrom { get; set; }
+        public bool UseEtlRunIdForDefaultValidFrom { get; set; }
 
         /// <summary>
         /// Default new DateTimeOffset(1900, 1, 1, 0, 0, 0, new TimeSpan(0))
