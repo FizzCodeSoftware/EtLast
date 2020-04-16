@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.MsSql
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using FizzCode.EtLast;
@@ -20,15 +19,12 @@
 
         private static IEnumerable<IExecutable> CreateSimpleCopyFinalizer(DwhTableBuilder builder)
         {
-            var currentEtlRunId = builder.ResilientTable.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", DateTime.UtcNow);
-
             var columnDefaults = new Dictionary<string, object>();
-
-            if (builder.EtlRunInsertColumnNameEscaped != null)
-                columnDefaults.Add(builder.EtlRunInsertColumnNameEscaped, currentEtlRunId);
-
-            if (builder.EtlRunUpdateColumnNameEscaped != null)
-                columnDefaults.Add(builder.EtlRunUpdateColumnNameEscaped, currentEtlRunId);
+            if (builder.HasEtlRunInfo)
+            {
+                columnDefaults[builder.EtlRunInsertColumnNameEscaped] = builder.DwhBuilder.EtlRunId.Value;
+                columnDefaults[builder.EtlRunUpdateColumnNameEscaped] = builder.DwhBuilder.EtlRunId.Value;
+            }
 
             var columnNames = builder.Table.Columns
                 .Where(x => !x.GetUsedByEtlRunInfo())

@@ -23,7 +23,7 @@
             {
                 CustomAction = (proc, row, match) =>
                 {
-                    row.SetStagedValue(TableBuilder.ValidFromColumn.Name, TableBuilder.DwhBuilder.Topic.Context.CreatedOnLocal);
+                    row.SetStagedValue(TableBuilder.ValidFromColumn.Name, TableBuilder.DwhBuilder.EtlRunIdAsDateTimeOffset.Value);
                     row.SetStagedValue(TableBuilder.ValidToColumnName, TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
                     row.ApplyStaging();
                 },

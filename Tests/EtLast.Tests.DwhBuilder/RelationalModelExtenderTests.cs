@@ -40,18 +40,18 @@
 
             model["secondary"]["pet"].SetEtlRunInfoDisabled();
 
-            RelationalModelExtender.ExtendWithEtlRunInfo(model.DefaultSchema, configuration);
+            RelationalModelExtender.Extend(model, configuration);
 
             var etlRunTable = model["dbo"]["_EtlRun"];
             Assert.IsNotNull(etlRunTable);
             Assert.AreEqual(6, etlRunTable.Columns.Count);
 
-            Assert.AreEqual(3 + 2, model["dbo"]["people"].Columns.Count);
+            Assert.AreEqual(3 + 4, model["dbo"]["people"].Columns.Count);
             Assert.AreEqual(3, model["secondary"]["pet"].Columns.Count);
         }
 
         [TestMethod]
-        public void EtlRunInfoWithHistory()
+        public void HistoryWithEtlRunInfo()
         {
             var model = CreateModel();
             var configuration = new DwhBuilderConfiguration()
@@ -62,38 +62,40 @@
             model["secondary"]["pet"].SetEtlRunInfoDisabled();
             model["dbo"]["people"].SetHasHistoryTable();
 
-            RelationalModelExtender.ExtendWithEtlRunInfo(model.DefaultSchema, configuration);
-            RelationalModelExtender.ExtendWithHistoryTables(model, configuration);
+            RelationalModelExtender.Extend(model, configuration);
 
-            Assert.AreEqual(3 + 1 + 2, model["dbo"]["people"].Columns.Count);
-            Assert.IsNotNull(model["dbo"]["people"][configuration.ValidFromColumnName]);
+            Assert.AreEqual(3 + 4 + 1, model["dbo"]["people"].Columns.Count);
             Assert.IsNotNull(model["dbo"]["people"][configuration.EtlRunInsertColumnName]);
             Assert.IsNotNull(model["dbo"]["people"][configuration.EtlRunUpdateColumnName]);
+            Assert.IsNotNull(model["dbo"]["people"][configuration.EtlRunFromColumnName]);
+            Assert.IsNotNull(model["dbo"]["people"][configuration.EtlRunToColumnName]);
+            Assert.IsNotNull(model["dbo"]["people"][configuration.ValidFromColumnName]);
 
-            Assert.AreEqual(1 + 3 + 2 + 4, model["dbo"]["peopleHist"].Columns.Count);
+            Assert.AreEqual(1 + 3 + 4 + 2, model["dbo"]["peopleHist"].Columns.Count);
             Assert.AreEqual("peopleHistID", model["dbo"]["peopleHist"].Columns[0].Name);
-            Assert.IsNotNull(model["dbo"]["peopleHist"][configuration.ValidFromColumnName]);
-            Assert.IsNotNull(model["dbo"]["peopleHist"][configuration.ValidToColumnName]);
             Assert.IsNotNull(model["dbo"]["peopleHist"][configuration.EtlRunInsertColumnName]);
             Assert.IsNotNull(model["dbo"]["peopleHist"][configuration.EtlRunUpdateColumnName]);
             Assert.IsNotNull(model["dbo"]["peopleHist"][configuration.EtlRunFromColumnName]);
             Assert.IsNotNull(model["dbo"]["peopleHist"][configuration.EtlRunToColumnName]);
+            Assert.IsNotNull(model["dbo"]["peopleHist"][configuration.ValidFromColumnName]);
+            Assert.IsNotNull(model["dbo"]["peopleHist"][configuration.ValidToColumnName]);
 
             Assert.AreEqual(3, model["secondary"]["pet"].Columns.Count);
         }
 
         [TestMethod]
-        public void History()
+        public void HistoryWithoutEtlRunInfo()
         {
             var model = CreateModel();
             var configuration = new DwhBuilderConfiguration()
             {
+                UseEtlRunInfo = false,
                 HistoryTableNamePostfix = "Hist",
             };
 
             model["dbo"]["people"].SetHasHistoryTable();
 
-            RelationalModelExtender.ExtendWithHistoryTables(model, configuration);
+            RelationalModelExtender.Extend(model, configuration);
 
             Assert.AreEqual(3 + 1, model["dbo"]["people"].Columns.Count);
             Assert.AreEqual(configuration.ValidFromColumnName, model["dbo"]["people"].Columns[3].Name);

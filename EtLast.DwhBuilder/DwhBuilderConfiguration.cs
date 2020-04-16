@@ -6,6 +6,11 @@
     public class DwhBuilderConfiguration
     {
         /// <summary>
+        /// Default true
+        /// </summary>
+        public bool UseEtlRunInfo { get; set; } = true;
+
+        /// <summary>
         /// Default "_ValidFrom"
         /// </summary>
         public string ValidFromColumnName { get; set; } = "_ValidFrom";
@@ -48,7 +53,7 @@
         /// <summary>
         /// Default false.
         /// </summary>
-        public bool UseContextCreationTimeForNewRecords { get; set; }
+        public bool UseEtlRunIdTimeForDefaultValidFrom { get; set; }
 
         /// <summary>
         /// Default new DateTimeOffset(1900, 1, 1, 0, 0, 0, new TimeSpan(0))
@@ -58,7 +63,7 @@
         /// <summary>
         /// Default new DateTimeOffset(2500, 1, 1, 0, 0, 0, new TimeSpan(0))
         /// </summary>
-        public DateTimeOffset? InfiniteFutureDateTime { get; set; }
+        public DateTimeOffset? InfiniteFutureDateTime { get; set; } = new DateTimeOffset(2500, 1, 1, 0, 0, 0, new TimeSpan(0));
 
         /// <summary>
         /// Default true

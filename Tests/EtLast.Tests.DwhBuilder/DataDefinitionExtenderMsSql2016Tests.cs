@@ -41,18 +41,18 @@
 
             model.GetTable("Secondary", "Pet").EtlRunInfoDisabled();
 
-            DataDefinitionExtenderMsSql2016.ExtendWithEtlRunInfo(model, configuration);
+            DataDefinitionExtenderMsSql2016.Extend(model, configuration);
 
             var etlRunTable = model.GetTable("dbo", "_EtlRun");
             Assert.IsNotNull(etlRunTable);
             Assert.AreEqual(6, etlRunTable.Columns.Count);
 
-            Assert.AreEqual(3 + 2, model.GetTable("dbo", "People").Columns.Count);
+            Assert.AreEqual(3 + 4, model.GetTable("dbo", "People").Columns.Count);
             Assert.AreEqual(3, model.GetTable("Secondary", "Pet").Columns.Count);
         }
 
         [TestMethod]
-        public void EtlRunInfoWithHistory()
+        public void HistoryWithEtlRunInfo()
         {
             var model = new TestModel();
             var configuration = new DwhBuilderConfiguration()
@@ -63,42 +63,44 @@
             model.GetTable("Secondary", "Pet").EtlRunInfoDisabled();
             model.GetTable("dbo", "People").HasHistoryTable();
 
-            DataDefinitionExtenderMsSql2016.ExtendWithEtlRunInfo(model, configuration);
-            DataDefinitionExtenderMsSql2016.ExtendWithHistoryTables(model, configuration);
+            DataDefinitionExtenderMsSql2016.Extend(model, configuration);
 
             var etlRunTable = model.GetTable("dbo", "_EtlRun");
             Assert.IsNotNull(etlRunTable);
 
-            Assert.AreEqual(3 + 1 + 2, model.GetTable("dbo", "People").Columns.Count);
-            Assert.IsTrue(model.GetTable("dbo", "People").Columns.ContainsKey(configuration.ValidFromColumnName));
-            Assert.IsFalse(model.GetTable("dbo", "People").Columns.ContainsKey(configuration.ValidToColumnName));
+            Assert.AreEqual(3 + 4 + 1, model.GetTable("dbo", "People").Columns.Count);
             Assert.IsTrue(model.GetTable("dbo", "People").Columns.ContainsKey(configuration.EtlRunInsertColumnName));
             Assert.IsTrue(model.GetTable("dbo", "People").Columns.ContainsKey(configuration.EtlRunUpdateColumnName));
+            Assert.IsTrue(model.GetTable("dbo", "People").Columns.ContainsKey(configuration.EtlRunFromColumnName));
+            Assert.IsTrue(model.GetTable("dbo", "People").Columns.ContainsKey(configuration.EtlRunToColumnName));
+            Assert.IsTrue(model.GetTable("dbo", "People").Columns.ContainsKey(configuration.ValidFromColumnName));
+            Assert.IsFalse(model.GetTable("dbo", "People").Columns.ContainsKey(configuration.ValidToColumnName));
 
-            Assert.AreEqual(1 + 3 + 2 + 4, model.GetTable("dbo", "PeopleHist").Columns.Count);
+            Assert.AreEqual(1 + 3 + 4 + 2, model.GetTable("dbo", "PeopleHist").Columns.Count);
             Assert.IsTrue(model.GetTable("dbo", "PeopleHist").Columns.ContainsKey("PeopleHistID"));
-            Assert.IsTrue(model.GetTable("dbo", "PeopleHist").Columns.ContainsKey(configuration.ValidFromColumnName));
-            Assert.IsTrue(model.GetTable("dbo", "PeopleHist").Columns.ContainsKey(configuration.ValidToColumnName));
             Assert.IsTrue(model.GetTable("dbo", "PeopleHist").Columns.ContainsKey(configuration.EtlRunInsertColumnName));
             Assert.IsTrue(model.GetTable("dbo", "PeopleHist").Columns.ContainsKey(configuration.EtlRunUpdateColumnName));
             Assert.IsTrue(model.GetTable("dbo", "PeopleHist").Columns.ContainsKey(configuration.EtlRunFromColumnName));
             Assert.IsTrue(model.GetTable("dbo", "PeopleHist").Columns.ContainsKey(configuration.EtlRunToColumnName));
+            Assert.IsTrue(model.GetTable("dbo", "PeopleHist").Columns.ContainsKey(configuration.ValidFromColumnName));
+            Assert.IsTrue(model.GetTable("dbo", "PeopleHist").Columns.ContainsKey(configuration.ValidToColumnName));
 
             Assert.AreEqual(3, model.GetTable("Secondary", "Pet").Columns.Count);
         }
 
         [TestMethod]
-        public void History()
+        public void HistoryWithoutEtlRunInfo()
         {
             var model = new TestModel();
             var configuration = new DwhBuilderConfiguration()
             {
+                UseEtlRunInfo = false,
                 HistoryTableNamePostfix = "Hist",
             };
 
             model.GetTable("dbo", "People").HasHistoryTable();
 
-            DataDefinitionExtenderMsSql2016.ExtendWithHistoryTables(model, configuration);
+            DataDefinitionExtenderMsSql2016.Extend(model, configuration);
 
             Assert.AreEqual(3 + 1, model.GetTable("dbo", "People").Columns.Count);
             Assert.IsTrue(model.GetTable("dbo", "People").Columns.ContainsKey(configuration.ValidFromColumnName));

@@ -26,7 +26,6 @@
         private static IEnumerable<IExecutable> CreateBaseIsCurrentFinalizer(KeyBasedFinalizerBuilder builder)
         {
             var hasHistoryTable = builder.TableBuilder.Table.GetHasHistoryTable();
-            var currentEtlRunId = builder.TableBuilder.ResilientTable.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", DateTime.UtcNow);
 
             var mergeIntoBaseColumns = builder.TableBuilder.Table.Columns
                 .Where(x => !x.GetUsedByEtlRunInfo());
@@ -46,11 +45,9 @@
                 .ToArray();
 
             var parameters1 = new Dictionary<string, object>();
-            if (builder.TableBuilder.EtlRunInsertColumnNameEscaped != null
-                || builder.TableBuilder.EtlRunUpdateColumnNameEscaped != null
-                || builder.TableBuilder.EtlRunFromColumnNameEscaped != null)
+            if (builder.TableBuilder.HasEtlRunInfo)
             {
-                parameters1.Add("EtlRunId", currentEtlRunId);
+                parameters1.Add("EtlRunId", builder.TableBuilder.DwhBuilder.EtlRunId.Value);
             }
 
             var columnNamesToUpdate = builder.TableBuilder.Table.Columns
@@ -69,20 +66,20 @@
                 SourceTableAlias = "s",
                 TargetTableAlias = "t",
                 OnCondition = string.Join(" and ", columnNamesToMatch.Select(x => "t." + x + "=s." + x)),
-                WhenMatchedAction = columnNamesToUpdate.Length > 0 || (builder.TableBuilder.EtlRunUpdateColumnNameEscaped != null)
+                WhenMatchedAction = columnNamesToUpdate.Length > 0 || builder.TableBuilder.HasEtlRunInfo
                     ? "UPDATE SET "
                         + string.Join(", ", columnNamesToUpdate.Select(c => "t." + c + "=s." + c))
-                        + (builder.TableBuilder.EtlRunUpdateColumnNameEscaped != null
+                        + (builder.TableBuilder.HasEtlRunInfo
                             ? (columnNamesToUpdate.Length > 0 ? ", " : "") + builder.TableBuilder.EtlRunUpdateColumnNameEscaped + "=@EtlRunId"
                             : "")
                     : null,
                 WhenNotMatchedByTargetAction = "INSERT (" + string.Join(", ", mergeIntoBaseColumnNames)
-                    + (builder.TableBuilder.EtlRunInsertColumnNameEscaped != null ? ", " + builder.TableBuilder.EtlRunInsertColumnNameEscaped : "")
-                    + (builder.TableBuilder.EtlRunUpdateColumnNameEscaped != null ? ", " + builder.TableBuilder.EtlRunUpdateColumnNameEscaped : "")
+                    + (builder.TableBuilder.HasEtlRunInfo
+                        ? ", " + builder.TableBuilder.EtlRunInsertColumnNameEscaped + ", " + builder.TableBuilder.EtlRunUpdateColumnNameEscaped + ", " + builder.TableBuilder.EtlRunFromColumnNameEscaped
+                        : "")
                     + ") VALUES ("
                         + string.Join(", ", mergeIntoBaseColumnNames.Select(c => "s." + c))
-                        + (builder.TableBuilder.EtlRunInsertColumnNameEscaped != null ? ", @EtlRunId" : "")
-                        + (builder.TableBuilder.EtlRunUpdateColumnNameEscaped != null ? ", @EtlRunId" : "")
+                        + (builder.TableBuilder.HasEtlRunInfo ? ", @EtlRunId, @EtlRunId, @EtlRunId" : "")
                     + ")",
                 Parameters = parameters1,
             };
@@ -92,11 +89,11 @@
                 var histTableName = builder.TableBuilder.DwhBuilder.GetEscapedHistTableName(builder.TableBuilder.Table);
 
                 var parameters2 = new Dictionary<string, object>();
-                if (builder.TableBuilder.EtlRunUpdateColumnNameEscaped != null || builder.TableBuilder.EtlRunToColumnNameEscaped != null)
-                    parameters2.Add("EtlRunId", currentEtlRunId);
+                if (builder.TableBuilder.HasEtlRunInfo)
+                    parameters2["EtlRunId"] = builder.TableBuilder.DwhBuilder.EtlRunId.Value;
 
                 if (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime != null)
-                    parameters2.Add("InfiniteFuture", builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
+                    parameters2["InfiniteFuture"] = builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime;
 
                 yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Topic, "CloseOpenEndedHistoryRecords")
                 {
@@ -110,8 +107,9 @@
                         + " and t." + builder.TableBuilder.ValidToColumnNameEscaped + (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime == null ? " IS NULL" : "=@InfiniteFuture"),
                     WhenMatchedAction = "UPDATE SET t."
                         + builder.TableBuilder.ValidToColumnNameEscaped + "=s." + builder.TableBuilder.ValidFromColumnNameEscaped
-                        + (builder.TableBuilder.EtlRunUpdateColumnNameEscaped != null ? ", " + builder.TableBuilder.EtlRunUpdateColumnNameEscaped + "=@EtlRunId" : "")
-                        + (builder.TableBuilder.EtlRunToColumnNameEscaped != null ? ", " + builder.TableBuilder.EtlRunToColumnNameEscaped + "=@EtlRunId" : ""),
+                        + (builder.TableBuilder.HasEtlRunInfo
+                            ? ", " + builder.TableBuilder.EtlRunUpdateColumnNameEscaped + "=@EtlRunId, " + builder.TableBuilder.EtlRunToColumnNameEscaped + "=@EtlRunId"
+                            : ""),
                     Parameters = parameters2,
                 };
 
@@ -121,8 +119,8 @@
                 if (noHistoryColumns.Count > 0)
                 {
                     var parameters3 = new Dictionary<string, object>();
-                    if (builder.TableBuilder.EtlRunInsertColumnNameEscaped != null || builder.TableBuilder.EtlRunUpdateColumnNameEscaped != null)
-                        parameters3.Add("EtlRunId", currentEtlRunId);
+                    if (builder.TableBuilder.HasEtlRunInfo)
+                        parameters3["EtlRunId"] = builder.TableBuilder.DwhBuilder.EtlRunId.Value;
 
                     yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Topic, "UpdateNoHistoryColumns")
                     {
@@ -135,7 +133,9 @@
                         OnCondition = string.Join(" and ", columnNamesToMatch.Select(x => "t." + x + "=s." + x)),
                         WhenMatchedAction = "UPDATE SET "
                             + string.Join(", ", noHistoryColumns.Select(col => "t." + col.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString) + " = s." + col.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)))
-                            + (builder.TableBuilder.EtlRunUpdateColumnNameEscaped != null ? ", " + builder.TableBuilder.EtlRunUpdateColumnNameEscaped + "=@EtlRunId" : ""),
+                            + (builder.TableBuilder.HasEtlRunInfo
+                                ? ", " + builder.TableBuilder.EtlRunUpdateColumnNameEscaped + "=@EtlRunId"
+                                : ""),
                         Parameters = parameters3,
                     };
                 }
@@ -149,16 +149,14 @@
                 var columnDefaults = new Dictionary<string, object>();
 
                 if (builder.TableBuilder.ValidToColumnNameEscaped != null)
-                    columnDefaults.Add(builder.TableBuilder.ValidToColumnNameEscaped, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
+                    columnDefaults[builder.TableBuilder.ValidToColumnNameEscaped] = builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime;
 
-                if (builder.TableBuilder.EtlRunInsertColumnNameEscaped != null)
-                    columnDefaults.Add(builder.TableBuilder.EtlRunInsertColumnNameEscaped, currentEtlRunId);
-
-                if (builder.TableBuilder.EtlRunUpdateColumnNameEscaped != null)
-                    columnDefaults.Add(builder.TableBuilder.EtlRunUpdateColumnNameEscaped, currentEtlRunId);
-
-                if (builder.TableBuilder.EtlRunFromColumnNameEscaped != null)
-                    columnDefaults.Add(builder.TableBuilder.EtlRunFromColumnNameEscaped, currentEtlRunId);
+                if (builder.TableBuilder.HasEtlRunInfo)
+                {
+                    columnDefaults[builder.TableBuilder.EtlRunInsertColumnNameEscaped] = builder.TableBuilder.DwhBuilder.EtlRunId.Value;
+                    columnDefaults[builder.TableBuilder.EtlRunUpdateColumnNameEscaped] = builder.TableBuilder.DwhBuilder.EtlRunId.Value;
+                    columnDefaults[builder.TableBuilder.EtlRunFromColumnNameEscaped] = builder.TableBuilder.DwhBuilder.EtlRunId.Value;
+                }
 
                 yield return new CopyTableIntoExistingTable(builder.TableBuilder.ResilientTable.Topic, "CopyToHistory")
                 {

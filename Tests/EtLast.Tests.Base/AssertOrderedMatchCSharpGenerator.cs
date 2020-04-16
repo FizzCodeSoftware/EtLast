@@ -115,7 +115,7 @@
                         dto.Offset.Days.ToString("D", CultureInfo.InvariantCulture) + ", " +
                         dto.Offset.Hours.ToString("D", CultureInfo.InvariantCulture) + ", " +
                         dto.Offset.Minutes.ToString("D", CultureInfo.InvariantCulture) + ", " +
-                        dto.Offset.Seconds.ToString("D", CultureInfo.InvariantCulture) + "," +
+                        dto.Offset.Seconds.ToString("D", CultureInfo.InvariantCulture) + ", " +
                         dto.Offset.Milliseconds.ToString("D", CultureInfo.InvariantCulture) + "))";
             }
 

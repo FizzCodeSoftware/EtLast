@@ -7,40 +7,35 @@
 
     public static class DataDefinitionExtenderMsSql2016
     {
-        public static void ExtendWithEtlRunInfo<T>(T dataDeclaration, DwhBuilderConfiguration configuration)
-            where T : DatabaseDeclaration
+        public static void Extend(DatabaseDeclaration declaration, DwhBuilderConfiguration configuration)
         {
-            var etlRunTable = new SqlTable(dataDeclaration.DefaultSchema, configuration.EtlRunTableName);
-            dataDeclaration.AddTable(etlRunTable);
-
-            etlRunTable.AddDateTime2("StartedOn", 7, false).SetPK();
-            etlRunTable.AddNVarChar("Name", 200, false);
-            etlRunTable.AddNVarChar("MachineName", 200, false);
-            etlRunTable.AddNVarChar("UserName", 200, false);
-            etlRunTable.AddDateTime2("FinishedOn", 7, true);
-            etlRunTable.AddNVarChar("Result", 20, true);
-
-            dataDeclaration.AddAutoNaming(new List<SqlTable> { etlRunTable });
-
-            var baseTables = dataDeclaration.GetTables();
-            foreach (var baseTable in baseTables)
+            if (configuration.UseEtlRunInfo)
             {
-                if (baseTable.HasProperty<EtlRunInfoDisabledProperty>() || baseTable == etlRunTable)
-                    continue;
+                var etlRunTable = new SqlTable(declaration.DefaultSchema, configuration.EtlRunTableName);
+                declaration.AddTable(etlRunTable);
 
-                baseTable.AddDateTime2(configuration.EtlRunInsertColumnName, 7, false).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
-                baseTable.AddDateTime2(configuration.EtlRunUpdateColumnName, 7, false).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
+                etlRunTable.AddDateTime2("StartedOn", 7, false).SetPK();
+                etlRunTable.AddNVarChar("Name", 200, false);
+                etlRunTable.AddNVarChar("MachineName", 200, false);
+                etlRunTable.AddNVarChar("UserName", 200, false);
+                etlRunTable.AddDateTime2("FinishedOn", 7, true);
+                etlRunTable.AddNVarChar("Result", 20, true);
+
+                declaration.AddAutoNaming(new List<SqlTable> { etlRunTable });
+
+                foreach (var baseTable in declaration.GetTables())
+                {
+                    if (baseTable.HasProperty<EtlRunInfoDisabledProperty>() || baseTable == etlRunTable)
+                        continue;
+
+                    baseTable.AddDateTime2(configuration.EtlRunInsertColumnName, 7, false).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
+                    baseTable.AddDateTime2(configuration.EtlRunUpdateColumnName, 7, false).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
+                    baseTable.AddDateTime2(configuration.EtlRunFromColumnName, 7, false).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
+                    baseTable.AddDateTime2(configuration.EtlRunToColumnName, 7, true).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
+                }
             }
-        }
 
-        public static void ExtendWithHistoryTables<T>(T model, DwhBuilderConfiguration configuration)
-            where T : DatabaseDeclaration
-        {
-            var baseTables = model.GetTables();
-
-            var etlRunTable = baseTables.Find(x => x.SchemaAndTableName.TableName == configuration.EtlRunTableName);
-
-            var baseTablesWithHistory = baseTables
+            var baseTablesWithHistory = declaration.GetTables()
                 .Where(x => x.HasProperty<HasHistoryTableProperty>()
                          && x.SchemaAndTableName.TableName != configuration.EtlRunTableName)
                 .ToList();
@@ -48,14 +43,14 @@
             var historyTables = new List<SqlTable>();
             foreach (var baseTable in baseTablesWithHistory)
             {
-                var historyTable = CreateHistoryTable(baseTable, configuration, etlRunTable);
+                var historyTable = CreateHistoryTable(baseTable, configuration);
                 historyTables.Add(historyTable);
             }
 
-            model.AddAutoNaming(historyTables);
+            declaration.AddAutoNaming(historyTables);
         }
 
-        private static SqlTable CreateHistoryTable(SqlTable baseTable, DwhBuilderConfiguration configuration, SqlTable etlRunTable)
+        private static SqlTable CreateHistoryTable(SqlTable baseTable, DwhBuilderConfiguration configuration)
         {
             var historyTable = new SqlTable(baseTable.SchemaAndTableName.Schema, baseTable.SchemaAndTableName.TableName + configuration.HistoryTableNamePostfix);
             baseTable.DatabaseDefinition.AddTable(historyTable);
@@ -99,15 +94,9 @@
                 }
             }
 
-            baseTable.AddDateTimeOffset(configuration.ValidFromColumnName, 7, configuration.InfinitePastDateTime == null && !configuration.UseContextCreationTimeForNewRecords);
-            historyTable.AddDateTimeOffset(configuration.ValidFromColumnName, 7, configuration.InfinitePastDateTime == null && !configuration.UseContextCreationTimeForNewRecords);
+            baseTable.AddDateTimeOffset(configuration.ValidFromColumnName, 7, configuration.InfinitePastDateTime == null && !configuration.UseEtlRunIdTimeForDefaultValidFrom);
+            historyTable.AddDateTimeOffset(configuration.ValidFromColumnName, 7, configuration.InfinitePastDateTime == null && !configuration.UseEtlRunIdTimeForDefaultValidFrom);
             historyTable.AddDateTimeOffset(configuration.ValidToColumnName, 7, configuration.InfiniteFutureDateTime == null);
-
-            if (etlRunTable != null)
-            {
-                historyTable.AddDateTime2(configuration.EtlRunFromColumnName, 7, false).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
-                historyTable.AddDateTime2(configuration.EtlRunToColumnName, 7, true).SetForeignKeyToTable(etlRunTable.SchemaAndTableName);
-            }
 
             return historyTable;
         }

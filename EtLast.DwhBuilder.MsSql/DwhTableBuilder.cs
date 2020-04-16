@@ -13,10 +13,11 @@
     [DebuggerDisplay("{Table}")]
     public class DwhTableBuilder : IDwhTableBuilder
     {
-        public DwhBuilder DwhBuilder { get; }
+        public MsSqlDwhBuilder DwhBuilder { get; }
         public ResilientTable ResilientTable { get; }
         public RelationalTable Table { get; }
 
+        public bool HasEtlRunInfo { get; }
         public string EtlRunInsertColumnNameEscaped { get; }
         public string EtlRunUpdateColumnNameEscaped { get; }
         public string EtlRunFromColumnNameEscaped { get; }
@@ -32,16 +33,20 @@
         private readonly List<MutatorCreatorDelegate> _mutatorCreators = new List<MutatorCreatorDelegate>();
         private Func<IEvaluable> _inputProcessCreator;
 
-        public DwhTableBuilder(DwhBuilder builder, ResilientTable resilientTable, RelationalTable table)
+        public DwhTableBuilder(MsSqlDwhBuilder builder, ResilientTable resilientTable, RelationalTable table)
         {
             DwhBuilder = builder;
             ResilientTable = resilientTable;
             Table = table;
 
-            EtlRunInsertColumnNameEscaped = Table[builder.Configuration.EtlRunInsertColumnName]?.NameEscaped(builder.ConnectionString);
-            EtlRunUpdateColumnNameEscaped = Table[builder.Configuration.EtlRunUpdateColumnName]?.NameEscaped(builder.ConnectionString);
-            EtlRunFromColumnNameEscaped = EtlRunInsertColumnNameEscaped == null || builder.Configuration.EtlRunFromColumnName == null ? null : builder.ConnectionString.Escape(builder.Configuration.EtlRunFromColumnName);
-            EtlRunToColumnNameEscaped = EtlRunInsertColumnNameEscaped == null || builder.Configuration.EtlRunToColumnName == null ? null : builder.ConnectionString.Escape(builder.Configuration.EtlRunToColumnName);
+            HasEtlRunInfo = builder.Configuration.UseEtlRunInfo && !Table.GetEtlRunInfoDisabled();
+            if (HasEtlRunInfo)
+            {
+                EtlRunInsertColumnNameEscaped = Table[builder.Configuration.EtlRunInsertColumnName].NameEscaped(builder.ConnectionString);
+                EtlRunUpdateColumnNameEscaped = Table[builder.Configuration.EtlRunUpdateColumnName].NameEscaped(builder.ConnectionString);
+                EtlRunFromColumnNameEscaped = Table[builder.Configuration.EtlRunFromColumnName].NameEscaped(builder.ConnectionString);
+                EtlRunToColumnNameEscaped = Table[builder.Configuration.EtlRunToColumnName].NameEscaped(builder.ConnectionString);
+            }
 
             ValidFromColumn = Table[builder.Configuration.ValidFromColumnName];
             ValidFromColumnNameEscaped = ValidFromColumn?.NameEscaped(builder.ConnectionString);

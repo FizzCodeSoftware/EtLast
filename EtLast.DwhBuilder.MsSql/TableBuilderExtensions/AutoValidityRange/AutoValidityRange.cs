@@ -70,7 +70,7 @@
                                 row.SetStagedValue(kvp.Value.Name, previousValue);
                             }
 
-                            row.SetStagedValue(builder.TableBuilder.ValidFromColumn.Name, builder.TableBuilder.ResilientTable.Topic.Context.CreatedOnLocal);
+                            row.SetStagedValue(builder.TableBuilder.ValidFromColumn.Name, builder.TableBuilder.DwhBuilder.EtlRunIdAsDateTimeOffset.Value);
                             row.SetStagedValue(builder.TableBuilder.ValidToColumnName, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
                             row.ApplyStaging();
                         },
@@ -105,6 +105,7 @@
                     {
                         CustomAction = (proc, row) =>
                         {
+                            // this is the first version
                             row.SetStagedValue(builder.TableBuilder.ValidFromColumn.Name, builder.TableBuilder.DwhBuilder.DefaultValidFromDateTime);
                             row.SetStagedValue(builder.TableBuilder.ValidToColumnName, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
                             row.ApplyStaging();
@@ -120,7 +121,7 @@
                                 row.SetStagedValue(kvp.Value.Name, previousValue);
                             }
 
-                            row.SetStagedValue(builder.TableBuilder.ValidFromColumn.Name, builder.TableBuilder.ResilientTable.Topic.Context.CreatedOnLocal);
+                            row.SetStagedValue(builder.TableBuilder.ValidFromColumn.Name, builder.TableBuilder.DwhBuilder.EtlRunIdAsDateTimeOffset.Value);
                             row.SetStagedValue(builder.TableBuilder.ValidToColumnName, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
                             row.ApplyStaging();
                         },

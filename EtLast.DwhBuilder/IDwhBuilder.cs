@@ -12,6 +12,8 @@
         IEnumerable<RelationalTable> Tables { get; }
         ITopic Topic { get; }
 
+        IReadOnlyList<SqlEngineVersion> SupportedSqlEngineVersions { get; }
+
         RelationalModel Model { get; set; }
         DwhBuilderConfiguration Configuration { get; set; }
         ConnectionStringWithProvider ConnectionString { get; set; }

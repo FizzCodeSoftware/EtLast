@@ -13,11 +13,7 @@
             {
                 builder.AddFinalizerCreator(builder =>
                 {
-                    var currentRunId = builder.EtlRunInsertColumnNameEscaped != null || builder.EtlRunUpdateColumnNameEscaped != null
-                        ? builder.DwhBuilder.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", DateTime.UtcNow)
-                        : (DateTime?)null;
-
-                    return creator(builder, currentRunId);
+                    return creator(builder, builder.DwhBuilder.EtlRunId);
                 });
             }
 

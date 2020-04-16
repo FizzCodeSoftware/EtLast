@@ -1,5 +1,12 @@
 ﻿{
   "Module": {
-    "PluginsToExecute": [ "EtlRunInfoTest", "EtlRunInfoOptimizedTest", "HistoryTest", "HistoryWithEtlRunInfoTest" ]
+    "PluginsToExecute": [
+      "EtlRunInfoTest",
+      "EtlRunInfoOptimizedTest",
+      "History1Test",
+      "History2Test",
+      "History3Test",
+      "NullValidityTest"
+    ]
   }
 }

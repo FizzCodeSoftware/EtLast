@@ -8,13 +8,14 @@
     using FizzCode.EtLast.AdoNet;
     using FizzCode.LightWeight.RelationalModel;
 
-    public class DwhBuilder : IDwhBuilder<DwhTableBuilder>
+    public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
     {
         public ITopic Topic { get; }
         public string ScopeName { get; }
 
         public RelationalModel Model { get; set; }
         public ConnectionStringWithProvider ConnectionString { get; set; }
+        public IReadOnlyList<SqlEngineVersion> SupportedSqlEngineVersions { get; } = new List<SqlEngineVersion> { MsSqlVersion.MsSql2016 };
 
         private DwhBuilderConfiguration _configuration;
         public DwhBuilderConfiguration Configuration { get => _configuration; set => SetConfiguration(value); }
@@ -22,12 +23,17 @@
         public IEnumerable<RelationalTable> Tables => _tables.Select(x => x.Table);
         private readonly List<DwhTableBuilder> _tables = new List<DwhTableBuilder>();
 
-        internal DateTimeOffset? DefaultValidFromDateTime => Configuration.UseContextCreationTimeForNewRecords ? Topic.Context.CreatedOnLocal : Configuration.InfinitePastDateTime;
+        internal DateTimeOffset? DefaultValidFromDateTime => Configuration.UseEtlRunIdTimeForDefaultValidFrom
+            ? EtlRunId
+            : Configuration.InfinitePastDateTime;
 
         private readonly List<ResilientSqlScopeExecutableCreatorDelegate> _postFinalizerCreators = new List<ResilientSqlScopeExecutableCreatorDelegate>();
         private readonly DateTime? _etlRunIdUtcOverride;
 
-        public DwhBuilder(ITopic topic, string scopeName, DateTime? etlRunIdUtcOverride = null)
+        public DateTime? EtlRunId { get; private set; }
+        public DateTimeOffset? EtlRunIdAsDateTimeOffset { get; private set; }
+
+        public MsSqlDwhBuilder(ITopic topic, string scopeName, DateTime? etlRunIdUtcOverride = null)
         {
             Topic = topic;
             ScopeName = scopeName;
@@ -43,9 +49,10 @@
         public ResilientSqlScope Build()
         {
             if (Configuration == null)
-#pragma warning disable CA2208 // Instantiate argument exceptions correctly
-                throw new ArgumentNullException(nameof(Configuration));
-#pragma warning restore CA2208 // Instantiate argument exceptions correctly
+                throw new DwhBuilderParameterNullException<DwhTableBuilder>(this, nameof(Configuration));
+
+            if (ConnectionString == null)
+                throw new DwhBuilderParameterNullException<DwhTableBuilder>(this, nameof(ConnectionString));
 
             foreach (var tableBuilder in _tables)
             {
@@ -96,7 +103,7 @@
                     {
                         ["FinishedOn"] = DateTime.UtcNow,
                         ["Result"] = "success",
-                        ["EtlRunid"] = scope.Topic.Context.AdditionalData.GetAs("CurrentEtlRunId", DateTime.UtcNow),
+                        ["EtlRunid"] = EtlRunId.Value,
                     },
                 };
             }
@@ -148,9 +155,12 @@
                                 0,
                                 DateTimeKind.Utc);
 
+                            EtlRunId = currentId;
+                            EtlRunIdAsDateTimeOffset = new DateTimeOffset(currentId, new TimeSpan(0));
+
                             scope.Topic.Context.AdditionalData["CurrentEtlRunId"] = currentId;
 
-                            var row = new SlimRow
+                            var row = new SlimRow()
                             {
                                 ["StartedOn"] = currentId,
                                 ["Name"] = scope.Name,

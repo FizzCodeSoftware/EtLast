@@ -12,8 +12,8 @@
         public EtlContextResult Result { get; } = new EtlContextResult();
         public AdditionalData AdditionalData { get; }
 
-        public DateTimeOffset CreatedOnUtc { get; private set; }
-        public DateTimeOffset CreatedOnLocal { get; private set; }
+        public DateTimeOffset CreatedOnUtc { get; }
+        public DateTimeOffset CreatedOnLocal { get; }
 
         /// <summary>
         /// Default value: 10 minutes.
