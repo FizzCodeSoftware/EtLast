@@ -13,6 +13,9 @@
             if (v is string str)
                 return str;
 
+            if (v is int iv)
+                return iv.ToString(null, formatProvider ?? CultureInfo.InvariantCulture);
+
             if (v is TimeSpan ts)
                 return ts.ToString("G", formatProvider ?? CultureInfo.InvariantCulture);
 

@@ -128,9 +128,11 @@
         {
             if (columns.Length == 1)
             {
-                return IsNull(columns[0])
-                    ? null
-                    : FormatToString(columns[0], CultureInfo.InvariantCulture);
+                var value = GetValueImpl(columns[0]);
+                if (value == null)
+                    return null;
+
+                return DefaultValueFormatter.Format(value);
             }
 
             return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-"));

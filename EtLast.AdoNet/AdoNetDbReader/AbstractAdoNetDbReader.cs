@@ -28,7 +28,7 @@
         public ConnectionCreatorDelegate CustomConnectionCreator { get; set; }
 
         public int CommandTimeout { get; set; } = 3600;
-        public DateTimeOffset LastDataRead { get; private set; }
+        public DateTime LastDataRead { get; private set; }
         public List<ISqlValueProcessor> SqlValueProcessors { get; } = new List<ISqlValueProcessor>();
 
         public Dictionary<string, object> Parameters { get; set; }
@@ -112,7 +112,7 @@
                 }
             }
 
-            LastDataRead = DateTimeOffset.Now;
+            LastDataRead = DateTime.Now;
 
             var resultCount = 0;
             if (reader != null && !Context.CancellationTokenSource.IsCancellationRequested)
@@ -135,11 +135,11 @@
                         exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                         exception.Data.Add("Statement", cmd.CommandText);
                         exception.Data.Add("RowIndex", resultCount);
-                        exception.Data.Add("SecondsSinceLastRead", LastDataRead.Subtract(DateTimeOffset.Now).TotalSeconds.ToString(CultureInfo.InvariantCulture));
+                        exception.Data.Add("SecondsSinceLastRead", LastDataRead.Subtract(DateTime.Now).TotalSeconds.ToString(CultureInfo.InvariantCulture));
                         throw exception;
                     }
 
-                    LastDataRead = DateTimeOffset.Now;
+                    LastDataRead = DateTime.Now;
 
                     CounterCollection.IncrementCounter("db records read", 1);
 

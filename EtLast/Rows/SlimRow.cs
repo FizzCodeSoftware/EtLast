@@ -105,13 +105,14 @@
         {
             foreach (var kvp in Values)
             {
-                if (kvp.Value != null)
-                    return false;
-
                 if (kvp.Value is string str)
                 {
                     if (!string.IsNullOrEmpty(str))
                         return false;
+                }
+                else
+                {
+                    return false;
                 }
             }
 
