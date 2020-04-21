@@ -6,7 +6,8 @@
       "History1Test",
       "History2Test",
       "History3Test",
-      "NullValidityTest"
+      "NullValidityTest",
+      "EtlRunIdForDefaultValidFromTest"
     ]
   }
 }
