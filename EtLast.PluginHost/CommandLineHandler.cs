@@ -90,20 +90,13 @@
 
         public static void RunCommand(params string[] args)
         {
-            if (args?.Length >= 1)
+            if (args?.Length >= 1 && Context.HostConfiguration.CommandAliases.TryGetValue(args[0], out var alias))
             {
-                foreach (var kvp in Context.HostConfiguration.CommandAliases)
-                {
-                    if (string.Equals(kvp.Key, args[0], StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        args = _regEx
-                            .Matches(kvp.Value.Trim())
-                            .Select(x => x.Value)
-                            .Concat(args.Skip(1))
-                            .ToArray();
-                        break;
-                    }
-                }
+                args = _regEx
+                    .Matches(alias.Trim())
+                    .Select(x => x.Value)
+                    .Concat(args.Skip(1))
+                    .ToArray();
             }
 
             _runner.Run(args);
@@ -135,6 +128,20 @@
                 var args = command.Split(' ').ToList();
                 args.Add("--help");
                 RunCommand(args.ToArray());
+            }
+
+            Console.WriteLine();
+
+            if (Context.HostConfiguration.CommandAliases?.Count > 0)
+            {
+                Console.WriteLine("Aliases:");
+                var maxAliasLength = Context.HostConfiguration.CommandAliases.Max(x => x.Key.Length);
+                foreach (var alias in Context.HostConfiguration.CommandAliases)
+                {
+                    Console.WriteLine("  " + alias.Key.PadRight(maxAliasLength, ' ') + "  '" + alias.Value + "'");
+                }
+
+                Console.WriteLine();
             }
         }
 
