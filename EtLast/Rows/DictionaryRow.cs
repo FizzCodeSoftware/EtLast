@@ -24,8 +24,8 @@
             base.Init(context, creatorProcess, uid, initialValues);
 
             _values = initialValues == null
-                ? new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase)
-                : new Dictionary<string, object>(initialValues.Where(kvp => kvp.Value != null), StringComparer.InvariantCultureIgnoreCase);
+                ? new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+                : new Dictionary<string, object>(initialValues.Where(kvp => kvp.Value != null), StringComparer.OrdinalIgnoreCase);
         }
 
         protected override object GetValueImpl(string column)
@@ -66,7 +66,7 @@
             }
 
             if (Staging == null)
-                Staging = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+                Staging = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
             Staging[column] = newValue;
         }

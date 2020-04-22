@@ -34,7 +34,7 @@
 
             if (ColumnConfiguration != null)
             {
-                var initialValues = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+                var initialValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
                 if (CopyOnlySpecifiedColumns)
                 {

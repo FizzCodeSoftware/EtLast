@@ -5,7 +5,7 @@
 
     public class AdditionalData
     {
-        private readonly Dictionary<string, object> _data = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly Dictionary<string, object> _data = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
         public object this[string key]
         {

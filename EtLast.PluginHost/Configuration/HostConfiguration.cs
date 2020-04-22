@@ -22,7 +22,7 @@
         public LogEventLevel MinimumLogLevelInFile { get; set; }
         public LogEventLevel MinimumLogLevelIo { get; set; }
         public DynamicCompilationMode DynamicCompilationMode { get; set; }
-        public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+        public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         public void LoadFromConfiguration(IConfigurationRoot configuration, string section)
         {

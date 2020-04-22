@@ -20,7 +20,7 @@
         {
             Invariant = invariant;
             _dictionary = invariant
-                ? new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase)
+                ? new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
                 : new Dictionary<string, object>();
         }
 
