@@ -21,18 +21,20 @@
         {
             if (GroupingColumns.Count == 1)
             {
-                var col = GroupingColumns[0];
-                return !row.IsNull(col.FromColumn)
-                    ? row.FormatToString(col.FromColumn)
+                var value = row[GroupingColumns[0].FromColumn];
+
+                return value != null
+                    ? DefaultValueFormatter.Format(value)
                     : "\0";
             }
 
             _keyBuilder.Clear();
             for (var i = 0; i < GroupingColumns.Count; i++)
             {
-                var col = GroupingColumns[i];
-                if (!row.IsNull(col.FromColumn))
-                    _keyBuilder.Append(row.FormatToString(col.FromColumn));
+                var value = row[GroupingColumns[i].FromColumn];
+
+                if (value != null)
+                    _keyBuilder.Append(DefaultValueFormatter.Format(value));
 
                 _keyBuilder.Append('\0');
             }

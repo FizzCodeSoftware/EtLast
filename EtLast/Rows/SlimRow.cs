@@ -89,12 +89,6 @@
             return DefaultValueComparer.ValuesAreEqual(currentValue, value);
         }
 
-        public bool IsNull(string column)
-        {
-            var value = GetValueImpl(column);
-            return value == null;
-        }
-
         public bool IsNullOrEmpty(string column)
         {
             var value = GetValueImpl(column);
@@ -151,9 +145,9 @@
         {
             if (columns.Length == 1)
             {
-                return IsNull(columns[0])
-                    ? null
-                    : FormatToString(columns[0], CultureInfo.InvariantCulture);
+                return _values.TryGetValue(columns[0], out var value)
+                    ? DefaultValueFormatter.Format(value)
+                    : null;
             }
 
             return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-"));
@@ -163,9 +157,9 @@
         {
             if (columns.Length == 1)
             {
-                return IsNull(columns[0])
-                    ? null
-                    : FormatToString(columns[0], CultureInfo.InvariantCulture).ToUpperInvariant();
+                return _values.TryGetValue(columns[0], out var value)
+                    ? DefaultValueFormatter.Format(value).ToUpperInvariant()
+                    : null;
             }
 
             return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-")).ToUpperInvariant();

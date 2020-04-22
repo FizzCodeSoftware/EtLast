@@ -84,12 +84,6 @@
             return DefaultValueComparer.ValuesAreEqual(currentValue, value);
         }
 
-        public bool IsNull(string column)
-        {
-            var value = GetValueImpl(column);
-            return value == null;
-        }
-
         public bool IsNullOrEmpty(string column)
         {
             var value = GetValueImpl(column);
@@ -124,32 +118,6 @@
             return DefaultValueFormatter.Format(value);
         }
 
-        public string GenerateKey(params string[] columns)
-        {
-            if (columns.Length == 1)
-            {
-                var value = GetValueImpl(columns[0]);
-                if (value == null)
-                    return null;
-
-                return DefaultValueFormatter.Format(value);
-            }
-
-            return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-"));
-        }
-
-        public string GenerateKeyUpper(params string[] columns)
-        {
-            if (columns.Length == 1)
-            {
-                return IsNull(columns[0])
-                    ? null
-                    : FormatToString(columns[0], CultureInfo.InvariantCulture).ToUpperInvariant();
-            }
-
-            return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-")).ToUpperInvariant();
-        }
-
         public virtual void Init(IEtlContext context, IProcess creatorProcess, int uid, IEnumerable<KeyValuePair<string, object>> initialValues)
         {
             Context = context;
@@ -163,5 +131,9 @@
         public abstract void ApplyStaging();
 
         public abstract void SetStagedValue(string column, object newValue);
+
+        public abstract string GenerateKey(params string[] columns);
+
+        public abstract string GenerateKeyUpper(params string[] columns);
     }
 }

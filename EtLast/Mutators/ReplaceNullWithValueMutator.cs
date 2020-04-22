@@ -18,7 +18,7 @@
             var columns = Columns ?? row.Values.Select(kvp => kvp.Key).ToArray();
             foreach (var column in Columns)
             {
-                if (row.IsNull(column))
+                if (!row.HasValue(column))
                 {
                     row.SetStagedValue(column, Value);
                 }

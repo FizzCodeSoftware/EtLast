@@ -45,7 +45,7 @@
                 {
                     yield return new BatchedCompareWithRowMutator(builder.TableBuilder.ResilientTable.Topic, nameof(RemoveExistingRows))
                     {
-                        If = row => !row.IsNullOrEmpty(builder.MatchColumns[0].Name),
+                        If = row => row.HasValue(builder.MatchColumns[0].Name),
                         EqualityComparer = equalityComparer,
                         LookupBuilder = new FilteredRowLookupBuilder()
                         {
@@ -99,7 +99,7 @@
             {
                 yield return new BatchedKeyTestMutator(builder.TableBuilder.ResilientTable.Topic, nameof(RemoveExistingRows))
                 {
-                    If = row => !row.IsNullOrEmpty(builder.MatchColumns[0].Name),
+                    If = row => row.HasValue(builder.MatchColumns[0].Name),
                     LookupBuilder = new FilteredRowLookupBuilder()
                     {
                         ProcessCreator = filterRows => new CustomSqlAdoNetDbReader(builder.TableBuilder.ResilientTable.Topic, "ExistingRowsReader")

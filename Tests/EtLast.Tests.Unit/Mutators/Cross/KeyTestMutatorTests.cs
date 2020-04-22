@@ -38,7 +38,7 @@
                         {
                             CustomAction = (proc, row) =>
                             {
-                                if (row.IsNull("countryId"))
+                                if (!row.HasValue("countryId"))
                                     row.SetValue("countryAbbrev", "country was null");
                                 else
                                     row.SetValue("countryAbbrev", "no match found");

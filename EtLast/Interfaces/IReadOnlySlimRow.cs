@@ -7,7 +7,6 @@
     {
         object this[string column] { get; }
         IEnumerable<KeyValuePair<string, object>> Values { get; }
-        bool HasValue(string column);
         int ColumnCount { get; }
 
         bool HasError();
@@ -17,7 +16,7 @@
 
         bool Equals<T>(string column, T value);
 
-        bool IsNull(string column);
+        bool HasValue(string column);
         bool IsNullOrEmpty(string column);
 
         bool IsNullOrEmpty();

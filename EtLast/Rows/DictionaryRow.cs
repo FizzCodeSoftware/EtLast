@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
 
     [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
@@ -33,6 +34,30 @@
             return _values.TryGetValue(column, out var value)
                 ? value
                 : null;
+        }
+
+        public override string GenerateKey(params string[] columns)
+        {
+            if (columns.Length == 1)
+            {
+                return _values.TryGetValue(columns[0], out var value)
+                    ? DefaultValueFormatter.Format(value)
+                    : null;
+            }
+
+            return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-"));
+        }
+
+        public override string GenerateKeyUpper(params string[] columns)
+        {
+            if (columns.Length == 1)
+            {
+                return _values.TryGetValue(columns[0], out var value)
+                    ? DefaultValueFormatter.Format(value).ToUpperInvariant()
+                    : null;
+            }
+
+            return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-")).ToUpperInvariant();
         }
 
         public override void SetValue(string column, object newValue)
