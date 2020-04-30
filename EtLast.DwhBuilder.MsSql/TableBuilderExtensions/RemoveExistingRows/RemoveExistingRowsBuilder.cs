@@ -35,7 +35,7 @@
         public RemoveExistingRowsBuilder MatchByPrimaryKey()
         {
             if (TableBuilder.Table.PrimaryKeyColumns.Count == 0)
-                throw new NotSupportedException();
+                throw new InvalidDwhBuilderParameterException<DwhTableBuilder>(TableBuilder.DwhBuilder, nameof(MatchByPrimaryKey), TableBuilder.Table.SchemaAndName, "can't use " + nameof(MatchByPrimaryKey) + " on a table without primary key: " + TableBuilder.Table.SchemaAndName);
 
             MatchColumns = TableBuilder.Table.PrimaryKeyColumns.ToArray();
             MatchColumnNames = MatchColumns.Select(x => x.Name).ToArray();
