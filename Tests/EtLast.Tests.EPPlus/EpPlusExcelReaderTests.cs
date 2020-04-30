@@ -10,7 +10,7 @@
     [TestClass]
     public class EpPlusExcelReaderTests
     {
-        private EpPlusExcelReader GetReader(ITopic topic, string fileName)
+        private static EpPlusExcelReader GetReader(ITopic topic, string fileName)
         {
             return new EpPlusExcelReader(topic, null)
             {

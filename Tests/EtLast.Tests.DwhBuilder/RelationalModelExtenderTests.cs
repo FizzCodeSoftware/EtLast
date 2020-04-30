@@ -7,7 +7,7 @@
     [TestClass]
     public class RelationalModelExtenderTests
     {
-        private RelationalModel CreateModel()
+        private static RelationalModel CreateModel()
         {
             var model = new RelationalModel("dbo");
             var dbo = model["dbo"];

@@ -1,8 +1,8 @@
-﻿namespace FizzCode.EtLast.PluginHost
+﻿#pragma warning disable CA1812, CA1822
+namespace FizzCode.EtLast.PluginHost
 {
     using CommandDotNet;
 
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes
     [Command(Name = ">")]
     internal class AppCommands
     {
@@ -21,5 +21,5 @@
             CommandLineHandler.Terminated = true;
         }
     }
-#pragma warning restore CA1812 // Avoid uninstantiated internal classes
 }
+#pragma warning restore CA1812, CA1822

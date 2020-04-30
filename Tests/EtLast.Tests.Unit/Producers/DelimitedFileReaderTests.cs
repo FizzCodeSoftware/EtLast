@@ -8,7 +8,7 @@
     [TestClass]
     public class DelimitedFileReaderTests
     {
-        private IEvaluable GetReader(ITopic topic, string fileName)
+        private static IEvaluable GetReader(ITopic topic, string fileName)
         {
             return new DelimitedFileReader(topic, null)
             {

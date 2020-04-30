@@ -105,7 +105,7 @@
                 HandleSelectAll(e, checkedList, selectAllIndex);
         }
 
-        private void HandleSelectAll(ItemCheckEventArgs e, ToolStripCheckedListBox checkedList, int selectAllIndex)
+        private static void HandleSelectAll(ItemCheckEventArgs e, ToolStripCheckedListBox checkedList, int selectAllIndex)
         {
             if (e.Index == selectAllIndex)
             {
