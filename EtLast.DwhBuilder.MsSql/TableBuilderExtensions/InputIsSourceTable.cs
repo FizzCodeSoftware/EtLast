@@ -67,7 +67,7 @@
             if (recordTimestampIndicatorColumn == null)
                 return null;
 
-            var result = new GetTableMaxValue<DateTimeOffset?>(builder.ResilientTable.Topic, nameof(GetMaxRecordTimestamp) + "Reader")
+            var result = new GetTableMaxValue<object>(builder.ResilientTable.Topic, nameof(GetMaxRecordTimestamp) + "Reader")
             {
                 ConnectionString = builder.ResilientTable.Scope.Configuration.ConnectionString,
                 TableName = builder.ResilientTable.TableName,
@@ -85,7 +85,12 @@
                 return null;
             }
 
-            return result.MaxValue;
+            if (result.MaxValue is DateTime dt)
+            {
+                return new DateTimeOffset(dt, TimeSpan.Zero);
+            }
+
+            return (DateTimeOffset)result.MaxValue;
         }
 
         /*private static ITypeConverter GetConverter(SqlTypeInfo sqlTypeInfo)
