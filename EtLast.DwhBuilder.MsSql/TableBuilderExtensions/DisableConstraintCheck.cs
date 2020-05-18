@@ -20,14 +20,14 @@
             if (builder.Table.ForeignKeys.Count == 0)
                 yield break;
 
-            var hasHistoryTable = builder.Table.GetHasHistoryTable();
+            var tableNames = !builder.Table.GetHasHistoryTable()
+                    ? new[] { builder.ResilientTable.TableName }
+                    : new[] { builder.ResilientTable.TableName, builder.DwhBuilder.GetEscapedHistTableName(builder.Table) };
 
             yield return new MsSqlDisableConstraintCheck(builder.ResilientTable.Topic, "DisableConstraintCheck")
             {
                 ConnectionString = builder.ResilientTable.Scope.Configuration.ConnectionString,
-                TableNames = !hasHistoryTable
-                    ? new[] { builder.ResilientTable.TableName }
-                    : new[] { builder.ResilientTable.TableName, builder.DwhBuilder.GetEscapedHistTableName(builder.Table) },
+                TableNames = tableNames,
                 CommandTimeout = 60 * 60,
             };
 
@@ -42,9 +42,7 @@
                         builder.DwhBuilder.Topic.Context.AdditionalData["ConstraintCheckDisabledOnTables"] = list;
                     }
 
-                    list.AddRange(!hasHistoryTable
-                        ? new[] { builder.ResilientTable.TableName }
-                        : new[] { builder.ResilientTable.TableName, builder.DwhBuilder.GetEscapedHistTableName(builder.Table) });
+                    list.AddRange(tableNames);
                 }
             };
         }

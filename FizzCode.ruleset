@@ -86,6 +86,7 @@
     <Rule Id="CA1724" Action="None" />
     <Rule Id="CA1814" Action="None" />
     <Rule Id="CA1819" Action="None" />
+    <Rule Id="CA1822" Action="None" />
     <Rule Id="CA2225" Action="None" />
     <Rule Id="CA2227" Action="None" />
   </Rules>

@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using FizzCode.DbTools.Configuration;
     using FizzCode.EtLast;
@@ -32,6 +34,8 @@
 
         public DateTime? EtlRunId { get; private set; }
         public DateTimeOffset? EtlRunIdAsDateTimeOffset { get; private set; }
+
+        private Dictionary<string, List<string>> _enabledConstraintsByTable { get; } = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
         public MsSqlDwhBuilder(ITopic topic, string scopeName, DateTime? etlRunIdUtcOverride = null)
         {
@@ -69,8 +73,78 @@
                     InitializerCreator = CreateInitializers,
                     FinalizerRetryCount = Configuration.FinalizerRetryCount,
                     FinalizerTransactionScopeKind = TransactionScopeKind.RequiresNew,
+                    PreFinalizerCreator = CreatePreFinalizers,
                     PostFinalizerCreator = CreatePostFinalizers,
                 },
+            };
+        }
+
+        private IEnumerable<IExecutable> CreatePreFinalizers(ResilientSqlScope scope, IProcess caller)
+        {
+            yield return new CustomAction(scope.Topic, "ReadAllEnabledForeignKeys")
+            {
+                Then = (proc) =>
+                {
+                    var startedOn = Stopwatch.StartNew();
+                    var connection = ConnectionManager.GetNewConnection(ConnectionString, caller);
+                    using (var command = connection.Connection.CreateCommand())
+                    {
+                        command.CommandTimeout = 60 * 1000;
+                        command.CommandText = @"
+                            select distinct
+	                            fk.[name] fkName,
+	                            SCHEMA_NAME(fk.schema_id) schemaName,
+	                            OBJECT_NAME(fk.parent_object_id) tableName
+                            from
+	                            sys.foreign_keys fk
+                                where fk.is_disabled=0";
+
+                        var iocUid = scope.Context.RegisterIoCommandStart(proc, IoCommandKind.dbRead, ConnectionString.Name, "SYS.FOREIGN_KEYS", command.CommandTimeout, command.CommandText, null, null,
+                            "querying enabled foreign key names from {ConnectionStringName}",
+                            ConnectionString.Name);
+
+                        var recordsRead = 0;
+                        try
+                        {
+                            using (var reader = command.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    recordsRead++;
+                                    var sourceTableName = ConnectionString.Escape((string)reader["tableName"], (string)reader["schemaName"]);
+
+                                    if (!_enabledConstraintsByTable.TryGetValue(sourceTableName, out var list))
+                                    {
+                                        list = new List<string>();
+                                        _enabledConstraintsByTable.Add(sourceTableName, list);
+                                    }
+
+                                    list.Add(ConnectionString.Escape((string)reader["fkName"]));
+                                }
+
+                                scope.Context.RegisterIoCommandSuccess(caller, iocUid, recordsRead);
+                            }
+
+                            scope.Context.Log(LogSeverity.Information, caller, "{ForeignKeyCount} enabled foreign keys aquired from information schema of {ConnectionStringName} in {Elapsed}",
+                                _enabledConstraintsByTable.Sum(x => x.Value.Count), ConnectionString.Name, startedOn.Elapsed);
+                        }
+                        catch (Exception ex)
+                        {
+                            scope.Context.RegisterIoCommandFailed(caller, iocUid, null, ex);
+
+                            var exception = new ProcessExecutionException(caller, "failed to query enabled foreign key names from information schema", ex);
+                            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "enabled foreign key list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
+                                ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
+                            exception.Data.Add("ConnectionStringName", ConnectionString.Name);
+                            exception.Data.Add("Statement", command.CommandText);
+                            exception.Data.Add("Timeout", command.CommandTimeout);
+                            exception.Data.Add("Elapsed", startedOn.Elapsed);
+                            throw exception;
+                        }
+                    }
+
+                    ConnectionManager.ReleaseConnection(caller, ref connection);
+                }
             };
         }
 
@@ -83,7 +157,12 @@
                 yield return new MsSqlEnableConstraintCheck(scope.Topic, "EnableConstraintCheck")
                 {
                     ConnectionString = scope.Configuration.ConnectionString,
-                    TableNames = constraintCheckDisabledOnTables.Distinct().OrderBy(x => x).ToArray(),
+                    ConstraintNames = constraintCheckDisabledOnTables
+                        .Distinct()
+                        .Where(x => _enabledConstraintsByTable.ContainsKey(x))
+                        .OrderBy(x => x)
+                        .Select(x => new KeyValuePair<string, List<string>>(x, _enabledConstraintsByTable[x]))
+                        .ToList(),
                     CommandTimeout = 60 * 60,
                 };
             }

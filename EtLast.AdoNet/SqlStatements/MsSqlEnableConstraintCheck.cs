@@ -10,7 +10,7 @@
 
     public class MsSqlEnableConstraintCheck : AbstractSqlStatements
     {
-        public string[] TableNames { get; set; }
+        public List<KeyValuePair<string, List<string>>> ConstraintNames { get; set; }
 
         public MsSqlEnableConstraintCheck(ITopic topic, string name)
             : base(topic, name)
@@ -21,18 +21,18 @@
         {
             base.ValidateImpl();
 
-            if (TableNames == null || TableNames.Length == 0)
-                throw new ProcessParameterNullException(this, nameof(TableNames));
+            if (ConstraintNames == null || ConstraintNames.Count == 0)
+                throw new ProcessParameterNullException(this, nameof(ConstraintNames));
         }
 
         protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection, string transactionId)
         {
-            return TableNames.Select(tableName => "ALTER TABLE " + tableName + " WITH CHECK CHECK CONSTRAINT ALL;").ToList();
+            return ConstraintNames.Select(kvp => "ALTER TABLE " + kvp.Key + " WITH CHECK CHECK CONSTRAINT " + string.Join(", ", kvp.Value) + ";").ToList();
         }
 
         protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
         {
-            var tableName = TableNames[statementIndex];
+            var tableName = ConstraintNames[statementIndex].Key;
             var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDefinition, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
                 "enable constraint check on {ConnectionStringName}/{TableName}",
                 ConnectionString.Name, ConnectionString.Unescape(tableName));

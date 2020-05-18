@@ -92,6 +92,11 @@
                     var fkColumn = historyTable.Columns[fkCol.ForeignKeyColumn.Name];
                     historyFk.ForeignKeyColumns.Add(new ForeignKeyColumnMap(fkColumn, fkCol.ReferredColumn));
                 }
+
+                foreach (var prop in baseFk.SqlEngineVersionSpecificProperties)
+                {
+                    historyFk.SqlEngineVersionSpecificProperties.Add(new SqlEngineVersionSpecificProperty(prop.Version, prop.Name, prop.Value));
+                }
             }
 
             baseTable.AddDateTimeOffset(configuration.ValidFromColumnName, 7, configuration.InfinitePastDateTime == null && !configuration.UseEtlRunIdForDefaultValidFrom);

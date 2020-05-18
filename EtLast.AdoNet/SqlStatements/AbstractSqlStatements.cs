@@ -7,26 +7,11 @@
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
-    public abstract class AbstractSqlStatements : AbstractExecutable
+    public abstract class AbstractSqlStatements : AbstractSqlStatementBase
     {
-        public ConnectionStringWithProvider ConnectionString { get; set; }
-        public int CommandTimeout { get; set; } = 300;
-
         protected AbstractSqlStatements(ITopic topic, string name)
             : base(topic, name)
         {
-        }
-
-        /// <summary>
-        /// If true, this statement will be executed out of ambient transaction scope.
-        /// See <see cref="TransactionScopeOption.Suppress"/>>.
-        /// </summary>
-        public bool SuppressExistingTransactionScope { get; set; }
-
-        protected override void ValidateImpl()
-        {
-            if (ConnectionString == null)
-                throw new ProcessParameterNullException(this, nameof(ConnectionString));
         }
 
         protected override void ExecuteImpl()
