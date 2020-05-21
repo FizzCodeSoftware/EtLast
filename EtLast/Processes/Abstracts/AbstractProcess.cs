@@ -1,12 +1,15 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System.ComponentModel;
     using System.Linq;
 
     public abstract class AbstractProcess : IProcess
     {
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public ProcessInvocationInfo InvocationInfo { get; set; }
 
         public IEtlContext Context => Topic.Context;
+
         public ITopic Topic { get; set; }
         public string Name { get; set; }
 

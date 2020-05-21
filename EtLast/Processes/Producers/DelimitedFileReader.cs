@@ -18,7 +18,14 @@
         /// </summary>
         public bool TreatEmptyStringAsNull { get; set; } = true;
 
+        /// <summary>
+        /// Default false.
+        /// </summary>
         public bool HasHeaderRow { get; set; }
+
+        /// <summary>
+        /// Default null. Column names must be set if <see cref="HasHeaderRow"/> is false, otherwise it should be left null.
+        /// </summary>
         public string[] ColumnNames { get; set; }
 
         /// <summary>
@@ -38,6 +45,9 @@
 
             if (!HasHeaderRow && (ColumnNames == null || ColumnNames.Length == 0))
                 throw new ProcessParameterNullException(this, nameof(ColumnNames));
+
+            if (HasHeaderRow && ColumnNames?.Length > 0)
+                throw new InvalidProcessParameterException(this, nameof(ColumnNames), ColumnNames, nameof(ColumnNames) + " must be null if " + nameof(HasHeaderRow) + " is true.");
         }
 
         protected override IEnumerable<IRow> Produce()
@@ -57,7 +67,7 @@
                 throw exception;
             }
 
-            var columnConfig = ColumnConfiguration.ToDictionary(x => x.SourceColumn.ToUpperInvariant());
+            var columnConfig = ColumnConfiguration?.ToDictionary(x => x.SourceColumn.ToUpperInvariant(), StringComparer.OrdinalIgnoreCase);
             var resultCount = 0;
 
             StreamReader reader;
@@ -119,7 +129,9 @@
                     initialValues.Clear();
                     for (var i = 0; i < parts.Length; i++)
                     {
+                        var columnName = columnNames[i];
                         var valueString = parts[i];
+
                         if (valueString.StartsWith("\"", StringComparison.InvariantCultureIgnoreCase) && valueString.EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
                         {
                             valueString = valueString[1..^1];
@@ -132,8 +144,7 @@
                             sourceValue = null;
                         }
 
-                        columnConfig.TryGetValue(columnNames[i].ToUpperInvariant(), out var columnConfiguration);
-                        if (columnConfiguration != null)
+                        if (columnConfig != null && columnConfig.TryGetValue(columnName, out var columnConfiguration))
                         {
                             var value = HandleConverter(sourceValue, columnConfiguration);
                             initialValues.Add(new KeyValuePair<string, object>(columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn, value));
@@ -141,7 +152,7 @@
                         else if (DefaultColumnConfiguration != null)
                         {
                             var value = HandleConverter(sourceValue, DefaultColumnConfiguration);
-                            initialValues.Add(new KeyValuePair<string, object>(columnNames[i], value));
+                            initialValues.Add(new KeyValuePair<string, object>(columnName, value));
                         }
                     }
 
