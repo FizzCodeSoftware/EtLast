@@ -11,6 +11,11 @@
     /// </summary>
     public class RemoveDuplicateRowsMutator : AbstractAggregationMutator
     {
+        /// <summary>
+        /// Please note that only the values of the first occurence of a key will be returned.
+        /// </summary>
+        public List<ColumnCopyConfiguration> ValueColumns { get; set; }
+
         public RemoveDuplicateRowsMutator(ITopic topic, string name)
             : base(topic, name)
         {
@@ -30,6 +35,10 @@
             var enumerator = InputProcess.Evaluate(this).TakeRowsAndReleaseOwnership().GetEnumerator();
             netTimeStopwatch.Start();
 
+            var allColumns = ValueColumns != null
+                ? GroupingColumns.Concat(ValueColumns).ToList()
+                : GroupingColumns;
+
             var rowCount = 0;
             while (!Context.CancellationTokenSource.IsCancellationRequested)
             {
@@ -44,7 +53,9 @@
                 var key = GetKey(row);
                 if (!returnedKeys.Contains(key))
                 {
-                    var initialValues = GroupingColumns
+                    var columns = GroupingColumns;
+
+                    var initialValues = allColumns
                         .Select(column => new KeyValuePair<string, object>(column.ToColumn, row[column.FromColumn]));
 
                     var newRow = Context.CreateRow(this, initialValues);
