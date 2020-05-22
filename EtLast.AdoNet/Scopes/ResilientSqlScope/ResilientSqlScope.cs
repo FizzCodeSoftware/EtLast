@@ -265,6 +265,8 @@
 
         public static IEnumerable<IExecutable> SimpleMergeFinalizer(ResilientTableBase table, string[] keyColumns, int commandTimeout = 60)
         {
+            var columnsToUpdate = table.Columns.Where(c => !keyColumns.Contains(c)).ToList();
+
             yield return new CustomMsSqlMergeStatement(table.Topic, "MergeTempToTargetTable")
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
@@ -274,7 +276,9 @@
                 SourceTableAlias = "s",
                 TargetTableAlias = "t",
                 OnCondition = string.Join(" and ", keyColumns.Select(x => "s." + x + "=t." + x)),
-                WhenMatchedAction = "update set " + string.Join(",", table.Columns.Where(c => !keyColumns.Contains(c)).Select(c => "t." + c + "=s." + c)),
+                WhenMatchedAction = columnsToUpdate.Count > 0
+                    ? "update set " + string.Join(",", columnsToUpdate.Select(c => "t." + c + "=s." + c))
+                    : null,
                 WhenNotMatchedByTargetAction = "insert (" + string.Join(",", table.Columns) + ") values (" + string.Join(",", table.Columns.Select(c => "s." + c)) + ")",
             };
         }
