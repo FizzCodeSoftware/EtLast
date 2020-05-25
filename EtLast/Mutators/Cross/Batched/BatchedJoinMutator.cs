@@ -67,6 +67,10 @@
                             case MatchMode.Custom:
                                 TooManyMatchAction.InvokeCustomAction(this, row, matches);
                                 break;
+                            case MatchMode.CustomThenRemove:
+                                removeRow = true;
+                                TooManyMatchAction.InvokeCustomAction(this, row, matches);
+                                break;
                         }
                     }
                     else
@@ -102,6 +106,10 @@
                             exception.Data.Add("Key", key);
                             throw exception;
                         case MatchMode.Custom:
+                            NoMatchAction.InvokeCustomAction(this, row);
+                            break;
+                        case MatchMode.CustomThenRemove:
+                            removeRow = true;
                             NoMatchAction.InvokeCustomAction(this, row);
                             break;
                     }

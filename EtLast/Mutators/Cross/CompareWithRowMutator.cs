@@ -47,6 +47,10 @@
                         case MatchMode.Custom:
                             NoMatchAction.InvokeCustomAction(this, row);
                             break;
+                        case MatchMode.CustomThenRemove:
+                            removeRow = true;
+                            NoMatchAction.InvokeCustomAction(this, row);
+                            break;
                     }
                 }
             }
@@ -70,6 +74,10 @@
                             case MatchMode.Custom:
                                 MatchAndEqualsAction.InvokeCustomAction(this, row, match);
                                 break;
+                            case MatchMode.CustomThenRemove:
+                                removeRow = true;
+                                MatchAndEqualsAction.InvokeCustomAction(this, row, match);
+                                break;
                         }
                     }
                 }
@@ -85,6 +93,10 @@
                             exception.Data.Add("Key", key);
                             throw exception;
                         case MatchMode.Custom:
+                            MatchButDifferentAction.InvokeCustomAction(this, row, match);
+                            break;
+                        case MatchMode.CustomThenRemove:
+                            removeRow = true;
                             MatchButDifferentAction.InvokeCustomAction(this, row, match);
                             break;
                     }
@@ -111,8 +123,12 @@
             if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
                 throw new ProcessParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));
 
-            if (NoMatchAction != null && MatchAndEqualsAction != null && ((NoMatchAction.Mode == MatchMode.Remove && MatchAndEqualsAction.Mode == MatchMode.Remove) || (NoMatchAction.Mode == MatchMode.Throw && MatchAndEqualsAction.Mode == MatchMode.Throw)))
+            if (NoMatchAction != null && MatchAndEqualsAction != null
+                && ((NoMatchAction.Mode == MatchMode.Remove && MatchAndEqualsAction.Mode == MatchMode.Remove)
+                    || (NoMatchAction.Mode == MatchMode.Throw && MatchAndEqualsAction.Mode == MatchMode.Throw)))
+            {
                 throw new InvalidProcessParameterException(this, nameof(MatchAndEqualsAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must use a different action mode: " + nameof(MatchAndEqualsAction) + " or " + nameof(NoMatchAction));
+            }
 
             if (EqualityComparer == null)
                 throw new ProcessParameterNullException(this, nameof(EqualityComparer));

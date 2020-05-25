@@ -1,0 +1,3 @@
+2020-05-25
+	- added: MatchMode.CustomThenRemove
+	- added: support of MatchMode.CustomThenRemove to all existing cross operations

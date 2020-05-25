@@ -7,6 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Global", "Global", "{9BB952
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		Global\AssemblyInfo.Global.cs = Global\AssemblyInfo.Global.cs
+		changelog_v2.txt = changelog_v2.txt
 		FizzCode.ruleset = FizzCode.ruleset
 		README.md = README.md
 	EndProjectSection

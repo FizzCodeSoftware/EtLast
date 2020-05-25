@@ -68,13 +68,28 @@
                             exception.Data.Add("Key", key);
                             throw exception;
                         case MatchMode.Custom:
-                            IReadOnlySlimRow match = null;
-                            if (MatchActionContainsMatch)
                             {
-                                match = (_lookup as RowLookup).GetSingleRowByKey(key);
-                            }
+                                IReadOnlySlimRow match = null;
+                                if (MatchActionContainsMatch)
+                                {
+                                    match = (_lookup as RowLookup).GetSingleRowByKey(key);
+                                }
 
-                            MatchAction.InvokeCustomAction(this, row, match);
+                                MatchAction.InvokeCustomAction(this, row, match);
+                            }
+                            break;
+                        case MatchMode.CustomThenRemove:
+                            {
+                                removeOriginal = true;
+
+                                IReadOnlySlimRow match = null;
+                                if (MatchActionContainsMatch)
+                                {
+                                    match = (_lookup as RowLookup).GetSingleRowByKey(key);
+                                }
+
+                                MatchAction.InvokeCustomAction(this, row, match);
+                            }
                             break;
                     }
 
@@ -116,6 +131,10 @@
                             case MatchMode.Custom:
                                 NoMatchAction.InvokeCustomAction(this, row);
                                 break;
+                            case MatchMode.CustomThenRemove:
+                                removeRow = true;
+                                NoMatchAction.InvokeCustomAction(this, row);
+                                break;
                         }
                     }
                 }
@@ -131,13 +150,28 @@
                             exception2.Data.Add("Key", key);
                             throw exception2;
                         case MatchMode.Custom:
-                            IReadOnlySlimRow match = null;
-                            if (MatchActionContainsMatch)
                             {
-                                match = (_lookup as RowLookup).GetSingleRowByKey(key);
-                            }
+                                IReadOnlySlimRow match = null;
+                                if (MatchActionContainsMatch)
+                                {
+                                    match = (_lookup as RowLookup).GetSingleRowByKey(key);
+                                }
 
-                            MatchAction.InvokeCustomAction(this, row, match);
+                                MatchAction.InvokeCustomAction(this, row, match);
+                            }
+                            break;
+                        case MatchMode.CustomThenRemove:
+                            {
+                                removeRow = true;
+
+                                IReadOnlySlimRow match = null;
+                                if (MatchActionContainsMatch)
+                                {
+                                    match = (_lookup as RowLookup).GetSingleRowByKey(key);
+                                }
+
+                                MatchAction.InvokeCustomAction(this, row, match);
+                            }
                             break;
                     }
                 }
@@ -167,8 +201,12 @@
             if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
                 throw new ProcessParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));
 
-            if (NoMatchAction != null && MatchAction != null && ((NoMatchAction.Mode == MatchMode.Remove && MatchAction.Mode == MatchMode.Remove) || (NoMatchAction.Mode == MatchMode.Throw && MatchAction.Mode == MatchMode.Throw)))
+            if (NoMatchAction != null && MatchAction != null
+                && ((NoMatchAction.Mode == MatchMode.Remove && MatchAction.Mode == MatchMode.Remove)
+                    || (NoMatchAction.Mode == MatchMode.Throw && MatchAction.Mode == MatchMode.Throw)))
+            {
                 throw new InvalidProcessParameterException(this, nameof(MatchAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must use a different action moode: " + nameof(MatchAction) + " or " + nameof(NoMatchAction));
+            }
         }
     }
 }

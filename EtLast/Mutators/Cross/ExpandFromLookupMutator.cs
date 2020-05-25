@@ -44,6 +44,10 @@
                         case MatchMode.Custom:
                             NoMatchAction.InvokeCustomAction(this, row);
                             break;
+                        case MatchMode.CustomThenRemove:
+                            removeRow = true;
+                            NoMatchAction.InvokeCustomAction(this, row);
+                            break;
                     }
                 }
             }
