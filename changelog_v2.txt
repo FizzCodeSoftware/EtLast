@@ -1,5 +1,6 @@
 2020-05-26
 	- fixed: AbstractAdoNetDbReader no longer crash when query return same column multiple times
+	- fixed: ExceptionHelpers.FormatExceptionWithDetails when source exception has no stack trace
 
 2020-05-25
 	- added: MatchMode.CustomThenRemove
