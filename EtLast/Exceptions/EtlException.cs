@@ -88,8 +88,8 @@
                 var assemblyName = method.DeclaringType?.Assembly?.GetName()?.Name;
                 if (assemblyName != null)
                 {
-                    /*if (assemblyName == mainAssembyName)
-                        continue;*/
+                    if (assemblyName.Equals("CommandDotNet", StringComparison.OrdinalIgnoreCase))
+                        continue;
 
                     try
                     {
