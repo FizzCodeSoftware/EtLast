@@ -117,7 +117,7 @@
             var resultCount = 0;
             if (reader != null && !Context.CancellationTokenSource.IsCancellationRequested)
             {
-                var initialValues = new List<KeyValuePair<string, object>>();
+                var initialValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
                 var columnMap = ColumnConfiguration?.ToDictionary(x => x.SourceColumn);
                 while (!Context.CancellationTokenSource.IsCancellationRequested)
                 {
@@ -174,7 +174,7 @@
                             value = HandleConverter(value, config);
                         }
 
-                        initialValues.Add(new KeyValuePair<string, object>(rowColumn, value));
+                        initialValues[rowColumn] = value;
                     }
 
                     resultCount++;
