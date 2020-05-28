@@ -16,6 +16,8 @@
         public bool Load()
         {
             var hostConfigurationFileName = "host-configuration.json";
+            hostConfigurationFileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), hostConfigurationFileName);
+
             if (!File.Exists(hostConfigurationFileName))
             {
                 Logger = SerilogConfigurator.CreateLogger(null);
