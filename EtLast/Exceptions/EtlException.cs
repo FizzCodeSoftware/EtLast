@@ -91,6 +91,9 @@
                     if (assemblyName.Equals("CommandDotNet", StringComparison.OrdinalIgnoreCase))
                         continue;
 
+                    if (assemblyName.Equals("FizzCode.EtLast.PluginHost", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
                     try
                     {
                         var fileName = frame.GetFileName();
