@@ -13,7 +13,7 @@
         {
             var result = ExecutionResult.Success;
 
-            var sessionId = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture).Substring(0, 6);
+            var sessionId = "s" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture).Substring(0, 6);
 
             var sessionStartedOn = Stopwatch.StartNew();
             var sessionWarningCount = 0;
