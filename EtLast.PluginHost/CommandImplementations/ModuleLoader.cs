@@ -133,7 +133,7 @@
                 .OrderByDescending(x => new DirectoryInfo(x).CreationTime)
                 .FirstOrDefault();
 
-            commandContext.Logger.Information("using sssemblies from {ReferenceAssemblyFolder}", referenceAssemblyFolder);
+            commandContext.Logger.Information("using assemblies from {ReferenceAssemblyFolder}", referenceAssemblyFolder);
 
             var referenceDllFileNames = new List<string>();
             referenceDllFileNames.AddRange(Directory.GetFiles(referenceAssemblyFolder, "System*.dll", SearchOption.TopDirectoryOnly));
