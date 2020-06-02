@@ -11,9 +11,9 @@
     {
         [Command(Name = "module", Description = "Execute one module.")]
         public void RunModule(
-            [Operand(Name = "module-name", Description = "The name of the module.")]string moduleName,
-            [Option(LongName = "plugin")]List<string> pluginListOverride,
-            [Option(LongName = "param", ShortName = "p")]List<string> moduleSettingOverrides)
+            [Operand(Name = "module-name", Description = "The name of the module.")] string moduleName,
+            [Option(LongName = "plugin")] List<string> pluginListOverride,
+            [Option(LongName = "param", ShortName = "p")] List<string> moduleSettingOverrides)
         {
             if (string.IsNullOrEmpty(moduleName))
             {
@@ -37,8 +37,8 @@
 
         [Command(Name = "modules", Description = "Execute one or more module.")]
         public void RunModules(
-            [Operand(Name = "module-names", Description = "The space-separated list of module names.")]List<string> moduleNames,
-            [Option(LongName = "param", ShortName = "p")]List<string> moduleSettingOverrides)
+            [Operand(Name = "module-names", Description = "The space-separated list of module names.")] List<string> moduleNames,
+            [Option(LongName = "param", ShortName = "p")] List<string> moduleSettingOverrides)
         {
             if (moduleNames == null || moduleNames.Count == 0)
             {
