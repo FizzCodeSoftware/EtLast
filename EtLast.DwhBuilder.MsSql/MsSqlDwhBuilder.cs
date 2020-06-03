@@ -125,7 +125,7 @@
                                 scope.Context.RegisterIoCommandSuccess(caller, iocUid, recordsRead);
                             }
 
-                            scope.Context.Log(LogSeverity.Information, caller, "{ForeignKeyCount} enabled foreign keys aquired from information schema of {ConnectionStringName} in {Elapsed}",
+                            scope.Context.Log(LogSeverity.Information, caller, "{ForeignKeyCount} enabled foreign keys acquired from information schema of {ConnectionStringName} in {Elapsed}",
                                 _enabledConstraintsByTable.Sum(x => x.Value.Count), ConnectionString.Name, startedOn.Elapsed);
                         }
                         catch (Exception ex)

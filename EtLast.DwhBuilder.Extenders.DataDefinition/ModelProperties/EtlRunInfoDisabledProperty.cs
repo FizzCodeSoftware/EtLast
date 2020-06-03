@@ -2,8 +2,12 @@
 {
     using FizzCode.DbTools.DataDefinition;
 
-    public class EtlRunInfoDisabledProperty : SqlTableProperty
+    public class EtlRunInfoDisabledProperty : SqlTableCustomProperty
     {
+        public EtlRunInfoDisabledProperty()
+        {
+        }
+
         public EtlRunInfoDisabledProperty(SqlTable table)
             : base(table)
         {

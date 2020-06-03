@@ -2,10 +2,14 @@
 {
     using FizzCode.DbTools.DataDefinition;
 
-    public class HasHistoryTableProperty : SqlTableProperty
+    public class HasHistoryTableProperty : SqlTableCustomProperty
     {
-        public HasHistoryTableProperty(SqlTable table)
-            : base(table)
+        public HasHistoryTableProperty()
+        {
+        }
+
+        public HasHistoryTableProperty(SqlTable sqlTable)
+            : base(sqlTable)
         {
         }
     }
