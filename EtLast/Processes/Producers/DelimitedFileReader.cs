@@ -19,6 +19,11 @@
         public bool TreatEmptyStringAsNull { get; set; } = true;
 
         /// <summary>
+        /// Default true. If a value starts and ends with double quote (") characters, then both will be removed (this happens before type conversion)
+        /// </summary>
+        public bool RemoveSurroundingDoubleQuotes { get; set; } = true;
+
+        /// <summary>
         /// Default false.
         /// </summary>
         public bool HasHeaderRow { get; set; }
@@ -132,7 +137,10 @@
                         var columnName = columnNames[i];
                         var valueString = parts[i];
 
-                        if (valueString.StartsWith("\"", StringComparison.InvariantCultureIgnoreCase) && valueString.EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
+                        if (RemoveSurroundingDoubleQuotes
+                            && valueString.Length > 1
+                            && valueString.StartsWith("\"", StringComparison.InvariantCultureIgnoreCase)
+                            && valueString.EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
                         {
                             valueString = valueString[1..^1];
                         }
