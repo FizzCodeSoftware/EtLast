@@ -27,6 +27,11 @@
                 var primaryKey = sourceTable.Properties.OfType<PrimaryKey>().FirstOrDefault();
                 var newTable = newSchema.AddTable(sourceTable.SchemaAndTableName.TableName);
 
+                foreach (var flag in sourceTable.Properties.OfType<DwhTableFlagProperty>())
+                {
+                    newTable.SetFlag(flag.Name, true);
+                }
+
                 if (sourceTable.HasProperty<EtlRunInfoDisabledProperty>())
                     newTable.SetEtlRunInfoDisabled();
 
@@ -41,6 +46,11 @@
                 {
                     var partOfPrimaryKey = primaryKey?.SqlColumns.Any(x => x.SqlColumn == sourceColumn) == true;
                     var newColumn = newTable.AddColumn(sourceColumn.Name, partOfPrimaryKey);
+
+                    foreach (var flag in sourceColumn.Properties.OfType<DwhColumnFlagProperty>())
+                    {
+                        newColumn.SetFlag(flag.Name, true);
+                    }
 
                     if (sourceColumn.HasProperty<Identity>())
                         newColumn.SetIdentity();

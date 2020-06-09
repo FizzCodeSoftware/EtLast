@@ -1,3 +1,7 @@
+2020-06-09
+	- added: DwhColumnFlagProperty and DwhTableFlagProperty
+	- added: MsSqlDwhBuilder.AddPreFinalizer
+
 2020-06-02
 	- added: DelimitedFileReader.RemoveSurroundingDoubleQuotes (default true for backward compatibility)
 	- fixed: DelimitedFileReader no longer throws exception if a value is a single " character (and RemoveSurroundingDoubleQuotes is true)

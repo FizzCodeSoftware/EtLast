@@ -29,6 +29,7 @@
             ? EtlRunId
             : Configuration.InfinitePastDateTime;
 
+        private readonly List<ResilientSqlScopeExecutableCreatorDelegate> _preFinalizerCreators = new List<ResilientSqlScopeExecutableCreatorDelegate>();
         private readonly List<ResilientSqlScopeExecutableCreatorDelegate> _postFinalizerCreators = new List<ResilientSqlScopeExecutableCreatorDelegate>();
         private readonly DateTime? _etlRunIdUtcOverride;
 
@@ -146,6 +147,16 @@
                     ConnectionManager.ReleaseConnection(caller, ref connection);
                 }
             };
+
+            foreach (var creator in _preFinalizerCreators)
+            {
+                var result = creator.Invoke(scope, caller);
+                if (result != null)
+                {
+                    foreach (var process in result)
+                        yield return process;
+                }
+            }
         }
 
         private IEnumerable<IExecutable> CreatePostFinalizers(ResilientSqlScope scope, IProcess caller)
@@ -299,6 +310,11 @@
             }
 
             return result;
+        }
+
+        public void AddPreFinalizer(ResilientSqlScopeExecutableCreatorDelegate creator)
+        {
+            _preFinalizerCreators.Add(creator);
         }
 
         public void AddPostFinalizer(ResilientSqlScopeExecutableCreatorDelegate creator)
