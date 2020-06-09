@@ -15,7 +15,7 @@
 
     public static class DwhColumnFlagPropertyHelper
     {
-        public static DwhColumnFlagProperty DwhColumnFlag(this SqlColumn sqlColumn, string name)
+        public static DwhColumnFlagProperty DwhFlag(this SqlColumn sqlColumn, string name)
         {
             var property = new DwhColumnFlagProperty(sqlColumn, name);
             sqlColumn.Properties.Add(property);

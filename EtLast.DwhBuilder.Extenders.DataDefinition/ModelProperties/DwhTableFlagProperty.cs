@@ -20,7 +20,7 @@
 
     public static class DwhTableFlagPropertyHelper
     {
-        public static DwhTableFlagProperty DwhTableFlag(this SqlTable sqlTable, string name)
+        public static DwhTableFlagProperty DwhFlag(this SqlTable sqlTable, string name)
         {
             var property = new DwhTableFlagProperty(sqlTable, name);
             sqlTable.Properties.Add(property);
