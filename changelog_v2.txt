@@ -1,3 +1,6 @@
+2020-06-10
+	- changed: "test modules" command in EtlHost forces dynamic compilation of the specified module(s)
+
 2020-06-09
 	- added: DwhColumnFlagProperty and DwhTableFlagProperty
 	- added: MsSqlDwhBuilder.AddPreFinalizer

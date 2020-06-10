@@ -18,7 +18,7 @@
     {
         private static long _moduleAutoincrementId = 0;
 
-        public static Module LoadModule(CommandContext commandContext, string moduleName, string[] moduleSettingOverrides, string[] pluginListOverride)
+        public static Module LoadModule(CommandContext commandContext, string moduleName, string[] moduleSettingOverrides, string[] pluginListOverride, bool forceCompilation)
         {
             ModuleConfiguration moduleConfiguration;
             try
@@ -106,8 +106,11 @@
 
             var startedOn = Stopwatch.StartNew();
 
-            if (commandContext.HostConfiguration.DynamicCompilationMode == DynamicCompilationMode.Never
-                || (commandContext.HostConfiguration.DynamicCompilationMode == DynamicCompilationMode.Default && Debugger.IsAttached))
+            var useAppDomain = !forceCompilation
+                && (commandContext.HostConfiguration.DynamicCompilationMode == DynamicCompilationMode.Never
+                    || (commandContext.HostConfiguration.DynamicCompilationMode == DynamicCompilationMode.Default && Debugger.IsAttached));
+
+            if (useAppDomain)
             {
                 commandContext.Logger.Information("loading plugins directly from AppDomain if namespace ends with '{Module}'", moduleName);
                 var appDomainPlugins = LoadPluginsFromAppDomain(moduleName);

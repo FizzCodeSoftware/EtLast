@@ -15,8 +15,8 @@
     {
         [Command(Name = "modules", Description = "Tests one or more modules.")]
         public void ValidateModule(
-        [Operand(Name = "names", Description = "The space-separated list of module names.")]List<string> moduleNames,
-        [Option(LongName = "all", ShortName = "a")]bool all)
+        [Operand(Name = "names", Description = "The space-separated list of module names.")] List<string> moduleNames,
+        [Option(LongName = "all", ShortName = "a")] bool all)
         {
             if (moduleNames == null || moduleNames.Count == 0)
             {
@@ -43,7 +43,7 @@
             {
                 CommandLineHandler.Context.Logger.Information("loading module {Module}", moduleName);
 
-                var module = ModuleLoader.LoadModule(commandContext, moduleName, null, null);
+                var module = ModuleLoader.LoadModule(commandContext, moduleName, null, null, true);
                 if (module != null)
                 {
                     ModuleLoader.UnloadModule(commandContext, module);
@@ -58,8 +58,8 @@
 
         [Command(Name = "connection-strings", Description = "Tests connection strings.")]
         public void ValidateConnectionStrings(
-        [Operand(Name = "names", Description = "The space-separated list of module names.")]List<string> moduleNames,
-        [Option(LongName = "all", ShortName = "a")]bool all)
+        [Operand(Name = "names", Description = "The space-separated list of module names.")] List<string> moduleNames,
+        [Option(LongName = "all", ShortName = "a")] bool all)
         {
             if (moduleNames == null || moduleNames.Count == 0)
             {

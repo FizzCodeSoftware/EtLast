@@ -23,7 +23,7 @@
 
             CommandLineHandler.Context.Logger.Information("loading module {Module}", moduleName);
 
-            var module = ModuleLoader.LoadModule(CommandLineHandler.Context, moduleName, moduleSettingOverrides?.ToArray(), pluginListOverride?.ToArray());
+            var module = ModuleLoader.LoadModule(CommandLineHandler.Context, moduleName, moduleSettingOverrides?.ToArray(), pluginListOverride?.ToArray(), false);
             if (module == null)
                 return;
 
@@ -51,7 +51,7 @@
             {
                 CommandLineHandler.Context.Logger.Information("loading module {Module}", moduleName);
 
-                var module = ModuleLoader.LoadModule(CommandLineHandler.Context, moduleName, moduleSettingOverrides?.ToArray(), null);
+                var module = ModuleLoader.LoadModule(CommandLineHandler.Context, moduleName, moduleSettingOverrides?.ToArray(), null, false);
                 if (module == null)
                     return;
 
