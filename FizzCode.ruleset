@@ -95,6 +95,7 @@
   </Rules>
   <Rules AnalyzerId="Microsoft.NetCore.Analyzers" RuleNamespace="Microsoft.NetCore.Analyzers">
     <Rule Id="CA1303" Action="None" />
+    <Rule Id="CA1308" Action="None" />
     <Rule Id="CA2229" Action="None" />
   </Rules>
   <Rules AnalyzerId="Roslynator.CSharp.Analyzers" RuleNamespace="Roslynator.CSharp.Analyzers">
