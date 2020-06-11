@@ -4,8 +4,10 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
+    using System.Linq;
     using System.Transactions;
     using FizzCode.EtLast;
+    using FizzCode.EtLast.PluginHost.SerilogSink;
 
     internal static class ModuleExecuter
     {
@@ -19,16 +21,12 @@
             var sessionWarningCount = 0;
             var sessionExceptionCount = 0;
 
-            var mainContext = new ExecutionContext(sessionId, null, null, commandContext)
-            {
-                CustomCounterCollection = new StatCounterCollection(),
-            };
-
-            mainContext.Start();
+            var sessionContext = new ExecutionContext(null, sessionId, null, null, commandContext);
+            sessionContext.Start();
 
             try
             {
-                mainContext.Log(LogSeverity.Information, false, false, null, null, "session {SessionId} started", sessionId);
+                sessionContext.Log(LogSeverity.Information, false, false, null, null, "session {SessionId} started", sessionId);
 
                 var contextList = new List<ExecutionContext>();
 
@@ -36,9 +34,9 @@
                 {
                     foreach (var plugin in module.EnabledPlugins)
                     {
-                        var pluginContext = new ExecutionContext(sessionId, plugin, module, commandContext)
+                        var pluginContext = new ExecutionContext(sessionContext, sessionId, plugin, module, commandContext)
                         {
-                            Topic = new Topic(null, new EtlContext(mainContext.CustomCounterCollection)
+                            Topic = new Topic(null, new EtlContext()
                             {
                                 TransactionScopeTimeout = commandContext.HostConfiguration.TransactionScopeTimeout,
                             }),
@@ -94,64 +92,165 @@
 
                         pluginContext.Finish();
                         pluginContext.Log(LogSeverity.Information, false, false, null, null, "plugin finished in {Elapsed}", pluginContext.RunTime);
-                        pluginContext.LogCounters();
+                        LogPluginCounters(pluginContext);
 
                         pluginContext.Close();
                     }
                 }
 
-                mainContext.Finish();
-                mainContext.LogCounters();
+                sessionContext.Finish();
 
-                mainContext.Log(LogSeverity.Information, false, false, null, null, "--------------");
-                mainContext.Log(LogSeverity.Information, false, false, null, null, "PLUGIN SUMMARY");
-                mainContext.Log(LogSeverity.Information, false, false, null, null, "--------------");
+                sessionContext.Log(LogSeverity.Information, false, false, null, null, "-------");
+                sessionContext.Log(LogSeverity.Information, false, false, null, null, "SUMMARY");
+                sessionContext.Log(LogSeverity.Information, false, false, null, null, "-------");
+
+                var longestPluginName = contextList.Max(x => x.PluginName.Length);
 
                 foreach (var pluginContext in contextList)
                 {
                     if (pluginContext.Context == null)
                         continue;
 
-                    if (pluginContext.Context.Result.Success)
-                    {
-                        mainContext.Log(LogSeverity.Information, false, false, null, null, "{Plugin} run-time is {Elapsed}, status is {Status}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
-                            pluginContext.PluginName, pluginContext.RunTime, "success", pluginContext.CpuTime, pluginContext.TotalAllocations, pluginContext.AllocationDifference);
-                    }
-                    else
-                    {
-                        mainContext.Log(LogSeverity.Information, false, false, null, null, "{Plugin} run-time is {Elapsed}, status is {Status}, requested to terminate execution: {TerminateHost}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
-                            pluginContext.PluginName, pluginContext.RunTime, "failed", pluginContext.Context.Result.TerminateHost, pluginContext.CpuTime, pluginContext.TotalAllocations, pluginContext.AllocationDifference);
-                    }
+                    LogPluginSummary(sessionContext, pluginContext, longestPluginName);
                 }
 
-                mainContext.Log(LogSeverity.Information, false, false, null, null, "---------------");
-                mainContext.Log(LogSeverity.Information, false, false, null, null, "SESSION SUMMARY");
-                mainContext.Log(LogSeverity.Information, false, false, null, null, "---------------");
+                //sessionContext.Finish();
 
-                if (sessionWarningCount > 0)
-                {
-                    mainContext.Log(LogSeverity.Warning, false, false, null, null, "{Count} warnings/errors occured",
-                        sessionWarningCount);
-                }
+                LogSessionSummary(sessionContext, longestPluginName, sessionExceptionCount, sessionWarningCount, sessionStartedOn, result);
 
-                if (sessionExceptionCount > 0)
-                {
-                    mainContext.Log(LogSeverity.Warning, false, false, null, null, "{Count} exceptions raised",
-                        sessionExceptionCount);
-                }
+                sessionContext.Close();
             }
             catch (TransactionAbortedException)
             {
             }
 
-            mainContext.Finish();
-
-            mainContext.Log(LogSeverity.Information, false, false, null, null, "run-time is {Elapsed}, result is {Result}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
-                sessionStartedOn.Elapsed, result, mainContext.CpuTime, mainContext.TotalAllocations, mainContext.AllocationDifference);
-
-            mainContext.Close();
-
             return result;
+        }
+
+        private static void LogPluginCounters(ExecutionContext pluginContext)
+        {
+            if (pluginContext.IoCommandCounters.Count == 0)
+                return;
+
+            var maxKeyLength = pluginContext.IoCommandCounters.Max(x => x.Key.ToString().Length);
+            var maxInvocationLength = pluginContext.IoCommandCounters.Max(x => x.Value.InvocationCount.ToString(ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length);
+
+            foreach (var kvp in pluginContext.IoCommandCounters.OrderBy(kvp => kvp.Key.ToString()))
+            {
+                if (kvp.Value.AffectedDataCount != null)
+                {
+                    pluginContext.Log(LogSeverity.Debug, false, true, null, null, "{Kind}{spacing1} {InvocationCount}{spacing2}   {AffectedDataCount}",
+                        kvp.Key.ToString(),
+                        "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '),
+                        kvp.Value.InvocationCount,
+                        "".PadRight(maxInvocationLength - kvp.Value.InvocationCount.ToString(ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length, ' '),
+                        kvp.Value.AffectedDataCount);
+                }
+                else
+                {
+                    pluginContext.Log(LogSeverity.Debug, false, true, null, null, "{Kind}{spacing1} {InvocationCount}",
+                        kvp.Key.ToString(), "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '), kvp.Value.InvocationCount);
+                }
+            }
+        }
+
+        private static void LogPluginSummary(ExecutionContext sessionContext, ExecutionContext pluginContext, int longestPluginName)
+        {
+            var spacing1 = "".PadRight(longestPluginName - pluginContext.PluginName.Length);
+            var spacing1WithoutName = "".PadRight(longestPluginName);
+
+            if (pluginContext.Context.Result.Success)
+            {
+                sessionContext.Log(LogSeverity.Information, false, false, null, null, "{Plugin}{spacing1} run-time is {Elapsed}, result is {Result}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
+                    pluginContext.PluginName, spacing1, pluginContext.RunTime, "success", pluginContext.CpuTime, pluginContext.TotalAllocations, pluginContext.AllocationDifference);
+            }
+            else
+            {
+                sessionContext.Log(LogSeverity.Information, false, false, null, null, "{Plugin}{spacing1} run-time is {Elapsed}, result is {Result}, requested to terminate execution: {TerminateHost}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
+                    pluginContext.PluginName, spacing1, pluginContext.RunTime, "failed", pluginContext.Context.Result.TerminateHost, pluginContext.CpuTime, pluginContext.TotalAllocations, pluginContext.AllocationDifference);
+            }
+
+            if (pluginContext.IoCommandCounters.Count > 0)
+            {
+                var maxKeyLength = pluginContext.IoCommandCounters.Max(x => x.Key.ToString().Length);
+                var maxInvocationLength = pluginContext.IoCommandCounters.Max(x => x.Value.InvocationCount.ToString(ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length);
+
+                foreach (var kvp in pluginContext.IoCommandCounters.OrderBy(kvp => kvp.Key.ToString()))
+                {
+                    if (kvp.Value.AffectedDataCount != null)
+                    {
+                        sessionContext.Log(LogSeverity.Information, false, true, null, null, "{spacing1} {Kind}{spacing2} {InvocationCount}{spacing3}   {AffectedDataCount}",
+                            spacing1WithoutName,
+                            kvp.Key.ToString(),
+                            "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '),
+                            kvp.Value.InvocationCount,
+                            "".PadRight(maxInvocationLength - kvp.Value.InvocationCount.ToString(ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length, ' '),
+                            kvp.Value.AffectedDataCount);
+                    }
+                    else
+                    {
+                        sessionContext.Log(LogSeverity.Information, false, true, null, null, "{spacing1} {Kind}{spacing2} {InvocationCount}",
+                            spacing1WithoutName,
+                            kvp.Key.ToString(),
+                            "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '),
+                            kvp.Value.InvocationCount);
+                    }
+                }
+            }
+        }
+
+        private static void LogSessionSummary(ExecutionContext sessionContext, int longestPluginName, int sessionExceptionCount, int sessionWarningCount, Stopwatch sessionStartedOn, ExecutionResult result)
+        {
+            var sessionName = "SESSION";
+            var spacing1 = "".PadRight(longestPluginName - sessionName.Length);
+            var spacing1withoutName = "".PadRight(longestPluginName);
+
+            sessionContext.Log(LogSeverity.Information, false, false, null, null, "{Plugin}{spacing1} run-time is {Elapsed}, result is {Result}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
+                sessionName,
+                spacing1,
+                sessionStartedOn.Elapsed, result.ToString(), sessionContext.CpuTime, sessionContext.TotalAllocations, sessionContext.AllocationDifference);
+
+            if (sessionWarningCount > 0)
+            {
+                sessionContext.Log(LogSeverity.Warning, false, false, null, null, "{spacing1} {Count} warnings/errors occured",
+                    spacing1withoutName,
+                    sessionWarningCount);
+            }
+
+            if (sessionExceptionCount > 0)
+            {
+                sessionContext.Log(LogSeverity.Warning, false, false, null, null, "{Plugin}{spacing1} {Count} exceptions raised",
+                    spacing1withoutName,
+                    sessionExceptionCount);
+            }
+
+            if (sessionContext.IoCommandCounters.Count > 0)
+            {
+                var maxKeyLength = sessionContext.IoCommandCounters.Max(x => x.Key.ToString().Length);
+                var maxInvocationLength = sessionContext.IoCommandCounters.Max(x => x.Value.InvocationCount.ToString(ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length);
+
+                foreach (var kvp in sessionContext.IoCommandCounters.OrderBy(kvp => kvp.Key.ToString()))
+                {
+                    if (kvp.Value.AffectedDataCount != null)
+                    {
+                        sessionContext.Log(LogSeverity.Information, false, true, null, null, "{spacing1} {Kind}{spacing2} {InvocationCount}{spacing3}   {AffectedDataCount}",
+                            spacing1withoutName,
+                            kvp.Key.ToString(),
+                            "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '),
+                            kvp.Value.InvocationCount,
+                            "".PadRight(maxInvocationLength - kvp.Value.InvocationCount.ToString(ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length, ' '),
+                            kvp.Value.AffectedDataCount);
+                    }
+                    else
+                    {
+                        sessionContext.Log(LogSeverity.Information, false, true, null, null, "{spacing1} {Kind}{spacing2} {InvocationCount}",
+                            spacing1withoutName,
+                            kvp.Key.ToString(),
+                            "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '),
+                            kvp.Value.InvocationCount);
+                    }
+                }
+            }
         }
     }
 }

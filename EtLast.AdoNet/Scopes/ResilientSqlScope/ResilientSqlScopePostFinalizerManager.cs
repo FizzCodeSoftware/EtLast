@@ -11,12 +11,10 @@
         public string Name { get; } = "PostFinalizerManager";
         public ITopic Topic => _scope.Topic;
         public ProcessKind Kind => ProcessKind.scope;
-        public StatCounterCollection CounterCollection { get; }
 
         public ResilientSqlScopePostFinalizerManager(ResilientSqlScope scope)
         {
             _scope = scope;
-            CounterCollection = new StatCounterCollection(scope.Context.CounterCollection);
         }
 
         public void Execute()

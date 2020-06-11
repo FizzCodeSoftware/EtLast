@@ -63,18 +63,18 @@
         protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
         {
             var config = Configuration[statementIndex];
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDefinition, ConnectionString.Name, ConnectionString.Unescape(config.TargetTableName), command.CommandTimeout, command.CommandText, transactionId, null,
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(config.TargetTableName), command.CommandTimeout, command.CommandText, transactionId, null,
                 "create new table {ConnectionStringName}/{TargetTableName} based on {SourceTableName}",
                 ConnectionString.Name, ConnectionString.Unescape(config.TargetTableName), ConnectionString.Unescape(config.SourceTableName));
 
             try
             {
                 command.ExecuteNonQuery();
-                Context.RegisterIoCommandSuccess(this, iocUid, null);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbAlterSchema, iocUid, null);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "failed to copy table structure", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to copy table structure, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message: {4}, command: {5}, timeout: {6}",

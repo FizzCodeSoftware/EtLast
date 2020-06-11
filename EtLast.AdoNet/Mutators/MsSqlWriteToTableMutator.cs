@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
-    using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Transactions;
@@ -35,7 +34,6 @@
         public int BatchSize { get; set; } = 10000;
 
         private int _rowsWritten;
-        private Stopwatch _timer;
         private DatabaseConnection _connection;
         private SqlBulkCopy _bulkCopy;
         private RowShadowReader _reader;
@@ -49,7 +47,6 @@
         protected override void StartMutator()
         {
             _rowsWritten = 0;
-            _timer = new Stopwatch();
 
             var columnIndexes = new Dictionary<string, int>();
             for (var i = 0; i < TableDefinition.Columns.Length; i++)
@@ -72,9 +69,6 @@
             }
 
             _reader = null;
-
-            _timer.Stop();
-            _timer = null;
 
             if (_bulkCopy != null)
             {
@@ -121,9 +115,8 @@
                 Context.Log(LogSeverity.Warning, this, "there is no active transaction!");
 
             var recordCount = _reader.RowCount;
-            _timer.Restart();
 
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbBulkWrite, ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), _bulkCopy.BulkCopyTimeout, "BULK COPY " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", Transaction.Current.ToIdentifierString(), null,
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbWriteBulk, ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), _bulkCopy.BulkCopyTimeout, "BULK COPY " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", Transaction.Current.ToIdentifierString(), null,
                 "write to table: {ConnectionStringName}/{Table}",
                 ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
 
@@ -131,18 +124,13 @@
             {
                 _bulkCopy.WriteToServer(_reader);
 
-                _timer.Stop();
-                var time = _timer.Elapsed;
                 _rowsWritten += recordCount;
 
-                Context.RegisterIoCommandSuccess(this, iocUid, recordCount);
-
-                CounterCollection.IncrementCounter("db record write count", recordCount);
-                CounterCollection.IncrementTimeSpan("db record write time", time);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteBulk, iocUid, recordCount);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, recordCount, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBulk, iocUid, recordCount, ex);
 
                 ConnectionManager.ReleaseConnection(this, ref _connection);
                 _bulkCopy.Close();
@@ -155,7 +143,6 @@
                 exception.Data.Add("TableName", ConnectionString.Unescape(TableDefinition.TableName));
                 exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + ConnectionString.Unescape(x.DbColumn))));
                 exception.Data.Add("Timeout", CommandTimeout);
-                exception.Data.Add("Elapsed", _timer.Elapsed);
                 exception.Data.Add("TotalRowsWritten", _rowsWritten);
                 if (ex is InvalidOperationException || ex is SqlException)
                 {

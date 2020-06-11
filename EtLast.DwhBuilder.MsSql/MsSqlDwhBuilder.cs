@@ -36,7 +36,7 @@
         public DateTime? EtlRunId { get; private set; }
         public DateTimeOffset? EtlRunIdAsDateTimeOffset { get; private set; }
 
-        private Dictionary<string, List<string>> _enabledConstraintsByTable { get; } = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, List<string>> _enabledConstraintsByTable = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
         public MsSqlDwhBuilder(ITopic topic, string scopeName, DateTime? etlRunIdUtcOverride = null)
         {
@@ -100,7 +100,7 @@
 	                            sys.foreign_keys fk
                                 where fk.is_disabled=0";
 
-                        var iocUid = scope.Context.RegisterIoCommandStart(proc, IoCommandKind.dbRead, ConnectionString.Name, "SYS.FOREIGN_KEYS", command.CommandTimeout, command.CommandText, null, null,
+                        var iocUid = scope.Context.RegisterIoCommandStart(proc, IoCommandKind.dbReadMeta, ConnectionString.Name, "SYS.FOREIGN_KEYS", command.CommandTimeout, command.CommandText, null, null,
                             "querying enabled foreign key names from {ConnectionStringName}",
                             ConnectionString.Name);
 
@@ -123,7 +123,7 @@
                                     list.Add(ConnectionString.Escape((string)reader["fkName"]));
                                 }
 
-                                scope.Context.RegisterIoCommandSuccess(caller, iocUid, recordsRead);
+                                scope.Context.RegisterIoCommandSuccess(caller, IoCommandKind.dbReadMeta, iocUid, recordsRead);
                             }
 
                             scope.Context.Log(LogSeverity.Information, caller, "{ForeignKeyCount} enabled foreign keys acquired from information schema of {ConnectionStringName} in {Elapsed}",
@@ -131,7 +131,7 @@
                         }
                         catch (Exception ex)
                         {
-                            scope.Context.RegisterIoCommandFailed(caller, iocUid, null, ex);
+                            scope.Context.RegisterIoCommandFailed(caller, IoCommandKind.dbReadMeta, iocUid, null, ex);
 
                             var exception = new ProcessExecutionException(caller, "failed to query enabled foreign key names from information schema", ex);
                             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "enabled foreign key list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",

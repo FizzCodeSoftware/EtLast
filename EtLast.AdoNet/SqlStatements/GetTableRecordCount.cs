@@ -32,7 +32,7 @@
 
         protected override int RunCommandAndGetResult(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
         {
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbReadCount, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
                 "getting record count from {ConnectionStringName}/{TableName}",
                 ConnectionString.Name, ConnectionString.Unescape(TableName));
 
@@ -42,12 +42,12 @@
                 if (!(result is int recordCount))
                     recordCount = 0;
 
-                Context.RegisterIoCommandSuccess(this, iocUid, recordCount);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadCount, iocUid, recordCount);
                 return recordCount;
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadCount, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "database table record count query failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table record count query failed, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",

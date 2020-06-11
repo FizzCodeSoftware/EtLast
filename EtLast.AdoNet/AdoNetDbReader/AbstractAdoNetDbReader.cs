@@ -101,7 +101,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                    Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, iocUid, null, ex);
 
                     var exception = new ProcessExecutionException(this, "error while executing query", ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query, message: {0}, connection string key: {1}, SQL statement: {2}",
@@ -128,7 +128,7 @@
                     }
                     catch (Exception ex)
                     {
-                        Context.RegisterIoCommandFailed(this, iocUid, resultCount, ex);
+                        Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, iocUid, resultCount, ex);
                         var exception = new ProcessExecutionException(this, "error while executing query", ex);
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query after successfully reading {0} rows, message: {1}, connection string key: {2}, SQL statement: {3}",
                             resultCount, ex.Message, ConnectionString.Name, sqlStatement));
@@ -140,8 +140,6 @@
                     }
 
                     LastDataRead = DateTime.Now;
-
-                    CounterCollection.IncrementCounter("db records read", 1);
 
                     initialValues.Clear();
                     for (var i = 0; i < reader.FieldCount; i++)
@@ -182,7 +180,7 @@
                 }
             }
 
-            Context.RegisterIoCommandSuccess(this, iocUid, resultCount);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbRead, iocUid, resultCount);
 
             if (reader != null)
             {

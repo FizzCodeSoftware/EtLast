@@ -39,11 +39,11 @@
             try
             {
                 var recordCount = command.ExecuteNonQuery();
-                Context.RegisterIoCommandSuccess(this, iocUid, recordCount);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbDelete, iocUid, recordCount);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbDelete, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "database table content deletion failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table content deletion failed, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",

@@ -145,7 +145,7 @@
                         bulkCopy.ColumnMappings.Add(column.RowColumn, column.DbColumn);
                     }
 
-                    var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbBulkWrite, ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), bulkCopy.BulkCopyTimeout, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records" + (retry > 0 ? ", retry #" + retry.ToString("D", CultureInfo.InvariantCulture) : ""), Transaction.Current.ToIdentifierString(), null,
+                    var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbWriteBulk, ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), bulkCopy.BulkCopyTimeout, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records" + (retry > 0 ? ", retry #" + retry.ToString("D", CultureInfo.InvariantCulture) : ""), Transaction.Current.ToIdentifierString(), null,
                         "write to table: {ConnectionStringName}/{Table}",
                         ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
 
@@ -161,17 +161,14 @@
                         var time = _timer.Elapsed;
                         _rowsWritten += recordCount;
 
-                        Context.RegisterIoCommandSuccess(this, iocUid, recordCount);
-
-                        CounterCollection.IncrementCounter("db record write count", recordCount);
-                        CounterCollection.IncrementTimeSpan("db record write time", time);
+                        Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteBulk, iocUid, recordCount);
 
                         _reader.Reset();
                         break;
                     }
                     catch (Exception ex)
                     {
-                        Context.RegisterIoCommandFailed(this, iocUid, recordCount, ex);
+                        Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBulk, iocUid, recordCount, ex);
 
                         if (connection != null)
                         {

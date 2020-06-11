@@ -1,3 +1,7 @@
+2020-06-11
+	- removed: legacy internal counters
+	- added: session and plugin summary to EtlHost (with I/O statistics)
+
 2020-06-10
 	- changed: "test modules" command in EtlHost forces dynamic compilation of the specified module(s)
 

@@ -39,23 +39,18 @@
         protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
         {
             var viewName = TableNames[statementIndex];
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDefinition, ConnectionString.Name, ConnectionString.Unescape(viewName), command.CommandTimeout, command.CommandText, transactionId, null,
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(viewName), command.CommandTimeout, command.CommandText, transactionId, null,
                 "drop view {ConnectionStringName}/{ViewName}",
                 ConnectionString.Name, ConnectionString.Unescape(viewName));
 
             try
             {
                 command.ExecuteNonQuery();
-                var time = startedOn.Elapsed;
-
-                Context.RegisterIoCommandSuccess(this, iocUid, null);
-
-                CounterCollection.IncrementCounter("db drop view count", 1);
-                CounterCollection.IncrementTimeSpan("db drop view time", time);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbAlterSchema, iocUid, null);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "failed to drop view", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop view, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",

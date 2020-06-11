@@ -100,23 +100,18 @@
 
         protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
         {
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDefinition, ConnectionString.Name, ConnectionString.Unescape(TargetTableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbWriteMerge, ConnectionString.Name, ConnectionString.Unescape(TargetTableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
                 "merging to {ConnectionStringName}/{TargetTableName} from {SourceTableName}",
                 ConnectionString.Name, ConnectionString.Unescape(TargetTableName), ConnectionString.Unescape(SourceTableName));
 
             try
             {
                 var recordCount = command.ExecuteNonQuery();
-                var time = InvocationInfo.LastInvocationStarted.Elapsed;
-
-                Context.RegisterIoCommandSuccess(this, iocUid, recordCount);
-
-                CounterCollection.IncrementCounter("db record merge count", recordCount);
-                CounterCollection.IncrementTimeSpan("db record merge time", time);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteMerge, iocUid, recordCount);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteMerge, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "custom merge statement failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "custom merge statement failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",

@@ -11,7 +11,7 @@
     public delegate void ContextOnRowCreatedDelegate(IReadOnlyRow row, IProcess process);
     public delegate void ContextOnProcessInvocationDelegate(IProcess process);
     public delegate void ContextOnIoCommandStartDelegate(int uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs);
-    public delegate void ContextOnIoCommandEndDelegate(IProcess proces, int uid, int? affectedDataCount, Exception ex);
+    public delegate void ContextOnIoCommandEndDelegate(IProcess proces, int uid, IoCommandKind kind, int? affectedDataCount, Exception ex);
     public delegate void ContextOnCustomLogDelegate(bool forOps, string fileName, IProcess process, string text, params object[] args);
     public delegate void ContextOnExceptionDelegate(IProcess process, Exception exception);
 
@@ -19,7 +19,6 @@
     {
         void SetRowType<T>() where T : IRow;
 
-        StatCounterCollection CounterCollection { get; }
         EtlContextResult Result { get; }
         AdditionalData AdditionalData { get; }
 
@@ -48,8 +47,8 @@
 
         int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs);
         int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string location, string path, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs);
-        void RegisterIoCommandSuccess(IProcess process, int uid, int? affectedDataCount);
-        void RegisterIoCommandFailed(IProcess process, int uid, int? affectedDataCount, Exception exception);
+        void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount);
+        void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount, Exception exception);
 
         void AddException(IProcess process, Exception ex);
         List<Exception> GetExceptions();

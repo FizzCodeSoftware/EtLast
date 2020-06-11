@@ -17,12 +17,12 @@
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public string SessionId { get; }
+        public ExecutionContext ParentContext { get; }
 
         public string ModuleName { get; }
         public string PluginName { get; }
         public ITopic Topic { get; set; }
         public IEtlContext Context => Topic.Context;
-        public StatCounterCollection CustomCounterCollection { get; set; }
         public string Name { get; }
 
         public TimeSpan CpuTimeStart { get; private set; }
@@ -47,9 +47,12 @@
         private readonly object _messageTemplateCacheLock = new object();
         private readonly MessageTemplateParser _messageTemplateParser = new MessageTemplateParser();
 
-        public ExecutionContext(string sessionId, IEtlPlugin plugin, Module module, CommandContext commandContext)
+        public Dictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; } = new Dictionary<IoCommandKind, IoCommandCounter>();
+
+        public ExecutionContext(ExecutionContext parentContext, string sessionId, IEtlPlugin plugin, Module module, CommandContext commandContext)
         {
             SessionId = sessionId;
+            ParentContext = parentContext;
             PluginName = plugin?.Name;
             ModuleName = module?.ModuleConfiguration?.ModuleName;
 
@@ -454,8 +457,39 @@
             });
         }
 
-        private void ContextIoCommandEnd(IProcess process, int uid, int? affectedDataCount, Exception ex)
+        private void ContextIoCommandEnd(IProcess process, int uid, IoCommandKind kind, int? affectedDataCount, Exception ex)
         {
+            IoCommandCounters.TryGetValue(kind, out var counter);
+            if (counter == null)
+            {
+                IoCommandCounters[kind] = counter = new IoCommandCounter();
+            }
+
+            counter.InvocationCount++;
+
+            if (affectedDataCount != null)
+            {
+                var cnt = (counter.AffectedDataCount ?? 0) + affectedDataCount.Value;
+                counter.AffectedDataCount = cnt;
+            }
+
+            if (ParentContext != null)
+            {
+                ParentContext.IoCommandCounters.TryGetValue(kind, out counter);
+                if (counter == null)
+                {
+                    ParentContext.IoCommandCounters[kind] = counter = new IoCommandCounter();
+                }
+
+                counter.InvocationCount++;
+
+                if (affectedDataCount != null)
+                {
+                    var cnt = (counter.AffectedDataCount ?? 0) + affectedDataCount.Value;
+                    counter.AffectedDataCount = cnt;
+                }
+            }
+
             if (ex != null)
             {
                 var sb = new StringBuilder();
@@ -520,33 +554,6 @@
             });
         }
 
-        internal void LogCounters()
-        {
-            var counters = (CustomCounterCollection ?? Context.CounterCollection).GetCounters();
-
-            if (counters.Count == 0)
-                return;
-
-            if (PluginName == null)
-            {
-                Log(LogSeverity.Debug, false, true, null, null, "----------------");
-                Log(LogSeverity.Debug, false, true, null, null, "SESSION COUNTERS");
-                Log(LogSeverity.Debug, false, true, null, null, "----------------");
-            }
-            else
-            {
-                Log(LogSeverity.Debug, false, true, null, null, "---------------");
-                Log(LogSeverity.Debug, false, true, null, null, "PLUGIN COUNTERS");
-                Log(LogSeverity.Debug, false, true, null, null, "---------------");
-            }
-
-            foreach (var counter in counters)
-            {
-                Log(LogSeverity.Debug, false, true, null, null, "{Counter} = {Value}",
-                    counter.Name, counter.TypedValue);
-            }
-        }
-
         private Stopwatch _startedOn;
 
         public void Start()
@@ -598,6 +605,12 @@
         private static long GetTotalAllocatedBytes()
         {
             return GC.GetTotalAllocatedBytes(true);
+        }
+
+        public class IoCommandCounter
+        {
+            public int InvocationCount { get; set; }
+            public int? AffectedDataCount { get; set; }
         }
     }
 }

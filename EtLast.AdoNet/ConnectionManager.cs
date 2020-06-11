@@ -63,8 +63,6 @@
                             conn = DbProviderFactories.GetFactory(connectionString.ProviderName).CreateConnection();
                         }
 
-                        process.CounterCollection.IncrementCounter("db connections opened", 1);
-
                         conn.ConnectionString = connectionString.ConnectionString;
 
                         var iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, connectionString.Name, conn.ConnectionTimeout, "open connection", Transaction.Current.ToIdentifierString(), null,
@@ -74,11 +72,11 @@
                         try
                         {
                             conn.Open();
-                            process.Context.RegisterIoCommandSuccess(process, iocUid, null);
+                            process.Context.RegisterIoCommandSuccess(process, IoCommandKind.dbConnection, iocUid, null);
                         }
                         catch (Exception ex)
                         {
-                            process.Context.RegisterIoCommandFailed(process, iocUid, null, ex);
+                            process.Context.RegisterIoCommandFailed(process, IoCommandKind.dbConnection, iocUid, null, ex);
                             throw;
                         }
 
@@ -100,8 +98,6 @@
                         lastException = ex;
                     }
                 } // lock released
-
-                process.CounterCollection.IncrementCounter("db connections failed", 1);
 
                 if (retry < maxRetryCount)
                 {
@@ -154,8 +150,6 @@
                         conn = DbProviderFactories.GetFactory(connectionString.ProviderName).CreateConnection();
                     }
 
-                    process.CounterCollection.IncrementCounter("db connections opened", 1);
-
                     conn.ConnectionString = connectionString.ConnectionString;
 
                     var iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, connectionString.Name, conn.ConnectionTimeout, "open connection", Transaction.Current.ToIdentifierString(), null,
@@ -165,11 +159,11 @@
                     try
                     {
                         conn.Open();
-                        process.Context.RegisterIoCommandSuccess(process, iocUid, null);
+                        process.Context.RegisterIoCommandSuccess(process, IoCommandKind.dbConnection, iocUid, null);
                     }
                     catch (Exception ex)
                     {
-                        process.Context.RegisterIoCommandFailed(process, iocUid, null, ex);
+                        process.Context.RegisterIoCommandFailed(process, IoCommandKind.dbConnection, iocUid, null, ex);
                         throw;
                     }
 
@@ -186,8 +180,6 @@
                 {
                     lastException = ex;
                 }
-
-                process.CounterCollection.IncrementCounter("db connections opened", 1);
 
                 if (retry < maxRetryCount)
                 {
@@ -233,11 +225,11 @@
                     {
                         connection.Connection.Close();
                         connection.Connection.Dispose();
-                        process.Context.RegisterIoCommandSuccess(process, iocUid, null);
+                        process.Context.RegisterIoCommandSuccess(process, IoCommandKind.dbConnection, iocUid, null);
                     }
                     catch (Exception ex)
                     {
-                        process.Context.RegisterIoCommandFailed(process, iocUid, null, ex);
+                        process.Context.RegisterIoCommandFailed(process, IoCommandKind.dbConnection, iocUid, null, ex);
                     }
                 }
                 else

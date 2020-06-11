@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
     using System.Runtime.Serialization;
     using System.Xml;
@@ -29,7 +28,6 @@
                 yield break;
             }
 
-            var startedOn = Stopwatch.StartNew();
             var removeRow = false;
             try
             {
@@ -43,25 +41,10 @@
                     }
 
                     row.SetValue(ColumnConfiguration.ToColumn, obj);
-
-                    var time = startedOn.Elapsed;
-
-                    CounterCollection.IncrementTimeSpan("deserialization time (DataContract XML)", time);
-                    CounterCollection.IncrementCounter("deserialization count (DataContract XML)", 1);
-
-                    CounterCollection.IncrementTimeSpan("deserialization time (DataContract XML) - " + TypeHelpers.GetFriendlyTypeName(typeof(T)), time);
-                    CounterCollection.IncrementCounter("deserialization count (DataContract XML) - " + TypeHelpers.GetFriendlyTypeName(typeof(T)), 1);
                 }
             }
             catch (Exception ex)
             {
-                var time = startedOn.Elapsed;
-                CounterCollection.IncrementTimeSpan("deserialization time (DataContract XML) - error", time);
-                CounterCollection.IncrementCounter("deserialization count (DataContract XML) - error", 1);
-
-                CounterCollection.IncrementTimeSpan("deserialization time (DataContract XML) - error - " + TypeHelpers.GetFriendlyTypeName(typeof(T)), time);
-                CounterCollection.IncrementCounter("deserialization count (DataContract XML) - error - " + TypeHelpers.GetFriendlyTypeName(typeof(T)), 1);
-
                 switch (ActionIfFailed)
                 {
                     case InvalidValueAction.SetSpecialValue:

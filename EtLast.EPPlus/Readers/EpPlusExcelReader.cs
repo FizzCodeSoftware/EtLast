@@ -95,7 +95,7 @@
                     FileName));
                 exception.Data.Add("FileName", FileName);
 
-                Context.RegisterIoCommandFailed(this, iocUid, 0, exception);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, 0, exception);
                 throw exception;
             }
 
@@ -106,9 +106,6 @@
             {
                 try
                 {
-                    // not relevant on process level
-                    Context.CounterCollection.IncrementCounter("excel files opened", 1);
-
 #pragma warning disable IDE0068 // Use recommended dispose pattern
 #pragma warning disable CA2000 // Dispose objects before losing scope
                     package = new ExcelPackage(new FileInfo(FileName));
@@ -117,7 +114,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                    Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, null, ex);
 
                     var exception = new ProcessExecutionException(this, "excel file read failed", ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel file read failed, file name: {0}, message: {1}",
@@ -148,7 +145,7 @@
                         exception.Data.Add("SheetName", SheetName);
                         exception.Data.Add("ExistingSheetNames", string.Join(",", workbook?.Worksheets.Select(x => x.Name)));
 
-                        Context.RegisterIoCommandFailed(this, iocUid, 0, exception);
+                        Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, 0, exception);
                         throw exception;
                     }
                     else
@@ -160,7 +157,7 @@
                         exception.Data.Add("SheetIndex", SheetIndex.ToString("D", CultureInfo.InvariantCulture));
                         exception.Data.Add("ExistingSheetNames", string.Join(",", workbook?.Worksheets.Select(x => x.Name)));
 
-                        Context.RegisterIoCommandFailed(this, iocUid, 0, exception);
+                        Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, 0, exception);
                         throw exception;
                     }
                 }
@@ -225,8 +222,6 @@
 
                 for (var rowIndex = FirstDataRow; rowIndex <= endRow && !Context.CancellationTokenSource.IsCancellationRequested; rowIndex++)
                 {
-                    CounterCollection.IncrementCounter("excel rows read", 1);
-
                     if (IgnoreNullOrEmptyRows)
                     {
                         var empty = true;
@@ -281,7 +276,7 @@
                 }
             }
 
-            Context.RegisterIoCommandSuccess(this, iocUid, rowCount);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.fileRead, iocUid, rowCount);
         }
 
         private static string EnsureDistinctColumnNames(List<string> excelColumns, string excelColumn)

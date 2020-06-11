@@ -34,7 +34,7 @@
                     FileName));
                 exception.Data.Add("FileName", FileName);
 
-                Context.RegisterIoCommandFailed(this, iocUid, 0, exception);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, 0, exception);
                 throw exception;
             }
 
@@ -52,7 +52,7 @@
                     FileName, ex.Message));
                 exception.Data.Add("FileName", FileName);
 
-                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, null, ex);
                 throw exception;
             }
 
@@ -66,7 +66,7 @@
                     FileName));
                 exception.Data.Add("FileName", FileName);
 
-                Context.RegisterIoCommandFailed(this, iocUid, 0, exception);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, 0, exception);
                 throw exception;
             }
 
@@ -93,7 +93,7 @@
                 package.Dispose();
             }
 
-            Context.RegisterIoCommandSuccess(this, iocUid, rowCount);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.fileRead, iocUid, rowCount);
         }
     }
 }

@@ -39,37 +39,32 @@
 
             var recordCount = 0;
             command.CommandText = "SELECT COUNT(*) FROM " + tableName;
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbReadCount, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
                 "querying record count from {ConnectionStringName}/{TableName}",
                 ConnectionString.Name, ConnectionString.Unescape(tableName));
             try
             {
                 recordCount = (int)command.ExecuteScalar();
-                Context.RegisterIoCommandSuccess(this, iocUid, recordCount);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadCount, iocUid, recordCount);
             }
             catch (Exception)
             {
-                Context.RegisterIoCommandSuccess(this, iocUid, null);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadCount, iocUid, null);
             }
 
             command.CommandText = originalStatement;
-            iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDefinition, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
+            iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
             "drop table {ConnectionStringName}/{TableName}",
             ConnectionString.Name, ConnectionString.Unescape(tableName));
 
             try
             {
                 command.ExecuteNonQuery();
-                var time = startedOn.Elapsed;
-
-                Context.RegisterIoCommandSuccess(this, iocUid, recordCount);
-
-                CounterCollection.IncrementCounter("db drop table count", 1);
-                CounterCollection.IncrementTimeSpan("db drop table time", time);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbAlterSchema, iocUid, recordCount);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "failed to drop table", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop table, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",

@@ -12,7 +12,5 @@
         string Name { get; }
 
         ProcessKind Kind { get; }
-
-        StatCounterCollection CounterCollection { get; }
     }
 }

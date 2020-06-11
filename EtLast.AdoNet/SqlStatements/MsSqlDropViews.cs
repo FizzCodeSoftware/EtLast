@@ -90,7 +90,7 @@
 
                         _viewNames = new List<string>();
 
-                        var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, "INFORMATION_SCHEMA.VIEWS", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+                        var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "INFORMATION_SCHEMA.VIEWS", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
                             "querying view names from {ConnectionStringName}",
                             ConnectionString.Name);
 
@@ -103,14 +103,14 @@
                                     _viewNames.Add(ConnectionString.Escape((string)reader["TABLE_NAME"], (string)reader["TABLE_SCHEMA"]));
                                 }
 
-                                Context.RegisterIoCommandSuccess(this, iocUid, _viewNames.Count);
+                                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadMeta, iocUid, _viewNames.Count);
                             }
 
                             _viewNames.Sort();
                         }
                         catch (Exception ex)
                         {
-                            Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                            Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadMeta, iocUid, null, ex);
 
                             var exception = new ProcessExecutionException(this, "failed to query view names from information schema", ex);
                             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "view list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
@@ -133,23 +133,18 @@
         protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
         {
             var viewName = _viewNames[statementIndex];
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDefinition, ConnectionString.Name, ConnectionString.Unescape(viewName), command.CommandTimeout, command.CommandText, transactionId, null,
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(viewName), command.CommandTimeout, command.CommandText, transactionId, null,
                 "drop view {ConnectionStringName}/{ViewName}",
                 ConnectionString.Name, ConnectionString.Unescape(viewName));
 
             try
             {
                 command.ExecuteNonQuery();
-                var time = startedOn.Elapsed;
-
-                Context.RegisterIoCommandSuccess(this, iocUid, null);
-
-                CounterCollection.IncrementCounter("db drop view count", 1);
-                CounterCollection.IncrementTimeSpan("db drop view time", time);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbAlterSchema, iocUid, null);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "failed to drop view", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop view, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",

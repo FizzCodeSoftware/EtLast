@@ -8,7 +8,6 @@
     public class EtlContext : IEtlContext
     {
         public Type RowType { get; private set; }
-        public StatCounterCollection CounterCollection { get; }
         public EtlContextResult Result { get; } = new EtlContextResult();
         public AdditionalData AdditionalData { get; }
 
@@ -44,7 +43,7 @@
         private readonly List<Exception> _exceptions = new List<Exception>();
         private readonly Dictionary<string, int> _rowStores = new Dictionary<string, int>();
 
-        public EtlContext(StatCounterCollection forwardCountersToCollection = null)
+        public EtlContext()
         {
             SetRowType<DictionaryRow>();
             CancellationTokenSource = new CancellationTokenSource();
@@ -52,8 +51,6 @@
 
             CreatedOnLocal = DateTimeOffset.Now;
             CreatedOnUtc = CreatedOnUtc.ToUniversalTime();
-
-            CounterCollection = new StatCounterCollection(forwardCountersToCollection);
         }
 
         public void SetRowType<T>() where T : IRow
@@ -175,22 +172,20 @@
             return uid;
         }
 
-        public void RegisterIoCommandSuccess(IProcess process, int uid, int? affectedDataCount)
+        public void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount)
         {
-            OnContextIoCommandEnd?.Invoke(process, uid, affectedDataCount, null);
+            OnContextIoCommandEnd?.Invoke(process, uid, kind, affectedDataCount, null);
         }
 
-        public void RegisterIoCommandFailed(IProcess process, int uid, int? affectedDataCount, Exception exception)
+        public void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount, Exception exception)
         {
-            OnContextIoCommandEnd?.Invoke(process, uid, affectedDataCount, exception);
+            OnContextIoCommandEnd?.Invoke(process, uid, kind, affectedDataCount, exception);
         }
 
         public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues)
         {
             var row = (IRow)Activator.CreateInstance(RowType);
             row.Init(this, process, Interlocked.Increment(ref _nextRowUid), initialValues);
-
-            CounterCollection.IncrementCounter("in-memory rows created", 1);
 
             OnRowCreated?.Invoke(row, process);
 
@@ -201,8 +196,6 @@
         {
             var row = (IRow)Activator.CreateInstance(RowType);
             row.Init(this, process, Interlocked.Increment(ref _nextRowUid), initialValues.Values);
-
-            CounterCollection.IncrementCounter("in-memory rows created", 1);
 
             OnRowCreated?.Invoke(row, process);
 
@@ -233,8 +226,6 @@
             }
 
             OnException?.Invoke(process, ex);
-
-            CounterCollection.IncrementCounter("exceptions", 1);
 
             CancellationTokenSource.Cancel();
         }

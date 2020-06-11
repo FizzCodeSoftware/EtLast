@@ -65,7 +65,6 @@
                 }
 
                 resultCount++;
-                CounterCollection.IncrementCounter("produced rows", 1, true);
                 netTimeStopwatch.Stop();
                 yield return row;
                 netTimeStopwatch.Start();
@@ -83,16 +82,10 @@
         private bool ProcessRowBeforeYield(IRow row)
         {
             if (IgnoreRowsWithError && row.HasError())
-            {
-                CounterCollection.IncrementCounter("ignored rows - error", 1, true);
                 return false;
-            }
 
             if (IgnoreNullOrEmptyRows && row.IsNullOrEmpty())
-            {
-                CounterCollection.IncrementCounter("ignored rows - error", 1, true);
                 return false;
-            }
 
             _currentRowIndex++;
 

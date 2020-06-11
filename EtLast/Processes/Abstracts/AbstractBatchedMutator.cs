@@ -75,7 +75,6 @@
                 if (!apply)
                 {
                     ignoredRowCount++;
-                    CounterCollection.IncrementCounter("ignored", 1, true);
                     netTimeStopwatch.Stop();
                     yield return row;
                     netTimeStopwatch.Start();
@@ -83,7 +82,6 @@
                 }
 
                 mutatedRowCount++;
-                CounterCollection.IncrementCounter("mutated", 1, true);
 
                 bool mutationHappened, removeOriginal;
                 try
@@ -151,7 +149,6 @@
                     if ((UseBatchKeys && batchKeys.Count >= BatchSize) || (!UseBatchKeys && batch.Count >= BatchSize))
                     {
                         batchCount++;
-                        CounterCollection.IncrementCounter("batches", 1, true);
                         try
                         {
                             MutateBatch(batch, mutatedRows, removedRows);
@@ -202,7 +199,6 @@
             if (batch.Count > 0 && !failed)
             {
                 batchCount++;
-                CounterCollection.IncrementCounter("batches", 1, true);
                 try
                 {
                     MutateBatch(batch, mutatedRows, removedRows);

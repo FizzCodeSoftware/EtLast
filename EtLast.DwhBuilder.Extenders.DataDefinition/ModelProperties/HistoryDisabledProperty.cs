@@ -12,11 +12,11 @@
 
     public static class NoHistoryColumnPropertyHelper
     {
-        public static HistoryDisabledProperty HistoryDisabled(this SqlColumn sqlColumn)
+        public static SqlColumn HistoryDisabled(this SqlColumn sqlColumn)
         {
             var property = new HistoryDisabledProperty(sqlColumn);
             sqlColumn.Properties.Add(property);
-            return property;
+            return sqlColumn;
         }
     }
 }

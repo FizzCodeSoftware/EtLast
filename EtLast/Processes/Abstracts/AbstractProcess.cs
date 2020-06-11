@@ -13,8 +13,6 @@
         public ITopic Topic { get; set; }
         public string Name { get; set; }
 
-        public StatCounterCollection CounterCollection { get; }
-
         public ProcessKind Kind { get; }
 
         protected AbstractProcess(ITopic topic, string name)
@@ -22,7 +20,6 @@
             Topic = topic ?? throw new ProcessParameterNullException(this, nameof(topic));
             Name = name ?? GetType().GetFriendlyTypeName();
             Topic = topic;
-            CounterCollection = new StatCounterCollection(Context.CounterCollection);
             Kind = GetProcessKind(this);
         }
 

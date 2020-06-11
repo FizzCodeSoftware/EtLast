@@ -33,7 +33,7 @@
 
         protected override TableMaxValueResult<T> RunCommandAndGetResult(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
         {
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbReadAggregate, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
                 "getting max value from {ConnectionStringName}/{TableName}",
                 ConnectionString.Name, ConnectionString.Unescape(TableName));
 
@@ -54,12 +54,12 @@
                     }
                 }
 
-                Context.RegisterIoCommandSuccess(this, iocUid, result.RecordCount);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadAggregate, iocUid, result.RecordCount);
                 return result;
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadAggregate, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "database table max value query failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table max value query failed, connection string key: {0}, table: {1}, column: {2}, message: {3}, command: {4}, timeout: {5}",

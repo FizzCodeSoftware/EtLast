@@ -60,7 +60,7 @@
                     break;
             }
 
-            Context.RegisterIoCommandSuccess(Process, iocUid, null);
+            Context.RegisterIoCommandSuccess(Process, IoCommandKind.dbTransaction, iocUid, null);
         }
 
         public void Complete()
@@ -85,12 +85,12 @@
                 Scope.Complete();
                 Completed = true;
 
-                Context.RegisterIoCommandSuccess(Process, iocUid, null);
+                Context.RegisterIoCommandSuccess(Process, IoCommandKind.dbTransaction, iocUid, null);
             }
             catch (Exception ex)
             {
                 Completed = false;
-                Context.RegisterIoCommandFailed(Process, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(Process, IoCommandKind.dbTransaction, iocUid, null, ex);
             }
         }
 
@@ -124,14 +124,14 @@
 
                             if (iocUid != 0)
                             {
-                                Context.RegisterIoCommandSuccess(Process, iocUid, null);
+                                Context.RegisterIoCommandSuccess(Process, IoCommandKind.dbTransaction, iocUid, null);
                             }
                         }
                         catch (Exception ex)
                         {
                             if (iocUid != 0)
                             {
-                                Context.RegisterIoCommandFailed(Process, iocUid, null, ex);
+                                Context.RegisterIoCommandFailed(Process, IoCommandKind.dbTransaction, iocUid, null, ex);
                             }
                         }
                     }

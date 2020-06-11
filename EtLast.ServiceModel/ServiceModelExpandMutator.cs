@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.ServiceModel;
 
     public delegate TClient SoapExpanderClientCreatorDelegate<TChannel, TClient>(ServiceModelExpandMutator<TChannel, TClient> process, IReadOnlySlimRow row)
@@ -38,13 +37,9 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var startedOn = Stopwatch.StartNew();
-
             var success = false;
             for (var retryCount = 0; retryCount <= MaxRetryCount; retryCount++)
             {
-                startedOn.Restart();
-
                 try
                 {
                     if (_client == null)
@@ -60,8 +55,6 @@
                 }
                 catch (Exception)
                 {
-                    CounterCollection.IncrementTimeSpan("SOAP time - failure", startedOn.Elapsed);
-                    CounterCollection.IncrementCounter("SOAP incovations - failure", 1);
                     _client = default;
                     continue;
                 }
@@ -72,23 +65,19 @@
                 try
                 {
                     var result = ClientInvoker.Invoke(this, row, _client);
-                    Context.RegisterIoCommandSuccess(this, iocUid, null);
+                    Context.RegisterIoCommandSuccess(this, IoCommandKind.serviceRead, iocUid, null);
 
                     if (result != null)
                     {
                         row.SetValue(TargetColumn, result);
                     }
 
-                    CounterCollection.IncrementTimeSpan("SOAP time - success", startedOn.Elapsed);
-                    CounterCollection.IncrementCounter("SOAP incovations - success", 1);
                     success = true;
                     break;
                 }
                 catch (Exception ex)
                 {
-                    Context.RegisterIoCommandFailed(this, iocUid, null, ex);
-                    CounterCollection.IncrementTimeSpan("SOAP time - failure", startedOn.Elapsed);
-                    CounterCollection.IncrementCounter("SOAP incovations - failure", 1);
+                    Context.RegisterIoCommandFailed(this, IoCommandKind.serviceRead, iocUid, null, ex);
                     _client = default;
                 }
             }

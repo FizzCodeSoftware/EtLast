@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "EtLast.Tests.Integration": {
+      "commandName": "Project",
+      "commandLineArgs": "do"
+    }
+  }
+}

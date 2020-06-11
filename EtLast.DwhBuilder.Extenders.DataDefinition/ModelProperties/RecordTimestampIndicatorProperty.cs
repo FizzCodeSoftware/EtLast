@@ -12,11 +12,11 @@
 
     public static class RecordTimestampIndicatorColumnPropertyHelper
     {
-        public static RecordTimestampIndicatorProperty RecordTimestampIndicator(this SqlColumn sqlColumn)
+        public static SqlColumn RecordTimestampIndicator(this SqlColumn sqlColumn)
         {
             var property = new RecordTimestampIndicatorProperty(sqlColumn);
             sqlColumn.Properties.Add(property);
-            return property;
+            return sqlColumn;
         }
     }
 }

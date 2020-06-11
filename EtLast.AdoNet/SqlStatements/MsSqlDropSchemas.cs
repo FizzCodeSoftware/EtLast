@@ -39,23 +39,18 @@
         protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
         {
             var schemaName = SchemaNames[statementIndex];
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDefinition, ConnectionString.Name, ConnectionString.Unescape(schemaName), command.CommandTimeout, command.CommandText, transactionId, null,
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(schemaName), command.CommandTimeout, command.CommandText, transactionId, null,
                 "drop schema {ConnectionStringName}/{SchemaName}",
                 ConnectionString.Name, ConnectionString.Unescape(schemaName));
 
             try
             {
                 command.ExecuteNonQuery();
-                var time = startedOn.Elapsed;
-
-                Context.RegisterIoCommandSuccess(this, iocUid, null);
-
-                CounterCollection.IncrementCounter("db drop schema count", 1);
-                CounterCollection.IncrementTimeSpan("db drop schema time", time);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbAlterSchema, iocUid, null);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "failed to drop schema", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop schema, connection string key: {0}, schema: {1}, message: {2}, command: {3}, timeout: {4}",

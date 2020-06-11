@@ -38,8 +38,6 @@
                         yield break;
 
                     var newRow = Context.CreateRow(this, row.Values);
-
-                    CounterCollection.IncrementCounter("row memory cache hit - clone", 1);
                     yield return newRow;
                 }
 

@@ -39,12 +39,12 @@
 
                         clt.DownloadFile(Url, FileName);
 
-                        Context.RegisterIoCommandSuccess(this, iocUid, Convert.ToInt32(new FileInfo(FileName).Length));
+                        Context.RegisterIoCommandSuccess(this, IoCommandKind.httpGet, iocUid, Convert.ToInt32(new FileInfo(FileName).Length));
                     }
                 }
                 catch (Exception ex)
                 {
-                    Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                    Context.RegisterIoCommandFailed(this, IoCommandKind.httpGet, iocUid, null, ex);
 
                     var exception = new ProcessExecutionException(this, "file download failed", ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "file download failed, url: {0}, file name: {1}, message: {2}",

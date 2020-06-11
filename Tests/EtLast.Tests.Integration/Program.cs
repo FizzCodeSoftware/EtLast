@@ -2,6 +2,7 @@
 {
     using System;
     using System.Data.Common;
+    using System.Diagnostics;
     using FizzCode.EtLast.PluginHost;
 
     public static class Program
@@ -15,7 +16,7 @@
             CommandLineHandler.Run("EtLast Integration Tests", args);
 
 #if DEBUG
-            if (args?.Length > 0)
+            if (args?.Length > 0 && Debugger.IsAttached)
             {
                 Console.WriteLine();
                 Console.WriteLine("done, press any key to continue");

@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Text;
@@ -26,7 +25,6 @@
         private List<string> _statements;
 
         private int _rowsWritten;
-        private Stopwatch _fullTime;
 
         private IDbCommand _command;
         private static readonly DbType[] _quotedParameterTypes = { DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength };
@@ -40,10 +38,7 @@
         protected override void StartMutator()
         {
             SqlStatementCreator.Prepare(this, TableDefinition);
-
             _rowsWritten = 0;
-            _fullTime = new Stopwatch();
-
             _statements = new List<string>();
         }
 
@@ -55,9 +50,6 @@
             }
 
             _statements = null;
-
-            _fullTime.Stop();
-            _fullTime = null;
 
             ConnectionManager.ReleaseConnection(this, ref _connection);
         }
@@ -129,12 +121,9 @@
             var sqlStatement = SqlStatementCreator.CreateStatement(ConnectionString, _statements);
             var recordCount = _statements.Count;
 
-            var startedOn = Stopwatch.StartNew();
-            _fullTime.Start();
-
             _command.CommandText = sqlStatement;
 
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbBatchWrite, ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), _command.CommandTimeout, sqlStatement, Transaction.Current.ToIdentifierString(), null,
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbWriteBatch, ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), _command.CommandTimeout, sqlStatement, Transaction.Current.ToIdentifierString(), null,
                 "write to table: {ConnectionStringName}/{Table}",
                 ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
 
@@ -142,18 +131,13 @@
             {
                 _command.ExecuteNonQuery();
 
-                var time = startedOn.Elapsed;
-                _fullTime.Stop();
                 _rowsWritten += recordCount;
 
-                Context.RegisterIoCommandSuccess(this, iocUid, recordCount);
-
-                CounterCollection.IncrementCounter("db record write count", recordCount);
-                CounterCollection.IncrementTimeSpan("db record write time", time);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteBatch, iocUid, recordCount);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, recordCount, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBatch, iocUid, recordCount, ex);
 
                 var exception = new ProcessExecutionException(this, "db write failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db write failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",
@@ -164,7 +148,6 @@
                 exception.Data.Add("SqlStatement", sqlStatement);
                 exception.Data.Add("SqlStatementCompiled", CompileSql(_command));
                 exception.Data.Add("Timeout", CommandTimeout);
-                exception.Data.Add("Elapsed", startedOn.Elapsed);
                 exception.Data.Add("SqlStatementCreator", SqlStatementCreator.GetType().GetFriendlyTypeName());
                 exception.Data.Add("TotalRowsWritten", _rowsWritten);
                 throw exception;

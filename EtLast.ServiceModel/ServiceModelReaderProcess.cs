@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.ServiceModel;
@@ -49,8 +48,6 @@
 
         protected override IEnumerable<IRow> Produce()
         {
-            var startedOn = Stopwatch.StartNew();
-
             var client = ClientCreator.Invoke(this);
 
             var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.serviceRead, client.Endpoint.Address.ToString(), Convert.ToInt32(client.InnerChannel.OperationTimeout.TotalSeconds), null, null, null,
@@ -64,15 +61,12 @@
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.serviceRead, iocUid, null, ex);
                 var exception = new EtlException(this, "error while reading data from service", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from service: {0}", client.Endpoint.Address.ToString()));
                 exception.Data.Add("Endpoint", client.Endpoint.Address.ToString());
                 throw exception;
             }
-
-            CounterCollection.IncrementTimeSpan("SOAP time - success", startedOn.Elapsed);
-            CounterCollection.IncrementCounter("SOAP incovations - success", 1);
 
             var resultCount = 0;
             if (enumerator != null && !Context.CancellationTokenSource.IsCancellationRequested)
@@ -88,7 +82,7 @@
                     }
                     catch (Exception ex)
                     {
-                        Context.RegisterIoCommandFailed(this, iocUid, resultCount, ex);
+                        Context.RegisterIoCommandFailed(this, IoCommandKind.serviceRead, iocUid, resultCount, ex);
                         var exception = new EtlException(this, "error while reading data from service", ex);
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from service: {0}", client.Endpoint.Address.ToString()));
                         exception.Data.Add("Endpoint", client.Endpoint.Address.ToString());
@@ -98,7 +92,6 @@
                     var rowData = enumerator.Current;
 
                     initialValues.Clear();
-                    CounterCollection.IncrementCounter("SOAP rows read", 1);
 
                     foreach (var kvp in rowData.Values)
                     {
@@ -129,7 +122,7 @@
                 }
             }
 
-            Context.RegisterIoCommandSuccess(this, iocUid, resultCount);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.serviceRead, iocUid, resultCount);
         }
     }
 }

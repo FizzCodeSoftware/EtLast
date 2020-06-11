@@ -33,18 +33,18 @@
 
             var recordCount = 0;
             command.CommandText = "SELECT COUNT(*) FROM " + TableName;
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, null,
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbReadCount, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, null,
                 "querying record count from {ConnectionStringName}/{TableName}",
                 ConnectionString.Name, ConnectionString.Unescape(TableName));
 
             try
             {
                 recordCount = (int)command.ExecuteScalar();
-                Context.RegisterIoCommandSuccess(this, iocUid, recordCount);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadCount, iocUid, recordCount);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadCount, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "database table truncate failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table truncate failed, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
@@ -66,11 +66,11 @@
             try
             {
                 command.ExecuteNonQuery();
-                Context.RegisterIoCommandSuccess(this, iocUid, recordCount);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbDelete, iocUid, recordCount);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbDelete, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "database table truncate failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table truncate failed, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",

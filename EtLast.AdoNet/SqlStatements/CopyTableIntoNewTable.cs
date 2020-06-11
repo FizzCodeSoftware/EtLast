@@ -52,22 +52,18 @@
 
         protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
         {
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDefinition, ConnectionString.Name, ConnectionString.Unescape(Configuration.TargetTableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbWriteCopy, ConnectionString.Name, ConnectionString.Unescape(Configuration.TargetTableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
                 "creating new table {ConnectionStringName}/{TargetTableName} and copying records from {SourceTableName}",
                 ConnectionString.Name, ConnectionString.Unescape(Configuration.TargetTableName), ConnectionString.Unescape(Configuration.SourceTableName));
             try
             {
                 var recordCount = command.ExecuteNonQuery();
-                var time = InvocationInfo.LastInvocationStarted.Elapsed;
 
-                Context.RegisterIoCommandSuccess(this, iocUid, recordCount);
-
-                CounterCollection.IncrementCounter("db record copy count", recordCount);
-                CounterCollection.IncrementTimeSpan("db record copy time", time);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteCopy, iocUid, recordCount);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteCopy, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "database table creation and copy failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table creation and copy failed, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message: {4}, command: {5}, timeout: {6}",

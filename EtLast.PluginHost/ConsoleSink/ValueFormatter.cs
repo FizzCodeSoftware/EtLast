@@ -45,6 +45,8 @@
             ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.Value, "]");
         }
 
+        public static string DefaultIntegerFormat { get; } = "#,0";
+
         public static void FormatScalarValue(LogEvent logEvent, TextWriter builder, ScalarValue value, string format, string propertyName)
         {
             switch (value.Value)
@@ -79,7 +81,7 @@
                     {
                         if (string.IsNullOrEmpty(format))
                         {
-                            value.Render(builder, "#,0", CultureInfo.InvariantCulture);
+                            value.Render(builder, DefaultIntegerFormat, CultureInfo.InvariantCulture);
                         }
                         else
                         {

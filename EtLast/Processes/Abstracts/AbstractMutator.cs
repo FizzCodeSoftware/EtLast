@@ -61,7 +61,6 @@
                 if (!apply)
                 {
                     ignoredRowCount++;
-                    CounterCollection.IncrementCounter("ignored", 1, true);
                     netTimeStopwatch.Stop();
                     yield return row;
                     netTimeStopwatch.Start();
@@ -69,7 +68,6 @@
                 }
 
                 mutatedRowCount++;
-                CounterCollection.IncrementCounter("mutated", 1, true);
 
                 var kept = false;
                 try

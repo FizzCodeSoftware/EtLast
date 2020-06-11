@@ -46,11 +46,11 @@
                 try
                 {
                     _package.Save();
-                    Context.RegisterIoCommandSuccess(this, iocUid, null);
+                    Context.RegisterIoCommandSuccess(this, IoCommandKind.streamWrite, iocUid, null);
                 }
                 catch (Exception ex)
                 {
-                    Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                    Context.RegisterIoCommandFailed(this, IoCommandKind.streamWrite, iocUid, null, ex);
                     throw;
                 }
 

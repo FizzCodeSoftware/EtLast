@@ -56,8 +56,6 @@
                 var matchCount = _lookup.CountByKey(key);
                 if (matchCount > 0)
                 {
-                    CounterCollection.IncrementCounter("served from cache", 1, true);
-
                     switch (MatchAction.Mode)
                     {
                         case MatchMode.Remove:

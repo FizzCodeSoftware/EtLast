@@ -47,21 +47,21 @@
         protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
         {
             var iocUid = MainTableName != null
-                ? Context.RegisterIoCommandStart(this, IoCommandKind.dbCustom, ConnectionString.Name, MainTableName, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+                ? Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, MainTableName, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
                     "executing custom SQL statement on {ConnectionStringName}/{TableName}",
                     ConnectionString.Name)
-                : Context.RegisterIoCommandStart(this, IoCommandKind.dbCustom, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+                : Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
                     "executing custom SQL statement on {ConnectionStringName}",
                     ConnectionString.Name);
 
             try
             {
                 var recordCount = command.ExecuteNonQuery();
-                Context.RegisterIoCommandSuccess(this, iocUid, recordCount);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbRead, iocUid, recordCount);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, iocUid, null, ex);
 
                 var exception = new ProcessExecutionException(this, "custom SQL statement failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "custom SQL statement failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
