@@ -50,9 +50,6 @@
                     continue;
                 }
 
-                Context.Log(LogSeverity.Information, this, "finalizing table {TableName}",
-                    _scope.Configuration.ConnectionString.Unescape(table.TableName));
-
                 var creatorScopeKind = table.SuppressTransactionScopeForCreators
                     ? TransactionScopeKind.Suppress
                     : TransactionScopeKind.None;
@@ -66,9 +63,16 @@
                         .ToArray();
                 }
 
+                Context.Log(LogSeverity.Debug, this, "created {FinalizerCount} finalizer(s) for {TableName}",
+                    finalizers?.Length ?? 0,
+                    _scope.Configuration.ConnectionString.Unescape(table.TableName));
+
                 foreach (var finalizer in finalizers)
                 {
                     var preExceptionCount = Context.ExceptionCount;
+                    Context.Log(LogSeverity.Information, this, "finalizing {TableName} with {ProcessName}",
+                        _scope.Configuration.ConnectionString.Unescape(table.TableName),
+                        finalizer.Name);
                     finalizer.Execute(this);
                     if (Context.ExceptionCount > preExceptionCount)
                     {

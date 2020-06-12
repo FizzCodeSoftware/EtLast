@@ -28,17 +28,20 @@
                 finalizers = _scope.Configuration.PostFinalizerCreator.Invoke(_scope, this)
                     ?.Where(x => x != null)
                     .ToArray();
-
-                Context.Log(LogSeverity.Information, this, "created {PostFinalizerCount} post-finalizers", finalizers?.Length ?? 0);
             }
 
             if (finalizers?.Length > 0)
             {
-                Context.Log(LogSeverity.Information, this, "starting post-finalizers");
+                Context.Log(LogSeverity.Debug, this, "created {PostFinalizerCount} post-finalizer(s)",
+                    finalizers?.Length ?? 0);
 
                 foreach (var finalizer in finalizers)
                 {
                     var preExceptionCount = Context.ExceptionCount;
+
+                    Context.Log(LogSeverity.Information, this, "starting post-finalizer: {Process}",
+                        finalizer.Name);
+
                     finalizer.Execute(this);
                     if (Context.ExceptionCount > preExceptionCount)
                     {

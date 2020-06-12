@@ -150,6 +150,22 @@
             }
         }
 
+#pragma warning disable RCS1158 // Static member in generic type should use a type parameter.
+        public static void ResizeListViewWithRows(ObjectListView listView)
+#pragma warning restore RCS1158 // Static member in generic type should use a type parameter.
+        {
+            foreach (OLVColumn col in listView.Columns)
+            {
+                col.MinimumWidth = 0;
+                col.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
+            }
+
+            foreach (OLVColumn col in listView.Columns)
+            {
+                col.Width += 20;
+            }
+        }
+
         private void Timer_Tick(object sender, EventArgs e)
         {
             if (ListView?.Visible == true)

@@ -28,17 +28,20 @@
                 finalizers = _scope.Configuration.PreFinalizerCreator.Invoke(_scope, this)
                     ?.Where(x => x != null)
                     .ToArray();
-
-                Context.Log(LogSeverity.Information, this, "created {PreFinalizerCount} pre-finalizers", finalizers?.Length ?? 0);
             }
 
             if (finalizers?.Length > 0)
             {
-                Context.Log(LogSeverity.Information, this, "starting pre-finalizers");
+                Context.Log(LogSeverity.Debug, this, "created {PreFinalizerCount} pre-finalizer(s)",
+                    finalizers?.Length ?? 0);
 
                 foreach (var finalizer in finalizers)
                 {
                     var preExceptionCount = Context.ExceptionCount;
+
+                    Context.Log(LogSeverity.Information, this, "starting pre-finalizer: {Process}",
+                        finalizer.Name);
+
                     finalizer.Execute(this);
                     if (Context.ExceptionCount > preExceptionCount)
                     {

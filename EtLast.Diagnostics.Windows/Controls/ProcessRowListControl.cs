@@ -112,7 +112,7 @@
             ListView.Columns.AddRange(newColumns.ToArray());
             ListView.AddObjects(items);
 
-            ControlUpdater<int>.ResizeListView(ListView);
+            ControlUpdater<int>.ResizeListViewWithRows(ListView);
         }
 
         private void AddColumnByValue(List<OLVColumn> newColumns, KeyValuePair<string, object> kvp)

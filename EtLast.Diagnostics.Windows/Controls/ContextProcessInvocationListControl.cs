@@ -184,10 +184,9 @@
                             }
                         };
 
-                        ToolTipSingleton.Remove(ListView);
                         var _ = new ProcessRowListControl(form, process, rows.Values.ToList());
+                        ToolTipSingleton.Remove(ListView);
                         form.ShowDialog();
-                        form.BringToFront();
                     }
                 }
             }

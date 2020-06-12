@@ -148,16 +148,7 @@
                 ListView.Columns.AddRange(newColumns.ToArray());
                 ListView.SetObjects(modelList);
 
-                foreach (OLVColumn col in ListView.Columns)
-                {
-                    col.MinimumWidth = 0;
-                    col.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
-                }
-
-                foreach (OLVColumn col in ListView.Columns)
-                {
-                    col.Width += 20;
-                }
+                ControlUpdater<int>.ResizeListViewWithRows(ListView);
             }
             finally
             {

@@ -54,7 +54,9 @@
                                 ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
                                 MainTableName = builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString),
                                 Sql = "SELECT " + builder.MatchColumns[0].NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)
-                                        + "," + string.Join(", ", finalValueColumns.Select(c => c.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)))
+                                    + (finalValueColumns.Length > 0
+                                        ? "," + string.Join(", ", finalValueColumns.Select(c => c.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)))
+                                        : "")
                                     + " FROM " + builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString)
                                     + " WHERE " + builder.MatchColumns[0].NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString) + " IN (@keyList)",
                                 InlineArrayParameters = true,

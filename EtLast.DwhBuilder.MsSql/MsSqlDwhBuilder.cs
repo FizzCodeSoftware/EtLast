@@ -165,7 +165,7 @@
             var constraintCheckDisabledOnTables = scope.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
             if (constraintCheckDisabledOnTables != null)
             {
-                yield return new MsSqlEnableConstraintCheck(scope.Topic, "EnableConstraintCheck")
+                yield return new MsSqlEnableConstraintCheck(scope.Topic, "EnableForeignKeys")
                 {
                     ConnectionString = scope.Configuration.ConnectionString,
                     ConstraintNames = constraintCheckDisabledOnTables
