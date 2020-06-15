@@ -7,11 +7,13 @@
 
         public IEvaluable Build()
         {
-            if (InputProcess == null)
-                throw new ParameterNullException(nameof(ProcessBuilder), nameof(InputProcess));
-
             if (Mutators == null || Mutators.Count == 0)
+            {
+                if (InputProcess == null)
+                    throw new InvalidParameterException(nameof(ProcessBuilder), nameof(InputProcess), null, "When " + nameof(InputProcess) + " is not specified then at least one mutator must be specified");
+
                 return InputProcess;
+            }
 
             var last = InputProcess;
             foreach (var list in Mutators)
