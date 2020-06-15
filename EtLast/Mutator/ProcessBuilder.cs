@@ -7,7 +7,7 @@
 
         public IEvaluable Build()
         {
-            if (Mutators.Count == 0)
+            if (Mutators == null || Mutators.Count == 0)
                 return InputProcess;
 
             var last = InputProcess;
