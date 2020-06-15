@@ -7,6 +7,9 @@
 
         public IEvaluable Build()
         {
+            if (InputProcess == null)
+                throw new ParameterNullException(nameof(ProcessBuilder), nameof(InputProcess));
+
             if (Mutators == null || Mutators.Count == 0)
                 return InputProcess;
 

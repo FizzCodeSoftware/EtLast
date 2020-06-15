@@ -1,3 +1,6 @@
+2020-06-15
+	- fixed: validate InputProcess in ProcessBuilder
+
 2020-06-12
 	- added: InMemoryProcessor
 	- fixed: RemoveExistingRows builder generated wrong query for tables with only key columns
