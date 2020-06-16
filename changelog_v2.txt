@@ -1,3 +1,7 @@
+2020-06-16:
+	- fixed: Diagnostics.Windows supports different casing in column names now
+	- optimized: RemoveExistingRows extension in DwhBuilder.MsSql
+
 2020-06-15
 	- fixed: validate InputProcess in ProcessBuilder
 

@@ -16,7 +16,7 @@
         public List<TrackedRow> Rows { get; }
         public ObjectListView ListView { get; }
         public TextBox SearchBox { get; }
-        private readonly Dictionary<string, int> _columnIndexes = new Dictionary<string, int>();
+        private readonly Dictionary<string, int> _columnIndexes = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         private readonly int _fixColumnCount;
 
         public ProcessRowListControl(Control container, TrackedProcessInvocation process, List<TrackedRow> rows)

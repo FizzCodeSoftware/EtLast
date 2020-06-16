@@ -16,7 +16,7 @@
         public TrackedStore Store { get; }
         public ObjectListView ListView { get; }
         public TextBox SearchBox { get; }
-        private readonly Dictionary<string, int> _columnIndexes = new Dictionary<string, int>();
+        private readonly Dictionary<string, int> _columnIndexes = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         private readonly int _fixColumnCount;
 
         public RowStoreControl(Control container, DiagContext context, TrackedStore store)

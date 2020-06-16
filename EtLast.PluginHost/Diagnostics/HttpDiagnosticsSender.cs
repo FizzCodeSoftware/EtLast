@@ -107,7 +107,7 @@
                     var responseBody = response.Content.ReadAsStringAsync().Result;
                     if (responseBody != "ACK")
                     {
-                        throw new Exception("SHT");
+                        _communicationErrorCount++;
                     }
                 }
                 catch (Exception)

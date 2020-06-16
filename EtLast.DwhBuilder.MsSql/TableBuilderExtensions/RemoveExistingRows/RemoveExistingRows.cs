@@ -29,13 +29,13 @@
 
         private static IEnumerable<IMutator> CreateRemoveExistingIdenticalRowsMutators(RemoveExistingRowsBuilder builder)
         {
-            if (builder.CompareValueColumns != null)
-            {
-                var finalValueColumns = builder.CompareValueColumns
+            var finalValueColumns = builder.CompareValueColumns?
                     .Where(x => !builder.MatchColumns.Contains(x)
                         && !x.IsPrimaryKey)
                     .ToArray();
 
+            if (finalValueColumns?.Length > 0)
+            {
                 var equalityComparer = new ColumnBasedRowEqualityComparer()
                 {
                     Columns = finalValueColumns.Select(x => x.Name).ToArray(),
@@ -54,9 +54,7 @@
                                 ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
                                 MainTableName = builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString),
                                 Sql = "SELECT " + builder.MatchColumns[0].NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)
-                                    + (finalValueColumns.Length > 0
-                                        ? "," + string.Join(", ", finalValueColumns.Select(c => c.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)))
-                                        : "")
+                                    + "," + string.Join(", ", finalValueColumns.Select(c => c.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)))
                                     + " FROM " + builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString)
                                     + " WHERE " + builder.MatchColumns[0].NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString) + " IN (@keyList)",
                                 InlineArrayParameters = true,
@@ -73,6 +71,7 @@
                         RowKeyGenerator = row => row.GenerateKey(builder.MatchColumns[0].Name),
                         MatchAndEqualsAction = new MatchAction(MatchMode.Remove),
                         MatchButDifferentAction = builder.MatchButDifferentAction,
+                        BatchSize = 2000,
                     };
                 }
                 else
@@ -125,6 +124,7 @@
                     RowKeyGenerator = row => row.GenerateKey(builder.MatchColumns[0].Name),
                     MatchActionContainsMatch = false,
                     MatchAction = new MatchAction(MatchMode.Remove),
+                    BatchSize = 2000,
                 };
             }
             else

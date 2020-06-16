@@ -107,11 +107,11 @@
 
                             if (creatorProc == process)
                             {
-                                row.NewValues = new Dictionary<string, object>(rce.Values);
+                                row.NewValues = new Dictionary<string, object>(rce.Values, StringComparer.OrdinalIgnoreCase);
                             }
                             else
                             {
-                                row.PreviousValues = new Dictionary<string, object>(rce.Values);
+                                row.PreviousValues = new Dictionary<string, object>(rce.Values, StringComparer.OrdinalIgnoreCase);
                             }
 
                             currentProcesses[row.Uid] = creatorProc;
@@ -149,7 +149,7 @@
 
                             if (newProc == process)
                             {
-                                row.NewValues = new Dictionary<string, object>(row.PreviousValues);
+                                row.NewValues = new Dictionary<string, object>(row.PreviousValues, StringComparer.OrdinalIgnoreCase);
                                 row.PreviousProcess = currentProcess;
                             }
                             else if (currentProcess == process)
