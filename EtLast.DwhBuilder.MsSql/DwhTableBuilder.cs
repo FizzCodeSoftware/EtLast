@@ -31,7 +31,7 @@
 
         private readonly List<Func<DwhTableBuilder, IEnumerable<IExecutable>>> _finalizerCreators = new List<Func<DwhTableBuilder, IEnumerable<IExecutable>>>();
         private readonly List<MutatorCreatorDelegate> _mutatorCreators = new List<MutatorCreatorDelegate>();
-        private Func<IEvaluable> _inputProcessCreator;
+        private Func<DateTimeOffset?, IEvaluable> _inputProcessCreator;
 
         public DwhTableBuilder(MsSqlDwhBuilder builder, ResilientTable resilientTable, RelationalTable table)
         {
@@ -65,7 +65,7 @@
             _finalizerCreators.Add(creator);
         }
 
-        internal void SetInputProcessCreator(Func<IEvaluable> creator)
+        internal void SetInputProcessCreator(Func<DateTimeOffset?, IEvaluable> creator)
         {
             _inputProcessCreator = creator;
         }
@@ -73,7 +73,7 @@
         internal void Build()
         {
             ResilientTable.FinalizerCreator = _ => CreateTableFinalizers();
-            ResilientTable.MainProcessCreator = t => CreateTableMainProcess();
+            ResilientTable.MainProcessCreator = _ => CreateTableMainProcess();
         }
 
         private IMutator CreateTempWriter(ResilientTable table, RelationalTable dwhTable)
@@ -110,13 +110,51 @@
 
             mutators.Add(CreateTempWriter(ResilientTable, Table));
 
-            var inputProcess = _inputProcessCreator?.Invoke();
+            DateTimeOffset? maxRecordTimestamp = null;
+            if (DwhBuilder.Configuration.IncrementalLoadEnabled && Table.GetRecordTimestampIndicatorColumn() != null)
+            {
+                maxRecordTimestamp = GetMaxRecordTimestamp();
+            }
+
+            var inputProcess = _inputProcessCreator?.Invoke(maxRecordTimestamp);
 
             yield return new ProcessBuilder()
             {
                 InputProcess = inputProcess,
                 Mutators = mutators,
             }.Build();
+        }
+
+        private DateTimeOffset? GetMaxRecordTimestamp()
+        {
+            var recordTimestampIndicatorColumn = Table.GetRecordTimestampIndicatorColumn();
+            if (recordTimestampIndicatorColumn == null)
+                return null;
+
+            var result = new GetTableMaxValue<object>(ResilientTable.Topic, nameof(GetMaxRecordTimestamp) + "Reader")
+            {
+                ConnectionString = ResilientTable.Scope.Configuration.ConnectionString,
+                TableName = ResilientTable.TableName,
+                ColumnName = recordTimestampIndicatorColumn.NameEscaped(ResilientTable.Scope.Configuration.ConnectionString),
+            }.Execute(ResilientTable.Scope);
+
+            if (result == null)
+                return null;
+
+            if (result.MaxValue == null)
+            {
+                if (result.RecordCount > 0)
+                    return DwhBuilder.Configuration.InfinitePastDateTime;
+
+                return null;
+            }
+
+            if (result.MaxValue is DateTime dt)
+            {
+                return new DateTimeOffset(dt, TimeSpan.Zero);
+            }
+
+            return (DateTimeOffset)result.MaxValue;
         }
 
         private IEnumerable<IExecutable> CreateTableFinalizers()

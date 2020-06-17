@@ -1,14 +1,16 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.MsSql
 {
-    public delegate IEvaluable InputProcessCreatorDelegate(DwhTableBuilder tableBuilder);
+    using System;
+
+    public delegate IEvaluable CustomInputProcessCreatorDelegate(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp);
 
     public static partial class TableBuilderExtensions
     {
-        public static DwhTableBuilder[] InputIsCustomProcess(this DwhTableBuilder[] builders, InputProcessCreatorDelegate inputProcessCreator)
+        public static DwhTableBuilder[] InputIsCustomProcess(this DwhTableBuilder[] builders, CustomInputProcessCreatorDelegate inputProcessCreator)
         {
             foreach (var builder in builders)
             {
-                builder.SetInputProcessCreator(() => inputProcessCreator.Invoke(builder));
+                builder.SetInputProcessCreator(maxRecordTimestamp => inputProcessCreator.Invoke(builder, maxRecordTimestamp));
             }
 
             return builders;

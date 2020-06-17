@@ -125,7 +125,7 @@
             Assert.AreEqual(3, result.Count);
         }
 
-        public static IEvaluable CreateCompany1(DwhTableBuilder tableBuilder)
+        public static IEvaluable CreateCompany1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
             return new RowCreator(tableBuilder.ResilientTable.Topic, null)
             {
@@ -140,7 +140,7 @@
             };
         }
 
-        public static IEvaluable CreateCompany2(DwhTableBuilder tableBuilder)
+        public static IEvaluable CreateCompany2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
             return new RowCreator(tableBuilder.ResilientTable.Topic, null)
             {

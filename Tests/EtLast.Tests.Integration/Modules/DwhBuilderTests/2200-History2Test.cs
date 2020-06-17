@@ -217,7 +217,7 @@
             Assert.AreEqual(2, result.Count);
         }
 
-        public static IEvaluable CreatePeople1(DwhTableBuilder tableBuilder)
+        public static IEvaluable CreatePeople1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
             return new RowCreator(tableBuilder.ResilientTable.Topic, null)
             {
@@ -234,7 +234,7 @@
             };
         }
 
-        public static IEvaluable CreatePeople2(DwhTableBuilder tableBuilder)
+        public static IEvaluable CreatePeople2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
             return new RowCreator(tableBuilder.ResilientTable.Topic, null)
             {
@@ -251,7 +251,7 @@
             };
         }
 
-        public static IEvaluable CreatePeopleRating1(DwhTableBuilder tableBuilder)
+        public static IEvaluable CreatePeopleRating1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
             return new RowCreator(tableBuilder.ResilientTable.Topic, null)
             {
@@ -266,7 +266,7 @@
             };
         }
 
-        public static IEvaluable CreatePeopleRating2(DwhTableBuilder tableBuilder)
+        public static IEvaluable CreatePeopleRating2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
             return new RowCreator(tableBuilder.ResilientTable.Topic, null)
             {
@@ -279,7 +279,7 @@
             };
         }
 
-        public static IEvaluable CreatePet1(DwhTableBuilder tableBuilder)
+        public static IEvaluable CreatePet1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
             return new RowCreator(tableBuilder.ResilientTable.Topic, null)
             {
@@ -295,7 +295,7 @@
             };
         }
 
-        public static IEvaluable CreatePet2(DwhTableBuilder tableBuilder)
+        public static IEvaluable CreatePet2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
             return new RowCreator(tableBuilder.ResilientTable.Topic, null)
             {

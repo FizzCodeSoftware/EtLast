@@ -1,3 +1,6 @@
+2020-06-17:
+	- added: support incremental load in DwhBuilder InputIsCustomProcess
+
 2020-06-16:
 	- fixed: Diagnostics.Windows supports different casing in column names now
 	- optimized: RemoveExistingRows extension in DwhBuilder.MsSql

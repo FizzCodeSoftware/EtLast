@@ -15,13 +15,13 @@
         {
             foreach (var builder in builders)
             {
-                builder.SetInputProcessCreator(() => CreateSourceTableReader(builder, sourceSchema, sourceConnectionString, readerScope, sqlStatementCustomizer, customWhereClause));
+                builder.SetInputProcessCreator(maxRecordTimestamp => CreateSourceTableInputProcess(builder, maxRecordTimestamp, sourceSchema, sourceConnectionString, readerScope, sqlStatementCustomizer, customWhereClause));
             }
 
             return builders;
         }
 
-        private static IEvaluable CreateSourceTableReader(DwhTableBuilder builder, RelationalModel sourceModel, ConnectionStringWithProvider sourceConnectionString, AdoNetReaderConnectionScope readerScope, SourceReadSqlStatementCustomizerDelegate sqlStatementCustomizer, string customWhereClause)
+        private static IEvaluable CreateSourceTableInputProcess(DwhTableBuilder builder, DateTimeOffset? maxRecordTimestamp, RelationalModel sourceModel, ConnectionStringWithProvider sourceConnectionString, AdoNetReaderConnectionScope readerScope, SourceReadSqlStatementCustomizerDelegate sqlStatementCustomizer, string customWhereClause)
         {
             var whereClauseList = new List<string>();
             if (customWhereClause != null)
@@ -31,14 +31,10 @@
 
             sqlStatementCustomizer?.Invoke(builder, whereClauseList, parameterList);
 
-            if (builder.DwhBuilder.Configuration.IncrementalLoadEnabled && builder.Table.GetRecordTimestampIndicatorColumn() != null)
+            if (maxRecordTimestamp != null)
             {
-                var lastTimestamp = GetMaxRecordTimestamp(builder);
-                if (lastTimestamp != null)
-                {
-                    whereClauseList.Add(builder.Table.GetRecordTimestampIndicatorColumn().NameEscaped(builder.DwhBuilder.ConnectionString) + " >= @MaxRecordTimestamp");
-                    parameterList.Add("MaxRecordTimestamp", lastTimestamp.Value);
-                }
+                whereClauseList.Add(builder.Table.GetRecordTimestampIndicatorColumn().NameEscaped(builder.DwhBuilder.ConnectionString) + " >= @MaxRecordTimestamp");
+                parameterList.Add("MaxRecordTimestamp", maxRecordTimestamp.Value);
             }
 
             var sourceTableName = builder.Table.GetSourceTableNameOverride() ?? builder.Table.Name;
@@ -59,38 +55,6 @@
                     new ReaderColumnConfiguration(column.Name, null, /*GetConverter(column.Type.SqlTypeInfo), */NullSourceHandler.SetSpecialValue, InvalidSourceHandler.WrapError)
                 ).ToList(),
             };
-        }
-
-        private static DateTimeOffset? GetMaxRecordTimestamp(DwhTableBuilder builder)
-        {
-            var recordTimestampIndicatorColumn = builder.Table.GetRecordTimestampIndicatorColumn();
-            if (recordTimestampIndicatorColumn == null)
-                return null;
-
-            var result = new GetTableMaxValue<object>(builder.ResilientTable.Topic, nameof(GetMaxRecordTimestamp) + "Reader")
-            {
-                ConnectionString = builder.ResilientTable.Scope.Configuration.ConnectionString,
-                TableName = builder.ResilientTable.TableName,
-                ColumnName = recordTimestampIndicatorColumn.NameEscaped(builder.ResilientTable.Scope.Configuration.ConnectionString),
-            }.Execute(builder.ResilientTable.Scope);
-
-            if (result == null)
-                return null;
-
-            if (result.MaxValue == null)
-            {
-                if (result.RecordCount > 0)
-                    return builder.DwhBuilder.Configuration.InfinitePastDateTime;
-
-                return null;
-            }
-
-            if (result.MaxValue is DateTime dt)
-            {
-                return new DateTimeOffset(dt, TimeSpan.Zero);
-            }
-
-            return (DateTimeOffset)result.MaxValue;
         }
 
         /*private static ITypeConverter GetConverter(SqlTypeInfo sqlTypeInfo)
