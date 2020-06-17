@@ -1,11 +1,13 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
 
     public delegate IEvaluable ResilientTablePartitionedMainProcessCreatorDelegate(ResilientTable table, int partitionIndex);
     public delegate IEnumerable<IExecutable> ResilientTableMainProcessCreatorDelegate(ResilientTable table);
     public delegate IEnumerable<IExecutable> ResilientSqlScopeFinalizerCreatorDelegate(ResilientTable table);
 
+    [DebuggerDisplay("{TableName}")]
     public class ResilientTable : ResilientTableBase
     {
         /// <summary>
@@ -15,7 +17,13 @@
 
         public ResilientTablePartitionedMainProcessCreatorDelegate PartitionedMainProcessCreator { get; set; }
         public ResilientTableMainProcessCreatorDelegate MainProcessCreator { get; set; }
+
         public ResilientSqlScopeFinalizerCreatorDelegate FinalizerCreator { get; set; }
+
+        /// <summary>
+        /// Default 0.
+        /// </summary>
+        public int OrderDuringFinalization { get; set; }
 
         public Dictionary<string, ResilientTableBase> AdditionalTables { get; set; }
 

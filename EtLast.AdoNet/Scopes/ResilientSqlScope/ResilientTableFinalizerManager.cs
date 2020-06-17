@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
+    using System.Collections.Generic;
     using System.Linq;
 
     internal class ResilientTableFinalizerManager : IProcess
@@ -17,14 +18,36 @@
             _scope = scope;
         }
 
+        private class TableWithOrder
+        {
+            internal ResilientTable Table { get; set; }
+            internal int OriginalIndex { get; set; }
+        }
+
         public void Execute()
         {
             Context.RegisterProcessInvocationStart(this, _scope);
 
-            var recordCounts = new int[_scope.Configuration.Tables.Count];
+            var tablesOrderedTemp = new List<TableWithOrder>();
             for (var i = 0; i < _scope.Configuration.Tables.Count; i++)
             {
-                var table = _scope.Configuration.Tables[i];
+                tablesOrderedTemp.Add(new TableWithOrder()
+                {
+                    Table = _scope.Configuration.Tables[i],
+                    OriginalIndex = i,
+                });
+            }
+
+            var tablesOrdered = tablesOrderedTemp
+                .OrderBy(x => x.Table.OrderDuringFinalization)
+                .ThenBy(x => x.OriginalIndex)
+                .Select(x => x.Table)
+                .ToList();
+
+            var recordCounts = new int[tablesOrdered.Count];
+            for (var i = 0; i < tablesOrdered.Count; i++)
+            {
+                var table = tablesOrdered[i];
 
                 var recordCount = CountTempRecordsIn(table);
                 if (table.AdditionalTables?.Count > 0)
@@ -41,9 +64,9 @@
             Context.Log(LogSeverity.Information, this, "{TableCount} temp table contains data", recordCounts.Count(x => x > 0));
             Context.Log(LogSeverity.Information, this, "{TableCount} temp table is empty", recordCounts.Count(x => x == 0));
 
-            for (var i = 0; i < _scope.Configuration.Tables.Count; i++)
+            for (var i = 0; i < tablesOrdered.Count; i++)
             {
-                var table = _scope.Configuration.Tables[i];
+                var table = tablesOrdered[i];
                 if (table.SkipFinalizersIfTempTableIsEmpty && recordCounts[i] == 0)
                 {
                     Context.Log(LogSeverity.Debug, this, "no data found for {TableName}, skipping finalizers", _scope.Configuration.ConnectionString.Unescape(table.TableName));
