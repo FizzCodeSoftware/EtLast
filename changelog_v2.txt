@@ -2,6 +2,7 @@
 	- added: support incremental load in DwhBuilder InputIsCustomProcess
 	- added: OrderDuringFinalization to ResilientTable
 	- changed: restore original MsSqlEnableConstraintCheck and use MsSqlEnableConstraintCheckFiltered in MsSqlDwhBuilder internally
+	- added: DbColumnDefinition.StraightCopyAndEscape
 
 2020-06-16:
 	- fixed: Diagnostics.Windows supports different casing in column names now
