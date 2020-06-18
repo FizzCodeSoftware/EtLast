@@ -24,7 +24,7 @@
                 {
                     new RemoveDuplicateRowsMutator(topic, null)
                     {
-                        GroupingColumns = ColumnCopyConfiguration.StraightCopy("name"),
+                        KeyColumns = new[] { "name" },
                     },
                 },
             };
@@ -53,7 +53,7 @@
                 {
                     new RemoveDuplicateRowsMutator(topic, null)
                     {
-                        GroupingColumns = ColumnCopyConfiguration.StraightCopy("id", "name"),
+                        KeyColumns = new[] { "id", "name" },
                     },
                 },
             };
@@ -83,7 +83,7 @@
                 {
                     new RemoveDuplicateRowsMutator(topic, null)
                     {
-                        GroupingColumns = ColumnCopyConfiguration.StraightCopy("eyeColor"),
+                        KeyColumns = new[] { "eyeColor" },
                     },
                 },
             };

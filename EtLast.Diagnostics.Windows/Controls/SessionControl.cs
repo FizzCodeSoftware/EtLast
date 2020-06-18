@@ -12,6 +12,7 @@
     {
         public DiagSession Session { get; }
         public Control Container { get; }
+        public DiagnosticsStateManager DiagnosticsStateManager { get; }
 
         private readonly TabControl _tabs;
         private readonly Dictionary<string, ContextControl> _contextContainerManagers = new Dictionary<string, ContextControl>();
@@ -20,6 +21,8 @@
         {
             Session = session;
             Container = container;
+            DiagnosticsStateManager = diagnosticsStateManager;
+
             Container.SuspendLayout();
             try
             {
@@ -30,17 +33,11 @@
                     Appearance = TabAppearance.FlatButtons,
                 };
 
-                /*var logContainer = new Panel()
-                {
-                    Parent = container,
-                    Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom,
-                    BorderStyle = BorderStyle.None,
-                };*/
-
                 var logContainer = new TabPage("LOG")
                 {
                     BorderStyle = BorderStyle.None,
                 };
+
                 _tabs.TabPages.Add(logContainer);
 
                 var logManager = new LogListControl(logContainer, diagnosticsStateManager, Session);
@@ -49,6 +46,7 @@
                 {
                     BorderStyle = BorderStyle.None,
                 };
+
                 _tabs.TabPages.Add(ioCommandContainer);
 
                 var ioCommandManager = new SessionIoCommandListControl(ioCommandContainer, diagnosticsStateManager, Session);
@@ -56,13 +54,7 @@
                 logManager.OnLogDoubleClicked += OnLogDoubleClicked;
                 ioCommandManager.OnIoCommandDoubleClicked += OnIoCommandDoubleClicked;
 
-                diagnosticsStateManager.OnDiagContextCreated += ec =>
-                {
-                    if (ec.Session == session)
-                    {
-                        OnDiagContextCreated(ec);
-                    }
-                };
+                diagnosticsStateManager.OnDiagContextCreated += OnDiagContextCreated;
 
                 container.Resize += Container_Resize;
                 Container_Resize(null, EventArgs.Empty);
@@ -71,6 +63,14 @@
             {
                 Container.ResumeLayout();
             }
+        }
+
+        internal void Close()
+        {
+            Container.Resize -= Container_Resize;
+            DiagnosticsStateManager.OnDiagContextCreated -= OnDiagContextCreated;
+            _tabs.TabPages.Clear();
+            _tabs.Dispose();
         }
 
         private void OnLogDoubleClicked(LogModel logModel)
@@ -92,6 +92,14 @@
         }
 
         private void OnDiagContextCreated(DiagContext diagContext)
+        {
+            if (diagContext.Session == Session)
+            {
+                OnDiagContextCreatedOfCurrentSession(diagContext);
+            }
+        }
+
+        private void OnDiagContextCreatedOfCurrentSession(DiagContext diagContext)
         {
             if (_contextContainerManagers.ContainsKey(diagContext.Name))
                 return;

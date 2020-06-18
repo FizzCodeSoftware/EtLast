@@ -14,23 +14,28 @@
     {
         public DiagContext Context { get; }
         public Control Container { get; }
-        public int Interval { get => _timer.Interval; set => _timer.Interval = value; }
+        private readonly int _interval;
         public ObjectListView ListView { get; }
         public Func<TItem, bool> ItemFilter { get; set; }
         public TextBox SearchBox { get; private set; }
-        public bool AutoUpdateUntilContextLoaded { get; set; }
+        public bool AutoUpdateUntilContextLoaded { get; set; } = false;
+        public bool ContainsRows { get; set; } = false;
+        public EventHandler<EventArgs> RefreshStarted { get; set; }
+        public EventHandler<EventArgs> RefreshFinished { get; set; }
 
         private readonly Timer _timer;
         private readonly List<TItem> _allItems = new List<TItem>();
         private bool _newItem;
 
-        public ControlUpdater(DiagContext context, Control container, int interval = 1000)
+        public ControlUpdater(DiagContext context, Control container, int interval = 1000, int firstInterval = 100)
         {
             Context = context;
             Container = container;
+            _interval = interval;
+
             _timer = new Timer()
             {
-                Interval = interval,
+                Interval = firstInterval,
                 Enabled = false,
             };
 
@@ -106,6 +111,8 @@
 
         public void RefreshItems(bool resizeColumns)
         {
+            RefreshStarted?.Invoke(this, EventArgs.Empty);
+
             _newItem = false;
 
             IEnumerable<TItem> query = _allItems;
@@ -132,16 +139,21 @@
             {
                 ListView.SetObjects(query);
             }
+
+            RefreshFinished?.Invoke(this, EventArgs.Empty);
         }
 
 #pragma warning disable RCS1158 // Static member in generic type should use a type parameter.
-        public static void ResizeListView(ObjectListView listView)
+        private void ResizeListView(ObjectListView listView)
 #pragma warning restore RCS1158 // Static member in generic type should use a type parameter.
         {
+            if (listView.Items.Count == 0)
+                return;
+
             foreach (OLVColumn col in listView.Columns)
             {
                 col.MinimumWidth = 0;
-                col.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
+                col.AutoResize(ContainsRows ? ColumnHeaderAutoResizeStyle.HeaderSize : ColumnHeaderAutoResizeStyle.ColumnContent);
             }
 
             foreach (OLVColumn col in listView.Columns)
@@ -184,6 +196,16 @@
 
                     ListView.Invalidate();
                 }
+            }
+
+            if (_interval != -1)
+            {
+                if (_timer.Interval != _interval)
+                    _timer.Interval = _interval;
+            }
+            else
+            {
+                _timer.Stop();
             }
         }
 

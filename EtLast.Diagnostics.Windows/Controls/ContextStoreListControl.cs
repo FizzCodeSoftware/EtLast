@@ -69,8 +69,9 @@
                 {
                     FormBorderStyle = FormBorderStyle.SizableToolWindow,
                     Text = "Store: " + store.Location + (!string.IsNullOrEmpty(store.Path) ? " / " + store.Path : ""),
+                    StartPosition = FormStartPosition.Manual,
                     Bounds = new Rectangle(Screen.PrimaryScreen.Bounds.Left + 100, Screen.PrimaryScreen.Bounds.Top + 100, Screen.PrimaryScreen.Bounds.Width - 200, Screen.PrimaryScreen.Bounds.Height - 200),
-                    WindowState = FormWindowState.Maximized
+                    WindowState = FormWindowState.Maximized,
                 };
 
                 var control = new RowStoreControl(form, Context, store);

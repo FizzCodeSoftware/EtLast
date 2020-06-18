@@ -5,14 +5,28 @@ namespace FizzCode.EtLast.Diagnostics.Interface
 
     public class EventParser
     {
-        public Dictionary<int, string> TextDictionary { get; }
+        private readonly Dictionary<int, string> _textDictionary;
 
         public EventParser()
         {
-            TextDictionary = new Dictionary<int, string>()
+            _textDictionary = new Dictionary<int, string>()
             {
                 [0] = null,
             };
+        }
+
+        public void AddText(int id, string text)
+        {
+            if (text != null)
+                text = string.Intern(text);
+
+            _textDictionary[id] = text;
+        }
+
+        public string GetTextById(int id)
+        {
+            _textDictionary.TryGetValue(id, out var value);
+            return value;
         }
 
         public ProcessInvocationStartEvent ReadProcessInvocationStartEvent(ExtendedBinaryReader reader)
@@ -47,11 +61,11 @@ namespace FizzCode.EtLast.Diagnostics.Interface
                 Uid = reader.Read7BitEncodedInt(),
                 ProcessInvocationUid = reader.Read7BitEncodedInt(),
                 Kind = (IoCommandKind)reader.ReadByte(),
-                Location = TextDictionary[reader.Read7BitEncodedInt()],
-                Path = TextDictionary[reader.Read7BitEncodedInt()],
+                Location = GetTextById(reader.Read7BitEncodedInt()),
+                Path = GetTextById(reader.Read7BitEncodedInt()),
                 TimeoutSeconds = reader.ReadNullableInt32(),
                 Command = reader.ReadNullableString(),
-                TransactionId = TextDictionary[reader.Read7BitEncodedInt()],
+                TransactionId = GetTextById(reader.Read7BitEncodedInt()),
             };
 
             var argCount = reader.Read7BitEncodedInt();
@@ -60,7 +74,7 @@ namespace FizzCode.EtLast.Diagnostics.Interface
                 evt.Arguments = new KeyValuePair<string, object>[argCount];
                 for (var i = 0; i < argCount; i++)
                 {
-                    var name = TextDictionary[reader.Read7BitEncodedInt()];
+                    var name = GetTextById(reader.Read7BitEncodedInt());
                     var value = reader.ReadObject();
                     evt.Arguments[i] = new KeyValuePair<string, object>(name, value);
                 }
@@ -95,7 +109,7 @@ namespace FizzCode.EtLast.Diagnostics.Interface
                 evt.Values = new KeyValuePair<string, object>[columnCount];
                 for (var i = 0; i < columnCount; i++)
                 {
-                    var column = TextDictionary[reader.Read7BitEncodedInt()];
+                    var column = GetTextById(reader.Read7BitEncodedInt());
                     var value = reader.ReadObject();
                     evt.Values[i] = new KeyValuePair<string, object>(column, value);
                 }
@@ -128,7 +142,7 @@ namespace FizzCode.EtLast.Diagnostics.Interface
                 evt.Values = new KeyValuePair<string, object>[columnCount];
                 for (var i = 0; i < columnCount; i++)
                 {
-                    var column = TextDictionary[reader.Read7BitEncodedInt()];
+                    var column = GetTextById(reader.Read7BitEncodedInt());
                     var value = reader.ReadObject();
                     evt.Values[i] = new KeyValuePair<string, object>(column, value);
                 }
@@ -142,8 +156,8 @@ namespace FizzCode.EtLast.Diagnostics.Interface
             var evt = new RowStoreStartedEvent
             {
                 UID = reader.Read7BitEncodedInt(),
-                Location = TextDictionary[reader.Read7BitEncodedInt()],
-                Path = TextDictionary[reader.Read7BitEncodedInt()],
+                Location = GetTextById(reader.Read7BitEncodedInt()),
+                Path = GetTextById(reader.Read7BitEncodedInt()),
             };
 
             return evt;
@@ -164,7 +178,7 @@ namespace FizzCode.EtLast.Diagnostics.Interface
                 evt.Values = new KeyValuePair<string, object>[columnCount];
                 for (var i = 0; i < columnCount; i++)
                 {
-                    var column = TextDictionary[reader.Read7BitEncodedInt()];
+                    var column = GetTextById(reader.Read7BitEncodedInt());
                     var value = reader.ReadObject();
                     evt.Values[i] = new KeyValuePair<string, object>(column, value);
                 }
@@ -177,7 +191,7 @@ namespace FizzCode.EtLast.Diagnostics.Interface
         {
             var evt = new LogEvent
             {
-                TransactionId = TextDictionary[reader.Read7BitEncodedInt()],
+                TransactionId = GetTextById(reader.Read7BitEncodedInt()),
                 Text = reader.ReadString(),
                 Severity = (LogSeverity)reader.ReadByte(),
                 ProcessInvocationUID = reader.ReadNullableInt32()
@@ -189,7 +203,7 @@ namespace FizzCode.EtLast.Diagnostics.Interface
                 evt.Arguments = new KeyValuePair<string, object>[argCount];
                 for (var i = 0; i < argCount; i++)
                 {
-                    var key = TextDictionary[reader.Read7BitEncodedInt()];
+                    var key = GetTextById(reader.Read7BitEncodedInt());
                     var value = reader.ReadObject();
                     evt.Arguments[i] = new KeyValuePair<string, object>(key, value);
                 }

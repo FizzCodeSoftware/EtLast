@@ -92,7 +92,7 @@ namespace FizzCode.EtLast.Diagnostics.Interface
                     {
                         var key = reader.Read7BitEncodedInt();
                         var text = reader.ReadNullableString();
-                        _eventParser.TextDictionary.Add(key, text == null ? null : string.Intern(text));
+                        _eventParser.AddText(key, text);
                         continue;
                     }
 
@@ -115,13 +115,14 @@ namespace FizzCode.EtLast.Diagnostics.Interface
                             _rowEventStream = null;
                         }
 
-                        foreach (var writer in _processRowMapWriters.Values)
+                        var writers = _processRowMapWriters.Values.ToList();
+                        _processRowMapWriters.Clear();
+
+                        foreach (var writer in writers)
                         {
                             writer.Flush();
                             writer.Dispose();
                         }
-
-                        _processRowMapWriters.Clear();
 
                         EndedOn = new DateTime(timestamp);
                         continue;
@@ -343,10 +344,16 @@ namespace FizzCode.EtLast.Diagnostics.Interface
                 using (var reader = new ExtendedBinaryReader(memoryCache, Encoding.UTF8))
                 {
                     var length = memoryCache.Length;
-                    while (memoryCache.Position + 4 < length)
+                    while (memoryCache.Position < length)
                     {
-                        var rowUid = reader.Read7BitEncodedInt();
-                        result.Add(rowUid);
+                        try
+                        {
+                            var rowUid = reader.Read7BitEncodedInt();
+                            result.Add(rowUid);
+                        }
+                        catch (Exception)
+                        {
+                        }
                     }
                 }
             }

@@ -32,8 +32,11 @@
             get => _highlightedProcess;
             set
             {
-                _highlightedProcess = value;
-                _updater.RefreshItems(true);
+                if (_highlightedProcess != value)
+                {
+                    _highlightedProcess = value;
+                    _updater.RefreshItems(true);
+                }
             }
         }
 

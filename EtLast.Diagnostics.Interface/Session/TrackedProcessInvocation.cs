@@ -177,25 +177,32 @@
                     sb.Append("OUT: ").AppendLine(createdAndPassedCount.FormatToString());
             }
 
-            if (sb.Length > 0)
-                sb.AppendLine();
+            if (InputRowCount > 0
+                || CreatedRowCount > 0
+                || DroppedRowCount > 0
+                || StoredRowCount > 0
+                || PassedRowCount > 0)
+            {
+                if (sb.Length > 0)
+                    sb.AppendLine();
 
-            sb.AppendLine("TOTAL");
+                sb.AppendLine("TOTAL");
 
-            if (InputRowCount > 0)
-                sb.Append("IN: ").AppendLine(InputRowCount.FormatToStringNoZero());
+                if (InputRowCount > 0)
+                    sb.Append("IN: ").AppendLine(InputRowCount.FormatToStringNoZero());
 
-            if (CreatedRowCount > 0)
-                sb.Append("CREATED: ").AppendLine(CreatedRowCount.FormatToStringNoZero());
+                if (CreatedRowCount > 0)
+                    sb.Append("CREATED: ").AppendLine(CreatedRowCount.FormatToStringNoZero());
 
-            if (DroppedRowCount > 0)
-                sb.Append("DROP: ").AppendLine(DroppedRowCount.FormatToStringNoZero());
+                if (DroppedRowCount > 0)
+                    sb.Append("DROP: ").AppendLine(DroppedRowCount.FormatToStringNoZero());
 
-            if (StoredRowCount > 0)
-                sb.Append("STORE: ").AppendLine(StoredRowCount.FormatToStringNoZero());
+                if (StoredRowCount > 0)
+                    sb.Append("STORE: ").AppendLine(StoredRowCount.FormatToStringNoZero());
 
-            if (PassedRowCount > 0)
-                sb.Append("OUT: ").AppendLine(PassedRowCount.FormatToStringNoZero());
+                if (PassedRowCount > 0)
+                    sb.Append("OUT: ").AppendLine(PassedRowCount.FormatToStringNoZero());
+            }
 
             return sb.ToString();
         }

@@ -1,3 +1,10 @@
+2020-06-18:
+	- breaking change: RemoveDuplicateRowsMutator destroyed and re-created all input rows due to a design flaw.
+		Now it is no longer an aggregation-type mutator, which means the column list parameters are plain string arrays instead of List<ColumnCopyConfigration>.
+		The performance cost was way too high to ignore this design problem, so the fix was inevitable.
+	- added: close button for Diagnostics.Windows session tabs
+	- added: new filters, better performance and readability on process row list form in Diagnostics.Windows
+
 2020-06-17:
 	- added: support incremental load in DwhBuilder InputIsCustomProcess
 	- added: OrderDuringFinalization to ResilientTable

@@ -172,8 +172,8 @@
                     using (var form = new Form())
                     {
                         form.FormBorderStyle = FormBorderStyle.Sizable;
-                        form.Text = "Process output: " + process.Name;
                         form.WindowState = FormWindowState.Normal;
+                        form.StartPosition = FormStartPosition.Manual;
                         form.Bounds = new Rectangle(Screen.PrimaryScreen.Bounds.Left + 100, Screen.PrimaryScreen.Bounds.Top + 100, Screen.PrimaryScreen.Bounds.Width - 200, Screen.PrimaryScreen.Bounds.Height - 200);
                         form.KeyPreview = true;
                         form.KeyPress += (s, e) =>
@@ -184,7 +184,16 @@
                             }
                         };
 
-                        var _ = new ProcessRowListControl(form, process, rows.Values.ToList());
+                        var control = new ProcessRowListControl(form, process, rows.Values.ToList());
+                        control.Updater.RefreshStarted += (sender, args) =>
+                        {
+                            form.Text = "LOADING...";
+                        };
+                        control.Updater.RefreshFinished += (sender, args) =>
+                        {
+                            form.Text = "Process output: " + process.Name;
+                        };
+
                         ToolTipSingleton.Remove(ListView);
                         form.ShowDialog();
                     }
@@ -297,7 +306,7 @@
             item.SubItems.Add(process.IdentedName);
             item.SubItems.Add(process.KindToString());
             item.SubItems.Add(process.Type);
-            item.SubItems.Add("0").Tag = new Func<string>(() => process.GetFormattedRowFlow(Context));
+            item.SubItems.Add("0");
             item.SubItems.Add("0");
             item.SubItems.Add("0");
             item.SubItems.Add("0");

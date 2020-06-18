@@ -14,10 +14,17 @@
         public Control Container { get; }
         public TrackedProcessInvocation Process { get; }
         public List<TrackedRow> Rows { get; }
-        public ObjectListView ListView { get; }
-        public TextBox SearchBox { get; }
+
+        // filters
+        public RadioButton ShowAll { get; }
+        public RadioButton ShowRemoved { get; }
+        public RadioButton ShowChanged { get; }
+        public RadioButton ShowUnChanged { get; }
+
         private readonly Dictionary<string, int> _columnIndexes = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         private readonly int _fixColumnCount;
+
+        public ControlUpdater<ProcessRowModel> Updater { get; }
 
         public ProcessRowListControl(Control container, TrackedProcessInvocation process, List<TrackedRow> rows)
         {
@@ -25,42 +32,82 @@
             Process = process;
             Rows = rows;
 
-            SearchBox = new TextBox()
+            Updater = new ControlUpdater<ProcessRowModel>(null, Container, -1, 10)
             {
-                Parent = container,
-                Bounds = new Rectangle(10, 10, 150, 20),
+                ItemFilter = ItemFilter,
+                ContainsRows = true,
             };
 
-            SearchBox.TextChanged += SearchBox_TextChanged;
+            Updater.CreateSearchBox(10, 10);
 
-            ListView = ControlUpdater<string>.CreateListView(container);
-            ListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
-            ListView.Bounds = new Rectangle(Container.ClientRectangle.Left, Container.ClientRectangle.Top + 40, Container.ClientRectangle.Width, Container.ClientRectangle.Height - 40);
-            ListView.FormatCell += ListView_FormatCell;
-            ListView.UseCellFormatEvents = true;
-            ListView.CellToolTipShowing += ListView_CellToolTipShowing;
+            ShowAll = new RadioButton()
+            {
+                Parent = container,
+                Bounds = new Rectangle(Updater.SearchBox.Right + 20, Updater.SearchBox.Top, 60, Updater.SearchBox.Height),
+                Text = "All",
+                CheckAlign = ContentAlignment.MiddleLeft,
+                Checked = process.Kind != ProcessKind.mutator,
+            };
 
-            ListView.AllColumns.Add(new OLVColumn()
+            ShowChanged = new RadioButton()
+            {
+                Parent = container,
+                Bounds = new Rectangle(ShowAll.Right + 20, Updater.SearchBox.Top, 75, Updater.SearchBox.Height),
+                Text = "Changed",
+                CheckAlign = ContentAlignment.MiddleLeft,
+                Checked = process.Kind == ProcessKind.mutator,
+            };
+
+            ShowUnChanged = new RadioButton()
+            {
+                Parent = container,
+                Bounds = new Rectangle(ShowChanged.Right + 20, Updater.SearchBox.Top, 100, Updater.SearchBox.Height),
+                Text = "Unchanged",
+                CheckAlign = ContentAlignment.MiddleLeft,
+                Checked = false,
+            };
+
+            ShowRemoved = new RadioButton()
+            {
+                Parent = container,
+                Bounds = new Rectangle(ShowUnChanged.Right + 20, Updater.SearchBox.Top, 75, Updater.SearchBox.Height),
+                Text = "Removed",
+                CheckAlign = ContentAlignment.MiddleLeft,
+                Checked = false,
+            };
+
+            ShowAll.CheckedChanged += (s, a) => Updater.RefreshItems(true);
+            ShowRemoved.CheckedChanged += (s, a) => Updater.RefreshItems(true);
+            ShowChanged.CheckedChanged += (s, a) => Updater.RefreshItems(true);
+            ShowUnChanged.CheckedChanged += (s, a) => Updater.RefreshItems(true);
+
+            Updater.ListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
+            Updater.ListView.Bounds = new Rectangle(Container.ClientRectangle.Left, Container.ClientRectangle.Top + 40, Container.ClientRectangle.Width, Container.ClientRectangle.Height - 40);
+            Updater.ListView.FormatCell += ListView_FormatCell;
+            Updater.ListView.UseCellFormatEvents = true;
+            Updater.ListView.CellToolTipShowing += ListView_CellToolTipShowing;
+
+            Updater.ListView.AllColumns.Add(new OLVColumn()
             {
                 Text = "ID",
                 AspectGetter = x => (x as ProcessRowModel)?.RowUid,
             });
 
-            ListView.AllColumns.Add(new OLVColumn()
+            Updater.ListView.AllColumns.Add(new OLVColumn()
             {
                 Text = "Previous process",
                 AspectGetter = x => (x as ProcessRowModel)?.TrackedRow.PreviousProcess?.Name,
             });
 
-            ListView.AllColumns.Add(new OLVColumn()
+            Updater.ListView.AllColumns.Add(new OLVColumn()
             {
                 Text = "Next process",
                 AspectGetter = x => (x as ProcessRowModel)?.TrackedRow.NextProcess?.Name,
             });
 
-            ListView.Columns.AddRange(ListView.AllColumns.ToArray());
+            Updater.ListView.Columns.AddRange(Updater.ListView.AllColumns.ToArray());
 
-            _fixColumnCount = ListView.Columns.Count;
+            _fixColumnCount = Updater.ListView.Columns.Count;
 
             var newColumns = new List<OLVColumn>();
             var items = new List<ProcessRowModel>();
@@ -97,6 +144,24 @@
                         item.PreviousValues[valueIndex] = kvp.Value;
                         item.PreviousTypes[valueIndex] = kvp.Value?.GetType().GetFriendlyTypeName();
                     }
+
+                    if (row.NewValues.Count == row.PreviousValues.Count)
+                    {
+                        foreach (var kvp in row.NewValues)
+                        {
+                            row.PreviousValues.TryGetValue(kvp.Key, out var previousValue);
+                            row.NewValues.TryGetValue(kvp.Key, out var newValue);
+
+                            if (!DefaultValueComparer.ValuesAreEqual(previousValue, newValue))
+                            {
+                                item.Changed = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        item.Changed = true;
+                    }
                 }
 
                 foreach (var kvp in row.NewValues)
@@ -106,21 +171,36 @@
                     item.NewTypes[valueIndex] = kvp.Value?.GetType().GetFriendlyTypeName();
                 }
 
-                items.Add(item);
+                Updater.AddItem(item);
             }
 
-            ListView.Columns.AddRange(newColumns.ToArray());
-            ListView.AddObjects(items);
+            Updater.ListView.Columns.AddRange(newColumns.ToArray());
 
-            ControlUpdater<int>.ResizeListViewWithRows(ListView);
+            Updater.Start();
         }
+
+#pragma warning disable RCS1073 // Convert 'if' to 'return' statement.
+        private bool ItemFilter(ProcessRowModel item)
+        {
+            if (ShowAll.Checked)
+                return true;
+            else if (ShowChanged.Checked)
+                return item.Changed;
+            else if (ShowUnChanged.Checked)
+                return !item.Changed;
+            else if (ShowRemoved.Checked)
+                return item.TrackedRow.NextProcess == null;
+
+            return true;
+        }
+#pragma warning restore RCS1073 // Convert 'if' to 'return' statement.
 
         private void AddColumnByValue(List<OLVColumn> newColumns, KeyValuePair<string, object> kvp)
         {
             var columnName = kvp.Key;
             if (!_columnIndexes.TryGetValue(columnName, out var columnIndex))
             {
-                columnIndex = ListView.AllColumns.Count - _fixColumnCount;
+                columnIndex = Updater.ListView.AllColumns.Count - _fixColumnCount;
                 var valueIndex = columnIndex / 2;
 
                 var newColumn = new OLVColumn()
@@ -135,7 +215,7 @@
                     AspectToStringConverter = FormattingHelpers.ToDisplayValue,
                 };
 
-                ListView.AllColumns.Add(newColumn);
+                Updater.ListView.AllColumns.Add(newColumn);
                 newColumns.Add(newColumn);
 
                 newColumn = new OLVColumn()
@@ -150,7 +230,7 @@
                     AspectToStringConverter = value => ((Type)value)?.GetFriendlyTypeName(),
                 };
 
-                ListView.AllColumns.Add(newColumn);
+                Updater.ListView.AllColumns.Add(newColumn);
                 newColumns.Add(newColumn);
 
                 _columnIndexes.Add(columnName, columnIndex);
@@ -210,15 +290,7 @@
             }
         }
 
-        private void SearchBox_TextChanged(object sender, EventArgs e)
-        {
-            var text = (sender as TextBox).Text;
-            ListView.AdditionalFilter = !string.IsNullOrEmpty(text)
-                ? TextMatchFilter.Contains(ListView, text)
-                : null;
-        }
-
-        private class ProcessRowModel
+        public class ProcessRowModel
         {
             public TrackedRow TrackedRow { get; set; }
             public int RowUid { get; set; }
@@ -227,6 +299,8 @@
 
             public object[] PreviousValues { get; set; }
             public string[] PreviousTypes { get; set; }
+
+            public bool Changed { get; set; }
         }
     }
 }
