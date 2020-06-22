@@ -20,10 +20,27 @@
 
                     msg += cex.GetType().GetFriendlyTypeName() + ": " + cex.Message;
 
-                    if (cex.Data?["Process"] is string storedProcess)
+                    if (cex.Data?["ProcessType"] is string processType)
                     {
-                        msg += "\n\tPROCESS: " + storedProcess;
+                        msg += "\n\tPROCESS: ";
+
+                        if (cex.Data?["ProcessTypeAssembly"] is string processTypeAssembly)
+                            msg += "(" + processTypeAssembly + ") ";
+
+                        msg += processType;
+
+                        if (cex.Data?["ProcessName"] is string processName)
+                            msg += " (\"" + processName + "\")";
+
+                        if (cex.Data?["ProcessTopic"] is string processTopic)
+                            msg += ", topic: " + processTopic;
+
+                        if (cex.Data?["ProcessKind"] is string processKind)
+                            msg += ", kind: " + processKind;
                     }
+
+                    if (cex.Data?["CallChain"] is string callChain)
+                        msg += "\n\tCALL CHAIN:\n\t\t" + callChain.Replace("\n", "\n\t\t", StringComparison.Ordinal);
 
                     if (includeTrace)
                     {
@@ -42,7 +59,7 @@
                         foreach (var key in cex.Data.Keys)
                         {
                             var k = key.ToString();
-                            if (k == "Process")
+                            if (k == "ProcessName" || k == "ProcessKind" || k == "ProcessTopic" || k == "ProcessType" || k == "ProcessTypeAssembly")
                                 continue;
 
                             if (k == "CallChain")

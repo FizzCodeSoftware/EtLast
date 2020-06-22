@@ -1,3 +1,8 @@
+2020-06-22:
+	- added: more diag fields to EtlException
+	- added: call chain to FormatExceptionWithDetails
+	- added: milliseconds part to EtlRunId
+
 2020-06-18:
 	- breaking change: RemoveDuplicateRowsMutator destroyed and re-created all input rows due to a design flaw.
 		Now it is no longer an aggregation-type mutator, which means the column list parameters are plain string arrays instead of List<ColumnCopyConfigration>.

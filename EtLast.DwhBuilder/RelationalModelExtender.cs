@@ -5,7 +5,8 @@
 
     public static class RelationalModelExtender
     {
-        public static void Extend(RelationalModel model, DwhBuilderConfiguration configuration)
+        public static T Extend<T>(T model, DwhBuilderConfiguration configuration)
+            where T : RelationalModel
         {
             if (configuration.UseEtlRunInfo)
             {
@@ -45,6 +46,8 @@
             {
                 CreateHistoryTable(baseTable, configuration);
             }
+
+            return model;
         }
 
         private static void CreateHistoryTable(RelationalTable baseTable, DwhBuilderConfiguration configuration)

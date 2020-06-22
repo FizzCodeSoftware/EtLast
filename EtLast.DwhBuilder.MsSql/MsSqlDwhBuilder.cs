@@ -242,7 +242,7 @@
                                 currentId.Hour,
                                 currentId.Minute,
                                 currentId.Second,
-                                0,
+                                currentId.Millisecond,
                                 DateTimeKind.Utc);
 
                             EtlRunId = currentId;

@@ -39,7 +39,18 @@
             if (trace != null)
                 Data.Add("Trace", trace);
 
-            Data.Add("Process", process.Name + " (" + process.GetType().GetFriendlyTypeName() + ")");
+            Data.Add("ProcessName", process.Name);
+            if (process.Topic?.Name != null)
+                Data.Add("ProcessTopic", process.Topic.Name);
+
+            Data.Add("ProcessType", process.GetType().GetFriendlyTypeName());
+
+            var assembly = process.GetType().Assembly?.GetName()?.Name;
+            if (assembly != null)
+                Data.Add("ProcessTypeAssembly", assembly);
+
+            Data.Add("ProcessKind", process.Kind.ToString());
+
             Data.Add("CallChain", GetCallChain(process));
         }
 
@@ -50,7 +61,18 @@
             if (trace != null)
                 Data.Add("Trace", trace);
 
-            Data.Add("Process", process.Name + " (" + process.GetType().GetFriendlyTypeName() + ")");
+            Data.Add("ProcessName", process.Name);
+            if (process.Topic?.Name != null)
+                Data.Add("ProcessTopic", process.Topic.Name);
+
+            Data.Add("ProcessType", process.GetType().GetFriendlyTypeName());
+
+            var assembly = process.GetType().Assembly?.GetName()?.Name;
+            if (assembly != null)
+                Data.Add("ProcessTypeAssembly", assembly);
+
+            Data.Add("ProcessKind", process.Kind.ToString());
+
             Data.Add("CallChain", GetCallChain(process));
         }
 
@@ -191,15 +213,34 @@
 
         private static string GetCallChain(IProcess process)
         {
-            var callChain = process.Name;
+            var builder = new StringBuilder(200);
+
             var p = process.InvocationInfo?.Caller;
             while (p != null)
             {
-                callChain = p.Name + " -> " + callChain;
+                var assemblyName = p.GetType().Assembly?.GetName().Name;
+                if (assemblyName != null)
+                {
+                    builder.Append("(").Append(assemblyName).Append(") ");
+                }
+
+                builder.Append(p.GetType().GetFriendlyTypeName());
+                builder.Append(" (\"");
+                builder.Append(p.Name);
+                builder.Append("\")");
+                if (p.Topic?.Name != null)
+                {
+                    builder.Append(", topic: ");
+                    builder.Append(p.Topic.Name);
+                };
+
+                builder.Append(", kind: ");
+                builder.AppendLine(p.Kind.ToString());
+
                 p = p.InvocationInfo?.Caller;
             }
 
-            return "| -> " + callChain;
+            return builder.ToString().Trim();
         }
 
         public void AddOpsMessage(string message)
