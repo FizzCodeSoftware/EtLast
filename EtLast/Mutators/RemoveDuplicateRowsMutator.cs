@@ -10,7 +10,7 @@
     /// <summary>
     /// Input can be unordered.
     /// - discards input rows on-the-fly
-    /// - keeps already yielded row keys in memory (!)
+    /// - keeps already yielded row KEYS in memory (!)
     /// </summary>
     public class RemoveDuplicateRowsMutator : AbstractEvaluable, IMutator
     {
@@ -18,12 +18,12 @@
 
         public string[] KeyColumns { get; set; }
 
-        private readonly StringBuilder _keyBuilder = new StringBuilder();
-
         /// <summary>
         /// Please note that only the values of the first occurence of a key will be returned.
         /// </summary>
         public string[] ValueColumns { get; set; }
+
+        private readonly StringBuilder _keyBuilder = new StringBuilder();
 
         public RemoveDuplicateRowsMutator(ITopic topic, string name)
             : base(topic, name)

@@ -33,6 +33,14 @@
             }
         }
 
+        public static void CopyManyToRow(IReadOnlySlimRow sourceRow, ISlimRow targetRow, List<ColumnCopyConfiguration> configurations)
+        {
+            foreach (var config in configurations)
+            {
+                targetRow.SetValue(config.ToColumn, sourceRow[config.FromColumn]);
+            }
+        }
+
         public static void CopyMany(IReadOnlySlimRow sourceRow, Dictionary<string, object> targetValues, List<ColumnCopyConfiguration> configurations)
         {
             foreach (var config in configurations)

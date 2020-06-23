@@ -7,7 +7,6 @@
     /// <summary>
     /// Input can be unordered. Group key generation is applied on the input rows on-the-fly, but group processing is started only after all groups are created.
     /// - keeps all input rows in memory (!)
-    /// - keeps all aggregates in memory (!)
     /// - uses very flexible <see cref="IMemoryAggregationOperation"/> which takes all rows in a group and generates the aggregate.
     ///  - each group results 0 or 1 aggregate per group
     /// </summary>
@@ -73,7 +72,7 @@
             Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}",
                 rowCount, groups.Count, InvocationInfo.LastInvocationStarted.Elapsed);
 
-            var aggregateRowCount = 0;
+            var aggregateCount = 0;
             foreach (var group in groups.Values)
             {
                 if (Context.CancellationTokenSource.IsCancellationRequested)
@@ -101,20 +100,17 @@
                     Context.SetRowOwner(row as IRow, null);
                 }
 
-                if (aggregate != null)
-                {
-                    aggregateRowCount++;
-                    var row = Context.CreateRow(this, aggregate.Values);
+                aggregateCount++;
+                var aggregateRow = Context.CreateRow(this, aggregate.Values);
 
-                    netTimeStopwatch.Stop();
-                    yield return row;
-                    netTimeStopwatch.Start();
-                }
+                netTimeStopwatch.Stop();
+                yield return aggregateRow;
+                netTimeStopwatch.Start();
             }
 
             netTimeStopwatch.Stop();
-            Context.Log(LogSeverity.Debug, this, "created {AggregateRowCount} aggregates in {Elapsed}/{ElapsedWallClock}",
-                aggregateRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "created {AggregateCount} aggregates in {Elapsed}/{ElapsedWallClock}",
+                aggregateCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
         }

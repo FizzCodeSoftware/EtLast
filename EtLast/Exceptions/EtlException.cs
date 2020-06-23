@@ -232,7 +232,7 @@
                 {
                     builder.Append(", topic: ");
                     builder.Append(p.Topic.Name);
-                };
+                }
 
                 builder.Append(", kind: ");
                 builder.AppendLine(p.Kind.ToString());

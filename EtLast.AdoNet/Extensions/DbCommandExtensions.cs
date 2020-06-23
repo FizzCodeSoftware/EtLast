@@ -10,9 +10,20 @@
             if (source == null)
                 return;
 
+            var isSqlServer = command is System.Data.SqlClient.SqlCommand;
+
             foreach (var kvp in source)
             {
                 var parameter = command.CreateParameter();
+
+                if (isSqlServer)
+                {
+                    if (kvp.Value is System.DateTime)
+                    {
+                        parameter.DbType = DbType.DateTime2;
+                    }
+                }
+
                 parameter.ParameterName = kvp.Key;
                 parameter.Value = kvp.Value;
                 command.Parameters.Add(parameter);

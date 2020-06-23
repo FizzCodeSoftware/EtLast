@@ -1,7 +1,10 @@
+2020-06-23:
+	- added: ReduceGroupToSingleRowMutator
+
 2020-06-22:
 	- added: more diag fields to EtlException
 	- added: call chain to FormatExceptionWithDetails
-	- added: milliseconds part to EtlRunId
+	- added: milliseconds part to EtlRunId (10-millisecond precision)
 
 2020-06-18:
 	- breaking change: RemoveDuplicateRowsMutator destroyed and re-created all input rows due to a design flaw.

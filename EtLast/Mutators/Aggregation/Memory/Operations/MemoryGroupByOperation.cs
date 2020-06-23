@@ -5,10 +5,10 @@
 
     public class MemoryGroupByOperation : AbstractMemoryAggregationOperation
     {
-        public delegate object MemoryGroupByAggregatorDelegate(List<IReadOnlySlimRow> groupRows, string column);
-        public Dictionary<string, MemoryGroupByAggregatorDelegate> ColumnAggregators { get; set; } = new Dictionary<string, MemoryGroupByAggregatorDelegate>();
+        public delegate object MemoryGroupByOperationDelegate(List<IReadOnlySlimRow> groupRows, string column);
+        public Dictionary<string, MemoryGroupByOperationDelegate> ColumnAggregators { get; set; } = new Dictionary<string, MemoryGroupByOperationDelegate>();
 
-        public MemoryGroupByOperation AddColumnAggregator(string column, MemoryGroupByAggregatorDelegate aggregator)
+        public MemoryGroupByOperation AddColumnAggregator(string column, MemoryGroupByOperationDelegate aggregator)
         {
             ColumnAggregators.Add(column, aggregator);
             return this;

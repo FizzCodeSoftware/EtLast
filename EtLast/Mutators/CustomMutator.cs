@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    public delegate bool CustomMutatorDelegate(IEvaluable process, IRow row);
+    public delegate bool CustomMutatorDelegate(IProcess process, IRow row);
 
     public class CustomMutator : AbstractMutator
     {

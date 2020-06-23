@@ -242,7 +242,7 @@
                                 currentId.Hour,
                                 currentId.Minute,
                                 currentId.Second,
-                                currentId.Millisecond,
+                                currentId.Millisecond / 10 * 10, // 10 msec accuracy
                                 DateTimeKind.Utc);
 
                             EtlRunId = currentId;
