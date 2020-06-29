@@ -11,7 +11,6 @@
 
     public static class CommandLineHandler
     {
-        public static string[] StartupArguments { get; private set; }
         public static bool Terminated { get; set; }
         public static CommandContext Context { get; private set; }
 
@@ -50,7 +49,12 @@
 
             Console.WriteLine();
             Context.Logger.Information("{ProgramName} {ProgramVersion} started on {EtLast} {EtLastVersion}", programName, Assembly.GetEntryAssembly().GetName().Version.ToString(), "EtLast", typeof(IEtlContext).Assembly.GetName().Version.ToString());
-            Context.Logger.Debug("command line arguments: {CommandLineArguments}", startupArguments);
+
+            if (startupArguments?.Length > 0)
+            {
+                Context.Logger.Debug("command line arguments: {CommandLineArguments}", startupArguments);
+            }
+
             if (!string.IsNullOrEmpty(Context.HostConfiguration.SeqUrl))
             {
                 Context.Logger.Debug("all logs will be sent to SEQ listening on {SeqUrl}", Context.HostConfiguration.SeqUrl);
@@ -58,11 +62,9 @@
 
             Console.WriteLine();
 
-            StartupArguments = startupArguments;
-
-            if (StartupArguments?.Length > 0)
+            if (startupArguments?.Length > 0)
             {
-                RunCommand(StartupArguments);
+                RunCommand(startupArguments);
                 return;
             }
 

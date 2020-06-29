@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition
 {
+    using System.Globalization;
     using FizzCode.DbTools.DataDefinition;
 
     public class DwhTableDataProperty : SqlTableCustomProperty
@@ -18,6 +19,20 @@
         {
             Name = name;
             Value = value;
+        }
+
+        public override string GenerateCSharpConstructorParameters()
+        {
+            if (Value is string strValue)
+            {
+                return "\"" + Name + "\", \"" + strValue + "\"";
+            }
+            else if (Value is int intValue)
+            {
+                return "\"" + Name + "\", " + intValue.ToString("D", CultureInfo.InvariantCulture);
+            }
+
+            return null;
         }
     }
 
