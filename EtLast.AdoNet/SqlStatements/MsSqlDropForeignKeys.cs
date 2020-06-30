@@ -12,11 +12,6 @@
 
     public class MsSqlDropForeignKeys : AbstractSqlStatements
     {
-        public MsSqlDropForeignKeys(ITopic topic, string name)
-            : base(topic, name)
-        {
-        }
-
         /// <summary>
         /// Default value is <see cref="MsSqlDropForeignKeysProcessMode.ToSpecifiedTables"/>
         /// </summary>
@@ -28,6 +23,11 @@
         public string[] TableNames { get; set; }
 
         public string SchemaName { get; set; }
+
+        public MsSqlDropForeignKeys(ITopic topic, string name)
+            : base(topic, name)
+        {
+        }
 
         private List<Tuple<string, int>> _tableNamesAndCounts;
 

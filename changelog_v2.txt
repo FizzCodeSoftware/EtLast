@@ -1,3 +1,6 @@
+2020-06-30:
+	- added: MsSqlDropStoredProcedures
+
 2020-06-23:
 	- added: ReduceGroupToSingleRowMutator
 
