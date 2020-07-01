@@ -14,7 +14,7 @@
         }
 
         [TestMethod]
-        public void RemoveDuplicates1()
+        public void SingleKey()
         {
             var topic = TestExecuter.GetTopic();
             var builder = new ProcessBuilder()
@@ -43,7 +43,7 @@
         }
 
         [TestMethod]
-        public void RemoveDuplicates2()
+        public void CompositeKey()
         {
             var topic = TestExecuter.GetTopic();
             var builder = new ProcessBuilder()
@@ -73,7 +73,7 @@
         }
 
         [TestMethod]
-        public void RemoveDuplicates3()
+        public void NullKey()
         {
             var topic = TestExecuter.GetTopic();
             var builder = new ProcessBuilder()

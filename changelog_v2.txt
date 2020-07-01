@@ -1,6 +1,7 @@
 2020-07-01:
 	- added: CustomMemoryAggregationOperation can create any number of aggregates
 	- added: SortedMemoryAggregationMutator for pre-grouped aggregations optimized for low RAM usage (streaming), but the input rows must be pre-grouped
+	- added: ThrowExceptionOnDuplicateKeyMutator
 
 2020-06-30:
 	- added: MsSqlDropStoredProcedures
