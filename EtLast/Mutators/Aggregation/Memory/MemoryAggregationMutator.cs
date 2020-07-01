@@ -8,36 +8,12 @@
     /// Input can be unordered. Group key generation is applied on the input rows on-the-fly, but group processing is started only after all groups are created.
     /// - keeps all input rows in memory (!)
     /// - uses very flexible <see cref="IMemoryAggregationOperation"/> which takes all rows in a group and generates the aggregate.
-    ///  - each group results 0 or 1 aggregate per group
     /// </summary>
-    public class MemoryAggregationMutator : AbstractAggregationMutator
+    public class MemoryAggregationMutator : AbstractMemoryAggregationMutator
     {
-        private IMemoryAggregationOperation _operation;
-
-        public IMemoryAggregationOperation Operation
-        {
-            get => _operation;
-            set
-            {
-                _operation?.SetProcess(null);
-
-                _operation = value;
-                _operation.SetProcess(this);
-            }
-        }
-
         public MemoryAggregationMutator(ITopic topic, string name)
             : base(topic, name)
         {
-        }
-
-        protected override void ValidateImpl()
-        {
-            if (GroupingColumns == null || GroupingColumns.Count == 0)
-                throw new ProcessParameterNullException(this, nameof(GroupingColumns));
-
-            if (Operation == null)
-                throw new ProcessParameterNullException(this, nameof(Operation));
         }
 
         protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
@@ -78,15 +54,21 @@
                 if (Context.CancellationTokenSource.IsCancellationRequested)
                     break;
 
-                var aggregate = new SlimRow();
-                foreach (var column in GroupingColumns)
-                {
-                    aggregate.SetValue(column.ToColumn, group[0][column.FromColumn]);
-                }
+                var aggregates = new List<SlimRow>();
 
                 try
                 {
-                    Operation.TransformGroup(group, aggregate);
+                    Operation.TransformGroup(group, () =>
+                    {
+                        var aggregate = new SlimRow();
+                        foreach (var column in GroupingColumns)
+                        {
+                            aggregate.SetValue(column.ToColumn, group[0][column.FromColumn]);
+                        }
+
+                        aggregates.Add(aggregate);
+                        return aggregate;
+                    });
                 }
                 catch (Exception ex)
                 {
@@ -100,12 +82,15 @@
                     Context.SetRowOwner(row as IRow, null);
                 }
 
-                aggregateCount++;
-                var aggregateRow = Context.CreateRow(this, aggregate.Values);
+                foreach (var aggregate in aggregates)
+                {
+                    aggregateCount++;
+                    var aggregateRow = Context.CreateRow(this, aggregate.Values);
 
-                netTimeStopwatch.Stop();
-                yield return aggregateRow;
-                netTimeStopwatch.Start();
+                    netTimeStopwatch.Stop();
+                    yield return aggregateRow;
+                    netTimeStopwatch.Start();
+                }
             }
 
             netTimeStopwatch.Stop();

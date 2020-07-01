@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -14,8 +15,10 @@
             return this;
         }
 
-        public override void TransformGroup(List<IReadOnlySlimRow> rows, SlimRow aggregate)
+        public override void TransformGroup(List<IReadOnlySlimRow> rows, Func<SlimRow> aggregateCreator)
         {
+            var aggregate = aggregateCreator.Invoke();
+
             foreach (var agg in ColumnAggregators)
             {
                 aggregate.SetValue(agg.Key, agg.Value.Invoke(rows, agg.Key));
