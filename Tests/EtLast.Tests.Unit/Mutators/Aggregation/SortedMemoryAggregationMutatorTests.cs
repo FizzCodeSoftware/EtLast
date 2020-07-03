@@ -12,7 +12,7 @@
         {
             return new ProcessBuilder()
             {
-                InputProcess = TestData.PersonPreGroupedByName(topic),
+                InputProcess = TestData.PersonSortedByName(topic),
                 Mutators = new MutatorList()
                 {
                     converter == null ? null : new InPlaceConvertMutator(topic, null)
@@ -22,7 +22,8 @@
                     },
                     new SortedMemoryAggregationMutator(topic, null)
                     {
-                        GroupingColumns = ColumnCopyConfiguration.StraightCopy("name"),
+                        KeyGenerator = row => row.GenerateKey("name"),
+                        FixColumns = ColumnCopyConfiguration.StraightCopy("name"),
                         Operation = op,
                     },
                 },

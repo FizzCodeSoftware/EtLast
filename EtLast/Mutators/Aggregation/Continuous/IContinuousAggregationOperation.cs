@@ -4,6 +4,6 @@
     {
         ContinuousAggregationMutator Process { get; }
         void SetProcess(ContinuousAggregationMutator process);
-        void TransformAggregate(IReadOnlySlimRow row, SlimRow aggregate, int rowsInGroup);
+        void TransformAggregate(IReadOnlySlimRow row, ContinuousAggregate aggregate);
     }
 }

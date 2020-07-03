@@ -5,7 +5,7 @@
     public class RowLookupBuilder
     {
         public IEvaluable Process { get; set; }
-        public LookupRowKeyGenerator KeyGenerator { get; set; }
+        public Func<IReadOnlySlimRow, string> KeyGenerator { get; set; }
 
         public RowLookup Build(IProcess caller)
         {

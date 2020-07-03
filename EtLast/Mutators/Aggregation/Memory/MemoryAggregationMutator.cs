@@ -35,7 +35,7 @@
 
                 var row = enumerator.Current;
                 rowCount++;
-                var key = GetKey(row);
+                var key = KeyGenerator.Invoke(row);
                 if (!groups.TryGetValue(key, out var list))
                 {
                     list = new List<IReadOnlySlimRow>();
@@ -61,9 +61,13 @@
                     Operation.TransformGroup(group, () =>
                     {
                         var aggregate = new SlimRow();
-                        foreach (var column in GroupingColumns)
+
+                        if (FixColumns != null)
                         {
-                            aggregate.SetValue(column.ToColumn, group[0][column.FromColumn]);
+                            foreach (var column in FixColumns)
+                            {
+                                aggregate.SetValue(column.ToColumn, group[0][column.FromColumn]);
+                            }
                         }
 
                         aggregates.Add(aggregate);

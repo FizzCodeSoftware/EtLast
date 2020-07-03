@@ -7,12 +7,12 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class ReduceGroupToSingleRowMutatorTests
+    public class SortedReduceGroupToSingleRowMutatorTests
     {
         [TestMethod]
         public void ThrowsInvalidProcessParameterException()
         {
-            Assert.That.ThrowsInvalidProcessParameterException<ReduceGroupToSingleRowMutator>();
+            Assert.That.ThrowsInvalidProcessParameterException<SortedReduceGroupToSingleRowMutator>();
         }
 
         [TestMethod]
@@ -21,7 +21,7 @@
             var topic = TestExecuter.GetTopic();
             var builder = new ProcessBuilder()
             {
-                InputProcess = TestData.Person(topic),
+                InputProcess = TestData.PersonSortedByName(topic),
                 Mutators = new MutatorList()
                 {
                     new InPlaceConvertMutator(topic, null)
@@ -29,7 +29,7 @@
                         Columns = new[] { "age" },
                         TypeConverter = new DecimalConverter(),
                     },
-                    new ReduceGroupToSingleRowMutator(topic, null)
+                    new SortedReduceGroupToSingleRowMutator(topic, null)
                     {
                         KeyGenerator = row => row.GenerateKey("name"),
                         Selector = (proc, groupRows) =>
@@ -61,7 +61,7 @@
             var topic = TestExecuter.GetTopic();
             var builder = new ProcessBuilder()
             {
-                InputProcess = TestData.Person(topic),
+                InputProcess = TestData.PersonSortedByName(topic),
                 Mutators = new MutatorList()
                 {
                     new InPlaceConvertMutator(topic, null)
@@ -69,7 +69,7 @@
                         Columns = new[] { "age" },
                         TypeConverter = new DecimalConverter(),
                     },
-                    new ReduceGroupToSingleRowMutator(topic, null)
+                    new SortedReduceGroupToSingleRowMutator(topic, null)
                     {
                         IgnoreSelectorForSingleRowGroups = true,
                         KeyGenerator = row => row.GenerateKey("name"),
@@ -105,7 +105,7 @@
             var topic = TestExecuter.GetTopic();
             var builder = new ProcessBuilder()
             {
-                InputProcess = TestData.Person(topic),
+                InputProcess = TestData.PersonSortedByName(topic),
                 Mutators = new MutatorList()
                 {
                     new InPlaceConvertMutator(topic, null)
@@ -113,7 +113,7 @@
                         Columns = new[] { "age" },
                         TypeConverter = new DecimalConverter(),
                     },
-                    new ReduceGroupToSingleRowMutator(topic, null)
+                    new SortedReduceGroupToSingleRowMutator(topic, null)
                     {
                         KeyGenerator = row => row.GenerateKey("name"),
                         Selector = (proc, groupRows) =>

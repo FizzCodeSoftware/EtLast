@@ -33,16 +33,10 @@
         {
         }
 
-        private class Aggregate
-        {
-            public SlimRow ValueCollection { get; } = new SlimRow();
-            public int RowsInGroup { get; set; }
-        }
-
         protected override void ValidateImpl()
         {
-            if (GroupingColumns == null || GroupingColumns.Count == 0)
-                throw new ProcessParameterNullException(this, nameof(GroupingColumns));
+            if (KeyGenerator == null)
+                throw new ProcessParameterNullException(this, nameof(KeyGenerator));
 
             if (Operation == null)
                 throw new ProcessParameterNullException(this, nameof(Operation));
@@ -50,7 +44,7 @@
 
         protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
-            var aggregates = new Dictionary<string, Aggregate>();
+            var aggregates = new Dictionary<string, ContinuousAggregate>();
 
             netTimeStopwatch.Stop();
             var enumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
@@ -67,14 +61,17 @@
 
                 var row = enumerator.Current;
                 rowCount++;
-                var key = GetKey(row);
+                var key = KeyGenerator.Invoke(row);
                 if (!aggregates.TryGetValue(key, out var aggregate))
                 {
-                    aggregate = new Aggregate();
+                    aggregate = new ContinuousAggregate();
 
-                    foreach (var column in GroupingColumns)
+                    if (FixColumns != null)
                     {
-                        aggregate.ValueCollection.SetValue(column.ToColumn, row[column.FromColumn]);
+                        foreach (var column in FixColumns)
+                        {
+                            aggregate.ResultRow.SetValue(column.ToColumn, row[column.FromColumn]);
+                        }
                     }
 
                     aggregates.Add(key, aggregate);
@@ -82,7 +79,7 @@
 
                 try
                 {
-                    Operation.TransformAggregate(row, aggregate.ValueCollection, aggregate.RowsInGroup);
+                    Operation.TransformAggregate(row, aggregate);
                 }
                 catch (Exception ex)
                 {
@@ -104,7 +101,7 @@
                 if (Context.CancellationTokenSource.IsCancellationRequested)
                     break;
 
-                var row = Context.CreateRow(this, aggregate.ValueCollection.Values);
+                var row = Context.CreateRow(this, aggregate.ResultRow.Values);
 
                 netTimeStopwatch.Stop();
                 yield return row;

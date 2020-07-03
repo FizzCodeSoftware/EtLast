@@ -1,3 +1,10 @@
+2020-07-03:
+	- added: SortedReduceGroupToSingleRowMutator
+	- added: ContinuousGroupByOperation supports aggregators with states (per-aggregate) and multicolumn behavior
+	- breaking change: KeyColumns changed to KeyGenerator in RemoveDuplicateRowsMutator and ReduceGroupToSingleRowMutator
+	- breaking change: GroupingColumns split to KeyGenerator and FixColumns in MemoryAggregationMutator, SortedMemoryAggregationMutator and ContinuousAggregationMutator
+		Without these changes it was impossible to handle key casing issues, trimming and other key cleanup functions. It was a design problem and must be fixed before widespread usage.
+
 2020-07-01:
 	- added: CustomMemoryAggregationOperation can create any number of aggregates
 	- added: SortedMemoryAggregationMutator for pre-grouped aggregations optimized for low RAM usage (streaming), but the input rows must be pre-grouped

@@ -23,8 +23,8 @@
 
         protected override void ValidateImpl()
         {
-            if (GroupingColumns == null || GroupingColumns.Count == 0)
-                throw new ProcessParameterNullException(this, nameof(GroupingColumns));
+            if (KeyGenerator == null)
+                throw new ProcessParameterNullException(this, nameof(KeyGenerator));
 
             if (Operation == null)
                 throw new ProcessParameterNullException(this, nameof(Operation));

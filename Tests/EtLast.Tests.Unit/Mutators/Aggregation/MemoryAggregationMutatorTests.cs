@@ -22,7 +22,8 @@
                     },
                     new MemoryAggregationMutator(topic, null)
                     {
-                        GroupingColumns = ColumnCopyConfiguration.StraightCopy("name"),
+                        KeyGenerator = row => row.GenerateKey("name"),
+                        FixColumns = ColumnCopyConfiguration.StraightCopy("name"),
                         Operation = op,
                     },
                 },

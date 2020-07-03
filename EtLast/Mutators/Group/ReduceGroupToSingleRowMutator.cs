@@ -4,7 +4,6 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Text;
 
     public delegate IRow ReduceGroupToSingleRowDelegate(IProcess process, IReadOnlyList<IRow> groupRows);
 
@@ -16,11 +15,8 @@
     {
         public IEvaluable InputProcess { get; set; }
 
-        public string[] KeyColumns { get; set; }
-
+        public Func<IReadOnlyRow, string> KeyGenerator { get; set; }
         public ReduceGroupToSingleRowDelegate Selector { get; set; }
-
-        private readonly StringBuilder _keyBuilder = new StringBuilder();
 
         /// <summary>
         /// Default false. Setting to true means the Selector won't be called for groups with a single row - which can improve performance and/or introduce side effects.
@@ -34,36 +30,11 @@
 
         protected override void ValidateImpl()
         {
-            if (KeyColumns == null || KeyColumns.Length == 0)
-                throw new ProcessParameterNullException(this, nameof(KeyColumns));
+            if (KeyGenerator == null)
+                throw new ProcessParameterNullException(this, nameof(KeyGenerator));
 
             if (Selector == null)
                 throw new ProcessParameterNullException(this, nameof(Selector));
-        }
-
-        private string GetKey(IReadOnlySlimRow row)
-        {
-            if (KeyColumns.Length == 1)
-            {
-                var value = row[KeyColumns[0]];
-
-                return value != null
-                    ? DefaultValueFormatter.Format(value)
-                    : "\0";
-            }
-
-            _keyBuilder.Clear();
-            for (var i = 0; i < KeyColumns.Length; i++)
-            {
-                var value = row[KeyColumns[i]];
-
-                if (value != null)
-                    _keyBuilder.Append(DefaultValueFormatter.Format(value));
-
-                _keyBuilder.Append('\0');
-            }
-
-            return _keyBuilder.ToString();
         }
 
         protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
@@ -85,7 +56,7 @@
 
                 var row = enumerator.Current;
                 rowCount++;
-                var key = GetKey(row);
+                var key = KeyGenerator.Invoke(row);
                 if (!groups.TryGetValue(key, out var group))
                 {
                     groups.Add(key, row);
