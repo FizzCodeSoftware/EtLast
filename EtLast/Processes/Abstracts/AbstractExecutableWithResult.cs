@@ -1,8 +1,10 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
+    using System.ComponentModel;
     using System.Diagnostics;
 
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractExecutableWithResult<T> : AbstractProcess, IExecutableWithResult<T>
     {
         protected AbstractExecutableWithResult(ITopic topic, string name)

@@ -3,6 +3,7 @@
     using System.ComponentModel;
     using System.Linq;
 
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractProcess : IProcess
     {
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]

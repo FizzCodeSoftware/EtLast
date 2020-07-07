@@ -10,7 +10,7 @@
     public abstract class AbstractEtlPlugin : IEtlPlugin
     {
         private string _nameCached;
-        public string Name => _nameCached ?? (_nameCached = GetType().GetFriendlyTypeName());
+        public string Name => _nameCached ??= GetType().GetFriendlyTypeName();
 
         public ModuleConfiguration ModuleConfiguration { get; private set; }
         public IEtlContext Context => PluginTopic.Context;

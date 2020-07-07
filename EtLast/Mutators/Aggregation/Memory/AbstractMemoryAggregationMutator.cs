@@ -1,5 +1,8 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System.ComponentModel;
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractMemoryAggregationMutator : AbstractAggregationMutator
     {
         private IMemoryAggregationOperation _operation;

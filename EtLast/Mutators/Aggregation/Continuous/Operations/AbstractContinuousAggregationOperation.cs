@@ -1,5 +1,8 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System.ComponentModel;
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractContinuousAggregationOperation : IContinuousAggregationOperation
     {
         public ContinuousAggregationMutator Process { get; private set; }

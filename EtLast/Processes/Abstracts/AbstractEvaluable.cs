@@ -2,14 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Diagnostics;
 
-    public delegate void EvaluableInitializerDelegate(IEvaluable evaluable);
-
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractEvaluable : AbstractProcess, IEvaluable
     {
         public virtual bool ConsumerShouldNotBuffer { get; }
-        public EvaluableInitializerDelegate Initializer { get; set; }
+        public Action<IEvaluable> Initializer { get; set; }
 
         protected AbstractEvaluable(ITopic topic, string name)
             : base(topic, name)

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Data;
     using System.Diagnostics;
     using System.Globalization;
@@ -10,8 +11,9 @@
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
-    public delegate void ConnectionCreatorDelegate(ConnectionStringWithProvider connectionString, AbstractAdoNetDbReader process, out DatabaseConnection connection, out IDbTransaction transaction);
+    public delegate void ConnectionCreatorDelegate(AbstractAdoNetDbReader process, out DatabaseConnection connection, out IDbTransaction transaction);
 
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractAdoNetDbReader : AbstractProducer, IRowReader
     {
         public ConnectionStringWithProvider ConnectionString { get; set; }
@@ -74,7 +76,7 @@
                 if (CustomConnectionCreator != null)
                 {
 #pragma warning disable CA2000 // Dispose objects before losing scope
-                    CustomConnectionCreator.Invoke(ConnectionString, this, out connection, out transaction);
+                    CustomConnectionCreator.Invoke(this, out connection, out transaction);
 #pragma warning restore CA2000 // Dispose objects before losing scope
                 }
                 else

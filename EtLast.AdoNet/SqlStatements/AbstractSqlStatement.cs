@@ -1,9 +1,11 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Data;
     using System.Transactions;
 
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractSqlStatement : AbstractSqlStatementBase
     {
         protected AbstractSqlStatement(ITopic topic, string name)

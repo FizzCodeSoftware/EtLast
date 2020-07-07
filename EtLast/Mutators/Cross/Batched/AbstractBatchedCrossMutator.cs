@@ -1,7 +1,9 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
+    using System.ComponentModel;
 
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractBatchedCrossMutator : AbstractBatchedMutator
     {
         public FilteredRowLookupBuilder LookupBuilder { get; set; }

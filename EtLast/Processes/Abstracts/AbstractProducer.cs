@@ -2,12 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Diagnostics;
     using System.Globalization;
 
     /// <summary>
     /// Producer processes create rows. They may create or generate, read from different sources, copy from existing rows.
     /// </summary>
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractProducer : AbstractEvaluable
     {
         /// <summary>

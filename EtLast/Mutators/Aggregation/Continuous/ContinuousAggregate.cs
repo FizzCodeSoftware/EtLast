@@ -2,7 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
 
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public class ContinuousAggregate
     {
         public SlimRow ResultRow { get; } = new SlimRow();

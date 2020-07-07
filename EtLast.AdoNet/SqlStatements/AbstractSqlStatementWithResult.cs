@@ -1,10 +1,12 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Data;
     using System.Transactions;
     using FizzCode.DbTools.Configuration;
 
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractSqlStatementWithResult<T> : AbstractExecutableWithResult<T>
     {
         public ConnectionStringWithProvider ConnectionString { get; set; }
