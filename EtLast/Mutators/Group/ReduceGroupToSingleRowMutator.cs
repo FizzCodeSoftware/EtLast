@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Diagnostics;
 
     public delegate IRow ReduceGroupToSingleRowDelegate(IProcess process, IReadOnlyList<IRow> groupRows);
@@ -159,6 +160,15 @@
         IEnumerator IEnumerable.GetEnumerator()
         {
             yield return this;
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class ReduceGroupToSingleRowMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder AddReduceGroupToSingleRowMutator(this IFluentProcessMutatorBuilder builder, ReduceGroupToSingleRowMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

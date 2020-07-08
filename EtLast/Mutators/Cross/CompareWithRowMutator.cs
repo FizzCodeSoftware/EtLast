@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
 
     public class CompareWithRowMutator : AbstractCrossMutator
     {
@@ -146,6 +147,15 @@
                 var exception = new ProcessExecutionException(this, row, nameof(RowKeyGenerator) + " failed");
                 throw exception;
             }
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class CompareWithRowMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder AddCompareWithRowMutator(this IFluentProcessMutatorBuilder builder, CompareWithRowMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

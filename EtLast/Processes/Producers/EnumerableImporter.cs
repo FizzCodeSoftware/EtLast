@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
 
     public delegate IEnumerable<IReadOnlySlimRow> EnumerableImporterDelegate(IProcess process);
@@ -98,6 +99,15 @@
                     yield return Context.CreateRow(this, row.Values);
                 }
             }
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class EnumerableImporterFluent
+    {
+        public static IFluentProcessMutatorBuilder EnumerableImporter(this IFluentProcessBuilder builder, EnumerableImporter producer)
+        {
+            return builder.SetInput(producer);
         }
     }
 }

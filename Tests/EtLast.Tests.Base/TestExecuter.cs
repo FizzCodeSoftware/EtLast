@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast.Tests
 {
-    using System.Collections.Generic;
     using System.Linq;
 
     public static class TestExecuter
@@ -17,28 +16,23 @@
 
         public static TestExecuterResult Execute(ProcessBuilder builder)
         {
-            var result = new TestExecuterResult()
+            var result = new TestExecuterResult
             {
-                Input = builder.InputProcess,
-                Mutators = new List<IMutator>(),
+                Process = builder.Build(),
             };
 
-            foreach (var list in builder.Mutators)
-            {
-                if (list != null)
-                {
-                    foreach (var mutator in list)
-                    {
-                        if (mutator != null)
-                        {
-                            result.Mutators.Add(mutator);
-                        }
-                    }
-                }
-            }
+            result.MutatedRows = result.Process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
 
-            result.InputRows = builder.InputProcess.Evaluate().TakeRowsAndReleaseOwnership().ToList();
-            result.Process = builder.Build();
+            return result;
+        }
+
+        public static TestExecuterResult Execute(IFluentProcessBuilder builder)
+        {
+            var result = new TestExecuterResult()
+            {
+                Process = builder.Result,
+            };
+
             result.MutatedRows = result.Process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
 
             return result;

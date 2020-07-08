@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
 
     public class KeyTestMutator : AbstractCrossMutator
     {
@@ -141,6 +142,15 @@
                 var exception = new ProcessExecutionException(this, row, nameof(RowKeyGenerator) + " failed");
                 throw exception;
             }
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class KeyTestMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder AddKeyTestMutator(this IFluentProcessMutatorBuilder builder, KeyTestMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

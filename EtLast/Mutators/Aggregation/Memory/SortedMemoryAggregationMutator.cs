@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Diagnostics;
 
     /// <summary>
@@ -155,6 +156,15 @@
                 aggregateCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class SortedMemoryAggregationMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder AddSortedMemoryAggregationMutator(this IFluentProcessMutatorBuilder builder, SortedMemoryAggregationMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

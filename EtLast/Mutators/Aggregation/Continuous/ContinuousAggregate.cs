@@ -11,13 +11,13 @@
         public int RowsInGroup { get; set; }
         private Dictionary<string, object> _state;
 
-        public object GetStateValue<T>(string uniqueName, T defaultValue)
+        public T GetStateValue<T>(string uniqueName, T defaultValue)
         {
             if (_state == null)
                 return defaultValue;
 
-            if (_state.TryGetValue(uniqueName, out var v))
-                return v;
+            if (_state.TryGetValue(uniqueName, out var v) && (v is T value))
+                return value;
 
             return defaultValue;
         }

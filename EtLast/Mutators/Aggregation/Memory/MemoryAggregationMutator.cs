@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Diagnostics;
 
     /// <summary>
@@ -102,6 +103,15 @@
                 aggregateCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class MemoryAggregationMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder AddMemoryAggregationMutator(this IFluentProcessMutatorBuilder builder, MemoryAggregationMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

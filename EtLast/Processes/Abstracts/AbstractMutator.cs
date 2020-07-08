@@ -49,6 +49,7 @@
                     break;
 
                 var row = enumerator.Current;
+
                 var apply = false;
                 try
                 {

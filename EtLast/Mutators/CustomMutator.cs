@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
 
     public delegate bool CustomMutatorDelegate(IProcess process, IRow row);
 
@@ -34,6 +35,15 @@
         {
             if (Then == null)
                 throw new ProcessParameterNullException(this, nameof(Then));
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class CustomMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder AddCustomMutator(this IFluentProcessMutatorBuilder builder, CustomMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

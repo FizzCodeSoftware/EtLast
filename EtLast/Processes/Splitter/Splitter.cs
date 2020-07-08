@@ -14,6 +14,7 @@
         private TRowQueue _queue;
         private Thread _feederThread;
         private readonly object _lock = new object();
+        private bool _finished;
 
         public Splitter(ITopic topic, string name)
             : base(topic, name)
@@ -36,7 +37,7 @@
         {
             lock (_lock)
             {
-                if (_queue == null)
+                if (_queue == null && !_finished)
                 {
                     _queue = new TRowQueue();
 
@@ -51,6 +52,7 @@
             Transaction.Current = tran as Transaction;
 
             var rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership();
+
             foreach (var row in rows)
             {
                 _queue.AddRow(row);
@@ -58,8 +60,12 @@
 
             _queue.SignalNoMoreRows();
 
-            _queue = default;
-            _feederThread = null;
+            lock (_lock)
+            {
+                _finished = true;
+                _feederThread = null;
+            }
+
             Context.RegisterProcessInvocationEnd(this);
         }
     }

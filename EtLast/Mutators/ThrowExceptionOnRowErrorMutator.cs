@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Globalization;
     using System.Linq;
 
@@ -34,6 +35,22 @@
             }
 
             yield return row;
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class ThrowExceptionOnRowErrorMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder AddThrowExceptionOnRowErrorMutator(this IFluentProcessMutatorBuilder builder, ThrowExceptionOnRowErrorMutator mutator)
+        {
+            return builder.AddMutators(mutator);
+        }
+
+        public static IFluentProcessMutatorBuilder AddThrowExceptionOnRowErrorMutator(this IFluentProcessMutatorBuilder builder, ITopic topic)
+        {
+            var mutator = new ThrowExceptionOnRowErrorMutator(topic);
+
+            return builder.AddMutators(mutator);
         }
     }
 }

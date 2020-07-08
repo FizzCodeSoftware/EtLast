@@ -20,7 +20,7 @@
                 sb.AppendLine(" });");
             }
 
-            var exceptions = result.Input.Topic.Context.GetExceptions();
+            var exceptions = result.Process.Topic.Context.GetExceptions();
             sb.AppendLine("\t\t\tvar exceptions = topic.Context.GetExceptions();");
             sb.Append("\t\t\tAssert.AreEqual(").Append(exceptions.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", exceptions.Count);");
 

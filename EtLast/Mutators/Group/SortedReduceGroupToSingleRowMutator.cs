@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Diagnostics;
 
     /// <summary>
@@ -154,6 +155,15 @@
         IEnumerator IEnumerable.GetEnumerator()
         {
             yield return this;
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class SortedReduceGroupToSingleRowMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder AddSortedReduceGroupToSingleRowMutator(this IFluentProcessMutatorBuilder builder, SortedReduceGroupToSingleRowMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

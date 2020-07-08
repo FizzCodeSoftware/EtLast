@@ -43,7 +43,7 @@
                         return new Evaluator();
                 }
 
-                return new Evaluator(this, EvaluateImpl(netTimeStopwatch));
+                return new Evaluator(this, caller, EvaluateImpl(netTimeStopwatch));
             }
             catch (Exception ex)
             {

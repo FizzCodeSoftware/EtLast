@@ -10,7 +10,6 @@
         private readonly AutoResetEvent _newRowEvent = new AutoResetEvent(false);
         private readonly ManualResetEvent _noMoreRowsEvent = new ManualResetEvent(false);
         private readonly ConcurrentQueue<IRow> _queue = new ConcurrentQueue<IRow>();
-        private bool _noMoreRows;
 
         public void AddRow(IRow row)
         {
@@ -30,7 +29,6 @@
 
         public void SignalNoMoreRows()
         {
-            _noMoreRows = true;
             _noMoreRowsEvent.Set();
         }
 
@@ -50,8 +48,13 @@
                     if (token.IsCancellationRequested)
                         yield break;
 
-                    if (_noMoreRows)
+                    if (_noMoreRowsEvent.WaitOne(0))
+                    {
+                        while (_queue.TryDequeue(out row))
+                            yield return row;
+
                         yield break;
+                    }
                 }
 
                 yield return row;

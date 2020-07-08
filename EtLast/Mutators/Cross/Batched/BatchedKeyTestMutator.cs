@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
 
     public class BatchedKeyTestMutator : AbstractBatchedCrossMutator
     {
@@ -205,6 +206,15 @@
             {
                 throw new InvalidProcessParameterException(this, nameof(MatchAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must use a different action moode: " + nameof(MatchAction) + " or " + nameof(NoMatchAction));
             }
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class BatchedKeyTestMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder AddBatchedKeyTestMutator(this IFluentProcessMutatorBuilder builder, BatchedKeyTestMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

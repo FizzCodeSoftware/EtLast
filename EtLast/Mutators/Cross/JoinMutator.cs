@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
 
     public class JoinMutator : AbstractCrossMutator
     {
@@ -153,6 +154,15 @@
                 var exception = new ProcessExecutionException(this, row, nameof(RowKeyGenerator) + " failed");
                 throw exception;
             }
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class JoinMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder AddJoinMutator(this IFluentProcessMutatorBuilder builder, JoinMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

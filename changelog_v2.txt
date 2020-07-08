@@ -1,3 +1,8 @@
+2020-07-07:
+	- fixed: concurrency issue in DefaultRowQueue
+	- fixed: concurrency issue is all Evaluables. Only Splitter<TRowQueue> was affected.
+	- added: FluentProcessBuilder BETA (it will be final in the next minor version)
+
 2020-07-03:
 	- added: SortedReduceGroupToSingleRowMutator
 	- added: ContinuousGroupByOperation supports aggregators with states (per-aggregate) and multicolumn behavior

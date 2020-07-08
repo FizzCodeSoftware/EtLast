@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
 
     public class BatchedJoinMutator : AbstractBatchedCrossMutator
     {
@@ -148,6 +149,15 @@
 
             if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
                 throw new ProcessParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class BatchedJoinMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder AddBatchedJoinMutator(this IFluentProcessMutatorBuilder builder, BatchedJoinMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

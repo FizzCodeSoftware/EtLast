@@ -2,8 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Diagnostics;
-    using System.Linq;
     using System.Threading;
     using System.Transactions;
 
@@ -21,12 +21,13 @@
         protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
             var threads = new List<Thread>();
-            var finished = new bool[ProcessList.Count];
+            var finishedCount = 0;
             using var queue = new DefaultRowQueue();
 
             for (var i = 0; i < ProcessList.Count; i++)
             {
-                var inputProcess = ProcessList[i];
+                var threadIndex = i; // capture variable for thread
+                var inputProcess = ProcessList[threadIndex];
 
                 var thread = new Thread(tran =>
                 {
@@ -44,9 +45,11 @@
 
                             ts?.Complete();
 
-                            finished[i] = true;
-                            if (finished.All(x => x))
+                            Interlocked.Increment(ref finishedCount);
+                            if (finishedCount == ProcessList.Count)
+                            {
                                 queue.SignalNoMoreRows();
+                            }
                         }
                     }
                     finally
@@ -76,6 +79,36 @@
 
             Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
             Context.RegisterProcessInvocationEnd(this);
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class ParallelMergerFluent
+    {
+        public static IFluentProcessMutatorBuilder ParallelProcess(this IFluentProcessMutatorBuilder builder, ITopic topic, int threadCount, Action<int, IFluentProcessMutatorBuilder> mutatorBuilder)
+        {
+            var splitter = new Splitter<DefaultRowQueue>(topic, "ParallelSplitter")
+            {
+                InputProcess = builder.ProcessBuilder.Result,
+            };
+
+            var merger = new ParallelMerger(topic, "ParallelMerger")
+            {
+                ProcessList = new List<IEvaluable>(),
+            };
+
+            for (var i = 0; i < threadCount; i++)
+            {
+                var subBuilder = new FluentProcessBuilder();
+                var subMutatorBuilder = subBuilder.SetInput(splitter);
+                mutatorBuilder.Invoke(i, subMutatorBuilder);
+
+                var subProcess = subBuilder.Result;
+                merger.ProcessList.Add(subProcess);
+            }
+
+            builder.ProcessBuilder.Result = merger;
+            return builder;
         }
     }
 }

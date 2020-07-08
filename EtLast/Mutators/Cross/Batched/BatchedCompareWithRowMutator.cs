@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
 
     public class BatchedCompareWithRowMutator : AbstractBatchedCrossMutator
     {
@@ -138,6 +139,15 @@
 
             if (EqualityComparer == null)
                 throw new ProcessParameterNullException(this, nameof(EqualityComparer));
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class BatchedCompareWithRowMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder AddBatchedCompareWithRowMutator(this IFluentProcessMutatorBuilder builder, BatchedCompareWithRowMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

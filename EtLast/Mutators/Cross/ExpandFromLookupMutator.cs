@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
 
     public class ExpandFromLookupMutator : AbstractCrossMutator
     {
@@ -75,6 +76,15 @@
 
             if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
                 throw new ProcessParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class ExpandFromLookupMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder AddExpandFromLookupMutator(this IFluentProcessMutatorBuilder builder, ExpandFromLookupMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

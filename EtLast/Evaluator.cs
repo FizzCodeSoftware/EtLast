@@ -7,15 +7,18 @@
     {
         private readonly IEnumerable<IRow> _input;
         private readonly IProcess _process;
+        private readonly IProcess _caller;
 
         public Evaluator()
         {
             _input = Enumerable.Empty<IRow>();
         }
 
-        public Evaluator(IProcess process, IEnumerable<IRow> input)
+        // caller is passed due to process.InvocationInfo.Caller can not be used for this (it stores only the last caller)
+        public Evaluator(IProcess process, IProcess caller, IEnumerable<IRow> input)
         {
             _process = process;
+            _caller = caller;
             _input = input;
         }
 
@@ -23,7 +26,7 @@
         {
             foreach (var row in _input)
             {
-                row.Context.SetRowOwner(row, _process.InvocationInfo?.Caller);
+                row.Context.SetRowOwner(row, _caller);
                 yield return row;
             }
 
@@ -35,7 +38,7 @@
         {
             foreach (var row in _input)
             {
-                row.Context.SetRowOwner(row, _process.InvocationInfo?.Caller);
+                row.Context.SetRowOwner(row, _caller);
                 row.Context.SetRowOwner(row, null);
 
                 yield return row;
@@ -47,7 +50,7 @@
             var count = 0;
             foreach (var row in _input)
             {
-                row.Context.SetRowOwner(row, _process.InvocationInfo?.Caller);
+                row.Context.SetRowOwner(row, _caller);
                 row.Context.SetRowOwner(row, null);
 
                 count++;
