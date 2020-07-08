@@ -351,5 +351,77 @@
             Assert.AreEqual(1, exceptions.Count);
             Assert.IsTrue(exceptions[0] is ContinuousAggregationException);
         }
+
+        [TestMethod]
+        public void IntCount()
+        {
+            var topic = TestExecuter.GetTopic();
+            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddIntCount("count"), null);
+            var result = TestExecuter.Execute(builder);
+            Assert.AreEqual(6, result.MutatedRows.Count);
+            Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["count"] = 2 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["count"] = 1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["count"] = 1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["count"] = 1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["count"] = 1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["count"] = 1 } });
+            var exceptions = topic.Context.GetExceptions();
+            Assert.AreEqual(0, exceptions.Count);
+        }
+
+        [TestMethod]
+        public void IntCountWhenNotNull()
+        {
+            var topic = TestExecuter.GetTopic();
+            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddIntCountWhenNotNull("count", "age"), null);
+            var result = TestExecuter.Execute(builder);
+            Assert.AreEqual(6, result.MutatedRows.Count);
+            Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["count"] = 2 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["count"] = 1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["count"] = 1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["count"] = 1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["count"] = 1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake" } });
+            var exceptions = topic.Context.GetExceptions();
+            Assert.AreEqual(0, exceptions.Count);
+        }
+
+        [TestMethod]
+        public void IntNumberOfDistinctKeys_IgnoreNull()
+        {
+            var topic = TestExecuter.GetTopic();
+            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddIntNumberOfDistinctKeys("count", row => row.GenerateKey("eyeColor")), null);
+            var result = TestExecuter.Execute(builder);
+            Assert.AreEqual(6, result.MutatedRows.Count);
+            Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["count"] = 1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["count"] = 1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["count"] = 1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake" } });
+            var exceptions = topic.Context.GetExceptions();
+            Assert.AreEqual(0, exceptions.Count);
+        }
+
+        [TestMethod]
+        public void IntNumberOfDistinctKeys_CountNull()
+        {
+            var topic = TestExecuter.GetTopic();
+            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddIntNumberOfDistinctKeys("count", row => row.GenerateKey("eyeColor") ?? "\0NULL\0"), null);
+            var result = TestExecuter.Execute(builder);
+            Assert.AreEqual(6, result.MutatedRows.Count);
+            Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["count"] = 2 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["count"] = 1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["count"] = 1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["count"] = 1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["count"] = 1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["count"] = 1 } });
+            var exceptions = topic.Context.GetExceptions();
+            Assert.AreEqual(0, exceptions.Count);
+        }
     }
 }

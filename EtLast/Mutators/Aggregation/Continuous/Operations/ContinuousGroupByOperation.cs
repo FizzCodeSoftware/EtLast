@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
 
     public class ContinuousGroupByOperation : AbstractContinuousAggregationOperation
     {
@@ -25,6 +26,76 @@
 
     public static class ContinuousGroupByOperationExtensions
     {
+        /// <summary>
+        /// New value will be integer.
+        /// </summary>
+        public static ContinuousGroupByOperation AddIntNumberOfDistinctKeys(this ContinuousGroupByOperation op, string column, RowKeyGenerator keyGenerator)
+        {
+            var id = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddIntNumberOfDistinctKeys);
+            return op.AddAggregator((aggregate, row) =>
+            {
+                var key = keyGenerator.Invoke(row);
+                if (key != null)
+                {
+                    var hashset = aggregate.GetStateValue<HashSet<string>>(id, null);
+                    if (hashset == null)
+                    {
+                        hashset = new HashSet<string>();
+                        aggregate.SetStateValue(id, hashset);
+                    }
+
+                    if (!hashset.Contains(key))
+                    {
+                        hashset.Add(key);
+                        var newValue = hashset.Count;
+                        aggregate.ResultRow.SetValue(column, newValue);
+                    }
+                }
+            });
+        }
+
+        /// <summary>
+        /// New value will be integer.
+        /// </summary>
+        public static ContinuousGroupByOperation AddIntCount(this ContinuousGroupByOperation op, string targetColumn)
+        {
+            return op.AddAggregator((aggregate, row) =>
+            {
+                var newValue = aggregate.ResultRow.GetAs(targetColumn, 0) + 1;
+                aggregate.ResultRow.SetValue(targetColumn, newValue);
+            });
+        }
+
+        /// <summary>
+        /// New value will be integer.
+        /// </summary>
+        public static ContinuousGroupByOperation AddIntCountWhenNotNull(this ContinuousGroupByOperation op, string targetColumn, string columnToCheckForValue)
+        {
+            return op.AddAggregator((aggregate, row) =>
+            {
+                if (row.HasValue(columnToCheckForValue))
+                {
+                    var newValue = aggregate.ResultRow.GetAs(targetColumn, 0) + 1;
+                    aggregate.ResultRow.SetValue(targetColumn, newValue);
+                }
+            });
+        }
+
+        /// <summary>
+        /// New value will be integer.
+        /// </summary>
+        public static ContinuousGroupByOperation AddIntCountWhenNull(this ContinuousGroupByOperation op, string columnWithCount, string columnToCheckForValue)
+        {
+            return op.AddAggregator((aggregate, row) =>
+            {
+                if (!row.HasValue(columnToCheckForValue))
+                {
+                    var newValue = aggregate.ResultRow.GetAs(columnWithCount, 0) + 1;
+                    aggregate.ResultRow.SetValue(columnWithCount, newValue);
+                }
+            });
+        }
+
         /// <summary>
         /// New value will be double.
         /// </summary>
