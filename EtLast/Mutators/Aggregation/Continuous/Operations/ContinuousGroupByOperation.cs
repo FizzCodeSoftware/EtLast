@@ -101,9 +101,13 @@
         /// </summary>
         public static ContinuousGroupByOperation AddIntAverage(this ContinuousGroupByOperation op, string column)
         {
+            var id = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddIntAverage);
             return op.AddAggregator((aggregate, row) =>
             {
-                var newValue = ((aggregate.ResultRow.GetAs(column, 0.0d) * aggregate.RowsInGroup) + row.GetAs(column, 0)) / (aggregate.RowsInGroup + 1);
+                var newTotal = aggregate.GetStateValue(id, 0) + row.GetAs(column, 0);
+                aggregate.SetStateValue(id, newTotal);
+
+                var newValue = newTotal / (double)(aggregate.RowsInGroup + 1);
                 aggregate.ResultRow.SetValue(column, newValue);
             });
         }
@@ -113,9 +117,13 @@
         /// </summary>
         public static ContinuousGroupByOperation AddLongAverage(this ContinuousGroupByOperation op, string column)
         {
+            var id = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddLongAverage);
             return op.AddAggregator((aggregate, row) =>
             {
-                var newValue = ((aggregate.ResultRow.GetAs(column, 0.0d) * aggregate.RowsInGroup) + row.GetAs(column, 0L)) / (aggregate.RowsInGroup + 1);
+                var newTotal = aggregate.GetStateValue(id, 0L) + row.GetAs(column, 0L);
+                aggregate.SetStateValue(id, newTotal);
+
+                var newValue = newTotal / (double)(aggregate.RowsInGroup + 1);
                 aggregate.ResultRow.SetValue(column, newValue);
             });
         }
@@ -125,9 +133,13 @@
         /// </summary>
         public static ContinuousGroupByOperation AddDoubleAverage(this ContinuousGroupByOperation op, string column)
         {
+            var id = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverage);
             return op.AddAggregator((aggregate, row) =>
             {
-                var newValue = ((aggregate.ResultRow.GetAs(column, 0.0d) * aggregate.RowsInGroup) + row.GetAs(column, 0.0d)) / (aggregate.RowsInGroup + 1);
+                var newTotal = aggregate.GetStateValue(id, 0.0d) + row.GetAs(column, 0.0d);
+                aggregate.SetStateValue(id, newTotal);
+
+                var newValue = newTotal / (aggregate.RowsInGroup + 1);
                 aggregate.ResultRow.SetValue(column, newValue);
             });
         }
@@ -137,9 +149,13 @@
         /// </summary>
         public static ContinuousGroupByOperation AddDecimalAverage(this ContinuousGroupByOperation op, string column)
         {
+            var id = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDecimalAverage);
             return op.AddAggregator((aggregate, row) =>
             {
-                var newValue = ((aggregate.ResultRow.GetAs(column, 0m) * aggregate.RowsInGroup) + row.GetAs(column, 0m)) / (aggregate.RowsInGroup + 1);
+                var newTotal = aggregate.GetStateValue(id, 0m) + row.GetAs(column, 0m);
+                aggregate.SetStateValue(id, newTotal);
+
+                var newValue = newTotal / (aggregate.RowsInGroup + 1);
                 aggregate.ResultRow.SetValue(column, newValue);
             });
         }

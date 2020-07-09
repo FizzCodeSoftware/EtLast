@@ -50,12 +50,11 @@
                 rowCount, groups.Count, InvocationInfo.LastInvocationStarted.Elapsed);
 
             var aggregateCount = 0;
+            var aggregates = new List<SlimRow>();
             foreach (var group in groups.Values)
             {
                 if (Context.CancellationTokenSource.IsCancellationRequested)
                     break;
-
-                var aggregates = new List<SlimRow>();
 
                 try
                 {
@@ -96,7 +95,12 @@
                     yield return aggregateRow;
                     netTimeStopwatch.Start();
                 }
+
+                group.Clear();
+                aggregates.Clear();
             }
+
+            groups.Clear();
 
             netTimeStopwatch.Stop();
             Context.Log(LogSeverity.Debug, this, "created {AggregateCount} aggregates in {Elapsed}/{ElapsedWallClock}",

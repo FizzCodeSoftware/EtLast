@@ -1,4 +1,7 @@
 2020-07-09:
+	- fixed: rounding issues in average calculators in ContinuousGroupByOperation
+
+2020-07-08:
 	- added: ContinuousGroupByOperation.AddIntNumberOfDistinctKeys, AddIntCount, AddIntCountWhenNotNull
 
 2020-07-07:
