@@ -1,3 +1,6 @@
+2020-07-20:
+	- fixed: IndexOutOfRangeException in DelimitedFileReader if there are more values in a line than columns
+
 2020-07-09:
 	- fixed: rounding issues in average calculators in ContinuousGroupByOperation
 

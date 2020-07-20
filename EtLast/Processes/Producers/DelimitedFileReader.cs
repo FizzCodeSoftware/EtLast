@@ -132,7 +132,8 @@
                     }
 
                     initialValues.Clear();
-                    for (var i = 0; i < parts.Length; i++)
+                    var colCnt = Math.Min(columnNames.Length, parts.Length);
+                    for (var i = 0; i < colCnt; i++)
                     {
                         var columnName = columnNames[i];
                         var valueString = parts[i];
