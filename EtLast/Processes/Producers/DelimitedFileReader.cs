@@ -5,7 +5,6 @@
     using System.Globalization;
     using System.IO;
     using System.Linq;
-    using System.Runtime.InteropServices;
     using System.Text;
 
     public class DelimitedFileReader : AbstractProducer, IRowReader
@@ -73,6 +72,7 @@
                 var exception = new ProcessExecutionException(this, "input file doesn't exist");
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "input file doesn't exist: {0}",
                     FileName));
+
                 exception.Data.Add("FileName", FileName);
 
                 Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, 0, exception);
@@ -129,7 +129,10 @@
                         line = line[0..^1];
                     }
 
-                    var parts = GetRowParts(partList, line, builder, resultCount);
+                    partList.Clear();
+                    builder.Clear();
+
+                    GetRowParts(partList, line, builder, resultCount);
 
                     if (firstRow)
                     {
@@ -137,17 +140,17 @@
 
                         if (HasHeaderRow)
                         {
-                            columnNames = parts;
+                            columnNames = partList.ToArray();
                             continue;
                         }
                     }
 
                     initialValues.Clear();
-                    var colCnt = Math.Min(columnNames.Length, parts.Length);
+                    var colCnt = Math.Min(columnNames.Length, partList.Count);
                     for (var i = 0; i < colCnt; i++)
                     {
                         var columnName = columnNames[i];
-                        var valueString = parts[i];
+                        var valueString = partList[i];
 
                         object sourceValue = valueString;
 
@@ -180,11 +183,8 @@
             Context.RegisterIoCommandSuccess(this, IoCommandKind.fileRead, iocUid, resultCount);
         }
 
-        private string[] GetRowParts(List<string> partList, string line, StringBuilder builder, int resultCount)
+        private void GetRowParts(List<string> partList, string line, StringBuilder builder, int lineNumber)
         {
-            partList.Clear();
-            builder.Clear();
-
             var quotes = 0;
             var index = 0;
 
@@ -205,20 +205,27 @@
                     continue;
                 }
 
-                var quotedCellClosing = index > 0 && c == '\"' && quotes > 0 && i + 1 < line.Length && line[i + 1] == Delimiter || i == line.Length - 1;
+                var quotedCellClosing = (index > 0 && c == '\"' && quotes > 0 && i + 1 < line.Length && line[i + 1] == Delimiter)
+                    || i == line.Length - 1;
+
                 if (quotedCellClosing)
                 {
                     quotes--;
                 }
 
-                var endOfCell = i + 1 < line.Length && line[i + 1] == Delimiter && quotes == 0 || i == line.Length - 1;
-                var quotedCellIsNotClosed = index > 0 && c != '\"' && endOfCell;
+                var endOfCell = (i + 1 < line.Length && line[i + 1] == Delimiter && quotes == 0)
+                    || i == line.Length - 1;
+
+                var quotedCellIsNotClosed = index > 0
+                    && c != '\"'
+                    && endOfCell;
+
                 if (quotedCellIsNotClosed && ThrowOnMissingDoubleQuoteClose)
                 {
-                    var e = new ProcessExecutionException(this, "Cell starting with '\"' is missing closing '\"'.");
-                    e.Data.Add("Line", resultCount + 1);
-                    e.Data.Add("Col", i + 1);
-                    throw e;
+                    var exception = new ProcessExecutionException(this, "Cell starting with '\"' is missing closing '\"'.");
+                    exception.Data.Add("LineNumber", lineNumber + 1);
+                    exception.Data.Add("ColumnIndex", i + 1);
+                    throw exception;
                 }
 
                 if (line[i] != Delimiter || quotes > 0)
@@ -231,7 +238,7 @@
                     index++;
                 }
 
-                if (quotes == 0 && c == Delimiter || i == line.Length - 1)
+                if ((quotes == 0 && c == Delimiter) || i == line.Length - 1)
                 {
                     if (builder.Length == 0)
                     {
@@ -246,9 +253,6 @@
                     index = 0;
                 }
             }
-
-            var parts = partList.ToArray();
-            return parts;
         }
     }
 }
