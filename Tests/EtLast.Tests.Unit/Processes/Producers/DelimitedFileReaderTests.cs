@@ -97,7 +97,7 @@
             Assert.AreEqual(2, result.MutatedRows.Count);
             Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "te\"s\"t;test", ["ValueInt"] = -1},
-                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "tes\"t;t\"est", ["ValueString"] = "A", ["ValueInt"] = -1}
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "tes\"t;t\"est", ["ValueInt"] = -1}
             });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
@@ -125,7 +125,7 @@
             Assert.AreEqual(2, result.MutatedRows.Count);
             Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "\"te\"s\"t;test\"", ["ValueInt"] = -1},
-                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "\"tes\"t;t\"est\"", ["ValueString"] = "A", ["ValueInt"] = -1}
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "\"tes\"t;t\"est\"", ["ValueInt"] = -1}
             });
         }
 
@@ -164,7 +164,7 @@
                     new ThrowExceptionOnRowErrorMutator(topic)
                 }
             };
-
+            
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(0, result.MutatedRows.Count);
             var exceptions = topic.Context.GetExceptions();

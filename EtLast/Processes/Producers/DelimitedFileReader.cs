@@ -217,7 +217,7 @@
                     || i == line.Length - 1;
 
                 var quotedCellIsNotClosed = index > 0
-                    && c != '\"'
+                    && c != '\"' && (c != Delimiter || i + 1 == line.Length)
                     && endOfCell
                     && builder[0] == '\"';
 
