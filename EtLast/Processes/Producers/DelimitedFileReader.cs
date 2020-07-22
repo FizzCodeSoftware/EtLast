@@ -154,6 +154,14 @@
 
                         object sourceValue = valueString;
 
+                        if (RemoveSurroundingDoubleQuotes
+                           && valueString.Length > 1
+                           && valueString.StartsWith("\"", StringComparison.InvariantCultureIgnoreCase)
+                           && valueString.EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            sourceValue = valueString[1..^1];
+                        }
+
                         if (sourceValue != null && TreatEmptyStringAsNull && (sourceValue is string str) && string.IsNullOrEmpty(str))
                         {
                             sourceValue = null;
@@ -195,14 +203,6 @@
                 if (index == 0 && c == '\"')
                 {
                     quotes++;
-                    index++;
-
-                    if (!RemoveSurroundingDoubleQuotes)
-                    {
-                        builder.Append(line[i]);
-                    }
-
-                    continue;
                 }
 
                 var quotedCellClosing = (index > 0 && c == '\"' && quotes > 0 && i + 1 < line.Length && line[i + 1] == Delimiter)
@@ -218,7 +218,8 @@
 
                 var quotedCellIsNotClosed = index > 0
                     && c != '\"'
-                    && endOfCell;
+                    && endOfCell
+                    && builder[0] == '\"';
 
                 if (quotedCellIsNotClosed && ThrowOnMissingDoubleQuoteClose)
                 {
@@ -230,11 +231,7 @@
 
                 if (line[i] != Delimiter || quotes > 0)
                 {
-                    if (!endOfCell || line[i] != '\"' || !RemoveSurroundingDoubleQuotes)
-                    {
-                        builder.Append(line[i]);
-                    }
-
+                    builder.Append(line[i]);
                     index++;
                 }
 

@@ -8,7 +8,7 @@
     [TestClass]
     public class DelimitedFileReaderTests
     {
-        private static IEvaluable GetReader(ITopic topic, string fileName, bool removeSurroundingDoubleQuotes = true, bool throwOnMissingDoubleQuoteClose = false)
+        private static IEvaluable GetReader(ITopic topic, string fileName, bool removeSurroundingDoubleQuotes = true, bool throwOnMissingDoubleQuoteClose = true)
         {
             return new DelimitedFileReader(topic, null)
             {
@@ -116,7 +116,7 @@
                 }
             };
 
-         
+
             var result = TestExecuter.Execute(builder);
 
             var exceptions = topic.Context.GetExceptions();
@@ -145,8 +145,8 @@
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(2, result.MutatedRows.Count);
             Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "test;test;-1;" },
-                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "test;test;A;-1;" }
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "\"test;test;-1;" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "\"test;test;A;-1;" }
             });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
@@ -170,6 +170,5 @@
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
         }
-
     }
 }
