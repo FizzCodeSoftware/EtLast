@@ -8,7 +8,7 @@
     [TestClass]
     public class DelimitedFileReaderTests
     {
-        private static IEvaluable GetReader(ITopic topic, string fileName)
+        private static IEvaluable GetReader(ITopic topic, string fileName, bool removeSurroundingDoubleQuotes = true, bool throwOnMissingDoubleQuoteClose = false)
         {
             return new DelimitedFileReader(topic, null)
             {
@@ -23,6 +23,8 @@
                     new ReaderColumnConfiguration("Value4", "ValueDouble", new DoubleConverter())
                 },
                 HasHeaderRow = true,
+                RemoveSurroundingDoubleQuotes = removeSurroundingDoubleQuotes,
+                ThrowOnMissingDoubleQuoteClose = throwOnMissingDoubleQuoteClose
             };
         }
 
@@ -77,5 +79,97 @@
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
+
+        [TestMethod]
+        public void QuatedDelimiter_RemoveDoubleQuotes()
+        {
+            var topic = TestExecuter.GetTopic();
+            var builder = new ProcessBuilder()
+            {
+                InputProcess = GetReader(topic, @"TestData\SampleQuatedDelimiter.csv"),
+                Mutators = new MutatorList
+                {
+                    new ThrowExceptionOnRowErrorMutator(topic)
+                }
+            };
+
+            var result = TestExecuter.Execute(builder);
+            Assert.AreEqual(2, result.MutatedRows.Count);
+            Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "te\"s\"t;test", ["ValueInt"] = -1},
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "tes\"t;t\"est", ["ValueString"] = "A", ["ValueInt"] = -1}
+            });
+            var exceptions = topic.Context.GetExceptions();
+            Assert.AreEqual(0, exceptions.Count);
+        }
+
+        [TestMethod]
+        public void QuatedDelimiter_KeepDoubleQuotes()
+        {
+            var topic = TestExecuter.GetTopic();
+            var builder = new ProcessBuilder()
+            {
+                InputProcess = GetReader(topic, @"TestData\SampleQuatedDelimiter.csv", removeSurroundingDoubleQuotes: false),
+                Mutators = new MutatorList
+                {
+                    new ThrowExceptionOnRowErrorMutator(topic)
+                }
+            };
+
+         
+            var result = TestExecuter.Execute(builder);
+
+            var exceptions = topic.Context.GetExceptions();
+            Assert.AreEqual(0, exceptions.Count);
+
+            Assert.AreEqual(2, result.MutatedRows.Count);
+            Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "\"te\"s\"t;test\"", ["ValueInt"] = -1},
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "\"tes\"t;t\"est\"", ["ValueString"] = "A", ["ValueInt"] = -1}
+            });
+        }
+
+        [TestMethod]
+        public void QuatedDelimiter_DontThrowOnMissingClose()
+        {
+            var topic = TestExecuter.GetTopic();
+            var builder = new ProcessBuilder()
+            {
+                InputProcess = GetReader(topic, @"TestData\SampleQuatedDelimiterMissingClose.csv", throwOnMissingDoubleQuoteClose: false),
+                Mutators = new MutatorList
+                {
+                    new ThrowExceptionOnRowErrorMutator(topic)
+                }
+            };
+
+            var result = TestExecuter.Execute(builder);
+            Assert.AreEqual(2, result.MutatedRows.Count);
+            Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "test;test;-1;" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "test;test;A;-1;" }
+            });
+            var exceptions = topic.Context.GetExceptions();
+            Assert.AreEqual(0, exceptions.Count);
+        }
+
+        [TestMethod]
+        public void QuatedDelimiter_ThrowOnMissingClose()
+        {
+            var topic = TestExecuter.GetTopic();
+            var builder = new ProcessBuilder()
+            {
+                InputProcess = GetReader(topic, @"TestData\SampleQuatedDelimiterMissingClose.csv", throwOnMissingDoubleQuoteClose: true),
+                Mutators = new MutatorList
+                {
+                    new ThrowExceptionOnRowErrorMutator(topic)
+                }
+            };
+
+            var result = TestExecuter.Execute(builder);
+            Assert.AreEqual(0, result.MutatedRows.Count);
+            var exceptions = topic.Context.GetExceptions();
+            Assert.AreEqual(1, exceptions.Count);
+        }
+
     }
 }

@@ -5,6 +5,8 @@
     using System.Globalization;
     using System.IO;
     using System.Linq;
+    using System.Runtime.InteropServices;
+    using System.Text;
 
     public class DelimitedFileReader : AbstractProducer, IRowReader
     {
@@ -22,6 +24,11 @@
         /// Default true. If a value starts and ends with double quote (") characters, then both will be removed (this happens before type conversion)
         /// </summary>
         public bool RemoveSurroundingDoubleQuotes { get; set; } = true;
+
+        /// <summary>
+        /// Default true. If a value starts with double quote (") character and misses the closing quote, then throw an exception
+        /// </summary>
+        public bool ThrowOnMissingDoubleQuoteClose { get; set; } = true;
 
         /// <summary>
         /// Default false.
@@ -94,6 +101,9 @@
             var firstRow = true;
             var initialValues = new List<KeyValuePair<string, object>>();
 
+            var partList = new List<string>(100);
+            var builder = new StringBuilder(2000);
+
             try
             {
                 while (!Context.CancellationTokenSource.IsCancellationRequested)
@@ -119,7 +129,8 @@
                         line = line[0..^1];
                     }
 
-                    var parts = line.Split(Delimiter);
+                    var parts = GetRowParts(partList, line, builder, resultCount);
+
                     if (firstRow)
                     {
                         firstRow = false;
@@ -137,14 +148,6 @@
                     {
                         var columnName = columnNames[i];
                         var valueString = parts[i];
-
-                        if (RemoveSurroundingDoubleQuotes
-                            && valueString.Length > 1
-                            && valueString.StartsWith("\"", StringComparison.InvariantCultureIgnoreCase)
-                            && valueString.EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            valueString = valueString[1..^1];
-                        }
 
                         object sourceValue = valueString;
 
@@ -175,6 +178,77 @@
             }
 
             Context.RegisterIoCommandSuccess(this, IoCommandKind.fileRead, iocUid, resultCount);
+        }
+
+        private string[] GetRowParts(List<string> partList, string line, StringBuilder builder, int resultCount)
+        {
+            partList.Clear();
+            builder.Clear();
+
+            var quotes = 0;
+            var index = 0;
+
+            for (var i = 0; i < line.Length; ++i)
+            {
+                var c = line[i];
+
+                if (index == 0 && c == '\"')
+                {
+                    quotes++;
+                    index++;
+
+                    if (!RemoveSurroundingDoubleQuotes)
+                    {
+                        builder.Append(line[i]);
+                    }
+
+                    continue;
+                }
+
+                var quotedCellClosing = index > 0 && c == '\"' && quotes > 0 && i + 1 < line.Length && line[i + 1] == Delimiter || i == line.Length - 1;
+                if (quotedCellClosing)
+                {
+                    quotes--;
+                }
+
+                var endOfCell = i + 1 < line.Length && line[i + 1] == Delimiter && quotes == 0 || i == line.Length - 1;
+                var quotedCellIsNotClosed = index > 0 && c != '\"' && endOfCell;
+                if (quotedCellIsNotClosed && ThrowOnMissingDoubleQuoteClose)
+                {
+                    var e = new ProcessExecutionException(this, "Cell starting with '\"' is missing closing '\"'.");
+                    e.Data.Add("Line", resultCount + 1);
+                    e.Data.Add("Col", i + 1);
+                    throw e;
+                }
+
+                if (line[i] != Delimiter || quotes > 0)
+                {
+                    if (!endOfCell || line[i] != '\"' || !RemoveSurroundingDoubleQuotes)
+                    {
+                        builder.Append(line[i]);
+                    }
+
+                    index++;
+                }
+
+                if (quotes == 0 && c == Delimiter || i == line.Length - 1)
+                {
+                    if (builder.Length == 0)
+                    {
+                        partList.Add(string.Empty);
+                    }
+                    else
+                    {
+                        partList.Add(builder.ToString());
+                    }
+
+                    builder.Clear();
+                    index = 0;
+                }
+            }
+
+            var parts = partList.ToArray();
+            return parts;
         }
     }
 }
