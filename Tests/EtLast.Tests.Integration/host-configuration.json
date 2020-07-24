@@ -29,11 +29,7 @@
       "do": "run modules DwhBuilderTests"
     },
     "SecretProtector": {
-      //"Type": null // the fully-qualified type name of the secret protector
-      "Type": "FizzCode.EtLast.PluginHost.SymmetricConfigurationSecretProtector", // the fully-qualified type name of the secret protector
-      "BaseKey": "120234kmsdfspk",
-      "UseMachineName": true,
-      "UseUserName": true
+      "Type": null // the fully-qualified type name of the secret protector
     }
   }
 }

@@ -79,8 +79,29 @@
                     else if (ctors.Any(x => x.GetParameters().Length == 1 && x.GetParameters()[0].ParameterType == typeof(IConfigurationSection)))
                     {
                         var secretProtectorSection = configuration.GetSection(section + ":SecretProtector");
-                        SecretProtector = (IConfigurationSecretProtector)Activator.CreateInstance(type, new object[] { secretProtectorSection });
+                        try
+                        {
+                            SecretProtector = (IConfigurationSecretProtector)Activator.CreateInstance(type, new object[] { secretProtectorSection });
+                        }
+                        catch (Exception ex)
+                        {
+                            var exception = new Exception("Can't initialize secret protector.", ex);
+                            exception.Data.Add("FullyQualifiedTypeName", v);
+                            throw exception;
+                        }
                     }
+                    else
+                    {
+                        var exception = new Exception("Secret protector constructor not found.");
+                        exception.Data.Add("FullyQualifiedTypeName", v);
+                        throw exception;
+                    }
+                }
+                else
+                {
+                    var exception = new Exception("Secret protector type not found.");
+                    exception.Data.Add("FullyQualifiedTypeName", v);
+                    throw exception;
                 }
             }
 
