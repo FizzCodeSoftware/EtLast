@@ -97,7 +97,7 @@
                 allConnectionStrings.Add(cs);
             }
 
-            var relevantCs = new ConnectionStringCollection();
+            var relevantConnectionStrings = new ConnectionStringCollection();
 
             if (allConnectionStrings?.Count > 0)
             {
@@ -111,7 +111,7 @@
                     var connectionString = allConnectionStrings.Find(x => string.Equals(x.Name, originalName + "-" + Environment.MachineName, StringComparison.InvariantCultureIgnoreCase))
                         ?? allConnectionStrings.Find(x => string.Equals(x.Name, originalName, StringComparison.InvariantCultureIgnoreCase));
 
-                    relevantCs.Add(connectionString);
+                    relevantConnectionStrings.Add(connectionString);
                 }
             }
 
@@ -121,12 +121,13 @@
                 ConfigurationFileName = moduleConfigFileName,
                 ModuleFolder = moduleFolder,
                 Configuration = configuration,
-                ConnectionStrings = relevantCs,
+                ConnectionStrings = relevantConnectionStrings,
                 EnabledPluginList = pluginNamesToExecute
                     .Select(name => name.Trim())
                     .Where(name => !name.StartsWith("!", StringComparison.InvariantCultureIgnoreCase))
                     .Where(plugin => plugin != null)
                     .ToList(),
+                SecretProtector = commandContext.HostConfiguration.SecretProtector,
             };
         }
 

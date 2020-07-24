@@ -164,7 +164,7 @@
                     new ThrowExceptionOnRowErrorMutator(topic)
                 }
             };
-            
+
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(0, result.MutatedRows.Count);
             var exceptions = topic.Context.GetExceptions();

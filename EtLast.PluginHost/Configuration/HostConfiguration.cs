@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using FizzCode.DbTools.Configuration;
     using Microsoft.Extensions.Configuration;
     using Serilog.Events;
 
@@ -23,6 +24,7 @@
         public LogEventLevel MinimumLogLevelIo { get; set; }
         public DynamicCompilationMode DynamicCompilationMode { get; set; }
         public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        public IConfigurationSecretProtector SecretProtector { get; set; }
 
         public void LoadFromConfiguration(IConfigurationRoot configuration, string section)
         {
@@ -62,6 +64,16 @@
                 MinimumLogLevelIo = level;
             }
 
+            v = GetHostSetting<string>(configuration, section, "SecretProtector:Type", null);
+            if (!string.IsNullOrEmpty(v))
+            {
+                var type = Type.GetType(v);
+                if (type?.IsAssignableFrom(typeof(IConfigurationSecretProtector)) == true)
+                {
+                    SecretProtector = (IConfigurationSecretProtector)Activator.CreateInstance(type);
+                }
+            }
+
             GetCommandAliases(configuration, section);
         }
 
@@ -77,17 +89,43 @@
             }
         }
 
-        private static T GetHostSetting<T>(IConfigurationRoot configuration, string section, string key, T defaultValue)
+        private T GetHostSetting<T>(IConfigurationRoot configuration, string section, string key, T defaultValue)
         {
-            var v = configuration.GetValue<T>(section + ":" + key + "-" + Environment.MachineName, default);
-            if (v != null && !v.Equals(default(T)))
-                return v;
+            var value = configuration.GetValue<T>(section + ":" + key + "-" + Environment.MachineName, default);
+            if (value != null && !value.Equals(default(T)))
+                return value;
 
             if (configuration.GetValue<object>(section + ":" + key) == null)
             {
                 var c = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine("missing host configuration entry: " + section + ":" + key + ", using default value: " + defaultValue);
+                Console.WriteLine("missing host configuration entry '" + section + ":" + key + "', using default value: " + defaultValue);
+                Console.ForegroundColor = c;
+            }
+
+            return configuration.GetValue(section + ":" + key, defaultValue);
+        }
+
+        private string GetHostSetting(IConfigurationRoot configuration, string section, string key, string defaultValue)
+        {
+            var isProtected = configuration.GetValue(section + ":" + key + "-protected", false);
+
+            var value = configuration.GetValue<string>(section + ":" + key + "-" + Environment.MachineName, default);
+            if (value != null)
+            {
+                if (isProtected && SecretProtector != null)
+                {
+                    value = SecretProtector.Decrypt(value);
+                }
+
+                return value;
+            }
+
+            if (configuration.GetValue<object>(section + ":" + key) == null)
+            {
+                var c = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine("missing host configuration entry '" + section + ":" + key + "', using default value: " + defaultValue);
                 Console.ForegroundColor = c;
             }
 

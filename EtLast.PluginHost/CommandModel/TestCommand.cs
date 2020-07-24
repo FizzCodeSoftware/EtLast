@@ -9,9 +9,9 @@
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
 #pragma warning disable CA1822 // Mark members as static
-    [Command(Name = "test", Description = "test various things, like connection strings, modules, etc")]
+    [Command(Name = "test", Description = "Test connection strings, modules, etc.")]
     [SubCommand]
-    public class Test
+    public class TestCommand
     {
         [Command(Name = "modules", Description = "Tests one or more modules.")]
         public void ValidateModule(

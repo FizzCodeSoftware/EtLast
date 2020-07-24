@@ -16,7 +16,7 @@
 
     internal static class ModuleLoader
     {
-        private static long _moduleAutoincrementId = 0;
+        private static long _moduleAutoincrementId;
 
         public static Module LoadModule(CommandContext commandContext, string moduleName, string[] moduleSettingOverrides, string[] pluginListOverride, bool forceCompilation)
         {

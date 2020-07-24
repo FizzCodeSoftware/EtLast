@@ -13,19 +13,21 @@
         public ILogger IoLogger { get; private set; }
         public HostConfiguration HostConfiguration { get; private set; }
 
+        public string LoadedConfigurationFileName { get; private set; }
+
         public bool Load()
         {
-            var hostConfigurationFileName = "host-configuration.json";
-            hostConfigurationFileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), hostConfigurationFileName);
+            LoadedConfigurationFileName = "host-configuration.json";
+            LoadedConfigurationFileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), LoadedConfigurationFileName);
 
-            if (!File.Exists(hostConfigurationFileName))
+            if (!File.Exists(LoadedConfigurationFileName))
             {
                 Logger = SerilogConfigurator.CreateLogger(null);
                 OpsLogger = SerilogConfigurator.CreateOpsLogger(null);
                 IoLogger = SerilogConfigurator.CreateIoLogger(null);
 
-                Logger.Error("can't find the host configuration file: {FileName}", hostConfigurationFileName);
-                OpsLogger.Error("can't find the host configuration file: {FileName}", hostConfigurationFileName);
+                Logger.Error("can't find the host configuration file: {FileName}", LoadedConfigurationFileName);
+                OpsLogger.Error("can't find the host configuration file: {FileName}", LoadedConfigurationFileName);
                 return false;
             }
 
@@ -34,14 +36,14 @@
             try
             {
                 var configuration = new ConfigurationBuilder()
-                    .AddJsonFile(hostConfigurationFileName, false)
+                    .AddJsonFile(LoadedConfigurationFileName, false)
                     .Build();
 
                 HostConfiguration.LoadFromConfiguration(configuration, "EtlHost");
             }
             catch (Exception ex)
             {
-                throw new ConfigurationFileException(PathHelpers.GetFriendlyPathName(hostConfigurationFileName), "can't read the configuration file", ex);
+                throw new ConfigurationFileException(PathHelpers.GetFriendlyPathName(LoadedConfigurationFileName), "can't read the configuration file", ex);
             }
 
             if (HostConfiguration.ModulesFolder.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))

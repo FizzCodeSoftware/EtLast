@@ -4,9 +4,9 @@
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
 #pragma warning disable CA1822 // Mark members as static
-    [Command(Name = "list", Description = "List modules/plugins.")]
+    [Command(Name = "list", Description = "List of modules and plugins.")]
     [SubCommand]
-    public class List
+    public class ListCommand
     {
         [Command(Name = "modules", Description = "List all available modules.")]
         public void Module()

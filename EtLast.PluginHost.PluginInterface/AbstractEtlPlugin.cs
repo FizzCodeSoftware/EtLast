@@ -33,9 +33,10 @@
             return GetPathFromConfiguration("StorageFolder", subFolders);
         }
 
-        protected T GetModuleSetting<T>(string key, T defaultValue = default, string subSection = null)
+        protected T GetModuleSetting<T>(string key, T defaultValue, string subSection = null)
         {
             var v = ModuleConfiguration.Configuration.GetValue<T>((subSection == null ? "Module" : "Module:" + subSection) + ":" + key + "-" + Environment.MachineName, default);
+
             if (v != null && !v.Equals(default(T)))
                 return v;
 
@@ -54,9 +55,53 @@
             return defaultValue;
         }
 
+        protected string GetModuleSetting<T>(string key, string defaultValue, string subSection = null)
+        {
+            var isProtected = ModuleConfiguration.Configuration.GetValue<bool>((subSection == null ? "Module" : "Module:" + subSection) + ":" + key + "-protected");
+
+            var v = ModuleConfiguration.Configuration.GetValue<string>((subSection == null ? "Module" : "Module:" + subSection) + ":" + key + "-" + Environment.MachineName);
+
+            if (v?.Equals(default(T)) == false)
+            {
+                if (isProtected && ModuleConfiguration.SecretProtector != null)
+                    v = ModuleConfiguration.SecretProtector.Decrypt(v);
+
+                return v;
+            }
+
+            v = ModuleConfiguration.Configuration.GetValue((subSection == null ? "Module" : "Module:" + subSection) + ":" + key, defaultValue);
+            if (v?.Equals(default(T)) == false)
+            {
+                if (isProtected && ModuleConfiguration.SecretProtector != null)
+                    v = ModuleConfiguration.SecretProtector.Decrypt(v);
+
+                return v;
+            }
+
+            v = ModuleConfiguration.Configuration.GetValue<string>((subSection == null ? "Shared" : "Shared:" + subSection) + ":" + key + "-" + Environment.MachineName);
+            if (v?.Equals(default(T)) == false)
+            {
+                if (isProtected && ModuleConfiguration.SecretProtector != null)
+                    v = ModuleConfiguration.SecretProtector.Decrypt(v);
+
+                return v;
+            }
+
+            v = ModuleConfiguration.Configuration.GetValue<string>((subSection == null ? "Shared" : "Shared:" + subSection) + ":" + key);
+            if (v?.Equals(default(T)) == false)
+            {
+                if (isProtected && ModuleConfiguration.SecretProtector != null)
+                    v = ModuleConfiguration.SecretProtector.Decrypt(v);
+
+                return v;
+            }
+
+            return defaultValue;
+        }
+
         protected string GetPathFromConfiguration(string appSettingName, params string[] subFolders)
         {
-            var path = GetModuleSetting<string>(appSettingName);
+            var path = GetModuleSetting<string>(appSettingName, null);
             if (string.IsNullOrEmpty(path))
                 return null;
 
@@ -83,7 +128,7 @@
 
         protected string GetFileNameFromConfiguration(string appSettingName)
         {
-            var fileName = GetModuleSetting<string>(appSettingName);
+            var fileName = GetModuleSetting<string>(appSettingName, null);
             if (string.IsNullOrEmpty(fileName))
                 return null;
 

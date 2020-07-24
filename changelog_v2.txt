@@ -1,3 +1,7 @@
+2020-07-24:
+	- added: support for IConfigurationSecretProtector
+	- added: "protect" command to EtLast.PluginHost
+
 2020-07-20:
 	- fixed: IndexOutOfRangeException in DelimitedFileReader if there are more values in a line than columns
 

@@ -13,5 +13,7 @@
         public IConfigurationRoot Configuration { get; set; }
         public List<string> EnabledPluginList { get; set; }
         public ConnectionStringCollection ConnectionStrings { get; set; }
+
+        public IConfigurationSecretProtector SecretProtector { get; set; }
     }
 }

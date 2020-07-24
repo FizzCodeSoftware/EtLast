@@ -23,7 +23,12 @@
       "ApiKey": null
     },
     "RemoteDiagnostics": {
-      "Url": "http://localhost:8642"
+      "Url": null // should be set to http://localhost:8642 to use with EtLast.Diagnostics.Windows
+    },
+    "Aliases": {
+    },
+    "SecretProtector": {
+      "Type": null // the fully-qualified type name of the secret protector
     }
   }
 }

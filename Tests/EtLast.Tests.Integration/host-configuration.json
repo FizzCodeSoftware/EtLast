@@ -27,6 +27,9 @@
     },
     "Aliases": {
       "do": "run modules DwhBuilderTests"
+    },
+    "SecretProtector": {
+      "Type": null // the fully-qualified type name of the secret protector
     }
   }
 }
