@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using FizzCode.DbTools.Configuration;
     using Microsoft.Extensions.Configuration;
     using Serilog.Events;
@@ -68,9 +69,18 @@
             if (!string.IsNullOrEmpty(v))
             {
                 var type = Type.GetType(v);
-                if (type?.IsAssignableFrom(typeof(IConfigurationSecretProtector)) == true)
+                if (type != null && typeof(IConfigurationSecretProtector).IsAssignableFrom(type))
                 {
-                    SecretProtector = (IConfigurationSecretProtector)Activator.CreateInstance(type);
+                    var ctors = type.GetConstructors();
+                    if (ctors.Any(x => x.GetParameters().Length == 0))
+                    {
+                        SecretProtector = (IConfigurationSecretProtector)Activator.CreateInstance(type);
+                    }
+                    else if (ctors.Any(x => x.GetParameters().Length == 1 && x.GetParameters()[0].ParameterType == typeof(IConfigurationSection)))
+                    {
+                        var secretProtectorSection = configuration.GetSection(section + ":SecretProtector");
+                        SecretProtector = (IConfigurationSecretProtector)Activator.CreateInstance(type, new object[] { secretProtectorSection });
+                    }
                 }
             }
 
