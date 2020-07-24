@@ -36,12 +36,12 @@
 
             if (all)
             {
-                moduleNames = ModuleLister.GetAllModules(CommandLineHandler.Context);
+                moduleNames = ModuleLister.GetAllModules(commandContext);
             }
 
             foreach (var moduleName in moduleNames)
             {
-                CommandLineHandler.Context.Logger.Information("loading module {Module}", moduleName);
+                commandContext.Logger.Information("loading module {Module}", moduleName);
 
                 var module = ModuleLoader.LoadModule(commandContext, moduleName, null, null, true);
                 if (module != null)
@@ -79,7 +79,7 @@
 
             if (all)
             {
-                moduleNames = ModuleLister.GetAllModules(CommandLineHandler.Context);
+                moduleNames = ModuleLister.GetAllModules(commandContext);
             }
 
             var allConnectionStrings = new List<ConnectionStringWithProvider>();
@@ -93,7 +93,7 @@
                 if (index == 0)
                 {
                     var sharedCs = new ConnectionStringCollection();
-                    sharedCs.LoadFromConfiguration(moduleConfiguration.Configuration, "ConnectionStrings:Shared");
+                    sharedCs.LoadFromConfiguration(moduleConfiguration.Configuration, "ConnectionStrings:Shared", commandContext.HostConfiguration.SecretProtector);
                     if (sharedCs.All.Any())
                     {
                         commandContext.Logger.Information("connection strings for: {Module}", "Shared");
@@ -108,7 +108,7 @@
                 commandContext.Logger.Information("connection strings for: {Module}", moduleName);
 
                 var connectionStrings = new ConnectionStringCollection();
-                connectionStrings.LoadFromConfiguration(moduleConfiguration.Configuration, "ConnectionStrings:Module");
+                connectionStrings.LoadFromConfiguration(moduleConfiguration.Configuration, "ConnectionStrings:Module", commandContext.HostConfiguration.SecretProtector);
                 foreach (var cs in connectionStrings.All)
                 {
                     commandContext.Logger.Information("\t{ConnectionStringName} ({Provider})", cs.Name, cs.GetFriendlyProviderName());

@@ -83,14 +83,14 @@
 
             var allConnectionStrings = new List<ConnectionStringWithProvider>();
             var sharedCs = new ConnectionStringCollection();
-            sharedCs.LoadFromConfiguration(configuration, "ConnectionStrings:Shared");
+            sharedCs.LoadFromConfiguration(configuration, "ConnectionStrings:Shared", commandContext.HostConfiguration.SecretProtector);
             foreach (var cs in sharedCs.All)
             {
                 allConnectionStrings.Add(cs);
             }
 
             var moduleCs = new ConnectionStringCollection();
-            moduleCs.LoadFromConfiguration(configuration, "ConnectionStrings:Module");
+            moduleCs.LoadFromConfiguration(configuration, "ConnectionStrings:Module", commandContext.HostConfiguration.SecretProtector);
             foreach (var cs in moduleCs.All)
             {
                 allConnectionStrings.RemoveAll(x => x.Name == cs.Name);
