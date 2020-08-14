@@ -10,6 +10,7 @@
     using System.Threading;
     using FizzCode.EtLast;
     using FizzCode.EtLast.Diagnostics.Interface;
+    using FizzCode.LightWeight.Configuration;
     using Microsoft.Extensions.Configuration;
     using Serilog.Events;
     using Serilog.Parsing;
@@ -34,11 +35,14 @@
         private readonly object _messageTemplateCacheLock = new object();
         private readonly MessageTemplateParser _messageTemplateParser = new MessageTemplateParser();
 
-        public void Init(IExecutionContext executionContext, IConfigurationSection configurationSection)
+        public bool Init(IExecutionContext executionContext, IConfigurationSection configurationSection)
         {
             _sessionId = executionContext.SessionId;
             _contextName = executionContext.Name;
-            var url = configurationSection.GetValue<string>("Url");
+            var url = ConfigurationReader.GetCurrentValue<string>(configurationSection, "Url", null);
+            if (url == null)
+                return false;
+
             _uri = new Uri(url);
 
             _client = new HttpClient
@@ -50,6 +54,7 @@
 
             _workerThread = new Thread(WorkerMethod);
             _workerThread.Start();
+            return true;
         }
 
         private void WorkerMethod()

@@ -113,8 +113,11 @@
                     try
                     {
                         var instance = (IEtlContextListener)Activator.CreateInstance(type);
-                        instance.Init(executionContext, childSection);
-                        result.Add(instance);
+                        var ok = instance.Init(executionContext, childSection);
+                        if (ok)
+                        {
+                            result.Add(instance);
+                        }
                     }
                     catch (Exception ex)
                     {

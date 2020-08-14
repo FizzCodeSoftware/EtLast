@@ -12,11 +12,14 @@
         private byte[] _key;
         private byte[] _iv;
 
-        public void Init(IConfigurationSection configurationSection)
+        public bool Init(IConfigurationSection configurationSection)
         {
-            var baseKey = configurationSection.GetValue<string>("BaseKey");
-            var useMachineName = configurationSection.GetValue<bool>("UseMachineName");
-            var useUserName = configurationSection.GetValue<bool>("UseUserName");
+            var baseKey = ConfigurationReader.GetCurrentValue<string>(configurationSection, "BaseKey", null);
+            if (string.IsNullOrEmpty(baseKey))
+                return false;
+
+            var useMachineName = ConfigurationReader.GetCurrentValue(configurationSection, "UseMachineName", false);
+            var useUserName = ConfigurationReader.GetCurrentValue(configurationSection, "UseUserName", false);
 
             var pw = baseKey;
             if (!string.IsNullOrEmpty(baseKey))
@@ -29,6 +32,7 @@
                 }
                 catch (Exception)
                 {
+                    return false;
                 }
             }
 
@@ -38,6 +42,8 @@
             }
 
             _iv = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5 };
+
+            return true;
         }
 
         public string Decrypt(string value)

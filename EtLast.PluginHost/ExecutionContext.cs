@@ -441,7 +441,7 @@
                 listener.OnContextClosed();
         }
 
-        public void Init(IExecutionContext executionContext, IConfigurationSection configurationSection)
+        public bool Init(IExecutionContext executionContext, IConfigurationSection configurationSection)
         {
             throw new NotImplementedException();
         }

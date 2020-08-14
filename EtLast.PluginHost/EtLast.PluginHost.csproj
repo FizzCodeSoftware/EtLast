@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommandDotNet" Version="4.1.3" />
-    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="1.0.23.5834" />
+    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="1.0.25.5846" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.7.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0">
       <PrivateAssets>all</PrivateAssets>

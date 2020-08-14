@@ -27,7 +27,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.LightWeight.RelationalModel" Version="1.0.23.5834" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -36,11 +35,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="FizzCode.LightWeight.RelationalModel" Version="1.0.25.5846" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
-    <ProjectReference Condition="'$(Configuration)' == 'LocalProjects'" Include="..\..\LightWeight\LightWeight.RelationalModel\LightWeight.RelationalModel.csproj" />
     <ProjectReference Include="..\EtLast.DwhBuilder\EtLast.DwhBuilder.csproj" />
   </ItemGroup>
 

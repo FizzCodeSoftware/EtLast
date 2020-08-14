@@ -26,12 +26,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.LightWeight.Collections" Version="1.0.23.5834" />
+    <PackageReference Include="FizzCode.LightWeight.Collections" Version="1.0.25.5846" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\EtLast\EtLast.csproj" />
-    <ProjectReference Condition="'$(Configuration)' == 'LocalProjects'" Include="..\..\..\LightWeight\LightWeight.Collections\LightWeight.Collections.csproj" />
   </ItemGroup>
 
 </Project>
