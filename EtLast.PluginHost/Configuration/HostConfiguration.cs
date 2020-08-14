@@ -75,7 +75,10 @@
                     try
                     {
                         SecretProtector = (IConfigurationSecretProtector)Activator.CreateInstance(type);
-                        SecretProtector.Init(secretProtectorSection);
+                        if (!SecretProtector.Init(secretProtectorSection))
+                        {
+                            SecretProtector = null;
+                        }
                     }
                     catch (Exception ex)
                     {
