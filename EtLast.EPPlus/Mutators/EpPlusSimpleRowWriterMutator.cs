@@ -67,7 +67,7 @@
                 _storeUid = Context.GetStoreUid(PathHelpers.GetFriendlyPathName(FileName), SheetName);
             }
 
-            Context.OnRowStored?.Invoke(this, row, _storeUid.Value);
+            Context.RegisterRowStored(this, row, _storeUid.Value);
 
             if (_package == null) // lazy load here instead of prepare
             {

@@ -1,3 +1,9 @@
+2020-08-14:
+	- added: IEtlContextListener
+	- removed: DIRECT Diagnostics client and support is removed from EtlHost
+	- added: EtLast.Diagnostics.HttpSender assembly and HttpSender class (implements IEtlContextListener)
+		NOTE: can be wired in through host-configuration.json "EtlContextListeners" section
+
 2020-07-24:
 	- added: support for IConfigurationSecretProtector
 	- added: "protect" command to EtLast.PluginHost

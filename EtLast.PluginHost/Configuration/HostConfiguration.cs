@@ -2,8 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.Configuration;
     using Microsoft.Extensions.Configuration;
     using Serilog.Events;
 
@@ -13,7 +12,6 @@
     {
         public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromMinutes(120);
 
-        public Uri DiagnosticsUri { get; set; }
         public string SeqUrl { get; set; }
         public string SeqApiKey { get; set; }
         public int RetainedLogFileCountLimitImportant { get; set; } = 30;
@@ -27,72 +25,61 @@
         public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         public IConfigurationSecretProtector SecretProtector { get; set; }
 
+        private IConfigurationRoot _configuration;
+        private string _section;
+
         public void LoadFromConfiguration(IConfigurationRoot configuration, string section)
         {
-            var diagUrl = GetHostSetting<string>(configuration, section, "RemoteDiagnostics:Url", null);
-            if (!string.IsNullOrEmpty(diagUrl))
-                DiagnosticsUri = new Uri(diagUrl);
+            _configuration = configuration;
+            _section = section;
 
-            SeqUrl = GetHostSetting<string>(configuration, section, "Seq:Url", null);
-            SeqApiKey = GetHostSetting<string>(configuration, section, "Seq:ApiKey", null);
-            RetainedLogFileCountLimitImportant = GetHostSetting(configuration, section, "RetainedLogFileCountLimit:Important", 30);
-            RetainedLogFileCountLimitInfo = GetHostSetting(configuration, section, "RetainedLogFileCountLimit:Info", 14);
-            RetainedLogFileCountLimitLow = GetHostSetting(configuration, section, "RetainedLogFileCountLimit:Low", 4);
-            TransactionScopeTimeout = TimeSpan.FromMinutes(GetHostSetting(configuration, section, "TransactionScopeTimeoutMinutes", 120));
-            ModulesFolder = GetHostSetting(configuration, section, "ModulesFolder", @".\modules");
+            SeqUrl = ConfigurationReader.GetCurrentValue(configuration, section, "Seq:Url", null);
+            SeqApiKey = ConfigurationReader.GetCurrentValue(configuration, section, "Seq:ApiKey", null);
+            RetainedLogFileCountLimitImportant = ConfigurationReader.GetCurrentValue(configuration, section, "RetainedLogFileCountLimit:Important", 30);
+            RetainedLogFileCountLimitInfo = ConfigurationReader.GetCurrentValue(configuration, section, "RetainedLogFileCountLimit:Info", 14);
+            RetainedLogFileCountLimitLow = ConfigurationReader.GetCurrentValue(configuration, section, "RetainedLogFileCountLimit:Low", 4);
+            TransactionScopeTimeout = TimeSpan.FromMinutes(ConfigurationReader.GetCurrentValue(configuration, section, "TransactionScopeTimeoutMinutes", 120));
+            ModulesFolder = ConfigurationReader.GetCurrentValue(configuration, section, "ModulesFolder", @".\modules", SecretProtector);
 
-            var v = GetHostSetting(configuration, section, "DynamicCompilation:Mode", "Default");
+            var v = ConfigurationReader.GetCurrentValue(configuration, section, "DynamicCompilation:Mode", "Default", SecretProtector);
             if (!string.IsNullOrEmpty(v) && Enum.TryParse(v, out DynamicCompilationMode mode))
             {
                 DynamicCompilationMode = mode;
             }
 
-            v = GetHostSetting(configuration, section, "MinimumLogLevel:Console", "Information");
+            v = ConfigurationReader.GetCurrentValue(configuration, section, "MinimumLogLevel:Console", "Information", SecretProtector);
             if (!string.IsNullOrEmpty(v) && Enum.TryParse(v, out LogEventLevel level))
             {
                 MinimumLogLevelOnConsole = level;
             }
 
-            v = GetHostSetting(configuration, section, "MinimumLogLevel:File", "Debug");
+            v = ConfigurationReader.GetCurrentValue(configuration, section, "MinimumLogLevel:File", "Debug", SecretProtector);
             if (!string.IsNullOrEmpty(v) && Enum.TryParse(v, out level))
             {
                 MinimumLogLevelInFile = level;
             }
 
-            v = GetHostSetting(configuration, section, "MinimumLogLevel:IoFile", "Verbose");
+            v = ConfigurationReader.GetCurrentValue(configuration, section, "MinimumLogLevel:IoFile", "Verbose", SecretProtector);
             if (!string.IsNullOrEmpty(v) && Enum.TryParse(v, out level))
             {
                 MinimumLogLevelIo = level;
             }
 
-            v = GetHostSetting<string>(configuration, section, "SecretProtector:Type", null);
+            v = ConfigurationReader.GetCurrentValue(configuration, section, "SecretProtector:Type", null);
             if (!string.IsNullOrEmpty(v))
             {
                 var type = Type.GetType(v);
                 if (type != null && typeof(IConfigurationSecretProtector).IsAssignableFrom(type))
                 {
-                    var ctors = type.GetConstructors();
-                    if (ctors.Any(x => x.GetParameters().Length == 0))
+                    var secretProtectorSection = configuration.GetSection(section + ":SecretProtector");
+                    try
                     {
                         SecretProtector = (IConfigurationSecretProtector)Activator.CreateInstance(type);
+                        SecretProtector.Init(secretProtectorSection);
                     }
-                    else if (ctors.Any(x => x.GetParameters().Length == 1 && x.GetParameters()[0].ParameterType == typeof(IConfigurationSection)))
+                    catch (Exception ex)
                     {
-                        var secretProtectorSection = configuration.GetSection(section + ":SecretProtector");
-                        try
-                        {
-                            SecretProtector = (IConfigurationSecretProtector)Activator.CreateInstance(type, new object[] { secretProtectorSection });
-                        }
-                        catch (Exception ex)
-                        {
-                            var exception = new Exception("Can't initialize secret protector.", ex);
-                            exception.Data.Add("FullyQualifiedTypeName", v);
-                            throw exception;
-                        }
-                    }
-                    else
-                    {
-                        var exception = new Exception("Secret protector constructor not found.");
+                        var exception = new Exception("Can't initialize secret protector.", ex);
                         exception.Data.Add("FullyQualifiedTypeName", v);
                         throw exception;
                     }
@@ -108,6 +95,45 @@
             GetCommandAliases(configuration, section);
         }
 
+        public List<IEtlContextListener> GetEtlContextListeners(IExecutionContext executionContext)
+        {
+            var result = new List<IEtlContextListener>();
+
+            var listenersSection = _configuration.GetSection(_section + ":EtlContextListeners");
+            if (listenersSection == null)
+                return result;
+
+            var children = listenersSection.GetChildren();
+            foreach (var childSection in children)
+            {
+                var type = Type.GetType(childSection.Key);
+                if (type != null && typeof(IEtlContextListener).IsAssignableFrom(type))
+                {
+                    var ctors = type.GetConstructors();
+                    try
+                    {
+                        var instance = (IEtlContextListener)Activator.CreateInstance(type);
+                        instance.Init(executionContext, childSection);
+                        result.Add(instance);
+                    }
+                    catch (Exception ex)
+                    {
+                        var exception = new Exception("Can't initialize secret protector.", ex);
+                        exception.Data.Add("FullyQualifiedTypeName", childSection.Key);
+                        throw exception;
+                    }
+                }
+                else
+                {
+                    var exception = new Exception("EtlContextListener type not found.");
+                    exception.Data.Add("FullyQualifiedTypeName", childSection.Key);
+                    throw exception;
+                }
+            }
+
+            return result;
+        }
+
         private void GetCommandAliases(IConfigurationRoot configuration, string section)
         {
             var aliasSection = configuration.GetSection(section + ":Aliases");
@@ -118,49 +144,6 @@
             {
                 CommandAliases.Add(child.Key, child.Value);
             }
-        }
-
-        private T GetHostSetting<T>(IConfigurationRoot configuration, string section, string key, T defaultValue)
-        {
-            var value = configuration.GetValue<T>(section + ":" + key + "-" + Environment.MachineName, default);
-            if (value != null && !value.Equals(default(T)))
-                return value;
-
-            if (configuration.GetValue<object>(section + ":" + key) == null)
-            {
-                var c = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine("missing host configuration entry '" + section + ":" + key + "', using default value: " + defaultValue);
-                Console.ForegroundColor = c;
-            }
-
-            return configuration.GetValue(section + ":" + key, defaultValue);
-        }
-
-        private string GetHostSetting(IConfigurationRoot configuration, string section, string key, string defaultValue)
-        {
-            var isProtected = configuration.GetValue(section + ":" + key + "-protected", false);
-
-            var value = configuration.GetValue<string>(section + ":" + key + "-" + Environment.MachineName, default);
-            if (value != null)
-            {
-                if (isProtected && SecretProtector != null)
-                {
-                    value = SecretProtector.Decrypt(value);
-                }
-
-                return value;
-            }
-
-            if (configuration.GetValue<object>(section + ":" + key) == null)
-            {
-                var c = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine("missing host configuration entry '" + section + ":" + key + "', using default value: " + defaultValue);
-                Console.ForegroundColor = c;
-            }
-
-            return configuration.GetValue(section + ":" + key, defaultValue);
         }
     }
 }

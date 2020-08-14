@@ -86,7 +86,7 @@
                 _storeUid = Context.GetStoreUid(ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
             }
 
-            Context.OnRowStored?.Invoke(this, row, _storeUid.Value);
+            Context.RegisterRowStored(this, row, _storeUid.Value);
 
             var rc = _reader.RowCount;
             for (var i = 0; i < TableDefinition.Columns.Length; i++)

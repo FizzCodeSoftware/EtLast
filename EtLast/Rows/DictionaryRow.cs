@@ -68,12 +68,20 @@
             var hasPreviousValue = _values.TryGetValue(column, out var previousValue);
             if (newValue == null && hasPreviousValue)
             {
-                Context.OnRowValueChanged?.Invoke(CurrentProcess, this, new[] { new KeyValuePair<string, object>(column, newValue) });
+                foreach (var listener in Context.Listeners)
+                {
+                    listener.OnRowValueChanged(CurrentProcess, this, new[] { new KeyValuePair<string, object>(column, newValue) });
+                }
+
                 _values.Remove(column);
             }
             else if (!hasPreviousValue || newValue != previousValue)
             {
-                Context.OnRowValueChanged?.Invoke(CurrentProcess, this, new KeyValuePair<string, object>(column, newValue));
+                foreach (var listener in Context.Listeners)
+                {
+                    listener.OnRowValueChanged(CurrentProcess, this, new KeyValuePair<string, object>(column, newValue));
+                }
+
                 _values[column] = newValue;
             }
         }
@@ -113,7 +121,10 @@
                 }
             }
 
-            Context.OnRowValueChanged?.Invoke(CurrentProcess, this, Staging.ToArray());
+            foreach (var listener in Context.Listeners)
+            {
+                listener.OnRowValueChanged(CurrentProcess, this, Staging.ToArray());
+            }
 
             Staging.Clear();
         }

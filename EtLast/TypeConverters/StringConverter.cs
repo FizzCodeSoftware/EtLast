@@ -11,17 +11,17 @@
         /// <summary>
         /// Default false.
         /// </summary>
-        public bool TrimStartEnd { get; set; } = false;
+        public bool TrimStartEnd { get; set; }
 
         /// <summary>
         /// Default false.
         /// </summary>
-        public bool RemoveLineBreaks { get; set; } = false;
+        public bool RemoveLineBreaks { get; set; }
 
         /// <summary>
         /// Default false.
         /// </summary>
-        public bool RemoveSpaces { get; set; } = false;
+        public bool RemoveSpaces { get; set; }
 
         public StringConverter(IFormatProvider formatProvider = null)
         {

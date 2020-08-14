@@ -132,7 +132,14 @@
                 {
                     foreach (var arg in evt.Arguments)
                     {
-                        text = text.Replace(arg.Key, FormattingHelpers.ToDisplayValue(arg.Value), StringComparison.InvariantCultureIgnoreCase);
+                        if (arg.Key.StartsWith("{spacing", StringComparison.OrdinalIgnoreCase))
+                        {
+                            text = text.Replace(arg.Key, "", StringComparison.InvariantCultureIgnoreCase);
+                        }
+                        else
+                        {
+                            text = text.Replace(arg.Key, FormattingHelpers.ToDisplayValue(arg.Value), StringComparison.InvariantCultureIgnoreCase);
+                        }
                     }
                 }
 

@@ -85,7 +85,7 @@
                 sb.Append(" THEN ").Append(WhenNotMatchedBySourceAction);
             }
 
-            sb.Append(";");
+            sb.Append(';');
 
             var sqlStatementProcessed = InlineArrayParametersIfNecessary(sb.ToString());
 

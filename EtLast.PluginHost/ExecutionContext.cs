@@ -5,25 +5,22 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
-    using System.Linq;
     using System.Text;
     using FizzCode.EtLast;
-    using FizzCode.EtLast.Diagnostics.Interface;
+    using Microsoft.Extensions.Configuration;
     using Serilog.Events;
-    using Serilog.Parsing;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
-    internal class ExecutionContext
+    internal class ExecutionContext : IExecutionContext, IEtlContextListener
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public string SessionId { get; }
-        public ExecutionContext ParentContext { get; }
+        public IExecutionContext ParentContext { get; }
+        public ITopic Topic { get; }
+        public string Name { get; }
 
         public string ModuleName { get; }
         public string PluginName { get; }
-        public ITopic Topic { get; set; }
-        public IEtlContext Context => Topic.Context;
-        public string Name { get; }
 
         public TimeSpan CpuTimeStart { get; private set; }
         public long TotalAllocationsStart { get; private set; }
@@ -39,19 +36,17 @@
         public long AllocationDifference => AllocationDifferenceFinish - AllocationDifferenceStart;
 
         private readonly CommandContext _commandContext;
-        private IDiagnosticsSender _diagnosticsSender;
 
         private readonly object _customFileLock = new object();
 
-        private readonly Dictionary<string, MessageTemplate> _messageTemplateCache = new Dictionary<string, MessageTemplate>();
-        private readonly object _messageTemplateCacheLock = new object();
-        private readonly MessageTemplateParser _messageTemplateParser = new MessageTemplateParser();
-
         public Dictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; } = new Dictionary<IoCommandKind, IoCommandCounter>();
 
-        public ExecutionContext(ExecutionContext parentContext, string sessionId, IEtlPlugin plugin, Module module, CommandContext commandContext)
+        public List<IEtlContextListener> CustomListeners { get; } = new List<IEtlContextListener>();
+
+        public ExecutionContext(ExecutionContext parentContext, ITopic topic, string sessionId, IEtlPlugin plugin, Module module, CommandContext commandContext)
         {
             SessionId = sessionId;
+            Topic = topic;
             ParentContext = parentContext;
             PluginName = plugin?.Name;
             ModuleName = module?.ModuleConfiguration?.ModuleName;
@@ -62,28 +57,15 @@
                 : ModuleName + "/" + PluginName;
         }
 
-        public void ListenToEtlEvents()
+        public void OnLog(LogSeverity severity, bool forOps, string transactionId, IProcess process, string text, params object[] args)
         {
-            Context.OnLog = Log;
-            Context.OnCustomLog = LogCustom;
-            Context.OnException = LogException;
+            Log(severity, forOps, transactionId, process, text, args);
 
-            if (_commandContext.HostConfiguration.DiagnosticsUri != null)
-            {
-                Context.OnRowCreated = LifecycleRowCreated;
-                Context.OnRowOwnerChanged = LifecycleRowOwnerChanged;
-                Context.OnRowValueChanged = LifecycleRowValueChanged;
-                Context.OnRowStoreStarted = LifecycleRowStoreStarted;
-                Context.OnRowStored = LifecycleRowStored;
-                Context.OnProcessInvocationStart = LifecycleProcessInvocationStart;
-                Context.OnProcessInvocationEnd = LifecycleProcessInvocationEnd;
-            }
-
-            Context.OnContextIoCommandStart = ContextIoCommandStart;
-            Context.OnContextIoCommandEnd = ContextIoCommandEnd;
+            foreach (var listener in CustomListeners)
+                listener.OnLog(severity, forOps, transactionId, process, text, args);
         }
 
-        public void Log(LogSeverity severity, bool forOps, bool noDiag, string transactionId, IProcess process, string text, params object[] args)
+        private void Log(LogSeverity severity, bool forOps, string transactionId, IProcess process, string text, params object[] args)
         {
             var sb = new StringBuilder();
             var values = new List<object>();
@@ -131,69 +113,25 @@
                 : _commandContext.Logger;
 
             logger.Write((LogEventLevel)severity, sb.ToString(), values.ToArray());
-
-            if (!noDiag && (severity >= LogSeverity.Debug) && _diagnosticsSender != null && !string.IsNullOrEmpty(text) && !forOps)
-            {
-                if (args.Length == 0)
-                {
-                    _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.Log, writer =>
-                    {
-                        writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(transactionId));
-                        writer.Write(text);
-                        writer.Write((byte)severity);
-                        writer.WriteNullable(process?.InvocationInfo?.InvocationUid);
-                        writer.Write7BitEncodedInt(0);
-                    });
-
-                    return;
-                }
-
-                var template = GetMessageTemplate(text);
-                var tokens = template.Tokens.ToList();
-
-                _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.Log, writer =>
-                {
-                    writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(transactionId));
-                    writer.Write(text);
-                    writer.Write((byte)severity);
-                    writer.WriteNullable(process?.InvocationInfo?.InvocationUid);
-
-                    var argCount = 0;
-                    for (var i = 0; i < tokens.Count && argCount < args.Length; i++)
-                    {
-                        if (tokens[i] is PropertyToken pt)
-                            argCount++;
-                    }
-
-                    writer.Write7BitEncodedInt(argCount);
-                    for (int i = 0, idx = 0; i < tokens.Count && idx < args.Length; i++)
-                    {
-                        if (tokens[i] is PropertyToken pt)
-                        {
-                            var rawText = text.Substring(pt.StartIndex, pt.Length);
-                            writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(rawText));
-                            writer.WriteObject(args[idx]);
-                            idx++;
-                        }
-                    }
-                });
-            }
         }
 
-        private void LogException(IProcess process, Exception exception)
+        public void OnException(IProcess process, Exception exception)
         {
             var opsErrors = new List<string>();
             GetOpsMessagesRecursive(exception, opsErrors);
             foreach (var opsError in opsErrors)
             {
-                Log(LogSeverity.Fatal, true, false, null, process, opsError);
+                OnLog(LogSeverity.Fatal, true, null, process, opsError);
             }
 
             var msg = exception.FormatExceptionWithDetails();
-            Log(LogSeverity.Fatal, false, false, null, process, "{ErrorMessage}", msg);
+            Log(LogSeverity.Fatal, false, null, process, "{ErrorMessage}", msg);
+
+            foreach (var listener in CustomListeners)
+                listener.OnException(process, exception);
         }
 
-        private void GetOpsMessagesRecursive(Exception ex, List<string> messages)
+        public void GetOpsMessagesRecursive(Exception ex, List<string> messages)
         {
             if (ex.Data.Contains(EtlException.OpsMessageDataKey))
             {
@@ -216,33 +154,7 @@
             }
         }
 
-        private MessageTemplate GetMessageTemplate(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-                return null;
-
-            lock (_messageTemplateCacheLock)
-            {
-                if (_messageTemplateCache.TryGetValue(text, out var existingTemplate))
-                    return existingTemplate;
-            }
-
-            var template = _messageTemplateParser.Parse(text);
-            lock (_messageTemplateCacheLock)
-            {
-                if (!_messageTemplateCache.ContainsKey(text))
-                {
-                    if (_messageTemplateCache.Count == 1000)
-                        _messageTemplateCache.Clear();
-
-                    _messageTemplateCache[text] = template;
-                }
-            }
-
-            return template;
-        }
-
-        private void LogCustom(bool forOps, string fileName, IProcess process, string text, params object[] args)
+        public void OnCustomLog(bool forOps, string fileName, IProcess process, string text, params object[] args)
         {
             var logsFolder = forOps
                 ? SerilogConfigurator.OpsLogFolder
@@ -276,85 +188,48 @@
             {
                 File.AppendAllText(filePath, line + Environment.NewLine);
             }
+
+            foreach (var listener in CustomListeners)
+                listener.OnCustomLog(forOps, fileName, process, text, args);
         }
 
-        private void LifecycleRowCreated(IReadOnlyRow row, IProcess process)
+        public void OnRowCreated(IReadOnlyRow row, IProcess process)
         {
-            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowCreated, writer =>
-            {
-                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
-                writer.Write7BitEncodedInt(row.Uid);
-                writer.Write7BitEncodedInt(row.ColumnCount);
-                foreach (var kvp in row.Values)
-                {
-                    writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(kvp.Key));
-                    writer.WriteObject(kvp.Value);
-                }
-            });
+            foreach (var listener in CustomListeners)
+                listener.OnRowCreated(row, process);
         }
 
-        private void LifecycleRowOwnerChanged(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess)
+        public void OnRowOwnerChanged(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess)
         {
-            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowOwnerChanged, writer =>
-            {
-                writer.Write7BitEncodedInt(row.Uid);
-                writer.Write7BitEncodedInt(previousProcess.InvocationInfo.InvocationUid);
-                writer.WriteNullable(currentProcess?.InvocationInfo?.InvocationUid);
-            });
+            foreach (var listener in CustomListeners)
+                listener.OnRowOwnerChanged(row, previousProcess, currentProcess);
         }
 
-        private void LifecycleRowStoreStarted(int storeUid, string location, string path)
+        public void OnRowStoreStarted(int storeUid, string location, string path)
         {
-            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowStoreStarted, writer =>
-            {
-                writer.Write7BitEncodedInt(storeUid);
-                writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(location));
-                writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(path));
-            });
+            foreach (var listener in CustomListeners)
+                listener.OnRowStoreStarted(storeUid, location, path);
         }
 
-        private void LifecycleRowStored(IProcess process, IReadOnlyRow row, int storeUid)
+        public void OnRowStored(IProcess process, IReadOnlyRow row, int storeUid)
         {
-            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowStored, writer =>
-            {
-                writer.Write7BitEncodedInt(row.Uid);
-                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
-                writer.Write7BitEncodedInt(storeUid);
-                writer.Write7BitEncodedInt(row.ColumnCount);
-                foreach (var kvp in row.Values)
-                {
-                    writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(kvp.Key));
-                    writer.WriteObject(kvp.Value);
-                }
-            });
+            foreach (var listener in CustomListeners)
+                listener.OnRowStored(process, row, storeUid);
         }
 
-        private void LifecycleProcessInvocationStart(IProcess process)
+        public void OnProcessInvocationStart(IProcess process)
         {
-            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.ProcessInvocationStart, writer =>
-            {
-                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
-                writer.Write7BitEncodedInt(process.InvocationInfo.InstanceUid);
-                writer.Write7BitEncodedInt(process.InvocationInfo.Number);
-                writer.Write(process.GetType().GetFriendlyTypeName());
-                writer.Write((byte)process.Kind);
-                writer.Write(process.Name);
-                writer.WriteNullable(process.Topic.Name);
-                writer.WriteNullable(process.InvocationInfo.Caller?.InvocationInfo?.InvocationUid);
-            });
+            foreach (var listener in CustomListeners)
+                listener.OnProcessInvocationStart(process);
         }
 
-        private void LifecycleProcessInvocationEnd(IProcess process)
+        public void OnProcessInvocationEnd(IProcess process)
         {
-            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.ProcessInvocationEnd, writer =>
-            {
-                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
-                writer.Write(process.InvocationInfo.LastInvocationStarted.ElapsedMilliseconds);
-                writer.WriteNullable(process.InvocationInfo.LastInvocationNetTimeMilliseconds);
-            });
+            foreach (var listener in CustomListeners)
+                listener.OnProcessInvocationEnd(process);
         }
 
-        private void ContextIoCommandStart(int uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
+        public void OnContextIoCommandStart(int uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
         {
             if (message != null)
             {
@@ -430,34 +305,11 @@
                 _commandContext.IoLogger.Write(LogEventLevel.Verbose, sb.ToString(), values.ToArray());
             }
 
-            _diagnosticsSender?.SendDiagnostics(DiagnosticsEventKind.IoCommandStart, writer =>
-            {
-                writer.Write7BitEncodedInt(uid);
-                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
-                writer.Write((byte)kind);
-                writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(location));
-                writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(path));
-                writer.WriteNullable(timeoutSeconds);
-                writer.WriteNullable(command);
-                writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(transactionId));
-                var arguments = argumentListGetter?.Invoke()?.ToArray();
-                if (arguments?.Length > 0)
-                {
-                    writer.Write7BitEncodedInt(arguments.Length);
-                    foreach (var kvp in arguments)
-                    {
-                        writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(kvp.Key));
-                        writer.WriteObject(kvp.Value);
-                    }
-                }
-                else
-                {
-                    writer.Write7BitEncodedInt(0);
-                }
-            });
+            foreach (var listener in CustomListeners)
+                listener.OnContextIoCommandStart(uid, kind, location, path, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageArgs);
         }
 
-        private void ContextIoCommandEnd(IProcess process, int uid, IoCommandKind kind, int? affectedDataCount, Exception ex)
+        public void OnContextIoCommandEnd(IProcess process, int uid, IoCommandKind kind, int? affectedDataCount, Exception ex)
         {
             IoCommandCounters.TryGetValue(kind, out var counter);
             if (counter == null)
@@ -473,12 +325,12 @@
                 counter.AffectedDataCount = cnt;
             }
 
-            if (ParentContext != null)
+            if (ParentContext is ExecutionContext pec)
             {
-                ParentContext.IoCommandCounters.TryGetValue(kind, out counter);
+                pec.IoCommandCounters.TryGetValue(kind, out counter);
                 if (counter == null)
                 {
-                    ParentContext.IoCommandCounters[kind] = counter = new IoCommandCounter();
+                    pec.IoCommandCounters[kind] = counter = new IoCommandCounter();
                 }
 
                 counter.InvocationCount++;
@@ -530,28 +382,14 @@
                 _commandContext.IoLogger.Write(LogEventLevel.Error, sb.ToString(), values.ToArray());
             }
 
-            _diagnosticsSender?.SendDiagnostics(DiagnosticsEventKind.IoCommandEnd, writer =>
-            {
-                writer.Write7BitEncodedInt(uid);
-                writer.WriteNullable(affectedDataCount);
-                writer.WriteNullable(ex?.FormatExceptionWithDetails());
-            });
+            foreach (var listener in CustomListeners)
+                listener.OnContextIoCommandEnd(process, uid, kind, affectedDataCount, ex);
         }
 
-        private void LifecycleRowValueChanged(IProcess process, IReadOnlyRow row, KeyValuePair<string, object>[] values)
+        public void OnRowValueChanged(IProcess process, IReadOnlyRow row, KeyValuePair<string, object>[] values)
         {
-            _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.RowValueChanged, writer =>
-            {
-                writer.Write7BitEncodedInt(row.Uid);
-                writer.WriteNullable(process?.InvocationInfo?.InvocationUid);
-
-                writer.Write7BitEncodedInt(values.Length);
-                foreach (var kvp in values)
-                {
-                    writer.Write7BitEncodedInt(_diagnosticsSender.GetTextDictionaryKey(kvp.Key));
-                    writer.WriteObject(kvp.Value);
-                }
-            });
+            foreach (var listener in CustomListeners)
+                listener.OnRowValueChanged(process, row, values);
         }
 
         private Stopwatch _startedOn;
@@ -560,15 +398,16 @@
         {
             _startedOn = Stopwatch.StartNew();
 
+            var listeners = _commandContext.HostConfiguration.GetEtlContextListeners(this);
+            if (listeners?.Count > 0)
+            {
+                CustomListeners.AddRange(listeners);
+            }
+
             GC.Collect();
             CpuTimeStart = GetCpuTime();
             TotalAllocationsStart = GetTotalAllocatedBytes();
             AllocationDifferenceStart = GetCurrentAllocatedBytes();
-
-            if (_commandContext.HostConfiguration.DiagnosticsUri != null)
-            {
-                _diagnosticsSender = new HttpDiagnosticsSender(SessionId, Name, _commandContext.HostConfiguration.DiagnosticsUri);
-            }
         }
 
         public void Finish()
@@ -579,17 +418,6 @@
             CpuTimeFinish = GetCpuTime();
             TotalAllocationsFinish = GetTotalAllocatedBytes();
             AllocationDifferenceFinish = GetCurrentAllocatedBytes();
-        }
-
-        public void Close()
-        {
-            if (_diagnosticsSender != null)
-            {
-                _diagnosticsSender.SendDiagnostics(DiagnosticsEventKind.ContextEnded, null);
-
-                _diagnosticsSender.Flush();
-                _diagnosticsSender.Dispose();
-            }
         }
 
         private static TimeSpan GetCpuTime()
@@ -605,6 +433,17 @@
         private static long GetTotalAllocatedBytes()
         {
             return GC.GetTotalAllocatedBytes(true);
+        }
+
+        public void OnContextClosed()
+        {
+            foreach (var listener in CustomListeners)
+                listener.OnContextClosed();
+        }
+
+        public void Init(IExecutionContext executionContext, IConfigurationSection configurationSection)
+        {
+            throw new NotImplementedException();
         }
 
         public class IoCommandCounter

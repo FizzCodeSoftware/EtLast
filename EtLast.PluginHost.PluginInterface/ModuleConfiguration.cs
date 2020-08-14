@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.Configuration;
     using Microsoft.Extensions.Configuration;
 
     public class ModuleConfiguration

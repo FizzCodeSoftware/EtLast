@@ -14,26 +14,14 @@
         public DateTimeOffset CreatedOnUtc { get; }
         public DateTimeOffset CreatedOnLocal { get; }
 
+        public List<IEtlContextListener> Listeners { get; } = new List<IEtlContextListener>();
+
         /// <summary>
         /// Default value: 10 minutes.
         /// </summary>
         public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromMinutes(10);
 
         public CancellationTokenSource CancellationTokenSource { get; }
-
-        public ContextOnLogDelegate OnLog { get; set; }
-        public ContextOnCustomLogDelegate OnCustomLog { get; set; }
-        public ContextOnExceptionDelegate OnException { get; set; }
-
-        public ContextOnRowCreatedDelegate OnRowCreated { get; set; }
-        public ContextOnRowOwnerChangedDelegate OnRowOwnerChanged { get; set; }
-        public ContextOnRowValueChangedDelegate OnRowValueChanged { get; set; }
-        public ContextOnRowStoreStartedDelegate OnRowStoreStarted { get; set; }
-        public ContextOnRowStoredDelegate OnRowStored { get; set; }
-        public ContextOnProcessInvocationDelegate OnProcessInvocationStart { get; set; }
-        public ContextOnProcessInvocationDelegate OnProcessInvocationEnd { get; set; }
-        public ContextOnIoCommandStartDelegate OnContextIoCommandStart { get; set; }
-        public ContextOnIoCommandEndDelegate OnContextIoCommandEnd { get; set; }
 
         private int _nextRowUid;
         private int _nextProcessInstanceUid;
@@ -124,7 +112,10 @@
             if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
                 Result.WarningCount++;
 
-            OnLog?.Invoke(severity, false, false, transactionId, process, text, args);
+            foreach (var listener in Listeners)
+            {
+                listener.OnLog(severity, false, transactionId, process, text, args);
+            }
         }
 
         public void Log(LogSeverity severity, IProcess process, string text, params object[] args)
@@ -132,54 +123,80 @@
             if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
                 Result.WarningCount++;
 
-            OnLog?.Invoke(severity, false, false, null, process, text, args);
+            foreach (var listener in Listeners)
+            {
+                listener.OnLog(severity, false, null, process, text, args);
+            }
         }
 
         public void LogOps(LogSeverity severity, IProcess process, string text, params object[] args)
         {
-            OnLog?.Invoke(severity, true, false, null, process, text, args);
-        }
-
-        public void LogNoDiag(LogSeverity severity, IProcess process, string text, params object[] args)
-        {
-            if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
-                Result.WarningCount++;
-
-            OnLog?.Invoke(severity, false, true, null, process, text, args);
+            foreach (var listener in Listeners)
+            {
+                listener.OnLog(severity, true, null, process, text, args);
+            }
         }
 
         public void LogCustom(string fileName, IProcess process, string text, params object[] args)
         {
-            OnCustomLog?.Invoke(false, fileName, process, text, args);
+            foreach (var listener in Listeners)
+            {
+                listener.OnCustomLog(false, fileName, process, text, args);
+            }
         }
 
         public void LogCustomOps(string fileName, IProcess process, string text, params object[] args)
         {
-            OnCustomLog?.Invoke(true, fileName, process, text, args);
+            foreach (var listener in Listeners)
+            {
+                listener.OnCustomLog(true, fileName, process, text, args);
+            }
         }
 
         public int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
         {
             var uid = Interlocked.Increment(ref _nextIoCommandUid);
-            OnContextIoCommandStart?.Invoke(uid, kind, location, null, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageArgs);
+            foreach (var listener in Listeners)
+            {
+                listener.OnContextIoCommandStart(uid, kind, location, null, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageArgs);
+            }
+
             return uid;
         }
 
         public int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string location, string path, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
         {
             var uid = Interlocked.Increment(ref _nextIoCommandUid);
-            OnContextIoCommandStart?.Invoke(uid, kind, location, path, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageArgs);
+            foreach (var listener in Listeners)
+            {
+                listener.OnContextIoCommandStart(uid, kind, location, path, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageArgs);
+            }
+
             return uid;
         }
 
         public void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount)
         {
-            OnContextIoCommandEnd?.Invoke(process, uid, kind, affectedDataCount, null);
+            foreach (var listener in Listeners)
+            {
+                listener.OnContextIoCommandEnd(process, uid, kind, affectedDataCount, null);
+            }
         }
 
         public void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount, Exception exception)
         {
-            OnContextIoCommandEnd?.Invoke(process, uid, kind, affectedDataCount, exception);
+            foreach (var listener in Listeners)
+            {
+                listener.OnContextIoCommandEnd(process, uid, kind, affectedDataCount, exception);
+            }
+        }
+
+        public void RegisterRowStored(IProcess process, IReadOnlyRow row, int storeUid)
+        {
+            foreach (var listener in Listeners)
+            {
+                listener.OnRowStored(process, row, storeUid);
+            }
         }
 
         public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues)
@@ -187,7 +204,10 @@
             var row = (IRow)Activator.CreateInstance(RowType);
             row.Init(this, process, Interlocked.Increment(ref _nextRowUid), initialValues);
 
-            OnRowCreated?.Invoke(row, process);
+            foreach (var listener in Listeners)
+            {
+                listener.OnRowCreated(row, process);
+            }
 
             return row;
         }
@@ -197,7 +217,10 @@
             var row = (IRow)Activator.CreateInstance(RowType);
             row.Init(this, process, Interlocked.Increment(ref _nextRowUid), initialValues.Values);
 
-            OnRowCreated?.Invoke(row, process);
+            foreach (var listener in Listeners)
+            {
+                listener.OnRowCreated(row, process);
+            }
 
             return row;
         }
@@ -225,7 +248,10 @@
                 _exceptions.Add(ex);
             }
 
-            OnException?.Invoke(process, ex);
+            foreach (var listener in Listeners)
+            {
+                listener.OnException(process, ex);
+            }
 
             CancellationTokenSource.Cancel();
         }
@@ -261,7 +287,11 @@
 
             var previousProcess = row.CurrentProcess;
             row.CurrentProcess = currentProcess;
-            OnRowOwnerChanged?.Invoke(row, previousProcess, currentProcess);
+
+            foreach (var listener in Listeners)
+            {
+                listener.OnRowOwnerChanged(row, previousProcess, currentProcess);
+            }
         }
 
         public void RegisterProcessInvocationStart(IProcess process, IProcess caller)
@@ -275,20 +305,31 @@
                 Caller = caller,
             };
 
-            OnProcessInvocationStart?.Invoke(process);
+            foreach (var listener in Listeners)
+            {
+                listener.OnProcessInvocationStart(process);
+            }
         }
 
         public void RegisterProcessInvocationEnd(IProcess process)
         {
             process.InvocationInfo.LastInvocationFinished = DateTimeOffset.Now;
-            OnProcessInvocationEnd?.Invoke(process);
+
+            foreach (var listener in Listeners)
+            {
+                listener.OnProcessInvocationEnd(process);
+            }
         }
 
         public void RegisterProcessInvocationEnd(IProcess process, long netElapsedMilliseconds)
         {
             process.InvocationInfo.LastInvocationFinished = DateTimeOffset.Now;
             process.InvocationInfo.LastInvocationNetTimeMilliseconds = netElapsedMilliseconds;
-            OnProcessInvocationEnd?.Invoke(process);
+
+            foreach (var listener in Listeners)
+            {
+                listener.OnProcessInvocationEnd(process);
+            }
         }
 
         public int GetStoreUid(string location, string path)
@@ -298,10 +339,25 @@
             {
                 storeUid = Interlocked.Increment(ref _nextRowStoreUid);
                 _rowStores.Add(key, storeUid);
-                OnRowStoreStarted?.Invoke(storeUid, location, path);
+                foreach (var listener in Listeners)
+                {
+                    listener.OnRowStoreStarted(storeUid, location, path);
+                }
             }
 
             return storeUid;
+        }
+
+        public void Close()
+        {
+            foreach (var listener in Listeners)
+            {
+                listener.OnContextClosed();
+                if (listener is IDisposable disp)
+                {
+                    disp.Dispose();
+                }
+            }
         }
     }
 }

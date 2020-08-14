@@ -64,11 +64,11 @@
                         foreach (var s in stringArray)
                         {
                             if (sb.Length > 0)
-                                sb.Append(",");
+                                sb.Append(',');
 
-                            sb.Append("'");
+                            sb.Append('\'');
                             sb.Append(s);
-                            sb.Append("'");
+                            sb.Append('\'');
                         }
 
                         var newParamText = sb.ToString();
@@ -96,11 +96,11 @@
                         foreach (var s in stringList)
                         {
                             if (sb.Length > 0)
-                                sb.Append(",");
+                                sb.Append(',');
 
-                            sb.Append("'");
+                            sb.Append('\'');
                             sb.Append(s);
-                            sb.Append("'");
+                            sb.Append('\'');
                         }
 
                         var newParamText = sb.ToString();

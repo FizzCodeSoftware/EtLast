@@ -5,7 +5,7 @@
     using System.IO;
     using System.Reflection;
     using FizzCode.DbTools.Configuration;
-    using Microsoft.Extensions.Configuration;
+    using FizzCode.LightWeight.Configuration;
 
     public abstract class AbstractEtlPlugin : IEtlPlugin
     {
@@ -35,68 +35,18 @@
 
         protected T GetModuleSetting<T>(string key, T defaultValue, string subSection = null)
         {
-            var v = ModuleConfiguration.Configuration.GetValue<T>((subSection == null ? "Module" : "Module:" + subSection) + ":" + key + "-" + Environment.MachineName, default);
+            var value = ConfigurationReader.GetCurrentValue<T>(ModuleConfiguration.Configuration, subSection == null ? "Module" : "Module:" + subSection, key, default);
 
-            if (v != null && !v.Equals(default(T)))
-                return v;
+            if (value != null && !value.Equals(default(T)))
+                return value;
 
-            v = ModuleConfiguration.Configuration.GetValue((subSection == null ? "Module" : "Module:" + subSection) + ":" + key, defaultValue);
-            if (v != null && !v.Equals(default(T)))
-                return v;
-
-            v = ModuleConfiguration.Configuration.GetValue<T>((subSection == null ? "Shared" : "Shared:" + subSection) + ":" + key + "-" + Environment.MachineName, default);
-            if (v != null && !v.Equals(default(T)))
-                return v;
-
-            v = ModuleConfiguration.Configuration.GetValue<T>((subSection == null ? "Shared" : "Shared:" + subSection) + ":" + key, default);
-            if (v != null && !v.Equals(default(T)))
-                return v;
-
-            return defaultValue;
+            return ConfigurationReader.GetCurrentValue(ModuleConfiguration.Configuration, subSection == null ? "Shared" : "Shared:" + subSection, key, defaultValue);
         }
 
-        protected string GetModuleSetting<T>(string key, string defaultValue, string subSection = null)
+        protected string GetModuleSetting(string key, string defaultValue, string subSection = null)
         {
-            var isProtected = ModuleConfiguration.Configuration.GetValue<bool>((subSection == null ? "Module" : "Module:" + subSection) + ":" + key + "-protected");
-
-            var v = ModuleConfiguration.Configuration.GetValue<string>((subSection == null ? "Module" : "Module:" + subSection) + ":" + key + "-" + Environment.MachineName);
-
-            if (v?.Equals(default(T)) == false)
-            {
-                if (isProtected && ModuleConfiguration.SecretProtector != null)
-                    v = ModuleConfiguration.SecretProtector.Decrypt(v);
-
-                return v;
-            }
-
-            v = ModuleConfiguration.Configuration.GetValue((subSection == null ? "Module" : "Module:" + subSection) + ":" + key, defaultValue);
-            if (v?.Equals(default(T)) == false)
-            {
-                if (isProtected && ModuleConfiguration.SecretProtector != null)
-                    v = ModuleConfiguration.SecretProtector.Decrypt(v);
-
-                return v;
-            }
-
-            v = ModuleConfiguration.Configuration.GetValue<string>((subSection == null ? "Shared" : "Shared:" + subSection) + ":" + key + "-" + Environment.MachineName);
-            if (v?.Equals(default(T)) == false)
-            {
-                if (isProtected && ModuleConfiguration.SecretProtector != null)
-                    v = ModuleConfiguration.SecretProtector.Decrypt(v);
-
-                return v;
-            }
-
-            v = ModuleConfiguration.Configuration.GetValue<string>((subSection == null ? "Shared" : "Shared:" + subSection) + ":" + key);
-            if (v?.Equals(default(T)) == false)
-            {
-                if (isProtected && ModuleConfiguration.SecretProtector != null)
-                    v = ModuleConfiguration.SecretProtector.Decrypt(v);
-
-                return v;
-            }
-
-            return defaultValue;
+            var value = ConfigurationReader.GetCurrentValue(ModuleConfiguration.Configuration, subSection == null ? "Module" : "Module:" + subSection, key, null, ModuleConfiguration.SecretProtector);
+            return value ?? ConfigurationReader.GetCurrentValue(ModuleConfiguration.Configuration, subSection == null ? "Shared" : "Shared:" + subSection, key, defaultValue);
         }
 
         protected string GetPathFromConfiguration(string appSettingName, params string[] subFolders)

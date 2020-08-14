@@ -15,7 +15,7 @@
         /// <summary>
         /// Default false.
         /// </summary>
-        public bool IgnoreRowsWithError { get; set; } = false;
+        public bool IgnoreRowsWithError { get; set; }
 
         /// <summary>
         /// Default true.

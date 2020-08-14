@@ -151,7 +151,7 @@
             var assemblyName = method.DeclaringType?.Assembly?.GetName().Name;
             if (assemblyName != null)
             {
-                sb.Append("(").Append(assemblyName).Append(") ");
+                sb.Append('(').Append(assemblyName).Append(") ");
             }
 
             if (!method.Name.StartsWith("<", StringComparison.Ordinal) && method.DeclaringType != null)
@@ -165,7 +165,7 @@
                         {
                             case 'd':
                                 sb.Append(TypeHelpers.FixGeneratedName(method.DeclaringType.DeclaringType.Name))
-                                    .Append(".");
+                                    .Append('.');
                                 ignoreMethod = true;
                                 break;
                         }
@@ -174,7 +174,7 @@
 
                 sb.Append(TypeHelpers.FixGeneratedName(method.DeclaringType.Name));
                 if (!ignoreMethod)
-                    sb.Append(".");
+                    sb.Append('.');
             }
 
             if (!ignoreMethod)
@@ -183,14 +183,14 @@
 
                 if (method is MethodInfo mi && mi.IsGenericMethod)
                 {
-                    sb.Append("<")
+                    sb.Append('<')
                         .Append(string.Join(",", mi.GetGenericArguments().Select(x => x.GetFriendlyTypeName(false))))
-                        .Append(">");
+                        .Append('>');
                 }
 
-                sb.Append("(")
+                sb.Append('(')
                     .Append(string.Join(", ", method.GetParameters().Select(mp => mp.ParameterType.GetFriendlyTypeName() + " " + mp.Name)))
-                    .Append(")");
+                    .Append(')');
             }
 
             try
@@ -221,7 +221,7 @@
                 var assemblyName = p.GetType().Assembly?.GetName().Name;
                 if (assemblyName != null)
                 {
-                    builder.Append("(").Append(assemblyName).Append(") ");
+                    builder.Append('(').Append(assemblyName).Append(") ");
                 }
 
                 builder.Append(p.GetType().GetFriendlyTypeName());

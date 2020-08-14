@@ -74,6 +74,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbTools.DataDefinition.SqlE
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbTools.DataDefinition.SqlGenerator", "..\DbTools\DbTools.DataDefinition.SqlGenerator\DbTools.DataDefinition.SqlGenerator.csproj", "{246B1226-0FEE-4FF3-871B-8817492A1887}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Diagnostics.HttpSender", "EtLast.Diagnostics.HttpSender\EtLast.Diagnostics.HttpSender.csproj", "{39A6B185-885A-45A1-A3D2-1B2334A701DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -231,6 +233,12 @@ Global
 		{246B1226-0FEE-4FF3-871B-8817492A1887}.LocalProjects|Any CPU.Build.0 = Debug|Any CPU
 		{246B1226-0FEE-4FF3-871B-8817492A1887}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{246B1226-0FEE-4FF3-871B-8817492A1887}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39A6B185-885A-45A1-A3D2-1B2334A701DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39A6B185-885A-45A1-A3D2-1B2334A701DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39A6B185-885A-45A1-A3D2-1B2334A701DE}.LocalProjects|Any CPU.ActiveCfg = Debug|Any CPU
+		{39A6B185-885A-45A1-A3D2-1B2334A701DE}.LocalProjects|Any CPU.Build.0 = Debug|Any CPU
+		{39A6B185-885A-45A1-A3D2-1B2334A701DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39A6B185-885A-45A1-A3D2-1B2334A701DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -75,7 +75,9 @@
                 Action.Invoke(row, _package, _state);
 
                 if (_storeUid != null)
-                    Context.OnRowStored?.Invoke(this, row, _storeUid.Value);
+                {
+                    Context.RegisterRowStored(this, row, _storeUid.Value);
+                }
             }
             catch (Exception ex)
             {

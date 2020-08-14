@@ -21,12 +21,12 @@
             var sessionWarningCount = 0;
             var sessionExceptionCount = 0;
 
-            var sessionContext = new ExecutionContext(null, sessionId, null, null, commandContext);
+            var sessionContext = new ExecutionContext(null, null, sessionId, null, null, commandContext);
             sessionContext.Start();
 
             try
             {
-                sessionContext.Log(LogSeverity.Information, false, false, null, null, "session {SessionId} started", sessionId);
+                sessionContext.OnLog(LogSeverity.Information, false, null, null, "session {SessionId} started", sessionId);
 
                 var contextList = new List<ExecutionContext>();
 
@@ -34,19 +34,19 @@
                 {
                     foreach (var plugin in module.EnabledPlugins)
                     {
-                        var pluginContext = new ExecutionContext(sessionContext, sessionId, plugin, module, commandContext)
+                        var topic = new Topic(null, new EtlContext()
                         {
-                            Topic = new Topic(null, new EtlContext()
-                            {
-                                TransactionScopeTimeout = commandContext.HostConfiguration.TransactionScopeTimeout,
-                            }),
-                        };
+                            TransactionScopeTimeout = commandContext.HostConfiguration.TransactionScopeTimeout,
+                        });
+
+                        var pluginContext = new ExecutionContext(sessionContext, topic, sessionId, plugin, module, commandContext);
 
                         contextList.Add(pluginContext);
 
                         pluginContext.Start();
-                        pluginContext.ListenToEtlEvents();
-                        pluginContext.Log(LogSeverity.Information, false, false, null, null, "plugin started");
+                        pluginContext.Topic.Context.Listeners.Add(pluginContext);
+
+                        pluginContext.OnLog(LogSeverity.Information, false, null, null, "plugin started");
 
                         try
                         {
@@ -56,20 +56,20 @@
                                 plugin.BeforeExecute();
                                 plugin.Execute();
 
-                                sessionWarningCount += pluginContext.Context.Result.WarningCount;
-                                sessionExceptionCount += pluginContext.Context.Result.Exceptions.Count;
+                                sessionWarningCount += pluginContext.Topic.Context.Result.WarningCount;
+                                sessionExceptionCount += pluginContext.Topic.Context.Result.Exceptions.Count;
 
-                                if (pluginContext.Context.Result.TerminateHost)
+                                if (pluginContext.Topic.Context.Result.TerminateHost)
                                 {
-                                    pluginContext.Log(LogSeverity.Error, false, false, null, null, "requested to terminate the execution of the module");
+                                    pluginContext.OnLog(LogSeverity.Error, false, null, null, "requested to terminate the execution of the module");
 
                                     result = ExecutionResult.PluginFailedAndExecutionTerminated;
                                     pluginContext.Finish();
-                                    pluginContext.Close();
+                                    pluginContext.Topic.Context.Close();
                                     break; // stop processing plugins
                                 }
 
-                                if (!pluginContext.Context.Result.Success)
+                                if (!pluginContext.Topic.Context.Result.Success)
                                 {
                                     result = ExecutionResult.PluginFailed;
                                 }
@@ -79,10 +79,10 @@
                                 result = ExecutionResult.PluginFailedAndExecutionTerminated;
                                 pluginContext.Finish();
 
-                                pluginContext.Log(LogSeverity.Error, false, false, null, null, "unhandled error during plugin execution after {Elapsed}, message: {Message}", pluginContext.RunTime, ex.Message);
-                                pluginContext.Log(LogSeverity.Error, true, false, null, null, "requested to terminate the execution of the module: {Message}", ex.Message);
+                                pluginContext.OnLog(LogSeverity.Error, false, null, null, "unhandled error during plugin execution after {Elapsed}, message: {Message}", pluginContext.RunTime, ex.Message);
+                                pluginContext.OnLog(LogSeverity.Error, true, null, null, "requested to terminate the execution of the module: {Message}", ex.Message);
 
-                                pluginContext.Close();
+                                pluginContext.Topic.Context.Close();
                                 break; // stop processing plugins
                             }
                         }
@@ -91,24 +91,24 @@
                         }
 
                         pluginContext.Finish();
-                        pluginContext.Log(LogSeverity.Information, false, false, null, null, "plugin finished in {Elapsed}", pluginContext.RunTime);
+                        pluginContext.OnLog(LogSeverity.Information, false, null, null, "plugin finished in {Elapsed}", pluginContext.RunTime);
                         LogPluginCounters(pluginContext);
 
-                        pluginContext.Close();
+                        pluginContext.Topic.Context.Close();
                     }
                 }
 
                 sessionContext.Finish();
 
-                sessionContext.Log(LogSeverity.Information, false, false, null, null, "-------");
-                sessionContext.Log(LogSeverity.Information, false, false, null, null, "SUMMARY");
-                sessionContext.Log(LogSeverity.Information, false, false, null, null, "-------");
+                sessionContext.OnLog(LogSeverity.Information, false, null, null, "-------");
+                sessionContext.OnLog(LogSeverity.Information, false, null, null, "SUMMARY");
+                sessionContext.OnLog(LogSeverity.Information, false, null, null, "-------");
 
                 var longestPluginName = contextList.Max(x => x.PluginName.Length);
 
                 foreach (var pluginContext in contextList)
                 {
-                    if (pluginContext.Context == null)
+                    if (pluginContext.Topic.Context == null)
                         continue;
 
                     LogPluginSummary(sessionContext, pluginContext, longestPluginName);
@@ -118,7 +118,7 @@
 
                 LogSessionSummary(sessionContext, longestPluginName, sessionExceptionCount, sessionWarningCount, sessionStartedOn, result);
 
-                sessionContext.Close();
+                sessionContext.OnContextClosed();
             }
             catch (TransactionAbortedException)
             {
@@ -139,8 +139,7 @@
             {
                 if (kvp.Value.AffectedDataCount != null)
                 {
-                    pluginContext.Log(LogSeverity.Debug, false, true, null, null, "{Kind}{spacing1} {InvocationCount}{spacing2}   {AffectedDataCount}",
-                        kvp.Key.ToString(),
+                    pluginContext.OnLog(LogSeverity.Debug, false, null, null, "{Kind}{spacing1} {InvocationCount}{spacing2}   {AffectedDataCount}", kvp.Key.ToString(),
                         "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '),
                         kvp.Value.InvocationCount,
                         "".PadRight(maxInvocationLength - kvp.Value.InvocationCount.ToString(ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length, ' '),
@@ -148,8 +147,8 @@
                 }
                 else
                 {
-                    pluginContext.Log(LogSeverity.Debug, false, true, null, null, "{Kind}{spacing1} {InvocationCount}",
-                        kvp.Key.ToString(), "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '), kvp.Value.InvocationCount);
+                    pluginContext.OnLog(LogSeverity.Debug, false, null, null, "{Kind}{spacing1} {InvocationCount}", kvp.Key.ToString(),
+                        "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '), kvp.Value.InvocationCount);
                 }
             }
         }
@@ -159,15 +158,15 @@
             var spacing1 = "".PadRight(longestPluginName - pluginContext.PluginName.Length);
             var spacing1WithoutName = "".PadRight(longestPluginName);
 
-            if (pluginContext.Context.Result.Success)
+            if (pluginContext.Topic.Context.Result.Success)
             {
-                sessionContext.Log(LogSeverity.Information, false, false, null, null, "{Plugin}{spacing1} run-time is {Elapsed}, result is {Result}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
-                    pluginContext.PluginName, spacing1, pluginContext.RunTime, "success", pluginContext.CpuTime, pluginContext.TotalAllocations, pluginContext.AllocationDifference);
+                sessionContext.OnLog(LogSeverity.Information, false, null, null, "{Plugin}{spacing1} run-time is {Elapsed}, result is {Result}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}", pluginContext.PluginName,
+                    spacing1, pluginContext.RunTime, "success", pluginContext.CpuTime, pluginContext.TotalAllocations, pluginContext.AllocationDifference);
             }
             else
             {
-                sessionContext.Log(LogSeverity.Information, false, false, null, null, "{Plugin}{spacing1} run-time is {Elapsed}, result is {Result}, requested to terminate execution: {TerminateHost}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
-                    pluginContext.PluginName, spacing1, pluginContext.RunTime, "failed", pluginContext.Context.Result.TerminateHost, pluginContext.CpuTime, pluginContext.TotalAllocations, pluginContext.AllocationDifference);
+                sessionContext.OnLog(LogSeverity.Information, false, null, null, "{Plugin}{spacing1} run-time is {Elapsed}, result is {Result}, requested to terminate execution: {TerminateHost}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}", pluginContext.PluginName,
+                    spacing1, pluginContext.RunTime, "failed", pluginContext.Topic.Context.Result.TerminateHost, pluginContext.CpuTime, pluginContext.TotalAllocations, pluginContext.AllocationDifference);
             }
 
             if (pluginContext.IoCommandCounters.Count > 0)
@@ -179,8 +178,7 @@
                 {
                     if (kvp.Value.AffectedDataCount != null)
                     {
-                        sessionContext.Log(LogSeverity.Information, false, true, null, null, "{spacing1} {Kind}{spacing2} {InvocationCount}{spacing3}   {AffectedDataCount}",
-                            spacing1WithoutName,
+                        sessionContext.OnLog(LogSeverity.Information, false, null, null, "{spacing1} {Kind}{spacing2} {InvocationCount}{spacing3}   {AffectedDataCount}", spacing1WithoutName,
                             kvp.Key.ToString(),
                             "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '),
                             kvp.Value.InvocationCount,
@@ -189,8 +187,7 @@
                     }
                     else
                     {
-                        sessionContext.Log(LogSeverity.Information, false, true, null, null, "{spacing1} {Kind}{spacing2} {InvocationCount}",
-                            spacing1WithoutName,
+                        sessionContext.OnLog(LogSeverity.Information, false, null, null, "{spacing1} {Kind}{spacing2} {InvocationCount}", spacing1WithoutName,
                             kvp.Key.ToString(),
                             "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '),
                             kvp.Value.InvocationCount);
@@ -205,22 +202,20 @@
             var spacing1 = "".PadRight(longestPluginName - sessionName.Length);
             var spacing1withoutName = "".PadRight(longestPluginName);
 
-            sessionContext.Log(LogSeverity.Information, false, false, null, null, "{Plugin}{spacing1} run-time is {Elapsed}, result is {Result}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
-                sessionName,
+            sessionContext.OnLog(LogSeverity.Information, false, null, null, "{Plugin}{spacing1} run-time is {Elapsed}, result is {Result}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}", sessionName,
                 spacing1,
-                sessionStartedOn.Elapsed, result.ToString(), sessionContext.CpuTime, sessionContext.TotalAllocations, sessionContext.AllocationDifference);
+                sessionStartedOn.Elapsed,
+                result.ToString(), sessionContext.CpuTime, sessionContext.TotalAllocations, sessionContext.AllocationDifference);
 
             if (sessionWarningCount > 0)
             {
-                sessionContext.Log(LogSeverity.Warning, false, false, null, null, "{spacing1} {Count} warnings/errors occured",
-                    spacing1withoutName,
+                sessionContext.OnLog(LogSeverity.Warning, false, null, null, "{spacing1} {Count} warnings/errors occured", spacing1withoutName,
                     sessionWarningCount);
             }
 
             if (sessionExceptionCount > 0)
             {
-                sessionContext.Log(LogSeverity.Warning, false, false, null, null, "{Plugin}{spacing1} {Count} exceptions raised",
-                    spacing1withoutName,
+                sessionContext.OnLog(LogSeverity.Warning, false, null, null, "{Plugin}{spacing1} {Count} exceptions raised", spacing1withoutName,
                     sessionExceptionCount);
             }
 
@@ -233,8 +228,7 @@
                 {
                     if (kvp.Value.AffectedDataCount != null)
                     {
-                        sessionContext.Log(LogSeverity.Information, false, true, null, null, "{spacing1} {Kind}{spacing2} {InvocationCount}{spacing3}   {AffectedDataCount}",
-                            spacing1withoutName,
+                        sessionContext.OnLog(LogSeverity.Information, false, null, null, "{spacing1} {Kind}{spacing2} {InvocationCount}{spacing3}   {AffectedDataCount}", spacing1withoutName,
                             kvp.Key.ToString(),
                             "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '),
                             kvp.Value.InvocationCount,
@@ -243,8 +237,7 @@
                     }
                     else
                     {
-                        sessionContext.Log(LogSeverity.Information, false, true, null, null, "{spacing1} {Kind}{spacing2} {InvocationCount}",
-                            spacing1withoutName,
+                        sessionContext.OnLog(LogSeverity.Information, false, null, null, "{spacing1} {Kind}{spacing2} {InvocationCount}", spacing1withoutName,
                             kvp.Key.ToString(),
                             "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '),
                             kvp.Value.InvocationCount);

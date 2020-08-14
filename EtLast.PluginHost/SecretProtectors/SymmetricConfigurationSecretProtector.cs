@@ -4,19 +4,19 @@
     using System.IO;
     using System.Security.Cryptography;
     using System.Text;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.Configuration;
     using Microsoft.Extensions.Configuration;
 
     public class SymmetricConfigurationSecretProtector : IConfigurationSecretProtector
     {
-        private readonly byte[] _key;
-        private readonly byte[] _iv;
+        private byte[] _key;
+        private byte[] _iv;
 
-        public SymmetricConfigurationSecretProtector(IConfigurationSection section)
+        public void Init(IConfigurationSection configurationSection)
         {
-            var baseKey = section.GetValue<string>("BaseKey");
-            var useMachineName = section.GetValue<bool>("UseMachineName");
-            var useUserName = section.GetValue<bool>("UseUserName");
+            var baseKey = configurationSection.GetValue<string>("BaseKey");
+            var useMachineName = configurationSection.GetValue<bool>("UseMachineName");
+            var useUserName = configurationSection.GetValue<bool>("UseUserName");
 
             var pw = baseKey;
             if (!string.IsNullOrEmpty(baseKey))

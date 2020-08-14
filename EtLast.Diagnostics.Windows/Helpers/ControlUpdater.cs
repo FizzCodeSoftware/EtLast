@@ -18,8 +18,8 @@
         public ObjectListView ListView { get; }
         public Func<TItem, bool> ItemFilter { get; set; }
         public TextBox SearchBox { get; private set; }
-        public bool AutoUpdateUntilContextLoaded { get; set; } = false;
-        public bool ContainsRows { get; set; } = false;
+        public bool AutoUpdateUntilContextLoaded { get; set; }
+        public bool ContainsRows { get; set; }
         public EventHandler<EventArgs> RefreshStarted { get; set; }
         public EventHandler<EventArgs> RefreshFinished { get; set; }
 

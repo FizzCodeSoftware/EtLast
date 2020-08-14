@@ -22,8 +22,10 @@
       "Url": null,
       "ApiKey": null
     },
-    "RemoteDiagnostics": {
-      "Url": null
+    "EtlContextListeners": {
+      /*"FizzCode.EtLast.Diagnostics.HttpSender, FizzCode.EtLast.Diagnostics.HttpSender": {
+        "Url": "http://localhost:8642"
+      }*/
     },
     "Aliases": {
       "do": "run modules DwhBuilderTests"
