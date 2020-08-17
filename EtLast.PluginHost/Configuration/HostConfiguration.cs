@@ -33,15 +33,50 @@
             _configuration = configuration;
             _section = section;
 
-            SeqUrl = ConfigurationReader.GetCurrentValue(configuration, section, "Seq:Url", null);
-            SeqApiKey = ConfigurationReader.GetCurrentValue(configuration, section, "Seq:ApiKey", null);
+            string v;
+
+            if (ConfigurationReader.GetCurrentValue(configuration, section, "SecretProtector:Enabled", false))
+            {
+                v = ConfigurationReader.GetCurrentValue(configuration, section, "SecretProtector:Type", null);
+                if (!string.IsNullOrEmpty(v))
+                {
+                    var type = Type.GetType(v);
+                    if (type != null && typeof(IConfigurationSecretProtector).IsAssignableFrom(type))
+                    {
+                        var secretProtectorSection = configuration.GetSection(section + ":SecretProtector");
+                        try
+                        {
+                            SecretProtector = (IConfigurationSecretProtector)Activator.CreateInstance(type);
+                            if (!SecretProtector.Init(secretProtectorSection))
+                            {
+                                SecretProtector = null;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            var exception = new Exception("Can't initialize secret protector.", ex);
+                            exception.Data.Add("FullyQualifiedTypeName", v);
+                            throw exception;
+                        }
+                    }
+                    else
+                    {
+                        var exception = new Exception("Secret protector type not found.");
+                        exception.Data.Add("FullyQualifiedTypeName", v);
+                        throw exception;
+                    }
+                }
+            }
+
+            SeqUrl = ConfigurationReader.GetCurrentValue(configuration, section, "Seq:Url", null, SecretProtector);
+            SeqApiKey = ConfigurationReader.GetCurrentValue(configuration, section, "Seq:ApiKey", null, SecretProtector);
             RetainedLogFileCountLimitImportant = ConfigurationReader.GetCurrentValue(configuration, section, "RetainedLogFileCountLimit:Important", 30);
             RetainedLogFileCountLimitInfo = ConfigurationReader.GetCurrentValue(configuration, section, "RetainedLogFileCountLimit:Info", 14);
             RetainedLogFileCountLimitLow = ConfigurationReader.GetCurrentValue(configuration, section, "RetainedLogFileCountLimit:Low", 4);
             TransactionScopeTimeout = TimeSpan.FromMinutes(ConfigurationReader.GetCurrentValue(configuration, section, "TransactionScopeTimeoutMinutes", 120));
             ModulesFolder = ConfigurationReader.GetCurrentValue(configuration, section, "ModulesFolder", @".\modules", SecretProtector);
 
-            var v = ConfigurationReader.GetCurrentValue(configuration, section, "DynamicCompilation:Mode", "Default", SecretProtector);
+            v = ConfigurationReader.GetCurrentValue(configuration, section, "DynamicCompilation:Mode", "Default", SecretProtector);
             if (!string.IsNullOrEmpty(v) && Enum.TryParse(v, out DynamicCompilationMode mode))
             {
                 DynamicCompilationMode = mode;
@@ -63,36 +98,6 @@
             if (!string.IsNullOrEmpty(v) && Enum.TryParse(v, out level))
             {
                 MinimumLogLevelIo = level;
-            }
-
-            v = ConfigurationReader.GetCurrentValue(configuration, section, "SecretProtector:Type", null);
-            if (!string.IsNullOrEmpty(v))
-            {
-                var type = Type.GetType(v);
-                if (type != null && typeof(IConfigurationSecretProtector).IsAssignableFrom(type))
-                {
-                    var secretProtectorSection = configuration.GetSection(section + ":SecretProtector");
-                    try
-                    {
-                        SecretProtector = (IConfigurationSecretProtector)Activator.CreateInstance(type);
-                        if (!SecretProtector.Init(secretProtectorSection))
-                        {
-                            SecretProtector = null;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        var exception = new Exception("Can't initialize secret protector.", ex);
-                        exception.Data.Add("FullyQualifiedTypeName", v);
-                        throw exception;
-                    }
-                }
-                else
-                {
-                    var exception = new Exception("Secret protector type not found.");
-                    exception.Data.Add("FullyQualifiedTypeName", v);
-                    throw exception;
-                }
             }
 
             GetCommandAliases(configuration, section);
