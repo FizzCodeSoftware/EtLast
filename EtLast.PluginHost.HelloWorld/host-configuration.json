@@ -19,16 +19,20 @@
       "Mode": "Default"
     },
     "Seq": {
-      "Url": null,
+      "Enabled": false,
+      "Url": "http://localhost:5341",
       "ApiKey": null
     },
-    "RemoteDiagnostics": {
-      "Url": null // should be set to http://localhost:8642 to use with EtLast.Diagnostics.Windows
+    "EtlContextListeners": {
+      "FizzCode.EtLast.Diagnostics.HttpSender, FizzCode.EtLast.Diagnostics.HttpSender": {
+        "Enabled": false,
+        "Url": "http://localhost:8642"
+      }
     },
     "Aliases": {
     },
     "SecretProtector": {
-      "Type": null // the fully-qualified type name of the secret protector
+      "Enabled": false
     }
   }
 }

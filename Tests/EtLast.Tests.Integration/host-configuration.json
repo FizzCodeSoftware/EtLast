@@ -19,19 +19,21 @@
       "Mode": "Never"
     },
     "Seq": {
-      "Url": null,
+      "Enabled": false,
+      "Url": "http://localhost:5341",
       "ApiKey": null
     },
     "EtlContextListeners": {
-      /*"FizzCode.EtLast.Diagnostics.HttpSender, FizzCode.EtLast.Diagnostics.HttpSender": {
+      "FizzCode.EtLast.Diagnostics.HttpSender, FizzCode.EtLast.Diagnostics.HttpSender": {
+        "Enabled": false,
         "Url": "http://localhost:8642"
-      }*/
+      }
     },
     "Aliases": {
       "do": "run modules DwhBuilderTests"
     },
     "SecretProtector": {
-      "Type": null // the fully-qualified type name of the secret protector
+      "Enabled":  false
     }
   }
 }

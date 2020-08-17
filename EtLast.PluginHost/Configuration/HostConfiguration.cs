@@ -68,8 +68,12 @@
                 }
             }
 
-            SeqUrl = ConfigurationReader.GetCurrentValue(configuration, section, "Seq:Url", null, SecretProtector);
-            SeqApiKey = ConfigurationReader.GetCurrentValue(configuration, section, "Seq:ApiKey", null, SecretProtector);
+            if (ConfigurationReader.GetCurrentValue(configuration, section, "Seq:Enabled", false))
+            {
+                SeqUrl = ConfigurationReader.GetCurrentValue(configuration, section, "Seq:Url", null, SecretProtector);
+                SeqApiKey = ConfigurationReader.GetCurrentValue(configuration, section, "Seq:ApiKey", null, SecretProtector);
+            }
+
             RetainedLogFileCountLimitImportant = ConfigurationReader.GetCurrentValue(configuration, section, "RetainedLogFileCountLimit:Important", 30);
             RetainedLogFileCountLimitInfo = ConfigurationReader.GetCurrentValue(configuration, section, "RetainedLogFileCountLimit:Info", 14);
             RetainedLogFileCountLimitLow = ConfigurationReader.GetCurrentValue(configuration, section, "RetainedLogFileCountLimit:Low", 4);
