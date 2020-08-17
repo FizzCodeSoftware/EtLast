@@ -35,11 +35,11 @@
         private readonly object _messageTemplateCacheLock = new object();
         private readonly MessageTemplateParser _messageTemplateParser = new MessageTemplateParser();
 
-        public bool Init(IExecutionContext executionContext, IConfigurationSection configurationSection)
+        public bool Init(IExecutionContext executionContext, IConfigurationSection configurationSection, IConfigurationSecretProtector configurationSecretProtector)
         {
             _sessionId = executionContext.SessionId;
             _contextName = executionContext.Name;
-            var url = ConfigurationReader.GetCurrentValue<string>(configurationSection, "Url", null);
+            var url = ConfigurationReader.GetCurrentValue(configurationSection, "Url", null, configurationSecretProtector);
             if (url == null)
                 return false;
 

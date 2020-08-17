@@ -117,21 +117,24 @@
                 var type = Type.GetType(childSection.Key);
                 if (type != null && typeof(IEtlContextListener).IsAssignableFrom(type))
                 {
-                    var ctors = type.GetConstructors();
-                    try
+                    if (ConfigurationReader.GetCurrentValue(childSection, "Enabled", false))
                     {
-                        var instance = (IEtlContextListener)Activator.CreateInstance(type);
-                        var ok = instance.Init(executionContext, childSection);
-                        if (ok)
+                        var ctors = type.GetConstructors();
+                        try
                         {
-                            result.Add(instance);
+                            var instance = (IEtlContextListener)Activator.CreateInstance(type);
+                            var ok = instance.Init(executionContext, childSection, SecretProtector);
+                            if (ok)
+                            {
+                                result.Add(instance);
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        var exception = new Exception("Can't initialize secret protector.", ex);
-                        exception.Data.Add("FullyQualifiedTypeName", childSection.Key);
-                        throw exception;
+                        catch (Exception ex)
+                        {
+                            var exception = new Exception("Can't initialize secret protector.", ex);
+                            exception.Data.Add("FullyQualifiedTypeName", childSection.Key);
+                            throw exception;
+                        }
                     }
                 }
                 else

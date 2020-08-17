@@ -7,6 +7,7 @@
     using System.IO;
     using System.Text;
     using FizzCode.EtLast;
+    using FizzCode.LightWeight.Configuration;
     using Microsoft.Extensions.Configuration;
     using Serilog.Events;
 
@@ -441,7 +442,7 @@
                 listener.OnContextClosed();
         }
 
-        public bool Init(IExecutionContext executionContext, IConfigurationSection configurationSection)
+        public bool Init(IExecutionContext executionContext, IConfigurationSection configurationSection, IConfigurationSecretProtector configurationSecretProtector)
         {
             throw new NotImplementedException();
         }
