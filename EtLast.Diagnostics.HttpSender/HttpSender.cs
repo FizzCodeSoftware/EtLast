@@ -318,7 +318,6 @@
 
         public void OnException(IProcess process, Exception exception)
         {
-            throw new NotImplementedException();
         }
 
         public void OnRowCreated(IReadOnlyRow row, IProcess process)
