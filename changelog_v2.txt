@@ -1,3 +1,6 @@
+2020-08-26:
+	- added: ResilientSqlScope.SimpleUpdateFinalizer
+
 2020-08-14:
 	- added: IEtlContextListener
 	- removed: DIRECT Diagnostics client and support is removed from EtlHost
