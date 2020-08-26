@@ -9,6 +9,7 @@
     public abstract class AbstractAggregationMutator : AbstractEvaluable, IMutator
     {
         public IEvaluable InputProcess { get; set; }
+        public RowTestDelegate If { get; set; }
 
         public List<ColumnCopyConfiguration> FixColumns { get; set; }
         public Func<IRow, string> KeyGenerator { get; set; }

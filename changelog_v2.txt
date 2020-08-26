@@ -1,5 +1,6 @@
 2020-08-26:
 	- added: ResilientSqlScope.SimpleUpdateFinalizer
+	- added: "If" parameter to MemoryAggregationMutator and ContinuousAggregationMutator
 
 2020-08-14:
 	- added: IEtlContextListener

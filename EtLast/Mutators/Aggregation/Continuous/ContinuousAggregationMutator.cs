@@ -52,6 +52,7 @@
             netTimeStopwatch.Start();
 
             var rowCount = 0;
+            var ignoredRowCount = 0;
             while (!Context.CancellationTokenSource.IsCancellationRequested)
             {
                 netTimeStopwatch.Stop();
@@ -61,6 +62,27 @@
                     break;
 
                 var row = enumerator.Current;
+
+                var apply = false;
+                try
+                {
+                    apply = If?.Invoke(row) != false;
+                }
+                catch (Exception ex)
+                {
+                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    break;
+                }
+
+                if (!apply)
+                {
+                    ignoredRowCount++;
+                    netTimeStopwatch.Stop();
+                    yield return row;
+                    netTimeStopwatch.Start();
+                    continue;
+                }
+
                 rowCount++;
                 var key = KeyGenerator.Invoke(row);
                 if (!aggregates.TryGetValue(key, out var aggregate))
@@ -94,8 +116,8 @@
                 Context.SetRowOwner(row, null);
             }
 
-            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}",
-                rowCount, aggregates.Count, InvocationInfo.LastInvocationStarted.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}, ignored: {IgnoredRowCount}",
+                rowCount, aggregates.Count, InvocationInfo.LastInvocationStarted.Elapsed, ignoredRowCount);
 
             foreach (var aggregate in aggregates.Values)
             {

@@ -26,6 +26,7 @@
             netTimeStopwatch.Start();
 
             var rowCount = 0;
+            var ignoredRowCount = 0;
             while (!Context.CancellationTokenSource.IsCancellationRequested)
             {
                 netTimeStopwatch.Stop();
@@ -35,6 +36,27 @@
                     break;
 
                 var row = enumerator.Current;
+
+                var apply = false;
+                try
+                {
+                    apply = If?.Invoke(row) != false;
+                }
+                catch (Exception ex)
+                {
+                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    break;
+                }
+
+                if (!apply)
+                {
+                    ignoredRowCount++;
+                    netTimeStopwatch.Stop();
+                    yield return row;
+                    netTimeStopwatch.Start();
+                    continue;
+                }
+
                 rowCount++;
                 var key = KeyGenerator.Invoke(row);
                 if (!groups.TryGetValue(key, out var list))
@@ -103,8 +125,8 @@
             groups.Clear();
 
             netTimeStopwatch.Stop();
-            Context.Log(LogSeverity.Debug, this, "created {AggregateCount} aggregates in {Elapsed}/{ElapsedWallClock}",
-                aggregateCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "created {AggregateCount} aggregates in {Elapsed}/{ElapsedWallClock}, ignored: {IgnoredRowCount}",
+                aggregateCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed, ignoredRowCount);
 
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
         }
