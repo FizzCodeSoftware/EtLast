@@ -415,6 +415,7 @@
         {
             _startedOn.Stop();
             RunTime = _startedOn.Elapsed;
+
             GC.Collect();
             CpuTimeFinish = GetCpuTime();
             TotalAllocationsFinish = GetTotalAllocatedBytes();
@@ -433,7 +434,7 @@
 
         private static long GetTotalAllocatedBytes()
         {
-            return GC.GetTotalAllocatedBytes(true);
+            return GC.GetTotalAllocatedBytes(false);
         }
 
         public void OnContextClosed()

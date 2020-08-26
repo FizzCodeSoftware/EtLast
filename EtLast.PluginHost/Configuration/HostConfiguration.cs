@@ -118,27 +118,27 @@
             var children = listenersSection.GetChildren();
             foreach (var childSection in children)
             {
+                if (!ConfigurationReader.GetCurrentValue(childSection, "Enabled", false))
+                    continue;
+
                 var type = Type.GetType(childSection.Key);
                 if (type != null && typeof(IEtlContextListener).IsAssignableFrom(type))
                 {
-                    if (ConfigurationReader.GetCurrentValue(childSection, "Enabled", false))
+                    var ctors = type.GetConstructors();
+                    try
                     {
-                        var ctors = type.GetConstructors();
-                        try
+                        var instance = (IEtlContextListener)Activator.CreateInstance(type);
+                        var ok = instance.Init(executionContext, childSection, SecretProtector);
+                        if (ok)
                         {
-                            var instance = (IEtlContextListener)Activator.CreateInstance(type);
-                            var ok = instance.Init(executionContext, childSection, SecretProtector);
-                            if (ok)
-                            {
-                                result.Add(instance);
-                            }
+                            result.Add(instance);
                         }
-                        catch (Exception ex)
-                        {
-                            var exception = new Exception("Can't initialize secret protector.", ex);
-                            exception.Data.Add("FullyQualifiedTypeName", childSection.Key);
-                            throw exception;
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        var exception = new Exception("Can't initialize secret protector.", ex);
+                        exception.Data.Add("FullyQualifiedTypeName", childSection.Key);
+                        throw exception;
                     }
                 }
                 else
