@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
 
@@ -18,16 +19,24 @@
         public ResilientTablePartitionedMainProcessCreatorDelegate PartitionedMainProcessCreator { get; set; }
         public ResilientTableMainProcessCreatorDelegate MainProcessCreator { get; set; }
 
-        public ResilientSqlScopeFinalizerCreatorDelegate FinalizerCreator { get; set; }
+        /// <summary>
+        /// Default true. Skips finalizers for main table and all additional tables if the sum record count of the main temp table PLUS in all temp tables is zero.
+        /// </summary>
+        public bool SkipFinalizersIfNoTempData { get; set; } = true;
 
         /// <summary>
         /// Default 0.
         /// </summary>
         public int OrderDuringFinalization { get; set; }
 
-        public Dictionary<string, ResilientTableBase> AdditionalTables { get; set; }
+        public List<ResilientTableBase> AdditionalTables { get; set; }
 
         public AdditionalData AdditionalData { get; set; }
+
+        public ResilientTableBase GetAdditionalTable(string tableName)
+        {
+            return AdditionalTables.Find(x => string.Equals(x.TableName, tableName, StringComparison.InvariantCultureIgnoreCase));
+        }
     }
 
     public class ResilientTableBase
@@ -38,10 +47,7 @@
         public string TempTableName { get; set; }
         public string[] Columns { get; set; }
 
-        /// <summary>
-        /// Default true.
-        /// </summary>
-        public bool SkipFinalizersIfTempTableIsEmpty { get; set; } = true;
+        public ResilientSqlScopeFinalizerCreatorDelegate FinalizerCreator { get; set; }
 
         private ITopic _topic;
 

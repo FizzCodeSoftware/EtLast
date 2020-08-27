@@ -52,7 +52,7 @@
                 var recordCount = CountTempRecordsIn(table);
                 if (table.AdditionalTables?.Count > 0)
                 {
-                    foreach (var additionalTable in table.AdditionalTables.Values)
+                    foreach (var additionalTable in table.AdditionalTables)
                     {
                         recordCount += CountTempRecordsIn(additionalTable);
                     }
@@ -61,15 +61,17 @@
                 recordCounts[i] = recordCount;
             }
 
-            Context.Log(LogSeverity.Information, this, "{TableCount} temp table contains data", recordCounts.Count(x => x > 0));
-            Context.Log(LogSeverity.Information, this, "{TableCount} temp table is empty", recordCounts.Count(x => x == 0));
+            Context.Log(LogSeverity.Information, this, "{TableCountWithData} of {TotalTableCount} temp table contains data",
+                recordCounts.Count(x => x > 0), recordCounts.Length);
 
             for (var i = 0; i < tablesOrdered.Count; i++)
             {
                 var table = tablesOrdered[i];
-                if (table.SkipFinalizersIfTempTableIsEmpty && recordCounts[i] == 0)
+                if (table.SkipFinalizersIfNoTempData && recordCounts[i] == 0)
                 {
-                    Context.Log(LogSeverity.Debug, this, "no data found for {TableName}, skipping finalizers", _scope.Configuration.ConnectionString.Unescape(table.TableName));
+                    Context.Log(LogSeverity.Debug, this, "no data found for {TableName}, skipping finalizers",
+                        _scope.Configuration.ConnectionString.Unescape(table.TableName));
+
                     continue;
                 }
 
@@ -77,29 +79,52 @@
                     ? TransactionScopeKind.Suppress
                     : TransactionScopeKind.None;
 
-                IExecutable[] finalizers;
+                var allFinalizers = new Dictionary<string, IExecutable[]>();
                 using (var creatorScope = Context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
                 {
-                    finalizers = table.FinalizerCreator
+                    var finalizers = table.FinalizerCreator
                         .Invoke(table)
                         .Where(x => x != null)
                         .ToArray();
+
+                    allFinalizers[table.TableName] = finalizers;
+
+                    Context.Log(LogSeverity.Debug, this, "created {FinalizerCount} finalizer(s) for {TableName}",
+                        finalizers.Length,
+                        _scope.Configuration.ConnectionString.Unescape(table.TableName));
+
+                    if (table.AdditionalTables != null)
+                    {
+                        foreach (var additionalTable in table.AdditionalTables)
+                        {
+                            finalizers = additionalTable.FinalizerCreator
+                                .Invoke(table)
+                                .Where(x => x != null)
+                                .ToArray();
+
+                            allFinalizers[additionalTable.TableName] = finalizers;
+
+                            Context.Log(LogSeverity.Debug, this, "created {FinalizerCount} finalizer(s) for {TableName}",
+                                finalizers.Length,
+                                _scope.Configuration.ConnectionString.Unescape(additionalTable.TableName));
+                        }
+                    }
                 }
 
-                Context.Log(LogSeverity.Debug, this, "created {FinalizerCount} finalizer(s) for {TableName}",
-                    finalizers?.Length ?? 0,
-                    _scope.Configuration.ConnectionString.Unescape(table.TableName));
-
-                foreach (var finalizer in finalizers)
+                foreach (var tableFinalizers in allFinalizers)
                 {
-                    var preExceptionCount = Context.ExceptionCount;
-                    Context.Log(LogSeverity.Information, this, "finalizing {TableName} with {ProcessName}",
-                        _scope.Configuration.ConnectionString.Unescape(table.TableName),
-                        finalizer.Name);
-                    finalizer.Execute(this);
-                    if (Context.ExceptionCount > preExceptionCount)
+                    foreach (var finalizer in tableFinalizers.Value)
                     {
-                        break;
+                        var preExceptionCount = Context.ExceptionCount;
+                        Context.Log(LogSeverity.Information, this, "finalizing {TableName} with {ProcessName}",
+                            _scope.Configuration.ConnectionString.Unescape(tableFinalizers.Key),
+                            finalizer.Name);
+
+                        finalizer.Execute(this);
+                        if (Context.ExceptionCount > preExceptionCount)
+                        {
+                            break;
+                        }
                     }
                 }
             }

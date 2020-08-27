@@ -20,7 +20,7 @@
                         table.Scope = null;
                         if (table.AdditionalTables != null)
                         {
-                            foreach (var additionalTable in table.AdditionalTables.Values)
+                            foreach (var additionalTable in table.AdditionalTables)
                             {
                                 additionalTable.Scope = null;
                             }
@@ -36,7 +36,7 @@
                     table.Scope = this;
                     if (table.AdditionalTables != null)
                     {
-                        foreach (var additionalTable in table.AdditionalTables.Values)
+                        foreach (var additionalTable in table.AdditionalTables)
                         {
                             additionalTable.Scope = this;
                         }
@@ -92,6 +92,15 @@
 
                 if (table.FinalizerCreator == null)
                     throw new ProcessParameterNullException(this, nameof(ResilientTable.FinalizerCreator));
+
+                if (table.AdditionalTables != null)
+                {
+                    foreach (var additionalTable in table.AdditionalTables)
+                    {
+                        if (additionalTable.FinalizerCreator == null)
+                            throw new ProcessParameterNullException(this, nameof(ResilientTable.FinalizerCreator));
+                    }
+                }
             }
 
             try
@@ -347,7 +356,7 @@
 
                 if (table.AdditionalTables != null)
                 {
-                    foreach (var additionalTable in table.AdditionalTables.Values)
+                    foreach (var additionalTable in table.AdditionalTables)
                     {
                         config.Add(new TableCopyConfiguration()
                         {
@@ -376,7 +385,7 @@
 
             var additionalTempTableNames = Configuration.Tables
                 .Where(x => x.AdditionalTables != null)
-                .SelectMany(x => x.AdditionalTables.Values.Select(y => y.TempTableName));
+                .SelectMany(x => x.AdditionalTables.Select(y => y.TempTableName));
 
             new DropTables(Topic, "DropTempTables")
             {

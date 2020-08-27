@@ -18,7 +18,7 @@
 
         private static IEnumerable<IExecutable> CreateDeleteTargetTableFinalizer(DwhTableBuilder builder)
         {
-            builder.ResilientTable.SkipFinalizersIfTempTableIsEmpty = false;
+            builder.ResilientTable.SkipFinalizersIfNoTempData = false;
 
             yield return new DeleteTable(builder.ResilientTable.Topic, "DeleteBase")
             {
