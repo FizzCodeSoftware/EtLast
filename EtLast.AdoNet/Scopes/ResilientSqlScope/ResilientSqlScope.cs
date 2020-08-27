@@ -18,6 +18,13 @@
                     foreach (var table in _configuration.Tables)
                     {
                         table.Scope = null;
+                        if (table.AdditionalTables != null)
+                        {
+                            foreach (var additionalTable in table.AdditionalTables.Values)
+                            {
+                                additionalTable.Scope = null;
+                            }
+                        }
                     }
                 }
 
@@ -27,6 +34,13 @@
                 foreach (var table in _configuration.Tables)
                 {
                     table.Scope = this;
+                    if (table.AdditionalTables != null)
+                    {
+                        foreach (var additionalTable in table.AdditionalTables.Values)
+                        {
+                            additionalTable.Scope = this;
+                        }
+                    }
                 }
             }
         }
