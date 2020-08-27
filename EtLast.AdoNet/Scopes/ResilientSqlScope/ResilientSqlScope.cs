@@ -297,11 +297,11 @@
             };
         }
 
-        public static IEnumerable<IExecutable> SimpleUpdateFinalizer(ResilientTableBase table, string[] keyColumns, int commandTimeout = 60)
+        public static IEnumerable<IExecutable> SimpleMergeUpdateOnlyFinalizer(ResilientTableBase table, string[] keyColumns, int commandTimeout = 60)
         {
             var columnsToUpdate = table.Columns.Where(c => !keyColumns.Contains(c)).ToList();
 
-            yield return new CustomMsSqlMergeStatement(table.Topic, "MergeTempToTargetTable")
+            yield return new CustomMsSqlMergeStatement(table.Topic, "UpdateTempToTargetTable")
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 CommandTimeout = commandTimeout,
@@ -313,6 +313,21 @@
                 WhenMatchedAction = columnsToUpdate.Count > 0
                     ? "update set " + string.Join(",", columnsToUpdate.Select(c => "t." + c + "=s." + c))
                     : null,
+            };
+        }
+
+        public static IEnumerable<IExecutable> SimpleMergeInsertOnlyFinalizer(ResilientTableBase table, string[] keyColumns, int commandTimeout = 60)
+        {
+            yield return new CustomMsSqlMergeStatement(table.Topic, "InsertTempToTargetTable")
+            {
+                ConnectionString = table.Scope.Configuration.ConnectionString,
+                CommandTimeout = commandTimeout,
+                SourceTableName = table.TempTableName,
+                TargetTableName = table.TableName,
+                SourceTableAlias = "s",
+                TargetTableAlias = "t",
+                OnCondition = string.Join(" and ", keyColumns.Select(x => "s." + x + "=t." + x)),
+                WhenNotMatchedByTargetAction = "insert (" + string.Join(",", table.Columns) + ") values (" + string.Join(",", table.Columns.Select(c => "s." + c)) + ")",
             };
         }
 
