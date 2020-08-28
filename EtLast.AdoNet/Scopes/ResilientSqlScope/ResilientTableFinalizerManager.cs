@@ -98,7 +98,7 @@
                         foreach (var additionalTable in table.AdditionalTables)
                         {
                             finalizers = additionalTable.FinalizerCreator
-                                .Invoke(table)
+                                .Invoke(additionalTable)
                                 .Where(x => x != null)
                                 .ToArray();
 
