@@ -97,12 +97,18 @@
                 throw exception;
             }
 
-            var columnNames = ColumnNames;
             var firstRow = true;
             var initialValues = new List<KeyValuePair<string, object>>();
 
             var partList = new List<string>(100);
             var builder = new StringBuilder(2000);
+
+            // capture for performance
+            var columnNames = ColumnNames;
+            var delimiter = Delimiter;
+            var treatEmptyStringAsNull = TreatEmptyStringAsNull;
+            var removeSurroundingDoubleQuotes = RemoveSurroundingDoubleQuotes;
+            var throwOnMissingDoubleQuoteClose = ThrowOnMissingDoubleQuoteClose;
 
             try
             {
@@ -124,7 +130,7 @@
                         throw exception;
                     }
 
-                    if (line.EndsWith(Delimiter))
+                    if (line.EndsWith(delimiter))
                     {
                         line = line[0..^1];
                     }
@@ -132,7 +138,75 @@
                     partList.Clear();
                     builder.Clear();
 
-                    GetRowParts(partList, line, builder, resultCount);
+                    var quotes = 0;
+                    var builderLength = 0;
+                    var builderStartsWithQuote = false;
+                    var lineLength = line.Length;
+
+                    for (var linePos = 0; linePos < lineLength; ++linePos)
+                    {
+                        var c = line[linePos];
+                        var isQuote = c == '\"';
+                        var eol = linePos == lineLength - 1;
+
+                        if (builderLength == 0 && isQuote)
+                        {
+                            quotes++;
+                        }
+
+                        var quotedCellClosing = (builderLength > 0
+                            && isQuote
+                            && quotes > 0
+                            && linePos + 1 < lineLength
+                            && line[linePos + 1] == delimiter)
+                            || eol;
+
+                        if (quotedCellClosing)
+                        {
+                            quotes--;
+                        }
+
+                        var endOfCell = eol || (line[linePos + 1] == delimiter && quotes == 0);
+                        ;
+
+                        var quotedCellIsNotClosed = builderLength > 0
+                            && !isQuote && (eol || c != delimiter)
+                            && endOfCell
+                            && builderStartsWithQuote;
+
+                        if (quotedCellIsNotClosed && throwOnMissingDoubleQuoteClose)
+                        {
+                            var exception = new ProcessExecutionException(this, "Cell starting with '\"' is missing closing '\"'.");
+                            exception.Data.Add("LineNumber", resultCount + 1);
+                            exception.Data.Add("ColumnIndex", linePos + 1);
+                            throw exception;
+                        }
+
+                        if (c != delimiter || quotes > 0)
+                        {
+                            builder.Append(c);
+                            if (builderLength == 0 && isQuote)
+                                builderStartsWithQuote = true;
+
+                            builderLength++;
+                        }
+
+                        if (eol || (quotes == 0 && c == delimiter))
+                        {
+                            if (builderLength == 0)
+                            {
+                                partList.Add(string.Empty);
+                            }
+                            else
+                            {
+                                partList.Add(builder.ToString());
+
+                                builder.Clear();
+                                builderLength = 0;
+                                builderStartsWithQuote = false;
+                            }
+                        }
+                    }
 
                     if (firstRow)
                     {
@@ -154,7 +228,7 @@
 
                         object sourceValue = valueString;
 
-                        if (RemoveSurroundingDoubleQuotes
+                        if (removeSurroundingDoubleQuotes
                            && valueString.Length > 1
                            && valueString.StartsWith("\"", StringComparison.InvariantCultureIgnoreCase)
                            && valueString.EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
@@ -162,7 +236,7 @@
                             sourceValue = valueString[1..^1];
                         }
 
-                        if (sourceValue != null && TreatEmptyStringAsNull && (sourceValue is string str) && string.IsNullOrEmpty(str))
+                        if (sourceValue != null && treatEmptyStringAsNull && (sourceValue is string str) && string.IsNullOrEmpty(str))
                         {
                             sourceValue = null;
                         }
@@ -189,67 +263,6 @@
             }
 
             Context.RegisterIoCommandSuccess(this, IoCommandKind.fileRead, iocUid, resultCount);
-        }
-
-        private void GetRowParts(List<string> partList, string line, StringBuilder builder, int lineNumber)
-        {
-            var quotes = 0;
-            var index = 0;
-
-            for (var i = 0; i < line.Length; ++i)
-            {
-                var c = line[i];
-
-                if (index == 0 && c == '\"')
-                {
-                    quotes++;
-                }
-
-                var quotedCellClosing = (index > 0 && c == '\"' && quotes > 0 && i + 1 < line.Length && line[i + 1] == Delimiter)
-                    || i == line.Length - 1;
-
-                if (quotedCellClosing)
-                {
-                    quotes--;
-                }
-
-                var endOfCell = (i + 1 < line.Length && line[i + 1] == Delimiter && quotes == 0)
-                    || i == line.Length - 1;
-
-                var quotedCellIsNotClosed = index > 0
-                    && c != '\"' && (c != Delimiter || i + 1 == line.Length)
-                    && endOfCell
-                    && builder[0] == '\"';
-
-                if (quotedCellIsNotClosed && ThrowOnMissingDoubleQuoteClose)
-                {
-                    var exception = new ProcessExecutionException(this, "Cell starting with '\"' is missing closing '\"'.");
-                    exception.Data.Add("LineNumber", lineNumber + 1);
-                    exception.Data.Add("ColumnIndex", i + 1);
-                    throw exception;
-                }
-
-                if (line[i] != Delimiter || quotes > 0)
-                {
-                    builder.Append(line[i]);
-                    index++;
-                }
-
-                if ((quotes == 0 && c == Delimiter) || i == line.Length - 1)
-                {
-                    if (builder.Length == 0)
-                    {
-                        partList.Add(string.Empty);
-                    }
-                    else
-                    {
-                        partList.Add(builder.ToString());
-                    }
-
-                    builder.Clear();
-                    index = 0;
-                }
-            }
         }
     }
 }
