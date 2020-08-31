@@ -118,8 +118,11 @@
                     try
                     {
                         line = reader.ReadLine();
-                        if (string.IsNullOrEmpty(line))
+                        if (line == null)
                             break;
+
+                        if (string.IsNullOrEmpty(line))
+                            continue;
                     }
                     catch (Exception ex)
                     {
@@ -143,34 +146,33 @@
                     var builderStartsWithQuote = false;
                     var lineLength = line.Length;
 
-                    for (var linePos = 0; linePos < lineLength; ++linePos)
+                    for (var linePos = 0; linePos < lineLength; linePos++)
                     {
                         var c = line[linePos];
                         var isQuote = c == '\"';
-                        var eol = linePos == lineLength - 1;
+                        var endOfLine = linePos == lineLength - 1;
+                        var nextCharIsQuote = !endOfLine && line[linePos + 1] == delimiter;
 
                         if (builderLength == 0 && isQuote)
                         {
                             quotes++;
                         }
 
-                        var quotedCellClosing = (builderLength > 0
-                            && isQuote
-                            && quotes > 0
-                            && linePos + 1 < lineLength
-                            && line[linePos + 1] == delimiter)
-                            || eol;
+                        var quotedCellClosing = endOfLine
+                            || (builderLength > 0
+                                && isQuote
+                                && quotes > 0
+                                && nextCharIsQuote);
 
                         if (quotedCellClosing)
                         {
                             quotes--;
                         }
 
-                        var endOfCell = eol || (line[linePos + 1] == delimiter && quotes == 0);
-                        ;
+                        var endOfCell = endOfLine || (nextCharIsQuote && quotes == 0);
 
                         var quotedCellIsNotClosed = builderLength > 0
-                            && !isQuote && (eol || c != delimiter)
+                            && !isQuote && (endOfLine || c != delimiter)
                             && endOfCell
                             && builderStartsWithQuote;
 
@@ -191,7 +193,7 @@
                             builderLength++;
                         }
 
-                        if (eol || (quotes == 0 && c == delimiter))
+                        if (endOfLine || (quotes == 0 && c == delimiter))
                         {
                             if (builderLength == 0)
                             {
