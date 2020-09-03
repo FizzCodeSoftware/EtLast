@@ -14,7 +14,7 @@
     public class TestCommand
     {
         [Command(Name = "modules", Description = "Tests one or more modules.")]
-        public void ValidateModule(
+        public int ValidateModule(
         [Operand(Name = "names", Description = "The space-separated list of module names.")] List<string> moduleNames,
         [Option(LongName = "all", ShortName = "a")] bool all)
         {
@@ -23,13 +23,13 @@
                 if (!all)
                 {
                     CommandLineHandler.DisplayHelp("test modules");
-                    return;
+                    return (int)ExecutionResult.HostArgumentError;
                 }
             }
             else if (all)
             {
                 CommandLineHandler.DisplayHelp("test modules");
-                return;
+                return (int)ExecutionResult.HostArgumentError;
             }
 
             var commandContext = CommandLineHandler.Context;
@@ -43,7 +43,7 @@
             {
                 commandContext.Logger.Information("loading module {Module}", moduleName);
 
-                var module = ModuleLoader.LoadModule(commandContext, moduleName, null, null, true);
+                ModuleLoader.LoadModule(commandContext, moduleName, null, null, true, out var module);
                 if (module != null)
                 {
                     ModuleLoader.UnloadModule(commandContext, module);
@@ -54,6 +54,8 @@
                     commandContext.Logger.Information("validation {ValidationResult} for {Module}", "FAILED", moduleName);
                 }
             }
+
+            return (int)ExecutionResult.Success;
         }
 
         [Command(Name = "connection-strings", Description = "Tests connection strings.")]

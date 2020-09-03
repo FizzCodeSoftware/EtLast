@@ -4,10 +4,13 @@
     {
         Success = 0,
 
-        PluginFailed = 101, // at least one plugin failed but none of them requested termination
-        PluginFailedAndExecutionTerminated = 102, // at least one plugin failed and requested termination
+        ModuleLoadError = 101,
+        ModuleConfigurationError = 102,
 
-        ConfigurationError = 1001,
-        WrongArguments = 1002,
+        PluginFailed = 201, // at least one plugin failed but none of them requested termination
+        PluginFailedAndExecutionTerminated = 202, // at least one plugin failed and requested termination
+
+        HostConfigurationError = 1001,
+        HostArgumentError = 1002,
     }
 }

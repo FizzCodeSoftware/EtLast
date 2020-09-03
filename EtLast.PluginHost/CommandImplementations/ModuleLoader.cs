@@ -18,14 +18,18 @@
     {
         private static long _moduleAutoincrementId;
 
-        public static Module LoadModule(CommandContext commandContext, string moduleName, string[] moduleSettingOverrides, string[] pluginListOverride, bool forceCompilation)
+        public static ExecutionResult LoadModule(CommandContext commandContext, string moduleName, string[] moduleSettingOverrides, string[] pluginListOverride, bool forceCompilation, out Module module)
         {
+            module = null;
+
             ModuleConfiguration moduleConfiguration;
             try
             {
                 moduleConfiguration = ModuleConfigurationLoader.LoadModuleConfiguration(commandContext, moduleName, moduleSettingOverrides, pluginListOverride);
                 if (moduleConfiguration == null)
-                    return null;
+                {
+                    return ExecutionResult.ModuleConfigurationError;
+                }
             }
             catch (Exception ex)
             {
@@ -42,7 +46,7 @@
                     Thread.Sleep(3000);
                 }
 
-                return null;
+                return ExecutionResult.ModuleConfigurationError;
             }
 
             if (moduleConfiguration.ConnectionStrings.All.Any())
@@ -115,7 +119,7 @@
                 commandContext.Logger.Information("loading plugins directly from AppDomain if namespace ends with '{Module}'", moduleName);
                 var appDomainPlugins = LoadPluginsFromAppDomain(moduleName);
                 commandContext.Logger.Debug("finished in {Elapsed}", startedOn.Elapsed);
-                var module = new Module()
+                module = new Module()
                 {
                     ModuleConfiguration = moduleConfiguration,
                     Plugins = appDomainPlugins,
@@ -125,7 +129,7 @@
                 commandContext.Logger.Debug("{PluginCount} plugin(s) found: {PluginNames}",
                     module.EnabledPlugins.Count, module.EnabledPlugins.Select(plugin => plugin.GetType().GetFriendlyTypeName()).ToArray());
 
-                return module;
+                return ExecutionResult.Success;
             }
 
             commandContext.Logger.Information("compiling plugins from {Folder} using shared files from {SharedFolder}", PathHelpers.GetFriendlyPathName(moduleConfiguration.ModuleFolder), PathHelpers.GetFriendlyPathName(sharedFolder));
@@ -186,7 +190,7 @@
                         commandContext.OpsLogger.Error("syntax error in plugin: {Message}", error.GetMessage());
                     }
 
-                    return null;
+                    return ExecutionResult.ModuleLoadError;
                 }
 
                 assemblyStream.Seek(0, SeekOrigin.Begin);
@@ -196,7 +200,7 @@
 
                 var compiledPlugins = LoadPluginsFromAssembly(assembly);
                 commandContext.Logger.Debug("compilation finished in {Elapsed}", startedOn.Elapsed);
-                var module = new Module()
+                module = new Module()
                 {
                     ModuleConfiguration = moduleConfiguration,
                     Plugins = compiledPlugins,
@@ -206,7 +210,7 @@
                 commandContext.Logger.Debug("{PluginCount} plugin(s) found: {PluginNames}",
                     module.EnabledPlugins.Count, module.EnabledPlugins.Select(plugin => plugin.GetType().GetFriendlyTypeName()).ToArray());
 
-                return module;
+                return ExecutionResult.Success;
             }
         }
 

@@ -7,13 +7,13 @@
 
     public static class Program
     {
-        private static void Main(string[] args)
+        private static int Main(string[] args)
         {
             DbProviderFactories.RegisterFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
 
             AppDomain.MonitoringIsEnabled = true;
 
-            CommandLineHandler.Run("EtLast Integration Tests", args);
+            var result = CommandLineHandler.Run("EtLast Integration Tests", args);
 
 #if DEBUG
             if (args?.Length > 0 && Debugger.IsAttached)
@@ -23,6 +23,8 @@
                 Console.ReadKey();
             }
 #endif
+
+            return (int)result;
         }
     }
 }

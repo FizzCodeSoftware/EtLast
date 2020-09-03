@@ -10,7 +10,7 @@
     public class RunCommand
     {
         [Command(Name = "module", Description = "Execute one module.")]
-        public void RunModule(
+        public int RunModule(
             [Operand(Name = "module-name", Description = "The name of the module.")] string moduleName,
             [Option(LongName = "plugin")] List<string> pluginListOverride,
             [Option(LongName = "param", ShortName = "p")] List<string> moduleSettingOverrides)
@@ -20,25 +20,28 @@
             if (string.IsNullOrEmpty(moduleName))
             {
                 CommandLineHandler.DisplayHelp("run module");
-                return;
+                return (int)ExecutionResult.HostArgumentError;
             }
 
             commandContext.Logger.Information("loading module {Module}", moduleName);
 
-            var module = ModuleLoader.LoadModule(commandContext, moduleName, moduleSettingOverrides?.ToArray(), pluginListOverride?.ToArray(), false);
-            if (module == null)
-                return;
+            var loadResult = ModuleLoader.LoadModule(commandContext, moduleName, moduleSettingOverrides?.ToArray(), pluginListOverride?.ToArray(), false, out var module);
+            if (loadResult != ExecutionResult.Success)
+                return (int)loadResult;
 
+            var executionResult = ExecutionResult.Success;
             if (module.EnabledPlugins.Count > 0)
             {
-                ModuleExecuter.Execute(commandContext, module);
+                executionResult = ModuleExecuter.Execute(commandContext, module);
             }
 
             ModuleLoader.UnloadModule(commandContext, module);
+
+            return (int)executionResult;
         }
 
         [Command(Name = "modules", Description = "Execute one or more module.")]
-        public void RunModules(
+        public int RunModules(
             [Operand(Name = "module-names", Description = "The space-separated list of module names.")] List<string> moduleNames,
             [Option(LongName = "param", ShortName = "p")] List<string> moduleSettingOverrides)
         {
@@ -47,7 +50,7 @@
             if (moduleNames == null || moduleNames.Count == 0)
             {
                 CommandLineHandler.DisplayHelp("run modules");
-                return;
+                return (int)ExecutionResult.HostArgumentError;
             }
 
             var modules = new List<Module>();
@@ -55,9 +58,9 @@
             {
                 commandContext.Logger.Information("loading module {Module}", moduleName);
 
-                var module = ModuleLoader.LoadModule(commandContext, moduleName, moduleSettingOverrides?.ToArray(), null, false);
-                if (module == null)
-                    return;
+                var loadResult = ModuleLoader.LoadModule(commandContext, moduleName, moduleSettingOverrides?.ToArray(), null, false, out var module);
+                if (loadResult != ExecutionResult.Success)
+                    return (int)loadResult;
 
                 if (module.EnabledPlugins?.Count == 0)
                 {
@@ -69,12 +72,14 @@
                 modules.Add(module);
             }
 
-            ModuleExecuter.Execute(commandContext, modules.ToArray());
+            var executionResult = ModuleExecuter.Execute(commandContext, modules.ToArray());
 
             foreach (var module in modules)
             {
                 ModuleLoader.UnloadModule(commandContext, module);
             }
+
+            return (int)executionResult;
         }
 #pragma warning restore CA1812 // Avoid uninstantiated internal classes
 #pragma warning restore CA1822 // Mark members as static

@@ -17,7 +17,7 @@
         private static AppRunner<AppCommands> _runner;
         private static readonly Regex _regEx = new Regex("(?<=\")[^\"]*(?=\")|[^\" ]+");
 
-        public static void Run(string programName, string[] startupArguments)
+        public static ExecutionResult Run(string programName, string[] startupArguments)
         {
             Context = new CommandContext();
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
@@ -27,7 +27,7 @@
             try
             {
                 if (!Context.Load())
-                    return;
+                    return ExecutionResult.HostConfigurationError;
             }
             catch (Exception ex)
             {
@@ -44,7 +44,7 @@
                     Thread.Sleep(3000);
                 }
 
-                return;
+                return ExecutionResult.HostConfigurationError;
             }
 
             Console.WriteLine();
@@ -64,8 +64,8 @@
 
             if (startupArguments?.Length > 0)
             {
-                RunCommand(startupArguments);
-                return;
+                var exitCode = RunCommand(startupArguments);
+                return exitCode;
             }
 
             DisplayHelp();
@@ -88,9 +88,11 @@
 
                 Console.WriteLine();
             }
+
+            return ExecutionResult.Success;
         }
 
-        public static void RunCommand(params string[] args)
+        public static ExecutionResult RunCommand(params string[] args)
         {
             if (args?.Length >= 1 && Context.HostConfiguration.CommandAliases.TryGetValue(args[0], out var alias))
             {
@@ -101,7 +103,8 @@
                     .ToArray();
             }
 
-            _runner.Run(args);
+            var exitCode = _runner.Run(args);
+            return (ExecutionResult)exitCode;
         }
 
         private static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)

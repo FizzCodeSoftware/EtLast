@@ -1,3 +1,6 @@
+2020-09-03:
+	- added: CommandLineHandler.Run returns the result of the execution (in case command line arguments are supplied)
+
 2020-08-26:
 	- added: ResilientSqlScope.SimpleMergeUpdateOnlyFinalizer and SimpleMergeInsertOnlyFinalizer
 	- added: "If" parameter to MemoryAggregationMutator and ContinuousAggregationMutator
