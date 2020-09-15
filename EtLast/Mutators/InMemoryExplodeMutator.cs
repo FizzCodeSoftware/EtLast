@@ -10,7 +10,7 @@
     /// <summary>
     /// Useful only for small amount of data due to all input rows are collected into a List and processed at once.
     /// </summary>
-    public class InMemoryExplodeMutator : AbstractEvaluable
+    public class InMemoryExplodeMutator : AbstractEvaluable, IMutator
     {
         public IEvaluable InputProcess { get; set; }
         public InMemoryExplodeDelegate Action { get; set; }
@@ -75,6 +75,16 @@
                 resultCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+        }
+
+        public IEnumerator<IMutator> GetEnumerator()
+        {
+            yield return this;
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            yield return this;
         }
     }
 }
