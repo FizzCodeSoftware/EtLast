@@ -5,17 +5,17 @@
     using System.Diagnostics;
     using System.Linq;
 
-    public delegate IEnumerable<IRow> InMemoryProcessorDelegate(InMemoryProcessor proc, IReadOnlyList<IRow> rows);
+    public delegate IEnumerable<ISlimRow> InMemoryExplodeDelegate(InMemoryExplodeMutator proc, IReadOnlyList<IReadOnlySlimRow> rows);
 
     /// <summary>
     /// Useful only for small amount of data due to all input rows are collected into a List and processed at once.
     /// </summary>
-    public class InMemoryProcessor : AbstractEvaluable
+    public class InMemoryExplodeMutator : AbstractEvaluable
     {
         public IEvaluable InputProcess { get; set; }
-        public InMemoryProcessorDelegate Action { get; set; }
+        public InMemoryExplodeDelegate Action { get; set; }
 
-        public InMemoryProcessor(ITopic topic, string name)
+        public InMemoryExplodeMutator(ITopic topic, string name)
             : base(topic, name)
         {
         }
@@ -31,10 +31,10 @@
 
         protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
-            List<IRow> rows;
+            List<IReadOnlySlimRow> rows;
             try
             {
-                rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().ToList();
+                rows = InputProcess.Evaluate(this).TakeRowsAndReleaseOwnership().Select(x => x as IReadOnlySlimRow).ToList();
             }
             catch (Exception ex)
             {
@@ -50,13 +50,13 @@
 
             while (!Context.CancellationTokenSource.IsCancellationRequested)
             {
-                IRow row;
+                ISlimRow newRow;
                 try
                 {
                     if (!enumerator.MoveNext())
                         break;
 
-                    row = enumerator.Current;
+                    newRow = enumerator.Current;
                 }
                 catch (Exception ex)
                 {
@@ -66,7 +66,7 @@
 
                 resultCount++;
                 netTimeStopwatch.Stop();
-                yield return row;
+                yield return Context.CreateRow(this, newRow);
                 netTimeStopwatch.Start();
             }
 
