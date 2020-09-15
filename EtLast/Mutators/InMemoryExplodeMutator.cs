@@ -71,8 +71,8 @@
             }
 
             netTimeStopwatch.Stop();
-            Context.Log(LogSeverity.Debug, this, "processed {RowCount} rows in {Elapsed}/{ElapsedWallClock}",
-                resultCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "processed {InputRowCount} rows and returned {RowCount} rows in {Elapsed}/{ElapsedWallClock}",
+                rows.Count, resultCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
         }

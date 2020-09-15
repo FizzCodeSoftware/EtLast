@@ -1,3 +1,6 @@
+2020-09-15:
+	- fixed: now EpPlusExcelReader uses AutomaticallyTrimAllStringValues property for column name trim
+
 2020-09-03:
 	- added: CommandLineHandler.Run returns the result of the execution (in case command line arguments are supplied)
 

@@ -204,6 +204,13 @@
                     if (string.IsNullOrEmpty(excelColumn))
                         continue;
 
+                    if (AutomaticallyTrimAllStringValues)
+                    {
+                        excelColumn = excelColumn.Trim();
+                        if (string.IsNullOrEmpty(excelColumn))
+                            continue;
+                    }
+
                     excelColumn = EnsureDistinctColumnNames(excelColumns, excelColumn);
 
                     var columnConfiguration = ColumnConfiguration.Find(x => string.Equals(x.SourceColumn, excelColumn, StringComparison.InvariantCultureIgnoreCase));
@@ -254,7 +261,7 @@
                             if (AutomaticallyTrimAllStringValues)
                                 str = str.Trim();
 
-                            if (TreatEmptyStringAsNull && string.IsNullOrEmpty(str))
+                            if (string.IsNullOrEmpty(str))
                                 str = null;
 
                             value = str;
