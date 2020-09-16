@@ -124,7 +124,6 @@
                 var type = Type.GetType(childSection.Key);
                 if (type != null && typeof(IEtlContextListener).IsAssignableFrom(type))
                 {
-                    var ctors = type.GetConstructors();
                     try
                     {
                         var instance = (IEtlContextListener)Activator.CreateInstance(type);

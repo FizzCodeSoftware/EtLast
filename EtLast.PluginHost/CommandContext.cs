@@ -5,6 +5,7 @@
     using System.Reflection;
     using Microsoft.Extensions.Configuration;
     using Serilog;
+    using Serilog.Events;
 
     public class CommandContext
     {
@@ -26,8 +27,8 @@
                 OpsLogger = SerilogConfigurator.CreateOpsLogger(null);
                 IoLogger = SerilogConfigurator.CreateIoLogger(null);
 
-                Logger.Error("can't find the host configuration file: {FileName}", LoadedConfigurationFileName);
-                OpsLogger.Error("can't find the host configuration file: {FileName}", LoadedConfigurationFileName);
+                Logger.Write(LogEventLevel.Fatal, "can't find the host configuration file: {FileName}", LoadedConfigurationFileName);
+                OpsLogger.Write(LogEventLevel.Fatal, "can't find the host configuration file: {FileName}", LoadedConfigurationFileName);
                 return false;
             }
 
@@ -53,8 +54,8 @@
 
             if (!Directory.Exists(HostConfiguration.ModulesFolder))
             {
-                Logger.Error("can't find the specified modules folder: {ModulesFolder}", HostConfiguration.ModulesFolder);
-                OpsLogger.Error("can't find the specified modules folder: {ModulesFolder}", HostConfiguration.ModulesFolder);
+                Logger.Write(LogEventLevel.Fatal, "can't find the specified modules folder: {ModulesFolder}", HostConfiguration.ModulesFolder);
+                OpsLogger.Write(LogEventLevel.Fatal, "can't find the specified modules folder: {ModulesFolder}", HostConfiguration.ModulesFolder);
                 return false;
             }
 

@@ -3,6 +3,7 @@ namespace FizzCode.EtLast.PluginHost
 {
     using System;
     using CommandDotNet;
+    using Serilog.Events;
 
     [Command(Name = ">")]
     internal class AppCommands
@@ -23,7 +24,7 @@ namespace FizzCode.EtLast.PluginHost
 
             if (commandContext.HostConfiguration.SecretProtector == null)
             {
-                commandContext.Logger.Error("secret protector is not set in {HostConfigurationFileName}", PathHelpers.GetFriendlyPathName(commandContext.LoadedConfigurationFileName));
+                commandContext.Logger.Write(LogEventLevel.Fatal, "secret protector is not set in {HostConfigurationFileName}", PathHelpers.GetFriendlyPathName(commandContext.LoadedConfigurationFileName));
                 return;
             }
 

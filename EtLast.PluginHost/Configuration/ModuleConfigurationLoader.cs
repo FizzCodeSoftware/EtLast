@@ -6,6 +6,7 @@
     using System.Linq;
     using FizzCode.DbTools.Configuration;
     using Microsoft.Extensions.Configuration;
+    using Serilog.Events;
 
     internal static class ModuleConfigurationLoader
     {
@@ -17,8 +18,8 @@
             var moduleFolder = Path.Combine(commandContext.HostConfiguration.ModulesFolder, moduleName);
             if (!Directory.Exists(moduleFolder))
             {
-                commandContext.Logger.Error("can't find the module folder: {Folder}", moduleFolder);
-                commandContext.OpsLogger.Error("can't find the module folder: {Folder}", moduleFolder);
+                commandContext.Logger.Write(LogEventLevel.Fatal, "can't find the module folder: {Folder}", moduleFolder);
+                commandContext.OpsLogger.Write(LogEventLevel.Fatal, "can't find the module folder: {Folder}", moduleFolder);
                 return null;
             }
 
@@ -45,8 +46,8 @@
             var moduleConfigFileName = Path.Combine(moduleFolder, "module-configuration.json");
             if (!File.Exists(moduleConfigFileName))
             {
-                commandContext.Logger.Error("can't find the module configuration file: {FileName}", moduleConfigFileName);
-                commandContext.OpsLogger.Error("can't find the module configuration file: {FileName}", moduleConfigFileName);
+                commandContext.Logger.Write(LogEventLevel.Fatal, "can't find the module configuration file: {FileName}", moduleConfigFileName);
+                commandContext.OpsLogger.Write(LogEventLevel.Fatal, "can't find the module configuration file: {FileName}", moduleConfigFileName);
                 return null;
             }
 
@@ -74,7 +75,7 @@
             var broken = false;
             foreach (var pluginName in pluginNamesToExecute.Where(x => x.Contains(',', StringComparison.InvariantCultureIgnoreCase) || x.Contains(' ', StringComparison.InvariantCultureIgnoreCase)))
             {
-                commandContext.Logger.Error("plugin name can't contain comma or space character: [{Plugin}]", pluginName);
+                commandContext.Logger.Write(LogEventLevel.Fatal, "plugin name can't contain comma or space character: [{Plugin}]", pluginName);
                 broken = true;
             }
 

@@ -395,20 +395,32 @@
 
         private Stopwatch _startedOn;
 
-        public void Start()
+        public ExecutionResult Start()
         {
             _startedOn = Stopwatch.StartNew();
 
-            var listeners = _commandContext.HostConfiguration.GetEtlContextListeners(this);
-            if (listeners?.Count > 0)
+            try
             {
-                CustomListeners.AddRange(listeners);
+                var listeners = _commandContext.HostConfiguration.GetEtlContextListeners(this);
+                if (listeners?.Count > 0)
+                {
+                    CustomListeners.AddRange(listeners);
+                }
+            }
+            catch (Exception ex)
+            {
+                var formattedMessage = ex.FormatExceptionWithDetails();
+                _commandContext.Logger.Write(LogEventLevel.Fatal, "{ErrorMessage}", formattedMessage);
+                _commandContext.OpsLogger.Write(LogEventLevel.Fatal, "{ErrorMessage}", formattedMessage);
+
+                return ExecutionResult.HostConfigurationError;
             }
 
             GC.Collect();
             CpuTimeStart = GetCpuTime();
             TotalAllocationsStart = GetTotalAllocatedBytes();
             AllocationDifferenceStart = GetCurrentAllocatedBytes();
+            return ExecutionResult.Success;
         }
 
         public void Finish()

@@ -6,6 +6,7 @@
     using CommandDotNet;
     using FizzCode.DbTools.Configuration;
     using FizzCode.EtLast.AdoNet;
+    using Serilog.Events;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
 #pragma warning disable CA1822 // Mark members as static
@@ -187,7 +188,7 @@
                 }
                 catch (Exception ex)
                 {
-                    commandContext.Logger.Error("\t\t{Message}", ex.FormatExceptionWithDetails(false));
+                    commandContext.Logger.Write(LogEventLevel.Fatal, "\t\t{ErrorMessage}", ex.FormatExceptionWithDetails(false));
                 }
             }
 

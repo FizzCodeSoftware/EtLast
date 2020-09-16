@@ -22,7 +22,9 @@
             var sessionExceptionCount = 0;
 
             var sessionContext = new ExecutionContext(null, null, sessionId, null, null, commandContext);
-            sessionContext.Start();
+            result = sessionContext.Start();
+            if (result != ExecutionResult.Success)
+                return result;
 
             try
             {
@@ -43,7 +45,10 @@
 
                         contextList.Add(pluginContext);
 
-                        pluginContext.Start();
+                        result = pluginContext.Start();
+                        if (result != ExecutionResult.Success)
+                            return result;
+
                         pluginContext.Topic.Context.Listeners.Add(pluginContext);
 
                         pluginContext.OnLog(LogSeverity.Information, false, null, null, "plugin started");

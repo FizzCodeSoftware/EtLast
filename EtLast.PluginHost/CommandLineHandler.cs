@@ -8,6 +8,7 @@
     using System.Threading;
     using CommandDotNet;
     using CommandDotNet.Help;
+    using Serilog.Events;
 
     public static class CommandLineHandler
     {
@@ -103,20 +104,36 @@
                     .ToArray();
             }
 
-            var exitCode = _runner.Run(args);
-            return (ExecutionResult)exitCode;
+            try
+            {
+                var exitCode = _runner.Run(args);
+                return (ExecutionResult)exitCode;
+            }
+            catch (Exception ex)
+            {
+                var formattedMessage = ex.FormatExceptionWithDetails();
+                Context.Logger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
+                Context.OpsLogger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
+
+                return ExecutionResult.UnexpectedError;
+            }
         }
 
         private static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
         {
+            if (!(e?.ExceptionObject is Exception ex))
+                return;
+
+            var formattedMessage = ex.FormatExceptionWithDetails();
+
             if (Context.Logger != null)
             {
-                Context.Logger.Error(e.ExceptionObject as Exception, "unexpected error during execution");
-                Context.OpsLogger.Error("unexpected error during execution: {Message}", (e.ExceptionObject as Exception)?.Message);
+                Context.Logger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
+                Context.OpsLogger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
             }
             else
             {
-                Console.WriteLine("unexpected error during execution: " + e.ExceptionObject.ToString());
+                Console.WriteLine("unexpected error during execution: " + formattedMessage);
             }
 
             Environment.Exit(-1);

@@ -13,6 +13,7 @@
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.Text;
+    using Serilog.Events;
 
     internal static class ModuleLoader
     {
@@ -186,8 +187,8 @@
                     foreach (var error in failures)
                     {
                         // DiagnosticFormatter can be used for custom formatting
-                        commandContext.Logger.Error("syntax error in plugin: {Message}", error.ToString());
-                        commandContext.OpsLogger.Error("syntax error in plugin: {Message}", error.GetMessage());
+                        commandContext.Logger.Write(LogEventLevel.Fatal, "syntax error in plugin: {ErrorMessage}", error.ToString());
+                        commandContext.OpsLogger.Write(LogEventLevel.Fatal, "syntax error in plugin: {ErrorMessage}", error.GetMessage());
                     }
 
                     return ExecutionResult.ModuleLoadError;
