@@ -23,7 +23,7 @@
       "Url": "http://localhost:5341",
       "ApiKey": null
     },
-    "EtlContextListeners": {
+    "ExecutionContextListeners": {
       "FizzCode.EtLast.Diagnostics.HttpSender, FizzCode.EtLast.Diagnostics.HttpSender": {
         "Enabled": false,
         "Url": "http://localhost:8642"
@@ -33,7 +33,7 @@
       "do": "run modules DwhBuilderTests"
     },
     "SecretProtector": {
-      "Enabled":  false
+      "Enabled": false
     }
   }
 }

@@ -107,11 +107,11 @@
             GetCommandAliases(configuration, section);
         }
 
-        public List<IEtlContextListener> GetEtlContextListeners(IExecutionContext executionContext)
+        public List<IExecutionContextListener> GetExecutionContextListeners(IExecutionContext executionContext)
         {
-            var result = new List<IEtlContextListener>();
+            var result = new List<IExecutionContextListener>();
 
-            var listenersSection = _configuration.GetSection(_section + ":EtlContextListeners");
+            var listenersSection = _configuration.GetSection(_section + ":ExecutionContextListeners");
             if (listenersSection == null)
                 return result;
 
@@ -122,11 +122,11 @@
                     continue;
 
                 var type = Type.GetType(childSection.Key);
-                if (type != null && typeof(IEtlContextListener).IsAssignableFrom(type))
+                if (type != null && typeof(IExecutionContextListener).IsAssignableFrom(type))
                 {
                     try
                     {
-                        var instance = (IEtlContextListener)Activator.CreateInstance(type);
+                        var instance = (IExecutionContextListener)Activator.CreateInstance(type);
                         var ok = instance.Init(executionContext, childSection, SecretProtector);
                         if (ok)
                         {
@@ -135,14 +135,14 @@
                     }
                     catch (Exception ex)
                     {
-                        var exception = new Exception("Can't initialize secret protector.", ex);
+                        var exception = new Exception("Can't initialize execution context listener.", ex);
                         exception.Data.Add("FullyQualifiedTypeName", childSection.Key);
                         throw exception;
                     }
                 }
                 else
                 {
-                    var exception = new Exception("EtlContextListener type not found.");
+                    var exception = new Exception("ExecutionContextListener type not found.");
                     exception.Data.Add("FullyQualifiedTypeName", childSection.Key);
                     throw exception;
                 }

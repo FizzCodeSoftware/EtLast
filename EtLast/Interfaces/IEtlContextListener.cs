@@ -2,13 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using FizzCode.LightWeight.Configuration;
-    using Microsoft.Extensions.Configuration;
 
     public interface IEtlContextListener
     {
-        bool Init(IExecutionContext executionContext, IConfigurationSection configurationSection, IConfigurationSecretProtector configurationSecretProtector);
-
         void OnLog(LogSeverity severity, bool forOps, string transactionId, IProcess process, string text, params object[] args);
         void OnCustomLog(bool forOps, string fileName, IProcess process, string text, params object[] args);
         void OnException(IProcess process, Exception exception);

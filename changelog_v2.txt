@@ -1,3 +1,6 @@
+2020-09-17:
+	- changed: the "EtlContextListeners" section in host-configuration.json is renamed to "ExecutionContextListeners" section
+
 2020-09-15:
 	- fixed: now EpPlusExcelReader uses AutomaticallyTrimAllStringValues property for column name trim
 

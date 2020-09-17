@@ -32,6 +32,7 @@
         public long AllocationDifferenceFinish { get; private set; }
 
         public TimeSpan RunTime { get; private set; }
+
         public TimeSpan CpuTime => CpuTimeFinish.Subtract(CpuTimeStart);
         public long TotalAllocations => TotalAllocationsFinish - TotalAllocationsStart;
         public long AllocationDifference => AllocationDifferenceFinish - AllocationDifferenceStart;
@@ -42,7 +43,7 @@
 
         public Dictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; } = new Dictionary<IoCommandKind, IoCommandCounter>();
 
-        public List<IEtlContextListener> CustomListeners { get; } = new List<IEtlContextListener>();
+        public List<IExecutionContextListener> CustomListeners { get; } = new List<IExecutionContextListener>();
 
         public ExecutionContext(ExecutionContext parentContext, ITopic topic, string sessionId, IEtlPlugin plugin, Module module, CommandContext commandContext)
         {
@@ -401,7 +402,7 @@
 
             try
             {
-                var listeners = _commandContext.HostConfiguration.GetEtlContextListeners(this);
+                var listeners = _commandContext.HostConfiguration.GetExecutionContextListeners(this);
                 if (listeners?.Count > 0)
                 {
                     CustomListeners.AddRange(listeners);
