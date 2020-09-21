@@ -169,7 +169,7 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                if (!row.HasValue(sourceColumn))
+                if (!row.HasValue(targetColumn))
                     return;
 
                 var newSum = aggregate.GetStateValue(idSum, 0.0d) + row.GetAs(sourceColumn, 0.0);
@@ -273,7 +273,7 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                var newValue = aggregate.ResultRow.HasValue(sourceColumn)
+                var newValue = aggregate.ResultRow.HasValue(targetColumn)
                     ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0), row.GetAs(sourceColumn, 0))
                     : row.GetAs(sourceColumn, 0);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
@@ -290,7 +290,7 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                var newValue = aggregate.ResultRow.HasValue(sourceColumn)
+                var newValue = aggregate.ResultRow.HasValue(targetColumn)
                     ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0L), row.GetAs(sourceColumn, 0L))
                     : row.GetAs(sourceColumn, 0L);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
@@ -307,7 +307,7 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                var newValue = aggregate.ResultRow.HasValue(sourceColumn)
+                var newValue = aggregate.ResultRow.HasValue(targetColumn)
                     ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0.0d), row.GetAs(sourceColumn, 0.0d))
                     : row.GetAs(sourceColumn, 0.0d);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
@@ -324,7 +324,7 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                var newValue = aggregate.ResultRow.HasValue(sourceColumn)
+                var newValue = aggregate.ResultRow.HasValue(targetColumn)
                     ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0m), row.GetAs(sourceColumn, 0m))
                     : row.GetAs(sourceColumn, 0m);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
@@ -341,7 +341,7 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                var newValue = aggregate.ResultRow.HasValue(sourceColumn)
+                var newValue = aggregate.ResultRow.HasValue(targetColumn)
                     ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0), row.GetAs(sourceColumn, 0))
                     : row.GetAs(sourceColumn, 0);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
@@ -358,7 +358,7 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                var newValue = aggregate.ResultRow.HasValue(sourceColumn)
+                var newValue = aggregate.ResultRow.HasValue(targetColumn)
                     ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0L), row.GetAs(sourceColumn, 0L))
                     : row.GetAs(sourceColumn, 0L);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
@@ -375,7 +375,7 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                var newValue = aggregate.ResultRow.HasValue(sourceColumn)
+                var newValue = aggregate.ResultRow.HasValue(targetColumn)
                     ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0.0d), row.GetAs(sourceColumn, 0.0d))
                     : row.GetAs(sourceColumn, 0.0d);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
@@ -392,7 +392,7 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                var newValue = aggregate.ResultRow.HasValue(sourceColumn)
+                var newValue = aggregate.ResultRow.HasValue(targetColumn)
                     ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0m), row.GetAs(sourceColumn, 0m))
                     : row.GetAs(sourceColumn, 0m);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
@@ -418,7 +418,7 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                if (!row.HasValue(sourceColumn))
+                if (!row.HasValue(targetColumn))
                     return;
 
                 var m2 = aggregate.GetStateValue(idM2, 0.0);
