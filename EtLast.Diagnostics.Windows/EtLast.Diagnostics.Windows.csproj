@@ -29,11 +29,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="ObjectListView.Repack.Core3" Version="2.9.2" />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="1.0.0-rc">
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Serilog" Version="2.9.0" />
+    <PackageReference Include="Serilog" Version="2.10.0" />
   </ItemGroup>
 
   <ItemGroup>

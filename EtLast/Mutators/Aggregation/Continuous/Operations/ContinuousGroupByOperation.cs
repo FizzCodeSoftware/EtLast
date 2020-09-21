@@ -169,7 +169,7 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                if (!row.HasValue(targetColumn))
+                if (!row.HasValue(sourceColumn))
                     return;
 
                 var newSum = aggregate.GetStateValue(idSum, 0.0d) + row.GetAs(sourceColumn, 0.0);
@@ -418,7 +418,7 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                if (!row.HasValue(targetColumn))
+                if (!row.HasValue(sourceColumn))
                     return;
 
                 var m2 = aggregate.GetStateValue(idM2, 0.0);
