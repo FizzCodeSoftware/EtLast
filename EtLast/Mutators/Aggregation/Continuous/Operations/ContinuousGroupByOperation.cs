@@ -213,7 +213,7 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                var newValue = aggregate.ResultRow.GetAs(sourceColumn, 0) + row.GetAs(sourceColumn, 0);
+                var newValue = aggregate.ResultRow.GetAs(targetColumn, 0) + row.GetAs(sourceColumn, 0);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
             });
         }
@@ -228,7 +228,7 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                var newValue = aggregate.ResultRow.GetAs(sourceColumn, 0L) + row.GetAs(sourceColumn, 0L);
+                var newValue = aggregate.ResultRow.GetAs(targetColumn, 0L) + row.GetAs(sourceColumn, 0L);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
             });
         }
@@ -243,7 +243,7 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                var newValue = aggregate.ResultRow.GetAs(sourceColumn, 0.0d) + row.GetAs(sourceColumn, 0.0d);
+                var newValue = aggregate.ResultRow.GetAs(targetColumn, 0.0d) + row.GetAs(sourceColumn, 0.0d);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
             });
         }
@@ -258,7 +258,7 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                var newValue = aggregate.ResultRow.GetAs(sourceColumn, 0m) + row.GetAs(sourceColumn, 0m);
+                var newValue = aggregate.ResultRow.GetAs(targetColumn, 0m) + row.GetAs(sourceColumn, 0m);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
             });
         }
@@ -274,7 +274,7 @@
             return op.AddAggregator((aggregate, row) =>
             {
                 var newValue = aggregate.ResultRow.HasValue(sourceColumn)
-                    ? Math.Max(aggregate.ResultRow.GetAs(sourceColumn, 0), row.GetAs(sourceColumn, 0))
+                    ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0), row.GetAs(sourceColumn, 0))
                     : row.GetAs(sourceColumn, 0);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
             });
@@ -291,7 +291,7 @@
             return op.AddAggregator((aggregate, row) =>
             {
                 var newValue = aggregate.ResultRow.HasValue(sourceColumn)
-                    ? Math.Max(aggregate.ResultRow.GetAs(sourceColumn, 0L), row.GetAs(sourceColumn, 0L))
+                    ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0L), row.GetAs(sourceColumn, 0L))
                     : row.GetAs(sourceColumn, 0L);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
             });
@@ -308,7 +308,7 @@
             return op.AddAggregator((aggregate, row) =>
             {
                 var newValue = aggregate.ResultRow.HasValue(sourceColumn)
-                    ? Math.Max(aggregate.ResultRow.GetAs(sourceColumn, 0.0d), row.GetAs(sourceColumn, 0.0d))
+                    ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0.0d), row.GetAs(sourceColumn, 0.0d))
                     : row.GetAs(sourceColumn, 0.0d);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
             });
@@ -325,7 +325,7 @@
             return op.AddAggregator((aggregate, row) =>
             {
                 var newValue = aggregate.ResultRow.HasValue(sourceColumn)
-                    ? Math.Max(aggregate.ResultRow.GetAs(sourceColumn, 0m), row.GetAs(sourceColumn, 0m))
+                    ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0m), row.GetAs(sourceColumn, 0m))
                     : row.GetAs(sourceColumn, 0m);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
             });
@@ -342,7 +342,7 @@
             return op.AddAggregator((aggregate, row) =>
             {
                 var newValue = aggregate.ResultRow.HasValue(sourceColumn)
-                    ? Math.Min(aggregate.ResultRow.GetAs(sourceColumn, 0), row.GetAs(sourceColumn, 0))
+                    ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0), row.GetAs(sourceColumn, 0))
                     : row.GetAs(sourceColumn, 0);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
             });
@@ -359,7 +359,7 @@
             return op.AddAggregator((aggregate, row) =>
             {
                 var newValue = aggregate.ResultRow.HasValue(sourceColumn)
-                    ? Math.Min(aggregate.ResultRow.GetAs(sourceColumn, 0L), row.GetAs(sourceColumn, 0L))
+                    ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0L), row.GetAs(sourceColumn, 0L))
                     : row.GetAs(sourceColumn, 0L);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
             });
@@ -376,7 +376,7 @@
             return op.AddAggregator((aggregate, row) =>
             {
                 var newValue = aggregate.ResultRow.HasValue(sourceColumn)
-                    ? Math.Min(aggregate.ResultRow.GetAs(sourceColumn, 0.0d), row.GetAs(sourceColumn, 0.0d))
+                    ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0.0d), row.GetAs(sourceColumn, 0.0d))
                     : row.GetAs(sourceColumn, 0.0d);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
             });
@@ -393,7 +393,7 @@
             return op.AddAggregator((aggregate, row) =>
             {
                 var newValue = aggregate.ResultRow.HasValue(sourceColumn)
-                    ? Math.Min(aggregate.ResultRow.GetAs(sourceColumn, 0m), row.GetAs(sourceColumn, 0m))
+                    ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0m), row.GetAs(sourceColumn, 0m))
                     : row.GetAs(sourceColumn, 0m);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
             });
