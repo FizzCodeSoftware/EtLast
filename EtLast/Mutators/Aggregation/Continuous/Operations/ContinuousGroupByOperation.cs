@@ -108,10 +108,10 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                var newTotal = aggregate.GetStateValue(id, 0) + row.GetAs(sourceColumn, 0);
-                aggregate.SetStateValue(id, newTotal);
+                var newSum = aggregate.GetStateValue(id, 0) + row.GetAs(sourceColumn, 0);
+                aggregate.SetStateValue(id, newSum);
 
-                var newValue = newTotal / (double)(aggregate.RowsInGroup + 1);
+                var newValue = newSum / (double)(aggregate.RowsInGroup + 1);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
             });
         }
@@ -128,10 +128,10 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                var newTotal = aggregate.GetStateValue(id, 0L) + row.GetAs(sourceColumn, 0L);
-                aggregate.SetStateValue(id, newTotal);
+                var newSum = aggregate.GetStateValue(id, 0L) + row.GetAs(sourceColumn, 0L);
+                aggregate.SetStateValue(id, newSum);
 
-                var newValue = newTotal / (double)(aggregate.RowsInGroup + 1);
+                var newValue = newSum / (double)(aggregate.RowsInGroup + 1);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
             });
         }
@@ -148,10 +148,37 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                var newTotal = aggregate.GetStateValue(id, 0.0d) + row.GetAs(sourceColumn, 0.0d);
-                aggregate.SetStateValue(id, newTotal);
+                var newSum = aggregate.GetStateValue(id, 0.0d) + row.GetAs(sourceColumn, 0.0d);
+                aggregate.SetStateValue(id, newSum);
 
-                var newValue = newTotal / (aggregate.RowsInGroup + 1);
+                var newValue = newSum / (aggregate.RowsInGroup + 1);
+                aggregate.ResultRow.SetValue(targetColumn, newValue);
+            });
+        }
+
+        /// <summary>
+        /// New value will be double. Null values are ignored.
+        /// </summary>
+        public static ContinuousGroupByOperation AddDoubleAverageIgnoreNull(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+        {
+            var idSum = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":sum";
+            var idCnt = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":cnt";
+
+            if (targetColumn == null)
+                targetColumn = sourceColumn;
+
+            return op.AddAggregator((aggregate, row) =>
+            {
+                if (!row.HasValue(sourceColumn))
+                    return;
+
+                var newSum = aggregate.GetStateValue(idSum, 0.0d) + row.GetAs(sourceColumn, 0.0);
+                aggregate.SetStateValue(idSum, newSum);
+
+                var newCnt = aggregate.GetStateValue(idCnt, 0) + 1;
+                aggregate.SetStateValue(idCnt, newCnt);
+
+                var newValue = newSum / newCnt;
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
             });
         }
@@ -168,10 +195,10 @@
 
             return op.AddAggregator((aggregate, row) =>
             {
-                var newTotal = aggregate.GetStateValue(id, 0m) + row.GetAs(sourceColumn, 0m);
-                aggregate.SetStateValue(id, newTotal);
+                var newSum = aggregate.GetStateValue(id, 0m) + row.GetAs(sourceColumn, 0m);
+                aggregate.SetStateValue(id, newSum);
 
-                var newValue = newTotal / (aggregate.RowsInGroup + 1);
+                var newValue = newSum / (aggregate.RowsInGroup + 1);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
             });
         }
@@ -369,6 +396,57 @@
                     ? Math.Min(aggregate.ResultRow.GetAs(sourceColumn, 0m), row.GetAs(sourceColumn, 0m))
                     : row.GetAs(sourceColumn, 0m);
                 aggregate.ResultRow.SetValue(targetColumn, newValue);
+            });
+        }
+
+        /// <summary>
+        /// Calculates the standard deviation for an aggregate.
+        /// https://math.stackexchange.com/questions/198336/how-to-calculate-standard-deviation-with-streaming-inputs
+        /// </summary>
+        /// <param name="op">The operation</param>
+        /// <param name="useEntirePopulation">If true, equivalent to STDEV.P, if false, STDEV.S</param>
+        /// <param name="sourceColumn">The source column.</param>
+        /// <param name="targetColumn">The targe column.</param>
+        public static ContinuousGroupByOperation AddDoubleStandardDeviation(this ContinuousGroupByOperation op, bool useEntirePopulation, string sourceColumn, string targetColumn = null)
+        {
+            if (targetColumn == null)
+                targetColumn = sourceColumn;
+
+            var idM2 = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":m2";
+            var idCnt = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":cnt";
+            var idMean = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":mean";
+
+            return op.AddAggregator((aggregate, row) =>
+            {
+                if (!row.HasValue(sourceColumn))
+                    return;
+
+                var m2 = aggregate.GetStateValue(idM2, 0.0);
+                var newCount = aggregate.GetStateValue(idCnt, 0) + 1;
+                var mean = aggregate.GetStateValue(idMean, 0.0);
+
+                var value = row.GetAs(sourceColumn, 0.0);
+
+                var delta = value - mean;
+                mean += delta / newCount;
+                m2 += delta * (value - mean);
+
+                if (!useEntirePopulation && newCount < 2)
+                {
+                    aggregate.ResultRow.SetValue(targetColumn, null);
+                }
+                else
+                {
+                    var divider = useEntirePopulation
+                        ? newCount
+                        : newCount - 1;
+
+                    aggregate.ResultRow.SetValue(targetColumn, Math.Sqrt(m2 / divider));
+                }
+
+                aggregate.SetStateValue(idM2, m2);
+                aggregate.SetStateValue(idCnt, newCount);
+                aggregate.SetStateValue(idMean, mean);
             });
         }
     }

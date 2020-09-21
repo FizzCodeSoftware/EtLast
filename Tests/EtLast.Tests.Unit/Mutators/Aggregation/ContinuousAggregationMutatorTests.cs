@@ -132,6 +132,24 @@
         }
 
         [TestMethod]
+        public void DoubleAverageIgnoreNull()
+        {
+            var topic = TestExecuter.GetTopic();
+            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDoubleAverageIgnoreNull("age"), new DoubleConverter());
+            var result = TestExecuter.Execute(builder);
+            Assert.AreEqual(6, result.MutatedRows.Count);
+            Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["age"] = 14d },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["age"] = 8d },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["age"] = 27d },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39d },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3d },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake" } });
+            var exceptions = topic.Context.GetExceptions();
+            Assert.AreEqual(0, exceptions.Count);
+        }
+
+        [TestMethod]
         public void DoubleMax()
         {
             var topic = TestExecuter.GetTopic();

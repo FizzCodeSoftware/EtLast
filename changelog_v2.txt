@@ -1,6 +1,8 @@
 2020-09-21:
 	- added: targetColumn can be specified in MemoryGroupByOperationExtensions and ContinuousGroupByOperationExtensions methods
-
+	- added: ContinuousGroupByOperationExtensions.AddDoubleAverageIgnoreNull
+	- added: ContinuousGroupByOperationExtensions.AddDoubleStandardDeviation
+	
 2020-09-17:
 	- changed: the "EtlContextListeners" section in host-configuration.json is renamed to "ExecutionContextListeners" section
 
