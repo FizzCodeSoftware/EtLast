@@ -57,6 +57,7 @@
 
             try
             {
+                Log(LogSeverity.Information, null, "executing {ProcessName}", executable.Name);
                 executable.Execute(null);
 
                 if (ExceptionCount > initialExceptionCount)
@@ -84,6 +85,8 @@
 
             foreach (var executable in executables)
             {
+                Log(LogSeverity.Information, null, "executing {ProcessName}", executable.Name);
+
                 try
                 {
                     executable.Execute(null);
