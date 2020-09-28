@@ -225,73 +225,77 @@
                 foreach (var kvp in parameters)
                 {
                     var paramReference = "@" + kvp.Key;
-                    var idx = sqlStatement.IndexOf(paramReference, StringComparison.InvariantCultureIgnoreCase);
-                    if (idx == -1)
-                        continue;
 
-                    if (kvp.Value is int[] intArray)
+                    while (true) // handle multiple occurrences
                     {
-                        var newParamText = string.Join(",", intArray.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
+                        var idx = sqlStatement.IndexOf(paramReference, StringComparison.InvariantCultureIgnoreCase);
+                        if (idx == -1)
+                            break;
 
-                        Parameters.Remove(kvp.Key);
-                    }
-                    else if (kvp.Value is long[] longArray)
-                    {
-                        var newParamText = string.Join(",", longArray.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
-
-                        Parameters.Remove(kvp.Key);
-                    }
-                    else if (kvp.Value is string[] stringArray)
-                    {
-                        var sb = new StringBuilder();
-                        foreach (var s in stringArray)
+                        if (kvp.Value is int[] intArray)
                         {
-                            if (sb.Length > 0)
-                                sb.Append(',');
+                            var newParamText = string.Join(",", intArray.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
+                            sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
 
-                            sb.Append('\'');
-                            sb.Append(s);
-                            sb.Append('\'');
+                            Parameters.Remove(kvp.Key);
                         }
-
-                        var newParamText = sb.ToString();
-                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
-
-                        Parameters.Remove(kvp.Key);
-                    }
-                    else if (kvp.Value is List<int> intList)
-                    {
-                        var newParamText = string.Join(",", intList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
-
-                        Parameters.Remove(kvp.Key);
-                    }
-                    else if (kvp.Value is List<long> longList)
-                    {
-                        var newParamText = string.Join(",", longList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
-
-                        Parameters.Remove(kvp.Key);
-                    }
-                    else if (kvp.Value is List<string> stringList)
-                    {
-                        var sb = new StringBuilder();
-                        foreach (var s in stringList)
+                        else if (kvp.Value is long[] longArray)
                         {
-                            if (sb.Length > 0)
-                                sb.Append(',');
+                            var newParamText = string.Join(",", longArray.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
+                            sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
 
-                            sb.Append('\'');
-                            sb.Append(s);
-                            sb.Append('\'');
+                            Parameters.Remove(kvp.Key);
                         }
+                        else if (kvp.Value is string[] stringArray)
+                        {
+                            var sb = new StringBuilder();
+                            foreach (var s in stringArray)
+                            {
+                                if (sb.Length > 0)
+                                    sb.Append(',');
 
-                        var newParamText = sb.ToString();
-                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
+                                sb.Append('\'');
+                                sb.Append(s);
+                                sb.Append('\'');
+                            }
 
-                        Parameters.Remove(kvp.Key);
+                            var newParamText = sb.ToString();
+                            sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
+
+                            Parameters.Remove(kvp.Key);
+                        }
+                        else if (kvp.Value is List<int> intList)
+                        {
+                            var newParamText = string.Join(",", intList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
+                            sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
+
+                            Parameters.Remove(kvp.Key);
+                        }
+                        else if (kvp.Value is List<long> longList)
+                        {
+                            var newParamText = string.Join(",", longList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
+                            sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
+
+                            Parameters.Remove(kvp.Key);
+                        }
+                        else if (kvp.Value is List<string> stringList)
+                        {
+                            var sb = new StringBuilder();
+                            foreach (var s in stringList)
+                            {
+                                if (sb.Length > 0)
+                                    sb.Append(',');
+
+                                sb.Append('\'');
+                                sb.Append(s);
+                                sb.Append('\'');
+                            }
+
+                            var newParamText = sb.ToString();
+                            sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
+
+                            Parameters.Remove(kvp.Key);
+                        }
                     }
                 }
 
