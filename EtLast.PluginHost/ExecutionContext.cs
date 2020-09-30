@@ -121,6 +121,9 @@
         {
             var opsErrors = new List<string>();
             GetOpsMessagesRecursive(exception, opsErrors);
+            if (opsErrors.Count == 0)
+                opsErrors.Add("error happened, please check the full log file for details");
+
             foreach (var opsError in opsErrors)
             {
                 OnLog(LogSeverity.Fatal, true, null, process, opsError);
