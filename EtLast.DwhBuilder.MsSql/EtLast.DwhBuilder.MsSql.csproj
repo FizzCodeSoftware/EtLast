@@ -35,7 +35,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="FizzCode.LightWeight.RelationalModel" Version="1.0.25.5846" />
+    <PackageReference Include="FizzCode.LightWeight.RelationalModel" Version="1.0.26.5926" />
   </ItemGroup>
 
   <ItemGroup>
