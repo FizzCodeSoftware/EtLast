@@ -226,25 +226,22 @@
                 {
                     var paramReference = "@" + kvp.Key;
 
-                    while (true) // handle multiple occurrences
+                    var startIndex = 0;
+                    while (startIndex < sqlStatement.Length - paramReference.Length) // handle multiple occurrences
                     {
-                        var idx = sqlStatement.IndexOf(paramReference, StringComparison.InvariantCultureIgnoreCase);
+                        var idx = sqlStatement.IndexOf(paramReference, startIndex, StringComparison.InvariantCultureIgnoreCase);
                         if (idx == -1)
                             break;
 
+                        string newParamText = null;
+
                         if (kvp.Value is int[] intArray)
                         {
-                            var newParamText = string.Join(",", intArray.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                            sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
-
-                            Parameters.Remove(kvp.Key);
+                            newParamText = string.Join(",", intArray.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
                         }
                         else if (kvp.Value is long[] longArray)
                         {
-                            var newParamText = string.Join(",", longArray.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                            sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
-
-                            Parameters.Remove(kvp.Key);
+                            newParamText = string.Join(",", longArray.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
                         }
                         else if (kvp.Value is string[] stringArray)
                         {
@@ -259,24 +256,15 @@
                                 sb.Append('\'');
                             }
 
-                            var newParamText = sb.ToString();
-                            sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
-
-                            Parameters.Remove(kvp.Key);
+                            newParamText = sb.ToString();
                         }
                         else if (kvp.Value is List<int> intList)
                         {
-                            var newParamText = string.Join(",", intList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                            sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
-
-                            Parameters.Remove(kvp.Key);
+                            newParamText = string.Join(",", intList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
                         }
                         else if (kvp.Value is List<long> longList)
                         {
-                            var newParamText = string.Join(",", longList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                            sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
-
-                            Parameters.Remove(kvp.Key);
+                            newParamText = string.Join(",", longList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
                         }
                         else if (kvp.Value is List<string> stringList)
                         {
@@ -291,10 +279,19 @@
                                 sb.Append('\'');
                             }
 
-                            var newParamText = sb.ToString();
+                            newParamText = sb.ToString();
+                        }
+
+                        if (newParamText != null)
+                        {
                             sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
+                            startIndex = idx + newParamText.Length;
 
                             Parameters.Remove(kvp.Key);
+                        }
+                        else
+                        {
+                            startIndex += paramReference.Length;
                         }
                     }
                 }
