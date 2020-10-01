@@ -220,7 +220,7 @@
 
             if (sessionExceptionCount > 0)
             {
-                sessionContext.OnLog(LogSeverity.Warning, false, null, null, "{Plugin}{spacing1} {Count} exceptions raised", spacing1withoutName,
+                sessionContext.OnLog(LogSeverity.Warning, false, null, null, "{spacing1} {Count} exceptions raised", spacing1withoutName,
                     sessionExceptionCount);
             }
 
