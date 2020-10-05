@@ -27,11 +27,6 @@
         /// </summary>
         public string AddRowIndexToColumn { get; set; }
 
-        /// <summary>
-        /// Default false.
-        /// </summary>
-        public bool ProduceAbandonedRows { get; set; }
-
         private int _currentRowIndex;
         protected bool AutomaticallyEvaluateAndYieldInputProcessRows { get; set; } = true;
 
