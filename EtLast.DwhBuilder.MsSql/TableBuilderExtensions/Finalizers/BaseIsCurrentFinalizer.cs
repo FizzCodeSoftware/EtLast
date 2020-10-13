@@ -65,7 +65,7 @@
                 TargetTableName = builder.TableBuilder.ResilientTable.TableName,
                 SourceTableAlias = "s",
                 TargetTableAlias = "t",
-                OnCondition = string.Join(" and ", columnNamesToMatch.Select(x => "t." + x + "=s." + x)),
+                OnCondition = string.Join(" and ", columnNamesToMatch.Select(x => "((s." + x + "=t." + x + ") or (s." + x + " is null and t." + x + " is null))")),
                 WhenMatchedAction = columnNamesToUpdate.Length > 0 || builder.TableBuilder.HasEtlRunInfo
                     ? "UPDATE SET "
                         + string.Join(", ", columnNamesToUpdate.Select(c => "t." + c + "=s." + c))
@@ -103,7 +103,7 @@
                     TargetTableName = histTableName,
                     SourceTableAlias = "s",
                     TargetTableAlias = "t",
-                    OnCondition = string.Join(" and ", columnNamesToMatch.Select(x => "t." + x + "=s." + x))
+                    OnCondition = string.Join(" and ", columnNamesToMatch.Select(x => "((s." + x + "=t." + x + ") or (s." + x + " is null and t." + x + " is null))"))
                         + " and t." + builder.TableBuilder.ValidToColumnNameEscaped + (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime == null ? " IS NULL" : "=@InfiniteFuture"),
                     WhenMatchedAction = "UPDATE SET t."
                         + builder.TableBuilder.ValidToColumnNameEscaped + "=s." + builder.TableBuilder.ValidFromColumnNameEscaped
@@ -130,7 +130,7 @@
                         TargetTableName = histTableName,
                         SourceTableAlias = "s",
                         TargetTableAlias = "t",
-                        OnCondition = string.Join(" and ", columnNamesToMatch.Select(x => "t." + x + "=s." + x)),
+                        OnCondition = string.Join(" and ", columnNamesToMatch.Select(x => "((s." + x + "=t." + x + ") or (s." + x + " is null and t." + x + " is null))")),
                         WhenMatchedAction = "UPDATE SET "
                             + string.Join(", ", noHistoryColumns.Select(col => "t." + col.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString) + " = s." + col.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)))
                             + (builder.TableBuilder.HasEtlRunInfo

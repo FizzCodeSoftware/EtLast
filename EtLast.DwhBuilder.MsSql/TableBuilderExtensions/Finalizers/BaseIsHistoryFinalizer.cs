@@ -59,7 +59,7 @@
                 TargetTableName = builder.TableBuilder.ResilientTable.TableName,
                 SourceTableAlias = "s",
                 TargetTableAlias = "t",
-                OnCondition = string.Join(" and ", columnNamesToMatch.Select(x => "t." + x + "=s." + x))
+                OnCondition = string.Join(" and ", columnNamesToMatch.Select(x => "((s." + x + "=t." + x + ") or (s." + x + " is null and t." + x + " is null))"))
                     + " and t." + builder.TableBuilder.ValidToColumnNameEscaped + (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime == null ? " IS NULL" : "=@InfiniteFuture"),
                 WhenMatchedAction = "UPDATE SET t."
                     + builder.TableBuilder.ValidToColumnNameEscaped + "=s." + builder.TableBuilder.ValidFromColumnNameEscaped

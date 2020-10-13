@@ -298,7 +298,7 @@
                 TargetTableName = table.TableName,
                 SourceTableAlias = "s",
                 TargetTableAlias = "t",
-                OnCondition = string.Join(" and ", keyColumns.Select(x => "s." + x + "=t." + x)),
+                OnCondition = string.Join(" and ", keyColumns.Select(x => "((s." + x + "=t." + x + ") or (s." + x + " is null and t." + x + " is null))")),
                 WhenMatchedAction = columnsToUpdate.Count > 0
                     ? "update set " + string.Join(",", columnsToUpdate.Select(c => "t." + c + "=s." + c))
                     : null,
@@ -318,7 +318,7 @@
                 TargetTableName = table.TableName,
                 SourceTableAlias = "s",
                 TargetTableAlias = "t",
-                OnCondition = string.Join(" and ", keyColumns.Select(x => "s." + x + "=t." + x)),
+                OnCondition = string.Join(" and ", keyColumns.Select(x => "((s." + x + "=t." + x + ") or (s." + x + " is null and t." + x + " is null))")),
                 WhenMatchedAction = columnsToUpdate.Count > 0
                     ? "update set " + string.Join(",", columnsToUpdate.Select(c => "t." + c + "=s." + c))
                     : null,
@@ -335,7 +335,7 @@
                 TargetTableName = table.TableName,
                 SourceTableAlias = "s",
                 TargetTableAlias = "t",
-                OnCondition = string.Join(" and ", keyColumns.Select(x => "s." + x + "=t." + x)),
+                OnCondition = string.Join(" and ", keyColumns.Select(x => "((s." + x + "=t." + x + ") or (s." + x + " is null and t." + x + " is null))")),
                 WhenNotMatchedByTargetAction = "insert (" + string.Join(",", table.Columns) + ") values (" + string.Join(",", table.Columns.Select(c => "s." + c)) + ")",
             };
         }
