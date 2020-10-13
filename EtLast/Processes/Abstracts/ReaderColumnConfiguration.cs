@@ -1,8 +1,11 @@
-﻿namespace FizzCode.EtLast
+﻿using System.Diagnostics;
+
+namespace FizzCode.EtLast
 {
     public enum NullSourceHandler { SetSpecialValue, WrapError }
     public enum InvalidSourceHandler { SetSpecialValue, WrapError }
 
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class ReaderColumnConfiguration : ReaderDefaultColumnConfiguration
     {
         public string SourceColumn { get; }
@@ -19,6 +22,11 @@
         {
             SourceColumn = sourceColumn;
             RowColumn = rowColumn;
+        }
+
+        private string GetDebuggerDisplay()
+        {
+            return SourceColumn + (RowColumn != null ? " -> " + RowColumn : "") + (Converter != null ? " (" + Converter.GetType().GetFriendlyTypeName() + ")" : "");
         }
     }
 

@@ -1,8 +1,10 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
 
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class ColumnCopyConfiguration
     {
         public string FromColumn { get; }
@@ -54,6 +56,11 @@
             return columnNames
                 .Select(col => new ColumnCopyConfiguration(col))
                 .ToList();
+        }
+
+        private string GetDebuggerDisplay()
+        {
+            return FromColumn + (ToColumn != null ? " -> " + ToColumn : "");
         }
     }
 }
