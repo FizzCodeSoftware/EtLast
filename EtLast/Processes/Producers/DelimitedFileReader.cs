@@ -217,6 +217,21 @@
                         if (HasHeaderRow)
                         {
                             columnNames = partList.ToArray();
+
+                            if (removeSurroundingDoubleQuotes)
+                            {
+                                for (var i = 0; i < columnNames.Length; i++)
+                                {
+                                    var columnName = columnNames[i];
+                                    if (columnName.Length > 1
+                                        && columnName.StartsWith("\"", StringComparison.Ordinal)
+                                        && columnName.EndsWith("\"", StringComparison.Ordinal))
+                                    {
+                                        columnNames[i] = columnName[1..^1];
+                                    }
+                                }
+                            }
+
                             continue;
                         }
                     }
@@ -232,8 +247,8 @@
 
                         if (removeSurroundingDoubleQuotes
                            && valueString.Length > 1
-                           && valueString.StartsWith("\"", StringComparison.InvariantCultureIgnoreCase)
-                           && valueString.EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
+                           && valueString.StartsWith("\"", StringComparison.Ordinal)
+                           && valueString.EndsWith("\"", StringComparison.Ordinal))
                         {
                             sourceValue = valueString[1..^1];
                         }
