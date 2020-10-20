@@ -124,8 +124,13 @@
                 {
                     ModuleConfiguration = moduleConfiguration,
                     Plugins = appDomainPlugins,
-                    EnabledPlugins = FilterExecutablePlugins(moduleConfiguration, appDomainPlugins),
+                    EnabledPlugins = GetEnabledPlugins(moduleConfiguration, appDomainPlugins),
                 };
+
+                foreach (var unknownPluginName in GetUnknownPlugins(moduleConfiguration, appDomainPlugins))
+                {
+                    commandContext.Logger.Warning("unknown plugin '{PluginName}'", unknownPluginName);
+                }
 
                 commandContext.Logger.Debug("{PluginCount} plugin(s) found: {PluginNames}",
                     module.EnabledPlugins.Count, module.EnabledPlugins.Select(plugin => plugin.GetType().GetFriendlyTypeName()).ToArray());
@@ -205,8 +210,14 @@
                 {
                     ModuleConfiguration = moduleConfiguration,
                     Plugins = compiledPlugins,
-                    EnabledPlugins = FilterExecutablePlugins(moduleConfiguration, compiledPlugins),
+                    EnabledPlugins = GetEnabledPlugins(moduleConfiguration, compiledPlugins),
                 };
+
+                foreach (var unknownPluginName in GetUnknownPlugins(moduleConfiguration, compiledPlugins))
+                {
+                    commandContext.Logger.Warning("unknown plugin '{PluginName}'", unknownPluginName);
+                }
+
 
                 commandContext.Logger.Debug("{PluginCount} plugin(s) found: {PluginNames}",
                     module.EnabledPlugins.Count, module.EnabledPlugins.Select(plugin => plugin.GetType().GetFriendlyTypeName()).ToArray());
@@ -224,7 +235,7 @@
             module.EnabledPlugins = null;
         }
 
-        private static List<IEtlPlugin> FilterExecutablePlugins(ModuleConfiguration moduleConfiguration, List<IEtlPlugin> plugins)
+        private static List<IEtlPlugin> GetEnabledPlugins(ModuleConfiguration moduleConfiguration, List<IEtlPlugin> plugins)
         {
             if (plugins == null || plugins.Count == 0)
                 return new List<IEtlPlugin>();
@@ -232,6 +243,16 @@
             return moduleConfiguration.EnabledPluginList
                 .Select(enabledName => plugins.Find(plugin => string.Equals(enabledName, plugin.GetType().Name, StringComparison.InvariantCultureIgnoreCase)))
                 .Where(plugin => plugin != null)
+                .ToList();
+        }
+
+        private static List<string> GetUnknownPlugins(ModuleConfiguration moduleConfiguration, List<IEtlPlugin> plugins)
+        {
+            if (plugins == null || plugins.Count == 0)
+                return new List<string>();
+
+            return moduleConfiguration.EnabledPluginList
+                .Where(enabledName => plugins.Find(plugin => string.Equals(enabledName, plugin.GetType().Name, StringComparison.InvariantCultureIgnoreCase)) == null)
                 .ToList();
         }
 
