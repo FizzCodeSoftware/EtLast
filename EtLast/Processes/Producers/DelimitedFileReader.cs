@@ -40,6 +40,11 @@
         public string[] ColumnNames { get; set; }
 
         /// <summary>
+        /// Default null. Can be set only if <see cref="ColumnConfiguration"/> is not specified so all columns would be loaded using DefaultColumnConfiguration.
+        /// </summary>
+        public string[] IgnoreColumns { get; set; }
+
+        /// <summary>
         /// Default value is ';'
         /// </summary>
         public char Delimiter { get; set; } = ';';
@@ -59,6 +64,12 @@
 
             if (HasHeaderRow && ColumnNames?.Length > 0)
                 throw new InvalidProcessParameterException(this, nameof(ColumnNames), ColumnNames, nameof(ColumnNames) + " must be null if " + nameof(HasHeaderRow) + " is true.");
+
+            if (IgnoreColumns != null && ColumnConfiguration != null)
+                throw new InvalidProcessParameterException(this, nameof(IgnoreColumns), IgnoreColumns, nameof(IgnoreColumns) + " must be null if " + nameof(ColumnConfiguration) + " is specified.");
+
+            if (ColumnConfiguration == null && DefaultColumnConfiguration == null)
+                throw new InvalidProcessParameterException(this, nameof(ColumnConfiguration), ColumnConfiguration, nameof(DefaultColumnConfiguration) + " must be specified if " + nameof(ColumnConfiguration) + " is null.");
         }
 
         protected override IEnumerable<IRow> Produce()
@@ -109,6 +120,7 @@
             var treatEmptyStringAsNull = TreatEmptyStringAsNull;
             var removeSurroundingDoubleQuotes = RemoveSurroundingDoubleQuotes;
             var throwOnMissingDoubleQuoteClose = ThrowOnMissingDoubleQuoteClose;
+            var ignoreColumns = IgnoreColumns?.ToHashSet();
 
             try
             {
@@ -241,6 +253,9 @@
                     for (var i = 0; i < colCnt; i++)
                     {
                         var columnName = columnNames[i];
+                        if (ignoreColumns?.Contains(columnName) == true)
+                            continue;
+
                         var valueString = partList[i];
 
                         object sourceValue = valueString;
