@@ -40,7 +40,7 @@
         public string[] ColumnNames { get; set; }
 
         /// <summary>
-        /// Default null. Can be set only if <see cref="ColumnConfiguration"/> is not specified so all columns would be loaded using DefaultColumnConfiguration.
+        /// Default null.
         /// </summary>
         public string[] IgnoreColumns { get; set; }
 
@@ -64,9 +64,6 @@
 
             if (HasHeaderRow && ColumnNames?.Length > 0)
                 throw new InvalidProcessParameterException(this, nameof(ColumnNames), ColumnNames, nameof(ColumnNames) + " must be null if " + nameof(HasHeaderRow) + " is true.");
-
-            if (IgnoreColumns != null && ColumnConfiguration != null)
-                throw new InvalidProcessParameterException(this, nameof(IgnoreColumns), IgnoreColumns, nameof(IgnoreColumns) + " must be null if " + nameof(ColumnConfiguration) + " is specified.");
 
             if (ColumnConfiguration == null && DefaultColumnConfiguration == null)
                 throw new InvalidProcessParameterException(this, nameof(ColumnConfiguration), ColumnConfiguration, nameof(DefaultColumnConfiguration) + " must be specified if " + nameof(ColumnConfiguration) + " is null.");
@@ -93,10 +90,12 @@
             var columnConfig = ColumnConfiguration?.ToDictionary(x => x.SourceColumn.ToUpperInvariant(), StringComparer.OrdinalIgnoreCase);
             var resultCount = 0;
 
+            Stream stream;
             StreamReader reader;
             try
             {
-                reader = new StreamReader(FileName);
+                stream = new FileStream(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                reader = new StreamReader(stream);
             }
             catch (Exception ex)
             {
@@ -188,12 +187,15 @@
                             && endOfCell
                             && builderStartsWithQuote;
 
-                        if (quotedCellIsNotClosed && throwOnMissingDoubleQuoteClose)
+                        if (quotedCellIsNotClosed)
                         {
-                            var exception = new ProcessExecutionException(this, "Cell starting with '\"' is missing closing '\"'.");
-                            exception.Data.Add("LineNumber", resultCount + 1);
-                            exception.Data.Add("ColumnIndex", linePos + 1);
-                            throw exception;
+                            if (throwOnMissingDoubleQuoteClose)
+                            {
+                                var exception = new ProcessExecutionException(this, "Cell starting with '\"' is missing closing '\"'.");
+                                exception.Data.Add("LineNumber", resultCount + 1);
+                                exception.Data.Add("CharacterIndex", linePos + 1);
+                                throw exception;
+                            }
                         }
 
                         if (c != delimiter || quotes > 0)
@@ -292,6 +294,7 @@
             finally
             {
                 reader.Dispose();
+                stream.Dispose();
             }
 
             Context.RegisterIoCommandSuccess(this, IoCommandKind.fileRead, iocUid, resultCount);

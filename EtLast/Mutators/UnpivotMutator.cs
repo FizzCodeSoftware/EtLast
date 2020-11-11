@@ -9,7 +9,11 @@
         public string NewColumnForDimension { get; set; }
         public string NewColumnForValue { get; set; }
 
+        /// <summary>
+        /// Default is true.
+        /// </summary>
         public bool IgnoreIfValueIsNull { get; set; } = true;
+
         public string[] ValueColumns { get; set; }
 
         private HashSet<string> _fixColumnNames;
