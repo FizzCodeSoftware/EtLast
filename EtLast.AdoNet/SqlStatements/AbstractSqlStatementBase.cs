@@ -13,7 +13,11 @@
     public abstract class AbstractSqlStatementBase : AbstractExecutable
     {
         public ConnectionStringWithProvider ConnectionString { get; set; }
-        public int CommandTimeout { get; set; } = 300;
+
+        /// <summary>
+        /// Default value is 600.
+        /// </summary>
+        public int CommandTimeout { get; set; } = 600;
 
         protected AbstractSqlStatementBase(ITopic topic, string name)
             : base(topic, name)

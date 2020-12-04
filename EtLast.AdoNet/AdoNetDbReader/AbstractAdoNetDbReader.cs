@@ -29,7 +29,11 @@
 
         public ConnectionCreatorDelegate CustomConnectionCreator { get; set; }
 
+        /// <summary>
+        /// Default value is 3600.
+        /// </summary>
         public int CommandTimeout { get; set; } = 3600;
+
         public DateTime LastDataRead { get; private set; }
         public List<ISqlValueProcessor> SqlValueProcessors { get; } = new List<ISqlValueProcessor>();
 

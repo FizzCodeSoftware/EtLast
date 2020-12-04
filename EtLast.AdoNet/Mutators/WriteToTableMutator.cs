@@ -13,8 +13,17 @@
     public class WriteToTableMutator : AbstractMutator, IRowWriter
     {
         public ConnectionStringWithProvider ConnectionString { get; set; }
-        public int CommandTimeout { get; set; } = 30;
+
+        /// <summary>
+        /// Default value is 600.
+        /// </summary>
+        public int CommandTimeout { get; set; } = 600;
+
+        /// <summary>
+        /// Default value is 30.
+        /// </summary>
         public int MaximumParameterCount { get; set; } = 30;
+
         public IDictionary<string, DbType> ColumnTypes { get; set; }
 
         public DetailedDbTableDefinition TableDefinition { get; set; }

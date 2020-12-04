@@ -10,7 +10,11 @@
     public abstract class AbstractSqlStatementWithResult<T> : AbstractExecutableWithResult<T>
     {
         public ConnectionStringWithProvider ConnectionString { get; set; }
-        public int CommandTimeout { get; set; } = 300;
+
+        /// <summary>
+        /// Default value is 600.
+        /// </summary>
+        public int CommandTimeout { get; set; } = 600;
 
         /// <summary>
         /// If true, this statement will be executed out of ambient transaction scope.

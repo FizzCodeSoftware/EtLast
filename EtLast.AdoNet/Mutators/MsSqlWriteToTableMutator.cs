@@ -14,7 +14,11 @@
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public ConnectionStringWithProvider ConnectionString { get; set; }
-        public int CommandTimeout { get; set; } = 30;
+
+        /// <summary>
+        /// Default value is 600.
+        /// </summary>
+        public int CommandTimeout { get; set; } = 600;
 
         public DbTableDefinition TableDefinition { get; set; }
 
