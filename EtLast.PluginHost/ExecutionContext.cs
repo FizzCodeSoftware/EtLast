@@ -11,9 +11,7 @@
     using Microsoft.Extensions.Configuration;
     using Serilog.Events;
 
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable
     internal class ExecutionContext : IExecutionContext, IEtlContextListener
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public string SessionId { get; }
         public IExecutionContext ParentContext { get; }

@@ -9,7 +9,6 @@
     using Serilog.Events;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
-#pragma warning disable CA1822 // Mark members as static
     [Command(Name = "test", Description = "Test connection strings, modules, etc.")]
     [SubCommand]
     public class TestCommand
@@ -196,5 +195,4 @@
         }
     }
 #pragma warning restore CA1812 // Avoid uninstantiated internal classes
-#pragma warning restore CA1822 // Mark members as static
 }

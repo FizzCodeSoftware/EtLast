@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Text;
 
     public class MergeStringColumnsMutator : AbstractMutator
@@ -47,6 +48,15 @@
 
             if (ColumnsToMerge == null || ColumnsToMerge.Length == 0)
                 throw new ProcessParameterNullException(this, nameof(ColumnsToMerge));
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class MergeStringColumnsMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder ReplaceNullWithValue(this IFluentProcessMutatorBuilder builder, MergeStringColumnsMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

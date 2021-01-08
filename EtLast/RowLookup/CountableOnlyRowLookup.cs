@@ -8,17 +8,17 @@
         /// <summary>
         /// Default false.
         /// </summary>
-        public bool Invariant { get; }
+        public bool IgnoreCase { get; }
 
         public int Count { get; private set; }
         public IEnumerable<string> Keys => _dictionary.Keys;
 
         private readonly Dictionary<string, int> _dictionary;
 
-        public CountableOnlyRowLookup(bool invariant = false)
+        public CountableOnlyRowLookup(bool ignoreCase = false)
         {
-            Invariant = invariant;
-            _dictionary = invariant
+            IgnoreCase = ignoreCase;
+            _dictionary = ignoreCase
                 ? new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
                 : new Dictionary<string, int>();
         }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Globalization;
     using System.IO;
     using FizzCode.EtLast;
@@ -71,9 +72,7 @@
 
             if (_package == null) // lazy load here instead of prepare
             {
-#pragma warning disable CA2000 // Dispose objects before losing scope
                 _package = ExistingPackage ?? new ExcelPackage(new FileInfo(FileName));
-#pragma warning restore CA2000 // Dispose objects before losing scope
 
                 _state.LastWorksheet = _package.Workbook.Worksheets.Add(SheetName);
                 _state.LastRow = 1;
@@ -122,6 +121,15 @@
 
             if (ColumnConfiguration == null)
                 throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class EpPlusSimpleRowWriterMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder WriteRowToExcelSimple(this IFluentProcessMutatorBuilder builder, EpPlusSimpleRowWriterMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

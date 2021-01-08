@@ -153,7 +153,11 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class CompareWithRowMutatorFluent
     {
-        public static IFluentProcessMutatorBuilder AddCompareWithRowMutator(this IFluentProcessMutatorBuilder builder, CompareWithRowMutator mutator)
+        /// <summary>
+        /// Compare input rows against existing rows with matching keys and execute <see cref="CompareWithRowMutator.MatchAndEqualsAction"/> or <see cref="CompareWithRowMutator.MatchButDifferentAction"/> or <see cref="CompareWithRowMutator.NoMatchAction"/> based on the result of the comparison.
+        /// - existing rows are looked up from a single <see cref="RowLookup"/>
+        /// </summary>
+        public static IFluentProcessMutatorBuilder CompareWithRow(this IFluentProcessMutatorBuilder builder, CompareWithRowMutator mutator)
         {
             return builder.AddMutators(mutator);
         }

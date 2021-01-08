@@ -20,32 +20,27 @@
         {
             var topic = TestExecuter.GetTopic();
             var executedBatchCount = 0;
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .JoinBatched(new BatchedJoinMutator(topic, null)
                 {
-                    new BatchedJoinMutator(topic, null)
+                    BatchSize = 4,
+                    LookupBuilder = new FilteredRowLookupBuilder()
                     {
-                        BatchSize = 4,
-                        LookupBuilder = new FilteredRowLookupBuilder()
+                        ProcessCreator = filterRows =>
                         {
-                            ProcessCreator = filterRows =>
-                            {
-                                executedBatchCount++;
-                                return TestData.PersonEyeColor(topic);
-                            },
-                            KeyGenerator = row => row.GenerateKey("personId"),
+                            executedBatchCount++;
+                            return TestData.PersonEyeColor(topic);
                         },
-                        RowKeyGenerator = row => row.GenerateKey("id"),
-                        NoMatchAction = new NoMatchAction(MatchMode.Custom)
-                        {
-                            CustomAction = (proc, row) => row.SetValue("eyeColor", "not found"),
-                        },
-                        ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
-                    }
-                },
-            };
+                        KeyGenerator = row => row.GenerateKey("personId"),
+                    },
+                    RowKeyGenerator = row => row.GenerateKey("id"),
+                    NoMatchAction = new NoMatchAction(MatchMode.Custom)
+                    {
+                        CustomAction = (proc, row) => row.SetValue("eyeColor", "not found"),
+                    },
+                    ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(2, executedBatchCount);
@@ -70,29 +65,24 @@
         {
             var topic = TestExecuter.GetTopic();
             var executedBatchCount = 0;
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .JoinBatched(new BatchedJoinMutator(topic, null)
                 {
-                    new BatchedJoinMutator(topic, null)
+                    BatchSize = 4,
+                    LookupBuilder = new FilteredRowLookupBuilder()
                     {
-                        BatchSize = 4,
-                        LookupBuilder = new FilteredRowLookupBuilder()
+                        ProcessCreator = filterRows =>
                         {
-                            ProcessCreator = filterRows =>
-                            {
-                                executedBatchCount++;
-                                return TestData.PersonEyeColor(topic);
-                            },
-                            KeyGenerator = row => row.GenerateKey("personId"),
+                            executedBatchCount++;
+                            return TestData.PersonEyeColor(topic);
                         },
-                        RowKeyGenerator = row => row.GenerateKey("id"),
-                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
-                    }
-                },
-            };
+                        KeyGenerator = row => row.GenerateKey("personId"),
+                    },
+                    RowKeyGenerator = row => row.GenerateKey("id"),
+                    NoMatchAction = new NoMatchAction(MatchMode.Remove),
+                    ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(2, executedBatchCount);
@@ -113,29 +103,24 @@
         {
             var topic = TestExecuter.GetTopic();
             var executedBatchCount = 0;
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .JoinBatched(new BatchedJoinMutator(topic, null)
                 {
-                    new BatchedJoinMutator(topic, null)
+                    BatchSize = 1,
+                    LookupBuilder = new FilteredRowLookupBuilder()
                     {
-                        BatchSize = 1,
-                        LookupBuilder = new FilteredRowLookupBuilder()
+                        ProcessCreator = filterRows =>
                         {
-                            ProcessCreator = filterRows =>
-                            {
-                                executedBatchCount++;
-                                return TestData.PersonEyeColor(topic);
-                            },
-                            KeyGenerator = row => row.GenerateKey("personId"),
+                            executedBatchCount++;
+                            return TestData.PersonEyeColor(topic);
                         },
-                        RowKeyGenerator = row => row.GenerateKey("id"),
-                        NoMatchAction = new NoMatchAction(MatchMode.Throw),
-                        ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
-                    }
-                },
-            };
+                        KeyGenerator = row => row.GenerateKey("personId"),
+                    },
+                    RowKeyGenerator = row => row.GenerateKey("id"),
+                    NoMatchAction = new NoMatchAction(MatchMode.Throw),
+                    ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(4, executedBatchCount);
@@ -157,29 +142,24 @@
         {
             var topic = TestExecuter.GetTopic();
             var executedBatchCount = 0;
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .JoinBatched(new BatchedJoinMutator(topic, null)
                 {
-                    new BatchedJoinMutator(topic, null)
+                    BatchSize = 4,
+                    LookupBuilder = new FilteredRowLookupBuilder()
                     {
-                        BatchSize = 4,
-                        LookupBuilder = new FilteredRowLookupBuilder()
+                        ProcessCreator = filterRows =>
                         {
-                            ProcessCreator = filterRows =>
-                            {
-                                executedBatchCount++;
-                                return TestData.PersonEyeColor(topic);
-                            },
-                            KeyGenerator = row => row.GenerateKey("personId"),
+                            executedBatchCount++;
+                            return TestData.PersonEyeColor(topic);
                         },
-                        RowKeyGenerator = row => row.GenerateKey("id"),
-                        NoMatchAction = new NoMatchAction(MatchMode.Throw),
-                        ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
-                    }
-                },
-            };
+                        KeyGenerator = row => row.GenerateKey("personId"),
+                    },
+                    RowKeyGenerator = row => row.GenerateKey("id"),
+                    NoMatchAction = new NoMatchAction(MatchMode.Throw),
+                    ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(1, executedBatchCount);
@@ -196,29 +176,24 @@
             var executedBatchCount = 0;
             var executedLeftKeyDelegateCount = 0;
             var executedRightKeyDelegateCount = 0;
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .JoinBatched(new BatchedJoinMutator(topic, null)
                 {
-                    new BatchedJoinMutator(topic, null)
+                    BatchSize = 2,
+                    LookupBuilder = new FilteredRowLookupBuilder()
                     {
-                        BatchSize = 2,
-                        LookupBuilder = new FilteredRowLookupBuilder()
+                        ProcessCreator = filterRows =>
                         {
-                            ProcessCreator = filterRows =>
-                            {
-                                executedBatchCount++;
-                                return TestData.PersonEyeColor(topic);
-                            },
-                            KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GenerateKey("personId"); },
+                            executedBatchCount++;
+                            return TestData.PersonEyeColor(topic);
                         },
-                        RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return executedLeftKeyDelegateCount < 3 ? row.GenerateKey("id") : row.GetAs<double>("id").ToString("D", CultureInfo.InvariantCulture); },
-                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
-                    }
-                },
-            };
+                        KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GenerateKey("personId"); },
+                    },
+                    RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return executedLeftKeyDelegateCount < 3 ? row.GenerateKey("id") : row.GetAs<double>("id").ToString("D", CultureInfo.InvariantCulture); },
+                    NoMatchAction = new NoMatchAction(MatchMode.Remove),
+                    ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(1, executedBatchCount);
@@ -237,29 +212,24 @@
             var executedBatchCount = 0;
             var executedLeftKeyDelegateCount = 0;
             var executedRightKeyDelegateCount = 0;
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .JoinBatched(new BatchedJoinMutator(topic, null)
                 {
-                    new BatchedJoinMutator(topic, null)
+                    BatchSize = 1,
+                    LookupBuilder = new FilteredRowLookupBuilder()
                     {
-                        BatchSize = 1,
-                        LookupBuilder = new FilteredRowLookupBuilder()
+                        ProcessCreator = filterRows =>
                         {
-                            ProcessCreator = filterRows =>
-                            {
-                                executedBatchCount++;
-                                return TestData.PersonEyeColor(topic);
-                            },
-                            KeyGenerator = row => { executedRightKeyDelegateCount++; return executedBatchCount < 2 ? row.GenerateKey("personId") : row.GetAs<double>("personId").ToString("D", CultureInfo.InvariantCulture); },
+                            executedBatchCount++;
+                            return TestData.PersonEyeColor(topic);
                         },
-                        RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return row.GenerateKey("id"); },
-                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
-                    }
-                },
-            };
+                        KeyGenerator = row => { executedRightKeyDelegateCount++; return executedBatchCount < 2 ? row.GenerateKey("personId") : row.GetAs<double>("personId").ToString("D", CultureInfo.InvariantCulture); },
+                    },
+                    RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return row.GenerateKey("id"); },
+                    NoMatchAction = new NoMatchAction(MatchMode.Remove),
+                    ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(2, executedBatchCount);
@@ -282,30 +252,25 @@
             var executedBatchCount = 0;
             var executedLeftKeyDelegateCount = 0;
             var executedRightKeyDelegateCount = 0;
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .JoinBatched(new BatchedJoinMutator(topic, null)
                 {
-                    new BatchedJoinMutator(topic, null)
+                    BatchSize = 1,
+                    LookupBuilder = new FilteredRowLookupBuilder()
                     {
-                        BatchSize = 1,
-                        LookupBuilder = new FilteredRowLookupBuilder()
+                        ProcessCreator = filterRows =>
                         {
-                            ProcessCreator = filterRows =>
-                            {
-                                executedBatchCount++;
-                                return TestData.PersonEyeColor(topic);
-                            },
-                            KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GenerateKey("personId"); },
+                            executedBatchCount++;
+                            return TestData.PersonEyeColor(topic);
                         },
-                        RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return row.GenerateKey("id"); },
-                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        MatchFilter = match => match.GetAs<double>("id") == 7,
-                        ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
-                    }
-                },
-            };
+                        KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GenerateKey("personId"); },
+                    },
+                    RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return row.GenerateKey("id"); },
+                    NoMatchAction = new NoMatchAction(MatchMode.Remove),
+                    MatchFilter = match => match.GetAs<double>("id") == 7,
+                    ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(1, executedBatchCount);

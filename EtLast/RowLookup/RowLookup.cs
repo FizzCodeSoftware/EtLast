@@ -2,24 +2,23 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     public class RowLookup : ICountableLookup
     {
         /// <summary>
         /// Default false.
         /// </summary>
-        public bool Invariant { get; }
+        public bool IgnoreCase { get; }
 
         public int Count { get; private set; }
         public IEnumerable<string> Keys => _dictionary.Keys;
 
         private readonly Dictionary<string, object> _dictionary;
 
-        public RowLookup(bool invariant = false)
+        public RowLookup(bool ignoreCase = false)
         {
-            Invariant = invariant;
-            _dictionary = invariant
+            IgnoreCase = ignoreCase;
+            _dictionary = ignoreCase
                 ? new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
                 : new Dictionary<string, object>();
         }
@@ -90,10 +89,16 @@
 
             if (entry is List<IReadOnlySlimRow> list)
             {
-                var result = list.Where(filter).ToList();
-                return result.Count > 0
-                    ? result
-                    : null;
+                List<IReadOnlySlimRow> result = null;
+                foreach (var x in list)
+                {
+                    if (filter(x))
+                    {
+                        (result ??= new List<IReadOnlySlimRow>()).Add(x);
+                    }
+                }
+
+                return result;
             }
 
             var row = entry as IReadOnlySlimRow;

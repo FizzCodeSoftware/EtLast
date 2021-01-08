@@ -7,9 +7,7 @@
     using BrightIdeasSoftware;
     using FizzCode.EtLast.Diagnostics.Interface;
 
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable
     internal class ProcessRowListControl
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public Control Container { get; }
         public TrackedProcessInvocation Process { get; }
@@ -179,7 +177,6 @@
             Updater.Start();
         }
 
-#pragma warning disable RCS1073 // Convert 'if' to 'return' statement.
         private bool ItemFilter(ProcessRowModel item)
         {
             if (ShowAll.Checked)
@@ -193,7 +190,6 @@
 
             return true;
         }
-#pragma warning restore RCS1073 // Convert 'if' to 'return' statement.
 
         private void AddColumnByValue(List<OLVColumn> newColumns, KeyValuePair<string, object> kvp)
         {

@@ -9,9 +9,7 @@
     using BrightIdeasSoftware;
     using FizzCode.EtLast.Diagnostics.Interface;
 
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable
     internal class ContextIoCommandListControl
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public Control Container { get; }
         public DiagContext Context { get; }

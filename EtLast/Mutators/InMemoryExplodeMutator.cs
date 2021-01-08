@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Diagnostics;
     using System.Linq;
 
@@ -14,6 +15,11 @@
     {
         public IEvaluable InputProcess { get; set; }
         public InMemoryExplodeDelegate Action { get; set; }
+
+        /// <summary>
+        /// Default true.
+        /// </summary>
+        public bool RemoveOriginalRow { get; set; } = true;
 
         public InMemoryExplodeMutator(ITopic topic, string name)
             : base(topic, name)
@@ -34,7 +40,7 @@
             List<IReadOnlySlimRow> rows;
             try
             {
-                rows = InputProcess.Evaluate(this).TakeRowsAndReleaseOwnership().Select(x => x as IReadOnlySlimRow).ToList();
+                rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().Select(x => x as IReadOnlySlimRow).ToList();
             }
             catch (Exception ex)
             {
@@ -47,6 +53,18 @@
             netTimeStopwatch.Stop();
             var enumerator = Action.Invoke(this, rows).GetEnumerator();
             netTimeStopwatch.Start();
+
+            if (!RemoveOriginalRow)
+            {
+                netTimeStopwatch.Stop();
+                foreach (var row in rows)
+                {
+                    yield return row as IRow;
+                }
+
+                netTimeStopwatch.Start();
+                resultCount += rows.Count;
+            }
 
             while (!Context.CancellationTokenSource.IsCancellationRequested)
             {
@@ -85,6 +103,20 @@
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             yield return this;
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class InMemoryExplodeMutatorFluent
+    {
+        /// <summary>
+        /// Create any number of new rows based on the input rows.
+        /// <para>- memory footprint is high because all rows are collected before the delegate is called</para>
+        /// <para>- if the rows can be exploded one-by-one without knowing the other rows, then using <see cref="ExplodeMutatorFluent.Explode(IFluentProcessMutatorBuilder, ExplodeMutator)"/> is highly recommended.</para>
+        /// </summary>
+        public static IFluentProcessMutatorBuilder ExplodeInMemory(this IFluentProcessMutatorBuilder builder, InMemoryExplodeMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

@@ -4,7 +4,6 @@
     using CommandDotNet;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
-#pragma warning disable CA1822 // Mark members as static
     [Command(Name = "run", Description = "Execute ETL modules and/or plugins.")]
     [SubCommand]
     public class RunCommand
@@ -82,6 +81,5 @@
             return (int)executionResult;
         }
 #pragma warning restore CA1812 // Avoid uninstantiated internal classes
-#pragma warning restore CA1822 // Mark members as static
     }
 }

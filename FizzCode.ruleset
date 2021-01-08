@@ -73,8 +73,9 @@
     <Rule Id="IDE0063" Action="None" />
     <Rule Id="IDE0063WithoutSuggestion" Action="None" />
     <Rule Id="IDE0065" Action="Info" />
+    <Rule Id="IDE0066" Action="None" />
   </Rules>
-  <Rules AnalyzerId="Microsoft.CodeQuality.Analyzers" RuleNamespace="Microsoft.CodeQuality.Analyzers">
+  <Rules AnalyzerId="Microsoft.CodeAnalysis.NetAnalyzers" RuleNamespace="Microsoft.CodeAnalysis.NetAnalyzers">
     <Rule Id="CA1031" Action="None" />
     <Rule Id="CA1036" Action="None" />
     <Rule Id="CA1056" Action="None" />
@@ -92,11 +93,6 @@
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeQuality.CSharp.Analyzers" RuleNamespace="Microsoft.CodeQuality.CSharp.Analyzers">
     <Rule Id="CA1032" Action="None" />
-  </Rules>
-  <Rules AnalyzerId="Microsoft.NetCore.Analyzers" RuleNamespace="Microsoft.NetCore.Analyzers">
-    <Rule Id="CA1303" Action="None" />
-    <Rule Id="CA1308" Action="None" />
-    <Rule Id="CA2229" Action="None" />
   </Rules>
   <Rules AnalyzerId="Roslynator.CSharp.Analyzers" RuleNamespace="Roslynator.CSharp.Analyzers">
     <Rule Id="RCS1005" Action="Info" />

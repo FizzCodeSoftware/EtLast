@@ -18,40 +18,35 @@
         public void Complex()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .ExpandFromLookup(new ExpandFromLookupMutator(topic, null)
                 {
-                    new ExpandFromLookupMutator(topic, null)
+                    LookupBuilder = new RowLookupBuilder()
                     {
-                        LookupBuilder = new RowLookupBuilder()
+                        Process = TestData.Country(topic),
+                        KeyGenerator = row => row.GenerateKey("id"),
+                    },
+                    MatchSelector = (row, lookup) =>
+                    {
+                        return lookup.GetSingleRowByKey(row.GenerateKey("countryId"));
+                    },
+                    NoMatchAction = new NoMatchAction(MatchMode.Custom)
+                    {
+                        CustomAction = (proc, row) =>
                         {
-                            Process = TestData.Country(topic),
-                            KeyGenerator = row => row.GenerateKey("id"),
-                        },
-                        MatchSelector = (row, lookup) =>
-                        {
-                            return lookup.GetSingleRowByKey(row.GenerateKey("countryId"));
-                        },
-                        NoMatchAction = new NoMatchAction(MatchMode.Custom)
-                        {
-                            CustomAction = (proc, row) =>
-                            {
-                                if (!row.HasValue("countryId"))
-                                    row.SetValue("countryAbbrev", "country was null");
-                                else
-                                    row.SetValue("countryAbbrev", "no match found");
-                            }
-                        },
-                        MatchCustomAction = (proc, row, match) => row.SetValue("countryAbbrevFound", true),
-                        ColumnConfiguration = new List<ColumnCopyConfiguration>()
+                            if (!row.HasValue("countryId"))
+                                row.SetValue("countryAbbrev", "country was null");
+                            else
+                                row.SetValue("countryAbbrev", "no match found");
+                        }
+                    },
+                    MatchCustomAction = (proc, row, match) => row.SetValue("countryAbbrevFound", true),
+                    ColumnConfiguration = new List<ColumnCopyConfiguration>()
                         {
                             new ColumnCopyConfiguration("abbreviation2", "countryAbbrev"),
                         },
-                    }
-                },
-            };
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(7, result.MutatedRows.Count);

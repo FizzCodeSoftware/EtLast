@@ -79,9 +79,7 @@
             {
                 if (CustomConnectionCreator != null)
                 {
-#pragma warning disable CA2000 // Dispose objects before losing scope
                     CustomConnectionCreator.Invoke(this, out connection, out transaction);
-#pragma warning restore CA2000 // Dispose objects before losing scope
                 }
                 else
                 {

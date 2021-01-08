@@ -162,7 +162,13 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class SortedMemoryAggregationMutatorFluent
     {
-        public static IFluentProcessMutatorBuilder AddSortedMemoryAggregationMutator(this IFluentProcessMutatorBuilder builder, SortedMemoryAggregationMutator mutator)
+        /// <summary>
+        /// <para>- input must be ordered by group key</para>
+        /// <para>- returns each aggregate right after a group is processed (stream-like behavior like most mutators)</para>
+        /// <para>- if there is an ordering mismatch in the input then later appearances of a previously processed key will create new aggregated group(s)</para>
+        /// <para>- memory footprint is very low because only rows of one group are collected before aggregation is executed on them</para>
+        /// </summary>
+        public static IFluentProcessMutatorBuilder AggregateOrdered(this IFluentProcessMutatorBuilder builder, SortedMemoryAggregationMutator mutator)
         {
             return builder.AddMutators(mutator);
         }

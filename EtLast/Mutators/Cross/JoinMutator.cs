@@ -10,16 +10,19 @@
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
         public NoMatchAction NoMatchAction { get; set; }
         public MatchActionDelegate MatchCustomAction { get; set; }
+
+        /// <summary>
+        /// Acts as a preliminary filter. Invoked for each match (if there is any) BEFORE the evaluation of the matches.
+        /// </summary>
         public Func<IReadOnlySlimRow, bool> MatchFilter { get; set; }
 
         /// <summary>
-        /// Default null. If value is set, and <see cref="TooManyMatchAction"/> is null,
-        /// then the excess rows will be removed, otherwise the action will be invoked.
+        /// Default null. If any value is set and <see cref="TooManyMatchAction"/> is null then the excess rows will be removed, otherwise the action will be invoked.
         /// </summary>
         public int? MatchCountLimit { get; set; }
 
         /// <summary>
-        /// Executed if the match count for a row exceeds <see cref="MatchCountLimit"/>.
+        /// Executed if the number of matches for a row exceeds <see cref="MatchCountLimit"/>.
         /// </summary>
         public TooManyMatchAction TooManyMatchAction { get; set; }
 
@@ -160,7 +163,11 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class JoinMutatorFluent
     {
-        public static IFluentProcessMutatorBuilder AddJoinMutator(this IFluentProcessMutatorBuilder builder, JoinMutator mutator)
+        /// <summary>
+        /// Copy columns to input rows from existing rows using key matching. If there are more than 1 matches for a row, then it will be duplicated for each subsequent match (like a traditional SQL join operation).
+        /// - the existing rows are read from a single <see cref="RowLookup"/>
+        /// </summary>
+        public static IFluentProcessMutatorBuilder Join(this IFluentProcessMutatorBuilder builder, JoinMutator mutator)
         {
             return builder.AddMutators(mutator);
         }

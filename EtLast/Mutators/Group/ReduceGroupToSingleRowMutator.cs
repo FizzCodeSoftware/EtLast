@@ -166,7 +166,13 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class ReduceGroupToSingleRowMutatorFluent
     {
-        public static IFluentProcessMutatorBuilder AddReduceGroupToSingleRowMutator(this IFluentProcessMutatorBuilder builder, ReduceGroupToSingleRowMutator mutator)
+        /// <summary>
+        /// Organize input rows into groups and activates a selector which must select zero or one row from the group to be kept. All other rows of the group are discared.
+        /// <para>- input can be unordered</para>
+        /// <para>- returns all selected rows at once when everything is processed. Memory footprint is high because all rows in all groups are collected before selection</para>
+        /// <para>- if the input is ordered then <see cref="SortedReduceGroupToSingleRowMutatorFluent.ReduceGroupToSingleRowOrdered(IFluentProcessMutatorBuilder, SortedReduceGroupToSingleRowMutator)"/> should be used for much lower memory footprint and stream-like behavior</para>
+        /// </summary>
+        public static IFluentProcessMutatorBuilder ReduceGroupToSingleRow(this IFluentProcessMutatorBuilder builder, ReduceGroupToSingleRowMutator mutator)
         {
             return builder.AddMutators(mutator);
         }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Globalization;
     using System.IO;
     using FizzCode.EtLast;
@@ -64,9 +65,7 @@
         {
             if (_package == null) // lazy load here instead of prepare
             {
-#pragma warning disable CA2000 // Dispose objects before losing scope
                 _package = ExistingPackage ?? new ExcelPackage(new FileInfo(FileName));
-#pragma warning restore CA2000 // Dispose objects before losing scope
                 Initialize?.Invoke(_package, _state);
             }
 
@@ -107,6 +106,16 @@
         {
             _state.LastWorksheet = _package.Workbook.Worksheets.Add(name);
             _storeUid = Context.GetStoreUid(PathHelpers.GetFriendlyPathName(FileName), name);
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class EpPlusSingleExcelFileWriterMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder WriteRowToExcelFileCustom<TState>(this IFluentProcessMutatorBuilder builder, EpPlusSingleExcelFileWriterMutator<TState> mutator)
+        where TState : BaseExcelWriterState, new()
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

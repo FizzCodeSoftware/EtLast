@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
 
     public class UnpivotMutator : AbstractMutator
@@ -93,6 +94,15 @@
 
             if (!IgnoreIfValueIsNull && ValueColumns == null)
                 throw new InvalidProcessParameterException(this, nameof(ValueColumns), null, "if " + nameof(IgnoreIfValueIsNull) + " is false then " + nameof(ValueColumns) + " must be set");
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class UnpivotMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder Unpivot(this IFluentProcessMutatorBuilder builder, UnpivotMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

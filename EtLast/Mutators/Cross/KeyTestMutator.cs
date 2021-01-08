@@ -11,7 +11,7 @@
         public MatchAction MatchAction { get; set; }
 
         /// <summary>
-        /// Default true. Setting to false results to significantly less memory usage.
+        /// Default true. If <see cref="MatchAction.CustomAction"/> is used then setting this to false results in significantly less memory usage.
         /// </summary>
         public bool MatchActionContainsMatch { get; set; } = true;
 
@@ -24,7 +24,7 @@
 
         protected override void StartMutator()
         {
-            _lookup = MatchActionContainsMatch
+            _lookup = MatchActionContainsMatch && MatchAction?.CustomAction != null
                 ? (ICountableLookup)new RowLookup()
                 : new CountableOnlyRowLookup();
 
@@ -148,7 +148,12 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class KeyTestMutatorFluent
     {
-        public static IFluentProcessMutatorBuilder AddKeyTestMutator(this IFluentProcessMutatorBuilder builder, KeyTestMutator mutator)
+        /// <summary>
+        /// Tests row keys and execute <see cref="NoMatchAction"/> or <see cref="MatchAction"/> based on the result of each row.
+        /// - the existing rows are read from a single <see cref="RowLookup"/>
+        /// - if MatchAction.CustomAction is not null and MatchActionContainsMatch is true then all rows of the lookup are kept in the memory, otherwise a <see cref="CountableOnlyRowLookup"/> is used.
+        /// </summary>
+        public static IFluentProcessMutatorBuilder KeyTest(this IFluentProcessMutatorBuilder builder, KeyTestMutator mutator)
         {
             return builder.AddMutators(mutator);
         }

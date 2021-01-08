@@ -1,5 +1,4 @@
-﻿#pragma warning disable CA2000 // Dispose objects before losing scope
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable
+﻿#pragma warning disable CA1001 // Types that own disposable fields should be disposable
 namespace FizzCode.EtLast.Diagnostics.Interface
 {
     using System;
@@ -428,4 +427,3 @@ namespace FizzCode.EtLast.Diagnostics.Interface
     }
 }
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
-#pragma warning restore CA2000 // Dispose objects before losing scope

@@ -82,7 +82,11 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class ExpandFromLookupMutatorFluent
     {
-        public static IFluentProcessMutatorBuilder AddExpandFromLookupMutator(this IFluentProcessMutatorBuilder builder, ExpandFromLookupMutator mutator)
+        /// <summary>
+        /// Copy columns to input rows from existing rows using a custom selector.
+        /// - <see cref="ExpandFromLookupMutator.MatchSelector"/> can select 0 or 1 row from a single <see cref="RowLookup"/> for each row
+        /// </summary>
+        public static IFluentProcessMutatorBuilder ExpandFromLookup(this IFluentProcessMutatorBuilder builder, ExpandFromLookupMutator mutator)
         {
             return builder.AddMutators(mutator);
         }

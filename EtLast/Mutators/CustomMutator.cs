@@ -41,8 +41,18 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class CustomMutatorFluent
     {
-        public static IFluentProcessMutatorBuilder AddCustomMutator(this IFluentProcessMutatorBuilder builder, CustomMutator mutator)
+        public static IFluentProcessMutatorBuilder CustomCode(this IFluentProcessMutatorBuilder builder, CustomMutator mutator)
         {
+            return builder.AddMutators(mutator);
+        }
+
+        public static IFluentProcessMutatorBuilder CustomCode(this IFluentProcessMutatorBuilder builder, ITopic topic, string name, CustomMutatorDelegate action)
+        {
+            var mutator = new CustomMutator(topic, name)
+            {
+                Then = action,
+            };
+
             return builder.AddMutators(mutator);
         }
     }

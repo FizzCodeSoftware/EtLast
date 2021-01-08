@@ -16,9 +16,9 @@
         public T GetAs<T>(string key, T defaultValue)
         {
             _data.TryGetValue(key, out var value);
-            if (value != null && value is T)
+            if (value != null && value is T t)
             {
-                return (T)value;
+                return t;
             }
 
             return defaultValue;

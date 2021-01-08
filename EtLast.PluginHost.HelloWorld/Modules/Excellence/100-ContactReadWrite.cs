@@ -22,33 +22,29 @@
                 FileName = OutputFileName,
             };
 
-            yield return new ProcessBuilder()
-            {
-                InputProcess = new EpPlusExcelReader(scope.Topic, "Reader")
+            yield return ProcessBuilder.Fluent
+                .ReadFromExcel(new EpPlusExcelReader(scope.Topic, "Reader")
                 {
                     FileName = SourceFileName,
                     SheetName = "People",
                     ColumnConfiguration = new List<ReaderColumnConfiguration>()
-                    {
-                        new ReaderColumnConfiguration("Name", new StringConverter(CultureInfo.InvariantCulture)),
-                        new ReaderColumnConfiguration("Age", new IntConverterAuto(CultureInfo.InvariantCulture)),
-                    },
-                },
-                Mutators = new MutatorList()
+                        {
+                            new ReaderColumnConfiguration("Name", new StringConverter(CultureInfo.InvariantCulture)),
+                            new ReaderColumnConfiguration("Age", new IntConverterAuto(CultureInfo.InvariantCulture)),
+                        },
+                })
+                .WriteRowToExcelSimple(new EpPlusSimpleRowWriterMutator(scope.Topic, "Writer")
                 {
-                    new EpPlusSimpleRowWriterMutator(scope.Topic, "Writer")
-                    {
-                        FileName = OutputFileName,
-                        SheetName = "output",
-                        ColumnConfiguration = new List<ColumnCopyConfiguration>()
+                    FileName = OutputFileName,
+                    SheetName = "output",
+                    ColumnConfiguration = new List<ColumnCopyConfiguration>()
                         {
                             new ColumnCopyConfiguration("Name", "Contact name"),
                             new ColumnCopyConfiguration("Age", "Contact age"),
                         },
-                        Finalize = (package, state) => state.LastWorksheet.Cells.AutoFitColumns(),
-                    }
-                },
-            }.Build();
+                    Finalize = (package, state) => state.LastWorksheet.Cells.AutoFitColumns(),
+                })
+                .ProcessBuilder.Result;
         }
     }
 }

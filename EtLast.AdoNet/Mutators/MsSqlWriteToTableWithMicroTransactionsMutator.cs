@@ -136,13 +136,11 @@
                     if (BulkCopyCheckConstraints)
                         options |= SqlBulkCopyOptions.CheckConstraints;
 
-#pragma warning disable CA2000 // Dispose objects before losing scope
                     bulkCopy = new SqlBulkCopy(connection.Connection as SqlConnection, options, null)
                     {
                         DestinationTableName = TableDefinition.TableName,
                         BulkCopyTimeout = CommandTimeout,
                     };
-#pragma warning restore CA2000 // Dispose objects before losing scope
 
                     foreach (var column in TableDefinition.Columns)
                     {

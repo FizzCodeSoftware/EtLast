@@ -9,7 +9,7 @@
         public MatchAction MatchAction { get; set; }
 
         /// <summary>
-        /// Default true. Setting to false results to significantly less memory usage.
+        /// Default true. If <see cref="MatchAction.CustomAction"/> is used then setting this to false results in significantly less memory usage.
         /// </summary>
         public bool MatchActionContainsMatch { get; set; } = true;
 
@@ -33,7 +33,7 @@
 
         protected override void StartMutator()
         {
-            _lookup = MatchActionContainsMatch
+            _lookup = MatchActionContainsMatch && MatchAction?.CustomAction != null
                 ? (ICountableLookup)new RowLookup()
                 : new CountableOnlyRowLookup();
 
@@ -212,7 +212,14 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class BatchedKeyTestMutatorFluent
     {
-        public static IFluentProcessMutatorBuilder AddBatchedKeyTestMutator(this IFluentProcessMutatorBuilder builder, BatchedKeyTestMutator mutator)
+        /// <summary>
+        /// Tests row keys in batches, and execute <see cref="NoMatchAction"/> or <see cref="MatchAction"/> based on the result of each row.
+        /// - the existing rows are read from a dynamically compiled <see cref="RowLookup"/>, created for each batch based on the input rows (usually using a distinct list of foreign keys)
+        /// - keeps the rows of a batch in the memory
+        /// - 1 lookup is built for each batch
+        /// - if MatchAction.CustomAction is not null and MatchActionContainsMatch is true then all rows of the lookup are kept in the memory, otherwise a <see cref="CountableOnlyRowLookup"/> is used.
+        /// </summary>
+        public static IFluentProcessMutatorBuilder KeyTestBatched(this IFluentProcessMutatorBuilder builder, BatchedKeyTestMutator mutator)
         {
             return builder.AddMutators(mutator);
         }

@@ -19,30 +19,25 @@
         public void NoMatchCustom()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .Join(new JoinMutator(topic, null)
                 {
-                    new JoinMutator(topic, null)
+                    LookupBuilder = new RowLookupBuilder()
                     {
-                        LookupBuilder = new RowLookupBuilder()
-                        {
-                            Process = TestData.PersonEyeColor(topic),
-                            KeyGenerator = row => row.GenerateKey("personId"),
-                        },
-                        RowKeyGenerator = row => row.GenerateKey("id"),
-                        NoMatchAction = new NoMatchAction(MatchMode.Custom)
-                        {
-                            CustomAction = (proc, row) => row.SetValue("eyeColor", "not found"),
-                        },
-                        ColumnConfiguration = new List<ColumnCopyConfiguration>
+                        Process = TestData.PersonEyeColor(topic),
+                        KeyGenerator = row => row.GenerateKey("personId"),
+                    },
+                    RowKeyGenerator = row => row.GenerateKey("id"),
+                    NoMatchAction = new NoMatchAction(MatchMode.Custom)
+                    {
+                        CustomAction = (proc, row) => row.SetValue("eyeColor", "not found"),
+                    },
+                    ColumnConfiguration = new List<ColumnCopyConfiguration>
                         {
                             new ColumnCopyConfiguration("color", "eyeColor"),
                         }
-                    }
-                },
-            };
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(10, result.MutatedRows.Count);
@@ -65,27 +60,22 @@
         public void NoMatchRemove()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .Join(new JoinMutator(topic, null)
                 {
-                    new JoinMutator(topic, null)
+                    LookupBuilder = new RowLookupBuilder()
                     {
-                        LookupBuilder = new RowLookupBuilder()
-                        {
-                            Process = TestData.PersonEyeColor(topic),
-                            KeyGenerator = row => row.GenerateKey("personId"),
-                        },
-                        RowKeyGenerator = row => row.GenerateKey("id"),
-                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        ColumnConfiguration = new List<ColumnCopyConfiguration>
+                        Process = TestData.PersonEyeColor(topic),
+                        KeyGenerator = row => row.GenerateKey("personId"),
+                    },
+                    RowKeyGenerator = row => row.GenerateKey("id"),
+                    NoMatchAction = new NoMatchAction(MatchMode.Remove),
+                    ColumnConfiguration = new List<ColumnCopyConfiguration>
                         {
                             new ColumnCopyConfiguration("color", "eyeColor"),
                         }
-                    }
-                },
-            };
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -104,27 +94,22 @@
         public void NoMatchThrow()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .Join(new JoinMutator(topic, null)
                 {
-                    new JoinMutator(topic, null)
+                    LookupBuilder = new RowLookupBuilder()
                     {
-                        LookupBuilder = new RowLookupBuilder()
-                        {
-                            Process = TestData.PersonEyeColor(topic),
-                            KeyGenerator = row => row.GenerateKey("personId"),
-                        },
-                        RowKeyGenerator = row => row.GenerateKey("id"),
-                        NoMatchAction = new NoMatchAction(MatchMode.Throw),
-                        ColumnConfiguration = new List<ColumnCopyConfiguration>
+                        Process = TestData.PersonEyeColor(topic),
+                        KeyGenerator = row => row.GenerateKey("personId"),
+                    },
+                    RowKeyGenerator = row => row.GenerateKey("id"),
+                    NoMatchAction = new NoMatchAction(MatchMode.Throw),
+                    ColumnConfiguration = new List<ColumnCopyConfiguration>
                         {
                             new ColumnCopyConfiguration("color", "eyeColor"),
                         }
-                    }
-                },
-            };
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -146,24 +131,19 @@
             var topic = TestExecuter.GetTopic();
             var executedLeftKeyDelegateCount = 0;
             var executedRightKeyDelegateCount = 0;
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .Join(new JoinMutator(topic, null)
                 {
-                    new JoinMutator(topic, null)
+                    LookupBuilder = new RowLookupBuilder()
                     {
-                        LookupBuilder = new RowLookupBuilder()
-                        {
-                            Process = TestData.PersonEyeColor(topic),
-                            KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GenerateKey("personId"); },
-                        },
-                        RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return executedLeftKeyDelegateCount < 3 ? row.GenerateKey("id") : row.GetAs<double>("id").ToString("D", CultureInfo.InvariantCulture); },
-                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
-                    }
-                },
-            };
+                        Process = TestData.PersonEyeColor(topic),
+                        KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GenerateKey("personId"); },
+                    },
+                    RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return executedLeftKeyDelegateCount < 3 ? row.GenerateKey("id") : row.GetAs<double>("id").ToString("D", CultureInfo.InvariantCulture); },
+                    NoMatchAction = new NoMatchAction(MatchMode.Remove),
+                    ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(3, executedLeftKeyDelegateCount);
@@ -186,24 +166,19 @@
             var topic = TestExecuter.GetTopic();
             var executedLeftKeyDelegateCount = 0;
             var executedRightKeyDelegateCount = 0;
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .Join(new JoinMutator(topic, null)
                 {
-                    new JoinMutator(topic, null)
+                    LookupBuilder = new RowLookupBuilder()
                     {
-                        LookupBuilder = new RowLookupBuilder()
-                        {
-                            Process = TestData.PersonEyeColor(topic),
-                            KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GetAs<double>("personId").ToString("D", CultureInfo.InvariantCulture); },
-                        },
-                        RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return row.GenerateKey("id"); },
-                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
-                    }
-                },
-            };
+                        Process = TestData.PersonEyeColor(topic),
+                        KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GetAs<double>("personId").ToString("D", CultureInfo.InvariantCulture); },
+                    },
+                    RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return row.GenerateKey("id"); },
+                    NoMatchAction = new NoMatchAction(MatchMode.Remove),
+                    ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(0, executedLeftKeyDelegateCount);
@@ -220,25 +195,20 @@
             var topic = TestExecuter.GetTopic();
             var executedLeftKeyDelegateCount = 0;
             var executedRightKeyDelegateCount = 0;
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .Join(new JoinMutator(topic, null)
                 {
-                    new JoinMutator(topic, null)
+                    LookupBuilder = new RowLookupBuilder()
                     {
-                        LookupBuilder = new RowLookupBuilder()
-                        {
-                            Process = TestData.PersonEyeColor(topic),
-                            KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GenerateKey("personId"); },
-                        },
-                        RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return row.GenerateKey("id"); },
-                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        MatchFilter = match => match.GetAs<double>("id") == 7,
-                        ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
-                    }
-                },
-            };
+                        Process = TestData.PersonEyeColor(topic),
+                        KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GenerateKey("personId"); },
+                    },
+                    RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return row.GenerateKey("id"); },
+                    NoMatchAction = new NoMatchAction(MatchMode.Remove),
+                    MatchFilter = match => match.GetAs<double>("id") == 7,
+                    ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(1, executedLeftKeyDelegateCount);

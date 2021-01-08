@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <PackageId>FizzCode.EtLast</PackageId>
     <Authors>FizzCode Ltd.</Authors>
-    <Product>EtLast ETL (Extract, Transform and Load) library for .NET Core</Product>
-    <Description>EtLast ETL (Extract, Transform and Load) library for .NET Core</Description>
+    <Product>EtLast ETL (Extract, Transform and Load) library for .NET</Product>
+    <Description>EtLast ETL (Extract, Transform and Load) library for .NET</Description>
     <Copyright>Copyright © 2019-2020 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Platforms>AnyCPU</Platforms>
@@ -27,8 +27,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="1.0.27.5960" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.1">
+    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="2.0.5.5982" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -38,7 +38,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
 
-    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.Configuration" Version="1.0.182.5929" />
+    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.Configuration" Version="2.0.3.5986" />
   </ItemGroup>
 
   <ItemGroup>

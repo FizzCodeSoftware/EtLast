@@ -1,5 +1,5 @@
 # EtLast
-###### ETL (Extract, Transform and Load) library for .NET Core 3
+###### ETL (Extract, Transform and Load) library for .NET
 
 For Examples, see the last chapter.
 
@@ -18,7 +18,7 @@ The master branch is automatically compiled and released to [nuget.org](https://
 
 # Examples
 
-1) Create a new .NET Core Console Appplication
+1) Create a new .NET Console Appplication
 
 2) Add the following nuget packages:
 - FizzCode.EtLast.PluginHost

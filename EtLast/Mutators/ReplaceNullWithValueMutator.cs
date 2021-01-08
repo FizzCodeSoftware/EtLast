@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
-    using System.Linq;
+    using System.ComponentModel;
 
     public class ReplaceNullWithValueMutator : AbstractMutator
     {
@@ -15,7 +15,6 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var columns = Columns ?? row.Values.Select(kvp => kvp.Key).ToArray();
             foreach (var column in Columns)
             {
                 if (!row.HasValue(column))
@@ -33,6 +32,15 @@
         {
             if (Value == null)
                 throw new ProcessParameterNullException(this, nameof(Value));
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class ReplaceNullWithValueMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder ReplaceNullWithValue(this IFluentProcessMutatorBuilder builder, ReplaceNullWithValueMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

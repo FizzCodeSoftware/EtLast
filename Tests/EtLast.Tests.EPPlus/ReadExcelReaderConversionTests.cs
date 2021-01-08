@@ -14,9 +14,8 @@
         public void WrapIsWorking()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = new EpPlusExcelReader(topic, null)
+            var builder = ProcessBuilder.Fluent
+                .ReadFromExcel(new EpPlusExcelReader(topic, null)
                 {
                     FileName = @".\TestData\Test.xlsx",
                     SheetName = "DateBroken",
@@ -25,9 +24,7 @@
                         new ReaderColumnConfiguration("Id", new IntConverter()),
                         new ReaderColumnConfiguration("Date", new DateConverter()),
                     },
-                },
-                Mutators = new MutatorList(),
-            };
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(2, result.MutatedRows.Count);

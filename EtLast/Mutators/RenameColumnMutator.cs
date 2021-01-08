@@ -1,11 +1,23 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
+
+    public enum ColumnAlreadyExistsAction
+    {
+        Skip,
+        RemoveRow,
+        Throw
+    }
 
     public class RenameColumnMutator : AbstractMutator
     {
         public List<ColumnRenameConfiguration> ColumnConfiguration { get; set; }
-        public InvalidColumnAction ActionIfInvalid { get; set; } = InvalidColumnAction.Throw;
+
+        /// <summary>
+        /// Default value is <see cref="ColumnAlreadyExistsAction.Throw"/>
+        /// </summary>
+        public ColumnAlreadyExistsAction ActionIfTargetValueExists { get; set; } = ColumnAlreadyExistsAction.Throw;
 
         public RenameColumnMutator(ITopic topic, string name)
             : base(topic, name)
@@ -19,12 +31,12 @@
             {
                 if (row.HasValue(config.NewName))
                 {
-                    switch (ActionIfInvalid)
+                    switch (ActionIfTargetValueExists)
                     {
-                        case InvalidColumnAction.RemoveRow:
+                        case ColumnAlreadyExistsAction.RemoveRow:
                             removeRow = true;
                             continue;
-                        case InvalidColumnAction.Skip:
+                        case ColumnAlreadyExistsAction.Skip:
                             continue;
                         default:
                             var exception = new ProcessExecutionException(this, row, "specified target column already exists");
@@ -50,6 +62,15 @@
         {
             if (ColumnConfiguration == null)
                 throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class RenameColumnMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder RenameColumn(this IFluentProcessMutatorBuilder builder, RenameColumnMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

@@ -9,9 +9,7 @@
     {
         private bool _insideHandleItemCheckedWrapped;
 
-#pragma warning disable CA1810 // Initialize reference type static fields inline
         static DiagnosticsFilterMenuBuilder()
-#pragma warning restore CA1810 // Initialize reference type static fields inline
         {
             FILTERING_LABEL = "Column filtering";
         }

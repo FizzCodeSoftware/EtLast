@@ -161,7 +161,14 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class SortedReduceGroupToSingleRowMutatorFluent
     {
-        public static IFluentProcessMutatorBuilder AddSortedReduceGroupToSingleRowMutator(this IFluentProcessMutatorBuilder builder, SortedReduceGroupToSingleRowMutator mutator)
+        /// <summary>
+        /// Organize input rows into groups and activates a selector which must select zero or one row from the group to be kept. All other rows of the group are discared.
+        /// <para>- input must be ordered by group key</para>
+        /// <para>- returns each selected row right after a group is processed (stream-like behavior like most mutators)</para>
+        /// <para>- if there is an ordering mismatch in the input then later appearances of a previously processed key will create new group(s) and selection will be executed on the new group again</para>
+        /// <para>- memory footprint is very low because only rows of one group are collected before selection is executed on them</para>
+        /// </summary>
+        public static IFluentProcessMutatorBuilder ReduceGroupToSingleRowOrdered(this IFluentProcessMutatorBuilder builder, SortedReduceGroupToSingleRowMutator mutator)
         {
             return builder.AddMutators(mutator);
         }

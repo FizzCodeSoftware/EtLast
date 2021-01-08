@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
 
     public class MergeDateWithTimeMutator : AbstractMutator
     {
@@ -20,19 +21,17 @@
         {
             var sourceDate = row[SourceDateColumn];
             var sourceTime = row[SourceTimeColumn];
-            if (sourceDate != null && sourceDate is DateTime date && sourceTime != null)
+            if (sourceDate is DateTime date && sourceTime != null)
             {
                 if (sourceTime is DateTime dt)
                 {
-                    var value = new DateTime(date.Year, date.Month, date.Day, dt.Hour, dt.Minute, dt.Second);
-                    row.SetValue(TargetColumn, value);
+                    row.SetValue(TargetColumn, new DateTime(date.Year, date.Month, date.Day, dt.Hour, dt.Minute, dt.Second));
                     yield return row;
                     yield break;
                 }
                 else if (sourceTime is TimeSpan ts)
                 {
-                    var value = new DateTime(date.Year, date.Month, date.Day, ts.Hours, ts.Minutes, ts.Seconds);
-                    row.SetValue(TargetColumn, value);
+                    row.SetValue(TargetColumn, new DateTime(date.Year, date.Month, date.Day, ts.Hours, ts.Minutes, ts.Seconds));
                     yield return row;
                     yield break;
                 }
@@ -71,6 +70,15 @@
 
             if (ActionIfInvalid != InvalidValueAction.SetSpecialValue && SpecialValueIfInvalid != null)
                 throw new InvalidProcessParameterException(this, nameof(SpecialValueIfInvalid), SpecialValueIfInvalid, "value must be null if " + nameof(ActionIfInvalid) + " is not " + nameof(InvalidValueAction.SetSpecialValue));
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class MergeDateWithTimeMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder MergeDateWithTime(this IFluentProcessMutatorBuilder builder, MergeDateWithTimeMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

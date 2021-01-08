@@ -200,13 +200,13 @@
 
             var n = 0;
 
-            var builder = new FluentProcessBuilder()
-                .EnumerableImporter(new EnumerableImporter(topic, null)
+            var builder = ProcessBuilder.Fluent
+                .ImportEnumerable(new EnumerableImporter(topic, null)
                 {
                     InputGenerator = caller => TestData.Person(topic).Evaluate(caller).TakeRowsAndReleaseOwnership(),
                 })
-                .ParallelProcess(topic, 3, (i, mb) => mb
-                   .AddCustomMutator(new CustomMutator(topic, null)
+                .ProcessOnMultipleThreads(topic, 3, (i, mb) => mb
+                   .CustomCode(new CustomMutator(topic, null)
                    {
                        Then = (proc, row) =>
                        {
@@ -216,15 +216,14 @@
                        },
                    })
                    )
-                .AddCustomMutator(new CustomMutator(topic, null)
+                .CustomCode(new CustomMutator(topic, null)
                 {
                     Then = (proc, row) =>
                     {
                         row.SetValue("AbsoluteFinalIndex", n++);
                         return true;
                     },
-                })
-                .FinishAddingMutators();
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(7, result.MutatedRows.Count);

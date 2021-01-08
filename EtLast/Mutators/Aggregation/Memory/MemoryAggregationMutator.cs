@@ -135,7 +135,14 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class MemoryAggregationMutatorFluent
     {
-        public static IFluentProcessMutatorBuilder AddMemoryAggregationMutator(this IFluentProcessMutatorBuilder builder, MemoryAggregationMutator mutator)
+        /// <summary>
+        /// <para>- input can be unordered</para>
+        /// <para>- returns all aggregates at once when everything is processed (blocks execution)</para>
+        /// <para>- memory footprint is high because all rows in all groups are collected before aggregation</para>
+        /// <para>- if the input is ordered then <see cref="SortedMemoryAggregationMutatorFluent.AggregateOrdered(IFluentProcessMutatorBuilder, SortedMemoryAggregationMutator)"/> should be used for much lower memory footprint and stream-like behavior</para>
+        /// <para>- if the input is unordered but only basic operations are used then <see cref="ContinuousAggregationMutatorFluent.AggregateContinuously(IFluentProcessMutatorBuilder, ContinuousAggregationMutator)"/> should be used</para>
+        /// </summary>
+        public static IFluentProcessMutatorBuilder Aggregate(this IFluentProcessMutatorBuilder builder, MemoryAggregationMutator mutator)
         {
             return builder.AddMutators(mutator);
         }

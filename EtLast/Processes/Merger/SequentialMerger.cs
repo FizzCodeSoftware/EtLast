@@ -42,7 +42,7 @@
         {
             var subBuilder = new SequentialMergerBuilder(topic, name);
             action.Invoke(subBuilder);
-            return builder.SetInput(subBuilder.Merger);
+            return builder.ReadFrom(subBuilder.Merger);
         }
     }
 
@@ -60,7 +60,7 @@
 
         public SequentialMergerBuilder AddInput(Action<IFluentProcessBuilder> action)
         {
-            var subBuilder = new FluentProcessBuilder();
+            var subBuilder = ProcessBuilder.Fluent;
             action.Invoke(subBuilder);
             Merger.ProcessList.Add(subBuilder.Result);
             return this;

@@ -33,14 +33,10 @@
             var topic = TestExecuter.GetTopic();
             var reader = GetReader(topic, @".\TestData\Test.xlsx");
             reader.SheetName = "MergeAtIndex0";
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = reader,
-                Mutators = new MutatorList()
-                {
-                    new ThrowExceptionOnRowErrorMutator(topic),
-                }
-            };
+
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(reader)
+                .ThrowExceptionOnRowError(new ThrowExceptionOnRowErrorMutator(topic));
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(4, result.MutatedRows.Count);
@@ -59,14 +55,10 @@
             var topic = TestExecuter.GetTopic();
             var reader = GetReader(topic, @".\TestData\Test.xlsx");
             reader.SheetIndex = 0;
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = reader,
-                Mutators = new MutatorList()
-                {
-                    new ThrowExceptionOnRowErrorMutator(topic),
-                }
-            };
+
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(reader)
+                .ThrowExceptionOnRowError(new ThrowExceptionOnRowErrorMutator(topic));
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(4, result.MutatedRows.Count);
@@ -87,14 +79,9 @@
             reader.SheetName = "MergeAtIndex0";
             reader.AutomaticallyTrimAllStringValues = false;
 
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = reader,
-                Mutators = new MutatorList()
-                {
-                    new ThrowExceptionOnRowErrorMutator(topic),
-                }
-            };
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(reader)
+                .ThrowExceptionOnRowError(new ThrowExceptionOnRowErrorMutator(topic));
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(4, result.MutatedRows.Count);

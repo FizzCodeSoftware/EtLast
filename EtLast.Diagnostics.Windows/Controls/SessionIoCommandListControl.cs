@@ -11,9 +11,7 @@
 
     internal delegate void IoCommandActionDelegate(IoCommandModel ioCommandModel);
 
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable
     internal class SessionIoCommandListControl
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public Control Container { get; }
         public DiagSession Session { get; }

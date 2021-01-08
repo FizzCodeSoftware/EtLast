@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Globalization;
     using System.IO;
     using System.Linq;
@@ -106,11 +107,7 @@
             {
                 try
                 {
-#pragma warning disable IDE0068 // Use recommended dispose pattern
-#pragma warning disable CA2000 // Dispose objects before losing scope
                     package = new ExcelPackage(new FileInfo(FileName));
-#pragma warning restore CA2000 // Dispose objects before losing scope
-#pragma warning restore IDE0068 // Use recommended dispose pattern
                 }
                 catch (Exception ex)
                 {
@@ -311,6 +308,15 @@
 
             var address = new ExcelAddress(mergedCellAddress);
             return sheet.Cells[address.Start.Address];
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class EpPlusExcelReaderFluent
+    {
+        public static IFluentProcessMutatorBuilder ReadFromExcel(this IFluentProcessBuilder builder, EpPlusExcelReader reader)
+        {
+            return builder.ReadFrom(reader);
         }
     }
 }

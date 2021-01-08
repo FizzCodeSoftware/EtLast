@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <PackageId>FizzCode.EtLast.DwhBuilder.MsSql</PackageId>
     <Authors>FizzCode Ltd.</Authors>
-    <Product>EtLast ETL (Extract, Transform and Load) library for .NET Core</Product>
+    <Product>EtLast ETL (Extract, Transform and Load) library for .NET</Product>
     <Description>Microsoft SQL Server Data-Warehouse builder for EtLast ETL (Extract, Transform and Load) library</Description>
     <Copyright>Copyright © 2019-2020 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
@@ -27,7 +27,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.1">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -35,7 +35,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="FizzCode.LightWeight.RelationalModel" Version="1.0.27.5960" />
+    <PackageReference Include="FizzCode.LightWeight.RelationalModel" Version="2.0.5.5982" />
   </ItemGroup>
 
   <ItemGroup>

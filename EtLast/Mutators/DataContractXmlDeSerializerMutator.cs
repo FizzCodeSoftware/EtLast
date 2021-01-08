@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.IO;
     using System.Runtime.Serialization;
     using System.Xml;
@@ -74,6 +75,15 @@
         {
             if (ColumnConfiguration == null)
                 throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class DataContractXmlDeSerializerMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder DeSerializeFromXml<T>(this IFluentProcessMutatorBuilder builder, DataContractXmlDeSerializerMutator<T> mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

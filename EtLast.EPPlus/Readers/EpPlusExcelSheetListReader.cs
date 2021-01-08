@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Globalization;
     using System.IO;
     using OfficeOpenXml;
@@ -41,9 +42,7 @@
             ExcelPackage package;
             try
             {
-#pragma warning disable CA2000 // Dispose objects before losing scope
                 package = new ExcelPackage(new FileInfo(FileName));
-#pragma warning restore CA2000 // Dispose objects before losing scope
             }
             catch (Exception ex)
             {
@@ -94,6 +93,15 @@
             }
 
             Context.RegisterIoCommandSuccess(this, IoCommandKind.fileRead, iocUid, rowCount);
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class EpPlusExcelSheetListReaderFluent
+    {
+        public static IFluentProcessMutatorBuilder ReadSheetListFromExcel(this IFluentProcessBuilder builder, EpPlusExcelSheetListReader reader)
+        {
+            return builder.ReadFrom(reader);
         }
     }
 }

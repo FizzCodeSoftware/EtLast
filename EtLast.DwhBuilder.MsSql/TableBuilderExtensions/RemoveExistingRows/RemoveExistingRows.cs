@@ -122,7 +122,6 @@
                         KeyGenerator = row => row.GenerateKey(builder.MatchColumns[0].Name),
                     },
                     RowKeyGenerator = row => row.GenerateKey(builder.MatchColumns[0].Name),
-                    MatchActionContainsMatch = false,
                     MatchAction = new MatchAction(MatchMode.Remove),
                     BatchSize = 2000,
                 };

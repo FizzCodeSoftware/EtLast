@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <PackageId>FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition</PackageId>
     <Authors>FizzCode Ltd.</Authors>
-    <Product>EtLast ETL (Extract, Transform and Load) library for .NET Core</Product>
+    <Product>EtLast ETL (Extract, Transform and Load) library for .NET</Product>
     <Description>Microsoft SQL Server Data-Warehouse builder for EtLast ETL (Extract, Transform and Load) library</Description>
     <Copyright>Copyright © 2019-2020 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
@@ -27,9 +27,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.DataDefinition" Version="1.0.182.5929" />
-    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.DataDefinition.MsSql" Version="1.0.182.5929" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.1">
+    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.DataDefinition" Version="2.0.3.5986" />
+    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.DataDefinition.MsSql" Version="2.0.3.5986" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

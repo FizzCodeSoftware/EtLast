@@ -22,9 +22,8 @@
                 FileName = OutputFileName,
             };
 
-            yield return new ProcessBuilder()
-            {
-                InputProcess = new EpPlusExcelReader(scope.Topic, "PeopleReader")
+            yield return ProcessBuilder.Fluent
+                .ReadFromExcel(new EpPlusExcelReader(scope.Topic, "PeopleReader")
                 {
                     FileName = SourceFileName,
                     SheetName = "People",
@@ -33,81 +32,74 @@
                         new ReaderColumnConfiguration("ID", new IntConverterAuto(CultureInfo.InvariantCulture)),
                         new ReaderColumnConfiguration("Name", new StringConverter(CultureInfo.InvariantCulture)),
                     },
-                },
-                Mutators = new MutatorList()
+                })
+                .Join(new JoinMutator(scope.Topic, "JoinContact")
                 {
-                    new JoinMutator(scope.Topic, "JoinContact")
+                    NoMatchAction = new NoMatchAction(MatchMode.Remove),
+                    LookupBuilder = new RowLookupBuilder()
                     {
-                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        LookupBuilder = new RowLookupBuilder()
-                        {
-                            Process = new ProcessBuilder()
-                            {
-                                InputProcess = new EpPlusExcelReader(scope.Topic, "ReadContacts")
-                                {
-                                    FileName = SourceFileName,
-                                    SheetName = "Contact",
-                                    ColumnConfiguration = new List<ReaderColumnConfiguration>()
-                                    {
-                                        new ReaderColumnConfiguration("PeopleID", new IntConverterAuto(CultureInfo.InvariantCulture)),
-                                        new ReaderColumnConfiguration("MethodTypeID", new StringConverter(CultureInfo.InvariantCulture)),
-                                        new ReaderColumnConfiguration("Value", new StringConverter(CultureInfo.InvariantCulture)),
-                                    },
-                                },
-                                Mutators = new MutatorList()
-                                {
-                                    new RemoveRowMutator(scope.Topic, "RemoveInvalidContacts")
-                                    {
-                                        If = row => row.IsNullOrEmpty("Value"),
-                                    },
-                                }
-                            }.Build(),
-                            KeyGenerator = row => row.GetAs<int>("PeopleID").ToString("D", CultureInfo.InvariantCulture),
-                        },
-                        RowKeyGenerator = row => row.GetAs<int>("ID").ToString("D", CultureInfo.InvariantCulture),
-                        ColumnConfiguration = new List<ColumnCopyConfiguration>()
-                        {
-                            new ColumnCopyConfiguration("MethodTypeID"),
-                            new ColumnCopyConfiguration("Value", "ContactValue"),
-                        },
-                    },
-                    new JoinMutator(scope.Topic, "JoinContactMethod")
-                    {
-                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                        LookupBuilder = new RowLookupBuilder()
-                        {
-                            Process = new EpPlusExcelReader(scope.Topic, "ReadContactMethod")
+                        Process = ProcessBuilder.Fluent
+                            .ReadFromExcel(new EpPlusExcelReader(scope.Topic, "ReadContacts")
                             {
                                 FileName = SourceFileName,
-                                SheetName = "ContactMethod",
+                                SheetName = "Contact",
                                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
                                 {
-                                    new ReaderColumnConfiguration("ID", new StringConverter(CultureInfo.InvariantCulture)), // used for "RightKey"
-                                    new ReaderColumnConfiguration("Name", new StringConverter(CultureInfo.InvariantCulture)), // will be renamed to "ContactMethod"
+                                    new ReaderColumnConfiguration("PeopleID", new IntConverterAuto(CultureInfo.InvariantCulture)),
+                                    new ReaderColumnConfiguration("MethodTypeID", new StringConverter(CultureInfo.InvariantCulture)),
+                                    new ReaderColumnConfiguration("Value", new StringConverter(CultureInfo.InvariantCulture)),
                                 },
-                            },
-                            KeyGenerator = row => row.GetAs<string>("ID"),
-                        },
-                        RowKeyGenerator = row => row.GetAs<string>("MethodTypeID"),
-                        ColumnConfiguration = new List<ColumnCopyConfiguration>()
-                        {
-                            new ColumnCopyConfiguration("Name", "ContactMethod"),
-                        },
+                            })
+                            .RemoveRow(new RemoveRowMutator(scope.Topic, "RemoveInvalidContacts")
+                            {
+                                If = row => row.IsNullOrEmpty("Value"),
+                            })
+                        .ProcessBuilder.Result,
+                        KeyGenerator = row => row.GetAs<int>("PeopleID").ToString("D", CultureInfo.InvariantCulture),
                     },
-                    new EpPlusSimpleRowWriterMutator(scope.Topic, "Writer")
+                    RowKeyGenerator = row => row.GetAs<int>("ID").ToString("D", CultureInfo.InvariantCulture),
+                    ColumnConfiguration = new List<ColumnCopyConfiguration>()
                     {
-                        FileName = OutputFileName,
-                        SheetName = "output",
-                        ColumnConfiguration = new List<ColumnCopyConfiguration>()
+                        new ColumnCopyConfiguration("MethodTypeID"),
+                        new ColumnCopyConfiguration("Value", "ContactValue"),
+                    },
+                })
+                .Join(new JoinMutator(scope.Topic, "JoinContactMethod")
+                {
+                    NoMatchAction = new NoMatchAction(MatchMode.Remove),
+                    LookupBuilder = new RowLookupBuilder()
+                    {
+                        Process = new EpPlusExcelReader(scope.Topic, "ReadContactMethod")
                         {
-                            new ColumnCopyConfiguration("Name", "Contact name"),
-                            new ColumnCopyConfiguration("ContactMethod", "Contact method"),
-                            new ColumnCopyConfiguration("ContactValue", "Value"),
+                            FileName = SourceFileName,
+                            SheetName = "ContactMethod",
+                            ColumnConfiguration = new List<ReaderColumnConfiguration>()
+                            {
+                                new ReaderColumnConfiguration("ID", new StringConverter(CultureInfo.InvariantCulture)), // used for "RightKey"
+                                new ReaderColumnConfiguration("Name", new StringConverter(CultureInfo.InvariantCulture)), // will be renamed to "ContactMethod"
+                            },
                         },
-                        Finalize = (package, state) => state.LastWorksheet.Cells.AutoFitColumns(),
-                    }
-                },
-            }.Build();
+                        KeyGenerator = row => row.GetAs<string>("ID"),
+                    },
+                    RowKeyGenerator = row => row.GetAs<string>("MethodTypeID"),
+                    ColumnConfiguration = new List<ColumnCopyConfiguration>()
+                    {
+                        new ColumnCopyConfiguration("Name", "ContactMethod"),
+                    },
+                })
+                .WriteRowToExcelSimple(new EpPlusSimpleRowWriterMutator(scope.Topic, "Writer")
+                {
+                    FileName = OutputFileName,
+                    SheetName = "output",
+                    ColumnConfiguration = new List<ColumnCopyConfiguration>()
+                    {
+                        new ColumnCopyConfiguration("Name", "Contact name"),
+                        new ColumnCopyConfiguration("ContactMethod", "Contact method"),
+                        new ColumnCopyConfiguration("ContactValue", "Value"),
+                    },
+                    Finalize = (package, state) => state.LastWorksheet.Cells.AutoFitColumns(),
+                })
+                .ProcessBuilder.Result;
         }
     }
 }

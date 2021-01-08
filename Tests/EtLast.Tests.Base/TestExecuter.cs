@@ -14,23 +14,11 @@
             return new Topic("test", new EtlContext());
         }
 
-        public static TestExecuterResult Execute(ProcessBuilder builder)
+        public static TestExecuterResult Execute(IProcessBuilder builder)
         {
             var result = new TestExecuterResult
             {
                 Process = builder.Build(),
-            };
-
-            result.MutatedRows = result.Process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
-
-            return result;
-        }
-
-        public static TestExecuterResult Execute(IFluentProcessBuilder builder)
-        {
-            var result = new TestExecuterResult()
-            {
-                Process = builder.Result,
             };
 
             result.MutatedRows = result.Process.Evaluate().TakeRowsAndReleaseOwnership().ToList();

@@ -112,10 +112,8 @@
             if (value != null && configuration.Converter != null)
             {
                 var newValue = configuration.Converter.Convert(value);
-#pragma warning disable RCS1173 // Use coalesce expression instead of if.
                 if (newValue != null)
                     return newValue;
-#pragma warning restore RCS1173 // Use coalesce expression instead of if.
 
                 return configuration.InvalidSourceHandler switch
                 {

@@ -144,7 +144,13 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class ContinuousAggregationMutatorFluent
     {
-        public static IFluentProcessMutatorBuilder AddContinuousAggregationMutator(this IFluentProcessMutatorBuilder builder, ContinuousAggregationMutator mutator)
+        /// <summary>
+        /// <para>- input can be unordered</para>
+        /// <para>- returns all aggregates at once when everything is processed (blocks execution)</para>
+        /// <para>- memory footprint depends on input (only the aggregates of all groups are stored in memory during evaluation)</para>
+        /// <para>- the usable operations are slightly limited</para>
+        /// </summary>
+        public static IFluentProcessMutatorBuilder AggregateContinuously(this IFluentProcessMutatorBuilder builder, ContinuousAggregationMutator mutator)
         {
             return builder.AddMutators(mutator);
         }

@@ -1,5 +1,4 @@
-﻿#pragma warning disable CA1822 // Mark members as static
-namespace FizzCode.EtLast.Diagnostics.Interface
+﻿namespace FizzCode.EtLast.Diagnostics.Interface
 {
     using System.Collections.Generic;
 
@@ -213,4 +212,3 @@ namespace FizzCode.EtLast.Diagnostics.Interface
         }
     }
 }
-#pragma warning restore CA1822 // Mark members as static

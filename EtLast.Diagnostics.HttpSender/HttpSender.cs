@@ -150,10 +150,8 @@
                     key = _textDictionary.Count + 1;
                     _textDictionary.Add(text, key);
 
-#pragma warning disable RCS1180 // Inline lazy initialization.
                     if (_currentDictionaryWriter == null)
                         _currentDictionaryWriter = new ExtendedBinaryWriter(new MemoryStream(), Encoding.UTF8);
-#pragma warning restore RCS1180 // Inline lazy initialization.
 
                     _currentDictionaryWriter.Write((byte)DiagnosticsEventKind.TextDictionaryKeyAdded);
                     var eventDataLengthPos = (int)_currentDictionaryWriter.BaseStream.Position;
@@ -183,10 +181,8 @@
                 if (_finished)
                     throw new Exception("unexpected call of " + nameof(SendDiagnostics));
 
-#pragma warning disable RCS1180 // Inline lazy initialization.
                 if (_currentWriter == null)
                     _currentWriter = new ExtendedBinaryWriter(new MemoryStream(), Encoding.UTF8);
-#pragma warning restore RCS1180 // Inline lazy initialization.
 
                 _currentWriter.Write((byte)kind);
                 var eventDataLengthPos = (int)_currentWriter.BaseStream.Position;

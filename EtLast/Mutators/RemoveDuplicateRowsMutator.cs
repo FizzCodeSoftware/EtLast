@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
 
     /// <summary>
     /// Input can be unordered.
@@ -47,6 +48,21 @@
             {
                 Context.SetRowOwner(row, null);
             }
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class RemoveDuplicateRowsMutatorFluent
+    {
+        /// <summary>
+        /// Keeps only the first row of each key, and discard all subsequent rows with existing keys.
+        /// <para>- input can be unordered</para>
+        /// <para>- if a more refined logic is required to decide which row should be kept of rows with same key then <see cref="ReduceGroupToSingleRowMutatorFluent.ReduceGroupToSingleRow(IFluentProcessMutatorBuilder, ReduceGroupToSingleRowMutator)"/> or <see cref="SortedReduceGroupToSingleRowMutatorFluent.ReduceGroupToSingleRowOrdered(IFluentProcessMutatorBuilder, SortedReduceGroupToSingleRowMutator)"/></para> can be used instead.
+        /// <para>- all keys are stored in memory</para>
+        /// </summary>
+        public static IFluentProcessMutatorBuilder RemoveDuplicateRows(this IFluentProcessMutatorBuilder builder, RemoveDuplicateRowsMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

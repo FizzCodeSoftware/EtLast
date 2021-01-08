@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
 
     public class ThrowExceptionOnDuplicateKeyMutator : AbstractMutator
     {
@@ -44,6 +45,20 @@
             _keys.Add(key);
 
             yield return row;
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class ThrowExceptionOnDuplicateKeyMutatorFluent
+    {
+        /// <summary>
+        /// Throw an exception if a subsequent occurence of a row key is found.
+        /// <para>- input can be unordered</para>
+        /// <para>- all keys are stored in memory</para>
+        /// </summary>
+        public static IFluentProcessMutatorBuilder ThrowExceptionOnDuplicateKey(this IFluentProcessMutatorBuilder builder, ThrowExceptionOnDuplicateKeyMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Globalization;
 
     public class InPlaceConvertMutator : AbstractMutator
@@ -113,6 +114,15 @@
 
             if (ActionIfInvalid != InvalidValueAction.SetSpecialValue && SpecialValueIfInvalid != null)
                 throw new ProcessParameterNullException(this, nameof(SpecialValueIfInvalid));
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class InPlaceConvertMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder ConvertValue(this IFluentProcessMutatorBuilder builder, InPlaceConvertMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

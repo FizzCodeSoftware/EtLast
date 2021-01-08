@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
 
     public class RemoveRowMutator : AbstractMutator
@@ -21,6 +22,15 @@
 
             if (If == null)
                 throw new ProcessParameterNullException(this, nameof(If));
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class RemoveRowMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder RemoveRow(this IFluentProcessMutatorBuilder builder, RemoveRowMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

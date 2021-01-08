@@ -143,9 +143,7 @@
             RefreshFinished?.Invoke(this, EventArgs.Empty);
         }
 
-#pragma warning disable RCS1158 // Static member in generic type should use a type parameter.
         private void ResizeListView(ObjectListView listView)
-#pragma warning restore RCS1158 // Static member in generic type should use a type parameter.
         {
             if (listView.Items.Count == 0)
                 return;

@@ -9,13 +9,11 @@
         public static string[] CountryColumns { get; } = { "id", "name", "abbreviation2", "abbreviation3" };
         public static string[] PersonColumns { get; } = { "id", "name", "age", "height", "eyeColor", "countryId", "birthDate", "lastChangedTime" };
         public static string[] PersonEyeColorColumns { get; } = { "id", "personId", "color" };
-        public static string[] RoleHierarchyColumns { get; } = { "id", "name", "level1", "level2", "level3" };
+        public static string[] RoleHierarchyColumns { get; } = { "id", "code", "level1", "level2", "level3" };
         public static string[] PersonalAssetsPivotColumns { get; } = { "id", "personName", "cars", "houses", "kids" };
 
         [DataContract]
-#pragma warning disable CA1034 // Nested types should not be visible
         public class PersonModel
-#pragma warning restore CA1034 // Nested types should not be visible
         {
             [DataMember]
             public int Id { get; set; }
@@ -128,7 +126,7 @@
                 Columns = RoleHierarchyColumns,
                 InputRows = new List<object[]>()
                 {
-                    // "id", "name", "level1", "level2", "level3"
+                    // "id", "code", "level1", "level2", "level3"
                     new object[] { 0, "A", "AAA" },
                     new object[] { 1, "B", null, "BBB" },
                     new object[] { 2, "C", null, null, "CCC" },

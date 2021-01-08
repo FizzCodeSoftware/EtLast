@@ -145,7 +145,11 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class BatchedCompareWithRowMutatorFluent
     {
-        public static IFluentProcessMutatorBuilder AddBatchedCompareWithRowMutator(this IFluentProcessMutatorBuilder builder, BatchedCompareWithRowMutator mutator)
+        /// <summary>
+        /// Compare input rows against existing rows with matching keys in batches and execute <see cref="CompareWithRowMutator.MatchAndEqualsAction"/> or <see cref="CompareWithRowMutator.MatchButDifferentAction"/> or <see cref="CompareWithRowMutator.NoMatchAction"/> based on the result of the comparison.
+        /// - existing rows are looked up from dynamically compiled <see cref="RowLookup"/> based on a batch of input rows
+        /// </summary>
+        public static IFluentProcessMutatorBuilder CompareWithRowBatched(this IFluentProcessMutatorBuilder builder, BatchedCompareWithRowMutator mutator)
         {
             return builder.AddMutators(mutator);
         }

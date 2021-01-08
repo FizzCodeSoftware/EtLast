@@ -19,22 +19,17 @@
         {
             var invocationCount = 0;
             var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .CustomCode(new CustomMutator(topic, null)
                 {
-                    new CustomMutator(topic, null)
+                    Then = (proc, row) =>
                     {
-                        Then = (proc, row) =>
-                        {
-                            invocationCount++;
-                            var x = row.GetAs<int>("x");
-                            return true;
-                        }
+                        invocationCount++;
+                        var x = row.GetAs<int>("x");
+                        return true;
                     }
-                },
-            };
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(1, invocationCount);
@@ -48,20 +43,15 @@
         public void RemoveRowsWithDelegate()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .CustomCode(new CustomMutator(topic, null)
                 {
-                    new CustomMutator(topic, null)
+                    Then = (proc, row) =>
                     {
-                        Then = (proc, row) =>
-                        {
-                            return row.GetAs<int>("id") < 4;
-                        }
+                        return row.GetAs<int>("id") < 4;
                     }
-                },
-            };
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(4, result.MutatedRows.Count);
@@ -78,24 +68,19 @@
         public void StageNotApplied()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .CustomCode(new CustomMutator(topic, null)
                 {
-                    new CustomMutator(topic, null)
+                    Then = (proc, row) =>
                     {
-                        Then = (proc, row) =>
-                        {
-                            row.SetStagedValue("test", "test");
-                            if (row.GetAs<int>("id") < 4)
-                                row.ApplyStaging();
+                        row.SetStagedValue("test", "test");
+                        if (row.GetAs<int>("id") < 4)
+                            row.ApplyStaging();
 
-                            return true;
-                        }
+                        return true;
                     }
-                },
-            };
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(4, result.MutatedRows.Count);
@@ -113,22 +98,17 @@
         public void IfDelegate()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .CustomCode(new CustomMutator(topic, null)
                 {
-                    new CustomMutator(topic, null)
+                    If = row => row.GetAs<int>("id") > 2,
+                    Then = (proc, row) =>
                     {
-                        If = row => row.GetAs<int>("id") > 2,
-                        Then = (proc, row) =>
-                        {
-                            row.SetValue("test", "test");
-                            return true;
-                        }
+                        row.SetValue("test", "test");
+                        return true;
                     }
-                },
-            };
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(7, result.MutatedRows.Count);

@@ -5,7 +5,7 @@
     using System.ComponentModel;
     using System.Linq;
 
-    public delegate IEnumerable<IReadOnlySlimRow> EnumerableImporterDelegate(IProcess process);
+    public delegate IEnumerable<IReadOnlySlimRow> EnumerableImporterDelegate(EnumerableImporter process);
 
     public class EnumerableImporter : AbstractProducer
     {
@@ -105,9 +105,9 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class EnumerableImporterFluent
     {
-        public static IFluentProcessMutatorBuilder EnumerableImporter(this IFluentProcessBuilder builder, EnumerableImporter producer)
+        public static IFluentProcessMutatorBuilder ImportEnumerable(this IFluentProcessBuilder builder, EnumerableImporter producer)
         {
-            return builder.SetInput(producer);
+            return builder.ReadFrom(producer);
         }
     }
 }

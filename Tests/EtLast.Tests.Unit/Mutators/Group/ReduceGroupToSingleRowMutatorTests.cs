@@ -19,29 +19,24 @@
         public void PartialAndFullRemoval()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .ConvertValue(new InPlaceConvertMutator(topic, null)
                 {
-                    new InPlaceConvertMutator(topic, null)
+                    Columns = new[] { "age" },
+                    TypeConverter = new DecimalConverter(),
+                })
+                .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator(topic, null)
+                {
+                    KeyGenerator = row => row.GenerateKey("name"),
+                    Selector = (proc, groupRows) =>
                     {
-                        Columns = new[] { "age" },
-                        TypeConverter = new DecimalConverter(),
-                    },
-                    new ReduceGroupToSingleRowMutator(topic, null)
-                    {
-                        KeyGenerator = row => row.GenerateKey("name"),
-                        Selector = (proc, groupRows) =>
-                        {
-                            return groupRows
-                                .Where(x => x.HasValue("age"))
-                                .OrderBy(x => x.GetAs<decimal>("age"))
-                                .FirstOrDefault();
-                        }
-                    },
-                },
-            };
+                        return groupRows
+                            .Where(x => x.HasValue("age"))
+                            .OrderBy(x => x.GetAs<decimal>("age"))
+                            .FirstOrDefault();
+                    }
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(5, result.MutatedRows.Count);
@@ -59,30 +54,25 @@
         public void IgnoreSelectorForSingleRowGroupsTrue()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .ConvertValue(new InPlaceConvertMutator(topic, null)
                 {
-                    new InPlaceConvertMutator(topic, null)
+                    Columns = new[] { "age" },
+                    TypeConverter = new DecimalConverter(),
+                })
+                .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator(topic, null)
+                {
+                    IgnoreSelectorForSingleRowGroups = true,
+                    KeyGenerator = row => row.GenerateKey("name"),
+                    Selector = (proc, groupRows) =>
                     {
-                        Columns = new[] { "age" },
-                        TypeConverter = new DecimalConverter(),
+                        return groupRows
+                            .Where(x => x.HasValue("age"))
+                            .OrderBy(x => x.GetAs<decimal>("age"))
+                            .FirstOrDefault();
                     },
-                    new ReduceGroupToSingleRowMutator(topic, null)
-                    {
-                        IgnoreSelectorForSingleRowGroups = true,
-                        KeyGenerator = row => row.GenerateKey("name"),
-                        Selector = (proc, groupRows) =>
-                        {
-                            return groupRows
-                                .Where(x => x.HasValue("age"))
-                                .OrderBy(x => x.GetAs<decimal>("age"))
-                                .FirstOrDefault();
-                        },
-                    },
-                },
-            };
+                });
 
             // note: this includes "fake" because Selector is not applied over single-row groups
 
@@ -103,29 +93,24 @@
         public void IgnoreSelectorForSingleRowGroupsDefaultFalse()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .ConvertValue(new InPlaceConvertMutator(topic, null)
                 {
-                    new InPlaceConvertMutator(topic, null)
+                    Columns = new[] { "age" },
+                    TypeConverter = new DecimalConverter(),
+                })
+                .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator(topic, null)
+                {
+                    KeyGenerator = row => row.GenerateKey("name"),
+                    Selector = (proc, groupRows) =>
                     {
-                        Columns = new[] { "age" },
-                        TypeConverter = new DecimalConverter(),
-                    },
-                    new ReduceGroupToSingleRowMutator(topic, null)
-                    {
-                        KeyGenerator = row => row.GenerateKey("name"),
-                        Selector = (proc, groupRows) =>
-                        {
-                            if (groupRows.Count < 2)
-                                throw new EtlException("wrong");
+                        if (groupRows.Count < 2)
+                            throw new EtlException("wrong");
 
-                            return groupRows[0];
-                        },
+                        return groupRows[0];
                     },
-                },
-            };
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(1, result.MutatedRows.Count);

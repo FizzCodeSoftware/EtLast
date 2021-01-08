@@ -6,9 +6,7 @@
     using BrightIdeasSoftware;
     using FizzCode.EtLast.Diagnostics.Interface;
 
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable
     internal class ContextStoreListControl
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public Control Container { get; }
         public DiagContext Context { get; }
@@ -63,9 +61,7 @@
         {
             if (_updater.ListView.GetItem(_updater.ListView.SelectedIndex).RowObject is TrackedStore store)
             {
-#pragma warning disable CA2000 // Dispose objects before losing scope
                 var form = new Form()
-#pragma warning restore CA2000 // Dispose objects before losing scope
                 {
                     FormBorderStyle = FormBorderStyle.SizableToolWindow,
                     Text = "Store: " + store.Location + (!string.IsNullOrEmpty(store.Path) ? " / " + store.Path : ""),

@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
-    using System.Linq;
+    using System.ComponentModel;
 
     public class ReplaceErrorWithValueMutator : AbstractMutator
     {
@@ -15,18 +15,39 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var columns = Columns ?? row.Values.Select(kvp => kvp.Key).ToArray();
-            foreach (var column in Columns)
+            if (Columns != null)
             {
-                if (row[column] is EtlRowError)
+                foreach (var column in Columns)
                 {
-                    row.SetStagedValue(column, Value);
+                    if (row[column] is EtlRowError)
+                    {
+                        row.SetStagedValue(column, Value);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var kvp in row.Values)
+                {
+                    if (kvp.Value is EtlRowError)
+                    {
+                        row.SetStagedValue(kvp.Key, Value);
+                    }
                 }
             }
 
             row.ApplyStaging();
 
             yield return row;
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class ReplaceErrorWithValueMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder ReplaceErrorWithValue(this IFluentProcessMutatorBuilder builder, ReplaceErrorWithValueMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

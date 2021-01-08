@@ -21,45 +21,40 @@
         public void Complex(bool? matchActionContainsMatch = null)
         {
             var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .KeyTest(new KeyTestMutator(topic, null)
                 {
-                    new KeyTestMutator(topic, null)
+                    LookupBuilder = new RowLookupBuilder()
                     {
-                        LookupBuilder = new RowLookupBuilder()
+                        Process = TestData.Country(topic),
+                        KeyGenerator = row => row.GenerateKey("id"),
+                    },
+                    RowKeyGenerator = row => row.GenerateKey("countryId"),
+                    NoMatchAction = new NoMatchAction(MatchMode.Custom)
+                    {
+                        CustomAction = (proc, row) =>
                         {
-                            Process = TestData.Country(topic),
-                            KeyGenerator = row => row.GenerateKey("id"),
-                        },
-                        RowKeyGenerator = row => row.GenerateKey("countryId"),
-                        NoMatchAction = new NoMatchAction(MatchMode.Custom)
+                            if (!row.HasValue("countryId"))
+                                row.SetValue("countryAbbrev", "country was null");
+                            else
+                                row.SetValue("countryAbbrev", "no match found");
+                        }
+                    },
+                    MatchAction = new MatchAction(MatchMode.Custom)
+                    {
+                        CustomAction = (proc, row, match) =>
                         {
-                            CustomAction = (proc, row) =>
-                            {
-                                if (!row.HasValue("countryId"))
-                                    row.SetValue("countryAbbrev", "country was null");
-                                else
-                                    row.SetValue("countryAbbrev", "no match found");
-                            }
-                        },
-                        MatchAction = new MatchAction(MatchMode.Custom)
-                        {
-                            CustomAction = (proc, row, match) =>
-                            {
-                                if (matchActionContainsMatch == null || matchActionContainsMatch.Value)
-                                    Assert.IsNotNull(match);
-                                else
-                                    Assert.IsNull(match);
-                            },
+                            if (matchActionContainsMatch == null || matchActionContainsMatch.Value)
+                                Assert.IsNotNull(match);
+                            else
+                                Assert.IsNull(match);
                         },
                     },
-                },
-            };
+                });
 
             if (matchActionContainsMatch != null)
-                (builder.Mutators[0] as KeyTestMutator).MatchActionContainsMatch = matchActionContainsMatch.Value;
+                (builder.ProcessBuilder.Result as KeyTestMutator).MatchActionContainsMatch = matchActionContainsMatch.Value;
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(7, result.MutatedRows.Count);

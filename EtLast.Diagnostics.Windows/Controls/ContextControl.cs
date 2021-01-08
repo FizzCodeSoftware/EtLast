@@ -5,9 +5,7 @@
     using System.Windows.Forms;
     using FizzCode.EtLast.Diagnostics.Interface;
 
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable
     internal class ContextControl
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public DiagContext Context { get; }
         public Control Container { get; }

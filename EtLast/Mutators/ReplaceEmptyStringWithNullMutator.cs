@@ -1,8 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
+    using System.ComponentModel;
 
     public class ReplaceEmptyStringWithNullMutator : AbstractMutator
     {
@@ -15,20 +14,39 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var columns = Columns ?? row.Values.Select(kvp => kvp.Key).ToArray();
-            foreach (var column in Columns)
+            if (Columns != null)
             {
-#pragma warning disable CA1820 // Test for empty strings using string length
-                if (string.Equals(row.GetAs<string>(column, null), string.Empty, StringComparison.InvariantCultureIgnoreCase))
-#pragma warning restore CA1820 // Test for empty strings using string length
+                foreach (var column in Columns)
                 {
-                    row.SetStagedValue(column, null);
+                    if ((row[column] as string) == string.Empty)
+                    {
+                        row.SetStagedValue(column, null);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var kvp in row.Values)
+                {
+                    if ((kvp.Value as string) == string.Empty)
+                    {
+                        row.SetStagedValue(kvp.Key, null);
+                    }
                 }
             }
 
             row.ApplyStaging();
 
             yield return row;
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class ReplaceEmptyStringWithNullMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder ReplaceEmptyStringWithNull(this IFluentProcessMutatorBuilder builder, ReplaceEmptyStringWithNullMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

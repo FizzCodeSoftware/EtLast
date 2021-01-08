@@ -8,26 +8,28 @@
     [TestClass]
     public class ContinuousAggregationMutatorTests
     {
-        private static ProcessBuilder GetBuilder(ITopic topic, IContinuousAggregationOperation op, ITypeConverter converter)
+        private static IProcessBuilder GetBuilder(ITopic topic, IContinuousAggregationOperation op, ITypeConverter converter)
         {
-            return new ProcessBuilder()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic));
+
+            if (converter != null)
             {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
-                {
-                    converter == null ? null : new InPlaceConvertMutator(topic, null)
+                builder = builder
+                    .ConvertValue(new InPlaceConvertMutator(topic, null)
                     {
                         Columns = new[] { "age", "height" },
                         TypeConverter = converter,
-                    },
-                    new ContinuousAggregationMutator(topic, null)
-                    {
-                        KeyGenerator = row => row.GenerateKey("name"),
-                        FixColumns = ColumnCopyConfiguration.StraightCopy("name"),
-                        Operation = op,
-                    },
-                },
-            };
+                    });
+            }
+
+            return builder
+                .AggregateContinuously(new ContinuousAggregationMutator(topic, null)
+                {
+                    KeyGenerator = row => row.GenerateKey("name"),
+                    FixColumns = ColumnCopyConfiguration.StraightCopy("name"),
+                    Operation = op,
+                });
         }
 
         [TestMethod]

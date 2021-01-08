@@ -1,12 +1,23 @@
 ﻿namespace FizzCode.EtLast
 {
-    using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
+
+    public delegate bool ColumnValidationDelegate(ColumnValidationMutator process, IReadOnlySlimRow row, string column);
 
     public class ColumnValidationMutator : AbstractMutator
     {
         public string Column { get; set; }
-        public Func<IReadOnlySlimRow, bool> ErrorIf { get; set; }
+
+        /// <summary>
+        /// Default value is "validation failed"
+        /// </summary>
+        public string ErrorMessage { get; set; } = "validation failed";
+
+        /// <summary>
+        /// If this delegate returns false then the corresponding value of the row will be replaced with an <see cref="EtlRowError"/>.
+        /// </summary>
+        public ColumnValidationDelegate Test { get; set; }
 
         public ColumnValidationMutator(ITopic topic, string name)
             : base(topic, name)
@@ -15,13 +26,14 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            if (ErrorIf(row))
+            var valid = Test(this, row, Column);
+            if (!valid)
             {
                 row.SetValue(Column, new EtlRowError()
                 {
                     Process = this,
                     OriginalValue = row[Column],
-                    Message = "validation failed",
+                    Message = ErrorMessage,
                 });
             }
 
@@ -33,8 +45,20 @@
             if (string.IsNullOrEmpty(Column))
                 throw new ProcessParameterNullException(this, nameof(Column));
 
-            if (ErrorIf == null)
-                throw new ProcessParameterNullException(this, nameof(ErrorIf));
+            if (Test == null)
+                throw new ProcessParameterNullException(this, nameof(Test));
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class ColumnValidationMutatorFluent
+    {
+        /// <summary>
+        /// Runs a test against a value in a row and if the test returns FALSE then the corresponding value will be replaced with an <see cref="EtlRowError"/>.
+        /// </summary>
+        public static IFluentProcessMutatorBuilder ValidateColumn(this IFluentProcessMutatorBuilder builder, ColumnValidationMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

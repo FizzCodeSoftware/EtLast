@@ -3,7 +3,6 @@
     using CommandDotNet;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
-#pragma warning disable CA1822 // Mark members as static
     [Command(Name = "list", Description = "List of modules and plugins.")]
     [SubCommand]
     public class ListCommand
@@ -15,5 +14,4 @@
         }
     }
 #pragma warning restore CA1812 // Avoid uninstantiated internal classes
-#pragma warning restore CA1822 // Mark members as static
 }

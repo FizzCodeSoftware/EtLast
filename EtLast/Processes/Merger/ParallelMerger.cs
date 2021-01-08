@@ -85,7 +85,7 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class ParallelMergerFluent
     {
-        public static IFluentProcessMutatorBuilder ParallelProcess(this IFluentProcessMutatorBuilder builder, ITopic topic, int threadCount, Action<int, IFluentProcessMutatorBuilder> mutatorBuilder)
+        public static IFluentProcessMutatorBuilder ProcessOnMultipleThreads(this IFluentProcessMutatorBuilder builder, ITopic topic, int threadCount, Action<int, IFluentProcessMutatorBuilder> mutatorBuilder)
         {
             var splitter = new Splitter<DefaultRowQueue>(topic, "ParallelSplitter")
             {
@@ -99,8 +99,8 @@
 
             for (var i = 0; i < threadCount; i++)
             {
-                var subBuilder = new FluentProcessBuilder();
-                var subMutatorBuilder = subBuilder.SetInput(splitter);
+                var subBuilder = ProcessBuilder.Fluent;
+                var subMutatorBuilder = subBuilder.ReadFrom(splitter);
                 mutatorBuilder.Invoke(i, subMutatorBuilder);
 
                 var subProcess = subBuilder.Result;

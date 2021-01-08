@@ -11,9 +11,7 @@
 
     internal delegate void LogActionDelegate(LogModel logModel);
 
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable
     internal class LogListControl
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public Control Container { get; }
         public DiagSession Session { get; }
@@ -111,10 +109,8 @@
 
         private bool ItemFilter(LogModel item)
         {
-#pragma warning disable RCS1073 // Convert 'if' to 'return' statement.
             if (item.Event.Severity <= LogSeverity.Debug && !ShowDebugLevel.Checked)
                 return false;
-#pragma warning restore RCS1073 // Convert 'if' to 'return' statement.
 
             return true;
         }
@@ -132,14 +128,9 @@
                 {
                     foreach (var arg in evt.Arguments)
                     {
-                        if (arg.Key.StartsWith("{spacing", StringComparison.OrdinalIgnoreCase))
-                        {
-                            text = text.Replace(arg.Key, "", StringComparison.InvariantCultureIgnoreCase);
-                        }
-                        else
-                        {
-                            text = text.Replace(arg.Key, FormattingHelpers.ToDisplayValue(arg.Value), StringComparison.InvariantCultureIgnoreCase);
-                        }
+                        text = arg.Key.StartsWith("{spacing", StringComparison.OrdinalIgnoreCase)
+                            ? text.Replace(arg.Key, "", StringComparison.InvariantCultureIgnoreCase)
+                            : text.Replace(arg.Key, FormattingHelpers.ToDisplayValue(arg.Value), StringComparison.InvariantCultureIgnoreCase);
                     }
                 }
 

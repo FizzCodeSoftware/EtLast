@@ -18,24 +18,19 @@
         public void RemoveWhenMatchAndEquals()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .CompareWithRow(new CompareWithRowMutator(topic, null)
                 {
-                    new CompareWithRowMutator(topic, null)
+                    LookupBuilder = new RowLookupBuilder()
                     {
-                        LookupBuilder = new RowLookupBuilder()
-                        {
-                            Process = TestData.PersonChanged(topic),
-                            KeyGenerator = row => row.GenerateKey("id"),
-                        },
-                        RowKeyGenerator = row => row.GenerateKey("id"),
-                        EqualityComparer = new ColumnBasedRowEqualityComparer(),
-                        MatchAndEqualsAction = new MatchAction(MatchMode.Remove),
-                    }
-                },
-            };
+                        Process = TestData.PersonChanged(topic),
+                        KeyGenerator = row => row.GenerateKey("id"),
+                    },
+                    RowKeyGenerator = row => row.GenerateKey("id"),
+                    EqualityComparer = new ColumnBasedRowEqualityComparer(),
+                    MatchAndEqualsAction = new MatchAction(MatchMode.Remove),
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(5, result.MutatedRows.Count);
@@ -53,24 +48,19 @@
         public void RemoveWhenNoMatch()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .CompareWithRow(new CompareWithRowMutator(topic, null)
                 {
-                    new CompareWithRowMutator(topic, null)
+                    LookupBuilder = new RowLookupBuilder()
                     {
-                        LookupBuilder = new RowLookupBuilder()
-                        {
-                            Process = TestData.PersonChanged(topic),
-                            KeyGenerator = row => row.GenerateKey("id"),
-                        },
-                        RowKeyGenerator = row => row.GenerateKey("id"),
-                        EqualityComparer = new ColumnBasedRowEqualityComparer(),
-                        NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                    }
-                },
-            };
+                        Process = TestData.PersonChanged(topic),
+                        KeyGenerator = row => row.GenerateKey("id"),
+                    },
+                    RowKeyGenerator = row => row.GenerateKey("id"),
+                    EqualityComparer = new ColumnBasedRowEqualityComparer(),
+                    NoMatchAction = new NoMatchAction(MatchMode.Remove),
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -89,27 +79,22 @@
         public void RemoveWhenMatchByIdAge()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .CompareWithRow(new CompareWithRowMutator(topic, null)
                 {
-                    new CompareWithRowMutator(topic, null)
+                    LookupBuilder = new RowLookupBuilder()
                     {
-                        LookupBuilder = new RowLookupBuilder()
-                        {
-                            Process = TestData.PersonChanged(topic),
-                            KeyGenerator = row => row.GenerateKey("id"),
-                        },
-                        RowKeyGenerator = row => row.GenerateKey("id"),
-                        EqualityComparer = new ColumnBasedRowEqualityComparer()
-                        {
-                             Columns = new string[] { "id", "age" }
-                        },
-                        MatchAndEqualsAction = new MatchAction(MatchMode.Remove),
-                    }
-                },
-            };
+                        Process = TestData.PersonChanged(topic),
+                        KeyGenerator = row => row.GenerateKey("id"),
+                    },
+                    RowKeyGenerator = row => row.GenerateKey("id"),
+                    EqualityComparer = new ColumnBasedRowEqualityComparer()
+                    {
+                        Columns = new string[] { "id", "age" }
+                    },
+                    MatchAndEqualsAction = new MatchAction(MatchMode.Remove),
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(3, result.MutatedRows.Count);
@@ -125,35 +110,30 @@
         public void MatchButDifferentAction()
         {
             var topic = TestExecuter.GetTopic();
-            var builder = new ProcessBuilder()
-            {
-                InputProcess = TestData.Person(topic),
-                Mutators = new MutatorList()
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(topic))
+                .CompareWithRow(new CompareWithRowMutator(topic, null)
                 {
-                    new CompareWithRowMutator(topic, null)
+                    LookupBuilder = new RowLookupBuilder()
                     {
-                        LookupBuilder = new RowLookupBuilder()
-                        {
-                            Process = TestData.PersonChanged(topic),
-                            KeyGenerator = row => row.GenerateKey("id"),
-                        },
-                        RowKeyGenerator = row => row.GenerateKey("id"),
-                        EqualityComparer = new ColumnBasedRowEqualityComparer(),
-                        MatchAndEqualsAction = new MatchAction(MatchMode.Custom)
-                        {
-                            CustomAction = (proc, row, match) => row.SetValue("compareResult", "match+unchanged"),
-                        },
-                        MatchButDifferentAction = new MatchAction(MatchMode.Custom)
-                        {
-                            CustomAction = (proc, row, match) => row.SetValue("compareResult", "match+diff"),
-                        },
-                        NoMatchAction = new NoMatchAction(MatchMode.Custom)
-                        {
-                            CustomAction = (proc, row) => row.SetValue("compareResult", "noMatch"),
-                        },
-                    }
-                },
-            };
+                        Process = TestData.PersonChanged(topic),
+                        KeyGenerator = row => row.GenerateKey("id"),
+                    },
+                    RowKeyGenerator = row => row.GenerateKey("id"),
+                    EqualityComparer = new ColumnBasedRowEqualityComparer(),
+                    MatchAndEqualsAction = new MatchAction(MatchMode.Custom)
+                    {
+                        CustomAction = (proc, row, match) => row.SetValue("compareResult", "match+unchanged"),
+                    },
+                    MatchButDifferentAction = new MatchAction(MatchMode.Custom)
+                    {
+                        CustomAction = (proc, row, match) => row.SetValue("compareResult", "match+diff"),
+                    },
+                    NoMatchAction = new NoMatchAction(MatchMode.Custom)
+                    {
+                        CustomAction = (proc, row) => row.SetValue("compareResult", "noMatch"),
+                    },
+                });
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(7, result.MutatedRows.Count);

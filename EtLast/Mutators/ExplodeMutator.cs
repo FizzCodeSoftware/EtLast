@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
 
     public delegate IEnumerable<ISlimRow> ExplodeDelegate(ExplodeMutator process, IReadOnlySlimRow row);
 
@@ -37,6 +38,15 @@
         {
             if (RowCreator == null)
                 throw new ProcessParameterNullException(this, nameof(RowCreator));
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class ExplodeMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder Explode(this IFluentProcessMutatorBuilder builder, ExplodeMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }
