@@ -2,13 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.ServiceModel;
 
-    public delegate TClient SoapExpanderClientCreatorDelegate<TChannel, TClient>(ServiceModelExpandMutator<TChannel, TClient> process, IReadOnlySlimRow row)
+    public delegate TClient ServiceModelExpandMutatorClientCreatorDelegate<TChannel, TClient>(ServiceModelExpandMutator<TChannel, TClient> process, IReadOnlySlimRow row)
         where TChannel : class
         where TClient : ClientBase<TChannel>;
 
-    public delegate object SoapExpanderClientInvokerDelegate<TChannel, TClient>(ServiceModelExpandMutator<TChannel, TClient> process, IReadOnlySlimRow row, TClient client)
+    public delegate object ServiceModelExpandMutatorClientInvokerDelegate<TChannel, TClient>(ServiceModelExpandMutator<TChannel, TClient> process, IReadOnlySlimRow row, TClient client)
         where TChannel : class
         where TClient : ClientBase<TChannel>;
 
@@ -16,8 +17,8 @@
         where TChannel : class
         where TClient : ClientBase<TChannel>
     {
-        public SoapExpanderClientCreatorDelegate<TChannel, TClient> ClientCreator { get; set; }
-        public SoapExpanderClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; set; }
+        public ServiceModelExpandMutatorClientCreatorDelegate<TChannel, TClient> ClientCreator { get; set; }
+        public ServiceModelExpandMutatorClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; set; }
         public string TargetColumn { get; set; }
 
         public InvalidValueAction ActionIfFailed { get; set; }
@@ -120,6 +121,17 @@
 
             if (string.IsNullOrEmpty(TargetColumn))
                 throw new ProcessParameterNullException(this, nameof(TargetColumn));
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class ServiceModelExpandMutatorFluent
+    {
+        public static IFluentProcessMutatorBuilder ExpandWithServiceResponse<TChannel, TClient>(this IFluentProcessMutatorBuilder builder, ServiceModelExpandMutator<TChannel, TClient> mutator)
+            where TChannel : class
+            where TClient : ClientBase<TChannel>
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }
