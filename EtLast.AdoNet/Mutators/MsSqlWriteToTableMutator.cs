@@ -14,29 +14,29 @@
     public class MsSqlWriteToTableMutator : AbstractMutator, IRowWriter
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        public ConnectionStringWithProvider ConnectionString { get; set; }
+        public ConnectionStringWithProvider ConnectionString { get; init; }
 
         /// <summary>
         /// Default value is 600.
         /// </summary>
-        public int CommandTimeout { get; set; } = 600;
+        public int CommandTimeout { get; init; } = 600;
 
-        public DbTableDefinition TableDefinition { get; set; }
+        public DbTableDefinition TableDefinition { get; init; }
 
         /// <summary>
         /// Default value is true <see cref="SqlBulkCopyOptions.KeepIdentity"/>.
         /// </summary>
-        public bool BulkCopyKeepIdentity { get; set; } = true;
+        public bool BulkCopyKeepIdentity { get; init; } = true;
 
         /// <summary>
         /// Default value is false <see cref="SqlBulkCopyOptions.CheckConstraints"/>.
         /// </summary>
-        public bool BulkCopyCheckConstraints { get; set; }
+        public bool BulkCopyCheckConstraints { get; init; }
 
         /// <summary>
         /// Default value is 10000
         /// </summary>
-        public int BatchSize { get; set; } = 10000;
+        public int BatchSize { get; init; } = 10000;
 
         private int _rowsWritten;
         private DatabaseConnection _connection;

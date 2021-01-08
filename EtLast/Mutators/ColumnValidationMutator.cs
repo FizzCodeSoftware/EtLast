@@ -7,17 +7,17 @@
 
     public class ColumnValidationMutator : AbstractMutator
     {
-        public string Column { get; set; }
+        public string Column { get; init; }
 
         /// <summary>
         /// Default value is "validation failed"
         /// </summary>
-        public string ErrorMessage { get; set; } = "validation failed";
+        public string ErrorMessage { get; init; } = "validation failed";
 
         /// <summary>
         /// If this delegate returns false then the corresponding value of the row will be replaced with an <see cref="EtlRowError"/>.
         /// </summary>
-        public ColumnValidationDelegate Test { get; set; }
+        public ColumnValidationDelegate Test { get; init; }
 
         public ColumnValidationMutator(ITopic topic, string name)
             : base(topic, name)

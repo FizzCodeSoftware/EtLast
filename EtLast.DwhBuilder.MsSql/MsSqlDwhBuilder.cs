@@ -15,12 +15,11 @@
         public ITopic Topic { get; }
         public string ScopeName { get; }
 
-        public RelationalModel Model { get; set; }
-        public ConnectionStringWithProvider ConnectionString { get; set; }
+        public RelationalModel Model { get; init; }
+        public ConnectionStringWithProvider ConnectionString { get; init; }
         public IReadOnlyList<SqlEngineVersion> SupportedSqlEngineVersions { get; } = new List<SqlEngineVersion> { MsSqlVersion.MsSql2016 };
 
-        private DwhBuilderConfiguration _configuration;
-        public DwhBuilderConfiguration Configuration { get => _configuration; set => SetConfiguration(value); }
+        public DwhBuilderConfiguration Configuration { get; init; }
 
         public IEnumerable<RelationalTable> Tables => _tables.Select(x => x.Table);
         private readonly List<DwhTableBuilder> _tables = new List<DwhTableBuilder>();
@@ -45,12 +44,6 @@
             _etlRunIdUtcOverride = etlRunIdUtcOverride;
         }
 
-        private void SetConfiguration(DwhBuilderConfiguration configuration)
-        {
-            _tables.Clear();
-            _configuration = configuration;
-        }
-
         public ResilientSqlScope Build()
         {
             if (Configuration == null)
@@ -70,7 +63,7 @@
                 {
                     ConnectionString = ConnectionString,
                     TempTableMode = Configuration.TempTableMode,
-                    Tables = _tables.Select(x => x.ResilientTable).ToList(),
+                    Tables = _tables.ConvertAll(x => x.ResilientTable),
                     InitializerCreator = CreateInitializers,
                     FinalizerRetryCount = Configuration.FinalizerRetryCount,
                     FinalizerTransactionScopeKind = TransactionScopeKind.RequiresNew,

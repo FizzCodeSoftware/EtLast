@@ -9,10 +9,10 @@
     public abstract class AbstractAggregationMutator : AbstractEvaluable, IMutator
     {
         public IEvaluable InputProcess { get; set; }
-        public RowTestDelegate If { get; set; }
+        public RowTestDelegate If { get; init; }
 
-        public List<ColumnCopyConfiguration> FixColumns { get; set; }
-        public Func<IRow, string> KeyGenerator { get; set; }
+        public List<ColumnCopyConfiguration> FixColumns { get; init; }
+        public Func<IRow, string> KeyGenerator { get; init; }
 
         protected AbstractAggregationMutator(ITopic topic, string name)
             : base(topic, name)

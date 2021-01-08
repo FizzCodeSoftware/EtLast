@@ -2,7 +2,7 @@
 {
     public class DbTableDefinition
     {
-        public string TableName { get; set; }
-        public DbColumnDefinition[] Columns { get; set; }
+        public string TableName { get; init; }
+        public DbColumnDefinition[] Columns { get; init; }
     }
 }

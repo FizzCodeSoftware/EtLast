@@ -8,7 +8,7 @@
 
     public class CustomMutator : AbstractMutator
     {
-        public CustomMutatorDelegate Then { get; set; }
+        public CustomMutatorDelegate Then { get; init; }
 
         public CustomMutator(ITopic topic, string name)
             : base(topic, name)

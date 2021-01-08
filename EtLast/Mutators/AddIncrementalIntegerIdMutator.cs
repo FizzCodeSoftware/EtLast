@@ -5,12 +5,12 @@
 
     public class AddIncrementalIntegerIdMutator : AbstractMutator
     {
-        public string Column { get; set; }
+        public string Column { get; init; }
 
         /// <summary>
         /// Default value is 0.
         /// </summary>
-        public int FirstId { get; set; }
+        public int FirstId { get; init; }
 
         private int _nextId;
 

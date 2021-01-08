@@ -43,9 +43,16 @@
     {
         public ResilientSqlScope Scope { get; internal set; }
 
-        public string TableName { get; set; }
-        public string TempTableName { get; set; }
-        public string[] Columns { get; set; }
+        public string TableName { get; init; }
+
+        private string _tempTableName;
+        public string TempTableName
+        {
+            get => _tempTableName ?? Scope.Configuration.AutoTempTablePrefix + TableName + Scope.Configuration.AutoTempTablePostfix;
+            init => _tempTableName = value;
+        }
+
+        public string[] Columns { get; init; }
 
         public ResilientSqlScopeFinalizerCreatorDelegate FinalizerCreator { get; set; }
 
@@ -54,7 +61,7 @@
         public ITopic Topic
         {
             get => _topic ?? new Topic(Scope.Configuration.ConnectionString.Unescape(TableName), Scope.Topic.Context);
-            set => _topic = value;
+            init => _topic = value;
         }
     }
 }

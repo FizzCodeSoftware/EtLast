@@ -5,12 +5,11 @@
     using System.Data;
     using System.Diagnostics;
     using System.Globalization;
-    using System.Linq;
     using FizzCode.DbTools.Configuration;
 
     public class MsSqlEnableConstraintCheckFiltered : AbstractSqlStatements
     {
-        public List<KeyValuePair<string, List<string>>> ConstraintNames { get; set; }
+        public List<KeyValuePair<string, List<string>>> ConstraintNames { get; init; }
 
         public MsSqlEnableConstraintCheckFiltered(ITopic topic, string name)
             : base(topic, name)
@@ -27,7 +26,7 @@
 
         protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection, string transactionId)
         {
-            return ConstraintNames.Select(kvp => "ALTER TABLE " + kvp.Key + " WITH CHECK CHECK CONSTRAINT " + string.Join(", ", kvp.Value) + ";").ToList();
+            return ConstraintNames.ConvertAll(kvp => "ALTER TABLE " + kvp.Key + " WITH CHECK CHECK CONSTRAINT " + string.Join(", ", kvp.Value) + ";");
         }
 
         protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)

@@ -10,14 +10,14 @@
     public abstract class AbstractBatchedMutator : AbstractEvaluable, IMutator
     {
         public IEvaluable InputProcess { get; set; }
-        public RowTestDelegate If { get; set; }
+        public RowTestDelegate If { get; init; }
 
-        public abstract int BatchSize { get; set; }
+        public abstract int BatchSize { get; init; }
 
         /// <summary>
         /// Default false.
         /// </summary>
-        protected bool UseBatchKeys { get; set; }
+        protected bool UseBatchKeys { get; init; }
 
         protected AbstractBatchedMutator(ITopic topic, string name)
             : base(topic, name)

@@ -13,23 +13,23 @@
 
     public class WriteToTableMutator : AbstractMutator, IRowWriter
     {
-        public ConnectionStringWithProvider ConnectionString { get; set; }
+        public ConnectionStringWithProvider ConnectionString { get; init; }
 
         /// <summary>
         /// Default value is 600.
         /// </summary>
-        public int CommandTimeout { get; set; } = 600;
+        public int CommandTimeout { get; init; } = 600;
 
         /// <summary>
         /// Default value is 30.
         /// </summary>
-        public int MaximumParameterCount { get; set; } = 30;
+        public int MaximumParameterCount { get; init; } = 30;
 
-        public IDictionary<string, DbType> ColumnTypes { get; set; }
+        public IDictionary<string, DbType> ColumnTypes { get; init; }
 
-        public DetailedDbTableDefinition TableDefinition { get; set; }
+        public DetailedDbTableDefinition TableDefinition { get; init; }
 
-        public IAdoNetWriteToTableSqlStatementCreator SqlStatementCreator { get; set; }
+        public IAdoNetWriteToTableSqlStatementCreator SqlStatementCreator { get; init; }
 
         private DatabaseConnection _connection;
         private List<string> _statements;

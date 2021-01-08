@@ -12,37 +12,37 @@
 
     public class EpPlusExcelReader : AbstractProducer
     {
-        public string FileName { get; set; }
-        public string SheetName { get; set; }
-        public int SheetIndex { get; set; } = -1;
+        public string FileName { get; init; }
+        public string SheetName { get; init; }
+        public int SheetIndex { get; init; } = -1;
 
         /// <summary>
         /// Optional, preloaded Excel file. In case this property is provided, the FileName property is used only for logging purposes.
         /// Usage example: reader.PreLoadedFile = new ExcelPackage(new FileInfo(fileName));
         /// </summary>
-        public ExcelPackage PreLoadedFile { get; set; }
+        public ExcelPackage PreLoadedFile { get; init; }
 
         /// <summary>
         /// Default true.
         /// </summary>
-        public bool TreatEmptyStringAsNull { get; set; } = true;
+        public bool TreatEmptyStringAsNull { get; init; } = true;
 
         /// <summary>
         /// Default true.
         /// </summary>
-        public bool AutomaticallyTrimAllStringValues { get; set; } = true;
+        public bool AutomaticallyTrimAllStringValues { get; init; } = true;
 
-        public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
-        public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
+        public List<ReaderColumnConfiguration> ColumnConfiguration { get; init; }
+        public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; init; }
 
-        public bool Transpose { get; set; }
+        private bool Transpose { get; init; } // todo: implement working transpose
 
         /// <summary>
         /// Default true.
         /// </summary>
-        public bool Unmerge { get; set; } = true;
+        public bool Unmerge { get; init; } = true;
 
-        public int[] HeaderRows { get; set; } = new[] { 1 };
+        public int[] HeaderRows { get; init; } = new[] { 1 };
 
         /// <summary>
         /// Default value is <see cref="EpPlusExcelHeaderCellMode.KeepLast"/>

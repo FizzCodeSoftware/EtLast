@@ -6,16 +6,16 @@
 
     public class UnpivotMutator : AbstractMutator
     {
-        public List<ColumnCopyConfiguration> FixColumns { get; set; }
-        public string NewColumnForDimension { get; set; }
-        public string NewColumnForValue { get; set; }
+        public List<ColumnCopyConfiguration> FixColumns { get; init; }
+        public string NewColumnForDimension { get; init; }
+        public string NewColumnForValue { get; init; }
 
         /// <summary>
-        /// Default is true.
+        /// Default value is true.
         /// </summary>
-        public bool IgnoreIfValueIsNull { get; set; } = true;
+        public bool IgnoreIfValueIsNull { get; init; } = true;
 
-        public string[] ValueColumns { get; set; }
+        public string[] ValueColumns { get; init; }
 
         private HashSet<string> _fixColumnNames;
         private HashSet<string> _valueColumnNames;
@@ -53,7 +53,7 @@
                     if (_fixColumnNames.Contains(kvp.Key))
                         continue;
 
-                    var initialValues = FixColumns.Select(x => new KeyValuePair<string, object>(x.ToColumn, row[x.FromColumn])).ToList();
+                    var initialValues = FixColumns.ConvertAll(x => new KeyValuePair<string, object>(x.ToColumn, row[x.FromColumn]));
                     initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, kvp.Key));
                     initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, kvp.Value));
 
@@ -70,8 +70,7 @@
                         continue;
 
                     var initialValues = FixColumns != null
-                        ? FixColumns.Select(x => new KeyValuePair<string, object>(x.ToColumn, row[x.FromColumn])).ToList()
-                        : row.Values.Where(kvp => !_valueColumnNames.Contains(kvp.Key)).ToList();
+                        ? FixColumns.ConvertAll(x => new KeyValuePair<string, object>(x.ToColumn, row[x.FromColumn])) : row.Values.Where(kvp => !_valueColumnNames.Contains(kvp.Key)).ToList();
                     initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, col));
                     initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, value));
 

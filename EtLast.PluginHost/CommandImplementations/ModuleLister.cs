@@ -26,7 +26,7 @@
                 .OrderBy(x => x)
                 .ToList();
 
-            return moduleFolders.Select(Path.GetFileName).ToList();
+            return moduleFolders.ConvertAll(Path.GetFileName);
         }
     }
 }

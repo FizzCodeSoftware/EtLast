@@ -7,7 +7,7 @@
     public class NoMatchAction
     {
         public MatchMode Mode { get; }
-        public NoMatchActionDelegate CustomAction { get; set; }
+        public NoMatchActionDelegate CustomAction { get; init; }
 
         public NoMatchAction(MatchMode mode)
         {

@@ -20,9 +20,9 @@
         public IContinuousAggregationOperation Operation
         {
             get => _operation;
-            set
+            init
             {
-                _operation?.SetProcess(null);
+                //_operation?.SetProcess(null);
 
                 _operation = value;
                 _operation.SetProcess(this);

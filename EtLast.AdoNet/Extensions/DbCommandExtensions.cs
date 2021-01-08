@@ -7,7 +7,7 @@
     {
         public static void FillCommandParameters(this IDbCommand command, Dictionary<string, object> source)
         {
-            if (source == null)
+            if (source == null || source.Count == 0)
                 return;
 
             var isSqlServer = command is System.Data.SqlClient.SqlCommand;

@@ -7,21 +7,21 @@
     {
         private IMemoryAggregationOperation _operation;
 
-        protected AbstractMemoryAggregationMutator(ITopic topic, string name)
-            : base(topic, name)
-        {
-        }
-
         public IMemoryAggregationOperation Operation
         {
             get => _operation;
-            set
+            init
             {
-                _operation?.SetProcess(null);
+                //_operation?.SetProcess(null);
 
                 _operation = value;
                 _operation.SetProcess(this);
             }
+        }
+
+        protected AbstractMemoryAggregationMutator(ITopic topic, string name)
+            : base(topic, name)
+        {
         }
 
         protected override void ValidateImpl()

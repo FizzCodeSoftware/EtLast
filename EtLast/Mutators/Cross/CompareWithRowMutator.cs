@@ -6,11 +6,12 @@
 
     public class CompareWithRowMutator : AbstractCrossMutator
     {
-        public RowKeyGenerator RowKeyGenerator { get; set; }
-        public IRowEqualityComparer EqualityComparer { get; set; }
-        public MatchAction MatchAndEqualsAction { get; set; }
-        public MatchAction MatchButDifferentAction { get; set; }
-        public NoMatchAction NoMatchAction { get; set; }
+        public RowKeyGenerator RowKeyGenerator { get; init; }
+        public IRowEqualityComparer EqualityComparer { get; init; }
+        public MatchAction MatchAndEqualsAction { get; init; }
+        public MatchAction MatchButDifferentAction { get; init; }
+        public NoMatchAction NoMatchAction { get; init; }
+
         private RowLookup _lookup;
 
         public CompareWithRowMutator(ITopic topic, string name)

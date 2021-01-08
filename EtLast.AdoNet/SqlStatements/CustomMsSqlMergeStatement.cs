@@ -9,25 +9,25 @@
 
     public class CustomMsSqlMergeStatement : AbstractSqlStatement
     {
-        public string SourceTableName { get; set; }
-        public string SourceTableAlias { get; set; }
-        public string TargetTableName { get; set; }
-        public string TargetTableAlias { get; set; }
-        public string OnCondition { get; set; }
-        public string WhenMatchedCondition { get; set; }
-        public string WhenMatchedAction { get; set; }
-        public string WhenNotMatchedByTargetCondition { get; set; }
-        public string WhenNotMatchedByTargetAction { get; set; }
-        public string WhenNotMatchedBySourceCondition { get; set; }
-        public string WhenNotMatchedBySourceAction { get; set; }
-        public Dictionary<string, object> Parameters { get; set; }
+        public string SourceTableName { get; init; }
+        public string SourceTableAlias { get; init; }
+        public string TargetTableName { get; init; }
+        public string TargetTableAlias { get; init; }
+        public string OnCondition { get; init; }
+        public string WhenMatchedCondition { get; init; }
+        public string WhenMatchedAction { get; init; }
+        public string WhenNotMatchedByTargetCondition { get; init; }
+        public string WhenNotMatchedByTargetAction { get; init; }
+        public string WhenNotMatchedBySourceCondition { get; init; }
+        public string WhenNotMatchedBySourceAction { get; init; }
+        public Dictionary<string, object> Parameters { get; init; }
 
         /// <summary>
         /// Some SQL connector implementations does not support passing arrays due to parameters (like MySQL).
         /// If set to true, then all int[], long[], List&lt;int&gt; and List&lt;long&gt; parameters will be converted to a comma separated list and inlined into the SQL statement right before execution.
         /// Default value is true.
         /// </summary>
-        public bool InlineArrayParameters { get; set; } = true;
+        public bool InlineArrayParameters { get; init; } = true;
 
         public CustomMsSqlMergeStatement(ITopic topic, string name)
             : base(topic, name)
@@ -166,9 +166,6 @@
                         Parameters.Remove(kvp.Key);
                     }
                 }
-
-                if (Parameters.Count == 0)
-                    Parameters = null;
             }
 
             return sqlStatement;

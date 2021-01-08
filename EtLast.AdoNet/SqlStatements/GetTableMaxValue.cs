@@ -7,9 +7,9 @@
 
     public class GetTableMaxValue<T> : AbstractSqlStatementWithResult<TableMaxValueResult<T>>
     {
-        public string TableName { get; set; }
-        public string ColumnName { get; set; }
-        public string CustomWhereClause { get; set; }
+        public string TableName { get; init; }
+        public string ColumnName { get; init; }
+        public string CustomWhereClause { get; init; }
 
         public GetTableMaxValue(ITopic topic, string name)
             : base(topic, name)

@@ -14,13 +14,13 @@
         /// <summary>
         /// Default value is 600.
         /// </summary>
-        public int CommandTimeout { get; set; } = 600;
+        public int CommandTimeout { get; init; } = 600;
 
         /// <summary>
         /// If true, this statement will be executed out of ambient transaction scope.
         /// See <see cref="TransactionScopeOption.Suppress"/>>.
         /// </summary>
-        public bool SuppressExistingTransactionScope { get; set; }
+        public bool SuppressExistingTransactionScope { get; init; }
 
         protected AbstractSqlStatementWithResult(ITopic topic, string name)
             : base(topic, name)

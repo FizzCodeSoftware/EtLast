@@ -6,12 +6,17 @@
 
     public class DatabaseConnection
     {
-        public string Key { get; set; }
-        public ConnectionStringWithProvider ConnectionString { get; set; }
-        public IDbConnection Connection { get; set; }
-        public int ReferenceCount { get; set; }
-        public bool Failed { get; set; }
-        public object Lock { get; set; } = new object();
-        public Transaction TransactionWhenCreated { get; set; }
+        public string Key { get; init; }
+        public ConnectionStringWithProvider ConnectionString { get; init; }
+        public IDbConnection Connection { get; init; }
+        public Transaction TransactionWhenCreated { get; init; }
+        internal object Lock { get; } = new object();
+
+        public int ReferenceCount { get; internal set; }
+        public bool Failed { get; internal set; }
+
+        internal DatabaseConnection()
+        {
+        }
     }
 }

@@ -5,7 +5,7 @@
 
     public class ReplaceEmptyStringWithNullMutator : AbstractMutator
     {
-        public string[] Columns { get; set; }
+        public string[] Columns { get; init; }
 
         public ReplaceEmptyStringWithNullMutator(ITopic topic, string name)
             : base(topic, name)

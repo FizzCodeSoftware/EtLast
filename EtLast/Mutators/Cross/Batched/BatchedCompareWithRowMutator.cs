@@ -5,15 +5,15 @@
 
     public class BatchedCompareWithRowMutator : AbstractBatchedCrossMutator
     {
-        public IRowEqualityComparer EqualityComparer { get; set; }
-        public MatchAction MatchAndEqualsAction { get; set; }
-        public MatchAction MatchButDifferentAction { get; set; }
-        public NoMatchAction NoMatchAction { get; set; }
+        public IRowEqualityComparer EqualityComparer { get; init; }
+        public MatchAction MatchAndEqualsAction { get; init; }
+        public MatchAction MatchButDifferentAction { get; init; }
+        public NoMatchAction NoMatchAction { get; init; }
 
         /// <summary>
         /// The amount of rows processed in a batch. Default value is 1000.
         /// </summary>
-        public override int BatchSize { get; set; } = 1000;
+        public override int BatchSize { get; init; } = 1000;
 
         public BatchedCompareWithRowMutator(ITopic topic, string name)
             : base(topic, name)

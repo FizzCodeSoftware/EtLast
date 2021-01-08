@@ -8,12 +8,12 @@
 
     public class CopyTableIntoNewTable : AbstractSqlStatement
     {
-        public TableCopyConfiguration Configuration { get; set; }
+        public TableCopyConfiguration Configuration { get; init; }
 
         /// <summary>
         /// Optional. Default is NULL which means everything will be transferred from the old table to the new table.
         /// </summary>
-        public string WhereClause { get; set; }
+        public string WhereClause { get; init; }
 
         public CopyTableIntoNewTable(ITopic topic, string name)
             : base(topic, name)

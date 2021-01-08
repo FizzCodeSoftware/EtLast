@@ -9,16 +9,16 @@
 
     public class CopyTableIntoExistingTable : AbstractSqlStatement
     {
-        public TableCopyConfiguration Configuration { get; set; }
+        public TableCopyConfiguration Configuration { get; init; }
 
         /// <summary>
         /// Optional. Default is NULL which means everything will be transferred from the source table to the target table.
         /// </summary>
-        public string WhereClause { get; set; }
+        public string WhereClause { get; init; }
 
-        public bool CopyIdentityColumns { get; set; }
+        public bool CopyIdentityColumns { get; init; }
 
-        public Dictionary<string, object> ColumnDefaults { get; set; }
+        public Dictionary<string, object> ColumnDefaults { get; init; }
 
         public CopyTableIntoExistingTable(ITopic topic, string name)
             : base(topic, name)

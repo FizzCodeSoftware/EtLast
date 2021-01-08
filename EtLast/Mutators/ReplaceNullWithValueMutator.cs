@@ -5,8 +5,8 @@
 
     public class ReplaceNullWithValueMutator : AbstractMutator
     {
-        public string[] Columns { get; set; }
-        public object Value { get; set; }
+        public string[] Columns { get; init; }
+        public object Value { get; init; }
 
         public ReplaceNullWithValueMutator(ITopic topic, string name)
             : base(topic, name)

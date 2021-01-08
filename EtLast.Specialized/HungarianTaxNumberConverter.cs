@@ -9,7 +9,7 @@
         /// <summary>
         /// Default true.
         /// </summary>
-        public bool AutomaticallyAddHyphens { get; set; } = true;
+        public bool AutomaticallyAddHyphens { get; init; } = true;
 
         public static Dictionary<int, string> RegionNames { get; } = CreateRegionNamesDictionary();
         private static readonly int[] _checkSumNumbers = new[] { 9, 7, 3, 1, 9, 7, 3 };

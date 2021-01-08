@@ -7,10 +7,10 @@
 
     public class AdoNetDbReader : AbstractAdoNetDbReader
     {
-        public string TableName { get; set; }
-        public string CustomWhereClause { get; set; }
-        public string CustomOrderByClause { get; set; }
-        public int RecordCountLimit { get; set; }
+        public string TableName { get; init; }
+        public string CustomWhereClause { get; init; }
+        public string CustomOrderByClause { get; init; }
+        public int RecordCountLimit { get; init; }
 
         public AdoNetDbReader(ITopic topic, string name)
             : base(topic, name)

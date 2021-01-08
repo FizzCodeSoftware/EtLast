@@ -10,7 +10,7 @@
 
     public class DropTables : AbstractSqlStatements
     {
-        public string[] TableNames { get; set; }
+        public string[] TableNames { get; init; }
 
         public DropTables(ITopic topic, string name)
             : base(topic, name)

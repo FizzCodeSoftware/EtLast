@@ -12,12 +12,12 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractSqlStatementBase : AbstractExecutable
     {
-        public ConnectionStringWithProvider ConnectionString { get; set; }
+        public ConnectionStringWithProvider ConnectionString { get; init; }
 
         /// <summary>
         /// Default value is 600.
         /// </summary>
-        public int CommandTimeout { get; set; } = 600;
+        public int CommandTimeout { get; init; } = 600;
 
         protected AbstractSqlStatementBase(ITopic topic, string name)
             : base(topic, name)
@@ -28,7 +28,7 @@
         /// If true, this statement will be executed out of ambient transaction scope.
         /// See <see cref="TransactionScopeOption.Suppress"/>>.
         /// </summary>
-        public bool SuppressExistingTransactionScope { get; set; }
+        public bool SuppressExistingTransactionScope { get; init; }
 
         protected override void ValidateImpl()
         {

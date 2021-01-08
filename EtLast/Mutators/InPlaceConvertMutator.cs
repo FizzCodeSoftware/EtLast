@@ -6,28 +6,28 @@
 
     public class InPlaceConvertMutator : AbstractMutator
     {
-        public string[] Columns { get; set; }
-        public ITypeConverter TypeConverter { get; set; }
+        public string[] Columns { get; init; }
+        public ITypeConverter TypeConverter { get; init; }
 
         /// <summary>
         /// Default value is <see cref="InvalidValueAction.SetSpecialValue"/>
         /// </summary>
-        public InvalidValueAction ActionIfNull { get; set; } = InvalidValueAction.SetSpecialValue;
+        public InvalidValueAction ActionIfNull { get; init; } = InvalidValueAction.SetSpecialValue;
 
         /// <summary>
         /// Default value is null,
         /// </summary>
-        public object SpecialValueIfNull { get; set; }
+        public object SpecialValueIfNull { get; init; }
 
         /// <summary>
         /// Default value is <see cref="InvalidValueAction.WrapError"/>
         /// </summary>
-        public InvalidValueAction ActionIfInvalid { get; set; } = InvalidValueAction.WrapError;
+        public InvalidValueAction ActionIfInvalid { get; init; } = InvalidValueAction.WrapError;
 
         /// <summary>
         /// Default value is null,
         /// </summary>
-        public object SpecialValueIfInvalid { get; set; }
+        public object SpecialValueIfInvalid { get; init; }
 
         public InPlaceConvertMutator(ITopic topic, string name)
             : base(topic, name)

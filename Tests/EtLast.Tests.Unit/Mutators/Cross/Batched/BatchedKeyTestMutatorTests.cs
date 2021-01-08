@@ -17,8 +17,7 @@
         [TestMethod]
         [DataRow(true)]
         [DataRow(false)]
-        [DataRow(null)]
-        public void Complex(bool? matchActionContainsMatch = null)
+        public void Complex(bool matchActionContainsMatch)
         {
             var topic = TestExecuter.GetTopic();
             var builder = ProcessBuilder.Fluent
@@ -45,17 +44,14 @@
                     {
                         CustomAction = (proc, row, match) =>
                         {
-                            if (matchActionContainsMatch == null || matchActionContainsMatch.Value)
+                            if (matchActionContainsMatch)
                                 Assert.IsNotNull(match);
                             else
                                 Assert.IsNull(match);
                         },
                     },
+                    MatchActionContainsMatch = matchActionContainsMatch,
                 });
-
-            // this is not in the object initializer to make sure we don't overwrite the default value
-            if (matchActionContainsMatch != null)
-                (builder.ProcessBuilder.Result as BatchedKeyTestMutator).MatchActionContainsMatch = matchActionContainsMatch.Value;
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(7, result.MutatedRows.Count);

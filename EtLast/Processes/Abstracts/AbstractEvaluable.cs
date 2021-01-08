@@ -9,7 +9,7 @@
     public abstract class AbstractEvaluable : AbstractProcess, IEvaluable
     {
         public virtual bool ConsumerShouldNotBuffer { get; }
-        public Action<IEvaluable> Initializer { get; set; }
+        public Action<IEvaluable> Initializer { get; init; }
 
         protected AbstractEvaluable(ITopic topic, string name)
             : base(topic, name)

@@ -6,29 +6,29 @@
 
     public class BatchedJoinMutator : AbstractBatchedCrossMutator
     {
-        public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
-        public NoMatchAction NoMatchAction { get; set; }
-        public MatchActionDelegate MatchCustomAction { get; set; }
+        public List<ColumnCopyConfiguration> ColumnConfiguration { get; init; }
+        public NoMatchAction NoMatchAction { get; init; }
+        public MatchActionDelegate MatchCustomAction { get; init; }
 
         /// <summary>
         /// Acts as a preliminary filter. Invoked for each match (if there is any) BEFORE the evaluation of the matches.
         /// </summary>
-        public Func<IReadOnlySlimRow, bool> MatchFilter { get; set; }
+        public Func<IReadOnlySlimRow, bool> MatchFilter { get; init; }
 
         /// <summary>
         /// Default null. If any value is set and <see cref="TooManyMatchAction"/> is null then the excess rows will be removed, otherwise the action will be invoked.
         /// </summary>
-        public int? MatchCountLimit { get; set; }
+        public int? MatchCountLimit { get; init; }
 
         /// <summary>
         /// Executed if the number of matches for a row exceeds <see cref="MatchCountLimit"/>.
         /// </summary>
-        public TooManyMatchAction TooManyMatchAction { get; set; }
+        public TooManyMatchAction TooManyMatchAction { get; init; }
 
         /// <summary>
         /// The amount of rows processed in a batch. Default value is 1000.
         /// </summary>
-        public override int BatchSize { get; set; } = 1000;
+        public override int BatchSize { get; init; } = 1000;
 
         public BatchedJoinMutator(ITopic topic, string name)
             : base(topic, name)

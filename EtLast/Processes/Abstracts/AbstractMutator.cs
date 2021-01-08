@@ -10,7 +10,7 @@
     public abstract class AbstractMutator : AbstractEvaluable, IMutator
     {
         public IEvaluable InputProcess { get; set; }
-        public RowTestDelegate If { get; set; }
+        public RowTestDelegate If { get; init; }
 
         protected AbstractMutator(ITopic topic, string name)
             : base(topic, name)

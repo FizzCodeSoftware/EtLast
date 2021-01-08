@@ -16,35 +16,35 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractAdoNetDbReader : AbstractProducer, IRowReader
     {
-        public ConnectionStringWithProvider ConnectionString { get; set; }
+        public ConnectionStringWithProvider ConnectionString { get; init; }
 
-        public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
-        public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
+        public List<ReaderColumnConfiguration> ColumnConfiguration { get; init; }
+        public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; init; }
 
         /// <summary>
         /// If true, this process will execute out of ambient transaction scope. Default value is false.
         /// See <see cref="TransactionScopeOption.Suppress"/>.
         /// </summary>
-        public bool SuppressExistingTransactionScope { get; set; }
+        public bool SuppressExistingTransactionScope { get; init; }
 
-        public ConnectionCreatorDelegate CustomConnectionCreator { get; set; }
+        public ConnectionCreatorDelegate CustomConnectionCreator { get; init; }
 
         /// <summary>
         /// Default value is 3600.
         /// </summary>
-        public int CommandTimeout { get; set; } = 3600;
+        public int CommandTimeout { get; init; } = 3600;
 
         public DateTime LastDataRead { get; private set; }
         public List<ISqlValueProcessor> SqlValueProcessors { get; } = new List<ISqlValueProcessor>();
 
-        public Dictionary<string, object> Parameters { get; set; }
+        public Dictionary<string, object> Parameters { get; init; }
 
         /// <summary>
         /// Some SQL connector implementations does not support passing arrays due to parameters (like MySQL).
         /// If set to true, then all int[], long[], List&lt;int&gt; and List&lt;long&gt; parameters will be converted to a comma separated list and inlined into the SQL statement right before execution.
         /// Default value is true.
         /// </summary>
-        public bool InlineArrayParameters { get; set; } = true;
+        public bool InlineArrayParameters { get; init; } = true;
 
         protected AbstractAdoNetDbReader(ITopic topic, string name)
             : base(topic, name)
@@ -297,9 +297,6 @@
                         }
                     }
                 }
-
-                if (Parameters.Count == 0)
-                    Parameters = null;
             }
 
             return sqlStatement;

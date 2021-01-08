@@ -9,10 +9,10 @@
 
     public class DataContractXmlSerializerMutator<T> : AbstractMutator
     {
-        public ColumnCopyConfiguration ColumnConfiguration { get; set; }
+        public ColumnCopyConfiguration ColumnConfiguration { get; init; }
 
-        public InvalidValueAction ActionIfFailed { get; set; }
-        public object SpecialValueIfFailed { get; set; }
+        public InvalidValueAction ActionIfFailed { get; init; }
+        public object SpecialValueIfFailed { get; init; }
 
         public DataContractXmlSerializerMutator(ITopic topic, string name)
             : base(topic, name)

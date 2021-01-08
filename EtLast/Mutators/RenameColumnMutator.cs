@@ -12,12 +12,12 @@
 
     public class RenameColumnMutator : AbstractMutator
     {
-        public List<ColumnRenameConfiguration> ColumnConfiguration { get; set; }
+        public List<ColumnRenameConfiguration> ColumnConfiguration { get; init; }
 
         /// <summary>
         /// Default value is <see cref="ColumnAlreadyExistsAction.Throw"/>
         /// </summary>
-        public ColumnAlreadyExistsAction ActionIfTargetValueExists { get; set; } = ColumnAlreadyExistsAction.Throw;
+        public ColumnAlreadyExistsAction ActionIfTargetValueExists { get; init; } = ColumnAlreadyExistsAction.Throw;
 
         public RenameColumnMutator(ITopic topic, string name)
             : base(topic, name)

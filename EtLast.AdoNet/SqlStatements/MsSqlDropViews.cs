@@ -15,10 +15,10 @@
         /// <summary>
         /// Default value is <see cref="MsSqlDropViewsProcessMode.SpecifiedViews"/>
         /// </summary>
-        public MsSqlDropViewsProcessMode Mode { get; set; } = MsSqlDropViewsProcessMode.SpecifiedViews;
+        public MsSqlDropViewsProcessMode Mode { get; init; } = MsSqlDropViewsProcessMode.SpecifiedViews;
 
-        public string SchemaName { get; set; }
-        public string[] ViewNames { get; set; }
+        public string SchemaName { get; init; }
+        public string[] ViewNames { get; init; }
 
         private List<string> _viewNames;
 
@@ -126,8 +126,8 @@
             }
 
             return _viewNames
-                .Select(viewName => "DROP VIEW IF EXISTS " + viewName + ";")
-                .ToList();
+                .ConvertAll(viewName => "DROP VIEW IF EXISTS " + viewName + ";")
+;
         }
 
         protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)

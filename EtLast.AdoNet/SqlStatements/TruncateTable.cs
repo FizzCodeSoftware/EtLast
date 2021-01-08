@@ -7,7 +7,7 @@
 
     public class TruncateTable : AbstractSqlStatement
     {
-        public string TableName { get; set; }
+        public string TableName { get; init; }
 
         public TruncateTable(ITopic topic, string name)
             : base(topic, name)

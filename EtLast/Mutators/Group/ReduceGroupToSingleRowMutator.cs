@@ -16,13 +16,13 @@
     {
         public IEvaluable InputProcess { get; set; }
 
-        public Func<IReadOnlyRow, string> KeyGenerator { get; set; }
-        public ReduceGroupToSingleRowDelegate Selector { get; set; }
+        public Func<IReadOnlyRow, string> KeyGenerator { get; init; }
+        public ReduceGroupToSingleRowDelegate Selector { get; init; }
 
         /// <summary>
         /// Default false. Setting to true means the Selector won't be called for groups with a single row - which can improve performance and/or introduce side effects.
         /// </summary>
-        public bool IgnoreSelectorForSingleRowGroups { get; set; }
+        public bool IgnoreSelectorForSingleRowGroups { get; init; }
 
         public ReduceGroupToSingleRowMutator(ITopic topic, string name)
             : base(topic, name)

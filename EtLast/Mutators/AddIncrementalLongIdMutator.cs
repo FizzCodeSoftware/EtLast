@@ -5,12 +5,12 @@
 
     public class AddIncrementalLongIdMutator : AbstractMutator
     {
-        public string Column { get; set; }
+        public string Column { get; init; }
 
         /// <summary>
         /// Default value is 0.
         /// </summary>
-        public long FirstId { get; set; }
+        public long FirstId { get; init; }
 
         private long _nextId;
 

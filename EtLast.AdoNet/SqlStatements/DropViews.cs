@@ -10,7 +10,7 @@
 
     public class DropViews : AbstractSqlStatements
     {
-        public string[] TableNames { get; set; }
+        public string[] TableNames { get; init; }
 
         public DropViews(ITopic topic, string name)
             : base(topic, name)

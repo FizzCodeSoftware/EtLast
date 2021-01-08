@@ -6,17 +6,17 @@
     {
         public string RowColumn { get; }
         public string DbColumn { get; }
-        public DbType? DbType { get; set; }
+        public DbType? DbType { get; init; }
 
         /// <summary>
         /// Default value is true
         /// </summary>
-        public bool Insert { get; set; } = true;
+        public bool Insert { get; init; } = true;
 
         /// <summary>
         /// Default value is false
         /// </summary>
-        public bool IsKey { get; set; }
+        public bool IsKey { get; init; }
 
         public DetailedDbColumnDefinition(string rowColumn, string dbColumn = null)
         {

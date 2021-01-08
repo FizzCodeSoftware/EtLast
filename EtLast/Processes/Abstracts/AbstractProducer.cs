@@ -15,20 +15,20 @@
         /// <summary>
         /// Default false.
         /// </summary>
-        public bool IgnoreRowsWithError { get; set; }
+        public bool IgnoreRowsWithError { get; init; }
 
         /// <summary>
         /// Default true.
         /// </summary>
-        public bool IgnoreNullOrEmptyRows { get; set; } = true;
+        public bool IgnoreNullOrEmptyRows { get; init; } = true;
 
         /// <summary>
         /// First row index is (integer) 1
         /// </summary>
-        public string AddRowIndexToColumn { get; set; }
+        public string AddRowIndexToColumn { get; init; }
 
         private int _currentRowIndex;
-        protected bool AutomaticallyEvaluateAndYieldInputProcessRows { get; set; } = true;
+        protected bool AutomaticallyEvaluateAndYieldInputProcessRows { get; init; } = true;
 
         protected AbstractProducer(ITopic topic, string name)
             : base(topic, name)

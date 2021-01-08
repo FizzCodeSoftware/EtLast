@@ -6,14 +6,14 @@
 
     public class KeyTestMutator : AbstractCrossMutator
     {
-        public RowKeyGenerator RowKeyGenerator { get; set; }
-        public NoMatchAction NoMatchAction { get; set; }
-        public MatchAction MatchAction { get; set; }
+        public RowKeyGenerator RowKeyGenerator { get; init; }
+        public NoMatchAction NoMatchAction { get; init; }
+        public MatchAction MatchAction { get; init; }
 
         /// <summary>
         /// Default true. If <see cref="MatchAction.CustomAction"/> is used then setting this to false results in significantly less memory usage.
         /// </summary>
-        public bool MatchActionContainsMatch { get; set; } = true;
+        public bool MatchActionContainsMatch { get; init; } = true;
 
         private ICountableLookup _lookup;
 

@@ -10,7 +10,7 @@
     [TestClass]
     public class EpPlusExcelReaderTests
     {
-        private static EpPlusExcelReader GetReader(ITopic topic, string fileName)
+        private static EpPlusExcelReader GetReader(ITopic topic, string fileName, string sheetName = null, int sheetIndex = -1, bool automaticallyTrimAllStringValues = true)
         {
             return new EpPlusExcelReader(topic, null)
             {
@@ -23,7 +23,10 @@
                     new ReaderColumnConfiguration("Value2", "ValueInt", new IntConverter()),
                     new ReaderColumnConfiguration("Value3", "ValueDate", new DateConverter()),
                     new ReaderColumnConfiguration("Value4", "ValueDouble", new DoubleConverter())
-                }
+                },
+                SheetName = sheetName,
+                SheetIndex = sheetIndex,
+                AutomaticallyTrimAllStringValues = automaticallyTrimAllStringValues,
             };
         }
 
@@ -31,8 +34,7 @@
         public void ContentBySheetName()
         {
             var topic = TestExecuter.GetTopic();
-            var reader = GetReader(topic, @".\TestData\Test.xlsx");
-            reader.SheetName = "MergeAtIndex0";
+            var reader = GetReader(topic, @".\TestData\Test.xlsx", sheetName: "MergeAtIndex0");
 
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(reader)
@@ -53,8 +55,7 @@
         public void ContentBySheetIndex()
         {
             var topic = TestExecuter.GetTopic();
-            var reader = GetReader(topic, @".\TestData\Test.xlsx");
-            reader.SheetIndex = 0;
+            var reader = GetReader(topic, @".\TestData\Test.xlsx", sheetIndex: 0);
 
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(reader)
@@ -75,9 +76,7 @@
         public void NoTrim()
         {
             var topic = TestExecuter.GetTopic();
-            var reader = GetReader(topic, @".\TestData\Test.xlsx");
-            reader.SheetName = "MergeAtIndex0";
-            reader.AutomaticallyTrimAllStringValues = false;
+            var reader = GetReader(topic, @".\TestData\Test.xlsx", sheetName: "MergeAtIndex0", automaticallyTrimAllStringValues: false);
 
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(reader)

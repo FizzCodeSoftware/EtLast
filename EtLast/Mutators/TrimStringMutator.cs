@@ -5,7 +5,7 @@
 
     public class TrimStringMutator : AbstractMutator
     {
-        public string[] Columns { get; set; }
+        public string[] Columns { get; init; }
 
         public TrimStringMutator(ITopic topic, string name)
             : base(topic, name)

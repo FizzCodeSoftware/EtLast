@@ -11,7 +11,7 @@
     /// </summary>
     public class RemoveDuplicateRowsMutator : AbstractMutator
     {
-        public Func<IReadOnlyRow, string> KeyGenerator { get; set; }
+        public Func<IReadOnlyRow, string> KeyGenerator { get; init; }
 
         private readonly HashSet<string> _returnedKeys = new HashSet<string>();
 

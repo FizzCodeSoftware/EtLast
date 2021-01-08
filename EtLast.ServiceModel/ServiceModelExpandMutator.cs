@@ -17,19 +17,23 @@
         where TChannel : class
         where TClient : ClientBase<TChannel>
     {
-        public ServiceModelExpandMutatorClientCreatorDelegate<TChannel, TClient> ClientCreator { get; set; }
-        public ServiceModelExpandMutatorClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; set; }
-        public string TargetColumn { get; set; }
+        public ServiceModelExpandMutatorClientCreatorDelegate<TChannel, TClient> ClientCreator { get; init; }
+        public ServiceModelExpandMutatorClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; init; }
+        public string TargetColumn { get; init; }
 
-        public InvalidValueAction ActionIfFailed { get; set; }
-        public object SpecialValueIfFailed { get; set; }
+        /// <summary>
+        /// Default value is <see cref="InvalidValueAction.Keep"/>
+        /// </summary>
+        public InvalidValueAction ActionIfFailed { get; init; } = InvalidValueAction.Keep;
+
+        public object SpecialValueIfFailed { get; init; }
 
         private TClient _client;
 
         /// <summary>
         /// Default value is 5.
         /// </summary>
-        public int MaxRetryCount { get; set; } = 5;
+        public int MaxRetryCount { get; init; } = 5;
 
         public ServiceModelExpandMutator(ITopic topic, string name)
             : base(topic, name)

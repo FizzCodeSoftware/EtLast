@@ -12,7 +12,7 @@
         public ITopic Topic => _scope.Topic;
         public ProcessKind Kind => ProcessKind.scope;
 
-        public ResilientSqlScopePostFinalizerManager(ResilientSqlScope scope)
+        internal ResilientSqlScopePostFinalizerManager(ResilientSqlScope scope)
         {
             _scope = scope;
         }

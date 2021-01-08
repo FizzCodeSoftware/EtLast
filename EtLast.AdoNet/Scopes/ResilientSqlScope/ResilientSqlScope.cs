@@ -10,7 +10,7 @@
         public ResilientSqlScopeConfiguration Configuration
         {
             get => _configuration;
-            set
+            init
             {
                 if (_configuration != null)
                 {
@@ -73,12 +73,11 @@
 
             foreach (var table in Configuration.Tables)
             {
-                if (string.IsNullOrEmpty(table.TempTableName))
+                if (string.IsNullOrEmpty(table.TempTableName)
+                    && string.IsNullOrEmpty(Configuration.AutoTempTablePrefix)
+                    && string.IsNullOrEmpty(Configuration.AutoTempTablePostfix))
                 {
-                    if (string.IsNullOrEmpty(Configuration.AutoTempTablePrefix) && string.IsNullOrEmpty(Configuration.AutoTempTablePostfix))
-                        throw new InvalidProcessParameterException(this, nameof(table.TempTableName), null, nameof(ResilientTable) + "." + nameof(ResilientTableBase.TempTableName) + " must be specified if there is no " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePrefix) + " or " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePostfix) + " specified (table name: " + table.TableName + ")");
-
-                    table.TempTableName = Configuration.AutoTempTablePrefix + table.TableName + Configuration.AutoTempTablePostfix;
+                    throw new InvalidProcessParameterException(this, nameof(table.TempTableName), null, nameof(ResilientTable) + "." + nameof(ResilientTableBase.TempTableName) + " must be specified if there is no " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePrefix) + " or " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePostfix) + " specified (table name: " + table.TableName + ")");
                 }
 
                 if (string.IsNullOrEmpty(table.TableName))

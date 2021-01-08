@@ -11,11 +11,12 @@
     public class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator, IRowWriter
         where TState : BaseExcelWriterState, new()
     {
-        public string FileName { get; set; }
-        public Action<ExcelPackage, TState> Initialize { get; set; }
-        public Action<IRow, ExcelPackage, TState> Action { get; set; }
-        public Action<ExcelPackage, TState> Finalize { get; set; }
-        public ExcelPackage ExistingPackage { get; set; }
+        public string FileName { get; init; }
+        public Action<ExcelPackage, TState> Initialize { get; init; }
+        public Action<IRow, ExcelPackage, TState> Action { get; init; }
+        public Action<ExcelPackage, TState> Finalize { get; init; }
+        public ExcelPackage ExistingPackage { get; init; }
+
         private TState _state;
         private ExcelPackage _package;
         private int? _storeUid;

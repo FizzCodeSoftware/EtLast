@@ -10,11 +10,11 @@
 
     public class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowWriter
     {
-        public string FileName { get; set; }
-        public ExcelPackage ExistingPackage { get; set; }
-        public string SheetName { get; set; }
-        public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
-        public Action<ExcelPackage, SimpleExcelWriterState> Finalize { get; set; }
+        public string FileName { get; init; }
+        public ExcelPackage ExistingPackage { get; init; }
+        public string SheetName { get; init; }
+        public List<ColumnCopyConfiguration> ColumnConfiguration { get; init; }
+        public Action<ExcelPackage, SimpleExcelWriterState> Finalize { get; init; }
 
         private SimpleExcelWriterState _state;
         private ExcelPackage _package;

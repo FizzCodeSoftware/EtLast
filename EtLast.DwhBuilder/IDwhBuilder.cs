@@ -14,9 +14,9 @@
 
         IReadOnlyList<SqlEngineVersion> SupportedSqlEngineVersions { get; }
 
-        RelationalModel Model { get; set; }
-        DwhBuilderConfiguration Configuration { get; set; }
-        ConnectionStringWithProvider ConnectionString { get; set; }
+        RelationalModel Model { get; init; }
+        DwhBuilderConfiguration Configuration { get; init; }
+        ConnectionStringWithProvider ConnectionString { get; init; }
 
         TTableBuilder[] AddTables(params RelationalTable[] tables);
         void AddPostFinalizer(ResilientSqlScopeExecutableCreatorDelegate creator);

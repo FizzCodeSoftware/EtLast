@@ -7,8 +7,8 @@
 
     public class DeleteTable : AbstractSqlStatement
     {
-        public string TableName { get; set; }
-        public string CustomWhereClause { get; set; }
+        public string TableName { get; init; }
+        public string CustomWhereClause { get; init; }
 
         public DeleteTable(ITopic topic, string name)
             : base(topic, name)

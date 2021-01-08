@@ -15,14 +15,14 @@
         /// <summary>
         /// Default value is <see cref="MsSqlDropStoredProceduresProcessMode.SpecifiedStoredProcedures"/>
         /// </summary>
-        public MsSqlDropStoredProceduresProcessMode Mode { get; set; } = MsSqlDropStoredProceduresProcessMode.SpecifiedStoredProcedures;
+        public MsSqlDropStoredProceduresProcessMode Mode { get; init; } = MsSqlDropStoredProceduresProcessMode.SpecifiedStoredProcedures;
 
-        public string SchemaName { get; set; }
+        public string SchemaName { get; init; }
 
         /// <summary>
         /// Stored procedure names must include schema name.
         /// </summary>
-        public string[] StoredProcedureNames { get; set; }
+        public string[] StoredProcedureNames { get; init; }
 
         private List<string> _storedProcedureNames;
 
@@ -130,8 +130,8 @@
             }
 
             return _storedProcedureNames
-                .Select(storedProcedureName => "DROP PROCEDURE IF EXISTS " + storedProcedureName + ";")
-                .ToList();
+                .ConvertAll(storedProcedureName => "DROP PROCEDURE IF EXISTS " + storedProcedureName + ";")
+;
         }
 
         protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)

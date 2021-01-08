@@ -7,7 +7,7 @@
     public class MatchAction
     {
         public MatchMode Mode { get; }
-        public MatchActionDelegate CustomAction { get; set; }
+        public MatchActionDelegate CustomAction { get; init; }
 
         public MatchAction(MatchMode mode)
         {

@@ -8,7 +8,7 @@
     public class TooManyMatchAction
     {
         public MatchMode Mode { get; }
-        public TooManyMatchActionDelegate CustomAction { get; set; }
+        public TooManyMatchActionDelegate CustomAction { get; init; }
 
         public TooManyMatchAction(MatchMode mode)
         {

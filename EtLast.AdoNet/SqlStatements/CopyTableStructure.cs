@@ -11,7 +11,7 @@
 
     public class CopyTableStructure : AbstractSqlStatements
     {
-        public List<TableCopyConfiguration> Configuration { get; set; }
+        public List<TableCopyConfiguration> Configuration { get; init; }
 
         public CopyTableStructure(ITopic topic, string name)
             : base(topic, name)

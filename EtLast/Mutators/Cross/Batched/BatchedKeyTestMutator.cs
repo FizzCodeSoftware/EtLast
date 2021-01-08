@@ -5,23 +5,23 @@
 
     public class BatchedKeyTestMutator : AbstractBatchedCrossMutator
     {
-        public NoMatchAction NoMatchAction { get; set; }
-        public MatchAction MatchAction { get; set; }
+        public NoMatchAction NoMatchAction { get; init; }
+        public MatchAction MatchAction { get; init; }
 
         /// <summary>
         /// Default true. If <see cref="MatchAction.CustomAction"/> is used then setting this to false results in significantly less memory usage.
         /// </summary>
-        public bool MatchActionContainsMatch { get; set; } = true;
+        public bool MatchActionContainsMatch { get; init; } = true;
 
         /// <summary>
         /// The amount of rows processed in a batch. Default value is 1000.
         /// </summary>
-        public override int BatchSize { get; set; } = 1000;
+        public override int BatchSize { get; init; } = 1000;
 
         /// <summary>
         /// Default value is 100.000
         /// </summary>
-        public int CacheSizeLimit { get; set; } = 100000;
+        public int CacheSizeLimit { get; init; } = 100000;
 
         private ICountableLookup _lookup;
 

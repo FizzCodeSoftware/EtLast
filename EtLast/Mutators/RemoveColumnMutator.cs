@@ -5,7 +5,7 @@
 
     public class RemoveColumnMutator : AbstractMutator
     {
-        public string[] Columns { get; set; }
+        public string[] Columns { get; init; }
 
         public RemoveColumnMutator(ITopic topic, string name)
             : base(topic, name)

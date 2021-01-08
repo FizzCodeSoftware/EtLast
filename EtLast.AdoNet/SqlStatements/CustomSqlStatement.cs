@@ -8,16 +8,16 @@
 
     public class CustomSqlStatement : AbstractSqlStatement
     {
-        public string SqlStatement { get; set; }
-        public string MainTableName { get; set; }
-        public Dictionary<string, object> Parameters { get; set; }
+        public string SqlStatement { get; init; }
+        public string MainTableName { get; init; }
+        public Dictionary<string, object> Parameters { get; init; }
 
         /// <summary>
         /// Some SQL connector implementations does not support passing arrays due to parameters (like MySQL).
         /// If set to true, then all int[], long[], List&lt;int&gt; and List&lt;long&gt; parameters will be converted to a comma separated list and inlined into the SQL statement right before execution.
         /// Default value is true.
         /// </summary>
-        public bool InlineArrayParameters { get; set; } = true;
+        public bool InlineArrayParameters { get; init; } = true;
 
         public CustomSqlStatement(ITopic topic, string name)
             : base(topic, name)
@@ -116,9 +116,6 @@
                         Parameters.Remove(kvp.Key);
                     }
                 }
-
-                if (Parameters.Count == 0)
-                    Parameters = null;
             }
 
             return sqlStatement;

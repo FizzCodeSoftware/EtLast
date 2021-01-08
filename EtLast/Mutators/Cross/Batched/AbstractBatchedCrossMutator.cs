@@ -6,8 +6,8 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractBatchedCrossMutator : AbstractBatchedMutator
     {
-        public FilteredRowLookupBuilder LookupBuilder { get; set; }
-        public RowKeyGenerator RowKeyGenerator { get; set; }
+        public FilteredRowLookupBuilder LookupBuilder { get; init; }
+        public RowKeyGenerator RowKeyGenerator { get; init; }
 
         protected AbstractBatchedCrossMutator(ITopic topic, string name)
             : base(topic, name)

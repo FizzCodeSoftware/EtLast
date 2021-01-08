@@ -4,8 +4,8 @@ namespace FizzCode.EtLast.AdoNet
 {
     public class CustomSqlAdoNetDbReader : AbstractAdoNetDbReader
     {
-        public string Sql { get; set; }
-        public string MainTableName { get; set; }
+        public string Sql { get; init; }
+        public string MainTableName { get; init; }
 
         public CustomSqlAdoNetDbReader(ITopic topic, string name)
             : base(topic, name)

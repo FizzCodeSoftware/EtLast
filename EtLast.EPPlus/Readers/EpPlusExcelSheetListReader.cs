@@ -9,7 +9,7 @@
 
     public class EpPlusExcelSheetListReader : AbstractProducer, IRowReader
     {
-        public string FileName { get; set; }
+        public string FileName { get; init; }
 
         public EpPlusExcelSheetListReader(ITopic topic, string name)
             : base(topic, name)

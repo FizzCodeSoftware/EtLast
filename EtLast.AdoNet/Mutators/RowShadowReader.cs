@@ -18,7 +18,7 @@
         private int _currentIndex;
         private bool _active = true;
 
-        public RowShadowReader(int batchSize, string[] dbColumns, Dictionary<string, int> columnIndexes)
+        internal RowShadowReader(int batchSize, string[] dbColumns, Dictionary<string, int> columnIndexes)
         {
             _dbColumns = dbColumns;
             ColumnIndexes = columnIndexes;

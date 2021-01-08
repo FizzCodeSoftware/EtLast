@@ -10,12 +10,12 @@
 
     public class MsSqlDropSchemas : AbstractSqlStatements
     {
+        public string[] SchemaNames { get; init; }
+
         public MsSqlDropSchemas(ITopic topic, string name)
             : base(topic, name)
         {
         }
-
-        public string[] SchemaNames { get; set; }
 
         protected override void ValidateImpl()
         {

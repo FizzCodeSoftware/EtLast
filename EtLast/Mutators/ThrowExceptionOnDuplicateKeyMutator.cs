@@ -6,7 +6,7 @@
 
     public class ThrowExceptionOnDuplicateKeyMutator : AbstractMutator
     {
-        public Func<IReadOnlyRow, string> RowKeyGenerator { get; set; }
+        public Func<IReadOnlyRow, string> RowKeyGenerator { get; init; }
 
         private readonly HashSet<string> _keys = new HashSet<string>();
 

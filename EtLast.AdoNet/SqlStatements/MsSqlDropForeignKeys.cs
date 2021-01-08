@@ -15,14 +15,14 @@
         /// <summary>
         /// Default value is <see cref="MsSqlDropForeignKeysProcessMode.ToSpecifiedTables"/>
         /// </summary>
-        public MsSqlDropForeignKeysProcessMode Mode { get; set; } = MsSqlDropForeignKeysProcessMode.ToSpecifiedTables;
+        public MsSqlDropForeignKeysProcessMode Mode { get; init; } = MsSqlDropForeignKeysProcessMode.ToSpecifiedTables;
 
         /// <summary>
         /// Table names must include schema name.
         /// </summary>
-        public string[] TableNames { get; set; }
+        public string[] TableNames { get; init; }
 
-        public string SchemaName { get; set; }
+        public string SchemaName { get; init; }
 
         public MsSqlDropForeignKeys(ITopic topic, string name)
             : base(topic, name)

@@ -35,10 +35,10 @@ namespace FizzCode.EtLast
         public ITypeConverter Converter { get; }
 
         public NullSourceHandler NullSourceHandler { get; }
-        public object SpecialValueIfSourceIsNull { get; set; }
+        public object SpecialValueIfSourceIsNull { get; init; }
 
         public InvalidSourceHandler InvalidSourceHandler { get; }
-        public object SpecialValueIfSourceIsInvalid { get; set; }
+        public object SpecialValueIfSourceIsInvalid { get; init; }
 
         public ReaderDefaultColumnConfiguration(ITypeConverter converter, NullSourceHandler nullSourceHandler = NullSourceHandler.SetSpecialValue, InvalidSourceHandler invalidSourceHandler = InvalidSourceHandler.WrapError)
         {

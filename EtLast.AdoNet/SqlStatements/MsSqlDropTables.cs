@@ -15,10 +15,10 @@
         /// <summary>
         /// Default value is <see cref="MsSqlDropTablesProcessMode.SpecifiedTables"/>
         /// </summary>
-        public MsSqlDropTablesProcessMode Mode { get; set; } = MsSqlDropTablesProcessMode.SpecifiedTables;
+        public MsSqlDropTablesProcessMode Mode { get; init; } = MsSqlDropTablesProcessMode.SpecifiedTables;
 
-        public string SchemaName { get; set; }
-        public string[] TableNames { get; set; }
+        public string SchemaName { get; init; }
+        public string[] TableNames { get; init; }
 
         private List<string> _tableNames;
 
@@ -120,8 +120,8 @@
             }
 
             return _tableNames
-                .Select(tableName => "DROP TABLE " + tableName + ";")
-                .ToList();
+                .ConvertAll(tableName => "DROP TABLE " + tableName + ";")
+;
         }
 
         protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)

@@ -5,7 +5,7 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractCrossMutator : AbstractMutator
     {
-        public RowLookupBuilder LookupBuilder { get; set; }
+        public RowLookupBuilder LookupBuilder { get; init; }
 
         protected AbstractCrossMutator(ITopic topic, string name)
             : base(topic, name)

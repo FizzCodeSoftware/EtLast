@@ -20,15 +20,15 @@
         where TClient : ClientBase<TChannel>
     {
         /// <summary>
-        /// Default true.
+        /// Default value is true.
         /// </summary>
-        public bool TreatEmptyStringAsNull { get; set; } = true;
+        public bool TreatEmptyStringAsNull { get; init; } = true;
 
-        public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
-        public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
+        public List<ReaderColumnConfiguration> ColumnConfiguration { get; init; }
+        public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; init; }
 
-        public ServiceModelReaderClientCreatorDelegate<TChannel, TClient> ClientCreator { get; set; }
-        public ServiceModelReaderClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; set; }
+        public ServiceModelReaderClientCreatorDelegate<TChannel, TClient> ClientCreator { get; init; }
+        public ServiceModelReaderClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; init; }
 
         public ServiceModelReader(ITopic topic, string name)
             : base(topic, name)

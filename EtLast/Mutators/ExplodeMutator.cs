@@ -10,9 +10,9 @@
         /// <summary>
         /// Default true.
         /// </summary>
-        public bool RemoveOriginalRow { get; set; } = true;
+        public bool RemoveOriginalRow { get; init; } = true;
 
-        public ExplodeDelegate RowCreator { get; set; }
+        public ExplodeDelegate RowCreator { get; init; }
 
         public ExplodeMutator(ITopic topic, string name)
             : base(topic, name)

@@ -14,12 +14,12 @@
     public class InMemoryExplodeMutator : AbstractEvaluable, IMutator
     {
         public IEvaluable InputProcess { get; set; }
-        public InMemoryExplodeDelegate Action { get; set; }
+        public InMemoryExplodeDelegate Action { get; init; }
 
         /// <summary>
         /// Default true.
         /// </summary>
-        public bool RemoveOriginalRow { get; set; } = true;
+        public bool RemoveOriginalRow { get; init; } = true;
 
         public InMemoryExplodeMutator(ITopic topic, string name)
             : base(topic, name)

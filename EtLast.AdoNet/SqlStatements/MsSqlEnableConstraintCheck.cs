@@ -10,7 +10,7 @@
 
     public class MsSqlEnableConstraintCheck : AbstractSqlStatements
     {
-        public string[] TableNames { get; set; }
+        public string[] TableNames { get; init; }
 
         public MsSqlEnableConstraintCheck(ITopic topic, string name)
             : base(topic, name)

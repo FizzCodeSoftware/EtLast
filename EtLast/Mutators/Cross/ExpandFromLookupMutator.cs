@@ -5,10 +5,11 @@
 
     public class ExpandFromLookupMutator : AbstractCrossMutator
     {
-        public List<ColumnCopyConfiguration> ColumnConfiguration { get; set; }
-        public NoMatchAction NoMatchAction { get; set; }
-        public MatchActionDelegate MatchCustomAction { get; set; }
-        public SelectRowFromLookupDelegate MatchSelector { get; set; }
+        public List<ColumnCopyConfiguration> ColumnConfiguration { get; init; }
+        public NoMatchAction NoMatchAction { get; init; }
+        public MatchActionDelegate MatchCustomAction { get; init; }
+        public SelectRowFromLookupDelegate MatchSelector { get; init; }
+
         private RowLookup _lookup;
 
         public ExpandFromLookupMutator(ITopic topic, string name)

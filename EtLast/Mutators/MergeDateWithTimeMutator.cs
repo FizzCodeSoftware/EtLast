@@ -6,11 +6,16 @@
 
     public class MergeDateWithTimeMutator : AbstractMutator
     {
-        public string TargetColumn { get; set; }
-        public string SourceDateColumn { get; set; }
-        public string SourceTimeColumn { get; set; }
-        public InvalidValueAction ActionIfInvalid { get; set; } = InvalidValueAction.WrapError;
-        public object SpecialValueIfInvalid { get; set; }
+        public string TargetColumn { get; init; }
+        public string SourceDateColumn { get; init; }
+        public string SourceTimeColumn { get; init; }
+
+        /// <summary>
+        /// Default value is <see cref="InvalidValueAction.WrapError"/>
+        /// </summary>
+        public InvalidValueAction ActionIfInvalid { get; init; } = InvalidValueAction.WrapError;
+
+        public object SpecialValueIfInvalid { get; init; }
 
         public MergeDateWithTimeMutator(ITopic topic, string name)
             : base(topic, name)

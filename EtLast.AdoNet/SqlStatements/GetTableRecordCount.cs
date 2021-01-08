@@ -7,8 +7,8 @@
 
     public class GetTableRecordCount : AbstractSqlStatementWithResult<int>
     {
-        public string TableName { get; set; }
-        public string CustomWhereClause { get; set; }
+        public string TableName { get; init; }
+        public string CustomWhereClause { get; init; }
 
         public GetTableRecordCount(ITopic topic, string name)
             : base(topic, name)
