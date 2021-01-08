@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Data.SqlClient;
     using System.Globalization;
     using System.Linq;
@@ -214,6 +215,21 @@
             {
                 _bulkCopy.ColumnMappings.Add(column.RowColumn, column.DbColumn);
             }
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class MsSqlWriteToTableMutatorFluent
+    {
+        /// <summary>
+        /// Write rows to a Microsoft SQL database table in batches, using <see cref="SqlBulkCopy"/>.
+        /// <para>Does not create or suppress any transaction scope.</para>
+        /// <para>Does not support retrying the SQL operation and any failure will put the ETL context into a failed state.</para>
+        /// <para>It is not recommended to use this mutator to access a remote SQL database.</para>
+        /// </summary>
+        public static IFluentProcessMutatorBuilder WriteToMsSqlTable(this IFluentProcessMutatorBuilder builder, MsSqlWriteToTableMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

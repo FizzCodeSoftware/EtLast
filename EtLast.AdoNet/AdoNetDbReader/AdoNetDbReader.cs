@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
+    using System.ComponentModel;
     using System.Globalization;
     using System.Linq;
     using FizzCode.DbTools.Configuration;
@@ -71,6 +72,15 @@
             return Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, ConnectionString.Unescape(TableName), timeout, statement, transactionId, () => Parameters,
                 "querying from {ConnectionStringName}/{TableName}",
                 ConnectionString.Name, ConnectionString.Unescape(TableName));
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class AdoNetDbReaderFluent
+    {
+        public static IFluentProcessMutatorBuilder ReadFromSql(this IFluentProcessBuilder builder, AdoNetDbReader reader)
+        {
+            return builder.ReadFrom(reader);
         }
     }
 }

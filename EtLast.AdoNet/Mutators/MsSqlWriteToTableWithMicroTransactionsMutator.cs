@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Data.SqlClient;
     using System.Diagnostics;
     using System.Globalization;
@@ -16,7 +17,7 @@
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public ConnectionStringWithProvider ConnectionString { get; set; }
-        
+
         /// <summary>
         /// Default value is 600.
         /// </summary>
@@ -246,6 +247,20 @@
 
             if (ConnectionString.SqlEngine != SqlEngine.MsSql)
                 throw new InvalidProcessParameterException(this, "ConnectionString", nameof(ConnectionString.ProviderName), "provider name must be System.Data.SqlClient");
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class MsSqlWriteToTableWithMicroTransactionsMutatorFluent
+    {
+        /// <summary>
+        /// Write rows to a Microsoft SQL database table in batches, using <see cref="SqlBulkCopy"/>.
+        /// <para>Creates a new transaction scope for each batch which suppress any existing transaction scope.</para>
+        /// <para>Retrying the SQL operation is supported and enabled by default.</para>
+        /// </summary>
+        public static IFluentProcessMutatorBuilder WriteToMsSqlTableWithMicroTransactions(this IFluentProcessMutatorBuilder builder, MsSqlWriteToTableWithMicroTransactionsMutator mutator)
+        {
+            return builder.AddMutators(mutator);
         }
     }
 }

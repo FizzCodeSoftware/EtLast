@@ -45,15 +45,5 @@
         {
             return builder.AddMutators(mutator);
         }
-
-        public static IFluentProcessMutatorBuilder CustomCode(this IFluentProcessMutatorBuilder builder, ITopic topic, string name, CustomMutatorDelegate action)
-        {
-            var mutator = new CustomMutator(topic, name)
-            {
-                Then = action,
-            };
-
-            return builder.AddMutators(mutator);
-        }
     }
 }

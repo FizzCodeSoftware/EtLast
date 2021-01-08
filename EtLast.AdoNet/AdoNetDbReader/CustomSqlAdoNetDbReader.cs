@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast.AdoNet
+﻿using System.ComponentModel;
+
+namespace FizzCode.EtLast.AdoNet
 {
     public class CustomSqlAdoNetDbReader : AbstractAdoNetDbReader
     {
@@ -37,6 +39,15 @@
                     "querying from {ConnectionStringName} using custom query",
                     ConnectionString.Name);
             }
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class CustomSqlAdoNetDbReaderFluent
+    {
+        public static IFluentProcessMutatorBuilder ReadFromCustomSql(this IFluentProcessBuilder builder, CustomSqlAdoNetDbReader reader)
+        {
+            return builder.ReadFrom(reader);
         }
     }
 }
