@@ -6,7 +6,7 @@
     <Authors>FizzCode Ltd.</Authors>
     <Product>EtLast ETL (Extract, Transform and Load) library for .NET</Product>
     <Description>ServiceModel extension for EtLast ETL (Extract, Transform and Load) library</Description>
-    <Copyright>Copyright © 2019-2020 FizzCode Ltd.</Copyright>
+    <Copyright>Copyright © 2019-2021 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Platforms>AnyCPU</Platforms>
     <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>

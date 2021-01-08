@@ -16,7 +16,7 @@
       // Default: compile .cs files only when the debugger is not attached
       // Never: never compile .cs files
       // Always: always compile .cs files
-      "Mode": "Never"
+      "Mode": "Default"
     },
     "Seq": {
       "Enabled": false,

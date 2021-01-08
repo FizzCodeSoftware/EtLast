@@ -142,7 +142,7 @@
             var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             var referenceAssemblyFolder = Directory
-                .GetDirectories(@"c:\Program Files\dotnet\shared\Microsoft.NETCore.App\", "3.*")
+                .GetDirectories(@"c:\Program Files\dotnet\shared\Microsoft.NETCore.App\", "5.*")
                 .OrderByDescending(x => new DirectoryInfo(x).CreationTime)
                 .FirstOrDefault();
 
