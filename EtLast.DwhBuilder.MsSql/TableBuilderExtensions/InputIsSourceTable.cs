@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
     using FizzCode.EtLast.AdoNet;
     using FizzCode.LightWeight.RelationalModel;
 
@@ -11,7 +11,7 @@
 
     public static partial class TableBuilderExtensions
     {
-        public static DwhTableBuilder[] InputIsSourceTable(this DwhTableBuilder[] builders, RelationalModel sourceSchema, ConnectionStringWithProvider sourceConnectionString, AdoNetReaderConnectionScope readerScope, SourceReadSqlStatementCustomizerDelegate sqlStatementCustomizer = null, string customWhereClause = null)
+        public static DwhTableBuilder[] InputIsSourceTable(this DwhTableBuilder[] builders, RelationalModel sourceSchema, NamedConnectionString sourceConnectionString, AdoNetReaderConnectionScope readerScope, SourceReadSqlStatementCustomizerDelegate sqlStatementCustomizer = null, string customWhereClause = null)
         {
             foreach (var builder in builders)
             {
@@ -21,7 +21,7 @@
             return builders;
         }
 
-        private static IEvaluable CreateSourceTableInputProcess(DwhTableBuilder builder, DateTimeOffset? maxRecordTimestamp, RelationalModel sourceModel, ConnectionStringWithProvider sourceConnectionString, AdoNetReaderConnectionScope readerScope, SourceReadSqlStatementCustomizerDelegate sqlStatementCustomizer, string customWhereClause)
+        private static IEvaluable CreateSourceTableInputProcess(DwhTableBuilder builder, DateTimeOffset? maxRecordTimestamp, RelationalModel sourceModel, NamedConnectionString sourceConnectionString, AdoNetReaderConnectionScope readerScope, SourceReadSqlStatementCustomizerDelegate sqlStatementCustomizer, string customWhereClause)
         {
             var whereClauseList = new List<string>();
             if (customWhereClause != null)

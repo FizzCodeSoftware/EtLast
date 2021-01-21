@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder
 {
     using System.Linq;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
     using FizzCode.LightWeight.RelationalModel;
 
     public static class RelationalModelAnnotations
@@ -33,12 +33,12 @@
             return table.GetColumnsWithFlag("TimestampIndicator").FirstOrDefault();
         }
 
-        public static string NameEscaped(this RelationalColumn column, ConnectionStringWithProvider connectionString)
+        public static string NameEscaped(this RelationalColumn column, NamedConnectionString connectionString)
         {
             return connectionString.Escape(column.Name);
         }
 
-        public static string EscapedName(this RelationalTable table, ConnectionStringWithProvider connectionString)
+        public static string EscapedName(this RelationalTable table, NamedConnectionString connectionString)
         {
             return connectionString.Escape(table.Name, table.Schema.Name);
         }

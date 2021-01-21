@@ -9,14 +9,14 @@
     using System.Linq;
     using System.Text;
     using System.Transactions;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
 
     public delegate void ConnectionCreatorDelegate(AbstractAdoNetDbReader process, out DatabaseConnection connection, out IDbTransaction transaction);
 
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractAdoNetDbReader : AbstractProducer, IRowReader
     {
-        public ConnectionStringWithProvider ConnectionString { get; init; }
+        public NamedConnectionString ConnectionString { get; init; }
 
         public List<ReaderColumnConfiguration> ColumnConfiguration { get; init; }
         public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; init; }
@@ -83,7 +83,7 @@
                 }
                 else
                 {
-                    connection = ConnectionManager.GetConnection(ConnectionString, this);
+                    connection = EtlConnectionManager.GetConnection(ConnectionString, this);
                 }
 
                 cmd = connection.Connection.CreateCommand();
@@ -215,7 +215,7 @@
 
             if (CustomConnectionCreator == null)
             {
-                ConnectionManager.ReleaseConnection(this, ref connection);
+                EtlConnectionManager.ReleaseConnection(this, ref connection);
             }
         }
 

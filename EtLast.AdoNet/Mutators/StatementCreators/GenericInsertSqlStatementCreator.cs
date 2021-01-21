@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
 
     public class GenericInsertSqlStatementCreator : IAdoNetWriteToTableSqlStatementCreator
     {
@@ -18,7 +18,7 @@
             _dbColumns = string.Join(", ", _columns.Select(x => x.DbColumn));
         }
 
-        public string CreateRowStatement(ConnectionStringWithProvider connectionString, IReadOnlySlimRow row, WriteToTableMutator operation)
+        public string CreateRowStatement(NamedConnectionString connectionString, IReadOnlySlimRow row, WriteToTableMutator operation)
         {
             var startIndex = operation.ParameterCount;
             foreach (var column in _columns)
@@ -30,7 +30,7 @@
             return statement;
         }
 
-        public string CreateStatement(ConnectionStringWithProvider connectionString, List<string> rowStatements)
+        public string CreateStatement(NamedConnectionString connectionString, List<string> rowStatements)
         {
             return "INSERT INTO " + _tableDefinition.TableName + " (" + _dbColumns + ") VALUES \n" + string.Join(",\n", rowStatements) + ";";
         }

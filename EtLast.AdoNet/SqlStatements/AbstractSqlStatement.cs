@@ -20,7 +20,7 @@
 
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
-                var connection = ConnectionManager.GetConnection(ConnectionString, this);
+                var connection = EtlConnectionManager.GetConnection(ConnectionString, this);
                 try
                 {
                     lock (connection.Lock)
@@ -38,7 +38,7 @@
                 }
                 finally
                 {
-                    ConnectionManager.ReleaseConnection(this, ref connection);
+                    EtlConnectionManager.ReleaseConnection(this, ref connection);
                 }
             }
         }

@@ -9,14 +9,14 @@
     using System.Linq;
     using System.Threading;
     using System.Transactions;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
     using FizzCode.EtLast;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
     public class MsSqlWriteToTableWithMicroTransactionsMutator : AbstractMutator, IRowWriter
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        public ConnectionStringWithProvider ConnectionString { get; init; }
+        public NamedConnectionString ConnectionString { get; init; }
 
         /// <summary>
         /// Default value is 600.
@@ -127,7 +127,7 @@
                 {
                     var transactionId = Transaction.Current.ToIdentifierString();
 
-                    connection = ConnectionManager.GetConnection(ConnectionString, this, 0);
+                    connection = EtlConnectionManager.GetConnection(ConnectionString, this, 0);
 
                     var options = SqlBulkCopyOptions.Default;
 
@@ -156,7 +156,7 @@
                     {
                         bulkCopy.WriteToServer(_reader);
                         bulkCopy.Close();
-                        ConnectionManager.ReleaseConnection(this, ref connection);
+                        EtlConnectionManager.ReleaseConnection(this, ref connection);
 
                         scope.Complete();
 
@@ -175,7 +175,7 @@
 
                         if (connection != null)
                         {
-                            ConnectionManager.ConnectionFailed(ref connection);
+                            EtlConnectionManager.ConnectionFailed(ref connection);
                             bulkCopy?.Close();
                         }
 

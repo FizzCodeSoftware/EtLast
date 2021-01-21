@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using FizzCode.LightWeight.AdoNet;
 
     public class AdoNetReaderConnectionScope
     {
@@ -12,7 +13,7 @@
         {
             if (!_readerConnections.TryGetValue(process.ConnectionString.Name, out var t))
             {
-                var conn = ConnectionManager.GetNewConnection(process.ConnectionString, process);
+                var conn = EtlConnectionManager.GetNewConnection(process.ConnectionString, process);
                 var tran = conn.Connection.BeginTransaction();
                 t = new Tuple<DatabaseConnection, IDbTransaction>(conn, tran);
                 _readerConnections.Add(process.ConnectionString.Name, t);

@@ -4,12 +4,12 @@
     using System.ComponentModel;
     using System.Data;
     using System.Transactions;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
 
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractSqlStatementWithResult<T> : AbstractExecutableWithResult<T>
     {
-        public ConnectionStringWithProvider ConnectionString { get; set; }
+        public NamedConnectionString ConnectionString { get; set; }
 
         /// <summary>
         /// Default value is 600.
@@ -40,7 +40,7 @@
 
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
-                var connection = ConnectionManager.GetConnection(ConnectionString, this);
+                var connection = EtlConnectionManager.GetConnection(ConnectionString, this);
                 try
                 {
                     lock (connection.Lock)
@@ -59,7 +59,7 @@
                 }
                 finally
                 {
-                    ConnectionManager.ReleaseConnection(this, ref connection);
+                    EtlConnectionManager.ReleaseConnection(this, ref connection);
                 }
             }
         }

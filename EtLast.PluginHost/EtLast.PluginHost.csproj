@@ -22,8 +22,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandDotNet" Version="4.1.4" />
-    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="2.0.6.5993" />
+    <PackageReference Include="CommandDotNet" Version="4.1.5" />
+    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="2.0.13.6024" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3">
       <PrivateAssets>all</PrivateAssets>

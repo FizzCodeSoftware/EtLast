@@ -7,7 +7,7 @@
     using System.Globalization;
     using System.Linq;
     using System.Text;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
 
     public class CopyTableStructure : AbstractSqlStatements
     {
@@ -32,7 +32,7 @@
                 throw new ProcessParameterNullException(this, nameof(TableCopyConfiguration.TargetTableName));
         }
 
-        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection, string transactionId)
+        protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)
         {
             var statements = new List<string>();
             var sb = new StringBuilder();

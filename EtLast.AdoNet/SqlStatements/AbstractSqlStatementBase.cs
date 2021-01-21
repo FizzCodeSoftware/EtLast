@@ -7,12 +7,12 @@
     using System.Linq;
     using System.Text;
     using System.Transactions;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
 
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractSqlStatementBase : AbstractExecutable
     {
-        public ConnectionStringWithProvider ConnectionString { get; init; }
+        public NamedConnectionString ConnectionString { get; init; }
 
         /// <summary>
         /// Default value is 600.

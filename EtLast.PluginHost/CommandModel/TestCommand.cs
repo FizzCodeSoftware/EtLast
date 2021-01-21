@@ -4,8 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using CommandDotNet;
-    using FizzCode.DbTools.Configuration;
     using FizzCode.EtLast.AdoNet;
+    using FizzCode.LightWeight.AdoNet;
     using Serilog.Events;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
@@ -84,7 +84,7 @@
                 moduleNames = ModuleLister.GetAllModules(commandContext);
             }
 
-            var allConnectionStrings = new List<ConnectionStringWithProvider>();
+            var allConnectionStrings = new List<NamedConnectionString>();
             var index = 0;
             foreach (var moduleName in moduleNames)
             {
@@ -182,7 +182,7 @@
 
                 try
                 {
-                    ConnectionManager.TestConnection(connectionString);
+                    EtlConnectionManager.TestConnection(connectionString);
                     commandContext.Logger.Information("\t\tPASSED");
                 }
                 catch (Exception ex)

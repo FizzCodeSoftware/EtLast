@@ -1,10 +1,10 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
 
     public interface ISqlValueProcessor
     {
-        bool Init(ConnectionStringWithProvider connectionString);
+        bool Init(NamedConnectionString connectionString);
         object ProcessValue(object value, string column);
     }
 }

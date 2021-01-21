@@ -6,7 +6,7 @@
     using System.Data;
     using System.Diagnostics;
     using System.Transactions;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
 
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractSqlStatements : AbstractSqlStatementBase
@@ -20,7 +20,7 @@
         {
             using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
             {
-                var connection = ConnectionManager.GetConnection(ConnectionString, this);
+                var connection = EtlConnectionManager.GetConnection(ConnectionString, this);
                 try
                 {
                     lock (connection.Lock)
@@ -61,12 +61,12 @@
                 }
                 finally
                 {
-                    ConnectionManager.ReleaseConnection(this, ref connection);
+                    EtlConnectionManager.ReleaseConnection(this, ref connection);
                 }
             }
         }
 
-        protected abstract List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection, string transactionId);
+        protected abstract List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId);
         protected abstract void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId);
         protected abstract void LogSucceeded(int lastSucceededIndex, string transactionId);
     }

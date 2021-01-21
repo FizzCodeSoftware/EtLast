@@ -6,7 +6,7 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
 
     public class DropViews : AbstractSqlStatements
     {
@@ -31,7 +31,7 @@
             }
         }
 
-        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection, string transactionId)
+        protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)
         {
             return TableNames.Select(viewName => "DROP VIEW IF EXISTS " + viewName + ";").ToList();
         }

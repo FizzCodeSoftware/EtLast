@@ -7,14 +7,14 @@
     using System.Globalization;
     using System.Linq;
     using System.Transactions;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
     using FizzCode.EtLast;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
     public class MsSqlWriteToTableMutator : AbstractMutator, IRowWriter
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        public ConnectionStringWithProvider ConnectionString { get; init; }
+        public NamedConnectionString ConnectionString { get; init; }
 
         /// <summary>
         /// Default value is 600.
@@ -81,7 +81,7 @@
                 _bulkCopy = null;
             }
 
-            ConnectionManager.ReleaseConnection(this, ref _connection);
+            EtlConnectionManager.ReleaseConnection(this, ref _connection);
         }
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
@@ -137,7 +137,7 @@
             {
                 Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBulk, iocUid, recordCount, ex);
 
-                ConnectionManager.ReleaseConnection(this, ref _connection);
+                EtlConnectionManager.ReleaseConnection(this, ref _connection);
                 _bulkCopy.Close();
                 _bulkCopy = null;
 
@@ -195,7 +195,7 @@
             if (_connection != null)
                 return;
 
-            _connection = ConnectionManager.GetConnection(ConnectionString, this);
+            _connection = EtlConnectionManager.GetConnection(ConnectionString, this);
 
             var options = SqlBulkCopyOptions.Default;
 

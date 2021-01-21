@@ -5,13 +5,14 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
     using System.Collections.Generic;
     using System.Data.Common;
     using System.Linq;
+    using FizzCode.DbTools;
     using FizzCode.DbTools.Common;
-    using FizzCode.DbTools.Configuration;
     using FizzCode.DbTools.DataDefinition;
     using FizzCode.DbTools.DataDefinition.MsSql2016;
     using FizzCode.DbTools.DataDefinition.SqlExecuter;
     using FizzCode.EtLast;
     using FizzCode.EtLast.AdoNet;
+    using FizzCode.LightWeight.AdoNet;
 
     public abstract class AbstractDwhBuilderTestPlugin : AbstractEtlPlugin
     {
@@ -19,7 +20,7 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
         protected DateTime EtlRunId2 { get; } = new DateTime(2022, 2, 2, 2, 2, 2, DateTimeKind.Utc);
 
         public string DatabaseName { get; } = "EtLastIntegrationTest";
-        public ConnectionStringWithProvider TestConnectionString { get; } = new ConnectionStringWithProvider("test", "System.Data.SqlClient", "Data Source=(local);Initial Catalog=\"EtLastIntegrationTest\";Integrated Security=SSPI;Connection Timeout=5", "2016");
+        public NamedConnectionString TestConnectionString { get; } = new NamedConnectionString("test", "System.Data.SqlClient", "Data Source=(local);Initial Catalog=\"EtLastIntegrationTest\";Integrated Security=SSPI;Connection Timeout=5", "2016");
         public TestDwhDefinition DatabaseDeclaration { get; } = new TestDwhDefinition();
 
         protected AbstractDwhBuilderTestPlugin()
@@ -80,7 +81,7 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
 
                     var dbToolsContext = new Context()
                     {
-                        Settings = Helper.GetDefaultSettings(TestConnectionString.SqlEngineVersion),
+                        Settings = Helper.GetDefaultSettings(MsSqlVersion.MsSql2016),
                         Logger = new DbTools.Common.Logger.Logger(),
                     };
 

@@ -2,7 +2,7 @@
 {
     using System;
     using System.Reflection;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
 
     public class MySqlValueProcessor : ISqlValueProcessor
     {
@@ -10,7 +10,7 @@
         private static PropertyInfo _mysqlDateTimeIsValidProp;
         private static PropertyInfo _mySqlDateTimeValueProp;
 
-        public bool Init(ConnectionStringWithProvider connectionString)
+        public bool Init(NamedConnectionString connectionString)
         {
             return connectionString.SqlEngine == SqlEngine.MySql;
         }

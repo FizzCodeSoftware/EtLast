@@ -5,9 +5,9 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using FizzCode.DbTools.Configuration;
     using FizzCode.EtLast;
     using FizzCode.EtLast.AdoNet;
+    using FizzCode.LightWeight.AdoNet;
     using FizzCode.LightWeight.RelationalModel;
 
     public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
@@ -16,8 +16,8 @@
         public string ScopeName { get; }
 
         public RelationalModel Model { get; init; }
-        public ConnectionStringWithProvider ConnectionString { get; init; }
-        public IReadOnlyList<SqlEngineVersion> SupportedSqlEngineVersions { get; } = new List<SqlEngineVersion> { MsSqlVersion.MsSql2016 };
+        public NamedConnectionString ConnectionString { get; init; }
+        public IReadOnlyList<SqlEngine> SupportedSqlEngines { get; } = new List<SqlEngine> { SqlEngine.MsSql };
 
         public DwhBuilderConfiguration Configuration { get; init; }
 
@@ -80,7 +80,7 @@
                 Then = (proc) =>
                 {
                     var startedOn = Stopwatch.StartNew();
-                    var connection = ConnectionManager.GetNewConnection(ConnectionString, caller);
+                    var connection = EtlConnectionManager.GetNewConnection(ConnectionString, caller);
                     using (var command = connection.Connection.CreateCommand())
                     {
                         command.CommandTimeout = 60 * 1000;
@@ -137,7 +137,7 @@
                         }
                     }
 
-                    ConnectionManager.ReleaseConnection(caller, ref connection);
+                    EtlConnectionManager.ReleaseConnection(caller, ref connection);
                 }
             };
 

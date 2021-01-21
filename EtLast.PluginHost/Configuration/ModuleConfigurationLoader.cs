@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
     using Microsoft.Extensions.Configuration;
     using Serilog.Events;
 
@@ -82,7 +82,7 @@
             if (broken)
                 return null;
 
-            var allConnectionStrings = new List<ConnectionStringWithProvider>();
+            var allConnectionStrings = new List<NamedConnectionString>();
             var sharedCs = new ConnectionStringCollection();
             sharedCs.LoadFromConfiguration(configuration, "ConnectionStrings:Shared", commandContext.HostConfiguration.SecretProtector);
             foreach (var cs in sharedCs.All)

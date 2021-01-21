@@ -6,7 +6,7 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
 
     public enum MsSqlDropTablesProcessMode { All, SpecifiedTables, SpecifiedSchema }
 
@@ -57,7 +57,7 @@
                 throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be System.Data.SqlClient");
         }
 
-        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection, string transactionId)
+        protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)
         {
             switch (Mode)
             {

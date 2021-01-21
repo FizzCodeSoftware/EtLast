@@ -2,7 +2,7 @@
 {
     using System.Diagnostics;
     using System.Linq;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
 
     [DebuggerDisplay("{RowColumn} -> {DbColumn}")]
     public class DbColumnDefinition
@@ -16,7 +16,7 @@
             DbColumn = dbColumn ?? rowColumn;
         }
 
-        public static DbColumnDefinition[] StraightCopyAndEscape(ConnectionStringWithProvider connectionString, params string[] columnNames)
+        public static DbColumnDefinition[] StraightCopyAndEscape(NamedConnectionString connectionString, params string[] columnNames)
         {
             return columnNames
                 .Select(col => new DbColumnDefinition(col, connectionString.Escape(col)))

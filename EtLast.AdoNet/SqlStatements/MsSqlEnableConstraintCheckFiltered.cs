@@ -5,7 +5,7 @@
     using System.Data;
     using System.Diagnostics;
     using System.Globalization;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
 
     public class MsSqlEnableConstraintCheckFiltered : AbstractSqlStatements
     {
@@ -24,7 +24,7 @@
                 throw new ProcessParameterNullException(this, nameof(ConstraintNames));
         }
 
-        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection, string transactionId)
+        protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)
         {
             return ConstraintNames.ConvertAll(kvp => "ALTER TABLE " + kvp.Key + " WITH CHECK CHECK CONSTRAINT " + string.Join(", ", kvp.Value) + ";");
         }

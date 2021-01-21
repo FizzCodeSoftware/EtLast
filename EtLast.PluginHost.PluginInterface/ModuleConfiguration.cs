@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
     using FizzCode.LightWeight.Configuration;
     using Microsoft.Extensions.Configuration;
 

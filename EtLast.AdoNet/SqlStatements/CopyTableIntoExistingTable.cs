@@ -5,7 +5,7 @@
     using System.Data;
     using System.Globalization;
     using System.Linq;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
 
     public class CopyTableIntoExistingTable : AbstractSqlStatement
     {

@@ -8,12 +8,12 @@
     using System.Linq;
     using System.Text;
     using System.Transactions;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
     using FizzCode.EtLast;
 
     public class WriteToTableMutator : AbstractMutator, IRowWriter
     {
-        public ConnectionStringWithProvider ConnectionString { get; init; }
+        public NamedConnectionString ConnectionString { get; init; }
 
         /// <summary>
         /// Default value is 600.
@@ -61,7 +61,7 @@
 
             _statements = null;
 
-            ConnectionManager.ReleaseConnection(this, ref _connection);
+            EtlConnectionManager.ReleaseConnection(this, ref _connection);
         }
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
@@ -102,7 +102,7 @@
 
             try
             {
-                _connection = ConnectionManager.GetConnection(ConnectionString, this);
+                _connection = EtlConnectionManager.GetConnection(ConnectionString, this);
             }
             catch (Exception ex)
             {
@@ -227,7 +227,7 @@
                 throw new ProcessParameterNullException(this, nameof(TableDefinition));
         }
 
-        public virtual void SetParameter(IDbDataParameter parameter, object value, DbType? dbType, ConnectionStringWithProvider connectionString)
+        public virtual void SetParameter(IDbDataParameter parameter, object value, DbType? dbType, NamedConnectionString connectionString)
         {
             if (value == null)
             {

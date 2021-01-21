@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Reflection;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
     using FizzCode.LightWeight.Configuration;
 
     public abstract class AbstractEtlPlugin : IEtlPlugin
@@ -91,7 +91,7 @@
             return fileName;
         }
 
-        protected virtual ConnectionStringWithProvider GetConnectionString(string key, bool allowMachineNameOverride = true)
+        protected virtual NamedConnectionString GetConnectionString(string key, bool allowMachineNameOverride = true)
         {
             if (ModuleConfiguration.ConnectionStrings == null)
                 return null;

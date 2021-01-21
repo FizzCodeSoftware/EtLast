@@ -6,7 +6,7 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using FizzCode.DbTools.Configuration;
+    using FizzCode.LightWeight.AdoNet;
 
     public class DropTables : AbstractSqlStatements
     {
@@ -25,7 +25,7 @@
                 throw new ProcessParameterNullException(this, nameof(TableNames));
         }
 
-        protected override List<string> CreateSqlStatements(ConnectionStringWithProvider connectionString, IDbConnection connection, string transactionId)
+        protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)
         {
             return TableNames
                 .Select(tableName => "DROP TABLE IF EXISTS " + tableName + ";")
