@@ -2,18 +2,17 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
 
     /// <summary>
     /// Creates <see cref="IRow"/>s from <see cref="InputRows"/>.
-    /// Use to create test input rows, or to inject litaral-like data.
+    /// Use to create test rows, or to produce fixed data.
     /// </summary>
-    /// <remarks>Do not use to read into <see cref="InputRows"/> from a data source.</remarks>
     public class RowCreator : AbstractProducer
     {
         public string[] Columns { get; set; }
-        public List<object[]> InputRows { get; set; } = new List<object[]>();
-        public int BatchSize { get; set; } = 100;
+        public List<object[]> InputRows { get; set; }
 
         public RowCreator(ITopic topic, string name)
             : base(topic, name)
@@ -42,6 +41,15 @@
 
                 yield return Context.CreateRow(this, initialValues);
             }
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class RowCreatorFluent
+    {
+        public static IFluentProcessMutatorBuilder UsePredefinedRows(this IFluentProcessBuilder builder, RowCreator creator)
+        {
+            return builder.ReadFrom(creator);
         }
     }
 }
