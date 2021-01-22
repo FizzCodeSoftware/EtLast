@@ -30,6 +30,11 @@
         /// </summary>
         public override int BatchSize { get; init; } = 1000;
 
+        /// <summary>
+        /// Default value is true;
+        /// </summary>
+        public bool CopyTag { get; init; } = true;
+
         public BatchedJoinMutator(ITopic topic, string name)
             : base(topic, name)
         {
@@ -92,6 +97,9 @@
                         ColumnCopyConfiguration.CopyMany(match, initialValues, ColumnConfiguration);
 
                         var newRow = Context.CreateRow(this, initialValues);
+
+                        if (CopyTag)
+                            newRow.Tag = row.Tag;
 
                         InvokeCustomMatchAction(row, newRow, match);
 

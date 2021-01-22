@@ -22,6 +22,7 @@
         public LogEventLevel MinimumLogLevelInFile { get; set; }
         public LogEventLevel MinimumLogLevelIo { get; set; }
         public DynamicCompilationMode DynamicCompilationMode { get; set; }
+        public string CustomReferenceAssemblyFolder { get; set; }
         public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         public IConfigurationSecretProtector SecretProtector { get; set; }
 
@@ -79,6 +80,8 @@
             RetainedLogFileCountLimitLow = ConfigurationReader.GetCurrentValue(configuration, section, "RetainedLogFileCountLimit:Low", 4);
             TransactionScopeTimeout = TimeSpan.FromMinutes(ConfigurationReader.GetCurrentValue(configuration, section, "TransactionScopeTimeoutMinutes", 120));
             ModulesFolder = ConfigurationReader.GetCurrentValue(configuration, section, "ModulesFolder", @".\modules", SecretProtector);
+
+            CustomReferenceAssemblyFolder = ConfigurationReader.GetCurrentValue(configuration, section, "DynamicCompilation:CustomReferenceAssemblyFolder", null, SecretProtector);
 
             v = ConfigurationReader.GetCurrentValue(configuration, section, "DynamicCompilation:Mode", "Default", SecretProtector);
             if (!string.IsNullOrEmpty(v) && Enum.TryParse(v, out DynamicCompilationMode mode))

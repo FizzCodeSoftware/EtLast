@@ -26,6 +26,11 @@
         /// </summary>
         public TooManyMatchAction TooManyMatchAction { get; init; }
 
+        /// <summary>
+        /// Default value is true;
+        /// </summary>
+        public bool CopyTag { get; init; } = true;
+
         private RowLookup _lookup;
 
         public JoinMutator(ITopic topic, string name)
@@ -85,6 +90,9 @@
                     ColumnCopyConfiguration.CopyMany(match, initialValues, ColumnConfiguration);
 
                     var newRow = Context.CreateRow(this, initialValues);
+
+                    if (CopyTag)
+                        newRow.Tag = row.Tag;
 
                     InvokeCustomMatchAction(row, newRow, match);
 

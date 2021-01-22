@@ -141,10 +141,13 @@
             commandContext.Logger.Information("compiling plugins from {Folder} using shared files from {SharedFolder}", PathHelpers.GetFriendlyPathName(moduleConfiguration.ModuleFolder), PathHelpers.GetFriendlyPathName(sharedFolder));
             var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            var referenceAssemblyFolder = Directory
-                .GetDirectories(@"c:\Program Files\dotnet\shared\Microsoft.NETCore.App\", "5.*")
-                .OrderByDescending(x => new DirectoryInfo(x).CreationTime)
-                .FirstOrDefault();
+            var referenceAssemblyFolder = commandContext.HostConfiguration.CustomReferenceAssemblyFolder;
+            if (string.IsNullOrEmpty(referenceAssemblyFolder))
+            {
+                referenceAssemblyFolder = Directory.GetDirectories(@"c:\Program Files\dotnet\shared\Microsoft.NETCore.App\", "5.*")
+                    .OrderByDescending(x => new DirectoryInfo(x).CreationTime)
+                    .FirstOrDefault();
+            }
 
             commandContext.Logger.Information("using assemblies from {ReferenceAssemblyFolder}", referenceAssemblyFolder);
 

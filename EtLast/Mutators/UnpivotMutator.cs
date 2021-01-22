@@ -15,6 +15,11 @@
         /// </summary>
         public bool IgnoreIfValueIsNull { get; init; } = true;
 
+        /// <summary>
+        /// Default value is true;
+        /// </summary>
+        public bool CopyTag { get; init; } = true;
+
         public string[] ValueColumns { get; init; }
 
         private HashSet<string> _fixColumnNames;
@@ -58,6 +63,10 @@
                     initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, kvp.Value));
 
                     var newRow = Context.CreateRow(this, initialValues);
+
+                    if (CopyTag)
+                        newRow.Tag = row.Tag;
+
                     yield return newRow;
                 }
             }
@@ -70,11 +79,17 @@
                         continue;
 
                     var initialValues = FixColumns != null
-                        ? FixColumns.ConvertAll(x => new KeyValuePair<string, object>(x.ToColumn, row[x.FromColumn])) : row.Values.Where(kvp => !_valueColumnNames.Contains(kvp.Key)).ToList();
+                        ? FixColumns.ConvertAll(x => new KeyValuePair<string, object>(x.ToColumn, row[x.FromColumn]))
+                        : row.Values.Where(kvp => !_valueColumnNames.Contains(kvp.Key)).ToList();
+
                     initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, col));
                     initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, value));
 
                     var newRow = Context.CreateRow(this, initialValues);
+
+                    if (CopyTag)
+                        newRow.Tag = row.Tag;
+
                     yield return newRow;
                 }
             }
