@@ -7,36 +7,148 @@
     using System.Linq;
 
     [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
-    public class DictionaryRow : AbstractBaseRow
+    public class DictionaryRow : IRow
     {
-        public override IEnumerable<KeyValuePair<string, object>> Values => _values;
+        public IEtlContext Context { get; private set; }
+        public IProcess CreatorProcess { get; private set; }
+        public IProcess CurrentProcess { get; set; }
+        public int Uid { get; private set; }
+
+        public int ColumnCount => _values.Count;
+
+        public IEnumerable<KeyValuePair<string, object>> Values => _values;
 
         private Dictionary<string, object> _values;
 
-        public override bool HasValue(string column)
+        protected Dictionary<string, object> Staging { get; set; }
+        public bool HasStaging => Staging?.Count > 0;
+
+        public object Tag { get; set; }
+
+        public object this[string column] => GetValueImpl(column);
+
+        public string ToDebugString()
         {
-            return _values.ContainsKey(column);
+            return "UID: "
+                + Uid.ToString("D", CultureInfo.InvariantCulture)
+                + (Tag != null ? ", tag: " + Tag.ToString() : "")
+                + (_values.Count > 0
+                    ? ", " + string.Join(", ", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
+                    : "no values");
         }
 
-        public override int ColumnCount => _values.Count;
-
-        public override void Init(IEtlContext context, IProcess creatorProcess, int uid, IEnumerable<KeyValuePair<string, object>> initialValues)
+        /// <summary>
+        /// Returns true if any value is <see cref="EtlRowError"/>.
+        /// </summary>
+        /// <returns>True if any value is <see cref="EtlRowError"/>.</returns>
+        public bool HasError()
         {
-            base.Init(context, creatorProcess, uid, initialValues);
+            return _values.Any(x => x.Value is EtlRowError);
+        }
+
+        public T GetAs<T>(string column)
+        {
+            var value = GetValueImpl(column);
+            try
+            {
+                return (T)value;
+            }
+            catch (Exception ex)
+            {
+                var exception = new InvalidCastException("error raised during a cast operation", ex);
+                exception.Data.Add("Column", column);
+                exception.Data.Add("Value", value != null ? value.ToString() : "NULL");
+                exception.Data.Add("SourceType", (value?.GetType()).GetFriendlyTypeName());
+                exception.Data.Add("TargetType", TypeHelpers.GetFriendlyTypeName(typeof(T)));
+                throw exception;
+            }
+        }
+
+        public T GetAs<T>(string column, T defaultValueIfNull)
+        {
+            var value = GetValueImpl(column);
+            if (value == null)
+                return defaultValueIfNull;
+
+            try
+            {
+                return (T)value;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidCastException("requested cast to '" + typeof(T).GetFriendlyTypeName() + "' is not possible of '" + (value != null ? (value.ToString() + " (" + value.GetType().GetFriendlyTypeName() + ")") : "NULL") + "' in '" + column + "'", ex);
+            }
+        }
+
+        public bool Equals<T>(string column, T value)
+        {
+            var currentValue = GetValueImpl(column);
+            if (currentValue == null && value == null)
+                return false;
+
+            return DefaultValueComparer.ValuesAreEqual(currentValue, value);
+        }
+
+        public bool IsNullOrEmpty(string column)
+        {
+            var value = GetValueImpl(column);
+            return value == null || (value is string str && string.IsNullOrEmpty(str));
+        }
+
+        public bool IsNullOrEmpty()
+        {
+            foreach (var kvp in Values)
+            {
+                if (kvp.Value is string str)
+                {
+                    if (!string.IsNullOrEmpty(str))
+                        return false;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public bool Is<T>(string column)
+        {
+            return GetValueImpl(column) is T;
+        }
+
+        public string FormatToString(string column, IFormatProvider formatProvider = null)
+        {
+            var value = GetValueImpl(column);
+            return DefaultValueFormatter.Format(value);
+        }
+
+        public void Init(IEtlContext context, IProcess creatorProcess, int uid, IEnumerable<KeyValuePair<string, object>> initialValues)
+        {
+            Context = context;
+            CreatorProcess = creatorProcess;
+            CurrentProcess = creatorProcess;
+            Uid = uid;
 
             _values = initialValues == null
                 ? new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
                 : new Dictionary<string, object>(initialValues.Where(kvp => kvp.Value != null), StringComparer.OrdinalIgnoreCase);
         }
 
-        protected override object GetValueImpl(string column)
+        public bool HasValue(string column)
+        {
+            return _values.ContainsKey(column);
+        }
+
+        protected object GetValueImpl(string column)
         {
             return _values.TryGetValue(column, out var value)
                 ? value
                 : null;
         }
 
-        public override string GenerateKey(params string[] columns)
+        public string GenerateKey(params string[] columns)
         {
             if (columns.Length == 1)
             {
@@ -48,7 +160,7 @@
             return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-"));
         }
 
-        public override string GenerateKeyUpper(params string[] columns)
+        public string GenerateKeyUpper(params string[] columns)
         {
             if (columns.Length == 1)
             {
@@ -60,7 +172,7 @@
             return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-")).ToUpperInvariant();
         }
 
-        public override void SetValue(string column, object newValue)
+        public void SetValue(string column, object newValue)
         {
             if (HasStaging)
                 throw new ProcessExecutionException(CurrentProcess, this, "can't call " + nameof(SetValue) + " on a row with uncommitted staging");
@@ -86,7 +198,7 @@
             }
         }
 
-        public override void SetStagedValue(string column, object newValue)
+        public void SetStagedValue(string column, object newValue)
         {
             var hasPreviousValue = _values.TryGetValue(column, out var previousValue);
             if ((!hasPreviousValue && newValue == null)
@@ -104,7 +216,7 @@
             Staging[column] = newValue;
         }
 
-        public override void ApplyStaging()
+        public void ApplyStaging()
         {
             if (!HasStaging)
                 return;

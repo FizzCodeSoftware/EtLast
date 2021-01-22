@@ -9,9 +9,11 @@
     [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
     public class SlimRow : ISlimRow
     {
-        private readonly Dictionary<string, object> _values;
         public virtual IEnumerable<KeyValuePair<string, object>> Values => _values;
         public int ColumnCount => _values.Count;
+        public object Tag { get; set; }
+
+        private readonly Dictionary<string, object> _values;
 
         public SlimRow()
         {
@@ -43,7 +45,11 @@
 
         public string ToDebugString()
         {
-            return string.Join(", ", Values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")));
+            return
+                (Tag != null ? "tag: " + Tag.ToString() : "")
+                + (_values.Count > 0
+                    ? string.Join(", ", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
+                    : "no values");
         }
 
         public T GetAs<T>(string column)

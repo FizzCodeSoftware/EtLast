@@ -96,17 +96,20 @@
         {
             if (value == null)
             {
-                return configuration.NullSourceHandler switch
+                switch (configuration.NullSourceHandler)
                 {
-                    NullSourceHandler.WrapError => new EtlRowError()
-                    {
-                        Process = this,
-                        OriginalValue = null,
-                        Message = string.Format(CultureInfo.InvariantCulture, "failed to convert by {0}", configuration.Converter.GetType().GetFriendlyTypeName()),
-                    },
-                    NullSourceHandler.SetSpecialValue => configuration.SpecialValueIfSourceIsNull,
-                    _ => throw new NotImplementedException(configuration.NullSourceHandler.ToString() + " is not supported yet"),
-                };
+                    case NullSourceHandler.WrapError:
+                        return new EtlRowError()
+                        {
+                            Process = this,
+                            OriginalValue = null,
+                            Message = string.Format(CultureInfo.InvariantCulture, "failed to convert by {0}", configuration.Converter.GetType().GetFriendlyTypeName()),
+                        };
+                    case NullSourceHandler.SetSpecialValue:
+                        return configuration.SpecialValueIfSourceIsNull;
+                    default:
+                        throw new NotImplementedException(configuration.NullSourceHandler.ToString() + " is not supported yet");
+                }
             }
 
             if (value != null && configuration.Converter != null)
@@ -115,17 +118,20 @@
                 if (newValue != null)
                     return newValue;
 
-                return configuration.InvalidSourceHandler switch
+                switch (configuration.InvalidSourceHandler)
                 {
-                    InvalidSourceHandler.WrapError => new EtlRowError()
-                    {
-                        Process = this,
-                        OriginalValue = value,
-                        Message = string.Format(CultureInfo.InvariantCulture, "failed to convert by {0}", configuration.Converter.GetType().GetFriendlyTypeName()),
-                    },
-                    InvalidSourceHandler.SetSpecialValue => configuration.SpecialValueIfSourceIsInvalid,
-                    _ => throw new NotImplementedException(configuration.NullSourceHandler.ToString() + " is not supported yet"),
-                };
+                    case InvalidSourceHandler.WrapError:
+                        return new EtlRowError()
+                        {
+                            Process = this,
+                            OriginalValue = value,
+                            Message = string.Format(CultureInfo.InvariantCulture, "failed to convert by {0}", configuration.Converter.GetType().GetFriendlyTypeName()),
+                        };
+                    case InvalidSourceHandler.SetSpecialValue:
+                        return configuration.SpecialValueIfSourceIsInvalid;
+                    default:
+                        throw new NotImplementedException(configuration.NullSourceHandler.ToString() + " is not supported yet");
+                }
             }
 
             return value;

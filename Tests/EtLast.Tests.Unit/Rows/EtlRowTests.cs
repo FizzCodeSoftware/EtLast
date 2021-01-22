@@ -262,5 +262,50 @@
             Assert.AreEqual("A", row.GetAs<string>("name"));
             Assert.IsFalse(row.HasStaging);
         }
+
+        [TestMethod]
+        public void IsNullOrEmptyTrue1()
+        {
+            var context = TestExecuter.GetContext();
+            context.SetRowType<DictionaryRow>();
+
+            var row = context.CreateRow(null, (IEnumerable<KeyValuePair<string, object>>)null);
+            Assert.AreEqual(true, row.IsNullOrEmpty());
+        }
+
+        [TestMethod]
+        public void IsNullOrEmptyTrue2()
+        {
+            var context = TestExecuter.GetContext();
+            context.SetRowType<DictionaryRow>();
+
+            var row = context.CreateRow(null, (IEnumerable<KeyValuePair<string, object>>)null);
+            row.SetValue("a", "");
+            Assert.AreEqual(true, row.IsNullOrEmpty());
+        }
+
+        [TestMethod]
+        public void IsNullOrEmptyTrue3()
+        {
+            var context = TestExecuter.GetContext();
+            context.SetRowType<DictionaryRow>();
+
+            var row = context.CreateRow(null, (IEnumerable<KeyValuePair<string, object>>)null);
+            row.SetValue("a", "");
+            row.SetValue("a", "x");
+            row.SetValue("a", null);
+            Assert.AreEqual(true, row.IsNullOrEmpty());
+        }
+
+        [TestMethod]
+        public void IsNullOrEmptyFalse()
+        {
+            var context = TestExecuter.GetContext();
+            context.SetRowType<DictionaryRow>();
+
+            var row = context.CreateRow(null, (IEnumerable<KeyValuePair<string, object>>)null);
+            row.SetValue("a", 5);
+            Assert.AreEqual(false, row.IsNullOrEmpty());
+        }
     }
 }

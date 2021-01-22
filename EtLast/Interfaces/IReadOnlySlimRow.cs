@@ -8,6 +8,7 @@
         object this[string column] { get; }
         IEnumerable<KeyValuePair<string, object>> Values { get; }
         int ColumnCount { get; }
+        object Tag { get; }
 
         bool HasError();
 
