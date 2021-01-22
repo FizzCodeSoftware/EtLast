@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using FizzCode.EtLast;
-    using FizzCode.EtLast.EPPlus;
     using FizzCode.LightWeight.Collections;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 

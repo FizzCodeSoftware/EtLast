@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.EPPlus
+﻿namespace FizzCode.EtLast
 {
     using OfficeOpenXml;
 

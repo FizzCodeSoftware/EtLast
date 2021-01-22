@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using System.Globalization;
     using FizzCode.EtLast;
-    using FizzCode.EtLast.EPPlus;
 
     public class ContactJoinExpand : AbstractContactPlugin
     {
