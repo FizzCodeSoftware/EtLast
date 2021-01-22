@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Globalization;
     using System.IO;
     using System.Linq;
@@ -298,6 +299,15 @@
             }
 
             Context.RegisterIoCommandSuccess(this, IoCommandKind.fileRead, iocUid, resultCount);
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class DelimitedFileReaderFluent
+    {
+        public static IFluentProcessMutatorBuilder ReadFromDelimitedFile(this IFluentProcessBuilder builder, DelimitedFileReader reader)
+        {
+            return builder.ReadFrom(reader);
         }
     }
 }

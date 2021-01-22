@@ -105,9 +105,9 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class EnumerableImporterFluent
     {
-        public static IFluentProcessMutatorBuilder ImportEnumerable(this IFluentProcessBuilder builder, EnumerableImporter producer)
+        public static IFluentProcessMutatorBuilder ImportEnumerable(this IFluentProcessBuilder builder, EnumerableImporter importer)
         {
-            return builder.ReadFrom(producer);
+            return builder.ReadFrom(importer);
         }
     }
 }
