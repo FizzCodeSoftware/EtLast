@@ -215,10 +215,11 @@
             return row;
         }
 
-        public IRow CreateRow(IProcess process, IReadOnlySlimRow initialValues)
+        public IRow CreateRow(IProcess process, IReadOnlySlimRow source)
         {
             var row = (IRow)Activator.CreateInstance(RowType);
-            row.Init(this, process, Interlocked.Increment(ref _nextRowUid), initialValues.Values);
+            row.Init(this, process, Interlocked.Increment(ref _nextRowUid), source.Values);
+            row.Tag = source.Tag;
 
             foreach (var listener in Listeners)
             {
