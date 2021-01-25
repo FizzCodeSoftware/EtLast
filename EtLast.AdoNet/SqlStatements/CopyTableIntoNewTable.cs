@@ -5,6 +5,7 @@
     using System.Data;
     using System.Globalization;
     using System.Linq;
+    using FizzCode.LightWeight.AdoNet;
 
     public class CopyTableIntoNewTable : AbstractSqlStatement
     {
@@ -40,7 +41,14 @@
                  ? "*"
                  : string.Join(", ", Configuration.ColumnConfiguration.Select(x => x.FromColumn + (x.ToColumn != x.FromColumn ? " AS " + x.ToColumn : "")));
 
-            var statement = "DROP TABLE IF EXISTS " + Configuration.TargetTableName + "; SELECT " + columnList + " INTO " + Configuration.TargetTableName + " FROM " + Configuration.SourceTableName;
+            var dropTableStatement = (ConnectionString.SqlEngine, ConnectionString.Version) switch
+            {
+                (SqlEngine.MsSql, "2005" or "2008" or "2008 R2" or "2008R2" or "2012" or "2014")
+                    => "IF OBJECT_ID('" + Configuration.TargetTableName + "', U) IS NOT NULL DROP TABLE " + Configuration.TargetTableName,
+                _ => "DROP TABLE IF EXISTS " + Configuration.TargetTableName,
+            };
+
+            var statement = dropTableStatement + "; SELECT " + columnList + " INTO " + Configuration.TargetTableName + " FROM " + Configuration.SourceTableName;
 
             if (WhereClause != null)
             {
