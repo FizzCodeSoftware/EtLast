@@ -202,6 +202,19 @@
             }
         }
 
+        public IRow CreateRow(IProcess process)
+        {
+            var row = (IRow)Activator.CreateInstance(RowType);
+            row.Init(this, process, Interlocked.Increment(ref _nextRowUid), null);
+
+            foreach (var listener in Listeners)
+            {
+                listener.OnRowCreated(row, process);
+            }
+
+            return row;
+        }
+
         public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues)
         {
             var row = (IRow)Activator.CreateInstance(RowType);

@@ -50,7 +50,10 @@
                             initialValues[config.RowColumn ?? config.SourceColumn] = value;
                         }
 
-                        yield return Context.CreateRow(this, initialValues);
+                        var newRow = Context.CreateRow(this, initialValues);
+                        newRow.Tag = row.Tag;
+
+                        yield return newRow;
                         initialValues.Clear();
                     }
                 }
@@ -84,7 +87,10 @@
                             }
                         }
 
-                        yield return Context.CreateRow(this, initialValues);
+                        var newRow = Context.CreateRow(this, initialValues);
+                        newRow.Tag = row.Tag;
+
+                        yield return newRow;
                         initialValues.Clear();
                     }
                 }
@@ -96,7 +102,7 @@
                     if (Context.CancellationTokenSource.IsCancellationRequested)
                         yield break;
 
-                    yield return Context.CreateRow(this, row.Values);
+                    yield return Context.CreateRow(this, row);
                 }
             }
         }

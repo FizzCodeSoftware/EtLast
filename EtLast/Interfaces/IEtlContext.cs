@@ -24,6 +24,7 @@
         void ExecuteOne(bool terminateHostOnFail, IExecutable executable);
         void ExecuteSequence(bool terminateHostOnFail, params IExecutable[] executables);
 
+        IRow CreateRow(IProcess process);
         IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues);
         IRow CreateRow(IProcess process, IReadOnlySlimRow source);
 

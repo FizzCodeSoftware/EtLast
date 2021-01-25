@@ -124,7 +124,7 @@
                 if (Context.CancellationTokenSource.IsCancellationRequested)
                     break;
 
-                var row = Context.CreateRow(this, aggregate.ResultRow.Values);
+                var row = Context.CreateRow(this, aggregate.ResultRow);
 
                 netTimeStopwatch.Stop();
                 yield return row;

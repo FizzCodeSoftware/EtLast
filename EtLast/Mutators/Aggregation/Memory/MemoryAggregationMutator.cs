@@ -111,7 +111,7 @@
                 foreach (var aggregate in aggregates)
                 {
                     aggregateCount++;
-                    var aggregateRow = Context.CreateRow(this, aggregate.Values);
+                    var aggregateRow = Context.CreateRow(this, aggregate);
 
                     netTimeStopwatch.Stop();
                     yield return aggregateRow;

@@ -37,7 +37,7 @@
                     if (Context.CancellationTokenSource.IsCancellationRequested)
                         yield break;
 
-                    var newRow = Context.CreateRow(this, row.Values);
+                    var newRow = Context.CreateRow(this, row);
                     yield return newRow;
                 }
 
@@ -54,7 +54,7 @@
 
                     _cache.Add(row);
 
-                    var newRow = Context.CreateRow(this, row.Values);
+                    var newRow = Context.CreateRow(this, row);
                     yield return newRow;
                 }
 

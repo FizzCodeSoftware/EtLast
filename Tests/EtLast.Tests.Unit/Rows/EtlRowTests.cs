@@ -269,7 +269,7 @@
             var context = TestExecuter.GetContext();
             context.SetRowType<DictionaryRow>();
 
-            var row = context.CreateRow(null, (IEnumerable<KeyValuePair<string, object>>)null);
+            var row = context.CreateRow(null);
             Assert.AreEqual(true, row.IsNullOrEmpty());
         }
 
@@ -279,7 +279,7 @@
             var context = TestExecuter.GetContext();
             context.SetRowType<DictionaryRow>();
 
-            var row = context.CreateRow(null, (IEnumerable<KeyValuePair<string, object>>)null);
+            var row = context.CreateRow(null);
             row.SetValue("a", "");
             Assert.AreEqual(true, row.IsNullOrEmpty());
         }
@@ -290,7 +290,7 @@
             var context = TestExecuter.GetContext();
             context.SetRowType<DictionaryRow>();
 
-            var row = context.CreateRow(null, (IEnumerable<KeyValuePair<string, object>>)null);
+            var row = context.CreateRow(null);
             row.SetValue("a", "");
             row.SetValue("a", "x");
             row.SetValue("a", null);
@@ -303,7 +303,7 @@
             var context = TestExecuter.GetContext();
             context.SetRowType<DictionaryRow>();
 
-            var row = context.CreateRow(null, (IEnumerable<KeyValuePair<string, object>>)null);
+            var row = context.CreateRow(null);
             row.SetValue("a", 5);
             Assert.AreEqual(false, row.IsNullOrEmpty());
         }
