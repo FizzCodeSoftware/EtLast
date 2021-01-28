@@ -6,7 +6,6 @@
     public class Evaluator
     {
         private readonly IEnumerable<IRow> _input;
-        private readonly IProcess _process;
         private readonly IProcess _caller;
 
         public Evaluator()
@@ -14,10 +13,9 @@
             _input = Enumerable.Empty<IRow>();
         }
 
-        // caller is passed due to process.InvocationInfo.Caller can not be used for this (it stores only the last caller)
-        public Evaluator(IProcess process, IProcess caller, IEnumerable<IRow> input)
+        // caller is passed because process.InvocationInfo.Caller can not be used for this (it stores only the last caller)
+        public Evaluator(IProcess caller, IEnumerable<IRow> input)
         {
-            _process = process;
             _caller = caller;
             _input = input;
         }
@@ -30,8 +28,8 @@
                 yield return row;
             }
 
-            if (_process != null)
-                _process.Context.RegisterProcessInvocationEnd(_process);
+            /*if (_process != null)
+                _process.Context.RegisterProcessInvocationEnd(_process);*/
         }
 
         public IEnumerable<ISlimRow> TakeRowsAndReleaseOwnership()

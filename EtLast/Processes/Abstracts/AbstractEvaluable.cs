@@ -43,16 +43,16 @@
                         return new Evaluator();
                 }
 
-                return new Evaluator(this, caller, EvaluateImpl(netTimeStopwatch));
+                return new Evaluator(caller, EvaluateImpl(netTimeStopwatch));
             }
             catch (Exception ex)
             {
                 Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
-            }
 
-            netTimeStopwatch.Stop();
-            Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
-            return new Evaluator();
+                netTimeStopwatch.Stop();
+                Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+                return new Evaluator();
+            }
         }
 
         protected abstract IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch);
