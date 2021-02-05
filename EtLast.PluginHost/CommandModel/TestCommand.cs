@@ -39,6 +39,8 @@
                 moduleNames = ModuleLister.GetAllModules(commandContext);
             }
 
+            var result = ExecutionResult.Success;
+
             foreach (var moduleName in moduleNames)
             {
                 commandContext.Logger.Information("loading module {Module}", moduleName);
@@ -52,10 +54,11 @@
                 else
                 {
                     commandContext.Logger.Information("validation {ValidationResult} for {Module}", "FAILED", moduleName);
+                    result = ExecutionResult.ModuleLoadError;
                 }
             }
 
-            return (int)ExecutionResult.Success;
+            return (int)result;
         }
 
         [Command(Name = "connection-strings", Description = "Tests connection strings.")]
