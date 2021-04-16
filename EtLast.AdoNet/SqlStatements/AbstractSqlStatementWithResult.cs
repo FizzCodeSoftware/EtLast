@@ -64,6 +64,13 @@
             }
         }
 
+        protected string GetReference(string tableName, string schema = null)
+        {
+            return string.IsNullOrEmpty(schema)
+               ? tableName
+               : schema + "." + tableName;
+        }
+
         protected abstract string CreateSqlStatement(Dictionary<string, object> parameters);
         protected abstract T RunCommandAndGetResult(IDbCommand command, string transactionId, Dictionary<string, object> parameters);
     }

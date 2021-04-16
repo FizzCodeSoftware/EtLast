@@ -138,6 +138,7 @@
             {
                 ConnectionString = _scope.Configuration.ConnectionString,
                 TableName = _scope.Configuration.ConnectionString.Escape(table.TempTableName),
+                Schema = table.Schema,
             }.Execute(this);
 
             return count;
