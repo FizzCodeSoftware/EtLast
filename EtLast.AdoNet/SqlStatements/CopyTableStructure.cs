@@ -46,17 +46,17 @@
                 var dropTableStatement = (ConnectionString.SqlEngine, ConnectionString.Version) switch
                 {
                     (SqlEngine.MsSql, "2005" or "2008" or "2008 R2" or "2008R2" or "2012" or "2014")
-                        => "IF OBJECT_ID('" + config.TargetTableName + "', 'U') IS NOT NULL DROP TABLE " + config.TargetTableName,
-                    _ => "DROP TABLE IF EXISTS " + config.TargetTableName,
+                        => "IF OBJECT_ID('" + GetTargetReference(config) + "', 'U') IS NOT NULL DROP TABLE " + config.TargetTableName,
+                    _ => "DROP TABLE IF EXISTS " + GetTargetReference(config),
                 };
 
                 sb.Append(dropTableStatement)
                     .Append("; SELECT ")
                     .Append(columnList)
                     .Append(" INTO ")
-                    .Append(config.TargetTableName)
+                    .Append(GetTargetReference(config))
                     .Append(" FROM ")
-                    .Append(config.SourceTableName)
+                    .Append(GetSourceReference(config))
                     .AppendLine(" WHERE 1=0");
 
                 statements.Add(sb.ToString());
@@ -108,6 +108,16 @@
 
             Context.Log(transactionId, LogSeverity.Debug, this, "{TableCount} table(s) successfully created on {ConnectionStringName} in {Elapsed}", lastSucceededIndex + 1,
                 ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed);
+        }
+
+        private string GetTargetReference(TableCopyConfiguration config)
+        {
+            return GetReference(config.TargetTableName, config.TargetSchema);
+        }
+
+        private string GetSourceReference(TableCopyConfiguration config)
+        {
+            return GetReference(config.SourceTableName, config.SourceSchema);
         }
     }
 }

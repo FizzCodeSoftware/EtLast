@@ -12,6 +12,8 @@
     {
         public string[] TableNames { get; init; }
 
+        public string Schema { get; init; }
+
         public DropTables(ITopic topic, string name)
             : base(topic, name)
         {
@@ -33,8 +35,8 @@
                     var dropTableStatement = (ConnectionString.SqlEngine, ConnectionString.Version) switch
                     {
                         (SqlEngine.MsSql, "2005" or "2008" or "2008 R2" or "2008R2" or "2012" or "2014")
-                            => "IF OBJECT_ID('" + tableName + "', 'U') IS NOT NULL DROP TABLE " + tableName,
-                        _ => "DROP TABLE IF EXISTS " + tableName,
+                            => "IF OBJECT_ID('" + GetReference(tableName, Schema) + "', 'U') IS NOT NULL DROP TABLE " + GetReference(tableName, Schema),
+                        _ => "DROP TABLE IF EXISTS " + GetReference(tableName, Schema),
                     };
                     return dropTableStatement + ";";
                 })
@@ -47,7 +49,7 @@
             var originalStatement = command.CommandText;
 
             var recordCount = 0;
-            command.CommandText = "SELECT COUNT(*) FROM " + tableName;
+            command.CommandText = "SELECT COUNT(*) FROM " + GetReference(tableName, Schema);
             var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbReadCount, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
                 "querying record count from {ConnectionStringName}/{TableName}",
                 ConnectionString.Name, ConnectionString.Unescape(tableName));

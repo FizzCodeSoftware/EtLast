@@ -6,6 +6,8 @@
     {
         public string SourceTableName { get; init; }
         public string TargetTableName { get; init; }
+        public string SourceSchema { get; init; }
+        public string TargetSchema { get; init; }
 
         /// <summary>
         /// Optional. In case of NULL all columns will be copied to the target table.

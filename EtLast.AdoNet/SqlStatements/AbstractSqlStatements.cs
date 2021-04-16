@@ -66,6 +66,13 @@
             }
         }
 
+        protected string GetReference(string tableName, string schema = null)
+        {
+            return string.IsNullOrEmpty(schema)
+               ? tableName
+               : schema + "." + tableName;
+        }
+
         protected abstract List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId);
         protected abstract void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId);
         protected abstract void LogSucceeded(int lastSucceededIndex, string transactionId);

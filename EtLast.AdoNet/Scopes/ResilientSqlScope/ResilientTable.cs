@@ -45,6 +45,8 @@
 
         public string TableName { get; init; }
 
+        public string Schema { get; init; }
+
         private string _tempTableName;
         public string TempTableName
         {
