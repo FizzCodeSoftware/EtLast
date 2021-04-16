@@ -175,7 +175,7 @@
                     .ToArray();
             }
 
-            var options = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp8);
+            var options = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp9);
 
             var syntaxTrees = csFileNames
                 .Select(fn => SyntaxFactory.ParseSyntaxTree(SourceText.From(File.ReadAllText(fn)), options, fn))
