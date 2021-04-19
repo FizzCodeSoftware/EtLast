@@ -137,7 +137,7 @@
             var count = new GetTableRecordCount(table.Topic, "TempRecordCountReader")
             {
                 ConnectionString = _scope.Configuration.ConnectionString,
-                TableName = _scope.Configuration.ConnectionString.Escape(table.TempTableName),
+                TableName = table.TempTableName,
             }.Execute(this);
 
             return count;

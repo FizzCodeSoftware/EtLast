@@ -346,10 +346,10 @@
             {
                 config.Add(new TableCopyConfiguration()
                 {
-                    SourceTableName = Configuration.ConnectionString.Escape(table.TableName),
-                    TargetTableName = Configuration.ConnectionString.Escape(table.TempTableName),
+                    SourceTableName =table.TableName,
+                    TargetTableName = table.TempTableName,
                     ColumnConfiguration = table.Columns?
-                        .Select(c => new ColumnCopyConfiguration(Configuration.ConnectionString.Escape(c)))
+                        .Select(c => new ColumnCopyConfiguration(c))
                         .ToList(),
                 });
 
@@ -359,10 +359,10 @@
                     {
                         config.Add(new TableCopyConfiguration()
                         {
-                            SourceTableName = Configuration.ConnectionString.Escape(additionalTable.TableName),
-                            TargetTableName = Configuration.ConnectionString.Escape(additionalTable.TempTableName),
+                            SourceTableName = additionalTable.TableName,
+                            TargetTableName = additionalTable.TempTableName,
                             ColumnConfiguration = additionalTable.Columns?
-                                .Select(c => new ColumnCopyConfiguration(Configuration.ConnectionString.Escape(c)))
+                                .Select(c => new ColumnCopyConfiguration(c))
                                 .ToList(),
                         });
                     }
