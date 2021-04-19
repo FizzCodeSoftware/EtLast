@@ -7,7 +7,6 @@
 
     public class GetTableRecordCount : AbstractSqlStatementWithResult<int>
     {
-        public string Schema { get; init; }
         public string TableName { get; init; }
         public string CustomWhereClause { get; init; }
 
@@ -27,8 +26,8 @@
         protected override string CreateSqlStatement(Dictionary<string, object> parameters)
         {
             return string.IsNullOrEmpty(CustomWhereClause)
-                ? "SELECT COUNT(*) FROM " + GetReference(TableName, Schema)
-                : "SELECT COUNT(*) FROM " + GetReference(TableName, Schema) + " WHERE " + CustomWhereClause;
+                ? "SELECT COUNT(*) FROM " + TableName
+                : "SELECT COUNT(*) FROM " + TableName + " WHERE " + CustomWhereClause;
         }
 
         protected override int RunCommandAndGetResult(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
