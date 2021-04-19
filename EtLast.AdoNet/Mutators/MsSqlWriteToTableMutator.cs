@@ -207,7 +207,7 @@
 
             _bulkCopy = new SqlBulkCopy(_connection.Connection as SqlConnection, options, null)
             {
-                DestinationTableName = string.IsNullOrEmpty(TableDefinition.Schema) ? TableDefinition.TableName : TableDefinition.Schema + "." + TableDefinition.TableName,
+                DestinationTableName = TableDefinition.TableName,
                 BulkCopyTimeout = CommandTimeout,
             };
 

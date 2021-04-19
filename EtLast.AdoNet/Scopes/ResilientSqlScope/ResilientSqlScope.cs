@@ -346,9 +346,7 @@
             {
                 config.Add(new TableCopyConfiguration()
                 {
-                    SourceSchema = Configuration.ConnectionString.Escape(table.Schema),
                     SourceTableName = Configuration.ConnectionString.Escape(table.TableName),
-                    TargetSchema = Configuration.ConnectionString.Escape(table.Schema),
                     TargetTableName = Configuration.ConnectionString.Escape(table.TempTableName),
                     ColumnConfiguration = table.Columns?
                         .Select(c => new ColumnCopyConfiguration(Configuration.ConnectionString.Escape(c)))
@@ -361,9 +359,7 @@
                     {
                         config.Add(new TableCopyConfiguration()
                         {
-                            SourceSchema = Configuration.ConnectionString.Escape(additionalTable.Schema),
                             SourceTableName = Configuration.ConnectionString.Escape(additionalTable.TableName),
-                            TargetSchema = Configuration.ConnectionString.Escape(additionalTable.Schema),
                             TargetTableName = Configuration.ConnectionString.Escape(additionalTable.TempTableName),
                             ColumnConfiguration = additionalTable.Columns?
                                 .Select(c => new ColumnCopyConfiguration(Configuration.ConnectionString.Escape(c)))
