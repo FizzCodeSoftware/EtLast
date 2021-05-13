@@ -21,5 +21,6 @@
         dbDropTable = 16,
         dbReadMeta = 17,
         dbReadAggregate = 18,
+        dbIdentityReset = 19,
     }
 }
