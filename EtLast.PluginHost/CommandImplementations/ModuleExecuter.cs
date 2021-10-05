@@ -137,8 +137,18 @@
             if (pluginContext.IoCommandCounters.Count == 0)
                 return;
 
-            var maxKeyLength = pluginContext.IoCommandCounters.Max(x => x.Key.ToString().Length);
-            var maxInvocationLength = pluginContext.IoCommandCounters.Max(x => x.Value.InvocationCount.ToString(ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length);
+            const string kind = "kind";
+            const string invocation = "invoc.";
+            const string affected = "affected";
+
+            var maxKeyLength = Math.Max(kind.Length, pluginContext.IoCommandCounters.Max(x => x.Key.ToString().Length));
+            var maxInvocationLength = Math.Max(invocation.Length, pluginContext.IoCommandCounters.Max(x => x.Value.InvocationCount.ToString(ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length));
+
+            pluginContext.OnLog(LogSeverity.Debug, false, null, null, "{Kind}{spacing1} {InvocationCount}{spacing2}   {AffectedDataCount}", kind,
+                "".PadRight(maxKeyLength - kind.Length, ' '),
+                invocation,
+                "".PadRight(maxInvocationLength - invocation.Length, ' '),
+                affected);
 
             foreach (var kvp in pluginContext.IoCommandCounters.OrderBy(kvp => kvp.Key.ToString()))
             {
