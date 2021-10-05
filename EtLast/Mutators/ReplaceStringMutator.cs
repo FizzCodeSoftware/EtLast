@@ -43,6 +43,9 @@
         {
             if (ColumnName == null)
                 throw new ProcessParameterNullException(this, nameof(ColumnName));
+
+            if (string.IsNullOrEmpty(OldString))
+                throw new ProcessParameterNullException(this, nameof(OldString));
         }
     }
 
