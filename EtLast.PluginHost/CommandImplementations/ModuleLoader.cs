@@ -221,7 +221,6 @@
                     commandContext.Logger.Warning("unknown plugin '{PluginName}'", unknownPluginName);
                 }
 
-
                 commandContext.Logger.Debug("{PluginCount} plugin(s) found: {PluginNames}",
                     module.EnabledPlugins.Count, module.EnabledPlugins.Select(plugin => plugin.GetType().GetFriendlyTypeName()).ToArray());
 

@@ -1,7 +1,7 @@
-﻿using System.ComponentModel;
-
-namespace FizzCode.EtLast.AdoNet
+﻿namespace FizzCode.EtLast.AdoNet
 {
+    using System.ComponentModel;
+
     public class CustomSqlAdoNetDbReader : AbstractAdoNetDbReader
     {
         public string Sql { get; init; }

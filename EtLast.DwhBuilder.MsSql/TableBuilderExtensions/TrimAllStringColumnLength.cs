@@ -36,7 +36,7 @@
                         if (v == null)
                             continue;
 
-                        if (!(v is string strv))
+                        if (v is not string strv)
                             continue;
 
                         if (strv.Length > col.length)

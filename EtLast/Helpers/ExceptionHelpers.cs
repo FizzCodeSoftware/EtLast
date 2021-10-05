@@ -44,7 +44,7 @@
 
                     if (includeTrace)
                     {
-                        if (!(cex.Data?["Trace"] is string trace))
+                        if (cex.Data?["Trace"] is not string trace)
                             trace = EtlException.GetTraceFromStackFrames(new StackTrace(cex, true).GetFrames());
 
                         if (trace != null)

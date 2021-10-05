@@ -20,11 +20,11 @@
         public OnDiagContextCreatedDelegate OnDiagContextCreated { get; set; }
 
         private readonly HttpListener _listener;
-        private readonly Dictionary<string, DiagSession> _sessionList = new Dictionary<string, DiagSession>();
+        private readonly Dictionary<string, DiagSession> _sessionList = new();
         public IEnumerable<DiagSession> Session => _sessionList.Values;
 
-        private readonly List<DiagSession> _newSessions = new List<DiagSession>();
-        private readonly List<DiagContext> _newDiagContexts = new List<DiagContext>();
+        private readonly List<DiagSession> _newSessions = new();
+        private readonly List<DiagContext> _newDiagContexts = new();
 
         public DiagnosticsStateManager(string uriPrefix)
         {

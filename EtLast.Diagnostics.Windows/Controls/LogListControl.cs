@@ -109,10 +109,7 @@
 
         private bool ItemFilter(LogModel item)
         {
-            if (item.Event.Severity <= LogSeverity.Debug && !ShowDebugLevel.Checked)
-                return false;
-
-            return true;
+            return item.Event.Severity > LogSeverity.Debug || ShowDebugLevel.Checked;
         }
 
         private void OnEventsAdded(Playbook playbook, List<AbstractEvent> abstractEvents)

@@ -13,7 +13,7 @@
 
         private TRowQueue _queue;
         private Thread _feederThread;
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
         private bool _finished;
 
         public Splitter(ITopic topic, string name)

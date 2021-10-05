@@ -215,7 +215,7 @@
                 Then = (proc, row) =>
                 {
                     var fk = row.GetAs<int?>("OwnerPeopleId");
-                    return fk != null && fk.Value >= 0;
+                    return fk >= 0;
                 },
             };
         }

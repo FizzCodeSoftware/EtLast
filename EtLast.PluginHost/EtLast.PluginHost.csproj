@@ -22,22 +22,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandDotNet" Version="4.1.6" />
-    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="2.0.14.6060" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" />
+    <PackageReference Include="CommandDotNet" Version="4.1.13" />
+    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="2.0.18.6132" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.11.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="1.1.0">
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="1.2.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Serilog" Version="2.10.0" />
-    <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.3.0" />
-    <PackageReference Include="Serilog.Sinks.Seq" Version="5.0.0" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="5.0.1" />
   </ItemGroup>
 
   <ItemGroup>

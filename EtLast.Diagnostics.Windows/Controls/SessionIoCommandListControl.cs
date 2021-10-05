@@ -21,7 +21,7 @@
         public IoCommandActionDelegate OnIoCommandDoubleClicked { get; set; }
 
         private readonly ControlUpdater<IoCommandModel> _updater;
-        private readonly Dictionary<string, Dictionary<int, IoCommandModel>> _itemByUid = new Dictionary<string, Dictionary<int, IoCommandModel>>();
+        private readonly Dictionary<string, Dictionary<int, IoCommandModel>> _itemByUid = new();
 
         public SessionIoCommandListControl(Control container, DiagnosticsStateManager diagnosticsStateManager, DiagSession session)
         {

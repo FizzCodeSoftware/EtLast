@@ -6,7 +6,7 @@
 
     public static class EtlConnectionManager
     {
-        private static readonly ConnectionManager _connectionManager = new ConnectionManager()
+        private static readonly ConnectionManager _connectionManager = new()
         {
             SeparateConnectionsByThreadId = false,
         };

@@ -26,8 +26,8 @@
         private Color IsInputBackColor { get; } = Color.FromArgb(255, 230, 185);
         private Color IsSameTopicBackColor { get; } = Color.FromArgb(220, 220, 255);
 
-        private readonly List<ListViewItem> _allItems = new List<ListViewItem>();
-        private readonly Dictionary<int, ListViewItem> _itemsByProcessInvocationUid = new Dictionary<int, ListViewItem>();
+        private readonly List<ListViewItem> _allItems = new();
+        private readonly Dictionary<int, ListViewItem> _itemsByProcessInvocationUid = new();
 
         public ContextProcessInvocationListControl(Control container, DiagContext context)
         {

@@ -116,7 +116,6 @@
                 }
             };
 
-
             var result = TestExecuter.Execute(builder);
 
             var exceptions = topic.Context.GetExceptions();

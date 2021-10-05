@@ -13,7 +13,7 @@
     {
         public Func<IReadOnlyRow, string> KeyGenerator { get; init; }
 
-        private readonly HashSet<string> _returnedKeys = new HashSet<string>();
+        private readonly HashSet<string> _returnedKeys = new();
 
         public RemoveDuplicateRowsMutator(ITopic topic, string name)
             : base(topic, name)

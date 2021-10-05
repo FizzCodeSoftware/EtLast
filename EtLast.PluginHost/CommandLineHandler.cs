@@ -16,7 +16,7 @@
         public static CommandContext Context { get; private set; }
 
         private static AppRunner<AppCommands> _runner;
-        private static readonly Regex _regEx = new Regex("(?<=\")[^\"]*(?=\")|[^\" ]+");
+        private static readonly Regex _regEx = new("(?<=\")[^\"]*(?=\")|[^\" ]+");
 
         public static ExecutionResult Run(string programName, string[] startupArguments)
         {
@@ -121,7 +121,7 @@
 
         private static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
         {
-            if (!(e?.ExceptionObject is Exception ex))
+            if (e?.ExceptionObject is not Exception ex)
                 return;
 
             var formattedMessage = ex.FormatExceptionWithDetails();

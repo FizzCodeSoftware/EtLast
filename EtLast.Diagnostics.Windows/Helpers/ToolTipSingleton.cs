@@ -5,7 +5,7 @@
 
     public static class ToolTipSingleton
     {
-        private static readonly ToolTip _toolTip = new ToolTip()
+        private static readonly ToolTip _toolTip = new()
         {
             ShowAlways = true,
             AutoPopDelay = 5000,

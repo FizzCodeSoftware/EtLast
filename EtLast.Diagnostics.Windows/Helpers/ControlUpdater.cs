@@ -24,7 +24,7 @@
         public EventHandler<EventArgs> RefreshFinished { get; set; }
 
         private readonly Timer _timer;
-        private readonly List<TItem> _allItems = new List<TItem>();
+        private readonly List<TItem> _allItems = new();
         private bool _newItem;
 
         public ControlUpdater(DiagContext context, Control container, int interval = 1000, int firstInterval = 100)

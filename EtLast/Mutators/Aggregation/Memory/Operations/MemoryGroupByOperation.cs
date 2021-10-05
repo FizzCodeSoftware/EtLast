@@ -8,7 +8,7 @@
     {
         public delegate object MemoryGroupByOperationDelegate(List<IReadOnlySlimRow> groupRows, string sourceColumn);
 
-        private readonly List<AggregatorInfo> _columnAggregators = new List<AggregatorInfo>();
+        private readonly List<AggregatorInfo> _columnAggregators = new();
 
         public MemoryGroupByOperation AddColumnAggregator(MemoryGroupByOperationDelegate aggregator, string sourceColumn, string targetColumn = null)
         {

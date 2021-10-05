@@ -8,7 +8,7 @@
     {
         public virtual object Convert(object source)
         {
-            if (!(source is byte[] sourceByteArray))
+            if (source is not byte[] sourceByteArray)
                 return null;
 
             try

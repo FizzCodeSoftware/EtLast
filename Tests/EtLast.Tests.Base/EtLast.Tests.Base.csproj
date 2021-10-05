@@ -19,14 +19,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
-    <PackageReference Include="MSTest.TestAdapter" Version="2.2.1" />
-    <PackageReference Include="MSTest.TestFramework" Version="2.2.1" />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="1.1.0">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.7" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.7" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="1.2.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="FizzCode.LightWeight.Collections" Version="2.0.14.6060" />
+    <PackageReference Include="FizzCode.LightWeight.Collections" Version="2.0.18.6132" />
   </ItemGroup>
 
   <ItemGroup>

@@ -23,7 +23,7 @@
         private TrackedProcessInvocation _highlightedProcess;
 
         private readonly ControlUpdater<IoCommandModel> _updater;
-        private readonly Dictionary<int, IoCommandModel> _itemByUid = new Dictionary<int, IoCommandModel>();
+        private readonly Dictionary<int, IoCommandModel> _itemByUid = new();
 
         public TrackedProcessInvocation HighlightedProcess
         {

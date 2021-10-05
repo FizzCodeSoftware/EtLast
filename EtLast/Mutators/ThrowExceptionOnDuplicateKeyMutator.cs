@@ -8,7 +8,7 @@
     {
         public Func<IReadOnlyRow, string> RowKeyGenerator { get; init; }
 
-        private readonly HashSet<string> _keys = new HashSet<string>();
+        private readonly HashSet<string> _keys = new();
 
         public ThrowExceptionOnDuplicateKeyMutator(ITopic topic, string name)
             : base(topic, name)

@@ -37,7 +37,7 @@
 
         private readonly CommandContext _commandContext;
 
-        private readonly object _customFileLock = new object();
+        private readonly object _customFileLock = new();
 
         public Dictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; } = new Dictionary<IoCommandKind, IoCommandCounter>();
 

@@ -95,7 +95,7 @@
 
         private void ItemChecked(object sender, ItemCheckEventArgs e)
         {
-            if (!(sender is ToolStripCheckedListBox checkedList) || !(checkedList.Tag is OLVColumn column) || !(column.ListView is ObjectListView))
+            if (sender is not ToolStripCheckedListBox checkedList || checkedList.Tag is not OLVColumn column || !(column.ListView is ObjectListView))
                 return;
 
             var selectAllIndex = checkedList.Items.IndexOf(SELECT_ALL_LABEL);
@@ -139,7 +139,7 @@
 
         private void ApplyFilter(ToolStripCheckedListBox checkedList, OLVColumn column)
         {
-            if (!(column.ListView is ObjectListView olv) || olv.IsDisposed)
+            if (column.ListView is not ObjectListView olv || olv.IsDisposed)
                 return;
 
             var textBox = (checkedList.GetCurrentParent() as ToolStripDropDownMenu).Items[0] as ToolStripTextBox;
@@ -159,7 +159,7 @@
 
         protected override void ClearAllFilters(OLVColumn column)
         {
-            if (!(column.ListView is ObjectListView listView) || listView.IsDisposed)
+            if (column.ListView is not ObjectListView listView || listView.IsDisposed)
                 return;
 
             column.ValueBasedFilter = null;

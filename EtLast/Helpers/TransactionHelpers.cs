@@ -14,9 +14,9 @@
             if (transaction.TransactionInformation.LocalIdentifier != null)
             {
                 if (transaction.TransactionInformation.DistributedIdentifier != Guid.Empty)
-                    return transaction.TransactionInformation.LocalIdentifier.Substring(transaction.TransactionInformation.LocalIdentifier.Length - 10) + "::" + transaction.TransactionInformation.DistributedIdentifier.ToString("N", CultureInfo.InvariantCulture).Substring(26);
+                    return transaction.TransactionInformation.LocalIdentifier[^10..] + "::" + transaction.TransactionInformation.DistributedIdentifier.ToString("N", CultureInfo.InvariantCulture)[26..];
 
-                return transaction.TransactionInformation.LocalIdentifier.Substring(transaction.TransactionInformation.LocalIdentifier.Length - 10);
+                return transaction.TransactionInformation.LocalIdentifier[^10..];
             }
 
             return transaction.TransactionInformation

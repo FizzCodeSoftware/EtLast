@@ -93,30 +93,30 @@
 
             if (v is DateTime dt)
             {
-                return "new DateTime(" + dt.Year.ToString("G", CultureInfo.InvariantCulture) + ", " +
-                    dt.Month.ToString("D", CultureInfo.InvariantCulture) + ", " +
-                    dt.Day.ToString("D", CultureInfo.InvariantCulture) + ", " +
-                    dt.Hour.ToString("D", CultureInfo.InvariantCulture) + ", " +
-                    dt.Minute.ToString("D", CultureInfo.InvariantCulture) + ", " +
-                    dt.Second.ToString("D", CultureInfo.InvariantCulture) + ", " +
-                    dt.Millisecond.ToString("D", CultureInfo.InvariantCulture) + ")";
+                return "new DateTime(" + dt.Year.ToString("G", CultureInfo.InvariantCulture) + ", "
+                    + dt.Month.ToString("D", CultureInfo.InvariantCulture) + ", "
+                    + dt.Day.ToString("D", CultureInfo.InvariantCulture) + ", "
+                    + dt.Hour.ToString("D", CultureInfo.InvariantCulture) + ", "
+                    + dt.Minute.ToString("D", CultureInfo.InvariantCulture) + ", "
+                    + dt.Second.ToString("D", CultureInfo.InvariantCulture) + ", "
+                    + dt.Millisecond.ToString("D", CultureInfo.InvariantCulture) + ")";
             }
 
             if (v is DateTimeOffset dto)
             {
-                return "new DateTimeOffset(new DateTime(" + dto.Year.ToString("G", CultureInfo.InvariantCulture) + ", " +
-                    dto.Month.ToString("D", CultureInfo.InvariantCulture) + ", " +
-                    dto.Day.ToString("D", CultureInfo.InvariantCulture) + ", " +
-                    dto.Hour.ToString("D", CultureInfo.InvariantCulture) + ", " +
-                    dto.Minute.ToString("D", CultureInfo.InvariantCulture) + ", " +
-                    dto.Second.ToString("D", CultureInfo.InvariantCulture) + ", " +
-                    dto.Millisecond.ToString("D", CultureInfo.InvariantCulture) + "), " +
-                    "new TimeSpan(" +
-                        dto.Offset.Days.ToString("D", CultureInfo.InvariantCulture) + ", " +
-                        dto.Offset.Hours.ToString("D", CultureInfo.InvariantCulture) + ", " +
-                        dto.Offset.Minutes.ToString("D", CultureInfo.InvariantCulture) + ", " +
-                        dto.Offset.Seconds.ToString("D", CultureInfo.InvariantCulture) + ", " +
-                        dto.Offset.Milliseconds.ToString("D", CultureInfo.InvariantCulture) + "))";
+                return "new DateTimeOffset(new DateTime(" + dto.Year.ToString("G", CultureInfo.InvariantCulture) + ", "
+                    + dto.Month.ToString("D", CultureInfo.InvariantCulture) + ", "
+                    + dto.Day.ToString("D", CultureInfo.InvariantCulture) + ", "
+                    + dto.Hour.ToString("D", CultureInfo.InvariantCulture) + ", "
+                    + dto.Minute.ToString("D", CultureInfo.InvariantCulture) + ", "
+                    + dto.Second.ToString("D", CultureInfo.InvariantCulture) + ", "
+                    + dto.Millisecond.ToString("D", CultureInfo.InvariantCulture) + "), "
+                    + "new TimeSpan("
+                        + dto.Offset.Days.ToString("D", CultureInfo.InvariantCulture) + ", "
+                        + dto.Offset.Hours.ToString("D", CultureInfo.InvariantCulture) + ", "
+                        + dto.Offset.Minutes.ToString("D", CultureInfo.InvariantCulture) + ", "
+                        + dto.Offset.Seconds.ToString("D", CultureInfo.InvariantCulture) + ", "
+                        + dto.Offset.Milliseconds.ToString("D", CultureInfo.InvariantCulture) + "))";
             }
 
             if (v is EtlRowError err)

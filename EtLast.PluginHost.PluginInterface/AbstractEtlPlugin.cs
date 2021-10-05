@@ -58,7 +58,7 @@
             if (path.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))
             {
                 var exeFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                path = Path.Combine(exeFolder, path.Substring(2));
+                path = Path.Combine(exeFolder, path[2..]);
             }
 
             if (subFolders?.Length > 0)
@@ -85,7 +85,7 @@
             if (fileName.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))
             {
                 var exeFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                fileName = Path.Combine(exeFolder, fileName.Substring(2));
+                fileName = Path.Combine(exeFolder, fileName[2..]);
             }
 
             return fileName;

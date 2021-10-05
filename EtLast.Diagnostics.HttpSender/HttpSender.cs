@@ -27,14 +27,14 @@
         private string _contextName;
         private ExtendedBinaryWriter _currentWriter;
         private ExtendedBinaryWriter _currentDictionaryWriter;
-        private readonly object _currentWriterLock = new object();
-        private readonly Dictionary<string, int> _textDictionary = new Dictionary<string, int>();
+        private readonly object _currentWriterLock = new();
+        private readonly Dictionary<string, int> _textDictionary = new();
         private bool _finished;
         private int _communicationErrorCount;
 
-        private readonly Dictionary<string, MessageTemplate> _messageTemplateCache = new Dictionary<string, MessageTemplate>();
-        private readonly object _messageTemplateCacheLock = new object();
-        private readonly MessageTemplateParser _messageTemplateParser = new MessageTemplateParser();
+        private readonly Dictionary<string, MessageTemplate> _messageTemplateCache = new();
+        private readonly object _messageTemplateCacheLock = new();
+        private readonly MessageTemplateParser _messageTemplateParser = new();
 
         public bool Init(IExecutionContext executionContext, IConfigurationSection configurationSection, IConfigurationSecretProtector configurationSecretProtector)
         {

@@ -184,12 +184,12 @@
                 if (method is MethodInfo mi && mi.IsGenericMethod)
                 {
                     sb.Append('<')
-                        .Append(string.Join(",", mi.GetGenericArguments().Select(x => x.GetFriendlyTypeName(false))))
+                        .AppendJoin(",", mi.GetGenericArguments().Select(x => x.GetFriendlyTypeName(false)))
                         .Append('>');
                 }
 
                 sb.Append('(')
-                    .Append(string.Join(", ", method.GetParameters().Select(mp => mp.ParameterType.GetFriendlyTypeName() + " " + mp.Name)))
+                    .AppendJoin(", ", method.GetParameters().Select(mp => mp.ParameterType.GetFriendlyTypeName() + " " + mp.Name))
                     .Append(')');
             }
 

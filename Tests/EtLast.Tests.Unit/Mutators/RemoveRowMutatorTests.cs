@@ -25,7 +25,7 @@
                 {
                     new RemoveRowMutator(topic, null)
                     {
-                        If = row => row.GetAs<int>("id") < 4 ? false : (row.GetAs<double>("id") == 7.0d),
+                        If = row => row.GetAs<int>("id") >= 4 && (row.GetAs<double>("id") == 7.0d),
                     },
                 },
             };

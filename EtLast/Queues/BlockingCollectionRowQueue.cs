@@ -7,7 +7,7 @@
 
     public class BlockingCollectionRowQueue : IRowQueue
     {
-        private readonly BlockingCollection<IRow> _collection = new BlockingCollection<IRow>();
+        private readonly BlockingCollection<IRow> _collection = new();
 
         public void AddRow(IRow row)
         {

@@ -22,20 +22,20 @@
         public DwhBuilderConfiguration Configuration { get; init; }
 
         public IEnumerable<RelationalTable> Tables => _tables.Select(x => x.Table);
-        private readonly List<DwhTableBuilder> _tables = new List<DwhTableBuilder>();
+        private readonly List<DwhTableBuilder> _tables = new();
 
         internal DateTimeOffset? DefaultValidFromDateTime => Configuration.UseEtlRunIdForDefaultValidFrom
             ? EtlRunId
             : Configuration.InfinitePastDateTime;
 
-        private readonly List<ResilientSqlScopeExecutableCreatorDelegate> _preFinalizerCreators = new List<ResilientSqlScopeExecutableCreatorDelegate>();
-        private readonly List<ResilientSqlScopeExecutableCreatorDelegate> _postFinalizerCreators = new List<ResilientSqlScopeExecutableCreatorDelegate>();
+        private readonly List<ResilientSqlScopeExecutableCreatorDelegate> _preFinalizerCreators = new();
+        private readonly List<ResilientSqlScopeExecutableCreatorDelegate> _postFinalizerCreators = new();
         private readonly DateTime? _etlRunIdUtcOverride;
 
         public DateTime? EtlRunId { get; private set; }
         public DateTimeOffset? EtlRunIdAsDateTimeOffset { get; private set; }
 
-        private readonly Dictionary<string, List<string>> _enabledConstraintsByTable = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, List<string>> _enabledConstraintsByTable = new(StringComparer.OrdinalIgnoreCase);
 
         public MsSqlDwhBuilder(ITopic topic, string scopeName, DateTime? etlRunIdUtcOverride = null)
         {

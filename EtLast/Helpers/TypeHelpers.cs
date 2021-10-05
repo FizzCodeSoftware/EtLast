@@ -7,7 +7,7 @@
 
     public static class TypeHelpers
     {
-        private static readonly Dictionary<string, string> _typeNameMap = new Dictionary<string, string>()
+        private static readonly Dictionary<string, string> _typeNameMap = new()
         {
             ["Boolean"] = "bool",
             ["Byte"] = "byte",
@@ -55,8 +55,8 @@
                 if (endIndex > -1 && endIndex < name.Length - 1)
                 {
                     var fixedName = name[1..endIndex];
-                    return fixedName +
-                        (name[endIndex + 1] switch
+                    return fixedName
+                        + (name[endIndex + 1] switch
                         {
                             'b' => "+AnonymousMethod",
                             'd' => "+Iterator",

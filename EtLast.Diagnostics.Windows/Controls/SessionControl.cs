@@ -15,7 +15,7 @@
         public DiagnosticsStateManager DiagnosticsStateManager { get; }
 
         private readonly TabControl _tabs;
-        private readonly Dictionary<string, ContextControl> _contextContainerManagers = new Dictionary<string, ContextControl>();
+        private readonly Dictionary<string, ContextControl> _contextContainerManagers = new();
 
         public SessionControl(DiagSession session, Control container, DiagnosticsStateManager diagnosticsStateManager)
         {

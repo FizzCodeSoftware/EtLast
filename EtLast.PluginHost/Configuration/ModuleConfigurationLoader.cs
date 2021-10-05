@@ -150,7 +150,7 @@
                 {
                     var key = arg.Substring(0, idx).Trim();
 
-                    configuration["Module:" + key] = arg.Substring(idx + 1).Trim();
+                    configuration["Module:" + key] = arg[(idx + 1)..].Trim();
                 }
             }
         }

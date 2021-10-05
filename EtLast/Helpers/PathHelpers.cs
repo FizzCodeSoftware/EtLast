@@ -6,7 +6,7 @@
 
     public static class PathHelpers
     {
-        private static readonly Lazy<string> BaseFolder = new Lazy<string>(() =>
+        private static readonly Lazy<string> BaseFolder = new(() =>
         {
             var folder = Path.GetDirectoryName((Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly()).Location);
             if (!folder.EndsWith(Path.DirectorySeparatorChar))

@@ -10,7 +10,7 @@
         public string TargetColumn { get; set; }
         public string Separator { get; set; }
 
-        private readonly StringBuilder _sb = new StringBuilder();
+        private readonly StringBuilder _sb = new();
 
         public MergeStringColumnsMutator(ITopic topic, string name)
             : base(topic, name)

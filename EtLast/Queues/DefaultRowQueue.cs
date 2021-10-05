@@ -7,9 +7,9 @@
 
     public class DefaultRowQueue : IRowQueue
     {
-        private readonly AutoResetEvent _newRowEvent = new AutoResetEvent(false);
-        private readonly ManualResetEvent _noMoreRowsEvent = new ManualResetEvent(false);
-        private readonly ConcurrentQueue<IRow> _queue = new ConcurrentQueue<IRow>();
+        private readonly AutoResetEvent _newRowEvent = new(false);
+        private readonly ManualResetEvent _noMoreRowsEvent = new(false);
+        private readonly ConcurrentQueue<IRow> _queue = new();
 
         public void AddRow(IRow row)
         {

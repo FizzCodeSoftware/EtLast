@@ -15,18 +15,18 @@ namespace FizzCode.EtLast.Diagnostics.Interface
         private int _lastMainFileIndex;
         private long _lastMainFileSize;
 
-        private readonly Dictionary<int, FileStream> _openStoreWriterStreams = new Dictionary<int, FileStream>();
-        private readonly object _openStoreWriterStreamsLock = new object();
+        private readonly Dictionary<int, FileStream> _openStoreWriterStreams = new();
+        private readonly object _openStoreWriterStreamsLock = new();
 
         private FileStream _rowEventStream;
         private int _lastRowEventFileIndex;
         private int _lastRowEventFileSize;
-        private readonly object _rowEventStreamLock = new object();
+        private readonly object _rowEventStreamLock = new();
 
-        private readonly Dictionary<int, ExtendedBinaryWriter> _processRowMapWriters = new Dictionary<int, ExtendedBinaryWriter>();
-        private readonly object _processRowMapWritersLock = new object();
+        private readonly Dictionary<int, ExtendedBinaryWriter> _processRowMapWriters = new();
+        private readonly object _processRowMapWritersLock = new();
 
-        private readonly EventParser _eventParser = new EventParser();
+        private readonly EventParser _eventParser = new();
 
         public DateTime StartedOn { get; }
         public DateTime? EndedOn { get; protected set; }

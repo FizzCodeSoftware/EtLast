@@ -286,7 +286,7 @@
 
                         if (newParamText != null)
                         {
-                            sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
+                            sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement[(idx + paramReference.Length)..];
                             startIndex = idx + newParamText.Length;
 
                             Parameters.Remove(kvp.Key);

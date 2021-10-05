@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
-
-namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast
 {
+    using System.Diagnostics;
+
     public enum NullSourceHandler { SetSpecialValue, WrapError }
     public enum InvalidSourceHandler { SetSpecialValue, WrapError }
 

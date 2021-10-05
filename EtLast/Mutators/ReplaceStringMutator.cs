@@ -29,7 +29,6 @@
                     value = value.Replace(OldString, NewString, StringComparison);
                     row.SetValue(ColumnName, value);
                 }
-
             }
             catch (Exception ex) when (!(ex is EtlException))
             {

@@ -12,7 +12,7 @@ namespace FizzCode.EtLast.Diagnostics.Windows
     {
         private readonly TabControl _sessionTabs;
         private readonly DiagnosticsStateManager _stateManager;
-        private readonly Dictionary<string, SessionControl> _sessionTabManagers = new Dictionary<string, SessionControl>();
+        private readonly Dictionary<string, SessionControl> _sessionTabManagers = new();
         private readonly Timer _timer;
 
         public MainForm()
@@ -82,7 +82,7 @@ namespace FizzCode.EtLast.Diagnostics.Windows
             }
         }
 
-        private readonly Font _sessionTabCloseFont = new Font("courier new", 10);
+        private readonly Font _sessionTabCloseFont = new("courier new", 10);
 
         private void DrawSessionTabHeader(object sender, DrawItemEventArgs e)
         {

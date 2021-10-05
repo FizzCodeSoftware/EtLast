@@ -28,8 +28,8 @@
         private int _nextProcessInvocationUid;
         private int _nextRowStoreUid;
         private int _nextIoCommandUid;
-        private readonly List<Exception> _exceptions = new List<Exception>();
-        private readonly Dictionary<string, int> _rowStores = new Dictionary<string, int>();
+        private readonly List<Exception> _exceptions = new();
+        private readonly Dictionary<string, int> _rowStores = new();
 
         public EtlContext()
         {

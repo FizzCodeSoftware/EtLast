@@ -64,7 +64,7 @@
                 }
                 else
                 {
-                    if (!(group is List<IRow> list))
+                    if (group is not List<IRow> list)
                     {
                         groups[key] = list = new List<IRow>();
                         list.Add(group as IRow);

@@ -117,8 +117,8 @@
             if (InputRowCountByPreviousProcess.Count == 1)
                 return InputRowCount.FormatToString();
 
-            return InputRowCount.FormatToString() + " = " +
-                string.Join(" + ", InputRowCountByPreviousProcess.Where(x => x.Value > 0).Select(x => x.Value.FormatToString()));
+            return InputRowCount.FormatToString() + " = "
+                + string.Join(" + ", InputRowCountByPreviousProcess.Where(x => x.Value > 0).Select(x => x.Value.FormatToString()));
         }
 
         public string GetFormattedRowFlow(DiagContext diagContext)

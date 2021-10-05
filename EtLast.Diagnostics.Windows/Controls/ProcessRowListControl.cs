@@ -19,7 +19,7 @@
         public RadioButton ShowChanged { get; }
         public RadioButton ShowUnChanged { get; }
 
-        private readonly Dictionary<string, int> _columnIndexes = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, int> _columnIndexes = new(StringComparer.OrdinalIgnoreCase);
         private readonly int _fixColumnCount;
 
         public ControlUpdater<ProcessRowModel> Updater { get; }

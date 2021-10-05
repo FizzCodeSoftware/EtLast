@@ -15,7 +15,7 @@
         public DateTime? EndedOn { get; protected set; }
         public bool FullyLoaded => EndedOn != null && _stagedEvents.Count == 0;
         public ContextIndex Index { get; }
-        private readonly List<AbstractEvent> _stagedEvents = new List<AbstractEvent>();
+        private readonly List<AbstractEvent> _stagedEvents = new();
 
         public DiagContext(DiagSession session, string name, DateTime startedOn, string dataFolder)
         {

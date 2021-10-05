@@ -29,8 +29,8 @@
         public string ValidToColumnName { get; }
         public string ValidToColumnNameEscaped { get; }
 
-        private readonly List<Func<DwhTableBuilder, IEnumerable<IExecutable>>> _finalizerCreators = new List<Func<DwhTableBuilder, IEnumerable<IExecutable>>>();
-        private readonly List<MutatorCreatorDelegate> _mutatorCreators = new List<MutatorCreatorDelegate>();
+        private readonly List<Func<DwhTableBuilder, IEnumerable<IExecutable>>> _finalizerCreators = new();
+        private readonly List<MutatorCreatorDelegate> _mutatorCreators = new();
         private Func<DateTimeOffset?, IEvaluable> _inputProcessCreator;
 
         public DwhTableBuilder(MsSqlDwhBuilder builder, ResilientTable resilientTable, RelationalTable table)

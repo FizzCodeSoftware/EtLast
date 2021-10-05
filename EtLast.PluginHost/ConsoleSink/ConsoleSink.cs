@@ -13,7 +13,7 @@
     internal class ConsoleSink : ILogEventSink
     {
         private readonly List<Action<LogEvent, TextWriter>> _writers;
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
 
         public ConsoleSink(string outputTemplate)
         {

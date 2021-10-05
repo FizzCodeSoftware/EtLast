@@ -39,7 +39,7 @@
             try
             {
                 var result = command.ExecuteScalar();
-                if (!(result is int recordCount))
+                if (result is not int recordCount)
                     recordCount = 0;
 
                 Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadCount, iocUid, recordCount);

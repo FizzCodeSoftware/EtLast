@@ -51,14 +51,14 @@
                     if (kvp.Value is int[] intArray)
                     {
                         var newParamText = string.Join(",", intArray.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
+                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement[(idx + paramReference.Length)..];
 
                         parameters.Remove(kvp.Key);
                     }
                     else if (kvp.Value is long[] longArray)
                     {
                         var newParamText = string.Join(",", longArray.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
+                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement[(idx + paramReference.Length)..];
 
                         parameters.Remove(kvp.Key);
                     }
@@ -76,21 +76,21 @@
                         }
 
                         var newParamText = sb.ToString();
-                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
+                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement[(idx + paramReference.Length)..];
 
                         parameters.Remove(kvp.Key);
                     }
                     else if (kvp.Value is List<int> intList)
                     {
                         var newParamText = string.Join(",", intList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
+                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement[(idx + paramReference.Length)..];
 
                         parameters.Remove(kvp.Key);
                     }
                     else if (kvp.Value is List<long> longList)
                     {
                         var newParamText = string.Join(",", longList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
+                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement[(idx + paramReference.Length)..];
 
                         parameters.Remove(kvp.Key);
                     }
@@ -108,7 +108,7 @@
                         }
 
                         var newParamText = sb.ToString();
-                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement.Substring(idx + paramReference.Length);
+                        sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement[(idx + paramReference.Length)..];
 
                         parameters.Remove(kvp.Key);
                     }
