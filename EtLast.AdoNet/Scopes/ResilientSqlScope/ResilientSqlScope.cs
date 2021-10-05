@@ -285,9 +285,33 @@
             };
         }
 
+        public static IEnumerable<IExecutable> SimpleMergeFinalizer(ResilientTableBase table, string keyColumn, int commandTimeout = 60)
+        {
+            var columnsToUpdate = table.Columns
+                .Where(c => !string.Equals(c, keyColumn, System.StringComparison.InvariantCultureIgnoreCase))
+                .ToList();
+
+            yield return new CustomMsSqlMergeStatement(table.Topic, "MergeTempToTargetTable")
+            {
+                ConnectionString = table.Scope.Configuration.ConnectionString,
+                CommandTimeout = commandTimeout,
+                SourceTableName = table.TempTableName,
+                TargetTableName = table.TableName,
+                SourceTableAlias = "s",
+                TargetTableAlias = "t",
+                OnCondition = "((s." + keyColumn + "=t." + keyColumn + ") or (s." + keyColumn + " is null and t." + keyColumn + " is null))",
+                WhenMatchedAction = columnsToUpdate.Count > 0
+                    ? "update set " + string.Join(",", columnsToUpdate.Select(c => "t." + c + "=s." + c))
+                    : null,
+                WhenNotMatchedByTargetAction = "insert (" + string.Join(",", table.Columns) + ") values (" + string.Join(",", table.Columns.Select(c => "s." + c)) + ")",
+            };
+        }
+
         public static IEnumerable<IExecutable> SimpleMergeFinalizer(ResilientTableBase table, string[] keyColumns, int commandTimeout = 60)
         {
-            var columnsToUpdate = table.Columns.Where(c => !keyColumns.Contains(c)).ToList();
+            var columnsToUpdate = table.Columns
+                .Where(c => !keyColumns.Any(keyColumn => string.Equals(c, keyColumn, System.StringComparison.InvariantCultureIgnoreCase)))
+                .ToList();
 
             yield return new CustomMsSqlMergeStatement(table.Topic, "MergeTempToTargetTable")
             {
@@ -346,7 +370,7 @@
             {
                 config.Add(new TableCopyConfiguration()
                 {
-                    SourceTableName =table.TableName,
+                    SourceTableName = table.TableName,
                     TargetTableName = table.TempTableName,
                     ColumnConfiguration = table.Columns?
                         .Select(c => new ColumnCopyConfiguration(c))
