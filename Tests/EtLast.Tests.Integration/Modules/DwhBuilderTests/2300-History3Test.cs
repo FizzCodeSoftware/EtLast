@@ -18,6 +18,8 @@
         {
             DatabaseDeclaration.GetTable("dbo", "Company").HasHistoryTable();
 
+            Session.Service<TestService>().DoSomething();
+
             var configuration = new DwhBuilderConfiguration();
             var model = DwhDataDefinitionToRelationalModelConverter.Convert(DatabaseDeclaration, "dbo");
 

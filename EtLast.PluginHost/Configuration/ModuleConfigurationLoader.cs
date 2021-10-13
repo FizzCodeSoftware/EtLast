@@ -10,7 +10,7 @@
 
     internal static class ModuleConfigurationLoader
     {
-        internal static ModuleConfiguration LoadModuleConfiguration(CommandContext commandContext, string moduleName, string[] moduleSettingOverrides, string[] pluginListOverride)
+        internal static EtlModuleConfiguration LoadModuleConfiguration(CommandContext commandContext, string moduleName, string[] moduleSettingOverrides, string[] pluginListOverride)
         {
             var sharedFolder = Path.Combine(commandContext.HostConfiguration.ModulesFolder, "Shared");
             var sharedConfigFileName = Path.Combine(sharedFolder, "shared-configuration.json");
@@ -116,7 +116,7 @@
                 }
             }
 
-            return new ModuleConfiguration()
+            return new EtlModuleConfiguration()
             {
                 ModuleName = moduleName,
                 ConfigurationFileName = moduleConfigFileName,

@@ -2,12 +2,12 @@
 {
     public interface IEtlPlugin
     {
-        ModuleConfiguration ModuleConfiguration { get; }
+        IEtlSession Session { get; }
         IEtlContext Context { get; }
         ITopic PluginTopic { get; }
         string Name { get; }
 
-        void Init(ITopic topic, ModuleConfiguration moduleConfiguration);
+        void Init(ITopic topic, IEtlSession session);
         void BeforeExecute();
         void Execute();
     }

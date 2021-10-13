@@ -52,7 +52,7 @@
                 return (int)ExecutionResult.HostArgumentError;
             }
 
-            var modules = new List<Module>();
+            var modules = new List<CompiledModule>();
             foreach (var moduleName in moduleNames)
             {
                 commandContext.Logger.Information("loading module {Module}", moduleName);

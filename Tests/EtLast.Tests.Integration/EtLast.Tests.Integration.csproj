@@ -52,6 +52,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Modules\DwhBuilderTests\TestService.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
     <Compile Update="Modules\DwhBuilderTests\1100-EtlRunInfoTest.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>

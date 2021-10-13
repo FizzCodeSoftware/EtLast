@@ -6,7 +6,6 @@
     using System.Globalization;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
     using System.Runtime.Loader;
     using System.Threading;
     using FizzCode.EtLast;
@@ -19,11 +18,11 @@
     {
         private static long _moduleAutoincrementId;
 
-        public static ExecutionResult LoadModule(CommandContext commandContext, string moduleName, string[] moduleSettingOverrides, string[] pluginListOverride, bool forceCompilation, out Module module)
+        public static ExecutionResult LoadModule(CommandContext commandContext, string moduleName, string[] moduleSettingOverrides, string[] pluginListOverride, bool forceCompilation, out CompiledModule module)
         {
             module = null;
 
-            ModuleConfiguration moduleConfiguration;
+            EtlModuleConfiguration moduleConfiguration;
             try
             {
                 moduleConfiguration = ModuleConfigurationLoader.LoadModuleConfiguration(commandContext, moduleName, moduleSettingOverrides, pluginListOverride);
@@ -118,13 +117,14 @@
             if (useAppDomain)
             {
                 commandContext.Logger.Information("loading plugins directly from AppDomain if namespace ends with '{Module}'", moduleName);
-                var appDomainPlugins = LoadPluginsFromAppDomain(moduleName);
+                var appDomainPlugins = LoadInstancesFromAppDomain<IEtlPlugin>(moduleName);
                 commandContext.Logger.Debug("finished in {Elapsed}", startedOn.Elapsed);
-                module = new Module()
+                module = new CompiledModule()
                 {
-                    ModuleConfiguration = moduleConfiguration,
+                    Configuration = moduleConfiguration,
                     Plugins = appDomainPlugins,
                     EnabledPlugins = GetEnabledPlugins(moduleConfiguration, appDomainPlugins),
+                    LoadContext = null,
                 };
 
                 foreach (var unknownPluginName in GetUnknownPlugins(moduleConfiguration, appDomainPlugins))
@@ -139,7 +139,7 @@
             }
 
             commandContext.Logger.Information("compiling plugins from {Folder} using shared files from {SharedFolder}", PathHelpers.GetFriendlyPathName(moduleConfiguration.ModuleFolder), PathHelpers.GetFriendlyPathName(sharedFolder));
-            var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var selfFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
             var referenceAssemblyFolder = commandContext.HostConfiguration.CustomReferenceAssemblyFolder;
             if (string.IsNullOrEmpty(referenceAssemblyFolder))
@@ -175,18 +175,19 @@
                     .ToArray();
             }
 
-            var options = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp9);
-
+            var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp9);
             var syntaxTrees = csFileNames
-                .Select(fn => SyntaxFactory.ParseSyntaxTree(SourceText.From(File.ReadAllText(fn)), options, fn))
+                .Select(fn => SyntaxFactory.ParseSyntaxTree(SourceText.From(File.ReadAllText(fn)), parseOptions, fn))
                 .ToArray();
 
             using (var assemblyStream = new MemoryStream())
             {
                 var id = Interlocked.Increment(ref _moduleAutoincrementId);
-                var compilation = CSharpCompilation.Create("compiled_" + id.ToString("D", CultureInfo.InvariantCulture) + ".dll", syntaxTrees, metadataReferences, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
+                var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
                     optimizationLevel: OptimizationLevel.Release,
-                    assemblyIdentityComparer: DesktopAssemblyIdentityComparer.Default));
+                    assemblyIdentityComparer: DesktopAssemblyIdentityComparer.Default);
+
+                var compilation = CSharpCompilation.Create("compiled_" + id.ToString("D", CultureInfo.InvariantCulture) + ".dll", syntaxTrees, metadataReferences, compilationOptions);
 
                 var result = compilation.Emit(assemblyStream);
                 if (!result.Success)
@@ -204,16 +205,17 @@
 
                 assemblyStream.Seek(0, SeekOrigin.Begin);
 
-                var assemblyLoadContext = new AssemblyLoadContext("loader", false);
+                var assemblyLoadContext = new AssemblyLoadContext(null, isCollectible: true);
                 var assembly = assemblyLoadContext.LoadFromStream(assemblyStream);
 
-                var compiledPlugins = LoadPluginsFromAssembly(assembly);
+                var compiledPlugins = LoadInstancesFromAssembly<IEtlPlugin>(assembly);
                 commandContext.Logger.Debug("compilation finished in {Elapsed}", startedOn.Elapsed);
-                module = new Module()
+                module = new CompiledModule()
                 {
-                    ModuleConfiguration = moduleConfiguration,
+                    Configuration = moduleConfiguration,
                     Plugins = compiledPlugins,
                     EnabledPlugins = GetEnabledPlugins(moduleConfiguration, compiledPlugins),
+                    LoadContext = assemblyLoadContext,
                 };
 
                 foreach (var unknownPluginName in GetUnknownPlugins(moduleConfiguration, compiledPlugins))
@@ -228,16 +230,20 @@
             }
         }
 
-        public static void UnloadModule(CommandContext commandContext, Module module)
+        public static void UnloadModule(CommandContext commandContext, CompiledModule module)
         {
-            commandContext.Logger.Debug("unloading module {Module}", module.ModuleConfiguration.ModuleName);
+            commandContext.Logger.Debug("unloading module {Module}", module.Configuration.ModuleName);
 
-            module.ModuleConfiguration = null;
-            module.Plugins = null;
-            module.EnabledPlugins = null;
+            module.Plugins.Clear();
+            module.EnabledPlugins.Clear();
+
+            if (module.LoadContext != null)
+            {
+                module.LoadContext.Unload();
+            }
         }
 
-        private static List<IEtlPlugin> GetEnabledPlugins(ModuleConfiguration moduleConfiguration, List<IEtlPlugin> plugins)
+        private static List<IEtlPlugin> GetEnabledPlugins(EtlModuleConfiguration moduleConfiguration, List<IEtlPlugin> plugins)
         {
             if (plugins == null || plugins.Count == 0)
                 return new List<IEtlPlugin>();
@@ -248,7 +254,7 @@
                 .ToList();
         }
 
-        private static List<string> GetUnknownPlugins(ModuleConfiguration moduleConfiguration, List<IEtlPlugin> plugins)
+        private static List<string> GetUnknownPlugins(EtlModuleConfiguration moduleConfiguration, List<IEtlPlugin> plugins)
         {
             if (plugins == null || plugins.Count == 0)
                 return new List<string>();
@@ -258,46 +264,42 @@
                 .ToList();
         }
 
-        private static List<IEtlPlugin> LoadPluginsFromAssembly(Assembly assembly)
+        private static List<T> LoadInstancesFromAssembly<T>(System.Reflection.Assembly assembly)
         {
-            var result = new List<IEtlPlugin>();
-            var pluginInterfaceType = typeof(IEtlPlugin);
-            foreach (var foundType in assembly.GetTypes().Where(x => pluginInterfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract))
+            var result = new List<T>();
+            var interfaceType = typeof(T);
+            foreach (var foundType in assembly.GetTypes().Where(x => interfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract))
             {
-                if (pluginInterfaceType.IsAssignableFrom(foundType) && foundType.IsClass && !foundType.IsAbstract)
+                if (interfaceType.IsAssignableFrom(foundType) && foundType.IsClass && !foundType.IsAbstract)
                 {
-                    var plugin = (IEtlPlugin)Activator.CreateInstance(foundType, Array.Empty<object>());
-                    if (plugin != null)
-                    {
-                        result.Add(plugin);
-                    }
+                    var instance = (T)Activator.CreateInstance(foundType, Array.Empty<object>());
+                    if (instance != null)
+                        result.Add(instance);
                 }
             }
 
             return result;
         }
 
-        private static List<IEtlPlugin> LoadPluginsFromAppDomain(string moduleName)
+        private static List<T> LoadInstancesFromAppDomain<T>(string moduleName)
         {
-            var plugins = new List<IEtlPlugin>();
-            var pluginInterfaceType = typeof(IEtlPlugin);
+            var result = new List<T>();
+            var interfaceType = typeof(T);
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 var matchingTypes = assembly.GetTypes()
-                    .Where(t => t.IsClass && !t.IsAbstract && pluginInterfaceType.IsAssignableFrom(t) && t.Namespace.EndsWith(moduleName, StringComparison.OrdinalIgnoreCase))
+                    .Where(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t) && t.Namespace.EndsWith(moduleName, StringComparison.OrdinalIgnoreCase))
                     .ToList();
 
                 foreach (var foundType in matchingTypes)
                 {
-                    var plugin = (IEtlPlugin)Activator.CreateInstance(foundType, Array.Empty<object>());
-                    if (plugin != null)
-                    {
-                        plugins.Add(plugin);
-                    }
+                    var instance = (T)Activator.CreateInstance(foundType, Array.Empty<object>());
+                    if (instance != null)
+                        result.Add(instance);
                 }
             }
 
-            return plugins;
+            return result;
         }
     }
 }

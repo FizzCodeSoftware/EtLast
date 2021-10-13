@@ -12,13 +12,14 @@
         private string _nameCached;
         public string Name => _nameCached ??= GetType().GetFriendlyTypeName();
 
-        public ModuleConfiguration ModuleConfiguration { get; private set; }
+        public IEtlSession Session { get; private set; }
+
         public IEtlContext Context => PluginTopic.Context;
         public ITopic PluginTopic { get; private set; }
 
-        public void Init(ITopic topic, ModuleConfiguration moduleConfiguration)
+        public void Init(ITopic topic, IEtlSession session)
         {
-            ModuleConfiguration = moduleConfiguration;
+            Session = session;
             PluginTopic = topic;
         }
 
@@ -35,18 +36,18 @@
 
         protected T GetModuleSetting<T>(string key, T defaultValue, string subSection = null)
         {
-            var value = ConfigurationReader.GetCurrentValue<T>(ModuleConfiguration.Configuration, subSection == null ? "Module" : "Module:" + subSection, key, default);
+            var value = ConfigurationReader.GetCurrentValue<T>(Session.CurrentModuleConfiguration.Configuration, subSection == null ? "Module" : "Module:" + subSection, key, default);
 
             if (value != null && !value.Equals(default(T)))
                 return value;
 
-            return ConfigurationReader.GetCurrentValue(ModuleConfiguration.Configuration, subSection == null ? "Shared" : "Shared:" + subSection, key, defaultValue);
+            return ConfigurationReader.GetCurrentValue(Session.CurrentModuleConfiguration.Configuration, subSection == null ? "Shared" : "Shared:" + subSection, key, defaultValue);
         }
 
         protected string GetModuleSetting(string key, string defaultValue, string subSection = null)
         {
-            var value = ConfigurationReader.GetCurrentValue(ModuleConfiguration.Configuration, subSection == null ? "Module" : "Module:" + subSection, key, null, ModuleConfiguration.SecretProtector);
-            return value ?? ConfigurationReader.GetCurrentValue(ModuleConfiguration.Configuration, subSection == null ? "Shared" : "Shared:" + subSection, key, defaultValue);
+            var value = ConfigurationReader.GetCurrentValue(Session.CurrentModuleConfiguration.Configuration, subSection == null ? "Module" : "Module:" + subSection, key, null, Session.CurrentModuleConfiguration.SecretProtector);
+            return value ?? ConfigurationReader.GetCurrentValue(Session.CurrentModuleConfiguration.Configuration, subSection == null ? "Shared" : "Shared:" + subSection, key, defaultValue);
         }
 
         protected string GetPathFromConfiguration(string appSettingName, params string[] subFolders)
@@ -93,17 +94,17 @@
 
         protected virtual NamedConnectionString GetConnectionString(string key, bool allowMachineNameOverride = true)
         {
-            if (ModuleConfiguration.ConnectionStrings == null)
+            if (Session.CurrentModuleConfiguration.ConnectionStrings == null)
                 return null;
 
             if (allowMachineNameOverride)
             {
-                var connectionString = ModuleConfiguration.ConnectionStrings[key + "-" + Environment.MachineName];
+                var connectionString = Session.CurrentModuleConfiguration.ConnectionStrings[key + "-" + Environment.MachineName];
                 if (connectionString != null)
                     return connectionString;
             }
 
-            return ModuleConfiguration.ConnectionStrings[key];
+            return Session.CurrentModuleConfiguration.ConnectionStrings[key];
         }
     }
 }

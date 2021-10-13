@@ -43,13 +43,13 @@
 
         public List<IExecutionContextListener> CustomListeners { get; } = new List<IExecutionContextListener>();
 
-        public ExecutionContext(ExecutionContext parentContext, ITopic topic, string sessionId, IEtlPlugin plugin, Module module, CommandContext commandContext)
+        public ExecutionContext(ExecutionContext parentContext, ITopic topic, string sessionId, IEtlPlugin plugin, CompiledModule module, CommandContext commandContext)
         {
             SessionId = sessionId;
             Topic = topic;
             ParentContext = parentContext;
             PluginName = plugin?.Name;
-            ModuleName = module?.ModuleConfiguration?.ModuleName;
+            ModuleName = module?.Configuration?.ModuleName;
 
             _commandContext = commandContext;
             Name = PluginName == null

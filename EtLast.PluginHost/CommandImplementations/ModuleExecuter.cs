@@ -11,7 +11,7 @@
 
     internal static class ModuleExecuter
     {
-        public static ExecutionResult Execute(CommandContext commandContext, params Module[] modules)
+        public static ExecutionResult Execute(CommandContext commandContext, params CompiledModule[] modules)
         {
             var result = ExecutionResult.Success;
 
@@ -26,6 +26,8 @@
             if (result != ExecutionResult.Success)
                 return result;
 
+            var session = new EtlSession();
+
             try
             {
                 sessionContext.OnLog(LogSeverity.Information, false, null, null, "session {SessionId} started", sessionId);
@@ -34,8 +36,12 @@
 
                 foreach (var module in modules)
                 {
+                    session.ModuleChanged(module.Configuration);
+
                     foreach (var plugin in module.EnabledPlugins)
                     {
+                        session.PluginChanged(plugin);
+
                         var topic = new Topic(null, new EtlContext()
                         {
                             TransactionScopeTimeout = commandContext.HostConfiguration.TransactionScopeTimeout,
@@ -57,7 +63,7 @@
                         {
                             try
                             {
-                                plugin.Init(pluginContext.Topic, module.ModuleConfiguration);
+                                plugin.Init(pluginContext.Topic, session);
                                 plugin.BeforeExecute();
                                 plugin.Execute();
 
@@ -101,7 +107,12 @@
 
                         pluginContext.Topic.Context.Close();
                     }
+
+                    session.PluginChanged(null);
                 }
+
+                session.ModuleChanged(null);
+                session.Stop();
 
                 sessionContext.Finish();
 
