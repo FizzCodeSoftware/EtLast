@@ -86,7 +86,7 @@
     {
         public static IFluentProcessMutatorBuilder ResolveHierarchy(this IFluentProcessMutatorBuilder builder, ResolveHierarchyMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

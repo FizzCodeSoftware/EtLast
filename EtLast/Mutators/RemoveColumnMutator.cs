@@ -43,7 +43,7 @@
     {
         public static IFluentProcessMutatorBuilder RemoveColumn(this IFluentProcessMutatorBuilder builder, RemoveColumnMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

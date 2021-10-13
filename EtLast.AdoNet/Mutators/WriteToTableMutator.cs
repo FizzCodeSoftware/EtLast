@@ -272,7 +272,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder WriteToSqlTable(this IFluentProcessMutatorBuilder builder, WriteToTableMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

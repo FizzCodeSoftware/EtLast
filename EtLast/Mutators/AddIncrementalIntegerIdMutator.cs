@@ -43,7 +43,7 @@
     {
         public static IFluentProcessMutatorBuilder AddIncrementalIntegerId(this IFluentProcessMutatorBuilder builder, AddIncrementalIntegerIdMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

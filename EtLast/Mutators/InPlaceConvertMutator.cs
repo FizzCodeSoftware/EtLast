@@ -122,7 +122,7 @@
     {
         public static IFluentProcessMutatorBuilder ConvertValue(this IFluentProcessMutatorBuilder builder, InPlaceConvertMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

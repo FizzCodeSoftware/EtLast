@@ -151,7 +151,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder CompareWithRowBatched(this IFluentProcessMutatorBuilder builder, BatchedCompareWithRowMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

@@ -144,7 +144,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder Aggregate(this IFluentProcessMutatorBuilder builder, MemoryAggregationMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

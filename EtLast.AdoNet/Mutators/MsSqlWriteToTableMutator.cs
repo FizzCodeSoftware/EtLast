@@ -7,8 +7,8 @@
     using System.Globalization;
     using System.Linq;
     using System.Transactions;
-    using FizzCode.LightWeight.AdoNet;
     using FizzCode.EtLast;
+    using FizzCode.LightWeight.AdoNet;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
     public class MsSqlWriteToTableMutator : AbstractMutator, IRowWriter
@@ -229,7 +229,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder WriteToMsSqlTable(this IFluentProcessMutatorBuilder builder, MsSqlWriteToTableMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

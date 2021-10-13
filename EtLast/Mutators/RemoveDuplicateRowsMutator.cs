@@ -62,7 +62,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder RemoveDuplicateRows(this IFluentProcessMutatorBuilder builder, RemoveDuplicateRowsMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

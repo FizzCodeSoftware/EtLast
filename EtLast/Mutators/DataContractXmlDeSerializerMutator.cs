@@ -83,7 +83,7 @@
     {
         public static IFluentProcessMutatorBuilder DeSerializeFromXml<T>(this IFluentProcessMutatorBuilder builder, DataContractXmlDeSerializerMutator<T> mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

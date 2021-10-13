@@ -46,7 +46,7 @@
     {
         public static IFluentProcessMutatorBuilder Explode(this IFluentProcessMutatorBuilder builder, ExplodeMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

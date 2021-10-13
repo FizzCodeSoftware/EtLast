@@ -160,7 +160,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder CompareWithRow(this IFluentProcessMutatorBuilder builder, CompareWithRowMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

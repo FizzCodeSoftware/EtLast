@@ -128,7 +128,7 @@
     {
         public static IFluentProcessMutatorBuilder WriteRowToExcelSimple(this IFluentProcessMutatorBuilder builder, EpPlusSimpleRowWriterMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

@@ -46,7 +46,7 @@
     {
         public static IFluentProcessMutatorBuilder ReplaceEmptyStringWithNull(this IFluentProcessMutatorBuilder builder, ReplaceEmptyStringWithNullMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

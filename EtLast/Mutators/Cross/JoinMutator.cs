@@ -177,7 +177,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder Join(this IFluentProcessMutatorBuilder builder, JoinMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

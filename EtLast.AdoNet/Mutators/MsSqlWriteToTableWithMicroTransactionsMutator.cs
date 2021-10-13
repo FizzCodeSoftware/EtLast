@@ -260,7 +260,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder WriteToMsSqlTableWithMicroTransactions(this IFluentProcessMutatorBuilder builder, MsSqlWriteToTableWithMicroTransactionsMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

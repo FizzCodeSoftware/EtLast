@@ -221,7 +221,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder KeyTestBatched(this IFluentProcessMutatorBuilder builder, BatchedKeyTestMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

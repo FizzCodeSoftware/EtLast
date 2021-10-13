@@ -89,7 +89,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder ExpandFromLookup(this IFluentProcessMutatorBuilder builder, ExpandFromLookupMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

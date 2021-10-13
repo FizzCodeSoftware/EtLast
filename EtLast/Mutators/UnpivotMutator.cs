@@ -116,7 +116,7 @@
     {
         public static IFluentProcessMutatorBuilder Unpivot(this IFluentProcessMutatorBuilder builder, UnpivotMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

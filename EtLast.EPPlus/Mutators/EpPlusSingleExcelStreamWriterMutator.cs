@@ -119,7 +119,7 @@
         public static IFluentProcessMutatorBuilder WriteRowToExcelStreamCustom<TState>(this IFluentProcessMutatorBuilder builder, EpPlusSingleExcelStreamWriterMutator<TState> mutator)
         where TState : BaseExcelWriterState, new()
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

@@ -116,7 +116,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder ExplodeInMemory(this IFluentProcessMutatorBuilder builder, InMemoryExplodeMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

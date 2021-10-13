@@ -83,7 +83,7 @@
     {
         public static IFluentProcessMutatorBuilder MergeDateWithTime(this IFluentProcessMutatorBuilder builder, MergeDateWithTimeMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

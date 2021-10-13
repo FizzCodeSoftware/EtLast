@@ -45,7 +45,7 @@
     {
         public static IFluentProcessMutatorBuilder ThrowExceptionOnRowError(this IFluentProcessMutatorBuilder builder, ThrowExceptionOnRowErrorMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

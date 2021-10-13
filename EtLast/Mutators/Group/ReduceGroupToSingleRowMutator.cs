@@ -174,7 +174,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder ReduceGroupToSingleRow(this IFluentProcessMutatorBuilder builder, ReduceGroupToSingleRowMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

@@ -170,7 +170,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder AggregateOrdered(this IFluentProcessMutatorBuilder builder, SortedMemoryAggregationMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

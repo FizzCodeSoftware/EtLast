@@ -58,7 +58,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder ThrowExceptionOnDuplicateKey(this IFluentProcessMutatorBuilder builder, ThrowExceptionOnDuplicateKeyMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

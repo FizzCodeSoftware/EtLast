@@ -135,7 +135,7 @@
             where TChannel : class
             where TClient : ClientBase<TChannel>
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

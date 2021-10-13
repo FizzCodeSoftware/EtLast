@@ -53,7 +53,7 @@
     {
         public static IFluentProcessMutatorBuilder ReplaceString(this IFluentProcessMutatorBuilder builder, ReplaceStringMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

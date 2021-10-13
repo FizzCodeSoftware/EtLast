@@ -152,7 +152,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder AggregateContinuously(this IFluentProcessMutatorBuilder builder, ContinuousAggregationMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

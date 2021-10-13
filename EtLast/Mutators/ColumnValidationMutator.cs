@@ -58,7 +58,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder ValidateColumn(this IFluentProcessMutatorBuilder builder, ColumnValidationMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

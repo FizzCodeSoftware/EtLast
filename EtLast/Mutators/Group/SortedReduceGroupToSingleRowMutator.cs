@@ -170,7 +170,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder ReduceGroupToSingleRowOrdered(this IFluentProcessMutatorBuilder builder, SortedReduceGroupToSingleRowMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

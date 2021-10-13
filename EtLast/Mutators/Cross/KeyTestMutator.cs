@@ -155,7 +155,7 @@
         /// </summary>
         public static IFluentProcessMutatorBuilder KeyTest(this IFluentProcessMutatorBuilder builder, KeyTestMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

@@ -43,7 +43,7 @@
     {
         public static IFluentProcessMutatorBuilder AddIncrementalLongId(this IFluentProcessMutatorBuilder builder, AddIncrementalLongIdMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

@@ -28,7 +28,7 @@
     {
         public static IFluentProcessMutatorBuilder SetTag(this IFluentProcessMutatorBuilder builder, SetTagMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }

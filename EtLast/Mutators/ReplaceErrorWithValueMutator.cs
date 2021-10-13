@@ -47,7 +47,7 @@
     {
         public static IFluentProcessMutatorBuilder ReplaceErrorWithValue(this IFluentProcessMutatorBuilder builder, ReplaceErrorWithValueMutator mutator)
         {
-            return builder.AddMutators(mutator);
+            return builder.AddMutator(mutator);
         }
     }
 }
