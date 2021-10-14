@@ -6,12 +6,12 @@
 
     public class ContactJoinExpand : AbstractContactPlugin
     {
-        public override void Execute()
+        public override IEnumerable<IExecutable> CreateExecutables()
         {
-            Context.ExecuteOne(true, new BasicScope(PluginTopic)
+            yield return new BasicScope(PluginTopic)
             {
                 ProcessCreator = ProcessCreator,
-            });
+            };
         }
 
         private IEnumerable<IExecutable> ProcessCreator(BasicScope scope)

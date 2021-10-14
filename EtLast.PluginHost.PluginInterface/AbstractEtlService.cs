@@ -3,6 +3,7 @@
     public abstract class AbstractEtlService : IEtlService
     {
         public IEtlSession Session { get; private set; }
+        public abstract EtlServiceLifespan Lifespan { get; }
 
         public void Start(IEtlSession session)
         {

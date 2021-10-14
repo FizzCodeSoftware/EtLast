@@ -17,6 +17,8 @@
         public IEtlContext Context => PluginTopic.Context;
         public ITopic PluginTopic { get; private set; }
 
+        public virtual bool TerminateHostOnFail => true;
+
         public void Init(ITopic topic, IEtlSession session)
         {
             Session = session;
@@ -27,7 +29,7 @@
         {
         }
 
-        public abstract void Execute();
+        public abstract IEnumerable<IExecutable> CreateExecutables();
 
         protected string GetStorageFolder(params string[] subFolders)
         {

@@ -4,12 +4,12 @@
 
     public class HelloWorldProcess : AbstractEtlPlugin
     {
-        public override void Execute()
+        public override IEnumerable<IExecutable> CreateExecutables()
         {
-            Context.ExecuteOne(true, new BasicScope(PluginTopic)
+            yield return new BasicScope(PluginTopic)
             {
                 ProcessCreator = CreateHelloWorldProcess,
-            });
+            };
         }
 
         private IEnumerable<IExecutable> CreateHelloWorldProcess(IExecutable scope)

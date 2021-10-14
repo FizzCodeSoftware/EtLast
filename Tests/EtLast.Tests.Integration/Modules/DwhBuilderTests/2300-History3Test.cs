@@ -14,22 +14,28 @@
     // EtlRunInfo ON, no record timestamp
     public class History3Test : AbstractDwhBuilderTestPlugin
     {
-        public override void Execute()
+        public override IEnumerable<IExecutable> CreateExecutables()
         {
-            DatabaseDeclaration.GetTable("dbo", "Company").HasHistoryTable();
+            yield return new CustomAction(PluginTopic, "CustomAction")
+            {
+                Then = _ =>
+                {
+                    DatabaseDeclaration.GetTable("dbo", "Company").HasHistoryTable();
 
-            Session.Service<TestService>().DoSomething();
+                    Session.Service<TestService>().DoSomething();
 
-            var configuration = new DwhBuilderConfiguration();
-            var model = DwhDataDefinitionToRelationalModelConverter.Convert(DatabaseDeclaration, "dbo");
+                    var configuration = new DwhBuilderConfiguration();
+                    var model = DwhDataDefinitionToRelationalModelConverter.Convert(DatabaseDeclaration, "dbo");
 
-            DataDefinitionExtenderMsSql2016.Extend(DatabaseDeclaration, configuration);
-            RelationalModelExtender.Extend(model, configuration);
+                    DataDefinitionExtenderMsSql2016.Extend(DatabaseDeclaration, configuration);
+                    RelationalModelExtender.Extend(model, configuration);
 
-            CreateDatabase(DatabaseDeclaration);
+                    CreateDatabase(DatabaseDeclaration);
 
-            Init(configuration, model);
-            Update(configuration, model);
+                    Init(configuration, model);
+                    Update(configuration, model);
+                }
+            };
         }
 
         private void Init(DwhBuilderConfiguration configuration, RelationalModel model)

@@ -14,24 +14,30 @@
     // EtlRunInfo OFF
     public class History1Test : AbstractDwhBuilderTestPlugin
     {
-        public override void Execute()
+        public override IEnumerable<IExecutable> CreateExecutables()
         {
-            DatabaseDeclaration.GetTable("dbo", "People").HasHistoryTable();
-
-            var configuration = new DwhBuilderConfiguration()
+            yield return new CustomAction(PluginTopic, "CustomAction")
             {
-                UseEtlRunInfo = false,
+                Then = _ =>
+                {
+                    DatabaseDeclaration.GetTable("dbo", "People").HasHistoryTable();
+
+                    var configuration = new DwhBuilderConfiguration()
+                    {
+                        UseEtlRunInfo = false,
+                    };
+
+                    var model = DwhDataDefinitionToRelationalModelConverter.Convert(DatabaseDeclaration, "dbo");
+
+                    DataDefinitionExtenderMsSql2016.Extend(DatabaseDeclaration, configuration);
+                    RelationalModelExtender.Extend(model, configuration);
+
+                    CreateDatabase(DatabaseDeclaration);
+
+                    Init(configuration, model);
+                    Update(configuration, model);
+                }
             };
-
-            var model = DwhDataDefinitionToRelationalModelConverter.Convert(DatabaseDeclaration, "dbo");
-
-            DataDefinitionExtenderMsSql2016.Extend(DatabaseDeclaration, configuration);
-            RelationalModelExtender.Extend(model, configuration);
-
-            CreateDatabase(DatabaseDeclaration);
-
-            Init(configuration, model);
-            Update(configuration, model);
         }
 
         private void Init(DwhBuilderConfiguration configuration, RelationalModel model)

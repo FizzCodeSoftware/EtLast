@@ -237,10 +237,7 @@
             module.Plugins.Clear();
             module.EnabledPlugins.Clear();
 
-            if (module.LoadContext != null)
-            {
-                module.LoadContext.Unload();
-            }
+            module.LoadContext?.Unload();
         }
 
         private static List<IEtlPlugin> GetEnabledPlugins(EtlModuleConfiguration moduleConfiguration, List<IEtlPlugin> plugins)

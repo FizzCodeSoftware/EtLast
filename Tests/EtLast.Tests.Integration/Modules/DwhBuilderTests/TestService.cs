@@ -5,6 +5,8 @@
 
     public class TestService : AbstractEtlService
     {
+        public override EtlServiceLifespan Lifespan => EtlServiceLifespan.PerSession;
+
         public void DoSomething()
         {
             Session.CurrentPlugin.Context.Log(LogSeverity.Information, null, "service test --- module: {module} --- plugin: {plugin}", Session.CurrentModuleConfiguration?.ModuleName, Session.CurrentPlugin.Name);

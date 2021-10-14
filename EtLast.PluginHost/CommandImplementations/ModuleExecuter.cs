@@ -65,7 +65,12 @@
                             {
                                 plugin.Init(pluginContext.Topic, session);
                                 plugin.BeforeExecute();
-                                plugin.Execute();
+
+                                var executables = plugin.CreateExecutables()?.ToArray();
+                                if (executables?.Length > 0)
+                                {
+                                    pluginContext.Topic.Context.ExecuteSequence(plugin.TerminateHostOnFail, executables);
+                                }
 
                                 sessionWarningCount += pluginContext.Topic.Context.Result.WarningCount;
                                 sessionExceptionCount += pluginContext.Topic.Context.Result.Exceptions.Count;

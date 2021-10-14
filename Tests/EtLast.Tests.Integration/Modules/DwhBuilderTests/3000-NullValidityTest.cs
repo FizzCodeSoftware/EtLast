@@ -14,25 +14,31 @@
     // EtlRunInfo ON, no record timestamp
     public class NullValidityTest : AbstractDwhBuilderTestPlugin
     {
-        public override void Execute()
+        public override IEnumerable<IExecutable> CreateExecutables()
         {
-            DatabaseDeclaration.GetTable("dbo", "Company").HasHistoryTable();
-
-            var configuration = new DwhBuilderConfiguration()
+            yield return new CustomAction(PluginTopic, "CustomAction")
             {
-                InfinitePastDateTime = null,
-                InfiniteFutureDateTime = null,
+                Then = _ =>
+                {
+                    DatabaseDeclaration.GetTable("dbo", "Company").HasHistoryTable();
+
+                    var configuration = new DwhBuilderConfiguration()
+                    {
+                        InfinitePastDateTime = null,
+                        InfiniteFutureDateTime = null,
+                    };
+
+                    var model = DwhDataDefinitionToRelationalModelConverter.Convert(DatabaseDeclaration, "dbo");
+
+                    DataDefinitionExtenderMsSql2016.Extend(DatabaseDeclaration, configuration);
+                    RelationalModelExtender.Extend(model, configuration);
+
+                    CreateDatabase(DatabaseDeclaration);
+
+                    Init(configuration, model);
+                    Update(configuration, model);
+                }
             };
-
-            var model = DwhDataDefinitionToRelationalModelConverter.Convert(DatabaseDeclaration, "dbo");
-
-            DataDefinitionExtenderMsSql2016.Extend(DatabaseDeclaration, configuration);
-            RelationalModelExtender.Extend(model, configuration);
-
-            CreateDatabase(DatabaseDeclaration);
-
-            Init(configuration, model);
-            Update(configuration, model);
         }
 
         private void Init(DwhBuilderConfiguration configuration, RelationalModel model)

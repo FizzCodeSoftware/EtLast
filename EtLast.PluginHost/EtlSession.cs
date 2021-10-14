@@ -26,11 +26,25 @@
         internal void ModuleChanged(EtlModuleConfiguration configuration)
         {
             CurrentModuleConfiguration = configuration;
+
+            var servicesToRemove = _services.Where(x => x.Lifespan != EtlServiceLifespan.PerSession);
+            foreach (var service in servicesToRemove)
+            {
+                service.Stop();
+                _services.Remove(service);
+            }
         }
 
         internal void PluginChanged(IEtlPlugin plugin)
         {
             CurrentPlugin = plugin;
+
+            var servicesToRemove = _services.Where(x => x.Lifespan == EtlServiceLifespan.PerPlugin);
+            foreach (var service in servicesToRemove)
+            {
+                service.Stop();
+                _services.Remove(service);
+            }
         }
 
         internal void Stop()
@@ -39,6 +53,8 @@
             {
                 service.Stop();
             }
+
+            _services.Clear();
         }
     }
 }

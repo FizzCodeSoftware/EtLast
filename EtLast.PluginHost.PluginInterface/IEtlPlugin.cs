@@ -1,5 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System.Collections.Generic;
+
     public interface IEtlPlugin
     {
         IEtlSession Session { get; }
@@ -9,6 +11,9 @@
 
         void Init(ITopic topic, IEtlSession session);
         void BeforeExecute();
-        void Execute();
+
+        public bool TerminateHostOnFail { get; }
+
+        IEnumerable<IExecutable> CreateExecutables();
     }
 }
