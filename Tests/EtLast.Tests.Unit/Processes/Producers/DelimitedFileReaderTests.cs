@@ -178,7 +178,6 @@
             Assert.AreEqual(0, exceptions.Count);
         }
 
-
         [TestMethod]
         public void NewLineTest2()
         {

@@ -140,13 +140,20 @@
                         var c = line[linePos];
                         var isQuote = c == '\"';
                         var lastCharInLine = linePos == lineLength - 1;
-                        var nextCharIsDelimiter = !lastCharInLine && line[linePos + 1] == delimiter;
-                        var nextCharIsQuote = !lastCharInLine && line[linePos + 1] == '\"';
+
+                        var nextCharIsDelimiter = false;
+                        var nextCharIsQuote = false;
+                        if (!lastCharInLine)
+                        {
+                            var nc = line[linePos + 1];
+                            if (nc == delimiter)
+                                nextCharIsDelimiter = true;
+                            else if (nc == '\"')
+                                nextCharIsQuote = true;
+                        }
 
                         if (builderLength == 0 && isQuote)
-                        {
                             quotes++;
-                        }
 
                         var quotedCellClosing = builderLength > 0
                                 && isQuote
@@ -154,9 +161,7 @@
                                 && nextCharIsDelimiter;
 
                         if (quotedCellClosing)
-                        {
                             quotes--;
-                        }
 
                         var endOfCell = lastCharInLine || (nextCharIsDelimiter && quotes == 0);
 
