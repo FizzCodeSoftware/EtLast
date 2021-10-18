@@ -122,14 +122,16 @@
                 .ReadFrom(GetSimpleReader(topic, @"TestData\QuotedSample3.csv", treatEmptyStringsAsNull: false));
 
             var result = TestExecuter.Execute(builder);
-            Assert.AreEqual(6, result.MutatedRows.Count);
+            Assert.AreEqual(8, result.MutatedRows.Count);
             Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "", ["Value"] = "A" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "B", ["Value"] = "" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "C", ["Value"] = "\"" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["Name"] = "\"", ["Value"] = "D" },
-                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 5, ["Name"] = "C", ["Value"] = "\"\"" },
-                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 6, ["Name"] = "\"\"", ["Value"] = "D" } });
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 5, ["Name"] = "E", ["Value"] = "\"\"" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 6, ["Name"] = "\"\"", ["Value"] = "F" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 7, ["Name"] = "G", ["Value"] = "\"a\"" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 8, ["Name"] = "\"b\"", ["Value"] = "H" } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
@@ -142,17 +144,18 @@
                 .ReadFrom(GetSimpleReader(topic, @"TestData\QuotedSample3.csv", treatEmptyStringsAsNull: true));
 
             var result = TestExecuter.Execute(builder);
-            Assert.AreEqual(6, result.MutatedRows.Count);
+            Assert.AreEqual(8, result.MutatedRows.Count);
             Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Value"] = "A" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "B" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "C", ["Value"] = "\"" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["Name"] = "\"", ["Value"] = "D" },
-                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 5, ["Name"] = "C", ["Value"] = "\"\"" },
-                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 6, ["Name"] = "\"\"", ["Value"] = "D" } });
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 5, ["Name"] = "E", ["Value"] = "\"\"" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 6, ["Name"] = "\"\"", ["Value"] = "F" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 7, ["Name"] = "G", ["Value"] = "\"a\"" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 8, ["Name"] = "\"b\"", ["Value"] = "H" } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
-
         }
 
         [TestMethod]
