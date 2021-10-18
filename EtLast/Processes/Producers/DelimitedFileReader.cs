@@ -188,7 +188,7 @@
                             if (builderLength == 0 && isQuote)
                                 cellStartsWithQuote = true;
 
-                            if (quotes > 0 && isQuote && nextCharIsQuote)
+                            if (quotes > 0 && isQuote && nextCharIsQuote && builderLength > 0)
                             {
                                 linePos++; // Skip next quote. RFC 4180, 2/7: If double-quotes are used to enclose fields, then a double-quote appearing inside a field must be escaped by preceding it with another double quote.
                             }

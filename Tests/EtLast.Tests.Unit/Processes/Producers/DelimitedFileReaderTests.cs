@@ -27,7 +27,7 @@
             };
         }
 
-        private static IEvaluable GetSimpleReader(ITopic topic, string fileName)
+        private static IEvaluable GetSimpleReader(ITopic topic, string fileName, bool treatEmptyStringsAsNull = true)
         {
             return new DelimitedFileReader(topic, null)
             {
@@ -39,6 +39,7 @@
                     new ReaderColumnConfiguration("Value", new StringConverter())
                 },
                 HasHeaderRow = true,
+                TreatEmptyStringAsNull = treatEmptyStringsAsNull,
             };
         }
 
@@ -68,12 +69,7 @@
         {
             var topic = TestExecuter.GetTopic();
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(GetReader(topic, @"TestData\QuotedSample1.csv"))
-                .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(topic, null)
-                {
-                    Columns = new[] { "ValueDate" },
-                    Value = null,
-                });
+                .ReadFrom(GetReader(topic, @"TestData\QuotedSample1.csv"));
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(2, result.MutatedRows.Count);
@@ -106,12 +102,7 @@
         {
             var topic = TestExecuter.GetTopic();
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(GetSimpleReader(topic, @"TestData\QuotedSample2.csv"))
-                .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(topic, null)
-                {
-                    Columns = new[] { "ValueDate" },
-                    Value = null,
-                });
+                .ReadFrom(GetSimpleReader(topic, @"TestData\QuotedSample2.csv"));
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(3, result.MutatedRows.Count);
@@ -121,6 +112,47 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "C", ["Value"] = "test\"\"" } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
+        }
+
+        [TestMethod]
+        public void QuotedTest3EmptyStringsUntouched()
+        {
+            var topic = TestExecuter.GetTopic();
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(GetSimpleReader(topic, @"TestData\QuotedSample3.csv", treatEmptyStringsAsNull: false));
+
+            var result = TestExecuter.Execute(builder);
+            Assert.AreEqual(6, result.MutatedRows.Count);
+            Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "", ["Value"] = "A" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "B", ["Value"] = "" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "C", ["Value"] = "\"" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["Name"] = "\"", ["Value"] = "D" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 5, ["Name"] = "C", ["Value"] = "\"\"" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 6, ["Name"] = "\"\"", ["Value"] = "D" } });
+            var exceptions = topic.Context.GetExceptions();
+            Assert.AreEqual(0, exceptions.Count);
+        }
+
+        [TestMethod]
+        public void QuotedTest3EmptyStringsRemoved()
+        {
+            var topic = TestExecuter.GetTopic();
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(GetSimpleReader(topic, @"TestData\QuotedSample3.csv", treatEmptyStringsAsNull: true));
+
+            var result = TestExecuter.Execute(builder);
+            Assert.AreEqual(6, result.MutatedRows.Count);
+            Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Value"] = "A" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "B" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "C", ["Value"] = "\"" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["Name"] = "\"", ["Value"] = "D" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 5, ["Name"] = "C", ["Value"] = "\"\"" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 6, ["Name"] = "\"\"", ["Value"] = "D" } });
+            var exceptions = topic.Context.GetExceptions();
+            Assert.AreEqual(0, exceptions.Count);
+
         }
 
         [TestMethod]
