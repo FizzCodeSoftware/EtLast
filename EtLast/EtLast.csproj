@@ -27,6 +27,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Processes\InMemoryProcessor\**" />
+    <EmbeddedResource Remove="Processes\InMemoryProcessor\**" />
+    <None Remove="Processes\InMemoryProcessor\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FizzCode.LightWeight.Configuration" Version="2.0.18.6132" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3">
       <PrivateAssets>all</PrivateAssets>
@@ -37,10 +43,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Processes\InMemoryProcessor\" />
   </ItemGroup>
 
 </Project>

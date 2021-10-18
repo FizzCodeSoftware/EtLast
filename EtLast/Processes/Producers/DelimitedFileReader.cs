@@ -46,9 +46,14 @@
         public string[] IgnoreColumns { get; set; }
 
         /// <summary>
-        /// Default value is ';'
+        /// Default value is ';'.
         /// </summary>
         public char Delimiter { get; set; } = ';';
+
+        /// <summary>
+        /// Default value is false. Setting this to true may expose sensitive information in log files.
+        /// </summary>
+        public bool IncludeValuesInException { get; set; } = false;
 
         public DelimitedFileReader(ITopic topic, string name)
             : base(topic, name)
@@ -195,6 +200,11 @@
                                 var exception = new ProcessExecutionException(this, "Cell starting with '\"' is missing closing '\"'.");
                                 exception.Data.Add("LineNumber", resultCount + 1);
                                 exception.Data.Add("CharacterIndex", linePos + 1);
+                                if (IncludeValuesInException)
+                                {
+                                    exception.Data.Add("Row", line);
+                                }
+
                                 throw exception;
                             }
                         }
