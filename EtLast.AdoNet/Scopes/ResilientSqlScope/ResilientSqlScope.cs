@@ -251,6 +251,16 @@
             }
         }
 
+        public static IEnumerable<IExecutable> TruncateTargetTableFinalizer(ResilientTableBase table, int commandTimeout = 60)
+        {
+            yield return new TruncateTable(table.Topic, "TruncateTargetTable")
+            {
+                ConnectionString = table.Scope.Configuration.ConnectionString,
+                TableName = table.TableName,
+                CommandTimeout = commandTimeout,
+            };
+        }
+
         public static IEnumerable<IExecutable> DeleteTargetTableFinalizer(ResilientTableBase table, int commandTimeout = 60)
         {
             yield return new DeleteTable(table.Topic, "DeleteContentFromTargetTable")
