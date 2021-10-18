@@ -59,7 +59,11 @@
             }
 
             if (v is string str)
-                return "\"" + str + "\"";
+            {
+                return "\"" + str
+                    .Replace("\n", "\\n", StringComparison.InvariantCultureIgnoreCase)
+                    .Replace("\"", "\\\"", StringComparison.InvariantCultureIgnoreCase) + "\"";
+            }
 
             if (v is char cv)
                 return "\"" + cv.ToString(CultureInfo.InvariantCulture) + "\"";

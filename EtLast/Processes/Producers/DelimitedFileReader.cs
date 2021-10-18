@@ -26,11 +26,6 @@
         public bool RemoveSurroundingDoubleQuotes { get; set; } = true;
 
         /// <summary>
-        /// Default true. If a value starts with double quote (") character and misses the closing quote, then throw an exception
-        /// </summary>
-        public bool ThrowOnMissingDoubleQuoteClose { get; set; } = true;
-
-        /// <summary>
         /// Default false.
         /// </summary>
         public bool HasHeaderRow { get; set; }
@@ -49,11 +44,6 @@
         /// Default value is ';'.
         /// </summary>
         public char Delimiter { get; set; } = ';';
-
-        /// <summary>
-        /// Default value is false. Setting this to true may expose sensitive information in log files.
-        /// </summary>
-        public bool IncludeValuesInException { get; set; } = false;
 
         public DelimitedFileReader(ITopic topic, string name)
             : base(topic, name)
@@ -124,101 +114,89 @@
             var delimiter = Delimiter;
             var treatEmptyStringAsNull = TreatEmptyStringAsNull;
             var removeSurroundingDoubleQuotes = RemoveSurroundingDoubleQuotes;
-            var throwOnMissingDoubleQuoteClose = ThrowOnMissingDoubleQuoteClose;
             var ignoreColumns = IgnoreColumns?.ToHashSet();
 
             try
             {
                 while (!Context.CancellationTokenSource.IsCancellationRequested)
                 {
-                    string line;
-                    try
-                    {
-                        line = reader.ReadLine();
-                        if (line == null)
-                            break;
+                    var line = GetNextLine(iocUid, resultCount, reader, delimiter);
+                    if (line == null)
+                        break;
 
-                        if (string.IsNullOrEmpty(line))
-                            continue;
-                    }
-                    catch (Exception ex)
-                    {
-                        Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, resultCount, ex);
-                        var exception = new EtlException(this, "error while reading data from file", ex);
-                        exception.Data.Add("FileName", FileName);
-                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from file: {0}, message: {1}", FileName, ex.Message));
-                        throw exception;
-                    }
-
-                    if (line.EndsWith(delimiter))
-                    {
-                        line = line[0..^1];
-                    }
+                    if (string.IsNullOrEmpty(line))
+                        continue;
 
                     partList.Clear();
                     builder.Clear();
 
                     var quotes = 0;
                     var builderLength = 0;
-                    var builderStartsWithQuote = false;
+                    var cellStartsWithQuote = false;
                     var lineLength = line.Length;
 
                     for (var linePos = 0; linePos < lineLength; linePos++)
                     {
                         var c = line[linePos];
                         var isQuote = c == '\"';
-                        var endOfLine = linePos == lineLength - 1;
-                        var nextCharIsQuote = !endOfLine && line[linePos + 1] == delimiter;
+                        var lastCharInLine = linePos == lineLength - 1;
+                        var nextCharIsDelimiter = !lastCharInLine && line[linePos + 1] == delimiter;
+                        var nextCharIsQuote = !lastCharInLine && line[linePos + 1] == '\"';
 
                         if (builderLength == 0 && isQuote)
                         {
                             quotes++;
                         }
 
-                        var quotedCellClosing = endOfLine
-                            || (builderLength > 0
+                        var quotedCellClosing = builderLength > 0
                                 && isQuote
                                 && quotes > 0
-                                && nextCharIsQuote);
+                                && nextCharIsDelimiter;
 
                         if (quotedCellClosing)
                         {
                             quotes--;
                         }
 
-                        var endOfCell = endOfLine || (nextCharIsQuote && quotes == 0);
+                        var endOfCell = lastCharInLine || (nextCharIsDelimiter && quotes == 0);
 
-                        var quotedCellIsNotClosed = builderLength > 0
-                            && !isQuote && (endOfLine || c != delimiter)
-                            && endOfCell
-                            && builderStartsWithQuote;
+                        var newLineInQuotedCell = builderLength > 0
+                            && cellStartsWithQuote
+                            && (
+                                (!isQuote && lastCharInLine)
+                                || (isQuote && nextCharIsQuote && linePos == lineLength - 2)
+                                );
 
-                        if (quotedCellIsNotClosed)
+                        if (newLineInQuotedCell)
                         {
-                            if (throwOnMissingDoubleQuoteClose)
-                            {
-                                var exception = new ProcessExecutionException(this, "Cell starting with '\"' is missing closing '\"'.");
-                                exception.Data.Add("LineNumber", resultCount + 1);
-                                exception.Data.Add("CharacterIndex", linePos + 1);
-                                if (IncludeValuesInException)
-                                {
-                                    exception.Data.Add("Row", line);
-                                }
+                            var nextLine = GetNextLine(iocUid, resultCount, reader, delimiter);
+                            if (nextLine == null)
+                                break;
 
-                                throw exception;
-                            }
+                            if (string.IsNullOrEmpty(nextLine))
+                                continue;
+
+                            line += "\n" + nextLine;
+                            lineLength = line.Length;
+                            linePos--;
+                            continue;
                         }
 
-                        if (c != delimiter || quotes > 0)
+                        if (quotes > 0 || c != delimiter)
                         {
                             builder.Append(c);
                             if (builderLength == 0 && isQuote)
-                                builderStartsWithQuote = true;
+                                cellStartsWithQuote = true;
+
+                            if (quotes > 0 && isQuote && nextCharIsQuote)
+                            {
+                                linePos++; // Skip next quote. RFC 4180, 2/7: If double-quotes are used to enclose fields, then a double-quote appearing inside a field must be escaped by preceding it with another double quote.
+                            }
 
                             builderLength++;
                         }
 
-                        if (endOfLine || (quotes == 0 && c == delimiter))
+                        if (lastCharInLine || (quotes == 0 && c == delimiter))
                         {
                             if (builderLength == 0)
                             {
@@ -230,7 +208,7 @@
 
                                 builder.Clear();
                                 builderLength = 0;
-                                builderStartsWithQuote = false;
+                                cellStartsWithQuote = false;
                             }
                         }
                     }
@@ -309,6 +287,28 @@
             }
 
             Context.RegisterIoCommandSuccess(this, IoCommandKind.fileRead, iocUid, resultCount);
+        }
+
+        private string GetNextLine(int iocUid, int resultCount, StreamReader reader, char delimiter)
+        {
+            string line;
+            try
+            {
+                line = reader.ReadLine();
+            }
+            catch (Exception ex)
+            {
+                Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, resultCount, ex);
+                var exception = new EtlException(this, "error while reading data from file", ex);
+                exception.Data.Add("FileName", FileName);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from file: {0}, message: {1}", FileName, ex.Message));
+                throw exception;
+            }
+
+            if (line?.EndsWith(delimiter) == true)
+                line = line[0..^1];
+
+            return line;
         }
     }
 
