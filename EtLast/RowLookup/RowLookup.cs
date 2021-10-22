@@ -115,9 +115,10 @@
             if (!_dictionary.TryGetValue(key, out var entry))
                 return null;
 
-            return (entry is List<IReadOnlySlimRow> list)
-                ? list[0]
-                : entry;
+            if (entry is List<IReadOnlySlimRow> list)
+                return list[0];
+
+            return entry as IReadOnlySlimRow;
         }
 
         public void Clear()
