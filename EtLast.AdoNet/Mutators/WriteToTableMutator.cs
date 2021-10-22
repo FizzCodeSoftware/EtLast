@@ -8,8 +8,8 @@
     using System.Linq;
     using System.Text;
     using System.Transactions;
-    using FizzCode.LightWeight.AdoNet;
     using FizzCode.EtLast;
+    using FizzCode.LightWeight.AdoNet;
 
     public class WriteToTableMutator : AbstractMutator, IRowWriter
     {

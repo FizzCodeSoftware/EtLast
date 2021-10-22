@@ -274,7 +274,7 @@
                 }
 
                 sb.Append("{IoCommandUid}/{IoCommandKind}");
-                values.Add(uid);
+                values.Add("#" + uid.ToString("D", CultureInfo.InvariantCulture));
                 values.Add(kind.ToString());
 
                 if (location != null)
@@ -379,7 +379,7 @@
                 }
 
                 sb.Append("{IoCommandUid}/EXCEPTION, {ErrorMessage}");
-                values.Add(uid);
+                values.Add("#" + uid.ToString("D", CultureInfo.InvariantCulture));
                 values.Add(ex.FormatExceptionWithDetails());
 
                 _commandContext.IoLogger.Write(LogEventLevel.Error, sb.ToString(), values.ToArray());

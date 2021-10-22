@@ -34,7 +34,7 @@
         protected override void StartMutator()
         {
             _lookup = MatchActionContainsMatch && MatchAction?.CustomAction != null
-                ? (ICountableLookup)new RowLookup()
+                ? new RowLookup()
                 : new CountableOnlyRowLookup();
 
             base.StartMutator();

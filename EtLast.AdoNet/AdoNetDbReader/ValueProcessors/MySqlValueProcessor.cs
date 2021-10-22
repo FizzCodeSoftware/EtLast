@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
-    using System;
     using System.Reflection;
     using FizzCode.LightWeight.AdoNet;
 
@@ -32,8 +31,8 @@
                     _mySqlDateTimeValueProp = value.GetType().GetProperty("Value");
 
                 return !(bool)_mysqlDateTimeIsNullProp.GetValue(value) && (bool)_mysqlDateTimeIsValidProp.GetValue(value)
-                    ? (DateTime)_mySqlDateTimeValueProp.GetValue(value)
-                    : (object)null;
+                    ? _mySqlDateTimeValueProp.GetValue(value)
+                    : null;
             }
 
             return value;

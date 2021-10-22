@@ -117,7 +117,7 @@
 
             return (entry is List<IReadOnlySlimRow> list)
                 ? list[0]
-                : entry as IReadOnlySlimRow;
+                : entry;
         }
 
         public void Clear()

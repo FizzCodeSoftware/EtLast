@@ -3,8 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using FizzCode.LightWeight.AdoNet;
     using FizzCode.EtLast.AdoNet;
+    using FizzCode.LightWeight.AdoNet;
     using FizzCode.LightWeight.RelationalModel;
 
     public delegate void SourceReadSqlStatementCustomizerDelegate(DwhTableBuilder tableBuilder, List<string> whereClauseList, Dictionary<string, object> parameters);
@@ -45,7 +45,7 @@
             return new AdoNetDbReader(builder.ResilientTable.Topic, "SourceTableReader")
             {
                 ConnectionString = sourceConnectionString,
-                CustomConnectionCreator = readerScope != null ? readerScope.GetConnection : (ConnectionCreatorDelegate)null,
+                CustomConnectionCreator = readerScope != null ? readerScope.GetConnection : null,
                 TableName = sourceSqlTable.EscapedName(builder.DwhBuilder.ConnectionString),
                 CustomWhereClause = whereClauseList.Count == 0
                     ? null

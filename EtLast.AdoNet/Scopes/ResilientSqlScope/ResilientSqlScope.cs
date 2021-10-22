@@ -253,7 +253,7 @@
 
         public static IEnumerable<IExecutable> TruncateTargetTableFinalizer(ResilientTableBase table, int commandTimeout = 60)
         {
-            yield return new TruncateTable(table.Topic, "TruncateTargetTable")
+            yield return new TruncateTable(table.Topic, "TruncateTargetTableFinalizer")
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 TableName = table.TableName,
@@ -263,7 +263,7 @@
 
         public static IEnumerable<IExecutable> DeleteTargetTableFinalizer(ResilientTableBase table, int commandTimeout = 60)
         {
-            yield return new DeleteTable(table.Topic, "DeleteContentFromTargetTable")
+            yield return new DeleteTable(table.Topic, "DeleteTargetTableFinalizer")
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 TableName = table.TableName,
@@ -277,7 +277,7 @@
                 throw new EtlException(table.Scope, "identity columns can be copied only if the " + nameof(ResilientTable) + "." + nameof(ResilientTableBase.Columns) + " is specified");
 
 #pragma warning disable RCS1227 // Validate arguments correctly.
-            yield return new CopyTableIntoExistingTable(table.Topic, "CopyTempToTargetTable")
+            yield return new CopyTableIntoExistingTable(table.Topic, "CopyTableFinalizer")
 #pragma warning restore RCS1227 // Validate arguments correctly.
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
@@ -301,7 +301,7 @@
                 .Where(c => !string.Equals(c, keyColumn, System.StringComparison.InvariantCultureIgnoreCase))
                 .ToList();
 
-            yield return new CustomMsSqlMergeStatement(table.Topic, "MergeTempToTargetTable")
+            yield return new CustomMsSqlMergeStatement(table.Topic, "SimpleMergeFinalizer")
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 CommandTimeout = commandTimeout,
@@ -323,7 +323,7 @@
                 .Where(c => !keyColumns.Any(keyColumn => string.Equals(c, keyColumn, System.StringComparison.InvariantCultureIgnoreCase)))
                 .ToList();
 
-            yield return new CustomMsSqlMergeStatement(table.Topic, "MergeTempToTargetTable")
+            yield return new CustomMsSqlMergeStatement(table.Topic, "SimpleMergeFinalizer")
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 CommandTimeout = commandTimeout,
@@ -343,7 +343,7 @@
         {
             var columnsToUpdate = table.Columns.Where(c => !keyColumns.Contains(c)).ToList();
 
-            yield return new CustomMsSqlMergeStatement(table.Topic, "UpdateTempToTargetTable")
+            yield return new CustomMsSqlMergeStatement(table.Topic, "SimpleMergeUpdateOnlyFinalizer")
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 CommandTimeout = commandTimeout,
@@ -360,7 +360,7 @@
 
         public static IEnumerable<IExecutable> SimpleMergeInsertOnlyFinalizer(ResilientTableBase table, string[] keyColumns, int commandTimeout = 60)
         {
-            yield return new CustomMsSqlMergeStatement(table.Topic, "InsertTempToTargetTable")
+            yield return new CustomMsSqlMergeStatement(table.Topic, "SimpleMergeInsertOnlyFinalizer")
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 CommandTimeout = commandTimeout,
