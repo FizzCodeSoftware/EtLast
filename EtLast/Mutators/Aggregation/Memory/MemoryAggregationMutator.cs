@@ -20,6 +20,7 @@
         protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
             var groups = new Dictionary<string, List<IReadOnlySlimRow>>();
+            var groupCount = 0;
 
             netTimeStopwatch.Stop();
             var enumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
@@ -63,13 +64,11 @@
                 {
                     list = new List<IReadOnlySlimRow>();
                     groups.Add(key, list);
+                    groupCount++;
                 }
 
                 list.Add(row);
             }
-
-            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}",
-                rowCount, groups.Count, InvocationInfo.LastInvocationStarted.Elapsed);
 
             var aggregateCount = 0;
             var aggregates = new List<SlimRow>();
@@ -125,8 +124,8 @@
             groups.Clear();
 
             netTimeStopwatch.Stop();
-            Context.Log(LogSeverity.Debug, this, "created {AggregateCount} aggregates in {Elapsed}/{ElapsedWallClock}, ignored: {IgnoredRowCount}",
-                aggregateCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed, ignoredRowCount);
+            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows, created {GroupCount} groups and created {AggregateCount} aggregates in {Elapsed}/{ElapsedWallClock}, ignored: {IgnoredRowCount}",
+                rowCount, groupCount, aggregateCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed, ignoredRowCount);
 
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
         }

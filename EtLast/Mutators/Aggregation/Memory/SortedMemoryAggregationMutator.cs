@@ -30,6 +30,8 @@
             var success = true;
 
             var rowCount = 0;
+            var ignoredRowCount = 0;
+            var groupCount = 0;
             var aggregateCount = 0;
             while (!Context.CancellationTokenSource.IsCancellationRequested)
             {
@@ -40,6 +42,27 @@
                     break;
 
                 var row = enumerator.Current;
+
+                var apply = false;
+                try
+                {
+                    apply = If?.Invoke(row) != false;
+                }
+                catch (Exception ex)
+                {
+                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    break;
+                }
+
+                if (!apply)
+                {
+                    ignoredRowCount++;
+                    netTimeStopwatch.Stop();
+                    yield return row;
+                    netTimeStopwatch.Start();
+                    continue;
+                }
+
                 rowCount++;
                 var key = KeyGenerator.Invoke(row);
                 if (key != lastKey)
@@ -49,7 +72,7 @@
                     if (group.Count > 0)
                     {
                         var aggregates = new List<SlimRow>();
-
+                        groupCount++;
                         try
                         {
                             Operation.TransformGroup(group, () =>
@@ -101,7 +124,7 @@
             if (success && group.Count > 0)
             {
                 var aggregates = new List<SlimRow>();
-
+                groupCount++;
                 try
                 {
                     Operation.TransformGroup(group, () =>
@@ -148,12 +171,9 @@
                 }
             }
 
-            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}",
-                rowCount, group.Count, InvocationInfo.LastInvocationStarted.Elapsed);
-
             netTimeStopwatch.Stop();
-            Context.Log(LogSeverity.Debug, this, "created {AggregateCount} aggregates in {Elapsed}/{ElapsedWallClock}",
-                aggregateCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows, created {GroupCount} groups and created {AggregateCount} aggregates in {Elapsed}/{ElapsedWallClock}, ignored: {IgnoredRowCount}",
+                rowCount, groupCount, aggregateCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed, ignoredRowCount);
 
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
         }
