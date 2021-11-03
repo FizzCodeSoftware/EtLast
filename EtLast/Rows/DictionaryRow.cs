@@ -28,7 +28,31 @@
         public object this[string column]
         {
             get => GetValueImpl(column);
-            set => SetValue(column, value);
+            set
+            {
+                if (HasStaging)
+                    throw new ProcessExecutionException(CurrentProcess, this, "can't change a value of a row with uncommitted staging");
+
+                var hasPreviousValue = _values.TryGetValue(column, out var previousValue);
+                if (value == null && hasPreviousValue)
+                {
+                    foreach (var listener in Context.Listeners)
+                    {
+                        listener.OnRowValueChanged(CurrentProcess, this, new[] { new KeyValuePair<string, object>(column, value) });
+                    }
+
+                    _values.Remove(column);
+                }
+                else if (!hasPreviousValue || value != previousValue)
+                {
+                    foreach (var listener in Context.Listeners)
+                    {
+                        listener.OnRowValueChanged(CurrentProcess, this, new KeyValuePair<string, object>(column, value));
+                    }
+
+                    _values[column] = value;
+                }
+            }
         }
 
         public string ToDebugString()
@@ -174,32 +198,6 @@
             }
 
             return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-")).ToUpperInvariant();
-        }
-
-        public void SetValue(string column, object newValue)
-        {
-            if (HasStaging)
-                throw new ProcessExecutionException(CurrentProcess, this, "can't call " + nameof(SetValue) + " on a row with uncommitted staging");
-
-            var hasPreviousValue = _values.TryGetValue(column, out var previousValue);
-            if (newValue == null && hasPreviousValue)
-            {
-                foreach (var listener in Context.Listeners)
-                {
-                    listener.OnRowValueChanged(CurrentProcess, this, new[] { new KeyValuePair<string, object>(column, newValue) });
-                }
-
-                _values.Remove(column);
-            }
-            else if (!hasPreviousValue || newValue != previousValue)
-            {
-                foreach (var listener in Context.Listeners)
-                {
-                    listener.OnRowValueChanged(CurrentProcess, this, new KeyValuePair<string, object>(column, newValue));
-                }
-
-                _values[column] = newValue;
-            }
         }
 
         public void SetStagedValue(string column, object newValue)

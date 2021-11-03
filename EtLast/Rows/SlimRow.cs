@@ -28,7 +28,13 @@
         public object this[string column]
         {
             get => GetValueImpl(column);
-            set => SetValue(column, value);
+            set
+            {
+                if (value != null)
+                    _values[column] = value;
+                else
+                    _values.Remove(column);
+            }
         }
 
         private object GetValueImpl(string column)
@@ -128,18 +134,6 @@
         {
             var value = GetValueImpl(column);
             return DefaultValueFormatter.Format(value);
-        }
-
-        public void SetValue(string column, object newValue)
-        {
-            if (newValue != null)
-            {
-                _values[column] = newValue;
-            }
-            else
-            {
-                _values.Remove(column);
-            }
         }
 
         public bool HasError()
