@@ -27,7 +27,7 @@
 
         public object this[string column]
         {
-            get => GetValueImpl(column);
+            get => _values.TryGetValue(column, out var value) ? value : null;
             set
             {
                 if (HasStaging)
@@ -76,7 +76,7 @@
 
         public T GetAs<T>(string column)
         {
-            var value = GetValueImpl(column);
+            var value = _values.TryGetValue(column, out var v) ? v : null;
             try
             {
                 return (T)value;
@@ -94,8 +94,7 @@
 
         public T GetAs<T>(string column, T defaultValueIfNull)
         {
-            var value = GetValueImpl(column);
-            if (value == null)
+            if (!_values.TryGetValue(column, out var value))
                 return defaultValueIfNull;
 
             try
@@ -110,16 +109,13 @@
 
         public bool Equals<T>(string column, T value)
         {
-            var currentValue = GetValueImpl(column);
-            if (currentValue == null && value == null)
-                return false;
-
+            _values.TryGetValue(column, out var currentValue);
             return DefaultValueComparer.ValuesAreEqual(currentValue, value);
         }
 
         public bool IsNullOrEmpty(string column)
         {
-            var value = GetValueImpl(column);
+            _values.TryGetValue(column, out var value);
             return value == null || (value is string str && string.IsNullOrEmpty(str));
         }
 
@@ -143,12 +139,13 @@
 
         public bool Is<T>(string column)
         {
-            return GetValueImpl(column) is T;
+            _values.TryGetValue(column, out var value);
+            return value is T;
         }
 
         public string FormatToString(string column, IFormatProvider formatProvider = null)
         {
-            var value = GetValueImpl(column);
+            _values.TryGetValue(column, out var value);
             return DefaultValueFormatter.Format(value);
         }
 
@@ -167,13 +164,6 @@
         public bool HasValue(string column)
         {
             return _values.ContainsKey(column);
-        }
-
-        protected object GetValueImpl(string column)
-        {
-            return _values.TryGetValue(column, out var value)
-                ? value
-                : null;
         }
 
         public string GenerateKey(params string[] columns)
