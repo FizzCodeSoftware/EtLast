@@ -74,7 +74,7 @@
 
                     if (result != null)
                     {
-                        row.SetValue(TargetColumn, result);
+                        row[TargetColumn] = result;
                     }
 
                     success = true;
@@ -93,7 +93,7 @@
                 switch (ActionIfFailed)
                 {
                     case InvalidValueAction.SetSpecialValue:
-                        row.SetValue(TargetColumn, SpecialValueIfFailed);
+                        row[TargetColumn] = SpecialValueIfFailed;
                         break;
                     case InvalidValueAction.Throw:
                         throw new ProcessExecutionException(this, row, "SOAP invocation failed");
@@ -101,12 +101,12 @@
                         removeRow = true;
                         break;
                     case InvalidValueAction.WrapError:
-                        row.SetValue(TargetColumn, new EtlRowError
+                        row[TargetColumn] = new EtlRowError
                         {
                             Process = this,
                             OriginalValue = null,
                             Message = "SOAP invocation failed",
-                        });
+                        };
                         break;
                 }
             }

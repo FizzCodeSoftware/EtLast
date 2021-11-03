@@ -27,7 +27,7 @@
             var aggregate = aggregateCreator.Invoke();
             foreach (var aggregatorInfo in _columnAggregators)
             {
-                aggregate.SetValue(aggregatorInfo.TargetColumn, aggregatorInfo.Aggregator.Invoke(rows, aggregatorInfo.SourceColumn));
+                aggregate[aggregatorInfo.TargetColumn] = aggregatorInfo.Aggregator.Invoke(rows, aggregatorInfo.SourceColumn);
             }
         }
 

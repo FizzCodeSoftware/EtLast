@@ -87,7 +87,7 @@
             _currentRowIndex++;
 
             if (AddRowIndexToColumn != null && !row.HasValue(AddRowIndexToColumn))
-                row.SetValue(AddRowIndexToColumn, _currentRowIndex);
+                row[AddRowIndexToColumn] = _currentRowIndex;
 
             return true;
         }

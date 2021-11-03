@@ -31,7 +31,7 @@
                     Then = (proc, row) =>
                     {
                         Thread.Sleep(new Random().Next(10));
-                        row.SetValue("ThreadIndex", i);
+                        row["ThreadIndex"] = i;
                         return true;
                     },
                 };
@@ -72,7 +72,7 @@
                     Then = (proc, row) =>
                     {
                         Thread.Sleep(new Random().Next(10));
-                        row.SetValue("ThreadIndex", i);
+                        row["ThreadIndex"] = i;
                         return true;
                     },
                 };
@@ -133,7 +133,7 @@
                     Then = (proc, row) =>
                     {
                         Thread.Sleep(new Random().Next(100));
-                        row.SetValue("ThreadIndex", i);
+                        row["ThreadIndex"] = i;
                         return true;
                     },
                 });
@@ -176,7 +176,7 @@
                     Then = (proc, row) =>
                     {
                         Thread.Sleep(new Random().Next(10));
-                        row.SetValue("ThreadIndex", i);
+                        row["ThreadIndex"] = i;
                         return true;
                     },
                 });
@@ -211,7 +211,7 @@
                        Then = (proc, row) =>
                        {
                            Thread.Sleep(new Random().Next(10));
-                           row.SetValue("ThreadIndex", i);
+                           row["ThreadIndex"] = i;
                            return true;
                        },
                    })
@@ -220,7 +220,7 @@
                 {
                     Then = (proc, row) =>
                     {
-                        row.SetValue("AbsoluteFinalIndex", n++);
+                        row["AbsoluteFinalIndex"] = n++;
                         return true;
                     },
                 });

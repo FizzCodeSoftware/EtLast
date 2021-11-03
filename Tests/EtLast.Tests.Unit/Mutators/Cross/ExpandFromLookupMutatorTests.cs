@@ -35,13 +35,12 @@
                     {
                         CustomAction = (proc, row) =>
                         {
-                            if (!row.HasValue("countryId"))
-                                row.SetValue("countryAbbrev", "country was null");
-                            else
-                                row.SetValue("countryAbbrev", "no match found");
+                            row["countryAbbrev"] = !row.HasValue("countryId")
+                                ? "country was null"
+                                : "no match found";
                         }
                     },
-                    MatchCustomAction = (proc, row, match) => row.SetValue("countryAbbrevFound", true),
+                    MatchCustomAction = (proc, row, match) => row["countryAbbrevFound"] = true,
                     ColumnConfiguration = new List<ColumnCopyConfiguration>()
                         {
                             new ColumnCopyConfiguration("abbreviation2", "countryAbbrev"),

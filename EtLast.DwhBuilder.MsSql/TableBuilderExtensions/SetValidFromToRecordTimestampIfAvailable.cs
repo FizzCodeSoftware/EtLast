@@ -31,7 +31,7 @@
 
                                 if (value is DateTimeOffset)
                                 {
-                                    row.SetValue(builder.ValidFromColumn.Name, value);
+                                    row[builder.ValidFromColumn.Name] = value;
                                 }
                                 else
                                 {

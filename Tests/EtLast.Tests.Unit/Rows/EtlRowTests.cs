@@ -184,11 +184,11 @@
             Assert.AreEqual(2, row.ColumnCount);
             Assert.IsTrue(row.Values.All(kvp => kvp.Value != null));
 
-            row.SetValue("age", 7);
+            row["age"] = 7;
             Assert.AreEqual(3, row.ColumnCount);
             Assert.IsTrue(row.Values.All(kvp => kvp.Value != null));
 
-            row.SetValue("name", null);
+            row["name"] = null;
             Assert.AreEqual(2, row.ColumnCount);
             Assert.IsTrue(row.Values.All(kvp => kvp.Value != null));
 
@@ -256,7 +256,7 @@
             row.SetStagedValue("name", "B");
             row.ApplyStaging();
 
-            row.SetValue("name", "A");
+            row["name"] = "A";
             row.ApplyStaging(); // nothing should happen
 
             Assert.AreEqual("A", row.GetAs<string>("name"));
@@ -280,7 +280,7 @@
             context.SetRowType<DictionaryRow>();
 
             var row = context.CreateRow(null);
-            row.SetValue("a", "");
+            row["a"] = "";
             Assert.AreEqual(true, row.IsNullOrEmpty());
         }
 
@@ -291,9 +291,9 @@
             context.SetRowType<DictionaryRow>();
 
             var row = context.CreateRow(null);
-            row.SetValue("a", "");
-            row.SetValue("a", "x");
-            row.SetValue("a", null);
+            row["a"] = "";
+            row["a"] = "x";
+            row["a"] = null;
             Assert.AreEqual(true, row.IsNullOrEmpty());
         }
 
@@ -304,7 +304,7 @@
             context.SetRowType<DictionaryRow>();
 
             var row = context.CreateRow(null);
-            row.SetValue("a", 5);
+            row["a"] = 5;
             Assert.AreEqual(false, row.IsNullOrEmpty());
         }
     }

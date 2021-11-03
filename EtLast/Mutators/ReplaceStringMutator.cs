@@ -27,7 +27,7 @@
                 if (row.HasValue(ColumnName) && row[ColumnName] is string value && value.IndexOf(OldString, StringComparison) > -1)
                 {
                     value = value.Replace(OldString, NewString, StringComparison);
-                    row.SetValue(ColumnName, value);
+                    row[ColumnName] = value;
                 }
             }
             catch (Exception ex) when (!(ex is EtlException))

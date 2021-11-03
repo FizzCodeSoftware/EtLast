@@ -26,7 +26,7 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            row.SetValue(Column, _nextId);
+            row[Column] = _nextId;
             _nextId++;
             yield return row;
         }

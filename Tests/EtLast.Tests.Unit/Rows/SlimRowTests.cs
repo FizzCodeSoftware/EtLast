@@ -123,11 +123,11 @@
             Assert.AreEqual(2, values.ColumnCount);
             Assert.IsTrue(values.Values.All(kvp => kvp.Value != null));
 
-            values.SetValue("age", 7);
+            values["age"] = 7;
             Assert.AreEqual(3, values.ColumnCount);
             Assert.IsTrue(values.Values.All(kvp => kvp.Value != null));
 
-            values.SetValue("name", null);
+            values["name"] = null;
             Assert.AreEqual(2, values.ColumnCount);
             Assert.IsTrue(values.Values.All(kvp => kvp.Value != null));
         }

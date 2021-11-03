@@ -29,12 +29,12 @@
             var valid = Test(this, row, Column);
             if (!valid)
             {
-                row.SetValue(Column, new EtlRowError()
+                row[Column] = new EtlRowError()
                 {
                     Process = this,
                     OriginalValue = row[Column],
                     Message = ErrorMessage,
-                });
+                };
             }
 
             yield return row;

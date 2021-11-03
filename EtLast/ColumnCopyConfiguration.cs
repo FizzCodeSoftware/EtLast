@@ -39,7 +39,7 @@
         {
             foreach (var config in configurations)
             {
-                targetRow.SetValue(config.ToColumn, sourceRow[config.FromColumn]);
+                targetRow[config.ToColumn] = sourceRow[config.FromColumn];
             }
         }
 

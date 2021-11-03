@@ -7,7 +7,5 @@
 
         IProcess CreatorProcess { get; }
         IProcess CurrentProcess { get; }
-
-        bool HasStaging { get; }
     }
 }

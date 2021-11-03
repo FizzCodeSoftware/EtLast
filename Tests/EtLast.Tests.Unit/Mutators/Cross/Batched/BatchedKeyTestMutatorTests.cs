@@ -34,10 +34,9 @@
                     {
                         CustomAction = (proc, row) =>
                         {
-                            if (!row.HasValue("countryId"))
-                                row.SetValue("countryAbbrev", "country was null");
-                            else
-                                row.SetValue("countryAbbrev", "no match found");
+                            row["countryAbbrev"] = !row.HasValue("countryId")
+                                ? "country was null"
+                                : "no match found";
                         }
                     },
                     MatchAction = new MatchAction(MatchMode.Custom)

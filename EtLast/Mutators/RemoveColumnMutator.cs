@@ -25,7 +25,7 @@
             }
             else
             {
-                row.SetValue(Columns[0], null);
+                row[Columns[0]] = null;
             }
 
             yield return row;

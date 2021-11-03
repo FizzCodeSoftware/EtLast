@@ -93,7 +93,7 @@
                     {
                         foreach (var column in FixColumns)
                         {
-                            aggregate.ResultRow.SetValue(column.ToColumn, row[column.FromColumn]);
+                            aggregate.ResultRow[column.ToColumn] = row[column.FromColumn];
                         }
                     }
 

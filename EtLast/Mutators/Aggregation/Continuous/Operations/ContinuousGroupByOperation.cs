@@ -48,7 +48,7 @@
                     {
                         hashset.Add(key);
                         var newValue = hashset.Count;
-                        aggregate.ResultRow.SetValue(column, newValue);
+                        aggregate.ResultRow[column] = newValue;
                     }
                 }
             });
@@ -62,7 +62,7 @@
             return op.AddAggregator((aggregate, row) =>
             {
                 var newValue = aggregate.ResultRow.GetAs(targetColumn, 0) + 1;
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -76,7 +76,7 @@
                 if (row.HasValue(columnToCheckForNull))
                 {
                     var newValue = aggregate.ResultRow.GetAs(targetColumn, 0) + 1;
-                    aggregate.ResultRow.SetValue(targetColumn, newValue);
+                    aggregate.ResultRow[targetColumn] = newValue;
                 }
             });
         }
@@ -91,7 +91,7 @@
                 if (!row.HasValue(columnToCheckForNull))
                 {
                     var newValue = aggregate.ResultRow.GetAs(targetColumn, 0) + 1;
-                    aggregate.ResultRow.SetValue(targetColumn, newValue);
+                    aggregate.ResultRow[targetColumn] = newValue;
                 }
             });
         }
@@ -112,7 +112,7 @@
                 aggregate.SetStateValue(id, newSum);
 
                 var newValue = newSum / (double)(aggregate.RowsInGroup + 1);
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -132,7 +132,7 @@
                 aggregate.SetStateValue(id, newSum);
 
                 var newValue = newSum / (double)(aggregate.RowsInGroup + 1);
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -152,7 +152,7 @@
                 aggregate.SetStateValue(id, newSum);
 
                 var newValue = newSum / (aggregate.RowsInGroup + 1);
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -179,7 +179,7 @@
                 aggregate.SetStateValue(idCnt, newCnt);
 
                 var newValue = newSum / newCnt;
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -199,7 +199,7 @@
                 aggregate.SetStateValue(id, newSum);
 
                 var newValue = newSum / (aggregate.RowsInGroup + 1);
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -214,7 +214,7 @@
             return op.AddAggregator((aggregate, row) =>
             {
                 var newValue = aggregate.ResultRow.GetAs(targetColumn, 0) + row.GetAs(sourceColumn, 0);
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -229,7 +229,7 @@
             return op.AddAggregator((aggregate, row) =>
             {
                 var newValue = aggregate.ResultRow.GetAs(targetColumn, 0L) + row.GetAs(sourceColumn, 0L);
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -244,7 +244,7 @@
             return op.AddAggregator((aggregate, row) =>
             {
                 var newValue = aggregate.ResultRow.GetAs(targetColumn, 0.0d) + row.GetAs(sourceColumn, 0.0d);
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -259,7 +259,7 @@
             return op.AddAggregator((aggregate, row) =>
             {
                 var newValue = aggregate.ResultRow.GetAs(targetColumn, 0m) + row.GetAs(sourceColumn, 0m);
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -276,7 +276,7 @@
                 var newValue = aggregate.ResultRow.HasValue(targetColumn)
                     ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0), row.GetAs(sourceColumn, 0))
                     : row.GetAs(sourceColumn, 0);
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -293,7 +293,7 @@
                 var newValue = aggregate.ResultRow.HasValue(targetColumn)
                     ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0L), row.GetAs(sourceColumn, 0L))
                     : row.GetAs(sourceColumn, 0L);
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -310,7 +310,7 @@
                 var newValue = aggregate.ResultRow.HasValue(targetColumn)
                     ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0.0d), row.GetAs(sourceColumn, 0.0d))
                     : row.GetAs(sourceColumn, 0.0d);
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -327,7 +327,7 @@
                 var newValue = aggregate.ResultRow.HasValue(targetColumn)
                     ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0m), row.GetAs(sourceColumn, 0m))
                     : row.GetAs(sourceColumn, 0m);
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -344,7 +344,7 @@
                 var newValue = aggregate.ResultRow.HasValue(targetColumn)
                     ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0), row.GetAs(sourceColumn, 0))
                     : row.GetAs(sourceColumn, 0);
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -361,7 +361,7 @@
                 var newValue = aggregate.ResultRow.HasValue(targetColumn)
                     ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0L), row.GetAs(sourceColumn, 0L))
                     : row.GetAs(sourceColumn, 0L);
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -378,7 +378,7 @@
                 var newValue = aggregate.ResultRow.HasValue(targetColumn)
                     ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0.0d), row.GetAs(sourceColumn, 0.0d))
                     : row.GetAs(sourceColumn, 0.0d);
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -395,7 +395,7 @@
                 var newValue = aggregate.ResultRow.HasValue(targetColumn)
                     ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0m), row.GetAs(sourceColumn, 0m))
                     : row.GetAs(sourceColumn, 0m);
-                aggregate.ResultRow.SetValue(targetColumn, newValue);
+                aggregate.ResultRow[targetColumn] = newValue;
             });
         }
 
@@ -433,7 +433,7 @@
 
                 if (!useEntirePopulation && newCount < 2)
                 {
-                    aggregate.ResultRow.SetValue(targetColumn, null);
+                    aggregate.ResultRow[targetColumn] = null;
                 }
                 else
                 {
@@ -441,7 +441,7 @@
                         ? newCount
                         : newCount - 1;
 
-                    aggregate.ResultRow.SetValue(targetColumn, Math.Sqrt(m2 / divider));
+                    aggregate.ResultRow[targetColumn] = Math.Sqrt(m2 / divider);
                 }
 
                 aggregate.SetStateValue(idM2, m2);

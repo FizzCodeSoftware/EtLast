@@ -123,15 +123,15 @@
                     EqualityComparer = new ColumnBasedRowEqualityComparer(),
                     MatchAndEqualsAction = new MatchAction(MatchMode.Custom)
                     {
-                        CustomAction = (proc, row, match) => row.SetValue("compareResult", "match+unchanged"),
+                        CustomAction = (proc, row, match) => row["compareResult"] = "match+unchanged",
                     },
                     MatchButDifferentAction = new MatchAction(MatchMode.Custom)
                     {
-                        CustomAction = (proc, row, match) => row.SetValue("compareResult", "match+diff"),
+                        CustomAction = (proc, row, match) => row["compareResult"] = "match+diff",
                     },
                     NoMatchAction = new NoMatchAction(MatchMode.Custom)
                     {
-                        CustomAction = (proc, row) => row.SetValue("compareResult", "noMatch"),
+                        CustomAction = (proc, row) => row["compareResult"] = "noMatch",
                     },
                 });
 

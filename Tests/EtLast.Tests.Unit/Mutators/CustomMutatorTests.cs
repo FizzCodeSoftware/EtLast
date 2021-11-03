@@ -105,7 +105,7 @@
                     If = row => row.GetAs<int>("id") > 2,
                     Then = (proc, row) =>
                     {
-                        row.SetValue("test", "test");
+                        row["test"] = "test";
                         return true;
                     }
                 });
@@ -142,7 +142,7 @@
                     TagFilter = tag => tag is RowKind rk && rk == RowKind.test,
                     Then = (proc, row) =>
                     {
-                        row.SetValue("test", "test");
+                        row["test"] = "test";
                         return true;
                     }
                 });

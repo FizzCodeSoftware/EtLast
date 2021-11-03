@@ -87,7 +87,7 @@
                         {
                             foreach (var column in FixColumns)
                             {
-                                aggregate.SetValue(column.ToColumn, group[0][column.FromColumn]);
+                                aggregate[column.ToColumn] = group[0][column.FromColumn];
                             }
                         }
 

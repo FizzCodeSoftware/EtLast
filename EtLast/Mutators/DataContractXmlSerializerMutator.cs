@@ -40,7 +40,7 @@
                     }
 
                     var data = ms.ToArray();
-                    row.SetValue(ColumnConfiguration.ToColumn, data);
+                    row[ColumnConfiguration.ToColumn] = data;
                 }
             }
             catch (Exception ex)
@@ -48,7 +48,7 @@
                 switch (ActionIfFailed)
                 {
                     case InvalidValueAction.SetSpecialValue:
-                        row.SetValue(ColumnConfiguration.ToColumn, SpecialValueIfFailed);
+                        row[ColumnConfiguration.ToColumn] = SpecialValueIfFailed;
                         break;
                     case InvalidValueAction.Throw:
                         throw new ProcessExecutionException(this, row, "DataContract XML serialization failed", ex);
@@ -56,12 +56,12 @@
                         removeRow = true;
                         break;
                     case InvalidValueAction.WrapError:
-                        row.SetValue(ColumnConfiguration.ToColumn, new EtlRowError
+                        row[ColumnConfiguration.ToColumn] = new EtlRowError
                         {
                             Process = this,
                             OriginalValue = null,
                             Message = "DataContract XML serialization failed: " + ex.Message,
-                        });
+                        };
                         break;
                 }
             }

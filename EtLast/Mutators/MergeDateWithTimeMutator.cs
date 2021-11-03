@@ -30,13 +30,13 @@
             {
                 if (sourceTime is DateTime dt)
                 {
-                    row.SetValue(TargetColumn, new DateTime(date.Year, date.Month, date.Day, dt.Hour, dt.Minute, dt.Second));
+                    row[TargetColumn] = new DateTime(date.Year, date.Month, date.Day, dt.Hour, dt.Minute, dt.Second);
                     yield return row;
                     yield break;
                 }
                 else if (sourceTime is TimeSpan ts)
                 {
-                    row.SetValue(TargetColumn, new DateTime(date.Year, date.Month, date.Day, ts.Hours, ts.Minutes, ts.Seconds));
+                    row[TargetColumn] = new DateTime(date.Year, date.Month, date.Day, ts.Hours, ts.Minutes, ts.Seconds);
                     yield return row;
                     yield break;
                 }
@@ -46,7 +46,7 @@
             switch (ActionIfInvalid)
             {
                 case InvalidValueAction.SetSpecialValue:
-                    row.SetValue(TargetColumn, SpecialValueIfInvalid);
+                    row[TargetColumn] = SpecialValueIfInvalid;
                     break;
                 case InvalidValueAction.RemoveRow:
                     removeRow = true;
