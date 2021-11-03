@@ -22,10 +22,9 @@
             return this;
         }
 
-        public override void TransformGroup(List<IReadOnlySlimRow> rows, Func<SlimRow> aggregateCreator)
+        public override void TransformGroup(List<IReadOnlySlimRow> rows, Func<ISlimRow> aggregateCreator)
         {
             var aggregate = aggregateCreator.Invoke();
-
             foreach (var aggregatorInfo in _columnAggregators)
             {
                 aggregate.SetValue(aggregatorInfo.TargetColumn, aggregatorInfo.Aggregator.Invoke(rows, aggregatorInfo.SourceColumn));

@@ -5,10 +5,10 @@
 
     public class CustomMemoryAggregationOperation : AbstractMemoryAggregationOperation
     {
-        public delegate void CustomMemoryAggregationOperationDelegate(List<IReadOnlySlimRow> rows, Func<SlimRow> aggregateCreator);
+        public delegate void CustomMemoryAggregationOperationDelegate(List<IReadOnlySlimRow> rows, Func<ISlimRow> aggregateCreator);
         public CustomMemoryAggregationOperationDelegate Delegate { get; set; }
 
-        public override void TransformGroup(List<IReadOnlySlimRow> rows, Func<SlimRow> aggregateCreator)
+        public override void TransformGroup(List<IReadOnlySlimRow> rows, Func<ISlimRow> aggregateCreator)
         {
             Delegate?.Invoke(rows, aggregateCreator);
         }

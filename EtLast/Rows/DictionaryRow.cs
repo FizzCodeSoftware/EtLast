@@ -25,7 +25,11 @@
 
         public object Tag { get; set; }
 
-        public object this[string column] => GetValueImpl(column);
+        public object this[string column]
+        {
+            get => GetValueImpl(column);
+            set => SetValue(column, value);
+        }
 
         public string ToDebugString()
         {

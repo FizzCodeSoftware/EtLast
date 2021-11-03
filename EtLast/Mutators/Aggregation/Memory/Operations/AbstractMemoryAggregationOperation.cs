@@ -9,7 +9,7 @@
     {
         public AbstractMemoryAggregationMutator Process { get; private set; }
 
-        public abstract void TransformGroup(List<IReadOnlySlimRow> rows, Func<SlimRow> aggregateCreator);
+        public abstract void TransformGroup(List<IReadOnlySlimRow> rows, Func<ISlimRow> aggregateCreator);
 
         public void SetProcess(AbstractMemoryAggregationMutator process)
         {
