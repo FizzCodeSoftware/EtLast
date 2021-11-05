@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class ReplaceNullWithValueMutator : AbstractMutator
+    public class ReplaceNullWithValueMutator : AbstractSimpleChangeMutator
     {
         public string[] Columns { get; init; }
         public object Value { get; init; }
@@ -15,15 +15,23 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            foreach (var column in Columns)
+            if (Columns.Length > 1)
             {
-                if (!row.HasValue(column))
+                Changes.Clear();
+                foreach (var column in Columns)
                 {
-                    row.SetStagedValue(column, Value);
+                    if (!row.HasValue(column))
+                    {
+                        Changes.Add(new KeyValuePair<string, object>(column, Value));
+                    }
                 }
-            }
 
-            row.ApplyStaging();
+                row.MergeWith(Changes);
+            }
+            else if (!row.HasValue(Columns[0]))
+            {
+                row[Columns[0]] = Value;
+            }
 
             yield return row;
         }

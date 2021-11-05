@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class ReplaceErrorWithValueMutator : AbstractMutator
+    public class ReplaceErrorWithValueMutator : AbstractSimpleChangeMutator
     {
         public string[] Columns { get; init; }
         public object Value { get; init; }
@@ -15,13 +15,15 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
+            Changes.Clear();
+
             if (Columns != null)
             {
                 foreach (var column in Columns)
                 {
                     if (row[column] is EtlRowError)
                     {
-                        row.SetStagedValue(column, Value);
+                        Changes.Add(new KeyValuePair<string, object>(column, Value));
                     }
                 }
             }
@@ -31,12 +33,12 @@
                 {
                     if (kvp.Value is EtlRowError)
                     {
-                        row.SetStagedValue(kvp.Key, Value);
+                        Changes.Add(new KeyValuePair<string, object>(kvp.Key, Value));
                     }
                 }
             }
 
-            row.ApplyStaging();
+            row.MergeWith(Changes);
 
             yield return row;
         }

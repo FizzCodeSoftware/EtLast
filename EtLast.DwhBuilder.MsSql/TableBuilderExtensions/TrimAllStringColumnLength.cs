@@ -42,14 +42,12 @@
                         if (strv.Length > col.length)
                         {
                             var trimv = strv.Substring(0, col.length);
-                            row.SetStagedValue(col.column.Name, trimv);
+                            row[col.column.Name] = trimv;
 
                             row.CurrentProcess.Context.Log(LogSeverity.Warning, row.CurrentProcess, "too long string trimmed on {ConnectionStringName}/{TableName}, column: {Column}, max length: {MaxLength}, original value: {Value}, trimmed value: {TrimValue}",
                                 builder.DwhBuilder.ConnectionString.Name, builder.ResilientTable.TableName, col.column.Name, col.length, strv, trimv);
                         }
                     }
-
-                    row.ApplyStaging();
 
                     return true;
                 }

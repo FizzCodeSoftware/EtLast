@@ -65,36 +65,6 @@
         }
 
         [TestMethod]
-        public void StageNotApplied()
-        {
-            var topic = TestExecuter.GetTopic();
-            var builder = ProcessBuilder.Fluent
-                .ReadFrom(TestData.Person(topic))
-                .CustomCode(new CustomMutator(topic, null)
-                {
-                    Then = row =>
-                    {
-                        row.SetStagedValue("test", "test");
-                        if (row.GetAs<int>("id") < 4)
-                            row.ApplyStaging();
-
-                        return true;
-                    }
-                });
-
-            var result = TestExecuter.Execute(builder);
-            Assert.AreEqual(4, result.MutatedRows.Count);
-            Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-                new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["test"] = "test" },
-                new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0), ["test"] = "test" },
-                new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 2, ["name"] = "C", ["age"] = 27, ["height"] = 170, ["eyeColor"] = "green", ["countryId"] = 2, ["birthDate"] = new DateTime(2014, 1, 21, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 11, 21, 17, 11, 58, 0), ["test"] = "test" },
-                new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 3, ["name"] = "D", ["age"] = 39, ["height"] = 160, ["eyeColor"] = "fake", ["birthDate"] = "2018.07.11", ["lastChangedTime"] = new DateTime(2017, 8, 1, 4, 9, 1, 0), ["test"] = "test" } });
-            var exceptions = topic.Context.GetExceptions();
-            Assert.AreEqual(1, exceptions.Count);
-            Assert.IsTrue(exceptions[0] is ProcessExecutionException);
-        }
-
-        [TestMethod]
         public void IfDelegate()
         {
             var topic = TestExecuter.GetTopic();

@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class ReplaceEmptyStringWithNullMutator : AbstractMutator
+    public class ReplaceEmptyStringWithNullMutator : AbstractSimpleChangeMutator
     {
         public string[] Columns { get; init; }
 
@@ -14,13 +14,15 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
+            Changes.Clear();
+
             if (Columns != null)
             {
                 foreach (var column in Columns)
                 {
                     if ((row[column] as string) == string.Empty)
                     {
-                        row.SetStagedValue(column, null);
+                        Changes.Add(new KeyValuePair<string, object>(column, null));
                     }
                 }
             }
@@ -30,12 +32,12 @@
                 {
                     if ((kvp.Value as string) == string.Empty)
                     {
-                        row.SetStagedValue(kvp.Key, null);
+                        Changes.Add(new KeyValuePair<string, object>(kvp.Key, null));
                     }
                 }
             }
 
-            row.ApplyStaging();
+            row.MergeWith(Changes);
 
             yield return row;
         }

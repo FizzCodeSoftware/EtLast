@@ -108,13 +108,6 @@
 
                     foreach (var mutatedRow in mutatedRows)
                     {
-                        if (mutatedRow.HasStaging)
-                        {
-                            Context.AddException(this, new ProcessExecutionException(this, mutatedRow, "unfinished staging"));
-                            failed = true;
-                            break;
-                        }
-
                         if (mutatedRow.CurrentProcess != this)
                         {
                             Context.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
@@ -170,13 +163,6 @@
                         netTimeStopwatch.Stop();
                         foreach (var mutatedRow in mutatedRows)
                         {
-                            if (mutatedRow.HasStaging)
-                            {
-                                Context.AddException(this, new ProcessExecutionException(this, mutatedRow, "unfinished staging"));
-                                failed = true;
-                                break;
-                            }
-
                             if (mutatedRow.CurrentProcess != this)
                             {
                                 Context.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
@@ -221,13 +207,6 @@
                     netTimeStopwatch.Stop();
                     foreach (var mutatedRow in mutatedRows)
                     {
-                        if (mutatedRow.HasStaging)
-                        {
-                            Context.AddException(this, new ProcessExecutionException(this, mutatedRow, "unfinished staging"));
-                            failed = true;
-                            break;
-                        }
-
                         if (mutatedRow.CurrentProcess != this)
                         {
                             Context.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));

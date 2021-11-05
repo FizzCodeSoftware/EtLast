@@ -6,7 +6,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class DictionaryRowTests
+    public class TrackedRowTests
     {
         [TestMethod]
         public void ToDebugStringStartsWithUid()
@@ -20,7 +20,7 @@
                 ["name"] = "x",
             };
 
-            var row = context.CreateRow(null, initialValues);
+            var row = new TrackedRow(context.CreateRow(null, initialValues));
             var result = row.ToDebugString();
 
             Assert.IsTrue(result.StartsWith("uid", StringComparison.InvariantCultureIgnoreCase));
@@ -37,7 +37,7 @@
                 ["date"] = new DateTime(2020, 02, 20, 12, 12, 0, 666),
             };
 
-            var row = context.CreateRow(null, initialValues);
+            var row = new TrackedRow(context.CreateRow(null, initialValues));
             var result = row["DATE"];
             Assert.AreEqual(new DateTime(2020, 02, 20, 12, 12, 0, 666), result);
         }
@@ -50,7 +50,7 @@
 
             var initialValues = new Dictionary<string, object>();
 
-            var row = context.CreateRow(null, initialValues);
+            var row = new TrackedRow(context.CreateRow(null, initialValues));
             var result = row.GenerateKey("name");
             Assert.IsNull(result);
         }
@@ -63,7 +63,7 @@
 
             var initialValues = new Dictionary<string, object>();
 
-            var row = context.CreateRow(null, initialValues);
+            var row = new TrackedRow(context.CreateRow(null, initialValues));
             var result = row.GenerateKey("id", "name");
             Assert.IsNotNull(result);
         }
@@ -79,7 +79,7 @@
                 ["date"] = new DateTime(2020, 02, 20, 12, 12, 0, 666),
             };
 
-            var row = context.CreateRow(null, initialValues);
+            var row = new TrackedRow(context.CreateRow(null, initialValues));
             var result = row.GenerateKey("date");
             Assert.AreEqual("2020.02.20 12:12:00.6660000", result);
         }
@@ -95,7 +95,7 @@
                 ["dto"] = new DateTimeOffset(2020, 02, 20, 12, 12, 0, 666, new TimeSpan(2, 0, 0)),
             };
 
-            var row = context.CreateRow(null, initialValues);
+            var row = new TrackedRow(context.CreateRow(null, initialValues));
             var result = row.GenerateKey("dto");
             Assert.AreEqual("2020.02.20 12:12:00.6660000 +02:00", result);
         }
@@ -111,7 +111,7 @@
                 ["time"] = new TimeSpan(1, 1, 0),
             };
 
-            var row = context.CreateRow(null, initialValues);
+            var row = new TrackedRow(context.CreateRow(null, initialValues));
             var result = row.GenerateKey("time");
             Assert.AreEqual("0:01:01:00.0000000", result);
         }
@@ -128,7 +128,7 @@
                 ["date"] = new DateTime(2020, 02, 20, 12, 12, 0, 666),
             };
 
-            var row = context.CreateRow(null, initialValues);
+            var row = new TrackedRow(context.CreateRow(null, initialValues));
             var result = row.GenerateKey("id", "date");
             Assert.IsTrue(result.Contains("1234567", StringComparison.Ordinal));
             Assert.IsTrue(result.Contains("2020.02.20 12:12:00.6660000", StringComparison.Ordinal));
@@ -146,7 +146,7 @@
                 ["name"] = "A",
             };
 
-            var row = context.CreateRow(null, initialValues);
+            var row = new TrackedRow(context.CreateRow(null, initialValues));
             Assert.IsFalse(row.HasError());
         }
 
@@ -163,7 +163,7 @@
                 ["err"] = new EtlRowError(9),
             };
 
-            var row = context.CreateRow(null, initialValues);
+            var row = new TrackedRow(context.CreateRow(null, initialValues));
             Assert.IsTrue(row.HasError());
         }
 
@@ -180,7 +180,7 @@
                 ["age"] = null,
             };
 
-            var row = context.CreateRow(null, initialValues);
+            var row = new TrackedRow(context.CreateRow(null, initialValues));
             Assert.AreEqual(2, row.ColumnCount);
             Assert.IsTrue(row.Values.All(kvp => kvp.Value != null));
 
@@ -205,7 +205,7 @@
                 ["name"] = "A",
             };
 
-            var row = context.CreateRow(null, initialValues);
+            var row = new TrackedRow(context.CreateRow(null, initialValues));
             Assert.AreEqual(2, row.ColumnCount);
 
             row["id"] = null;
@@ -214,14 +214,13 @@
             row["trash"] = null;
             Assert.AreEqual(1, row.ColumnCount);
         }
-
         [TestMethod]
         public void IsNullOrEmptyTrue1()
         {
             var context = TestExecuter.GetContext();
             context.SetRowType<DictionaryRow>();
 
-            var row = context.CreateRow(null);
+            var row = new TrackedRow(context.CreateRow(null));
             Assert.AreEqual(true, row.IsNullOrEmpty());
         }
 
@@ -231,7 +230,7 @@
             var context = TestExecuter.GetContext();
             context.SetRowType<DictionaryRow>();
 
-            var row = context.CreateRow(null);
+            var row = new TrackedRow(context.CreateRow(null));
             row["a"] = "";
             Assert.AreEqual(true, row.IsNullOrEmpty());
         }
@@ -242,7 +241,7 @@
             var context = TestExecuter.GetContext();
             context.SetRowType<DictionaryRow>();
 
-            var row = context.CreateRow(null);
+            var row = new TrackedRow(context.CreateRow(null));
             row["a"] = "";
             row["a"] = "x";
             row["a"] = null;
@@ -255,7 +254,7 @@
             var context = TestExecuter.GetContext();
             context.SetRowType<DictionaryRow>();
 
-            var row = context.CreateRow(null);
+            var row = new TrackedRow(context.CreateRow(null));
             row["a"] = 5;
             Assert.AreEqual(false, row.IsNullOrEmpty());
         }
@@ -266,7 +265,7 @@
             var context = TestExecuter.GetContext();
             context.SetRowType<DictionaryRow>();
 
-            var row = context.CreateRow(null);
+            var row = new TrackedRow(context.CreateRow(null));
             row["a"] = 1;
             row["b"] = "dog";
             row["c"] = 7.1d;
@@ -293,7 +292,7 @@
             var context = TestExecuter.GetContext();
             context.SetRowType<DictionaryRow>();
 
-            var row = context.CreateRow(null);
+            var row = new TrackedRow(context.CreateRow(null));
             row["a"] = 1;
             row["b"] = "dog";
             row["c"] = 7.1d;

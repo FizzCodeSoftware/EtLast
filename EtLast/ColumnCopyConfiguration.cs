@@ -27,22 +27,6 @@
             targetValues.Add(new KeyValuePair<string, object>(ToColumn, sourceRow[FromColumn]));
         }
 
-        public static void CopyManyToRowStage(IReadOnlySlimRow sourceRow, IRow targetRow, List<ColumnCopyConfiguration> configurations)
-        {
-            foreach (var config in configurations)
-            {
-                targetRow.SetStagedValue(config.ToColumn, sourceRow[config.FromColumn]);
-            }
-        }
-
-        public static void CopyManyToRow(IReadOnlySlimRow sourceRow, ISlimRow targetRow, List<ColumnCopyConfiguration> configurations)
-        {
-            foreach (var config in configurations)
-            {
-                targetRow[config.ToColumn] = sourceRow[config.FromColumn];
-            }
-        }
-
         public static void CopyMany(IReadOnlySlimRow sourceRow, Dictionary<string, object> targetValues, List<ColumnCopyConfiguration> configurations)
         {
             foreach (var config in configurations)

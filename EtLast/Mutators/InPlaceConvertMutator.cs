@@ -4,7 +4,7 @@
     using System.ComponentModel;
     using System.Globalization;
 
-    public class InPlaceConvertMutator : AbstractMutator
+    public class InPlaceConvertMutator : AbstractSimpleChangeMutator
     {
         public string[] Columns { get; init; }
         public ITypeConverter TypeConverter { get; init; }
@@ -36,8 +36,9 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var removeRow = false;
+            Changes.Clear();
 
+            var removeRow = false;
             foreach (var column in Columns)
             {
                 var source = row[column];
@@ -46,7 +47,7 @@
                     var value = TypeConverter.Convert(source);
                     if (value != null)
                     {
-                        row.SetStagedValue(column, value);
+                        Changes.Add(new KeyValuePair<string, object>(column, value));
                         continue;
                     }
                 }
@@ -55,7 +56,7 @@
                     switch (ActionIfNull)
                     {
                         case InvalidValueAction.SetSpecialValue:
-                            row.SetStagedValue(column, SpecialValueIfNull);
+                            Changes.Add(new KeyValuePair<string, object>(column, SpecialValueIfNull));
                             break;
                         case InvalidValueAction.Throw:
                             throw new InvalidValueException(this, TypeConverter, row, column);
@@ -63,12 +64,12 @@
                             removeRow = true;
                             break;
                         case InvalidValueAction.WrapError:
-                            row.SetStagedValue(column, new EtlRowError
+                            Changes.Add(new KeyValuePair<string, object>(column, new EtlRowError
                             {
                                 Process = this,
                                 OriginalValue = source,
                                 Message = string.Format(CultureInfo.InvariantCulture, "null source detected by {0}", Name),
-                            });
+                            }));
                             break;
                     }
 
@@ -78,7 +79,7 @@
                 switch (ActionIfInvalid)
                 {
                     case InvalidValueAction.SetSpecialValue:
-                        row.SetStagedValue(column, SpecialValueIfInvalid);
+                        Changes.Add(new KeyValuePair<string, object>(column, SpecialValueIfInvalid));
                         break;
                     case InvalidValueAction.Throw:
                         throw new InvalidValueException(this, TypeConverter, row, column);
@@ -86,20 +87,19 @@
                         removeRow = true;
                         break;
                     case InvalidValueAction.WrapError:
-                        row.SetStagedValue(column, new EtlRowError
+                        Changes.Add(new KeyValuePair<string, object>(column, new EtlRowError
                         {
                             Process = this,
                             OriginalValue = source,
                             Message = string.Format(CultureInfo.InvariantCulture, "invalid source detected by {0}", Name),
-                        });
+                        }));
                         break;
                 }
             }
 
             if (!removeRow)
             {
-                row.ApplyStaging();
-
+                row.MergeWith(Changes);
                 yield return row;
             }
         }

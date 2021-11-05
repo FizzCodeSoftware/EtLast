@@ -1,3 +1,13 @@
+2020-11-05:
+	- changed: removed IRow.SetStagedValue, ApplyStaging, HasStaging - custom code can simply call "row[x] = y;" instead
+	- added: IRow.MergeWidth to apply multiple changes at once
+	- added: TrackedRow
+		NOTE: NO MORE STAGING, FINALLY!
+		TrackedRow is a wrapper of IRow, helping to merge the changes happening in custom code AT ONCE to the original row (huge improvement to diagnostics)
+	- added: CustomMutator.Then, MatchAction.CustomAction, NoMatchAction.CustomAction, TooManyMatchAction.CustomAction methods are no longer called with the original row, but with TrackedRow wrapper.
+		NOTE: this means the user code doesn't have to deal with MergeWidth or any tricks, and after the delegate is completed, all changes will be applied at once to the original row, transparently
+	- added: a few more unit tests
+
 2021-10-05:
 	- changed: major version 3 is stable now
 	- changed: targeting .NET 5

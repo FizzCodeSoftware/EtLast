@@ -20,7 +20,12 @@
             var keep = true;
             try
             {
-                keep = Then.Invoke(row);
+                var tracker = new TrackedRow(row);
+                keep = Then.Invoke(tracker);
+                if (keep)
+                {
+                    tracker.ApplyChanges();
+                }
             }
             catch (Exception ex) when (!(ex is EtlException))
             {

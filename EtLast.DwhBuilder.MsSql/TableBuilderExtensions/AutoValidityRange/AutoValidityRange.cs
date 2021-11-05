@@ -55,9 +55,8 @@
                         CustomAction = row =>
                         {
                             // this is the first version
-                            row.SetStagedValue(builder.TableBuilder.ValidFromColumn.Name, builder.TableBuilder.DwhBuilder.DefaultValidFromDateTime);
-                            row.SetStagedValue(builder.TableBuilder.ValidToColumnName, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
-                            row.ApplyStaging();
+                            row[builder.TableBuilder.ValidFromColumn.Name] = builder.TableBuilder.DwhBuilder.DefaultValidFromDateTime;
+                            row[builder.TableBuilder.ValidToColumnName] = builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime;
                         }
                     },
                     MatchButDifferentAction = new MatchAction(MatchMode.Custom)
@@ -67,12 +66,11 @@
                             foreach (var kvp in builder.PreviousValueColumnNameMap)
                             {
                                 var previousValue = match[kvp.Key.Name];
-                                row.SetStagedValue(kvp.Value.Name, previousValue);
+                                row[kvp.Value.Name] = previousValue;
                             }
 
-                            row.SetStagedValue(builder.TableBuilder.ValidFromColumn.Name, builder.TableBuilder.DwhBuilder.EtlRunIdAsDateTimeOffset.Value);
-                            row.SetStagedValue(builder.TableBuilder.ValidToColumnName, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
-                            row.ApplyStaging();
+                            row[builder.TableBuilder.ValidFromColumn.Name] = builder.TableBuilder.DwhBuilder.EtlRunIdAsDateTimeOffset.Value;
+                            row[builder.TableBuilder.ValidToColumnName] = builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime;
                         },
                     },
                     MatchAndEqualsAction = new MatchAction(MatchMode.Remove)
@@ -106,9 +104,8 @@
                         CustomAction = row =>
                         {
                             // this is the first version
-                            row.SetStagedValue(builder.TableBuilder.ValidFromColumn.Name, builder.TableBuilder.DwhBuilder.DefaultValidFromDateTime);
-                            row.SetStagedValue(builder.TableBuilder.ValidToColumnName, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
-                            row.ApplyStaging();
+                            row[builder.TableBuilder.ValidFromColumn.Name] = builder.TableBuilder.DwhBuilder.DefaultValidFromDateTime;
+                            row[builder.TableBuilder.ValidToColumnName] = builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime;
                         }
                     },
                     MatchButDifferentAction = new MatchAction(MatchMode.Custom)
@@ -118,12 +115,11 @@
                             foreach (var kvp in builder.PreviousValueColumnNameMap)
                             {
                                 var previousValue = match[kvp.Key.Name];
-                                row.SetStagedValue(kvp.Value.Name, previousValue);
+                                row[kvp.Value.Name] = previousValue;
                             }
 
-                            row.SetStagedValue(builder.TableBuilder.ValidFromColumn.Name, builder.TableBuilder.DwhBuilder.EtlRunIdAsDateTimeOffset.Value);
-                            row.SetStagedValue(builder.TableBuilder.ValidToColumnName, builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
-                            row.ApplyStaging();
+                            row[builder.TableBuilder.ValidFromColumn.Name] = builder.TableBuilder.DwhBuilder.EtlRunIdAsDateTimeOffset.Value;
+                            row[builder.TableBuilder.ValidToColumnName] = builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime;
                         },
                     },
                     MatchAndEqualsAction = new MatchAction(MatchMode.Remove)

@@ -2,8 +2,9 @@
 {
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Linq;
 
-    public class RemoveColumnMutator : AbstractMutator
+    public class RemoveColumnMutator : AbstractSimpleChangeMutator
     {
         public string[] Columns { get; init; }
 
@@ -12,16 +13,21 @@
         {
         }
 
+        protected override void StartMutator()
+        {
+            base.StartMutator();
+
+            if (Columns.Length > 1)
+            {
+                Changes.AddRange(Columns.Select(x => new KeyValuePair<string, object>(x, null)));
+            }
+        }
+
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
             if (Columns.Length > 1)
             {
-                foreach (var column in Columns)
-                {
-                    row.SetStagedValue(column, null);
-                }
-
-                row.ApplyStaging();
+                row.MergeWith(Changes);
             }
             else
             {

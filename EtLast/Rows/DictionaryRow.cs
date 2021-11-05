@@ -18,10 +18,7 @@
 
         public IEnumerable<KeyValuePair<string, object>> Values => _values;
 
-        private Dictionary<string, object> _values;
-
-        protected Dictionary<string, object> Staging { get; set; }
-        public bool HasStaging => Staging?.Count > 0;
+        internal Dictionary<string, object> _values;
 
         public object Tag { get; set; }
 
@@ -30,20 +27,20 @@
             get => _values.TryGetValue(column, out var value) ? value : null;
             set
             {
-                if (HasStaging)
-                    throw new ProcessExecutionException(CurrentProcess, this, "can't change a value of a row with uncommitted staging");
-
-                var hasPreviousValue = _values.TryGetValue(column, out var previousValue);
-                if (value == null && hasPreviousValue)
+                _values.TryGetValue(column, out var previousValue);
+                if (value == null)
                 {
-                    foreach (var listener in Context.Listeners)
+                    if (previousValue != null)
                     {
-                        listener.OnRowValueChanged(this, new[] { new KeyValuePair<string, object>(column, value) });
-                    }
+                        foreach (var listener in Context.Listeners)
+                        {
+                            listener.OnRowValueChanged(this, new[] { new KeyValuePair<string, object>(column, null) });
+                        }
 
-                    _values.Remove(column);
+                        _values.Remove(column);
+                    }
                 }
-                else if (!hasPreviousValue || value != previousValue)
+                else if (previousValue == null || value != previousValue)
                 {
                     foreach (var listener in Context.Listeners)
                     {
@@ -190,123 +187,33 @@
             return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-")).ToUpperInvariant();
         }
 
-        public void SetStagedValue(string column, object newValue)
+        public void MergeWith(IEnumerable<KeyValuePair<string, object>> values)
         {
-            var hasPreviousValue = _values.TryGetValue(column, out var previousValue);
-            if ((!hasPreviousValue && newValue == null)
-                || (hasPreviousValue && newValue == previousValue))
+            List<KeyValuePair<string, object>> changedValues = null;
+            foreach (var kvp in values)
             {
-                if (Staging?.ContainsKey(column) == true)
-                    Staging.Remove(column);
+                _values.TryGetValue(kvp.Key, out var currentValue);
 
-                return;
-            }
-
-            if (Staging == null)
-                Staging = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-
-            Staging[column] = newValue;
-        }
-
-        public void ApplyStaging()
-        {
-            if (!HasStaging)
-                return;
-
-            foreach (var kvp in Staging)
-            {
                 if (kvp.Value == null)
                 {
-                    _values.Remove(kvp.Key);
-                }
-                else
-                {
-                    _values[kvp.Key] = kvp.Value;
-                }
-            }
-
-            foreach (var listener in Context.Listeners)
-            {
-                listener.OnRowValueChanged(this, Staging.ToArray());
-            }
-
-            Staging.Clear();
-        }
-
-        public void MergeWith(IReadOnlySlimRow row, bool addNewValues = true)
-        {
-            List<KeyValuePair<string, object>> changedValues = null;
-            if (addNewValues)
-            {
-                foreach (var kvp in row.Values)
-                {
-                    var hasPreviousValue = _values.TryGetValue(kvp.Key, out var previousValue);
-                    if (!hasPreviousValue || previousValue != kvp.Value)
+                    if (currentValue != null)
                     {
                         if (changedValues == null)
                             changedValues = new List<KeyValuePair<string, object>>();
 
                         changedValues.Add(kvp);
-                        _values[kvp.Key] = kvp.Value;
+                        _values.Remove(kvp.Key);
                     }
                 }
-            }
-            else
-            {
-                foreach (var kvp in row.Values)
-                {
-                    var hasPreviousValue = _values.TryGetValue(kvp.Key, out var previousValue);
-                    if (hasPreviousValue && previousValue != kvp.Value)
-                    {
-                        if (changedValues == null)
-                            changedValues = new List<KeyValuePair<string, object>>();
-
-                        changedValues.Add(kvp);
-                        _values[kvp.Key] = kvp.Value;
-                    }
-                }
-            }
-
-            foreach (var listener in Context.Listeners)
-            {
-                listener.OnRowValueChanged(this, changedValues.ToArray());
-            }
-        }
-
-        public void OverwriteWith(IReadOnlySlimRow row)
-        {
-            List<KeyValuePair<string, object>> changedValues = null;
-
-            // detect keys no longer exist in this row after overwrite
-            foreach (var kvp in _values)
-            {
-                if (!row.HasValue(kvp.Key))
-                {
-                    if (changedValues == null)
-                        changedValues = new List<KeyValuePair<string, object>>();
-
-                    changedValues.Add(new KeyValuePair<string, object>(kvp.Key, null));
-                }
-            }
-
-            if (changedValues != null)
-            {
-                foreach (var kvp in changedValues)
-                {
-                    _values.Remove(kvp.Key);
-                }
-            }
-
-            foreach (var kvp in row.Values)
-            {
-                var hasPreviousValue = _values.TryGetValue(kvp.Key, out var previousValue);
-                if (!hasPreviousValue || previousValue != kvp.Value)
+                else if (currentValue == null || kvp.Value != currentValue)
                 {
                     if (changedValues == null)
                         changedValues = new List<KeyValuePair<string, object>>();
 
                     changedValues.Add(kvp);
-                    _values[kvp.Key] = kvp.Value;
+
+                    if (kvp.Value != null)
+                        _values[kvp.Key] = kvp.Value;
                 }
             }
 

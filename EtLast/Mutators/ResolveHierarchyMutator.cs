@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class ResolveHierarchyMutator : AbstractMutator
+    public class ResolveHierarchyMutator : AbstractSimpleChangeMutator
     {
         public string IdentityColumn { get; init; }
         public string[] LevelColumns { get; init; }
@@ -25,11 +25,14 @@
 
         protected override void StartMutator()
         {
+            base.StartMutator();
             _lastIdOfLevel = new object[LevelColumns.Length];
         }
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
+            Changes.Clear();
+
             for (var level = LevelColumns.Length - 1; level >= 0; level--)
             {
                 var levelColumn = LevelColumns[level];
@@ -41,17 +44,17 @@
 
                     if (!string.IsNullOrEmpty(NewColumnWithParentId) && level > 0)
                     {
-                        row.SetStagedValue(NewColumnWithParentId, _lastIdOfLevel[level - 1]);
+                        Changes.Add(new KeyValuePair<string, object>(NewColumnWithParentId, _lastIdOfLevel[level - 1]));
                     }
 
                     if (!string.IsNullOrEmpty(NewColumnWithLevel))
                     {
-                        row.SetStagedValue(NewColumnWithLevel, level);
+                        Changes.Add(new KeyValuePair<string, object>(NewColumnWithLevel, level));
                     }
 
                     if (!string.IsNullOrEmpty(NewColumnWithName))
                     {
-                        row.SetStagedValue(NewColumnWithName, name);
+                        Changes.Add(new KeyValuePair<string, object>(NewColumnWithName, name));
                     }
 
                     break;
@@ -62,12 +65,11 @@
             {
                 foreach (var levelColumn in LevelColumns)
                 {
-                    row.SetStagedValue(levelColumn, null);
+                    Changes.Add(new KeyValuePair<string, object>(levelColumn, null));
                 }
             }
 
-            row.ApplyStaging();
-
+            row.MergeWith(Changes);
             yield return row;
         }
 

@@ -11,6 +11,7 @@
         public SelectRowFromLookupDelegate MatchSelector { get; init; }
 
         private RowLookup _lookup;
+        private List<KeyValuePair<string, object>> _changes;
 
         public ExpandFromLookupMutator(ITopic topic, string name)
             : base(topic, name)
@@ -20,11 +21,16 @@
         protected override void StartMutator()
         {
             _lookup = LookupBuilder.Build(this);
+            _changes = new List<KeyValuePair<string, object>>();
         }
 
         protected override void CloseMutator()
         {
             _lookup.Clear();
+            _lookup = null;
+
+            _changes.Clear();
+            _changes = null;
         }
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
@@ -55,8 +61,12 @@
             }
             else
             {
-                ColumnCopyConfiguration.CopyManyToRowStage(match, row, ColumnConfiguration);
-                row.ApplyStaging();
+                _changes.Clear();
+                foreach (var config in ColumnConfiguration)
+                {
+                    _changes.Add(new KeyValuePair<string, object>(config.ToColumn, match[config.FromColumn]));
+                }
+                row.MergeWith(_changes);
 
                 MatchCustomAction?.Invoke(row, match);
             }

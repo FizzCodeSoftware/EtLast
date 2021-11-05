@@ -10,7 +10,7 @@
         Throw
     }
 
-    public class RenameColumnMutator : AbstractMutator
+    public class RenameColumnMutator : AbstractSimpleChangeMutator
     {
         public List<ColumnRenameConfiguration> ColumnConfiguration { get; init; }
 
@@ -26,6 +26,8 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
+            Changes.Clear();
+
             var removeRow = false;
             foreach (var config in ColumnConfiguration)
             {
@@ -47,13 +49,13 @@
                 }
 
                 var value = row[config.CurrentName];
-                row.SetStagedValue(config.CurrentName, null);
-                row.SetStagedValue(config.NewName, value);
+                Changes.Add(new KeyValuePair<string, object>(config.CurrentName, null));
+                Changes.Add(new KeyValuePair<string, object>(config.NewName, value));
             }
 
             if (!removeRow)
             {
-                row.ApplyStaging();
+                row.MergeWith(Changes);
                 yield return row;
             }
         }

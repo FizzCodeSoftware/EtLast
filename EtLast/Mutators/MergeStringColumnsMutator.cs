@@ -2,9 +2,10 @@
 {
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Linq;
     using System.Text;
 
-    public class MergeStringColumnsMutator : AbstractMutator
+    public class MergeStringColumnsMutator : AbstractSimpleChangeMutator
     {
         public string[] ColumnsToMerge { get; set; }
         public string TargetColumn { get; set; }
@@ -15,6 +16,14 @@
         public MergeStringColumnsMutator(ITopic topic, string name)
             : base(topic, name)
         {
+        }
+
+        protected override void StartMutator()
+        {
+            base.StartMutator();
+
+            Changes.AddRange(ColumnsToMerge.Select(x => new KeyValuePair<string, object>(x, null)));
+            Changes.Add(new KeyValuePair<string, object>(TargetColumn, null));
         }
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
@@ -29,14 +38,12 @@
                 {
                     _sb.Append(value);
                 }
-
-                row.SetStagedValue(column, null);
             }
 
-            row.SetStagedValue(TargetColumn, _sb.ToString());
+            Changes[ColumnsToMerge.Length] = new KeyValuePair<string, object>(TargetColumn, _sb.ToString());
             _sb.Clear();
 
-            row.ApplyStaging();
+            row.MergeWith(Changes);
 
             yield return row;
         }
@@ -54,7 +61,7 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class MergeStringColumnsMutatorFluent
     {
-        public static IFluentProcessMutatorBuilder ReplaceNullWithValue(this IFluentProcessMutatorBuilder builder, MergeStringColumnsMutator mutator)
+        public static IFluentProcessMutatorBuilder MergeStringColumns(this IFluentProcessMutatorBuilder builder, MergeStringColumnsMutator mutator)
         {
             return builder.AddMutator(mutator);
         }

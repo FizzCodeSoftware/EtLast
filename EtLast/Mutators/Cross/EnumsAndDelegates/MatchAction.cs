@@ -18,7 +18,9 @@
         {
             try
             {
-                CustomAction?.Invoke(row, match);
+                var tracker = new TrackedRow(row);
+                CustomAction?.Invoke(tracker, match);
+                tracker.ApplyChanges();
             }
             catch (Exception ex) when (!(ex is EtlException))
             {

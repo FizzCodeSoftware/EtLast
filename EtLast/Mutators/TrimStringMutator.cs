@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class TrimStringMutator : AbstractMutator
+    public class TrimStringMutator : AbstractSimpleChangeMutator
     {
         public string[] Columns { get; init; }
 
@@ -14,6 +14,8 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
+            Changes.Clear();
+
             if (Columns != null)
             {
                 foreach (var column in Columns)
@@ -23,7 +25,7 @@
                         var trimmed = str.Trim();
                         if (trimmed != str)
                         {
-                            row.SetStagedValue(column, trimmed);
+                            Changes.Add(new KeyValuePair<string, object>(column, trimmed));
                         }
                     }
                 }
@@ -37,14 +39,13 @@
                         var trimmed = str.Trim();
                         if (trimmed != str)
                         {
-                            row.SetStagedValue(kvp.Key, trimmed);
+                            Changes.Add(new KeyValuePair<string, object>(kvp.Key, trimmed));
                         }
                     }
                 }
             }
 
-            row.ApplyStaging();
-
+            row.MergeWith(Changes);
             yield return row;
         }
     }
