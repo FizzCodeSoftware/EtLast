@@ -26,7 +26,7 @@
                 })
                 .Explode(new ExplodeMutator(topic, null)
                 {
-                    RowCreator = (proc, row) =>
+                    RowCreator = row =>
                     {
                         var newRow = new SlimRow
                         {
@@ -56,7 +56,7 @@
                 })
                 .Explode(new ExplodeMutator(topic, null)
                 {
-                    RowCreator = (proc, row) =>
+                    RowCreator = row =>
                     {
                         var personModel = row.GetAs<TestData.PersonModel>("personModel");
                         var newRow = new SlimRow()

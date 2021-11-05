@@ -52,7 +52,7 @@
                     EqualityComparer = equalityComparer,
                     NoMatchAction = new NoMatchAction(MatchMode.Custom)
                     {
-                        CustomAction = (proc, row) =>
+                        CustomAction = row =>
                         {
                             // this is the first version
                             row.SetStagedValue(builder.TableBuilder.ValidFromColumn.Name, builder.TableBuilder.DwhBuilder.DefaultValidFromDateTime);
@@ -62,7 +62,7 @@
                     },
                     MatchButDifferentAction = new MatchAction(MatchMode.Custom)
                     {
-                        CustomAction = (proc, row, match) =>
+                        CustomAction = (row, match) =>
                         {
                             foreach (var kvp in builder.PreviousValueColumnNameMap)
                             {
@@ -103,7 +103,7 @@
                     EqualityComparer = equalityComparer,
                     NoMatchAction = new NoMatchAction(MatchMode.Custom)
                     {
-                        CustomAction = (proc, row) =>
+                        CustomAction = row =>
                         {
                             // this is the first version
                             row.SetStagedValue(builder.TableBuilder.ValidFromColumn.Name, builder.TableBuilder.DwhBuilder.DefaultValidFromDateTime);
@@ -113,7 +113,7 @@
                     },
                     MatchButDifferentAction = new MatchAction(MatchMode.Custom)
                     {
-                        CustomAction = (proc, row, match) =>
+                        CustomAction = (row, match) =>
                         {
                             foreach (var kvp in builder.PreviousValueColumnNameMap)
                             {

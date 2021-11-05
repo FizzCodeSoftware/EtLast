@@ -21,7 +21,7 @@
         {
             MatchButDifferentAction = new MatchAction(MatchMode.Custom)
             {
-                CustomAction = (proc, row, match) =>
+                CustomAction = (row, match) =>
                 {
                     row.SetStagedValue(TableBuilder.ValidFromColumn.Name, TableBuilder.DwhBuilder.EtlRunIdAsDateTimeOffset.Value);
                     row.SetStagedValue(TableBuilder.ValidToColumnName, TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);

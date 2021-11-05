@@ -6,7 +6,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class EtlRowTests
+    public class DictionaryRowTests
     {
         [TestMethod]
         public void ToDebugStringStartsWithUid()
@@ -306,6 +306,84 @@
             var row = context.CreateRow(null);
             row["a"] = 5;
             Assert.AreEqual(false, row.IsNullOrEmpty());
+        }
+
+        [TestMethod]
+        public void MergeTestWithNewValues()
+        {
+            var context = TestExecuter.GetContext();
+            context.SetRowType<DictionaryRow>();
+
+            var row = context.CreateRow(null);
+            row["a"] = 1;
+            row["b"] = "dog";
+            row["c"] = 7.1d;
+
+            var newRow = new SlimRow()
+            {
+                ["b"] = "cat",
+                ["c"] = 7.1d,
+                ["d"] = 8m,
+            };
+
+            row.MergeWith(newRow);
+
+            Assert.AreEqual(row["a"], 1);
+            Assert.AreEqual(row["b"], "cat");
+            Assert.AreEqual(row["c"], 7.1d);
+            Assert.AreEqual(row["d"], 8m);
+        }
+
+        [TestMethod]
+        public void MergeTestWithoutNewValues()
+        {
+            var context = TestExecuter.GetContext();
+            context.SetRowType<DictionaryRow>();
+
+            var row = context.CreateRow(null);
+            row["a"] = 1;
+            row["b"] = "dog";
+            row["c"] = 7.1d;
+
+            var newRow = new SlimRow()
+            {
+                ["b"] = "cat",
+                ["c"] = 7.1d,
+                ["d"] = 8m,
+            };
+
+            row.MergeWith(newRow, addNewValues: false);
+
+            Assert.AreEqual(row["a"], 1);
+            Assert.AreEqual(row["b"], "cat");
+            Assert.AreEqual(row["c"], 7.1d);
+            Assert.IsFalse(row.HasValue("d"));
+        }
+
+        [TestMethod]
+        public void OverwriteTest()
+        {
+            var context = TestExecuter.GetContext();
+            context.SetRowType<DictionaryRow>();
+
+            var row = context.CreateRow(null);
+            row["a"] = 1;
+            row["b"] = "dog";
+            row["c"] = 7.1d;
+
+            var newRow = new SlimRow()
+            {
+                ["b"] = "cat",
+                ["c"] = 7.1d,
+                ["d"] = 8m,
+            };
+
+            row.OverwriteWith(newRow);
+
+            Assert.IsFalse(row.HasValue("a"));
+            Assert.AreEqual(row["b"], "cat");
+            Assert.AreEqual(row["c"], 7.1d);
+            Assert.AreEqual(row["d"], 8m);
         }
     }
 }

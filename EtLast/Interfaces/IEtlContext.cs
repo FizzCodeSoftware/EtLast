@@ -40,7 +40,7 @@
         void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount);
         void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount, Exception exception);
 
-        void RegisterRowStored(IProcess process, IReadOnlyRow row, int storeUid);
+        void RegisterRowStored(IReadOnlyRow row, int storeUid);
 
         void AddException(IProcess process, Exception ex);
         List<Exception> GetExceptions();

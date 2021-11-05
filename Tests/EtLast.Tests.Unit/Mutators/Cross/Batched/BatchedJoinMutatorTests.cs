@@ -37,7 +37,7 @@
                     RowKeyGenerator = row => row.GenerateKey("id"),
                     NoMatchAction = new NoMatchAction(MatchMode.Custom)
                     {
-                        CustomAction = (proc, row) => row["eyeColor"] = "not found",
+                        CustomAction = row => row["eyeColor"] = "not found",
                     },
                     ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
                 });

@@ -67,11 +67,11 @@
                             exception.Data.Add("Key", key);
                             throw exception;
                         case MatchMode.Custom:
-                            TooManyMatchAction.InvokeCustomAction(this, row, matches);
+                            TooManyMatchAction.InvokeCustomAction(row, matches);
                             break;
                         case MatchMode.CustomThenRemove:
                             removeRow = true;
-                            TooManyMatchAction.InvokeCustomAction(this, row, matches);
+                            TooManyMatchAction.InvokeCustomAction(row, matches);
                             break;
                     }
                 }
@@ -111,11 +111,11 @@
                         exception.Data.Add("Key", key);
                         throw exception;
                     case MatchMode.Custom:
-                        NoMatchAction.InvokeCustomAction(this, row);
+                        NoMatchAction.InvokeCustomAction(row);
                         break;
                     case MatchMode.CustomThenRemove:
                         removeRow = true;
-                        NoMatchAction.InvokeCustomAction(this, row);
+                        NoMatchAction.InvokeCustomAction(row);
                         break;
                 }
             }
@@ -128,7 +128,7 @@
         {
             try
             {
-                MatchCustomAction?.Invoke(this, newRow, match);
+                MatchCustomAction?.Invoke(newRow, match);
             }
             catch (Exception ex) when (!(ex is EtlException))
             {

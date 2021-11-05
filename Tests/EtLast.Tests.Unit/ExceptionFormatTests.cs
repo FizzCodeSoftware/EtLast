@@ -17,7 +17,7 @@
                 .ReadFrom(TestData.Person(topic))
                 .CustomCode(new CustomMutator(topic, "MyBrokenMutator")
                 {
-                    Then = (proc, row) =>
+                    Then = row =>
                     {
                         throw new Exception("ohh");
                     },
@@ -87,7 +87,7 @@
                     RowKeyGenerator = row => row.GenerateKey("id"),
                     NoMatchAction = new NoMatchAction(MatchMode.Custom)
                     {
-                        CustomAction = (proc, row) =>
+                        CustomAction = row =>
                         {
                             throw new Exception("ohh");
                         },
@@ -116,7 +116,7 @@
                         KeyGenerator = row => row.GenerateKey("personId"),
                     },
                     RowKeyGenerator = row => row.GenerateKey("id"),
-                    MatchCustomAction = (proc, row, match) =>
+                    MatchCustomAction = (row, match) =>
                     {
                         throw new Exception("ohh");
                     },

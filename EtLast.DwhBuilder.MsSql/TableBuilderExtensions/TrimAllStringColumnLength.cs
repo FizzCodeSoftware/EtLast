@@ -28,7 +28,7 @@
 
             yield return new CustomMutator(builder.ResilientTable.Topic, nameof(TrimAllStringColumnLength))
             {
-                Then = (proc, row) =>
+                Then = row =>
                 {
                     foreach (var col in limitedLengthStringColumns)
                     {
@@ -44,7 +44,7 @@
                             var trimv = strv.Substring(0, col.length);
                             row.SetStagedValue(col.column.Name, trimv);
 
-                            proc.Context.Log(LogSeverity.Warning, proc, "too long string trimmed on {ConnectionStringName}/{TableName}, column: {Column}, max length: {MaxLength}, original value: {Value}, trimmed value: {TrimValue}",
+                            row.CurrentProcess.Context.Log(LogSeverity.Warning, row.CurrentProcess, "too long string trimmed on {ConnectionStringName}/{TableName}, column: {Column}, max length: {MaxLength}, original value: {Value}, trimmed value: {TrimValue}",
                                 builder.DwhBuilder.ConnectionString.Name, builder.ResilientTable.TableName, col.column.Name, col.length, strv, trimv);
                         }
                     }

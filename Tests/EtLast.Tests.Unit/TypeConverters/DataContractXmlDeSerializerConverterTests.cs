@@ -27,7 +27,7 @@
                     },
                     new ExplodeMutator(topic, null)
                     {
-                        RowCreator = (proc, row) =>
+                        RowCreator = row =>
                         {
                             var newRow = new SlimRow
                             {
@@ -65,7 +65,7 @@
                     },
                     new ExplodeMutator(topic, null)
                     {
-                        RowCreator = (proc, row) =>
+                        RowCreator = row =>
                         {
                             var personModel = row.GetAs<PersonModel>("personModel");
                             var newRow = new SlimRow()

@@ -47,11 +47,11 @@
                             exception.Data.Add("Key", key);
                             throw exception;
                         case MatchMode.Custom:
-                            NoMatchAction.InvokeCustomAction(this, row);
+                            NoMatchAction.InvokeCustomAction(row);
                             break;
                         case MatchMode.CustomThenRemove:
                             removeRow = true;
-                            NoMatchAction.InvokeCustomAction(this, row);
+                            NoMatchAction.InvokeCustomAction(row);
                             break;
                     }
                 }
@@ -74,11 +74,11 @@
                                 exception.Data.Add("Key", key);
                                 throw exception;
                             case MatchMode.Custom:
-                                MatchAndEqualsAction.InvokeCustomAction(this, row, match);
+                                MatchAndEqualsAction.InvokeCustomAction(row, match);
                                 break;
                             case MatchMode.CustomThenRemove:
                                 removeRow = true;
-                                MatchAndEqualsAction.InvokeCustomAction(this, row, match);
+                                MatchAndEqualsAction.InvokeCustomAction(row, match);
                                 break;
                         }
                     }
@@ -95,11 +95,11 @@
                             exception.Data.Add("Key", key);
                             throw exception;
                         case MatchMode.Custom:
-                            MatchButDifferentAction.InvokeCustomAction(this, row, match);
+                            MatchButDifferentAction.InvokeCustomAction(row, match);
                             break;
                         case MatchMode.CustomThenRemove:
                             removeRow = true;
-                            MatchButDifferentAction.InvokeCustomAction(this, row, match);
+                            MatchButDifferentAction.InvokeCustomAction(row, match);
                             break;
                     }
                 }

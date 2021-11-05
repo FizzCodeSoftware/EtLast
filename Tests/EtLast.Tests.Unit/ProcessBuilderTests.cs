@@ -16,7 +16,7 @@
                 {
                     new CustomMutator(topic, null)
                     {
-                        Then = (proc, row) => true,
+                        Then = row => true,
                     },
                 },
             };
@@ -38,11 +38,11 @@
                 {
                     new CustomMutator(topic, null)
                     {
-                        Then = (proc, row) => true,
+                        Then = row => true,
                     },
                     new CustomMutator(topic, null)
                     {
-                        Then = (proc, row) => true,
+                        Then = row => true,
                     },
                 },
             };
@@ -64,7 +64,7 @@
                 {
                     new CustomMutator(topic, null)
                     {
-                        Then = (proc, row) => true,
+                        Then = row => true,
                     },
                 },
             };

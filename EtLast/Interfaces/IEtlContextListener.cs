@@ -9,11 +9,11 @@
         void OnCustomLog(bool forOps, string fileName, IProcess process, string text, params object[] args);
         void OnException(IProcess process, Exception exception);
 
-        void OnRowCreated(IReadOnlyRow row, IProcess process);
+        void OnRowCreated(IReadOnlyRow row);
         void OnRowOwnerChanged(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess);
-        void OnRowValueChanged(IProcess process, IReadOnlyRow row, params KeyValuePair<string, object>[] values);
+        void OnRowValueChanged(IReadOnlyRow row, params KeyValuePair<string, object>[] values);
         void OnRowStoreStarted(int storeUid, string location, string path);
-        void OnRowStored(IProcess process, IReadOnlyRow row, int storeUid);
+        void OnRowStored(IReadOnlyRow row, int storeUid);
 
         void OnProcessInvocationStart(IProcess process);
         void OnProcessInvocationEnd(IProcess process);

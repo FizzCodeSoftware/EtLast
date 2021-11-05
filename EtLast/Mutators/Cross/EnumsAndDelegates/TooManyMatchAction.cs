@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    public delegate void TooManyMatchActionDelegate(IProcess process, IRow row, List<IReadOnlySlimRow> matches);
+    public delegate void TooManyMatchActionDelegate(IRow row, List<IReadOnlySlimRow> matches);
 
     public class TooManyMatchAction
     {
@@ -15,15 +15,15 @@
             Mode = mode;
         }
 
-        public void InvokeCustomAction(IProcess process, IRow row, List<IReadOnlySlimRow> matches)
+        public void InvokeCustomAction(IRow row, List<IReadOnlySlimRow> matches)
         {
             try
             {
-                CustomAction?.Invoke(process, row, matches);
+                CustomAction?.Invoke(row, matches);
             }
             catch (Exception ex) when (!(ex is EtlException))
             {
-                throw new ProcessExecutionException(process, row, "error during the execution of a " + nameof(TooManyMatchAction) + "." + nameof(CustomAction) + " delegate", ex);
+                throw new ProcessExecutionException(row.CurrentProcess, row, "error during the execution of a " + nameof(TooManyMatchAction) + "." + nameof(CustomAction) + " delegate", ex);
             }
         }
     }

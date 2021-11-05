@@ -76,7 +76,7 @@
 
                 if (_storeUid != null)
                 {
-                    Context.RegisterRowStored(this, row, _storeUid.Value);
+                    Context.RegisterRowStored(row, _storeUid.Value);
                 }
             }
             catch (Exception ex)

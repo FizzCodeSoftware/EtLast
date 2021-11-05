@@ -62,7 +62,7 @@
                                     match = (_lookup as RowLookup).GetSingleRowByKey(key);
                                 }
 
-                                MatchAction.InvokeCustomAction(this, row, match);
+                                MatchAction.InvokeCustomAction(row, match);
                             }
                             break;
                         case MatchMode.CustomThenRemove:
@@ -75,7 +75,7 @@
                                     match = (_lookup as RowLookup).GetSingleRowByKey(key);
                                 }
 
-                                MatchAction.InvokeCustomAction(this, row, match);
+                                MatchAction.InvokeCustomAction(row, match);
                             }
                             break;
                     }
@@ -93,11 +93,11 @@
                         exception.Data.Add("Key", key);
                         throw exception;
                     case MatchMode.Custom:
-                        NoMatchAction.InvokeCustomAction(this, row);
+                        NoMatchAction.InvokeCustomAction(row);
                         break;
                     case MatchMode.CustomThenRemove:
                         removeRow = true;
-                        NoMatchAction.InvokeCustomAction(this, row);
+                        NoMatchAction.InvokeCustomAction(row);
                         break;
                 }
             }

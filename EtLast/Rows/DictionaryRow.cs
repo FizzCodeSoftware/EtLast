@@ -38,7 +38,7 @@
                 {
                     foreach (var listener in Context.Listeners)
                     {
-                        listener.OnRowValueChanged(CurrentProcess, this, new[] { new KeyValuePair<string, object>(column, value) });
+                        listener.OnRowValueChanged(this, new[] { new KeyValuePair<string, object>(column, value) });
                     }
 
                     _values.Remove(column);
@@ -47,7 +47,7 @@
                 {
                     foreach (var listener in Context.Listeners)
                     {
-                        listener.OnRowValueChanged(CurrentProcess, this, new KeyValuePair<string, object>(column, value));
+                        listener.OnRowValueChanged(this, new KeyValuePair<string, object>(column, value));
                     }
 
                     _values[column] = value;
@@ -227,10 +227,93 @@
 
             foreach (var listener in Context.Listeners)
             {
-                listener.OnRowValueChanged(CurrentProcess, this, Staging.ToArray());
+                listener.OnRowValueChanged(this, Staging.ToArray());
             }
 
             Staging.Clear();
+        }
+
+        public void MergeWith(IReadOnlySlimRow row, bool addNewValues = true)
+        {
+            List<KeyValuePair<string, object>> changedValues = null;
+            if (addNewValues)
+            {
+                foreach (var kvp in row.Values)
+                {
+                    var hasPreviousValue = _values.TryGetValue(kvp.Key, out var previousValue);
+                    if (!hasPreviousValue || previousValue != kvp.Value)
+                    {
+                        if (changedValues == null)
+                            changedValues = new List<KeyValuePair<string, object>>();
+
+                        changedValues.Add(kvp);
+                        _values[kvp.Key] = kvp.Value;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var kvp in row.Values)
+                {
+                    var hasPreviousValue = _values.TryGetValue(kvp.Key, out var previousValue);
+                    if (hasPreviousValue && previousValue != kvp.Value)
+                    {
+                        if (changedValues == null)
+                            changedValues = new List<KeyValuePair<string, object>>();
+
+                        changedValues.Add(kvp);
+                        _values[kvp.Key] = kvp.Value;
+                    }
+                }
+            }
+
+            foreach (var listener in Context.Listeners)
+            {
+                listener.OnRowValueChanged(this, changedValues.ToArray());
+            }
+        }
+
+        public void OverwriteWith(IReadOnlySlimRow row)
+        {
+            List<KeyValuePair<string, object>> changedValues = null;
+
+            // detect keys no longer exist in this row after overwrite
+            foreach (var kvp in _values)
+            {
+                if (!row.HasValue(kvp.Key))
+                {
+                    if (changedValues == null)
+                        changedValues = new List<KeyValuePair<string, object>>();
+
+                    changedValues.Add(new KeyValuePair<string, object>(kvp.Key, null));
+                }
+            }
+
+            if (changedValues != null)
+            {
+                foreach (var kvp in changedValues)
+                {
+                    _values.Remove(kvp.Key);
+                }
+            }
+
+            foreach (var kvp in row.Values)
+            {
+                var hasPreviousValue = _values.TryGetValue(kvp.Key, out var previousValue);
+                if (!hasPreviousValue || previousValue != kvp.Value)
+                {
+                    if (changedValues == null)
+                        changedValues = new List<KeyValuePair<string, object>>();
+
+                    changedValues.Add(kvp);
+                    _values[kvp.Key] = kvp.Value;
+                }
+            }
+
+            foreach (var listener in Context.Listeners)
+            {
+                listener.OnRowValueChanged(this, changedValues.ToArray());
+            }
         }
     }
 }

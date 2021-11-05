@@ -11,5 +11,8 @@
         void SetStagedValue(string column, object newValue);
         void ApplyStaging();
         bool HasStaging { get; }
+
+        void MergeWith(IReadOnlySlimRow row, bool addNewValues = true);
+        void OverwriteWith(IReadOnlySlimRow row);
     }
 }

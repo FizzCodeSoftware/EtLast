@@ -196,10 +196,10 @@
                 listener.OnCustomLog(forOps, fileName, process, text, args);
         }
 
-        public void OnRowCreated(IReadOnlyRow row, IProcess process)
+        public void OnRowCreated(IReadOnlyRow row)
         {
             foreach (var listener in CustomListeners)
-                listener.OnRowCreated(row, process);
+                listener.OnRowCreated(row);
         }
 
         public void OnRowOwnerChanged(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess)
@@ -214,10 +214,10 @@
                 listener.OnRowStoreStarted(storeUid, location, path);
         }
 
-        public void OnRowStored(IProcess process, IReadOnlyRow row, int storeUid)
+        public void OnRowStored(IReadOnlyRow row, int storeUid)
         {
             foreach (var listener in CustomListeners)
-                listener.OnRowStored(process, row, storeUid);
+                listener.OnRowStored(row, storeUid);
         }
 
         public void OnProcessInvocationStart(IProcess process)
@@ -389,10 +389,10 @@
                 listener.OnContextIoCommandEnd(process, uid, kind, affectedDataCount, ex);
         }
 
-        public void OnRowValueChanged(IProcess process, IReadOnlyRow row, KeyValuePair<string, object>[] values)
+        public void OnRowValueChanged(IReadOnlyRow row, KeyValuePair<string, object>[] values)
         {
             foreach (var listener in CustomListeners)
-                listener.OnRowValueChanged(process, row, values);
+                listener.OnRowValueChanged(row, values);
         }
 
         private Stopwatch _startedOn;

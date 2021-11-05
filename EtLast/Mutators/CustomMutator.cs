@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public delegate bool CustomMutatorDelegate(IProcess process, IRow row);
+    public delegate bool CustomMutatorDelegate(IRow row);
 
     public class CustomMutator : AbstractMutator
     {
@@ -20,7 +20,7 @@
             var keep = true;
             try
             {
-                keep = Then.Invoke(this, row);
+                keep = Then.Invoke(row);
             }
             catch (Exception ex) when (!(ex is EtlException))
             {

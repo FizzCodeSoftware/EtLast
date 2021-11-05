@@ -19,7 +19,7 @@
                 {
                     new CustomMutator(builder.ResilientTable.Topic, nameof(SetValidFromToRecordTimestampIfAvailable))
                     {
-                        Then = (proc, row) =>
+                        Then = row =>
                         {
                             var value = row[recordTimestampIndicatorColumn.Name];
                             if (value != null)
@@ -35,7 +35,7 @@
                                 }
                                 else
                                 {
-                                    proc.Context.Log(LogSeverity.Warning, proc, "record timestamp is not DateTimeOffset in: {Row}", row.ToDebugString());
+                                    row.CurrentProcess.Context.Log(LogSeverity.Warning, row.CurrentProcess, "record timestamp is not DateTimeOffset in: {Row}", row.ToDebugString());
                                 }
                             }
 

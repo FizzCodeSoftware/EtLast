@@ -2,7 +2,7 @@
 {
     using System;
 
-    public delegate void MatchActionDelegate(IProcess process, IRow row, IReadOnlySlimRow match);
+    public delegate void MatchActionDelegate(IRow row, IReadOnlySlimRow match);
 
     public class MatchAction
     {
@@ -14,15 +14,15 @@
             Mode = mode;
         }
 
-        public void InvokeCustomAction(IProcess process, IRow row, IReadOnlySlimRow match)
+        public void InvokeCustomAction(IRow row, IReadOnlySlimRow match)
         {
             try
             {
-                CustomAction?.Invoke(process, row, match);
+                CustomAction?.Invoke(row, match);
             }
             catch (Exception ex) when (!(ex is EtlException))
             {
-                throw new ProcessExecutionException(process, row, "error during the execution of a " + nameof(MatchAction) + "." + nameof(CustomAction) + " delegate", ex);
+                throw new ProcessExecutionException(row.CurrentProcess, row, "error during the execution of a " + nameof(MatchAction) + "." + nameof(CustomAction) + " delegate", ex);
             }
         }
     }

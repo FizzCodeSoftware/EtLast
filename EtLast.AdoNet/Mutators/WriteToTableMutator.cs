@@ -71,7 +71,7 @@
                 _storeUid = Context.GetStoreUid(ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
             }
 
-            Context.RegisterRowStored(this, row, _storeUid.Value);
+            Context.RegisterRowStored(row, _storeUid.Value);
 
             InitConnection();
 

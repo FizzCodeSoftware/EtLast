@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public delegate IEnumerable<ISlimRow> ExplodeDelegate(ExplodeMutator process, IReadOnlySlimRow row);
+    public delegate IEnumerable<ISlimRow> ExplodeDelegate(IReadOnlyRow row);
 
     public class ExplodeMutator : AbstractMutator
     {
@@ -24,7 +24,7 @@
             if (!RemoveOriginalRow)
                 yield return row;
 
-            var newRows = RowCreator.Invoke(this, row);
+            var newRows = RowCreator.Invoke(row);
             if (newRows != null)
             {
                 foreach (var newRow in newRows)

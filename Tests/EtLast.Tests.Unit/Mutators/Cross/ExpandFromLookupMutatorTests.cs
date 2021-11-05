@@ -33,14 +33,14 @@
                     },
                     NoMatchAction = new NoMatchAction(MatchMode.Custom)
                     {
-                        CustomAction = (proc, row) =>
+                        CustomAction = row =>
                         {
                             row["countryAbbrev"] = !row.HasValue("countryId")
                                 ? "country was null"
                                 : "no match found";
                         }
                     },
-                    MatchCustomAction = (proc, row, match) => row["countryAbbrevFound"] = true,
+                    MatchCustomAction = (row, match) => row["countryAbbrevFound"] = true,
                     ColumnConfiguration = new List<ColumnCopyConfiguration>()
                         {
                             new ColumnCopyConfiguration("abbreviation2", "countryAbbrev"),

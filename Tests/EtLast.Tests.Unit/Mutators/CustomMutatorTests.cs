@@ -23,7 +23,7 @@
                 .ReadFrom(TestData.Person(topic))
                 .CustomCode(new CustomMutator(topic, null)
                 {
-                    Then = (proc, row) =>
+                    Then = row =>
                     {
                         invocationCount++;
                         var x = row.GetAs<int>("x");
@@ -47,7 +47,7 @@
                 .ReadFrom(TestData.Person(topic))
                 .CustomCode(new CustomMutator(topic, null)
                 {
-                    Then = (proc, row) =>
+                    Then = row =>
                     {
                         return row.GetAs<int>("id") < 4;
                     }
@@ -72,7 +72,7 @@
                 .ReadFrom(TestData.Person(topic))
                 .CustomCode(new CustomMutator(topic, null)
                 {
-                    Then = (proc, row) =>
+                    Then = row =>
                     {
                         row.SetStagedValue("test", "test");
                         if (row.GetAs<int>("id") < 4)
@@ -103,7 +103,7 @@
                 .CustomCode(new CustomMutator(topic, null)
                 {
                     If = row => row.GetAs<int>("id") > 2,
-                    Then = (proc, row) =>
+                    Then = row =>
                     {
                         row["test"] = "test";
                         return true;
@@ -140,7 +140,7 @@
                 .CustomCode(new CustomMutator(topic, null)
                 {
                     TagFilter = tag => tag is RowKind rk && rk == RowKind.test,
-                    Then = (proc, row) =>
+                    Then = row =>
                     {
                         row["test"] = "test";
                         return true;

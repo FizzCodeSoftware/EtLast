@@ -32,7 +32,7 @@
                     RowKeyGenerator = row => row.GenerateKey("countryId"),
                     NoMatchAction = new NoMatchAction(MatchMode.Custom)
                     {
-                        CustomAction = (proc, row) =>
+                        CustomAction = row =>
                         {
                             row["countryAbbrev"] = !row.HasValue("countryId")
                                 ? "country was null"
@@ -41,7 +41,7 @@
                     },
                     MatchAction = new MatchAction(MatchMode.Custom)
                     {
-                        CustomAction = (proc, row, match) =>
+                        CustomAction = (row, match) =>
                         {
                             if (matchActionContainsMatch)
                                 Assert.IsNotNull(match);

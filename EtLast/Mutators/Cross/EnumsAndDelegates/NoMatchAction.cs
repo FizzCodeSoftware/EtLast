@@ -2,7 +2,7 @@
 {
     using System;
 
-    public delegate void NoMatchActionDelegate(IProcess process, IRow row);
+    public delegate void NoMatchActionDelegate(IRow row);
 
     public class NoMatchAction
     {
@@ -14,15 +14,15 @@
             Mode = mode;
         }
 
-        public void InvokeCustomAction(IProcess process, IRow row)
+        public void InvokeCustomAction(IRow row)
         {
             try
             {
-                CustomAction?.Invoke(process, row);
+                CustomAction?.Invoke(row);
             }
             catch (Exception ex) when (!(ex is EtlException))
             {
-                throw new ProcessExecutionException(process, row, "error during the execution of a " + nameof(NoMatchAction) + "." + nameof(CustomAction) + " delegate", ex);
+                throw new ProcessExecutionException(row.CurrentProcess, row, "error during the execution of a " + nameof(NoMatchAction) + "." + nameof(CustomAction) + " delegate", ex);
             }
         }
     }

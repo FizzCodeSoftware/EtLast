@@ -44,11 +44,11 @@
                             var exception = new ProcessExecutionException(this, row, "no match");
                             throw exception;
                         case MatchMode.Custom:
-                            NoMatchAction.InvokeCustomAction(this, row);
+                            NoMatchAction.InvokeCustomAction(row);
                             break;
                         case MatchMode.CustomThenRemove:
                             removeRow = true;
-                            NoMatchAction.InvokeCustomAction(this, row);
+                            NoMatchAction.InvokeCustomAction(row);
                             break;
                     }
                 }
@@ -58,7 +58,7 @@
                 ColumnCopyConfiguration.CopyManyToRowStage(match, row, ColumnConfiguration);
                 row.ApplyStaging();
 
-                MatchCustomAction?.Invoke(this, row, match);
+                MatchCustomAction?.Invoke(row, match);
             }
 
             if (!removeRow)

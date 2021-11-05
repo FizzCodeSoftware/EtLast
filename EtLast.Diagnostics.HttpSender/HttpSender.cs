@@ -317,11 +317,11 @@
         {
         }
 
-        public void OnRowCreated(IReadOnlyRow row, IProcess process)
+        public void OnRowCreated(IReadOnlyRow row)
         {
             SendDiagnostics(DiagnosticsEventKind.RowCreated, writer =>
             {
-                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
+                writer.Write7BitEncodedInt(row.CurrentProcess.InvocationInfo.InvocationUid);
                 writer.Write7BitEncodedInt(row.Uid);
                 writer.Write7BitEncodedInt(row.ColumnCount);
                 foreach (var kvp in row.Values)
@@ -342,12 +342,12 @@
             });
         }
 
-        public void OnRowValueChanged(IProcess process, IReadOnlyRow row, params KeyValuePair<string, object>[] values)
+        public void OnRowValueChanged(IReadOnlyRow row, params KeyValuePair<string, object>[] values)
         {
             SendDiagnostics(DiagnosticsEventKind.RowValueChanged, writer =>
             {
                 writer.Write7BitEncodedInt(row.Uid);
-                writer.WriteNullable(process?.InvocationInfo?.InvocationUid);
+                writer.WriteNullable(row.CurrentProcess?.InvocationInfo?.InvocationUid);
 
                 writer.Write7BitEncodedInt(values.Length);
                 foreach (var kvp in values)
@@ -368,12 +368,12 @@
             });
         }
 
-        public void OnRowStored(IProcess process, IReadOnlyRow row, int storeUid)
+        public void OnRowStored(IReadOnlyRow row, int storeUid)
         {
             SendDiagnostics(DiagnosticsEventKind.RowStored, writer =>
             {
                 writer.Write7BitEncodedInt(row.Uid);
-                writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
+                writer.Write7BitEncodedInt(row.CurrentProcess.InvocationInfo.InvocationUid);
                 writer.Write7BitEncodedInt(storeUid);
                 writer.Write7BitEncodedInt(row.ColumnCount);
                 foreach (var kvp in row.Values)

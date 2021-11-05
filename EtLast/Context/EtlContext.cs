@@ -194,11 +194,11 @@
             }
         }
 
-        public void RegisterRowStored(IProcess process, IReadOnlyRow row, int storeUid)
+        public void RegisterRowStored(IReadOnlyRow row, int storeUid)
         {
             foreach (var listener in Listeners)
             {
-                listener.OnRowStored(process, row, storeUid);
+                listener.OnRowStored(row, storeUid);
             }
         }
 
@@ -209,7 +209,7 @@
 
             foreach (var listener in Listeners)
             {
-                listener.OnRowCreated(row, process);
+                listener.OnRowCreated(row);
             }
 
             return row;
@@ -222,7 +222,7 @@
 
             foreach (var listener in Listeners)
             {
-                listener.OnRowCreated(row, process);
+                listener.OnRowCreated(row);
             }
 
             return row;
@@ -236,7 +236,7 @@
 
             foreach (var listener in Listeners)
             {
-                listener.OnRowCreated(row, process);
+                listener.OnRowCreated(row);
             }
 
             return row;

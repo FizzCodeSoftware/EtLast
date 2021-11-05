@@ -28,7 +28,7 @@
                 processes[i] = new CustomMutator(topic, null)
                 {
                     InputProcess = splitter,
-                    Then = (proc, row) =>
+                    Then = row =>
                     {
                         Thread.Sleep(new Random().Next(10));
                         row["ThreadIndex"] = i;
@@ -69,7 +69,7 @@
                 processes[i] = new CustomMutator(topic, null)
                 {
                     InputProcess = splitter,
-                    Then = (proc, row) =>
+                    Then = row =>
                     {
                         Thread.Sleep(new Random().Next(10));
                         row["ThreadIndex"] = i;
@@ -130,7 +130,7 @@
                 merger.ProcessList.Add(new CustomMutator(topic, null)
                 {
                     InputProcess = TestData.Person(topic),
-                    Then = (proc, row) =>
+                    Then = row =>
                     {
                         Thread.Sleep(new Random().Next(100));
                         row["ThreadIndex"] = i;
@@ -173,7 +173,7 @@
                 merger.ProcessList.Add(new CustomMutator(topic, null)
                 {
                     InputProcess = splitter,
-                    Then = (proc, row) =>
+                    Then = row =>
                     {
                         Thread.Sleep(new Random().Next(10));
                         row["ThreadIndex"] = i;
@@ -208,7 +208,7 @@
                 .ProcessOnMultipleThreads(topic, 3, (i, mb) => mb
                    .CustomCode(new CustomMutator(topic, null)
                    {
-                       Then = (proc, row) =>
+                       Then = row =>
                        {
                            Thread.Sleep(new Random().Next(10));
                            row["ThreadIndex"] = i;
@@ -218,7 +218,7 @@
                    )
                 .CustomCode(new CustomMutator(topic, null)
                 {
-                    Then = (proc, row) =>
+                    Then = row =>
                     {
                         row["AbsoluteFinalIndex"] = n++;
                         return true;
