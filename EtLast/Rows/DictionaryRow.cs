@@ -217,9 +217,12 @@
                 }
             }
 
-            foreach (var listener in Context.Listeners)
+            if (changedValues != null)
             {
-                listener.OnRowValueChanged(this, changedValues.ToArray());
+                foreach (var listener in Context.Listeners)
+                {
+                    listener.OnRowValueChanged(this, changedValues.ToArray());
+                }
             }
         }
     }
