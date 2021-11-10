@@ -37,7 +37,7 @@
             if (!Validate(taxNr))
                 return null;
 
-            if (automaticallyAddHyphens && taxNr.Length == 11 && !taxNr.Contains("-", StringComparison.InvariantCultureIgnoreCase))
+            if (automaticallyAddHyphens && taxNr.Length == 11 && !taxNr.Contains('-', StringComparison.InvariantCultureIgnoreCase))
             {
                 taxNr = taxNr.Substring(0, 8) + "-" + taxNr.Substring(8, 1) + "-" + taxNr.Substring(9, 2);
             }
@@ -49,7 +49,7 @@
         {
             string[] parts;
 
-            if (!taxNr.Contains("-", StringComparison.InvariantCultureIgnoreCase))
+            if (!taxNr.Contains('-', StringComparison.InvariantCultureIgnoreCase))
             {
                 if (taxNr.Length != 11)
                     return false;

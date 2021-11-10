@@ -1,3 +1,7 @@
+2020-11-10:
+	- changed: major version 3 is FINAL now
+	- changed: targeting .NET 6
+
 2020-11-05:
 	- changed: removed IRow.SetStagedValue, ApplyStaging, HasStaging - custom code can simply call "row[x] = y;" instead
 	- added: IRow.MergeWidth to apply multiple changes at once
@@ -10,7 +14,6 @@
 
 2021-10-05:
 	- changed: major version 3 is stable now
-	- changed: targeting .NET 5
 	- changed: using LightWeight DB connections
 	- changed: fluent API
 	- added: MsSqlResetSingleIdentityCounter

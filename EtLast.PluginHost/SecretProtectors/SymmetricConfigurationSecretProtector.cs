@@ -50,7 +50,7 @@
         {
             var inputBytes = Convert.FromBase64String(value);
 
-            using (var algo = Rijndael.Create())
+            using (var algo = Aes.Create())
             {
                 algo.Key = _key;
                 algo.IV = _iv;
@@ -69,7 +69,7 @@
         {
             var inputBytes = Encoding.UTF8.GetBytes(value);
 
-            using (var algo = Rijndael.Create())
+            using (var algo = Aes.Create())
             {
                 algo.Key = _key;
                 algo.IV = _iv;

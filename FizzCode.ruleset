@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="fizzcode" ToolsVersion="16.0">
+<RuleSet Name="fizzcode" ToolsVersion="17.0">
   <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
     <Rule Id="CA1001" Action="Warning" />
     <Rule Id="CA1009" Action="Warning" />
@@ -67,8 +67,10 @@
     <Rule Id="IDE0001" Action="Info" />
     <Rule Id="IDE0002" Action="Info" />
     <Rule Id="IDE0005" Action="Info" />
+    <Rule Id="IDE0031" Action="None" />
     <Rule Id="IDE0046" Action="None" />
     <Rule Id="IDE0046WithoutSuggestion" Action="None" />
+    <Rule Id="IDE0057" Action="None" />
     <Rule Id="IDE0060" Action="None" />
     <Rule Id="IDE0063" Action="None" />
     <Rule Id="IDE0063WithoutSuggestion" Action="None" />
@@ -76,6 +78,9 @@
     <Rule Id="IDE0066" Action="None" />
     <Rule Id="IDE0079" Action="None" />
     <Rule Id="IDE0090" Action="Info" />
+  </Rules>
+  <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp.NetAnalyzers" RuleNamespace="Microsoft.CodeAnalysis.CSharp.NetAnalyzers">
+    <Rule Id="CA1845" Action="None" />
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeAnalysis.NetAnalyzers" RuleNamespace="Microsoft.CodeAnalysis.NetAnalyzers">
     <Rule Id="CA1036" Action="None" />

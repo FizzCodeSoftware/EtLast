@@ -95,7 +95,7 @@
 
         private void ItemChecked(object sender, ItemCheckEventArgs e)
         {
-            if (sender is not ToolStripCheckedListBox checkedList || checkedList.Tag is not OLVColumn column || !(column.ListView is ObjectListView))
+            if (sender is not ToolStripCheckedListBox checkedList || checkedList.Tag is not OLVColumn column || column.ListView is not ObjectListView)
                 return;
 
             var selectAllIndex = checkedList.Items.IndexOf(SELECT_ALL_LABEL);

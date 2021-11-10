@@ -36,7 +36,7 @@
             if (!Validate(accountNr))
                 return null;
 
-            if (automaticallyAddHyphens && !accountNr.Contains("-", StringComparison.InvariantCultureIgnoreCase))
+            if (automaticallyAddHyphens && !accountNr.Contains('-', StringComparison.InvariantCultureIgnoreCase))
             {
                 return accountNr.Length switch
                 {
@@ -53,7 +53,7 @@
         {
             string[] parts;
 
-            if (!accountNr.Contains("-", StringComparison.InvariantCultureIgnoreCase))
+            if (!accountNr.Contains('-', StringComparison.InvariantCultureIgnoreCase))
             {
                 switch (accountNr.Length)
                 {

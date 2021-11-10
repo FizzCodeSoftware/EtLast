@@ -56,29 +56,5 @@
                 ).ToList(),
             };
         }
-
-        /*private static ITypeConverter GetConverter(SqlTypeInfo sqlTypeInfo)
-        {
-            return sqlTypeInfo switch
-            {
-                SqlBit _ => new BoolConverter(),
-                SqlTinyInt _ => new ByteConverter(),
-                SqlInt _ => new IntConverter(),
-                SqlFloat _ => new DoubleConverter(),
-                SqlReal _ => new DoubleConverter(),
-                SqlDecimal _ => new DecimalConverter(),
-                SqlMoney _ => new DecimalConverter(),
-                SqlVarChar _ => new StringConverter(),
-                SqlNVarChar _ => new StringConverter(),
-                SqlNText _ => new StringConverter(),
-                SqlChar _ => new StringConverter(),
-                SqlNChar _ => new StringConverter(),
-                SqlDateTime _ => new DateTimeConverter(),
-                SqlDateTimeOffset _ => new DateTimeOffsetConverter(),
-                SqlBigInt _ => new LongConverter(),
-                SqlBinary _ => new ByteArrayConverter(),
-                _ => null,
-            };
-        }*/
     }
 }

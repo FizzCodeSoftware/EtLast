@@ -3,7 +3,7 @@
     using System;
     using System.Globalization;
     using System.IO;
-    using System.Net;
+    using System.Net.Http;
 
     public class DownloadFile : AbstractExecutable
     {
@@ -26,18 +26,22 @@
 
         protected override void ExecuteImpl()
         {
-            using (var clt = new WebClient())
+            using (var clt = new HttpClient())
             {
                 var iocUid = 0;
                 try
                 {
-                    using (Context.CancellationTokenSource.Token.Register(clt.CancelAsync))
+                    using (Context.CancellationTokenSource.Token.Register(clt.CancelPendingRequests))
                     {
                         iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.httpGet, Url, null, null, null, null,
                             "downloading file from {Url} to {FileName}",
                             Url, PathHelpers.GetFriendlyPathName(FileName));
 
-                        clt.DownloadFile(Url, FileName);
+                        using (var response = clt.GetStreamAsync(Url).Result)
+                        using (var fs = new FileStream(FileName, FileMode.Create))
+                        {
+                            response.CopyTo(fs);
+                        }
 
                         Context.RegisterIoCommandSuccess(this, IoCommandKind.httpGet, iocUid, Convert.ToInt32(new FileInfo(FileName).Length));
                     }

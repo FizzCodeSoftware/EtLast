@@ -45,7 +45,7 @@
                     while (reader.Read())
                     {
                         var mv = reader["maxValue"];
-                        if (!(mv is DBNull))
+                        if (mv is not DBNull)
                         {
                             result.MaxValue = (T)mv;
                         }

@@ -15,7 +15,7 @@
         {
             var result = ExecutionResult.Success;
 
-            var sessionId = "s" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture).Substring(0, 6);
+            var sessionId = string.Concat("s", Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture).AsSpan(0, 6));
 
             var sessionStartedOn = Stopwatch.StartNew();
             var sessionWarningCount = 0;

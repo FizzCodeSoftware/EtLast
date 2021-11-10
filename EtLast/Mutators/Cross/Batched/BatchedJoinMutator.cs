@@ -142,7 +142,7 @@
             {
                 MatchCustomAction?.Invoke(newRow, match);
             }
-            catch (Exception ex) when (!(ex is EtlException))
+            catch (Exception ex) when (ex is not EtlException)
             {
                 var exception = new ProcessExecutionException(this, row, "error during the execution of a " + nameof(MatchCustomAction) + " delegate", ex);
                 exception.Data.Add("Row-New", newRow.ToDebugString());

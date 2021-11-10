@@ -27,7 +27,7 @@
                     tracker.ApplyChanges();
                 }
             }
-            catch (Exception ex) when (!(ex is EtlException))
+            catch (Exception ex) when (ex is not EtlException)
             {
                 throw new ProcessExecutionException(this, row, ex);
             }

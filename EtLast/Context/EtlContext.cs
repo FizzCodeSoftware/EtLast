@@ -247,7 +247,7 @@
             if (ex is OperationCanceledException)
                 return;
 
-            if (!(ex is EtlException))
+            if (ex is not EtlException)
             {
                 ex = new ProcessExecutionException(process, ex);
             }
