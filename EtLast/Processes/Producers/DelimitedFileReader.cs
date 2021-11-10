@@ -240,6 +240,24 @@
                                 }
                             }
 
+                            for (var i = 0; i < columnNames.Length - 1; i++)
+                            {
+                                var columnName = columnNames[i];
+                                for (var j = i + 1; j < columnNames.Length; j++)
+                                {
+                                    if (string.Equals(columnName, columnNames[j], StringComparison.InvariantCultureIgnoreCase))
+                                    {
+                                        var message = "delimited file contains more than one columns with the same name: " + columnName;
+                                        var exception = new EtlException(this, "error while opening file: " + message);
+                                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening file: {0}, message: {1}", FileName, message));
+                                        exception.Data.Add("FileName", FileName);
+
+                                        Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, 0, exception);
+                                        throw exception;
+                                    }
+                                }
+                            }
+
                             continue;
                         }
                     }
