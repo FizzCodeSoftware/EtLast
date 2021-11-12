@@ -44,23 +44,48 @@
                 var row = enumerator.Current;
 
                 var apply = false;
-                try
+                if (If != null)
                 {
-                    apply = If?.Invoke(row) != false;
-                }
-                catch (Exception ex)
-                {
-                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
-                    break;
+                    try
+                    {
+                        apply = If.Invoke(row);
+                    }
+                    catch (Exception ex)
+                    {
+                        Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
                 }
 
-                if (!apply)
+                if (TagFilter != null)
                 {
-                    ignoredRowCount++;
-                    netTimeStopwatch.Stop();
-                    yield return row;
-                    netTimeStopwatch.Start();
-                    continue;
+                    try
+                    {
+                        apply = TagFilter.Invoke(row);
+                    }
+                    catch (Exception ex)
+                    {
+                        Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
                 }
 
                 rowCount++;
