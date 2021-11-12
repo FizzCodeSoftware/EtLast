@@ -25,6 +25,15 @@
             _values = new Dictionary<string, object>(initialValues, StringComparer.OrdinalIgnoreCase);
         }
 
+        public SlimRow(IReadOnlySlimRow initialValues)
+        {
+            _values = initialValues is SlimRow slimRow
+                ? new Dictionary<string, object>(slimRow._values, StringComparer.OrdinalIgnoreCase)
+                : initialValues is DictionaryRow dictionaryRow
+                    ? new Dictionary<string, object>(dictionaryRow._values, StringComparer.OrdinalIgnoreCase)
+                    : new Dictionary<string, object>(initialValues.Values, StringComparer.OrdinalIgnoreCase);
+        }
+
         public object this[string column]
         {
             get => GetValueImpl(column);
