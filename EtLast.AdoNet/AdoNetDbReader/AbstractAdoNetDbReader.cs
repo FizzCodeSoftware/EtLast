@@ -107,7 +107,7 @@
                 {
                     Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, iocUid, null, ex);
 
-                    var exception = new ProcessExecutionException(this, "error while executing query", ex);
+                    var exception = new SqlReadException(this, ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query, message: {0}, connection string key: {1}, SQL statement: {2}",
                         ex.Message, ConnectionString.Name, sqlStatement));
                     exception.Data.Add("ConnectionStringName", ConnectionString.Name);
@@ -133,7 +133,7 @@
                     catch (Exception ex)
                     {
                         Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, iocUid, resultCount, ex);
-                        var exception = new ProcessExecutionException(this, "error while executing query", ex);
+                        var exception = new SqlReadException(this, ex);
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query after successfully reading {0} rows, message: {1}, connection string key: {2}, SQL statement: {3}",
                             resultCount, ex.Message, ConnectionString.Name, sqlStatement));
                         exception.Data.Add("ConnectionStringName", ConnectionString.Name);

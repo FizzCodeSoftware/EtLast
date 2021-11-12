@@ -7,7 +7,7 @@
     {
         public EtlModuleConfiguration CurrentModuleConfiguration { get; private set; }
         public IEtlPlugin CurrentPlugin { get; private set; }
-        public string Id { get; private set; }
+        public string Id { get; }
         private readonly List<IEtlService> _services = new();
 
         public EtlSession(string id)

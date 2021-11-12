@@ -40,10 +40,8 @@
                             continue;
                         case ColumnAlreadyExistsAction.Skip:
                             continue;
-                        default:
-                            var exception = new ProcessExecutionException(this, row, "specified target column already exists");
-                            exception.Data.Add("CurrentName", config.CurrentName);
-                            exception.Data.Add("NewName", config.NewName);
+                        case ColumnAlreadyExistsAction.Throw:
+                            var exception = new ColumnRenameException(this, row, config.CurrentName, config.NewName);
                             throw exception;
                     }
                 }

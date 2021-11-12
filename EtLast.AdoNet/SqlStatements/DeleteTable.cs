@@ -45,7 +45,7 @@
             {
                 Context.RegisterIoCommandFailed(this, IoCommandKind.dbDelete, iocUid, null, ex);
 
-                var exception = new ProcessExecutionException(this, "database table content deletion failed", ex);
+                var exception = new SqlDeleteException(this, ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table content deletion failed, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionString.Name, ConnectionString.Unescape(TableName), ex.Message, command.CommandText, CommandTimeout));
 

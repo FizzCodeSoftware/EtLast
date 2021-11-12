@@ -49,7 +49,7 @@
             {
                 Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadCount, iocUid, null, ex);
 
-                var exception = new ProcessExecutionException(this, "database table record count query failed", ex);
+                var exception = new SqlRecordCountReadException(this, ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table record count query failed, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionString.Name, ConnectionString.Unescape(TableName), ex.Message, command.CommandText, CommandTimeout));
 

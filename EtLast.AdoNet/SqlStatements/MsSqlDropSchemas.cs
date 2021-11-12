@@ -52,7 +52,7 @@
             {
                 Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, iocUid, null, ex);
 
-                var exception = new ProcessExecutionException(this, "failed to drop schema", ex);
+                var exception = new SqlSchemaChangeException(this, "drop schema", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop schema, connection string key: {0}, schema: {1}, message: {2}, command: {3}, timeout: {4}",
                     ConnectionString.Name, ConnectionString.Unescape(schemaName), ex.Message, command.CommandText, command.CommandTimeout));
 

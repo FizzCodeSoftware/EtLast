@@ -34,9 +34,9 @@
                         CustomAction = row => row["eyeColor"] = "not found",
                     },
                     ColumnConfiguration = new List<ColumnCopyConfiguration>
-                        {
-                            new ColumnCopyConfiguration("color", "eyeColor"),
-                        }
+                    {
+                        new ColumnCopyConfiguration("color", "eyeColor"),
+                    }
                 });
 
             var result = TestExecuter.Execute(builder);
@@ -72,9 +72,9 @@
                     RowKeyGenerator = row => row.GenerateKey("id"),
                     NoMatchAction = new NoMatchAction(MatchMode.Remove),
                     ColumnConfiguration = new List<ColumnCopyConfiguration>
-                        {
-                            new ColumnCopyConfiguration("color", "eyeColor"),
-                        }
+                    {
+                        new ColumnCopyConfiguration("color", "eyeColor"),
+                    }
                 });
 
             var result = TestExecuter.Execute(builder);
@@ -106,9 +106,9 @@
                     RowKeyGenerator = row => row.GenerateKey("id"),
                     NoMatchAction = new NoMatchAction(MatchMode.Throw),
                     ColumnConfiguration = new List<ColumnCopyConfiguration>
-                        {
-                            new ColumnCopyConfiguration("color", "eyeColor"),
-                        }
+                    {
+                        new ColumnCopyConfiguration("color", "eyeColor"),
+                    }
                 });
 
             var result = TestExecuter.Execute(builder);
@@ -122,7 +122,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 2, ["name"] = "C", ["age"] = 27, ["height"] = 170, ["eyeColor"] = "black", ["countryId"] = 2, ["birthDate"] = new DateTime(2014, 1, 21, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 11, 21, 17, 11, 58, 0) } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
-            Assert.IsTrue(exceptions[0] is ProcessExecutionException);
+            Assert.IsTrue(exceptions[0] is NoMatchException);
         }
 
         [TestMethod]
@@ -157,7 +157,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0), ["color"] = "yellow" } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
-            Assert.IsTrue(exceptions[0] is ProcessExecutionException);
+            Assert.IsTrue(exceptions[0] is KeyGeneratorException);
         }
 
         [TestMethod]
@@ -186,7 +186,7 @@
             Assert.AreEqual(0, result.MutatedRows.Count);
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
-            Assert.IsTrue(exceptions[0] is ProcessExecutionException);
+            Assert.IsTrue(exceptions[0] is KeyGeneratorException);
         }
 
         [TestMethod]

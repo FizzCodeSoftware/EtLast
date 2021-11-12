@@ -36,7 +36,7 @@
                     }
                     catch (Exception ex)
                     {
-                        throw new ProcessExecutionException(this, "error during the initialization of the process", ex);
+                        throw new InitializerDelegateException(this, ex);
                     }
 
                     if (Context.CancellationTokenSource.IsCancellationRequested)

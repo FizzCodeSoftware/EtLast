@@ -106,7 +106,8 @@
             }
             catch (Exception ex)
             {
-                var exception = new ProcessExecutionException(this, "error raised during the execution of an operation", ex);
+                var exception = new SqlConnectionException(this, ex);
+                exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                 throw exception;
             }
         }
@@ -149,7 +150,7 @@
             {
                 Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBatch, iocUid, recordCount, ex);
 
-                var exception = new ProcessExecutionException(this, "db write failed", ex);
+                var exception = new SqlWriteException(this, ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db write failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",
                     ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message, sqlStatement));
                 exception.Data.Add("ConnectionStringName", ConnectionString.Name);

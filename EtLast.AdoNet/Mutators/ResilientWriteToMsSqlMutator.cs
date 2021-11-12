@@ -213,7 +213,7 @@
                         }
                         else
                         {
-                            var exception = new ProcessExecutionException(this, "db write failed", ex);
+                            var exception = new SqlWriteException(this, ex);
                             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db write failed, connection string key: {0}, table: {1}, message: {2}",
                                 ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message));
                             exception.Data.Add("ConnectionStringName", ConnectionString.Name);

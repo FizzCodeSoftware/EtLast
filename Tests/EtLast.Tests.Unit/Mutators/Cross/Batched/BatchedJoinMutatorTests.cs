@@ -134,7 +134,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 2, ["name"] = "C", ["age"] = 27, ["height"] = 170, ["eyeColor"] = "green", ["countryId"] = 2, ["birthDate"] = new DateTime(2014, 1, 21, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 11, 21, 17, 11, 58, 0), ["color"] = "black" } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
-            Assert.IsTrue(exceptions[0] is ProcessExecutionException);
+            Assert.IsTrue(exceptions[0] is NoMatchException);
         }
 
         [TestMethod]
@@ -166,7 +166,7 @@
             Assert.AreEqual(0, result.MutatedRows.Count);
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
-            Assert.IsTrue(exceptions[0] is ProcessExecutionException);
+            Assert.IsTrue(exceptions[0] is NoMatchException);
         }
 
         [TestMethod]

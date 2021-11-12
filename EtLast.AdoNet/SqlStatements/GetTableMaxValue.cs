@@ -61,7 +61,7 @@
             {
                 Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadAggregate, iocUid, null, ex);
 
-                var exception = new ProcessExecutionException(this, "database table max value query failed", ex);
+                var exception = new SqlAggregateReadException(this, ex, "max value");
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table max value query failed, connection string key: {0}, table: {1}, column: {2}, message: {3}, command: {4}, timeout: {5}",
                     ConnectionString.Name, ConnectionString.Unescape(TableName), ConnectionString.Unescape(ColumnName), ex.Message, command.CommandText, CommandTimeout));
 

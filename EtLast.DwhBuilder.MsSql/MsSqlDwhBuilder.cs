@@ -126,7 +126,7 @@
                         {
                             scope.Context.RegisterIoCommandFailed(caller, IoCommandKind.dbReadMeta, iocUid, null, ex);
 
-                            var exception = new ProcessExecutionException(caller, "failed to query enabled foreign key names from information schema", ex);
+                            var exception = new SqlSchemaReadException(caller, "enabled foreign key names", ex);
                             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "enabled foreign key list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                                 ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
                             exception.Data.Add("ConnectionStringName", ConnectionString.Name);
