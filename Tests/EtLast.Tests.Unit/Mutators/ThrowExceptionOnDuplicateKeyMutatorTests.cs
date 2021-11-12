@@ -40,7 +40,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["name"] = "E", ["age"] = -3, ["height"] = 160, ["countryId"] = 1, ["lastChangedTime"] = new DateTime(2019, 1, 1, 23, 59, 59, 0) } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
-            Assert.IsTrue(exceptions[0] is ProcessExecutionException);
+            Assert.IsTrue(exceptions[0] is DuplicateKeyException);
         }
 
         [TestMethod]
@@ -98,7 +98,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 3, ["name"] = "D", ["age"] = 39, ["height"] = 160, ["eyeColor"] = "fake", ["birthDate"] = "2018.07.11", ["lastChangedTime"] = new DateTime(2017, 8, 1, 4, 9, 1, 0) } });
             var exceptions = topic.Context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
-            Assert.IsTrue(exceptions[0] is ProcessExecutionException);
+            Assert.IsTrue(exceptions[0] is DuplicateKeyException);
         }
     }
 }

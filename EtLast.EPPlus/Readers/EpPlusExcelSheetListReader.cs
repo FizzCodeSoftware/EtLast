@@ -30,7 +30,7 @@
 
             if (!File.Exists(FileName))
             {
-                var exception = new ProcessExecutionException(this, "input file doesn't exist");
+                var exception = new FileReadException(this, "input file doesn't exist", FileName);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "input file doesn't exist: {0}",
                     FileName));
                 exception.Data.Add("FileName", FileName);
@@ -46,7 +46,7 @@
             }
             catch (Exception ex)
             {
-                var exception = new ProcessExecutionException(this, "excel file read failed", ex);
+                var exception = new FileReadException(this, "excel file read failed", FileName, ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel file read failed, file name: {0}, message: {1}",
                     FileName, ex.Message));
                 exception.Data.Add("FileName", FileName);
@@ -60,7 +60,7 @@
             var workbook = package.Workbook;
             if (workbook == null)
             {
-                var exception = new ProcessExecutionException(this, "excel file read failed");
+                var exception = new FileReadException(this, "excel file read failed", FileName);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel file read failed, file name: {0}",
                     FileName));
                 exception.Data.Add("FileName", FileName);

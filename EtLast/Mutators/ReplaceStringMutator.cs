@@ -22,17 +22,10 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            try
+            if (row.HasValue(ColumnName) && row[ColumnName] is string value && value.IndexOf(OldString, StringComparison) > -1)
             {
-                if (row.HasValue(ColumnName) && row[ColumnName] is string value && value.IndexOf(OldString, StringComparison) > -1)
-                {
-                    value = value.Replace(OldString, NewString, StringComparison);
-                    row[ColumnName] = value;
-                }
-            }
-            catch (Exception ex) when (ex is not EtlException)
-            {
-                throw new ProcessExecutionException(this, row, ex);
+                value = value.Replace(OldString, NewString, StringComparison);
+                row[ColumnName] = value;
             }
 
             yield return row;

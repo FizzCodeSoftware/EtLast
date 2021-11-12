@@ -120,15 +120,9 @@
                 {
                     resultRow = Selector.Invoke(this, group);
                 }
-                catch (EtlException ex)
-                {
-                    Context.AddException(this, ex);
-                    return null;
-                }
                 catch (Exception ex)
                 {
-                    var exception = new ProcessExecutionException(this, ex);
-                    Context.AddException(this, exception);
+                    Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
                     return null;
                 }
 

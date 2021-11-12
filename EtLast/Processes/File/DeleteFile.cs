@@ -37,7 +37,7 @@
             }
             catch (Exception ex)
             {
-                var exception = new ProcessExecutionException(this, "file deletion failed", ex);
+                var exception = new FileReadException(this, "file deletion failed", FileName, ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "file deletion failed, file name: {0}, message: {1}",
                     FileName, ex.Message));
                 exception.Data.Add("FileName", FileName);

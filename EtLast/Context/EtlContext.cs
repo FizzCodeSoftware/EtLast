@@ -247,10 +247,7 @@
             if (ex is OperationCanceledException)
                 return;
 
-            if (ex is not EtlException)
-            {
-                ex = new ProcessExecutionException(process, ex);
-            }
+            ex = ProcessExecutionException.Wrap(process, ex);
 
             Result.Exceptions.Add(ex);
 

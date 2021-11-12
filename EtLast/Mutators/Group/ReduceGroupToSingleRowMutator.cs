@@ -116,15 +116,9 @@
                 {
                     resultRow = Selector.Invoke(this, list);
                 }
-                catch (EtlException ex)
-                {
-                    Context.AddException(this, ex);
-                    break;
-                }
                 catch (Exception ex)
                 {
-                    var exception = new ProcessExecutionException(this, ex);
-                    Context.AddException(this, exception);
+                    Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
                     break;
                 }
 

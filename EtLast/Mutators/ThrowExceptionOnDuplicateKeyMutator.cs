@@ -35,10 +35,7 @@
             var key = RowKeyGenerator.Invoke(row);
             if (_keys.Contains(key))
             {
-                var exception = new EtlException(this, "duplicate key found");
-                exception.Data.Add("Row", row.ToDebugString());
-                exception.Data.Add("Key", key);
-
+                var exception = new DuplicateKeyException(this, row, key);
                 throw exception;
             }
 

@@ -91,8 +91,8 @@
 
             if (!File.Exists(FileName))
             {
-                var exception = new ProcessExecutionException(this, "file doesn't exist");
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "file doesn't exist: {0}",
+                var exception = new FileReadException(this, "input file doesn't exist", FileName);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "input file doesn't exist: {0}",
                     FileName));
                 exception.Data.Add("FileName", FileName);
 
@@ -113,7 +113,7 @@
                 {
                     Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, null, ex);
 
-                    var exception = new ProcessExecutionException(this, "excel file read failed", ex);
+                    var exception = new FileReadException(this, "excel file read failed", FileName, ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel file read failed, file name: {0}, message: {1}",
                         FileName, ex.Message));
                     exception.Data.Add("FileName", FileName);

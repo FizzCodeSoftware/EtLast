@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast
 {
-    using System;
     using System.Collections.Generic;
     using System.ComponentModel;
 
@@ -17,19 +16,11 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var keep = true;
-            try
+            var tracker = new TrackedRow(row);
+            var keep = Then.Invoke(tracker);
+            if (keep)
             {
-                var tracker = new TrackedRow(row);
-                keep = Then.Invoke(tracker);
-                if (keep)
-                {
-                    tracker.ApplyChanges();
-                }
-            }
-            catch (Exception ex) when (ex is not EtlException)
-            {
-                throw new ProcessExecutionException(this, row, ex);
+                tracker.ApplyChanges();
             }
 
             if (keep)

@@ -20,10 +20,10 @@
 
         public override string ToString()
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0}\nvalue: {1}\nprocess: {2}",
+            return string.Format(CultureInfo.InvariantCulture, "error: {0}, value: {1}, process: {2}",
                     Message,
                     OriginalValue != null ? OriginalValue + " (" + OriginalValue.GetType().GetFriendlyTypeName() + ")" : "NULL",
-                    Process?.Name ?? "unknown process").Replace("\n", Environment.NewLine, StringComparison.InvariantCultureIgnoreCase);
+                    Process?.Name ?? "unknown process").Replace("\n", @"\n", StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }

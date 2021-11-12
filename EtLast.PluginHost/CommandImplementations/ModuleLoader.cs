@@ -116,7 +116,7 @@
 
             if (useAppDomain)
             {
-                commandContext.Logger.Information("loading plugins directly from AppDomain if namespace ends with '{Module}'", moduleName);
+                commandContext.Logger.Information("loading plugins directly from AppDomain where namespace ends with '{Module}'", moduleName);
                 var appDomainPlugins = LoadInstancesFromAppDomain<IEtlPlugin>(moduleName);
                 commandContext.Logger.Debug("finished in {Elapsed}", startedOn.Elapsed);
                 module = new CompiledModule()

@@ -15,7 +15,8 @@
         {
             var result = ExecutionResult.Success;
 
-            var sessionId = string.Concat("s", Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture).AsSpan(0, 6));
+            var sessionId = "s" + DateTime.Now.ToString("yyMMdd-HHmmss-ff", CultureInfo.InvariantCulture);
+            var session = new EtlSession(sessionId);
 
             var sessionStartedOn = Stopwatch.StartNew();
             var sessionWarningCount = 0;
@@ -25,8 +26,6 @@
             result = sessionContext.Start();
             if (result != ExecutionResult.Success)
                 return result;
-
-            var session = new EtlSession();
 
             try
             {

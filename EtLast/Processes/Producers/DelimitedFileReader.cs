@@ -73,7 +73,7 @@
 
             if (!File.Exists(FileName))
             {
-                var exception = new ProcessExecutionException(this, "input file doesn't exist");
+                var exception = new FileReadException(this, "input file doesn't exist", FileName);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "input file doesn't exist: {0}",
                     FileName));
 

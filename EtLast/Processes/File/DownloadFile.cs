@@ -50,7 +50,7 @@
                 {
                     Context.RegisterIoCommandFailed(this, IoCommandKind.httpGet, iocUid, null, ex);
 
-                    var exception = new ProcessExecutionException(this, "file download failed", ex);
+                    var exception = new HttpException(this, "file download failed", Url, ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "file download failed, url: {0}, file name: {1}, message: {2}",
                         Url, FileName, ex.Message));
                     exception.Data.Add("Url", Url);

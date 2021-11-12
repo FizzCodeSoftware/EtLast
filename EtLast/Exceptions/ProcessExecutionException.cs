@@ -40,21 +40,28 @@
             Data.Add("Row", row.ToDebugString());
         }
 
-        public static ProcessExecutionException Wrap(IProcess process, IReadOnlySlimRow row, Exception ex)
+        public static EtlException Wrap(IProcess process, IReadOnlySlimRow row, Exception ex)
         {
-            if (ex is ProcessExecutionException pex && (pex.Data["Row"] is string rowString) && string.Equals(rowString, row.ToDebugString(), StringComparison.Ordinal))
-                return pex;
+            if (ex is EtlException eex)
+            {
+                var str = row.ToDebugString();
+                if ((eex.Data["Row"] is string rowString) && string.Equals(rowString, str, StringComparison.Ordinal))
+                {
+                    return eex;
+                }
+                else
+                {
+                    eex.Data["Row"] = str;
+                }
+            }
 
             return new ProcessExecutionException(process, row, ex);
         }
 
         public static EtlException Wrap(IProcess process, Exception ex)
         {
-            if (ex is InvalidProcessParameterException ppe)
-                return ppe;
-
-            return (ex is ProcessExecutionException pex)
-                ? pex
+            return (ex is EtlException eex)
+                ? eex
                 : new ProcessExecutionException(process, ex);
         }
     }
