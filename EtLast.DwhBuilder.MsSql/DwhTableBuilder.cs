@@ -87,7 +87,7 @@
                     .Where(x => !x.IsPrimaryKey);
             }
 
-            return new MsSqlWriteToTableWithMicroTransactionsMutator(table.Topic, "Writer")
+            return new ResilientWriteToMsSqlMutator(table.Topic, "Writer")
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 TableDefinition = new DbTableDefinition()

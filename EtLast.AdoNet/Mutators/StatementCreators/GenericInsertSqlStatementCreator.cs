@@ -5,20 +5,20 @@
     using System.Linq;
     using FizzCode.LightWeight.AdoNet;
 
-    public class GenericInsertSqlStatementCreator : IAdoNetWriteToTableSqlStatementCreator
+    public class GenericInsertSqlStatementCreator : IWriteToSqlStatementCreator
     {
         private string _dbColumns;
         private DetailedDbTableDefinition _tableDefinition;
         private DetailedDbColumnDefinition[] _columns;
 
-        public void Prepare(WriteToTableMutator process, DetailedDbTableDefinition tableDefinition)
+        public void Prepare(WriteToSqlMutator process, DetailedDbTableDefinition tableDefinition)
         {
             _tableDefinition = tableDefinition;
             _columns = _tableDefinition.Columns.Where(x => x.Insert).ToArray();
             _dbColumns = string.Join(", ", _columns.Select(x => x.DbColumn));
         }
 
-        public string CreateRowStatement(NamedConnectionString connectionString, IReadOnlySlimRow row, WriteToTableMutator operation)
+        public string CreateRowStatement(NamedConnectionString connectionString, IReadOnlySlimRow row, WriteToSqlMutator operation)
         {
             var startIndex = operation.ParameterCount;
             foreach (var column in _columns)

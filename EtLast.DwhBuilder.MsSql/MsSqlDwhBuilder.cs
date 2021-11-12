@@ -256,7 +256,7 @@
                     },
                     Mutators = new MutatorList()
                     {
-                        new MsSqlWriteToTableWithMicroTransactionsMutator(scope.Topic.Child(etlRunInfoTable.SchemaAndName), "Writer")
+                        new ResilientWriteToMsSqlMutator(scope.Topic.Child(etlRunInfoTable.SchemaAndName), "Writer")
                         {
                             ConnectionString = ConnectionString,
                             TableDefinition = new DbTableDefinition()

@@ -13,7 +13,7 @@
     using FizzCode.LightWeight.AdoNet;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
-    public class MsSqlWriteToTableWithMicroTransactionsMutator : AbstractMutator, IRowWriter
+    public class ResilientWriteToMsSqlMutator : AbstractMutator, IRowWriter
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public NamedConnectionString ConnectionString { get; init; }
@@ -55,7 +55,7 @@
         private RowShadowReader _reader;
         private int? _storeUid;
 
-        public MsSqlWriteToTableWithMicroTransactionsMutator(ITopic topic, string name)
+        public ResilientWriteToMsSqlMutator(ITopic topic, string name)
             : base(topic, name)
         {
         }
@@ -251,14 +251,14 @@
     }
 
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public static class MsSqlWriteToTableWithMicroTransactionsMutatorFluent
+    public static class MsSqlWriteWithMicroTransactionsMutatorFluent
     {
         /// <summary>
         /// Write rows to a Microsoft SQL database table in batches, using <see cref="SqlBulkCopy"/>.
         /// <para>Creates a new transaction scope for each batch which suppress any existing transaction scope.</para>
         /// <para>Retrying the SQL operation is supported and enabled by default.</para>
         /// </summary>
-        public static IFluentProcessMutatorBuilder WriteToMsSqlTableWithMicroTransactions(this IFluentProcessMutatorBuilder builder, MsSqlWriteToTableWithMicroTransactionsMutator mutator)
+        public static IFluentProcessMutatorBuilder WriteToMsSqlResilient(this IFluentProcessMutatorBuilder builder, ResilientWriteToMsSqlMutator mutator)
         {
             return builder.AddMutator(mutator);
         }

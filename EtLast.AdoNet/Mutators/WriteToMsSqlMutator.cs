@@ -11,7 +11,7 @@
     using FizzCode.LightWeight.AdoNet;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
-    public class MsSqlWriteToTableMutator : AbstractMutator, IRowWriter
+    public class WriteToMsSqlMutator : AbstractMutator, IRowWriter
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public NamedConnectionString ConnectionString { get; init; }
@@ -44,7 +44,7 @@
         private RowShadowReader _reader;
         private int? _storeUid;
 
-        public MsSqlWriteToTableMutator(ITopic topic, string name)
+        public WriteToMsSqlMutator(ITopic topic, string name)
             : base(topic, name)
         {
         }
@@ -219,7 +219,7 @@
     }
 
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public static class MsSqlWriteToTableMutatorFluent
+    public static class MsSqlWriteMutatorFluent
     {
         /// <summary>
         /// Write rows to a Microsoft SQL database table in batches, using <see cref="SqlBulkCopy"/>.
@@ -227,7 +227,7 @@
         /// <para>Does not support retrying the SQL operation and any failure will put the ETL context into a failed state.</para>
         /// <para>It is not recommended to use this mutator to access a remote SQL database.</para>
         /// </summary>
-        public static IFluentProcessMutatorBuilder WriteToMsSqlTable(this IFluentProcessMutatorBuilder builder, MsSqlWriteToTableMutator mutator)
+        public static IFluentProcessMutatorBuilder WriteToMsSql(this IFluentProcessMutatorBuilder builder, WriteToMsSqlMutator mutator)
         {
             return builder.AddMutator(mutator);
         }

@@ -5,7 +5,7 @@
     using System.Linq;
     using FizzCode.LightWeight.AdoNet;
 
-    public class MsSqlServerMergeSqlStatementCreator : IAdoNetWriteToTableSqlStatementCreator
+    public class MsSqlMergeStatementCreator : IWriteToSqlStatementCreator
     {
         private DetailedDbTableDefinition _tableDefinition;
         private string _allDbColumns;
@@ -14,7 +14,7 @@
         private string _insertDbColumnsTarget;
         private string _insertDbColumnsSource;
 
-        public void Prepare(WriteToTableMutator process, DetailedDbTableDefinition tableDefinition)
+        public void Prepare(WriteToSqlMutator process, DetailedDbTableDefinition tableDefinition)
         {
             _tableDefinition = tableDefinition;
 
@@ -25,7 +25,7 @@
             _insertDbColumnsSource = string.Join(", ", _tableDefinition.Columns.Where(x => x.Insert).Select(x => "source." + x.DbColumn));
         }
 
-        public string CreateRowStatement(NamedConnectionString connectionString, IReadOnlySlimRow row, WriteToTableMutator operation)
+        public string CreateRowStatement(NamedConnectionString connectionString, IReadOnlySlimRow row, WriteToSqlMutator operation)
         {
             var startIndex = operation.ParameterCount;
             foreach (var column in _tableDefinition.Columns)
