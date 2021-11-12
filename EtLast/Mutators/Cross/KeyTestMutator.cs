@@ -51,9 +51,7 @@
                             removeRow = true;
                             break;
                         case MatchMode.Throw:
-                            var exception2 = new ProcessExecutionException(this, row, "match");
-                            exception2.Data.Add("Key", key);
-                            throw exception2;
+                            throw new MatchException(this, row, key);
                         case MatchMode.Custom:
                             {
                                 IReadOnlySlimRow match = null;
@@ -89,9 +87,7 @@
                         removeRow = true;
                         break;
                     case MatchMode.Throw:
-                        var exception = new ProcessExecutionException(this, row, "no match");
-                        exception.Data.Add("Key", key);
-                        throw exception;
+                        throw new NoMatchException(this, row, key);
                     case MatchMode.Custom:
                         NoMatchAction.InvokeCustomAction(row);
                         break;
@@ -136,11 +132,9 @@
             {
                 return RowKeyGenerator(row);
             }
-            catch (EtlException) { throw; }
-            catch (Exception)
+            catch (Exception ex)
             {
-                var exception = new ProcessExecutionException(this, row, nameof(RowKeyGenerator) + " failed");
-                throw exception;
+                throw KeyGeneratorException.Wrap(this, row, ex);
             }
         }
     }

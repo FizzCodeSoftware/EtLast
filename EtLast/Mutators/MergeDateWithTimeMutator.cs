@@ -52,7 +52,7 @@
                     removeRow = true;
                     break;
                 default:
-                    var exception = new ProcessExecutionException(this, row, "invalid value found");
+                    var exception = new InvalidValuesException(this, row);
                     exception.Data.Add("SourceDate", sourceDate != null ? sourceDate.ToString() + " (" + sourceDate.GetType().GetFriendlyTypeName() + ")" : "NULL");
                     exception.Data.Add("SourceTime", sourceTime != null ? sourceTime.ToString() + " (" + sourceTime.GetType().GetFriendlyTypeName() + ")" : "NULL");
                     throw exception;

@@ -31,11 +31,9 @@
             {
                 return RowKeyGenerator(row);
             }
-            catch (EtlException) { throw; }
-            catch (Exception)
+            catch (Exception ex)
             {
-                var exception = new ProcessExecutionException(this, row, nameof(RowKeyGenerator) + " failed");
-                throw exception;
+                throw KeyGeneratorException.Wrap(this, row, ex);
             }
         }
     }

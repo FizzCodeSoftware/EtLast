@@ -70,9 +70,7 @@
                                 removeRow = true;
                                 break;
                             case MatchMode.Throw:
-                                var exception = new ProcessExecutionException(this, row, "too many match");
-                                exception.Data.Add("Key", key);
-                                throw exception;
+                                throw new TooManyMatchException(this, row, key);
                             case MatchMode.Custom:
                                 TooManyMatchAction.InvokeCustomAction(row, matches);
                                 break;
@@ -114,9 +112,7 @@
                             removeRow = true;
                             break;
                         case MatchMode.Throw:
-                            var exception = new ProcessExecutionException(this, row, "no match");
-                            exception.Data.Add("Key", key);
-                            throw exception;
+                            throw new NoMatchException(this, row, key);
                         case MatchMode.Custom:
                             NoMatchAction.InvokeCustomAction(row);
                             break;
@@ -142,12 +138,9 @@
             {
                 MatchCustomAction?.Invoke(newRow, match);
             }
-            catch (Exception ex) when (ex is not EtlException)
+            catch (Exception ex)
             {
-                var exception = new ProcessExecutionException(this, row, "error during the execution of a " + nameof(MatchCustomAction) + " delegate", ex);
-                exception.Data.Add("Row-New", newRow.ToDebugString());
-                exception.Data.Add("Row-Match", match.ToDebugString());
-                throw exception;
+                throw new JoinMatchCustomActionDelegateException(this, ex, nameof(BatchedJoinMutator) + "." + nameof(MatchCustomAction), newRow, match);
             }
         }
 

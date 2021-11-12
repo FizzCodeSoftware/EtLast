@@ -47,8 +47,7 @@
                             removeRow = true;
                             break;
                         case MatchMode.Throw:
-                            var exception = new ProcessExecutionException(this, row, "no match");
-                            throw exception;
+                            throw new NoMatchException(this, row);
                         case MatchMode.Custom:
                             NoMatchAction.InvokeCustomAction(row);
                             break;

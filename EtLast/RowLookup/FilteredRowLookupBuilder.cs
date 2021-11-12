@@ -31,11 +31,9 @@
                 {
                     key = KeyGenerator(row);
                 }
-                catch (EtlException) { throw; }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    var exception = new ProcessExecutionException(caller, row, nameof(RowLookupBuilder) + " failed");
-                    throw exception;
+                    throw KeyGeneratorException.Wrap(caller, row, ex);
                 }
 
                 if (string.IsNullOrEmpty(key))

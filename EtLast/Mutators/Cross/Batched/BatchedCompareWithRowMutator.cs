@@ -45,9 +45,7 @@
                                 removeRow = true;
                                 break;
                             case MatchMode.Throw:
-                                var exception = new ProcessExecutionException(this, row, "no match");
-                                exception.Data.Add("Key", key);
-                                throw exception;
+                                throw new NoMatchException(this, row, key);
                             case MatchMode.Custom:
                                 NoMatchAction.InvokeCustomAction(row);
                                 break;
@@ -73,9 +71,7 @@
                                     removeRow = true;
                                     break;
                                 case MatchMode.Throw:
-                                    var exception = new ProcessExecutionException(this, row, "no match");
-                                    exception.Data.Add("Key", key);
-                                    throw exception;
+                                    throw new NoMatchException(this, row, key);
                                 case MatchMode.Custom:
                                     MatchButDifferentAction.InvokeCustomAction(row, match);
                                     break;
@@ -94,9 +90,7 @@
                                 removeRow = true;
                                 break;
                             case MatchMode.Throw:
-                                var exception = new ProcessExecutionException(this, row, "match");
-                                exception.Data.Add("Key", key);
-                                throw exception;
+                                throw new MatchException(this, row, key);
                             case MatchMode.Custom:
                                 MatchAndEqualsAction.InvokeCustomAction(row, match);
                                 break;

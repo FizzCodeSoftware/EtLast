@@ -22,9 +22,9 @@
                 CustomAction?.Invoke(tracker, match);
                 tracker.ApplyChanges();
             }
-            catch (Exception ex) when (ex is not EtlException)
+            catch (Exception ex)
             {
-                throw new ProcessExecutionException(row.CurrentProcess, row, "error during the execution of a " + nameof(MatchAction) + "." + nameof(CustomAction) + " delegate", ex);
+                throw new MatchActionDelegateException(row.CurrentProcess, row, ex);
             }
         }
     }
