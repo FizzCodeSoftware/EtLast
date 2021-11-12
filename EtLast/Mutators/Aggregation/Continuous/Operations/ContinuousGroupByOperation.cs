@@ -7,17 +7,18 @@
     public sealed class ContinuousGroupByOperation : AbstractContinuousAggregationOperation
     {
         public delegate void ContinuousGroupByAggregatorDelegate(ContinuousAggregate aggregate, IReadOnlySlimRow row);
-        public List<ContinuousGroupByAggregatorDelegate> Aggregators { get; set; } = new List<ContinuousGroupByAggregatorDelegate>();
+        public int AggregatorCount => _aggregators.Count;
+        private readonly List<ContinuousGroupByAggregatorDelegate> _aggregators = new();
 
         public ContinuousGroupByOperation AddAggregator(ContinuousGroupByAggregatorDelegate aggregator)
         {
-            Aggregators.Add(aggregator);
+            _aggregators.Add(aggregator);
             return this;
         }
 
         public override void TransformAggregate(IReadOnlySlimRow row, ContinuousAggregate aggregate)
         {
-            foreach (var aggregator in Aggregators)
+            foreach (var aggregator in _aggregators)
             {
                 aggregator.Invoke(aggregate, row);
             }
@@ -31,7 +32,7 @@
         /// </summary>
         public static ContinuousGroupByOperation AddIntNumberOfDistinctKeys(this ContinuousGroupByOperation op, string column, RowKeyGenerator keyGenerator)
         {
-            var id = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddIntNumberOfDistinctKeys);
+            var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddIntNumberOfDistinctKeys);
             return op.AddAggregator((aggregate, row) =>
             {
                 var key = keyGenerator.Invoke(row);
@@ -101,7 +102,7 @@
         /// </summary>
         public static ContinuousGroupByOperation AddIntAverage(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            var id = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddIntAverage);
+            var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddIntAverage);
 
             if (targetColumn == null)
                 targetColumn = sourceColumn;
@@ -121,7 +122,7 @@
         /// </summary>
         public static ContinuousGroupByOperation AddLongAverage(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            var id = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddLongAverage);
+            var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddLongAverage);
 
             if (targetColumn == null)
                 targetColumn = sourceColumn;
@@ -141,7 +142,7 @@
         /// </summary>
         public static ContinuousGroupByOperation AddDoubleAverage(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            var id = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverage);
+            var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverage);
 
             if (targetColumn == null)
                 targetColumn = sourceColumn;
@@ -161,8 +162,8 @@
         /// </summary>
         public static ContinuousGroupByOperation AddDoubleAverageIgnoreNull(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            var idSum = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":sum";
-            var idCnt = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":cnt";
+            var idSum = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":sum";
+            var idCnt = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":cnt";
 
             if (targetColumn == null)
                 targetColumn = sourceColumn;
@@ -188,7 +189,7 @@
         /// </summary>
         public static ContinuousGroupByOperation AddDecimalAverage(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            var id = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDecimalAverage);
+            var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDecimalAverage);
 
             if (targetColumn == null)
                 targetColumn = sourceColumn;
@@ -412,9 +413,9 @@
             if (targetColumn == null)
                 targetColumn = sourceColumn;
 
-            var idM2 = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":m2";
-            var idCnt = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":cnt";
-            var idMean = op.Aggregators.Count.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":mean";
+            var idM2 = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":m2";
+            var idCnt = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":cnt";
+            var idMean = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":mean";
 
             return op.AddAggregator((aggregate, row) =>
             {

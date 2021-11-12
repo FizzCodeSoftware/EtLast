@@ -6,36 +6,23 @@
 
     public sealed class MemoryGroupByOperation : AbstractMemoryAggregationOperation
     {
-        public delegate object MemoryGroupByOperationDelegate(List<IReadOnlySlimRow> groupRows, string sourceColumn);
+        public delegate void MemoryGroupByOperationDelegate(ISlimRow aggregate, List<IReadOnlySlimRow> groupRows);
+        public int AggregatorCount => _aggregators.Count;
+        private readonly List<MemoryGroupByOperationDelegate> _aggregators = new();
 
-        private readonly List<AggregatorInfo> _columnAggregators = new();
-
-        public MemoryGroupByOperation AddColumnAggregator(MemoryGroupByOperationDelegate aggregator, string sourceColumn, string targetColumn = null)
+        public MemoryGroupByOperation AddAggregator(MemoryGroupByOperationDelegate aggregator)
         {
-            _columnAggregators.Add(new AggregatorInfo()
-            {
-                Aggregator = aggregator,
-                SourceColumn = sourceColumn,
-                TargetColumn = targetColumn ?? sourceColumn,
-            });
-
+            _aggregators.Add(aggregator);
             return this;
         }
 
-        public override void TransformGroup(List<IReadOnlySlimRow> rows, Func<ISlimRow> aggregateCreator)
+        public override void TransformGroup(List<IReadOnlySlimRow> groupRows, Func<ISlimRow> aggregateCreator)
         {
             var aggregate = aggregateCreator.Invoke();
-            foreach (var aggregatorInfo in _columnAggregators)
+            foreach (var aggregator in _aggregators)
             {
-                aggregate[aggregatorInfo.TargetColumn] = aggregatorInfo.Aggregator.Invoke(rows, aggregatorInfo.SourceColumn);
+                aggregator.Invoke(aggregate, groupRows);
             }
-        }
-
-        private class AggregatorInfo
-        {
-            public MemoryGroupByOperationDelegate Aggregator { get; set; }
-            public string SourceColumn { get; set; }
-            public string TargetColumn { get; set; }
         }
     }
 
@@ -46,7 +33,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddIntAverage(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            return op.AddColumnAggregator((groupRows, col) => groupRows.Average(x => x.GetAs(col, 0)), sourceColumn, targetColumn);
+            return op.AddAggregator((aggregate, groupRows) => aggregate[targetColumn ?? sourceColumn] = groupRows.Average(x => x.GetAs(sourceColumn, 0)));
         }
 
         /// <summary>
@@ -54,7 +41,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddLongAverage(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            return op.AddColumnAggregator((groupRows, col) => groupRows.Average(x => x.GetAs(col, 0L)), sourceColumn, targetColumn);
+            return op.AddAggregator((aggregate, groupRows) => aggregate[targetColumn ?? sourceColumn] = groupRows.Average(x => x.GetAs(sourceColumn, 0L)));
         }
 
         /// <summary>
@@ -62,7 +49,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddDoubleAverage(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            return op.AddColumnAggregator((groupRows, col) => groupRows.Average(x => x.GetAs(col, 0.0d)), sourceColumn, targetColumn);
+            return op.AddAggregator((aggregate, groupRows) => aggregate[targetColumn ?? sourceColumn] = groupRows.Average(x => x.GetAs(sourceColumn, 0.0d)));
         }
 
         /// <summary>
@@ -70,7 +57,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddDecimalAverage(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            return op.AddColumnAggregator((groupRows, col) => groupRows.Average(x => x.GetAs(col, 0m)), sourceColumn, targetColumn);
+            return op.AddAggregator((aggregate, groupRows) => aggregate[targetColumn ?? sourceColumn] = groupRows.Average(x => x.GetAs(sourceColumn, 0m)));
         }
 
         /// <summary>
@@ -78,7 +65,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddIntSum(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            return op.AddColumnAggregator((groupRows, col) => groupRows.Sum(x => x.GetAs(col, 0)), sourceColumn, targetColumn);
+            return op.AddAggregator((aggregate, groupRows) => aggregate[targetColumn ?? sourceColumn] = groupRows.Sum(x => x.GetAs(sourceColumn, 0)));
         }
 
         /// <summary>
@@ -86,7 +73,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddLongSum(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            return op.AddColumnAggregator((groupRows, col) => groupRows.Sum(x => x.GetAs(col, 0L)), sourceColumn, targetColumn);
+            return op.AddAggregator((aggregate, groupRows) => aggregate[targetColumn ?? sourceColumn] = groupRows.Sum(x => x.GetAs(sourceColumn, 0L)));
         }
 
         /// <summary>
@@ -94,7 +81,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddDoubleSum(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            return op.AddColumnAggregator((groupRows, col) => groupRows.Sum(x => x.GetAs(col, 0.0d)), sourceColumn, targetColumn);
+            return op.AddAggregator((aggregate, groupRows) => aggregate[targetColumn ?? sourceColumn] = groupRows.Sum(x => x.GetAs(sourceColumn, 0.0d)));
         }
 
         /// <summary>
@@ -102,7 +89,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddDecimalSum(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            return op.AddColumnAggregator((groupRows, col) => groupRows.Sum(x => x.GetAs(col, 0m)), sourceColumn, targetColumn);
+            return op.AddAggregator((aggregate, groupRows) => aggregate[targetColumn ?? sourceColumn] = groupRows.Sum(x => x.GetAs(sourceColumn, 0m)));
         }
 
         /// <summary>
@@ -110,7 +97,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddIntMax(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            return op.AddColumnAggregator((groupRows, col) => groupRows.Max(x => x.GetAs(col, 0)), sourceColumn, targetColumn);
+            return op.AddAggregator((aggregate, groupRows) => aggregate[targetColumn ?? sourceColumn] = groupRows.Max(x => x.GetAs(sourceColumn, 0)));
         }
 
         /// <summary>
@@ -118,7 +105,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddLongMax(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            return op.AddColumnAggregator((groupRows, col) => groupRows.Max(x => x.GetAs(col, 0L)), sourceColumn, targetColumn);
+            return op.AddAggregator((aggregate, groupRows) => aggregate[targetColumn ?? sourceColumn] = groupRows.Max(x => x.GetAs(sourceColumn, 0L)));
         }
 
         /// <summary>
@@ -126,7 +113,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddDoubleMax(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            return op.AddColumnAggregator((groupRows, col) => groupRows.Max(x => x.GetAs(col, 0.0d)), sourceColumn, targetColumn);
+            return op.AddAggregator((aggregate, groupRows) => aggregate[targetColumn ?? sourceColumn] = groupRows.Max(x => x.GetAs(sourceColumn, 0.0d)));
         }
 
         /// <summary>
@@ -134,7 +121,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddDecimalMax(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            return op.AddColumnAggregator((groupRows, col) => groupRows.Max(x => x.GetAs(col, 0m)), sourceColumn, targetColumn);
+            return op.AddAggregator((aggregate, groupRows) => aggregate[targetColumn ?? sourceColumn] = groupRows.Max(x => x.GetAs(sourceColumn, 0m)));
         }
 
         /// <summary>
@@ -142,7 +129,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddIntMin(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            return op.AddColumnAggregator((groupRows, col) => groupRows.Min(x => x.GetAs(col, 0)), sourceColumn, targetColumn);
+            return op.AddAggregator((aggregate, groupRows) => aggregate[targetColumn ?? sourceColumn] = groupRows.Min(x => x.GetAs(sourceColumn, 0)));
         }
 
         /// <summary>
@@ -150,7 +137,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddLongMin(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            return op.AddColumnAggregator((groupRows, col) => groupRows.Min(x => x.GetAs(col, 0L)), sourceColumn, targetColumn);
+            return op.AddAggregator((aggregate, groupRows) => aggregate[targetColumn ?? sourceColumn] = groupRows.Min(x => x.GetAs(sourceColumn, 0L)));
         }
 
         /// <summary>
@@ -158,7 +145,7 @@
         /// </summary>
         public static MemoryGroupByOperation AddDoubleMin(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            return op.AddColumnAggregator((groupRows, col) => groupRows.Min(x => x.GetAs(col, 0.0d)), sourceColumn, targetColumn);
+            return op.AddAggregator((aggregate, groupRows) => aggregate[targetColumn ?? sourceColumn] = groupRows.Min(x => x.GetAs(sourceColumn, 0.0d)));
         }
 
         /// <summary>
@@ -166,7 +153,53 @@
         /// </summary>
         public static MemoryGroupByOperation AddDecimalMin(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
         {
-            return op.AddColumnAggregator((groupRows, col) => groupRows.Min(x => x.GetAs(col, 0m)), sourceColumn, targetColumn);
+            return op.AddAggregator((aggregate, groupRows) => aggregate[targetColumn ?? sourceColumn] = groupRows.Min(x => x.GetAs(sourceColumn, 0m)));
+        }
+
+        public static MemoryGroupByOperation AddLinearRegression(this MemoryGroupByOperation op, string sourceXcolumn, string sourceYcolumn, string alphaColumn, string bColumn, string countColumn)
+        {
+            return op.AddAggregator((aggregate, groupRows) =>
+            {
+                var count = 0;
+                double sumX = 0.0, sumY = 0.0, sumX2 = 0.0, sumXy = 0.0;
+                foreach (var row in groupRows)
+                {
+                    if (!row.HasValue(sourceXcolumn) || !row.HasValue(sourceYcolumn))
+                        return;
+
+                    var x = row.GetAs<double>(sourceXcolumn);
+                    var y = row.GetAs<double>(sourceYcolumn);
+
+                    count++;
+                    sumX += x;
+                    sumX2 += x * x;
+                    sumY += y;
+                    sumXy += x * y;
+                }
+
+                var divider = (count * sumX2) - (sumX * sumX);
+                double? alpha;
+                double? b = null;
+
+                alpha = count == 1 || Math.Abs(divider) < 0.0001
+                    ? 0.0
+                    : ((count * sumXy) - (sumX * sumY)) / divider;
+
+                if (count == 1)
+                {
+                    b = sumY;
+                }
+                else if (count > 1)
+                {
+                    var avgX = sumX / count; // need to be the average of the full aggregate group
+                    var avgY = sumY / count;
+                    b = avgY - (alpha * avgX);
+                }
+
+                aggregate[bColumn] = b;
+                aggregate[alphaColumn] = alpha;
+                aggregate[countColumn] = groupRows.Count;
+            });
         }
     }
 }

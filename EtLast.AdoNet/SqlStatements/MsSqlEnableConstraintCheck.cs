@@ -27,7 +27,9 @@
 
         protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)
         {
-            return TableNames.Select(tableName => "ALTER TABLE " + tableName + " WITH CHECK CHECK CONSTRAINT ALL;").ToList();
+            return TableNames
+                .Select(tableName => "ALTER TABLE " + tableName + " WITH CHECK CHECK CONSTRAINT ALL;")
+                .ToList();
         }
 
         protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
