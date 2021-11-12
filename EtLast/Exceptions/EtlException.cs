@@ -224,10 +224,16 @@
                     builder.Append('(').Append(assemblyName).Append(") ");
                 }
 
-                builder.Append(p.GetType().GetFriendlyTypeName());
-                builder.Append(" (\"");
-                builder.Append(p.Name);
-                builder.Append("\")");
+                var typeName = p.GetType().GetFriendlyTypeName();
+                builder.Append(typeName);
+
+                if (p.Name != typeName)
+                {
+                    builder.Append(" (\"");
+                    builder.Append(p.Name);
+                    builder.Append("\")");
+                }
+
                 if (p.Topic?.Name != null)
                 {
                     builder.Append(", topic: ");
