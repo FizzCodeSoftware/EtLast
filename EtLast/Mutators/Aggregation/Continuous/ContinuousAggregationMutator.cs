@@ -112,7 +112,7 @@
                 var key = KeyGenerator.Invoke(row);
                 if (!aggregates.TryGetValue(key, out var aggregate))
                 {
-                    aggregate = new ContinuousAggregate();
+                    aggregate = new ContinuousAggregate(row.Tag);
 
                     if (FixColumns != null)
                     {

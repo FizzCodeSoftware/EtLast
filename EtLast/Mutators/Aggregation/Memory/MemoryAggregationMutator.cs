@@ -97,22 +97,25 @@
 
             var aggregateCount = 0;
             var aggregates = new List<SlimRow>();
-            foreach (var group in groups.Values)
+            foreach (var groupRows in groups.Values)
             {
                 if (Context.CancellationTokenSource.IsCancellationRequested)
                     break;
 
                 try
                 {
-                    Operation.TransformGroup(group, () =>
+                    Operation.TransformGroup(groupRows, () =>
                     {
-                        var aggregate = new SlimRow();
+                        var aggregate = new SlimRow
+                        {
+                            Tag = groupRows[0].Tag,
+                        };
 
                         if (FixColumns != null)
                         {
                             foreach (var column in FixColumns)
                             {
-                                aggregate[column.ToColumn] = group[0][column.FromColumn];
+                                aggregate[column.ToColumn] = groupRows[0][column.FromColumn];
                             }
                         }
 
@@ -122,12 +125,12 @@
                 }
                 catch (Exception ex)
                 {
-                    var exception = new MemoryAggregationException(this, Operation, group, ex);
+                    var exception = new MemoryAggregationException(this, Operation, groupRows, ex);
                     Context.AddException(this, exception);
                     break;
                 }
 
-                foreach (var row in group)
+                foreach (var row in groupRows)
                 {
                     Context.SetRowOwner(row as IRow, null);
                 }
@@ -142,7 +145,7 @@
                     netTimeStopwatch.Start();
                 }
 
-                group.Clear();
+                groupRows.Clear();
                 aggregates.Clear();
             }
 

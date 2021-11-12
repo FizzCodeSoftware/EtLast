@@ -7,7 +7,16 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public class ContinuousAggregate
     {
-        public SlimRow ResultRow { get; } = new SlimRow();
+        public SlimRow ResultRow { get; }
+
+        public ContinuousAggregate(object tag)
+        {
+            ResultRow = new SlimRow()
+            {
+                Tag = tag,
+            };
+        }
+
         public int RowsInGroup { get; set; }
         private Dictionary<string, object> _state;
 

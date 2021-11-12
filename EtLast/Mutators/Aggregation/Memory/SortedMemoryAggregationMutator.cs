@@ -20,7 +20,7 @@
 
         protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
-            var group = new List<IReadOnlySlimRow>();
+            var groupRows = new List<IReadOnlySlimRow>();
             string lastKey = null;
 
             netTimeStopwatch.Stop();
@@ -94,21 +94,24 @@
                 {
                     lastKey = key;
 
-                    if (group.Count > 0)
+                    if (groupRows.Count > 0)
                     {
                         var aggregates = new List<SlimRow>();
                         groupCount++;
                         try
                         {
-                            Operation.TransformGroup(group, () =>
+                            Operation.TransformGroup(groupRows, () =>
                             {
-                                var aggregate = new SlimRow();
+                                var aggregate = new SlimRow
+                                {
+                                    Tag = groupRows[0].Tag
+                                };
 
                                 if (FixColumns != null)
                                 {
                                     foreach (var column in FixColumns)
                                     {
-                                        aggregate[column.ToColumn] = group[0][column.FromColumn];
+                                        aggregate[column.ToColumn] = groupRows[0][column.FromColumn];
                                     }
                                 }
 
@@ -118,18 +121,18 @@
                         }
                         catch (Exception ex)
                         {
-                            var exception = new MemoryAggregationException(this, Operation, group, ex);
+                            var exception = new MemoryAggregationException(this, Operation, groupRows, ex);
                             Context.AddException(this, exception);
                             success = false;
                             break;
                         }
 
-                        foreach (var groupRow in group)
+                        foreach (var groupRow in groupRows)
                         {
                             Context.SetRowOwner(groupRow as IRow, null);
                         }
 
-                        group.Clear();
+                        groupRows.Clear();
 
                         foreach (var aggregate in aggregates)
                         {
@@ -143,16 +146,16 @@
                     }
                 }
 
-                group.Add(row);
+                groupRows.Add(row);
             }
 
-            if (success && group.Count > 0)
+            if (success && groupRows.Count > 0)
             {
                 var aggregates = new List<SlimRow>();
                 groupCount++;
                 try
                 {
-                    Operation.TransformGroup(group, () =>
+                    Operation.TransformGroup(groupRows, () =>
                     {
                         var aggregate = new SlimRow();
 
@@ -160,7 +163,7 @@
                         {
                             foreach (var column in FixColumns)
                             {
-                                aggregate[column.ToColumn] = group[0][column.FromColumn];
+                                aggregate[column.ToColumn] = groupRows[0][column.FromColumn];
                             }
                         }
 
@@ -170,17 +173,17 @@
                 }
                 catch (Exception ex)
                 {
-                    var exception = new MemoryAggregationException(this, Operation, group, ex);
+                    var exception = new MemoryAggregationException(this, Operation, groupRows, ex);
                     Context.AddException(this, exception);
                     success = false;
                 }
 
-                foreach (var groupRow in group)
+                foreach (var groupRow in groupRows)
                 {
                     Context.SetRowOwner(groupRow as IRow, null);
                 }
 
-                group.Clear();
+                groupRows.Clear();
 
                 if (success)
                 {
