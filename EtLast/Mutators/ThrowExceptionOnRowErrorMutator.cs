@@ -15,7 +15,7 @@
         {
             if (row.HasError())
             {
-                var exception = new EtlException(this, "invalid value(s) found");
+                var exception = new RowContainsErrorException(this, row);
 
                 var index = 0;
                 foreach (var kvp in row.Values)
@@ -30,8 +30,6 @@
                         index++;
                     }
                 }
-
-                exception.Data.Add("Row", row.ToDebugString());
 
                 throw exception;
             }

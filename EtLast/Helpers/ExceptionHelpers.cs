@@ -29,7 +29,7 @@
 
                         msg += processType;
 
-                        if (cex.Data?["ProcessName"] is string processName)
+                        if (cex.Data?["ProcessName"] is string processName && processName != processType)
                             msg += " (\"" + processName + "\")";
 
                         if (cex.Data?["ProcessTopic"] is string processTopic)
@@ -37,20 +37,6 @@
 
                         if (cex.Data?["ProcessKind"] is string processKind)
                             msg += ", kind: " + processKind;
-                    }
-
-                    if (cex.Data?["CallChain"] is string callChain)
-                        msg += "\n\tCALL CHAIN:\n\t\t" + callChain.Replace("\n", "\n\t\t", StringComparison.Ordinal);
-
-                    if (includeTrace)
-                    {
-                        if (cex.Data?["Trace"] is not string trace)
-                            trace = EtlException.GetTraceFromStackFrames(new StackTrace(cex, true).GetFrames());
-
-                        if (trace != null)
-                        {
-                            msg += "\n\tTRACE:\n\t\t" + trace.Replace("\n", "\n\t\t", StringComparison.Ordinal);
-                        }
                     }
 
                     if (cex.Data?.Count > 0)
@@ -111,6 +97,21 @@
                             }
                         }
                     }
+
+                    if (cex.Data?["CallChain"] is string callChain)
+                        msg += "\n\tCALL CHAIN:\n\t\t" + callChain.Replace("\n", "\n\t\t", StringComparison.Ordinal);
+
+                    if (includeTrace)
+                    {
+                        if (cex.Data?["Trace"] is not string trace)
+                            trace = EtlException.GetTraceFromStackFrames(new StackTrace(cex, true).GetFrames());
+
+                        if (trace != null)
+                        {
+                            msg += "\n\tTRACE:\n\t\t" + trace.Replace("\n", "\n\t\t", StringComparison.Ordinal);
+                        }
+                    }
+
 
                     cex = cex.InnerException;
                     lvl++;
