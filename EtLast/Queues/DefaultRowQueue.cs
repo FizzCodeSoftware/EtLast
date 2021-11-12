@@ -5,7 +5,7 @@
     using System.Collections.Generic;
     using System.Threading;
 
-    public class DefaultRowQueue : IRowQueue
+    public sealed class DefaultRowQueue : IRowQueue
     {
         private readonly AutoResetEvent _newRowEvent = new(false);
         private readonly ManualResetEvent _noMoreRowsEvent = new(false);
@@ -63,7 +63,7 @@
 
         private bool disposedValue;
 
-        protected virtual void Dispose(bool disposing)
+        public void Dispose(bool disposing)
         {
             if (!disposedValue)
             {

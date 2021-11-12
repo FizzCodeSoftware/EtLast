@@ -5,7 +5,7 @@
     using System.Globalization;
     using System.Linq;
 
-    public class TrackedRow : IRow
+    public sealed class TrackedRow : IRow
     {
         private readonly IRow _originalRow;
 

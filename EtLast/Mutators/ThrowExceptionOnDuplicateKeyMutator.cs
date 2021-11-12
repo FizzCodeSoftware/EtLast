@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class ThrowExceptionOnDuplicateKeyMutator : AbstractMutator
+    public sealed class ThrowExceptionOnDuplicateKeyMutator : AbstractMutator
     {
         public Func<IReadOnlyRow, string> RowKeyGenerator { get; init; }
 

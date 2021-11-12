@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Globalization;
 
-    public class ContinuousGroupByOperation : AbstractContinuousAggregationOperation
+    public sealed class ContinuousGroupByOperation : AbstractContinuousAggregationOperation
     {
         public delegate void ContinuousGroupByAggregatorDelegate(ContinuousAggregate aggregate, IReadOnlySlimRow row);
         public List<ContinuousGroupByAggregatorDelegate> Aggregators { get; set; } = new List<ContinuousGroupByAggregatorDelegate>();

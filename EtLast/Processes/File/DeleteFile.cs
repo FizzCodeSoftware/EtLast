@@ -4,7 +4,7 @@
     using System.Globalization;
     using System.IO;
 
-    public class DeleteFile : AbstractExecutable
+    public sealed class DeleteFile : AbstractExecutable
     {
         public string FileName { get; set; }
 

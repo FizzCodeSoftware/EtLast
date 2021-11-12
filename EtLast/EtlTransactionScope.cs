@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Transactions;
 
-    public class EtlTransactionScope : IDisposable
+    public sealed class EtlTransactionScope : IDisposable
     {
         public IEtlContext Context { get; }
         public IProcess Process { get; }
@@ -94,7 +94,7 @@
             }
         }
 
-        protected virtual void Dispose(bool disposing)
+        public void Dispose(bool disposing)
         {
             if (!_isDisposed)
             {

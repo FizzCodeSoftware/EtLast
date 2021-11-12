@@ -3,7 +3,7 @@
     using System;
     using System.Globalization;
 
-    public class EtlRowError
+    public sealed class EtlRowError
     {
         public object OriginalValue { get; set; }
         public IProcess Process { get; set; }

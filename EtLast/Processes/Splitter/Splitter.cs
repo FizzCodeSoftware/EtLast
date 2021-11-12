@@ -5,7 +5,7 @@
     using System.Threading;
     using System.Transactions;
 
-    public class Splitter<TRowQueue> : AbstractEvaluable
+    public sealed class Splitter<TRowQueue> : AbstractEvaluable
         where TRowQueue : IRowQueue, new()
     {
         public IEvaluable InputProcess { get; set; }

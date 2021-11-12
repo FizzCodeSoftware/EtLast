@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class ResolveHierarchyMutator : AbstractSimpleChangeMutator
+    public sealed class ResolveHierarchyMutator : AbstractSimpleChangeMutator
     {
         public string IdentityColumn { get; init; }
         public string[] LevelColumns { get; init; }

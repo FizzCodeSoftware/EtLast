@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class ReplaceEmptyStringWithNullMutator : AbstractSimpleChangeMutator
+    public sealed class ReplaceEmptyStringWithNullMutator : AbstractSimpleChangeMutator
     {
         public string[] Columns { get; init; }
 

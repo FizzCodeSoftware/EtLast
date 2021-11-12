@@ -7,7 +7,7 @@
     using System.IO;
     using OfficeOpenXml;
 
-    public class EpPlusExcelSheetListReader : AbstractProducer, IRowReader
+    public sealed class EpPlusExcelSheetListReader : AbstractProducer, IRowReader
     {
         public string FileName { get; init; }
 

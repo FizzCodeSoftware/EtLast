@@ -9,7 +9,7 @@
     /// Creates <see cref="IRow"/>s from <see cref="InputRows"/>.
     /// Use to create test rows, or to produce fixed data.
     /// </summary>
-    public class RowCreator : AbstractProducer
+    public sealed class RowCreator : AbstractProducer
     {
         public string[] Columns { get; set; }
         public List<object[]> InputRows { get; set; }

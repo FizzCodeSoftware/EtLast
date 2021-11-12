@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class CompareWithRowMutator : AbstractCrossMutator
+    public sealed class CompareWithRowMutator : AbstractCrossMutator
     {
         public RowKeyGenerator RowKeyGenerator { get; init; }
         public IRowEqualityComparer EqualityComparer { get; init; }

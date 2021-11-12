@@ -5,7 +5,7 @@
 
     public delegate bool ColumnValidationDelegate(ColumnValidationMutator process, IReadOnlySlimRow row, string column);
 
-    public class ColumnValidationMutator : AbstractMutator
+    public sealed class ColumnValidationMutator : AbstractMutator
     {
         public string Column { get; init; }
 

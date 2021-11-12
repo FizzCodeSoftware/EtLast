@@ -5,7 +5,7 @@
     using System.Data;
     using FizzCode.LightWeight.AdoNet;
 
-    public class AdoNetReaderConnectionScope
+    public sealed class AdoNetReaderConnectionScope
     {
         private readonly Dictionary<string, Tuple<DatabaseConnection, IDbTransaction>> _readerConnections = new();
 

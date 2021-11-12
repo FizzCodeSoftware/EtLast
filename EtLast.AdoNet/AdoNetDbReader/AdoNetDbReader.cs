@@ -5,7 +5,7 @@
     using System.Linq;
     using FizzCode.LightWeight.AdoNet;
 
-    public class AdoNetDbReader : AbstractAdoNetDbReader
+    public sealed class AdoNetDbReader : AbstractAdoNetDbReader
     {
         public string TableName { get; init; }
         public string CustomWhereClause { get; init; }

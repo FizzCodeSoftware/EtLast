@@ -7,7 +7,7 @@
     using System.Globalization;
     using FizzCode.LightWeight.AdoNet;
 
-    public class MsSqlEnableConstraintCheckFiltered : AbstractSqlStatements
+    public sealed class MsSqlEnableConstraintCheckFiltered : AbstractSqlStatements
     {
         public List<KeyValuePair<string, List<string>>> ConstraintNames { get; init; }
 

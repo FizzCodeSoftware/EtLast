@@ -5,7 +5,7 @@
     using System.Collections.Generic;
     using System.Threading;
 
-    public class BlockingCollectionRowQueue : IRowQueue
+    public sealed class BlockingCollectionRowQueue : IRowQueue
     {
         private readonly BlockingCollection<IRow> _collection = new();
 
@@ -35,7 +35,7 @@
 
         private bool disposedValue;
 
-        protected virtual void Dispose(bool disposing)
+        public void Dispose(bool disposing)
         {
             if (!disposedValue)
             {

@@ -10,7 +10,7 @@
         Throw
     }
 
-    public class RenameColumnMutator : AbstractSimpleChangeMutator
+    public sealed class RenameColumnMutator : AbstractSimpleChangeMutator
     {
         public List<ColumnRenameConfiguration> ColumnConfiguration { get; init; }
 

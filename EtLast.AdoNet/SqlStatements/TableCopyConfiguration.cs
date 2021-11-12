@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public class TableCopyConfiguration
+    public sealed class TableCopyConfiguration
     {
         public string SourceTableName { get; init; }
         public string TargetTableName { get; init; }

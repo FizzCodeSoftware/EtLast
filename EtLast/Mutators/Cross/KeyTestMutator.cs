@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class KeyTestMutator : AbstractCrossMutator
+    public sealed class KeyTestMutator : AbstractCrossMutator
     {
         public RowKeyGenerator RowKeyGenerator { get; init; }
         public NoMatchAction NoMatchAction { get; init; }

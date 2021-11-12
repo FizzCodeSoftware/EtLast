@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class BatchedCompareWithRowMutator : AbstractBatchedCrossMutator
+    public sealed class BatchedCompareWithRowMutator : AbstractBatchedCrossMutator
     {
         public IRowEqualityComparer EqualityComparer { get; init; }
         public MatchAction MatchAndEqualsAction { get; init; }

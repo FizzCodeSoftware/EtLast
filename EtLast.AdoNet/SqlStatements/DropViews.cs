@@ -8,7 +8,7 @@
     using System.Linq;
     using FizzCode.LightWeight.AdoNet;
 
-    public class DropViews : AbstractSqlStatements
+    public sealed class DropViews : AbstractSqlStatements
     {
         public string[] TableNames { get; init; }
 

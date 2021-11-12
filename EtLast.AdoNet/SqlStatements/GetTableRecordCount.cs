@@ -5,7 +5,7 @@
     using System.Data;
     using System.Globalization;
 
-    public class GetTableRecordCount : AbstractSqlStatementWithResult<int>
+    public sealed class GetTableRecordCount : AbstractSqlStatementWithResult<int>
     {
         public string TableName { get; init; }
         public string CustomWhereClause { get; init; }

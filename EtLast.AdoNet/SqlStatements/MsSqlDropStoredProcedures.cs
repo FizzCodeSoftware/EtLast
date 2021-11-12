@@ -10,7 +10,7 @@
 
     public enum MsSqlDropStoredProceduresProcessMode { All, SpecifiedStoredProcedures, InSpecifiedSchema }
 
-    public class MsSqlDropStoredProcedures : AbstractSqlStatements
+    public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
     {
         /// <summary>
         /// Default value is <see cref="MsSqlDropStoredProceduresProcessMode.SpecifiedStoredProcedures"/>

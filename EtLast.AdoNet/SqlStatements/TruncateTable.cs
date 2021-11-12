@@ -5,7 +5,7 @@
     using System.Data;
     using System.Globalization;
 
-    public class TruncateTable : AbstractSqlStatement
+    public sealed class TruncateTable : AbstractSqlStatement
     {
         public string TableName { get; init; }
 

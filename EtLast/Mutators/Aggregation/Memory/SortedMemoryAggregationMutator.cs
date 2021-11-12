@@ -11,7 +11,7 @@
     /// - keeps the rows of a single group in memory
     /// - uses very flexible <see cref="IMemoryAggregationOperation"/> which takes all rows in a group and generates the aggregate.
     /// </summary>
-    public class SortedMemoryAggregationMutator : AbstractMemoryAggregationMutator
+    public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMutator
     {
         public SortedMemoryAggregationMutator(ITopic topic, string name)
             : base(topic, name)

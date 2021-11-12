@@ -7,7 +7,7 @@
     using System.Runtime.Serialization;
     using System.Xml;
 
-    public class DataContractXmlDeSerializerMutator<T> : AbstractMutator
+    public sealed class DataContractXmlDeSerializerMutator<T> : AbstractMutator
     {
         public ColumnCopyConfiguration ColumnConfiguration { get; init; }
 

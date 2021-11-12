@@ -13,7 +13,7 @@
         where TChannel : class
         where TClient : ClientBase<TChannel>;
 
-    public class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutator
+    public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutator
         where TChannel : class
         where TClient : ClientBase<TChannel>
     {

@@ -10,7 +10,7 @@
     /// - keeps all input rows in memory (!)
     /// - uses very flexible <see cref="IMemoryAggregationOperation"/> which takes all rows in a group and generates the aggregate.
     /// </summary>
-    public class MemoryAggregationMutator : AbstractMemoryAggregationMutator
+    public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
     {
         public MemoryAggregationMutator(ITopic topic, string name)
             : base(topic, name)

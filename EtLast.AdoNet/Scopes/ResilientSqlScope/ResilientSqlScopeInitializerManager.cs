@@ -3,7 +3,7 @@
     using System.Linq;
     using FizzCode.EtLast;
 
-    internal class ResilientSqlScopeInitializerManager : IProcess
+    internal sealed class ResilientSqlScopeInitializerManager : IProcess
     {
         public ProcessInvocationInfo InvocationInfo { get; set; }
 

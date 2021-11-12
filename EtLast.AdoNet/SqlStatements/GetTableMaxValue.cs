@@ -5,7 +5,7 @@
     using System.Data;
     using System.Globalization;
 
-    public class GetTableMaxValue<T> : AbstractSqlStatementWithResult<TableMaxValueResult<T>>
+    public sealed class GetTableMaxValue<T> : AbstractSqlStatementWithResult<TableMaxValueResult<T>>
     {
         public string TableName { get; init; }
         public string ColumnName { get; init; }

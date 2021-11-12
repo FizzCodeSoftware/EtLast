@@ -8,7 +8,7 @@
     using System.Linq;
     using FizzCode.LightWeight.AdoNet;
 
-    public class MsSqlDropSchemas : AbstractSqlStatements
+    public sealed class MsSqlDropSchemas : AbstractSqlStatements
     {
         public string[] SchemaNames { get; init; }
 

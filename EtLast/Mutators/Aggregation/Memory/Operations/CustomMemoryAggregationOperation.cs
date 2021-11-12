@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    public class CustomMemoryAggregationOperation : AbstractMemoryAggregationOperation
+    public sealed class CustomMemoryAggregationOperation : AbstractMemoryAggregationOperation
     {
         public delegate void CustomMemoryAggregationOperationDelegate(List<IReadOnlySlimRow> rows, Func<ISlimRow> aggregateCreator);
         public CustomMemoryAggregationOperationDelegate Delegate { get; set; }

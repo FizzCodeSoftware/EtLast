@@ -4,7 +4,7 @@
     using System.Globalization;
     using System.Linq;
 
-    public class HungarianGiroBankAccountConverter : StringConverter
+    public sealed class HungarianGiroBankAccountConverter : StringConverter
     {
         /// <summary>
         /// Default true.

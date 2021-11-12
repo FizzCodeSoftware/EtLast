@@ -4,7 +4,7 @@
     using System.ComponentModel;
     using System.Linq;
 
-    public class RemoveColumnMutator : AbstractSimpleChangeMutator
+    public sealed class RemoveColumnMutator : AbstractSimpleChangeMutator
     {
         public string[] Columns { get; init; }
 

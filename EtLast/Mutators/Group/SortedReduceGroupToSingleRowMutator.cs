@@ -11,7 +11,7 @@
     /// Group key generation is applied on the input rows on-the-fly. The collected group is processed when a new key is found.
     /// - keeps all input rows in memory (!)
     /// </summary>
-    public class SortedReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
+    public sealed class SortedReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
     {
         public IEvaluable InputProcess { get; set; }
 

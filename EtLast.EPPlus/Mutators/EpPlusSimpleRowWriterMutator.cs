@@ -7,7 +7,7 @@
     using System.IO;
     using OfficeOpenXml;
 
-    public class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowWriter
+    public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowWriter
     {
         public string FileName { get; init; }
         public ExcelPackage ExistingPackage { get; init; }

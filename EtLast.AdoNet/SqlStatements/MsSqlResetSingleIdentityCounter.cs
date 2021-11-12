@@ -6,7 +6,7 @@
     using System.Globalization;
     using FizzCode.LightWeight.AdoNet;
 
-    public class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
+    public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
     {
         public string TableName { get; init; }
         public string IdentityColumnName { get; init; }

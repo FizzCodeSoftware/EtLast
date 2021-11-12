@@ -5,7 +5,7 @@
 
     public delegate void TooManyMatchActionDelegate(IRow row, List<IReadOnlySlimRow> matches);
 
-    public class TooManyMatchAction
+    public sealed class TooManyMatchAction
     {
         public MatchMode Mode { get; }
         public TooManyMatchActionDelegate CustomAction { get; init; }

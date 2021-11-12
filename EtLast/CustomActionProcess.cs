@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class CustomAction : AbstractExecutable
+    public sealed class CustomAction : AbstractExecutable
     {
         public Action<CustomAction> Then { get; set; }
 

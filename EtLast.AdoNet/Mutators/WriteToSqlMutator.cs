@@ -11,7 +11,7 @@
     using FizzCode.EtLast;
     using FizzCode.LightWeight.AdoNet;
 
-    public class WriteToSqlMutator : AbstractMutator, IRowWriter
+    public sealed class WriteToSqlMutator : AbstractMutator, IRowWriter
     {
         public NamedConnectionString ConnectionString { get; init; }
 
@@ -227,7 +227,7 @@
                 throw new ProcessParameterNullException(this, nameof(TableDefinition));
         }
 
-        public virtual void SetParameter(IDbDataParameter parameter, object value, DbType? dbType, NamedConnectionString connectionString)
+        public void SetParameter(IDbDataParameter parameter, object value, DbType? dbType, NamedConnectionString connectionString)
         {
             if (value == null)
             {

@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Globalization;
 
-    public class HungarianTaxNumberConverter : StringConverter
+    public sealed class HungarianTaxNumberConverter : StringConverter
     {
         /// <summary>
         /// Default true.

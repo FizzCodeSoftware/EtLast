@@ -5,7 +5,7 @@
     using System.Diagnostics;
     using System.Threading;
 
-    public class EtlContext : IEtlContext
+    public sealed class EtlContext : IEtlContext
     {
         public Type RowType { get; private set; }
         public EtlContextResult Result { get; } = new EtlContextResult();

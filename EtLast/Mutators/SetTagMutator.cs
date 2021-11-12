@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class SetTagMutator : AbstractMutator
+    public sealed class SetTagMutator : AbstractMutator
     {
         public object Tag { get; init; }
 

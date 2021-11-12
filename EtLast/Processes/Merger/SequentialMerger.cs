@@ -5,7 +5,7 @@
     using System.ComponentModel;
     using System.Diagnostics;
 
-    public class SequentialMerger : AbstractMerger
+    public sealed class SequentialMerger : AbstractMerger
     {
         public SequentialMerger(ITopic topic, string name)
             : base(topic, name)

@@ -2,7 +2,7 @@
 {
     using System.ComponentModel;
 
-    public class CustomSqlAdoNetDbReader : AbstractAdoNetDbReader
+    public sealed class CustomSqlAdoNetDbReader : AbstractAdoNetDbReader
     {
         public string Sql { get; init; }
         public string MainTableName { get; init; }

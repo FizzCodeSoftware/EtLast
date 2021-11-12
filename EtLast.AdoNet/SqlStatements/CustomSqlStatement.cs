@@ -6,7 +6,7 @@
     using System.Globalization;
     using System.Linq;
 
-    public class CustomSqlStatement : AbstractSqlStatement
+    public sealed class CustomSqlStatement : AbstractSqlStatement
     {
         public string SqlStatement { get; init; }
         public string MainTableName { get; init; }

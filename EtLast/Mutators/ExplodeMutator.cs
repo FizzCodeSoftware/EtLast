@@ -5,7 +5,7 @@
 
     public delegate IEnumerable<ISlimRow> ExplodeDelegate(IReadOnlyRow row);
 
-    public class ExplodeMutator : AbstractMutator
+    public sealed class ExplodeMutator : AbstractMutator
     {
         /// <summary>
         /// Default true.

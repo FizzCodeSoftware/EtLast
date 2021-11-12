@@ -7,7 +7,7 @@
     using System.Linq;
 
     [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
-    public class DictionaryRow : IRow
+    public sealed class DictionaryRow : IRow
     {
         public IEtlContext Context { get; private set; }
         public IProcess CreatorProcess { get; private set; }

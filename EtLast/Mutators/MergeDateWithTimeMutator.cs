@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class MergeDateWithTimeMutator : AbstractMutator
+    public sealed class MergeDateWithTimeMutator : AbstractMutator
     {
         public string TargetColumn { get; init; }
         public string SourceDateColumn { get; init; }

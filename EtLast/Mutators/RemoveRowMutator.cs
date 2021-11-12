@@ -4,7 +4,7 @@
     using System.ComponentModel;
     using System.Linq;
 
-    public class RemoveRowMutator : AbstractMutator
+    public sealed class RemoveRowMutator : AbstractMutator
     {
         public RemoveRowMutator(ITopic topic, string name)
             : base(topic, name)

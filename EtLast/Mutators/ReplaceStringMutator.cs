@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class ReplaceStringMutator : AbstractMutator
+    public sealed class ReplaceStringMutator : AbstractMutator
     {
         public string ColumnName { get; init; }
         public string OldString { get; init; }

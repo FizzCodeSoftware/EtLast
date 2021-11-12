@@ -7,7 +7,7 @@
     using System.IO;
     using OfficeOpenXml;
 
-    public class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutator, IRowWriter
+    public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutator, IRowWriter
         where TState : BaseExcelWriterState, new()
     {
         public string StoreLocation { get; init; }

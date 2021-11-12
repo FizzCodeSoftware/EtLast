@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class ReplaceErrorWithValueMutator : AbstractSimpleChangeMutator
+    public sealed class ReplaceErrorWithValueMutator : AbstractSimpleChangeMutator
     {
         public string[] Columns { get; init; }
         public object Value { get; init; }

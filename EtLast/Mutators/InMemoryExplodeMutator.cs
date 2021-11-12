@@ -11,7 +11,7 @@
     /// <summary>
     /// Useful only for small amount of data due to all input rows are collected into a List and processed at once.
     /// </summary>
-    public class InMemoryExplodeMutator : AbstractEvaluable, IMutator
+    public sealed class InMemoryExplodeMutator : AbstractEvaluable, IMutator
     {
         public IEvaluable InputProcess { get; set; }
         public InMemoryExplodeDelegate Action { get; init; }

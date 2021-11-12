@@ -2,7 +2,7 @@
 {
     using System.Linq;
 
-    internal class ResilientSqlScopePreFinalizerManager : IProcess
+    internal sealed class ResilientSqlScopePreFinalizerManager : IProcess
     {
         public ProcessInvocationInfo InvocationInfo { get; set; }
 

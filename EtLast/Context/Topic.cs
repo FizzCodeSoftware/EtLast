@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public class Topic : ITopic
+    public sealed class Topic : ITopic
     {
         public string Name { get; set; }
         public IEtlContext Context { get; set; }

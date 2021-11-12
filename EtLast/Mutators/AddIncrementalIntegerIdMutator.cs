@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class AddIncrementalIntegerIdMutator : AbstractMutator
+    public sealed class AddIncrementalIntegerIdMutator : AbstractMutator
     {
         public string Column { get; init; }
 

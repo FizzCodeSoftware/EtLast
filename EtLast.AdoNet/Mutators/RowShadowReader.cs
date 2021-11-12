@@ -6,7 +6,7 @@
     using System.Data;
     using System.Data.Common;
 
-    internal class RowShadowReader : DbDataReader
+    internal sealed class RowShadowReader : DbDataReader
     {
         public object[,] Rows { get; }
         public int RowCount { get; set; }

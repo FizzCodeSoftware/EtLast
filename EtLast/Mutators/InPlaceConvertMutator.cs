@@ -4,7 +4,7 @@
     using System.ComponentModel;
     using System.Globalization;
 
-    public class InPlaceConvertMutator : AbstractSimpleChangeMutator
+    public sealed class InPlaceConvertMutator : AbstractSimpleChangeMutator
     {
         public string[] Columns { get; init; }
         public ITypeConverter TypeConverter { get; init; }

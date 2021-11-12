@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class RemoveRowWithErrorMutator : AbstractMutator
+    public sealed class RemoveRowWithErrorMutator : AbstractMutator
     {
         public RemoveRowWithErrorMutator(ITopic topic, string name)
             : base(topic, name)

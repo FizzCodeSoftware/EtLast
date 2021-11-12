@@ -7,7 +7,7 @@
     using System.Linq;
     using System.Text;
 
-    public class CustomMsSqlMergeStatement : AbstractSqlStatement
+    public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
     {
         public string SourceTableName { get; init; }
         public string SourceTableAlias { get; init; }

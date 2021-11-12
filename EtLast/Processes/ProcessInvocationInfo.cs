@@ -3,7 +3,7 @@
     using System;
     using System.Diagnostics;
 
-    public class ProcessInvocationInfo
+    public sealed class ProcessInvocationInfo
     {
         public int InvocationUid { get; set; }
         public int InstanceUid { get; set; }

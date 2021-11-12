@@ -4,7 +4,7 @@
 
     public delegate IEvaluable ProcessCreatorForRowLookupBuilderDelegate(IReadOnlySlimRow[] filterRows);
 
-    public class FilteredRowLookupBuilder
+    public sealed class FilteredRowLookupBuilder
     {
         public ProcessCreatorForRowLookupBuilderDelegate ProcessCreator { get; set; }
         public Func<IReadOnlySlimRow, string> KeyGenerator { get; set; }

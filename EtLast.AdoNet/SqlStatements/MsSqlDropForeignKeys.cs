@@ -10,7 +10,7 @@
 
     public enum MsSqlDropForeignKeysProcessMode { All, InSpecifiedTables, InSpecifiedSchema, ToSpecifiedSchema, ToSpecifiedTables }
 
-    public class MsSqlDropForeignKeys : AbstractSqlStatements
+    public sealed class MsSqlDropForeignKeys : AbstractSqlStatements
     {
         /// <summary>
         /// Default value is <see cref="MsSqlDropForeignKeysProcessMode.ToSpecifiedTables"/>

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
-    public class ProcessBuilder : IProcessBuilder
+    public sealed class ProcessBuilder : IProcessBuilder
     {
         public IEvaluable InputProcess { get; set; }
         public MutatorList Mutators { get; set; }

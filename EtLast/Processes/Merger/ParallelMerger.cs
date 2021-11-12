@@ -7,7 +7,7 @@
     using System.Threading;
     using System.Transactions;
 
-    public class ParallelMerger : AbstractMerger
+    public sealed class ParallelMerger : AbstractMerger
     {
         public ParallelMerger(ITopic topic, string name)
             : base(topic, name)

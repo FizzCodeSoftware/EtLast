@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class JoinMutator : AbstractCrossMutator
+    public sealed class JoinMutator : AbstractCrossMutator
     {
         public RowKeyGenerator RowKeyGenerator { get; init; }
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; init; }

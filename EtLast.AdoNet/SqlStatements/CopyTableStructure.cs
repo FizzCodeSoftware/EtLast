@@ -9,7 +9,7 @@
     using System.Text;
     using FizzCode.LightWeight.AdoNet;
 
-    public class CopyTableStructure : AbstractSqlStatements
+    public sealed class CopyTableStructure : AbstractSqlStatements
     {
         public List<TableCopyConfiguration> Configuration { get; init; }
 

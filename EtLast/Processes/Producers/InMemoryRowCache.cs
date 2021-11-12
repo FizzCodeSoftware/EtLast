@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public class InMemoryRowCache : AbstractProducer
+    public sealed class InMemoryRowCache : AbstractProducer
     {
         private bool _firstEvaluationFinished;
         private List<IReadOnlySlimRow> _cache;

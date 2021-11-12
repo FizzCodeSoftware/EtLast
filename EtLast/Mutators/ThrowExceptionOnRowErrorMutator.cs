@@ -4,7 +4,7 @@
     using System.ComponentModel;
     using System.Globalization;
 
-    public class ThrowExceptionOnRowErrorMutator : AbstractMutator
+    public sealed class ThrowExceptionOnRowErrorMutator : AbstractMutator
     {
         public ThrowExceptionOnRowErrorMutator(ITopic topic)
             : base(topic, null)

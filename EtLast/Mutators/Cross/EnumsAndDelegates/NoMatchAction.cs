@@ -4,7 +4,7 @@
 
     public delegate void NoMatchActionDelegate(IRow row);
 
-    public class NoMatchAction
+    public sealed class NoMatchAction
     {
         public MatchMode Mode { get; }
         public NoMatchActionDelegate CustomAction { get; init; }

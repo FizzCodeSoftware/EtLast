@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public class MutatorList : List<IEnumerable<IMutator>>
+    public sealed class MutatorList : List<IEnumerable<IMutator>>
     {
         public MutatorList()
         {

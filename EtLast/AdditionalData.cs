@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    public class AdditionalData
+    public sealed class AdditionalData
     {
         private readonly Dictionary<string, object> _data = new(StringComparer.OrdinalIgnoreCase);
 

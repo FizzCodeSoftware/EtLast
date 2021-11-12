@@ -12,7 +12,7 @@
     /// Input can be unordered. Group key generation is applied on the input rows on-the-fly, but group processing is started only after all groups are created.
     /// - keeps all input rows in memory (!)
     /// </summary>
-    public class ReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
+    public sealed class ReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
     {
         public IEvaluable InputProcess { get; set; }
 

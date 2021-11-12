@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    internal class FluentProcessMutatorBuilder : IFluentProcessMutatorBuilder
+    internal sealed class FluentProcessMutatorBuilder : IFluentProcessMutatorBuilder
     {
         public IFluentProcessBuilder ProcessBuilder { get; }
 

@@ -4,7 +4,7 @@
     using System.ComponentModel;
     using System.Linq;
 
-    public class UnpivotMutator : AbstractMutator
+    public sealed class UnpivotMutator : AbstractMutator
     {
         public List<ColumnCopyConfiguration> FixColumns { get; init; }
         public string NewColumnForDimension { get; init; }

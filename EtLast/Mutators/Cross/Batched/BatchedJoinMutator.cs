@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class BatchedJoinMutator : AbstractBatchedCrossMutator
+    public sealed class BatchedJoinMutator : AbstractBatchedCrossMutator
     {
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; init; }
         public NoMatchAction NoMatchAction { get; init; }

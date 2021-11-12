@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class TrimStringMutator : AbstractSimpleChangeMutator
+    public sealed class TrimStringMutator : AbstractSimpleChangeMutator
     {
         public string[] Columns { get; init; }
 

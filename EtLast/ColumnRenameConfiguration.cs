@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
-    public class ColumnRenameConfiguration
+    public sealed class ColumnRenameConfiguration
     {
         public string CurrentName { get; }
         public string NewName { get; }

@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    internal class ResilientTableFinalizerManager : IProcess
+    internal sealed class ResilientTableFinalizerManager : IProcess
     {
         public ProcessInvocationInfo InvocationInfo { get; set; }
 

@@ -4,7 +4,7 @@
 
     public delegate void MatchActionDelegate(IRow row, IReadOnlySlimRow match);
 
-    public class MatchAction
+    public sealed class MatchAction
     {
         public MatchMode Mode { get; }
         public MatchActionDelegate CustomAction { get; init; }

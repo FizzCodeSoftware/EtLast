@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public class ResilientSqlScope : AbstractExecutable, IScope
+    public sealed class ResilientSqlScope : AbstractExecutable, IScope
     {
         private ResilientSqlScopeConfiguration _configuration;
 

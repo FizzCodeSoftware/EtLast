@@ -7,9 +7,9 @@
     using System.Linq;
 
     [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
-    public class SlimRow : ISlimRow
+    public sealed class SlimRow : ISlimRow
     {
-        public virtual IEnumerable<KeyValuePair<string, object>> Values => _values;
+        public IEnumerable<KeyValuePair<string, object>> Values => _values;
         public int ColumnCount => _values.Count;
         public object Tag { get; set; }
 

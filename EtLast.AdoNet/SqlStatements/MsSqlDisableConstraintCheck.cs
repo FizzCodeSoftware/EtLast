@@ -8,7 +8,7 @@
     using System.Linq;
     using FizzCode.LightWeight.AdoNet;
 
-    public class MsSqlDisableConstraintCheck : AbstractSqlStatements
+    public sealed class MsSqlDisableConstraintCheck : AbstractSqlStatements
     {
         public string[] TableNames { get; init; }
 

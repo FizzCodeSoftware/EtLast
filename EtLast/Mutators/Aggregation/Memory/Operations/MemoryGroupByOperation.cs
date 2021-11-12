@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public class MemoryGroupByOperation : AbstractMemoryAggregationOperation
+    public sealed class MemoryGroupByOperation : AbstractMemoryAggregationOperation
     {
         public delegate object MemoryGroupByOperationDelegate(List<IReadOnlySlimRow> groupRows, string sourceColumn);
 

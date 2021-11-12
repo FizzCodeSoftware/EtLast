@@ -5,7 +5,7 @@
     using System.Linq;
     using FizzCode.LightWeight.AdoNet;
 
-    public class MsSqlMergeStatementCreator : IWriteToSqlStatementCreator
+    public sealed class MsSqlMergeStatementCreator : IWriteToSqlStatementCreator
     {
         private DetailedDbTableDefinition _tableDefinition;
         private string _allDbColumns;

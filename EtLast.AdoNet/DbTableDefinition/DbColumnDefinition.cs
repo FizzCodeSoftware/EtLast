@@ -5,7 +5,7 @@
     using FizzCode.LightWeight.AdoNet;
 
     [DebuggerDisplay("{RowColumn} -> {DbColumn}")]
-    public class DbColumnDefinition
+    public sealed class DbColumnDefinition
     {
         public string RowColumn { get; }
         public string DbColumn { get; }

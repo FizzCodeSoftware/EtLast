@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    public class ColumnBasedRowEqualityComparer : IRowEqualityComparer
+    public sealed class ColumnBasedRowEqualityComparer : IRowEqualityComparer
     {
         public string[] Columns { get; set; }
         public string[] ColumnsToIgnore { get; set; }

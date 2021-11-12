@@ -5,7 +5,7 @@
     using System.IO;
     using System.Net.Http;
 
-    public class DownloadFile : AbstractExecutable
+    public sealed class DownloadFile : AbstractExecutable
     {
         public string Url { get; set; }
         public string FileName { get; set; }

@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class ExpandFromLookupMutator : AbstractCrossMutator
+    public sealed class ExpandFromLookupMutator : AbstractCrossMutator
     {
         public List<ColumnCopyConfiguration> ColumnConfiguration { get; init; }
         public NoMatchAction NoMatchAction { get; init; }

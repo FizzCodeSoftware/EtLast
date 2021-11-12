@@ -9,7 +9,7 @@
     /// - discards input rows on-the-fly
     /// - keeps already yielded row KEYS in memory (!)
     /// </summary>
-    public class RemoveDuplicateRowsMutator : AbstractMutator
+    public sealed class RemoveDuplicateRowsMutator : AbstractMutator
     {
         public Func<IReadOnlyRow, string> KeyGenerator { get; init; }
 

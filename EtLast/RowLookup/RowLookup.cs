@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    public class RowLookup : ICountableLookup
+    public sealed class RowLookup : ICountableLookup
     {
         /// <summary>
         /// Default false.

@@ -6,7 +6,7 @@
 
     public delegate bool CustomMutatorDelegate(IRow row);
 
-    public class CustomMutator : AbstractMutator
+    public sealed class CustomMutator : AbstractMutator
     {
         public CustomMutatorDelegate Then { get; init; }
 

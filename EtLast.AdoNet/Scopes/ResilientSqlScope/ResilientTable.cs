@@ -9,7 +9,7 @@
     public delegate IEnumerable<IExecutable> ResilientSqlScopeFinalizerCreatorDelegate(ResilientTableBase table);
 
     [DebuggerDisplay("{TableName}")]
-    public class ResilientTable : ResilientTableBase
+    public sealed class ResilientTable : ResilientTableBase
     {
         /// <summary>
         /// Setting this to true forces the scope to suppress the ambient transaction scope while calling the process- and finalizer creator delegates. Default value is false.

@@ -10,7 +10,7 @@
         KeepOnlyOnFailure, AlwaysKeep, AlwaysDrop
     }
 
-    public class ResilientSqlScopeConfiguration
+    public sealed class ResilientSqlScopeConfiguration
     {
         public ResilientSqlScope Scope { get; internal set; }
 

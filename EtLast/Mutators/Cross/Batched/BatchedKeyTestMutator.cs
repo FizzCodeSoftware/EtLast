@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public class BatchedKeyTestMutator : AbstractBatchedCrossMutator
+    public sealed class BatchedKeyTestMutator : AbstractBatchedCrossMutator
     {
         public NoMatchAction NoMatchAction { get; init; }
         public MatchAction MatchAction { get; init; }

@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class BasicScopeProcessFailedEventArgs : EventArgs
+    public sealed class BasicScopeProcessFailedEventArgs : EventArgs
     {
         public BasicScope Scope { get; }
         public IExecutable Process { get; }

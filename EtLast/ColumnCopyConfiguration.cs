@@ -5,7 +5,7 @@
     using System.Linq;
 
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
-    public class ColumnCopyConfiguration
+    public sealed class ColumnCopyConfiguration
     {
         public string FromColumn { get; }
         public string ToColumn { get; }

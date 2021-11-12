@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public class Evaluator
+    public sealed class Evaluator
     {
         private readonly IEnumerable<IRow> _input;
         private readonly IProcess _caller;

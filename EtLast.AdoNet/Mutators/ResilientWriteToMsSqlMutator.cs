@@ -13,7 +13,7 @@
     using FizzCode.LightWeight.AdoNet;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
-    public class ResilientWriteToMsSqlMutator : AbstractMutator, IRowWriter
+    public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowWriter
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public NamedConnectionString ConnectionString { get; init; }

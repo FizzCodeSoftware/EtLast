@@ -9,7 +9,7 @@
     /// <summary>
     /// The default etl scope to execute multiple processes, optionally supporting ambient transaction scopes.
     /// </summary>
-    public class BasicScope : AbstractExecutable, IScope
+    public sealed class BasicScope : AbstractExecutable, IScope
     {
         public ProcessCreatorDelegate ProcessCreator { get; set; }
         public IEnumerable<ProcessCreatorDelegate> ProcessCreators { get; set; }

@@ -2,7 +2,7 @@
 {
     using System.Data;
 
-    public class DetailedDbColumnDefinition
+    public sealed class DetailedDbColumnDefinition
     {
         public string RowColumn { get; }
         public string DbColumn { get; }

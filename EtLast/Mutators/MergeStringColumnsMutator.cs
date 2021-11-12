@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Text;
 
-    public class MergeStringColumnsMutator : AbstractSimpleChangeMutator
+    public sealed class MergeStringColumnsMutator : AbstractSimpleChangeMutator
     {
         public string[] ColumnsToMerge { get; set; }
         public string TargetColumn { get; set; }

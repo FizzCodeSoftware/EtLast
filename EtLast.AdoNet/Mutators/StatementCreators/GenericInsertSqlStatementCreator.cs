@@ -5,7 +5,7 @@
     using System.Linq;
     using FizzCode.LightWeight.AdoNet;
 
-    public class GenericInsertSqlStatementCreator : IWriteToSqlStatementCreator
+    public sealed class GenericInsertSqlStatementCreator : IWriteToSqlStatementCreator
     {
         private string _dbColumns;
         private DetailedDbTableDefinition _tableDefinition;

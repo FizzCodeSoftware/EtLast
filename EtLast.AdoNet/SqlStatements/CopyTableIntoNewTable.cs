@@ -7,7 +7,7 @@
     using System.Linq;
     using FizzCode.LightWeight.AdoNet;
 
-    public class CopyTableIntoNewTable : AbstractSqlStatement
+    public sealed class CopyTableIntoNewTable : AbstractSqlStatement
     {
         public TableCopyConfiguration Configuration { get; init; }
 

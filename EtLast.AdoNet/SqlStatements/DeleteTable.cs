@@ -5,7 +5,7 @@
     using System.Data;
     using System.Globalization;
 
-    public class DeleteTable : AbstractSqlStatement
+    public sealed class DeleteTable : AbstractSqlStatement
     {
         public string TableName { get; init; }
         public string CustomWhereClause { get; init; }
