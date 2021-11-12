@@ -1,3 +1,7 @@
+2020-11-12:
+	- added: TagFilter to AbstractAggregationMutator and derived classes: MemoryAggregationMutator, SortedMemoryAggregationMutator, ContinuousAggregationMutator
+	- fixed: MemoryAggregationMutator, SortedMemoryAggregationMutator, ContinuousAggregationMutator properly copy the source Tag to the aggregates from now
+
 2020-11-10:
 	- changed: major version 3 is FINAL now
 	- changed: targeting .NET 6
