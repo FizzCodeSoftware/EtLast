@@ -65,7 +65,7 @@
 
                             if (first)
                             {
-                                msg += "\n\tDATA: ";
+                                msg += "\n\tDATA:";
                                 first = false;
                             }
                             else
@@ -74,7 +74,7 @@
                             }
 
                             var value = cex.Data[key];
-                            msg += "[" + k + "] = " + (value != null ? value.ToString().Trim() : "NULL");
+                            msg += "\n\t\t[" + k + "] = " + (value != null ? value.ToString().Trim() : "NULL");
                         }
                     }
 
