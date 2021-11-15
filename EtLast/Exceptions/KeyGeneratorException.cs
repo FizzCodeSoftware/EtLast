@@ -17,7 +17,7 @@
         {
             if (ex is KeyGeneratorException eex)
             {
-                var str = row.ToDebugString();
+                var str = row.ToDebugString(true);
                 if ((eex.Data["Row"] is string rowString) && string.Equals(rowString, str, StringComparison.Ordinal))
                 {
                     return eex;
@@ -25,6 +25,7 @@
                 else
                 {
                     eex.Data["Row"] = str;
+                    return eex;
                 }
             }
 
