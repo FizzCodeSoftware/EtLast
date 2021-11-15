@@ -59,11 +59,11 @@
 
         public ResilientSqlScopeFinalizerCreatorDelegate FinalizerCreator { get; set; }
 
-        private ITopic _topic;
+        private string _topic;
 
-        public ITopic Topic
+        public string Topic
         {
-            get => _topic ?? new Topic(Scope.Configuration.ConnectionString.Unescape(TableName), Scope.Topic.Context);
+            get => _topic ?? Scope.Configuration.ConnectionString.Unescape(TableName);
             init => _topic = value;
         }
     }

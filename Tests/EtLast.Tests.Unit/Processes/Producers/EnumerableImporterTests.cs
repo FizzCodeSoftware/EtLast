@@ -11,12 +11,12 @@
         [TestMethod]
         public void FullCopy()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = new ProcessBuilder()
             {
-                InputProcess = new EnumerableImporter(topic, null)
+                InputProcess = new EnumerableImporter(context, null, null)
                 {
-                    InputGenerator = caller => TestData.Person(topic).Evaluate(caller).TakeRowsAndReleaseOwnership(),
+                    InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
                 },
                 Mutators = new MutatorList(),
             };
@@ -31,19 +31,19 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["name"] = "E", ["age"] = -3, ["height"] = 160, ["countryId"] = 1, ["lastChangedTime"] = new DateTime(2019, 1, 1, 23, 59, 59, 0) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["name"] = "A", ["age"] = 11, ["height"] = 140, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 6, ["name"] = "fake", ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0) } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void CopyOnlySpecifiedColumnsOff()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = new ProcessBuilder()
             {
-                InputProcess = new EnumerableImporter(topic, null)
+                InputProcess = new EnumerableImporter(context, null, null)
                 {
-                    InputGenerator = caller => TestData.Person(topic).Evaluate(caller).TakeRowsAndReleaseOwnership(),
+                    InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
                     ColumnConfiguration = new List<ReaderColumnConfiguration>()
                     {
                         new ReaderColumnConfiguration("id", "ID", new StringConverter()),
@@ -63,19 +63,19 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "4", ["age"] = -3L, ["name"] = "E", ["height"] = 160, ["countryId"] = 1, ["lastChangedTime"] = new DateTime(2019, 1, 1, 23, 59, 59, 0) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "5", ["age"] = 11L, ["name"] = "A", ["height"] = 140, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "6", ["age"] = -1L, ["name"] = "fake", ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0) } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void CopyOnlySpecifiedColumnsOn()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = new ProcessBuilder()
             {
-                InputProcess = new EnumerableImporter(topic, null)
+                InputProcess = new EnumerableImporter(context, null, null)
                 {
-                    InputGenerator = caller => TestData.Person(topic).Evaluate(caller).TakeRowsAndReleaseOwnership(),
+                    InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
                     ColumnConfiguration = new List<ReaderColumnConfiguration>()
                     {
                         new ReaderColumnConfiguration("id", "ID", new StringConverter()),
@@ -96,7 +96,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "4", ["age"] = -3L },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "5", ["age"] = 11L },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "6", ["age"] = -1L } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
     }

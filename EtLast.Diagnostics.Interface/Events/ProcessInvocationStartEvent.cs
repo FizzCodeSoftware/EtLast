@@ -6,7 +6,7 @@
         public int InstanceUID { get; set; }
         public int InvocationCounter { get; set; }
         public string Type { get; set; }
-        public ProcessKind Kind { get; set; }
+        public string Kind { get; set; }
         public string Name { get; set; }
         public string Topic { get; set; }
         public int? CallerInvocationUID { get; set; }

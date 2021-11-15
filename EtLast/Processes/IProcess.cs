@@ -8,9 +8,9 @@
         ProcessInvocationInfo InvocationInfo { get; set; }
 
         IEtlContext Context { get; }
-        ITopic Topic { get; }
+        string Topic { get; }
         string Name { get; }
 
-        ProcessKind Kind { get; }
+        string Kind { get; }
     }
 }

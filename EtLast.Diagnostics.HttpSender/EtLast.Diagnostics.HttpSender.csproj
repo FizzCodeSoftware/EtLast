@@ -32,7 +32,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EtLast.Diagnostics.Interface\EtLast.Diagnostics.Interface.csproj" />
-    <ProjectReference Include="..\EtLast.PluginHost.PluginInterface\EtLast.PluginHost.PluginInterface.csproj" />
     <ProjectReference Include="..\EtLast\EtLast.csproj" />
   </ItemGroup>
 

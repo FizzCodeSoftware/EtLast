@@ -7,12 +7,12 @@
     using System.IO;
     using OfficeOpenXml;
 
-    public sealed class EpPlusExcelSheetListReader : AbstractProducer, IRowReader
+    public sealed class EpPlusExcelSheetListReader : AbstractProducer, IRowSource
     {
         public string FileName { get; init; }
 
-        public EpPlusExcelSheetListReader(ITopic topic, string name)
-            : base(topic, name)
+        public EpPlusExcelSheetListReader(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

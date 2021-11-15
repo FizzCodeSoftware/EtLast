@@ -57,7 +57,7 @@
                 .Select(c => c.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString))
                 .ToArray();
 
-            yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Topic, "MergeIntoBase")
+            yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context, builder.TableBuilder.ResilientTable.Topic, "MergeIntoBase")
             {
                 ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
                 CommandTimeout = 60 * 60,
@@ -95,7 +95,7 @@
                 if (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime != null)
                     parameters2["InfiniteFuture"] = builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime;
 
-                yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Topic, "CloseOpenEndedHistoryRecords")
+                yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context, builder.TableBuilder.ResilientTable.Topic, "CloseOpenEndedHistoryRecords")
                 {
                     ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
                     CommandTimeout = 60 * 60,
@@ -122,7 +122,7 @@
                     if (builder.TableBuilder.HasEtlRunInfo)
                         parameters3["EtlRunId"] = builder.TableBuilder.DwhBuilder.EtlRunId.Value;
 
-                    yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Topic, "UpdateNoHistoryColumns")
+                    yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context, builder.TableBuilder.ResilientTable.Topic, "UpdateNoHistoryColumns")
                     {
                         ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
                         CommandTimeout = 60 * 60,
@@ -158,7 +158,7 @@
                     columnDefaults[builder.TableBuilder.EtlRunFromColumnNameEscaped] = builder.TableBuilder.DwhBuilder.EtlRunId.Value;
                 }
 
-                yield return new CopyTableIntoExistingTable(builder.TableBuilder.ResilientTable.Topic, "CopyToHistory")
+                yield return new CopyTableIntoExistingTable(builder.TableBuilder.ResilientTable.Scope.Context, builder.TableBuilder.ResilientTable.Topic, "CopyToHistory")
                 {
                     ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
                     Configuration = new TableCopyConfiguration()

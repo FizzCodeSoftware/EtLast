@@ -7,8 +7,8 @@
     {
         public RowLookupBuilder LookupBuilder { get; init; }
 
-        protected AbstractCrossMutator(ITopic topic, string name)
-            : base(topic, name)
+        protected AbstractCrossMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

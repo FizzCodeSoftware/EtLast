@@ -17,7 +17,7 @@
 
                 builder.AddMutatorCreator(builder => new[]
                 {
-                    new CustomMutator(builder.ResilientTable.Topic, nameof(SetValidFromToRecordTimestampIfAvailable))
+                    new CustomMutator(builder.ResilientTable.Scope.Context, builder.ResilientTable.Topic, nameof(SetValidFromToRecordTimestampIfAvailable))
                     {
                         Then = row =>
                         {

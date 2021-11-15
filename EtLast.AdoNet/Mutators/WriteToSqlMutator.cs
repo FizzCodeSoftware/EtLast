@@ -11,7 +11,7 @@
     using FizzCode.EtLast;
     using FizzCode.LightWeight.AdoNet;
 
-    public sealed class WriteToSqlMutator : AbstractMutator, IRowWriter
+    public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
     {
         public NamedConnectionString ConnectionString { get; init; }
 
@@ -38,10 +38,10 @@
 
         private IDbCommand _command;
         private static readonly DbType[] _quotedParameterTypes = { DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength };
-        private int? _storeUid;
+        private int? _sinkUid;
 
-        public WriteToSqlMutator(ITopic topic, string name)
-            : base(topic, name)
+        public WriteToSqlMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 
@@ -66,12 +66,12 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            if (_storeUid == null)
+            if (_sinkUid == null)
             {
-                _storeUid = Context.GetStoreUid(ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
+                _sinkUid = Context.GetSinkUid(ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
             }
 
-            Context.RegisterRowStored(row, _storeUid.Value);
+            Context.RegisterWriteToSink(row, _sinkUid.Value);
 
             InitConnection();
 

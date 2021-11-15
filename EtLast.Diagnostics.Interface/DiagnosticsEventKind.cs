@@ -4,8 +4,8 @@
     {
         TextDictionaryKeyAdded,
         RowValueChanged,
-        RowStoreStarted,
-        RowStored,
+        SinkStarted,
+        WriteToSink,
         RowOwnerChanged,
         RowCreated,
         ProcessInvocationStart,

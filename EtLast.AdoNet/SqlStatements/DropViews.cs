@@ -12,8 +12,8 @@
     {
         public string[] TableNames { get; init; }
 
-        public DropViews(ITopic topic, string name)
-            : base(topic, name)
+        public DropViews(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

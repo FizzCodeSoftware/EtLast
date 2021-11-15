@@ -9,9 +9,9 @@
     [TestClass]
     public class EpPlusExcelReaderTests
     {
-        private static EpPlusExcelReader GetReader(ITopic topic, string fileName, string sheetName = null, int sheetIndex = -1, bool automaticallyTrimAllStringValues = true)
+        private static EpPlusExcelReader GetReader(IEtlContext context, string fileName, string sheetName = null, int sheetIndex = -1, bool automaticallyTrimAllStringValues = true)
         {
-            return new EpPlusExcelReader(topic, null)
+            return new EpPlusExcelReader(context, null, null)
             {
                 FileName = fileName,
                 ColumnConfiguration = new List<ReaderColumnConfiguration>()
@@ -32,12 +32,12 @@
         [TestMethod]
         public void ContentBySheetName()
         {
-            var topic = TestExecuter.GetTopic();
-            var reader = GetReader(topic, @".\TestData\Test.xlsx", sheetName: "MergeAtIndex0");
+            var context = TestExecuter.GetContext();
+            var reader = GetReader(context, @".\TestData\Test.xlsx", sheetName: "MergeAtIndex0");
 
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(reader)
-                .ThrowExceptionOnRowError(new ThrowExceptionOnRowErrorMutator(topic));
+                .ThrowExceptionOnRowError(new ThrowExceptionOnRowErrorMutator(context));
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(4, result.MutatedRows.Count);
@@ -46,19 +46,19 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["ValueString"] = "AAA", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 12, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "C", ["ValueString"] = "C", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "X", ["ValueString"] = "X", ["ValueInt"] = 2, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 98d } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void ContentBySheetIndex()
         {
-            var topic = TestExecuter.GetTopic();
-            var reader = GetReader(topic, @".\TestData\Test.xlsx", sheetIndex: 0);
+            var context = TestExecuter.GetContext();
+            var reader = GetReader(context, @".\TestData\Test.xlsx", sheetIndex: 0);
 
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(reader)
-                .ThrowExceptionOnRowError(new ThrowExceptionOnRowErrorMutator(topic));
+                .ThrowExceptionOnRowError(new ThrowExceptionOnRowErrorMutator(context));
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(4, result.MutatedRows.Count);
@@ -67,19 +67,19 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["ValueString"] = "AAA", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 12, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "C", ["ValueString"] = "C", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "X", ["ValueString"] = "X", ["ValueInt"] = 2, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 98d } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void NoTrim()
         {
-            var topic = TestExecuter.GetTopic();
-            var reader = GetReader(topic, @".\TestData\Test.xlsx", sheetName: "MergeAtIndex0", automaticallyTrimAllStringValues: false);
+            var context = TestExecuter.GetContext();
+            var reader = GetReader(context, @".\TestData\Test.xlsx", sheetName: "MergeAtIndex0", automaticallyTrimAllStringValues: false);
 
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(reader)
-                .ThrowExceptionOnRowError(new ThrowExceptionOnRowErrorMutator(topic));
+                .ThrowExceptionOnRowError(new ThrowExceptionOnRowErrorMutator(context));
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(4, result.MutatedRows.Count);
@@ -88,7 +88,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["ValueString"] = "AAA", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 12, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "C", ["ValueString"] = "C", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "X", ["ValueString"] = "X", ["ValueInt"] = 2, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 98d } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
     }

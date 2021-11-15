@@ -20,7 +20,7 @@
         {
             builder.ResilientTable.SkipFinalizersIfNoTempData = false;
 
-            yield return new DeleteTable(builder.ResilientTable.Topic, "DeleteBase")
+            yield return new DeleteTable(builder.ResilientTable.Scope.Context, builder.ResilientTable.Topic, "DeleteBase")
             {
                 ConnectionString = builder.ResilientTable.Scope.Configuration.ConnectionString,
                 TableName = builder.ResilientTable.TableName,

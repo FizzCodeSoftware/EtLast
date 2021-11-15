@@ -14,7 +14,7 @@
     public delegate void ConnectionCreatorDelegate(AbstractAdoNetDbReader process, out DatabaseConnection connection, out IDbTransaction transaction);
 
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class AbstractAdoNetDbReader : AbstractProducer, IRowReader
+    public abstract class AbstractAdoNetDbReader : AbstractProducer, IRowSource
     {
         public NamedConnectionString ConnectionString { get; init; }
 
@@ -46,8 +46,8 @@
         /// </summary>
         public bool InlineArrayParameters { get; init; } = true;
 
-        protected AbstractAdoNetDbReader(ITopic topic, string name)
-            : base(topic, name)
+        protected AbstractAdoNetDbReader(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
             SqlValueProcessors.Add(new MySqlValueProcessor());
         }

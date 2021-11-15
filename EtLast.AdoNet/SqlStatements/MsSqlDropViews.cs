@@ -22,8 +22,8 @@
 
         private List<string> _viewNames;
 
-        public MsSqlDropViews(ITopic topic, string name)
-            : base(topic, name)
+        public MsSqlDropViews(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

@@ -22,8 +22,8 @@
 
         private List<string> _tableNames;
 
-        public MsSqlDropTables(ITopic topic, string name)
-            : base(topic, name)
+        public MsSqlDropTables(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

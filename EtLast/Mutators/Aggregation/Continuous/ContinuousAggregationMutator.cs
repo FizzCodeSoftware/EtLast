@@ -29,8 +29,8 @@
             }
         }
 
-        public ContinuousAggregationMutator(ITopic topic, string name)
-            : base(topic, name)
+        public ContinuousAggregationMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

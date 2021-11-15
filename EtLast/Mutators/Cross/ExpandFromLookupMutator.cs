@@ -13,8 +13,8 @@
         private RowLookup _lookup;
         private List<KeyValuePair<string, object>> _changes;
 
-        public ExpandFromLookupMutator(ITopic topic, string name)
-            : base(topic, name)
+        public ExpandFromLookupMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

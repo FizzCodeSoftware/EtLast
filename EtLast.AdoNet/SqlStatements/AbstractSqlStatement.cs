@@ -8,8 +8,8 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractSqlStatement : AbstractSqlStatementBase
     {
-        protected AbstractSqlStatement(ITopic topic, string name)
-            : base(topic, name)
+        protected AbstractSqlStatement(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

@@ -16,8 +16,8 @@
         private readonly object _lock = new();
         private bool _finished;
 
-        public Splitter(ITopic topic, string name)
-            : base(topic, name)
+        public Splitter(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

@@ -11,11 +11,11 @@
         [TestMethod]
         public void DummyForDevelopment1()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
 
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(TestData.Person(topic))
-                .CustomCode(new CustomMutator(topic, "MyBrokenMutator")
+                .ReadFrom(TestData.Person(context))
+                .CustomCode(new CustomMutator(context, null, "MyBrokenMutator")
                 {
                     Then = row =>
                     {
@@ -25,7 +25,7 @@
 
             var process = builder.Build();
             process.Execute(null);
-            var msg = topic.Context.GetExceptions()[0].FormatExceptionWithDetails(true);
+            var msg = context.GetExceptions()[0].FormatExceptionWithDetails(true);
             Debug.WriteLine(msg);
             Debugger.Break();
         }
@@ -33,15 +33,15 @@
         [TestMethod]
         public void DummyForDevelopment2()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
 
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(TestData.Person(topic))
-                .CustomCode(new CustomMutator(topic, "MyBrokenMutator"));
+                .ReadFrom(TestData.Person(context))
+                .CustomCode(new CustomMutator(context, null, "MyBrokenMutator"));
 
             var process = builder.Build();
             process.Execute(null);
-            var msg = topic.Context.GetExceptions()[0].FormatExceptionWithDetails(true);
+            var msg = context.GetExceptions()[0].FormatExceptionWithDetails(true);
             Debug.WriteLine(msg);
             Debugger.Break();
         }
@@ -49,14 +49,14 @@
         [TestMethod]
         public void DummyForDevelopment3()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(TestData.Person(topic))
-                .Join(new JoinMutator(topic, "MyBrokenMutator")
+                .ReadFrom(TestData.Person(context))
+                .Join(new JoinMutator(context, null, "MyBrokenMutator")
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {
-                        Process = TestData.PersonEyeColor(topic),
+                        Process = TestData.PersonEyeColor(context),
                         KeyGenerator = row => row.GenerateKey("personId"),
                     },
                     RowKeyGenerator = row => row.GenerateKey("id"),
@@ -66,7 +66,7 @@
 
             var process = builder.Build();
             process.Execute(null);
-            var msg = topic.Context.GetExceptions()[0].FormatExceptionWithDetails(true);
+            var msg = context.GetExceptions()[0].FormatExceptionWithDetails(true);
             Debug.WriteLine(msg);
             Debugger.Break();
         }
@@ -74,14 +74,14 @@
         [TestMethod]
         public void DummyForDevelopment4()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(TestData.Person(topic))
-                .Join(new JoinMutator(topic, "MyBrokenMutator")
+                .ReadFrom(TestData.Person(context))
+                .Join(new JoinMutator(context, null, "MyBrokenMutator")
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {
-                        Process = TestData.PersonEyeColor(topic),
+                        Process = TestData.PersonEyeColor(context),
                         KeyGenerator = row => row.GenerateKey("personId"),
                     },
                     RowKeyGenerator = row => row.GenerateKey("id"),
@@ -97,7 +97,7 @@
 
             var process = builder.Build();
             process.Execute(null);
-            var msg = topic.Context.GetExceptions()[0].FormatExceptionWithDetails(true);
+            var msg = context.GetExceptions()[0].FormatExceptionWithDetails(true);
             Debug.WriteLine(msg);
             Debugger.Break();
         }
@@ -105,14 +105,14 @@
         [TestMethod]
         public void DummyForDevelopment5()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(TestData.Person(topic))
-                .Join(new JoinMutator(topic, "MyBrokenMutator")
+                .ReadFrom(TestData.Person(context))
+                .Join(new JoinMutator(context, null, "MyBrokenMutator")
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {
-                        Process = TestData.PersonEyeColor(topic),
+                        Process = TestData.PersonEyeColor(context),
                         KeyGenerator = row => row.GenerateKey("personId"),
                     },
                     RowKeyGenerator = row => row.GenerateKey("id"),
@@ -125,7 +125,7 @@
 
             var process = builder.Build();
             process.Execute(null);
-            var msg = topic.Context.GetExceptions()[0].FormatExceptionWithDetails(true);
+            var msg = context.GetExceptions()[0].FormatExceptionWithDetails(true);
             Debug.WriteLine(msg);
             Debugger.Break();
         }

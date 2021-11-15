@@ -9,8 +9,8 @@
 
     public sealed class ParallelMerger : AbstractMerger
     {
-        public ParallelMerger(ITopic topic, string name)
-            : base(topic, name)
+        public ParallelMerger(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 
@@ -85,14 +85,14 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class ParallelMergerFluent
     {
-        public static IFluentProcessMutatorBuilder ProcessOnMultipleThreads(this IFluentProcessMutatorBuilder builder, ITopic topic, int threadCount, Action<int, IFluentProcessMutatorBuilder> mutatorBuilder)
+        public static IFluentProcessMutatorBuilder ProcessOnMultipleThreads(this IFluentProcessMutatorBuilder builder, IEtlContext context, string topic, int threadCount, Action<int, IFluentProcessMutatorBuilder> mutatorBuilder)
         {
-            var splitter = new Splitter<DefaultRowQueue>(topic, "ParallelSplitter")
+            var splitter = new Splitter<DefaultRowQueue>(context, topic, "ParallelSplitter")
             {
                 InputProcess = builder.ProcessBuilder.Result,
             };
 
-            var merger = new ParallelMerger(topic, "ParallelMerger")
+            var merger = new ParallelMerger(context, topic, "ParallelMerger")
             {
                 ProcessList = new List<IEvaluable>(),
             };

@@ -12,8 +12,8 @@
         /// </summary>
         public IEvaluable InputProcess { get; set; }
 
-        public InMemoryRowCache(ITopic topic, string name)
-            : base(topic, name)
+        public InMemoryRowCache(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

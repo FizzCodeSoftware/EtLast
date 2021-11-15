@@ -80,7 +80,7 @@
 
                     if (cex.Data?["Row"] is string storedRow)
                     {
-                        msg += "\n\tROW: " + storedRow;
+                        msg += "\n\tROW: " + storedRow.Replace("\n", "\n\t\t", StringComparison.InvariantCultureIgnoreCase);
                     }
 
                     if (cex.Data?.Count > 0)

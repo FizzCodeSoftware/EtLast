@@ -26,8 +26,8 @@
 
         private List<string> _storedProcedureNames;
 
-        public MsSqlDropStoredProcedures(ITopic topic, string name)
-            : base(topic, name)
+        public MsSqlDropStoredProcedures(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

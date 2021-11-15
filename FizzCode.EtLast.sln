@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28729.10
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Global", "Global", "{9BB9529D-3AA4-406E-8104-FE6DB4293000}"
 	ProjectSection(SolutionItems) = preProject
@@ -16,10 +16,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast", "EtLast\EtLast.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.AdoNet", "EtLast.AdoNet\EtLast.AdoNet.csproj", "{13911483-B951-4AC6-842F-DA0667F615F3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.PluginHost.PluginInterface", "EtLast.PluginHost.PluginInterface\EtLast.PluginHost.PluginInterface.csproj", "{CDCB06F9-387C-4AC9-A629-5828A8FC11F2}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.PluginHost", "EtLast.PluginHost\EtLast.PluginHost.csproj", "{43097800-0FA2-4027-844C-6D92444889C7}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.EPPlus", "EtLast.EPPlus\EtLast.EPPlus.csproj", "{5042E651-A6BF-43DF-AF91-9465D712C3A2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{31564631-1C65-4B5D-BBC6-7831C887D0D8}"
@@ -29,8 +25,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Tests.EPPlus", "Tests\EtLast.Tests.EPPlus\EtLast.Tests.EPPlus.csproj", "{156A9020-6414-4A9C-AF6A-6DCE050B7692}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Tests.Unit", "Tests\EtLast.Tests.Unit\EtLast.Tests.Unit.csproj", "{49AB2F76-B01C-4F0F-AE52-D533EB0BEBF3}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.PluginHost.HelloWorld", "EtLast.PluginHost.HelloWorld\EtLast.PluginHost.HelloWorld.csproj", "{428C7C01-5AAF-4447-83CD-6082510F9F20}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Specialized", "EtLast.Specialized\EtLast.Specialized.csproj", "{87E7EC8D-6E9E-4815-A399-486323441F40}"
 EndProject
@@ -70,6 +64,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbTools.DataDefinition.SqlG
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Diagnostics.HttpSender", "EtLast.Diagnostics.HttpSender\EtLast.Diagnostics.HttpSender.csproj", "{39A6B185-885A-45A1-A3D2-1B2334A701DE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.ConsoleHost", "EtLast.ConsoleHost\EtLast.ConsoleHost.csproj", "{E46AB17C-FE9E-4FA9-B639-7226618845D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -89,18 +85,6 @@ Global
 		{13911483-B951-4AC6-842F-DA0667F615F3}.LocalProjects|Any CPU.Build.0 = Debug|Any CPU
 		{13911483-B951-4AC6-842F-DA0667F615F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13911483-B951-4AC6-842F-DA0667F615F3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CDCB06F9-387C-4AC9-A629-5828A8FC11F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CDCB06F9-387C-4AC9-A629-5828A8FC11F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CDCB06F9-387C-4AC9-A629-5828A8FC11F2}.LocalProjects|Any CPU.ActiveCfg = Debug|Any CPU
-		{CDCB06F9-387C-4AC9-A629-5828A8FC11F2}.LocalProjects|Any CPU.Build.0 = Debug|Any CPU
-		{CDCB06F9-387C-4AC9-A629-5828A8FC11F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CDCB06F9-387C-4AC9-A629-5828A8FC11F2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{43097800-0FA2-4027-844C-6D92444889C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{43097800-0FA2-4027-844C-6D92444889C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{43097800-0FA2-4027-844C-6D92444889C7}.LocalProjects|Any CPU.ActiveCfg = Debug|Any CPU
-		{43097800-0FA2-4027-844C-6D92444889C7}.LocalProjects|Any CPU.Build.0 = Debug|Any CPU
-		{43097800-0FA2-4027-844C-6D92444889C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{43097800-0FA2-4027-844C-6D92444889C7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5042E651-A6BF-43DF-AF91-9465D712C3A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5042E651-A6BF-43DF-AF91-9465D712C3A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5042E651-A6BF-43DF-AF91-9465D712C3A2}.LocalProjects|Any CPU.ActiveCfg = Debug|Any CPU
@@ -125,12 +109,6 @@ Global
 		{49AB2F76-B01C-4F0F-AE52-D533EB0BEBF3}.LocalProjects|Any CPU.Build.0 = Debug|Any CPU
 		{49AB2F76-B01C-4F0F-AE52-D533EB0BEBF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49AB2F76-B01C-4F0F-AE52-D533EB0BEBF3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{428C7C01-5AAF-4447-83CD-6082510F9F20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{428C7C01-5AAF-4447-83CD-6082510F9F20}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{428C7C01-5AAF-4447-83CD-6082510F9F20}.LocalProjects|Any CPU.ActiveCfg = Debug|Any CPU
-		{428C7C01-5AAF-4447-83CD-6082510F9F20}.LocalProjects|Any CPU.Build.0 = Debug|Any CPU
-		{428C7C01-5AAF-4447-83CD-6082510F9F20}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{428C7C01-5AAF-4447-83CD-6082510F9F20}.Release|Any CPU.Build.0 = Release|Any CPU
 		{87E7EC8D-6E9E-4815-A399-486323441F40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{87E7EC8D-6E9E-4815-A399-486323441F40}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87E7EC8D-6E9E-4815-A399-486323441F40}.LocalProjects|Any CPU.ActiveCfg = Debug|Any CPU
@@ -223,6 +201,12 @@ Global
 		{39A6B185-885A-45A1-A3D2-1B2334A701DE}.LocalProjects|Any CPU.Build.0 = Debug|Any CPU
 		{39A6B185-885A-45A1-A3D2-1B2334A701DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39A6B185-885A-45A1-A3D2-1B2334A701DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E46AB17C-FE9E-4FA9-B639-7226618845D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E46AB17C-FE9E-4FA9-B639-7226618845D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E46AB17C-FE9E-4FA9-B639-7226618845D3}.LocalProjects|Any CPU.ActiveCfg = Debug|Any CPU
+		{E46AB17C-FE9E-4FA9-B639-7226618845D3}.LocalProjects|Any CPU.Build.0 = Debug|Any CPU
+		{E46AB17C-FE9E-4FA9-B639-7226618845D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E46AB17C-FE9E-4FA9-B639-7226618845D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -18,27 +18,4 @@ The master branch is automatically compiled and released to [nuget.org](https://
 
 # Examples
 
-1) Create a new .NET Console Appplication
-
-2) Add the following nuget packages:
-- FizzCode.EtLast.PluginHost
-- FizzCode.EtLast.PluginHost.HelloWorld
-
-3) Replace your program.cs content with this code:
-
-```cs
-namespace HelloWorldApp
-{
-    internal static class Program
-    {
-        private static void Main(string[] args)
-        {
-            FizzCode.EtLast.PluginHost.CommandLineHandler.Run("HelloWorld", args);
-        }
-    }
-}
-```
-
-4) start the application
-
-5) type this and press Enter: run module HelloWorld
+See Tests\EtLast.Tests.Integration

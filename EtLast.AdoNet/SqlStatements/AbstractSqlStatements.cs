@@ -11,8 +11,8 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractSqlStatements : AbstractSqlStatementBase
     {
-        protected AbstractSqlStatements(ITopic topic, string name)
-            : base(topic, name)
+        protected AbstractSqlStatements(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

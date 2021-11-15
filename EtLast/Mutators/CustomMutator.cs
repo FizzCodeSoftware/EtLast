@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Collections.Generic;
     using System.ComponentModel;
 
@@ -9,18 +10,27 @@
     {
         public CustomMutatorDelegate Then { get; init; }
 
-        public CustomMutator(ITopic topic, string name)
-            : base(topic, name)
+        public CustomMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
             var tracker = new TrackedRow(row);
-            var keep = Then.Invoke(tracker);
-            if (keep)
+            bool keep;
+            try
             {
-                tracker.ApplyChanges();
+                keep = Then.Invoke(tracker);
+                if (keep)
+                {
+                    tracker.ApplyChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                var exception = new CustomCodeException(this, "error during the execution of custom code", ex);
+                throw exception;
             }
 
             if (keep)

@@ -8,7 +8,7 @@
     using System.Linq;
     using System.Text;
 
-    public sealed class DelimitedFileReader : AbstractProducer, IRowReader
+    public sealed class DelimitedFileReader : AbstractProducer, IRowSource
     {
         public string FileName { get; set; }
 
@@ -45,8 +45,8 @@
         /// </summary>
         public char Delimiter { get; set; } = ';';
 
-        public DelimitedFileReader(ITopic topic, string name)
-            : base(topic, name)
+        public DelimitedFileReader(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

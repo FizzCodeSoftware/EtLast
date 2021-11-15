@@ -19,8 +19,8 @@
         /// </summary>
         public bool InlineArrayParameters { get; init; } = true;
 
-        public CustomSqlStatement(ITopic topic, string name)
-            : base(topic, name)
+        public CustomSqlStatement(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

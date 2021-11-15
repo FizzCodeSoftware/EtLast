@@ -6,8 +6,8 @@
     {
         public Action<CustomAction> Then { get; set; }
 
-        public CustomAction(ITopic topic, string name)
-            : base(topic, name)
+        public CustomAction(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 
@@ -19,7 +19,15 @@
 
         protected override void ExecuteImpl()
         {
-            Then.Invoke(this);
+            try
+            {
+                Then.Invoke(this);
+            }
+            catch (Exception ex)
+            {
+                var exception = new CustomCodeException(this, "error during the execution of custom code", ex);
+                throw exception;
+            }
         }
     }
 }

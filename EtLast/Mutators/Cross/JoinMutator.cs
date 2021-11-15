@@ -33,8 +33,8 @@
 
         private RowLookup _lookup;
 
-        public JoinMutator(ITopic topic, string name)
-            : base(topic, name)
+        public JoinMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

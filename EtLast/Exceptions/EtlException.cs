@@ -40,8 +40,8 @@
                 Data.Add("Trace", trace);
 
             Data.Add("ProcessName", process.Name);
-            if (process.Topic?.Name != null)
-                Data.Add("ProcessTopic", process.Topic.Name);
+            if (process.Topic != null)
+                Data.Add("ProcessTopic", process.Topic);
 
             Data.Add("ProcessType", process.GetType().GetFriendlyTypeName());
 
@@ -62,8 +62,8 @@
                 Data.Add("Trace", trace);
 
             Data.Add("ProcessName", process.Name);
-            if (process.Topic?.Name != null)
-                Data.Add("ProcessTopic", process.Topic.Name);
+            if (process.Topic != null)
+                Data.Add("ProcessTopic", process.Topic);
 
             Data.Add("ProcessType", process.GetType().GetFriendlyTypeName());
 
@@ -113,7 +113,7 @@
                     if (assemblyName.Equals("CommandDotNet", StringComparison.OrdinalIgnoreCase))
                         continue;
 
-                    if (assemblyName.Equals("FizzCode.EtLast.PluginHost", StringComparison.OrdinalIgnoreCase))
+                    if (assemblyName.Equals("FizzCode.EtLast.ConsoleHost", StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     try
@@ -234,10 +234,10 @@
                     builder.Append("\")");
                 }
 
-                if (p.Topic?.Name != null)
+                if (p.Topic != null)
                 {
                     builder.Append(", topic: ");
-                    builder.Append(p.Topic.Name);
+                    builder.Append(p.Topic);
                 }
 
                 builder.Append(", kind: ");

@@ -7,7 +7,7 @@
     using System.IO;
     using OfficeOpenXml;
 
-    public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowWriter
+    public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
     {
         public string FileName { get; init; }
         public ExcelPackage ExistingPackage { get; init; }
@@ -17,10 +17,10 @@
 
         private SimpleExcelWriterState _state;
         private ExcelPackage _package;
-        private int? _storeUid;
+        private int? _sinkUid;
 
-        public EpPlusSimpleRowWriterMutator(ITopic topic, string name)
-            : base(topic, name)
+        public EpPlusSimpleRowWriterMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 
@@ -62,12 +62,12 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            if (_storeUid == null)
+            if (_sinkUid == null)
             {
-                _storeUid = Context.GetStoreUid(PathHelpers.GetFriendlyPathName(FileName), SheetName);
+                _sinkUid = Context.GetSinkUid(PathHelpers.GetFriendlyPathName(FileName), SheetName);
             }
 
-            Context.RegisterRowStored(row, _storeUid.Value);
+            Context.RegisterWriteToSink(row, _sinkUid.Value);
 
             if (_package == null) // lazy load here instead of prepare
             {

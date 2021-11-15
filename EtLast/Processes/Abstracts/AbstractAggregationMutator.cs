@@ -15,8 +15,8 @@
         public List<ColumnCopyConfiguration> FixColumns { get; init; }
         public Func<IRow, string> KeyGenerator { get; init; }
 
-        protected AbstractAggregationMutator(ITopic topic, string name)
-            : base(topic, name)
+        protected AbstractAggregationMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

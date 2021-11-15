@@ -12,8 +12,8 @@
     /// </summary>
     public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
     {
-        public MemoryAggregationMutator(ITopic topic, string name)
-            : base(topic, name)
+        public MemoryAggregationMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

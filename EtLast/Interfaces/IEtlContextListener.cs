@@ -12,8 +12,8 @@
         void OnRowCreated(IReadOnlyRow row);
         void OnRowOwnerChanged(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess);
         void OnRowValueChanged(IReadOnlyRow row, params KeyValuePair<string, object>[] values);
-        void OnRowStoreStarted(int storeUid, string location, string path);
-        void OnRowStored(IReadOnlyRow row, int storeUid);
+        void OnSinkStarted(int sinkUid, string location, string path);
+        void OnWriteToSink(IReadOnlyRow row, int sinkUid);
 
         void OnProcessInvocationStart(IProcess process);
         void OnProcessInvocationEnd(IProcess process);

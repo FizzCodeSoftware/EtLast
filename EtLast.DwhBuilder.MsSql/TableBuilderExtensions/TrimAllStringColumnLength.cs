@@ -26,7 +26,7 @@
             if (limitedLengthStringColumns.Count == 0)
                 yield break;
 
-            yield return new CustomMutator(builder.ResilientTable.Topic, nameof(TrimAllStringColumnLength))
+            yield return new CustomMutator(builder.ResilientTable.Scope.Context, builder.ResilientTable.Topic, nameof(TrimAllStringColumnLength))
             {
                 Then = row =>
                 {

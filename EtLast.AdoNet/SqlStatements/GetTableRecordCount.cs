@@ -10,8 +10,8 @@
         public string TableName { get; init; }
         public string CustomWhereClause { get; init; }
 
-        public GetTableRecordCount(ITopic topic, string name)
-            : base(topic, name)
+        public GetTableRecordCount(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

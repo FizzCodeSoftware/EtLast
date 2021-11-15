@@ -9,36 +9,42 @@
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public ProcessInvocationInfo InvocationInfo { get; set; }
 
-        public IEtlContext Context => Topic.Context;
+        public IEtlContext Context { get; }
 
-        public ITopic Topic { get; set; }
+        public string Topic { get; set; }
         public string Name { get; set; }
 
-        public ProcessKind Kind { get; }
+        public string Kind { get; }
 
-        protected AbstractProcess(ITopic topic, string name)
+        protected AbstractProcess(IEtlContext context, string topic, string name)
         {
-            Topic = topic ?? throw new ProcessParameterNullException(this, nameof(topic));
+            Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
             Name = name ?? GetType().GetFriendlyTypeName();
             Topic = topic;
             Kind = GetProcessKind(this);
         }
 
-        private static ProcessKind GetProcessKind(IProcess process)
+        private static string GetProcessKind(IProcess process)
         {
             if (process.GetType().GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IExecutableWithResult<>)))
-                return ProcessKind.jobWithResult;
+                return "jobWithResult";
 
             return process switch
             {
-                IRowReader _ => ProcessKind.reader,
-                IRowWriter _ => ProcessKind.writer,
-                IMutator _ => ProcessKind.mutator,
-                IScope _ => ProcessKind.scope,
-                IEvaluable _ => ProcessKind.producer,
-                IExecutable _ => ProcessKind.job,
-                _ => ProcessKind.unknown,
+                IRowSource _ => "source",
+                IRowSink _ => "sink",
+                IMutator _ => "mutator",
+                IScope _ => "scope",
+                IEvaluable _ => "producer",
+                IExecutable _ => "job",
+                _ => "unknown",
             };
+        }
+
+        public override string ToString()
+        {
+            var typeName = GetType().GetFriendlyTypeName();
+            return typeName + (Name != typeName ? " (" + Name + ")" : "");
         }
     }
 }

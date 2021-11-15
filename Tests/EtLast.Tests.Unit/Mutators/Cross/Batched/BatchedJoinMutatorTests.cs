@@ -18,11 +18,11 @@
         [TestMethod]
         public void NoMatchCustom()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var executedBatchCount = 0;
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(TestData.Person(topic))
-                .JoinBatched(new BatchedJoinMutator(topic, null)
+                .ReadFrom(TestData.Person(context))
+                .JoinBatched(new BatchedJoinMutator(context, null, null)
                 {
                     BatchSize = 4,
                     LookupBuilder = new FilteredRowLookupBuilder()
@@ -30,7 +30,7 @@
                         ProcessCreator = filterRows =>
                         {
                             executedBatchCount++;
-                            return TestData.PersonEyeColor(topic);
+                            return TestData.PersonEyeColor(context);
                         },
                         KeyGenerator = row => row.GenerateKey("personId"),
                     },
@@ -56,18 +56,18 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["name"] = "E", ["age"] = -3, ["height"] = 160, ["countryId"] = 1, ["lastChangedTime"] = new DateTime(2019, 1, 1, 23, 59, 59, 0), ["eyeColor"] = "not found" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["name"] = "A", ["age"] = 11, ["height"] = 140, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0), ["eyeColor"] = "not found" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 6, ["name"] = "fake", ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0), ["eyeColor"] = "not found" } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void NoMatchRemove()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var executedBatchCount = 0;
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(TestData.Person(topic))
-                .JoinBatched(new BatchedJoinMutator(topic, null)
+                .ReadFrom(TestData.Person(context))
+                .JoinBatched(new BatchedJoinMutator(context, null, null)
                 {
                     BatchSize = 4,
                     LookupBuilder = new FilteredRowLookupBuilder()
@@ -75,7 +75,7 @@
                         ProcessCreator = filterRows =>
                         {
                             executedBatchCount++;
-                            return TestData.PersonEyeColor(topic);
+                            return TestData.PersonEyeColor(context);
                         },
                         KeyGenerator = row => row.GenerateKey("personId"),
                     },
@@ -94,18 +94,18 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0), ["color"] = "blue" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0), ["color"] = "yellow" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 2, ["name"] = "C", ["age"] = 27, ["height"] = 170, ["eyeColor"] = "green", ["countryId"] = 2, ["birthDate"] = new DateTime(2014, 1, 21, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 11, 21, 17, 11, 58, 0), ["color"] = "black" } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void NoMatchThrow1()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var executedBatchCount = 0;
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(TestData.Person(topic))
-                .JoinBatched(new BatchedJoinMutator(topic, null)
+                .ReadFrom(TestData.Person(context))
+                .JoinBatched(new BatchedJoinMutator(context, null, null)
                 {
                     BatchSize = 1,
                     LookupBuilder = new FilteredRowLookupBuilder()
@@ -113,7 +113,7 @@
                         ProcessCreator = filterRows =>
                         {
                             executedBatchCount++;
-                            return TestData.PersonEyeColor(topic);
+                            return TestData.PersonEyeColor(context);
                         },
                         KeyGenerator = row => row.GenerateKey("personId"),
                     },
@@ -132,7 +132,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0), ["color"] = "blue" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0), ["color"] = "yellow" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 2, ["name"] = "C", ["age"] = 27, ["height"] = 170, ["eyeColor"] = "green", ["countryId"] = 2, ["birthDate"] = new DateTime(2014, 1, 21, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 11, 21, 17, 11, 58, 0), ["color"] = "black" } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
             Assert.IsTrue(exceptions[0] is NoMatchException);
         }
@@ -140,11 +140,11 @@
         [TestMethod]
         public void NoMatchThrow4()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var executedBatchCount = 0;
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(TestData.Person(topic))
-                .JoinBatched(new BatchedJoinMutator(topic, null)
+                .ReadFrom(TestData.Person(context))
+                .JoinBatched(new BatchedJoinMutator(context, null, null)
                 {
                     BatchSize = 4,
                     LookupBuilder = new FilteredRowLookupBuilder()
@@ -152,7 +152,7 @@
                         ProcessCreator = filterRows =>
                         {
                             executedBatchCount++;
-                            return TestData.PersonEyeColor(topic);
+                            return TestData.PersonEyeColor(context);
                         },
                         KeyGenerator = row => row.GenerateKey("personId"),
                     },
@@ -164,7 +164,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(1, executedBatchCount);
             Assert.AreEqual(0, result.MutatedRows.Count);
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
             Assert.IsTrue(exceptions[0] is NoMatchException);
         }
@@ -172,13 +172,13 @@
         [TestMethod]
         public void DelegateThrowsExceptionRowKeyGenerator()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var executedBatchCount = 0;
             var executedLeftKeyDelegateCount = 0;
             var executedRightKeyDelegateCount = 0;
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(TestData.Person(topic))
-                .JoinBatched(new BatchedJoinMutator(topic, null)
+                .ReadFrom(TestData.Person(context))
+                .JoinBatched(new BatchedJoinMutator(context, null, null)
                 {
                     BatchSize = 2,
                     LookupBuilder = new FilteredRowLookupBuilder()
@@ -186,7 +186,7 @@
                         ProcessCreator = filterRows =>
                         {
                             executedBatchCount++;
-                            return TestData.PersonEyeColor(topic);
+                            return TestData.PersonEyeColor(context);
                         },
                         KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GenerateKey("personId"); },
                     },
@@ -200,7 +200,7 @@
             Assert.AreEqual(3, executedLeftKeyDelegateCount);
             Assert.AreEqual(7, executedRightKeyDelegateCount);
             Assert.AreEqual(0, result.MutatedRows.Count);
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
             Assert.IsTrue(exceptions[0] is KeyGeneratorException);
         }
@@ -208,13 +208,13 @@
         [TestMethod]
         public void DelegateThrowsExceptionLookupBuilderKeyGenerator()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var executedBatchCount = 0;
             var executedLeftKeyDelegateCount = 0;
             var executedRightKeyDelegateCount = 0;
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(TestData.Person(topic))
-                .JoinBatched(new BatchedJoinMutator(topic, null)
+                .ReadFrom(TestData.Person(context))
+                .JoinBatched(new BatchedJoinMutator(context, null, null)
                 {
                     BatchSize = 1,
                     LookupBuilder = new FilteredRowLookupBuilder()
@@ -222,7 +222,7 @@
                         ProcessCreator = filterRows =>
                         {
                             executedBatchCount++;
-                            return TestData.PersonEyeColor(topic);
+                            return TestData.PersonEyeColor(context);
                         },
                         KeyGenerator = row => { executedRightKeyDelegateCount++; return executedBatchCount < 2 ? row.GenerateKey("personId") : row.GetAs<double>("personId").ToString("D", CultureInfo.InvariantCulture); },
                     },
@@ -240,7 +240,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "yellow" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "red" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "green" } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
             Assert.IsTrue(exceptions[0] is KeyGeneratorException);
         }
@@ -248,13 +248,13 @@
         [TestMethod]
         public void DelegateThrowsExceptionMatchFilter()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var executedBatchCount = 0;
             var executedLeftKeyDelegateCount = 0;
             var executedRightKeyDelegateCount = 0;
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(TestData.Person(topic))
-                .JoinBatched(new BatchedJoinMutator(topic, null)
+                .ReadFrom(TestData.Person(context))
+                .JoinBatched(new BatchedJoinMutator(context, null, null)
                 {
                     BatchSize = 1,
                     LookupBuilder = new FilteredRowLookupBuilder()
@@ -262,7 +262,7 @@
                         ProcessCreator = filterRows =>
                         {
                             executedBatchCount++;
-                            return TestData.PersonEyeColor(topic);
+                            return TestData.PersonEyeColor(context);
                         },
                         KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GenerateKey("personId"); },
                     },
@@ -275,7 +275,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(1, executedBatchCount);
             Assert.AreEqual(0, result.MutatedRows.Count);
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
             Assert.IsTrue(exceptions[0] is ProcessExecutionException);
         }

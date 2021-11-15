@@ -10,7 +10,7 @@
     {
         string ScopeName { get; }
         IEnumerable<RelationalTable> Tables { get; }
-        ITopic Topic { get; }
+        string Topic { get; }
 
         IReadOnlyList<SqlEngine> SupportedSqlEngines { get; }
 

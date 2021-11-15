@@ -11,7 +11,7 @@
     using FizzCode.LightWeight.AdoNet;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
-    public sealed class WriteToMsSqlMutator : AbstractMutator, IRowWriter
+    public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         public NamedConnectionString ConnectionString { get; init; }
@@ -42,10 +42,10 @@
         private DatabaseConnection _connection;
         private SqlBulkCopy _bulkCopy;
         private RowShadowReader _reader;
-        private int? _storeUid;
+        private int? _sinkUid;
 
-        public WriteToMsSqlMutator(ITopic topic, string name)
-            : base(topic, name)
+        public WriteToMsSqlMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 
@@ -86,12 +86,12 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            if (_storeUid == null)
+            if (_sinkUid == null)
             {
-                _storeUid = Context.GetStoreUid(ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
+                _sinkUid = Context.GetSinkUid(ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
             }
 
-            Context.RegisterRowStored(row, _storeUid.Value);
+            Context.RegisterWriteToSink(row, _sinkUid.Value);
 
             var rc = _reader.RowCount;
             for (var i = 0; i < TableDefinition.Columns.Length; i++)

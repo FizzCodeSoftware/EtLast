@@ -10,7 +10,7 @@
     /// Producer processes create rows. They may create or generate, read from different sources, copy from existing rows.
     /// </summary>
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class AbstractProducer : AbstractEvaluable
+    public abstract class AbstractProducer : AbstractEvaluable, IRowSource
     {
         /// <summary>
         /// Default false.
@@ -30,8 +30,8 @@
         private int _currentRowIndex;
         protected bool AutomaticallyEvaluateAndYieldInputProcessRows { get; init; } = true;
 
-        protected AbstractProducer(ITopic topic, string name)
-            : base(topic, name)
+        protected AbstractProducer(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

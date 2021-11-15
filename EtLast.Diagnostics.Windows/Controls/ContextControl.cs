@@ -11,7 +11,7 @@
         public Control Container { get; }
         public ContextProcessInvocationListControl ProcessInvocationList { get; }
         public ContextIoCommandListControl IoCommandList { get; }
-        public ContextStoreListControl StoreList { get; }
+        public ContextSinkListControl SinkList { get; }
 
         public ContextControl(DiagContext context, Control container)
         {
@@ -34,14 +34,14 @@
                     LinkedProcessInvocationList = ProcessInvocationList,
                 };
 
-                var storeListContainer = new Panel()
+                var sinkListContainer = new Panel()
                 {
                     Parent = container,
                     BorderStyle = BorderStyle.FixedSingle,
                     Width = 300,
                 };
 
-                StoreList = new ContextStoreListControl(storeListContainer, context);
+                SinkList = new ContextSinkListControl(sinkListContainer, context);
 
                 ProcessInvocationList.OnSelectionChanged += ProcessInvocationList_OnSelectionChanged;
 
@@ -68,8 +68,8 @@
 
             y = ProcessInvocationList.ListView.Bottom;
             h = cr.Height - y;
-            StoreList.Container.Bounds = new Rectangle(cr.Left, y, StoreList.Container.Width, h);
-            IoCommandList.Container.Bounds = new Rectangle(StoreList.Container.Right, ProcessInvocationList.ListView.Bottom, cr.Width - StoreList.Container.Width, h);
+            SinkList.Container.Bounds = new Rectangle(cr.Left, y, SinkList.Container.Width, h);
+            IoCommandList.Container.Bounds = new Rectangle(SinkList.Container.Right, ProcessInvocationList.ListView.Bottom, cr.Width - SinkList.Container.Width, h);
         }
     }
 }

@@ -16,13 +16,13 @@
         [TestMethod]
         public void FixColumnsIgnoreNull()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = new ProcessBuilder()
             {
-                InputProcess = TestData.PersonalAssetsPivot(topic),
+                InputProcess = TestData.PersonalAssetsPivot(context),
                 Mutators = new MutatorList()
                 {
-                    new UnpivotMutator(topic, null)
+                    new UnpivotMutator(context, null, null)
                     {
                         FixColumns = new List<ColumnCopyConfiguration>()
                         {
@@ -49,20 +49,20 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void BothColumnsIgnoreNull()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = new ProcessBuilder()
             {
-                InputProcess = TestData.PersonalAssetsPivot(topic),
+                InputProcess = TestData.PersonalAssetsPivot(context),
                 Mutators = new MutatorList()
                 {
-                    new UnpivotMutator(topic, null)
+                    new UnpivotMutator(context, null, null)
                     {
                         FixColumns = new List<ColumnCopyConfiguration>()
                         {
@@ -90,20 +90,20 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void BothColumnsKeepNull()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = new ProcessBuilder()
             {
-                InputProcess = TestData.PersonalAssetsPivot(topic),
+                InputProcess = TestData.PersonalAssetsPivot(context),
                 Mutators = new MutatorList()
                 {
-                    new UnpivotMutator(topic, null)
+                    new UnpivotMutator(context, null, null)
                     {
                         FixColumns = new List<ColumnCopyConfiguration>()
                         {
@@ -133,20 +133,20 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void ValueColumnsIgnoreNull()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = new ProcessBuilder()
             {
-                InputProcess = TestData.PersonalAssetsPivot(topic),
+                InputProcess = TestData.PersonalAssetsPivot(context),
                 Mutators = new MutatorList()
                 {
-                    new UnpivotMutator(topic, null)
+                    new UnpivotMutator(context, null, null)
                     {
                         ValueColumns = new[] { "cars", "houses", "kids" },
                         NewColumnForDimension = "asset-kind",
@@ -169,20 +169,20 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void ValueColumnsKeepNull()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = new ProcessBuilder()
             {
-                InputProcess = TestData.PersonalAssetsPivot(topic),
+                InputProcess = TestData.PersonalAssetsPivot(context),
                 Mutators = new MutatorList()
                 {
-                    new UnpivotMutator(topic, null)
+                    new UnpivotMutator(context, null, null)
                     {
                         NewColumnForDimension = "asset-kind",
                         NewColumnForValue = "amount",
@@ -207,7 +207,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
     }

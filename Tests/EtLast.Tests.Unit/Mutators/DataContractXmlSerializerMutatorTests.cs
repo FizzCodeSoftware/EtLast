@@ -12,10 +12,10 @@
         [TestMethod]
         public void CombinedTest()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(TestData.Person(topic))
-                .ConvertValue(new InPlaceConvertMutator(topic, "BDateConverterV1")
+                .ReadFrom(TestData.Person(context))
+                .ConvertValue(new InPlaceConvertMutator(context, null, "BDateConverterV1")
                 {
                     Columns = new[] { "birthDate" },
                     TypeConverter = new DateConverterAuto(new CultureInfo("hu-HU"))
@@ -24,7 +24,7 @@
                     },
                     ActionIfInvalid = InvalidValueAction.Throw,
                 })
-                .Explode(new ExplodeMutator(topic, null)
+                .Explode(new ExplodeMutator(context, null, null)
                 {
                     RowCreator = row =>
                     {
@@ -42,19 +42,19 @@
                         return new[] { newRow };
                     },
                 })
-                .SerializeToXml(new DataContractXmlSerializerMutator<TestData.PersonModel>(topic, "serialize to XML byte[]")
+                .SerializeToXml(new DataContractXmlSerializerMutator<TestData.PersonModel>(context, null, "serialize to XML byte[]")
                 {
                     ColumnConfiguration = new ColumnCopyConfiguration("personModel", "personModelXml"),
                 })
-                .RemoveColumn(new RemoveColumnMutator(topic, null)
+                .RemoveColumn(new RemoveColumnMutator(context, null, null)
                 {
                     Columns = new[] { "personModel" },
                 })
-                .DeSerializeFromXml(new DataContractXmlDeSerializerMutator<TestData.PersonModel>(topic, "deserialize from XML byte[]")
+                .DeSerializeFromXml(new DataContractXmlDeSerializerMutator<TestData.PersonModel>(context, null, "deserialize from XML byte[]")
                 {
                     ColumnConfiguration = new ColumnCopyConfiguration("personModelXml", "personModel"),
                 })
-                .Explode(new ExplodeMutator(topic, null)
+                .Explode(new ExplodeMutator(context, null, null)
                 {
                     RowCreator = row =>
                     {
@@ -81,7 +81,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["name"] = "E", ["age"] = -3 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["name"] = "A", ["age"] = 11, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 6, ["name"] = "fake", ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0) } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
     }

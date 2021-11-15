@@ -36,7 +36,7 @@
                 InstanceUID = reader.Read7BitEncodedInt(),
                 InvocationCounter = reader.Read7BitEncodedInt(),
                 Type = reader.ReadString(),
-                Kind = (ProcessKind)reader.ReadByte(),
+                Kind = reader.ReadNullableString(),
                 Name = reader.ReadString(),
                 Topic = reader.ReadNullableString(),
                 CallerInvocationUID = reader.ReadNullableInt32()
@@ -150,9 +150,9 @@
             return evt;
         }
 
-        public RowStoreStartedEvent ReadRowStoreStartedEvent(ExtendedBinaryReader reader)
+        public SinkStartedEvent ReadSinkStartedEvent(ExtendedBinaryReader reader)
         {
-            var evt = new RowStoreStartedEvent
+            var evt = new SinkStartedEvent
             {
                 UID = reader.Read7BitEncodedInt(),
                 Location = GetTextById(reader.Read7BitEncodedInt()),
@@ -162,13 +162,13 @@
             return evt;
         }
 
-        public RowStoredEvent ReadRowStoredEvent(ExtendedBinaryReader reader)
+        public WriteToSinkEvent ReadWriteToSinkEvent(ExtendedBinaryReader reader)
         {
-            var evt = new RowStoredEvent
+            var evt = new WriteToSinkEvent
             {
                 RowUid = reader.Read7BitEncodedInt(),
                 ProcessInvocationUID = reader.Read7BitEncodedInt(),
-                StoreUid = reader.Read7BitEncodedInt()
+                sinkUid = reader.Read7BitEncodedInt()
             };
 
             var columnCount = reader.Read7BitEncodedInt();

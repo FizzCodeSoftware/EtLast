@@ -5,20 +5,20 @@
 
     public delegate void OnEventAddedDelegate(Playbook playbook, List<AbstractEvent> abstractEvents);
     public delegate void OnProcessInvokedDelegate(Playbook playbook, TrackedProcessInvocation process);
-    public delegate void OnRowStoreStartedDelegate(Playbook playbook, TrackedStore store);
-    public delegate void OnRowStoredDelegate(Playbook playbook, TrackedStore store, TrackedProcessInvocation process, int rowUid, KeyValuePair<string, object>[] values);
+    public delegate void OnSinkStartedDelegate(Playbook playbook, TrackedSink sink);
+    public delegate void OnWriteToSinkDelegate(Playbook playbook, TrackedSink sink, TrackedProcessInvocation process, int rowUid, KeyValuePair<string, object>[] values);
 
     public class Playbook
     {
         public DiagContext DiagContext { get; }
 
-        public Dictionary<int, TrackedStore> StoreList { get; } = new Dictionary<int, TrackedStore>();
+        public Dictionary<int, TrackedSink> SinkList { get; } = new Dictionary<int, TrackedSink>();
         public Dictionary<int, TrackedProcessInvocation> ProcessList { get; } = new Dictionary<int, TrackedProcessInvocation>();
 
         public OnProcessInvokedDelegate OnProcessInvoked { get; set; }
         public OnEventAddedDelegate OnEventsAdded { get; set; }
-        public OnRowStoreStartedDelegate OnRowStoreStarted { get; set; }
-        public OnRowStoredDelegate OnRowStored { get; set; }
+        public OnSinkStartedDelegate OnSinkStarted { get; set; }
+        public OnWriteToSinkDelegate OnWriteToSink { get; set; }
 
         public Playbook(DiagContext sessionContext)
         {
@@ -101,24 +101,24 @@
                         break;
                     case RowValueChangedEvent evt:
                         continue;
-                    case RowStoreStartedEvent evt:
+                    case SinkStartedEvent evt:
                         {
-                            var store = new TrackedStore(evt.UID, evt.Location, evt.Path);
-                            StoreList.Add(evt.UID, store);
-                            OnRowStoreStarted?.Invoke(this, store);
+                            var sink = new TrackedSink(evt.UID, evt.Location, evt.Path);
+                            SinkList.Add(evt.UID, sink);
+                            OnSinkStarted?.Invoke(this, sink);
                         }
                         break;
-                    case RowStoredEvent evt:
+                    case WriteToSinkEvent evt:
                         {
                             if (!ProcessList.TryGetValue(evt.ProcessInvocationUID, out var process))
                                 continue;
 
-                            if (!StoreList.TryGetValue(evt.StoreUid, out var store))
+                            if (!SinkList.TryGetValue(evt.sinkUid, out var sink))
                                 continue;
 
-                            process.StoreRow(evt.RowUid);
-                            OnRowStored?.Invoke(this, store, process, evt.RowUid, evt.Values);
-                            store.RowCount++;
+                            process.WriteRowToSink(evt.RowUid);
+                            OnWriteToSink?.Invoke(this, sink, process, evt.RowUid, evt.Values);
+                            sink.RowCount++;
                         }
                         break;
                 }

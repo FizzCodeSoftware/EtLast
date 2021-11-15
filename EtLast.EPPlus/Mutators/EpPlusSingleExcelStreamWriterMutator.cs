@@ -7,7 +7,7 @@
     using System.IO;
     using OfficeOpenXml;
 
-    public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutator, IRowWriter
+    public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutator, IRowSink
         where TState : BaseExcelWriterState, new()
     {
         public string StoreLocation { get; init; }
@@ -19,10 +19,10 @@
 
         private TState _state;
         private ExcelPackage _package;
-        private int? _storeUid;
+        private int? _sinkUid;
 
-        public EpPlusSingleExcelStreamWriterMutator(ITopic topic, string name)
-            : base(topic, name)
+        public EpPlusSingleExcelStreamWriterMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 
@@ -74,9 +74,9 @@
             {
                 Action.Invoke(row, _package, _state);
 
-                if (_storeUid != null)
+                if (_sinkUid != null)
                 {
-                    Context.RegisterRowStored(row, _storeUid.Value);
+                    Context.RegisterWriteToSink(row, _sinkUid.Value);
                 }
             }
             catch (Exception ex)
@@ -109,7 +109,7 @@
         public void AddWorkSheet(string name)
         {
             _state.LastWorksheet = _package.Workbook.Worksheets.Add(name);
-            _storeUid = Context.GetStoreUid(StoreLocation, name);
+            _sinkUid = Context.GetSinkUid(StoreLocation, name);
         }
     }
 

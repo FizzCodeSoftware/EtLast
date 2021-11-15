@@ -12,20 +12,20 @@
         [TestMethod]
         public void SplitterTestFirstEvaluatorTakesItAll()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
 
-            var splitter = new Splitter<DefaultRowQueue>(topic, null)
+            var splitter = new Splitter<DefaultRowQueue>(context, null, null)
             {
-                InputProcess = new EnumerableImporter(topic, null)
+                InputProcess = new EnumerableImporter(context, null, null)
                 {
-                    InputGenerator = caller => TestData.Person(topic).Evaluate(caller).TakeRowsAndReleaseOwnership(),
+                    InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
                 },
             };
 
             var processes = new IEvaluable[4];
             for (var i = 0; i < 3; i++)
             {
-                processes[i] = new CustomMutator(topic, null)
+                processes[i] = new CustomMutator(context, null, null)
                 {
                     InputProcess = splitter,
                     Then = row =>
@@ -46,27 +46,27 @@
             Assert.AreEqual(7, results[0].Count);
             Assert.AreEqual(0, results[1].Count);
             Assert.AreEqual(0, results[2].Count);
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void SplitterTestMultiThread()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
 
-            var splitter = new Splitter<DefaultRowQueue>(topic, null)
+            var splitter = new Splitter<DefaultRowQueue>(context, null, null)
             {
-                InputProcess = new EnumerableImporter(topic, null)
+                InputProcess = new EnumerableImporter(context, null, null)
                 {
-                    InputGenerator = caller => TestData.Person(topic).Evaluate(caller).TakeRowsAndReleaseOwnership(),
+                    InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
                 },
             };
 
             var processes = new IEvaluable[4];
             for (var i = 0; i < 3; i++)
             {
-                processes[i] = new CustomMutator(topic, null)
+                processes[i] = new CustomMutator(context, null, null)
                 {
                     InputProcess = splitter,
                     Then = row =>
@@ -103,7 +103,7 @@
             }
 
             Assert.AreEqual(7, results[0].Count + results[1].Count + results[2].Count);
-            foreach (var p in TestData.Person(topic).Evaluate().TakeRowsAndReleaseOwnership())
+            foreach (var p in TestData.Person(context).Evaluate().TakeRowsAndReleaseOwnership())
             {
                 Assert.IsTrue(
                     results[0].Any(m => m.GetAs<int>("id") == p.GetAs<int>("id"))
@@ -111,25 +111,25 @@
                     || results[2].Any(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
             }
 
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void MergerTest()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
 
-            var merger = new ParallelMerger(topic, null)
+            var merger = new ParallelMerger(context, null, null)
             {
                 ProcessList = new List<IEvaluable>(),
             };
 
             for (var i = 0; i < 3; i++)
             {
-                merger.ProcessList.Add(new CustomMutator(topic, null)
+                merger.ProcessList.Add(new CustomMutator(context, null, null)
                 {
-                    InputProcess = TestData.Person(topic),
+                    InputProcess = TestData.Person(context),
                     Then = row =>
                     {
                         Thread.Sleep(new Random().Next(100));
@@ -141,36 +141,36 @@
 
             var result = merger.Evaluate().TakeRowsAndReleaseOwnership().ToList();
             Assert.AreEqual(21, result.Count);
-            foreach (var p in TestData.Person(topic).Evaluate().TakeRowsAndReleaseOwnership())
+            foreach (var p in TestData.Person(context).Evaluate().TakeRowsAndReleaseOwnership())
             {
                 Assert.AreEqual(3, result.Count(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
             }
 
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void SplitterTestWithMerger()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
 
-            var splitter = new Splitter<DefaultRowQueue>(topic, null)
+            var splitter = new Splitter<DefaultRowQueue>(context, null, null)
             {
-                InputProcess = new EnumerableImporter(topic, null)
+                InputProcess = new EnumerableImporter(context, null, null)
                 {
-                    InputGenerator = caller => TestData.Person(topic).Evaluate(caller).TakeRowsAndReleaseOwnership(),
+                    InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
                 },
             };
 
-            var merger = new ParallelMerger(topic, null)
+            var merger = new ParallelMerger(context, null, null)
             {
                 ProcessList = new List<IEvaluable>(),
             };
 
             for (var i = 0; i < 3; i++)
             {
-                merger.ProcessList.Add(new CustomMutator(topic, null)
+                merger.ProcessList.Add(new CustomMutator(context, null, null)
                 {
                     InputProcess = splitter,
                     Then = row =>
@@ -184,29 +184,29 @@
 
             var result = merger.Evaluate().TakeRowsAndReleaseOwnership().ToList();
             Assert.AreEqual(7, result.Count);
-            foreach (var p in TestData.Person(topic).Evaluate().TakeRowsAndReleaseOwnership())
+            foreach (var p in TestData.Person(context).Evaluate().TakeRowsAndReleaseOwnership())
             {
                 Assert.IsTrue(result.Any(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
             }
 
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void FluentProcessBuilderTest()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
 
             var n = 0;
 
             var builder = ProcessBuilder.Fluent
-                .ImportEnumerable(new EnumerableImporter(topic, null)
+                .ImportEnumerable(new EnumerableImporter(context, null, null)
                 {
-                    InputGenerator = caller => TestData.Person(topic).Evaluate(caller).TakeRowsAndReleaseOwnership(),
+                    InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
                 })
-                .ProcessOnMultipleThreads(topic, 3, (i, mb) => mb
-                   .CustomCode(new CustomMutator(topic, null)
+                .ProcessOnMultipleThreads(context, null, 3, (i, mb) => mb
+                   .CustomCode(new CustomMutator(context, null, null)
                    {
                        Then = row =>
                        {
@@ -216,7 +216,7 @@
                        },
                    })
                    )
-                .CustomCode(new CustomMutator(topic, null)
+                .CustomCode(new CustomMutator(context, null, null)
                 {
                     Then = row =>
                     {
@@ -227,12 +227,12 @@
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(7, result.MutatedRows.Count);
-            foreach (var p in TestData.Person(topic).Evaluate().TakeRowsAndReleaseOwnership())
+            foreach (var p in TestData.Person(context).Evaluate().TakeRowsAndReleaseOwnership())
             {
                 Assert.IsTrue(result.MutatedRows.Any(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
             }
 
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
     }

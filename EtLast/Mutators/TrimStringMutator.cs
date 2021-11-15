@@ -7,8 +7,8 @@
     {
         public string[] Columns { get; init; }
 
-        public TrimStringMutator(ITopic topic, string name)
-            : base(topic, name)
+        public TrimStringMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

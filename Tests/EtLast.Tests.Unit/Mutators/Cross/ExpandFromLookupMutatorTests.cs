@@ -17,14 +17,14 @@
         [TestMethod]
         public void Complex()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(TestData.Person(topic))
-                .ExpandFromLookup(new ExpandFromLookupMutator(topic, null)
+                .ReadFrom(TestData.Person(context))
+                .ExpandFromLookup(new ExpandFromLookupMutator(context, null, null)
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {
-                        Process = TestData.Country(topic),
+                        Process = TestData.Country(context),
                         KeyGenerator = row => row.GenerateKey("id"),
                     },
                     MatchSelector = (row, lookup) =>
@@ -57,7 +57,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["name"] = "E", ["age"] = -3, ["height"] = 160, ["countryId"] = 1, ["lastChangedTime"] = new DateTime(2019, 1, 1, 23, 59, 59, 0), ["countryAbbrev"] = "HU", ["countryAbbrevFound"] = true },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["name"] = "A", ["age"] = 11, ["height"] = 140, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0), ["countryAbbrev"] = "country was null" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 6, ["name"] = "fake", ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0), ["countryAbbrev"] = "no match found" } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
     }

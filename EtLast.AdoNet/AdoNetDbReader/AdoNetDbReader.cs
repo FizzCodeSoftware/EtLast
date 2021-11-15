@@ -12,8 +12,8 @@
         public string CustomOrderByClause { get; init; }
         public int RecordCountLimit { get; init; }
 
-        public AdoNetDbReader(ITopic topic, string name)
-            : base(topic, name)
+        public AdoNetDbReader(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

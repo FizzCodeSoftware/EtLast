@@ -24,8 +24,8 @@
 
         public string SchemaName { get; init; }
 
-        public MsSqlDropForeignKeys(ITopic topic, string name)
-            : base(topic, name)
+        public MsSqlDropForeignKeys(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

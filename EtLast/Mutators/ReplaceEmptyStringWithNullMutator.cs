@@ -7,8 +7,8 @@
     {
         public string[] Columns { get; init; }
 
-        public ReplaceEmptyStringWithNullMutator(ITopic topic, string name)
-            : base(topic, name)
+        public ReplaceEmptyStringWithNullMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

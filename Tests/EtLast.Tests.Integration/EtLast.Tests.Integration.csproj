@@ -7,7 +7,7 @@
     <PackageId>FizzCode.EtLast.Tests.Integration</PackageId>
     <Authors>FizzCode Ltd.</Authors>
     <Product>EtLast ETL (Extract, Transform and Load) library for .NET</Product>
-    <Description>Intgration tests for the EtLast Plugin host library</Description>
+    <Description>Intgration tests using the EtLast Console host library</Description>
     <Copyright>Copyright © 2019-2021 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Platforms>AnyCPU</Platforms>
@@ -39,44 +39,49 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
+    <ProjectReference Include="..\..\EtLast.ConsoleHost\EtLast.ConsoleHost.csproj" />
     <ProjectReference Include="..\..\EtLast.Diagnostics.HttpSender\EtLast.Diagnostics.HttpSender.csproj" />
     <ProjectReference Include="..\..\EtLast.DwhBuilder.Extenders.DataDefinition.MsSql\EtLast.DwhBuilder.Extenders.DataDefinition.MsSql.csproj" />
     <ProjectReference Include="..\..\EtLast.DwhBuilder.Extenders.DataDefinition\EtLast.DwhBuilder.Extenders.DataDefinition.csproj" />
     <ProjectReference Include="..\..\EtLast.DwhBuilder.MsSql\EtLast.DwhBuilder.MsSql.csproj" />
     <ProjectReference Include="..\..\EtLast.DwhBuilder\EtLast.DwhBuilder.csproj" />
     <ProjectReference Include="..\..\EtLast.EPPlus\EtLast.EPPlus.csproj" />
-    <ProjectReference Include="..\..\EtLast.PluginHost.PluginInterface\EtLast.PluginHost.PluginInterface.csproj" />
-    <ProjectReference Include="..\..\EtLast.PluginHost\EtLast.PluginHost.csproj" />
     <ProjectReference Include="..\..\EtLast\EtLast.csproj" />
     <ProjectReference Include="..\EtLast.Tests.Base\EtLast.Tests.Base.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Modules\DwhBuilderTests\TestService.cs">
+    <Compile Update="Modules\DwhBuilderTests\ConfigurationProvider.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Modules\DwhBuilderTests\1100-EtlRunInfoTest.cs">
+    <Compile Update="Modules\DwhBuilderTests\Startup.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Modules\DwhBuilderTests\1110-EtlRunInfoOptimizedTest.cs">
+    <Compile Update="Modules\DwhBuilderTests\Tasks\CreateDatabase.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Modules\DwhBuilderTests\2100-History1Test.cs">
+    <Compile Update="Modules\DwhBuilderTests\Flows\EtlRunInfoTest.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Modules\DwhBuilderTests\2200-History2Test.cs">
+    <Compile Update="Modules\DwhBuilderTests\Flows\EtlRunInfoOptimizedTest.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Modules\DwhBuilderTests\2300-History3Test.cs">
+    <Compile Update="Modules\DwhBuilderTests\Flows\History1Test.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Modules\DwhBuilderTests\3000-NullValidityTest.cs">
+    <Compile Update="Modules\DwhBuilderTests\Flows\History2Test.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Modules\DwhBuilderTests\3100-EtlRunIdForDefaultValidFromTest.cs">
+    <Compile Update="Modules\DwhBuilderTests\Flows\History3Test.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Modules\DwhBuilderTests\AbstractDwhBuilderTestPlugin.cs">
+    <Compile Update="Modules\DwhBuilderTests\Flows\NullValidityTest.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\DwhBuilderTests\Flows\EtlRunIdForDefaultValidFromTest.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\DwhBuilderTests\AbstractDwhBuilderTestFlow.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Update="Modules\DwhBuilderTests\TestDwhDefinition.cs">
@@ -86,12 +91,6 @@
 
   <ItemGroup>
     <None Update="host-configuration.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Modules\DwhBuilderTests\module-configuration.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Modules\Shared\shared-configuration.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

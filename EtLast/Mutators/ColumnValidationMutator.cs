@@ -19,8 +19,8 @@
         /// </summary>
         public ColumnValidationDelegate Test { get; init; }
 
-        public ColumnValidationMutator(ITopic topic, string name)
-            : base(topic, name)
+        public ColumnValidationMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

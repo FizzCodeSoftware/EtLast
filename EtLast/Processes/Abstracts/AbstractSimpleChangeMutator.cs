@@ -8,8 +8,8 @@
     {
         protected List<KeyValuePair<string, object>> Changes;
 
-        protected AbstractSimpleChangeMutator(ITopic topic, string name)
-            : base(topic, name)
+        protected AbstractSimpleChangeMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

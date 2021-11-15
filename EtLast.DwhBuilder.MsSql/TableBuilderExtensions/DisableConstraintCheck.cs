@@ -24,22 +24,22 @@
                     ? new[] { builder.ResilientTable.TableName }
                     : new[] { builder.ResilientTable.TableName, builder.DwhBuilder.GetEscapedHistTableName(builder.Table) };
 
-            yield return new MsSqlDisableConstraintCheck(builder.ResilientTable.Topic, "DisableConstraintCheck")
+            yield return new MsSqlDisableConstraintCheck(builder.ResilientTable.Scope.Context, builder.ResilientTable.Topic, "DisableConstraintCheck")
             {
                 ConnectionString = builder.ResilientTable.Scope.Configuration.ConnectionString,
                 TableNames = tableNames,
                 CommandTimeout = 60 * 60,
             };
 
-            yield return new CustomAction(builder.ResilientTable.Topic, "UpdateConstraintList")
+            yield return new CustomAction(builder.ResilientTable.Scope.Context, builder.ResilientTable.Topic, "UpdateConstraintList")
             {
                 Then = process =>
                 {
-                    var list = builder.DwhBuilder.Topic.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
+                    var list = builder.DwhBuilder.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
                     if (list == null)
                     {
                         list = new List<string>();
-                        builder.DwhBuilder.Topic.Context.AdditionalData["ConstraintCheckDisabledOnTables"] = list;
+                        builder.DwhBuilder.Context.AdditionalData["ConstraintCheckDisabledOnTables"] = list;
                     }
 
                     list.AddRange(tableNames);

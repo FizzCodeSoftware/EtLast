@@ -10,13 +10,12 @@
     using System.Threading;
     using FizzCode.EtLast;
     using FizzCode.EtLast.Diagnostics.Interface;
-    using FizzCode.EtLast.PluginHost;
     using FizzCode.LightWeight.Configuration;
     using Microsoft.Extensions.Configuration;
     using Serilog.Events;
     using Serilog.Parsing;
 
-    public class HttpSender : IDisposable, IExecutionContextListener
+    public class HttpSender : IDisposable, IEtlSessionListener
     {
         public int MaxCommunicationErrorCount { get; } = 2;
 
@@ -36,10 +35,10 @@
         private readonly object _messageTemplateCacheLock = new();
         private readonly MessageTemplateParser _messageTemplateParser = new();
 
-        public bool Init(IExecutionContext executionContext, IConfigurationSection configurationSection, IConfigurationSecretProtector configurationSecretProtector)
+        public bool Init(IEtlSession session, IConfigurationSection configurationSection, IConfigurationSecretProtector configurationSecretProtector)
         {
-            _sessionId = executionContext.SessionId;
-            _contextName = executionContext.Name;
+            _sessionId = session.Id;
+            _contextName = session.Id;
             var url = ConfigurationReader.GetCurrentValue(configurationSection, "Url", null, configurationSecretProtector);
             if (url == null)
                 return false;
@@ -358,23 +357,23 @@
             });
         }
 
-        public void OnRowStoreStarted(int storeUid, string location, string path)
+        public void OnSinkStarted(int sinkUid, string location, string path)
         {
-            SendDiagnostics(DiagnosticsEventKind.RowStoreStarted, writer =>
+            SendDiagnostics(DiagnosticsEventKind.SinkStarted, writer =>
             {
-                writer.Write7BitEncodedInt(storeUid);
+                writer.Write7BitEncodedInt(sinkUid);
                 writer.Write7BitEncodedInt(GetTextDictionaryKey(location));
                 writer.Write7BitEncodedInt(GetTextDictionaryKey(path));
             });
         }
 
-        public void OnRowStored(IReadOnlyRow row, int storeUid)
+        public void OnWriteToSink(IReadOnlyRow row, int sinkUid)
         {
-            SendDiagnostics(DiagnosticsEventKind.RowStored, writer =>
+            SendDiagnostics(DiagnosticsEventKind.WriteToSink, writer =>
             {
                 writer.Write7BitEncodedInt(row.Uid);
                 writer.Write7BitEncodedInt(row.CurrentProcess.InvocationInfo.InvocationUid);
-                writer.Write7BitEncodedInt(storeUid);
+                writer.Write7BitEncodedInt(sinkUid);
                 writer.Write7BitEncodedInt(row.ColumnCount);
                 foreach (var kvp in row.Values)
                 {
@@ -392,9 +391,9 @@
                 writer.Write7BitEncodedInt(process.InvocationInfo.InstanceUid);
                 writer.Write7BitEncodedInt(process.InvocationInfo.Number);
                 writer.Write(process.GetType().GetFriendlyTypeName());
-                writer.Write((byte)process.Kind);
+                writer.WriteNullable(process.Kind);
                 writer.Write(process.Name);
-                writer.WriteNullable(process.Topic.Name);
+                writer.WriteNullable(process.Topic);
                 writer.WriteNullable(process.InvocationInfo.Caller?.InvocationInfo?.InvocationUid);
             });
         }

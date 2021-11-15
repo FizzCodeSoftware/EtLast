@@ -13,19 +13,19 @@
         [TestMethod]
         public void ComplexTestCombinedWithSerializer()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = new ProcessBuilder()
             {
-                InputProcess = TestData.Person(topic),
+                InputProcess = TestData.Person(context),
                 Mutators = new MutatorList()
                 {
-                    new InPlaceConvertMutator(topic, null)
+                    new InPlaceConvertMutator(context, null, null)
                     {
                         Columns = new[] { "birthDate" },
                         TypeConverter = new DateConverterAuto(new CultureInfo("hu-HU")),
                          ActionIfInvalid = InvalidValueAction.Throw,
                     },
-                    new ExplodeMutator(topic, null)
+                    new ExplodeMutator(context, null, null)
                     {
                         RowCreator = row =>
                         {
@@ -43,27 +43,27 @@
                             return new[] { newRow };
                         },
                     },
-                    new DataContractXmlSerializerMutator<PersonModel>(topic, "serialize to XML byte[]")
+                    new DataContractXmlSerializerMutator<PersonModel>(context, null, "serialize to XML byte[]")
                     {
                          ColumnConfiguration = new ColumnCopyConfiguration("personModel", "personModelXml"),
                     },
-                    new RemoveColumnMutator(topic, null)
+                    new RemoveColumnMutator(context, null, null)
                     {
                         Columns = new[] { "personModel" },
                     },
-                    new InPlaceConvertMutator(topic, "deserialize from XML byte[]")
+                    new InPlaceConvertMutator(context, null, "deserialize from XML byte[]")
                     {
                         Columns = new[] { "personModelXml" },
                         TypeConverter = new DataContractXmlDeSerializerConverter<PersonModel>(),
                     },
-                    new RenameColumnMutator(topic, null)
+                    new RenameColumnMutator(context, null, null)
                     {
                         ColumnConfiguration = new List<ColumnRenameConfiguration>()
                         {
                             new ColumnRenameConfiguration("personModelXml", "personModel"),
                         },
                     },
-                    new ExplodeMutator(topic, null)
+                    new ExplodeMutator(context, null, null)
                     {
                         RowCreator = row =>
                         {
@@ -92,7 +92,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["name"] = "E", ["age"] = -3},
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["name"] = "A", ["age"] = 11, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 6, ["name"] = "fake", ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0) } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 

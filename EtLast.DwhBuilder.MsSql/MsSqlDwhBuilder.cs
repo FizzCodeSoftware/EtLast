@@ -12,7 +12,8 @@
 
     public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
     {
-        public ITopic Topic { get; }
+        public IEtlContext Context { get; }
+        public string Topic { get; }
         public string ScopeName { get; }
 
         public RelationalModel Model { get; init; }
@@ -37,8 +38,9 @@
 
         private readonly Dictionary<string, List<string>> _enabledConstraintsByTable = new(StringComparer.OrdinalIgnoreCase);
 
-        public MsSqlDwhBuilder(ITopic topic, string scopeName, DateTime? etlRunIdUtcOverride = null)
+        public MsSqlDwhBuilder(IEtlContext context, string topic, string scopeName, DateTime? etlRunIdUtcOverride = null)
         {
+            Context = context;
             Topic = topic;
             ScopeName = scopeName;
             _etlRunIdUtcOverride = etlRunIdUtcOverride;
@@ -57,7 +59,7 @@
                 tableBuilder.Build();
             }
 
-            return new ResilientSqlScope(Topic, ScopeName)
+            return new ResilientSqlScope(Context, Topic, ScopeName)
             {
                 Configuration = new ResilientSqlScopeConfiguration()
                 {
@@ -73,14 +75,14 @@
             };
         }
 
-        private IEnumerable<IExecutable> CreatePreFinalizers(ResilientSqlScope scope, IProcess caller)
+        private IEnumerable<IExecutable> CreatePreFinalizers(ResilientSqlScope scope)
         {
-            yield return new CustomAction(scope.Topic, "ReadAllEnabledForeignKeys")
+            yield return new CustomAction(scope.Context, scope.Topic, "ReadAllEnabledForeignKeys")
             {
                 Then = (proc) =>
                 {
                     var startedOn = Stopwatch.StartNew();
-                    var connection = EtlConnectionManager.GetNewConnection(ConnectionString, caller);
+                    var connection = EtlConnectionManager.GetNewConnection(ConnectionString, proc);
                     using (var command = connection.Connection.CreateCommand())
                     {
                         command.CommandTimeout = 60 * 1000;
@@ -116,17 +118,17 @@
                                     list.Add(ConnectionString.Escape((string)reader["fkName"]));
                                 }
 
-                                scope.Context.RegisterIoCommandSuccess(caller, IoCommandKind.dbReadMeta, iocUid, recordsRead);
+                                scope.Context.RegisterIoCommandSuccess(proc, IoCommandKind.dbReadMeta, iocUid, recordsRead);
                             }
 
-                            scope.Context.Log(LogSeverity.Information, caller, "{ForeignKeyCount} enabled foreign keys acquired from information schema of {ConnectionStringName} in {Elapsed}",
+                            scope.Context.Log(LogSeverity.Information, proc, "{ForeignKeyCount} enabled foreign keys acquired from information schema of {ConnectionStringName} in {Elapsed}",
                                 _enabledConstraintsByTable.Sum(x => x.Value.Count), ConnectionString.Name, startedOn.Elapsed);
                         }
                         catch (Exception ex)
                         {
-                            scope.Context.RegisterIoCommandFailed(caller, IoCommandKind.dbReadMeta, iocUid, null, ex);
+                            scope.Context.RegisterIoCommandFailed(proc, IoCommandKind.dbReadMeta, iocUid, null, ex);
 
-                            var exception = new SqlSchemaReadException(caller, "enabled foreign key names", ex);
+                            var exception = new SqlSchemaReadException(proc, "enabled foreign key names", ex);
                             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "enabled foreign key list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                                 ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
                             exception.Data.Add("ConnectionStringName", ConnectionString.Name);
@@ -137,13 +139,13 @@
                         }
                     }
 
-                    EtlConnectionManager.ReleaseConnection(caller, ref connection);
+                    EtlConnectionManager.ReleaseConnection(proc, ref connection);
                 }
             };
 
             foreach (var creator in _preFinalizerCreators)
             {
-                var result = creator.Invoke(scope, caller);
+                var result = creator.Invoke(scope);
                 if (result != null)
                 {
                     foreach (var process in result)
@@ -152,13 +154,13 @@
             }
         }
 
-        private IEnumerable<IExecutable> CreatePostFinalizers(ResilientSqlScope scope, IProcess caller)
+        private IEnumerable<IExecutable> CreatePostFinalizers(ResilientSqlScope scope)
         {
             // todo: this should be built and configured by DisableConstraintCheck
             var constraintCheckDisabledOnTables = scope.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
             if (constraintCheckDisabledOnTables != null)
             {
-                yield return new MsSqlEnableConstraintCheckFiltered(scope.Topic, "EnableForeignKeys")
+                yield return new MsSqlEnableConstraintCheckFiltered(scope.Context, scope.Topic, "EnableForeignKeys")
                 {
                     ConnectionString = scope.Configuration.ConnectionString,
                     ConstraintNames = constraintCheckDisabledOnTables
@@ -174,7 +176,7 @@
             var etlRunInfoTable = Model.GetEtlRunInfoTable();
             if (etlRunInfoTable != null)
             {
-                yield return new CustomSqlStatement(scope.Topic.Child(etlRunInfoTable.SchemaAndName), "UpdateEtlRun")
+                yield return new CustomSqlStatement(scope.Context, etlRunInfoTable.SchemaAndName, "UpdateEtlRun")
                 {
                     ConnectionString = scope.Configuration.ConnectionString,
                     CommandTimeout = 60 * 60,
@@ -193,7 +195,7 @@
 
             foreach (var creator in _postFinalizerCreators)
             {
-                var result = creator.Invoke(scope, caller);
+                var result = creator.Invoke(scope);
                 if (result != null)
                 {
                     foreach (var process in result)
@@ -215,14 +217,14 @@
             return ConnectionString.Escape(dwhTable.Name + Configuration.HistoryTableNamePostfix, dwhTable.Schema.Name);
         }
 
-        private IEnumerable<IExecutable> CreateInitializers(ResilientSqlScope scope, IProcess caller)
+        private IEnumerable<IExecutable> CreateInitializers(ResilientSqlScope scope)
         {
             var etlRunInfoTable = Model.GetEtlRunInfoTable();
             if (etlRunInfoTable != null)
             {
                 yield return new ProcessBuilder()
                 {
-                    InputProcess = new EnumerableImporter(scope.Topic.Child(etlRunInfoTable.SchemaAndName), "RowCreator")
+                    InputProcess = new EnumerableImporter(scope.Context, etlRunInfoTable.SchemaAndName, "RowCreator")
                     {
                         InputGenerator = process =>
                         {
@@ -241,7 +243,7 @@
                             EtlRunId = currentId;
                             EtlRunIdAsDateTimeOffset = new DateTimeOffset(currentId, new TimeSpan(0));
 
-                            scope.Topic.Context.AdditionalData["CurrentEtlRunId"] = currentId;
+                            scope.Context.AdditionalData["CurrentEtlRunId"] = currentId;
 
                             var row = new SlimRow()
                             {
@@ -256,7 +258,7 @@
                     },
                     Mutators = new MutatorList()
                     {
-                        new ResilientWriteToMsSqlMutator(scope.Topic.Child(etlRunInfoTable.SchemaAndName), "Writer")
+                        new ResilientWriteToMsSqlMutator(scope.Context, etlRunInfoTable.SchemaAndName, "EtlRunInfoWriter")
                         {
                             ConnectionString = ConnectionString,
                             TableDefinition = new DbTableDefinition()

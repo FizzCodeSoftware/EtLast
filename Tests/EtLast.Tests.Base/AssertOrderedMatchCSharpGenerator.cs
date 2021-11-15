@@ -20,8 +20,8 @@
                 sb.AppendLine(" });");
             }
 
-            var exceptions = result.Process.Topic.Context.GetExceptions();
-            sb.AppendLine("\t\t\tvar exceptions = topic.Context.GetExceptions();");
+            var exceptions = result.Process.Context.GetExceptions();
+            sb.AppendLine("\t\t\tvar exceptions = Context.GetExceptions();");
             sb.Append("\t\t\tAssert.AreEqual(").Append(exceptions.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", exceptions.Count);");
 
             for (var i = 0; i < exceptions.Count; i++)

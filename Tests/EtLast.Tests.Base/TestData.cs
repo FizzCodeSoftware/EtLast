@@ -28,9 +28,9 @@
             public DateTime? BirthDate { get; set; }
         }
 
-        public static IEvaluable Country(ITopic topic)
+        public static IEvaluable Country(IEtlContext context)
         {
-            return new RowCreator(topic, nameof(Country))
+            return new RowCreator(context, null, nameof(Country))
             {
                 Columns = CountryColumns,
                 InputRows = new List<object[]>()
@@ -43,9 +43,9 @@
             };
         }
 
-        public static IEvaluable Person(ITopic topic)
+        public static IEvaluable Person(IEtlContext context)
         {
-            return new RowCreator(topic, nameof(Person))
+            return new RowCreator(context, null, nameof(Person))
             {
                 Columns = PersonColumns,
                 InputRows = new List<object[]>()
@@ -62,9 +62,9 @@
             };
         }
 
-        public static IEvaluable PersonSortedByName(ITopic topic)
+        public static IEvaluable PersonSortedByName(IEtlContext context)
         {
-            return new RowCreator(topic, nameof(Person))
+            return new RowCreator(context, null, nameof(Person))
             {
                 Columns = PersonColumns,
                 InputRows = new List<object[]>()
@@ -81,9 +81,9 @@
             };
         }
 
-        public static IEvaluable PersonChanged(ITopic topic)
+        public static IEvaluable PersonChanged(IEtlContext context)
         {
-            return new RowCreator(topic, nameof(Person))
+            return new RowCreator(context, null, nameof(Person))
             {
                 Columns = PersonColumns,
                 InputRows = new List<object[]>()
@@ -100,9 +100,9 @@
             };
         }
 
-        public static IEvaluable PersonEyeColor(ITopic topic)
+        public static IEvaluable PersonEyeColor(IEtlContext context)
         {
-            return new RowCreator(topic, nameof(PersonEyeColor))
+            return new RowCreator(context, null, nameof(PersonEyeColor))
             {
                 Columns = PersonEyeColorColumns,
                 InputRows = new List<object[]>()
@@ -119,9 +119,9 @@
             };
         }
 
-        public static IEvaluable RoleHierarchy(ITopic topic)
+        public static IEvaluable RoleHierarchy(IEtlContext context)
         {
-            return new RowCreator(topic, nameof(RoleHierarchy))
+            return new RowCreator(context, null, nameof(RoleHierarchy))
             {
                 Columns = RoleHierarchyColumns,
                 InputRows = new List<object[]>()
@@ -137,9 +137,9 @@
             };
         }
 
-        public static IEvaluable PersonalAssetsPivot(ITopic topic)
+        public static IEvaluable PersonalAssetsPivot(IEtlContext context)
         {
-            return new RowCreator(topic, nameof(PersonalAssetsPivot))
+            return new RowCreator(context, null, nameof(PersonalAssetsPivot))
             {
                 Columns = PersonalAssetsPivotColumns,
                 InputRows = new List<object[]>()

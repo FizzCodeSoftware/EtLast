@@ -10,19 +10,19 @@
             where T : IMutator
 #pragma warning restore RCS1175 // Unused this parameter.
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = new ProcessBuilder()
             {
-                InputProcess = TestData.Person(topic),
+                InputProcess = TestData.Person(context),
                 Mutators = new MutatorList()
                 {
-                    (T)Activator.CreateInstance(typeof(T), topic, null),
+                    (T)Activator.CreateInstance(typeof(T), context, null, null),
                 },
             };
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(0, result.MutatedRows.Count);
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
             Assert.IsTrue(exceptions[0] is InvalidProcessParameterException);
         }

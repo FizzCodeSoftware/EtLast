@@ -5,8 +5,8 @@
 
     public sealed class RemoveRowWithErrorMutator : AbstractMutator
     {
-        public RemoveRowWithErrorMutator(ITopic topic, string name)
-            : base(topic, name)
+        public RemoveRowWithErrorMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

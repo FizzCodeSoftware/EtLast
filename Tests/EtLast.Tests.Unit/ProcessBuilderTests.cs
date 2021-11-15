@@ -8,13 +8,13 @@
         [TestMethod]
         public void InputAndOneMutator()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = new ProcessBuilder()
             {
-                InputProcess = TestData.Person(topic),
+                InputProcess = TestData.Person(context),
                 Mutators = new MutatorList()
                 {
-                    new CustomMutator(topic, null)
+                    new CustomMutator(context, null, null)
                     {
                         Then = row => true,
                     },
@@ -30,17 +30,17 @@
         [TestMethod]
         public void InputAndTwoMutators()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = new ProcessBuilder()
             {
-                InputProcess = TestData.Person(topic),
+                InputProcess = TestData.Person(context),
                 Mutators = new MutatorList()
                 {
-                    new CustomMutator(topic, null)
+                    new CustomMutator(context, null, null)
                     {
                         Then = row => true,
                     },
-                    new CustomMutator(topic, null)
+                    new CustomMutator(context, null, null)
                     {
                         Then = row => true,
                     },
@@ -57,12 +57,12 @@
         [TestMethod]
         public void OneMutator()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = new ProcessBuilder()
             {
                 Mutators = new MutatorList()
                 {
-                    new CustomMutator(topic, null)
+                    new CustomMutator(context, null, null)
                     {
                         Then = row => true,
                     },
@@ -78,10 +78,10 @@
         [TestMethod]
         public void InputOnly()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var builder = new ProcessBuilder()
             {
-                InputProcess = TestData.Person(topic),
+                InputProcess = TestData.Person(context),
                 Mutators = new MutatorList(),
             };
 

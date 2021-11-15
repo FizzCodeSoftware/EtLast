@@ -12,8 +12,8 @@
     {
         public string[] TableNames { get; init; }
 
-        public MsSqlDisableConstraintCheck(ITopic topic, string name)
-            : base(topic, name)
+        public MsSqlDisableConstraintCheck(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

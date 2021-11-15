@@ -23,8 +23,8 @@
         /// </summary>
         public bool IgnoreSelectorForSingleRowGroups { get; init; }
 
-        public SortedReduceGroupToSingleRowMutator(ITopic topic, string name)
-            : base(topic, name)
+        public SortedReduceGroupToSingleRowMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

@@ -44,7 +44,7 @@
                 Bounds = new Rectangle(Updater.SearchBox.Right + 20, Updater.SearchBox.Top, 60, Updater.SearchBox.Height),
                 Text = "All",
                 CheckAlign = ContentAlignment.MiddleLeft,
-                Checked = process.Kind != ProcessKind.mutator,
+                Checked = process.Kind != "mutator",
             };
 
             ShowChanged = new RadioButton()
@@ -53,7 +53,7 @@
                 Bounds = new Rectangle(ShowAll.Right + 20, Updater.SearchBox.Top, 75, Updater.SearchBox.Height),
                 Text = "Changed",
                 CheckAlign = ContentAlignment.MiddleLeft,
-                Checked = process.Kind == ProcessKind.mutator,
+                Checked = process.Kind == "mutator",
             };
 
             ShowUnChanged = new RadioButton()

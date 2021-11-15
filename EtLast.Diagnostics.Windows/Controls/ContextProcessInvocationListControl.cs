@@ -64,7 +64,7 @@
             ListView.Columns.Add("IN", 140).TextAlign = HorizontalAlignment.Right;
             ListView.Columns.Add("+", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
             ListView.Columns.Add("-", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
-            ListView.Columns.Add("store", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
+            ListView.Columns.Add("sink", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
             ListView.Columns.Add("pending", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
             ListView.Columns.Add("OUT", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 1 / 5).TextAlign = HorizontalAlignment.Right;
 
@@ -363,7 +363,7 @@
                     if (item.SubItems[6].Text != process.GetFormattedInputRowCount()
                         || item.SubItems[7].Text != process.CreatedRowCount.FormatToStringNoZero()
                         || item.SubItems[8].Text != process.DroppedRowCount.FormatToStringNoZero()
-                        || item.SubItems[9].Text != process.StoredRowCount.FormatToStringNoZero()
+                        || item.SubItems[9].Text != process.WrittenRowCount.FormatToStringNoZero()
                         || item.SubItems[10].Text != process.AliveRowCount.FormatToStringNoZero()
                         || item.SubItems[11].Text != process.PassedRowCount.FormatToStringNoZero())
                     {
@@ -384,7 +384,7 @@
                             item.SubItems[6].SetIfChanged(process.GetFormattedInputRowCount());
                             item.SubItems[7].SetIfChanged(process.CreatedRowCount.FormatToStringNoZero());
                             item.SubItems[8].SetIfChanged(process.DroppedRowCount.FormatToStringNoZero());
-                            item.SubItems[9].SetIfChanged(process.StoredRowCount.FormatToStringNoZero());
+                            item.SubItems[9].SetIfChanged(process.WrittenRowCount.FormatToStringNoZero());
                             item.SubItems[10].SetIfChanged(process.AliveRowCount.FormatToStringNoZero());
                             item.SubItems[11].SetIfChanged(process.PassedRowCount.FormatToStringNoZero());
                         }

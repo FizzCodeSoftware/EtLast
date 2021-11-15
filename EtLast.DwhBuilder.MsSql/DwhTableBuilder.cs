@@ -87,7 +87,7 @@
                     .Where(x => !x.IsPrimaryKey);
             }
 
-            return new ResilientWriteToMsSqlMutator(table.Topic, "Writer")
+            return new ResilientWriteToMsSqlMutator(table.Scope.Context, table.Topic, "Writer")
             {
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 TableDefinition = new DbTableDefinition()
@@ -131,7 +131,7 @@
             if (recordTimestampIndicatorColumn == null)
                 return null;
 
-            var result = new GetTableMaxValue<object>(ResilientTable.Topic, nameof(GetMaxRecordTimestamp) + "Reader")
+            var result = new GetTableMaxValue<object>(ResilientTable.Scope.Context, ResilientTable.Topic, nameof(GetMaxRecordTimestamp) + "Reader")
             {
                 ConnectionString = ResilientTable.Scope.Configuration.ConnectionString,
                 TableName = ResilientTable.TableName,

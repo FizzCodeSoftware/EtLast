@@ -22,7 +22,7 @@
         public string Type { get; }
         public string Name { get; }
         public string Topic { get; }
-        public ProcessKind Kind { get; }
+        public string Kind { get; }
 
         private TimeSpan? _elapsedMillisecondsAfterFinished;
 
@@ -58,7 +58,7 @@
 
         public string DisplayName { get; }
 
-        public int StoredRowCount { get; private set; }
+        public int WrittenRowCount { get; private set; }
         public int DroppedRowCount { get; private set; }
 
         public int AliveRowCount { get; private set; }
@@ -67,14 +67,14 @@
         public int PassedRowCount { get; private set; }
         public int CreatedRowCount { get; private set; }
 
-        public Dictionary<int, int> StoredRowCountByPreviousProcess { get; } = new Dictionary<int, int>();
+        public Dictionary<int, int> WrittenRowCountByPreviousProcess { get; } = new Dictionary<int, int>();
         public Dictionary<int, int> DroppedRowCountByPreviousProcess { get; } = new Dictionary<int, int>();
         public Dictionary<int, int> PassedRowCountByPreviousProcess { get; } = new Dictionary<int, int>();
 
         public Dictionary<int, int> InputRowCountByPreviousProcess { get; } = new Dictionary<int, int>();
         public int InputRowCount { get; private set; }
 
-        public TrackedProcessInvocation(int invocationUID, int instanceUID, int invocationCounter, TrackedProcessInvocation invoker, string type, ProcessKind kind, string name, string topic)
+        public TrackedProcessInvocation(int invocationUID, int instanceUID, int invocationCounter, TrackedProcessInvocation invoker, string type, string kind, string name, string topic)
         {
             InvocationUid = invocationUID;
             InstanceUID = instanceUID;
@@ -130,7 +130,7 @@
                 var inputProcess = diagContext.WholePlaybook.ProcessList[kvp.Key];
                 if (kvp.Value == 0
                     && !DroppedRowCountByPreviousProcess.ContainsKey(kvp.Key)
-                    && !StoredRowCountByPreviousProcess.ContainsKey(kvp.Key)
+                    && !WrittenRowCountByPreviousProcess.ContainsKey(kvp.Key)
                     && !PassedRowCountByPreviousProcess.ContainsKey(kvp.Key))
                 {
                     continue;
@@ -148,8 +148,8 @@
                 if (DroppedRowCountByPreviousProcess.TryGetValue(kvp.Key, out var dropped))
                     sb.Append("DROP: ").AppendLine(dropped.FormatToString());
 
-                if (StoredRowCountByPreviousProcess.TryGetValue(kvp.Key, out var stored))
-                    sb.Append("STORE: ").AppendLine(stored.FormatToString());
+                if (WrittenRowCountByPreviousProcess.TryGetValue(kvp.Key, out var writtend))
+                    sb.Append("SINK: ").AppendLine(writtend.FormatToString());
 
                 if (PassedRowCountByPreviousProcess.TryGetValue(kvp.Key, out var passed))
                     sb.Append("OUT: ").AppendLine(passed.FormatToString());
@@ -168,9 +168,9 @@
                 if (createdAndDroppedCount > 0)
                     sb.Append("DROP: ").AppendLine(createdAndDroppedCount.FormatToString());
 
-                var createdAndStoredCount = StoredRowCount - StoredRowCountByPreviousProcess.Sum(x => x.Value);
-                if (createdAndStoredCount > 0)
-                    sb.Append("STORE: ").AppendLine(createdAndStoredCount.FormatToString());
+                var createdAndWrittenCount = WrittenRowCount - WrittenRowCountByPreviousProcess.Sum(x => x.Value);
+                if (createdAndWrittenCount > 0)
+                    sb.Append("SINK: ").AppendLine(createdAndWrittenCount.FormatToString());
 
                 var createdAndPassedCount = PassedRowCount - PassedRowCountByPreviousProcess.Sum(x => x.Value);
                 if (createdAndPassedCount > 0)
@@ -180,7 +180,7 @@
             if (InputRowCount > 0
                 || CreatedRowCount > 0
                 || DroppedRowCount > 0
-                || StoredRowCount > 0
+                || WrittenRowCount > 0
                 || PassedRowCount > 0)
             {
                 if (sb.Length > 0)
@@ -197,8 +197,8 @@
                 if (DroppedRowCount > 0)
                     sb.Append("DROP: ").AppendLine(DroppedRowCount.FormatToStringNoZero());
 
-                if (StoredRowCount > 0)
-                    sb.Append("STORE: ").AppendLine(StoredRowCount.FormatToStringNoZero());
+                if (WrittenRowCount > 0)
+                    sb.Append("SINK: ").AppendLine(WrittenRowCount.FormatToStringNoZero());
 
                 if (PassedRowCount > 0)
                     sb.Append("OUT: ").AppendLine(PassedRowCount.FormatToStringNoZero());
@@ -239,9 +239,9 @@
         {
             return Kind switch
             {
-                ProcessKind.jobWithResult => "job+res.",
-                ProcessKind.unknown => null,
-                _ => Kind.ToString(),
+                "jobWithResult" => "job+res.",
+                "unknown" => null,
+                _ => Kind,
             };
         }
 
@@ -303,20 +303,20 @@
             PassedRowCount++;
         }
 
-        public void StoreRow(int uid)
+        public void WriteRowToSink(int uid)
         {
             foreach (var list in AliveRowsByPreviousProcess)
             {
                 if (list.Value.Contains(uid))
                 {
-                    StoredRowCountByPreviousProcess.TryGetValue(list.Key, out var count);
-                    StoredRowCountByPreviousProcess[list.Key] = count + 1;
+                    WrittenRowCountByPreviousProcess.TryGetValue(list.Key, out var count);
+                    WrittenRowCountByPreviousProcess[list.Key] = count + 1;
 
                     list.Value.Remove(uid);
                 }
             }
 
-            StoredRowCount++;
+            WrittenRowCount++;
         }
     }
 }

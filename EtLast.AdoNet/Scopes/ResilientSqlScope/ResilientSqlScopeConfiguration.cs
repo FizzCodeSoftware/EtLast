@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using FizzCode.LightWeight.AdoNet;
 
-    public delegate IEnumerable<IExecutable> ResilientSqlScopeExecutableCreatorDelegate(ResilientSqlScope scope, IProcess caller);
+    public delegate IEnumerable<IExecutable> ResilientSqlScopeExecutableCreatorDelegate(ResilientSqlScope scope);
 
     public enum ResilientSqlScopeTempTableMode
     {

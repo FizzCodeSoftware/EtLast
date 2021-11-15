@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data.Common;
 using System.Diagnostics;
-using FizzCode.EtLast.PluginHost;
+using FizzCode.EtLast.ConsoleHost;
 
 DbProviderFactories.RegisterFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
 

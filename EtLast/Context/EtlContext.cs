@@ -8,7 +8,9 @@
     public sealed class EtlContext : IEtlContext
     {
         public Type RowType { get; private set; }
-        public EtlContextResult Result { get; } = new EtlContextResult();
+
+        public List<Exception> Exceptions { get; } = new List<Exception>();
+        public int WarningCount { get; internal set; }
         public AdditionalData AdditionalData { get; }
 
         public DateTimeOffset CreatedOnUtc { get; }
@@ -26,10 +28,10 @@
         private int _nextRowUid;
         private int _nextProcessInstanceUid;
         private int _nextProcessInvocationUid;
-        private int _nextRowStoreUid;
+        private int _nextSinkUid;
         private int _nextIoCommandUid;
         private readonly List<Exception> _exceptions = new();
-        private readonly Dictionary<string, int> _rowStores = new();
+        private readonly Dictionary<string, int> _sinks = new();
 
         public EtlContext()
         {
@@ -46,74 +48,10 @@
             RowType = typeof(T);
         }
 
-        /// <summary>
-        /// Executes the specified process.
-        /// </summary>
-        /// <param name="terminateHostOnFail">If true, then failures will set the <see cref="EtlContextResult.TerminateHost"/> field to true in <see cref="Result"/>.</param>
-        /// <param name="executable">The process to execute.</param>
-        public void ExecuteOne(bool terminateHostOnFail, IExecutable executable)
-        {
-            var initialExceptionCount = ExceptionCount;
-
-            try
-            {
-                Log(LogSeverity.Information, null, "executing {ProcessName}", executable.Name);
-                executable.Execute(null);
-
-                if (ExceptionCount > initialExceptionCount)
-                {
-                    Result.Success = false;
-                    Result.TerminateHost = terminateHostOnFail;
-                }
-            }
-            catch (Exception unhandledException)
-            {
-                AddException(executable, unhandledException);
-                Result.Success = false;
-                Result.TerminateHost = terminateHostOnFail;
-            }
-        }
-
-        /// <summary>
-        /// Sequentially executes the specified strategies in the specified order. In case of failure the execution will terminated.
-        /// </summary>
-        /// <param name="terminateHostOnFail">If true, then failures will set the <see cref="EtlContextResult.TerminateHost"/> field to true in <see cref="Result"/>.</param>
-        /// <param name="executables">The processes to execute.</param>
-        public void ExecuteSequence(bool terminateHostOnFail, params IExecutable[] executables)
-        {
-            var initialExceptionCount = ExceptionCount;
-
-            foreach (var executable in executables)
-            {
-                Log(LogSeverity.Information, null, "executing {ProcessName}", executable.Name);
-
-                try
-                {
-                    executable.Execute(null);
-
-                    if (ExceptionCount > initialExceptionCount)
-                        break;
-                }
-                catch (Exception unhandledException)
-                {
-                    AddException(executable, unhandledException);
-                    Result.Success = false;
-                    Result.TerminateHost = terminateHostOnFail;
-                    break;
-                }
-            }
-
-            if (ExceptionCount > initialExceptionCount)
-            {
-                Result.Success = false;
-                Result.TerminateHost = terminateHostOnFail;
-            }
-        }
-
         public void Log(string transactionId, LogSeverity severity, IProcess process, string text, params object[] args)
         {
             if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
-                Result.WarningCount++;
+                WarningCount++;
 
             foreach (var listener in Listeners)
             {
@@ -124,7 +62,7 @@
         public void Log(LogSeverity severity, IProcess process, string text, params object[] args)
         {
             if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
-                Result.WarningCount++;
+                WarningCount++;
 
             foreach (var listener in Listeners)
             {
@@ -194,11 +132,11 @@
             }
         }
 
-        public void RegisterRowStored(IReadOnlyRow row, int storeUid)
+        public void RegisterWriteToSink(IReadOnlyRow row, int sinkUid)
         {
             foreach (var listener in Listeners)
             {
-                listener.OnRowStored(row, storeUid);
+                listener.OnWriteToSink(row, sinkUid);
             }
         }
 
@@ -249,7 +187,7 @@
 
             ex = ProcessExecutionException.Wrap(process, ex);
 
-            Result.Exceptions.Add(ex);
+            Exceptions.Add(ex);
 
             lock (_exceptions)
             {
@@ -346,20 +284,20 @@
             }
         }
 
-        public int GetStoreUid(string location, string path)
+        public int GetSinkUid(string location, string path)
         {
             var key = location + " / " + path;
-            if (!_rowStores.TryGetValue(key, out var storeUid))
+            if (!_sinks.TryGetValue(key, out var sinkUid))
             {
-                storeUid = Interlocked.Increment(ref _nextRowStoreUid);
-                _rowStores.Add(key, storeUid);
+                sinkUid = Interlocked.Increment(ref _nextSinkUid);
+                _sinks.Add(key, sinkUid);
                 foreach (var listener in Listeners)
                 {
-                    listener.OnRowStoreStarted(storeUid, location, path);
+                    listener.OnSinkStarted(sinkUid, location, path);
                 }
             }
 
-            return storeUid;
+            return sinkUid;
         }
 
         public void Close()

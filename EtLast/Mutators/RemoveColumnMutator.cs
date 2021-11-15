@@ -8,8 +8,8 @@
     {
         public string[] Columns { get; init; }
 
-        public RemoveColumnMutator(ITopic topic, string name)
-            : base(topic, name)
+        public RemoveColumnMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

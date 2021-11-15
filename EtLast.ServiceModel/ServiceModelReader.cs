@@ -15,7 +15,7 @@
         where TChannel : class
         where TClient : ClientBase<TChannel>;
 
-    public sealed class ServiceModelReader<TChannel, TClient> : AbstractProducer, IRowReader
+    public sealed class ServiceModelReader<TChannel, TClient> : AbstractProducer, IRowSource
         where TChannel : class
         where TClient : ClientBase<TChannel>
     {
@@ -30,8 +30,8 @@
         public ServiceModelReaderClientCreatorDelegate<TChannel, TClient> ClientCreator { get; init; }
         public ServiceModelReaderClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; init; }
 
-        public ServiceModelReader(ITopic topic, string name)
-            : base(topic, name)
+        public ServiceModelReader(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

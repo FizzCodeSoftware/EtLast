@@ -6,8 +6,8 @@
 
     public sealed class RemoveRowMutator : AbstractMutator
     {
-        public RemoveRowMutator(ITopic topic, string name)
-            : base(topic, name)
+        public RemoveRowMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

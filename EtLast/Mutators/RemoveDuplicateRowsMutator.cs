@@ -15,8 +15,8 @@
 
         private readonly HashSet<string> _returnedKeys = new();
 
-        public RemoveDuplicateRowsMutator(ITopic topic, string name)
-            : base(topic, name)
+        public RemoveDuplicateRowsMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

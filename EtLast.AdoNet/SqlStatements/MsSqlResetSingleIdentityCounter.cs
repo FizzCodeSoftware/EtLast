@@ -11,8 +11,8 @@
         public string TableName { get; init; }
         public string IdentityColumnName { get; init; }
 
-        public MsSqlResetSingleIdentityCounter(ITopic topic, string name)
-            : base(topic, name)
+        public MsSqlResetSingleIdentityCounter(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

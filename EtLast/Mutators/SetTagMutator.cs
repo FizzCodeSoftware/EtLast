@@ -7,8 +7,8 @@
     {
         public object Tag { get; init; }
 
-        public SetTagMutator(ITopic topic, string name)
-            : base(topic, name)
+        public SetTagMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

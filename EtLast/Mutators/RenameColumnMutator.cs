@@ -19,8 +19,8 @@
         /// </summary>
         public ColumnAlreadyExistsAction ActionIfTargetValueExists { get; init; } = ColumnAlreadyExistsAction.Throw;
 
-        public RenameColumnMutator(ITopic topic, string name)
-            : base(topic, name)
+        public RenameColumnMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

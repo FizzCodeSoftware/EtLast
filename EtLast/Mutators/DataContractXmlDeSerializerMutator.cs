@@ -14,8 +14,8 @@
         public InvalidValueAction ActionIfFailed { get; init; }
         public object SpecialValueIfFailed { get; init; }
 
-        public DataContractXmlDeSerializerMutator(ITopic topic, string name)
-            : base(topic, name)
+        public DataContractXmlDeSerializerMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

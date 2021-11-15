@@ -8,15 +8,15 @@
     [TestClass]
     public class ContinuousAggregationMutatorTests
     {
-        private static IProcessBuilder GetBuilder(ITopic topic, IContinuousAggregationOperation op, ITypeConverter converter)
+        private static IProcessBuilder GetBuilder(IEtlContext context, IContinuousAggregationOperation op, ITypeConverter converter)
         {
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(TestData.Person(topic));
+                .ReadFrom(TestData.Person(context));
 
             if (converter != null)
             {
                 builder = builder
-                    .ConvertValue(new InPlaceConvertMutator(topic, null)
+                    .ConvertValue(new InPlaceConvertMutator(context, null, null)
                     {
                         Columns = new[] { "age", "height" },
                         TypeConverter = converter,
@@ -24,7 +24,7 @@
             }
 
             return builder
-                .AggregateContinuously(new ContinuousAggregationMutator(topic, null)
+                .AggregateContinuously(new ContinuousAggregationMutator(context, null, null)
                 {
                     KeyGenerator = row => row.GenerateKey("name"),
                     FixColumns = ColumnCopyConfiguration.StraightCopy("name"),
@@ -41,8 +41,8 @@
         [TestMethod]
         public void DecimalAverage()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDecimalAverage("height"), new DecimalConverter());
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDecimalAverage("height"), new DecimalConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -53,15 +53,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["height"] = 160m },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["height"] = 160m },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["height"] = 140m } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void DecimalMax()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDecimalMax("age"), new DecimalConverter());
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDecimalMax("age"), new DecimalConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -72,15 +72,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39m },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3m },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0m } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void DecimalMin()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDecimalMin("age"), new DecimalConverter());
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDecimalMin("age"), new DecimalConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -91,15 +91,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39m },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3m },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0m } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void DecimalSum()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDecimalSum("age"), new DecimalConverter());
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDecimalSum("age"), new DecimalConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -110,15 +110,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39m },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3m },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0m } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void DoubleAverage()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDoubleAverage("height"), new DoubleConverter());
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDoubleAverage("height"), new DoubleConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -129,15 +129,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["height"] = 160d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["height"] = 160d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["height"] = 140d } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void DoubleAverageIgnoreNull()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDoubleAverageIgnoreNull("age"), new DoubleConverter());
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDoubleAverageIgnoreNull("age"), new DoubleConverter());
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
             Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
@@ -147,15 +147,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake" } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void DoubleMax()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDoubleMax("age"), new DoubleConverter());
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDoubleMax("age"), new DoubleConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -166,15 +166,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0d } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void DoubleMin()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDoubleMin("age"), new DoubleConverter());
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDoubleMin("age"), new DoubleConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -185,15 +185,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0d } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void DoubleSum()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddDoubleSum("age"), new DoubleConverter());
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDoubleSum("age"), new DoubleConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -204,15 +204,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0d } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void IntAverage()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddIntAverage("height"), null);
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddIntAverage("height"), null);
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -223,15 +223,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["height"] = 160d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["height"] = 160d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["height"] = 140d } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void IntMax()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddIntMax("age"), null);
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddIntMax("age"), null);
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -242,15 +242,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0 } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void IntMin()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddIntMin("age"), null);
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddIntMin("age"), null);
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -261,15 +261,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0 } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void IntSum()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddIntSum("age"), null);
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddIntSum("age"), null);
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -280,15 +280,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0 } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void LongAverage()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddLongAverage("height"), new LongConverter());
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddLongAverage("height"), new LongConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -299,15 +299,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["height"] = 160d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["height"] = 160d },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["height"] = 140d } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void LongMax()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddLongMax("age"), new LongConverter());
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddLongMax("age"), new LongConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -318,15 +318,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39L },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3L },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0L } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void LongMin()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddLongMin("age"), new LongConverter());
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddLongMin("age"), new LongConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -337,15 +337,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39L },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3L },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0L } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void LongSum()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddLongSum("age"), new LongConverter());
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddLongSum("age"), new LongConverter());
             var result = TestExecuter.Execute(builder);
             Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
             Assert.AreEqual(6, result.MutatedRows.Count);
@@ -356,18 +356,18 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39L },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3L },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0L } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void TypeConversionError()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddLongSum("age"), null);
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddLongSum("age"), null);
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(0, result.MutatedRows.Count);
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
             Assert.IsTrue(exceptions[0] is ContinuousAggregationException);
         }
@@ -375,8 +375,8 @@
         [TestMethod]
         public void IntCount()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddIntCount("count"), null);
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddIntCount("count"), null);
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
             Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
@@ -386,15 +386,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["count"] = 1 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["count"] = 1 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["count"] = 1 } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void IntCountWhenNotNull()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddIntCountWhenNotNull("count", "age"), null);
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddIntCountWhenNotNull("count", "age"), null);
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
             Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
@@ -404,15 +404,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["count"] = 1 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["count"] = 1 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake" } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void IntNumberOfDistinctKeys_IgnoreNull()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddIntNumberOfDistinctKeys("count", row => row.GenerateKey("eyeColor")), null);
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddIntNumberOfDistinctKeys("count", row => row.GenerateKey("eyeColor")), null);
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
             Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
@@ -422,15 +422,15 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["count"] = 1 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake" } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
 
         [TestMethod]
         public void IntNumberOfDistinctKeys_CountNull()
         {
-            var topic = TestExecuter.GetTopic();
-            var builder = GetBuilder(topic, new ContinuousGroupByOperation().AddIntNumberOfDistinctKeys("count", row => row.GenerateKey("eyeColor") ?? "\0NULL\0"), null);
+            var context = TestExecuter.GetContext();
+            var builder = GetBuilder(context, new ContinuousGroupByOperation().AddIntNumberOfDistinctKeys("count", row => row.GenerateKey("eyeColor") ?? "\0NULL\0"), null);
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(6, result.MutatedRows.Count);
             Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
@@ -440,7 +440,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["count"] = 1 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["count"] = 1 },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["count"] = 1 } });
-            var exceptions = topic.Context.GetExceptions();
+            var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
     }

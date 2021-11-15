@@ -9,11 +9,11 @@
         [TestMethod]
         public void NotNullIdentity()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var lookup = new CountableOnlyRowLookup();
             var builder = new RowLookupBuilder()
             {
-                Process = TestData.Person(topic),
+                Process = TestData.Person(context),
                 KeyGenerator = row => row.GenerateKey("id"),
             };
 
@@ -32,11 +32,11 @@
         [TestMethod]
         public void NullableIdentity()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var lookup = new CountableOnlyRowLookup();
             var builder = new RowLookupBuilder()
             {
-                Process = TestData.Person(topic),
+                Process = TestData.Person(context),
                 KeyGenerator = row => row.GenerateKey("age"),
             };
 
@@ -55,11 +55,11 @@
         [TestMethod]
         public void NullableMulti()
         {
-            var topic = TestExecuter.GetTopic();
+            var context = TestExecuter.GetContext();
             var lookup = new CountableOnlyRowLookup();
             var builder = new RowLookupBuilder()
             {
-                Process = TestData.Person(topic),
+                Process = TestData.Person(context),
                 KeyGenerator = row => row.GenerateKey("name"),
             };
 

@@ -8,7 +8,8 @@
     {
         void SetRowType<T>() where T : IRow;
 
-        EtlContextResult Result { get; }
+        List<Exception> Exceptions { get; }
+        int WarningCount { get; }
         AdditionalData AdditionalData { get; }
 
         DateTimeOffset CreatedOnUtc { get; }
@@ -20,9 +21,6 @@
         CancellationTokenSource CancellationTokenSource { get; }
 
         List<IEtlContextListener> Listeners { get; }
-
-        void ExecuteOne(bool terminateHostOnFail, IExecutable executable);
-        void ExecuteSequence(bool terminateHostOnFail, params IExecutable[] executables);
 
         IRow CreateRow(IProcess process);
         IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues);
@@ -40,7 +38,7 @@
         void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount);
         void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount, Exception exception);
 
-        void RegisterRowStored(IReadOnlyRow row, int storeUid);
+        void RegisterWriteToSink(IReadOnlyRow row, int sinkUid);
 
         void AddException(IProcess process, Exception ex);
         List<Exception> GetExceptions();
@@ -52,7 +50,7 @@
         void RegisterProcessInvocationStart(IProcess process, IProcess caller);
         void RegisterProcessInvocationEnd(IProcess process);
         void RegisterProcessInvocationEnd(IProcess process, long netElapsedMilliseconds);
-        int GetStoreUid(string location, string path);
+        int GetSinkUid(string location, string path);
 
         void Close();
     }

@@ -13,8 +13,8 @@
 
         private readonly StringBuilder _sb = new();
 
-        public MergeStringColumnsMutator(ITopic topic, string name)
-            : base(topic, name)
+        public MergeStringColumnsMutator(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 

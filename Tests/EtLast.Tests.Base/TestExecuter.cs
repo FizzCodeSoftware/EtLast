@@ -9,11 +9,6 @@
             return new EtlContext();
         }
 
-        public static ITopic GetTopic()
-        {
-            return new Topic("test", new EtlContext());
-        }
-
         public static TestExecuterResult Execute(IProcessBuilder builder)
         {
             var result = new TestExecuterResult

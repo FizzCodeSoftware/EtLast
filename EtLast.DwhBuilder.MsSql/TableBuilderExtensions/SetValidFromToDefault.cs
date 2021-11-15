@@ -11,7 +11,7 @@
 
                 builder.AddMutatorCreator(builder => new[]
                 {
-                    new CustomMutator(builder.ResilientTable.Topic, nameof(SetValidFromToDefault))
+                    new CustomMutator(builder.ResilientTable.Scope.Context, builder.ResilientTable.Topic, nameof(SetValidFromToDefault))
                     {
                         Then = row =>
                         {

@@ -15,8 +15,8 @@ namespace FizzCode.EtLast.Diagnostics.Interface
         private int _lastMainFileIndex;
         private long _lastMainFileSize;
 
-        private readonly Dictionary<int, FileStream> _openStoreWriterStreams = new();
-        private readonly object _openStoreWriterStreamsLock = new();
+        private readonly Dictionary<int, FileStream> _openSinkWriterStreams = new();
+        private readonly object _openSinkWriterStreamsLock = new();
 
         private FileStream _rowEventStream;
         private int _lastRowEventFileIndex;
@@ -46,9 +46,9 @@ namespace FizzCode.EtLast.Diagnostics.Interface
             return Path.Combine(DataFolder, "row-" + index.ToString("D", CultureInfo.InvariantCulture)) + ".bin";
         }
 
-        private string GetStoreFileName(int storeUid)
+        private string GetSinkFileName(int sinkUid)
         {
-            return Path.Combine(DataFolder, "store-" + storeUid.ToString("D", CultureInfo.InvariantCulture) + ".bin");
+            return Path.Combine(DataFolder, "sink-" + sinkUid.ToString("D", CultureInfo.InvariantCulture) + ".bin");
         }
 
         private string GetProcessRowMapFileName(int processInvocationUid)
@@ -99,13 +99,13 @@ namespace FizzCode.EtLast.Diagnostics.Interface
 
                     if (eventKind == DiagnosticsEventKind.ContextEnded)
                     {
-                        foreach (var stream in _openStoreWriterStreams.Values)
+                        foreach (var stream in _openSinkWriterStreams.Values)
                         {
                             stream.Flush();
                             stream.Dispose();
                         }
 
-                        _openStoreWriterStreams.Clear();
+                        _openSinkWriterStreams.Clear();
 
                         if (_rowEventStream != null)
                         {
@@ -133,8 +133,8 @@ namespace FizzCode.EtLast.Diagnostics.Interface
                         DiagnosticsEventKind.RowCreated => _eventParser.ReadRowCreatedEvent(reader),
                         DiagnosticsEventKind.RowOwnerChanged => _eventParser.ReadRowOwnerChangedEvent(reader),
                         DiagnosticsEventKind.RowValueChanged => _eventParser.ReadRowValueChangedEvent(reader),
-                        DiagnosticsEventKind.RowStoreStarted => _eventParser.ReadRowStoreStartedEvent(reader),
-                        DiagnosticsEventKind.RowStored => _eventParser.ReadRowStoredEvent(reader),
+                        DiagnosticsEventKind.SinkStarted => _eventParser.ReadSinkStartedEvent(reader),
+                        DiagnosticsEventKind.WriteToSink => _eventParser.ReadWriteToSinkEvent(reader),
                         DiagnosticsEventKind.ProcessInvocationStart => _eventParser.ReadProcessInvocationStartEvent(reader),
                         DiagnosticsEventKind.ProcessInvocationEnd => _eventParser.ReadProcessInvocationEndEvent(reader),
                         DiagnosticsEventKind.IoCommandStart => _eventParser.ReadIoCommandStartEvent(reader),
@@ -145,20 +145,20 @@ namespace FizzCode.EtLast.Diagnostics.Interface
                     evt.Timestamp = timestamp;
                     events.Add(evt);
 
-                    if (evt is RowStoredEvent rse)
+                    if (evt is WriteToSinkEvent rse)
                     {
                         var eventBytes = input.ReadFrom(eventDataPosition, (int)(input.Position - eventDataPosition));
 
-                        lock (_openStoreWriterStreamsLock)
+                        lock (_openSinkWriterStreamsLock)
                         {
-                            if (!_openStoreWriterStreams.TryGetValue(rse.StoreUid, out var storeWriterStream))
+                            if (!_openSinkWriterStreams.TryGetValue(rse.sinkUid, out var sinkWriterStream))
                             {
-                                var storeFileName = GetStoreFileName(rse.StoreUid);
-                                storeWriterStream = new FileStream(storeFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 512 * 1024);
-                                _openStoreWriterStreams.Add(rse.StoreUid, storeWriterStream);
+                                var sinkFileName = GetSinkFileName(rse.sinkUid);
+                                sinkWriterStream = new FileStream(sinkFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 512 * 1024);
+                                _openSinkWriterStreams.Add(rse.sinkUid, sinkWriterStream);
                             }
 
-                            storeWriterStream.Write(eventBytes, 0, eventBytes.Length);
+                            sinkWriterStream.Write(eventBytes, 0, eventBytes.Length);
                         }
                     }
                     else if (evt is RowCreatedEvent || evt is RowValueChangedEvent || evt is RowOwnerChangedEvent)
@@ -217,17 +217,17 @@ namespace FizzCode.EtLast.Diagnostics.Interface
             return events;
         }
 
-        public void EnumerateThroughStore(int storeUid, Action<RowStoredEvent> callback)
+        public void EnumerateThroughSink(int sinkUid, Action<WriteToSinkEvent> callback)
         {
-            var fileName = GetStoreFileName(storeUid);
+            var fileName = GetSinkFileName(sinkUid);
             if (!File.Exists(fileName))
                 return;
 
-            lock (_openStoreWriterStreamsLock)
+            lock (_openSinkWriterStreamsLock)
             {
-                if (_openStoreWriterStreams.TryGetValue(storeUid, out var storeWriterStream))
+                if (_openSinkWriterStreams.TryGetValue(sinkUid, out var sinkWriterStream))
                 {
-                    storeWriterStream.Flush();
+                    sinkWriterStream.Flush();
                 }
             }
 
@@ -246,7 +246,7 @@ namespace FizzCode.EtLast.Diagnostics.Interface
                             break;
 
                         var timestamp = reader.ReadInt64();
-                        var evt = _eventParser.ReadRowStoredEvent(reader);
+                        var evt = _eventParser.ReadWriteToSinkEvent(reader);
                         evt.Timestamp = timestamp;
                         callback.Invoke(evt);
                     }
@@ -292,8 +292,8 @@ namespace FizzCode.EtLast.Diagnostics.Interface
                                     DiagnosticsEventKind.RowCreated => _eventParser.ReadRowCreatedEvent(reader),
                                     DiagnosticsEventKind.RowOwnerChanged => _eventParser.ReadRowOwnerChangedEvent(reader),
                                     DiagnosticsEventKind.RowValueChanged => _eventParser.ReadRowValueChangedEvent(reader),
-                                    DiagnosticsEventKind.RowStoreStarted => _eventParser.ReadRowStoreStartedEvent(reader),
-                                    DiagnosticsEventKind.RowStored => _eventParser.ReadRowStoredEvent(reader),
+                                    DiagnosticsEventKind.SinkStarted => _eventParser.ReadSinkStartedEvent(reader),
+                                    DiagnosticsEventKind.WriteToSink => _eventParser.ReadWriteToSinkEvent(reader),
                                     DiagnosticsEventKind.ProcessInvocationStart => _eventParser.ReadProcessInvocationStartEvent(reader),
                                     DiagnosticsEventKind.ProcessInvocationEnd => _eventParser.ReadProcessInvocationEndEvent(reader),
                                     DiagnosticsEventKind.IoCommandStart => _eventParser.ReadIoCommandStartEvent(reader),

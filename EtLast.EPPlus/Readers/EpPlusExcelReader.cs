@@ -57,8 +57,8 @@
         public int FirstDataRow { get; set; } = 2;
         public int FirstDataColumn { get; set; } = 1;
 
-        public EpPlusExcelReader(ITopic topic, string name)
-            : base(topic, name)
+        public EpPlusExcelReader(IEtlContext context, string topic, string name)
+            : base(context, topic, name)
         {
         }
 
