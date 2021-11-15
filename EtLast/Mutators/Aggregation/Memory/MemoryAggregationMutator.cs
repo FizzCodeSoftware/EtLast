@@ -65,7 +65,7 @@
                 {
                     try
                     {
-                        apply = TagFilter.Invoke(row);
+                        apply = TagFilter.Invoke(row.Tag);
                     }
                     catch (Exception ex)
                     {
