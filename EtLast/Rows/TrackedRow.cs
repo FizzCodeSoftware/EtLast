@@ -219,13 +219,13 @@
             return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-")).ToUpperInvariant();
         }
 
-        public string ToDebugString()
+        public string ToDebugString(bool multiLine = false)
         {
             return "UID: "
                 + Uid.ToString("D", CultureInfo.InvariantCulture)
-                + (Tag != null ? ", tag: " + Tag.ToString() : "")
+                + (Tag != null ? "\ntag: " + Tag.ToString() : "")
                 + (Values.Any()
-                    ? ", " + string.Join(", ", Values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
+                    ? "\n" + string.Join("\n", Values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
                     : "no values");
         }
     }

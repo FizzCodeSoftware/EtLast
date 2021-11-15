@@ -12,7 +12,7 @@
         {
             Data.Add("CurrentName", currentName);
             Data.Add("NewName", newName);
-            Data.Add("Row", row.ToDebugString());
+            Data.Add("Row", row.ToDebugString(true));
         }
     }
 }

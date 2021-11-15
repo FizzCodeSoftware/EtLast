@@ -10,7 +10,7 @@
         public InvalidValuesException(IProcess process, IReadOnlySlimRow row)
             : base(process, "invalid values found")
         {
-            Data.Add("Row", row.ToDebugString());
+            Data.Add("Row", row.ToDebugString(true));
         }
     }
 }

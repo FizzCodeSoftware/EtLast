@@ -11,7 +11,7 @@
             : base(mutator, "error raised during the execution of a continuous aggregation", innerException)
         {
             Data.Add("Operation", operation.GetType().GetFriendlyTypeName());
-            Data.Add("Row", row.ToDebugString());
+            Data.Add("Row", row.ToDebugString(true));
         }
     }
 }

@@ -10,13 +10,13 @@
         public TooManyMatchException(IProcess process, IReadOnlySlimRow row)
             : base(process, "too many match")
         {
-            Data.Add("Row", row.ToDebugString());
+            Data.Add("Row", row.ToDebugString(true));
         }
 
         public TooManyMatchException(IProcess process, IReadOnlySlimRow row, string key)
             : base(process, "too many match")
         {
-            Data.Add("Row", row.ToDebugString());
+            Data.Add("Row", row.ToDebugString(true));
             Data.Add("Key", key);
         }
     }

@@ -11,7 +11,7 @@
             : base(process, "duplicate keys found")
         {
             Data.Add("Key", key);
-            Data.Add("Row", row.ToDebugString());
+            Data.Add("Row", row.ToDebugString(true));
         }
     }
 }

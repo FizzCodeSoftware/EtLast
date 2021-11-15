@@ -13,7 +13,7 @@
             var value = row[column];
             Data.Add("Column", column);
             Data.Add("Value", value != null ? value.ToString() + " (" + value.GetType().GetFriendlyTypeName() + ")" : "NULL");
-            Data.Add("Row", row.ToDebugString());
+            Data.Add("Row", row.ToDebugString(true));
         }
 
         public InvalidValueException(IProcess process, ITypeConverter converter, IReadOnlySlimRow row, string column)
@@ -23,7 +23,7 @@
             Data.Add("Converter", converter.GetType().GetFriendlyTypeName());
             Data.Add("Column", column);
             Data.Add("Value", value != null ? value.ToString() + " (" + value.GetType().GetFriendlyTypeName() + ")" : "NULL");
-            Data.Add("Row", row.ToDebugString());
+            Data.Add("Row", row.ToDebugString(true));
         }
     }
 }

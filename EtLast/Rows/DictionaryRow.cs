@@ -52,14 +52,26 @@
             }
         }
 
-        public string ToDebugString()
+        public string ToDebugString(bool multiLine = false)
         {
-            return "UID: "
-                + Uid.ToString("D", CultureInfo.InvariantCulture)
-                + (Tag != null ? ", tag: " + Tag.ToString() : "")
-                + (_values.Count > 0
-                    ? ", " + string.Join(", ", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
-                    : "no values");
+            if (!multiLine)
+            {
+                return "UID: "
+                    + Uid.ToString("D", CultureInfo.InvariantCulture)
+                    + (Tag != null ? ", tag: " + Tag.ToString() : "")
+                    + (_values.Count > 0
+                        ? ", " + string.Join(", ", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
+                        : "no values");
+            }
+            else
+            {
+                return "UID: "
+                    + Uid.ToString("D", CultureInfo.InvariantCulture)
+                    + (Tag != null ? "\ttag: " + Tag.ToString() : "")
+                    + (_values.Count > 0
+                        ? "\n" + string.Join("\n", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
+                        : "no values");
+            }
         }
 
         /// <summary>

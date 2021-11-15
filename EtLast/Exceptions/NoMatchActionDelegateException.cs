@@ -10,7 +10,7 @@
         public NoMatchActionDelegateException(IProcess process, IReadOnlySlimRow row, Exception innerException)
             : base(process, "error during the execution of a " + nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction) + " delegate", innerException)
         {
-            Data.Add("Row", row.ToDebugString());
+            Data.Add("Row", row.ToDebugString(true));
         }
     }
 }

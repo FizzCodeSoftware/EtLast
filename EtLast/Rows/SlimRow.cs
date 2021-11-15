@@ -58,13 +58,24 @@
             return _values.ContainsKey(column);
         }
 
-        public string ToDebugString()
+        public string ToDebugString(bool multiLine = false)
         {
-            return
-                (Tag != null ? "tag: " + Tag.ToString() : "")
-                + (_values.Count > 0
-                    ? string.Join(", ", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
-                    : "no values");
+            if (!multiLine)
+            {
+                return
+                    (Tag != null ? "tag: " + Tag.ToString() : "")
+                    + (_values.Count > 0
+                        ? string.Join(", ", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
+                        : "no values");
+            }
+            else
+            {
+                return
+                    (Tag != null ? "tag: " + Tag.ToString() + "\n" : "")
+                    + (_values.Count > 0
+                        ? string.Join("\n", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
+                        : "no values");
+            }
         }
 
         public T GetAs<T>(string column)

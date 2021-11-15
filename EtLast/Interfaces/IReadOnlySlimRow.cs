@@ -27,6 +27,6 @@
         string GenerateKey(params string[] columns);
         string GenerateKeyUpper(params string[] columns);
 
-        string ToDebugString();
+        string ToDebugString(bool multiLine = false);
     }
 }
