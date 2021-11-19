@@ -8,7 +8,7 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractAggregationMutator : AbstractEvaluable, IMutator
     {
-        public IEvaluable InputProcess { get; set; }
+        public IProducer InputProcess { get; set; }
         public RowTestDelegate If { get; init; }
         public RowTagTestDelegate TagFilter { get; init; }
 

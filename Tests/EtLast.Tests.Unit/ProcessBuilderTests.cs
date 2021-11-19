@@ -87,7 +87,7 @@
 
             var process = builder.Build();
             Assert.IsNotNull(process);
-            Assert.IsTrue(process is AbstractProducer);
+            Assert.IsTrue(process is AbstractRowSource);
         }
     }
 }

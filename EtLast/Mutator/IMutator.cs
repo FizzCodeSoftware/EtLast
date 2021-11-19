@@ -2,8 +2,8 @@
 {
     using System.Collections.Generic;
 
-    public interface IMutator : IEvaluable, IEnumerable<IMutator>
+    public interface IMutator : IProducer, IEnumerable<IMutator>
     {
-        public IEvaluable InputProcess { get; set; }
+        public IProducer InputProcess { get; set; }
     }
 }

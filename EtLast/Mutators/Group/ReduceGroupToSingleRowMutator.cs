@@ -14,7 +14,7 @@
     /// </summary>
     public sealed class ReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
     {
-        public IEvaluable InputProcess { get; set; }
+        public IProducer InputProcess { get; set; }
 
         public Func<IReadOnlyRow, string> KeyGenerator { get; init; }
         public ReduceGroupToSingleRowDelegate Selector { get; init; }

@@ -8,7 +8,7 @@
     using System.Linq;
     using System.Text;
 
-    public sealed class DelimitedFileReader : AbstractProducer, IRowSource
+    public sealed class DelimitedFileReader : AbstractRowSource, IRowSource
     {
         public string FileName { get; set; }
 

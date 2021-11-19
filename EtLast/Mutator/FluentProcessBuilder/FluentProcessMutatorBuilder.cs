@@ -29,7 +29,7 @@
             return this;
         }
 
-        public IEvaluable Build()
+        public IProducer Build()
         {
             return ProcessBuilder.Build();
         }

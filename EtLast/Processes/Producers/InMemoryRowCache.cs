@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public sealed class InMemoryRowCache : AbstractProducer
+    public sealed class InMemoryRowCache : AbstractRowSource
     {
         private bool _firstEvaluationFinished;
         private List<IReadOnlySlimRow> _cache;
@@ -10,7 +10,7 @@
         /// <summary>
         /// The process evaluates and yields the rows from the input process.
         /// </summary>
-        public IEvaluable InputProcess { get; set; }
+        public IProducer InputProcess { get; set; }
 
         public InMemoryRowCache(IEtlContext context, string topic, string name)
             : base(context, topic, name)

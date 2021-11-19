@@ -8,7 +8,7 @@
     public sealed class Splitter<TRowQueue> : AbstractEvaluable
         where TRowQueue : IRowQueue, new()
     {
-        public IEvaluable InputProcess { get; set; }
+        public IProducer InputProcess { get; set; }
         public override bool ConsumerShouldNotBuffer => InputProcess?.ConsumerShouldNotBuffer == true;
 
         private TRowQueue _queue;

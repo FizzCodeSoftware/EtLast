@@ -94,7 +94,7 @@
 
             var merger = new ParallelMerger(context, topic, "ParallelMerger")
             {
-                ProcessList = new List<IEvaluable>(),
+                ProcessList = new List<IProducer>(),
             };
 
             for (var i = 0; i < threadCount; i++)

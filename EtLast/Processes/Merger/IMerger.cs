@@ -2,8 +2,8 @@
 {
     using System.Collections.Generic;
 
-    public interface IMerger : IEvaluable
+    public interface IMerger : IProducer
     {
-        List<IEvaluable> ProcessList { get; set; }
+        List<IProducer> ProcessList { get; set; }
     }
 }

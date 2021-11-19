@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
 
-    public delegate IEvaluable ResilientTablePartitionedMainProcessCreatorDelegate(ResilientTable table, int partitionIndex);
+    public delegate IProducer ResilientTablePartitionedMainProcessCreatorDelegate(ResilientTable table, int partitionIndex);
     public delegate IEnumerable<IExecutable> ResilientTableMainProcessCreatorDelegate(ResilientTable table);
     public delegate IEnumerable<IExecutable> ResilientSqlScopeFinalizerCreatorDelegate(ResilientTableBase table);
 

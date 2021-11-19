@@ -160,7 +160,7 @@
                         Context.Log(LogSeverity.Information, this, "processing table {TableName}, (partition #{PartitionIndex})",
                             Configuration.ConnectionString.Unescape(table.TableName), partitionIndex);
 
-                        IEvaluable mainEvaluableProcess;
+                        IProducer mainEvaluableProcess;
 
                         using (var creatorScope = Context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
                         {

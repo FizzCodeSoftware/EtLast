@@ -68,5 +68,13 @@
 
             return count;
         }
+
+        public void ExecuteWithoutTransfer()
+        {
+            foreach (var row in _input)
+            {
+                row.Context.SetRowOwner(row, null);
+            }
+        }
     }
 }

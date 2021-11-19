@@ -2,6 +2,6 @@
 {
     public interface IProcessBuilder
     {
-        IEvaluable Build();
+        IProducer Build();
     }
 }

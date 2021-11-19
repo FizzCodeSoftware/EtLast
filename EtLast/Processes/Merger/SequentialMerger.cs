@@ -54,7 +54,7 @@
         {
             Merger = new SequentialMerger(context, topic, name)
             {
-                ProcessList = new List<IEvaluable>(),
+                ProcessList = new List<IProducer>(),
             };
         }
 

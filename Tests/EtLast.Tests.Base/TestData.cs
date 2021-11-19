@@ -28,7 +28,7 @@
             public DateTime? BirthDate { get; set; }
         }
 
-        public static IEvaluable Country(IEtlContext context)
+        public static IProducer Country(IEtlContext context)
         {
             return new RowCreator(context, null, nameof(Country))
             {
@@ -43,7 +43,7 @@
             };
         }
 
-        public static IEvaluable Person(IEtlContext context)
+        public static IProducer Person(IEtlContext context)
         {
             return new RowCreator(context, null, nameof(Person))
             {
@@ -62,7 +62,7 @@
             };
         }
 
-        public static IEvaluable PersonSortedByName(IEtlContext context)
+        public static IProducer PersonSortedByName(IEtlContext context)
         {
             return new RowCreator(context, null, nameof(Person))
             {
@@ -81,7 +81,7 @@
             };
         }
 
-        public static IEvaluable PersonChanged(IEtlContext context)
+        public static IProducer PersonChanged(IEtlContext context)
         {
             return new RowCreator(context, null, nameof(Person))
             {
@@ -100,7 +100,7 @@
             };
         }
 
-        public static IEvaluable PersonEyeColor(IEtlContext context)
+        public static IProducer PersonEyeColor(IEtlContext context)
         {
             return new RowCreator(context, null, nameof(PersonEyeColor))
             {
@@ -119,7 +119,7 @@
             };
         }
 
-        public static IEvaluable RoleHierarchy(IEtlContext context)
+        public static IProducer RoleHierarchy(IEtlContext context)
         {
             return new RowCreator(context, null, nameof(RoleHierarchy))
             {
@@ -137,7 +137,7 @@
             };
         }
 
-        public static IEvaluable PersonalAssetsPivot(IEtlContext context)
+        public static IProducer PersonalAssetsPivot(IEtlContext context)
         {
             return new RowCreator(context, null, nameof(PersonalAssetsPivot))
             {

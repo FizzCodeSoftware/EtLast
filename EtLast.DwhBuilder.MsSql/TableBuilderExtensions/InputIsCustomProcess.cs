@@ -2,7 +2,7 @@
 {
     using System;
 
-    public delegate IEvaluable CustomInputProcessCreatorDelegate(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp);
+    public delegate IProducer CustomInputProcessCreatorDelegate(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp);
 
     public static partial class TableBuilderExtensions
     {

@@ -31,7 +31,7 @@
 
         private readonly List<Func<DwhTableBuilder, IEnumerable<IExecutable>>> _finalizerCreators = new();
         private readonly List<MutatorCreatorDelegate> _mutatorCreators = new();
-        private Func<DateTimeOffset?, IEvaluable> _inputProcessCreator;
+        private Func<DateTimeOffset?, IProducer> _inputProcessCreator;
 
         public DwhTableBuilder(MsSqlDwhBuilder builder, ResilientTable resilientTable, RelationalTable table)
         {
@@ -65,7 +65,7 @@
             _finalizerCreators.Add(creator);
         }
 
-        internal void SetInputProcessCreator(Func<DateTimeOffset?, IEvaluable> creator)
+        internal void SetInputProcessCreator(Func<DateTimeOffset?, IProducer> creator)
         {
             _inputProcessCreator = creator;
         }

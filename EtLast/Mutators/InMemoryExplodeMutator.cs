@@ -13,7 +13,7 @@
     /// </summary>
     public sealed class InMemoryExplodeMutator : AbstractEvaluable, IMutator
     {
-        public IEvaluable InputProcess { get; set; }
+        public IProducer InputProcess { get; set; }
         public InMemoryExplodeDelegate Action { get; init; }
 
         /// <summary>

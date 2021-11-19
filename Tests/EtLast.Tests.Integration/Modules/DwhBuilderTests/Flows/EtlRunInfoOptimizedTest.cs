@@ -168,7 +168,7 @@
             Assert.AreEqual(2, result.Count);
         }
 
-        public static IEvaluable CreatePeople1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
+        public static IProducer CreatePeople1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
             return new RowCreator(tableBuilder.ResilientTable.Scope.Context, tableBuilder.ResilientTable.Topic, null)
             {
@@ -186,7 +186,7 @@
             };
         }
 
-        public static IEvaluable CreatePeople2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
+        public static IProducer CreatePeople2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
             return new RowCreator(tableBuilder.ResilientTable.Scope.Context, tableBuilder.ResilientTable.Topic, null)
             {
@@ -204,7 +204,7 @@
             };
         }
 
-        public static IEvaluable CreatePet1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
+        public static IProducer CreatePet1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
             return new RowCreator(tableBuilder.ResilientTable.Scope.Context, tableBuilder.ResilientTable.Topic, null)
             {
@@ -220,7 +220,7 @@
             };
         }
 
-        public static IEvaluable CreatePet2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
+        public static IProducer CreatePet2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
             return new RowCreator(tableBuilder.ResilientTable.Scope.Context, tableBuilder.ResilientTable.Topic, null)
             {

@@ -6,10 +6,10 @@
     using System.Diagnostics;
 
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class AbstractEvaluable : AbstractProcess, IEvaluable
+    public abstract class AbstractEvaluable : AbstractProcess, IProducer
     {
         public virtual bool ConsumerShouldNotBuffer { get; }
-        public Action<IEvaluable> Initializer { get; init; }
+        public Action<IProducer> Initializer { get; init; }
 
         protected AbstractEvaluable(IEtlContext context, string topic, string name)
             : base(context, topic, name)
@@ -62,7 +62,7 @@
         public void Execute(IProcess caller)
         {
             var evaluator = Evaluate(caller);
-            _ = evaluator.CountRowsWithoutTransfer();
+            evaluator.ExecuteWithoutTransfer();
         }
     }
 }

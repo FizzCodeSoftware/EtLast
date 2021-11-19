@@ -7,7 +7,7 @@
 
     public delegate IEnumerable<IReadOnlySlimRow> EnumerableImporterDelegate(EnumerableImporter process);
 
-    public sealed class EnumerableImporter : AbstractProducer
+    public sealed class EnumerableImporter : AbstractRowSource
     {
         public EnumerableImporterDelegate InputGenerator { get; set; }
         public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }

@@ -22,7 +22,7 @@
                 },
             };
 
-            var processes = new IEvaluable[4];
+            var processes = new IProducer[4];
             for (var i = 0; i < 3; i++)
             {
                 processes[i] = new CustomMutator(context, null, null)
@@ -63,7 +63,7 @@
                 },
             };
 
-            var processes = new IEvaluable[4];
+            var processes = new IProducer[4];
             for (var i = 0; i < 3; i++)
             {
                 processes[i] = new CustomMutator(context, null, null)
@@ -122,7 +122,7 @@
 
             var merger = new ParallelMerger(context, null, null)
             {
-                ProcessList = new List<IEvaluable>(),
+                ProcessList = new List<IProducer>(),
             };
 
             for (var i = 0; i < 3; i++)
@@ -165,7 +165,7 @@
 
             var merger = new ParallelMerger(context, null, null)
             {
-                ProcessList = new List<IEvaluable>(),
+                ProcessList = new List<IProducer>(),
             };
 
             for (var i = 0; i < 3; i++)

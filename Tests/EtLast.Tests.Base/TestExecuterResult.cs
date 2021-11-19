@@ -4,7 +4,7 @@
 
     public class TestExecuterResult
     {
-        public IEvaluable Process { get; set; }
+        public IProducer Process { get; set; }
         public List<ISlimRow> MutatedRows { get; set; }
     }
 }

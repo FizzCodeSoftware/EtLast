@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.Tests.Unit.Producers
+﻿namespace FizzCode.EtLast.Tests.Unit.RowSources
 {
     using System;
     using System.Collections.Generic;
@@ -8,7 +8,7 @@
     [TestClass]
     public class DelimitedFileReaderTests
     {
-        private static IEvaluable GetReader(IEtlContext context, string fileName, bool removeSurroundingDoubleQuotes = true)
+        private static IProducer GetReader(IEtlContext context, string fileName, bool removeSurroundingDoubleQuotes = true)
         {
             return new DelimitedFileReader(context, null, null)
             {
@@ -27,7 +27,7 @@
             };
         }
 
-        private static IEvaluable GetSimpleReader(IEtlContext context, string fileName, bool treatEmptyStringsAsNull = true)
+        private static IProducer GetSimpleReader(IEtlContext context, string fileName, bool treatEmptyStringsAsNull = true)
         {
             return new DelimitedFileReader(context, null, null)
             {

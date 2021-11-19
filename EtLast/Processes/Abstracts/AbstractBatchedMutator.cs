@@ -9,7 +9,7 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractBatchedMutator : AbstractEvaluable, IMutator
     {
-        public IEvaluable InputProcess { get; set; }
+        public IProducer InputProcess { get; set; }
         public RowTestDelegate If { get; init; }
 
         public abstract int BatchSize { get; init; }

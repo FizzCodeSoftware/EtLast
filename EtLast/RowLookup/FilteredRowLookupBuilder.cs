@@ -2,7 +2,7 @@
 {
     using System;
 
-    public delegate IEvaluable ProcessCreatorForRowLookupBuilderDelegate(IReadOnlySlimRow[] filterRows);
+    public delegate IProducer ProcessCreatorForRowLookupBuilderDelegate(IReadOnlySlimRow[] filterRows);
 
     public sealed class FilteredRowLookupBuilder
     {

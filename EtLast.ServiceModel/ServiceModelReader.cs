@@ -15,7 +15,7 @@
         where TChannel : class
         where TClient : ClientBase<TChannel>;
 
-    public sealed class ServiceModelReader<TChannel, TClient> : AbstractProducer, IRowSource
+    public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource, IRowSource
         where TChannel : class
         where TClient : ClientBase<TChannel>
     {

@@ -2,7 +2,7 @@
 {
     public interface IFluentProcessBuilder : IProcessBuilder
     {
-        IEvaluable Result { get; set; }
-        IFluentProcessMutatorBuilder ReadFrom(IEvaluable process);
+        IProducer Result { get; set; }
+        IFluentProcessMutatorBuilder ReadFrom(IProducer process);
     }
 }

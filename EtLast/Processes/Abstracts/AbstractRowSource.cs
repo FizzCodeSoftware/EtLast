@@ -7,10 +7,10 @@
     using System.Globalization;
 
     /// <summary>
-    /// Producer processes create rows. They may create or generate, read from different sources, copy from existing rows.
+    /// Row sources create rows - they may create or generate, read from different sources, copy from existing rows.
     /// </summary>
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class AbstractProducer : AbstractEvaluable, IRowSource
+    public abstract class AbstractRowSource : AbstractEvaluable, IRowSource
     {
         /// <summary>
         /// Default false.
@@ -30,7 +30,7 @@
         private int _currentRowIndex;
         protected bool AutomaticallyEvaluateAndYieldInputProcessRows { get; init; } = true;
 
-        protected AbstractProducer(IEtlContext context, string topic, string name)
+        protected AbstractRowSource(IEtlContext context, string topic, string name)
             : base(context, topic, name)
         {
         }

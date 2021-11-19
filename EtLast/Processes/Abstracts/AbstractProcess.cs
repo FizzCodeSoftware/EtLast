@@ -35,7 +35,7 @@
                 IRowSink _ => "sink",
                 IMutator _ => "mutator",
                 IScope _ => "scope",
-                IEvaluable _ => "producer",
+                IProducer _ => "producer",
                 IExecutable _ => "job",
                 _ => "unknown",
             };

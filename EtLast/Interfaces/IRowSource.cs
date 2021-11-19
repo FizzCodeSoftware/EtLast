@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast
 {
-    public interface IRowSource : IEvaluable
+    public interface IRowSource : IProducer
     {
     }
 }

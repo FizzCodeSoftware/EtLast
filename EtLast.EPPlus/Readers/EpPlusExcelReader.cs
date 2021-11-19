@@ -10,7 +10,7 @@
 
     public enum EpPlusExcelHeaderCellMode { Join, KeepFirst, KeepLast }
 
-    public sealed class EpPlusExcelReader : AbstractProducer
+    public sealed class EpPlusExcelReader : AbstractRowSource
     {
         public string FileName { get; init; }
         public string SheetName { get; init; }

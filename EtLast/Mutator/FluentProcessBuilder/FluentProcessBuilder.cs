@@ -6,14 +6,14 @@
         {
         }
 
-        public IEvaluable Result { get; set; }
+        public IProducer Result { get; set; }
 
-        public IEvaluable Build()
+        public IProducer Build()
         {
             return Result;
         }
 
-        public IFluentProcessMutatorBuilder ReadFrom(IEvaluable process)
+        public IFluentProcessMutatorBuilder ReadFrom(IProducer process)
         {
             Result = process;
             return new FluentProcessMutatorBuilder(this);

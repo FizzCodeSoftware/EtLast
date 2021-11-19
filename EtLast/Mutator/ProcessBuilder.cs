@@ -2,10 +2,10 @@
 {
     public sealed class ProcessBuilder : IProcessBuilder
     {
-        public IEvaluable InputProcess { get; set; }
+        public IProducer InputProcess { get; set; }
         public MutatorList Mutators { get; set; }
 
-        public IEvaluable Build()
+        public IProducer Build()
         {
             if (Mutators == null || Mutators.Count == 0)
             {

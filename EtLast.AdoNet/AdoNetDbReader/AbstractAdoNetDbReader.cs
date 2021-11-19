@@ -14,7 +14,7 @@
     public delegate void ConnectionCreatorDelegate(AbstractAdoNetDbReader process, out DatabaseConnection connection, out IDbTransaction transaction);
 
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class AbstractAdoNetDbReader : AbstractProducer, IRowSource
+    public abstract class AbstractAdoNetDbReader : AbstractRowSource, IRowSource
     {
         public NamedConnectionString ConnectionString { get; init; }
 
