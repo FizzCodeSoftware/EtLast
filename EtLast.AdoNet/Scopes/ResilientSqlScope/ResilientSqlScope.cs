@@ -429,7 +429,7 @@
             }
         }
 
-        public static IEnumerable<IExecutable> TruncateTargetTableFinalizer(ResilientTableBase table, int commandTimeout = 60)
+        public static IEnumerable<IExecutable> TruncateTargetTableFinalizer(ResilientTableBase table, int commandTimeout = 60 * 60)
         {
             yield return new TruncateTable(table.Scope.Context, table.Topic, "TruncateTargetTableFinalizer")
             {
@@ -439,7 +439,7 @@
             };
         }
 
-        public static IEnumerable<IExecutable> DeleteTargetTableFinalizer(ResilientTableBase table, int commandTimeout = 60)
+        public static IEnumerable<IExecutable> DeleteTargetTableFinalizer(ResilientTableBase table, int commandTimeout = 60 * 60)
         {
             yield return new DeleteTable(table.Scope.Context, table.Topic, "DeleteTargetTableFinalizer")
             {
@@ -449,7 +449,7 @@
             };
         }
 
-        public static IEnumerable<IExecutable> CopyTableFinalizer(ResilientTableBase table, int commandTimeout = 60, bool copyIdentityColumns = false)
+        public static IEnumerable<IExecutable> CopyTableFinalizer(ResilientTableBase table, int commandTimeout = 60 * 60, bool copyIdentityColumns = false)
         {
             if (copyIdentityColumns && table.Columns == null)
                 throw new EtlException(table.Scope, "identity columns can be copied only if the " + nameof(ResilientTable) + "." + nameof(ResilientTableBase.Columns) + " is specified");
@@ -473,7 +473,7 @@
             };
         }
 
-        public static IEnumerable<IExecutable> SimpleMergeFinalizer(ResilientTableBase table, string keyColumn, int commandTimeout = 60)
+        public static IEnumerable<IExecutable> SimpleMergeFinalizer(ResilientTableBase table, string keyColumn, int commandTimeout = 60 * 60)
         {
             var columnsToUpdate = table.Columns
                 .Where(c => !string.Equals(c, keyColumn, System.StringComparison.InvariantCultureIgnoreCase))
@@ -495,7 +495,7 @@
             };
         }
 
-        public static IEnumerable<IExecutable> SimpleMergeFinalizer(ResilientTableBase table, string[] keyColumns, int commandTimeout = 60)
+        public static IEnumerable<IExecutable> SimpleMergeFinalizer(ResilientTableBase table, string[] keyColumns, int commandTimeout = 60 * 60)
         {
             var columnsToUpdate = table.Columns
                 .Where(c => !keyColumns.Any(keyColumn => string.Equals(c, keyColumn, System.StringComparison.InvariantCultureIgnoreCase)))
@@ -517,7 +517,7 @@
             };
         }
 
-        public static IEnumerable<IExecutable> SimpleMergeUpdateOnlyFinalizer(ResilientTableBase table, string[] keyColumns, int commandTimeout = 60)
+        public static IEnumerable<IExecutable> SimpleMergeUpdateOnlyFinalizer(ResilientTableBase table, string[] keyColumns, int commandTimeout = 60 * 60)
         {
             var columnsToUpdate = table.Columns.Where(c => !keyColumns.Contains(c)).ToList();
 
@@ -536,7 +536,7 @@
             };
         }
 
-        public static IEnumerable<IExecutable> SimpleMergeInsertOnlyFinalizer(ResilientTableBase table, string[] keyColumns, int commandTimeout = 60)
+        public static IEnumerable<IExecutable> SimpleMergeInsertOnlyFinalizer(ResilientTableBase table, string[] keyColumns, int commandTimeout = 60 * 60)
         {
             yield return new CustomMsSqlMergeStatement(table.Scope.Context, table.Topic, "SimpleMergeInsertOnlyFinalizer")
             {
