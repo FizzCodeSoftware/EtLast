@@ -54,10 +54,10 @@
         public List<ResilientTable> Tables { get; init; }
 
         /// <summary>
-        /// Used for table configurations where <see cref="ResilientTableBase.TempTableName"/> is null.
+        /// Used for table configurations where <see cref="ResilientTableBase.TempTableName"/> is "__".
         /// Temp table name will be: AutoTempTablePrefix + TableName + AutoTempTablePostfix
         /// </summary>
-        public string AutoTempTablePrefix { get; init; }
+        public string AutoTempTablePrefix { get; init; } = "__";
 
         /// <summary>
         /// Used for table configurations where <see cref="ResilientTableBase.TempTableName"/> is null.
