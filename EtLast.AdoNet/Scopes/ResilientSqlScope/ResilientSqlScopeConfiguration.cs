@@ -15,19 +15,19 @@
         public ResilientSqlScope Scope { get; internal set; }
 
         /// <summary>
-        /// The transaction scope kind around the finalizers. Default value is <see cref="TransactionScopeKind.Required"/>.
+        /// The transaction scope kind around the finalizers. Default value is <see cref="TransactionScopeKind.RequiresNew"/>.
         /// </summary>
-        public TransactionScopeKind InitializationTransactionScopeKind { get; init; }
+        public TransactionScopeKind InitializationTransactionScopeKind { get; init; } = TransactionScopeKind.RequiresNew;
 
         /// <summary>
-        /// The transaction scope kind around the finalizers. Default value is <see cref="TransactionScopeKind.Required"/>.
+        /// The transaction scope kind around the finalizers. Default value is <see cref="TransactionScopeKind.RequiresNew"/>.
         /// </summary>
-        public TransactionScopeKind FinalizerTransactionScopeKind { get; init; }
+        public TransactionScopeKind FinalizerTransactionScopeKind { get; init; } = TransactionScopeKind.RequiresNew;
 
         /// <summary>
-        /// The number of retries of finalizers. Default value is 0. Retrying finalizers is only supported if <seealso cref="FinalizerTransactionScopeKind"/> is set to <see cref="TransactionScopeKind.RequiresNew"/>.
+        /// The number of retries of finalizers. Default value is 3. Retrying finalizers is only supported if <seealso cref="FinalizerTransactionScopeKind"/> is set to <see cref="TransactionScopeKind.RequiresNew"/>.
         /// </summary>
-        public int FinalizerRetryCount { get; init; }
+        public int FinalizerRetryCount { get; init; } = 3;
 
         /// <summary>
         /// Default value is <see cref="ResilientSqlScopeTempTableMode.KeepOnlyOnFailure"/>.
