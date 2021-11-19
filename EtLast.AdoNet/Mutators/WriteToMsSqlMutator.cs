@@ -17,9 +17,9 @@
         public NamedConnectionString ConnectionString { get; init; }
 
         /// <summary>
-        /// Default value is 600.
+        /// Default value is 3600.
         /// </summary>
-        public int CommandTimeout { get; init; } = 600;
+        public int CommandTimeout { get; init; } = 60 * 60;
 
         public DbTableDefinition TableDefinition { get; init; }
 

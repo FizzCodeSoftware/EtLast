@@ -32,7 +32,7 @@
         /// <summary>
         /// Default value is 3600.
         /// </summary>
-        public int CommandTimeout { get; init; } = 3600;
+        public int CommandTimeout { get; init; } = 60 * 60;
 
         public DateTime LastDataRead { get; private set; }
         public List<ISqlValueProcessor> SqlValueProcessors { get; } = new List<ISqlValueProcessor>();

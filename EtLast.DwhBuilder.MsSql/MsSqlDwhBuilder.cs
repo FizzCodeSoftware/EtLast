@@ -85,7 +85,7 @@
                     var connection = EtlConnectionManager.GetNewConnection(ConnectionString, proc);
                     using (var command = connection.Connection.CreateCommand())
                     {
-                        command.CommandTimeout = 60 * 1000;
+                        command.CommandTimeout = 60 * 60;
                         command.CommandText = @"
                             select distinct
 	                            fk.[name] fkName,
