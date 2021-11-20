@@ -44,7 +44,7 @@
             module.Startup?.BuildSettings(environmentSettings);
 
             var sessionId = "s" + DateTime.Now.ToString("yyMMdd-HHmmss-ff", CultureInfo.InvariantCulture);
-            var session = new EtlSession(sessionId, etlContext, environmentSettings);
+            var session = new EtlSession(sessionId, etlContext);
 
             etlContext.TransactionScopeTimeout = environmentSettings.TransactionScopeTimeout;
 

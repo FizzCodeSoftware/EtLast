@@ -12,7 +12,6 @@
     using FizzCode.LightWeight.RelationalModel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    // EtlRunInfo ON, no record timestamp
     public class EtlRunIdForDefaultValidFromTest : AbstractDwhBuilderTestFlow
     {
         public NamedConnectionString ConnectionString { get; init; }

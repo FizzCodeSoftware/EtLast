@@ -12,7 +12,6 @@
     using FizzCode.LightWeight.RelationalModel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    // EtlRunInfo OFF
     public class History1Test : AbstractDwhBuilderTestFlow
     {
         public NamedConnectionString ConnectionString { get; init; }
@@ -273,7 +272,7 @@
             {
                 Then = row =>
                 {
-                    var fk = row.GetAs<int?>(KofirSchema.People__FavoritePetId);
+                    var fk = row.GetAs<int?>("FavoritePetId");
                     return fk == null || fk.Value >= 0;
                 },
             };
@@ -290,10 +289,5 @@
                 },
             };
         }
-    }
-
-    public static class KofirSchema
-    {
-        public static string People__FavoritePetId = "FavoritePetId";
     }
 }

@@ -5,8 +5,6 @@
         public string Id { get; }
         public IEtlContext Context { get; }
 
-        public IEnvironmentSettings EnvironmentSettings { get; }
-
         public T Service<T>() where T : IEtlService, new();
 
         public bool Success { get; }

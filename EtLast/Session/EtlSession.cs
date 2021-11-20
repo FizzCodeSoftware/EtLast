@@ -8,16 +8,14 @@
         public string Id { get; }
         public IEtlContext Context { get; }
 
-        public IEnvironmentSettings EnvironmentSettings { get; }
         public bool Success { get; private set; }
 
         private readonly List<IEtlService> _services = new();
 
-        public EtlSession(string id, EtlContext context, IEnvironmentSettings environmentSettings)
+        public EtlSession(string id, EtlContext context)
         {
             Id = id;
             Context = context;
-            EnvironmentSettings = environmentSettings;
         }
 
         public T Service<T>() where T : IEtlService, new()

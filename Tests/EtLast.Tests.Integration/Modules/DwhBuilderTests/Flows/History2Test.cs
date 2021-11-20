@@ -12,7 +12,6 @@
     using FizzCode.LightWeight.RelationalModel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    // EtlRunInfo ON
     public class History2Test : AbstractDwhBuilderTestFlow
     {
         public NamedConnectionString ConnectionString { get; init; }
