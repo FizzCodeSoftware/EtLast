@@ -6,12 +6,17 @@
     {
         public Dictionary<string, object> GetConfigurationValues(string instance)
         {
-            return new()
+            return instance.ToLowerInvariant() switch
             {
-                ["ConnectionString"] = instance.ToLowerInvariant() switch
+                "wsdevtwo" => new()
                 {
-                    "wsdevtwo" => "Data Source=(local);Initial Catalog=\"EtLastIntegrationTest\";Integrated Security=SSPI;Connection Timeout=5",
-                    _ => "Data Source=(local);Initial Catalog=\"EtLastIntegrationTest\";Integrated Security=SSPI;Connection Timeout=5",
+                    ["DatabaseName"] = "EtLastIntegrationTest",
+                    ["ConnectionString"] = "Data Source=(local);Initial Catalog=\"EtLastIntegrationTest\";Integrated Security=SSPI;Connection Timeout=5",
+                },
+                _ => new()
+                {
+                    ["DatabaseName"] = "EtLastIntegrationTest",
+                    ["ConnectionString"] = "Data Source=(local);Initial Catalog=\"EtLastIntegrationTest\";Integrated Security=SSPI;Connection Timeout=5",
                 }
             };
         }

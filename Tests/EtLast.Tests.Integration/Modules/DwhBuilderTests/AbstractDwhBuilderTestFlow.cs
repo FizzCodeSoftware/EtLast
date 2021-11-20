@@ -1,9 +1,7 @@
-﻿#pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
-namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
+﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
 {
     using System;
     using System.Collections.Generic;
-    using System.Data.Common;
     using System.Linq;
     using FizzCode.EtLast;
     using FizzCode.EtLast.AdoNet;
@@ -13,11 +11,6 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
     {
         protected DateTime EtlRunId1 { get; } = new DateTime(2001, 1, 1, 1, 1, 1, DateTimeKind.Utc);
         protected DateTime EtlRunId2 { get; } = new DateTime(2022, 2, 2, 2, 2, 2, DateTimeKind.Utc);
-
-        protected AbstractDwhBuilderTestFlow()
-        {
-            DbProviderFactories.RegisterFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
-        }
 
         protected List<ISlimRow> ReadRows(IProcess caller, NamedConnectionString connectionString, string schema, string table)
         {
@@ -29,4 +22,3 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
         }
     }
 }
-#pragma warning restore CA2100 // Review SQL queries for security vulnerabilities
