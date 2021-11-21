@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    internal class DevWSDEVTWO : IConfigurationProvider
+    internal class DevWSDEVTWO : IInstanceConfigurationProvider
     {
         public string Instance => "WSDEVTWO";
 

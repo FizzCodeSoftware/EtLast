@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public interface IConfigurationProvider
+    public interface IInstanceConfigurationProvider
     {
         public string Instance { get; }
         public Dictionary<string, object> Configuration { get; }

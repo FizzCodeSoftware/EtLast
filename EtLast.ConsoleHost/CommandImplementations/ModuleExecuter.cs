@@ -40,7 +40,7 @@
             var instance = Environment.MachineName;
 
             Dictionary<string, object> configValues = null;
-            var instanceConfigurationProvider = module.ConfigurationProviders.FirstOrDefault(x => string.Equals(x.Instance, instance, StringComparison.InvariantCultureIgnoreCase));
+            var instanceConfigurationProvider = module.InstanceConfigurationProviders.Find(x => string.Equals(x.Instance, instance, StringComparison.InvariantCultureIgnoreCase));
             if (instanceConfigurationProvider != null)
                 configValues = instanceConfigurationProvider.Configuration;
 
@@ -48,7 +48,7 @@
             {
                 foreach (var defaultProvider in module.DefaultConfigurationProviders)
                 {
-                    configValues = defaultProvider.GetConfiguration();
+                    configValues = defaultProvider.Configuration;
                     if (configValues != null)
                         break;
                 }

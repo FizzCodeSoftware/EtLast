@@ -4,6 +4,6 @@
 
     public interface IDefaultConfigurationProvider
     {
-        public Dictionary<string, object> GetConfiguration();
+        public Dictionary<string, object> Configuration { get; }
     }
 }

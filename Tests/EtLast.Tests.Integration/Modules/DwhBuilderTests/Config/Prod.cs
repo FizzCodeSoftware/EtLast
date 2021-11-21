@@ -7,13 +7,10 @@
     /// </summary>
     internal class Prod : IDefaultConfigurationProvider
     {
-        public Dictionary<string, object> GetConfiguration()
+        public Dictionary<string, object> Configuration => new()
         {
-            return new()
-            {
-                ["DatabaseName"] = "EtLastIntegrationTest",
-                ["ConnectionString"] = "Data Source=(local);Initial Catalog=\"EtLastIntegrationTest\";Integrated Security=SSPI;Connection Timeout=5",
-            };
-        }
+            ["DatabaseName"] = "EtLastIntegrationTest",
+            ["ConnectionString"] = "Data Source=(local);Initial Catalog=\"EtLastIntegrationTest\";Integrated Security=SSPI;Connection Timeout=5",
+        };
     }
 }
