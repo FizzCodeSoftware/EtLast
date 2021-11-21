@@ -10,10 +10,10 @@
         public string RowColumn { get; }
         public string DbColumn { get; }
 
-        public DbColumnDefinition(string rowColumn, string dbColumn = null)
+        public DbColumnDefinition(string rowColumn, string dbColumn)
         {
             RowColumn = rowColumn;
-            DbColumn = dbColumn ?? rowColumn;
+            DbColumn = dbColumn;
         }
 
         public static DbColumnDefinition[] StraightCopyAndEscape(NamedConnectionString connectionString, params string[] columnNames)

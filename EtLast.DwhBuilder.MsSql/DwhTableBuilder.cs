@@ -92,10 +92,8 @@
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 TableDefinition = new DbTableDefinition()
                 {
-                    TableName = table.TempTableName,
-                    Columns = tempColumns
-                        .Select(c => new DbColumnDefinition(c.Name, c.NameEscaped(DwhBuilder.ConnectionString)))
-                        .ToArray(),
+                    TableName = DwhBuilder.ConnectionString.Escape(table.TempTableName),
+                    Columns = DbColumnDefinition.StraightCopyAndEscape(DwhBuilder.ConnectionString, tempColumns.Select(x => x.Name).ToArray())
                 },
             };
         }

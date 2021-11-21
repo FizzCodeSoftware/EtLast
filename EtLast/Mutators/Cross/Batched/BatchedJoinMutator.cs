@@ -92,7 +92,10 @@
                     foreach (var match in matches)
                     {
                         var initialValues = new Dictionary<string, object>(row.Values);
-                        ColumnCopyConfiguration.CopyMany(match, initialValues, ColumnConfiguration);
+                        foreach (var config in ColumnConfiguration)
+                        {
+                            initialValues[config.ToColumn] = match[config.FromColumn];
+                        }
 
                         var newRow = Context.CreateRow(this, initialValues);
 

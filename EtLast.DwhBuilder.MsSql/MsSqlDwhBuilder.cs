@@ -264,9 +264,7 @@
                             TableDefinition = new DbTableDefinition()
                             {
                                 TableName = etlRunInfoTable.EscapedName(ConnectionString),
-                                Columns = new[] { "StartedOn", "Name", "MachineName", "UserName" }
-                                    .Select(c => new DbColumnDefinition(c, ConnectionString.Escape(c)))
-                                    .ToArray(),
+                                Columns = DbColumnDefinition.StraightCopyAndEscape(ConnectionString, "StartedOn", "Name", "MachineName", "UserName"),
                             },
                         },
                     },

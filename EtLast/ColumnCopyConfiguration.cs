@@ -27,14 +27,6 @@
             targetValues.Add(new KeyValuePair<string, object>(ToColumn, sourceRow[FromColumn]));
         }
 
-        public static void CopyMany(IReadOnlySlimRow sourceRow, Dictionary<string, object> targetValues, List<ColumnCopyConfiguration> configurations)
-        {
-            foreach (var config in configurations)
-            {
-                targetValues[config.ToColumn] = sourceRow[config.FromColumn];
-            }
-        }
-
         public static List<ColumnCopyConfiguration> StraightCopy(params string[] columnNames)
         {
             return columnNames
