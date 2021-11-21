@@ -23,7 +23,7 @@
                     {
                         Columns = new[] { "birthDate" },
                         TypeConverter = new DateConverterAuto(new CultureInfo("hu-HU")),
-                         ActionIfInvalid = InvalidValueAction.Throw,
+                        ActionIfInvalid = InvalidValueAction.Throw,
                     },
                     new ExplodeMutator(context, null, null)
                     {

@@ -34,7 +34,7 @@
             var removeRow = false;
             foreach (var kvp in Columns)
             {
-                if (row.HasValue(kvp.Key))
+                if (row.HasValue(kvp.Value))
                 {
                     switch (ActionIfTargetValueExists)
                     {
