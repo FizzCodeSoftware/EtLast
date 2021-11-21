@@ -21,7 +21,7 @@
             }
 
             var exceptions = result.Process.Context.GetExceptions();
-            sb.AppendLine("\t\t\tvar exceptions = Context.GetExceptions();");
+            sb.AppendLine("\t\t\tvar exceptions = context.GetExceptions();");
             sb.Append("\t\t\tAssert.AreEqual(").Append(exceptions.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", exceptions.Count);");
 
             for (var i = 0; i < exceptions.Count; i++)

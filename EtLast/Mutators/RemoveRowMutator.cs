@@ -20,8 +20,8 @@
         {
             base.ValidateMutator();
 
-            if (If == null)
-                throw new ProcessParameterNullException(this, nameof(If));
+            if (If == null && TagFilter == null)
+                throw new ProcessParameterNullException(this, nameof(If) + " and " + nameof(TagFilter));
         }
     }
 

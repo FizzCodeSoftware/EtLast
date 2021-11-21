@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
-    using System.Linq;
 
     public delegate IEnumerable<ISlimRow> InMemoryExplodeDelegate(InMemoryExplodeMutator proc, IReadOnlyList<IReadOnlySlimRow> rows);
 
@@ -14,6 +13,9 @@
     public sealed class InMemoryExplodeMutator : AbstractEvaluable, IMutator
     {
         public IProducer InputProcess { get; set; }
+        public RowTestDelegate If { get; init; }
+        public RowTagTestDelegate TagFilter { get; set; }
+
         public InMemoryExplodeDelegate Action { get; init; }
 
         /// <summary>
@@ -37,15 +39,68 @@
 
         protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
-            List<IReadOnlySlimRow> rows;
-            try
+            netTimeStopwatch.Stop();
+            var sourceEnumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+            netTimeStopwatch.Start();
+
+            var ignoredRowCount = 0;
+            var rows = new List<IReadOnlySlimRow>();
+            while (!Context.CancellationTokenSource.IsCancellationRequested)
             {
-                rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().Select(x => x as IReadOnlySlimRow).ToList();
-            }
-            catch (Exception ex)
-            {
-                Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
-                yield break;
+                netTimeStopwatch.Stop();
+                var finished = !sourceEnumerator.MoveNext();
+                netTimeStopwatch.Start();
+                if (finished)
+                    break;
+
+                var row = sourceEnumerator.Current;
+
+                var apply = false;
+                if (If != null)
+                {
+                    try
+                    {
+                        apply = If.Invoke(row);
+                    }
+                    catch (Exception ex)
+                    {
+                        Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
+                }
+
+                if (TagFilter != null)
+                {
+                    try
+                    {
+                        apply = TagFilter.Invoke(row.Tag);
+                    }
+                    catch (Exception ex)
+                    {
+                        Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
+                }
+
+                rows.Add(row);
             }
 
             var resultCount = 0;

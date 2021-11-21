@@ -5,5 +5,6 @@
     public interface IMutator : IProducer, IEnumerable<IMutator>
     {
         public IProducer InputProcess { get; set; }
+        public RowTagTestDelegate TagFilter { get; set; }
     }
 }

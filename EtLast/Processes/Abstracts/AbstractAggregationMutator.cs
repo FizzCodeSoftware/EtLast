@@ -10,7 +10,7 @@
     {
         public IProducer InputProcess { get; set; }
         public RowTestDelegate If { get; init; }
-        public RowTagTestDelegate TagFilter { get; init; }
+        public RowTagTestDelegate TagFilter { get; set; }
 
         public List<ColumnCopyConfiguration> FixColumns { get; init; }
         public Func<IRow, string> KeyGenerator { get; init; }

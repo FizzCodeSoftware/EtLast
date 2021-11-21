@@ -14,6 +14,8 @@
     public sealed class SortedReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
     {
         public IProducer InputProcess { get; set; }
+        public RowTestDelegate If { get; init; }
+        public RowTagTestDelegate TagFilter { get; set; }
 
         public Func<IReadOnlyRow, string> KeyGenerator { get; init; }
         public ReduceGroupToSingleRowDelegate Selector { get; init; }
@@ -48,9 +50,9 @@
 
             var success = true;
 
-            var rowCount = 0;
+            var mutatedRowCount = 0;
+            var ignoredRowCount = 0;
             var resultRowCount = 0;
-
             while (!Context.CancellationTokenSource.IsCancellationRequested && success)
             {
                 netTimeStopwatch.Stop();
@@ -60,7 +62,53 @@
                     break;
 
                 var row = enumerator.Current;
-                rowCount++;
+
+                var apply = false;
+                if (If != null)
+                {
+                    try
+                    {
+                        apply = If.Invoke(row);
+                    }
+                    catch (Exception ex)
+                    {
+                        Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
+                }
+
+                if (TagFilter != null)
+                {
+                    try
+                    {
+                        apply = TagFilter.Invoke(row.Tag);
+                    }
+                    catch (Exception ex)
+                    {
+                        Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
+                }
+
+                mutatedRowCount++;
                 var key = KeyGenerator.Invoke(row);
                 if (key != lastKey)
                 {
@@ -102,8 +150,8 @@
 
             netTimeStopwatch.Stop();
 
-            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and returned {ResultRowCount} rows in {Elapsed}/{ElapsedWallClock}",
-                rowCount, resultRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "evaluated {MutatedRowCount} of {TotalRowCount} rows and returned {ResultRowCount} rows in {Elapsed}/{ElapsedWallClock}",
+                mutatedRowCount, mutatedRowCount + ignoredRowCount, resultRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
         }

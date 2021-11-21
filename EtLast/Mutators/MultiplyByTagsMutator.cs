@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
 
-    public sealed class MultiplyWithTagsMutator : AbstractMutator
+    public sealed class MultiplyByTagsMutator : AbstractMutator
     {
         /// <summary>
         /// Default true.
@@ -12,7 +12,7 @@
 
         public object[] Tags { get; init; }
 
-        public MultiplyWithTagsMutator(IEtlContext context, string topic, string name)
+        public MultiplyByTagsMutator(IEtlContext context, string topic, string name)
             : base(context, topic, name)
         {
         }
@@ -40,7 +40,7 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class MultiplyWithTagsMutatorFluent
     {
-        public static IFluentProcessMutatorBuilder MultiplyWithTags(this IFluentProcessMutatorBuilder builder, MultiplyWithTagsMutator mutator)
+        public static IFluentProcessMutatorBuilder CreateBranches(this IFluentProcessMutatorBuilder builder, MultiplyByTagsMutator mutator)
         {
             return builder.AddMutator(mutator);
         }
