@@ -12,7 +12,10 @@
 
     public sealed class RenameColumnMutator : AbstractSimpleChangeMutator
     {
-        public List<ColumnRenameConfiguration> ColumnConfiguration { get; init; }
+        /// <summary>
+        /// Key is original name, Value is new name.
+        /// </summary>
+        public Dictionary<string, string> Columns { get; init; }
 
         /// <summary>
         /// Default value is <see cref="ColumnAlreadyExistsAction.Throw"/>
@@ -29,9 +32,9 @@
             Changes.Clear();
 
             var removeRow = false;
-            foreach (var config in ColumnConfiguration)
+            foreach (var kvp in Columns)
             {
-                if (row.HasValue(config.NewName))
+                if (row.HasValue(kvp.Key))
                 {
                     switch (ActionIfTargetValueExists)
                     {
@@ -41,14 +44,14 @@
                         case ColumnAlreadyExistsAction.Skip:
                             continue;
                         case ColumnAlreadyExistsAction.Throw:
-                            var exception = new ColumnRenameException(this, row, config.CurrentName, config.NewName);
+                            var exception = new ColumnRenameException(this, row, kvp.Key, kvp.Value);
                             throw exception;
                     }
                 }
 
-                var value = row[config.CurrentName];
-                Changes.Add(new KeyValuePair<string, object>(config.CurrentName, null));
-                Changes.Add(new KeyValuePair<string, object>(config.NewName, value));
+                var value = row[kvp.Key];
+                Changes.Add(new KeyValuePair<string, object>(kvp.Key, null));
+                Changes.Add(new KeyValuePair<string, object>(kvp.Value, value));
             }
 
             if (!removeRow)
@@ -60,8 +63,8 @@
 
         protected override void ValidateMutator()
         {
-            if (ColumnConfiguration == null)
-                throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
+            if (Columns == null)
+                throw new ProcessParameterNullException(this, nameof(Columns));
         }
     }
 

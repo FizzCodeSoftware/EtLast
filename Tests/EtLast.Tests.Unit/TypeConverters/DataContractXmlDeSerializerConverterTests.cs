@@ -58,9 +58,9 @@
                     },
                     new RenameColumnMutator(context, null, null)
                     {
-                        ColumnConfiguration = new List<ColumnRenameConfiguration>()
+                        Columns = new()
                         {
-                            new ColumnRenameConfiguration("personModelXml", "personModel"),
+                            ["personModelXml"] = "personModel",
                         },
                     },
                     new ExplodeMutator(context, null, null)
