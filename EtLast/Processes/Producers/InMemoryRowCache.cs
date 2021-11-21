@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
 
     public sealed class InMemoryRowCache : AbstractRowSource
     {
@@ -60,6 +61,23 @@
 
                 _firstEvaluationFinished = true;
             }
+        }
+    }
+
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    public static class InMemoryRowCacheFluent
+    {
+        public static IFluentProcessMutatorBuilder ReadFromInMemoryRowCache(this IFluentProcessBuilder builder, InMemoryRowCache cache)
+        {
+            return builder.ReadFrom(cache);
+        }
+
+        public static IProducer BuildToInMemoryRowCache(this IFluentProcessMutatorBuilder builder, IEtlContext context, string topic, string name)
+        {
+            return new InMemoryRowCache(context, topic, name)
+            {
+                InputProcess = builder.Build(),
+            };
         }
     }
 }
