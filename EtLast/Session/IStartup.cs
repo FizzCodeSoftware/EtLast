@@ -2,6 +2,6 @@
 {
     public interface IStartup
     {
-        public void BuildSettings(IEnvironmentSettings settings);
+        public void BuildSettings(IEnvironmentSettings environment);
     }
 }

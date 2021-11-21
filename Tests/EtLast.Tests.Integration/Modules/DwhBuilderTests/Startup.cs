@@ -5,23 +5,23 @@
 
     public class Startup : IStartup
     {
-        public void BuildSettings(IEnvironmentSettings settings)
+        public void BuildSettings(IEnvironmentSettings environment)
         {
             DbProviderFactories.RegisterFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
 
-            settings.SetDevEnvironmentForInstance("WSDEVTWO");
-            settings.FileLogSettings.MinimumLogLevel = LogSeverity.Debug;
+            environment.SetDevEnvironmentForInstance("WSDEVTWO");
+            environment.FileLogSettings.MinimumLogLevel = LogSeverity.Debug;
 
-            var connectionString = new NamedConnectionString("test", "System.Data.SqlClient", settings.GetConfigurationValue<string>("ConnectionString"), "2016");
-            var databaseName = settings.GetConfigurationValue<string>("DatabaseName");
+            var connectionString = new NamedConnectionString("test", "System.Data.SqlClient", environment.GetConfigurationValue<string>("ConnectionString"), "2016");
+            var databaseName = environment.GetConfigurationValue<string>("DatabaseName");
 
-            settings.Commands.Add("main", () => new Main()
+            environment.Commands.Add("main", () => new Main()
             {
                 ConnectionString = connectionString,
                 DatabaseName = databaseName,
             });
 
-            settings.Commands.Add("createdb", () => new CreateDatabase()
+            environment.Commands.Add("createdb", () => new CreateDatabase()
             {
                 ConnectionString = connectionString,
                 Definition = new TestDwhDefinition(),

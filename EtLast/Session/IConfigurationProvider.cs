@@ -4,6 +4,7 @@
 
     public interface IConfigurationProvider
     {
-        public Dictionary<string, object> GetConfigurationValues(string instance);
+        public string Instance { get; }
+        public Dictionary<string, object> Configuration { get; }
     }
 }

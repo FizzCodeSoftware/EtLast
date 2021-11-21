@@ -39,8 +39,22 @@
 
             var instance = Environment.MachineName;
 
-            var configValuesEnumerator = module.ConfigurationProvider?.GetConfigurationValues(instance) ?? Enumerable.Empty<KeyValuePair<string, object>>();
-            var environmentSettings = new EnvironmentSettings(instance, configValuesEnumerator);
+            Dictionary<string, object> configValues = null;
+            var instanceConfigurationProvider = module.ConfigurationProviders.FirstOrDefault(x => string.Equals(x.Instance, instance, StringComparison.InvariantCultureIgnoreCase));
+            if (instanceConfigurationProvider != null)
+                configValues = instanceConfigurationProvider.Configuration;
+
+            if (configValues == null)
+            {
+                foreach (var defaultProvider in module.DefaultConfigurationProviders)
+                {
+                    configValues = defaultProvider.GetConfiguration();
+                    if (configValues != null)
+                        break;
+                }
+            }
+
+            var environmentSettings = new EnvironmentSettings(instance, configValues);
             module.Startup?.BuildSettings(environmentSettings);
 
             var sessionId = "s" + DateTime.Now.ToString("yyMMdd-HHmmss-ff", CultureInfo.InvariantCulture);
