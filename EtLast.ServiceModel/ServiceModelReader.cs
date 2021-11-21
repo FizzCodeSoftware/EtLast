@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Globalization;
-    using System.Linq;
     using System.ServiceModel;
 
     public delegate TClient ServiceModelReaderClientCreatorDelegate<TChannel, TClient>(ServiceModelReader<TChannel, TClient> process)
@@ -24,7 +23,7 @@
         /// </summary>
         public bool TreatEmptyStringAsNull { get; init; } = true;
 
-        public List<ReaderColumnConfiguration> ColumnConfiguration { get; init; }
+        public Dictionary<string, ReaderColumnConfiguration> ColumnConfiguration { get; init; }
         public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; init; }
 
         public ServiceModelReaderClientCreatorDelegate<TChannel, TClient> ClientCreator { get; init; }
@@ -73,7 +72,7 @@
             if (enumerator != null && !Context.CancellationTokenSource.IsCancellationRequested)
             {
                 var initialValues = new Dictionary<string, object>();
-                var columnMap = ColumnConfiguration.ToDictionary(x => x.SourceColumn.ToUpperInvariant());
+                var columnMap = new Dictionary<string, ReaderColumnConfiguration>(ColumnConfiguration, StringComparer.InvariantCultureIgnoreCase);
                 while (!Context.CancellationTokenSource.IsCancellationRequested)
                 {
                     try
@@ -103,10 +102,9 @@
                             value = null;
                         }
 
-                        columnMap.TryGetValue(kvp.Key.ToUpperInvariant(), out var columnConfiguration);
-                        if (columnConfiguration != null)
+                        if (columnMap.TryGetValue(kvp.Key, out var columnConfiguration))
                         {
-                            var column = columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn;
+                            var column = columnConfiguration.RowColumn ?? kvp.Key;
                             value = HandleConverter(value, columnConfiguration);
                             initialValues[column] = value;
                         }

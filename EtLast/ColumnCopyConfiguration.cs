@@ -4,7 +4,7 @@
     using System.Diagnostics;
     using System.Linq;
 
-    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "()}")]
     public sealed class ColumnCopyConfiguration
     {
         public string FromColumn { get; }

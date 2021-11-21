@@ -14,14 +14,14 @@
             return new EpPlusExcelReader(context, null, null)
             {
                 FileName = fileName,
-                ColumnConfiguration = new List<ReaderColumnConfiguration>()
+                ColumnConfiguration = new()
                 {
-                    new ReaderColumnConfiguration("Id", new IntConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
-                    new ReaderColumnConfiguration("Name", new StringConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
-                    new ReaderColumnConfiguration("Value1", "ValueString", new StringConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull =  string.Empty },
-                    new ReaderColumnConfiguration("Value2", "ValueInt", new IntConverter()),
-                    new ReaderColumnConfiguration("Value3", "ValueDate", new DateConverter()),
-                    new ReaderColumnConfiguration("Value4", "ValueDouble", new DoubleConverter())
+                    ["Id"] = new ReaderColumnConfiguration(new IntConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull = string.Empty },
+                    ["Name"] = new ReaderColumnConfiguration(new StringConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull = string.Empty },
+                    ["Value1"] = new ReaderColumnConfiguration("ValueString", new StringConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull = string.Empty },
+                    ["Value2"] = new ReaderColumnConfiguration("ValueInt", new IntConverter()),
+                    ["Value3"] = new ReaderColumnConfiguration("ValueDate", new DateConverter()),
+                    ["Value4"] = new ReaderColumnConfiguration("ValueDouble", new DoubleConverter())
                 },
                 SheetName = sheetName,
                 SheetIndex = sheetIndex,

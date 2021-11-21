@@ -1,32 +1,21 @@
 ﻿namespace FizzCode.EtLast
 {
-    using System.Diagnostics;
-
     public enum NullSourceHandler { SetSpecialValue, WrapError }
     public enum InvalidSourceHandler { SetSpecialValue, WrapError }
 
-    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class ReaderColumnConfiguration : ReaderDefaultColumnConfiguration
     {
-        public string SourceColumn { get; }
         public string RowColumn { get; }
 
-        public ReaderColumnConfiguration(string sourceColumn, ITypeConverter converter, NullSourceHandler nullSourceHandler = NullSourceHandler.SetSpecialValue, InvalidSourceHandler invalidSourceHandler = InvalidSourceHandler.WrapError)
+        public ReaderColumnConfiguration(ITypeConverter converter, NullSourceHandler nullSourceHandler = NullSourceHandler.SetSpecialValue, InvalidSourceHandler invalidSourceHandler = InvalidSourceHandler.WrapError)
             : base(converter, nullSourceHandler, invalidSourceHandler)
         {
-            SourceColumn = sourceColumn;
         }
 
-        public ReaderColumnConfiguration(string sourceColumn, string rowColumn, ITypeConverter converter, NullSourceHandler nullSourceHandler = NullSourceHandler.SetSpecialValue, InvalidSourceHandler invalidSourceHandler = InvalidSourceHandler.WrapError)
+        public ReaderColumnConfiguration(string rowColumn, ITypeConverter converter, NullSourceHandler nullSourceHandler = NullSourceHandler.SetSpecialValue, InvalidSourceHandler invalidSourceHandler = InvalidSourceHandler.WrapError)
             : base(converter, nullSourceHandler, invalidSourceHandler)
         {
-            SourceColumn = sourceColumn;
             RowColumn = rowColumn;
-        }
-
-        private string GetDebuggerDisplay()
-        {
-            return SourceColumn + (RowColumn != null ? " -> " + RowColumn : "") + (Converter != null ? " (" + Converter.GetType().GetFriendlyTypeName() + ")" : "");
         }
     }
 

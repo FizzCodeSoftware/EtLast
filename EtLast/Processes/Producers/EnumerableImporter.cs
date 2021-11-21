@@ -3,14 +3,13 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Linq;
 
     public delegate IEnumerable<IReadOnlySlimRow> EnumerableImporterDelegate(EnumerableImporter process);
 
     public sealed class EnumerableImporter : AbstractRowSource
     {
         public EnumerableImporterDelegate InputGenerator { get; set; }
-        public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
+        public Dictionary<string, ReaderColumnConfiguration> ColumnConfiguration { get; set; }
         public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
 
         /// <summary>
@@ -44,10 +43,10 @@
                         if (Context.CancellationTokenSource.IsCancellationRequested)
                             yield break;
 
-                        foreach (var config in ColumnConfiguration)
+                        foreach (var kvp in ColumnConfiguration)
                         {
-                            var value = HandleConverter(row[config.SourceColumn], config);
-                            initialValues[config.RowColumn ?? config.SourceColumn] = value;
+                            var value = HandleConverter(row[kvp.Key], kvp.Value);
+                            initialValues[kvp.Value.RowColumn ?? kvp.Key] = value;
                         }
 
                         var newRow = Context.CreateRow(this, initialValues);
@@ -59,21 +58,24 @@
                 }
                 else
                 {
-                    var columnConfig = ColumnConfiguration.ToDictionary(x => x.SourceColumn.ToUpperInvariant());
+                    var columnMap = ColumnConfiguration != null
+                        ? new Dictionary<string, ReaderColumnConfiguration>(ColumnConfiguration, StringComparer.InvariantCultureIgnoreCase)
+                        : null;
+
                     foreach (var row in inputRows)
                     {
                         if (Context.CancellationTokenSource.IsCancellationRequested)
                             yield break;
 
-                        foreach (var config in ColumnConfiguration)
+                        foreach (var kvp in ColumnConfiguration)
                         {
-                            var value = HandleConverter(row[config.SourceColumn], config);
-                            initialValues[config.RowColumn ?? config.SourceColumn] = value;
+                            var value = HandleConverter(row[kvp.Key], kvp.Value);
+                            initialValues[kvp.Value.RowColumn ?? kvp.Key] = value;
                         }
 
                         foreach (var kvp in row.Values)
                         {
-                            if (!columnConfig.ContainsKey(kvp.Key.ToUpperInvariant()))
+                            if (!columnMap.ContainsKey(kvp.Key.ToUpperInvariant()))
                             {
                                 if (DefaultColumnConfiguration != null)
                                 {

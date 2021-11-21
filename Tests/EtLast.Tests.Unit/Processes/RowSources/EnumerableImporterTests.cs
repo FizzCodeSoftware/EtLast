@@ -44,10 +44,10 @@
                 InputProcess = new EnumerableImporter(context, null, null)
                 {
                     InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
-                    ColumnConfiguration = new List<ReaderColumnConfiguration>()
+                    ColumnConfiguration = new()
                     {
-                        new ReaderColumnConfiguration("id", "ID", new StringConverter()),
-                        new ReaderColumnConfiguration("age", new LongConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull = -1L },
+                        ["id"] = new ReaderColumnConfiguration("ID", new StringConverter()),
+                        ["age"] = new ReaderColumnConfiguration(new LongConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull = -1L },
                     },
                 },
                 Mutators = new MutatorList(),
@@ -76,10 +76,10 @@
                 InputProcess = new EnumerableImporter(context, null, null)
                 {
                     InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
-                    ColumnConfiguration = new List<ReaderColumnConfiguration>()
+                    ColumnConfiguration = new()
                     {
-                        new ReaderColumnConfiguration("id", "ID", new StringConverter()),
-                        new ReaderColumnConfiguration("age", new LongConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull = -1L },
+                        ["id"] = new ReaderColumnConfiguration("ID", new StringConverter()),
+                        ["age"] = new ReaderColumnConfiguration(new LongConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull = -1L },
                     },
                     CopyOnlySpecifiedColumns = true,
                 },

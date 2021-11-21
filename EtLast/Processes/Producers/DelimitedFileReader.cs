@@ -12,7 +12,7 @@
     {
         public string FileName { get; set; }
 
-        public List<ReaderColumnConfiguration> ColumnConfiguration { get; set; }
+        public Dictionary<string, ReaderColumnConfiguration> ColumnConfiguration { get; set; }
         public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
 
         /// <summary>
@@ -83,7 +83,10 @@
                 throw exception;
             }
 
-            var columnConfig = ColumnConfiguration?.ToDictionary(x => x.SourceColumn.ToUpperInvariant(), StringComparer.OrdinalIgnoreCase);
+            var columnMap = ColumnConfiguration != null
+                ? new Dictionary<string, ReaderColumnConfiguration>(ColumnConfiguration, StringComparer.InvariantCultureIgnoreCase)
+                : null;
+
             var resultCount = 0;
 
             Stream stream;
@@ -287,10 +290,10 @@
                             sourceValue = null;
                         }
 
-                        if (columnConfig != null && columnConfig.TryGetValue(columnName, out var columnConfiguration))
+                        if (columnMap != null && columnMap.TryGetValue(columnName, out var columnConfiguration))
                         {
                             var value = HandleConverter(sourceValue, columnConfiguration);
-                            initialValues.Add(new KeyValuePair<string, object>(columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn, value));
+                            initialValues.Add(new KeyValuePair<string, object>(columnConfiguration.RowColumn ?? columnName, value));
                         }
                         else if (DefaultColumnConfiguration != null)
                         {

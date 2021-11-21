@@ -51,9 +51,9 @@
                     ? null
                     : string.Join(" and ", whereClauseList),
                 Parameters = parameterList,
-                ColumnConfiguration = sourceSqlTable.Columns.Select(column =>
-                    new ReaderColumnConfiguration(column.Name, null, /*GetConverter(column.Type.SqlTypeInfo), */NullSourceHandler.SetSpecialValue, InvalidSourceHandler.WrapError)
-                ).ToList(),
+                ColumnConfiguration = sourceSqlTable.Columns.ToDictionary(
+                    keySelector: column => column.Name,
+                    elementSelector: column => new ReaderColumnConfiguration(null, NullSourceHandler.SetSpecialValue, InvalidSourceHandler.WrapError)),
             };
         }
     }

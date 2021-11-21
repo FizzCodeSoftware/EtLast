@@ -18,10 +18,10 @@
                 {
                     FileName = @".\TestData\Test.xlsx",
                     SheetName = "DateBroken",
-                    ColumnConfiguration = new List<ReaderColumnConfiguration>()
+                    ColumnConfiguration = new()
                     {
-                        new ReaderColumnConfiguration("Id", new IntConverter()),
-                        new ReaderColumnConfiguration("Date", new DateConverter()),
+                        ["Id"] = new ReaderColumnConfiguration(new IntConverter()),
+                        ["Date"] = new ReaderColumnConfiguration(new DateConverter()),
                     },
                 });
 

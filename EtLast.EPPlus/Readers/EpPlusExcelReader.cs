@@ -32,7 +32,7 @@
         /// </summary>
         public bool AutomaticallyTrimAllStringValues { get; init; } = true;
 
-        public List<ReaderColumnConfiguration> ColumnConfiguration { get; init; }
+        public Dictionary<string, ReaderColumnConfiguration> ColumnConfiguration { get; init; }
         public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; init; }
 
         private bool Transpose { get; init; } // todo: implement working transpose
@@ -120,6 +120,8 @@
                     throw exception;
                 }
             }
+
+            var columnMap = new Dictionary<string, ReaderColumnConfiguration>(ColumnConfiguration, StringComparer.InvariantCultureIgnoreCase);
 
             var rowCount = 0;
             try
@@ -210,10 +212,9 @@
 
                     excelColumn = EnsureDistinctColumnNames(excelColumns, excelColumn);
 
-                    var columnConfiguration = ColumnConfiguration.Find(x => string.Equals(x.SourceColumn, excelColumn, StringComparison.InvariantCultureIgnoreCase));
-                    if (columnConfiguration != null)
+                    if (columnMap.TryGetValue(excelColumn, out var columnConfiguration))
                     {
-                        var column = columnConfiguration.RowColumn ?? columnConfiguration.SourceColumn;
+                        var column = columnConfiguration.RowColumn ?? excelColumn;
                         columnIndexes.Add(column, (colIndex, columnConfiguration));
                     }
                     else if (DefaultColumnConfiguration != null)

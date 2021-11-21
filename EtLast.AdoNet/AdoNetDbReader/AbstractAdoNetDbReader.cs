@@ -18,7 +18,7 @@
     {
         public NamedConnectionString ConnectionString { get; init; }
 
-        public List<ReaderColumnConfiguration> ColumnConfiguration { get; init; }
+        public Dictionary<string, ReaderColumnConfiguration> ColumnConfiguration { get; init; }
         public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; init; }
 
         /// <summary>
@@ -122,7 +122,10 @@
             if (reader != null && !Context.CancellationTokenSource.IsCancellationRequested)
             {
                 var initialValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-                var columnMap = ColumnConfiguration?.ToDictionary(x => x.SourceColumn);
+                var columnMap = ColumnConfiguration != null
+                    ? new Dictionary<string, ReaderColumnConfiguration>(ColumnConfiguration, StringComparer.InvariantCultureIgnoreCase)
+                    : null;
+
                 while (!Context.CancellationTokenSource.IsCancellationRequested)
                 {
                     try
@@ -148,13 +151,13 @@
                     initialValues.Clear();
                     for (var i = 0; i < reader.FieldCount; i++)
                     {
-                        var dbColumn = string.Intern(reader.GetName(i));
-                        var rowColumn = dbColumn;
+                        var columnName = string.Intern(reader.GetName(i));
+                        var rowColumn = columnName;
 
                         ReaderColumnConfiguration columnConfig = null;
-                        if (columnMap != null && columnMap.TryGetValue(dbColumn, out columnConfig))
+                        if (columnMap != null && columnMap.TryGetValue(columnName, out columnConfig) && columnConfig.RowColumn != null)
                         {
-                            rowColumn = columnConfig.RowColumn ?? columnConfig.SourceColumn;
+                            rowColumn = columnConfig.RowColumn;
                         }
 
                         var config = columnConfig ?? DefaultColumnConfiguration;
@@ -167,7 +170,7 @@
                         {
                             foreach (var processor in usedSqlValueProcessors)
                             {
-                                value = processor.ProcessValue(value, dbColumn);
+                                value = processor.ProcessValue(value, columnName);
                             }
                         }
 

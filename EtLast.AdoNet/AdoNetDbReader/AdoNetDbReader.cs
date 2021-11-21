@@ -30,7 +30,7 @@
             var columnList = "*";
             if (ColumnConfiguration?.Count > 0)
             {
-                columnList = string.Join(", ", ColumnConfiguration.Select(x => ConnectionString.Escape(x.SourceColumn)));
+                columnList = string.Join(", ", ColumnConfiguration.Select(x => ConnectionString.Escape(x.Key)));
             }
 
             var prefix = "";
