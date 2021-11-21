@@ -131,7 +131,7 @@
         {
             if (scope.Configuration.Tables.Count > 1)
             {
-                yield return new MsSqlDisableConstraintCheck(scope.Context, null, "disable FKs")
+                yield return new MsSqlDisableConstraintCheck(scope.Context, null, "disable foreign keys")
                 {
                     ConnectionString = scope.Configuration.ConnectionString,
                     TableNames = scope.Configuration.Tables.Select(x => x.TableName)
@@ -145,7 +145,7 @@
         {
             if (scope.Configuration.Tables.Count > 1)
             {
-                yield return new MsSqlEnableConstraintCheck(scope.Context, null, "enable FKs")
+                yield return new MsSqlEnableConstraintCheck(scope.Context, null, "enable foreign keys")
                 {
                     ConnectionString = scope.Configuration.ConnectionString,
                     TableNames = scope.Configuration.Tables.Select(x => x.TableName)
