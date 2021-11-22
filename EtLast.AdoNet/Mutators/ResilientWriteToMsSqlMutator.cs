@@ -66,12 +66,14 @@
             _timer = new Stopwatch();
 
             var columnIndexes = new Dictionary<string, int>();
-            for (var i = 0; i < TableDefinition.Columns.Length; i++)
+            var i = 0;
+            foreach (var kvp in TableDefinition.Columns)
             {
-                columnIndexes[TableDefinition.Columns[i].RowColumn] = i;
+                columnIndexes[kvp.Key] = i;
+                i++;
             }
 
-            _reader = new RowShadowReader(BatchSize, TableDefinition.Columns.Select(x => x.DbColumn).ToArray(), columnIndexes);
+            _reader = new RowShadowReader(BatchSize, TableDefinition.Columns.Select(x => x.Value).ToArray(), columnIndexes);
         }
 
         protected override void CloseMutator()
@@ -97,9 +99,11 @@
             Context.RegisterWriteToSink(row, _sinkUid.Value);
 
             var rc = _reader.RowCount;
-            for (var i = 0; i < TableDefinition.Columns.Length; i++)
+            var i = 0;
+            foreach (var kvp in TableDefinition.Columns)
             {
-                _reader.Rows[rc, i] = row[TableDefinition.Columns[i].RowColumn];
+                _reader.Rows[rc, i] = row[kvp.Key];
+                i++;
             }
 
             rc++;
@@ -143,9 +147,9 @@
                         BulkCopyTimeout = CommandTimeout,
                     };
 
-                    foreach (var column in TableDefinition.Columns)
+                    foreach (var kvp in TableDefinition.Columns)
                     {
-                        bulkCopy.ColumnMappings.Add(column.RowColumn, column.DbColumn);
+                        bulkCopy.ColumnMappings.Add(kvp.Key, kvp.Value);
                     }
 
                     var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbWriteBulk, ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), bulkCopy.BulkCopyTimeout, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records" + (retry > 0 ? ", retry #" + retry.ToString("D", CultureInfo.InvariantCulture) : ""), Transaction.Current.ToIdentifierString(), null,
@@ -218,7 +222,7 @@
                                 ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message));
                             exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                             exception.Data.Add("TableName", ConnectionString.Unescape(TableDefinition.TableName));
-                            exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + ConnectionString.Unescape(x.DbColumn))));
+                            exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.Key + " => " + ConnectionString.Unescape(x.Value))));
                             exception.Data.Add("Timeout", CommandTimeout);
                             exception.Data.Add("Elapsed", _timer.Elapsed);
                             exception.Data.Add("TotalRowsWritten", _rowsWritten);

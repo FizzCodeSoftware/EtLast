@@ -54,12 +54,14 @@
             _rowsWritten = 0;
 
             var columnIndexes = new Dictionary<string, int>();
-            for (var i = 0; i < TableDefinition.Columns.Length; i++)
+            var i = 0;
+            foreach (var kvp in TableDefinition.Columns)
             {
-                columnIndexes[TableDefinition.Columns[i].RowColumn] = i;
+                columnIndexes[kvp.Key] = i;
+                i++;
             }
 
-            _reader = new RowShadowReader(BatchSize, TableDefinition.Columns.Select(x => x.DbColumn).ToArray(), columnIndexes);
+            _reader = new RowShadowReader(BatchSize, TableDefinition.Columns.Select(x => x.Value).ToArray(), columnIndexes);
         }
 
         protected override void CloseMutator()
@@ -94,9 +96,11 @@
             Context.RegisterWriteToSink(row, _sinkUid.Value);
 
             var rc = _reader.RowCount;
-            for (var i = 0; i < TableDefinition.Columns.Length; i++)
+            var i = 0;
+            foreach (var kvp in TableDefinition.Columns)
             {
-                _reader.Rows[rc, i] = row[TableDefinition.Columns[i].RowColumn];
+                _reader.Rows[rc, i] = row[kvp.Key];
+                i++;
             }
 
             rc++;
@@ -146,7 +150,7 @@
                     ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message));
                 exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                 exception.Data.Add("TableName", ConnectionString.Unescape(TableDefinition.TableName));
-                exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + ConnectionString.Unescape(x.DbColumn))));
+                exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.Key + " => " + ConnectionString.Unescape(x.Value))));
                 exception.Data.Add("Timeout", CommandTimeout);
                 exception.Data.Add("TotalRowsWritten", _rowsWritten);
                 if (ex is InvalidOperationException || ex is SqlException)
@@ -211,9 +215,9 @@
                 BulkCopyTimeout = CommandTimeout,
             };
 
-            foreach (var column in TableDefinition.Columns)
+            foreach (var kvp in TableDefinition.Columns)
             {
-                _bulkCopy.ColumnMappings.Add(column.RowColumn, column.DbColumn);
+                _bulkCopy.ColumnMappings.Add(kvp.Key, kvp.Value);
             }
         }
     }

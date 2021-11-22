@@ -93,7 +93,8 @@
                 TableDefinition = new DbTableDefinition()
                 {
                     TableName = DwhBuilder.ConnectionString.Escape(table.TempTableName),
-                    Columns = DbColumnDefinition.StraightCopyAndEscape(DwhBuilder.ConnectionString, tempColumns.Select(x => x.Name).ToArray())
+                    Columns = tempColumns
+                        .ToDictionary(x => x.Name, x => DwhBuilder.ConnectionString.Escape(x.Name)),
                 },
             };
         }

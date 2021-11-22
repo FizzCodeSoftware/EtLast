@@ -264,7 +264,13 @@
                             TableDefinition = new DbTableDefinition()
                             {
                                 TableName = etlRunInfoTable.EscapedName(ConnectionString),
-                                Columns = DbColumnDefinition.StraightCopyAndEscape(ConnectionString, "StartedOn", "Name", "MachineName", "UserName"),
+                                Columns = new()
+                                {
+                                    ["StartedOn"] = ConnectionString.Escape("StartedOn"),
+                                    ["Name"] = ConnectionString.Escape("Name"),
+                                    ["MachineName"] = ConnectionString.Escape("MachineName"),
+                                    ["UserName"] = ConnectionString.Escape("UserName"),
+                                },
                             },
                         },
                     },
