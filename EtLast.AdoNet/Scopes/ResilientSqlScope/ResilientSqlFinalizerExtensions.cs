@@ -4,7 +4,7 @@
 
     public static class ResilientSqlFinalizerExtensions
     {
-        public static ResilientSqlTableTableFinalizerBuilder TruncateTargetTableFinalizer(this ResilientSqlTableTableFinalizerBuilder builder, int commandTimeout = 60 * 60)
+        public static ResilientSqlTableTableFinalizerBuilder TruncateTargetTable(this ResilientSqlTableTableFinalizerBuilder builder, int commandTimeout = 60 * 60)
         {
             return builder.Add(new TruncateTable(builder.Table.Scope.Context, builder.Table.Topic, "TruncateTargetTableFinalizer")
             {
@@ -14,7 +14,7 @@
             });
         }
 
-        public static ResilientSqlTableTableFinalizerBuilder DeleteTargetTableFinalizer(this ResilientSqlTableTableFinalizerBuilder builder, int commandTimeout = 60 * 60)
+        public static ResilientSqlTableTableFinalizerBuilder DeleteTargetTable(this ResilientSqlTableTableFinalizerBuilder builder, int commandTimeout = 60 * 60)
         {
             return builder.Add(new DeleteTable(builder.Table.Scope.Context, builder.Table.Topic, "DeleteTargetTableFinalizer")
             {
@@ -24,7 +24,7 @@
             });
         }
 
-        public static ResilientSqlTableTableFinalizerBuilder CopyTableFinalizer(this ResilientSqlTableTableFinalizerBuilder builder, int commandTimeout = 60 * 60, bool copyIdentityColumns = false)
+        public static ResilientSqlTableTableFinalizerBuilder CopyTable(this ResilientSqlTableTableFinalizerBuilder builder, int commandTimeout = 60 * 60, bool copyIdentityColumns = false)
         {
             if (copyIdentityColumns && builder.Table.Columns == null)
                 throw new EtlException(builder.Table.Scope, "identity columns can be copied only if the " + nameof(ResilientTable) + "." + nameof(ResilientTableBase.Columns) + " is specified");
@@ -46,7 +46,7 @@
             });
         }
 
-        public static ResilientSqlTableTableFinalizerBuilder SimpleMsSqlMergeFinalizer(this ResilientSqlTableTableFinalizerBuilder builder, string keyColumn, int commandTimeout = 60 * 60)
+        public static ResilientSqlTableTableFinalizerBuilder SimpleMsSqlMerge(this ResilientSqlTableTableFinalizerBuilder builder, string keyColumn, int commandTimeout = 60 * 60)
         {
             var columnsToUpdate = builder.Table.Columns
                 .Where(c => !string.Equals(c, keyColumn, System.StringComparison.InvariantCultureIgnoreCase))
@@ -68,7 +68,7 @@
             });
         }
 
-        public static ResilientSqlTableTableFinalizerBuilder SimpleMsSqlMergeFinalizer(this ResilientSqlTableTableFinalizerBuilder builder, string[] keyColumns, int commandTimeout = 60 * 60)
+        public static ResilientSqlTableTableFinalizerBuilder SimpleMsSqlMerge(this ResilientSqlTableTableFinalizerBuilder builder, string[] keyColumns, int commandTimeout = 60 * 60)
         {
             var columnsToUpdate = builder.Table.Columns
                 .Where(c => !keyColumns.Any(keyColumn => string.Equals(c, keyColumn, System.StringComparison.InvariantCultureIgnoreCase)))
@@ -90,7 +90,7 @@
             });
         }
 
-        public static ResilientSqlTableTableFinalizerBuilder SimpleMsSqlMergeUpdateOnlyFinalizer(this ResilientSqlTableTableFinalizerBuilder builder, string[] keyColumns, int commandTimeout = 60 * 60)
+        public static ResilientSqlTableTableFinalizerBuilder SimpleMsSqlMergeUpdateOnly(this ResilientSqlTableTableFinalizerBuilder builder, string[] keyColumns, int commandTimeout = 60 * 60)
         {
             var columnsToUpdate = builder.Table.Columns.Where(c => !keyColumns.Contains(c)).ToList();
 
@@ -109,7 +109,7 @@
             });
         }
 
-        public static ResilientSqlTableTableFinalizerBuilder SimpleMergeInsertOnlyFinalizer(this ResilientSqlTableTableFinalizerBuilder builder, string[] keyColumns, int commandTimeout = 60 * 60)
+        public static ResilientSqlTableTableFinalizerBuilder SimpleMergeInsertOnly(this ResilientSqlTableTableFinalizerBuilder builder, string[] keyColumns, int commandTimeout = 60 * 60)
         {
             return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context, builder.Table.Topic, "SimpleMergeInsertOnlyFinalizer")
             {
