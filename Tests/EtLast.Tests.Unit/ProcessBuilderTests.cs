@@ -16,7 +16,7 @@
                 {
                     new CustomMutator(context, null, null)
                     {
-                        Then = row => true,
+                        Action = row => true,
                     },
                 },
             };
@@ -38,11 +38,11 @@
                 {
                     new CustomMutator(context, null, null)
                     {
-                        Then = row => true,
+                        Action = row => true,
                     },
                     new CustomMutator(context, null, null)
                     {
-                        Then = row => true,
+                        Action = row => true,
                     },
                 },
             };
@@ -64,7 +64,7 @@
                 {
                     new CustomMutator(context, null, null)
                     {
-                        Then = row => true,
+                        Action = row => true,
                     },
                 },
             };

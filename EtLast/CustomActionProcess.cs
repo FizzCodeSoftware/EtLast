@@ -4,7 +4,7 @@
 
     public sealed class CustomAction : AbstractExecutable
     {
-        public Action<CustomAction> Then { get; set; }
+        public Action<CustomAction> Action { get; set; }
 
         public CustomAction(IEtlContext context, string topic, string name)
             : base(context, topic, name)
@@ -13,15 +13,15 @@
 
         protected override void ValidateImpl()
         {
-            if (Then == null)
-                throw new ProcessParameterNullException(this, nameof(Then));
+            if (Action == null)
+                throw new ProcessParameterNullException(this, nameof(Action));
         }
 
         protected override void ExecuteImpl()
         {
             try
             {
-                Then.Invoke(this);
+                Action.Invoke(this);
             }
             catch (Exception ex)
             {

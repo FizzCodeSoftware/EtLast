@@ -8,7 +8,7 @@
 
     public sealed class CustomMutator : AbstractMutator
     {
-        public CustomMutatorDelegate Then { get; init; }
+        public CustomMutatorDelegate Action { get; init; }
 
         public CustomMutator(IEtlContext context, string topic, string name)
             : base(context, topic, name)
@@ -21,7 +21,7 @@
             bool keep;
             try
             {
-                keep = Then.Invoke(tracker);
+                keep = Action.Invoke(tracker);
                 if (keep)
                 {
                     tracker.ApplyChanges();
@@ -39,8 +39,8 @@
 
         protected override void ValidateMutator()
         {
-            if (Then == null)
-                throw new ProcessParameterNullException(this, nameof(Then));
+            if (Action == null)
+                throw new ProcessParameterNullException(this, nameof(Action));
         }
     }
 

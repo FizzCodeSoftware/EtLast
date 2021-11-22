@@ -13,7 +13,7 @@
         {
             yield return new CustomAction(Context, null, null)
             {
-                Then = _ =>
+                Action = _ =>
                 {
                     var ex = (Exception)Activator.CreateInstance(ExceptionType, new object[] { Message });
                     throw ex;

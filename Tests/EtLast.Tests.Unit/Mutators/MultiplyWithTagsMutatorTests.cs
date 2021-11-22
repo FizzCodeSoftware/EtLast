@@ -73,7 +73,7 @@
                 .OnBranch(tag => tag is int v && v == 2, builder => builder
                     .CustomCode(new CustomMutator(context, null, null)
                     {
-                        Then = row =>
+                        Action = row =>
                         {
                             row["ItWasTwo"] = true;
                             return true;

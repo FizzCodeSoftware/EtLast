@@ -33,7 +33,7 @@
 
             yield return new CustomAction(builder.ResilientTable.Scope.Context, builder.ResilientTable.Topic, "UpdateConstraintList")
             {
-                Then = process =>
+                Action = process =>
                 {
                     var list = builder.DwhBuilder.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
                     if (list == null)

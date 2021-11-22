@@ -270,7 +270,7 @@
         {
             yield return new CustomMutator(tableBuilder.ResilientTable.Scope.Context, tableBuilder.ResilientTable.Topic, "FkFix")
             {
-                Then = row =>
+                Action = row =>
                 {
                     var fk = row.GetAs<int?>("FavoritePetId");
                     return fk == null || fk.Value >= 0;
@@ -282,7 +282,7 @@
         {
             yield return new CustomMutator(tableBuilder.ResilientTable.Scope.Context, tableBuilder.ResilientTable.Topic, "FkFix")
             {
-                Then = row =>
+                Action = row =>
                 {
                     var fk = row.GetAs<int?>("OwnerPeopleId");
                     return fk >= 0;

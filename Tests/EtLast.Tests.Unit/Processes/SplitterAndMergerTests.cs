@@ -28,7 +28,7 @@
                 processes[i] = new CustomMutator(context, null, null)
                 {
                     InputProcess = splitter,
-                    Then = row =>
+                    Action = row =>
                     {
                         Thread.Sleep(new Random().Next(10));
                         row["ThreadIndex"] = i;
@@ -69,7 +69,7 @@
                 processes[i] = new CustomMutator(context, null, null)
                 {
                     InputProcess = splitter,
-                    Then = row =>
+                    Action = row =>
                     {
                         Thread.Sleep(new Random().Next(10));
                         row["ThreadIndex"] = i;
@@ -130,7 +130,7 @@
                 merger.ProcessList.Add(new CustomMutator(context, null, null)
                 {
                     InputProcess = TestData.Person(context),
-                    Then = row =>
+                    Action = row =>
                     {
                         Thread.Sleep(new Random().Next(100));
                         row["ThreadIndex"] = i;
@@ -173,7 +173,7 @@
                 merger.ProcessList.Add(new CustomMutator(context, null, null)
                 {
                     InputProcess = splitter,
-                    Then = row =>
+                    Action = row =>
                     {
                         Thread.Sleep(new Random().Next(10));
                         row["ThreadIndex"] = i;
@@ -208,7 +208,7 @@
                 .ProcessOnMultipleThreads(context, null, 3, (i, mb) => mb
                    .CustomCode(new CustomMutator(context, null, null)
                    {
-                       Then = row =>
+                       Action = row =>
                        {
                            Thread.Sleep(new Random().Next(10));
                            row["ThreadIndex"] = i;
@@ -218,7 +218,7 @@
                    )
                 .CustomCode(new CustomMutator(context, null, null)
                 {
-                    Then = row =>
+                    Action = row =>
                     {
                         row["AbsoluteFinalIndex"] = n++;
                         return true;

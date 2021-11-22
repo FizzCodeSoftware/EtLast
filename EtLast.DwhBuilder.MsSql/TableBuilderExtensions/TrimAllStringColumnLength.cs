@@ -28,7 +28,7 @@
 
             yield return new CustomMutator(builder.ResilientTable.Scope.Context, builder.ResilientTable.Topic, nameof(TrimAllStringColumnLength))
             {
-                Then = row =>
+                Action = row =>
                 {
                     foreach (var col in limitedLengthStringColumns)
                     {

@@ -13,7 +13,7 @@
                 {
                     new CustomMutator(builder.ResilientTable.Scope.Context, builder.ResilientTable.Topic, nameof(SetValidFromToDefault))
                     {
-                        Then = row =>
+                        Action = row =>
                         {
                             row[builder.ValidFromColumn.Name] = builder.DwhBuilder.DefaultValidFromDateTime;
                             return true;

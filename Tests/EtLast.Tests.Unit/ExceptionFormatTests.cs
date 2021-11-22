@@ -17,7 +17,7 @@
                 .ReadFrom(TestData.Person(context))
                 .CustomCode(new CustomMutator(context, null, "MyBrokenMutator")
                 {
-                    Then = row =>
+                    Action = row =>
                     {
                         throw new Exception("ohh");
                     },

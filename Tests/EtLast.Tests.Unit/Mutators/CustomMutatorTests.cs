@@ -23,7 +23,7 @@
                 .ReadFrom(TestData.Person(context))
                 .CustomCode(new CustomMutator(context, null, null)
                 {
-                    Then = row =>
+                    Action = row =>
                     {
                         invocationCount++;
                         var x = row.GetAs<int>("x");
@@ -47,7 +47,7 @@
                 .ReadFrom(TestData.Person(context))
                 .CustomCode(new CustomMutator(context, null, null)
                 {
-                    Then = row =>
+                    Action = row =>
                     {
                         return row.GetAs<int>("id") < 4;
                     }
@@ -73,7 +73,7 @@
                 .CustomCode(new CustomMutator(context, null, null)
                 {
                     If = row => row.GetAs<int>("id") > 2,
-                    Then = row =>
+                    Action = row =>
                     {
                         row["test"] = "test";
                         return true;
@@ -110,7 +110,7 @@
                 .CustomCode(new CustomMutator(context, null, null)
                 {
                     TagFilter = tag => tag is RowKind rk && rk == RowKind.test,
-                    Then = row =>
+                    Action = row =>
                     {
                         row["test"] = "test";
                         return true;

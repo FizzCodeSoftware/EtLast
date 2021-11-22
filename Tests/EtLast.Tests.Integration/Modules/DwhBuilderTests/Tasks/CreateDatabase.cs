@@ -21,7 +21,7 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
         {
             yield return new CustomAction(Context, null, "CreateDatabase")
             {
-                Then = proc =>
+                Action = proc =>
                 {
                     System.Data.SqlClient.SqlConnection.ClearAllPools();
 

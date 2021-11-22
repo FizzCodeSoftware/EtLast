@@ -79,7 +79,7 @@
         {
             var process = new CustomAction(Context, builder.Scope.Topic, "ReadAllEnabledForeignKeys")
             {
-                Then = (proc) =>
+                Action = (proc) =>
                 {
                     var startedOn = Stopwatch.StartNew();
                     var connection = EtlConnectionManager.GetNewConnection(ConnectionString, proc);
