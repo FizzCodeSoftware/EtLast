@@ -83,9 +83,8 @@
                 throw exception;
             }
 
-            var columnMap = ColumnConfiguration != null
-                ? new Dictionary<string, ReaderColumnConfiguration>(ColumnConfiguration, StringComparer.InvariantCultureIgnoreCase)
-                : null;
+            // key is the SOURCE column name
+            var columnMap = ColumnConfiguration?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
             var resultCount = 0;
 
@@ -269,8 +268,8 @@
                     var colCnt = Math.Min(columnNames.Length, partList.Count);
                     for (var i = 0; i < colCnt; i++)
                     {
-                        var columnName = columnNames[i];
-                        if (ignoreColumns?.Contains(columnName) == true)
+                        var csvColumn = columnNames[i];
+                        if (ignoreColumns?.Contains(csvColumn) == true)
                             continue;
 
                         var valueString = partList[i];
@@ -290,15 +289,15 @@
                             sourceValue = null;
                         }
 
-                        if (columnMap != null && columnMap.TryGetValue(columnName, out var columnConfiguration))
+                        if (columnMap != null && columnMap.TryGetValue(csvColumn, out var columnConfiguration))
                         {
-                            var value = HandleConverter(sourceValue, columnConfiguration);
-                            initialValues.Add(new KeyValuePair<string, object>(columnConfiguration.RowColumn ?? columnName, value));
+                            var value = columnConfiguration.config.Process(this, sourceValue);
+                            initialValues.Add(new KeyValuePair<string, object>(columnConfiguration.rowColumn, value));
                         }
                         else if (DefaultColumnConfiguration != null)
                         {
-                            var value = HandleConverter(sourceValue, DefaultColumnConfiguration);
-                            initialValues.Add(new KeyValuePair<string, object>(columnName, value));
+                            var value = DefaultColumnConfiguration.Process(this, sourceValue);
+                            initialValues.Add(new KeyValuePair<string, object>(csvColumn, value));
                         }
                     }
 

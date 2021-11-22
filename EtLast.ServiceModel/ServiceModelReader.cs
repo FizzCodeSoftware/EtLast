@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Globalization;
+    using System.Linq;
     using System.ServiceModel;
 
     public delegate TClient ServiceModelReaderClientCreatorDelegate<TChannel, TClient>(ServiceModelReader<TChannel, TClient> process)
@@ -72,7 +73,10 @@
             if (enumerator != null && !Context.CancellationTokenSource.IsCancellationRequested)
             {
                 var initialValues = new Dictionary<string, object>();
-                var columnMap = new Dictionary<string, ReaderColumnConfiguration>(ColumnConfiguration, StringComparer.InvariantCultureIgnoreCase);
+
+                // key is the SOURCE column name
+                var columnMap = ColumnConfiguration?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
+
                 while (!Context.CancellationTokenSource.IsCancellationRequested)
                 {
                     try
@@ -93,25 +97,22 @@
 
                     initialValues.Clear();
 
-                    foreach (var kvp in rowData.Values)
+                    foreach (var valueKvp in rowData.Values)
                     {
-                        var value = kvp.Value;
+                        var column = valueKvp.Key;
+                        var value = valueKvp.Value;
 
                         if (value != null && TreatEmptyStringAsNull && (value is string str) && string.IsNullOrEmpty(str))
-                        {
                             value = null;
-                        }
 
-                        if (columnMap.TryGetValue(kvp.Key, out var columnConfiguration))
+                        if (columnMap.TryGetValue(column, out var columnConfiguration))
                         {
-                            var column = columnConfiguration.RowColumn ?? kvp.Key;
-                            value = HandleConverter(value, columnConfiguration);
-                            initialValues[column] = value;
+                            value = columnConfiguration.config.Process(this, value);
+                            initialValues[columnConfiguration.rowColumn] = value;
                         }
                         else if (DefaultColumnConfiguration != null)
                         {
-                            var column = kvp.Key;
-                            value = HandleConverter(value, DefaultColumnConfiguration);
+                            value = DefaultColumnConfiguration.Process(this, value);
                             initialValues[column] = value;
                         }
                     }

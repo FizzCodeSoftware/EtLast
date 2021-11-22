@@ -100,7 +100,7 @@
                 throw exception;
             }
 
-            var columnIndexes = new Dictionary<string, (int Index, ReaderDefaultColumnConfiguration Configuration)>();
+            var columnIndexes = new List<(string rowColumn, int index, ReaderDefaultColumnConfiguration configuration)>();
 
             var package = PreLoadedFile;
             if (package == null)
@@ -121,7 +121,8 @@
                 }
             }
 
-            var columnMap = new Dictionary<string, ReaderColumnConfiguration>(ColumnConfiguration, StringComparer.InvariantCultureIgnoreCase);
+            // key is the SOURCE column name
+            var columnMap = ColumnConfiguration?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
             var rowCount = 0;
             try
@@ -214,12 +215,11 @@
 
                     if (columnMap.TryGetValue(excelColumn, out var columnConfiguration))
                     {
-                        var column = columnConfiguration.RowColumn ?? excelColumn;
-                        columnIndexes.Add(column, (colIndex, columnConfiguration));
+                        columnIndexes.Add((columnConfiguration.rowColumn, colIndex, columnConfiguration.config));
                     }
                     else if (DefaultColumnConfiguration != null)
                     {
-                        columnIndexes.Add(excelColumn, (colIndex, DefaultColumnConfiguration));
+                        columnIndexes.Add((excelColumn, colIndex, DefaultColumnConfiguration));
                     }
                 }
 
@@ -232,8 +232,8 @@
                         var empty = true;
                         foreach (var kvp in columnIndexes)
                         {
-                            var ri = !Transpose ? rowIndex : kvp.Value.Index;
-                            var ci = !Transpose ? kvp.Value.Index : rowIndex;
+                            var ri = !Transpose ? rowIndex : kvp.index;
+                            var ci = !Transpose ? kvp.index : rowIndex;
 
                             if (GetCellUnmerged(sheet, ri, ci)?.Value != null)
                             {
@@ -250,8 +250,8 @@
 
                     foreach (var kvp in columnIndexes)
                     {
-                        var ri = !Transpose ? rowIndex : kvp.Value.Index;
-                        var ci = !Transpose ? kvp.Value.Index : rowIndex;
+                        var ri = !Transpose ? rowIndex : kvp.index;
+                        var ci = !Transpose ? kvp.index : rowIndex;
 
                         var value = GetCellUnmerged(sheet, ri, ci)?.Value;
                         if (TreatEmptyStringAsNull && value != null && (value is string str))
@@ -265,8 +265,8 @@
                             value = str;
                         }
 
-                        value = HandleConverter(value, kvp.Value.Configuration);
-                        initialValues.Add(new KeyValuePair<string, object>(kvp.Key, value));
+                        value = kvp.configuration.Process(this, value);
+                        initialValues.Add(new KeyValuePair<string, object>(kvp.rowColumn, value));
                     }
 
                     rowCount++;

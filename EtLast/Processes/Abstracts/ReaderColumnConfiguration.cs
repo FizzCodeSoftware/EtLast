@@ -1,39 +1,124 @@
 ﻿namespace FizzCode.EtLast
 {
-    public enum NullSourceHandler { SetSpecialValue, WrapError }
-    public enum InvalidSourceHandler { SetSpecialValue, WrapError }
+    using System;
+    using System.Globalization;
+
+    public enum FailedTypeConversionAction { SetSpecialValue, WrapError }
+    public enum SourceIsNullAction { SetSpecialValue, WrapError }
 
     public class ReaderColumnConfiguration : ReaderDefaultColumnConfiguration
     {
-        public string RowColumn { get; }
+        public string SourceColumn { get; private set; }
 
-        public ReaderColumnConfiguration(ITypeConverter converter, NullSourceHandler nullSourceHandler = NullSourceHandler.SetSpecialValue, InvalidSourceHandler invalidSourceHandler = InvalidSourceHandler.WrapError)
-            : base(converter, nullSourceHandler, invalidSourceHandler)
+        public ReaderColumnConfiguration(ITypeConverter converter)
+            : base(converter)
         {
         }
 
-        public ReaderColumnConfiguration(string rowColumn, ITypeConverter converter, NullSourceHandler nullSourceHandler = NullSourceHandler.SetSpecialValue, InvalidSourceHandler invalidSourceHandler = InvalidSourceHandler.WrapError)
-            : base(converter, nullSourceHandler, invalidSourceHandler)
+        public ReaderColumnConfiguration FromSource(string sourceColumn)
         {
-            RowColumn = rowColumn;
+            SourceColumn = sourceColumn;
+            return this;
+        }
+
+        public new ReaderColumnConfiguration ValueWhenConversionFailed(object value)
+        {
+            base.ValueWhenConversionFailed(value);
+            return this;
+        }
+
+        public new ReaderColumnConfiguration ValueWhenSourceIsNull(object value)
+        {
+            base.ValueWhenSourceIsNull(value);
+            return this;
+        }
+
+        public new ReaderColumnConfiguration WrapErrorWhenSourceIsNull()
+        {
+            base.WrapErrorWhenSourceIsNull();
+            return this;
         }
     }
 
     public class ReaderDefaultColumnConfiguration
     {
-        public ITypeConverter Converter { get; }
+        internal ITypeConverter Converter { get; }
 
-        public NullSourceHandler NullSourceHandler { get; }
-        public object SpecialValueIfSourceIsNull { get; init; }
+        internal FailedTypeConversionAction FailedTypeConversionAction { get; private set; } = FailedTypeConversionAction.WrapError;
+        internal object SpecialValueIfTypeConversionFailed { get; private set; }
 
-        public InvalidSourceHandler InvalidSourceHandler { get; }
-        public object SpecialValueIfSourceIsInvalid { get; init; }
+        internal SourceIsNullAction SourceIsNullAction { get; private set; } = SourceIsNullAction.SetSpecialValue;
+        internal object SpecialValueIfSourceIsNull { get; private set; }
 
-        public ReaderDefaultColumnConfiguration(ITypeConverter converter, NullSourceHandler nullSourceHandler = NullSourceHandler.SetSpecialValue, InvalidSourceHandler invalidSourceHandler = InvalidSourceHandler.WrapError)
+        public ReaderDefaultColumnConfiguration(ITypeConverter converter)
         {
             Converter = converter;
-            NullSourceHandler = nullSourceHandler;
-            InvalidSourceHandler = invalidSourceHandler;
+        }
+
+        public ReaderDefaultColumnConfiguration ValueWhenConversionFailed(object value)
+        {
+            FailedTypeConversionAction = FailedTypeConversionAction.SetSpecialValue;
+            SpecialValueIfTypeConversionFailed = value;
+            return this;
+        }
+
+        public ReaderDefaultColumnConfiguration ValueWhenSourceIsNull(object value)
+        {
+            SourceIsNullAction = SourceIsNullAction.SetSpecialValue;
+            SpecialValueIfSourceIsNull = value;
+            return this;
+        }
+
+        public ReaderDefaultColumnConfiguration WrapErrorWhenSourceIsNull()
+        {
+            SourceIsNullAction = SourceIsNullAction.WrapError;
+            SpecialValueIfSourceIsNull = null;
+            return this;
+        }
+
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public virtual object Process(IProcess process, object value)
+        {
+            if (value == null)
+            {
+                switch (SourceIsNullAction)
+                {
+                    case SourceIsNullAction.WrapError:
+                        return new EtlRowError()
+                        {
+                            Process = process,
+                            OriginalValue = null,
+                            Message = string.Format(CultureInfo.InvariantCulture, "null value found"),
+                        };
+                    case SourceIsNullAction.SetSpecialValue:
+                        return SpecialValueIfSourceIsNull;
+                    default:
+                        throw new NotImplementedException(SourceIsNullAction.ToString() + " is not supported yet");
+                }
+            }
+            if (value != null && Converter != null)
+            {
+                var newValue = Converter.Convert(value);
+                if (newValue != null)
+                    return newValue;
+
+                switch (FailedTypeConversionAction)
+                {
+                    case FailedTypeConversionAction.WrapError:
+                        return new EtlRowError()
+                        {
+                            Process = process,
+                            OriginalValue = value,
+                            Message = string.Format(CultureInfo.InvariantCulture, "type conversion failed ({0})", Converter.GetType().GetFriendlyTypeName()),
+                        };
+                    case FailedTypeConversionAction.SetSpecialValue:
+                        return SpecialValueIfTypeConversionFailed;
+                    default:
+                        throw new NotImplementedException(FailedTypeConversionAction.ToString() + " is not supported yet");
+                }
+            }
+
+            return value;
         }
     }
 }

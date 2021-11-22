@@ -16,12 +16,12 @@
                 FileName = fileName,
                 ColumnConfiguration = new()
                 {
-                    ["Id"] = new ReaderColumnConfiguration(new IntConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull = string.Empty },
-                    ["Name"] = new ReaderColumnConfiguration(new StringConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull = string.Empty },
-                    ["Value1"] = new ReaderColumnConfiguration("ValueString", new StringConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull = string.Empty },
-                    ["Value2"] = new ReaderColumnConfiguration("ValueInt", new IntConverter()),
-                    ["Value3"] = new ReaderColumnConfiguration("ValueDate", new DateConverter()),
-                    ["Value4"] = new ReaderColumnConfiguration("ValueDouble", new DoubleConverter())
+                    ["Id"] = new ReaderColumnConfiguration(new IntConverter()).ValueWhenSourceIsNull(string.Empty),
+                    ["Name"] = new ReaderColumnConfiguration(new StringConverter()).ValueWhenSourceIsNull(string.Empty),
+                    ["ValueString"] = new ReaderColumnConfiguration(new StringConverter()).FromSource("Value1").ValueWhenSourceIsNull(string.Empty),
+                    ["ValueInt"] = new ReaderColumnConfiguration(new IntConverter()).FromSource("Value2"),
+                    ["ValueDate"] = new ReaderColumnConfiguration(new DateConverter()).FromSource("Value3"),
+                    ["ValueDouble"] = new ReaderColumnConfiguration(new DoubleConverter()).FromSource("Value4"),
                 },
                 SheetName = sheetName,
                 SheetIndex = sheetIndex,

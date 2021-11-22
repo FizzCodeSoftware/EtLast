@@ -46,8 +46,8 @@
                     InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
                     ColumnConfiguration = new()
                     {
-                        ["id"] = new ReaderColumnConfiguration("ID", new StringConverter()),
-                        ["age"] = new ReaderColumnConfiguration(new LongConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull = -1L },
+                        ["ID"] = new ReaderColumnConfiguration(new StringConverter()),
+                        ["age"] = new ReaderColumnConfiguration(new LongConverter()).ValueWhenSourceIsNull(-1L),
                     },
                 },
                 Mutators = new MutatorList(),
@@ -78,8 +78,8 @@
                     InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
                     ColumnConfiguration = new()
                     {
-                        ["id"] = new ReaderColumnConfiguration("ID", new StringConverter()),
-                        ["age"] = new ReaderColumnConfiguration(new LongConverter(), NullSourceHandler.SetSpecialValue) { SpecialValueIfSourceIsNull = -1L },
+                        ["ID"] = new ReaderColumnConfiguration(new StringConverter()),
+                        ["age"] = new ReaderColumnConfiguration(new LongConverter()).ValueWhenSourceIsNull(-1L),
                     },
                     CopyOnlySpecifiedColumns = true,
                 },

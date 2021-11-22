@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
-    using System.Globalization;
 
     /// <summary>
     /// Row sources create rows - they may create or generate, read from different sources, copy from existing rows.
@@ -90,51 +89,6 @@
                 row[AddRowIndexToColumn] = _currentRowIndex;
 
             return true;
-        }
-
-        protected object HandleConverter(object value, ReaderDefaultColumnConfiguration configuration)
-        {
-            if (value == null)
-            {
-                switch (configuration.NullSourceHandler)
-                {
-                    case NullSourceHandler.WrapError:
-                        return new EtlRowError()
-                        {
-                            Process = this,
-                            OriginalValue = null,
-                            Message = string.Format(CultureInfo.InvariantCulture, "failed to convert by {0}", configuration.Converter.GetType().GetFriendlyTypeName()),
-                        };
-                    case NullSourceHandler.SetSpecialValue:
-                        return configuration.SpecialValueIfSourceIsNull;
-                    default:
-                        throw new NotImplementedException(configuration.NullSourceHandler.ToString() + " is not supported yet");
-                }
-            }
-
-            if (value != null && configuration.Converter != null)
-            {
-                var newValue = configuration.Converter.Convert(value);
-                if (newValue != null)
-                    return newValue;
-
-                switch (configuration.InvalidSourceHandler)
-                {
-                    case InvalidSourceHandler.WrapError:
-                        return new EtlRowError()
-                        {
-                            Process = this,
-                            OriginalValue = value,
-                            Message = string.Format(CultureInfo.InvariantCulture, "failed to convert by {0}", configuration.Converter.GetType().GetFriendlyTypeName()),
-                        };
-                    case InvalidSourceHandler.SetSpecialValue:
-                        return configuration.SpecialValueIfSourceIsInvalid;
-                    default:
-                        throw new NotImplementedException(configuration.NullSourceHandler.ToString() + " is not supported yet");
-                }
-            }
-
-            return value;
         }
     }
 }

@@ -122,9 +122,9 @@
             if (reader != null && !Context.CancellationTokenSource.IsCancellationRequested)
             {
                 var initialValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-                var columnMap = ColumnConfiguration != null
-                    ? new Dictionary<string, ReaderColumnConfiguration>(ColumnConfiguration, StringComparer.InvariantCultureIgnoreCase)
-                    : null;
+
+                // key is the SOURCE column name
+                var columnMap = ColumnConfiguration?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
                 while (!Context.CancellationTokenSource.IsCancellationRequested)
                 {
@@ -152,15 +152,18 @@
                     for (var i = 0; i < reader.FieldCount; i++)
                     {
                         var columnName = string.Intern(reader.GetName(i));
-                        var rowColumn = columnName;
 
-                        ReaderColumnConfiguration columnConfig = null;
-                        if (columnMap != null && columnMap.TryGetValue(columnName, out columnConfig) && columnConfig.RowColumn != null)
+                        var rowColumn = columnName;
+                        ReaderDefaultColumnConfiguration config = null;
+
+                        if (columnMap != null && columnMap.TryGetValue(columnName, out var cc))
                         {
-                            rowColumn = columnConfig.RowColumn;
+                            rowColumn = cc.rowColumn;
+                            config = cc.config;
                         }
 
-                        var config = columnConfig ?? DefaultColumnConfiguration;
+                        if (config == null)
+                            config = DefaultColumnConfiguration;
 
                         var value = reader.GetValue(i);
                         if (value is DBNull)
@@ -176,7 +179,7 @@
 
                         if (config != null)
                         {
-                            value = HandleConverter(value, config);
+                            value = config.Process(this, value);
                         }
 
                         initialValues[rowColumn] = value;
