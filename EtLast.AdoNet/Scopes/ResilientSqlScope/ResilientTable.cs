@@ -57,7 +57,7 @@
 
         public string[] Columns { get; init; }
 
-        public ResilientSqlScopeFinalizerCreatorDelegate FinalizerCreator { get; set; }
+        public Action<ResilientSqlTableTableFinalizerBuilder> FinalizerCreator { get; set; }
 
         private string _topic;
 

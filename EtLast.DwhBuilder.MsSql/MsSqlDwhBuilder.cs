@@ -29,8 +29,8 @@
             ? EtlRunId
             : Configuration.InfinitePastDateTime;
 
-        private readonly List<ResilientSqlScopeExecutableCreatorDelegate> _preFinalizerCreators = new();
-        private readonly List<ResilientSqlScopeExecutableCreatorDelegate> _postFinalizerCreators = new();
+        private readonly List<Func<ResilientSqlScope, IEnumerable<IExecutable>>> _preFinalizerCreators = new();
+        private readonly List<Func<ResilientSqlScope, IEnumerable<IExecutable>>> _postFinalizerCreators = new();
         private readonly DateTime? _etlRunIdUtcOverride;
 
         public DateTime? EtlRunId { get; private set; }
@@ -75,9 +75,9 @@
             };
         }
 
-        private IEnumerable<IExecutable> CreatePreFinalizers(ResilientSqlScope scope)
+        private void CreatePreFinalizers(ResilientSqlScopeProcessBuilder builder)
         {
-            yield return new CustomAction(scope.Context, scope.Topic, "ReadAllEnabledForeignKeys")
+            var process = new CustomAction(Context, builder.Scope.Topic, "ReadAllEnabledForeignKeys")
             {
                 Then = (proc) =>
                 {
@@ -95,7 +95,7 @@
 	                            sys.foreign_keys fk
                                 where fk.is_disabled=0";
 
-                        var iocUid = scope.Context.RegisterIoCommandStart(proc, IoCommandKind.dbReadMeta, ConnectionString.Name, "SYS.FOREIGN_KEYS", command.CommandTimeout, command.CommandText, null, null,
+                        var iocUid = builder.Scope.Context.RegisterIoCommandStart(proc, IoCommandKind.dbReadMeta, ConnectionString.Name, "SYS.FOREIGN_KEYS", command.CommandTimeout, command.CommandText, null, null,
                             "querying enabled foreign key names from {ConnectionStringName}",
                             ConnectionString.Name);
 
@@ -118,15 +118,15 @@
                                     list.Add(ConnectionString.Escape((string)reader["fkName"]));
                                 }
 
-                                scope.Context.RegisterIoCommandSuccess(proc, IoCommandKind.dbReadMeta, iocUid, recordsRead);
+                                builder.Scope.Context.RegisterIoCommandSuccess(proc, IoCommandKind.dbReadMeta, iocUid, recordsRead);
                             }
 
-                            scope.Context.Log(LogSeverity.Information, proc, "{ForeignKeyCount} enabled foreign keys acquired from information schema of {ConnectionStringName} in {Elapsed}",
+                            builder.Scope.Context.Log(LogSeverity.Information, proc, "{ForeignKeyCount} enabled foreign keys acquired from information schema of {ConnectionStringName} in {Elapsed}",
                                 _enabledConstraintsByTable.Sum(x => x.Value.Count), ConnectionString.Name, startedOn.Elapsed);
                         }
                         catch (Exception ex)
                         {
-                            scope.Context.RegisterIoCommandFailed(proc, IoCommandKind.dbReadMeta, iocUid, null, ex);
+                            builder.Scope.Context.RegisterIoCommandFailed(proc, IoCommandKind.dbReadMeta, iocUid, null, ex);
 
                             var exception = new SqlSchemaReadException(proc, "enabled foreign key names", ex);
                             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "enabled foreign key list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
@@ -143,26 +143,27 @@
                 }
             };
 
+            builder.Processes.Add(process);
+
             foreach (var creator in _preFinalizerCreators)
             {
-                var result = creator.Invoke(scope);
+                var result = creator.Invoke(builder.Scope);
                 if (result != null)
                 {
-                    foreach (var process in result)
-                        yield return process;
+                    builder.Processes.AddRange(result);
                 }
             }
         }
 
-        private IEnumerable<IExecutable> CreatePostFinalizers(ResilientSqlScope scope)
+        private void CreatePostFinalizers(ResilientSqlScopeProcessBuilder builder)
         {
             // todo: this should be built and configured by DisableConstraintCheck
-            var constraintCheckDisabledOnTables = scope.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
+            var constraintCheckDisabledOnTables = builder.Scope.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
             if (constraintCheckDisabledOnTables != null)
             {
-                yield return new MsSqlEnableConstraintCheckFiltered(scope.Context, scope.Topic, "EnableForeignKeys")
+                builder.Processes.Add(new MsSqlEnableConstraintCheckFiltered(builder.Scope.Context, builder.Scope.Topic, "EnableForeignKeys")
                 {
-                    ConnectionString = scope.Configuration.ConnectionString,
+                    ConnectionString = builder.Scope.Configuration.ConnectionString,
                     ConstraintNames = constraintCheckDisabledOnTables
                         .Distinct()
                         .Where(x => _enabledConstraintsByTable.ContainsKey(x))
@@ -170,15 +171,15 @@
                         .Select(x => new KeyValuePair<string, List<string>>(x, _enabledConstraintsByTable[x]))
                         .ToList(),
                     CommandTimeout = 60 * 60,
-                };
+                });
             }
 
             var etlRunInfoTable = Model.GetEtlRunInfoTable();
             if (etlRunInfoTable != null)
             {
-                yield return new CustomSqlStatement(scope.Context, etlRunInfoTable.SchemaAndName, "UpdateEtlRun")
+                builder.Processes.Add(new CustomSqlStatement(builder.Scope.Context, etlRunInfoTable.SchemaAndName, "UpdateEtlRun")
                 {
-                    ConnectionString = scope.Configuration.ConnectionString,
+                    ConnectionString = builder.Scope.Configuration.ConnectionString,
                     CommandTimeout = 60 * 60,
                     MainTableName = etlRunInfoTable.EscapedName(ConnectionString),
                     SqlStatement = "UPDATE " + etlRunInfoTable.EscapedName(ConnectionString)
@@ -190,16 +191,15 @@
                         ["Result"] = "success",
                         ["EtlRunid"] = EtlRunId.Value,
                     },
-                };
+                });
             }
 
             foreach (var creator in _postFinalizerCreators)
             {
-                var result = creator.Invoke(scope);
+                var result = creator.Invoke(builder.Scope);
                 if (result != null)
                 {
-                    foreach (var process in result)
-                        yield return process;
+                    builder.Processes.AddRange(result);
                 }
             }
         }
@@ -217,14 +217,14 @@
             return ConnectionString.Escape(dwhTable.Name + Configuration.HistoryTableNamePostfix, dwhTable.Schema.Name);
         }
 
-        private IEnumerable<IExecutable> CreateInitializers(ResilientSqlScope scope)
+        private void CreateInitializers(ResilientSqlScopeProcessBuilder builder)
         {
             var etlRunInfoTable = Model.GetEtlRunInfoTable();
             if (etlRunInfoTable != null)
             {
-                yield return new ProcessBuilder()
+                var process = new ProcessBuilder()
                 {
-                    InputProcess = new EnumerableImporter(scope.Context, etlRunInfoTable.SchemaAndName, "RowCreator")
+                    InputProcess = new EnumerableImporter(builder.Scope.Context, etlRunInfoTable.SchemaAndName, "RowCreator")
                     {
                         InputGenerator = process =>
                         {
@@ -243,12 +243,12 @@
                             EtlRunId = currentId;
                             EtlRunIdAsDateTimeOffset = new DateTimeOffset(currentId, new TimeSpan(0));
 
-                            scope.Context.AdditionalData["CurrentEtlRunId"] = currentId;
+                            builder.Scope.Context.AdditionalData["CurrentEtlRunId"] = currentId;
 
                             var row = new SlimRow()
                             {
                                 ["StartedOn"] = currentId,
-                                ["Name"] = scope.Name,
+                                ["Name"] = builder.Scope.Name,
                                 ["MachineName"] = Environment.MachineName,
                                 ["UserName"] = Environment.UserName,
                             };
@@ -258,7 +258,7 @@
                     },
                     Mutators = new MutatorList()
                     {
-                        new ResilientWriteToMsSqlMutator(scope.Context, etlRunInfoTable.SchemaAndName, "EtlRunInfoWriter")
+                        new ResilientWriteToMsSqlMutator(builder.Scope.Context, etlRunInfoTable.SchemaAndName, "EtlRunInfoWriter")
                         {
                             ConnectionString = ConnectionString,
                             TableDefinition = new DbTableDefinition()
@@ -275,6 +275,8 @@
                         },
                     },
                 }.Build();
+
+                builder.Processes.Add(process);
             }
         }
 
@@ -311,12 +313,12 @@
             return result;
         }
 
-        public void AddPreFinalizer(ResilientSqlScopeExecutableCreatorDelegate creator)
+        public void AddPreFinalizerCreator(Func<ResilientSqlScope, IEnumerable<IExecutable>> creator)
         {
             _preFinalizerCreators.Add(creator);
         }
 
-        public void AddPostFinalizer(ResilientSqlScopeExecutableCreatorDelegate creator)
+        public void AddPostFinalizerCreator(Func<ResilientSqlScope, IEnumerable<IExecutable>> creator)
         {
             _postFinalizerCreators.Add(creator);
         }

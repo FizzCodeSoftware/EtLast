@@ -188,9 +188,9 @@
 
                             using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
                             {
-                                finalizers = Configuration.PreFinalizerCreator.Invoke(this)
-                                    ?.Where(x => x != null)
-                                    .ToArray();
+                                var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
+                                Configuration.PreFinalizerCreator.Invoke(builder);
+                                finalizers = builder.Processes.Where(x => x != null).ToArray();
                             }
 
                             if (finalizers?.Length > 0)
@@ -268,10 +268,9 @@
                                 var allFinalizers = new Dictionary<string, IExecutable[]>();
                                 using (var creatorScope = Context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
                                 {
-                                    var finalizers = table.FinalizerCreator
-                                        .Invoke(table)
-                                        .Where(x => x != null)
-                                        .ToArray();
+                                    var builder = new ResilientSqlTableTableFinalizerBuilder() { Table = table };
+                                    table.FinalizerCreator.Invoke(builder);
+                                    var finalizers = builder.Finalizers.Where(x => x != null).ToArray();
 
                                     allFinalizers[table.TableName] = finalizers;
 
@@ -283,10 +282,9 @@
                                     {
                                         foreach (var additionalTable in table.AdditionalTables)
                                         {
-                                            finalizers = additionalTable.FinalizerCreator
-                                                .Invoke(additionalTable)
-                                                .Where(x => x != null)
-                                                .ToArray();
+                                            builder = new ResilientSqlTableTableFinalizerBuilder() { Table = additionalTable };
+                                            additionalTable.FinalizerCreator.Invoke(builder);
+                                            finalizers = builder.Finalizers.Where(x => x != null).ToArray();
 
                                             allFinalizers[additionalTable.TableName] = finalizers;
 
@@ -321,9 +319,9 @@
 
                                 using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
                                 {
-                                    finalizers = Configuration.PostFinalizerCreator.Invoke(this)
-                                        ?.Where(x => x != null)
-                                        .ToArray();
+                                    var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
+                                    Configuration.PostFinalizerCreator.Invoke(builder);
+                                    finalizers = builder.Processes.Where(x => x != null).ToArray();
                                 }
 
                                 if (finalizers?.Length > 0)
@@ -395,9 +393,9 @@
 
                     using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
                     {
-                        initializers = Configuration.InitializerCreator.Invoke(this)
-                            ?.Where(x => x != null)
-                            .ToArray();
+                        var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
+                        Configuration.InitializerCreator.Invoke(builder);
+                        initializers = builder.Processes.Where(x => x != null).ToArray();
 
                         Context.Log(LogSeverity.Information, this, "created {InitializerCount} initializers", initializers?.Length ?? 0);
                     }

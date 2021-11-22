@@ -1,9 +1,8 @@
 ﻿namespace FizzCode.EtLast.AdoNet
 {
+    using System;
     using System.Collections.Generic;
     using FizzCode.LightWeight.AdoNet;
-
-    public delegate IEnumerable<IExecutable> ResilientSqlScopeExecutableCreatorDelegate(ResilientSqlScope scope);
 
     public enum ResilientSqlScopeTempTableMode
     {
@@ -39,17 +38,17 @@
         /// <summary>
         /// Allows the execution of initializers BEFORE the individual table processes are created and executed.
         /// </summary>
-        public ResilientSqlScopeExecutableCreatorDelegate InitializerCreator { get; init; }
+        public Action<ResilientSqlScopeProcessBuilder> InitializerCreator { get; init; }
 
         /// <summary>
         /// Allows the execution of global finalizers BEFORE the individual table finalizers are created and executed.
         /// </summary>
-        public ResilientSqlScopeExecutableCreatorDelegate PreFinalizerCreator { get; init; }
+        public Action<ResilientSqlScopeProcessBuilder> PreFinalizerCreator { get; init; }
 
         /// <summary>
         /// Allows the execution of global finalizers AFTER the individual table finalizers are created and executed.
         /// </summary>
-        public ResilientSqlScopeExecutableCreatorDelegate PostFinalizerCreator { get; init; }
+        public Action<ResilientSqlScopeProcessBuilder> PostFinalizerCreator { get; init; }
 
         public List<ResilientTable> Tables { get; init; }
 

@@ -72,7 +72,7 @@
 
         internal void Build()
         {
-            ResilientTable.FinalizerCreator = _ => CreateTableFinalizers();
+            ResilientTable.FinalizerCreator = CreateTableFinalizers;
             ResilientTable.MainProcessCreator = _ => CreateTableMainProcess();
         }
 
@@ -156,14 +156,11 @@
             return (DateTimeOffset)result.MaxValue;
         }
 
-        private IEnumerable<IExecutable> CreateTableFinalizers()
+        private void CreateTableFinalizers(ResilientSqlTableTableFinalizerBuilder builder)
         {
             foreach (var creator in _finalizerCreators)
             {
-                foreach (var finalizer in creator.Invoke(this))
-                {
-                    yield return finalizer;
-                }
+                builder.Finalizers.AddRange(creator.Invoke(this));
             }
         }
     }

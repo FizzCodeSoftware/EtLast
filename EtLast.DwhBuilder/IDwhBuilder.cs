@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder
 {
+    using System;
     using System.Collections.Generic;
     using FizzCode.EtLast.AdoNet;
     using FizzCode.LightWeight.AdoNet;
@@ -19,8 +20,10 @@
         NamedConnectionString ConnectionString { get; init; }
 
         TTableBuilder[] AddTables(params RelationalTable[] tables);
-        void AddPostFinalizer(ResilientSqlScopeExecutableCreatorDelegate creator);
 
         ResilientSqlScope Build();
+
+        void AddPreFinalizerCreator(Func<ResilientSqlScope, IEnumerable<IExecutable>> creator);
+        void AddPostFinalizerCreator(Func<ResilientSqlScope, IEnumerable<IExecutable>> creator);
     }
 }
