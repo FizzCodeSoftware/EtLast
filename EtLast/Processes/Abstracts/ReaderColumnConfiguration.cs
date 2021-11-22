@@ -8,6 +8,7 @@
 
     public class ReaderColumnConfiguration : ReaderDefaultColumnConfiguration
     {
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public string SourceColumn { get; private set; }
 
         public ReaderColumnConfiguration(ITypeConverter converter)
@@ -42,13 +43,13 @@
 
     public class ReaderDefaultColumnConfiguration
     {
-        internal ITypeConverter Converter { get; }
+        protected ITypeConverter Converter { get; }
 
-        internal FailedTypeConversionAction FailedTypeConversionAction { get; private set; } = FailedTypeConversionAction.WrapError;
-        internal object SpecialValueIfTypeConversionFailed { get; private set; }
+        protected FailedTypeConversionAction FailedTypeConversionAction { get; private set; } = FailedTypeConversionAction.WrapError;
+        protected object SpecialValueIfTypeConversionFailed { get; private set; }
 
-        internal SourceIsNullAction SourceIsNullAction { get; private set; } = SourceIsNullAction.SetSpecialValue;
-        internal object SpecialValueIfSourceIsNull { get; private set; }
+        protected SourceIsNullAction SourceIsNullAction { get; private set; } = SourceIsNullAction.SetSpecialValue;
+        protected object SpecialValueIfSourceIsNull { get; private set; }
 
         public ReaderDefaultColumnConfiguration(ITypeConverter converter)
         {
