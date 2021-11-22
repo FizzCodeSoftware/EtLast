@@ -9,7 +9,8 @@
     public abstract class AbstractEtlTask : IEtlTask
     {
         private string _nameCached;
-        public virtual string Name => _nameCached ??= GetType().GetFriendlyTypeName();
+        public virtual string Name => CustomName ?? (_nameCached ??= GetType().GetFriendlyTypeName());
+        public string CustomName { get; set; }
 
         public IEtlSession Session { get; private set; }
         public IEtlContext Context => Session.Context;
