@@ -38,9 +38,9 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class SequentialMergerFluent
     {
-        public static IFluentProcessMutatorBuilder SequentialMerge(this IFluentProcessBuilder builder, string name, Action<SequentialMergerBuilder> action)
+        public static IFluentProcessMutatorBuilder SequentialMerge(this IFluentProcessBuilder builder, IEtlContext context, string name, Action<SequentialMergerBuilder> action)
         {
-            var subBuilder = new SequentialMergerBuilder(builder.Result.Context, name);
+            var subBuilder = new SequentialMergerBuilder(context, name);
             action.Invoke(subBuilder);
             return builder.ReadFrom(subBuilder.Merger);
         }
