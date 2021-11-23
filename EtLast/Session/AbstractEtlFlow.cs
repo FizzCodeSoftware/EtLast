@@ -19,7 +19,6 @@
         public abstract void Execute();
 
         protected AbstractEtlFlow()
-            : base()
         {
         }
 

@@ -90,7 +90,6 @@
             return new ResilientWriteToMsSqlMutator(table.Scope.Context)
             {
                 Name = "TempWriter",
-                Topic = table.Topic,
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 TableDefinition = new DbTableDefinition()
                 {
@@ -135,7 +134,6 @@
             var result = new GetTableMaxValue<object>(ResilientTable.Scope.Context)
             {
                 Name = nameof(GetMaxRecordTimestamp) + "Reader",
-                Topic = ResilientTable.Topic,
                 ConnectionString = ResilientTable.Scope.Configuration.ConnectionString,
                 TableName = ResilientTable.TableName,
                 ColumnName = recordTimestampIndicatorColumn.NameEscaped(ResilientTable.Scope.Configuration.ConnectionString),

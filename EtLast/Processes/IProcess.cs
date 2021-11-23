@@ -8,9 +8,10 @@
         ProcessInvocationInfo InvocationInfo { get; set; }
 
         IEtlContext Context { get; }
-        string Topic { get; }
         string Name { get; }
 
         string Kind { get; }
+
+        string GetTopic();
     }
 }

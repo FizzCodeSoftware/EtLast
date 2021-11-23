@@ -23,7 +23,6 @@
             yield return new DeleteTable(builder.ResilientTable.Scope.Context)
             {
                 Name = "DeleteBase",
-                Topic = builder.ResilientTable.Topic,
                 ConnectionString = builder.ResilientTable.Scope.Configuration.ConnectionString,
                 TableName = builder.ResilientTable.TableName,
             };

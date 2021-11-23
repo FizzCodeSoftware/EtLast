@@ -20,7 +20,6 @@
                     new CustomMutator(builder.ResilientTable.Scope.Context)
                     {
                         Name = nameof(SetValidFromToRecordTimestampIfAvailable),
-                        Topic = builder.ResilientTable.Topic,
                         Action = row =>
                         {
                             var value = row[recordTimestampIndicatorColumn.Name];

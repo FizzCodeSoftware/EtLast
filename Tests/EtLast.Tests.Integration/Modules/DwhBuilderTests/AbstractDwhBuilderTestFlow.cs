@@ -17,7 +17,6 @@
             return new AdoNetDbReader(Context)
             {
                 Name = "Reader",
-                Topic = table,
                 ConnectionString = connectionString,
                 TableName = connectionString.Escape(table, schema),
             }.Evaluate(caller).TakeRowsAndReleaseOwnership().ToList();

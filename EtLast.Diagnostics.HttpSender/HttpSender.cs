@@ -393,7 +393,7 @@
                 writer.Write(process.GetType().GetFriendlyTypeName());
                 writer.WriteNullable(process.Kind);
                 writer.Write(process.Name);
-                writer.WriteNullable(process.Topic);
+                writer.WriteNullable(process.GetTopic());
                 writer.WriteNullable(process.InvocationInfo.Caller?.InvocationInfo?.InvocationUid);
             });
         }

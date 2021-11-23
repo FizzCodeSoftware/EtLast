@@ -16,6 +16,11 @@
         {
         }
 
+        public override string GetTopic()
+        {
+            return Path.GetFileName(FileName) + "(SheetList)";
+        }
+
         protected override void ValidateImpl()
         {
             if (string.IsNullOrEmpty(FileName))

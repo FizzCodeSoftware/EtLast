@@ -58,13 +58,5 @@
         public string[] Columns { get; init; }
 
         public Action<ResilientSqlTableTableFinalizerBuilder> Finalizers { get; set; }
-
-        private string _topic;
-
-        public string Topic
-        {
-            get => _topic ?? Scope.Configuration.ConnectionString.Unescape(TableName);
-            init => _topic = value;
-        }
     }
 }

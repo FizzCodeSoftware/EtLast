@@ -45,7 +45,6 @@
             return new AdoNetDbReader(builder.ResilientTable.Scope.Context)
             {
                 Name = "SourceTableReader",
-                Topic = builder.ResilientTable.Topic,
                 ConnectionString = sourceConnectionString,
                 CustomConnectionCreator = readerScope != null ? readerScope.GetConnection : null,
                 TableName = sourceSqlTable.EscapedName(builder.DwhBuilder.ConnectionString),

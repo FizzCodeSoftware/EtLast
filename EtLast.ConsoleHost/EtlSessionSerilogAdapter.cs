@@ -63,10 +63,11 @@
                     values.Add(process.Name);
                 }
 
-                if (process.Topic != null)
+                var topic = process.GetTopic();
+                if (topic != null)
                 {
                     sb.Append("[{ActiveTopic}] ");
-                    values.Add(process.Topic);
+                    values.Add(topic);
                 }
             }
 
@@ -106,9 +107,11 @@
 
             var filePath = Path.Combine(logsFolder, fileName);
 
+            var topic = process?.GetTopic();
+
             var line = new StringBuilder()
-                .Append(!string.IsNullOrEmpty(process?.Topic)
-                    ? process.Topic + "\t"
+                .Append(!string.IsNullOrEmpty(topic)
+                    ? topic + "\t"
                     : "")
                 .Append(process != null
                     ? process.Name + "\t"
@@ -170,11 +173,12 @@
 
                 if (process != null)
                 {
-                    if (process.Topic != null)
+                    var topic = process.GetTopic();
+                    if (topic != null)
                     {
                         sb.Append("[{ActiveProcess}/{ActiveTopic}] ");
                         values.Add(process.Name);
-                        values.Add(process.Topic);
+                        values.Add(topic);
                     }
                     else
                     {
@@ -234,12 +238,13 @@
 
                 if (process != null)
                 {
-                    if (process.Topic != null)
+                    var topic = process.GetTopic();
+                    if (topic != null)
                     {
                         // todo: we need task capture somehow...
                         sb.Append("[{ActiveProcess}/{ActiveTopic}] ");
                         values.Add(process.Name);
-                        values.Add(process.Topic);
+                        values.Add(topic);
                     }
                     else
                     {

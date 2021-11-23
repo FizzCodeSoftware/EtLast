@@ -9,7 +9,6 @@
             return builder.Add(new TruncateTable(builder.Table.Scope.Context)
             {
                 Name = "TruncateTargetTableFinalizer",
-                Topic = builder.Table.Topic,
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 TableName = builder.Table.TableName,
                 CommandTimeout = commandTimeout,
@@ -21,7 +20,6 @@
             return builder.Add(new DeleteTable(builder.Table.Scope.Context)
             {
                 Name = "DeleteTargetTableFinalizer",
-                Topic = builder.Table.Topic,
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 TableName = builder.Table.TableName,
                 CommandTimeout = commandTimeout,
@@ -36,7 +34,6 @@
             return builder.Add(new CopyTableIntoExistingTable(builder.Table.Scope.Context)
             {
                 Name = "CopyTableFinalizer",
-                Topic = builder.Table.Topic,
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 Configuration = new TableCopyConfiguration()
                 {
@@ -61,7 +58,6 @@
             return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
             {
                 Name = "SimpleMergeFinalizer",
-                Topic = builder.Table.Topic,
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 CommandTimeout = commandTimeout,
                 SourceTableName = builder.Table.TempTableName,
@@ -85,7 +81,6 @@
             return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
             {
                 Name = "SimpleMergeFinalizer",
-                Topic = builder.Table.Topic,
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 CommandTimeout = commandTimeout,
                 SourceTableName = builder.Table.TempTableName,
@@ -107,7 +102,6 @@
             return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
             {
                 Name = "SimpleMergeUpdateOnlyFinalizer",
-                Topic = builder.Table.Topic,
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 CommandTimeout = commandTimeout,
                 SourceTableName = builder.Table.TempTableName,
@@ -126,7 +120,6 @@
             return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
             {
                 Name = "SimpleMergeInsertOnlyFinalizer",
-                Topic = builder.Table.Topic,
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 CommandTimeout = commandTimeout,
                 SourceTableName = builder.Table.TempTableName,

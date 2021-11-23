@@ -376,7 +376,6 @@
             var count = new GetTableRecordCount(Context)
             {
                 Name = "TempRecordCountReader",
-                Topic = table.Topic,
                 ConnectionString = Configuration.ConnectionString,
                 TableName = table.TempTableName,
             }.Execute(this);
@@ -462,7 +461,6 @@
             new CopyTableStructure(Context)
             {
                 Name = "RecreateTempTables",
-                Topic = Topic,
                 ConnectionString = Configuration.ConnectionString,
                 SuppressExistingTransactionScope = true,
                 Configuration = config,
@@ -481,7 +479,6 @@
             new DropTables(Context)
             {
                 Name = "DropTempTables",
-                Topic = Topic,
                 ConnectionString = Configuration.ConnectionString,
                 TableNames = tempTableNames
                     .Concat(additionalTempTableNames)

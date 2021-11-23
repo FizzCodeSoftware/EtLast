@@ -11,7 +11,6 @@
     {
         string ScopeName { get; }
         IEnumerable<RelationalTable> Tables { get; }
-        string Topic { get; }
 
         IReadOnlyList<SqlEngine> SupportedSqlEngines { get; }
 

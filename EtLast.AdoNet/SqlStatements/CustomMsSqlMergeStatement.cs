@@ -34,6 +34,13 @@
         {
         }
 
+        public override string GetTopic()
+        {
+            return TargetTableName != null
+                ? ConnectionString?.Unescape(TargetTableName)
+                : null;
+        }
+
         protected override void ValidateImpl()
         {
             base.ValidateImpl();

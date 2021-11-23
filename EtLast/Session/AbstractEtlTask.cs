@@ -20,7 +20,6 @@
         public abstract IEnumerable<IExecutable> CreateProcesses();
 
         protected AbstractEtlTask()
-            : base()
         {
         }
 

@@ -27,7 +27,6 @@
             yield return new MsSqlDisableConstraintCheck(builder.ResilientTable.Scope.Context)
             {
                 Name = "DisableConstraintCheck",
-                Topic = builder.ResilientTable.Topic,
                 ConnectionString = builder.ResilientTable.Scope.Configuration.ConnectionString,
                 TableNames = tableNames,
                 CommandTimeout = 60 * 60,
@@ -36,7 +35,6 @@
             yield return new CustomAction(builder.ResilientTable.Scope.Context)
             {
                 Name = "UpdateConstraintList",
-                Topic = builder.ResilientTable.Topic,
                 Action = process =>
                 {
                     var list = builder.DwhBuilder.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);

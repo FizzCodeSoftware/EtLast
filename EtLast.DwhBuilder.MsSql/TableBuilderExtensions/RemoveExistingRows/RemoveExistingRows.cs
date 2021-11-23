@@ -46,7 +46,6 @@
                     yield return new BatchedCompareWithRowMutator(builder.TableBuilder.ResilientTable.Scope.Context)
                     {
                         Name = nameof(RemoveExistingRows),
-                        Topic = builder.TableBuilder.ResilientTable.Topic,
                         If = row => row.HasValue(builder.MatchColumns[0].Name),
                         EqualityComparer = equalityComparer,
                         LookupBuilder = new FilteredRowLookupBuilder()
@@ -54,9 +53,8 @@
                             ProcessCreator = filterRows => new CustomSqlAdoNetDbReader(builder.TableBuilder.ResilientTable.Scope.Context)
                             {
                                 Name = "ExistingRowsReader",
-                                Topic = builder.TableBuilder.ResilientTable.Topic,
                                 ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
-                                MainTableName = builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString),
+                                MainTableName = builder.TableBuilder.Table.SchemaAndName,
                                 Sql = "SELECT " + builder.MatchColumns[0].NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)
                                     + "," + string.Join(", ", finalValueColumns.Select(c => c.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)))
                                     + " FROM " + builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString)
@@ -83,16 +81,14 @@
                     yield return new CompareWithRowMutator(builder.TableBuilder.ResilientTable.Scope.Context)
                     {
                         Name = nameof(RemoveExistingRows),
-                        Topic = builder.TableBuilder.ResilientTable.Topic,
                         EqualityComparer = equalityComparer,
                         LookupBuilder = new RowLookupBuilder()
                         {
                             Process = new CustomSqlAdoNetDbReader(builder.TableBuilder.ResilientTable.Scope.Context)
                             {
                                 Name = "ExistingRowsReader",
-                                Topic = builder.TableBuilder.ResilientTable.Topic,
                                 ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
-                                MainTableName = builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString),
+                                MainTableName = builder.TableBuilder.Table.SchemaAndName,
                                 Sql = "SELECT " + string.Join(",", builder.MatchColumns.Concat(finalValueColumns).Select(c => c.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)))
                                 + " FROM " + builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString),
                             },
@@ -109,16 +105,14 @@
                 yield return new BatchedKeyTestMutator(builder.TableBuilder.ResilientTable.Scope.Context)
                 {
                     Name = nameof(RemoveExistingRows),
-                    Topic = builder.TableBuilder.ResilientTable.Topic,
                     If = row => row.HasValue(builder.MatchColumns[0].Name),
                     LookupBuilder = new FilteredRowLookupBuilder()
                     {
                         ProcessCreator = filterRows => new CustomSqlAdoNetDbReader(builder.TableBuilder.ResilientTable.Scope.Context)
                         {
                             Name = "ExistingRowsReader",
-                            Topic = builder.TableBuilder.ResilientTable.Topic,
                             ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
-                            MainTableName = builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString),
+                            MainTableName = builder.TableBuilder.Table.SchemaAndName,
                             Sql = "SELECT " + builder.MatchColumns[0].NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)
                                 + " FROM " + builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString)
                                 + " WHERE " + builder.MatchColumns[0].NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString) + " IN (@keyList)",
@@ -143,15 +137,13 @@
                 yield return new KeyTestMutator(builder.TableBuilder.ResilientTable.Scope.Context)
                 {
                     Name = nameof(RemoveExistingRows),
-                    Topic = builder.TableBuilder.ResilientTable.Topic,
                     LookupBuilder = new RowLookupBuilder()
                     {
                         Process = new CustomSqlAdoNetDbReader(builder.TableBuilder.ResilientTable.Scope.Context)
                         {
                             Name = "ExistingRowsReader",
-                            Topic = builder.TableBuilder.ResilientTable.Topic,
                             ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
-                            MainTableName = builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString),
+                            MainTableName = builder.TableBuilder.Table.SchemaAndName,
                             Sql = "SELECT " + string.Join(",", builder.MatchColumns.Select(c => c.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)))
                                 + " FROM " + builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString),
                         },

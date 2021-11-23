@@ -12,6 +12,13 @@
         {
         }
 
+        public override string GetTopic()
+        {
+            return MainTableName != null
+                ? ConnectionString?.Unescape(MainTableName)
+                : null;
+        }
+
         protected override void ValidateImpl()
         {
             base.ValidateImpl();

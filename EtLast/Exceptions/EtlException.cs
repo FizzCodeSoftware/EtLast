@@ -40,8 +40,10 @@
                 Data.Add("Trace", trace);
 
             Data.Add("ProcessName", process.Name);
-            if (process.Topic != null)
-                Data.Add("ProcessTopic", process.Topic);
+
+            var topic = process.GetTopic();
+            if (topic != null)
+                Data.Add("ProcessTopic", topic);
 
             Data.Add("ProcessType", process.GetType().GetFriendlyTypeName());
 
@@ -62,8 +64,9 @@
                 Data.Add("Trace", trace);
 
             Data.Add("ProcessName", process.Name);
-            if (process.Topic != null)
-                Data.Add("ProcessTopic", process.Topic);
+            var topic = process.GetTopic();
+            if (topic != null)
+                Data.Add("ProcessTopic", topic);
 
             Data.Add("ProcessType", process.GetType().GetFriendlyTypeName());
 
@@ -234,10 +237,11 @@
                     builder.Append("\")");
                 }
 
-                if (p.Topic != null)
+                var topic = p.GetTopic();
+                if (topic != null)
                 {
                     builder.Append(", topic: ");
-                    builder.Append(p.Topic);
+                    builder.Append(topic);
                 }
 
                 builder.Append(", kind: ");

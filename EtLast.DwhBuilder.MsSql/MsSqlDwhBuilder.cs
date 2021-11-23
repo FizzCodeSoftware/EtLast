@@ -13,7 +13,6 @@
     public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
     {
         public IEtlContext Context { get; }
-        public string Topic { get; }
         public string ScopeName { get; }
 
         public RelationalModel Model { get; init; }
@@ -38,10 +37,9 @@
 
         private readonly Dictionary<string, List<string>> _enabledConstraintsByTable = new(StringComparer.OrdinalIgnoreCase);
 
-        public MsSqlDwhBuilder(IEtlContext context, string topic, string scopeName, DateTime? etlRunIdUtcOverride = null)
+        public MsSqlDwhBuilder(IEtlContext context, string scopeName, DateTime? etlRunIdUtcOverride = null)
         {
             Context = context;
-            Topic = topic;
             ScopeName = scopeName;
             _etlRunIdUtcOverride = etlRunIdUtcOverride;
         }
@@ -62,7 +60,6 @@
             return new ResilientSqlScope(Context)
             {
                 Name = ScopeName,
-                Topic = Topic,
                 Configuration = new ResilientSqlScopeConfiguration()
                 {
                     ConnectionString = ConnectionString,
@@ -82,7 +79,6 @@
             var process = new CustomAction(Context)
             {
                 Name = "ReadAllEnabledForeignKeys",
-                Topic = builder.Scope.Topic,
                 Action = (proc) =>
                 {
                     var startedOn = Stopwatch.StartNew();
@@ -164,7 +160,6 @@
                 builder.Processes.Add(new MsSqlEnableConstraintCheckFiltered(builder.Scope.Context)
                 {
                     Name = "EnableForeignKeys",
-                    Topic = builder.Scope.Topic,
                     ConnectionString = builder.Scope.Configuration.ConnectionString,
                     ConstraintNames = constraintCheckDisabledOnTables
                         .Distinct()
@@ -182,10 +177,9 @@
                 builder.Processes.Add(new CustomSqlStatement(builder.Scope.Context)
                 {
                     Name = "UpdateEtlRun",
-                    Topic = etlRunInfoTable.SchemaAndName,
                     ConnectionString = builder.Scope.Configuration.ConnectionString,
                     CommandTimeout = 60 * 60,
-                    MainTableName = etlRunInfoTable.EscapedName(ConnectionString),
+                    MainTableName = etlRunInfoTable.SchemaAndName,
                     SqlStatement = "UPDATE " + etlRunInfoTable.EscapedName(ConnectionString)
                         + " SET FinishedOn = @FinishedOn, Result = @Result"
                         + " WHERE StartedOn = @EtlRunId",
@@ -227,7 +221,6 @@
                     InputProcess = new EnumerableImporter(builder.Scope.Context)
                     {
                         Name = "EtlRunInfoCreator",
-                        Topic = etlRunInfoTable.SchemaAndName,
                         InputGenerator = process =>
                         {
                             var currentId = _etlRunIdUtcOverride ?? DateTime.UtcNow;
@@ -263,7 +256,6 @@
                         new ResilientWriteToMsSqlMutator(builder.Scope.Context)
                         {
                             Name = "EtlRunInfoWriter",
-                            Topic = etlRunInfoTable.SchemaAndName,
                             ConnectionString = ConnectionString,
                             TableDefinition = new DbTableDefinition()
                             {

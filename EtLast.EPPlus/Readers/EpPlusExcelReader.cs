@@ -62,6 +62,14 @@
         {
         }
 
+        public override string GetTopic()
+        {
+            if (string.IsNullOrEmpty(SheetName))
+                return Path.GetFileName(FileName) + "(" + SheetIndex.ToString("D", CultureInfo.InvariantCulture) + ")";
+            else
+                return Path.GetFileName(FileName) + "(" + SheetName + ")";
+        }
+
         protected override void ValidateImpl()
         {
             if (string.IsNullOrEmpty(FileName))

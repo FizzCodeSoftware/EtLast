@@ -60,7 +60,6 @@
             yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context)
             {
                 Name = "MergeIntoBase",
-                Topic = builder.TableBuilder.ResilientTable.Topic,
                 ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
                 CommandTimeout = 60 * 60,
                 SourceTableName = builder.TableBuilder.ResilientTable.TempTableName,
@@ -100,7 +99,6 @@
                 yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context)
                 {
                     Name = "CloseOpenEndedHistoryRecords",
-                    Topic = builder.TableBuilder.ResilientTable.Topic,
                     ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
                     CommandTimeout = 60 * 60,
                     SourceTableName = builder.TableBuilder.ResilientTable.TempTableName,
@@ -129,7 +127,6 @@
                     yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context)
                     {
                         Name = "UpdateNoHistoryColumns",
-                        Topic = builder.TableBuilder.ResilientTable.Topic,
                         ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
                         CommandTimeout = 60 * 60,
                         SourceTableName = builder.TableBuilder.ResilientTable.TempTableName,
@@ -167,7 +164,6 @@
                 yield return new CopyTableIntoExistingTable(builder.TableBuilder.ResilientTable.Scope.Context)
                 {
                     Name = "CopyToHistory",
-                    Topic = builder.TableBuilder.ResilientTable.Topic,
                     ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
                     Configuration = new TableCopyConfiguration()
                     {

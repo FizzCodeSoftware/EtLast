@@ -12,8 +12,6 @@
         public IEtlContext Context { get; protected set; }
 
         public string Name { get; set; }
-        public string Topic { get; set; }
-
         public string Kind { get; }
 
         /// <summary>
@@ -55,6 +53,11 @@
         {
             var typeName = GetType().GetFriendlyTypeName();
             return typeName + (Name != typeName ? " (" + Name + ")" : "");
+        }
+
+        public virtual string GetTopic()
+        {
+            return null;
         }
     }
 }

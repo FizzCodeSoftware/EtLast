@@ -56,7 +56,7 @@
 
         private IExecutable CreateFirstDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
         {
-            var builder = new MsSqlDwhBuilder(Context, Topic, "FirstDwhBuilder", EtlRunId1)
+            var builder = new MsSqlDwhBuilder(Context, "FirstDwhBuilder", EtlRunId1)
             {
                 Configuration = configuration,
                 ConnectionString = ConnectionString,
@@ -150,7 +150,7 @@
 
         private IExecutable CreateSecondDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
         {
-            var builder = new MsSqlDwhBuilder(Context, Topic, "SecondDwhBuilder", EtlRunId2)
+            var builder = new MsSqlDwhBuilder(Context, "SecondDwhBuilder", EtlRunId2)
             {
                 Configuration = configuration,
                 ConnectionString = ConnectionString,

@@ -43,7 +43,6 @@
                 yield return new BatchedCompareWithRowMutator(builder.TableBuilder.ResilientTable.Scope.Context)
                 {
                     Name = nameof(AutoValidityRange),
-                    Topic = builder.TableBuilder.ResilientTable.Topic,
                     If = row => row.HasValue(builder.MatchColumns[0].Name),
                     LookupBuilder = new FilteredRowLookupBuilder()
                     {
@@ -87,15 +86,13 @@
                 yield return new CompareWithRowMutator(builder.TableBuilder.ResilientTable.Scope.Context)
                 {
                     Name = nameof(AutoValidityRange),
-                    Topic = builder.TableBuilder.ResilientTable.Topic,
                     LookupBuilder = new RowLookupBuilder()
                     {
                         Process = new CustomSqlAdoNetDbReader(builder.TableBuilder.ResilientTable.Scope.Context)
                         {
                             Name = "PreviousValueReader",
-                            Topic = builder.TableBuilder.ResilientTable.Topic,
                             ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
-                            MainTableName = builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString),
+                            MainTableName = builder.TableBuilder.Table.SchemaAndName,
                             Sql = "SELECT " + string.Join(",", builder.MatchColumns.Concat(finalValueColumns).Select(x => x.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)))
                                 + " FROM " + builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString)
                                 + " WHERE " + builder.TableBuilder.ValidToColumnNameEscaped + (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime == null ? " IS NULL" : "=@InfiniteFuture"),
@@ -149,9 +146,8 @@
             return new CustomSqlAdoNetDbReader(builder.TableBuilder.ResilientTable.Scope.Context)
             {
                 Name = "PreviousValueReader",
-                Topic = builder.TableBuilder.ResilientTable.Topic,
                 ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
-                MainTableName = builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString),
+                MainTableName = builder.TableBuilder.Table.SchemaAndName,
                 Sql = "SELECT " + matchColumn.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)
                     + "," + string.Join(", ", valueColumns.Select(c => c.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)))
                     + " FROM " + builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString)
