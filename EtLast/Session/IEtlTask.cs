@@ -7,7 +7,6 @@
         IEtlSession Session { get; }
         IExecutionStatistics Statistics { get; }
 
-        // todo: move under Statistics
         Dictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; }
 
         TaskResult Execute(IProcess caller, IEtlSession session);

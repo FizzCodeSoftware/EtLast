@@ -71,10 +71,11 @@
         /// <para>- if a more refined logic is required to decide which row should be kept of rows with same key then <see cref="ReduceGroupToSingleRowMutatorFluent.ReduceGroupToSingleRow(IFluentProcessMutatorBuilder, ReduceGroupToSingleRowMutator)"/> or <see cref="SortedReduceGroupToSingleRowMutatorFluent.ReduceGroupToSingleRowOrdered(IFluentProcessMutatorBuilder, SortedReduceGroupToSingleRowMutator)"/></para> can be used instead.
         /// <para>- all keys are stored in memory</para>
         /// </summary>
-        public static IFluentProcessMutatorBuilder RemoveDuplicateRows(this IFluentProcessMutatorBuilder builder, Func<IReadOnlyRow, string> keyGenerator)
+        public static IFluentProcessMutatorBuilder RemoveDuplicateRows(this IFluentProcessMutatorBuilder builder, string name, Func<IReadOnlyRow, string> keyGenerator)
         {
             return builder.AddMutator(new RemoveDuplicateRowsMutator(builder.ProcessBuilder.Result.Context)
             {
+                Name = name,
                 KeyGenerator = keyGenerator,
             });
         }

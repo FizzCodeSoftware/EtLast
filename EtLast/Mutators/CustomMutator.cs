@@ -52,7 +52,7 @@
             return builder.AddMutator(mutator);
         }
 
-        public static IFluentProcessMutatorBuilder CustomCode(this IFluentProcessMutatorBuilder builder, Action<IRow> action)
+        public static IFluentProcessMutatorBuilder CustomCode(this IFluentProcessMutatorBuilder builder, string name, Action<IRow> action)
         {
             return builder.AddMutator(new CustomMutator(builder.ProcessBuilder.Result.Context)
             {
@@ -64,7 +64,7 @@
             });
         }
 
-        public static IFluentProcessMutatorBuilder CustomCode(this IFluentProcessMutatorBuilder builder, CustomMutatorDelegate action)
+        public static IFluentProcessMutatorBuilder CustomCode(this IFluentProcessMutatorBuilder builder, string name, CustomMutatorDelegate action)
         {
             return builder.AddMutator(new CustomMutator(builder.ProcessBuilder.Result.Context)
             {

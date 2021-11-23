@@ -80,6 +80,7 @@
         {
             return builder.AddMutator(new RenameColumnMutator(builder.ProcessBuilder.Result.Context)
             {
+                Name = nameof(RenameColumn) + "From" + currentName + "To" + newName,
                 Columns = new()
                 {
                     [currentName] = newName,

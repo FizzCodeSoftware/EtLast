@@ -33,11 +33,20 @@
             return builder.AddMutator(mutator);
         }
 
+        public static IFluentProcessMutatorBuilder RemoveRow(this IFluentProcessMutatorBuilder builder, string name, RowTestDelegate rowTestDelegate)
+        {
+            return builder.AddMutator(new RemoveRowMutator(builder.ProcessBuilder.Result.Context)
+            {
+                Name = name,
+                If = rowTestDelegate,
+            });
+        }
+
         public static IFluentProcessMutatorBuilder RemoveAllRow(this IFluentProcessMutatorBuilder builder)
         {
             return builder.AddMutator(new RemoveRowMutator(builder.ProcessBuilder.Result.Context)
             {
-                Name = nameof(RemoveRow),
+                Name = nameof(RemoveAllRow),
             });
         }
     }
