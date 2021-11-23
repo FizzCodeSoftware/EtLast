@@ -50,6 +50,14 @@
         {
         }
 
+        public override string GetTopic()
+        {
+            if (FileName == null)
+                return null;
+
+            return Path.GetFileName(FileName);
+        }
+
         protected override void ValidateImpl()
         {
             if (string.IsNullOrEmpty(FileName))

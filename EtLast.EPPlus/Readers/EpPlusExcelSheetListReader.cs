@@ -18,6 +18,9 @@
 
         public override string GetTopic()
         {
+            if (FileName == null)
+                return null;
+
             return Path.GetFileName(FileName) + "(SheetList)";
         }
 
