@@ -48,5 +48,14 @@
         {
             return builder.AddMutator(mutator);
         }
+
+        public static IFluentProcessMutatorBuilder Explode(this IFluentProcessMutatorBuilder builder, string name, ExplodeDelegate rowCreator)
+        {
+            return builder.AddMutator(new ExplodeMutator(builder.ProcessBuilder.Result.Context)
+            {
+                Name = name,
+                RowCreator = rowCreator,
+            });
+        }
     }
 }
