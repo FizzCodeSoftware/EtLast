@@ -5,7 +5,7 @@
     using System.ComponentModel;
     using System.Diagnostics;
 
-    public delegate IEnumerable<ISlimRow> InMemoryExplodeDelegate(InMemoryExplodeMutator proc, IReadOnlyList<IReadOnlySlimRow> rows);
+    public delegate IEnumerable<ISlimRow> InMemoryExplodeDelegate(InMemoryExplodeMutator process, IReadOnlyList<IReadOnlySlimRow> rows);
 
     /// <summary>
     /// Useful only for small amount of data due to all input rows are collected into a List and processed at once.
@@ -172,6 +172,19 @@
         public static IFluentProcessMutatorBuilder ExplodeInMemory(this IFluentProcessMutatorBuilder builder, InMemoryExplodeMutator mutator)
         {
             return builder.AddMutator(mutator);
+        }
+
+        /// <summary>
+        /// Create any number of new rows based on the input rows.
+        /// <para>- memory footprint is high because all rows are collected before the delegate is called</para>
+        /// <para>- if the rows can be exploded one-by-one without knowing the other rows, then using <see cref="ExplodeMutatorFluent.Explode(IFluentProcessMutatorBuilder, ExplodeMutator)"/> is highly recommended.</para>
+        /// </summary>
+        public static IFluentProcessMutatorBuilder ExplodeInMemory(this IFluentProcessMutatorBuilder builder, InMemoryExplodeDelegate action)
+        {
+            return builder.AddMutator(new InMemoryExplodeMutator(builder.ProcessBuilder.Result.Context)
+            {
+                Action = action,
+            });
         }
     }
 }
