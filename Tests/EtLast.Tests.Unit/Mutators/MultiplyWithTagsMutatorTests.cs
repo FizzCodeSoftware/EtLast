@@ -21,7 +21,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .CreateBranches(new MultiplyByTagsMutator(context)
+                .CreateTaggedVersions(new MultiplyByTagsMutator(context)
                 {
                     Tags = new object[] { "one", 2, 29m }
                 });
@@ -64,13 +64,10 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .CreateBranches(new MultiplyByTagsMutator(context)
-                {
-                    Tags = new object[] { "one", 2, 29m }
-                })
-                .OnBranch(tag => tag is string v && v == "one", builder => builder
+                .CreateTaggedVersions("one", 2, 29m)
+                .IfTag(tag => tag is string v && v == "one", builder => builder
                     .RemoveAllRow())
-                .OnBranch(tag => tag is int v && v == 2, builder => builder
+                .IfTag(tag => tag is int v && v == 2, builder => builder
                     .CustomCode(new CustomMutator(context)
                     {
                         Action = row =>

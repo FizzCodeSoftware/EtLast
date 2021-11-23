@@ -10,7 +10,7 @@
     public abstract class AbstractBatchedMutator : AbstractEvaluable, IMutator
     {
         public IProducer InputProcess { get; set; }
-        public RowTestDelegate If { get; init; }
+        public RowTestDelegate If { get; set; }
         public RowTagTestDelegate TagFilter { get; set; }
 
         public abstract int BatchSize { get; init; }

@@ -9,6 +9,7 @@
         IFluentProcessMutatorBuilder AddMutator(IMutator mutator);
         IFluentProcessMutatorBuilder AddMutators(IEnumerable<IMutator> mutators);
 
-        IFluentProcessMutatorBuilder OnBranch(RowTagTestDelegate tagTester, Action<IFluentProcessMutatorBuilder> builder);
+        IFluentProcessMutatorBuilder If(RowTestDelegate rowTester, Action<IFluentProcessMutatorBuilder> builder);
+        IFluentProcessMutatorBuilder IfTag(RowTagTestDelegate tagTester, Action<IFluentProcessMutatorBuilder> builder);
     }
 }

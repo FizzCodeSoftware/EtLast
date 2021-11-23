@@ -40,12 +40,12 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class MultiplyWithTagsMutatorFluent
     {
-        public static IFluentProcessMutatorBuilder CreateBranches(this IFluentProcessMutatorBuilder builder, MultiplyByTagsMutator mutator)
+        public static IFluentProcessMutatorBuilder CreateTaggedVersions(this IFluentProcessMutatorBuilder builder, MultiplyByTagsMutator mutator)
         {
             return builder.AddMutator(mutator);
         }
 
-        public static IFluentProcessMutatorBuilder CreateBranches(this IFluentProcessMutatorBuilder builder, params object[] tags)
+        public static IFluentProcessMutatorBuilder CreateTaggedVersions(this IFluentProcessMutatorBuilder builder, params object[] tags)
         {
             return builder.AddMutator(new MultiplyByTagsMutator(builder.ProcessBuilder.Result.Context)
             {

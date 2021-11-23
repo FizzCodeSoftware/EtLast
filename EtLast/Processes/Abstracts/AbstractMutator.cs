@@ -10,7 +10,7 @@
     public abstract class AbstractMutator : AbstractEvaluable, IMutator
     {
         public IProducer InputProcess { get; set; }
-        public RowTestDelegate If { get; init; }
+        public RowTestDelegate If { get; set; }
         public RowTagTestDelegate TagFilter { get; set; }
 
         protected AbstractMutator(IEtlContext context)

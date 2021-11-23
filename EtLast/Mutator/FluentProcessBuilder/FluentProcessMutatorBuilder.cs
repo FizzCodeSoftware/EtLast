@@ -6,6 +6,7 @@
     internal sealed class FluentProcessMutatorBuilder : IFluentProcessMutatorBuilder
     {
         public IFluentProcessBuilder ProcessBuilder { get; }
+        internal RowTestDelegate AutomaticallySetIfFilter { get; set; }
         internal RowTagTestDelegate AutomaticallySetTagFilter { get; set; }
 
         internal FluentProcessMutatorBuilder(IFluentProcessBuilder parent)
@@ -15,10 +16,11 @@
 
         public IFluentProcessMutatorBuilder AddMutator(IMutator mutator)
         {
+            if (AutomaticallySetIfFilter != null)
+                mutator.If = AutomaticallySetIfFilter;
+
             if (AutomaticallySetTagFilter != null)
-            {
                 mutator.TagFilter = AutomaticallySetTagFilter;
-            }
 
             mutator.InputProcess = ProcessBuilder.Result;
             ProcessBuilder.Result = mutator;
@@ -41,7 +43,19 @@
             return this;
         }
 
-        public IFluentProcessMutatorBuilder OnBranch(RowTagTestDelegate tagTester, Action<IFluentProcessMutatorBuilder> builder)
+        public IFluentProcessMutatorBuilder If(RowTestDelegate rowTester, Action<IFluentProcessMutatorBuilder> builder)
+        {
+            var tempBuilder = new FluentProcessMutatorBuilder(ProcessBuilder)
+            {
+                AutomaticallySetIfFilter = rowTester,
+            };
+
+            builder.Invoke(tempBuilder);
+
+            return this;
+        }
+
+        public IFluentProcessMutatorBuilder IfTag(RowTagTestDelegate tagTester, Action<IFluentProcessMutatorBuilder> builder)
         {
             var tempBuilder = new FluentProcessMutatorBuilder(ProcessBuilder)
             {
