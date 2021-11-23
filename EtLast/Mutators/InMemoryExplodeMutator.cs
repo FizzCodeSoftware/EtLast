@@ -179,10 +179,11 @@
         /// <para>- memory footprint is high because all rows are collected before the delegate is called</para>
         /// <para>- if the rows can be exploded one-by-one without knowing the other rows, then using <see cref="ExplodeMutatorFluent.Explode(IFluentProcessMutatorBuilder, ExplodeMutator)"/> is highly recommended.</para>
         /// </summary>
-        public static IFluentProcessMutatorBuilder ExplodeInMemory(this IFluentProcessMutatorBuilder builder, InMemoryExplodeDelegate action)
+        public static IFluentProcessMutatorBuilder ExplodeInMemory(this IFluentProcessMutatorBuilder builder, string name, InMemoryExplodeDelegate action)
         {
             return builder.AddMutator(new InMemoryExplodeMutator(builder.ProcessBuilder.Result.Context)
             {
+                Name = name,
                 Action = action,
             });
         }
