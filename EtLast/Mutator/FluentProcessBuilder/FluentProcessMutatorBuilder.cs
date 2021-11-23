@@ -6,8 +6,8 @@
     internal sealed class FluentProcessMutatorBuilder : IFluentProcessMutatorBuilder
     {
         public IFluentProcessBuilder ProcessBuilder { get; }
-        internal RowTestDelegate AutomaticallySetIfFilter { get; set; }
-        internal RowTagTestDelegate AutomaticallySetTagFilter { get; set; }
+        internal RowTestDelegate AutomaticallySetRowFilter { get; set; }
+        internal RowTagTestDelegate AutomaticallySetRowTagFilter { get; set; }
 
         internal FluentProcessMutatorBuilder(IFluentProcessBuilder parent)
         {
@@ -16,11 +16,11 @@
 
         public IFluentProcessMutatorBuilder AddMutator(IMutator mutator)
         {
-            if (AutomaticallySetIfFilter != null)
-                mutator.If = AutomaticallySetIfFilter;
+            if (AutomaticallySetRowFilter != null)
+                mutator.RowFilter = AutomaticallySetRowFilter;
 
-            if (AutomaticallySetTagFilter != null)
-                mutator.TagFilter = AutomaticallySetTagFilter;
+            if (AutomaticallySetRowTagFilter != null)
+                mutator.RowTagFilter = AutomaticallySetRowTagFilter;
 
             mutator.InputProcess = ProcessBuilder.Result;
             ProcessBuilder.Result = mutator;
@@ -31,9 +31,9 @@
         {
             foreach (var mutator in mutators)
             {
-                if (AutomaticallySetTagFilter != null)
+                if (AutomaticallySetRowTagFilter != null)
                 {
-                    mutator.TagFilter = AutomaticallySetTagFilter;
+                    mutator.RowTagFilter = AutomaticallySetRowTagFilter;
                 }
 
                 mutator.InputProcess = ProcessBuilder.Result;
@@ -47,7 +47,7 @@
         {
             var tempBuilder = new FluentProcessMutatorBuilder(ProcessBuilder)
             {
-                AutomaticallySetIfFilter = rowTester,
+                AutomaticallySetRowFilter = rowTester,
             };
 
             builder.Invoke(tempBuilder);
@@ -59,7 +59,7 @@
         {
             var tempBuilder = new FluentProcessMutatorBuilder(ProcessBuilder)
             {
-                AutomaticallySetTagFilter = tagTester,
+                AutomaticallySetRowTagFilter = tagTester,
             };
 
             builder.Invoke(tempBuilder);

@@ -43,7 +43,7 @@
                 yield return new BatchedCompareWithRowMutator(builder.TableBuilder.ResilientTable.Scope.Context)
                 {
                     Name = nameof(AutoValidityRange),
-                    If = row => row.HasValue(builder.MatchColumns[0].Name),
+                    RowFilter = row => row.HasValue(builder.MatchColumns[0].Name),
                     LookupBuilder = new FilteredRowLookupBuilder()
                     {
                         ProcessCreator = filterRows => CreateAutoValidity_ExpandDeferredReaderProcess(builder, builder.MatchColumns[0], finalValueColumns, filterRows),

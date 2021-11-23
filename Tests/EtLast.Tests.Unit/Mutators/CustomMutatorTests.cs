@@ -72,7 +72,7 @@
                 .ReadFrom(TestData.Person(context))
                 .CustomCode(new CustomMutator(context)
                 {
-                    If = row => row.GetAs<int>("id") > 2,
+                    RowFilter = row => row.GetAs<int>("id") > 2,
                     Action = row =>
                     {
                         row["test"] = "test";
@@ -104,12 +104,12 @@
                 .ReadFrom(TestData.Person(context))
                 .SetTag(new SetTagMutator(context)
                 {
-                    If = row => row.GetAs<int>("id") > 2,
+                    RowFilter = row => row.GetAs<int>("id") > 2,
                     Tag = RowKind.test,
                 })
                 .CustomCode(new CustomMutator(context)
                 {
-                    TagFilter = tag => tag is RowKind rk && rk == RowKind.test,
+                    RowTagFilter = tag => tag is RowKind rk && rk == RowKind.test,
                     Action = row =>
                     {
                         row["test"] = "test";

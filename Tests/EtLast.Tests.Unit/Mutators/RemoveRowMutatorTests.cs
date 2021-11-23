@@ -25,7 +25,7 @@
                 {
                     new RemoveRowMutator(context)
                     {
-                        If = row => row.GetAs<int>("id") >= 4 && (row.GetAs<double>("id") == 7.0d),
+                        RowFilter = row => row.GetAs<int>("id") >= 4 && (row.GetAs<double>("id") == 7.0d),
                     },
                 },
             };
@@ -53,7 +53,7 @@
                 {
                     new RemoveRowMutator(context)
                     {
-                        If = row => true,
+                        RowFilter = row => true,
                     },
                 },
             };
@@ -75,7 +75,7 @@
                 {
                     new RemoveRowMutator(context)
                     {
-                        If = row => false,
+                        RowFilter = row => false,
                     },
                 },
             };
@@ -105,7 +105,7 @@
                 {
                     new RemoveRowMutator(context)
                     {
-                        If = row => row.GetAs<string>("name") == "A",
+                        RowFilter = row => row.GetAs<string>("name") == "A",
                     },
                 },
             };

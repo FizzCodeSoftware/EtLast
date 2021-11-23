@@ -20,8 +20,8 @@
         {
             base.ValidateMutator();
 
-            if (If == null && TagFilter == null)
-                throw new ProcessParameterNullException(this, nameof(If) + " and " + nameof(TagFilter));
+            if (RowFilter == null && RowTagFilter == null)
+                throw new ProcessParameterNullException(this, nameof(RowFilter) + " and " + nameof(RowTagFilter));
         }
     }
 
@@ -38,7 +38,7 @@
             return builder.AddMutator(new RemoveRowMutator(builder.ProcessBuilder.Result.Context)
             {
                 Name = name,
-                If = rowTestDelegate,
+                RowFilter = rowTestDelegate,
             });
         }
 

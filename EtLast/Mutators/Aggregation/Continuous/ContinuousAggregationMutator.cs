@@ -64,11 +64,11 @@
                 var row = enumerator.Current;
 
                 var apply = false;
-                if (If != null)
+                if (RowFilter != null)
                 {
                     try
                     {
-                        apply = If.Invoke(row);
+                        apply = RowFilter.Invoke(row);
                     }
                     catch (Exception ex)
                     {
@@ -86,11 +86,11 @@
                     }
                 }
 
-                if (TagFilter != null)
+                if (RowTagFilter != null)
                 {
                     try
                     {
-                        apply = TagFilter.Invoke(row.Tag);
+                        apply = RowTagFilter.Invoke(row.Tag);
                     }
                     catch (Exception ex)
                     {

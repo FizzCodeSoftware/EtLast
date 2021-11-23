@@ -46,7 +46,7 @@
                     yield return new BatchedCompareWithRowMutator(builder.TableBuilder.ResilientTable.Scope.Context)
                     {
                         Name = nameof(RemoveExistingRows),
-                        If = row => row.HasValue(builder.MatchColumns[0].Name),
+                        RowFilter = row => row.HasValue(builder.MatchColumns[0].Name),
                         EqualityComparer = equalityComparer,
                         LookupBuilder = new FilteredRowLookupBuilder()
                         {
@@ -105,7 +105,7 @@
                 yield return new BatchedKeyTestMutator(builder.TableBuilder.ResilientTable.Scope.Context)
                 {
                     Name = nameof(RemoveExistingRows),
-                    If = row => row.HasValue(builder.MatchColumns[0].Name),
+                    RowFilter = row => row.HasValue(builder.MatchColumns[0].Name),
                     LookupBuilder = new FilteredRowLookupBuilder()
                     {
                         ProcessCreator = filterRows => new CustomSqlAdoNetDbReader(builder.TableBuilder.ResilientTable.Scope.Context)
