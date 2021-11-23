@@ -45,7 +45,7 @@
             return builder.AddMutator(mutator);
         }
 
-        public static IFluentProcessMutatorBuilder CreateBranches(this IFluentProcessMutatorBuilder builder, object[] tags)
+        public static IFluentProcessMutatorBuilder CreateBranches(this IFluentProcessMutatorBuilder builder, params object[] tags)
         {
             return builder.AddMutator(new MultiplyByTagsMutator(builder.ProcessBuilder.Result.Context)
             {

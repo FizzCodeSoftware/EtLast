@@ -53,9 +53,17 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class TrimStringMutatorFluent
     {
-        public static IFluentProcessMutatorBuilder ReplaceNullWithValue(this IFluentProcessMutatorBuilder builder, TrimStringMutator mutator)
+        public static IFluentProcessMutatorBuilder TrimString(this IFluentProcessMutatorBuilder builder, TrimStringMutator mutator)
         {
             return builder.AddMutator(mutator);
+        }
+
+        public static IFluentProcessMutatorBuilder TrimString(this IFluentProcessMutatorBuilder builder, params string[] columns)
+        {
+            return builder.AddMutator(new TrimStringMutator(builder.ProcessBuilder.Result.Context)
+            {
+                Columns = columns,
+            });
         }
     }
 }
