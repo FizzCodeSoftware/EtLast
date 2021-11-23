@@ -12,8 +12,8 @@
     {
         public string[] TableNames { get; init; }
 
-        public DropTables(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public DropTables(IEtlContext context)
+            : base(context)
         {
         }
 

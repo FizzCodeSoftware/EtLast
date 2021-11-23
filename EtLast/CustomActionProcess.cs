@@ -6,8 +6,8 @@
     {
         public Action<CustomAction> Action { get; set; }
 
-        public CustomAction(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public CustomAction(IEtlContext context)
+            : base(context)
         {
         }
 

@@ -8,8 +8,8 @@
         public string[] Columns { get; init; }
         public object Value { get; init; }
 
-        public ReplaceNullWithValueMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public ReplaceNullWithValueMutator(IEtlContext context)
+            : base(context)
         {
         }
 

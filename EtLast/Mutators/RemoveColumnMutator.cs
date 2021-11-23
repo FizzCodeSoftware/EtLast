@@ -8,8 +8,8 @@
     {
         public string[] Columns { get; init; }
 
-        public RemoveColumnMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public RemoveColumnMutator(IEtlContext context)
+            : base(context)
         {
         }
 
@@ -50,6 +50,14 @@
         public static IFluentProcessMutatorBuilder RemoveColumn(this IFluentProcessMutatorBuilder builder, RemoveColumnMutator mutator)
         {
             return builder.AddMutator(mutator);
+        }
+
+        public static IFluentProcessMutatorBuilder RemoveColumn(this IFluentProcessMutatorBuilder builder, params string[] columns)
+        {
+            return builder.AddMutator(new RemoveColumnMutator(builder.ProcessBuilder.Result.Context)
+            {
+                Columns = columns,
+            });
         }
     }
 }

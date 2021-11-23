@@ -26,8 +26,8 @@
         /// </summary>
         public bool IgnoreSelectorForSingleRowGroups { get; init; }
 
-        public ReduceGroupToSingleRowMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public ReduceGroupToSingleRowMutator(IEtlContext context)
+            : base(context)
         {
         }
 

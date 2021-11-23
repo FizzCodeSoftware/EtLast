@@ -8,8 +8,8 @@
         public string[] Columns { get; init; }
         public object Value { get; init; }
 
-        public ReplaceErrorWithValueMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public ReplaceErrorWithValueMutator(IEtlContext context)
+            : base(context)
         {
         }
 

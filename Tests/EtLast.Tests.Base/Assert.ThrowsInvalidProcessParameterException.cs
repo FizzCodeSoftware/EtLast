@@ -16,7 +16,7 @@
                 InputProcess = TestData.Person(context),
                 Mutators = new MutatorList()
                 {
-                    (T)Activator.CreateInstance(typeof(T), context, null, null),
+                    (T)Activator.CreateInstance(typeof(T), context),
                 },
             };
 

@@ -15,8 +15,8 @@
         /// </summary>
         public StringComparison StringComparison { get; init; } = StringComparison.InvariantCulture;
 
-        public ReplaceStringMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public ReplaceStringMutator(IEtlContext context)
+            : base(context)
         {
         }
 

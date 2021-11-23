@@ -14,7 +14,7 @@
                 InputProcess = TestData.Person(context),
                 Mutators = new MutatorList()
                 {
-                    new CustomMutator(context, null, null)
+                    new CustomMutator(context)
                     {
                         Action = row => true,
                     },
@@ -36,11 +36,11 @@
                 InputProcess = TestData.Person(context),
                 Mutators = new MutatorList()
                 {
-                    new CustomMutator(context, null, null)
+                    new CustomMutator(context)
                     {
                         Action = row => true,
                     },
-                    new CustomMutator(context, null, null)
+                    new CustomMutator(context)
                     {
                         Action = row => true,
                     },
@@ -62,7 +62,7 @@
             {
                 Mutators = new MutatorList()
                 {
-                    new CustomMutator(context, null, null)
+                    new CustomMutator(context)
                     {
                         Action = row => true,
                     },

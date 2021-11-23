@@ -25,8 +25,8 @@
         private HashSet<string> _fixColumnNames;
         private HashSet<string> _valueColumnNames;
 
-        public UnpivotMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public UnpivotMutator(IEtlContext context)
+            : base(context)
         {
         }
 

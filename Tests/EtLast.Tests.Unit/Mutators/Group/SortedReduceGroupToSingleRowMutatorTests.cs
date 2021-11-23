@@ -21,12 +21,12 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.PersonSortedByName(context))
-                .ConvertValue(new InPlaceConvertMutator(context, null, null)
+                .ConvertValue(new InPlaceConvertMutator(context)
                 {
                     Columns = new[] { "age" },
                     TypeConverter = new DecimalConverter(),
                 })
-                .ReduceGroupToSingleRowOrdered(new SortedReduceGroupToSingleRowMutator(context, null, null)
+                .ReduceGroupToSingleRowOrdered(new SortedReduceGroupToSingleRowMutator(context)
                 {
                     KeyGenerator = row => row.GenerateKey("name"),
                     Selector = (proc, groupRows) =>
@@ -56,12 +56,12 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.PersonSortedByName(context))
-                .ConvertValue(new InPlaceConvertMutator(context, null, null)
+                .ConvertValue(new InPlaceConvertMutator(context)
                 {
                     Columns = new[] { "age" },
                     TypeConverter = new DecimalConverter(),
                 })
-                .ReduceGroupToSingleRowOrdered(new SortedReduceGroupToSingleRowMutator(context, null, null)
+                .ReduceGroupToSingleRowOrdered(new SortedReduceGroupToSingleRowMutator(context)
                 {
                     IgnoreSelectorForSingleRowGroups = true,
                     KeyGenerator = row => row.GenerateKey("name"),
@@ -95,12 +95,12 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.PersonSortedByName(context))
-                .ConvertValue(new InPlaceConvertMutator(context, null, null)
+                .ConvertValue(new InPlaceConvertMutator(context)
                 {
                     Columns = new[] { "age" },
                     TypeConverter = new DecimalConverter(),
                 })
-                .ReduceGroupToSingleRowOrdered(new SortedReduceGroupToSingleRowMutator(context, null, null)
+                .ReduceGroupToSingleRowOrdered(new SortedReduceGroupToSingleRowMutator(context)
                 {
                     KeyGenerator = row => row.GenerateKey("name"),
                     Selector = (proc, groupRows) =>

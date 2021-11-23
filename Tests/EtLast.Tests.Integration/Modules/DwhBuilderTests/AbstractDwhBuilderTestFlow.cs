@@ -14,8 +14,10 @@
 
         protected List<ISlimRow> ReadRows(IProcess caller, NamedConnectionString connectionString, string schema, string table)
         {
-            return new AdoNetDbReader(Context, Topic, null)
+            return new AdoNetDbReader(Context)
             {
+                Name = "Reader",
+                Topic = table,
                 ConnectionString = connectionString,
                 TableName = connectionString.Escape(table, schema),
             }.Evaluate(caller).TakeRowsAndReleaseOwnership().ToList();

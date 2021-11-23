@@ -20,8 +20,8 @@
 
         public Dictionary<string, object> ColumnDefaults { get; init; }
 
-        public CopyTableIntoExistingTable(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public CopyTableIntoExistingTable(IEtlContext context)
+            : base(context)
         {
         }
 

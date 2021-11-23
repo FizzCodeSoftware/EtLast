@@ -51,8 +51,10 @@
 
             // todo: support NoHistoryColumnProperty
 
-            yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context, builder.TableBuilder.ResilientTable.Topic, "CloseOpenEndedBaseRecords")
+            yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context)
             {
+                Name = "CloseOpenEndedBaseRecords",
+                Topic = builder.TableBuilder.ResilientTable.Topic,
                 ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
                 CommandTimeout = 60 * 60,
                 SourceTableName = builder.TableBuilder.ResilientTable.TempTableName,
@@ -77,8 +79,10 @@
                 columnDefaults[builder.TableBuilder.EtlRunFromColumnNameEscaped] = builder.TableBuilder.DwhBuilder.EtlRunId.Value;
             }
 
-            yield return new CopyTableIntoExistingTable(builder.TableBuilder.ResilientTable.Scope.Context, builder.TableBuilder.ResilientTable.Topic, "CopyToBase")
+            yield return new CopyTableIntoExistingTable(builder.TableBuilder.ResilientTable.Scope.Context)
             {
+                Name = "CopyToBase",
+                Topic = builder.TableBuilder.ResilientTable.Topic,
                 ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
                 Configuration = new TableCopyConfiguration()
                 {

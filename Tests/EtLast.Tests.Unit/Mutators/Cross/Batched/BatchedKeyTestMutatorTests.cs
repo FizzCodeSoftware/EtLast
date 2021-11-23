@@ -22,7 +22,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .KeyTestBatched(new BatchedKeyTestMutator(context, null, null)
+                .KeyTestBatched(new BatchedKeyTestMutator(context)
                 {
                     LookupBuilder = new FilteredRowLookupBuilder()
                     {

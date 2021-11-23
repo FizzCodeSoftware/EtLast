@@ -7,8 +7,8 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class AbstractExecutable : AbstractProcess, IExecutable
     {
-        protected AbstractExecutable(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        protected AbstractExecutable(IEtlContext context)
+            : base(context)
         {
         }
 

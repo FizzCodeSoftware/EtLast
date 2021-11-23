@@ -2,18 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Diagnostics;
 
-    public abstract class AbstractEtlFlow : IEtlTask
+    public abstract class AbstractEtlFlow : AbstractProcess, IEtlFlow
     {
-        private string _nameCached;
-        public virtual string Name => CustomName ?? (_nameCached ??= GetType().GetFriendlyTypeName());
-        public string CustomName { get; set; }
-
         public IEtlSession Session { get; private set; }
-        public IEtlContext Context => Session.Context;
-        public string Topic { get; } = null;
 
         private readonly ExecutionStatistics _statistics = new();
         public IExecutionStatistics Statistics => _statistics;
@@ -21,17 +14,19 @@
         public Dictionary<IoCommandKind, IoCommandCounter> IoCommandCounters => _ioCommandCounterCollection.Counters;
         public Dictionary<string, object> Output { get; } = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
 
-        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public ProcessInvocationInfo InvocationInfo { get; set; }
-        public string Kind => "flow";
-
         private readonly IoCommandCounterCollection _ioCommandCounterCollection = new();
 
         public abstract void Execute();
 
+        protected AbstractEtlFlow()
+            : base()
+        {
+        }
+
         public TaskResult Execute(IProcess caller, IEtlSession session)
         {
             Session = session;
+            Context = session.Context;
 
             var path = Name;
             var c = caller;
@@ -41,7 +36,7 @@
                 c = c.InvocationInfo.Caller;
             }
 
-            session.Context.Log(LogSeverity.Information, caller, "executing flow {Task}", Name);
+            Context.Log(LogSeverity.Information, caller, "executing flow {Task}", Name);
 
             Context.RegisterProcessInvocationStart(this, caller);
             var netTimeStopwatch = Stopwatch.StartNew();
@@ -49,8 +44,8 @@
             {
                 _statistics.Start();
 
-                Session.Context.Listeners.Add(_ioCommandCounterCollection);
-                var originalExceptionCount = session.Context.ExceptionCount;
+                Context.Listeners.Add(_ioCommandCounterCollection);
+                var originalExceptionCount = Context.ExceptionCount;
                 try
                 {
                     Execute();
@@ -66,12 +61,12 @@
                 };
 
                 _statistics.Finish();
-                session.Context.Log(LogSeverity.Information, this, "flow {TaskResult} in {Elapsed}",
+                Context.Log(LogSeverity.Information, this, "flow {TaskResult} in {Elapsed}",
                     (taskResult.ExceptionCount == 0) ? "finished" : "failed", _statistics.RunTime);
 
                 foreach (var kvp in Output)
                 {
-                    session.Context.Log(LogSeverity.Debug, this, "output [{key}] = [{value}]",
+                    Context.Log(LogSeverity.Debug, this, "output [{key}] = [{value}]",
                         kvp.Key, kvp.Value ?? "NULL");
                 }
 

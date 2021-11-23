@@ -19,8 +19,8 @@
             }
         }
 
-        protected AbstractMemoryAggregationMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        protected AbstractMemoryAggregationMutator(IEtlContext context)
+            : base(context)
         {
         }
 

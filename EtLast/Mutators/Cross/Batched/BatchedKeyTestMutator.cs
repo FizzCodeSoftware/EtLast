@@ -25,8 +25,8 @@
 
         private ICountableLookup _lookup;
 
-        public BatchedKeyTestMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public BatchedKeyTestMutator(IEtlContext context)
+            : base(context)
         {
             UseBatchKeys = true;
         }

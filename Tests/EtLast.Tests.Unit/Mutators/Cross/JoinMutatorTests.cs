@@ -21,7 +21,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .Join(new JoinMutator(context, null, null)
+                .Join(new JoinMutator(context)
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {
@@ -62,7 +62,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .Join(new JoinMutator(context, null, null)
+                .Join(new JoinMutator(context)
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {
@@ -96,7 +96,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .Join(new JoinMutator(context, null, null)
+                .Join(new JoinMutator(context)
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {
@@ -133,7 +133,7 @@
             var executedRightKeyDelegateCount = 0;
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .Join(new JoinMutator(context, null, null)
+                .Join(new JoinMutator(context)
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {
@@ -168,7 +168,7 @@
             var executedRightKeyDelegateCount = 0;
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .Join(new JoinMutator(context, null, null)
+                .Join(new JoinMutator(context)
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {
@@ -197,7 +197,7 @@
             var executedRightKeyDelegateCount = 0;
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .Join(new JoinMutator(context, null, null)
+                .Join(new JoinMutator(context)
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {

@@ -45,8 +45,8 @@
             }
         }
 
-        public ResilientSqlScope(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public ResilientSqlScope(IEtlContext context)
+            : base(context)
         {
         }
 
@@ -89,15 +89,15 @@
                 if (table.MainProcessCreator != null && table.PartitionedMainProcessCreator != null)
                     throw new InvalidProcessParameterException(this, nameof(ResilientTable.MainProcessCreator) + "/" + nameof(ResilientTable.PartitionedMainProcessCreator), null, "only one of " + nameof(ResilientTable.MainProcessCreator) + " or " + nameof(ResilientTable.PartitionedMainProcessCreator) + " can be supplied for " + table.TableName);
 
-                if (table.FinalizerCreator == null)
-                    throw new ProcessParameterNullException(this, nameof(ResilientTable.FinalizerCreator));
+                if (table.Finalizers == null)
+                    throw new ProcessParameterNullException(this, nameof(ResilientTable.Finalizers));
 
                 if (table.AdditionalTables != null)
                 {
                     foreach (var additionalTable in table.AdditionalTables)
                     {
-                        if (additionalTable.FinalizerCreator == null)
-                            throw new ProcessParameterNullException(this, nameof(ResilientTable.FinalizerCreator));
+                        if (additionalTable.Finalizers == null)
+                            throw new ProcessParameterNullException(this, nameof(ResilientTable.Finalizers));
                     }
                 }
             }
@@ -109,7 +109,7 @@
                 if (Context.ExceptionCount > initialExceptionCount)
                     return;
 
-                if (Configuration.InitializerCreator != null)
+                if (Configuration.Initializers != null)
                 {
                     var initializationSuccessful = false;
                     Initialize(maxRetryCount, ref initialExceptionCount, ref initializationSuccessful);
@@ -182,14 +182,14 @@
                     Context.Log(LogSeverity.Information, this, "finalization round {FinalizationRound} started", retryCounter);
                     using (var scope = Context.BeginScope(this, Configuration.FinalizerTransactionScopeKind, LogSeverity.Information))
                     {
-                        if (Configuration.PreFinalizerCreator != null)
+                        if (Configuration.PreFinalizers != null)
                         {
                             IExecutable[] finalizers;
 
                             using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
                             {
                                 var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
-                                Configuration.PreFinalizerCreator.Invoke(builder);
+                                Configuration.PreFinalizers.Invoke(builder);
                                 finalizers = builder.Processes.Where(x => x != null).ToArray();
                             }
 
@@ -269,7 +269,7 @@
                                 using (var creatorScope = Context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
                                 {
                                     var builder = new ResilientSqlTableTableFinalizerBuilder() { Table = table };
-                                    table.FinalizerCreator.Invoke(builder);
+                                    table.Finalizers.Invoke(builder);
                                     var finalizers = builder.Finalizers.Where(x => x != null).ToArray();
 
                                     allFinalizers[table.TableName] = finalizers;
@@ -283,7 +283,7 @@
                                         foreach (var additionalTable in table.AdditionalTables)
                                         {
                                             builder = new ResilientSqlTableTableFinalizerBuilder() { Table = additionalTable };
-                                            additionalTable.FinalizerCreator.Invoke(builder);
+                                            additionalTable.Finalizers.Invoke(builder);
                                             finalizers = builder.Finalizers.Where(x => x != null).ToArray();
 
                                             allFinalizers[additionalTable.TableName] = finalizers;
@@ -313,14 +313,14 @@
                                 }
                             }
 
-                            if (Configuration.PostFinalizerCreator != null && Context.ExceptionCount == initialExceptionCount)
+                            if (Configuration.PostFinalizers != null && Context.ExceptionCount == initialExceptionCount)
                             {
                                 IExecutable[] finalizers;
 
                                 using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
                                 {
                                     var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
-                                    Configuration.PostFinalizerCreator.Invoke(builder);
+                                    Configuration.PostFinalizers.Invoke(builder);
                                     finalizers = builder.Processes.Where(x => x != null).ToArray();
                                 }
 
@@ -373,8 +373,10 @@
 
         private int CountTempRecordsIn(ResilientTableBase table)
         {
-            var count = new GetTableRecordCount(Context, table.Topic, "TempRecordCountReader")
+            var count = new GetTableRecordCount(Context)
             {
+                Name = "TempRecordCountReader",
+                Topic = table.Topic,
                 ConnectionString = Configuration.ConnectionString,
                 TableName = table.TempTableName,
             }.Execute(this);
@@ -394,7 +396,7 @@
                     using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
                     {
                         var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
-                        Configuration.InitializerCreator.Invoke(builder);
+                        Configuration.Initializers.Invoke(builder);
                         initializers = builder.Processes.Where(x => x != null).ToArray();
 
                         Context.Log(LogSeverity.Information, this, "created {InitializerCount} initializers", initializers?.Length ?? 0);
@@ -457,8 +459,10 @@
                 }
             }
 
-            new CopyTableStructure(Context, Topic, "RecreateTempTables")
+            new CopyTableStructure(Context)
             {
+                Name = "RecreateTempTables",
+                Topic = Topic,
                 ConnectionString = Configuration.ConnectionString,
                 SuppressExistingTransactionScope = true,
                 Configuration = config,
@@ -474,8 +478,10 @@
                 .Where(x => x.AdditionalTables != null)
                 .SelectMany(x => x.AdditionalTables.Select(y => y.TempTableName));
 
-            new DropTables(Context, Topic, "DropTempTables")
+            new DropTables(Context)
             {
+                Name = "DropTempTables",
+                Topic = Topic,
                 ConnectionString = Configuration.ConnectionString,
                 TableNames = tempTableNames
                     .Concat(additionalTempTableNames)

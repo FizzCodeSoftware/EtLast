@@ -55,8 +55,8 @@
         private RowShadowReader _reader;
         private int? _sinkUid;
 
-        public ResilientWriteToMsSqlMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public ResilientWriteToMsSqlMutator(IEtlContext context)
+            : base(context)
         {
         }
 

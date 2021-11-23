@@ -29,8 +29,8 @@
             ? EtlRunId
             : Configuration.InfinitePastDateTime;
 
-        private readonly List<Func<ResilientSqlScope, IEnumerable<IExecutable>>> _preFinalizerCreators = new();
-        private readonly List<Func<ResilientSqlScope, IEnumerable<IExecutable>>> _postFinalizerCreators = new();
+        private readonly List<Action<ResilientSqlScopeProcessBuilder>> _preFinalizerCreators = new();
+        private readonly List<Action<ResilientSqlScopeProcessBuilder>> _postFinalizerCreators = new();
         private readonly DateTime? _etlRunIdUtcOverride;
 
         public DateTime? EtlRunId { get; private set; }
@@ -59,26 +59,30 @@
                 tableBuilder.Build();
             }
 
-            return new ResilientSqlScope(Context, Topic, ScopeName)
+            return new ResilientSqlScope(Context)
             {
+                Name = ScopeName,
+                Topic = Topic,
                 Configuration = new ResilientSqlScopeConfiguration()
                 {
                     ConnectionString = ConnectionString,
                     TempTableMode = Configuration.TempTableMode,
                     Tables = _tables.ConvertAll(x => x.ResilientTable),
-                    InitializerCreator = CreateInitializers,
+                    Initializers = CreateInitializers,
                     FinalizerRetryCount = Configuration.FinalizerRetryCount,
                     FinalizerTransactionScopeKind = TransactionScopeKind.RequiresNew,
-                    PreFinalizerCreator = CreatePreFinalizers,
-                    PostFinalizerCreator = CreatePostFinalizers,
+                    PreFinalizers = CreatePreFinalizers,
+                    PostFinalizers = CreatePostFinalizers,
                 },
             };
         }
 
         private void CreatePreFinalizers(ResilientSqlScopeProcessBuilder builder)
         {
-            var process = new CustomAction(Context, builder.Scope.Topic, "ReadAllEnabledForeignKeys")
+            var process = new CustomAction(Context)
             {
+                Name = "ReadAllEnabledForeignKeys",
+                Topic = builder.Scope.Topic,
                 Action = (proc) =>
                 {
                     var startedOn = Stopwatch.StartNew();
@@ -147,11 +151,7 @@
 
             foreach (var creator in _preFinalizerCreators)
             {
-                var result = creator.Invoke(builder.Scope);
-                if (result != null)
-                {
-                    builder.Processes.AddRange(result);
-                }
+                creator.Invoke(builder);
             }
         }
 
@@ -161,8 +161,10 @@
             var constraintCheckDisabledOnTables = builder.Scope.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
             if (constraintCheckDisabledOnTables != null)
             {
-                builder.Processes.Add(new MsSqlEnableConstraintCheckFiltered(builder.Scope.Context, builder.Scope.Topic, "EnableForeignKeys")
+                builder.Processes.Add(new MsSqlEnableConstraintCheckFiltered(builder.Scope.Context)
                 {
+                    Name = "EnableForeignKeys",
+                    Topic = builder.Scope.Topic,
                     ConnectionString = builder.Scope.Configuration.ConnectionString,
                     ConstraintNames = constraintCheckDisabledOnTables
                         .Distinct()
@@ -177,8 +179,10 @@
             var etlRunInfoTable = Model.GetEtlRunInfoTable();
             if (etlRunInfoTable != null)
             {
-                builder.Processes.Add(new CustomSqlStatement(builder.Scope.Context, etlRunInfoTable.SchemaAndName, "UpdateEtlRun")
+                builder.Processes.Add(new CustomSqlStatement(builder.Scope.Context)
                 {
+                    Name = "UpdateEtlRun",
+                    Topic = etlRunInfoTable.SchemaAndName,
                     ConnectionString = builder.Scope.Configuration.ConnectionString,
                     CommandTimeout = 60 * 60,
                     MainTableName = etlRunInfoTable.EscapedName(ConnectionString),
@@ -196,11 +200,7 @@
 
             foreach (var creator in _postFinalizerCreators)
             {
-                var result = creator.Invoke(builder.Scope);
-                if (result != null)
-                {
-                    builder.Processes.AddRange(result);
-                }
+                creator.Invoke(builder);
             }
         }
 
@@ -224,8 +224,10 @@
             {
                 var process = new ProcessBuilder()
                 {
-                    InputProcess = new EnumerableImporter(builder.Scope.Context, etlRunInfoTable.SchemaAndName, "RowCreator")
+                    InputProcess = new EnumerableImporter(builder.Scope.Context)
                     {
+                        Name = "EtlRunInfoCreator",
+                        Topic = etlRunInfoTable.SchemaAndName,
                         InputGenerator = process =>
                         {
                             var currentId = _etlRunIdUtcOverride ?? DateTime.UtcNow;
@@ -258,8 +260,10 @@
                     },
                     Mutators = new MutatorList()
                     {
-                        new ResilientWriteToMsSqlMutator(builder.Scope.Context, etlRunInfoTable.SchemaAndName, "EtlRunInfoWriter")
+                        new ResilientWriteToMsSqlMutator(builder.Scope.Context)
                         {
+                            Name = "EtlRunInfoWriter",
+                            Topic = etlRunInfoTable.SchemaAndName,
                             ConnectionString = ConnectionString,
                             TableDefinition = new DbTableDefinition()
                             {
@@ -313,14 +317,14 @@
             return result;
         }
 
-        public void AddPreFinalizerCreator(Func<ResilientSqlScope, IEnumerable<IExecutable>> creator)
+        public void AddPreFinalizer(Action<ResilientSqlScopeProcessBuilder> finalizers)
         {
-            _preFinalizerCreators.Add(creator);
+            _preFinalizerCreators.Add(finalizers);
         }
 
-        public void AddPostFinalizerCreator(Func<ResilientSqlScope, IEnumerable<IExecutable>> creator)
+        public void AddPostFinalizer(Action<ResilientSqlScopeProcessBuilder> finalizers)
         {
-            _postFinalizerCreators.Add(creator);
+            _postFinalizerCreators.Add(finalizers);
         }
     }
 }

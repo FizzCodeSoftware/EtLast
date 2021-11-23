@@ -14,8 +14,8 @@
 
         private long _nextId;
 
-        public AddIncrementalLongIdMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public AddIncrementalLongIdMutator(IEtlContext context)
+            : base(context)
         {
         }
 

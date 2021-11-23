@@ -10,8 +10,8 @@
     {
         public CustomMutatorDelegate Action { get; init; }
 
-        public CustomMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public CustomMutator(IEtlContext context)
+            : base(context)
         {
         }
 
@@ -50,6 +50,26 @@
         public static IFluentProcessMutatorBuilder CustomCode(this IFluentProcessMutatorBuilder builder, CustomMutator mutator)
         {
             return builder.AddMutator(mutator);
+        }
+
+        public static IFluentProcessMutatorBuilder CustomCode(this IFluentProcessMutatorBuilder builder, Action<IRow> action)
+        {
+            return builder.AddMutator(new CustomMutator(builder.ProcessBuilder.Result.Context)
+            {
+                Action = row =>
+                {
+                    action.Invoke(row);
+                    return true;
+                }
+            });
+        }
+
+        public static IFluentProcessMutatorBuilder CustomCode(this IFluentProcessMutatorBuilder builder, CustomMutatorDelegate action)
+        {
+            return builder.AddMutator(new CustomMutator(builder.ProcessBuilder.Result.Context)
+            {
+                Action = action,
+            });
         }
     }
 }

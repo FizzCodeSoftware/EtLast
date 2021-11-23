@@ -14,9 +14,9 @@
         {
             var context = TestExecuter.GetContext();
 
-            var splitter = new Splitter<DefaultRowQueue>(context, null, null)
+            var splitter = new Splitter<DefaultRowQueue>(context)
             {
-                InputProcess = new EnumerableImporter(context, null, null)
+                InputProcess = new EnumerableImporter(context)
                 {
                     InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
                 },
@@ -25,7 +25,7 @@
             var processes = new IProducer[4];
             for (var i = 0; i < 3; i++)
             {
-                processes[i] = new CustomMutator(context, null, null)
+                processes[i] = new CustomMutator(context)
                 {
                     InputProcess = splitter,
                     Action = row =>
@@ -55,9 +55,9 @@
         {
             var context = TestExecuter.GetContext();
 
-            var splitter = new Splitter<DefaultRowQueue>(context, null, null)
+            var splitter = new Splitter<DefaultRowQueue>(context)
             {
-                InputProcess = new EnumerableImporter(context, null, null)
+                InputProcess = new EnumerableImporter(context)
                 {
                     InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
                 },
@@ -66,7 +66,7 @@
             var processes = new IProducer[4];
             for (var i = 0; i < 3; i++)
             {
-                processes[i] = new CustomMutator(context, null, null)
+                processes[i] = new CustomMutator(context)
                 {
                     InputProcess = splitter,
                     Action = row =>
@@ -120,14 +120,14 @@
         {
             var context = TestExecuter.GetContext();
 
-            var merger = new ParallelMerger(context, null, null)
+            var merger = new ParallelMerger(context)
             {
                 ProcessList = new List<IProducer>(),
             };
 
             for (var i = 0; i < 3; i++)
             {
-                merger.ProcessList.Add(new CustomMutator(context, null, null)
+                merger.ProcessList.Add(new CustomMutator(context)
                 {
                     InputProcess = TestData.Person(context),
                     Action = row =>
@@ -155,22 +155,22 @@
         {
             var context = TestExecuter.GetContext();
 
-            var splitter = new Splitter<DefaultRowQueue>(context, null, null)
+            var splitter = new Splitter<DefaultRowQueue>(context)
             {
-                InputProcess = new EnumerableImporter(context, null, null)
+                InputProcess = new EnumerableImporter(context)
                 {
                     InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
                 },
             };
 
-            var merger = new ParallelMerger(context, null, null)
+            var merger = new ParallelMerger(context)
             {
                 ProcessList = new List<IProducer>(),
             };
 
             for (var i = 0; i < 3; i++)
             {
-                merger.ProcessList.Add(new CustomMutator(context, null, null)
+                merger.ProcessList.Add(new CustomMutator(context)
                 {
                     InputProcess = splitter,
                     Action = row =>
@@ -201,12 +201,12 @@
             var n = 0;
 
             var builder = ProcessBuilder.Fluent
-                .ImportEnumerable(new EnumerableImporter(context, null, null)
+                .ImportEnumerable(new EnumerableImporter(context)
                 {
                     InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
                 })
-                .ProcessOnMultipleThreads(context, null, 3, (i, mb) => mb
-                   .CustomCode(new CustomMutator(context, null, null)
+                .ProcessOnMultipleThreads(3, (i, mb) => mb
+                   .CustomCode(new CustomMutator(context)
                    {
                        Action = row =>
                        {
@@ -216,7 +216,7 @@
                        },
                    })
                    )
-                .CustomCode(new CustomMutator(context, null, null)
+                .CustomCode(new CustomMutator(context)
                 {
                     Action = row =>
                     {

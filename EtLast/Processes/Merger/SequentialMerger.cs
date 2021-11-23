@@ -7,8 +7,8 @@
 
     public sealed class SequentialMerger : AbstractMerger
     {
-        public SequentialMerger(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public SequentialMerger(IEtlContext context)
+            : base(context)
         {
         }
 
@@ -38,9 +38,9 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class SequentialMergerFluent
     {
-        public static IFluentProcessMutatorBuilder SequentialMerge(this IFluentProcessBuilder builder, IEtlContext context, string topic, string name, Action<SequentialMergerBuilder> action)
+        public static IFluentProcessMutatorBuilder SequentialMerge(this IFluentProcessBuilder builder, string name, Action<SequentialMergerBuilder> action)
         {
-            var subBuilder = new SequentialMergerBuilder(context, topic, name);
+            var subBuilder = new SequentialMergerBuilder(builder.Result.Context, name);
             action.Invoke(subBuilder);
             return builder.ReadFrom(subBuilder.Merger);
         }
@@ -50,10 +50,11 @@
     {
         public SequentialMerger Merger { get; }
 
-        internal SequentialMergerBuilder(IEtlContext context, string topic, string name)
+        internal SequentialMergerBuilder(IEtlContext context, string name)
         {
-            Merger = new SequentialMerger(context, topic, name)
+            Merger = new SequentialMerger(context)
             {
+                Name = name,
                 ProcessList = new List<IProducer>(),
             };
         }

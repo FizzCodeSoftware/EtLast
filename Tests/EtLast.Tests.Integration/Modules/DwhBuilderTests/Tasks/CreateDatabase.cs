@@ -19,8 +19,9 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
 
         public override IEnumerable<IExecutable> CreateProcesses()
         {
-            yield return new CustomAction(Context, null, "CreateDatabase")
+            yield return new CustomAction(Context)
             {
+                Name = "CreateDatabase",
                 Action = proc =>
                 {
                     System.Data.SqlClient.SqlConnection.ClearAllPools();

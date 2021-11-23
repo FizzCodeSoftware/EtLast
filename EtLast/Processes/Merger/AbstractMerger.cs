@@ -11,8 +11,8 @@
 
         public override bool ConsumerShouldNotBuffer => ProcessList?.Any(x => x is IProducer p && p.ConsumerShouldNotBuffer) == true;
 
-        protected AbstractMerger(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        protected AbstractMerger(IEtlContext context)
+            : base(context)
         {
         }
     }

@@ -29,8 +29,8 @@
         /// </summary>
         public object SpecialValueIfInvalid { get; init; }
 
-        public InPlaceConvertMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public InPlaceConvertMutator(IEtlContext context)
+            : base(context)
         {
         }
 

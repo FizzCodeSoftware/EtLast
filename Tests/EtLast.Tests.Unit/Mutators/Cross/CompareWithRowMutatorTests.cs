@@ -20,7 +20,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .CompareWithRow(new CompareWithRowMutator(context, null, null)
+                .CompareWithRow(new CompareWithRowMutator(context)
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {
@@ -50,7 +50,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .CompareWithRow(new CompareWithRowMutator(context, null, null)
+                .CompareWithRow(new CompareWithRowMutator(context)
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {
@@ -81,7 +81,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .CompareWithRow(new CompareWithRowMutator(context, null, null)
+                .CompareWithRow(new CompareWithRowMutator(context)
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {
@@ -112,7 +112,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .CompareWithRow(new CompareWithRowMutator(context, null, null)
+                .CompareWithRow(new CompareWithRowMutator(context)
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {

@@ -14,7 +14,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFromExcel(new EpPlusExcelReader(context, null, null)
+                .ReadFromExcel(new EpPlusExcelReader(context)
                 {
                     FileName = @".\TestData\Test.xlsx",
                     SheetName = "DateBroken",

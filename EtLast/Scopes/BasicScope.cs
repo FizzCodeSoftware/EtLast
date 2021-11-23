@@ -32,7 +32,7 @@
         public EventHandler<BasicScopeProcessFailedEventArgs> OnError { get; set; }
 
         public BasicScope(IEtlContext context, string topic, string name = null)
-            : base(context, topic, name)
+            : base(context)
         {
         }
 

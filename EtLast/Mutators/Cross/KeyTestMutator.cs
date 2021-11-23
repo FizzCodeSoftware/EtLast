@@ -17,8 +17,8 @@
 
         private ICountableLookup _lookup;
 
-        public KeyTestMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public KeyTestMutator(IEtlContext context)
+            : base(context)
         {
         }
 

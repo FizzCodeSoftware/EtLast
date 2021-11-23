@@ -22,7 +22,7 @@
                 InputProcess = TestData.PersonalAssetsPivot(context),
                 Mutators = new MutatorList()
                 {
-                    new UnpivotMutator(context, null, null)
+                    new UnpivotMutator(context)
                     {
                         FixColumns = new List<ColumnCopyConfiguration>()
                         {
@@ -62,7 +62,7 @@
                 InputProcess = TestData.PersonalAssetsPivot(context),
                 Mutators = new MutatorList()
                 {
-                    new UnpivotMutator(context, null, null)
+                    new UnpivotMutator(context)
                     {
                         FixColumns = new List<ColumnCopyConfiguration>()
                         {
@@ -103,7 +103,7 @@
                 InputProcess = TestData.PersonalAssetsPivot(context),
                 Mutators = new MutatorList()
                 {
-                    new UnpivotMutator(context, null, null)
+                    new UnpivotMutator(context)
                     {
                         FixColumns = new List<ColumnCopyConfiguration>()
                         {
@@ -146,7 +146,7 @@
                 InputProcess = TestData.PersonalAssetsPivot(context),
                 Mutators = new MutatorList()
                 {
-                    new UnpivotMutator(context, null, null)
+                    new UnpivotMutator(context)
                     {
                         ValueColumns = new[] { "cars", "houses", "kids" },
                         NewColumnForDimension = "asset-kind",
@@ -182,7 +182,7 @@
                 InputProcess = TestData.PersonalAssetsPivot(context),
                 Mutators = new MutatorList()
                 {
-                    new UnpivotMutator(context, null, null)
+                    new UnpivotMutator(context)
                     {
                         NewColumnForDimension = "asset-kind",
                         NewColumnForValue = "amount",

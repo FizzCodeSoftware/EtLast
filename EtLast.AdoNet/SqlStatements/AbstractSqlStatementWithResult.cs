@@ -22,8 +22,8 @@
         /// </summary>
         public bool SuppressExistingTransactionScope { get; init; }
 
-        protected AbstractSqlStatementWithResult(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        protected AbstractSqlStatementWithResult(IEtlContext context)
+            : base(context)
         {
         }
 

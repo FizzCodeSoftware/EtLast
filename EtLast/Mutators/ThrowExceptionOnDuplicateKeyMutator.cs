@@ -10,8 +10,8 @@
 
         private readonly HashSet<string> _keys = new();
 
-        public ThrowExceptionOnDuplicateKeyMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public ThrowExceptionOnDuplicateKeyMutator(IEtlContext context)
+            : base(context)
         {
         }
 

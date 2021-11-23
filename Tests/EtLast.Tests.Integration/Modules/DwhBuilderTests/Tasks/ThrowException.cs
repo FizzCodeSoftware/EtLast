@@ -11,7 +11,7 @@
 
         public override IEnumerable<IExecutable> CreateProcesses()
         {
-            yield return new CustomAction(Context, null, null)
+            yield return new CustomAction(Context)
             {
                 Action = _ =>
                 {

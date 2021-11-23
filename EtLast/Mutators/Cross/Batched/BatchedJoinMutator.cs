@@ -35,8 +35,8 @@
         /// </summary>
         public bool CopyTag { get; init; } = true;
 
-        public BatchedJoinMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public BatchedJoinMutator(IEtlContext context)
+            : base(context)
         {
             UseBatchKeys = true;
         }

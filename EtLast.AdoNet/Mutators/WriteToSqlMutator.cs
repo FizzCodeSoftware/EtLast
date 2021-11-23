@@ -40,8 +40,8 @@
         private static readonly DbType[] _quotedParameterTypes = { DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength };
         private int? _sinkUid;
 
-        public WriteToSqlMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public WriteToSqlMutator(IEtlContext context)
+            : base(context)
         {
         }
 

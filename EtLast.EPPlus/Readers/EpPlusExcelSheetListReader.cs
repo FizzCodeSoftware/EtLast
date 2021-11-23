@@ -11,8 +11,8 @@
     {
         public string FileName { get; init; }
 
-        public EpPlusExcelSheetListReader(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public EpPlusExcelSheetListReader(IEtlContext context)
+            : base(context)
         {
         }
 

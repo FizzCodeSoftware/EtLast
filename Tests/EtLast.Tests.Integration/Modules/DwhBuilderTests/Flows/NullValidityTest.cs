@@ -155,7 +155,7 @@
 
         public static IProducer CreateCompany1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
-            return new RowCreator(tableBuilder.ResilientTable.Scope.Context, tableBuilder.ResilientTable.Topic, null)
+            return new RowCreator(tableBuilder.ResilientTable.Scope.Context)
             {
                 Columns = new[] { "Id", "Name" },
                 InputRows = new List<object[]>()
@@ -170,7 +170,7 @@
 
         public static IProducer CreateCompany2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
-            return new RowCreator(tableBuilder.ResilientTable.Scope.Context, tableBuilder.ResilientTable.Topic, null)
+            return new RowCreator(tableBuilder.ResilientTable.Scope.Context)
             {
                 Columns = new[] { "Id", "Name" },
                 InputRows = new List<object[]>()

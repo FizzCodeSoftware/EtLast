@@ -7,8 +7,6 @@
         IEtlSession Session { get; }
         IExecutionStatistics Statistics { get; }
 
-        string CustomName { get; }
-
         // todo: move under Statistics
         Dictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; }
 

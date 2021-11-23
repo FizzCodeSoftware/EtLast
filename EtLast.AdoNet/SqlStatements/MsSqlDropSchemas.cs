@@ -12,8 +12,8 @@
     {
         public string[] SchemaNames { get; init; }
 
-        public MsSqlDropSchemas(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public MsSqlDropSchemas(IEtlContext context)
+            : base(context)
         {
         }
 

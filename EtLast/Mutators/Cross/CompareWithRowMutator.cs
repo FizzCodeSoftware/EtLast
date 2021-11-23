@@ -14,8 +14,8 @@
 
         private RowLookup _lookup;
 
-        public CompareWithRowMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public CompareWithRowMutator(IEtlContext context)
+            : base(context)
         {
         }
 

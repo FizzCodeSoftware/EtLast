@@ -24,7 +24,7 @@
                 InputProcess = TestData.Person(context),
                 Mutators = new MutatorList()
                 {
-                    new RemoveColumnMutator(context, null, null)
+                    new RemoveColumnMutator(context)
                     {
                         Columns = TestData.PersonColumns,
                     },
@@ -46,7 +46,7 @@
                 InputProcess = TestData.Person(context),
                 Mutators = new MutatorList()
                 {
-                    new RemoveColumnMutator(context, null, null)
+                    new RemoveColumnMutator(context)
                     {
                         Columns = new[] { "name", "eyeColor" },
                     },

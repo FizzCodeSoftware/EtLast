@@ -23,7 +23,7 @@
 
         ResilientSqlScope Build();
 
-        void AddPreFinalizerCreator(Func<ResilientSqlScope, IEnumerable<IExecutable>> creator);
-        void AddPostFinalizerCreator(Func<ResilientSqlScope, IEnumerable<IExecutable>> creator);
+        void AddPreFinalizer(Action<ResilientSqlScopeProcessBuilder> finalizers);
+        void AddPostFinalizer(Action<ResilientSqlScopeProcessBuilder> finalizers);
     }
 }

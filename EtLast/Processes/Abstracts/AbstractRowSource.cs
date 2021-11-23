@@ -29,8 +29,8 @@
         private int _currentRowIndex;
         protected bool AutomaticallyEvaluateAndYieldInputProcessRows { get; init; } = true;
 
-        protected AbstractRowSource(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        protected AbstractRowSource(IEtlContext context)
+            : base(context)
         {
         }
 

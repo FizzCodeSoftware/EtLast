@@ -12,8 +12,8 @@
 
         public object[] Tags { get; init; }
 
-        public MultiplyByTagsMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public MultiplyByTagsMutator(IEtlContext context)
+            : base(context)
         {
         }
 
@@ -43,6 +43,14 @@
         public static IFluentProcessMutatorBuilder CreateBranches(this IFluentProcessMutatorBuilder builder, MultiplyByTagsMutator mutator)
         {
             return builder.AddMutator(mutator);
+        }
+
+        public static IFluentProcessMutatorBuilder CreateBranches(this IFluentProcessMutatorBuilder builder, object[] tags)
+        {
+            return builder.AddMutator(new MultiplyByTagsMutator(builder.ProcessBuilder.Result.Context)
+            {
+                Tags = tags,
+            });
         }
     }
 }

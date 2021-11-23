@@ -9,8 +9,8 @@
     {
         public string TableName { get; init; }
 
-        public TruncateTable(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public TruncateTable(IEtlContext context)
+            : base(context)
         {
         }
 

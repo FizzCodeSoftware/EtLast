@@ -13,8 +13,8 @@
         public RowTestDelegate If { get; init; }
         public RowTagTestDelegate TagFilter { get; set; }
 
-        protected AbstractMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        protected AbstractMutator(IEtlContext context)
+            : base(context)
         {
         }
 

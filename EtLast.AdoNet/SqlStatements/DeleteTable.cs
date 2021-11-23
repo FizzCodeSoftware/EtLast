@@ -10,8 +10,8 @@
         public string TableName { get; init; }
         public string CustomWhereClause { get; init; }
 
-        public DeleteTable(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public DeleteTable(IEtlContext context)
+            : base(context)
         {
         }
 

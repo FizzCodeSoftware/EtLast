@@ -13,8 +13,8 @@
     {
         public List<TableCopyConfiguration> Configuration { get; init; }
 
-        public CopyTableStructure(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public CopyTableStructure(IEtlContext context)
+            : base(context)
         {
         }
 

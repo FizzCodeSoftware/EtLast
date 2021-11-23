@@ -21,8 +21,8 @@
         private ExcelPackage _package;
         private int? _sinkUid;
 
-        public EpPlusSingleExcelStreamWriterMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public EpPlusSingleExcelStreamWriterMutator(IEtlContext context)
+            : base(context)
         {
         }
 

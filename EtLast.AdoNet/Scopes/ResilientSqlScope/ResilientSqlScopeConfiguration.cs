@@ -38,17 +38,17 @@
         /// <summary>
         /// Allows the execution of initializers BEFORE the individual table processes are created and executed.
         /// </summary>
-        public Action<ResilientSqlScopeProcessBuilder> InitializerCreator { get; init; }
+        public Action<ResilientSqlScopeProcessBuilder> Initializers { get; init; }
 
         /// <summary>
         /// Allows the execution of global finalizers BEFORE the individual table finalizers are created and executed.
         /// </summary>
-        public Action<ResilientSqlScopeProcessBuilder> PreFinalizerCreator { get; init; }
+        public Action<ResilientSqlScopeProcessBuilder> PreFinalizers { get; init; }
 
         /// <summary>
         /// Allows the execution of global finalizers AFTER the individual table finalizers are created and executed.
         /// </summary>
-        public Action<ResilientSqlScopeProcessBuilder> PostFinalizerCreator { get; init; }
+        public Action<ResilientSqlScopeProcessBuilder> PostFinalizers { get; init; }
 
         public List<ResilientTable> Tables { get; init; }
 

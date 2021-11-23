@@ -22,7 +22,7 @@
             var executedBatchCount = 0;
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .JoinBatched(new BatchedJoinMutator(context, null, null)
+                .JoinBatched(new BatchedJoinMutator(context)
                 {
                     BatchSize = 4,
                     LookupBuilder = new FilteredRowLookupBuilder()
@@ -67,7 +67,7 @@
             var executedBatchCount = 0;
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .JoinBatched(new BatchedJoinMutator(context, null, null)
+                .JoinBatched(new BatchedJoinMutator(context)
                 {
                     BatchSize = 4,
                     LookupBuilder = new FilteredRowLookupBuilder()
@@ -105,7 +105,7 @@
             var executedBatchCount = 0;
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .JoinBatched(new BatchedJoinMutator(context, null, null)
+                .JoinBatched(new BatchedJoinMutator(context)
                 {
                     BatchSize = 1,
                     LookupBuilder = new FilteredRowLookupBuilder()
@@ -144,7 +144,7 @@
             var executedBatchCount = 0;
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .JoinBatched(new BatchedJoinMutator(context, null, null)
+                .JoinBatched(new BatchedJoinMutator(context)
                 {
                     BatchSize = 4,
                     LookupBuilder = new FilteredRowLookupBuilder()
@@ -178,7 +178,7 @@
             var executedRightKeyDelegateCount = 0;
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .JoinBatched(new BatchedJoinMutator(context, null, null)
+                .JoinBatched(new BatchedJoinMutator(context)
                 {
                     BatchSize = 2,
                     LookupBuilder = new FilteredRowLookupBuilder()
@@ -214,7 +214,7 @@
             var executedRightKeyDelegateCount = 0;
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .JoinBatched(new BatchedJoinMutator(context, null, null)
+                .JoinBatched(new BatchedJoinMutator(context)
                 {
                     BatchSize = 1,
                     LookupBuilder = new FilteredRowLookupBuilder()
@@ -254,7 +254,7 @@
             var executedRightKeyDelegateCount = 0;
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .JoinBatched(new BatchedJoinMutator(context, null, null)
+                .JoinBatched(new BatchedJoinMutator(context)
                 {
                     BatchSize = 1,
                     LookupBuilder = new FilteredRowLookupBuilder()

@@ -18,8 +18,8 @@
 
         private object[] _lastIdOfLevel;
 
-        public ResolveHierarchyMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public ResolveHierarchyMutator(IEtlContext context)
+            : base(context)
         {
         }
 

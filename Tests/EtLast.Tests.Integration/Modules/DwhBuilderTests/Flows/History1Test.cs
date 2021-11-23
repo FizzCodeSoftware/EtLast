@@ -202,7 +202,7 @@
 
         public static IProducer CreatePeople1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
-            return new RowCreator(tableBuilder.ResilientTable.Scope.Context, tableBuilder.ResilientTable.Topic, null)
+            return new RowCreator(tableBuilder.ResilientTable.Scope.Context)
             {
                 Columns = new[] { "Id", "Name", "FavoritePetId", "LastChangedOn" },
                 InputRows = new List<object[]>()
@@ -219,7 +219,7 @@
 
         public static IProducer CreatePeople2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
-            return new RowCreator(tableBuilder.ResilientTable.Scope.Context, tableBuilder.ResilientTable.Topic, null)
+            return new RowCreator(tableBuilder.ResilientTable.Scope.Context)
             {
                 Columns = new[] { "Id", "Name", "FavoritePetId", "LastChangedOn" },
                 InputRows = new List<object[]>()
@@ -236,7 +236,7 @@
 
         public static IProducer CreatePet1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
-            return new RowCreator(tableBuilder.ResilientTable.Scope.Context, tableBuilder.ResilientTable.Topic, null)
+            return new RowCreator(tableBuilder.ResilientTable.Scope.Context)
             {
                 Columns = new[] { "Id", "Name", "OwnerPeopleId", "LastChangedOn" },
                 InputRows = new List<object[]>()
@@ -252,7 +252,7 @@
 
         public static IProducer CreatePet2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
         {
-            return new RowCreator(tableBuilder.ResilientTable.Scope.Context, tableBuilder.ResilientTable.Topic, null)
+            return new RowCreator(tableBuilder.ResilientTable.Scope.Context)
             {
                 Columns = new[] { "Id", "Name", "OwnerPeopleId", "LastChangedOn" },
                 InputRows = new List<object[]>()
@@ -268,7 +268,7 @@
 
         private static IEnumerable<IMutator> PeopleMutators(DwhTableBuilder tableBuilder)
         {
-            yield return new CustomMutator(tableBuilder.ResilientTable.Scope.Context, tableBuilder.ResilientTable.Topic, "FkFix")
+            yield return new CustomMutator(tableBuilder.ResilientTable.Scope.Context)
             {
                 Action = row =>
                 {
@@ -280,7 +280,7 @@
 
         private static IEnumerable<IMutator> PetMutators(DwhTableBuilder tableBuilder)
         {
-            yield return new CustomMutator(tableBuilder.ResilientTable.Scope.Context, tableBuilder.ResilientTable.Topic, "FkFix")
+            yield return new CustomMutator(tableBuilder.ResilientTable.Scope.Context)
             {
                 Action = row =>
                 {

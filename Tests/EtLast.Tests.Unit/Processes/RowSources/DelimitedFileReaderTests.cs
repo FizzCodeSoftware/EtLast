@@ -10,7 +10,7 @@
     {
         private static IProducer GetReader(IEtlContext context, string fileName, bool removeSurroundingDoubleQuotes = true)
         {
-            return new DelimitedFileReader(context, null, null)
+            return new DelimitedFileReader(context)
             {
                 FileName = fileName,
                 ColumnConfiguration = new()
@@ -29,7 +29,7 @@
 
         private static IProducer GetSimpleReader(IEtlContext context, string fileName, bool treatEmptyStringsAsNull = true)
         {
-            return new DelimitedFileReader(context, null, null)
+            return new DelimitedFileReader(context)
             {
                 FileName = fileName,
                 ColumnConfiguration = new()
@@ -49,7 +49,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(GetReader(context, @"TestData\Sample.csv"))
-                .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context, null, null)
+                .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
                 {
                     Columns = new[] { "ValueDate" },
                     Value = null,
@@ -86,7 +86,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(GetReader(context, @"TestData\QuotedSample1.csv", removeSurroundingDoubleQuotes: false))
-                .ThrowExceptionOnRowError(new ThrowExceptionOnRowErrorMutator(context));
+                .ThrowExceptionOnRowError();
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(2, result.MutatedRows.Count);
@@ -164,7 +164,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(GetReader(context, @"TestData\NewLineSample1.csv"))
-                .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context, null, null)
+                .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
                 {
                     Columns = new[] { "ValueDate" },
                     Value = null,
@@ -184,7 +184,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(GetReader(context, @"TestData\NewLineSample2.csv"))
-                .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context, null, null)
+                .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
                 {
                     Columns = new[] { "ValueDate" },
                     Value = null,
@@ -204,7 +204,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(GetReader(context, @"TestData\SampleInvalidConversion.csv"))
-                .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context, null, null)
+                .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
                 {
                     Columns = new[] { "ValueDate" },
                     Value = null,

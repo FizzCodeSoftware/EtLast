@@ -14,7 +14,7 @@
             var context = TestExecuter.GetContext();
             var builder = new ProcessBuilder()
             {
-                InputProcess = new EnumerableImporter(context, null, null)
+                InputProcess = new EnumerableImporter(context)
                 {
                     InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
                 },
@@ -41,7 +41,7 @@
             var context = TestExecuter.GetContext();
             var builder = new ProcessBuilder()
             {
-                InputProcess = new EnumerableImporter(context, null, null)
+                InputProcess = new EnumerableImporter(context)
                 {
                     InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
                     ColumnConfiguration = new()
@@ -73,7 +73,7 @@
             var context = TestExecuter.GetContext();
             var builder = new ProcessBuilder()
             {
-                InputProcess = new EnumerableImporter(context, null, null)
+                InputProcess = new EnumerableImporter(context)
                 {
                     InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
                     ColumnConfiguration = new()

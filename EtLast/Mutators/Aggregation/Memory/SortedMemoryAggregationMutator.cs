@@ -13,8 +13,8 @@
     /// </summary>
     public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMutator
     {
-        public SortedMemoryAggregationMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public SortedMemoryAggregationMutator(IEtlContext context)
+            : base(context)
         {
         }
 

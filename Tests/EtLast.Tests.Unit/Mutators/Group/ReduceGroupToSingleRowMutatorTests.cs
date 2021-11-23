@@ -21,12 +21,12 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .ConvertValue(new InPlaceConvertMutator(context, null, null)
+                .ConvertValue(new InPlaceConvertMutator(context)
                 {
                     Columns = new[] { "age" },
                     TypeConverter = new DecimalConverter(),
                 })
-                .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator(context, null, null)
+                .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator(context)
                 {
                     KeyGenerator = row => row.GenerateKey("name"),
                     Selector = (proc, groupRows) =>
@@ -56,12 +56,12 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .ConvertValue(new InPlaceConvertMutator(context, null, null)
+                .ConvertValue(new InPlaceConvertMutator(context)
                 {
                     Columns = new[] { "age" },
                     TypeConverter = new DecimalConverter(),
                 })
-                .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator(context, null, null)
+                .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator(context)
                 {
                     IgnoreSelectorForSingleRowGroups = true,
                     KeyGenerator = row => row.GenerateKey("name"),
@@ -95,12 +95,12 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .ConvertValue(new InPlaceConvertMutator(context, null, null)
+                .ConvertValue(new InPlaceConvertMutator(context)
                 {
                     Columns = new[] { "age" },
                     TypeConverter = new DecimalConverter(),
                 })
-                .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator(context, null, null)
+                .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator(context)
                 {
                     KeyGenerator = row => row.GenerateKey("name"),
                     Selector = (proc, groupRows) =>

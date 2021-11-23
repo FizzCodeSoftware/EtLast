@@ -49,7 +49,7 @@
             if (assembly != null)
                 Data.Add("ProcessTypeAssembly", assembly);
 
-            Data.Add("ProcessKind", process.Kind.ToString());
+            Data.Add("ProcessKind", process.Kind);
 
             Data.Add("CallChain", GetCallChain(process));
         }
@@ -71,7 +71,7 @@
             if (assembly != null)
                 Data.Add("ProcessTypeAssembly", assembly);
 
-            Data.Add("ProcessKind", process.Kind.ToString());
+            Data.Add("ProcessKind", process.Kind);
 
             Data.Add("CallChain", GetCallChain(process));
         }
@@ -241,7 +241,7 @@
                 }
 
                 builder.Append(", kind: ");
-                builder.AppendLine(p.Kind.ToString());
+                builder.AppendLine(p.Kind);
 
                 p = p.InvocationInfo?.Caller;
             }

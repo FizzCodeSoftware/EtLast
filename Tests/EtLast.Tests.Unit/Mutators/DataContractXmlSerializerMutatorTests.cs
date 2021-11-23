@@ -15,7 +15,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .ConvertValue(new InPlaceConvertMutator(context, null, "BDateConverterV1")
+                .ConvertValue(new InPlaceConvertMutator(context)
                 {
                     Columns = new[] { "birthDate" },
                     TypeConverter = new DateConverterAuto(new CultureInfo("hu-HU"))
@@ -24,7 +24,7 @@
                     },
                     ActionIfInvalid = InvalidValueAction.Throw,
                 })
-                .Explode(new ExplodeMutator(context, null, null)
+                .Explode(new ExplodeMutator(context)
                 {
                     RowCreator = row =>
                     {
@@ -42,19 +42,19 @@
                         return new[] { newRow };
                     },
                 })
-                .SerializeToXml(new DataContractXmlSerializerMutator<TestData.PersonModel>(context, null, "serialize to XML byte[]")
+                .SerializeToXml(new DataContractXmlSerializerMutator<TestData.PersonModel>(context)
                 {
                     ColumnConfiguration = new ColumnCopyConfiguration("personModel", "personModelXml"),
                 })
-                .RemoveColumn(new RemoveColumnMutator(context, null, null)
+                .RemoveColumn(new RemoveColumnMutator(context)
                 {
                     Columns = new[] { "personModel" },
                 })
-                .DeSerializeFromXml(new DataContractXmlDeSerializerMutator<TestData.PersonModel>(context, null, "deserialize from XML byte[]")
+                .DeSerializeFromXml(new DataContractXmlDeSerializerMutator<TestData.PersonModel>(context)
                 {
                     ColumnConfiguration = new ColumnCopyConfiguration("personModelXml", "personModel"),
                 })
-                .Explode(new ExplodeMutator(context, null, null)
+                .Explode(new ExplodeMutator(context)
                 {
                     RowCreator = row =>
                     {

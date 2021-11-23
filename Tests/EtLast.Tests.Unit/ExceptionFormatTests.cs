@@ -15,7 +15,7 @@
 
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .CustomCode(new CustomMutator(context, null, "MyBrokenMutator")
+                .CustomCode(new CustomMutator(context)
                 {
                     Action = row =>
                     {
@@ -37,7 +37,7 @@
 
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .CustomCode(new CustomMutator(context, null, "MyBrokenMutator"));
+                .CustomCode(new CustomMutator(context));
 
             var process = builder.Build();
             process.Execute(null);
@@ -52,7 +52,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .Join(new JoinMutator(context, null, "MyBrokenMutator")
+                .Join(new JoinMutator(context)
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {
@@ -77,7 +77,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .Join(new JoinMutator(context, null, "MyBrokenMutator")
+                .Join(new JoinMutator(context)
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {
@@ -108,7 +108,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .Join(new JoinMutator(context, null, "MyBrokenMutator")
+                .Join(new JoinMutator(context)
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {

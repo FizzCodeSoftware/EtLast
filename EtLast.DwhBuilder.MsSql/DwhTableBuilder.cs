@@ -72,7 +72,7 @@
 
         internal void Build()
         {
-            ResilientTable.FinalizerCreator = CreateTableFinalizers;
+            ResilientTable.Finalizers = CreateTableFinalizers;
             ResilientTable.MainProcessCreator = _ => CreateTableMainProcess();
         }
 
@@ -87,8 +87,10 @@
                     .Where(x => !x.IsPrimaryKey);
             }
 
-            return new ResilientWriteToMsSqlMutator(table.Scope.Context, table.Topic, "Writer")
+            return new ResilientWriteToMsSqlMutator(table.Scope.Context)
             {
+                Name = "TempWriter",
+                Topic = table.Topic,
                 ConnectionString = table.Scope.Configuration.ConnectionString,
                 TableDefinition = new DbTableDefinition()
                 {
@@ -130,8 +132,10 @@
             if (recordTimestampIndicatorColumn == null)
                 return null;
 
-            var result = new GetTableMaxValue<object>(ResilientTable.Scope.Context, ResilientTable.Topic, nameof(GetMaxRecordTimestamp) + "Reader")
+            var result = new GetTableMaxValue<object>(ResilientTable.Scope.Context)
             {
+                Name = nameof(GetMaxRecordTimestamp) + "Reader",
+                Topic = ResilientTable.Topic,
                 ConnectionString = ResilientTable.Scope.Configuration.ConnectionString,
                 TableName = ResilientTable.TableName,
                 ColumnName = recordTimestampIndicatorColumn.NameEscaped(ResilientTable.Scope.Configuration.ConnectionString),

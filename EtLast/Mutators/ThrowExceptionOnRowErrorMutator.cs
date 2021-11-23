@@ -6,8 +6,8 @@
 
     public sealed class ThrowExceptionOnRowErrorMutator : AbstractMutator
     {
-        public ThrowExceptionOnRowErrorMutator(IEtlContext context, string topic = null)
-            : base(context, null, null)
+        public ThrowExceptionOnRowErrorMutator(IEtlContext context)
+            : base(context)
         {
         }
 
@@ -44,6 +44,11 @@
         public static IFluentProcessMutatorBuilder ThrowExceptionOnRowError(this IFluentProcessMutatorBuilder builder, ThrowExceptionOnRowErrorMutator mutator)
         {
             return builder.AddMutator(mutator);
+        }
+
+        public static IFluentProcessMutatorBuilder ThrowExceptionOnRowError(this IFluentProcessMutatorBuilder builder)
+        {
+            return builder.AddMutator(new ThrowExceptionOnRowErrorMutator(builder.ProcessBuilder.Result.Context));
         }
     }
 }

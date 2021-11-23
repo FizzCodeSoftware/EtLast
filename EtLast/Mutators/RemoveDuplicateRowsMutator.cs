@@ -15,8 +15,8 @@
 
         private readonly HashSet<string> _returnedKeys = new();
 
-        public RemoveDuplicateRowsMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public RemoveDuplicateRowsMutator(IEtlContext context)
+            : base(context)
         {
         }
 
@@ -63,6 +63,20 @@
         public static IFluentProcessMutatorBuilder RemoveDuplicateRows(this IFluentProcessMutatorBuilder builder, RemoveDuplicateRowsMutator mutator)
         {
             return builder.AddMutator(mutator);
+        }
+
+        /// <summary>
+        /// Keeps only the first row of each key, and discard all subsequent rows with existing keys.
+        /// <para>- input can be unordered</para>
+        /// <para>- if a more refined logic is required to decide which row should be kept of rows with same key then <see cref="ReduceGroupToSingleRowMutatorFluent.ReduceGroupToSingleRow(IFluentProcessMutatorBuilder, ReduceGroupToSingleRowMutator)"/> or <see cref="SortedReduceGroupToSingleRowMutatorFluent.ReduceGroupToSingleRowOrdered(IFluentProcessMutatorBuilder, SortedReduceGroupToSingleRowMutator)"/></para> can be used instead.
+        /// <para>- all keys are stored in memory</para>
+        /// </summary>
+        public static IFluentProcessMutatorBuilder RemoveDuplicateRows(this IFluentProcessMutatorBuilder builder, Func<IReadOnlyRow, string> keyGenerator)
+        {
+            return builder.AddMutator(new RemoveDuplicateRowsMutator(builder.ProcessBuilder.Result.Context)
+            {
+                KeyGenerator = keyGenerator,
+            });
         }
     }
 }

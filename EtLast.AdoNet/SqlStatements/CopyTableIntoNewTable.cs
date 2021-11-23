@@ -16,8 +16,8 @@
         /// </summary>
         public string WhereClause { get; init; }
 
-        public CopyTableIntoNewTable(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public CopyTableIntoNewTable(IEtlContext context)
+            : base(context)
         {
         }
 

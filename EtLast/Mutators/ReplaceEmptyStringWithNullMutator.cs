@@ -7,8 +7,8 @@
     {
         public string[] Columns { get; init; }
 
-        public ReplaceEmptyStringWithNullMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public ReplaceEmptyStringWithNullMutator(IEtlContext context)
+            : base(context)
         {
         }
 
@@ -49,6 +49,14 @@
         public static IFluentProcessMutatorBuilder ReplaceEmptyStringWithNull(this IFluentProcessMutatorBuilder builder, ReplaceEmptyStringWithNullMutator mutator)
         {
             return builder.AddMutator(mutator);
+        }
+
+        public static IFluentProcessMutatorBuilder ReplaceEmptyStringWithNull(this IFluentProcessMutatorBuilder builder, params string[] columns)
+        {
+            return builder.AddMutator(new ReplaceEmptyStringWithNullMutator(builder.ProcessBuilder.Result.Context)
+            {
+                Columns = columns,
+            });
         }
     }
 }

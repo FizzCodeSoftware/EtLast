@@ -16,7 +16,7 @@
             if (converter != null)
             {
                 builder = builder
-                    .ConvertValue(new InPlaceConvertMutator(context, null, null)
+                    .ConvertValue(new InPlaceConvertMutator(context)
                     {
                         Columns = new[] { "age", "height" },
                         TypeConverter = converter,
@@ -24,7 +24,7 @@
             }
 
             return builder
-                .AggregateContinuously(new ContinuousAggregationMutator(context, null, null)
+                .AggregateContinuously(new ContinuousAggregationMutator(context)
                 {
                     KeyGenerator = row => row.GenerateKey("name"),
                     FixColumns = ColumnCopyConfiguration.StraightCopy("name"),

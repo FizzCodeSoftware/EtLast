@@ -18,8 +18,8 @@
         /// </summary>
         public bool CopyOnlySpecifiedColumns { get; set; }
 
-        public EnumerableImporter(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public EnumerableImporter(IEtlContext context)
+            : base(context)
         {
         }
 

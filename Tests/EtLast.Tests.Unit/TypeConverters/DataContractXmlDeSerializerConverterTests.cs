@@ -19,13 +19,13 @@
                 InputProcess = TestData.Person(context),
                 Mutators = new MutatorList()
                 {
-                    new InPlaceConvertMutator(context, null, null)
+                    new InPlaceConvertMutator(context)
                     {
                         Columns = new[] { "birthDate" },
                         TypeConverter = new DateConverterAuto(new CultureInfo("hu-HU")),
                         ActionIfInvalid = InvalidValueAction.Throw,
                     },
-                    new ExplodeMutator(context, null, null)
+                    new ExplodeMutator(context)
                     {
                         RowCreator = row =>
                         {
@@ -43,27 +43,27 @@
                             return new[] { newRow };
                         },
                     },
-                    new DataContractXmlSerializerMutator<PersonModel>(context, null, "serialize to XML byte[]")
+                    new DataContractXmlSerializerMutator<PersonModel>(context)
                     {
                          ColumnConfiguration = new ColumnCopyConfiguration("personModel", "personModelXml"),
                     },
-                    new RemoveColumnMutator(context, null, null)
+                    new RemoveColumnMutator(context)
                     {
                         Columns = new[] { "personModel" },
                     },
-                    new InPlaceConvertMutator(context, null, "deserialize from XML byte[]")
+                    new InPlaceConvertMutator(context)
                     {
                         Columns = new[] { "personModelXml" },
                         TypeConverter = new DataContractXmlDeSerializerConverter<PersonModel>(),
                     },
-                    new RenameColumnMutator(context, null, null)
+                    new RenameColumnMutator(context)
                     {
                         Columns = new()
                         {
                             ["personModelXml"] = "personModel",
                         },
                     },
-                    new ExplodeMutator(context, null, null)
+                    new ExplodeMutator(context)
                     {
                         RowCreator = row =>
                         {

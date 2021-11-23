@@ -14,8 +14,8 @@
         public string[] Columns { get; set; }
         public List<object[]> InputRows { get; set; }
 
-        public RowCreator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public RowCreator(IEtlContext context)
+            : base(context)
         {
         }
 

@@ -19,8 +19,8 @@
         private ExcelPackage _package;
         private int? _sinkUid;
 
-        public EpPlusSimpleRowWriterMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public EpPlusSimpleRowWriterMutator(IEtlContext context)
+            : base(context)
         {
         }
 

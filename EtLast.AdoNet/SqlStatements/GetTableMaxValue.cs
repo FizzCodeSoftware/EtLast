@@ -11,8 +11,8 @@
         public string ColumnName { get; init; }
         public string CustomWhereClause { get; init; }
 
-        public GetTableMaxValue(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public GetTableMaxValue(IEtlContext context)
+            : base(context)
         {
         }
 

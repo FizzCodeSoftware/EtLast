@@ -6,8 +6,8 @@
 
     public sealed class RemoveRowMutator : AbstractMutator
     {
-        public RemoveRowMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public RemoveRowMutator(IEtlContext context)
+            : base(context)
         {
         }
 
@@ -31,6 +31,14 @@
         public static IFluentProcessMutatorBuilder RemoveRow(this IFluentProcessMutatorBuilder builder, RemoveRowMutator mutator)
         {
             return builder.AddMutator(mutator);
+        }
+
+        public static IFluentProcessMutatorBuilder RemoveAllRow(this IFluentProcessMutatorBuilder builder)
+        {
+            return builder.AddMutator(new RemoveRowMutator(builder.ProcessBuilder.Result.Context)
+            {
+                Name = nameof(RemoveRow),
+            });
         }
     }
 }

@@ -9,8 +9,8 @@
         public FilteredRowLookupBuilder LookupBuilder { get; init; }
         public RowKeyGenerator RowKeyGenerator { get; init; }
 
-        protected AbstractBatchedCrossMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        protected AbstractBatchedCrossMutator(IEtlContext context)
+            : base(context)
         {
         }
 

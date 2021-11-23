@@ -22,7 +22,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .KeyTest(new KeyTestMutator(context, null, null)
+                .KeyTest(new KeyTestMutator(context)
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {

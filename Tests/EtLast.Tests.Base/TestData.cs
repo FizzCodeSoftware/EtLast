@@ -30,7 +30,7 @@
 
         public static IProducer Country(IEtlContext context)
         {
-            return new RowCreator(context, null, nameof(Country))
+            return new RowCreator(context)
             {
                 Columns = CountryColumns,
                 InputRows = new List<object[]>()
@@ -45,7 +45,7 @@
 
         public static IProducer Person(IEtlContext context)
         {
-            return new RowCreator(context, null, nameof(Person))
+            return new RowCreator(context)
             {
                 Columns = PersonColumns,
                 InputRows = new List<object[]>()
@@ -64,7 +64,7 @@
 
         public static IProducer PersonSortedByName(IEtlContext context)
         {
-            return new RowCreator(context, null, nameof(Person))
+            return new RowCreator(context)
             {
                 Columns = PersonColumns,
                 InputRows = new List<object[]>()
@@ -83,7 +83,7 @@
 
         public static IProducer PersonChanged(IEtlContext context)
         {
-            return new RowCreator(context, null, nameof(Person))
+            return new RowCreator(context)
             {
                 Columns = PersonColumns,
                 InputRows = new List<object[]>()
@@ -102,7 +102,7 @@
 
         public static IProducer PersonEyeColor(IEtlContext context)
         {
-            return new RowCreator(context, null, nameof(PersonEyeColor))
+            return new RowCreator(context)
             {
                 Columns = PersonEyeColorColumns,
                 InputRows = new List<object[]>()
@@ -121,7 +121,7 @@
 
         public static IProducer RoleHierarchy(IEtlContext context)
         {
-            return new RowCreator(context, null, nameof(RoleHierarchy))
+            return new RowCreator(context)
             {
                 Columns = RoleHierarchyColumns,
                 InputRows = new List<object[]>()
@@ -139,7 +139,7 @@
 
         public static IProducer PersonalAssetsPivot(IEtlContext context)
         {
-            return new RowCreator(context, null, nameof(PersonalAssetsPivot))
+            return new RowCreator(context)
             {
                 Columns = PersonalAssetsPivotColumns,
                 InputRows = new List<object[]>()

@@ -10,8 +10,8 @@
         public string Url { get; set; }
         public string FileName { get; set; }
 
-        public DownloadFile(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public DownloadFile(IEtlContext context)
+            : base(context)
         {
         }
 

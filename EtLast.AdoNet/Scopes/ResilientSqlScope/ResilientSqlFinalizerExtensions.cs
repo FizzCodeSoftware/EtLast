@@ -6,8 +6,10 @@
     {
         public static ResilientSqlTableTableFinalizerBuilder TruncateTargetTable(this ResilientSqlTableTableFinalizerBuilder builder, int commandTimeout = 60 * 60)
         {
-            return builder.Add(new TruncateTable(builder.Table.Scope.Context, builder.Table.Topic, "TruncateTargetTableFinalizer")
+            return builder.Add(new TruncateTable(builder.Table.Scope.Context)
             {
+                Name = "TruncateTargetTableFinalizer",
+                Topic = builder.Table.Topic,
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 TableName = builder.Table.TableName,
                 CommandTimeout = commandTimeout,
@@ -16,8 +18,10 @@
 
         public static ResilientSqlTableTableFinalizerBuilder DeleteTargetTable(this ResilientSqlTableTableFinalizerBuilder builder, int commandTimeout = 60 * 60)
         {
-            return builder.Add(new DeleteTable(builder.Table.Scope.Context, builder.Table.Topic, "DeleteTargetTableFinalizer")
+            return builder.Add(new DeleteTable(builder.Table.Scope.Context)
             {
+                Name = "DeleteTargetTableFinalizer",
+                Topic = builder.Table.Topic,
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 TableName = builder.Table.TableName,
                 CommandTimeout = commandTimeout,
@@ -29,8 +33,10 @@
             if (copyIdentityColumns && builder.Table.Columns == null)
                 throw new EtlException(builder.Table.Scope, "identity columns can be copied only if the " + nameof(ResilientTable) + "." + nameof(ResilientTableBase.Columns) + " is specified");
 
-            return builder.Add(new CopyTableIntoExistingTable(builder.Table.Scope.Context, builder.Table.Topic, "CopyTableFinalizer")
+            return builder.Add(new CopyTableIntoExistingTable(builder.Table.Scope.Context)
             {
+                Name = "CopyTableFinalizer",
+                Topic = builder.Table.Topic,
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 Configuration = new TableCopyConfiguration()
                 {
@@ -52,8 +58,10 @@
                 .Where(c => !string.Equals(c, keyColumn, System.StringComparison.InvariantCultureIgnoreCase))
                 .ToList();
 
-            return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context, builder.Table.Topic, "SimpleMergeFinalizer")
+            return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
             {
+                Name = "SimpleMergeFinalizer",
+                Topic = builder.Table.Topic,
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 CommandTimeout = commandTimeout,
                 SourceTableName = builder.Table.TempTableName,
@@ -74,8 +82,10 @@
                 .Where(c => !keyColumns.Any(keyColumn => string.Equals(c, keyColumn, System.StringComparison.InvariantCultureIgnoreCase)))
                 .ToList();
 
-            return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context, builder.Table.Topic, "SimpleMergeFinalizer")
+            return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
             {
+                Name = "SimpleMergeFinalizer",
+                Topic = builder.Table.Topic,
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 CommandTimeout = commandTimeout,
                 SourceTableName = builder.Table.TempTableName,
@@ -94,8 +104,10 @@
         {
             var columnsToUpdate = builder.Table.Columns.Where(c => !keyColumns.Contains(c)).ToList();
 
-            return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context, builder.Table.Topic, "SimpleMergeUpdateOnlyFinalizer")
+            return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
             {
+                Name = "SimpleMergeUpdateOnlyFinalizer",
+                Topic = builder.Table.Topic,
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 CommandTimeout = commandTimeout,
                 SourceTableName = builder.Table.TempTableName,
@@ -111,8 +123,10 @@
 
         public static ResilientSqlTableTableFinalizerBuilder SimpleMergeInsertOnly(this ResilientSqlTableTableFinalizerBuilder builder, string[] keyColumns, int commandTimeout = 60 * 60)
         {
-            return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context, builder.Table.Topic, "SimpleMergeInsertOnlyFinalizer")
+            return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
             {
+                Name = "SimpleMergeInsertOnlyFinalizer",
+                Topic = builder.Table.Topic,
                 ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
                 CommandTimeout = commandTimeout,
                 SourceTableName = builder.Table.TempTableName,
@@ -128,8 +142,9 @@
         {
             if (builder.Scope.Configuration.Tables.Count > 1)
             {
-                builder.Processes.Add(new MsSqlDisableConstraintCheck(builder.Scope.Context, null, "disable foreign keys")
+                builder.Processes.Add(new MsSqlDisableConstraintCheck(builder.Scope.Context)
                 {
+                    Name = "disable foreign keys",
                     ConnectionString = builder.Scope.Configuration.ConnectionString,
                     TableNames = builder.Scope.Configuration.Tables.Select(x => x.TableName)
                         .Concat(builder.Scope.Configuration.Tables.Where(x => x.AdditionalTables != null).SelectMany(x => x.AdditionalTables.Select(at => at.TableName)))
@@ -144,8 +159,9 @@
         {
             if (builder.Scope.Configuration.Tables.Count > 1)
             {
-                builder.Processes.Add(new MsSqlEnableConstraintCheck(builder.Scope.Context, null, "enable foreign keys")
+                builder.Processes.Add(new MsSqlEnableConstraintCheck(builder.Scope.Context)
                 {
+                    Name = "enable foreign keys",
                     ConnectionString = builder.Scope.Configuration.ConnectionString,
                     TableNames = builder.Scope.Configuration.Tables.Select(x => x.TableName)
                         .Concat(builder.Scope.Configuration.Tables.Where(x => x.AdditionalTables != null).SelectMany(x => x.AdditionalTables.Select(at => at.TableName)))

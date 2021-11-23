@@ -23,8 +23,8 @@
         /// </summary>
         public bool RemoveOriginalRow { get; init; } = true;
 
-        public InMemoryExplodeMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public InMemoryExplodeMutator(IEtlContext context)
+            : base(context)
         {
         }
 

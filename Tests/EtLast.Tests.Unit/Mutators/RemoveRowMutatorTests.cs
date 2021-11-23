@@ -23,7 +23,7 @@
                 InputProcess = TestData.Person(context),
                 Mutators = new MutatorList()
                 {
-                    new RemoveRowMutator(context, null, null)
+                    new RemoveRowMutator(context)
                     {
                         If = row => row.GetAs<int>("id") >= 4 && (row.GetAs<double>("id") == 7.0d),
                     },
@@ -51,7 +51,7 @@
                 InputProcess = TestData.Person(context),
                 Mutators = new MutatorList()
                 {
-                    new RemoveRowMutator(context, null, null)
+                    new RemoveRowMutator(context)
                     {
                         If = row => true,
                     },
@@ -73,7 +73,7 @@
                 InputProcess = TestData.Person(context),
                 Mutators = new MutatorList()
                 {
-                    new RemoveRowMutator(context, null, null)
+                    new RemoveRowMutator(context)
                     {
                         If = row => false,
                     },
@@ -103,7 +103,7 @@
                 InputProcess = TestData.Person(context),
                 Mutators = new MutatorList()
                 {
-                    new RemoveRowMutator(context, null, null)
+                    new RemoveRowMutator(context)
                     {
                         If = row => row.GetAs<string>("name") == "A",
                     },

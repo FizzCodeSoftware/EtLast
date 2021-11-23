@@ -7,8 +7,8 @@
         public string Sql { get; init; }
         public string MainTableName { get; init; }
 
-        public CustomSqlAdoNetDbReader(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public CustomSqlAdoNetDbReader(IEtlContext context)
+            : base(context)
         {
         }
 

@@ -57,8 +57,10 @@
                 .Select(c => c.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString))
                 .ToArray();
 
-            yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context, builder.TableBuilder.ResilientTable.Topic, "MergeIntoBase")
+            yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context)
             {
+                Name = "MergeIntoBase",
+                Topic = builder.TableBuilder.ResilientTable.Topic,
                 ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
                 CommandTimeout = 60 * 60,
                 SourceTableName = builder.TableBuilder.ResilientTable.TempTableName,
@@ -95,8 +97,10 @@
                 if (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime != null)
                     parameters2["InfiniteFuture"] = builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime;
 
-                yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context, builder.TableBuilder.ResilientTable.Topic, "CloseOpenEndedHistoryRecords")
+                yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context)
                 {
+                    Name = "CloseOpenEndedHistoryRecords",
+                    Topic = builder.TableBuilder.ResilientTable.Topic,
                     ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
                     CommandTimeout = 60 * 60,
                     SourceTableName = builder.TableBuilder.ResilientTable.TempTableName,
@@ -122,8 +126,10 @@
                     if (builder.TableBuilder.HasEtlRunInfo)
                         parameters3["EtlRunId"] = builder.TableBuilder.DwhBuilder.EtlRunId.Value;
 
-                    yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context, builder.TableBuilder.ResilientTable.Topic, "UpdateNoHistoryColumns")
+                    yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context)
                     {
+                        Name = "UpdateNoHistoryColumns",
+                        Topic = builder.TableBuilder.ResilientTable.Topic,
                         ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
                         CommandTimeout = 60 * 60,
                         SourceTableName = builder.TableBuilder.ResilientTable.TempTableName,
@@ -158,8 +164,10 @@
                     columnDefaults[builder.TableBuilder.EtlRunFromColumnNameEscaped] = builder.TableBuilder.DwhBuilder.EtlRunId.Value;
                 }
 
-                yield return new CopyTableIntoExistingTable(builder.TableBuilder.ResilientTable.Scope.Context, builder.TableBuilder.ResilientTable.Topic, "CopyToHistory")
+                yield return new CopyTableIntoExistingTable(builder.TableBuilder.ResilientTable.Scope.Context)
                 {
+                    Name = "CopyToHistory",
+                    Topic = builder.TableBuilder.ResilientTable.Topic,
                     ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
                     Configuration = new TableCopyConfiguration()
                     {

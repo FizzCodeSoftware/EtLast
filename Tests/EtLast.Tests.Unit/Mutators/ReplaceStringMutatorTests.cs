@@ -20,7 +20,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .ReplaceString(new ReplaceStringMutator(context, null, null)
+                .ReplaceString(new ReplaceStringMutator(context)
                 {
                     ColumnName = "eyeColor",
                     OldString = "row",
@@ -48,7 +48,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .ReplaceString(new ReplaceStringMutator(context, null, null)
+                .ReplaceString(new ReplaceStringMutator(context)
                 {
                     ColumnName = "eyeColor",
                     OldString = "ROW",
@@ -76,7 +76,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .ReplaceString(new ReplaceStringMutator(context, null, null)
+                .ReplaceString(new ReplaceStringMutator(context)
                 {
                     ColumnName = "eyeColor",
                     OldString = "ROW",

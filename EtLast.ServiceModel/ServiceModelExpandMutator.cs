@@ -35,8 +35,8 @@
         /// </summary>
         public int MaxRetryCount { get; init; } = 5;
 
-        public ServiceModelExpandMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public ServiceModelExpandMutator(IEtlContext context)
+            : base(context)
         {
         }
 

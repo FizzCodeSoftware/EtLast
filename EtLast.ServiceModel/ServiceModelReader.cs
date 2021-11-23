@@ -30,8 +30,8 @@
         public ServiceModelReaderClientCreatorDelegate<TChannel, TClient> ClientCreator { get; init; }
         public ServiceModelReaderClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; init; }
 
-        public ServiceModelReader(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public ServiceModelReader(IEtlContext context)
+            : base(context)
         {
         }
 

@@ -11,7 +11,7 @@
     {
         private static EpPlusExcelReader GetReader(IEtlContext context, string fileName, string sheetName = null, int sheetIndex = -1, bool automaticallyTrimAllStringValues = true)
         {
-            return new EpPlusExcelReader(context, null, null)
+            return new EpPlusExcelReader(context)
             {
                 FileName = fileName,
                 ColumnConfiguration = new()
@@ -37,7 +37,7 @@
 
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(reader)
-                .ThrowExceptionOnRowError(new ThrowExceptionOnRowErrorMutator(context));
+                .ThrowExceptionOnRowError();
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(4, result.MutatedRows.Count);
@@ -58,7 +58,7 @@
 
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(reader)
-                .ThrowExceptionOnRowError(new ThrowExceptionOnRowErrorMutator(context));
+                .ThrowExceptionOnRowError();
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(4, result.MutatedRows.Count);
@@ -79,7 +79,7 @@
 
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(reader)
-                .ThrowExceptionOnRowError(new ThrowExceptionOnRowErrorMutator(context));
+                .ThrowExceptionOnRowError();
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(4, result.MutatedRows.Count);

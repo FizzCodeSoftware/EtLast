@@ -11,8 +11,8 @@
         public virtual bool ConsumerShouldNotBuffer { get; }
         public Action<IProducer> Initializer { get; init; }
 
-        protected AbstractEvaluable(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        protected AbstractEvaluable(IEtlContext context)
+            : base(context)
         {
         }
 

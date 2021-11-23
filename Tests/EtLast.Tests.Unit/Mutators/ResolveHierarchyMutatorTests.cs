@@ -16,7 +16,7 @@
                 InputProcess = TestData.RoleHierarchy(context),
                 Mutators = new MutatorList()
                 {
-                    new ResolveHierarchyMutator(context, null, null)
+                    new ResolveHierarchyMutator(context)
                     {
                         IdentityColumn = "id",
                         NewColumnWithParentId = "parentId",
@@ -49,7 +49,7 @@
                 InputProcess = TestData.RoleHierarchy(context),
                 Mutators = new MutatorList()
                 {
-                    new ResolveHierarchyMutator(context, null, null)
+                    new ResolveHierarchyMutator(context)
                     {
                         IdentityColumn = "id",
                         NewColumnWithParentId = "parentId",
@@ -82,7 +82,7 @@
                 InputProcess = TestData.RoleHierarchy(context),
                 Mutators = new MutatorList()
                 {
-                    new ResolveHierarchyMutator(context, null, null)
+                    new ResolveHierarchyMutator(context)
                     {
                         IdentityColumn = "id",
                         NewColumnWithParentId = "parentId",
@@ -114,7 +114,7 @@
                 InputProcess = TestData.RoleHierarchy(context),
                 Mutators = new MutatorList()
                 {
-                    new ResolveHierarchyMutator(context, null, null)
+                    new ResolveHierarchyMutator(context)
                     {
                         IdentityColumn = "id",
                         NewColumnWithParentId = "parentId",
@@ -148,12 +148,12 @@
                 InputProcess = TestData.RoleHierarchy(context),
                 Mutators = new MutatorList()
                 {
-                    new InPlaceConvertMutator(context, null, "ConvertIdToString")
+                    new InPlaceConvertMutator(context)
                     {
                         Columns = new[] {"id" },
                         TypeConverter = new StringConverter(),
                     },
-                    new ResolveHierarchyMutator(context, null, null)
+                    new ResolveHierarchyMutator(context)
                     {
                         IdentityColumn = "id",
                         NewColumnWithParentId = "parentId",

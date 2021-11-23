@@ -17,8 +17,8 @@
 
         public object SpecialValueIfInvalid { get; init; }
 
-        public MergeDateWithTimeMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public MergeDateWithTimeMutator(IEtlContext context)
+            : base(context)
         {
         }
 

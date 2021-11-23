@@ -31,8 +31,10 @@
                 .Select(c => c.NameEscaped(builder.ResilientTable.Scope.Configuration.ConnectionString))
                 .ToArray();
 
-            yield return new CopyTableIntoExistingTable(builder.ResilientTable.Scope.Context, builder.ResilientTable.Topic, "CopyToBase")
+            yield return new CopyTableIntoExistingTable(builder.ResilientTable.Scope.Context)
             {
+                Name = "CopyToBase",
+                Topic = builder.ResilientTable.Topic,
                 ConnectionString = builder.ResilientTable.Scope.Configuration.ConnectionString,
                 Configuration = new TableCopyConfiguration()
                 {

@@ -20,7 +20,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .MergeStringColumns(new MergeStringColumnsMutator(context, null, "merge")
+                .MergeStringColumns(new MergeStringColumnsMutator(context)
                 {
                     ColumnsToMerge = new[] { "name", "eyeColor" },
                     TargetColumn = "Merged",

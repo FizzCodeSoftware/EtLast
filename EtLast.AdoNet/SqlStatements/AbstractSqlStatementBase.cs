@@ -19,8 +19,8 @@
         /// </summary>
         public int CommandTimeout { get; init; } = 60 * 60;
 
-        protected AbstractSqlStatementBase(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        protected AbstractSqlStatementBase(IEtlContext context)
+            : base(context)
         {
         }
 

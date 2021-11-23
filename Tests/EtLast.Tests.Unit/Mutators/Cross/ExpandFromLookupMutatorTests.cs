@@ -20,7 +20,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .ExpandFromLookup(new ExpandFromLookupMutator(context, null, null)
+                .ExpandFromLookup(new ExpandFromLookupMutator(context)
                 {
                     LookupBuilder = new RowLookupBuilder()
                     {

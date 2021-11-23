@@ -45,8 +45,8 @@
         /// </summary>
         public char Delimiter { get; set; } = ';';
 
-        public DelimitedFileReader(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public DelimitedFileReader(IEtlContext context)
+            : base(context)
         {
         }
 

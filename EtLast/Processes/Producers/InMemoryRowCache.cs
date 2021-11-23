@@ -13,8 +13,8 @@
         /// </summary>
         public IProducer InputProcess { get; set; }
 
-        public InMemoryRowCache(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public InMemoryRowCache(IEtlContext context)
+            : base(context)
         {
         }
 
@@ -72,10 +72,11 @@
             return builder.ReadFrom(cache);
         }
 
-        public static IProducer BuildToInMemoryRowCache(this IFluentProcessMutatorBuilder builder, IEtlContext context, string topic, string name)
+        public static IProducer BuildToInMemoryRowCache(this IFluentProcessMutatorBuilder builder, string name = null)
         {
-            return new InMemoryRowCache(context, topic, name)
+            return new InMemoryRowCache(builder.ProcessBuilder.Result.Context)
             {
+                Name = name,
                 InputProcess = builder.Build(),
             };
         }

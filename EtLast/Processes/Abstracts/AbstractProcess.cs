@@ -9,18 +9,26 @@
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public ProcessInvocationInfo InvocationInfo { get; set; }
 
-        public IEtlContext Context { get; }
+        public IEtlContext Context { get; protected set; }
 
-        public string Topic { get; set; }
         public string Name { get; set; }
+        public string Topic { get; set; }
 
         public string Kind { get; }
 
-        protected AbstractProcess(IEtlContext context, string topic, string name)
+        /// <summary>
+        ///  Reserved for lazy-initialized <see cref="AbstractEtlFlow"/> and <see cref="AbstractEtlTask"/> types.
+        /// </summary>
+        internal AbstractProcess()
+        {
+            Name = GetType().GetFriendlyTypeName();
+            Kind = GetProcessKind(this);
+        }
+
+        protected AbstractProcess(IEtlContext context)
         {
             Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
-            Name = name ?? GetType().GetFriendlyTypeName();
-            Topic = topic;
+            Name = GetType().GetFriendlyTypeName();
             Kind = GetProcessKind(this);
         }
 
@@ -31,6 +39,8 @@
 
             return process switch
             {
+                IEtlFlow _ => "flow",
+                IEtlTask _ => "task",
                 IRowSource _ => "source",
                 IRowSink _ => "sink",
                 IMutator _ => "mutator",

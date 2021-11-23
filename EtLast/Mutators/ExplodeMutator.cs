@@ -14,8 +14,8 @@
 
         public ExplodeDelegate RowCreator { get; init; }
 
-        public ExplodeMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public ExplodeMutator(IEtlContext context)
+            : base(context)
         {
         }
 

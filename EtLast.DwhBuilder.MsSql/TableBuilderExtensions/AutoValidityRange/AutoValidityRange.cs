@@ -40,8 +40,10 @@
 
             if (builder.MatchColumns.Length == 1)
             {
-                yield return new BatchedCompareWithRowMutator(builder.TableBuilder.ResilientTable.Scope.Context, builder.TableBuilder.ResilientTable.Topic, nameof(AutoValidityRange))
+                yield return new BatchedCompareWithRowMutator(builder.TableBuilder.ResilientTable.Scope.Context)
                 {
+                    Name = nameof(AutoValidityRange),
+                    Topic = builder.TableBuilder.ResilientTable.Topic,
                     If = row => row.HasValue(builder.MatchColumns[0].Name),
                     LookupBuilder = new FilteredRowLookupBuilder()
                     {
@@ -82,12 +84,16 @@
                 if (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime != null)
                     parameters.Add("InfiniteFuture", builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
 
-                yield return new CompareWithRowMutator(builder.TableBuilder.ResilientTable.Scope.Context, builder.TableBuilder.ResilientTable.Topic, nameof(AutoValidityRange))
+                yield return new CompareWithRowMutator(builder.TableBuilder.ResilientTable.Scope.Context)
                 {
+                    Name = nameof(AutoValidityRange),
+                    Topic = builder.TableBuilder.ResilientTable.Topic,
                     LookupBuilder = new RowLookupBuilder()
                     {
-                        Process = new CustomSqlAdoNetDbReader(builder.TableBuilder.ResilientTable.Scope.Context, builder.TableBuilder.ResilientTable.Topic, "PreviousValueReader")
+                        Process = new CustomSqlAdoNetDbReader(builder.TableBuilder.ResilientTable.Scope.Context)
                         {
+                            Name = "PreviousValueReader",
+                            Topic = builder.TableBuilder.ResilientTable.Topic,
                             ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
                             MainTableName = builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString),
                             Sql = "SELECT " + string.Join(",", builder.MatchColumns.Concat(finalValueColumns).Select(x => x.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)))
@@ -140,8 +146,10 @@
             if (builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime != null)
                 parameters.Add("InfiniteFuture", builder.TableBuilder.DwhBuilder.Configuration.InfiniteFutureDateTime);
 
-            return new CustomSqlAdoNetDbReader(builder.TableBuilder.ResilientTable.Scope.Context, builder.TableBuilder.ResilientTable.Topic, "PreviousValueReader")
+            return new CustomSqlAdoNetDbReader(builder.TableBuilder.ResilientTable.Scope.Context)
             {
+                Name = "PreviousValueReader",
+                Topic = builder.TableBuilder.ResilientTable.Topic,
                 ConnectionString = builder.TableBuilder.DwhBuilder.ConnectionString,
                 MainTableName = builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString),
                 Sql = "SELECT " + matchColumn.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)

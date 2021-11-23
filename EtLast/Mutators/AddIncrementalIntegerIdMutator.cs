@@ -14,8 +14,8 @@
 
         private int _nextId;
 
-        public AddIncrementalIntegerIdMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public AddIncrementalIntegerIdMutator(IEtlContext context)
+            : base(context)
         {
         }
 

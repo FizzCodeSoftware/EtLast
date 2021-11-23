@@ -11,8 +11,10 @@
 
                 builder.AddMutatorCreator(builder => new[]
                 {
-                    new CustomMutator(builder.ResilientTable.Scope.Context, builder.ResilientTable.Topic, nameof(SetValidFromToDefault))
+                    new CustomMutator(builder.ResilientTable.Scope.Context)
                     {
+                        Name = nameof(SetValidFromToDefault),
+                        Topic = builder.ResilientTable.Topic,
                         Action = row =>
                         {
                             row[builder.ValidFromColumn.Name] = builder.DwhBuilder.DefaultValidFromDateTime;

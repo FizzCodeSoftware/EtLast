@@ -23,7 +23,7 @@
                 InputProcess = TestData.Person(context),
                 Mutators = new MutatorList()
                 {
-                    new ThrowExceptionOnDuplicateKeyMutator(context, null, null)
+                    new ThrowExceptionOnDuplicateKeyMutator(context)
                     {
                         RowKeyGenerator = row => row.GenerateKey("name"),
                     },
@@ -52,7 +52,7 @@
                 InputProcess = TestData.Person(context),
                 Mutators = new MutatorList()
                 {
-                    new ThrowExceptionOnDuplicateKeyMutator(context, null, null)
+                    new ThrowExceptionOnDuplicateKeyMutator(context)
                     {
                         RowKeyGenerator = row => row.GenerateKey("id", "name"),
                     },
@@ -82,7 +82,7 @@
                 InputProcess = TestData.Person(context),
                 Mutators = new MutatorList()
                 {
-                    new ThrowExceptionOnDuplicateKeyMutator(context, null, null)
+                    new ThrowExceptionOnDuplicateKeyMutator(context)
                     {
                         RowKeyGenerator = row => row.GenerateKey("EYECOLOR"),
                     },

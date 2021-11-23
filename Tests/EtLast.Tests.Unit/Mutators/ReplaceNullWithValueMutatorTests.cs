@@ -20,7 +20,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .ReplaceNullWithValue(new ReplaceNullWithValueMutator(context, null, "replace")
+                .ReplaceNullWithValue(new ReplaceNullWithValueMutator(context)
                 {
                     Columns = new[] { "eyeColor" },
                     Value = "default",
@@ -46,7 +46,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .ReplaceNullWithValue(new ReplaceNullWithValueMutator(context, null, "replace")
+                .ReplaceNullWithValue(new ReplaceNullWithValueMutator(context)
                 {
                     Columns = new[] { "eyeColor", "missing" },
                     Value = "default",
@@ -72,7 +72,7 @@
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
-                .ReplaceNullWithValue(new ReplaceNullWithValueMutator(context, null, "replace")
+                .ReplaceNullWithValue(new ReplaceNullWithValueMutator(context)
                 {
                     Columns = new[] { "id", "name" },
                     Value = "default",

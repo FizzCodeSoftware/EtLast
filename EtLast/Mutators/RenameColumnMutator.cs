@@ -13,7 +13,7 @@
     public sealed class RenameColumnMutator : AbstractSimpleChangeMutator
     {
         /// <summary>
-        /// Key is original name, Value is new name.
+        /// Key is current name, Value is new name.
         /// </summary>
         public Dictionary<string, string> Columns { get; init; }
 
@@ -22,8 +22,8 @@
         /// </summary>
         public ColumnAlreadyExistsAction ActionIfTargetValueExists { get; init; } = ColumnAlreadyExistsAction.Throw;
 
-        public RenameColumnMutator(IEtlContext context, string topic, string name)
-            : base(context, topic, name)
+        public RenameColumnMutator(IEtlContext context)
+            : base(context)
         {
         }
 
@@ -74,6 +74,17 @@
         public static IFluentProcessMutatorBuilder RenameColumn(this IFluentProcessMutatorBuilder builder, RenameColumnMutator mutator)
         {
             return builder.AddMutator(mutator);
+        }
+
+        public static IFluentProcessMutatorBuilder RenameColumn(this IFluentProcessMutatorBuilder builder, string currentName, string newName)
+        {
+            return builder.AddMutator(new RenameColumnMutator(builder.ProcessBuilder.Result.Context)
+            {
+                Columns = new()
+                {
+                    [currentName] = newName,
+                }
+            });
         }
     }
 }
