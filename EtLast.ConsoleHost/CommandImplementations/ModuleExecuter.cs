@@ -198,7 +198,7 @@
             else
             {
                 serilogAdapter.Log(LogSeverity.Information, false, null, null, "{Task}{spacing1} run-time is {Elapsed}, result is {Result}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
-                    task.Name, spacing1, task.Statistics.RunTime, "faield", task.Statistics.CpuTime, task.Statistics.TotalAllocations, task.Statistics.AllocationDifference);
+                    task.Name, spacing1, task.Statistics.RunTime, "failed", task.Statistics.CpuTime, task.Statistics.TotalAllocations, task.Statistics.AllocationDifference);
             }
 
             if (task.IoCommandCounters.Count > 0)
