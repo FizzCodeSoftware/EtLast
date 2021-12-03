@@ -113,7 +113,7 @@
                             if (!ProcessList.TryGetValue(evt.ProcessInvocationUID, out var process))
                                 continue;
 
-                            if (!SinkList.TryGetValue(evt.sinkUid, out var sink))
+                            if (!SinkList.TryGetValue(evt.SinkUid, out var sink))
                                 continue;
 
                             process.WriteRowToSink(evt.RowUid);

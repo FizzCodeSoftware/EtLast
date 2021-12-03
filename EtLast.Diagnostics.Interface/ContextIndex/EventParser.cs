@@ -168,7 +168,7 @@
             {
                 RowUid = reader.Read7BitEncodedInt(),
                 ProcessInvocationUID = reader.Read7BitEncodedInt(),
-                sinkUid = reader.Read7BitEncodedInt()
+                SinkUid = reader.Read7BitEncodedInt()
             };
 
             var columnCount = reader.Read7BitEncodedInt();
