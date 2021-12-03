@@ -5,12 +5,15 @@
 
     public class ExceptionTest : AbstractEtlFlow
     {
+        public Type ExceptionType { get; set; }
+        public string Message { get; set; } = "oops something went wrong";
+
         public override void Execute()
         {
             Session.ExecuteTask(this, new ThrowException()
             {
-                ExceptionType = typeof(Exception),
-                Message = "oops something went wrong",
+                ExceptionType = ExceptionType,
+                Message = Message,
             });
         }
     }

@@ -10,15 +10,15 @@
         {
             DbProviderFactories.RegisterFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
             settings.FileLogSettings.MinimumLogLevel = LogSeverity.Debug;
+            settings.ConsoleLogSettings.MinimumLogLevel = LogSeverity.Verbose;
         }
 
         public Dictionary<string, Func<IEtlSessionArguments, IEtlTask>> Commands => new()
         {
-            ["main"] = args => new Main(),
-            ["createdb"] = args => new CreateDatabase()
+            ["ExceptionTestCommand"] = args => new ExceptionTest()
             {
-                Definition = new TestDwhDefinition(),
-            },
+                ExceptionType = typeof(InvalidOperationException),
+            }
         };
     }
 }

@@ -42,7 +42,7 @@
             if (useAppDomain)
             {
                 commandContext.Logger.Information("loading module directly from AppDomain where namespace ends with '{Module}'", moduleName);
-                var appDomainTasks = LoadInstancesFromAppDomain<IEtlTask>(moduleName);
+                var appDomainTasks = FindTypesFromAppDomain<IEtlTask>(moduleName);
                 var startup = LoadInstancesFromAppDomain<IStartup>(moduleName).FirstOrDefault();
                 var instanceConfigurationProviders = LoadInstancesFromAppDomain<IInstanceArgumentProvider>(moduleName);
                 var defaultConfigurationProviders = LoadInstancesFromAppDomain<IDefaultArgumentProvider>(moduleName);
@@ -55,15 +55,15 @@
                     Startup = startup,
                     InstanceArgumentProviders = instanceConfigurationProviders,
                     DefaultArgumentProviders = defaultConfigurationProviders,
-                    Tasks = appDomainTasks.Where(x => x.Name != null).ToList(),
+                    TaskTypes = appDomainTasks.Where(x => x.Name != null).ToList(),
                     LoadContext = null,
                 };
 
                 commandContext.Logger.Debug("{FlowCount} flows(s) found: {Task}",
-                    module.Tasks.Count(x => x is AbstractEtlFlow), module.Tasks.Where(x => x is AbstractEtlFlow).Select(task => task.Name).ToArray());
+                    module.TaskTypes.Count(x => x.IsAssignableTo(typeof(AbstractEtlFlow))), module.TaskTypes.Where(x => x.IsAssignableTo(typeof(AbstractEtlFlow))).Select(task => task.Name).ToArray());
 
                 commandContext.Logger.Debug("{TaskCount} task(s) found: {Task}",
-                    module.Tasks.Count(x => x is not AbstractEtlFlow), module.Tasks.Where(x => x is not AbstractEtlFlow).Select(task => task.Name).ToArray());
+                    module.TaskTypes.Count(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))), module.TaskTypes.Where(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))).Select(task => task.Name).ToArray());
 
                 return ExecutionResult.Success;
             }
@@ -134,7 +134,7 @@
                 var assemblyLoadContext = new AssemblyLoadContext(null, isCollectible: true);
                 var assembly = assemblyLoadContext.LoadFromStream(assemblyStream);
 
-                var compiledTasks = LoadInstancesFromAssembly<IEtlTask>(assembly);
+                var compiledTasks = FindTypesFromAssembly<IEtlTask>(assembly);
                 var compiledStartup = LoadInstancesFromAssembly<IStartup>(assembly).FirstOrDefault();
                 var instanceConfigurationProviders = LoadInstancesFromAppDomain<IInstanceArgumentProvider>(moduleName);
                 var defaultConfigurationProviders = LoadInstancesFromAppDomain<IDefaultArgumentProvider>(moduleName);
@@ -147,15 +147,15 @@
                     Startup = compiledStartup,
                     InstanceArgumentProviders = instanceConfigurationProviders,
                     DefaultArgumentProviders = defaultConfigurationProviders,
-                    Tasks = compiledTasks.Where(x => x.Name != null).ToList(),
+                    TaskTypes = compiledTasks.Where(x => x.Name != null).ToList(),
                     LoadContext = assemblyLoadContext,
                 };
 
                 commandContext.Logger.Debug("{FlowCount} flows(s) found: {Task}",
-                    module.Tasks.Count(x => x is AbstractEtlFlow), module.Tasks.Where(x => x is AbstractEtlFlow).Select(task => task.Name).ToArray());
+                    module.TaskTypes.Count(x => x.IsAssignableTo(typeof(AbstractEtlFlow))), module.TaskTypes.Where(x => x.IsAssignableTo(typeof(AbstractEtlFlow))).Select(task => task.Name).ToArray());
 
                 commandContext.Logger.Debug("{TaskCount} task(s) found: {Task}",
-                    module.Tasks.Count(x => x is not AbstractEtlFlow), module.Tasks.Where(x => x is not AbstractEtlFlow).Select(task => task.Name).ToArray());
+                    module.TaskTypes.Count(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))), module.TaskTypes.Where(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))).Select(task => task.Name).ToArray());
 
                 return ExecutionResult.Success;
             }
@@ -165,7 +165,7 @@
         {
             commandContext.Logger.Debug("unloading module {Module}", module.Name);
 
-            module.Tasks.Clear();
+            module.TaskTypes.Clear();
 
             module.LoadContext?.Unload();
         }
@@ -176,12 +176,9 @@
             var interfaceType = typeof(T);
             foreach (var foundType in assembly.GetTypes().Where(x => interfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract))
             {
-                if (interfaceType.IsAssignableFrom(foundType) && foundType.IsClass && !foundType.IsAbstract)
-                {
-                    var instance = (T)Activator.CreateInstance(foundType, Array.Empty<object>());
-                    if (instance != null)
-                        result.Add(instance);
-                }
+                var instance = (T)Activator.CreateInstance(foundType, Array.Empty<object>());
+                if (instance != null)
+                    result.Add(instance);
             }
 
             return result;
@@ -202,6 +199,37 @@
                     var instance = (T)Activator.CreateInstance(foundType, Array.Empty<object>());
                     if (instance != null)
                         result.Add(instance);
+                }
+            }
+
+            return result;
+        }
+
+        private static List<Type> FindTypesFromAssembly<T>(System.Reflection.Assembly assembly)
+        {
+            var result = new List<Type>();
+            var interfaceType = typeof(T);
+            foreach (var foundType in assembly.GetTypes().Where(x => interfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract))
+            {
+                result.Add(foundType);
+            }
+
+            return result;
+        }
+
+        private static List<Type> FindTypesFromAppDomain<T>(string moduleName)
+        {
+            var result = new List<Type>();
+            var interfaceType = typeof(T);
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                var matchingTypes = assembly.GetTypes()
+                    .Where(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t) && t.Namespace.EndsWith(moduleName, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                foreach (var foundType in matchingTypes)
+                {
+                    result.Add(foundType);
                 }
             }
 

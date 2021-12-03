@@ -51,16 +51,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Modules\DwhBuilderTests\Config\DevWSDEVONE.cs">
+    <Compile Update="Modules\DwhBuilderTests\_config\Arguments\DevWSDEVONE.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Modules\DwhBuilderTests\Config\Prod.cs">
+    <Compile Update="Modules\DwhBuilderTests\_config\Arguments\Default.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Modules\DwhBuilderTests\Config\DevWSDEVTWO.cs">
+    <Compile Update="Modules\DwhBuilderTests\_config\Arguments\Production.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Modules\DwhBuilderTests\Startup.cs">
+    <Compile Update="Modules\DwhBuilderTests\_config\Arguments\DevWSDEVTWO.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\DwhBuilderTests\_config\Startup.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Update="Modules\DwhBuilderTests\Tasks\CreateDatabase.cs">

@@ -76,6 +76,8 @@
 
             config.WriteTo.Sink(new ConsoleSink("{Timestamp:HH:mm:ss.fff} [{Level}] {Message} {Properties}{NewLine}{Exception}"), LogEventLevel.Debug);
 
+            config.MinimumLevel.Is(LogEventLevel.Debug);
+
             return config.CreateLogger();
         }
     }

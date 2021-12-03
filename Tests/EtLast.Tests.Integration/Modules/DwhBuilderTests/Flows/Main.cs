@@ -1,56 +1,18 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
 {
     using FizzCode.EtLast;
-    using FizzCode.LightWeight.AdoNet;
 
     public class Main : AbstractEtlFlow
     {
-        public NamedConnectionString ConnectionString { get; set; }
-        public string DatabaseName { get; set; }
-
         public override void Execute()
         {
-            Session.ExecuteTask(this, new EtlRunInfoTest()
-            {
-                ConnectionString = ConnectionString,
-                DatabaseName = DatabaseName,
-            });
-
-            Session.ExecuteTask(this, new EtlRunInfoOptimizedTest()
-            {
-                ConnectionString = ConnectionString,
-                DatabaseName = DatabaseName,
-            });
-
-            Session.ExecuteTask(this, new History1Test()
-            {
-                ConnectionString = ConnectionString,
-                DatabaseName = DatabaseName,
-            });
-
-            Session.ExecuteTask(this, new History2Test()
-            {
-                ConnectionString = ConnectionString,
-                DatabaseName = DatabaseName,
-            });
-
-            Session.ExecuteTask(this, new History3Test()
-            {
-                ConnectionString = ConnectionString,
-                DatabaseName = DatabaseName,
-            });
-
-            Session.ExecuteTask(this, new NullValidityTest()
-            {
-                ConnectionString = ConnectionString,
-                DatabaseName = DatabaseName,
-            });
-
-            Session.ExecuteTask(this, new EtlRunIdForDefaultValidFromTest()
-            {
-                ConnectionString = ConnectionString,
-                DatabaseName = DatabaseName,
-            });
+            Session.ExecuteTask(this, new EtlRunInfoTest());
+            Session.ExecuteTask(this, new EtlRunInfoOptimizedTest());
+            Session.ExecuteTask(this, new History1Test());
+            Session.ExecuteTask(this, new History2Test());
+            Session.ExecuteTask(this, new History3Test());
+            Session.ExecuteTask(this, new NullValidityTest());
+            Session.ExecuteTask(this, new EtlRunIdForDefaultValidFromTest());
         }
     }
 }

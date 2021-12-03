@@ -18,8 +18,14 @@
 
         public T Get<T>(string key, T defaultValue = default)
         {
-            if (_values.TryGetValue(key, out var value) && value is T castValue)
-                return castValue;
+            if (_values.TryGetValue(key, out var value))
+            {
+                if (value is Func<T> f)
+                    value = f.Invoke();
+
+                if (value is T castValue)
+                    return castValue;
+            }
 
             return defaultValue;
         }

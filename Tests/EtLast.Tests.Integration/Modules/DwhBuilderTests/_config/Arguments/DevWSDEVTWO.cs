@@ -8,8 +8,7 @@
 
         public Dictionary<string, object> Arguments => new()
         {
-            ["DatabaseName"] = "EtLastIntegrationTest",
-            ["ConnectionString"] = new LightWeight.AdoNet.NamedConnectionString("test", "System.Data.SqlClient", "Data Source=(local);Initial Catalog=\"EtLastIntegrationTest\";Integrated Security=SSPI;Connection Timeout=5", "2016"),
+            ["ConnectionString"] = () => new LightWeight.AdoNet.NamedConnectionString("test", "System.Data.SqlClient", "Data Source=(local);Initial Catalog=\"EtLastIntegrationTest\";Integrated Security=SSPI;Connection Timeout=5", "2016"),
         };
     }
 }

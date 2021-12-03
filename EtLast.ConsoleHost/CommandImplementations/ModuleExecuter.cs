@@ -6,7 +6,6 @@
     using System.Globalization;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
     using System.Text;
     using System.Transactions;
     using FizzCode.EtLast;
@@ -46,7 +45,7 @@
             var taskCreators = new Dictionary<string, Func<IEtlSessionArguments, IEtlTask>>(module.Startup.Commands, StringComparer.InvariantCultureIgnoreCase);
 
             var sessionId = "s" + DateTime.Now.ToString("yyMMdd-HHmmss-ff", CultureInfo.InvariantCulture);
-            var session = new EtlSession(sessionId, etlContext);
+            var session = new EtlSession(sessionId, etlContext, arguments);
 
             etlContext.TransactionScopeTimeout = environmentSettings.TransactionScopeTimeout;
 
@@ -73,13 +72,23 @@
             {
                 foreach (var command in commands)
                 {
-                    if (!taskCreators.TryGetValue(command, out var taskCreator))
+                    IEtlTask task = null;
+                    if (taskCreators.TryGetValue(command, out var taskCreator))
                     {
-                        serilogAdapter.Log(LogSeverity.Error, false, null, null, "unknown command: " + command);
-                        break;
+                        task = taskCreator.Invoke(arguments);
+                    }
+                    else
+                    {
+                        var taskType = module.TaskTypes.Find(x => string.Equals(x.Name, command, StringComparison.InvariantCultureIgnoreCase));
+                        if (taskType != null)
+                            task = (IEtlTask)Activator.CreateInstance(taskType);
                     }
 
-                    var task = CreateTask(arguments, taskCreator);
+                    if (task == null)
+                    {
+                        serilogAdapter.Log(LogSeverity.Error, false, null, null, "unknown task/flow type: " + command);
+                        break;
+                    }
 
                     try
                     {
@@ -137,52 +146,31 @@
             return result;
         }
 
-        private static IEtlTask CreateTask(EtlSessionArguments arguments, Func<IEtlSessionArguments, IEtlTask> taskCreator)
-        {
-            var task = taskCreator.Invoke(arguments);
-
-            var baseProperties = typeof(AbstractEtlTask).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                .Concat(typeof(AbstractProcess).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
-                .Select(x => x.Name)
-                .ToHashSet();
-
-            var properties = task.GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
-                .Where(x => !baseProperties.Contains(x.Name))
-                .ToList();
-
-            foreach (var property in properties)
-            {
-                if (property.GetValue(task) == null)
-                {
-                    var argument = arguments.All.FirstOrDefault(x => string.Equals(x.Key, property.Name, StringComparison.InvariantCultureIgnoreCase) && x.Value.GetType() == property.PropertyType);
-                    if (argument.Key != null)
-                    {
-                        property.SetValue(task, argument.Value);
-                    }
-                }
-            }
-
-            return task;
-        }
-
         private static EtlSessionArguments GetArguments(CompiledModule module, string instance)
         {
-            Dictionary<string, object> values = null;
-            var instanceArgumentProvider = module.InstanceArgumentProviders.Find(x => string.Equals(x.Instance, instance, StringComparison.InvariantCultureIgnoreCase));
-            if (instanceArgumentProvider != null)
-                values = instanceArgumentProvider.Arguments;
+            var argumentValues = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
 
-            if (values == null)
+            foreach (var provider in module.DefaultArgumentProviders)
             {
-                foreach (var provider in module.DefaultArgumentProviders)
+                var values = provider.Arguments;
+                if (values != null)
                 {
-                    values = provider.Arguments;
-                    if (values != null)
-                        break;
+                    foreach (var kvp in values)
+                        argumentValues[kvp.Key] = kvp.Value;
                 }
             }
 
-            return new EtlSessionArguments(values);
+            foreach (var provider in module.InstanceArgumentProviders.Where(x => string.Equals(x.Instance, instance, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                var values = provider.Arguments;
+                if (values != null)
+                {
+                    foreach (var kvp in values)
+                        argumentValues[kvp.Key] = kvp.Value;
+                }
+            }
+
+            return new EtlSessionArguments(argumentValues);
         }
 
         private static void LogTaskCounters(EtlSessionSerilogAdapter serilogAdapter, IEtlTask task)
