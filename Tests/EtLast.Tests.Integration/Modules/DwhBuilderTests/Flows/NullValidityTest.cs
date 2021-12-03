@@ -12,7 +12,7 @@
     using FizzCode.LightWeight.RelationalModel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    public class NullValidityTest : AbstractDwhBuilderTestFlow
+    public class NullValidityTest : AbstractEtlFlow
     {
         public NamedConnectionString ConnectionString { get; init; }
         public string DatabaseName { get; init; }
@@ -60,7 +60,7 @@
 
         private IExecutable CreateFirstDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
         {
-            var builder = new MsSqlDwhBuilder(Context, "FirstDwhBuilder", EtlRunId1)
+            var builder = new MsSqlDwhBuilder(Context, "FirstDwhBuilder", Helpers.EtlRunId1)
             {
                 Configuration = configuration,
                 ConnectionString = ConnectionString,
@@ -84,7 +84,7 @@
 
         private void TestFirstDwhBuilder()
         {
-            var result = ReadRows(this, ConnectionString, "dbo", "Company");
+            var result = Helpers.ReadRows(this, ConnectionString, "dbo", "Company");
             Assert.AreEqual(4, result.Count);
             Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "A", ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0) },
@@ -92,7 +92,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "C", ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["Name"] = "D", ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0) } });
 
-            result = ReadRows(this, ConnectionString, "dbo", "Company_hist");
+            result = Helpers.ReadRows(this, ConnectionString, "dbo", "Company_hist");
             Assert.AreEqual(4, result.Count);
             Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Company_histID"] = 1, ["Id"] = 1, ["Name"] = "A", ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0) },
@@ -100,13 +100,13 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Company_histID"] = 3, ["Id"] = 3, ["Name"] = "C", ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Company_histID"] = 4, ["Id"] = 4, ["Name"] = "D", ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0) } });
 
-            result = ReadRows(this, ConnectionString, "dbo", "_temp_Company");
+            result = Helpers.ReadRows(this, ConnectionString, "dbo", "_temp_Company");
             Assert.AreEqual(4, result.Count);
         }
 
         private IExecutable CreateSecondDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
         {
-            var builder = new MsSqlDwhBuilder(Context, "SecondDwhBuilder", EtlRunId2)
+            var builder = new MsSqlDwhBuilder(Context, "SecondDwhBuilder", Helpers.EtlRunId2)
             {
                 Configuration = configuration,
                 ConnectionString = ConnectionString,
@@ -129,7 +129,7 @@
 
         private void TestSecondDwhBuilder()
         {
-            var result = ReadRows(this, ConnectionString, "dbo", "Company");
+            var result = Helpers.ReadRows(this, ConnectionString, "dbo", "Company");
             Assert.AreEqual(5, result.Count);
             Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "A", ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0) },
@@ -138,7 +138,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["Name"] = "D", ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 5, ["Name"] = "E", ["EtlRunInsert"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["EtlRunUpdate"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["EtlRunFrom"] = new DateTime(2022, 2, 2, 2, 2, 2, 0) } });
 
-            result = ReadRows(this, ConnectionString, "dbo", "Company_hist");
+            result = Helpers.ReadRows(this, ConnectionString, "dbo", "Company_hist");
             Assert.AreEqual(7, result.Count);
             Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Company_histID"] = 1, ["Id"] = 1, ["Name"] = "A", ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0) },
@@ -149,7 +149,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Company_histID"] = 6, ["Id"] = 3, ["Name"] = "Cx", ["EtlRunInsert"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["EtlRunUpdate"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["EtlRunFrom"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["_ValidFrom"] = new DateTimeOffset(new DateTime(2022, 2, 2, 2, 2, 2, 0), new TimeSpan(0, 0, 0, 0, 0)) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Company_histID"] = 7, ["Id"] = 5, ["Name"] = "E", ["EtlRunInsert"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["EtlRunUpdate"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["EtlRunFrom"] = new DateTime(2022, 2, 2, 2, 2, 2, 0) } });
 
-            result = ReadRows(this, ConnectionString, "dbo", "_temp_Company");
+            result = Helpers.ReadRows(this, ConnectionString, "dbo", "_temp_Company");
             Assert.AreEqual(3, result.Count);
         }
 

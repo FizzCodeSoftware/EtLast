@@ -12,7 +12,7 @@
     using FizzCode.LightWeight.RelationalModel;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    public class History2Test : AbstractDwhBuilderTestFlow
+    public class History2Test : AbstractEtlFlow
     {
         public NamedConnectionString ConnectionString { get; init; }
         public string DatabaseName { get; init; }
@@ -56,7 +56,7 @@
 
         private IExecutable CreateFirstDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
         {
-            var builder = new MsSqlDwhBuilder(Context, "FirstDwhBuilder", EtlRunId1)
+            var builder = new MsSqlDwhBuilder(Context, "FirstDwhBuilder", Helpers.EtlRunId1)
             {
                 Configuration = configuration,
                 ConnectionString = ConnectionString,
@@ -105,7 +105,7 @@
 
         private void TestFirstDwhBuilder()
         {
-            var result = ReadRows(this, ConnectionString, "dbo", "People");
+            var result = Helpers.ReadRows(this, ConnectionString, "dbo", "People");
             Assert.AreEqual(5, result.Count);
             Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["FavoritePetId"] = 2, ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["_ValidFrom"] = new DateTimeOffset(new DateTime(2000, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 0, 0, 0, 0)) },
@@ -114,7 +114,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "D", ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["_ValidFrom"] = new DateTimeOffset(new DateTime(2000, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 0, 0, 0, 0)) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["Name"] = "E", ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["_ValidFrom"] = new DateTimeOffset(new DateTime(2000, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 0, 0, 0, 0)) } });
 
-            result = ReadRows(this, ConnectionString, "dbo", "People_hist");
+            result = Helpers.ReadRows(this, ConnectionString, "dbo", "People_hist");
             Assert.AreEqual(5, result.Count);
             Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                 new CaseInsensitiveStringKeyDictionary<object>() { ["People_histID"] = 1, ["Id"] = 0, ["Name"] = "A", ["FavoritePetId"] = 2, ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["_ValidFrom"] = new DateTimeOffset(new DateTime(2000, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 0, 0, 0, 0)), ["_ValidTo"] = new DateTimeOffset(new DateTime(2500, 1, 1, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 0)) },
@@ -123,7 +123,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["People_histID"] = 4, ["Id"] = 3, ["Name"] = "D", ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["_ValidFrom"] = new DateTimeOffset(new DateTime(2000, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 0, 0, 0, 0)), ["_ValidTo"] = new DateTimeOffset(new DateTime(2500, 1, 1, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 0)) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["People_histID"] = 5, ["Id"] = 4, ["Name"] = "E", ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["_ValidFrom"] = new DateTimeOffset(new DateTime(2000, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 0, 0, 0, 0)), ["_ValidTo"] = new DateTimeOffset(new DateTime(2500, 1, 1, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 0)) } });
 
-            result = ReadRows(this, ConnectionString, "dbo", "PeopleRating");
+            result = Helpers.ReadRows(this, ConnectionString, "dbo", "PeopleRating");
             Assert.AreEqual(4, result.Count);
             Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["PeopleId"] = 0, ["Rating"] = 7, ["_ValidFrom"] = new DateTimeOffset(new DateTime(1900, 1, 1, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 0)), ["_ValidTo"] = new DateTimeOffset(new DateTime(2500, 1, 1, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 0)), ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0) },
@@ -131,26 +131,26 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["PeopleId"] = 2, ["Rating"] = 3, ["_ValidFrom"] = new DateTimeOffset(new DateTime(1900, 1, 1, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 0)), ["_ValidTo"] = new DateTimeOffset(new DateTime(2500, 1, 1, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 0)), ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["PeopleId"] = 4, ["Rating"] = 9, ["_ValidFrom"] = new DateTimeOffset(new DateTime(1900, 1, 1, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 0)), ["_ValidTo"] = new DateTimeOffset(new DateTime(2500, 1, 1, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 0)), ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0) } });
 
-            result = ReadRows(this, ConnectionString, "sec", "Pet");
+            result = Helpers.ReadRows(this, ConnectionString, "sec", "Pet");
             Assert.AreEqual(3, result.Count);
             Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "pet#1", ["OwnerPeopleId"] = 0, ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "pet#2", ["OwnerPeopleId"] = 0, ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "pet#3", ["OwnerPeopleId"] = 2, ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0) } });
 
-            result = ReadRows(this, ConnectionString, "dbo", "_temp_People");
+            result = Helpers.ReadRows(this, ConnectionString, "dbo", "_temp_People");
             Assert.AreEqual(5, result.Count);
 
-            result = ReadRows(this, ConnectionString, "dbo", "_temp_PeopleRating");
+            result = Helpers.ReadRows(this, ConnectionString, "dbo", "_temp_PeopleRating");
             Assert.AreEqual(4, result.Count);
 
-            result = ReadRows(this, ConnectionString, "sec", "_temp_Pet");
+            result = Helpers.ReadRows(this, ConnectionString, "sec", "_temp_Pet");
             Assert.AreEqual(3, result.Count);
         }
 
         private IExecutable CreateSecondDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
         {
-            var builder = new MsSqlDwhBuilder(Context, "SecondDwhBuilder", EtlRunId2)
+            var builder = new MsSqlDwhBuilder(Context, "SecondDwhBuilder", Helpers.EtlRunId2)
             {
                 Configuration = configuration,
                 ConnectionString = ConnectionString,
@@ -196,7 +196,7 @@
 
         private void TestSecondDwhBuilder()
         {
-            var result = ReadRows(this, ConnectionString, "dbo", "People");
+            var result = Helpers.ReadRows(this, ConnectionString, "dbo", "People");
             Assert.AreEqual(5, result.Count);
             Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["FavoritePetId"] = 2, ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["_ValidFrom"] = new DateTimeOffset(new DateTime(2000, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 0, 0, 0, 0)) },
@@ -205,7 +205,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "Dx", ["LastChangedOn"] = new DateTime(2010, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["_ValidFrom"] = new DateTimeOffset(new DateTime(2010, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 0, 0, 0, 0)) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["Name"] = "E", ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["_ValidFrom"] = new DateTimeOffset(new DateTime(2000, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 0, 0, 0, 0)) } });
 
-            result = ReadRows(this, ConnectionString, "dbo", "People_hist");
+            result = Helpers.ReadRows(this, ConnectionString, "dbo", "People_hist");
             Assert.AreEqual(7, result.Count);
             Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                 new CaseInsensitiveStringKeyDictionary<object>() { ["People_histID"] = 1, ["Id"] = 0, ["Name"] = "A", ["FavoritePetId"] = 2, ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["_ValidFrom"] = new DateTimeOffset(new DateTime(2000, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 0, 0, 0, 0)), ["_ValidTo"] = new DateTimeOffset(new DateTime(2500, 1, 1, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 0)) },
@@ -216,7 +216,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["People_histID"] = 6, ["Id"] = 1, ["Name"] = "Bx", ["LastChangedOn"] = new DateTime(2010, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["EtlRunUpdate"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["EtlRunFrom"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["_ValidFrom"] = new DateTimeOffset(new DateTime(2010, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 0, 0, 0, 0)), ["_ValidTo"] = new DateTimeOffset(new DateTime(2500, 1, 1, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 0)) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["People_histID"] = 7, ["Id"] = 3, ["Name"] = "Dx", ["LastChangedOn"] = new DateTime(2010, 1, 1, 1, 1, 1, 0), ["EtlRunInsert"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["EtlRunUpdate"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["EtlRunFrom"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["_ValidFrom"] = new DateTimeOffset(new DateTime(2010, 1, 1, 1, 1, 1, 0), new TimeSpan(0, 0, 0, 0, 0)), ["_ValidTo"] = new DateTimeOffset(new DateTime(2500, 1, 1, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 0)) } });
 
-            result = ReadRows(this, ConnectionString, "dbo", "PeopleRating");
+            result = Helpers.ReadRows(this, ConnectionString, "dbo", "PeopleRating");
             Assert.AreEqual(6, result.Count);
             Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["PeopleId"] = 0, ["Rating"] = 7, ["_ValidFrom"] = new DateTimeOffset(new DateTime(1900, 1, 1, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 0)), ["_ValidTo"] = new DateTimeOffset(new DateTime(2022, 2, 2, 2, 2, 2, 0), new TimeSpan(0, 0, 0, 0, 0)), ["EtlRunInsert"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunUpdate"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["EtlRunFrom"] = new DateTime(2001, 1, 1, 1, 1, 1, 0), ["EtlRunTo"] = new DateTime(2022, 2, 2, 2, 2, 2, 0) },
@@ -226,7 +226,7 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 5, ["PeopleId"] = 0, ["Rating"] = 29, ["PreviousRating"] = 7, ["_ValidFrom"] = new DateTimeOffset(new DateTime(2022, 2, 2, 2, 2, 2, 0), new TimeSpan(0, 0, 0, 0, 0)), ["_ValidTo"] = new DateTimeOffset(new DateTime(2500, 1, 1, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 0)), ["EtlRunInsert"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["EtlRunUpdate"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["EtlRunFrom"] = new DateTime(2022, 2, 2, 2, 2, 2, 0) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 6, ["PeopleId"] = 3, ["Rating"] = 23, ["_ValidFrom"] = new DateTimeOffset(new DateTime(1900, 1, 1, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 0)), ["_ValidTo"] = new DateTimeOffset(new DateTime(2500, 1, 1, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 0)), ["EtlRunInsert"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["EtlRunUpdate"] = new DateTime(2022, 2, 2, 2, 2, 2, 0), ["EtlRunFrom"] = new DateTime(2022, 2, 2, 2, 2, 2, 0) } });
 
-            result = ReadRows(this, ConnectionString, "sec", "Pet");
+            result = Helpers.ReadRows(this, ConnectionString, "sec", "Pet");
             Assert.AreEqual(4, result.Count);
             Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "pet#1", ["OwnerPeopleId"] = 0, ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0) },
@@ -234,13 +234,13 @@
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "pet#3", ["OwnerPeopleId"] = 2, ["LastChangedOn"] = new DateTime(2000, 1, 1, 1, 1, 1, 0) },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["Name"] = "pet#4x", ["OwnerPeopleId"] = 0, ["LastChangedOn"] = new DateTime(2010, 1, 1, 1, 1, 1, 0) } });
 
-            result = ReadRows(this, ConnectionString, "dbo", "_temp_People");
+            result = Helpers.ReadRows(this, ConnectionString, "dbo", "_temp_People");
             Assert.AreEqual(2, result.Count);
 
-            result = ReadRows(this, ConnectionString, "dbo", "_temp_PeopleRating");
+            result = Helpers.ReadRows(this, ConnectionString, "dbo", "_temp_PeopleRating");
             Assert.AreEqual(2, result.Count);
 
-            result = ReadRows(this, ConnectionString, "sec", "_temp_Pet");
+            result = Helpers.ReadRows(this, ConnectionString, "sec", "_temp_Pet");
             Assert.AreEqual(2, result.Count);
         }
 

@@ -16,7 +16,7 @@
 
     internal static class ModuleExecuter
     {
-        public static ExecutionResult Execute(CommandContext commandContext, CompiledModule module, string[] commands)
+        public static ExecutionResult Execute(CommandContext commandContext, CompiledModule module, string[] commandNames)
         {
             var result = ExecutionResult.Success;
 
@@ -38,24 +38,11 @@
             }
 
             var instance = Environment.MachineName;
+            var config = GetArguments(module, instance);
 
-            Dictionary<string, object> configValues = null;
-            var instanceConfigurationProvider = module.InstanceConfigurationProviders.Find(x => string.Equals(x.Instance, instance, StringComparison.InvariantCultureIgnoreCase));
-            if (instanceConfigurationProvider != null)
-                configValues = instanceConfigurationProvider.Configuration;
-
-            if (configValues == null)
-            {
-                foreach (var defaultProvider in module.DefaultConfigurationProviders)
-                {
-                    configValues = defaultProvider.Configuration;
-                    if (configValues != null)
-                        break;
-                }
-            }
-
-            var environmentSettings = new EnvironmentSettings(instance, configValues);
-            module.Startup?.BuildSettings(environmentSettings);
+            var environmentSettings = new EnvironmentSettings();
+            module.Startup.Configure(environmentSettings);
+            var commands = new Dictionary<string, Func<IEtlSessionArguments, IEtlTask>>(module.Startup.Commands, StringComparer.InvariantCultureIgnoreCase);
 
             var sessionId = "s" + DateTime.Now.ToString("yyMMdd-HHmmss-ff", CultureInfo.InvariantCulture);
             var session = new EtlSession(sessionId, etlContext);
@@ -83,15 +70,15 @@
 
             try
             {
-                foreach (var command in commands)
+                foreach (var commandName in commandNames)
                 {
-                    if (!environmentSettings.Commands.TryGetValue(command, out var taskCreator))
+                    if (!commands.TryGetValue(commandName, out var command))
                     {
-                        serilogAdapter.Log(LogSeverity.Error, false, null, null, "unknown command: " + command);
+                        serilogAdapter.Log(LogSeverity.Error, false, null, null, "unknown command: " + commandName);
                         break;
                     }
 
-                    var task = taskCreator.Invoke();
+                    var task = command.Invoke(config);
 
                     try
                     {
@@ -147,6 +134,26 @@
             }
 
             return result;
+        }
+
+        private static EtlSessionArguments GetArguments(CompiledModule module, string instance)
+        {
+            Dictionary<string, object> values = null;
+            var instanceArgumentProvider = module.InstanceArgumentProviders.Find(x => string.Equals(x.Instance, instance, StringComparison.InvariantCultureIgnoreCase));
+            if (instanceArgumentProvider != null)
+                values = instanceArgumentProvider.Arguments;
+
+            if (values == null)
+            {
+                foreach (var provider in module.DefaultArgumentProviders)
+                {
+                    values = provider.Arguments;
+                    if (values != null)
+                        break;
+                }
+            }
+
+            return new EtlSessionArguments(values);
         }
 
         private static void LogTaskCounters(EtlSessionSerilogAdapter serilogAdapter, IEtlTask task)
@@ -228,7 +235,7 @@
             }
         }
 
-        public static ILogger CreateLogger(IEnvironmentSettings settings, string devLogFolder, string opsLogFolder)
+        public static ILogger CreateLogger(EnvironmentSettings settings, string devLogFolder, string opsLogFolder)
         {
             var config = new LoggerConfiguration()
                 .WriteTo.File(new CompactJsonFormatter(), Path.Combine(devLogFolder, "events-.json"),
@@ -304,7 +311,7 @@
             return config.CreateLogger();
         }
 
-        public static ILogger CreateOpsLogger(IEnvironmentSettings settings, string devLogFolder, string opsLogFolder)
+        public static ILogger CreateOpsLogger(EnvironmentSettings settings, string devLogFolder, string opsLogFolder)
         {
             var config = new LoggerConfiguration()
                 .WriteTo.File(Path.Combine(opsLogFolder, "2-info-.txt"),
@@ -344,7 +351,7 @@
             return config.CreateLogger();
         }
 
-        public static ILogger CreateIoLogger(IEnvironmentSettings settings, string devLogFolder, string opsLogFolder)
+        public static ILogger CreateIoLogger(EnvironmentSettings settings, string devLogFolder, string opsLogFolder)
         {
             var config = new LoggerConfiguration()
                 .WriteTo.File(Path.Combine(devLogFolder, "io-.txt"),

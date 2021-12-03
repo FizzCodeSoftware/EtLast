@@ -2,11 +2,11 @@
 {
     using System.Collections.Generic;
 
-    internal class DevWSDEVTWO : IInstanceConfigurationProvider
+    internal class DevWSDEVTWO : IInstanceArgumentProvider
     {
         public string Instance => "WSDEVTWO";
 
-        public Dictionary<string, object> Configuration => new()
+        public Dictionary<string, object> Arguments => new()
         {
             ["DatabaseName"] = "EtLastIntegrationTest",
             ["ConnectionString"] = "Data Source=(local);Initial Catalog=\"EtLastIntegrationTest\";Integrated Security=SSPI;Connection Timeout=5",

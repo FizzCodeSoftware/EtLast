@@ -7,14 +7,14 @@
     using FizzCode.EtLast.AdoNet;
     using FizzCode.LightWeight.AdoNet;
 
-    public abstract class AbstractDwhBuilderTestFlow : AbstractEtlFlow
+    public static class Helpers
     {
-        protected DateTime EtlRunId1 { get; } = new DateTime(2001, 1, 1, 1, 1, 1, DateTimeKind.Utc);
-        protected DateTime EtlRunId2 { get; } = new DateTime(2022, 2, 2, 2, 2, 2, DateTimeKind.Utc);
+        public static DateTime EtlRunId1 { get; } = new DateTime(2001, 1, 1, 1, 1, 1, DateTimeKind.Utc);
+        public static DateTime EtlRunId2 { get; } = new DateTime(2022, 2, 2, 2, 2, 2, DateTimeKind.Utc);
 
-        protected List<ISlimRow> ReadRows(IProcess caller, NamedConnectionString connectionString, string schema, string table)
+        public static List<ISlimRow> ReadRows(IProcess caller, NamedConnectionString connectionString, string schema, string table)
         {
-            return new AdoNetDbReader(Context)
+            return new AdoNetDbReader(caller.Context)
             {
                 Name = "Reader",
                 ConnectionString = connectionString,

@@ -2,9 +2,9 @@
 {
     using System.Collections.Generic;
 
-    public interface IInstanceConfigurationProvider
+    public interface IInstanceArgumentProvider
     {
         public string Instance { get; }
-        public Dictionary<string, object> Configuration { get; }
+        public Dictionary<string, object> Arguments { get; }
     }
 }

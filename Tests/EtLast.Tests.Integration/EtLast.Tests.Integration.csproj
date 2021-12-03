@@ -87,7 +87,7 @@
     <Compile Update="Modules\DwhBuilderTests\Flows\EtlRunIdForDefaultValidFromTest.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Modules\DwhBuilderTests\AbstractDwhBuilderTestFlow.cs">
+    <Compile Update="Modules\DwhBuilderTests\Helpers.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Update="Modules\DwhBuilderTests\TestDwhDefinition.cs">

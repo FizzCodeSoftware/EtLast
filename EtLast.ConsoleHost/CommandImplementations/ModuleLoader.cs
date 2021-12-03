@@ -44,8 +44,8 @@
                 commandContext.Logger.Information("loading module directly from AppDomain where namespace ends with '{Module}'", moduleName);
                 var appDomainTasks = LoadInstancesFromAppDomain<IEtlTask>(moduleName);
                 var startup = LoadInstancesFromAppDomain<IStartup>(moduleName).FirstOrDefault();
-                var instanceConfigurationProviders = LoadInstancesFromAppDomain<IInstanceConfigurationProvider>(moduleName);
-                var defaultConfigurationProviders = LoadInstancesFromAppDomain<IDefaultConfigurationProvider>(moduleName);
+                var instanceConfigurationProviders = LoadInstancesFromAppDomain<IInstanceArgumentProvider>(moduleName);
+                var defaultConfigurationProviders = LoadInstancesFromAppDomain<IDefaultArgumentProvider>(moduleName);
                 commandContext.Logger.Debug("finished in {Elapsed}", startedOn.Elapsed);
 
                 module = new CompiledModule()
@@ -53,8 +53,8 @@
                     Name = moduleName,
                     Folder = moduleFolder,
                     Startup = startup,
-                    InstanceConfigurationProviders = instanceConfigurationProviders,
-                    DefaultConfigurationProviders = defaultConfigurationProviders,
+                    InstanceArgumentProviders = instanceConfigurationProviders,
+                    DefaultArgumentProviders = defaultConfigurationProviders,
                     Tasks = appDomainTasks.Where(x => x.Name != null).ToList(),
                     LoadContext = null,
                 };
@@ -136,8 +136,8 @@
 
                 var compiledTasks = LoadInstancesFromAssembly<IEtlTask>(assembly);
                 var compiledStartup = LoadInstancesFromAssembly<IStartup>(assembly).FirstOrDefault();
-                var instanceConfigurationProviders = LoadInstancesFromAppDomain<IInstanceConfigurationProvider>(moduleName);
-                var defaultConfigurationProviders = LoadInstancesFromAppDomain<IDefaultConfigurationProvider>(moduleName);
+                var instanceConfigurationProviders = LoadInstancesFromAppDomain<IInstanceArgumentProvider>(moduleName);
+                var defaultConfigurationProviders = LoadInstancesFromAppDomain<IDefaultArgumentProvider>(moduleName);
                 commandContext.Logger.Debug("compilation finished in {Elapsed}", startedOn.Elapsed);
 
                 module = new CompiledModule()
@@ -145,8 +145,8 @@
                     Name = moduleName,
                     Folder = moduleFolder,
                     Startup = compiledStartup,
-                    InstanceConfigurationProviders = instanceConfigurationProviders,
-                    DefaultConfigurationProviders = defaultConfigurationProviders,
+                    InstanceArgumentProviders = instanceConfigurationProviders,
+                    DefaultArgumentProviders = defaultConfigurationProviders,
                     Tasks = compiledTasks.Where(x => x.Name != null).ToList(),
                     LoadContext = assemblyLoadContext,
                 };
