@@ -151,11 +151,11 @@ namespace FizzCode.EtLast.Diagnostics.Interface
 
                         lock (_openSinkWriterStreamsLock)
                         {
-                            if (!_openSinkWriterStreams.TryGetValue(rse.SinkUid, out var sinkWriterStream))
+                            if (!_openSinkWriterStreams.TryGetValue(rse.SinkUID, out var sinkWriterStream))
                             {
-                                var sinkFileName = GetSinkFileName(rse.SinkUid);
+                                var sinkFileName = GetSinkFileName(rse.SinkUID);
                                 sinkWriterStream = new FileStream(sinkFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 512 * 1024);
-                                _openSinkWriterStreams.Add(rse.SinkUid, sinkWriterStream);
+                                _openSinkWriterStreams.Add(rse.SinkUID, sinkWriterStream);
                             }
 
                             sinkWriterStream.Write(eventBytes, 0, eventBytes.Length);
