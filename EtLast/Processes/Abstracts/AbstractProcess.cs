@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.ComponentModel;
+    using System.Globalization;
     using System.Linq;
 
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
@@ -58,6 +59,25 @@
         public virtual string GetTopic()
         {
             return null;
+        }
+
+        protected void LogPublicSettableProperties(LogSeverity severity)
+        {
+            var baseProperties = typeof(AbstractEtlTask).GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.DeclaredOnly)
+                .Concat(typeof(AbstractProcess).GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.DeclaredOnly))
+                .Select(x => x.Name)
+                .ToHashSet();
+
+            var properties = GetType().GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Public)
+                .Where(x => !baseProperties.Contains(x.Name))
+                .ToList();
+
+            foreach (var property in properties)
+            {
+                var value = property.GetValue(this);
+                Context.Log(severity, this, "parameter {ParameterName} = {ParameterValue}",
+                    property.Name, DefaultValueFormatter.Format(value, CultureInfo.InvariantCulture) ?? "<NULL>");
+            }
         }
     }
 }

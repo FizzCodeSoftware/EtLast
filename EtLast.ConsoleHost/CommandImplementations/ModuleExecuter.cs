@@ -6,6 +6,7 @@
     using System.Globalization;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
     using System.Text;
     using System.Transactions;
     using FizzCode.EtLast;
@@ -16,7 +17,7 @@
 
     internal static class ModuleExecuter
     {
-        public static ExecutionResult Execute(CommandContext commandContext, CompiledModule module, string[] commandNames)
+        public static ExecutionResult Execute(CommandContext commandContext, CompiledModule module, string[] commands)
         {
             var result = ExecutionResult.Success;
 
@@ -38,11 +39,11 @@
             }
 
             var instance = Environment.MachineName;
-            var config = GetArguments(module, instance);
+            var arguments = GetArguments(module, instance);
 
             var environmentSettings = new EnvironmentSettings();
             module.Startup.Configure(environmentSettings);
-            var commands = new Dictionary<string, Func<IEtlSessionArguments, IEtlTask>>(module.Startup.Commands, StringComparer.InvariantCultureIgnoreCase);
+            var taskCreators = new Dictionary<string, Func<IEtlSessionArguments, IEtlTask>>(module.Startup.Commands, StringComparer.InvariantCultureIgnoreCase);
 
             var sessionId = "s" + DateTime.Now.ToString("yyMMdd-HHmmss-ff", CultureInfo.InvariantCulture);
             var session = new EtlSession(sessionId, etlContext);
@@ -70,15 +71,15 @@
 
             try
             {
-                foreach (var commandName in commandNames)
+                foreach (var command in commands)
                 {
-                    if (!commands.TryGetValue(commandName, out var command))
+                    if (!taskCreators.TryGetValue(command, out var taskCreator))
                     {
-                        serilogAdapter.Log(LogSeverity.Error, false, null, null, "unknown command: " + commandName);
+                        serilogAdapter.Log(LogSeverity.Error, false, null, null, "unknown command: " + command);
                         break;
                     }
 
-                    var task = command.Invoke(config);
+                    var task = CreateTask(arguments, taskCreator);
 
                     try
                     {
@@ -134,6 +135,34 @@
             }
 
             return result;
+        }
+
+        private static IEtlTask CreateTask(EtlSessionArguments arguments, Func<IEtlSessionArguments, IEtlTask> taskCreator)
+        {
+            var task = taskCreator.Invoke(arguments);
+
+            var baseProperties = typeof(AbstractEtlTask).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly)
+                .Concat(typeof(AbstractProcess).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
+                .Select(x => x.Name)
+                .ToHashSet();
+
+            var properties = task.GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
+                .Where(x => !baseProperties.Contains(x.Name))
+                .ToList();
+
+            foreach (var property in properties)
+            {
+                if (property.GetValue(task) == null)
+                {
+                    var argument = arguments.All.FirstOrDefault(x => string.Equals(x.Key, property.Name, StringComparison.InvariantCultureIgnoreCase) && x.Value.GetType() == property.PropertyType);
+                    if (argument.Key != null)
+                    {
+                        property.SetValue(task, argument.Value);
+                    }
+                }
+            }
+
+            return task;
         }
 
         private static EtlSessionArguments GetArguments(CompiledModule module, string instance)

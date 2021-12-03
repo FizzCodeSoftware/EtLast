@@ -5,15 +5,15 @@
 
     public class Main : AbstractEtlFlow
     {
-        public NamedConnectionString ConnectionString { get; init; }
-        public string DatabaseName { get; init; }
+        public NamedConnectionString ConnectionString { get; set; }
+        public string DatabaseName { get; set; }
 
         public override void Execute()
         {
             Session.ExecuteTask(this, new EtlRunInfoTest()
             {
                 ConnectionString = ConnectionString,
-                DatabaseName = DatabaseName
+                DatabaseName = DatabaseName,
             });
 
             Session.ExecuteTask(this, new EtlRunInfoOptimizedTest()

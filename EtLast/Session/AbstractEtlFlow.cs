@@ -27,17 +27,15 @@
             Session = session;
             Context = session.Context;
 
-            var path = Name;
-            var c = caller;
-            while (c != null)
-            {
-                path = c.Name + "/" + path;
-                c = c.InvocationInfo.Caller;
-            }
-
-            Context.Log(LogSeverity.Information, caller, "executing flow {Task}", Name);
-
             Context.RegisterProcessInvocationStart(this, caller);
+
+            if (caller != null)
+                Context.Log(LogSeverity.Information, this, "flow started by {Process}", caller.Name);
+            else
+                Context.Log(LogSeverity.Information, this, "flow started");
+
+            LogPublicSettableProperties(LogSeverity.Debug);
+
             var netTimeStopwatch = Stopwatch.StartNew();
             try
             {

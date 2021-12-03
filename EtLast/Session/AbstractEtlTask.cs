@@ -30,17 +30,13 @@
 
             Context.RegisterProcessInvocationStart(this, caller);
 
-            var path = Name;
-            var c = caller;
-            while (c != null)
-            {
-                path = c.Name + "/" + path;
-                c = c.InvocationInfo.Caller;
-            }
+            if (caller != null)
+                Context.Log(LogSeverity.Information, this, "task started by {Process}", caller.Name);
+            else
+                Context.Log(LogSeverity.Information, this, "task started");
 
-            Context.Log(LogSeverity.Information, caller, "executing task {Task}", Name);
+            LogPublicSettableProperties(LogSeverity.Debug);
 
-            Context.RegisterProcessInvocationStart(this, caller);
             var netTimeStopwatch = Stopwatch.StartNew();
             try
             {

@@ -13,8 +13,8 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
 
     public class CreateDatabase : AbstractEtlTask
     {
-        public NamedConnectionString ConnectionString { get; init; }
-        public DatabaseDefinition Definition { get; init; }
+        public NamedConnectionString ConnectionString { get; set; }
+        public DatabaseDefinition Definition { get; set; }
         public string DatabaseName { get; init; }
 
         public override IEnumerable<IExecutable> CreateProcesses()

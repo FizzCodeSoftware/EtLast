@@ -5,6 +5,8 @@
 
     public sealed class EtlSessionArguments : IEtlSessionArguments
     {
+        public IEnumerable<KeyValuePair<string, object>> All => _values;
+
         private readonly Dictionary<string, object> _values;
 
         public EtlSessionArguments(Dictionary<string, object> values)

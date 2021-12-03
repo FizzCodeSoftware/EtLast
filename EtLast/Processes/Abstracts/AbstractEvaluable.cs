@@ -19,7 +19,13 @@
         public Evaluator Evaluate(IProcess caller = null)
         {
             Context.RegisterProcessInvocationStart(this, caller);
-            Context.Log(LogSeverity.Information, caller, "executing process {Process}", Name);
+
+            if (caller != null)
+                Context.Log(LogSeverity.Information, this, "process started by {Process}", caller.Name);
+            else
+                Context.Log(LogSeverity.Information, this, "process started");
+
+            LogPublicSettableProperties(LogSeverity.Verbose);
 
             var netTimeStopwatch = Stopwatch.StartNew();
             try
