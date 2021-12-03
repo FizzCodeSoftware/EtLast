@@ -94,9 +94,14 @@
                     if (argument.Key != null)
                     {
                         var value = argument.Value;
-                        if (value != null && value is Func<object> f)
+                        if (value != null && value is Func<object> func)
                         {
-                            value = f.Invoke();
+                            value = func.Invoke();
+                        }
+
+                        if (value != null && value is Func<IEtlSessionArguments, object> funcWithArgs)
+                        {
+                            value = funcWithArgs.Invoke(_arguments);
                         }
 
                         if (value != null && property.PropertyType.IsAssignableFrom(value.GetType()))

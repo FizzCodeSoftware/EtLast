@@ -6,7 +6,7 @@
     public class ExceptionTest : AbstractEtlFlow
     {
         public Type ExceptionType { get; set; }
-        public string Message { get; set; } = "oops something went wrong";
+        public string Message { get; set; }
 
         public override void Execute()
         {

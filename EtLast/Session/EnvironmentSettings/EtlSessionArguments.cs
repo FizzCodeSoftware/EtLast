@@ -20,8 +20,11 @@
         {
             if (_values.TryGetValue(key, out var value))
             {
-                if (value is Func<T> f)
-                    value = f.Invoke();
+                if (value is Func<T> func)
+                    value = func.Invoke();
+
+                if (value is Func<IEtlSessionArguments, object> funcWithArgs)
+                    value = funcWithArgs.Invoke(this);
 
                 if (value is T castValue)
                     return castValue;

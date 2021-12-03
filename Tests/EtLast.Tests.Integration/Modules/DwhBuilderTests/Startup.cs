@@ -6,19 +6,20 @@
 
     public class Startup : IStartup
     {
-        public void Configure(EnvironmentSettings settings)
-        {
-            DbProviderFactories.RegisterFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
-            settings.FileLogSettings.MinimumLogLevel = LogSeverity.Debug;
-            settings.ConsoleLogSettings.MinimumLogLevel = LogSeverity.Verbose;
-        }
-
         public Dictionary<string, Func<IEtlSessionArguments, IEtlTask>> Commands => new()
         {
             ["ExceptionTestCommand"] = args => new ExceptionTest()
             {
                 ExceptionType = typeof(InvalidOperationException),
-            }
+                Message = "oops something went wrong",
+            },
         };
+
+        public void Configure(EnvironmentSettings settings)
+        {
+            DbProviderFactories.RegisterFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
+            settings.FileLogSettings.MinimumLogLevel = LogSeverity.Warning;
+            settings.ConsoleLogSettings.MinimumLogLevel = LogSeverity.Verbose;
+        }
     }
 }

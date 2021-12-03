@@ -6,6 +6,6 @@
     public interface IStartup
     {
         public void Configure(EnvironmentSettings settings);
-        Dictionary<string, Func<IEtlSessionArguments, IEtlTask>> Commands { get; }
+        public Dictionary<string, Func<IEtlSessionArguments, IEtlTask>> Commands { get; }
     }
 }

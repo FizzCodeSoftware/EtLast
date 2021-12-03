@@ -9,10 +9,10 @@
       }
     },
     "Aliases": {
-      "do": "run command DwhBuilderTests Main",
-      "doex1": "run command DwhBuilderTests ExceptionTestCommand",
-      "doex2": "run command DwhBuilderTests ExceptionTest",
-      "createdb": "run command DwhBuilderTests CreateDatabase"
+      "do": "run DwhBuilderTests Main",
+      "doex1": "run DwhBuilderTests ExceptionTestCommand",
+      "doex2": "run DwhBuilderTests ExceptionTest",
+      "createdb": "run DwhBuilderTests CreateDatabase"
     },
     "SecretProtector": {
       "Enabled": false
