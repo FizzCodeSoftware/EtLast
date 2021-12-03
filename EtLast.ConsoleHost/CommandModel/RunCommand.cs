@@ -3,14 +3,14 @@
     using System.Collections.Generic;
     using CommandDotNet;
 
-    [Command(Name = "run", Description = "Execute ETL commands.")]
-    [SubCommand]
+    [Command("run", Description = "Execute ETL commands.")]
+    [Subcommand]
     public class RunCommand
     {
-        [Command(Name = "command", Description = "Execute one command.")]
+        [Command("command", Description = "Execute one command.")]
         public int RunModule(
-            [Operand(Name = "module", Description = "The name of the module.")] string moduleName,
-            [Operand(Name = "command", Description = "The command.")] string command)
+            [Operand("module", Description = "The name of the module.")] string moduleName,
+            [Operand("command", Description = "The command.")] string command)
         {
             var commandContext = CommandLineHandler.Context;
 
@@ -33,10 +33,10 @@
             return (int)executionResult;
         }
 
-        [Command(Name = "commands", Description = "Execute one or more commands.")]
+        [Command("commands", Description = "Execute one or more commands.")]
         public int RunModules(
-            [Operand(Name = "module", Description = "The name of the module.")] string moduleName,
-            [Operand(Name = "commands", Description = "The space-separated list of task names.")] List<string> commands)
+            [Operand("module", Description = "The name of the module.")] string moduleName,
+            [Operand("commands", Description = "The space-separated list of task names.")] List<string> commands)
         {
             var commandContext = CommandLineHandler.Context;
 

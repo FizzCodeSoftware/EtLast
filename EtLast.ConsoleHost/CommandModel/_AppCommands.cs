@@ -5,20 +5,20 @@ namespace FizzCode.EtLast.ConsoleHost
     using CommandDotNet;
     using Serilog.Events;
 
-    [Command(Name = ">")]
+    [Command(">")]
     internal class AppCommands
     {
-        [SubCommand]
+        [Subcommand]
         public TestCommand Validate { get; set; }
 
-        [SubCommand]
+        [Subcommand]
         public ListCommand List { get; set; }
 
-        [SubCommand]
+        [Subcommand]
         public RunCommand Run { get; set; }
 
-        [Command(Name = "protect", Description = "Protect a secret.")]
-        public void ProtectSecret([Operand(Name = "secret", Description = "The secret to protect.")] string secret)
+        [Command("protect", Description = "Protect a secret.")]
+        public void ProtectSecret([Operand("secret", Description = "The secret to protect.")] string secret)
         {
             var commandContext = CommandLineHandler.Context;
 
@@ -41,7 +41,7 @@ namespace FizzCode.EtLast.ConsoleHost
             Console.WriteLine("-------------");
         }
 
-        [Command(Name = "exit", Description = "Exit from the command-line utility.")]
+        [Command("exit", Description = "Exit from the command-line utility.")]
         public void Exit()
         {
             CommandLineHandler.Terminated = true;

@@ -3,14 +3,14 @@
     using System.Collections.Generic;
     using CommandDotNet;
 
-    [Command(Name = "test", Description = "Test connection strings, modules, etc.")]
-    [SubCommand]
+    [Command("test", Description = "Test connection strings, modules, etc.")]
+    [Subcommand]
     public class TestCommand
     {
-        [Command(Name = "modules", Description = "Tests one or more modules.")]
+        [Command("modules", Description = "Tests one or more modules.")]
         public int ValidateModule(
-        [Operand(Name = "names", Description = "The space-separated list of module names.")] List<string> moduleNames,
-        [Option(LongName = "all", ShortName = "a")] bool all)
+        [Operand("names", Description = "The space-separated list of module names.")] List<string> moduleNames,
+        [Option('a', "all")] bool all)
         {
             if (moduleNames == null || moduleNames.Count == 0)
             {
