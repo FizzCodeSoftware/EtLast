@@ -44,7 +44,7 @@
                 InputProcess = new EnumerableImporter(context)
                 {
                     InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
-                    ColumnConfiguration = new()
+                    Columns = new()
                     {
                         ["ID"] = new ReaderColumnConfiguration(new StringConverter()),
                         ["age"] = new ReaderColumnConfiguration(new LongConverter()).ValueWhenSourceIsNull(-1L),
@@ -76,7 +76,7 @@
                 InputProcess = new EnumerableImporter(context)
                 {
                     InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
-                    ColumnConfiguration = new()
+                    Columns = new()
                     {
                         ["ID"] = new ReaderColumnConfiguration(new StringConverter()),
                         ["age"] = new ReaderColumnConfiguration(new LongConverter()).ValueWhenSourceIsNull(-1L),

@@ -14,7 +14,7 @@
             return new EpPlusExcelReader(context)
             {
                 FileName = fileName,
-                ColumnConfiguration = new()
+                Columns = new()
                 {
                     ["Id"] = new ReaderColumnConfiguration(new IntConverter()).ValueWhenSourceIsNull(string.Empty),
                     ["Name"] = new ReaderColumnConfiguration(new StringConverter()).ValueWhenSourceIsNull(string.Empty),

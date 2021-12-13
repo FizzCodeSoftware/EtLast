@@ -12,8 +12,8 @@
     {
         public string FileName { get; set; }
 
-        public Dictionary<string, ReaderColumnConfiguration> ColumnConfiguration { get; set; }
-        public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
+        public Dictionary<string, ReaderColumnConfiguration> Columns { get; set; }
+        public ReaderDefaultColumnConfiguration DefaultColumns { get; set; }
 
         /// <summary>
         /// Default true.
@@ -69,8 +69,8 @@
             if (HasHeaderRow && ColumnNames?.Length > 0)
                 throw new InvalidProcessParameterException(this, nameof(ColumnNames), ColumnNames, nameof(ColumnNames) + " must be null if " + nameof(HasHeaderRow) + " is true.");
 
-            if (ColumnConfiguration == null && DefaultColumnConfiguration == null)
-                throw new InvalidProcessParameterException(this, nameof(ColumnConfiguration), ColumnConfiguration, nameof(DefaultColumnConfiguration) + " must be specified if " + nameof(ColumnConfiguration) + " is null.");
+            if (Columns == null && DefaultColumns == null)
+                throw new InvalidProcessParameterException(this, nameof(Columns), Columns, nameof(DefaultColumns) + " must be specified if " + nameof(Columns) + " is null.");
         }
 
         protected override IEnumerable<IRow> Produce()
@@ -92,7 +92,7 @@
             }
 
             // key is the SOURCE column name
-            var columnMap = ColumnConfiguration?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
+            var columnMap = Columns?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
             var resultCount = 0;
 
@@ -302,9 +302,9 @@
                             var value = columnConfiguration.config.Process(this, sourceValue);
                             initialValues.Add(new KeyValuePair<string, object>(columnConfiguration.rowColumn, value));
                         }
-                        else if (DefaultColumnConfiguration != null)
+                        else if (DefaultColumns != null)
                         {
-                            var value = DefaultColumnConfiguration.Process(this, sourceValue);
+                            var value = DefaultColumns.Process(this, sourceValue);
                             initialValues.Add(new KeyValuePair<string, object>(csvColumn, value));
                         }
                     }

@@ -32,8 +32,8 @@
         /// </summary>
         public bool AutomaticallyTrimAllStringValues { get; init; } = true;
 
-        public Dictionary<string, ReaderColumnConfiguration> ColumnConfiguration { get; init; }
-        public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; init; }
+        public Dictionary<string, ReaderColumnConfiguration> Columns { get; init; }
+        public ReaderDefaultColumnConfiguration DefaultColumns { get; init; }
 
         private bool Transpose { get; init; } // todo: implement working transpose
 
@@ -81,8 +81,8 @@
             if (string.IsNullOrEmpty(SheetName) && SheetIndex == -1)
                 throw new ProcessParameterNullException(this, nameof(SheetName));
 
-            if (ColumnConfiguration == null)
-                throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
+            if (Columns == null)
+                throw new ProcessParameterNullException(this, nameof(Columns));
         }
 
         protected override IEnumerable<IRow> Produce()
@@ -133,7 +133,7 @@
             }
 
             // key is the SOURCE column name
-            var columnMap = ColumnConfiguration?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
+            var columnMap = Columns?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
             var rowCount = 0;
             try
@@ -228,9 +228,9 @@
                     {
                         columnIndexes.Add((columnConfiguration.rowColumn, colIndex, columnConfiguration.config));
                     }
-                    else if (DefaultColumnConfiguration != null)
+                    else if (DefaultColumns != null)
                     {
-                        columnIndexes.Add((excelColumn, colIndex, DefaultColumnConfiguration));
+                        columnIndexes.Add((excelColumn, colIndex, DefaultColumns));
                     }
                 }
 

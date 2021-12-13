@@ -13,7 +13,7 @@
             return new DelimitedFileReader(context)
             {
                 FileName = fileName,
-                ColumnConfiguration = new()
+                Columns = new()
                 {
                     ["Id"] = new ReaderColumnConfiguration(new IntConverter()),
                     ["Name"] = new ReaderColumnConfiguration(new StringConverter()),
@@ -32,7 +32,7 @@
             return new DelimitedFileReader(context)
             {
                 FileName = fileName,
-                ColumnConfiguration = new()
+                Columns = new()
                 {
                     ["Id"] = new ReaderColumnConfiguration(new IntConverter()),
                     ["Name"] = new ReaderColumnConfiguration(new StringConverter()),

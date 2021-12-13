@@ -18,7 +18,7 @@
                 {
                     FileName = @".\TestData\Test.xlsx",
                     SheetName = "DateBroken",
-                    ColumnConfiguration = new()
+                    Columns = new()
                     {
                         ["Id"] = new ReaderColumnConfiguration(new IntConverter()),
                         ["Date"] = new ReaderColumnConfiguration(new DateConverter()),

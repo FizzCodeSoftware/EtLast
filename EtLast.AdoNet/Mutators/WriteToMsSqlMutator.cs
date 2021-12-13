@@ -55,13 +55,13 @@
 
             var columnIndexes = new Dictionary<string, int>();
             var i = 0;
-            foreach (var kvp in TableDefinition.Columns)
+            foreach (var column in TableDefinition.Columns)
             {
-                columnIndexes[kvp.Key] = i;
+                columnIndexes[column.Key] = i;
                 i++;
             }
 
-            _reader = new RowShadowReader(BatchSize, TableDefinition.Columns.Select(x => x.Value).ToArray(), columnIndexes);
+            _reader = new RowShadowReader(BatchSize, TableDefinition.Columns.Select(column => column.Value ?? column.Key).ToArray(), columnIndexes);
         }
 
         protected override void CloseMutator()
@@ -97,9 +97,9 @@
 
             var rc = _reader.RowCount;
             var i = 0;
-            foreach (var kvp in TableDefinition.Columns)
+            foreach (var column in TableDefinition.Columns)
             {
-                _reader.Rows[rc, i] = row[kvp.Key];
+                _reader.Rows[rc, i] = row[column.Key];
                 i++;
             }
 
@@ -150,7 +150,7 @@
                     ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message));
                 exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                 exception.Data.Add("TableName", ConnectionString.Unescape(TableDefinition.TableName));
-                exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.Key + " => " + ConnectionString.Unescape(x.Value))));
+                exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(column => column.Key + " => " + ConnectionString.Unescape(column.Value ?? column.Key))));
                 exception.Data.Add("Timeout", CommandTimeout);
                 exception.Data.Add("TotalRowsWritten", _rowsWritten);
                 if (ex is InvalidOperationException || ex is SqlException)
@@ -217,7 +217,7 @@
 
             foreach (var kvp in TableDefinition.Columns)
             {
-                _bulkCopy.ColumnMappings.Add(kvp.Key, kvp.Value);
+                _bulkCopy.ColumnMappings.Add(kvp.Key, kvp.Value ?? kvp.Key);
             }
         }
     }

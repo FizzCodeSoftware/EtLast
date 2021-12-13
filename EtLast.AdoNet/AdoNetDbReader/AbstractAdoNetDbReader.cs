@@ -18,8 +18,8 @@
     {
         public NamedConnectionString ConnectionString { get; init; }
 
-        public Dictionary<string, ReaderColumnConfiguration> ColumnConfiguration { get; init; }
-        public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; init; }
+        public Dictionary<string, ReaderColumnConfiguration> Columns { get; init; }
+        public ReaderDefaultColumnConfiguration DefaultColumns { get; init; }
 
         /// <summary>
         /// If true, this process will execute out of ambient transaction scope. Default value is false.
@@ -124,7 +124,7 @@
                 var initialValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
                 // key is the SOURCE column name
-                var columnMap = ColumnConfiguration?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
+                var columnMap = Columns?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
                 while (!Context.CancellationTokenSource.IsCancellationRequested)
                 {
@@ -163,7 +163,7 @@
                         }
 
                         if (config == null)
-                            config = DefaultColumnConfiguration;
+                            config = DefaultColumns;
 
                         var value = reader.GetValue(i);
                         if (value is DBNull)

@@ -10,8 +10,8 @@
     {
         public EnumerableImporterDelegate InputGenerator { get; set; }
 
-        public Dictionary<string, ReaderColumnConfiguration> ColumnConfiguration { get; set; }
-        public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; set; }
+        public Dictionary<string, ReaderColumnConfiguration> Columns { get; set; }
+        public ReaderDefaultColumnConfiguration DefaultColumns { get; set; }
 
         /// <summary>
         /// Default false.
@@ -33,7 +33,7 @@
         {
             var inputRows = InputGenerator.Invoke(this);
 
-            if (ColumnConfiguration != null)
+            if (Columns != null)
             {
                 var initialValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
@@ -44,7 +44,7 @@
                         if (Context.CancellationTokenSource.IsCancellationRequested)
                             yield break;
 
-                        foreach (var columnKvp in ColumnConfiguration)
+                        foreach (var columnKvp in Columns)
                         {
                             var value = columnKvp.Value.Process(this, inputRow[columnKvp.Value.SourceColumn ?? columnKvp.Key]);
                             initialValues[columnKvp.Key] = value;
@@ -59,8 +59,8 @@
                 }
                 else
                 {
-                    var columnMap = ColumnConfiguration != null
-                        ? new Dictionary<string, ReaderColumnConfiguration>(ColumnConfiguration, StringComparer.InvariantCultureIgnoreCase)
+                    var columnMap = Columns != null
+                        ? new Dictionary<string, ReaderColumnConfiguration>(Columns, StringComparer.InvariantCultureIgnoreCase)
                         : null;
 
                     foreach (var inputRow in inputRows)
@@ -68,7 +68,7 @@
                         if (Context.CancellationTokenSource.IsCancellationRequested)
                             yield break;
 
-                        foreach (var columnKvp in ColumnConfiguration)
+                        foreach (var columnKvp in Columns)
                         {
                             var value = columnKvp.Value.Process(this, inputRow[columnKvp.Value.SourceColumn ?? columnKvp.Key]);
                             initialValues[columnKvp.Key] = value;
@@ -78,9 +78,9 @@
                         {
                             if (!columnMap.ContainsKey(valueKvp.Key.ToUpperInvariant()))
                             {
-                                if (DefaultColumnConfiguration != null)
+                                if (DefaultColumns != null)
                                 {
-                                    var value = DefaultColumnConfiguration.Process(this, valueKvp.Value);
+                                    var value = DefaultColumns.Process(this, valueKvp.Value);
                                     initialValues[valueKvp.Key] = value;
                                 }
                                 else

@@ -24,8 +24,8 @@
         /// </summary>
         public bool TreatEmptyStringAsNull { get; init; } = true;
 
-        public Dictionary<string, ReaderColumnConfiguration> ColumnConfiguration { get; init; }
-        public ReaderDefaultColumnConfiguration DefaultColumnConfiguration { get; init; }
+        public Dictionary<string, ReaderColumnConfiguration> Columns { get; init; }
+        public ReaderDefaultColumnConfiguration DefaultColumns { get; init; }
 
         public ServiceModelReaderClientCreatorDelegate<TChannel, TClient> ClientCreator { get; init; }
         public ServiceModelReaderClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; init; }
@@ -43,8 +43,8 @@
             if (ClientInvoker == null)
                 throw new ProcessParameterNullException(this, nameof(ClientInvoker));
 
-            if (ColumnConfiguration == null)
-                throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
+            if (Columns == null)
+                throw new ProcessParameterNullException(this, nameof(Columns));
         }
 
         protected override IEnumerable<IRow> Produce()
@@ -75,7 +75,7 @@
                 var initialValues = new Dictionary<string, object>();
 
                 // key is the SOURCE column name
-                var columnMap = ColumnConfiguration?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
+                var columnMap = Columns?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
                 while (!Context.CancellationTokenSource.IsCancellationRequested)
                 {
@@ -110,9 +110,9 @@
                             value = columnConfiguration.config.Process(this, value);
                             initialValues[columnConfiguration.rowColumn] = value;
                         }
-                        else if (DefaultColumnConfiguration != null)
+                        else if (DefaultColumns != null)
                         {
-                            value = DefaultColumnConfiguration.Process(this, value);
+                            value = DefaultColumns.Process(this, value);
                             initialValues[column] = value;
                         }
                     }

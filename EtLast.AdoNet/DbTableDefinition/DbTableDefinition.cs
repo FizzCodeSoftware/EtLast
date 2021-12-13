@@ -7,7 +7,7 @@
         public string TableName { get; init; }
 
         /// <summary>
-        /// Key is name in row, value is name in database table.
+        /// Key is column in the row, value is column in the database table (can be null).
         /// </summary>
         public Dictionary<string, string> Columns { get; init; }
     }
