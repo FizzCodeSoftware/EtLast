@@ -38,10 +38,10 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class SequentialMergerFluent
     {
-        public static IFluentProcessMutatorBuilder SequentialMerge(this IFluentProcessBuilder builder, IEtlContext context, string name, Action<SequentialMergerBuilder> action)
+        public static IFluentProcessMutatorBuilder SequentialMerge(this IFluentProcessBuilder builder, IEtlContext context, string name, Action<SequentialMergerBuilder> merger)
         {
             var subBuilder = new SequentialMergerBuilder(context, name);
-            action.Invoke(subBuilder);
+            merger.Invoke(subBuilder);
             return builder.ReadFrom(subBuilder.Merger);
         }
     }
@@ -59,11 +59,9 @@
             };
         }
 
-        public SequentialMergerBuilder AddInput(Action<IFluentProcessBuilder> action)
+        public SequentialMergerBuilder AddInput(IProducer input)
         {
-            var subBuilder = ProcessBuilder.Fluent;
-            action.Invoke(subBuilder);
-            Merger.ProcessList.Add(subBuilder.Result);
+            Merger.ProcessList.Add(input);
             return this;
         }
     }
