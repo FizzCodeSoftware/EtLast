@@ -45,7 +45,8 @@
                     },
                     new DataContractXmlSerializerMutator<PersonModel>(context)
                     {
-                         ColumnConfiguration = new ColumnCopyConfiguration("personModel", "personModelXml"),
+                         SourceColumn = "personModel",
+                         TargetColumn = "personModelXml",
                     },
                     new RemoveColumnMutator(context)
                     {

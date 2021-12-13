@@ -12,7 +12,7 @@
         public RowTestDelegate RowFilter { get; set; }
         public RowTagTestDelegate RowTagFilter { get; set; }
 
-        public List<ColumnCopyConfiguration> FixColumns { get; init; }
+        public Dictionary<string, string> FixColumns { get; init; }
         public Func<IRow, string> KeyGenerator { get; init; }
 
         protected AbstractAggregationMutator(IEtlContext context)

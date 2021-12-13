@@ -9,7 +9,8 @@
 
     public sealed class DataContractXmlDeSerializerMutator<T> : AbstractMutator
     {
-        public ColumnCopyConfiguration ColumnConfiguration { get; init; }
+        public string SourceColumn { get; init; }
+        public string TargetColumn { get; init; }
 
         public InvalidValueAction ActionIfFailed { get; init; }
         public object SpecialValueIfFailed { get; init; }
@@ -21,8 +22,7 @@
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            var sourceByteArray = row.GetAs<byte[]>(ColumnConfiguration.FromColumn);
-
+            var sourceByteArray = row.GetAs<byte[]>(SourceColumn);
             if (sourceByteArray == null)
             {
                 yield return row;
@@ -41,7 +41,7 @@
                         obj = ser.ReadObject(reader, true);
                     }
 
-                    row[ColumnConfiguration.ToColumn] = obj;
+                    row[TargetColumn] = obj;
                 }
             }
             catch (Exception ex)
@@ -49,7 +49,7 @@
                 switch (ActionIfFailed)
                 {
                     case InvalidValueAction.SetSpecialValue:
-                        row[ColumnConfiguration.ToColumn] = SpecialValueIfFailed;
+                        row[TargetColumn] = SpecialValueIfFailed;
                         break;
                     case InvalidValueAction.Throw:
                         throw new ProcessExecutionException(this, row, "DataContract XML deserialization failed", ex);
@@ -57,7 +57,7 @@
                         removeRow = true;
                         break;
                     case InvalidValueAction.WrapError:
-                        row[ColumnConfiguration.ToColumn] = new EtlRowError
+                        row[TargetColumn] = new EtlRowError
                         {
                             Process = this,
                             OriginalValue = null,
@@ -73,8 +73,11 @@
 
         protected override void ValidateMutator()
         {
-            if (ColumnConfiguration == null)
-                throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
+            if (SourceColumn == null)
+                throw new ProcessParameterNullException(this, nameof(SourceColumn));
+
+            if (TargetColumn == null)
+                throw new ProcessParameterNullException(this, nameof(TargetColumn));
         }
     }
 

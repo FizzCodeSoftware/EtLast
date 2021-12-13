@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast.Tests.Unit.Exceptions
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -61,7 +60,7 @@
                     },
                     RowKeyGenerator = row => row.GenerateKey("id"),
                     NoMatchAction = new NoMatchAction(MatchMode.Throw),
-                    ColumnConfiguration = new List<ColumnCopyConfiguration>(),
+                    Columns = new(),
                 });
 
             var process = builder.Build();
@@ -92,7 +91,7 @@
                             throw new Exception("ohh");
                         },
                     },
-                    ColumnConfiguration = new List<ColumnCopyConfiguration>(),
+                    Columns = new(),
                 });
 
             var process = builder.Build();
@@ -120,7 +119,7 @@
                     {
                         throw new Exception("ohh");
                     },
-                    ColumnConfiguration = new List<ColumnCopyConfiguration>(),
+                    Columns = new(),
                 });
 
             var process = builder.Build();

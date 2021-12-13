@@ -27,7 +27,10 @@
                 .AggregateOrdered(new SortedMemoryAggregationMutator(context)
                 {
                     KeyGenerator = row => row.GenerateKey("name"),
-                    FixColumns = ColumnCopyConfiguration.StraightCopy("name"),
+                    FixColumns = new()
+                    {
+                        ["name"] = null
+                    },
                     Operation = op,
                 });
         }

@@ -115,7 +115,7 @@
                         {
                             foreach (var column in FixColumns)
                             {
-                                aggregate[column.ToColumn] = groupRows[0][column.FromColumn];
+                                aggregate[column.Key] = groupRows[0][column.Value ?? column.Key];
                             }
                         }
 

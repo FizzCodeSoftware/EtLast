@@ -39,9 +39,7 @@
                 {
                     SourceTableName = builder.ResilientTable.TempTableName,
                     TargetTableName = builder.ResilientTable.TableName,
-                    ColumnConfiguration = columnNames
-                        .Select(x => new ColumnCopyConfiguration(x))
-                        .ToList()
+                    Columns = columnNames.ToDictionary(x => x),
                 },
                 ColumnDefaults = columnDefaults,
                 CommandTimeout = 60 * 60,

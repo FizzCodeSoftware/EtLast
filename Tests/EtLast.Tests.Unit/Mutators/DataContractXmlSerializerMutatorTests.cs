@@ -44,7 +44,8 @@
                 })
                 .SerializeToXml(new DataContractXmlSerializerMutator<TestData.PersonModel>(context)
                 {
-                    ColumnConfiguration = new ColumnCopyConfiguration("personModel", "personModelXml"),
+                    SourceColumn = "personModel",
+                    TargetColumn = "personModelXml",
                 })
                 .RemoveColumn(new RemoveColumnMutator(context)
                 {
@@ -52,7 +53,8 @@
                 })
                 .DeSerializeFromXml(new DataContractXmlDeSerializerMutator<TestData.PersonModel>(context)
                 {
-                    ColumnConfiguration = new ColumnCopyConfiguration("personModelXml", "personModel"),
+                    SourceColumn = "personModelXml",
+                    TargetColumn = "personModel",
                 })
                 .Explode(new ExplodeMutator(context)
                 {

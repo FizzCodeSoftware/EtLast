@@ -41,10 +41,10 @@
                         }
                     },
                     MatchCustomAction = (row, match) => row["countryAbbrevFound"] = true,
-                    ColumnConfiguration = new List<ColumnCopyConfiguration>()
-                        {
-                            new ColumnCopyConfiguration("abbreviation2", "countryAbbrev"),
-                        },
+                    Columns = new()
+                    {
+                        ["countryAbbrev"] = "abbreviation2",
+                    },
                 });
 
             var result = TestExecuter.Execute(builder);

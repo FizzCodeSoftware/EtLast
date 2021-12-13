@@ -39,10 +39,7 @@
                 {
                     SourceTableName = builder.Table.TempTableName,
                     TargetTableName = builder.Table.TableName,
-                    ColumnConfiguration = builder.Table
-                        .Columns?
-                        .Select(x => new ColumnCopyConfiguration(x))
-                        .ToList(),
+                    Columns = builder.Table.Columns?.ToDictionary(x => x),
                 },
                 CommandTimeout = commandTimeout,
                 CopyIdentityColumns = copyIdentityColumns,

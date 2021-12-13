@@ -33,9 +33,9 @@
                     {
                         CustomAction = row => row["eyeColor"] = "not found",
                     },
-                    ColumnConfiguration = new List<ColumnCopyConfiguration>
+                    Columns = new()
                     {
-                        new ColumnCopyConfiguration("color", "eyeColor"),
+                        ["eyeColor"] = "color",
                     }
                 });
 
@@ -71,9 +71,9 @@
                     },
                     RowKeyGenerator = row => row.GenerateKey("id"),
                     NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                    ColumnConfiguration = new List<ColumnCopyConfiguration>
+                    Columns = new()
                     {
-                        new ColumnCopyConfiguration("color", "eyeColor"),
+                        ["eyeColor"] = "color",
                     }
                 });
 
@@ -105,9 +105,9 @@
                     },
                     RowKeyGenerator = row => row.GenerateKey("id"),
                     NoMatchAction = new NoMatchAction(MatchMode.Throw),
-                    ColumnConfiguration = new List<ColumnCopyConfiguration>
+                    Columns = new()
                     {
-                        new ColumnCopyConfiguration("color", "eyeColor"),
+                        ["eyeColor"] = "color",
                     }
                 });
 
@@ -142,7 +142,10 @@
                     },
                     RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return executedLeftKeyDelegateCount < 3 ? row.GenerateKey("id") : row.GetAs<double>("id").ToString("D", CultureInfo.InvariantCulture); },
                     NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                    ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
+                    Columns = new()
+                    {
+                        ["color"] = null
+                    },
                 });
 
             var result = TestExecuter.Execute(builder);
@@ -177,7 +180,10 @@
                     },
                     RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return row.GenerateKey("id"); },
                     NoMatchAction = new NoMatchAction(MatchMode.Remove),
-                    ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
+                    Columns = new()
+                    {
+                        ["color"] = null
+                    },
                 });
 
             var result = TestExecuter.Execute(builder);
@@ -207,7 +213,10 @@
                     RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return row.GenerateKey("id"); },
                     NoMatchAction = new NoMatchAction(MatchMode.Remove),
                     MatchFilter = match => match.GetAs<double>("id") == 7,
-                    ColumnConfiguration = ColumnCopyConfiguration.StraightCopy("color"),
+                    Columns = new()
+                    {
+                        ["color"] = null
+                    },
                 });
 
             var result = TestExecuter.Execute(builder);

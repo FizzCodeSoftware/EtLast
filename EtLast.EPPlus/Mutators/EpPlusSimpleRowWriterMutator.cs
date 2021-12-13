@@ -12,7 +12,7 @@
         public string FileName { get; init; }
         public ExcelPackage ExistingPackage { get; init; }
         public string SheetName { get; init; }
-        public List<ColumnCopyConfiguration> ColumnConfiguration { get; init; }
+        public Dictionary<string, ExcelColumnConfiguration> Columns { get; init; }
         public Action<ExcelPackage, SimpleExcelWriterState> Finalize { get; init; }
 
         private SimpleExcelWriterState _state;
@@ -76,9 +76,9 @@
                 _state.LastWorksheet = _package.Workbook.Worksheets.Add(SheetName);
                 _state.LastRow = 1;
                 _state.LastCol = 1;
-                foreach (var col in ColumnConfiguration)
+                foreach (var col in Columns)
                 {
-                    _state.LastWorksheet.Cells[_state.LastRow, _state.LastCol].Value = col.ToColumn;
+                    _state.LastWorksheet.Cells[_state.LastRow, _state.LastCol].Value = col.Key;
                     _state.LastCol++;
                 }
 
@@ -88,9 +88,13 @@
             try
             {
                 _state.LastCol = 1;
-                foreach (var col in ColumnConfiguration)
+                foreach (var col in Columns)
                 {
-                    _state.LastWorksheet.Cells[_state.LastRow, _state.LastCol].Value = row[col.FromColumn];
+                    var range = _state.LastWorksheet.Cells[_state.LastRow, _state.LastCol];
+                    range.Value = row[col.Value.SourceColumn ?? col.Key];
+                    if (col.Value.NumberFormat != null)
+                        range.Style.Numberformat.Format = col.Value.NumberFormat;
+
                     _state.LastCol++;
                 }
 
@@ -118,8 +122,8 @@
             if (string.IsNullOrEmpty(SheetName))
                 throw new ProcessParameterNullException(this, nameof(SheetName));
 
-            if (ColumnConfiguration == null)
-                throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
+            if (Columns == null)
+                throw new ProcessParameterNullException(this, nameof(Columns));
         }
     }
 

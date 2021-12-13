@@ -10,6 +10,6 @@
         /// <summary>
         /// Optional. In case of NULL all columns will be copied to the target table.
         /// </summary>
-        public List<ColumnCopyConfiguration> ColumnConfiguration { get; init; }
+        public Dictionary<string, string> Columns { get; init; }
     }
 }

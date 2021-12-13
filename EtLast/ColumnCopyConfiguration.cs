@@ -1,42 +1,23 @@
 ﻿namespace FizzCode.EtLast
 {
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
 
-    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "()}")]
-    public sealed class ColumnCopyConfiguration
+    public class ColumnCopyConfiguration
     {
-        public string FromColumn { get; }
-        public string ToColumn { get; }
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public string SourceColumn { get; private set; }
 
-        public ColumnCopyConfiguration(string fromColumn, string toColumn)
+        public ColumnCopyConfiguration FromSource(string sourceColumn)
         {
-            ToColumn = toColumn;
-            FromColumn = fromColumn;
+            SourceColumn = sourceColumn;
+            return this;
         }
 
-        public ColumnCopyConfiguration(string fromColumn)
-        {
-            FromColumn = fromColumn;
-            ToColumn = fromColumn;
-        }
-
-        public void Copy(IReadOnlySlimRow sourceRow, List<KeyValuePair<string, object>> targetValues)
-        {
-            targetValues.Add(new KeyValuePair<string, object>(ToColumn, sourceRow[FromColumn]));
-        }
-
-        public static List<ColumnCopyConfiguration> StraightCopy(params string[] columnNames)
+        public static Dictionary<string, ColumnCopyConfiguration> StraightCopyAllColumn(params string[] columnNames)
         {
             return columnNames
-                .Select(col => new ColumnCopyConfiguration(col))
-                .ToList();
-        }
-
-        private string GetDebuggerDisplay()
-        {
-            return FromColumn + (ToColumn != null ? " -> " + ToColumn : "");
+                .ToDictionary(x => x, x => new ColumnCopyConfiguration());
         }
     }
 }

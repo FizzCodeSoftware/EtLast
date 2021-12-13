@@ -39,9 +39,9 @@
 
             foreach (var config in Configuration)
             {
-                var columnList = (config.ColumnConfiguration == null || config.ColumnConfiguration.Count == 0)
+                var columnList = (config.Columns == null || config.Columns.Count == 0)
                     ? "*"
-                    : string.Join(", ", config.ColumnConfiguration.Select(x => x.FromColumn + (x.ToColumn != x.FromColumn ? " AS " + x.ToColumn : "")));
+                     : string.Join(", ", config.Columns.Select(column => (column.Value ?? column.Key) + (column.Value != null ? " AS " + column.Key : "")));
 
                 var dropTableStatement = (ConnectionString.SqlEngine, ConnectionString.Version) switch
                 {
@@ -84,14 +84,14 @@
 
                 var exception = new SqlSchemaChangeException(this, "copy table structure", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to create table, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message: {4}, command: {5}, timeout: {6}",
-                    ConnectionString.Name, ConnectionString.Unescape(config.SourceTableName), ConnectionString.Unescape(config.TargetTableName), config.ColumnConfiguration != null ? string.Join(",", config.ColumnConfiguration.Select(x => x.FromColumn)) : "all", ex.Message, command.CommandText, command.CommandTimeout));
+                    ConnectionString.Name, ConnectionString.Unescape(config.SourceTableName), ConnectionString.Unescape(config.TargetTableName), config.Columns != null ? string.Join(",", config.Columns.Select(column => column.Value ?? column.Key)) : "all", ex.Message, command.CommandText, command.CommandTimeout));
 
                 exception.Data.Add("ConnectionStringName", ConnectionString.Name);
                 exception.Data.Add("SourceTableName", ConnectionString.Unescape(config.SourceTableName));
                 exception.Data.Add("TargetTableName", ConnectionString.Unescape(config.TargetTableName));
-                if (config.ColumnConfiguration != null)
+                if (config.Columns != null)
                 {
-                    exception.Data.Add("SourceColumns", string.Join(",", config.ColumnConfiguration.Select(x => ConnectionString.Unescape(x.FromColumn))));
+                    exception.Data.Add("SourceColumns", string.Join(",", config.Columns.Select(column => ConnectionString.Unescape(column.Value ?? column.Key))));
                 }
 
                 exception.Data.Add("Statement", command.CommandText);

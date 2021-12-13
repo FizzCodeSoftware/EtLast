@@ -118,7 +118,7 @@
                     {
                         foreach (var column in FixColumns)
                         {
-                            aggregate.ResultRow[column.ToColumn] = row[column.FromColumn];
+                            aggregate.ResultRow[column.Key] = row[column.Value ?? column.Key];
                         }
                     }
 

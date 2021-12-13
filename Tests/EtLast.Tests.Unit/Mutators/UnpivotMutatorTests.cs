@@ -24,10 +24,10 @@
                 {
                     new UnpivotMutator(context)
                     {
-                        FixColumns = new List<ColumnCopyConfiguration>()
+                        FixColumns = new()
                         {
-                            new ColumnCopyConfiguration("id", "assetId"),
-                            new ColumnCopyConfiguration("personName"),
+                            ["assetId"] = "id",
+                            ["personName"] = null
                         },
                         NewColumnForDimension = "asset-kind",
                         NewColumnForValue = "amount",
@@ -64,10 +64,10 @@
                 {
                     new UnpivotMutator(context)
                     {
-                        FixColumns = new List<ColumnCopyConfiguration>()
+                        FixColumns = new()
                         {
-                            new ColumnCopyConfiguration("id", "assetId"),
-                            new ColumnCopyConfiguration("personName"),
+                            ["assetId"] = "id",
+                            ["personName"] = null
                         },
                         NewColumnForDimension = "asset-kind",
                         NewColumnForValue = "amount",
@@ -105,10 +105,10 @@
                 {
                     new UnpivotMutator(context)
                     {
-                        FixColumns = new List<ColumnCopyConfiguration>()
+                        FixColumns = new()
                         {
-                            new ColumnCopyConfiguration("id", "assetId"),
-                            new ColumnCopyConfiguration("personName"),
+                            ["assetId"] = "id",
+                            ["personName"] = null,
                         },
                         NewColumnForDimension = "asset-kind",
                         NewColumnForValue = "amount",

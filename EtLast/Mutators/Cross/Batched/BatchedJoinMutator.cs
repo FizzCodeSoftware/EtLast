@@ -6,7 +6,7 @@
 
     public sealed class BatchedJoinMutator : AbstractBatchedCrossMutator
     {
-        public List<ColumnCopyConfiguration> ColumnConfiguration { get; init; }
+        public Dictionary<string, string> Columns { get; init; }
         public NoMatchAction NoMatchAction { get; init; }
         public MatchActionDelegate MatchCustomAction { get; init; }
 
@@ -92,9 +92,9 @@
                     foreach (var match in matches)
                     {
                         var initialValues = new Dictionary<string, object>(row.Values);
-                        foreach (var config in ColumnConfiguration)
+                        foreach (var column in Columns)
                         {
-                            initialValues[config.ToColumn] = match[config.FromColumn];
+                            initialValues[column.Key] = match[column.Value ?? column.Key];
                         }
 
                         var newRow = Context.CreateRow(this, initialValues);
@@ -151,8 +151,8 @@
         {
             base.ValidateMutator();
 
-            if (ColumnConfiguration == null)
-                throw new ProcessParameterNullException(this, nameof(ColumnConfiguration));
+            if (Columns == null)
+                throw new ProcessParameterNullException(this, nameof(Columns));
 
             if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
                 throw new ProcessParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));

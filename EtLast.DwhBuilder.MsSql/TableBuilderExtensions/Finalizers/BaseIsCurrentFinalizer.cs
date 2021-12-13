@@ -169,9 +169,7 @@
                     {
                         SourceTableName = builder.TableBuilder.ResilientTable.TempTableName,
                         TargetTableName = histTableName,
-                        ColumnConfiguration = copyToHistoryColumnNames
-                            .Select(x => new ColumnCopyConfiguration(x))
-                            .ToList()
+                        Columns = copyToHistoryColumnNames.ToDictionary(x => x),
                     },
                     ColumnDefaults = columnDefaults,
                     CommandTimeout = 60 * 60,

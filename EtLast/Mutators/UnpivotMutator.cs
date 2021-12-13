@@ -6,7 +6,7 @@
 
     public sealed class UnpivotMutator : AbstractMutator
     {
-        public List<ColumnCopyConfiguration> FixColumns { get; init; }
+        public Dictionary<string, string> FixColumns { get; init; }
         public string NewColumnForDimension { get; init; }
         public string NewColumnForValue { get; init; }
 
@@ -33,7 +33,7 @@
         protected override void StartMutator()
         {
             _fixColumnNames = FixColumns != null
-                ? new HashSet<string>(FixColumns.Select(x => x.FromColumn))
+                ? new HashSet<string>(FixColumns.Select(x => x.Value ?? x.Key))
                 : new HashSet<string>();
 
             _valueColumnNames = ValueColumns != null
@@ -58,7 +58,7 @@
                     if (_fixColumnNames.Contains(kvp.Key))
                         continue;
 
-                    var initialValues = FixColumns.ConvertAll(x => new KeyValuePair<string, object>(x.ToColumn, row[x.FromColumn]));
+                    var initialValues = FixColumns.Select(column => new KeyValuePair<string, object>(column.Key, row[column.Value ?? column.Key])).ToList();
                     initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, kvp.Key));
                     initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, kvp.Value));
 
@@ -79,7 +79,7 @@
                         continue;
 
                     var initialValues = FixColumns != null
-                        ? FixColumns.ConvertAll(x => new KeyValuePair<string, object>(x.ToColumn, row[x.FromColumn]))
+                        ? FixColumns.Select(column => new KeyValuePair<string, object>(column.Key, row[column.Value ?? column.Key])).ToList()
                         : row.Values.Where(kvp => !_valueColumnNames.Contains(kvp.Key)).ToList();
 
                     initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, col));

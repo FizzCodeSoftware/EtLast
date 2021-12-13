@@ -437,9 +437,7 @@
                 {
                     SourceTableName = table.TableName,
                     TargetTableName = table.TempTableName,
-                    ColumnConfiguration = table.Columns?
-                        .Select(c => new ColumnCopyConfiguration(c))
-                        .ToList(),
+                    Columns = table.Columns?.ToDictionary(x => x),
                 });
 
                 if (table.AdditionalTables != null)
@@ -450,9 +448,7 @@
                         {
                             SourceTableName = additionalTable.TableName,
                             TargetTableName = additionalTable.TempTableName,
-                            ColumnConfiguration = additionalTable.Columns?
-                                .Select(c => new ColumnCopyConfiguration(c))
-                                .ToList(),
+                            Columns = additionalTable.Columns?.ToDictionary(x => x),
                         });
                     }
                 }

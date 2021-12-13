@@ -86,7 +86,7 @@
                 {
                     SourceTableName = builder.TableBuilder.ResilientTable.TempTableName,
                     TargetTableName = builder.TableBuilder.ResilientTable.TableName,
-                    ColumnConfiguration = mergeIntoBaseColumnNames.Select(x => new ColumnCopyConfiguration(x)).ToList(),
+                    Columns = mergeIntoBaseColumnNames.ToDictionary(x => x),
                 },
                 ColumnDefaults = columnDefaults,
                 CommandTimeout = 60 * 60,
