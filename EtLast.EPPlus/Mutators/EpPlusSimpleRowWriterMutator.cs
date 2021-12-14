@@ -91,8 +91,8 @@
                 foreach (var col in Columns)
                 {
                     var range = _state.LastWorksheet.Cells[_state.LastRow, _state.LastCol];
-                    range.Value = row[col.Value.SourceColumn ?? col.Key];
-                    if (col.Value.NumberFormat != null)
+                    range.Value = row[col.Value?.SourceColumn ?? col.Key];
+                    if (col.Value?.NumberFormat != null)
                         range.Style.Numberformat.Format = col.Value.NumberFormat;
 
                     _state.LastCol++;
