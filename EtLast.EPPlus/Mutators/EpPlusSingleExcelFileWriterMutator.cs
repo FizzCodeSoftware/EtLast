@@ -19,6 +19,7 @@
         private TState _state;
         private ExcelPackage _package;
         private int? _sinkUid;
+        private int _rowCount;
 
         public EpPlusSingleExcelFileWriterMutator(IEtlContext context)
             : base(context)
@@ -46,7 +47,7 @@
                 try
                 {
                     _package.Save();
-                    Context.RegisterIoCommandSuccess(this, IoCommandKind.fileWrite, iocUid, null);
+                    Context.RegisterIoCommandSuccess(this, IoCommandKind.fileWrite, iocUid, _rowCount);
                 }
                 catch (Exception ex)
                 {
@@ -76,6 +77,7 @@
                 if (_sinkUid != null)
                 {
                     Context.RegisterWriteToSink(row, _sinkUid.Value);
+                    _rowCount++;
                 }
             }
             catch (Exception ex)

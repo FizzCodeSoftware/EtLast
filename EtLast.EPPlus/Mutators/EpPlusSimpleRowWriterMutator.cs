@@ -18,6 +18,7 @@
         private SimpleExcelWriterState _state;
         private ExcelPackage _package;
         private int? _sinkUid;
+        private int _rowCount;
 
         public EpPlusSimpleRowWriterMutator(IEtlContext context)
             : base(context)
@@ -27,6 +28,7 @@
         protected override void StartMutator()
         {
             _state = new SimpleExcelWriterState();
+            _rowCount = 0;
         }
 
         protected override void CloseMutator()
@@ -45,7 +47,7 @@
                 try
                 {
                     _package.Save();
-                    Context.RegisterIoCommandSuccess(this, IoCommandKind.fileWrite, iocUid, null);
+                    Context.RegisterIoCommandSuccess(this, IoCommandKind.fileWrite, iocUid, _rowCount);
                 }
                 catch (Exception ex)
                 {
@@ -68,6 +70,7 @@
             }
 
             Context.RegisterWriteToSink(row, _sinkUid.Value);
+            _rowCount++;
 
             if (_package == null) // lazy load here instead of prepare
             {
