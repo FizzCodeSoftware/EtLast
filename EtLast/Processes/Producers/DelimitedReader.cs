@@ -4,64 +4,60 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Globalization;
-    using System.IO;
     using System.Linq;
     using System.Text;
 
-    public sealed class DelimitedFileReader : AbstractRowSource, IRowSource
+    public sealed class DelimitedReader : AbstractRowSource, IRowSource
     {
-        public string FileName { get; set; }
+        public ILineSource LineSource { get; init; }
 
-        public Dictionary<string, ReaderColumnConfiguration> Columns { get; set; }
-        public ReaderDefaultColumnConfiguration DefaultColumns { get; set; }
+        public Dictionary<string, ReaderColumnConfiguration> Columns { get; init; }
+        public ReaderDefaultColumnConfiguration DefaultColumns { get; init; }
 
         /// <summary>
         /// Default true.
         /// </summary>
-        public bool TreatEmptyStringAsNull { get; set; } = true;
+        public bool TreatEmptyStringAsNull { get; init; } = true;
 
         /// <summary>
         /// Default true. If a value starts and ends with double quote (") characters, then both will be removed (this happens before type conversion)
         /// </summary>
-        public bool RemoveSurroundingDoubleQuotes { get; set; } = true;
+        public bool RemoveSurroundingDoubleQuotes { get; init; } = true;
 
         /// <summary>
         /// Default false.
         /// </summary>
-        public bool HasHeaderRow { get; set; }
+        public bool HasHeaderRow { get; init; }
 
         /// <summary>
         /// Default null. Column names must be set if <see cref="HasHeaderRow"/> is false, otherwise it should be left null.
         /// </summary>
-        public string[] ColumnNames { get; set; }
+        public string[] ColumnNames { get; init; }
 
         /// <summary>
         /// Default null.
         /// </summary>
-        public string[] IgnoreColumns { get; set; }
+        public string[] IgnoreColumns { get; init; }
 
         /// <summary>
         /// Default value is ';'.
         /// </summary>
-        public char Delimiter { get; set; } = ';';
+        public char Delimiter { get; init; } = ';';
 
-        public DelimitedFileReader(IEtlContext context)
+        public DelimitedReader(IEtlContext context)
             : base(context)
         {
         }
 
         public override string GetTopic()
         {
-            if (FileName == null)
-                return null;
-
-            return Path.GetFileName(FileName);
+            return LineSource?.GetTopic();
         }
 
         protected override void ValidateImpl()
         {
-            if (string.IsNullOrEmpty(FileName))
-                throw new ProcessParameterNullException(this, nameof(FileName));
+            if (LineSource == null)
+                throw new ProcessParameterNullException(this, nameof(LineSource));
 
             if (!HasHeaderRow && (ColumnNames == null || ColumnNames.Length == 0))
                 throw new ProcessParameterNullException(this, nameof(ColumnNames));
@@ -75,43 +71,10 @@
 
         protected override IEnumerable<IRow> Produce()
         {
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.fileRead, FileName, null, null, null, null,
-                "reading from {FileName}",
-                PathHelpers.GetFriendlyPathName(FileName));
-
-            if (!File.Exists(FileName))
-            {
-                var exception = new FileReadException(this, "input file doesn't exist", FileName);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "input file doesn't exist: {0}",
-                    FileName));
-
-                exception.Data.Add("FileName", FileName);
-
-                Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, 0, exception);
-                throw exception;
-            }
-
             // key is the SOURCE column name
             var columnMap = Columns?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
             var resultCount = 0;
-
-            Stream stream;
-            StreamReader reader;
-            try
-            {
-                stream = new FileStream(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-                reader = new StreamReader(stream);
-            }
-            catch (Exception ex)
-            {
-                Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, null, ex);
-
-                var exception = new EtlException(this, "error while opening file", ex);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening file: {0}, message: {1}", FileName, ex.Message));
-                exception.Data.Add("FileName", FileName);
-                throw exception;
-            }
 
             var firstRow = true;
             var initialValues = new List<KeyValuePair<string, object>>();
@@ -128,11 +91,16 @@
 
             try
             {
+                LineSource.Prepare(this);
+
                 while (!Context.CancellationTokenSource.IsCancellationRequested)
                 {
-                    var line = GetNextLine(iocUid, resultCount, reader, delimiter);
+                    var line = LineSource.ReadLine(this);
                     if (line == null)
                         break;
+
+                    if (line.EndsWith(delimiter))
+                        line = line[0..^1];
 
                     if (string.IsNullOrEmpty(line))
                         continue;
@@ -184,9 +152,12 @@
 
                         if (newLineInQuotedCell)
                         {
-                            var nextLine = GetNextLine(iocUid, resultCount, reader, delimiter);
+                            var nextLine = LineSource.ReadLine(this);
                             if (nextLine == null)
                                 break;
+
+                            if (nextLine.EndsWith(delimiter))
+                                nextLine = nextLine[0..^1];
 
                             if (string.IsNullOrEmpty(nextLine))
                                 continue;
@@ -257,12 +228,12 @@
                                 {
                                     if (string.Equals(columnName, columnNames[j], StringComparison.InvariantCultureIgnoreCase))
                                     {
-                                        var message = "delimited file contains more than one columns with the same name: " + columnName;
-                                        var exception = new EtlException(this, "error while opening file: " + message);
-                                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening file: {0}, message: {1}", FileName, message));
-                                        exception.Data.Add("FileName", FileName);
+                                        var message = "delimited input contains more than one columns with the same name: " + columnName;
+                                        var exception = new EtlException(this, "error while processing delimited input: " + message);
+                                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while processing delimited input: {0}, message: {1}", LineSource.GetType(), message));
+                                        exception.Data.Add("Topic", LineSource.GetTopic());
 
-                                        Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, 0, exception);
+                                        Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, LineSource.GetIoCommandUid(), 0, exception);
                                         throw exception;
                                     }
                                 }
@@ -315,40 +286,15 @@
             }
             finally
             {
-                reader.Dispose();
-                stream.Dispose();
+                LineSource.Release(this);
             }
-
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.fileRead, iocUid, resultCount);
-        }
-
-        private string GetNextLine(int iocUid, int resultCount, StreamReader reader, char delimiter)
-        {
-            string line;
-            try
-            {
-                line = reader.ReadLine();
-            }
-            catch (Exception ex)
-            {
-                Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, resultCount, ex);
-                var exception = new EtlException(this, "error while reading data from file", ex);
-                exception.Data.Add("FileName", FileName);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from file: {0}, message: {1}", FileName, ex.Message));
-                throw exception;
-            }
-
-            if (line?.EndsWith(delimiter) == true)
-                line = line[0..^1];
-
-            return line;
         }
     }
 
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class DelimitedFileReaderFluent
     {
-        public static IFluentProcessMutatorBuilder ReadFromDelimitedFile(this IFluentProcessBuilder builder, DelimitedFileReader reader)
+        public static IFluentProcessMutatorBuilder ReadFromDelimitedFile(this IFluentProcessBuilder builder, DelimitedReader reader)
         {
             return builder.ReadFrom(reader);
         }

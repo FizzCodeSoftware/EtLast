@@ -6,13 +6,16 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class DelimitedFileReaderTests
+    public class DelimitedReaderTests
     {
-        private static IProducer GetReader(IEtlContext context, string fileName, bool removeSurroundingDoubleQuotes = true)
+        private static DelimitedReader GetReader(IEtlContext context, string fileName, bool removeSurroundingDoubleQuotes = true)
         {
-            return new DelimitedFileReader(context)
+            return new DelimitedReader(context)
             {
-                FileName = fileName,
+                LineSource = new TextFileLineSource()
+                {
+                    FileName = fileName,
+                },
                 Columns = new()
                 {
                     ["Id"] = new ReaderColumnConfiguration(new IntConverter()),
@@ -27,11 +30,14 @@
             };
         }
 
-        private static IProducer GetSimpleReader(IEtlContext context, string fileName, bool treatEmptyStringsAsNull = true)
+        private static DelimitedReader GetSimpleReader(IEtlContext context, string fileName, bool treatEmptyStringsAsNull = true)
         {
-            return new DelimitedFileReader(context)
+            return new DelimitedReader(context)
             {
-                FileName = fileName,
+                LineSource = new TextFileLineSource()
+                {
+                    FileName = fileName,
+                },
                 Columns = new()
                 {
                     ["Id"] = new ReaderColumnConfiguration(new IntConverter()),
@@ -48,7 +54,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(GetReader(context, @"TestData\Sample.csv"))
+                .ReadFromDelimitedFile(GetReader(context, @"TestData\Sample.csv"))
                 .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
                 {
                     Columns = new[] { "ValueDate" },
@@ -69,7 +75,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(GetReader(context, @"TestData\QuotedSample1.csv"));
+                .ReadFromDelimitedFile(GetReader(context, @"TestData\QuotedSample1.csv"));
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(2, result.MutatedRows.Count);
@@ -85,7 +91,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(GetReader(context, @"TestData\QuotedSample1.csv", removeSurroundingDoubleQuotes: false))
+                .ReadFromDelimitedFile(GetReader(context, @"TestData\QuotedSample1.csv", removeSurroundingDoubleQuotes: false))
                 .ThrowExceptionOnRowError();
 
             var result = TestExecuter.Execute(builder);
@@ -102,7 +108,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(GetSimpleReader(context, @"TestData\QuotedSample2.csv"));
+                .ReadFromDelimitedFile(GetSimpleReader(context, @"TestData\QuotedSample2.csv"));
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(3, result.MutatedRows.Count);
@@ -119,7 +125,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(GetSimpleReader(context, @"TestData\QuotedSample3.csv", treatEmptyStringsAsNull: false));
+                .ReadFromDelimitedFile(GetSimpleReader(context, @"TestData\QuotedSample3.csv", treatEmptyStringsAsNull: false));
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(8, result.MutatedRows.Count);
@@ -141,7 +147,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(GetSimpleReader(context, @"TestData\QuotedSample3.csv", treatEmptyStringsAsNull: true));
+                .ReadFromDelimitedFile(GetSimpleReader(context, @"TestData\QuotedSample3.csv", treatEmptyStringsAsNull: true));
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(8, result.MutatedRows.Count);
@@ -163,7 +169,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(GetReader(context, @"TestData\NewLineSample1.csv"))
+                .ReadFromDelimitedFile(GetReader(context, @"TestData\NewLineSample1.csv"))
                 .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
                 {
                     Columns = new[] { "ValueDate" },
@@ -183,7 +189,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(GetReader(context, @"TestData\NewLineSample2.csv"))
+                .ReadFromDelimitedFile(GetReader(context, @"TestData\NewLineSample2.csv"))
                 .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
                 {
                     Columns = new[] { "ValueDate" },
@@ -203,7 +209,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFrom(GetReader(context, @"TestData\SampleInvalidConversion.csv"))
+                .ReadFromDelimitedFile(GetReader(context, @"TestData\SampleInvalidConversion.csv"))
                 .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
                 {
                     Columns = new[] { "ValueDate" },
