@@ -6,11 +6,11 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class DelimitedReaderTests
+    public class DelimitedLineReaderTests
     {
-        private static DelimitedReader GetReader(IEtlContext context, string fileName, bool removeSurroundingDoubleQuotes = true)
+        private static DelimitedLineReader GetReader(IEtlContext context, string fileName, bool removeSurroundingDoubleQuotes = true)
         {
-            return new DelimitedReader(context)
+            return new DelimitedLineReader(context)
             {
                 LineSource = new TextFileLineSource()
                 {
@@ -30,9 +30,9 @@
             };
         }
 
-        private static DelimitedReader GetSimpleReader(IEtlContext context, string fileName, bool treatEmptyStringsAsNull = true)
+        private static DelimitedLineReader GetSimpleReader(IEtlContext context, string fileName, bool treatEmptyStringsAsNull = true)
         {
-            return new DelimitedReader(context)
+            return new DelimitedLineReader(context)
             {
                 LineSource = new TextFileLineSource()
                 {

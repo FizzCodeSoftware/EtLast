@@ -7,7 +7,7 @@
     using System.Linq;
     using System.Text;
 
-    public sealed class DelimitedReader : AbstractRowSource, IRowSource
+    public sealed class DelimitedLineReader : AbstractRowSource, IRowSource
     {
         public ILineSource LineSource { get; init; }
 
@@ -44,7 +44,7 @@
         /// </summary>
         public char Delimiter { get; init; } = ';';
 
-        public DelimitedReader(IEtlContext context)
+        public DelimitedLineReader(IEtlContext context)
             : base(context)
         {
         }
@@ -294,7 +294,7 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class DelimitedFileReaderFluent
     {
-        public static IFluentProcessMutatorBuilder ReadDelimitedLines(this IFluentProcessBuilder builder, DelimitedReader reader)
+        public static IFluentProcessMutatorBuilder ReadDelimitedLines(this IFluentProcessBuilder builder, DelimitedLineReader reader)
         {
             return builder.ReadFrom(reader);
         }
