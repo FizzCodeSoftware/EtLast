@@ -294,7 +294,7 @@
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public static class DelimitedFileReaderFluent
     {
-        public static IFluentProcessMutatorBuilder ReadDelimited(this IFluentProcessBuilder builder, DelimitedReader reader)
+        public static IFluentProcessMutatorBuilder ReadDelimitedLines(this IFluentProcessBuilder builder, DelimitedReader reader)
         {
             return builder.ReadFrom(reader);
         }
