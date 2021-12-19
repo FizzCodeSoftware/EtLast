@@ -54,7 +54,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFromDelimitedFile(GetReader(context, @"TestData\Sample.csv"))
+                .ReadDelimited(GetReader(context, @"TestData\Sample.csv"))
                 .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
                 {
                     Columns = new[] { "ValueDate" },
@@ -75,7 +75,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFromDelimitedFile(GetReader(context, @"TestData\QuotedSample1.csv"));
+                .ReadDelimited(GetReader(context, @"TestData\QuotedSample1.csv"));
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(2, result.MutatedRows.Count);
@@ -91,7 +91,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFromDelimitedFile(GetReader(context, @"TestData\QuotedSample1.csv", removeSurroundingDoubleQuotes: false))
+                .ReadDelimited(GetReader(context, @"TestData\QuotedSample1.csv", removeSurroundingDoubleQuotes: false))
                 .ThrowExceptionOnRowError();
 
             var result = TestExecuter.Execute(builder);
@@ -108,7 +108,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFromDelimitedFile(GetSimpleReader(context, @"TestData\QuotedSample2.csv"));
+                .ReadDelimited(GetSimpleReader(context, @"TestData\QuotedSample2.csv"));
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(3, result.MutatedRows.Count);
@@ -125,7 +125,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFromDelimitedFile(GetSimpleReader(context, @"TestData\QuotedSample3.csv", treatEmptyStringsAsNull: false));
+                .ReadDelimited(GetSimpleReader(context, @"TestData\QuotedSample3.csv", treatEmptyStringsAsNull: false));
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(8, result.MutatedRows.Count);
@@ -147,7 +147,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFromDelimitedFile(GetSimpleReader(context, @"TestData\QuotedSample3.csv", treatEmptyStringsAsNull: true));
+                .ReadDelimited(GetSimpleReader(context, @"TestData\QuotedSample3.csv", treatEmptyStringsAsNull: true));
 
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(8, result.MutatedRows.Count);
@@ -169,7 +169,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFromDelimitedFile(GetReader(context, @"TestData\NewLineSample1.csv"))
+                .ReadDelimited(GetReader(context, @"TestData\NewLineSample1.csv"))
                 .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
                 {
                     Columns = new[] { "ValueDate" },
@@ -189,7 +189,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFromDelimitedFile(GetReader(context, @"TestData\NewLineSample2.csv"))
+                .ReadDelimited(GetReader(context, @"TestData\NewLineSample2.csv"))
                 .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
                 {
                     Columns = new[] { "ValueDate" },
@@ -209,7 +209,7 @@
         {
             var context = TestExecuter.GetContext();
             var builder = ProcessBuilder.Fluent
-                .ReadFromDelimitedFile(GetReader(context, @"TestData\SampleInvalidConversion.csv"))
+                .ReadDelimited(GetReader(context, @"TestData\SampleInvalidConversion.csv"))
                 .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
                 {
                     Columns = new[] { "ValueDate" },
