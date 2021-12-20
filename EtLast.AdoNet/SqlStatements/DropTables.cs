@@ -62,18 +62,18 @@
             }
 
             command.CommandText = originalStatement;
-            iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
+            iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDropTable, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
             "drop table {ConnectionStringName}/{TableName}",
             ConnectionString.Name, ConnectionString.Unescape(tableName));
 
             try
             {
                 command.ExecuteNonQuery();
-                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbAlterSchema, iocUid, recordCount);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.dbDropTable, iocUid, recordCount);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbDropTable, iocUid, null, ex);
 
                 var exception = new SqlSchemaChangeException(this, "drop table", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop table, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
