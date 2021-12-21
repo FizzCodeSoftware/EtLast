@@ -34,7 +34,7 @@
 
         protected override void CloseMutator()
         {
-            if (_state.LastWorksheet != null)
+            if (_state.Worksheet != null)
             {
                 Finalize?.Invoke(_package, _state);
             }
@@ -110,7 +110,7 @@
 
         public void AddWorkSheet(string name)
         {
-            _state.LastWorksheet = _package.Workbook.Worksheets.Add(name);
+            _state.Worksheet = _package.Workbook.Worksheets.Add(name);
             _sinkUid = Context.GetSinkUid(StoreLocation, name);
         }
     }

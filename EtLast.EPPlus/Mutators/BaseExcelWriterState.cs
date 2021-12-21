@@ -4,6 +4,6 @@
 
     public class BaseExcelWriterState
     {
-        public ExcelWorksheet LastWorksheet { get; internal set; }
+        public ExcelWorksheet Worksheet { get; internal set; }
     }
 }

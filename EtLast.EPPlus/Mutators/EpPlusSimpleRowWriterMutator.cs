@@ -33,7 +33,7 @@
 
         protected override void CloseMutator()
         {
-            if (_state.LastWorksheet != null)
+            if (_state.Worksheet != null)
             {
                 Finalize?.Invoke(_package, _state);
             }
@@ -76,32 +76,32 @@
             {
                 _package = ExistingPackage ?? new ExcelPackage(new FileInfo(FileName));
 
-                _state.LastWorksheet = _package.Workbook.Worksheets.Add(SheetName);
-                _state.LastRow = 1;
-                _state.LastCol = 1;
+                _state.Worksheet = _package.Workbook.Worksheets.Add(SheetName);
+                _state.NextRow = 1;
+                _state.NextCol = 1;
                 foreach (var col in Columns)
                 {
-                    _state.LastWorksheet.Cells[_state.LastRow, _state.LastCol].Value = col.Key;
-                    _state.LastCol++;
+                    _state.Worksheet.Cells[_state.NextRow, _state.NextCol].Value = col.Key;
+                    _state.NextCol++;
                 }
 
-                _state.LastRow++;
+                _state.NextRow++;
             }
 
             try
             {
-                _state.LastCol = 1;
+                _state.NextCol = 1;
                 foreach (var col in Columns)
                 {
-                    var range = _state.LastWorksheet.Cells[_state.LastRow, _state.LastCol];
+                    var range = _state.Worksheet.Cells[_state.NextRow, _state.NextCol];
                     range.Value = row[col.Value?.SourceColumn ?? col.Key];
                     if (col.Value?.NumberFormat != null)
                         range.Style.Numberformat.Format = col.Value.NumberFormat;
 
-                    _state.LastCol++;
+                    _state.NextCol++;
                 }
 
-                _state.LastRow++;
+                _state.NextRow++;
             }
             catch (Exception ex)
             {
