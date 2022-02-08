@@ -12,7 +12,7 @@
         {
             return new DelimitedLineReader(context)
             {
-                LineSource = new TextFileLineSource()
+                StreamSource = new LocalFileStreamSource()
                 {
                     FileName = fileName,
                 },
@@ -34,7 +34,7 @@
         {
             return new DelimitedLineReader(context)
             {
-                LineSource = new TextFileLineSource()
+                StreamSource = new LocalFileStreamSource()
                 {
                     FileName = fileName,
                 },

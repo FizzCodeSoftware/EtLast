@@ -22,11 +22,11 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.8" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="3.3.0">
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="FizzCode.LightWeight.Collections" Version="2.0.20.6179" />
+    <PackageReference Include="FizzCode.LightWeight.Collections" Version="2.0.21.6347" />
   </ItemGroup>
 
   <ItemGroup>

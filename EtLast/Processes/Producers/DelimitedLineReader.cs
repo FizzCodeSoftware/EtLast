@@ -4,12 +4,13 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Globalization;
+    using System.IO;
     using System.Linq;
     using System.Text;
 
     public sealed class DelimitedLineReader : AbstractRowSource, IRowSource
     {
-        public ILineSource LineSource { get; init; }
+        public IStreamSource StreamSource { get; init; }
 
         public Dictionary<string, ReaderColumnConfiguration> Columns { get; init; }
         public ReaderDefaultColumnConfiguration DefaultColumns { get; init; }
@@ -51,13 +52,13 @@
 
         public override string GetTopic()
         {
-            return LineSource?.GetTopic();
+            return StreamSource?.Topic;
         }
 
         protected override void ValidateImpl()
         {
-            if (LineSource == null)
-                throw new ProcessParameterNullException(this, nameof(LineSource));
+            if (StreamSource == null)
+                throw new ProcessParameterNullException(this, nameof(StreamSource));
 
             if (!HasHeaderRow && (ColumnNames == null || ColumnNames.Length == 0))
                 throw new ProcessParameterNullException(this, nameof(ColumnNames));
@@ -89,13 +90,16 @@
             var removeSurroundingDoubleQuotes = RemoveSurroundingDoubleQuotes;
             var ignoreColumns = IgnoreColumns?.ToHashSet();
 
+            NamedStream stream = null;
+            StreamReader reader = null;
             try
             {
-                LineSource.Prepare(this);
+                stream = StreamSource.GetStream(this);
+                reader = new StreamReader(stream.Stream);
 
                 while (!Context.CancellationTokenSource.IsCancellationRequested)
                 {
-                    var line = LineSource.ReadLine(this);
+                    var line = GetLine(stream, reader, resultCount);
                     if (line == null)
                         break;
 
@@ -152,7 +156,7 @@
 
                         if (newLineInQuotedCell)
                         {
-                            var nextLine = LineSource.ReadLine(this);
+                            var nextLine = GetLine(stream, reader, resultCount);
                             if (nextLine == null)
                                 break;
 
@@ -230,10 +234,10 @@
                                     {
                                         var message = "delimited input contains more than one columns with the same name: " + columnName;
                                         var exception = new EtlException(this, "error while processing delimited input: " + message);
-                                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while processing delimited input: {0}, message: {1}", LineSource.GetType(), message));
-                                        exception.Data.Add("Topic", LineSource.GetTopic());
+                                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while processing delimited input: {0}, message: {1}", StreamSource.GetType(), message));
+                                        exception.Data.Add("StreamName", stream.Name);
 
-                                        Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, LineSource.GetIoCommandUid(), 0, exception);
+                                        Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
                                         throw exception;
                                     }
                                 }
@@ -286,7 +290,32 @@
             }
             finally
             {
-                LineSource.Release(this);
+                if (stream != null)
+                {
+                    Context.RegisterIoCommandSuccess(this, stream.IoCommandKind, stream.IoCommandUid, resultCount);
+                    stream.Dispose();
+                    stream = null;
+
+                    reader?.Dispose();
+                    reader = null;
+                }
+            }
+        }
+
+        private string GetLine(NamedStream stream, StreamReader reader, int resultCount)
+        {
+            try
+            {
+                var line = reader.ReadLine();
+                return line;
+            }
+            catch (Exception ex)
+            {
+                Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, resultCount, ex);
+                var exception = new EtlException(this, "error while reading delimited data from stream", ex);
+                exception.Data.Add("StreamName", stream.Name);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading delimited data from stream: {0}, message: {1}", stream.Name, ex.Message));
+                throw exception;
             }
         }
     }
