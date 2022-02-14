@@ -11,9 +11,9 @@
         public string FileName { get; init; }
 
         /// <summary>
-        /// Default value is false;
+        /// Default value is true.
         /// </summary>
-        public bool ThrowExceptionWhenFileNotFound { get; init; } = false;
+        public bool ThrowExceptionWhenFileNotFound { get; init; } = true;
 
         public string Topic => FileName != null ? PathHelpers.GetFriendlyPathName(FileName) : null;
 
@@ -30,7 +30,6 @@
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "input file doesn't exist: {0}",
                         FileName));
 
-                    exception.Data.Add("FileName", FileName);
                     caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, iocUid, 0, exception);
                     throw exception;
                 }

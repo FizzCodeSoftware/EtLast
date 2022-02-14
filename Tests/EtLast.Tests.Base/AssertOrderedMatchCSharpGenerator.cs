@@ -124,9 +124,10 @@
             }
 
             if (v is EtlRowError err)
-            {
                 return "new EtlRowError(" + FormatToCSharpVariable(err.OriginalValue) + ")";
-            }
+
+            if (v is System.Drawing.Color color)
+                return "System.Drawing.Color.FromArgb(" + color.A.ToString() + ", " + color.R.ToString() + ", " + color.G.ToString() + ", " + color.B.ToString() + ")";
 
             throw new Exception("unexpected test value type: " + v.GetType());
         }

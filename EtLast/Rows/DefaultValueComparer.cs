@@ -17,6 +17,11 @@
                     : e1.OriginalValue != e2.OriginalValue;
             }
 
+            if (leftValue is System.Drawing.Color c1 && rightValue is System.Drawing.Color c2)
+            {
+                return c1.ToArgb().Equals(c2.ToArgb());
+            }
+
             return leftValue.Equals(rightValue);
         }
     }

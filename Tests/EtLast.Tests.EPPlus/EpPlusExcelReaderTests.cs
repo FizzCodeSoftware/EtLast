@@ -13,7 +13,12 @@
         {
             return new EpPlusExcelReader(context)
             {
-                FileName = fileName,
+                Source = new LocalFileStreamSource()
+                {
+                    FileName = fileName,
+                },
+                SheetName = sheetName,
+                SheetIndex = sheetIndex,
                 Columns = new()
                 {
                     ["Id"] = new ReaderColumnConfiguration(new IntConverter()).ValueWhenSourceIsNull(string.Empty),
@@ -23,10 +28,25 @@
                     ["ValueDate"] = new ReaderColumnConfiguration(new DateConverter()).FromSource("Value3"),
                     ["ValueDouble"] = new ReaderColumnConfiguration(new DoubleConverter()).FromSource("Value4"),
                 },
-                SheetName = sheetName,
-                SheetIndex = sheetIndex,
                 AutomaticallyTrimAllStringValues = automaticallyTrimAllStringValues,
             };
+        }
+
+        [TestMethod]
+        public void MissingFileThrowsFileReadException()
+        {
+            var context = TestExecuter.GetContext();
+            var reader = GetReader(context, @".\TestData\MissingFile.xlsx", sheetName: "anySheet");
+
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(reader)
+                .ThrowExceptionOnRowError();
+
+            var result = TestExecuter.Execute(builder);
+            Assert.AreEqual(0, result.MutatedRows.Count);
+            var exceptions = context.GetExceptions();
+            Assert.AreEqual(1, exceptions.Count);
+            Assert.IsTrue(exceptions[0] is FileReadException);
         }
 
         [TestMethod]

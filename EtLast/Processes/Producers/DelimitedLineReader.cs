@@ -10,7 +10,7 @@
 
     public sealed class DelimitedLineReader : AbstractRowSource, IRowSource
     {
-        public IStreamSource StreamSource { get; init; }
+        public IStreamSource Source { get; init; }
 
         public Dictionary<string, ReaderColumnConfiguration> Columns { get; init; }
         public ReaderDefaultColumnConfiguration DefaultColumns { get; init; }
@@ -52,13 +52,13 @@
 
         public override string GetTopic()
         {
-            return StreamSource?.Topic;
+            return Source?.Topic;
         }
 
         protected override void ValidateImpl()
         {
-            if (StreamSource == null)
-                throw new ProcessParameterNullException(this, nameof(StreamSource));
+            if (Source == null)
+                throw new ProcessParameterNullException(this, nameof(Source));
 
             if (!HasHeaderRow && (ColumnNames == null || ColumnNames.Length == 0))
                 throw new ProcessParameterNullException(this, nameof(ColumnNames));
@@ -94,7 +94,10 @@
             StreamReader reader = null;
             try
             {
-                stream = StreamSource.GetStream(this);
+                stream = Source.GetStream(this);
+                if (stream == null)
+                    yield break;
+
                 reader = new StreamReader(stream.Stream);
 
                 while (!Context.CancellationTokenSource.IsCancellationRequested)
@@ -234,7 +237,7 @@
                                     {
                                         var message = "delimited input contains more than one columns with the same name: " + columnName;
                                         var exception = new EtlException(this, "error while processing delimited input: " + message);
-                                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while processing delimited input: {0}, message: {1}", StreamSource.GetType(), message));
+                                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while processing delimited input: {0}, message: {1}", Source.GetType(), message));
                                         exception.Data.Add("StreamName", stream.Name);
 
                                         Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);

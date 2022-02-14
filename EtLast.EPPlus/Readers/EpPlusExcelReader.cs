@@ -12,12 +12,12 @@
 
     public sealed class EpPlusExcelReader : AbstractRowSource
     {
-        public string FileName { get; init; }
+        public IStreamSource Source { get; init; }
         public string SheetName { get; init; }
         public int SheetIndex { get; init; } = -1;
 
         /// <summary>
-        /// Optional, preloaded Excel file. In case this property is provided, the FileName property is used only for logging purposes.
+        /// Optional, preloaded Excel file. In case this property is provided, the <see cref="Source"/> property is used only for logging purposes.
         /// Usage example: reader.PreLoadedFile = new ExcelPackage(new FileInfo(fileName));
         /// </summary>
         public ExcelPackage PreLoadedFile { get; init; }
@@ -64,19 +64,24 @@
 
         public override string GetTopic()
         {
-            if (FileName == null)
+            if (Source == null)
+            {
+                if (PreLoadedFile?.File?.Name != null)
+                    return Path.GetFileName(PreLoadedFile.File.Name);
+
                 return null;
+            }
 
             if (string.IsNullOrEmpty(SheetName))
-                return Path.GetFileName(FileName) + "(" + SheetIndex.ToString("D", CultureInfo.InvariantCulture) + ")";
+                return Source.Topic + "[" + SheetIndex.ToString("D", CultureInfo.InvariantCulture) + "]";
             else
-                return Path.GetFileName(FileName) + "(" + SheetName + ")";
+                return Source.Topic + "[" + SheetName + "]";
         }
 
         protected override void ValidateImpl()
         {
-            if (string.IsNullOrEmpty(FileName))
-                throw new ProcessParameterNullException(this, nameof(FileName));
+            if (Source == null && PreLoadedFile == null)
+                throw new ProcessParameterNullException(this, nameof(Source));
 
             if (string.IsNullOrEmpty(SheetName) && SheetIndex == -1)
                 throw new ProcessParameterNullException(this, nameof(SheetName));
@@ -92,42 +97,29 @@
                 throw new NotImplementedException("Transpose is not finished yet, must be tested before used");
             }
 
-            var iocUid = !string.IsNullOrEmpty(SheetName)
-                ? Context.RegisterIoCommandStart(this, IoCommandKind.fileRead, PathHelpers.GetFriendlyPathName(FileName), SheetName, null, null, null, null,
-                    "reading from: {FileName}[{SheetName}]",
-                    PathHelpers.GetFriendlyPathName(FileName), SheetName)
-                : Context.RegisterIoCommandStart(this, IoCommandKind.fileRead, PathHelpers.GetFriendlyPathName(FileName), "#" + SheetIndex.ToString("D", CultureInfo.InvariantCulture), null, null, null, null,
-                    "reading from: {FileName}[{SheetIndex}]",
-                    PathHelpers.GetFriendlyPathName(FileName), SheetIndex);
-
-            if (!File.Exists(FileName))
-            {
-                var exception = new FileReadException(this, "input file doesn't exist", FileName);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "input file doesn't exist: {0}",
-                    FileName));
-                exception.Data.Add("FileName", FileName);
-
-                Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, 0, exception);
-                throw exception;
-            }
-
             var columnIndexes = new List<(string rowColumn, int index, ReaderDefaultColumnConfiguration configuration)>();
 
+            NamedStream stream = null;
             var package = PreLoadedFile;
+
             if (package == null)
             {
+                stream = Source.GetStream(this);
+                if (stream == null)
+                    yield break;
+
                 try
                 {
-                    package = new ExcelPackage(new FileInfo(FileName));
+                    package = new ExcelPackage(stream.Stream);
                 }
                 catch (Exception ex)
                 {
-                    Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, null, ex);
+                    var exception = new StreamReadException(this, "excel steram read failed", stream, ex);
+                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel stream read failed: {0}, message: {1}",
+                        stream.Name, ex.Message));
+                    exception.Data.Add("StreamName", stream.Name);
 
-                    var exception = new FileReadException(this, "excel file read failed", FileName, ex);
-                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel file read failed, file name: {0}, message: {1}",
-                        FileName, ex.Message));
-                    exception.Data.Add("FileName", FileName);
+                    Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, null, ex);
                     throw exception;
                 }
             }
@@ -151,24 +143,24 @@
                     {
                         var exception = new ProcessExecutionException(this, "can't find excel sheet by name");
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "can't find excel sheet, file name: {0}, sheet name: {1}, existing sheet names: {2}",
-                            FileName, SheetName, string.Join(",", workbook?.Worksheets.Select(x => x.Name))));
-                        exception.Data.Add("FileName", FileName);
+                            Source, SheetName, string.Join(",", workbook?.Worksheets.Select(x => x.Name))));
+                        exception.Data.Add("FileName", Source);
                         exception.Data.Add("SheetName", SheetName);
                         exception.Data.Add("ExistingSheetNames", string.Join(",", workbook?.Worksheets.Select(x => x.Name)));
 
-                        Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, 0, exception);
+                        Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
                         throw exception;
                     }
                     else
                     {
                         var exception = new ProcessExecutionException(this, "can't find excel sheet by index");
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "can't find excel sheet, file name: {0}, sheet index: {1}, existing sheet names: {2}",
-                            FileName, SheetIndex.ToString("D", CultureInfo.InvariantCulture), string.Join(",", workbook?.Worksheets.Select(x => x.Name))));
-                        exception.Data.Add("FileName", FileName);
+                            Source, SheetIndex.ToString("D", CultureInfo.InvariantCulture), string.Join(",", workbook?.Worksheets.Select(x => x.Name))));
+                        exception.Data.Add("FileName", Source);
                         exception.Data.Add("SheetIndex", SheetIndex.ToString("D", CultureInfo.InvariantCulture));
                         exception.Data.Add("ExistingSheetNames", string.Join(",", workbook?.Worksheets.Select(x => x.Name)));
 
-                        Context.RegisterIoCommandFailed(this, IoCommandKind.fileRead, iocUid, 0, exception);
+                        Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
                         throw exception;
                     }
                 }
@@ -286,13 +278,18 @@
             }
             finally
             {
+                if (stream != null)
+                {
+                    Context.RegisterIoCommandSuccess(this, stream.IoCommandKind, stream.IoCommandUid, rowCount);
+                    stream.Dispose();
+                    stream = null;
+                }
+
                 if (PreLoadedFile == null)
                 {
                     package.Dispose();
                 }
             }
-
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.fileRead, iocUid, rowCount);
         }
 
         private static string EnsureDistinctColumnNames(List<string> excelColumns, string excelColumn)

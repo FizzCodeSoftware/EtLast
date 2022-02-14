@@ -16,7 +16,10 @@
             var builder = ProcessBuilder.Fluent
                 .ReadFromExcel(new EpPlusExcelReader(context)
                 {
-                    FileName = @".\TestData\Test.xlsx",
+                    Source = new LocalFileStreamSource()
+                    {
+                        FileName = @".\TestData\Test.xlsx",
+                    },
                     SheetName = "DateBroken",
                     Columns = new()
                     {
