@@ -83,10 +83,10 @@
             if (IgnoreNullOrEmptyRows && row.IsNullOrEmpty())
                 return false;
 
-            _currentRowIndex++;
-
             if (AddRowIndexToColumn != null && !row.HasValue(AddRowIndexToColumn))
                 row[AddRowIndexToColumn] = _currentRowIndex;
+
+            _currentRowIndex++;
 
             return true;
         }
