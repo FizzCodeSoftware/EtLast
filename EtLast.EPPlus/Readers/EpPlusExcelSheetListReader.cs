@@ -8,7 +8,7 @@
 
     public sealed class EpPlusExcelSheetListReader : AbstractRowSource, IRowSource
     {
-        public IStreamSource Source { get; init; }
+        public IStreamProvider Source { get; init; }
 
         public EpPlusExcelSheetListReader(IEtlContext context)
             : base(context)

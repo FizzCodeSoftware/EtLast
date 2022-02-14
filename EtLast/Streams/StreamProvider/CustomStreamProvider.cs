@@ -4,7 +4,7 @@
     using System.Globalization;
     using System.IO;
 
-    public class CustomStreamSource : IStreamSource
+    public class CustomStreamProvider : IStreamProvider
     {
         public Func<Stream> StreamCreator { get; init; }
         public string StreamName { get; init; }

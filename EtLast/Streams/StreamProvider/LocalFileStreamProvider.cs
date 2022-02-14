@@ -4,9 +4,7 @@
     using System.Globalization;
     using System.IO;
 
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable
-    public class LocalFileStreamSource : IStreamSource
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable
+    public class LocalFileStreamProvider : IStreamProvider
     {
         public string FileName { get; init; }
 

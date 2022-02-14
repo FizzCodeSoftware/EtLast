@@ -13,7 +13,7 @@
         {
             return new EpPlusExcelReader(context)
             {
-                Source = new LocalFileStreamSource()
+                StreamProvider = new LocalFileStreamProvider()
                 {
                     FileName = fileName,
                 },

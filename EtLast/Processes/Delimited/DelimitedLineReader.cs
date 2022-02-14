@@ -10,7 +10,7 @@
 
     public sealed class DelimitedLineReader : AbstractRowSource, IRowSource
     {
-        public IStreamSource Source { get; init; }
+        public IStreamProvider StreamProvider { get; init; }
 
         public Dictionary<string, ReaderColumnConfiguration> Columns { get; init; }
         public ReaderDefaultColumnConfiguration DefaultColumns { get; init; }
@@ -28,10 +28,10 @@
         /// <summary>
         /// Default false.
         /// </summary>
-        public bool HasHeaderRow { get; init; }
+        public bool HasHeader { get; init; }
 
         /// <summary>
-        /// Default null. Column names must be set if <see cref="HasHeaderRow"/> is false, otherwise it should be left null.
+        /// Default null. Column names must be set if <see cref="HasHeader"/> is false, otherwise it should be left null.
         /// </summary>
         public string[] ColumnNames { get; init; }
 
@@ -45,6 +45,11 @@
         /// </summary>
         public char Delimiter { get; init; } = ';';
 
+        /// <summary>
+        /// Default value is \r\n
+        /// </summary>
+        public string LineEnding { get; init; } = "\r\n";
+
         public DelimitedLineReader(IEtlContext context)
             : base(context)
         {
@@ -52,19 +57,19 @@
 
         public override string GetTopic()
         {
-            return Source?.Topic;
+            return StreamProvider?.Topic;
         }
 
         protected override void ValidateImpl()
         {
-            if (Source == null)
-                throw new ProcessParameterNullException(this, nameof(Source));
+            if (StreamProvider == null)
+                throw new ProcessParameterNullException(this, nameof(StreamProvider));
 
-            if (!HasHeaderRow && (ColumnNames == null || ColumnNames.Length == 0))
+            if (!HasHeader && (ColumnNames == null || ColumnNames.Length == 0))
                 throw new ProcessParameterNullException(this, nameof(ColumnNames));
 
-            if (HasHeaderRow && ColumnNames?.Length > 0)
-                throw new InvalidProcessParameterException(this, nameof(ColumnNames), ColumnNames, nameof(ColumnNames) + " must be null if " + nameof(HasHeaderRow) + " is true.");
+            if (HasHeader && ColumnNames?.Length > 0)
+                throw new InvalidProcessParameterException(this, nameof(ColumnNames), ColumnNames, nameof(ColumnNames) + " must be null if " + nameof(HasHeader) + " is true.");
 
             if (Columns == null && DefaultColumns == null)
                 throw new InvalidProcessParameterException(this, nameof(Columns), Columns, nameof(DefaultColumns) + " must be specified if " + nameof(Columns) + " is null.");
@@ -94,7 +99,7 @@
             StreamReader reader = null;
             try
             {
-                stream = Source.GetStream(this);
+                stream = StreamProvider.GetStream(this);
                 if (stream == null)
                     yield break;
 
@@ -169,7 +174,7 @@
                             if (string.IsNullOrEmpty(nextLine))
                                 continue;
 
-                            line += "\n" + nextLine;
+                            line += LineEnding + nextLine;
                             lineLength = line.Length;
                             linePos--;
                             continue;
@@ -210,7 +215,7 @@
                     {
                         firstRow = false;
 
-                        if (HasHeaderRow)
+                        if (HasHeader)
                         {
                             columnNames = partList.ToArray();
 
@@ -237,7 +242,7 @@
                                     {
                                         var message = "delimited input contains more than one columns with the same name: " + columnName;
                                         var exception = new EtlException(this, "error while processing delimited input: " + message);
-                                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while processing delimited input: {0}, message: {1}", Source.GetType(), message));
+                                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while processing delimited input: {0}, message: {1}", StreamProvider.GetType(), message));
                                         exception.Data.Add("StreamName", stream.Name);
 
                                         Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);

@@ -22,5 +22,6 @@
         dbReadMeta = 17,
         dbReadAggregate = 18,
         dbIdentityReset = 19,
+        memoryWrite = 20,
     }
 }

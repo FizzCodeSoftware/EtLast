@@ -12,12 +12,12 @@
 
     public sealed class EpPlusExcelReader : AbstractRowSource
     {
-        public IStreamSource Source { get; init; }
+        public IStreamProvider StreamProvider { get; init; }
         public string SheetName { get; init; }
         public int SheetIndex { get; init; } = -1;
 
         /// <summary>
-        /// Optional, preloaded Excel file. In case this property is provided, the <see cref="Source"/> property is used only for logging purposes.
+        /// Optional, preloaded Excel file. In case this property is provided, the <see cref="StreamProvider"/> property is used only for logging purposes.
         /// Usage example: reader.PreLoadedFile = new ExcelPackage(new FileInfo(fileName));
         /// </summary>
         public ExcelPackage PreLoadedFile { get; init; }
@@ -64,7 +64,7 @@
 
         public override string GetTopic()
         {
-            if (Source == null)
+            if (StreamProvider == null)
             {
                 if (PreLoadedFile?.File?.Name != null)
                     return Path.GetFileName(PreLoadedFile.File.Name);
@@ -73,15 +73,15 @@
             }
 
             if (string.IsNullOrEmpty(SheetName))
-                return Source.Topic + "[" + SheetIndex.ToString("D", CultureInfo.InvariantCulture) + "]";
+                return StreamProvider.Topic + "[" + SheetIndex.ToString("D", CultureInfo.InvariantCulture) + "]";
             else
-                return Source.Topic + "[" + SheetName + "]";
+                return StreamProvider.Topic + "[" + SheetName + "]";
         }
 
         protected override void ValidateImpl()
         {
-            if (Source == null && PreLoadedFile == null)
-                throw new ProcessParameterNullException(this, nameof(Source));
+            if (StreamProvider == null && PreLoadedFile == null)
+                throw new ProcessParameterNullException(this, nameof(StreamProvider));
 
             if (string.IsNullOrEmpty(SheetName) && SheetIndex == -1)
                 throw new ProcessParameterNullException(this, nameof(SheetName));
@@ -104,7 +104,7 @@
 
             if (package == null)
             {
-                stream = Source.GetStream(this);
+                stream = StreamProvider.GetStream(this);
                 if (stream == null)
                     yield break;
 
@@ -143,8 +143,8 @@
                     {
                         var exception = new ProcessExecutionException(this, "can't find excel sheet by name");
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "can't find excel sheet, file name: {0}, sheet name: {1}, existing sheet names: {2}",
-                            Source, SheetName, string.Join(",", workbook?.Worksheets.Select(x => x.Name))));
-                        exception.Data.Add("FileName", Source);
+                            StreamProvider, SheetName, string.Join(",", workbook?.Worksheets.Select(x => x.Name))));
+                        exception.Data.Add("FileName", StreamProvider);
                         exception.Data.Add("SheetName", SheetName);
                         exception.Data.Add("ExistingSheetNames", string.Join(",", workbook?.Worksheets.Select(x => x.Name)));
 
@@ -155,8 +155,8 @@
                     {
                         var exception = new ProcessExecutionException(this, "can't find excel sheet by index");
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "can't find excel sheet, file name: {0}, sheet index: {1}, existing sheet names: {2}",
-                            Source, SheetIndex.ToString("D", CultureInfo.InvariantCulture), string.Join(",", workbook?.Worksheets.Select(x => x.Name))));
-                        exception.Data.Add("FileName", Source);
+                            StreamProvider, SheetIndex.ToString("D", CultureInfo.InvariantCulture), string.Join(",", workbook?.Worksheets.Select(x => x.Name))));
+                        exception.Data.Add("FileName", StreamProvider);
                         exception.Data.Add("SheetIndex", SheetIndex.ToString("D", CultureInfo.InvariantCulture));
                         exception.Data.Add("ExistingSheetNames", string.Join(",", workbook?.Worksheets.Select(x => x.Name)));
 

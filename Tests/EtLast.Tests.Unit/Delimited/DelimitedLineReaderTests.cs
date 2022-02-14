@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.Tests.Unit.RowSources
+﻿namespace FizzCode.EtLast.Tests.Unit.Delimited
 {
     using System;
     using System.Collections.Generic;
@@ -12,7 +12,7 @@
         {
             return new DelimitedLineReader(context)
             {
-                Source = new LocalFileStreamSource()
+                StreamProvider = new LocalFileStreamProvider()
                 {
                     FileName = fileName,
                 },
@@ -25,7 +25,7 @@
                     ["ValueDate"] = new ReaderColumnConfiguration(new DateConverter()).FromSource("Value3"),
                     ["ValueDouble"] = new ReaderColumnConfiguration(new DoubleConverter()).FromSource("Value4"),
                 },
-                HasHeaderRow = true,
+                HasHeader = true,
                 RemoveSurroundingDoubleQuotes = removeSurroundingDoubleQuotes
             };
         }
@@ -34,7 +34,7 @@
         {
             return new DelimitedLineReader(context)
             {
-                Source = new LocalFileStreamSource()
+                StreamProvider = new LocalFileStreamProvider()
                 {
                     FileName = fileName,
                 },
@@ -44,7 +44,7 @@
                     ["Name"] = new ReaderColumnConfiguration(new StringConverter()),
                     ["Value"] = new ReaderColumnConfiguration(new StringConverter())
                 },
-                HasHeaderRow = true,
+                HasHeader = true,
                 TreatEmptyStringAsNull = treatEmptyStringsAsNull,
             };
         }
@@ -179,7 +179,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(1, result.MutatedRows.Count);
             Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "test\n continues", ["ValueInt"] = -1 } });
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = " A", ["ValueString"] = "test\r\n continues", ["ValueInt"] = -1 } });
             var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
@@ -199,7 +199,7 @@
             var result = TestExecuter.Execute(builder);
             Assert.AreEqual(1, result.MutatedRows.Count);
             Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "test\"\ncontinues", ["ValueInt"] = -1 } });
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "test\"\r\ncontinues", ["ValueInt"] = -1 } });
             var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
