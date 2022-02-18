@@ -333,6 +333,30 @@
         }
 
         /// <summary>
+        /// New value will be datetime.
+        /// </summary>
+        public static ContinuousGroupByOperation AddDateTimeMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+        {
+            if (targetColumn == null)
+                targetColumn = sourceColumn;
+
+            return op.AddAggregator((aggregate, row) =>
+            {
+                if (aggregate.ResultRow.HasValue(targetColumn))
+                {
+                    var source = row.GetAs(sourceColumn, DateTime.MinValue);
+                    var target = aggregate.ResultRow.GetAs<DateTime>(targetColumn);
+                    if (source > target)
+                        aggregate.ResultRow[targetColumn] = source;
+                }
+                else
+                {
+                    aggregate.ResultRow[targetColumn] = aggregate.ResultRow.HasValue(targetColumn);
+                }
+            });
+        }
+
+        /// <summary>
         /// New value will be int.
         /// </summary>
         public static ContinuousGroupByOperation AddIntMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
@@ -397,6 +421,30 @@
                     ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0m), row.GetAs(sourceColumn, 0m))
                     : row.GetAs(sourceColumn, 0m);
                 aggregate.ResultRow[targetColumn] = newValue;
+            });
+        }
+
+        /// <summary>
+        /// New value will be datetime.
+        /// </summary>
+        public static ContinuousGroupByOperation AddDateTimeMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+        {
+            if (targetColumn == null)
+                targetColumn = sourceColumn;
+
+            return op.AddAggregator((aggregate, row) =>
+            {
+                if (aggregate.ResultRow.HasValue(targetColumn))
+                {
+                    var source = row.GetAs(sourceColumn, DateTime.MinValue);
+                    var target = aggregate.ResultRow.GetAs<DateTime>(targetColumn);
+                    if (source < target)
+                        aggregate.ResultRow[targetColumn] = source;
+                }
+                else
+                {
+                    aggregate.ResultRow[targetColumn] = aggregate.ResultRow.HasValue(targetColumn);
+                }
             });
         }
 
