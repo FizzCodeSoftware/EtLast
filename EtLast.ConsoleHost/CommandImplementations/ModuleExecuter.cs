@@ -66,7 +66,7 @@
             var sessionStartedOn = Stopwatch.StartNew();
             var sessionExceptionCount = 0;
 
-            var taskResults = new List<KeyValuePair<IEtlTask, TaskResult>>();
+            var taskResults = new List<KeyValuePair<IEtlTask, ProcessResult>>();
 
             try
             {
@@ -95,7 +95,7 @@
                         try
                         {
                             var taskResult = session.ExecuteTask(null, task);
-                            taskResults.Add(new KeyValuePair<IEtlTask, TaskResult>(task, taskResult));
+                            taskResults.Add(new KeyValuePair<IEtlTask, ProcessResult>(task, taskResult));
 
                             sessionExceptionCount += taskResult.ExceptionCount;
 
@@ -209,7 +209,7 @@
             }
         }
 
-        private static void LogTaskSummary(EtlSessionSerilogAdapter serilogAdapter, IEtlTask task, TaskResult result, int longestTaskName)
+        private static void LogTaskSummary(EtlSessionSerilogAdapter serilogAdapter, IEtlTask task, ProcessResult result, int longestTaskName)
         {
             var spacing1 = "".PadRight(longestTaskName - task.Name.Length);
             var spacing1WithoutName = "".PadRight(longestTaskName);

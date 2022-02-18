@@ -24,7 +24,11 @@
             {
                 try
                 {
-                    return Path.GetRelativePath(BaseFolder.Value, path);
+                    var relPath = Path.GetRelativePath(BaseFolder.Value, path);
+                    if (relPath.Length < path.Length)
+                        return relPath;
+
+                    return path;
                 }
                 catch (Exception)
                 {

@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast
 {
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
@@ -13,7 +12,6 @@
         public IExecutionStatistics Statistics => _statistics;
 
         public Dictionary<IoCommandKind, IoCommandCounter> IoCommandCounters => _ioCommandCounterCollection.Counters;
-        public Dictionary<string, object> Output { get; } = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
 
         private readonly IoCommandCounterCollection _ioCommandCounterCollection = new();
 
@@ -23,7 +21,7 @@
         {
         }
 
-        public TaskResult Execute(IProcess caller, IEtlSession session)
+        public ProcessResult Execute(IProcess caller, IEtlSession session)
         {
             Session = session;
             Context = session.Context;
@@ -43,7 +41,7 @@
                 _statistics.Start();
 
                 Context.Listeners.Add(_ioCommandCounterCollection);
-                var result = new TaskResult();
+                var exceptionCount = 0;
                 try
                 {
                     var executables = CreateProcesses()?.ToList();
@@ -56,8 +54,8 @@
 
                             executable.Execute(this);
 
-                            result.ExceptionCount = Context.ExceptionCount - originalExceptionCount;
-                            if (result.ExceptionCount > 0)
+                            exceptionCount = Context.ExceptionCount - originalExceptionCount;
+                            if (exceptionCount > 0)
                                 break;
                         }
                     }
@@ -67,16 +65,17 @@
                     Session.Context.Listeners.Remove(_ioCommandCounterCollection);
                 }
 
+                var result = new ProcessResult()
+                {
+                    ExceptionCount = exceptionCount,
+                };
+
                 _statistics.Finish();
 
                 Context.Log(LogSeverity.Information, this, "task {TaskResult} in {Elapsed}",
                     (result.ExceptionCount == 0) ? "finished" : "failed", _statistics.RunTime);
 
-                foreach (var kvp in Output)
-                {
-                    Context.Log(LogSeverity.Debug, this, "output [{key}] = [{value}]",
-                        kvp.Key, kvp.Value ?? "NULL");
-                }
+                LogPrivateSettableProperties(LogSeverity.Debug);
 
                 return result;
             }

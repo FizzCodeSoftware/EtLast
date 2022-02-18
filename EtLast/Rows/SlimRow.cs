@@ -78,6 +78,11 @@
             }
         }
 
+        public void Clear()
+        {
+            _values.Clear();
+        }
+
         public T GetAs<T>(string column)
         {
             var value = GetValueImpl(column);
@@ -115,9 +120,6 @@
         public bool Equals<T>(string column, T value)
         {
             var currentValue = GetValueImpl(column);
-            if (currentValue == null && value == null)
-                return false;
-
             return DefaultValueComparer.ValuesAreEqual(currentValue, value);
         }
 

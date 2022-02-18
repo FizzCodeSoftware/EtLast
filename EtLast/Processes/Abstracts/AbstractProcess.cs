@@ -69,13 +69,32 @@
                 .ToHashSet();
 
             var properties = GetType().GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Public)
-                .Where(x => !baseProperties.Contains(x.Name))
+                .Where(p => p.SetMethod?.IsPublic == true && !baseProperties.Contains(p.Name))
                 .ToList();
 
             foreach (var property in properties)
             {
                 var value = property.GetValue(this);
-                Context.Log(severity, this, "parameter {ParameterName} = {ParameterValue}",
+                Context.Log(severity, this, "parameter [{ParameterName}] = {ParameterValue}",
+                    property.Name, DefaultValueFormatter.Format(value, CultureInfo.InvariantCulture) ?? "<NULL>");
+            }
+        }
+
+        protected void LogPrivateSettableProperties(LogSeverity severity)
+        {
+            var baseProperties = typeof(AbstractEtlTask).GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.DeclaredOnly)
+                .Concat(typeof(AbstractProcess).GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.DeclaredOnly))
+                .Select(x => x.Name)
+                .ToHashSet();
+
+            var properties = GetType().GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Public)
+                .Where(p => p.SetMethod?.IsPublic == false && !baseProperties.Contains(p.Name))
+                .ToList();
+
+            foreach (var property in properties)
+            {
+                var value = property.GetValue(this);
+                Context.Log(severity, this, "output [{ParameterName}] = {ParameterValue}",
                     property.Name, DefaultValueFormatter.Format(value, CultureInfo.InvariantCulture) ?? "<NULL>");
             }
         }

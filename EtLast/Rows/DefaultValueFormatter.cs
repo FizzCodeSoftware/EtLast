@@ -18,6 +18,9 @@
             if (v is string[] strArr)
                 return "[" + string.Join(',', strArr) + "]";
 
+            if (v is ISlimRow row)
+                return row.ToDebugString(false);
+
             if (v is List<string> strList)
                 return "[" + string.Join(',', strList) + "]";
 

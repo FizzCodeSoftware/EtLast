@@ -9,8 +9,6 @@
 
         Dictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; }
 
-        TaskResult Execute(IProcess caller, IEtlSession session);
-
-        Dictionary<string, object> Output { get; }
+        ProcessResult Execute(IProcess caller, IEtlSession session);
     }
 }

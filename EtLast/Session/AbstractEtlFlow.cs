@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast
 {
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
 
@@ -12,7 +11,6 @@
         public IExecutionStatistics Statistics => _statistics;
 
         public Dictionary<IoCommandKind, IoCommandCounter> IoCommandCounters => _ioCommandCounterCollection.Counters;
-        public Dictionary<string, object> Output { get; } = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
 
         private readonly IoCommandCounterCollection _ioCommandCounterCollection = new();
 
@@ -22,7 +20,7 @@
         {
         }
 
-        public TaskResult Execute(IProcess caller, IEtlSession session)
+        public ProcessResult Execute(IProcess caller, IEtlSession session)
         {
             Session = session;
             Context = session.Context;
@@ -52,22 +50,18 @@
                     Session.Context.Listeners.Remove(_ioCommandCounterCollection);
                 }
 
-                var taskResult = new TaskResult()
+                var result = new ProcessResult()
                 {
                     ExceptionCount = Context.ExceptionCount - originalExceptionCount,
                 };
 
                 _statistics.Finish();
                 Context.Log(LogSeverity.Information, this, "flow {TaskResult} in {Elapsed}",
-                    (taskResult.ExceptionCount == 0) ? "finished" : "failed", _statistics.RunTime);
+                    (result.ExceptionCount == 0) ? "finished" : "failed", _statistics.RunTime);
 
-                foreach (var kvp in Output)
-                {
-                    Context.Log(LogSeverity.Debug, this, "output [{key}] = [{value}]",
-                        kvp.Key, kvp.Value ?? "NULL");
-                }
+                LogPrivateSettableProperties(LogSeverity.Debug);
 
-                return taskResult;
+                return result;
             }
             finally
             {

@@ -240,5 +240,13 @@
                         : "no values");
             }
         }
+
+        public void Clear()
+        {
+            foreach (var kvp in Values.ToList())
+            {
+                this[kvp.Key] = null;
+            }
+        }
     }
 }

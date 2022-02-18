@@ -237,5 +237,10 @@
                 }
             }
         }
+
+        public void Clear()
+        {
+            _values.Clear();
+        }
     }
 }
