@@ -36,16 +36,18 @@
 
         protected override void ValidateImpl()
         {
-            if (KeyGenerator == null)
-                throw new ProcessParameterNullException(this, nameof(KeyGenerator));
-
             if (Operation == null)
                 throw new ProcessParameterNullException(this, nameof(Operation));
         }
 
         protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
         {
-            var aggregates = new Dictionary<string, ContinuousAggregate>();
+            Dictionary<string, ContinuousAggregate> aggregates = null;
+            ContinuousAggregate singleAggregate = null;
+            if (KeyGenerator != null)
+            {
+                aggregates = new Dictionary<string, ContinuousAggregate>();
+            }
 
             netTimeStopwatch.Stop();
             var enumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
@@ -109,20 +111,43 @@
                 }
 
                 rowCount++;
-                var key = KeyGenerator.Invoke(row);
-                if (!aggregates.TryGetValue(key, out var aggregate))
-                {
-                    aggregate = new ContinuousAggregate(row.Tag);
+                ContinuousAggregate aggregate = null;
 
-                    if (FixColumns != null)
+                if (KeyGenerator != null)
+                {
+                    var key = KeyGenerator.Invoke(row);
+                    aggregates.TryGetValue(key, out aggregate);
+
+                    if (aggregate == null)
                     {
-                        foreach (var column in FixColumns)
+                        aggregate = new ContinuousAggregate(row.Tag);
+
+                        if (FixColumns != null)
                         {
-                            aggregate.ResultRow[column.Key] = row[column.Value ?? column.Key];
+                            foreach (var column in FixColumns)
+                            {
+                                aggregate.ResultRow[column.Key] = row[column.Value ?? column.Key];
+                            }
+                        }
+
+                        aggregates.Add(key, aggregate);
+                    }
+                }
+                else
+                {
+                    aggregate = singleAggregate;
+                    if (aggregate == null)
+                    {
+                        singleAggregate = aggregate = new ContinuousAggregate(row.Tag);
+
+                        if (FixColumns != null)
+                        {
+                            foreach (var column in FixColumns)
+                            {
+                                aggregate.ResultRow[column.Key] = row[column.Value ?? column.Key];
+                            }
                         }
                     }
-
-                    aggregates.Add(key, aggregate);
                 }
 
                 try
@@ -141,26 +166,43 @@
                 Context.SetRowOwner(row, null);
             }
 
-            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}, ignored: {IgnoredRowCount}",
-                rowCount, aggregates.Count, InvocationInfo.LastInvocationStarted.Elapsed, ignoredRowCount);
-
-            foreach (var aggregate in aggregates.Values)
+            if (aggregates != null)
             {
-                if (Context.CancellationTokenSource.IsCancellationRequested)
-                    break;
+                Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}, ignored: {IgnoredRowCount}",
+                    rowCount, aggregates.Count, InvocationInfo.LastInvocationStarted.Elapsed, ignoredRowCount);
 
-                var row = Context.CreateRow(this, aggregate.ResultRow);
+                foreach (var aggregate in aggregates.Values)
+                {
+                    if (Context.CancellationTokenSource.IsCancellationRequested)
+                        break;
+
+                    var row = Context.CreateRow(this, aggregate.ResultRow);
+
+                    netTimeStopwatch.Stop();
+                    yield return row;
+                    netTimeStopwatch.Start();
+                }
+
+                netTimeStopwatch.Stop();
+                Context.Log(LogSeverity.Debug, this, "created {AggregateRowCount} aggregates in {Elapsed}/{ElapsedWallClock}",
+                    aggregates.Count, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+
+                aggregates.Clear();
+            }
+            else
+            {
+                Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created a single aggregate in {Elapsed}, ignored: {IgnoredRowCount}",
+                    rowCount, InvocationInfo.LastInvocationStarted.Elapsed, ignoredRowCount);
+
+                var row = Context.CreateRow(this, singleAggregate.ResultRow);
 
                 netTimeStopwatch.Stop();
                 yield return row;
                 netTimeStopwatch.Start();
+
+                Context.Log(LogSeverity.Debug, this, "created a single aggregate in {Elapsed}/{ElapsedWallClock}",
+                    InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
             }
-
-            netTimeStopwatch.Stop();
-            Context.Log(LogSeverity.Debug, this, "created {AggregateRowCount} aggregates in {Elapsed}/{ElapsedWallClock}",
-                aggregates.Count, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
-
-            aggregates.Clear();
 
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
         }

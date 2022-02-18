@@ -351,7 +351,7 @@
                 }
                 else
                 {
-                    aggregate.ResultRow[targetColumn] = aggregate.ResultRow.HasValue(targetColumn);
+                    aggregate.ResultRow[targetColumn] = row.GetAs(sourceColumn, DateTime.MinValue);
                 }
             });
         }
@@ -436,14 +436,14 @@
             {
                 if (aggregate.ResultRow.HasValue(targetColumn))
                 {
-                    var source = row.GetAs(sourceColumn, DateTime.MinValue);
+                    var source = row.GetAs(sourceColumn, DateTime.MaxValue);
                     var target = aggregate.ResultRow.GetAs<DateTime>(targetColumn);
                     if (source < target)
                         aggregate.ResultRow[targetColumn] = source;
                 }
                 else
                 {
-                    aggregate.ResultRow[targetColumn] = aggregate.ResultRow.HasValue(targetColumn);
+                    aggregate.ResultRow[targetColumn] = row.GetAs(sourceColumn, DateTime.MaxValue);
                 }
             });
         }

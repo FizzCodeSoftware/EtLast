@@ -42,6 +42,32 @@
         }
 
         [TestMethod]
+        public void NoKeyDecimalAverage()
+        {
+            var context = TestExecuter.GetContext();
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(TestData.Person(context))
+                .ConvertValue(new InPlaceConvertMutator(context)
+                {
+                    Columns = new[] { "age", "height" },
+                    TypeConverter = new DecimalConverter(),
+                })
+                .AggregateContinuously(new ContinuousAggregationMutator(context)
+                {
+                    Operation = new ContinuousGroupByOperation()
+                        .AddDecimalMin("height", "min-height")
+                        .AddDecimalMax("height", "max-height"),
+                });
+
+            var result = TestExecuter.Execute(builder);
+            Assert.AreEqual(1, result.MutatedRows.Count);
+            Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                new CaseInsensitiveStringKeyDictionary<object>() { ["min-height"] = 140m, ["max-height"] = 190m } });
+            var exceptions = context.GetExceptions();
+            Assert.AreEqual(0, exceptions.Count);
+        }
+
+        [TestMethod]
         public void DecimalAverage()
         {
             var context = TestExecuter.GetContext();
