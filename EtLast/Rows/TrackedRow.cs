@@ -187,10 +187,10 @@
             return value is T;
         }
 
-        public string FormatToString(string column, IFormatProvider formatProvider = null)
+        public string FormatToString(string column, IValueFormatter formatter = null, IFormatProvider formatProvider = null)
         {
             var value = this[column];
-            return DefaultValueFormatter.Format(value);
+            return (formatter ?? ValueFormatter.Default).Format(value);
         }
 
         public string GenerateKey(params string[] columns)
@@ -199,11 +199,11 @@
             {
                 var value = this[columns[0]];
                 return value != null
-                    ? DefaultValueFormatter.Format(value)
+                    ? ValueFormatter.Default.Format(value)
                     : null;
             }
 
-            return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-"));
+            return string.Join("\0", columns.Select(c => FormatToString(c, ValueFormatter.Default, CultureInfo.InvariantCulture) ?? "-"));
         }
 
         public string GenerateKeyUpper(params string[] columns)
@@ -212,11 +212,11 @@
             {
                 var value = this[columns[0]];
                 return value != null
-                    ? DefaultValueFormatter.Format(value).ToUpperInvariant()
+                    ? ValueFormatter.Default.Format(value).ToUpperInvariant()
                     : null;
             }
 
-            return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-")).ToUpperInvariant();
+            return string.Join("\0", columns.Select(c => FormatToString(c, ValueFormatter.Default, CultureInfo.InvariantCulture) ?? "-")).ToUpperInvariant();
         }
 
         public string ToDebugString(bool multiLine = false)

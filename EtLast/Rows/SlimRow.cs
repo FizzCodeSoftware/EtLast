@@ -152,10 +152,10 @@
             return GetValueImpl(column) is T;
         }
 
-        public string FormatToString(string column, IFormatProvider formatProvider = null)
+        public string FormatToString(string column, IValueFormatter formatter = null, IFormatProvider formatProvider = null)
         {
             var value = GetValueImpl(column);
-            return DefaultValueFormatter.Format(value);
+            return (formatter ?? ValueFormatter.Default).Format(value);
         }
 
         public bool HasError()
@@ -168,11 +168,11 @@
             if (columns.Length == 1)
             {
                 return _values.TryGetValue(columns[0], out var value)
-                    ? DefaultValueFormatter.Format(value)
+                    ? ValueFormatter.Default.Format(value)
                     : null;
             }
 
-            return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-"));
+            return string.Join("\0", columns.Select(c => FormatToString(c, ValueFormatter.Default, CultureInfo.InvariantCulture) ?? "-"));
         }
 
         public string GenerateKeyUpper(params string[] columns)
@@ -180,11 +180,11 @@
             if (columns.Length == 1)
             {
                 return _values.TryGetValue(columns[0], out var value)
-                    ? DefaultValueFormatter.Format(value).ToUpperInvariant()
+                    ? ValueFormatter.Default.Format(value).ToUpperInvariant()
                     : null;
             }
 
-            return string.Join("\0", columns.Select(c => FormatToString(c, CultureInfo.InvariantCulture) ?? "-")).ToUpperInvariant();
+            return string.Join("\0", columns.Select(c => FormatToString(c, ValueFormatter.Default, CultureInfo.InvariantCulture) ?? "-")).ToUpperInvariant();
         }
     }
 }

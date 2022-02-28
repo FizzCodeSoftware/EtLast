@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Globalization;
     using System.Text;
 
     public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
@@ -13,6 +14,11 @@
         /// Default value is <see cref="Encoding.UTF8"/>
         /// </summary>
         public Encoding Encoding { get; init; } = Encoding.UTF8;
+
+        /// <summary>
+        /// Default value is <see cref="CultureInfo.InvariantCulture"/>;
+        /// </summary>
+        public IFormatProvider FormatProvider { get; init; } = CultureInfo.InvariantCulture;
 
         /// <summary>
         /// Default value is \r\n
@@ -40,9 +46,9 @@
         public bool WriteHeader { get; init; } = true;
 
         /// <summary>
-        /// Key is column in the row, value is column in the delimited stream (can be null).
+        /// Key is the output column title AND the column in the row (later can be customized by setting a <see cref="DelimitedColumnConfiguration"/>).
         /// </summary>
-        public Dictionary<string, string> Columns { get; init; }
+        public Dictionary<string, DelimitedColumnConfiguration> Columns { get; init; }
 
         private NamedSink _sink;
         private int _rowsWritten;
@@ -83,18 +89,15 @@
                     if (!first)
                         _sink.Stream.Write(_delimiterBytes);
 
-                    var str = kvp.Value ?? kvp.Key;
-                    if (str != null)
-                    {
-                        var quoteRequired = !string.IsNullOrEmpty(str) &&
-                            (str.IndexOfAny(_quoteRequiredChars) > -1
-                            || str[0] == ' '
-                            || str[^1] == ' '
-                            || str.Contains(LineEnding, StringComparison.Ordinal));
+                    var str = kvp.Key;
+                    var quoteRequired = !string.IsNullOrEmpty(str) &&
+                        (str.IndexOfAny(_quoteRequiredChars) > -1
+                        || str[0] == ' '
+                        || str[^1] == ' '
+                        || str.Contains(LineEnding, StringComparison.Ordinal));
 
-                        var line = ConvertToDelimitedValue(str, quoteRequired);
-                        _sink.Stream.Write(Encoding.GetBytes(line));
-                    }
+                    var line = ConvertToDelimitedValue(str, quoteRequired);
+                    _sink.Stream.Write(Encoding.GetBytes(line));
 
                     first = false;
                 }
@@ -131,17 +134,18 @@
                     if (!first)
                         _sink.Stream.Write(_delimiterBytes);
 
-                    var value = row[kvp.Key];
-                    if (value != null)
-                    {
-                        var str = DefaultValueFormatter.Format(value);
-                        var quoteRequired = !string.IsNullOrEmpty(str) &&
-                            (str.IndexOfAny(_quoteRequiredChars) > -1
-                            || str[0] == ' '
-                            || str[^1] == ' '
-                            || str.Contains(LineEnding, StringComparison.Ordinal));
+                    var value = row[kvp.Value?.SourceColumn ?? kvp.Key];
 
-                        var line = ConvertToDelimitedValue(str, quoteRequired);
+                    var str = (kvp.Value?.CustomFormatter ?? ValueFormatter.Default).Format(value, FormatProvider);
+                    var quoteRequired = !string.IsNullOrEmpty(str) &&
+                        (str.IndexOfAny(_quoteRequiredChars) > -1
+                        || str[0] == ' '
+                        || str[^1] == ' '
+                        || str.Contains(LineEnding, StringComparison.Ordinal));
+
+                    var line = ConvertToDelimitedValue(str, quoteRequired);
+                    if (line != null)
+                    {
                         _sink.Stream.Write(Encoding.GetBytes(line));
                     }
 

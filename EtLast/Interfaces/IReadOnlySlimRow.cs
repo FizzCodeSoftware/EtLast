@@ -23,7 +23,7 @@
         bool IsNullOrEmpty();
 
         bool Is<T>(string column);
-        string FormatToString(string column, IFormatProvider formatProvider = null);
+        string FormatToString(string column, IValueFormatter formatter = null, IFormatProvider formatProvider = null);
         string GenerateKey(params string[] columns);
         string GenerateKeyUpper(params string[] columns);
 

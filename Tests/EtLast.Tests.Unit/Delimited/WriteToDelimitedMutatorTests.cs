@@ -52,7 +52,7 @@
                             ["id"] = null,
                             ["name"] = null,
                             ["age"] = null,
-                            ["height"] = "HeightInCm",
+                            ["HeightInCm"] = new DelimitedColumnConfiguration().FromSource("height"),
                             ["eyeColor"] = null,
                             ["countryId"] = null,
                             ["birthDate"] = null,
@@ -136,10 +136,10 @@
                         {
                             ["Id"] = null,
                             ["Name"] = null,
-                            ["ValueString"] = "Value1",
-                            ["ValueInt"] = "Value2",
-                            ["ValueDate"] = "Value3",
-                            ["ValueDouble"] = "Value4",
+                            ["Value1"] = new DelimitedColumnConfiguration().FromSource("ValueString"),
+                            ["Value2"] = new DelimitedColumnConfiguration().FromSource("ValueInt"),
+                            ["Value3"] = new DelimitedColumnConfiguration().FromSource("ValueDate"),
+                            ["Value4"] = new DelimitedColumnConfiguration().FromSource("ValueDouble"),
                         },
                     });
 

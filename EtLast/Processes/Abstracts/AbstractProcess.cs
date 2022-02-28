@@ -76,7 +76,7 @@
             {
                 var value = property.GetValue(this);
                 Context.Log(severity, this, "parameter [{ParameterName}] = {ParameterValue}",
-                    property.Name, DefaultValueFormatter.Format(value, CultureInfo.InvariantCulture) ?? "<NULL>");
+                    property.Name, ValueFormatter.Default.Format(value, CultureInfo.InvariantCulture) ?? "<NULL>");
             }
         }
 
@@ -95,7 +95,7 @@
             {
                 var value = property.GetValue(this);
                 Context.Log(severity, this, "output [{ParameterName}] = {ParameterValue}",
-                    property.Name, DefaultValueFormatter.Format(value, CultureInfo.InvariantCulture) ?? "<NULL>");
+                    property.Name, ValueFormatter.Default.Format(value, CultureInfo.InvariantCulture) ?? "<NULL>");
             }
         }
     }

@@ -183,7 +183,7 @@
             const string affected = "affected";
 
             var maxKeyLength = Math.Max(kind.Length, task.IoCommandCounters.Max(x => x.Key.ToString().Length));
-            var maxInvocationLength = Math.Max(invocation.Length, task.IoCommandCounters.Max(x => x.Value.InvocationCount.ToString(ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length));
+            var maxInvocationLength = Math.Max(invocation.Length, task.IoCommandCounters.Max(x => x.Value.InvocationCount.ToString(SerilogSink.ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length));
 
             serilogAdapter.Log(LogSeverity.Debug, false, null, null, "{Kind}{spacing1} {InvocationCount}{spacing2}   {AffectedDataCount}", kind,
                 "".PadRight(maxKeyLength - kind.Length, ' '),
@@ -198,7 +198,7 @@
                     serilogAdapter.Log(LogSeverity.Debug, false, null, null, "{Kind}{spacing1} {InvocationCount}{spacing2}   {AffectedDataCount}", kvp.Key.ToString(),
                         "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '),
                         kvp.Value.InvocationCount,
-                        "".PadRight(maxInvocationLength - kvp.Value.InvocationCount.ToString(ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length, ' '),
+                        "".PadRight(maxInvocationLength - kvp.Value.InvocationCount.ToString(SerilogSink.ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length, ' '),
                         kvp.Value.AffectedDataCount);
                 }
                 else
@@ -228,7 +228,7 @@
             if (task.IoCommandCounters.Count > 0)
             {
                 var maxKeyLength = task.IoCommandCounters.Max(x => x.Key.ToString().Length);
-                var maxInvocationLength = task.IoCommandCounters.Max(x => x.Value.InvocationCount.ToString(ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length);
+                var maxInvocationLength = task.IoCommandCounters.Max(x => x.Value.InvocationCount.ToString(SerilogSink.ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length);
 
                 foreach (var kvp in task.IoCommandCounters.OrderBy(kvp => kvp.Key.ToString()))
                 {
@@ -238,7 +238,7 @@
                             kvp.Key.ToString(),
                             "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '),
                             kvp.Value.InvocationCount,
-                            "".PadRight(maxInvocationLength - kvp.Value.InvocationCount.ToString(ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length, ' '),
+                            "".PadRight(maxInvocationLength - kvp.Value.InvocationCount.ToString(SerilogSink.ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length, ' '),
                             kvp.Value.AffectedDataCount);
                     }
                     else

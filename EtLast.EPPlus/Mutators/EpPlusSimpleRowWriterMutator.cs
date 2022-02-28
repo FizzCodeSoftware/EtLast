@@ -12,7 +12,12 @@
         public string FileName { get; init; }
         public ExcelPackage ExistingPackage { get; init; }
         public string SheetName { get; init; }
+
+        /// <summary>
+        /// Key is the output column title AND the column in the row (later can be customized by setting a <see cref="ExcelColumnConfiguration"/>).
+        /// </summary>
         public Dictionary<string, ExcelColumnConfiguration> Columns { get; init; }
+
         public Action<ExcelPackage, SimpleExcelWriterState> Finalize { get; init; }
 
         private SimpleExcelWriterState _state;
