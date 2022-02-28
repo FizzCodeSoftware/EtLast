@@ -42,7 +42,7 @@
                     .ReadFrom(TestData.Person(context))
                     .WriteToDelimited(new WriteToDelimitedMutator(context)
                     {
-                        SinkProvider = new CustomSinkProvider()
+                        SinkProvider = new MemorySinkProvider()
                         {
                             StreamCreator = () => outputStream,
                         },
@@ -127,7 +127,7 @@
                     })
                     .WriteToDelimited(new WriteToDelimitedMutator(context)
                     {
-                        SinkProvider = new CustomSinkProvider()
+                        SinkProvider = new MemorySinkProvider()
                         {
                             StreamCreator = () => outputStream,
                         },
