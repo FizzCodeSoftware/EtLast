@@ -17,16 +17,22 @@
 
         public bool AutomaticallyDispose => true;
 
-        public NamedSink GetSink(IProcess caller)
+        public NamedSink GetSink(IProcess caller, string partitionKey)
         {
-            var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileWrite, PathHelpers.GetFriendlyPathName(FileName), null, null, null, null,
-                "writing to local file {FileName}", PathHelpers.GetFriendlyPathName(FileName));
-
-            if (File.Exists(FileName) && ThrowExceptionWhenFileExists)
+            var fileName = FileName;
+            if (partitionKey != null)
             {
-                var exception = new LocalFileWriteException(caller, "local file already exist", FileName);
+                fileName = string.Format(FileName, partitionKey);
+            }
+
+            var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileWrite, PathHelpers.GetFriendlyPathName(fileName), null, null, null, null,
+                "writing to local file {FileName}", PathHelpers.GetFriendlyPathName(fileName));
+
+            if (File.Exists(fileName) && ThrowExceptionWhenFileExists)
+            {
+                var exception = new LocalFileWriteException(caller, "local file already exist", fileName);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local file already exist: {0}",
-                    FileName));
+                    fileName));
 
                 caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, 0, exception);
                 throw exception;
@@ -34,17 +40,17 @@
 
             try
             {
-                var sinkUid = caller.Context.GetSinkUid(Path.GetDirectoryName(FileName), Path.GetFileName(FileName));
+                var sinkUid = caller.Context.GetSinkUid(Path.GetDirectoryName(fileName), Path.GetFileName(fileName));
 
-                var stream = new FileStream(FileName, FileMode.Append, FileAccess.Write, FileShare.Read);
-                return new NamedSink(FileName, stream, iocUid, IoCommandKind.fileWrite, sinkUid);
+                var stream = new FileStream(fileName, FileMode.Append, FileAccess.Write, FileShare.Read);
+                return new NamedSink(fileName, stream, iocUid, IoCommandKind.fileWrite, sinkUid);
             }
             catch (Exception ex)
             {
                 caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, null, ex);
 
-                var exception = new LocalFileWriteException(caller, "error while writing local file", FileName, ex);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing local file: {0}, message: {1}", FileName, ex.Message));
+                var exception = new LocalFileWriteException(caller, "error while writing local file", fileName, ex);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing local file: {0}, message: {1}", fileName, ex.Message));
                 throw exception;
             }
         }

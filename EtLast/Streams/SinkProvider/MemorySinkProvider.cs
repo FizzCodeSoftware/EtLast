@@ -18,7 +18,7 @@
         /// </summary>
         public bool AutomaticallyDispose { get; init; }
 
-        public NamedSink GetSink(IProcess caller)
+        public NamedSink GetSink(IProcess caller, string partitionKey)
         {
             var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.memoryWrite, SinkName, null, null, null, null,
                 "writing to memory stream");

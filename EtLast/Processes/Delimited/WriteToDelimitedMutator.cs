@@ -50,13 +50,16 @@
         /// </summary>
         public Dictionary<string, DelimitedColumnConfiguration> Columns { get; init; }
 
-        private NamedSink _sink;
-        private int _rowsWritten;
+        public PartitionKeyGenerator PartitionKeyGenerator { get; set; }
+
+        private readonly Dictionary<string, NamedSink> _sinks = new();
         private byte[] _delimiterBytes;
         private byte[] _lineEndingBytes;
         private string _escapedQuote;
         private char[] _quoteRequiredChars;
         private string _quoteAsString;
+
+        private int _rowCounter;
 
         public WriteToDelimitedMutator(IEtlContext context)
             : base(context)
@@ -73,21 +76,32 @@
 
         protected override void StartMutator()
         {
-            _sink = SinkProvider.GetSink(this);
             _delimiterBytes = Encoding.GetBytes(new[] { Delimiter });
             _lineEndingBytes = Encoding.GetBytes(LineEnding);
             _escapedQuote = new string(new[] { Escape, Quote });
             _quoteRequiredChars = new[] { Quote, Escape, '\r', '\n' };
             _quoteAsString = Quote.ToString();
 
-            _rowsWritten = 0;
+            _rowCounter = 0;
+        }
+
+        private NamedSink GetSink(string partitionKey)
+        {
+            var internalKey = partitionKey ?? "\0__nopartition__\0";
+
+            if (_sinks.TryGetValue(internalKey, out var sink))
+                return sink;
+
+            sink = SinkProvider.GetSink(this, partitionKey);
+            _sinks.Add(internalKey, sink);
+
             if (WriteHeader)
             {
                 var first = true;
                 foreach (var kvp in Columns)
                 {
                     if (!first)
-                        _sink.Stream.Write(_delimiterBytes);
+                        sink.Stream.Write(_delimiterBytes);
 
                     var str = kvp.Key;
                     var quoteRequired = !string.IsNullOrEmpty(str) &&
@@ -97,42 +111,51 @@
                         || str.Contains(LineEnding, StringComparison.Ordinal));
 
                     var line = ConvertToDelimitedValue(str, quoteRequired);
-                    _sink.Stream.Write(Encoding.GetBytes(line));
+                    sink.Stream.Write(Encoding.GetBytes(line));
 
                     first = false;
                 }
 
-                _rowsWritten++;
+                sink.IncreaseRowsWritten();
             }
+
+            return sink;
         }
 
         protected override void CloseMutator()
         {
-            if (_sink != null && SinkProvider.AutomaticallyDispose)
+            if (SinkProvider.AutomaticallyDispose)
             {
-                _sink.Stream.Flush();
-                _sink.Stream.Close();
-                _sink.Stream.Dispose();
-                _sink = null;
+                foreach (var sink in _sinks.Values)
+                {
+                    sink.Stream.Flush();
+                    sink.Stream.Close();
+                    sink.Stream.Dispose();
+                }
             }
+
+            _sinks.Clear();
         }
 
         protected override IEnumerable<IRow> MutateRow(IRow row)
         {
-            Context.RegisterWriteToSink(row, _sink.SinkUid);
+            var partitionKey = PartitionKeyGenerator?.Invoke(row, _rowCounter);
+            _rowCounter++;
+
+            var sink = GetSink(partitionKey);
+
+            Context.RegisterWriteToSink(row, sink.SinkUid);
 
             try
             {
-                if (_rowsWritten > 0)
-                    _sink.Stream.Write(_lineEndingBytes);
-
-                _rowsWritten++;
+                if (sink.RowsWritten > 0)
+                    sink.Stream.Write(_lineEndingBytes);
 
                 var first = true;
                 foreach (var kvp in Columns)
                 {
                     if (!first)
-                        _sink.Stream.Write(_delimiterBytes);
+                        sink.Stream.Write(_delimiterBytes);
 
                     var value = row[kvp.Value?.SourceColumn ?? kvp.Key];
 
@@ -143,18 +166,20 @@
                         || str[^1] == ' '
                         || str.Contains(LineEnding, StringComparison.Ordinal));
 
-                    var line = ConvertToDelimitedValue(str, quoteRequired);
-                    if (line != null)
+                    var convertedValue = ConvertToDelimitedValue(str, quoteRequired);
+                    if (convertedValue != null)
                     {
-                        _sink.Stream.Write(Encoding.GetBytes(line));
+                        sink.Stream.Write(Encoding.GetBytes(convertedValue));
                     }
 
                     first = false;
                 }
+
+                sink.IncreaseRowsWritten();
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, _sink.IoCommandKind, _sink.IoCommandUid, _rowsWritten, ex);
+                Context.RegisterIoCommandFailed(this, sink.IoCommandKind, sink.IoCommandUid, sink.RowsWritten, ex);
                 throw;
             }
 
