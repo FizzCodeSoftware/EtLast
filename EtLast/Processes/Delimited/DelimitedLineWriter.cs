@@ -77,9 +77,6 @@
             _rowsWritten = 0;
             if (WriteHeader)
             {
-                if (_sink.Stream.Length > 0)
-                    _sink.Stream.Write(_lineEndingBytes);
-
                 var first = true;
                 foreach (var kvp in Columns)
                 {
@@ -123,7 +120,7 @@
 
             try
             {
-                if (_rowsWritten > 0 || (_rowsWritten == 0 && _sink.Stream.Length > 0))
+                if (_rowsWritten > 0)
                     _sink.Stream.Write(_lineEndingBytes);
 
                 _rowsWritten++;

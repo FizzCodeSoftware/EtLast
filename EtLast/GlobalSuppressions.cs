@@ -5,4 +5,3 @@
 // a specific target and scoped to a namespace, type, member, etc.
 
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "RCS1194:Implement exception constructors.", Justification = "<Pending>", Scope = "type", Target = "~T:FizzCode.EtLast.InvalidValueException")]
-
