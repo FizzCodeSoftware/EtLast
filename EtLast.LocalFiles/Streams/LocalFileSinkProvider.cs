@@ -6,24 +6,21 @@
 
     public class LocalFileSinkProvider : ISinkProvider
     {
-        public string FileName { get; init; }
+        /// <summary>
+        /// Generates file name based on a partition key.
+        /// </summary>
+        public Func<string, string> FileNameGenerator { get; init; }
 
         /// <summary>
         /// Default value is true.
         /// </summary>
         public bool ThrowExceptionWhenFileExists { get; init; } = true;
 
-        public string Topic => FileName != null ? PathHelpers.GetFriendlyPathName(FileName) : null;
-
         public bool AutomaticallyDispose => true;
 
         public NamedSink GetSink(IProcess caller, string partitionKey)
         {
-            var fileName = FileName;
-            if (partitionKey != null)
-            {
-                fileName = string.Format(FileName, partitionKey);
-            }
+            var fileName = FileNameGenerator.Invoke(partitionKey);
 
             var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileWrite, PathHelpers.GetFriendlyPathName(fileName), null, null, null, null,
                 "writing to local file {FileName}", PathHelpers.GetFriendlyPathName(fileName));
