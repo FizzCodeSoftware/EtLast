@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <PackageId>FizzCode.EtLast</PackageId>
+    <PackageId>FizzCode.EtLast.LocalFiles</PackageId>
     <Authors>FizzCode Ltd.</Authors>
     <Product>EtLast ETL (Extract, Transform and Load) library for .NET</Product>
     <Description>EtLast ETL (Extract, Transform and Load) library for .NET</Description>
@@ -10,8 +10,8 @@
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Platforms>AnyCPU</Platforms>
     <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
-    <AssemblyName>FizzCode.EtLast</AssemblyName>
-    <RootNamespace>FizzCode.EtLast</RootNamespace>
+    <AssemblyName>FizzCode.EtLast.LocalFiles</AssemblyName>
+    <RootNamespace>FizzCode.EtLast.LocalFiles</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
     <Configurations>Debug;Release;LocalProjects</Configurations>
@@ -27,16 +27,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="2.0.21.6347" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
     <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EtLast\EtLast.csproj" />
   </ItemGroup>
 
 </Project>

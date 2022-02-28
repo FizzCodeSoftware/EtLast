@@ -14,7 +14,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.8" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
     <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.0.2">
@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\EtLast.EPPlus\EtLast.EPPlus.csproj" />
+    <ProjectReference Include="..\..\EtLast.LocalFiles\EtLast.LocalFiles.csproj" />
     <ProjectReference Include="..\..\EtLast\EtLast.csproj" />
     <ProjectReference Include="..\EtLast.Tests.Base\EtLast.Tests.Base.csproj" />
   </ItemGroup>

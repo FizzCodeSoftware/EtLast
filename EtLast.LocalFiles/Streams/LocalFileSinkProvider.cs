@@ -20,12 +20,12 @@
         public NamedSink GetSink(IProcess caller)
         {
             var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileWrite, PathHelpers.GetFriendlyPathName(FileName), null, null, null, null,
-                "writing to file {FileName}", PathHelpers.GetFriendlyPathName(FileName));
+                "writing to local file {FileName}", PathHelpers.GetFriendlyPathName(FileName));
 
             if (File.Exists(FileName) && ThrowExceptionWhenFileExists)
             {
-                var exception = new FileWriteException(caller, "output file already exist", FileName);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "output file already exist: {0}",
+                var exception = new LocalFileWriteException(caller, "local file already exist", FileName);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local file already exist: {0}",
                     FileName));
 
                 caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, 0, exception);
@@ -43,9 +43,8 @@
             {
                 caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, null, ex);
 
-                var exception = new EtlException(caller, "error while writing file", ex);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing file: {0}, message: {1}", FileName, ex.Message));
-                exception.Data.Add("FileName", FileName);
+                var exception = new LocalFileWriteException(caller, "error while writing local file", FileName, ex);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing local file: {0}, message: {1}", FileName, ex.Message));
                 throw exception;
             }
         }

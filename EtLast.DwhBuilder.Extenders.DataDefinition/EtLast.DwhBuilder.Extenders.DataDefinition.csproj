@@ -27,8 +27,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.DataDefinition" Version="2.0.22.6349" />
-    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.DataDefinition.MsSql" Version="2.0.22.6349" />
+    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.DataDefinition" Version="2.0.23.6364" />
+    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.DataDefinition.MsSql" Version="2.0.23.6364" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

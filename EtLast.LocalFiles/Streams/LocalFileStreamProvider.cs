@@ -18,14 +18,14 @@
         public NamedStream GetStream(IProcess caller)
         {
             var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileRead, PathHelpers.GetFriendlyPathName(FileName), null, null, null, null,
-                "reading from file {FileName}", PathHelpers.GetFriendlyPathName(FileName));
+                "reading from local file {FileName}", PathHelpers.GetFriendlyPathName(FileName));
 
             if (!File.Exists(FileName))
             {
                 if (ThrowExceptionWhenFileNotFound)
                 {
-                    var exception = new FileReadException(caller, "input file doesn't exist", FileName);
-                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "input file doesn't exist: {0}",
+                    var exception = new LocalFileReadException(caller, "local file doesn't exist", FileName);
+                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local file doesn't exist: {0}",
                         FileName));
 
                     caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, iocUid, 0, exception);
@@ -45,8 +45,8 @@
             {
                 caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, iocUid, null, ex);
 
-                var exception = new EtlException(caller, "error while opening file", ex);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening file: {0}, message: {1}", FileName, ex.Message));
+                var exception = new LocalFileReadException(caller, "error while opening local file", FileName, ex);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening local file: {0}, message: {1}", FileName, ex.Message));
                 exception.Data.Add("FileName", FileName);
                 throw exception;
             }

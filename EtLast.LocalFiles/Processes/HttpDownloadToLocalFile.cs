@@ -5,12 +5,12 @@
     using System.IO;
     using System.Net.Http;
 
-    public sealed class DownloadFile : AbstractExecutable
+    public sealed class HttpDownloadToLocalFile : AbstractExecutable
     {
-        public string Url { get; set; }
-        public string FileName { get; set; }
+        public string Url { get; init; }
+        public string FileName { get; init; }
 
-        public DownloadFile(IEtlContext context)
+        public HttpDownloadToLocalFile(IEtlContext context)
             : base(context)
         {
         }
@@ -34,13 +34,13 @@
                     using (Context.CancellationTokenSource.Token.Register(clt.CancelPendingRequests))
                     {
                         iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.httpGet, Url, null, null, null, null,
-                            "downloading file from {Url} to {FileName}",
+                            "downloading file from {Url} to local file {FileName}",
                             Url, PathHelpers.GetFriendlyPathName(FileName));
 
                         using (var response = clt.GetStreamAsync(Url).Result)
-                        using (var fs = new FileStream(FileName, FileMode.Create))
+                        using (var fileStream = new FileStream(FileName, FileMode.Create))
                         {
-                            response.CopyTo(fs);
+                            response.CopyTo(fileStream);
                         }
 
                         Context.RegisterIoCommandSuccess(this, IoCommandKind.httpGet, iocUid, Convert.ToInt32(new FileInfo(FileName).Length));
@@ -50,11 +50,9 @@
                 {
                     Context.RegisterIoCommandFailed(this, IoCommandKind.httpGet, iocUid, null, ex);
 
-                    var exception = new HttpException(this, "file download failed", Url, ex);
-                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "file download failed, url: {0}, file name: {1}, message: {2}",
+                    var exception = new HttpDownloadToLocalFileException(this, "http download to local file failed", Url, FileName, ex);
+                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "http download to local file failed, url: {0}, file name: {1}, message: {2}",
                         Url, FileName, ex.Message));
-                    exception.Data.Add("Url", Url);
-                    exception.Data.Add("FileName", FileName);
                     throw exception;
                 }
             }

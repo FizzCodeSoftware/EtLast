@@ -46,7 +46,7 @@
             Assert.AreEqual(0, result.MutatedRows.Count);
             var exceptions = context.GetExceptions();
             Assert.AreEqual(1, exceptions.Count);
-            Assert.IsTrue(exceptions[0] is FileReadException);
+            Assert.IsTrue(exceptions[0] is LocalFileReadException);
         }
 
         [TestMethod]

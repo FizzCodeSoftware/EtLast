@@ -5,15 +5,15 @@
 
     [ComVisible(true)]
     [Serializable]
-    public class FileWriteException : EtlException
+    public class LocalFileWriteException : EtlException
     {
-        public FileWriteException(IProcess process, string message, string fileName)
+        internal LocalFileWriteException(IProcess process, string message, string fileName)
             : base(process, message)
         {
             Data.Add("FileName", fileName);
         }
 
-        public FileWriteException(IProcess process, string message, string fileName, Exception innerException)
+        internal LocalFileWriteException(IProcess process, string message, string fileName, Exception innerException)
             : base(process, message, innerException)
         {
             Data.Add("FileName", fileName);
