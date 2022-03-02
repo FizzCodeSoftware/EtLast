@@ -50,7 +50,7 @@
         public int FirstDataRow { get; set; } = 2;
         public int FirstDataColumn { get; set; } = 1;
 
-        public AbstractEpPlusExcelReader(IEtlContext context)
+        protected AbstractEpPlusExcelReader(IEtlContext context)
             : base(context)
         {
         }

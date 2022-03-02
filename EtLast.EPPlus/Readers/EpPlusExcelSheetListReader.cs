@@ -10,6 +10,11 @@
     {
         public IStreamProvider Source { get; init; }
 
+        /// <summary>
+        /// Default value is "Stream".
+        /// </summary>
+        public string AddStreamNameToColumn { get; init; } = "Stream";
+
         public EpPlusExcelSheetListReader(IEtlContext context)
             : base(context)
         {
@@ -72,12 +77,16 @@
 
                         var initialValues = new Dictionary<string, object>
                         {
-                            ["Stream"] = stream.Name,
                             ["Index"] = worksheet.Index,
                             ["Name"] = worksheet.Name,
                             ["Color"] = worksheet.TabColor,
                             ["Visible"] = worksheet.Hidden == eWorkSheetHidden.Visible,
                         };
+
+                        if (AddStreamNameToColumn != null)
+                        {
+                            initialValues["Stream"] = stream.Name;
+                        }
 
                         yield return Context.CreateRow(this, initialValues);
                     }
