@@ -1,8 +1,10 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
 
     public class LocalFileStreamProvider : IStreamProvider
     {
@@ -15,7 +17,7 @@
 
         public string Topic => FileName != null ? PathHelpers.GetFriendlyPathName(FileName) : null;
 
-        public NamedStream GetStream(IProcess caller)
+        public IEnumerable<NamedStream> GetStreams(IProcess caller)
         {
             var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileRead, PathHelpers.GetFriendlyPathName(FileName), null, null, null, null,
                 "reading from local file {FileName}", PathHelpers.GetFriendlyPathName(FileName));
@@ -33,13 +35,16 @@
                 }
 
                 caller.Context.RegisterIoCommandSuccess(caller, IoCommandKind.fileRead, iocUid, 0);
-                return null;
+                return Enumerable.Empty<NamedStream>();
             }
 
             try
             {
                 var stream = new FileStream(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-                return new NamedStream(FileName, stream, iocUid, IoCommandKind.fileRead);
+                return new[]
+                {
+                    new NamedStream(FileName, stream, iocUid, IoCommandKind.fileRead),
+                };
             }
             catch (Exception ex)
             {

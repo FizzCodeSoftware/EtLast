@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
 
@@ -11,7 +12,7 @@
 
         public string Topic => StreamName;
 
-        public NamedStream GetStream(IProcess caller)
+        public IEnumerable<NamedStream> GetStreams(IProcess caller)
         {
             var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.streamRead, StreamName, null, null, null, null,
                 "reading from stream {StreamName}", StreamName);
@@ -19,7 +20,10 @@
             try
             {
                 var stream = StreamCreator.Invoke();
-                return new NamedStream(StreamName, stream, iocUid, IoCommandKind.streamRead);
+                return new[]
+                {
+                    new NamedStream(StreamName, stream, iocUid, IoCommandKind.streamRead),
+                };
             }
             catch (Exception ex)
             {

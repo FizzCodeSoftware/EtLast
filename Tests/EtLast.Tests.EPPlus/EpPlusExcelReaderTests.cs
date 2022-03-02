@@ -9,14 +9,11 @@
     [TestClass]
     public class EpPlusExcelReaderTests
     {
-        private static EpPlusExcelReader GetReader(IEtlContext context, string fileName, string sheetName = null, int sheetIndex = -1, bool automaticallyTrimAllStringValues = true)
+        private static EpPlusExcelReader GetReader(IEtlContext context, IStreamProvider streamProvider, string sheetName = null, int sheetIndex = -1, bool automaticallyTrimAllStringValues = true)
         {
             return new EpPlusExcelReader(context)
             {
-                StreamProvider = new LocalFileStreamProvider()
-                {
-                    FileName = fileName,
-                },
+                StreamProvider = streamProvider,
                 SheetName = sheetName,
                 SheetIndex = sheetIndex,
                 Columns = new()
@@ -36,7 +33,7 @@
         public void MissingFileThrowsFileReadException()
         {
             var context = TestExecuter.GetContext();
-            var reader = GetReader(context, @".\TestData\MissingFile.xlsx", sheetName: "anySheet");
+            var reader = GetReader(context, new LocalFileStreamProvider() { FileName = @".\TestData\MissingFile.xlsx" }, sheetName: "anySheet");
 
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(reader)
@@ -53,7 +50,7 @@
         public void ContentBySheetName()
         {
             var context = TestExecuter.GetContext();
-            var reader = GetReader(context, @".\TestData\Test.xlsx", sheetName: "MergeAtIndex0");
+            var reader = GetReader(context, new LocalFileStreamProvider() { FileName = @".\TestData\Test.xlsx" }, sheetName: "MergeAtIndex0");
 
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(reader)
@@ -71,10 +68,49 @@
         }
 
         [TestMethod]
+        public void PartitionedContentBySheetIndex()
+        {
+            var context = TestExecuter.GetContext();
+            var reader = new EpPlusExcelReader(context)
+            {
+                StreamProvider = new LocalDirectoryStreamProvider()
+                {
+                    Path = @".\TestData\",
+                    SearchPattern = "Partition*.xlsx"
+                },
+                SheetIndex = 0,
+                Columns = new()
+                {
+                    ["Age"] = new ReaderColumnConfiguration(new IntConverter()),
+                    ["Name"] = new ReaderColumnConfiguration(new StringConverter()),
+                },
+            };
+
+            var builder = ProcessBuilder.Fluent
+                .ReadFrom(reader)
+                .ThrowExceptionOnRowError();
+
+            var result = TestExecuter.Execute(builder);
+            Assert.AreEqual(9, result.MutatedRows.Count);
+            Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Name"] = "AAA", ["Age"] = 20 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Name"] = "BBB", ["Age"] = 25 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Name"] = "CCC", ["Age"] = 10 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Name"] = "DDD", ["Age"] = 0 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Name"] = "EEE" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Name"] = "F", ["Age"] = -1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Age"] = 9, ["Name"] = "x" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Age"] = 10, ["Name"] = "y" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Age"] = 11, ["Name"] = "z" } });
+            var exceptions = context.GetExceptions();
+            Assert.AreEqual(0, exceptions.Count);
+        }
+
+        [TestMethod]
         public void ContentBySheetIndex()
         {
             var context = TestExecuter.GetContext();
-            var reader = GetReader(context, @".\TestData\Test.xlsx", sheetIndex: 0);
+            var reader = GetReader(context, new LocalFileStreamProvider() { FileName = @".\TestData\Test.xlsx" }, sheetIndex: 0);
 
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(reader)
@@ -95,7 +131,7 @@
         public void NoTrim()
         {
             var context = TestExecuter.GetContext();
-            var reader = GetReader(context, @".\TestData\Test.xlsx", sheetName: "MergeAtIndex0", automaticallyTrimAllStringValues: false);
+            var reader = GetReader(context, new LocalFileStreamProvider() { FileName = @".\TestData\Test.xlsx" }, sheetName: "MergeAtIndex0", automaticallyTrimAllStringValues: false);
 
             var builder = ProcessBuilder.Fluent
                 .ReadFrom(reader)
