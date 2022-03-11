@@ -33,7 +33,7 @@
         public DelimitedLineHeader Header { get; init; }
 
         /// <summary>
-        /// Default null. Column names must be set if <see cref="Header"/> is <see cref="DelimitedLineHeader.noHeader"> or <see cref="DelimitedLineHeader.ignoreHeader">, otherwise it should be left null.
+        /// Default null. Column names must be set if <see cref="Header"/> is <see cref="DelimitedLineHeader.noHeader"/> or <see cref="DelimitedLineHeader.ignoreHeader"/>, otherwise it should be left null.
         /// </summary>
         public string[] ColumnNames { get; init; }
 
