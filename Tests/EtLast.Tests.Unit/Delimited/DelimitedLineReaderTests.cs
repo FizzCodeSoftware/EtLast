@@ -25,7 +25,7 @@
                     ["ValueDate"] = new ReaderColumnConfiguration(new DateConverter()).FromSource("Value3"),
                     ["ValueDouble"] = new ReaderColumnConfiguration(new DoubleConverter()).FromSource("Value4"),
                 },
-                HasHeader = true,
+                Header = DelimitedLineHeader.hasHeader,
                 RemoveSurroundingDoubleQuotes = removeSurroundingDoubleQuotes
             };
         }
@@ -44,7 +44,7 @@
                     ["Name"] = new ReaderColumnConfiguration(new StringConverter()),
                     ["Value"] = new ReaderColumnConfiguration(new StringConverter())
                 },
-                HasHeader = true,
+                Header = DelimitedLineHeader.hasHeader,
                 TreatEmptyStringAsNull = treatEmptyStringsAsNull,
             };
         }

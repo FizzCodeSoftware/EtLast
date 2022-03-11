@@ -8,6 +8,8 @@
     using System.Linq;
     using System.Text;
 
+    public enum DelimitedLineHeader { noHeader, hasHeader, ignoreHeader }
+
     public sealed class DelimitedLineReader : AbstractRowSource, IRowSource
     {
         public IStreamProvider StreamProvider { get; init; }
@@ -26,12 +28,12 @@
         public bool RemoveSurroundingDoubleQuotes { get; init; } = true;
 
         /// <summary>
-        /// Default false.
+        /// Default <see cref="DelimitedLineHeader.noHeader"/>.
         /// </summary>
-        public bool HasHeader { get; init; }
+        public DelimitedLineHeader Header { get; init; }
 
         /// <summary>
-        /// Default null. Column names must be set if <see cref="HasHeader"/> is false, otherwise it should be left null.
+        /// Default null. Column names must be set if <see cref="Header"/> is <see cref="DelimitedLineHeader.noHeader"> or <see cref="DelimitedLineHeader.ignoreHeader">, otherwise it should be left null.
         /// </summary>
         public string[] ColumnNames { get; init; }
 
@@ -65,11 +67,11 @@
             if (StreamProvider == null)
                 throw new ProcessParameterNullException(this, nameof(StreamProvider));
 
-            if (!HasHeader && (ColumnNames == null || ColumnNames.Length == 0))
+            if (Header != DelimitedLineHeader.hasHeader && (ColumnNames == null || ColumnNames.Length == 0))
                 throw new ProcessParameterNullException(this, nameof(ColumnNames));
 
-            if (HasHeader && ColumnNames?.Length > 0)
-                throw new InvalidProcessParameterException(this, nameof(ColumnNames), ColumnNames, nameof(ColumnNames) + " must be null if " + nameof(HasHeader) + " is true.");
+            if (Header == DelimitedLineHeader.hasHeader && ColumnNames?.Length > 0)
+                throw new InvalidProcessParameterException(this, nameof(ColumnNames), ColumnNames, nameof(ColumnNames) + " must be null if " + nameof(Header) + " is true.");
 
             if (Columns == null && DefaultColumns == null)
                 throw new InvalidProcessParameterException(this, nameof(Columns), Columns, nameof(DefaultColumns) + " must be specified if " + nameof(Columns) + " is null.");
@@ -219,38 +221,41 @@
                         {
                             firstRow = false;
 
-                            if (HasHeader)
+                            if (Header != DelimitedLineHeader.noHeader)
                             {
-                                columnNames = partList.ToArray();
-
-                                if (removeSurroundingDoubleQuotes)
+                                if (Header == DelimitedLineHeader.hasHeader)
                                 {
-                                    for (var i = 0; i < columnNames.Length; i++)
+                                    columnNames = partList.ToArray();
+
+                                    if (removeSurroundingDoubleQuotes)
                                     {
-                                        var columnName = columnNames[i];
-                                        if (columnName.Length > 1
-                                            && columnName.StartsWith("\"", StringComparison.Ordinal)
-                                            && columnName.EndsWith("\"", StringComparison.Ordinal))
+                                        for (var i = 0; i < columnNames.Length; i++)
                                         {
-                                            columnNames[i] = columnName[1..^1];
+                                            var columnName = columnNames[i];
+                                            if (columnName.Length > 1
+                                                && columnName.StartsWith("\"", StringComparison.Ordinal)
+                                                && columnName.EndsWith("\"", StringComparison.Ordinal))
+                                            {
+                                                columnNames[i] = columnName[1..^1];
+                                            }
                                         }
                                     }
-                                }
 
-                                for (var i = 0; i < columnNames.Length - 1; i++)
-                                {
-                                    var columnName = columnNames[i];
-                                    for (var j = i + 1; j < columnNames.Length; j++)
+                                    for (var i = 0; i < columnNames.Length - 1; i++)
                                     {
-                                        if (string.Equals(columnName, columnNames[j], StringComparison.InvariantCultureIgnoreCase))
+                                        var columnName = columnNames[i];
+                                        for (var j = i + 1; j < columnNames.Length; j++)
                                         {
-                                            var message = "delimited input contains more than one columns with the same name: " + columnName;
-                                            var exception = new EtlException(this, "error while processing delimited input: " + message);
-                                            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while processing delimited input: {0}, message: {1}", StreamProvider.GetType(), message));
-                                            exception.Data.Add("StreamName", stream.Name);
+                                            if (string.Equals(columnName, columnNames[j], StringComparison.InvariantCultureIgnoreCase))
+                                            {
+                                                var message = "delimited input contains more than one columns with the same name: " + columnName;
+                                                var exception = new EtlException(this, "error while processing delimited input: " + message);
+                                                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while processing delimited input: {0}, message: {1}", StreamProvider.GetType(), message));
+                                                exception.Data.Add("StreamName", stream.Name);
 
-                                            Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
-                                            throw exception;
+                                                Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
+                                                throw exception;
+                                            }
                                         }
                                     }
                                 }

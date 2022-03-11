@@ -189,19 +189,23 @@
 
                 aggregates.Clear();
             }
-            else
+            else if (singleAggregate != null)
             {
-                Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created a single aggregate in {Elapsed}, ignored: {IgnoredRowCount}",
+                Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created 1 aggregate in {Elapsed}, ignored: {IgnoredRowCount}",
                     rowCount, InvocationInfo.LastInvocationStarted.Elapsed, ignoredRowCount);
 
                 var row = Context.CreateRow(this, singleAggregate.ResultRow);
 
                 netTimeStopwatch.Stop();
                 yield return row;
-                netTimeStopwatch.Start();
 
                 Context.Log(LogSeverity.Debug, this, "created a single aggregate in {Elapsed}/{ElapsedWallClock}",
                     InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+            }
+            else
+            {
+                Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created a 0 aggregates in {Elapsed}, ignored: {IgnoredRowCount}",
+                    rowCount, InvocationInfo.LastInvocationStarted.Elapsed, ignoredRowCount);
             }
 
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);

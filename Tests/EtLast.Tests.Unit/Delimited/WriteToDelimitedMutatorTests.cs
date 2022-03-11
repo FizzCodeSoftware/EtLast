@@ -27,7 +27,7 @@
                     ["ValueDate"] = new ReaderColumnConfiguration(new DateConverter()).FromSource("Value3"),
                     ["ValueDouble"] = new ReaderColumnConfiguration(new DoubleConverter()).FromSource("Value4"),
                 },
-                HasHeader = true,
+                Header = DelimitedLineHeader.hasHeader,
                 RemoveSurroundingDoubleQuotes = removeSurroundingDoubleQuotes
             };
         }
@@ -83,7 +83,7 @@
                         {
                             StreamCreator = () => outputStream,
                         },
-                        HasHeader = true,
+                        Header = DelimitedLineHeader.hasHeader,
                         Columns = new()
                         {
                             ["id"] = new ReaderColumnConfiguration(new IntConverter()),
