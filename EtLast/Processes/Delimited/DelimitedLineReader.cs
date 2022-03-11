@@ -8,7 +8,7 @@
     using System.Linq;
     using System.Text;
 
-    public enum DelimitedLineHeader { noHeader, hasHeader, ignoreHeader }
+    public enum DelimitedLineHeader { NoHeader, HasHeader, IgnoreHeader }
 
     public sealed class DelimitedLineReader : AbstractRowSource, IRowSource
     {
@@ -28,12 +28,12 @@
         public bool RemoveSurroundingDoubleQuotes { get; init; } = true;
 
         /// <summary>
-        /// Default <see cref="DelimitedLineHeader.noHeader"/>.
+        /// Default <see cref="DelimitedLineHeader.NoHeader"/>.
         /// </summary>
         public DelimitedLineHeader Header { get; init; }
 
         /// <summary>
-        /// Default null. Column names must be set if <see cref="Header"/> is <see cref="DelimitedLineHeader.noHeader"/> or <see cref="DelimitedLineHeader.ignoreHeader"/>, otherwise it should be left null.
+        /// Default null. Column names must be set if <see cref="Header"/> is <see cref="DelimitedLineHeader.NoHeader"/> or <see cref="DelimitedLineHeader.IgnoreHeader"/>, otherwise it should be left null.
         /// </summary>
         public string[] ColumnNames { get; init; }
 
@@ -46,6 +46,11 @@
         /// Default value is ';'.
         /// </summary>
         public char Delimiter { get; init; } = ';';
+
+        /// <summary>
+        /// Default value is 0
+        /// </summary>
+        public int SkipLinesAtBeginning { get; init; }
 
         /// <summary>
         /// Default value is \r\n
@@ -67,10 +72,10 @@
             if (StreamProvider == null)
                 throw new ProcessParameterNullException(this, nameof(StreamProvider));
 
-            if (Header != DelimitedLineHeader.hasHeader && (ColumnNames == null || ColumnNames.Length == 0))
+            if (Header != DelimitedLineHeader.HasHeader && (ColumnNames == null || ColumnNames.Length == 0))
                 throw new ProcessParameterNullException(this, nameof(ColumnNames));
 
-            if (Header == DelimitedLineHeader.hasHeader && ColumnNames?.Length > 0)
+            if (Header == DelimitedLineHeader.HasHeader && ColumnNames?.Length > 0)
                 throw new InvalidProcessParameterException(this, nameof(ColumnNames), ColumnNames, nameof(ColumnNames) + " must be null if " + nameof(Header) + " is true.");
 
             if (Columns == null && DefaultColumns == null)
@@ -94,6 +99,8 @@
             var treatEmptyStringAsNull = TreatEmptyStringAsNull;
             var removeSurroundingDoubleQuotes = RemoveSurroundingDoubleQuotes;
             var ignoreColumns = IgnoreColumns?.ToHashSet();
+
+            var skipLines = SkipLinesAtBeginning;
 
             foreach (var stream in StreamProvider.GetStreams(this))
             {
@@ -217,13 +224,19 @@
                             }
                         }
 
+                        if (skipLines > 0)
+                        {
+                            skipLines--;
+                            continue;
+                        }
+
                         if (firstRow)
                         {
                             firstRow = false;
 
-                            if (Header != DelimitedLineHeader.noHeader)
+                            if (Header != DelimitedLineHeader.NoHeader)
                             {
-                                if (Header == DelimitedLineHeader.hasHeader)
+                                if (Header == DelimitedLineHeader.HasHeader)
                                 {
                                     columnNames = partList.ToArray();
 

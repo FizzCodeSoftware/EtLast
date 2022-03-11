@@ -21,6 +21,8 @@
         {
         }
 
+        public abstract void ValidateParameters();
+
         public ProcessResult Execute(IProcess caller, IEtlSession session)
         {
             Session = session;
@@ -39,6 +41,8 @@
             try
             {
                 _statistics.Start();
+
+                ValidateParameters();
 
                 Context.Listeners.Add(_ioCommandCounterCollection);
                 var exceptionCount = 0;

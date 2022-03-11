@@ -25,7 +25,7 @@
                     ["ValueDate"] = new ReaderColumnConfiguration(new DateConverter()).FromSource("Value3"),
                     ["ValueDouble"] = new ReaderColumnConfiguration(new DoubleConverter()).FromSource("Value4"),
                 },
-                Header = DelimitedLineHeader.hasHeader,
+                Header = DelimitedLineHeader.HasHeader,
                 RemoveSurroundingDoubleQuotes = removeSurroundingDoubleQuotes
             };
         }
@@ -44,7 +44,7 @@
                     ["Name"] = new ReaderColumnConfiguration(new StringConverter()),
                     ["Value"] = new ReaderColumnConfiguration(new StringConverter())
                 },
-                Header = DelimitedLineHeader.hasHeader,
+                Header = DelimitedLineHeader.HasHeader,
                 TreatEmptyStringAsNull = treatEmptyStringsAsNull,
             };
         }
@@ -245,7 +245,7 @@
                         ["Value3"] = new ReaderColumnConfiguration(new StringConverter()),
                         ["Value4"] = new ReaderColumnConfiguration(new StringConverter()),
                     },
-                    Header = DelimitedLineHeader.hasHeader,
+                    Header = DelimitedLineHeader.HasHeader,
                 });
 
             var result = TestExecuter.Execute(builder);
@@ -278,7 +278,7 @@
                         ["Value3"] = new ReaderColumnConfiguration(new StringConverter()),
                         ["Value4"] = new ReaderColumnConfiguration(new StringConverter()),
                     },
-                    Header = DelimitedLineHeader.ignoreHeader,
+                    Header = DelimitedLineHeader.IgnoreHeader,
                 });
 
             var result = TestExecuter.Execute(builder);

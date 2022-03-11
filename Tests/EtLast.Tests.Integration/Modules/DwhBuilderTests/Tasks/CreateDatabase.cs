@@ -17,6 +17,18 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
         public string DatabaseName { get; init; }
         public DatabaseDefinition Definition { get; set; }
 
+        public override void ValidateParameters()
+        {
+            if (ConnectionString == null)
+                throw new ProcessParameterNullException(this, nameof(ConnectionString));
+
+            if (DatabaseName == null)
+                throw new ProcessParameterNullException(this, nameof(DatabaseName));
+
+            if (Definition == null)
+                throw new ProcessParameterNullException(this, nameof(Definition));
+        }
+
         public override IEnumerable<IExecutable> CreateProcesses()
         {
             yield return new CustomAction(Context)

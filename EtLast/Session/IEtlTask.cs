@@ -4,11 +4,12 @@
 
     public interface IEtlTask : IProcess
     {
-        IEtlSession Session { get; }
-        IExecutionStatistics Statistics { get; }
+        public IEtlSession Session { get; }
+        public IExecutionStatistics Statistics { get; }
 
-        Dictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; }
+        public Dictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; }
 
-        ProcessResult Execute(IProcess caller, IEtlSession session);
+        public void ValidateParameters();
+        public ProcessResult Execute(IProcess caller, IEtlSession session);
     }
 }
