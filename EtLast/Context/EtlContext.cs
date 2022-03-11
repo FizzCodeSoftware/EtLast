@@ -13,6 +13,7 @@
         public int WarningCount { get; internal set; }
         public AdditionalData AdditionalData { get; }
 
+        public string Uid { get; }
         public DateTimeOffset CreatedOnUtc { get; }
         public DateTimeOffset CreatedOnLocal { get; }
 
@@ -39,6 +40,7 @@
             CancellationTokenSource = new CancellationTokenSource();
             AdditionalData = new AdditionalData();
 
+            Uid = Guid.NewGuid().ToString("D");
             CreatedOnLocal = DateTimeOffset.Now;
             CreatedOnUtc = CreatedOnUtc.ToUniversalTime();
         }

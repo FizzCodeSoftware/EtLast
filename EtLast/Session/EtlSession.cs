@@ -8,7 +8,6 @@
     public sealed class EtlSession : IEtlSession
     {
         public string Id { get; }
-        public string Uid { get; }
         public IEtlContext Context { get; }
         private readonly EtlSessionArguments _arguments;
 
@@ -19,7 +18,6 @@
         public EtlSession(string id, EtlContext context, EtlSessionArguments arguments)
         {
             Id = id;
-            Uid = Guid.NewGuid().ToString("D");
             Context = context;
             _arguments = arguments;
         }
