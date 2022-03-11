@@ -3,6 +3,7 @@
     public interface IEtlSession
     {
         public string Id { get; }
+        public string Uid { get; }
         public IEtlContext Context { get; }
 
         public T Service<T>() where T : IEtlService, new();
