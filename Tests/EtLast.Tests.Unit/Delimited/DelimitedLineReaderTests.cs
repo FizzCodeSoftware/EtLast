@@ -224,5 +224,70 @@
             var exceptions = context.GetExceptions();
             Assert.AreEqual(0, exceptions.Count);
         }
+
+        [TestMethod]
+        public void BrokenHeaderNegative()
+        {
+            var context = TestExecuter.GetContext();
+            var builder = ProcessBuilder.Fluent
+                .ReadDelimitedLines(new DelimitedLineReader(context)
+                {
+                    StreamProvider = new LocalFileStreamProvider()
+                    {
+                        FileName = @"TestData\BrokenHeaderSample.csv",
+                    },
+                    Columns = new()
+                    {
+                        ["Id"] = new ReaderColumnConfiguration(new IntConverter()),
+                        ["Name"] = new ReaderColumnConfiguration(new StringConverter()),
+                        ["Value1"] = new ReaderColumnConfiguration(new StringConverter()),
+                        ["Value2"] = new ReaderColumnConfiguration(new IntConverter()),
+                        ["Value3"] = new ReaderColumnConfiguration(new StringConverter()),
+                        ["Value4"] = new ReaderColumnConfiguration(new StringConverter()),
+                    },
+                    Header = DelimitedLineHeader.hasHeader,
+                });
+
+            var result = TestExecuter.Execute(builder);
+            Assert.AreEqual(2, result.MutatedRows.Count);
+            Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = -1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["Value2"] = 3 } });
+            var exceptions = context.GetExceptions();
+            Assert.AreEqual(0, exceptions.Count);
+        }
+
+        [TestMethod]
+        public void BrokenHeaderPositive()
+        {
+            var context = TestExecuter.GetContext();
+            var builder = ProcessBuilder.Fluent
+                .ReadDelimitedLines(new DelimitedLineReader(context)
+                {
+                    StreamProvider = new LocalFileStreamProvider()
+                    {
+                        FileName = @"TestData\BrokenHeaderSample.csv",
+                    },
+                    ColumnNames = new[] { "Id", "Name", "Value1", "Value2", "Value3", "Value4" },
+                    Columns = new()
+                    {
+                        ["Id"] = new ReaderColumnConfiguration(new IntConverter()),
+                        ["Name"] = new ReaderColumnConfiguration(new StringConverter()),
+                        ["Value1"] = new ReaderColumnConfiguration(new StringConverter()),
+                        ["Value2"] = new ReaderColumnConfiguration(new IntConverter()),
+                        ["Value3"] = new ReaderColumnConfiguration(new StringConverter()),
+                        ["Value4"] = new ReaderColumnConfiguration(new StringConverter()),
+                    },
+                    Header = DelimitedLineHeader.ignoreHeader,
+                });
+
+            var result = TestExecuter.Execute(builder);
+            Assert.AreEqual(2, result.MutatedRows.Count);
+            Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = -1 },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["Value2"] = 3, ["Value3"] = "1", ["Value4"] = "1.234" } });
+            var exceptions = context.GetExceptions();
+            Assert.AreEqual(0, exceptions.Count);
+        }
     }
 }
