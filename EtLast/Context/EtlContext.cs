@@ -42,7 +42,7 @@
 
             Uid = Guid.NewGuid().ToString("D");
             CreatedOnLocal = DateTimeOffset.Now;
-            CreatedOnUtc = CreatedOnUtc.ToUniversalTime();
+            CreatedOnUtc = CreatedOnLocal.ToUniversalTime();
         }
 
         public void SetRowType<T>() where T : IRow
