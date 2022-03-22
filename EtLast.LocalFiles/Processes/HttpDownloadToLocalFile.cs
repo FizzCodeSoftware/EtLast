@@ -35,7 +35,7 @@
                     {
                         iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.httpGet, Url, null, null, null, null,
                             "downloading file from {Url} to local file {FileName}",
-                            Url, PathHelpers.GetFriendlyPathName(FileName));
+                            Url, FileName);
 
                         using (var response = clt.GetStreamAsync(Url).Result)
                         using (var fileStream = new FileStream(FileName, FileMode.Create))

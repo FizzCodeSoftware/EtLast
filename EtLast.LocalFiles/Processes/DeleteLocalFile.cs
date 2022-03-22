@@ -23,16 +23,16 @@
         {
             if (!File.Exists(FileName))
             {
-                Context.Log(LogSeverity.Debug, this, "can't delete local file because it doesn't exist '{FileName}'", PathHelpers.GetFriendlyPathName(FileName));
+                Context.Log(LogSeverity.Debug, this, "can't delete local file because it doesn't exist '{FileName}'", FileName);
                 return;
             }
 
-            Context.Log(LogSeverity.Information, this, "deleting local file '{FileName}'", PathHelpers.GetFriendlyPathName(FileName));
+            Context.Log(LogSeverity.Information, this, "deleting local file '{FileName}'", FileName);
 
             try
             {
                 File.Delete(FileName);
-                Context.Log(LogSeverity.Debug, this, "successfully deleted local file '{FileName}' in {Elapsed}", PathHelpers.GetFriendlyPathName(FileName),
+                Context.Log(LogSeverity.Debug, this, "successfully deleted local file '{FileName}' in {Elapsed}", FileName,
                     InvocationInfo.LastInvocationStarted.Elapsed);
             }
             catch (Exception ex)

@@ -10,7 +10,7 @@
     public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutator, IRowSink
         where TState : BaseExcelWriterState, new()
     {
-        public string StoreLocation { get; init; }
+        public string SinkLocation { get; init; }
         public Stream Stream { get; init; }
         public Action<ExcelPackage, TState> Initialize { get; init; }
         public Action<IRow, ExcelPackage, TState> Action { get; init; }
@@ -104,14 +104,14 @@
             if (Action == null)
                 throw new ProcessParameterNullException(this, nameof(Action));
 
-            if (string.IsNullOrEmpty(StoreLocation))
-                throw new ProcessParameterNullException(this, nameof(StoreLocation));
+            if (string.IsNullOrEmpty(SinkLocation))
+                throw new ProcessParameterNullException(this, nameof(SinkLocation));
         }
 
         public void AddWorkSheet(string name)
         {
             _state.Worksheet = _package.Workbook.Worksheets.Add(name);
-            _sinkUid = Context.GetSinkUid(StoreLocation, name);
+            _sinkUid = Context.GetSinkUid(SinkLocation, name);
         }
     }
 

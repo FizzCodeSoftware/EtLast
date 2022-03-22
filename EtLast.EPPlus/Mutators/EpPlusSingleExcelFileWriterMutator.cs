@@ -40,9 +40,9 @@
 
             if (ExistingPackage == null && _package != null)
             {
-                var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.fileWrite, PathHelpers.GetFriendlyPathName(FileName), null, null, null, null,
+                var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.fileWrite, Path.GetDirectoryName(FileName), Path.GetFileName(FileName), null, null, null, null,
                     "saving excel package to {FileName}",
-                    PathHelpers.GetFriendlyPathName(FileName));
+                    FileName);
 
                 try
                 {
@@ -107,7 +107,7 @@
         public void AddWorkSheet(string name)
         {
             _state.Worksheet = _package.Workbook.Worksheets.Add(name);
-            _sinkUid = Context.GetSinkUid(PathHelpers.GetFriendlyPathName(FileName), name);
+            _sinkUid = Context.GetSinkUid(FileName, name);
         }
     }
 

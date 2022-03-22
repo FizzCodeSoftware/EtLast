@@ -7,8 +7,12 @@
 
     public class LocalDirectoryStreamProvider : IStreamProvider
     {
-        public string Path { get; init; }
-        public string SearchPattern { get; init; }
+        public string Directory { get; init; }
+
+        /// <summary>
+        /// Default value is "*.*"
+        /// </summary>
+        public string SearchPattern { get; init; } = "*.*";
 
         /// <summary>
         /// Default value is true.
@@ -17,35 +21,37 @@
 
         public string GetTopic()
         {
-            return Path != null
-                ? PathHelpers.GetFriendlyPathName(Path)
-                + (SearchPattern != null ? @"\" + SearchPattern : "")
+            return Directory != null
+                ? PathHelpers.GetFriendlyPathName(Directory)
+                    + (SearchPattern != null ? @"\" + SearchPattern : "")
                 : null;
+        }
+
+        public void Validate(IProcess caller)
+        {
+            if (Directory == null)
+                throw new ProcessParameterNullException(caller, "StreamProvider." + nameof(Directory));
+
+            if (SearchPattern == null)
+                throw new ProcessParameterNullException(caller, "StreamProvider." + nameof(SearchPattern));
         }
 
         public IEnumerable<NamedStream> GetStreams(IProcess caller)
         {
             var fileNames = new List<string>();
 
-            if (Directory.Exists(Path))
+            if (System.IO.Directory.Exists(Directory))
             {
-                if (SearchPattern != null)
-                {
-                    fileNames.AddRange(Directory.EnumerateFiles(Path, SearchPattern));
-                }
-                else
-                {
-                    fileNames.AddRange(Directory.EnumerateFiles(Path));
-                }
+                fileNames.AddRange(System.IO.Directory.EnumerateFiles(Directory, SearchPattern));
             }
 
             if (fileNames.Count == 0)
             {
                 if (ThrowExceptionWhenFileNotFound)
                 {
-                    var exception = new LocalFileReadException(caller, "local directory doesn't contain any matching files", Path);
+                    var exception = new LocalFileReadException(caller, "local directory doesn't contain any matching files", Directory);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local directory doesn't contain any matching files: {0}",
-                        Path));
+                        Directory));
 
                     throw exception;
                 }
@@ -61,8 +67,8 @@
 
         private NamedStream GetFileStream(IProcess caller, string fileName)
         {
-            var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileRead, PathHelpers.GetFriendlyPathName(fileName), null, null, null, null,
-                "reading from local file {FileName}", PathHelpers.GetFriendlyPathName(fileName));
+            var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileRead, Directory, fileName.Replace(Directory, "", StringComparison.InvariantCultureIgnoreCase), null, null, null, null,
+                "reading from local file {FileName}", fileName);
 
             if (!File.Exists(fileName))
             {
@@ -89,7 +95,7 @@
             {
                 caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, iocUid, null, ex);
 
-                var exception = new LocalFileReadException(caller, "error while opening local file", Path, ex);
+                var exception = new LocalFileReadException(caller, "error while opening local file", Directory, ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening local file: {0}, message: {1}", fileName, ex.Message));
                 throw exception;
             }

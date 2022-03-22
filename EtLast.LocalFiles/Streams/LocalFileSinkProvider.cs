@@ -18,12 +18,18 @@
 
         public bool AutomaticallyDispose => true;
 
+        public void Validate(IProcess caller)
+        {
+            if (FileNameGenerator == null)
+                throw new ProcessParameterNullException(caller, "SinkProvider." + nameof(FileNameGenerator));
+        }
+
         public NamedSink GetSink(IProcess caller, string partitionKey)
         {
             var fileName = FileNameGenerator.Invoke(partitionKey);
 
-            var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileWrite, PathHelpers.GetFriendlyPathName(fileName), null, null, null, null,
-                "writing to local file {FileName}", PathHelpers.GetFriendlyPathName(fileName));
+            var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileWrite, Path.GetDirectoryName(fileName), Path.GetFileName(fileName), null, null, null, null,
+                "writing to local file {FileName}", fileName);
 
             if (File.Exists(fileName) && ThrowExceptionWhenFileExists)
             {
@@ -47,7 +53,9 @@
                 caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, null, ex);
 
                 var exception = new LocalFileWriteException(caller, "error while writing local file", fileName, ex);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing local file: {0}, message: {1}", fileName, ex.Message));
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing local file: {0}, message: {1}",
+                    fileName, ex.Message));
+
                 throw exception;
             }
         }

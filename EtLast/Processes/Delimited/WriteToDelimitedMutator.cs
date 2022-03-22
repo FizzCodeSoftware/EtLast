@@ -70,6 +70,11 @@
         {
             base.ValidateMutator();
 
+            if (SinkProvider == null)
+                throw new ProcessParameterNullException(this, nameof(SinkProvider));
+
+            SinkProvider.Validate(this);
+
             if (Columns == null)
                 throw new ProcessParameterNullException(this, nameof(Columns));
         }

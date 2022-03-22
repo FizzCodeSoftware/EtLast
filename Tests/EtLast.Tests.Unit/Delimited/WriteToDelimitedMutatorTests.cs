@@ -79,7 +79,7 @@
                 builder = ProcessBuilder.Fluent
                     .ReadDelimitedLines(new DelimitedLineReader(context)
                     {
-                        StreamProvider = new CustomStreamProvider()
+                        StreamProvider = new MemoryStreamProvider()
                         {
                             StreamCreator = () => outputStream,
                         },

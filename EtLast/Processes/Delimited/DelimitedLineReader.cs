@@ -72,6 +72,8 @@
             if (StreamProvider == null)
                 throw new ProcessParameterNullException(this, nameof(StreamProvider));
 
+            StreamProvider.Validate(this);
+
             if (Header != DelimitedLineHeader.HasHeader && (ColumnNames == null || ColumnNames.Length == 0))
                 throw new ProcessParameterNullException(this, nameof(ColumnNames));
 

@@ -75,7 +75,7 @@
             {
                 StreamProvider = new LocalDirectoryStreamProvider()
                 {
-                    Path = @".\TestData\",
+                    Directory = @".\TestData\",
                     SearchPattern = "Partition*.xlsx"
                 },
                 SheetIndex = 0,

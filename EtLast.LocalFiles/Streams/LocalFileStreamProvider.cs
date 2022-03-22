@@ -22,10 +22,16 @@
                 : null;
         }
 
+        public void Validate(IProcess caller)
+        {
+            if (FileName == null)
+                throw new ProcessParameterNullException(caller, "StreamProvider." + nameof(FileName));
+        }
+
         public IEnumerable<NamedStream> GetStreams(IProcess caller)
         {
-            var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileRead, PathHelpers.GetFriendlyPathName(FileName), null, null, null, null,
-                "reading from local file {FileName}", PathHelpers.GetFriendlyPathName(FileName));
+            var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileRead, Path.GetDirectoryName(FileName), Path.GetFileName(FileName), null, null, null, null,
+                "reading from local file {FileName}", FileName);
 
             if (!File.Exists(FileName))
             {

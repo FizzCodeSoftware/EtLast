@@ -45,7 +45,7 @@
 
             if (ExistingPackage == null && _package != null)
             {
-                var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.fileWrite, PathHelpers.GetFriendlyPathName(FileName), null, null, null, null,
+                var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.fileWrite, Path.GetDirectoryName(FileName), Path.GetFileName(FileName), null, null, null, null,
                     "saving file to {FileName}",
                     PathHelpers.GetFriendlyPathName(FileName));
 
@@ -71,7 +71,7 @@
         {
             if (_sinkUid == null)
             {
-                _sinkUid = Context.GetSinkUid(PathHelpers.GetFriendlyPathName(FileName), SheetName);
+                _sinkUid = Context.GetSinkUid(FileName, SheetName);
             }
 
             Context.RegisterWriteToSink(row, _sinkUid.Value);

@@ -28,6 +28,8 @@
             if (StreamProvider == null)
                 throw new ProcessParameterNullException(this, nameof(StreamProvider));
 
+            StreamProvider.Validate(this);
+
             if (string.IsNullOrEmpty(SheetName) && SheetIndex == -1)
                 throw new ProcessParameterNullException(this, nameof(SheetName));
 

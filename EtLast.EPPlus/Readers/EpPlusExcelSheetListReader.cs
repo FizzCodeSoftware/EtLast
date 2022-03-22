@@ -8,7 +8,7 @@
 
     public sealed class EpPlusExcelSheetListReader : AbstractRowSource, IRowSource
     {
-        public IStreamProvider Source { get; init; }
+        public IStreamProvider StreamProvider { get; init; }
 
         /// <summary>
         /// Default value is "Stream".
@@ -22,18 +22,20 @@
 
         public override string GetTopic()
         {
-            return Source.GetTopic() + "[SheetList]";
+            return StreamProvider.GetTopic() + "[SheetList]";
         }
 
         protected override void ValidateImpl()
         {
-            if (Source == null)
-                throw new ProcessParameterNullException(this, nameof(Source));
+            if (StreamProvider == null)
+                throw new ProcessParameterNullException(this, nameof(StreamProvider));
+
+            StreamProvider.Validate(this);
         }
 
         protected override IEnumerable<IRow> Produce()
         {
-            foreach (var stream in Source.GetStreams(this))
+            foreach (var stream in StreamProvider.GetStreams(this))
             {
                 if (stream == null)
                     yield break;
