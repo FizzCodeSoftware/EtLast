@@ -88,7 +88,6 @@
 
                 var exception = new LocalFileReadException(caller, "error while opening local file", Path, ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening local file: {0}, message: {1}", fileName, ex.Message));
-                exception.Data.Add("FileName", fileName);
                 throw exception;
             }
         }

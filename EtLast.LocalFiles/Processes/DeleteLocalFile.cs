@@ -40,7 +40,6 @@
                 var exception = new LocalFileDeleteException(this, "local file deletion failed", FileName, ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local file deletion failed, file name: {0}, message: {1}",
                     FileName, ex.Message));
-                exception.Data.Add("FileName", FileName);
                 throw exception;
             }
         }

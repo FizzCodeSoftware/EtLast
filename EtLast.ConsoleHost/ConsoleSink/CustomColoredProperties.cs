@@ -26,7 +26,15 @@
             ["SourceTableName"] = ColorCode.SourceOrTarget,
             ["TargetTableName"] = ColorCode.SourceOrTarget,
             ["FileName"] = ColorCode.SourceOrTarget,
+            ["SourceFileName"] = ColorCode.SourceOrTarget,
+            ["TargetFileName"] = ColorCode.SourceOrTarget,
             ["Folder"] = ColorCode.SourceOrTarget,
+            ["Path"] = ColorCode.SourceOrTarget,
+            ["SourcePath"] = ColorCode.SourceOrTarget,
+            ["TargetPath"] = ColorCode.SourceOrTarget,
+            ["Url"] = ColorCode.SourceOrTarget,
+            ["SourceUrl"] = ColorCode.SourceOrTarget,
+            ["TargetUrl"] = ColorCode.SourceOrTarget,
         };
     }
 }
