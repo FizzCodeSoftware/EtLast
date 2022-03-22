@@ -4,7 +4,7 @@
 
     public interface IStreamProvider
     {
-        public string Topic { get; }
+        public string GetTopic();
         public IEnumerable<NamedStream> GetStreams(IProcess caller);
     }
 }

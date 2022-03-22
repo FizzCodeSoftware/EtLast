@@ -22,7 +22,7 @@
 
         public override string GetTopic()
         {
-            return Source.Topic + "[SheetList]";
+            return Source.GetTopic() + "[SheetList]";
         }
 
         protected override void ValidateImpl()

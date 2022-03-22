@@ -64,7 +64,7 @@
 
         public override string GetTopic()
         {
-            return StreamProvider?.Topic;
+            return StreamProvider?.GetTopic();
         }
 
         protected override void ValidateImpl()

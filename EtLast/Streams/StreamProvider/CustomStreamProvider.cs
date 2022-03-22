@@ -10,7 +10,10 @@
         public Func<Stream> StreamCreator { get; init; }
         public string StreamName { get; init; }
 
-        public string Topic => StreamName;
+        public string GetTopic()
+        {
+            return StreamName;
+        }
 
         public IEnumerable<NamedStream> GetStreams(IProcess caller)
         {

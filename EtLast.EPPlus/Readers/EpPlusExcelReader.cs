@@ -18,9 +18,9 @@
         public override string GetTopic()
         {
             if (string.IsNullOrEmpty(SheetName))
-                return StreamProvider.Topic + "[" + SheetIndex.ToString("D", CultureInfo.InvariantCulture) + "]";
+                return StreamProvider.GetTopic() + "[" + SheetIndex.ToString("D", CultureInfo.InvariantCulture) + "]";
             else
-                return StreamProvider.Topic + "[" + SheetName + "]";
+                return StreamProvider.GetTopic() + "[" + SheetName + "]";
         }
 
         protected override void ValidateImpl()
@@ -74,33 +74,6 @@
                     package.Dispose();
                 }
             }
-        }
-
-        private static string EnsureDistinctColumnNames(List<string> excelColumns, string excelColumn)
-        {
-            var col = excelColumn;
-            var i = 1;
-            while (excelColumns.Contains(col))
-            {
-                col = excelColumn + i.ToString("D", CultureInfo.InvariantCulture);
-                i++;
-            }
-
-            excelColumns.Add(col);
-            return col;
-        }
-
-        private ExcelRange GetCellUnmerged(ExcelWorksheet sheet, int row, int col)
-        {
-            if (!Unmerge)
-                return sheet.Cells[row, col];
-
-            var mergedCellAddress = sheet.MergedCells[row, col];
-            if (mergedCellAddress == null)
-                return sheet.Cells[row, col];
-
-            var address = new ExcelAddress(mergedCellAddress);
-            return sheet.Cells[address.Start.Address];
         }
     }
 

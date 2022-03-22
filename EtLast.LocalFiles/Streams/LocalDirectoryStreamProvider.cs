@@ -15,10 +15,13 @@
         /// </summary>
         public bool ThrowExceptionWhenFileNotFound { get; init; } = true;
 
-        public string Topic => Path != null
-            ? PathHelpers.GetFriendlyPathName(Path)
+        public string GetTopic()
+        {
+            return Path != null
+                ? PathHelpers.GetFriendlyPathName(Path)
                 + (SearchPattern != null ? @"\" + SearchPattern : "")
-            : null;
+                : null;
+        }
 
         public IEnumerable<NamedStream> GetStreams(IProcess caller)
         {
