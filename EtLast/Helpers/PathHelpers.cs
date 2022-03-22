@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using System.Reflection;
+    using System.Text;
 
     public static class PathHelpers
     {
@@ -36,6 +37,37 @@
             }
 
             return path;
+        }
+
+        public static string CombineUrl(params string[] parts)
+        {
+            if (parts == null || parts.Length == 0)
+                return null;
+
+            if (parts.Length == 1)
+                return parts[0];
+
+            var sb = new StringBuilder();
+
+            var endsWithSlash = false;
+            for (var i = 0; i < parts.Length; i++)
+            {
+                var part = parts[i].Trim();
+                if (i > 0)
+                    part = part.TrimStart('/');
+
+                if (string.IsNullOrEmpty(part))
+                    continue;
+
+                if (i > 0 && !endsWithSlash)
+                    sb.Append('/');
+
+                sb.Append(part);
+
+                endsWithSlash = part.EndsWith('/');
+            }
+
+            return sb.ToString();
         }
     }
 }
