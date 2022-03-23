@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder
 {
     using System;
-    using FizzCode.EtLast.AdoNet;
 
     public class DwhBuilderConfiguration
     {

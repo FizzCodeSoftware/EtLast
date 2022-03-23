@@ -5,7 +5,6 @@
     using System.Diagnostics;
     using System.Linq;
     using FizzCode.EtLast;
-    using FizzCode.EtLast.AdoNet;
     using FizzCode.LightWeight.RelationalModel;
 
     public delegate IEnumerable<IMutator> MutatorCreatorDelegate(DwhTableBuilder tableBuilder);

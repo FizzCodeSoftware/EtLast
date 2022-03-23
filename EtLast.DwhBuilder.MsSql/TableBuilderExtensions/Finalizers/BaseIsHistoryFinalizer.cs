@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using FizzCode.EtLast.AdoNet;
 
     public static partial class TableBuilderExtensions
     {

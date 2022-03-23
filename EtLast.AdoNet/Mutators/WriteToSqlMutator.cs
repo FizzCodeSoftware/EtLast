@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.AdoNet
+﻿namespace FizzCode.EtLast
 {
     using System;
     using System.Collections.Generic;
@@ -8,7 +8,6 @@
     using System.Linq;
     using System.Text;
     using System.Transactions;
-    using FizzCode.EtLast;
     using FizzCode.LightWeight.AdoNet;
 
     public sealed class WriteToSqlMutator : AbstractMutator, IRowSink

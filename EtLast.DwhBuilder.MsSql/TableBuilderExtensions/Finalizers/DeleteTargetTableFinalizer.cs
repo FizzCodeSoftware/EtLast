@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using FizzCode.EtLast;
-    using FizzCode.EtLast.AdoNet;
 
     public static partial class TableBuilderExtensions
     {

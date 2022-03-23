@@ -6,7 +6,6 @@
     using System.Globalization;
     using System.Linq;
     using FizzCode.EtLast;
-    using FizzCode.EtLast.AdoNet;
     using FizzCode.LightWeight.AdoNet;
     using FizzCode.LightWeight.RelationalModel;
 

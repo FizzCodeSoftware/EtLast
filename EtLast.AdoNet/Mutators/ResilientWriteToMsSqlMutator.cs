@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.AdoNet
+﻿namespace FizzCode.EtLast
 {
     using System;
     using System.Collections.Generic;
@@ -9,7 +9,6 @@
     using System.Linq;
     using System.Threading;
     using System.Transactions;
-    using FizzCode.EtLast;
     using FizzCode.LightWeight.AdoNet;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable

@@ -12,7 +12,7 @@
     <Platforms>AnyCPU</Platforms>
     <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
     <AssemblyName>FizzCode.EtLast.AdoNet</AssemblyName>
-    <RootNamespace>FizzCode.EtLast.AdoNet</RootNamespace>
+    <RootNamespace>FizzCode.EtLast</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
     <Configurations>Debug;Release</Configurations>

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using FizzCode.EtLast.AdoNet;
     using FizzCode.LightWeight.AdoNet;
     using FizzCode.LightWeight.RelationalModel;
 

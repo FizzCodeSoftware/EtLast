@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.AdoNet
+﻿namespace FizzCode.EtLast
 {
     public sealed class DetailedDbTableDefinition
     {

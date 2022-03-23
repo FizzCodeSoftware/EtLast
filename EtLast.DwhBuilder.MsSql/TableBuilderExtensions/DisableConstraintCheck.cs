@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.MsSql
 {
     using System.Collections.Generic;
-    using FizzCode.EtLast.AdoNet;
 
     public static partial class TableBuilderExtensions
     {

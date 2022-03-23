@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using FizzCode.EtLast;
-    using FizzCode.EtLast.AdoNet;
     using FizzCode.LightWeight.RelationalModel;
 
     public static partial class TableBuilderExtensions

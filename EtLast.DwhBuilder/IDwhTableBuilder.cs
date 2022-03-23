@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder
 {
-    using FizzCode.EtLast.AdoNet;
     using FizzCode.LightWeight.RelationalModel;
 
     public interface IDwhTableBuilder
