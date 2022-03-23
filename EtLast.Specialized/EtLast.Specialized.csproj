@@ -10,7 +10,7 @@
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Platforms>AnyCPU</Platforms>
     <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
-    <RootNamespace>FizzCode.EtLast.Specialized</RootNamespace>
+    <RootNamespace>FizzCode.EtLast</RootNamespace>
     <AssemblyName>FizzCode.EtLast.Specialized</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>

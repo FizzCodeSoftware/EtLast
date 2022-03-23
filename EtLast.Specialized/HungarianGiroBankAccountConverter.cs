@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.Specialized
+﻿namespace FizzCode.EtLast
 {
     using System;
     using System.Globalization;
