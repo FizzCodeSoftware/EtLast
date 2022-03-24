@@ -48,7 +48,10 @@
                 var exceptionCount = 0;
                 try
                 {
-                    var executables = CreateProcesses()?.ToList();
+                    var executables = CreateProcesses()?
+                        .Where(x => x != null)
+                        .ToList();
+
                     if (executables?.Count > 0)
                     {
                         for (var executableIndex = 0; executableIndex < executables.Count; executableIndex++)
