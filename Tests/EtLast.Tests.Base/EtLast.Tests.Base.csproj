@@ -26,7 +26,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="FizzCode.LightWeight.Collections" Version="2.0.23.6431" />
+    <PackageReference Include="FizzCode.LightWeight.Collections" Version="2.0.25.6441" />
   </ItemGroup>
 
   <ItemGroup>

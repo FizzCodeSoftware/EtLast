@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using FizzCode.LightWeight.AdoNet;
 
     public delegate IProducer ResilientTablePartitionedMainProcessCreatorDelegate(ResilientTable table, int partitionIndex);
     public delegate IEnumerable<IExecutable> ResilientTableMainProcessCreatorDelegate(ResilientTable table);
@@ -49,9 +50,7 @@
         public string TempTableName
         {
             get => _tempTableName
-                ?? (Scope.ConnectionString.IsEscaped(TableName)
-                    ? Scope.ConnectionString.Escape(Scope.AutoTempTablePrefix + Scope.ConnectionString.Unescape(TableName) + Scope.AutoTempTablePostfix)
-                    : Scope.AutoTempTablePrefix + TableName + Scope.AutoTempTablePostfix);
+                ?? Scope.ConnectionString.Escape(Scope.ConnectionString.ChangeObjectIdentifier(TableName, Scope.AutoTempTablePrefix + Scope.ConnectionString.Unescape(Scope.ConnectionString.GetObjectIdentifier(TableName)) + Scope.AutoTempTablePostfix));
             init => _tempTableName = value;
         }
 
