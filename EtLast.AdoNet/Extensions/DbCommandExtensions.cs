@@ -10,7 +10,9 @@
             if (source == null || source.Count == 0)
                 return;
 
-            var isSqlServer = command is System.Data.SqlClient.SqlCommand;
+            var commandType = command.GetType();
+            var isSqlServer = commandType.FullName == "Microsoft.Data.SqlClient.SqlCommand"
+                || commandType.FullName == "System.Data.SqlClient.SqlCommand";
 
             foreach (var kvp in source)
             {

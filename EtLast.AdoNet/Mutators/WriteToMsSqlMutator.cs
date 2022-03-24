@@ -3,11 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Data.SqlClient;
     using System.Globalization;
     using System.Linq;
     using System.Transactions;
     using FizzCode.LightWeight.AdoNet;
+    using Microsoft.Data.SqlClient;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
     public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
@@ -188,7 +188,7 @@
                 throw new ProcessParameterNullException(this, nameof(TableDefinition));
 
             if (ConnectionString.SqlEngine != SqlEngine.MsSql)
-                throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be System.Data.SqlClient");
+                throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be Microsoft.Data.SqlClient");
         }
 
         private void InitConnection()

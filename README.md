@@ -1,5 +1,5 @@
 # EtLast
-###### ETL (Extract, Transform and Load) library for .NET
+## ETL (Extract, Transform and Load) library for .NET
 
 For Examples, see the last chapter.
 
@@ -18,4 +18,5 @@ The master branch is automatically compiled and released to [nuget.org](https://
 
 # Examples
 
-See Tests\EtLast.Tests.Integration
+- console host: Tests\EtLast.Tests.Integration
+- in-process ETL: Tests\EtLast.Tests.Unit

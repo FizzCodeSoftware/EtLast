@@ -17,7 +17,7 @@
 
         public void Configure(EnvironmentSettings settings)
         {
-            DbProviderFactories.RegisterFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
+            DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", Microsoft.Data.SqlClient.SqlClientFactory.Instance);
             settings.FileLogSettings.MinimumLogLevel = LogSeverity.Warning;
             settings.ConsoleLogSettings.MinimumLogLevel = LogSeverity.Verbose;
         }

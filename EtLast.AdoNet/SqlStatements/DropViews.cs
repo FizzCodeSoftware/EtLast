@@ -27,7 +27,7 @@
             if ((ConnectionString.SqlEngine != SqlEngine.MsSql)
                 && (ConnectionString.SqlEngine != SqlEngine.MySql))
             {
-                throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be System.Data.SqlClient or MySql.Data.MySqlClient");
+                throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be Microsoft.Data.SqlClient or MySql.Data.MySqlClient");
             }
         }
 

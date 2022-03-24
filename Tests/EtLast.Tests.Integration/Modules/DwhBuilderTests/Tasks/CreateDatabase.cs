@@ -36,11 +36,11 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
                 Name = "CreateDatabase",
                 Action = proc =>
                 {
-                    System.Data.SqlClient.SqlConnection.ClearAllPools();
+                    Microsoft.Data.SqlClient.SqlConnection.ClearAllPools();
 
                     proc.Context.Log(LogSeverity.Information, proc, "opening connection to {DatabaseName}", "master");
                     using var connection = DbProviderFactories.GetFactory(ConnectionString.ProviderName).CreateConnection();
-                    connection.ConnectionString = "Data Source=(local);Initial Catalog=\"master\";Integrated Security=SSPI;Connection Timeout=5";
+                    connection.ConnectionString = "Data Source=(local);Initial Catalog=\"master\";Integrated Security=SSPI;Connection Timeout=5;Encrypt=False";
                     connection.Open();
 
                     proc.Context.Log(LogSeverity.Information, proc, "dropping {DatabaseName}", DatabaseName);

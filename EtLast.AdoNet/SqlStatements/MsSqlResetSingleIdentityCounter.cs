@@ -34,7 +34,7 @@
                 throw new ProcessParameterNullException(this, nameof(IdentityColumnName));
 
             if (ConnectionString.SqlEngine != SqlEngine.MsSql)
-                throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be System.Data.SqlClient");
+                throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be Microsoft.Data.SqlClient");
         }
 
         protected override string CreateSqlStatement(Dictionary<string, object> parameters)
