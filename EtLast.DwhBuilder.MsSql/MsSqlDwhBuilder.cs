@@ -59,17 +59,14 @@
             return new ResilientSqlScope(Context)
             {
                 Name = ScopeName,
-                Configuration = new ResilientSqlScopeConfiguration()
-                {
-                    ConnectionString = ConnectionString,
-                    TempTableMode = Configuration.TempTableMode,
-                    Tables = _tables.ConvertAll(x => x.ResilientTable),
-                    Initializers = CreateInitializers,
-                    FinalizerRetryCount = Configuration.FinalizerRetryCount,
-                    FinalizerTransactionScopeKind = TransactionScopeKind.RequiresNew,
-                    PreFinalizers = CreatePreFinalizers,
-                    PostFinalizers = CreatePostFinalizers,
-                },
+                ConnectionString = ConnectionString,
+                TempTableMode = Configuration.TempTableMode,
+                Tables = _tables.ConvertAll(x => x.ResilientTable),
+                Initializers = CreateInitializers,
+                FinalizerRetryCount = Configuration.FinalizerRetryCount,
+                FinalizerTransactionScopeKind = TransactionScopeKind.RequiresNew,
+                PreFinalizers = CreatePreFinalizers,
+                PostFinalizers = CreatePostFinalizers,
             };
         }
 
@@ -159,7 +156,7 @@
                 builder.Processes.Add(new MsSqlEnableConstraintCheckFiltered(builder.Scope.Context)
                 {
                     Name = "EnableForeignKeys",
-                    ConnectionString = builder.Scope.Configuration.ConnectionString,
+                    ConnectionString = builder.Scope.ConnectionString,
                     ConstraintNames = constraintCheckDisabledOnTables
                         .Distinct()
                         .Where(x => _enabledConstraintsByTable.ContainsKey(x))
@@ -176,7 +173,7 @@
                 builder.Processes.Add(new CustomSqlStatement(builder.Scope.Context)
                 {
                     Name = "UpdateEtlRun",
-                    ConnectionString = builder.Scope.Configuration.ConnectionString,
+                    ConnectionString = builder.Scope.ConnectionString,
                     CommandTimeout = 60 * 60,
                     MainTableName = etlRunInfoTable.SchemaAndName,
                     SqlStatement = "UPDATE " + etlRunInfoTable.EscapedName(ConnectionString)

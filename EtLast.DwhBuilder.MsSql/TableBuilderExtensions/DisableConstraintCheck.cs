@@ -26,7 +26,7 @@
             yield return new MsSqlDisableConstraintCheck(builder.ResilientTable.Scope.Context)
             {
                 Name = "DisableConstraintCheck",
-                ConnectionString = builder.ResilientTable.Scope.Configuration.ConnectionString,
+                ConnectionString = builder.ResilientTable.Scope.ConnectionString,
                 TableNames = tableNames,
                 CommandTimeout = 60 * 60,
             };

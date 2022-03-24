@@ -27,13 +27,13 @@
 
             var columnNames = builder.Table.Columns
                 .Where(x => !x.GetUsedByEtlRunInfo())
-                .Select(c => c.NameEscaped(builder.ResilientTable.Scope.Configuration.ConnectionString))
+                .Select(c => c.NameEscaped(builder.ResilientTable.Scope.ConnectionString))
                 .ToArray();
 
             yield return new CopyTableIntoExistingTable(builder.ResilientTable.Scope.Context)
             {
                 Name = "CopyToBase",
-                ConnectionString = builder.ResilientTable.Scope.Configuration.ConnectionString,
+                ConnectionString = builder.ResilientTable.Scope.ConnectionString,
                 Configuration = new TableCopyConfiguration()
                 {
                     SourceTableName = builder.ResilientTable.TempTableName,

@@ -59,7 +59,7 @@
             yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context)
             {
                 Name = "MergeIntoBase",
-                ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
+                ConnectionString = builder.TableBuilder.ResilientTable.Scope.ConnectionString,
                 CommandTimeout = 60 * 60,
                 SourceTableName = builder.TableBuilder.ResilientTable.TempTableName,
                 TargetTableName = builder.TableBuilder.ResilientTable.TableName,
@@ -98,7 +98,7 @@
                 yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context)
                 {
                     Name = "CloseOpenEndedHistoryRecords",
-                    ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
+                    ConnectionString = builder.TableBuilder.ResilientTable.Scope.ConnectionString,
                     CommandTimeout = 60 * 60,
                     SourceTableName = builder.TableBuilder.ResilientTable.TempTableName,
                     TargetTableName = histTableName,
@@ -126,7 +126,7 @@
                     yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context)
                     {
                         Name = "UpdateNoHistoryColumns",
-                        ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
+                        ConnectionString = builder.TableBuilder.ResilientTable.Scope.ConnectionString,
                         CommandTimeout = 60 * 60,
                         SourceTableName = builder.TableBuilder.ResilientTable.TempTableName,
                         TargetTableName = histTableName,
@@ -145,7 +145,7 @@
                 var copyToHistoryColumnNames = builder.TableBuilder.Table.Columns
                     .Where(x => !x.GetUsedByEtlRunInfo()
                         && !string.Equals(x.Name, builder.TableBuilder.ValidToColumnName, StringComparison.InvariantCulture))
-                    .Select(c => c.NameEscaped(builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString))
+                    .Select(c => c.NameEscaped(builder.TableBuilder.ResilientTable.Scope.ConnectionString))
                     .ToArray();
 
                 var columnDefaults = new Dictionary<string, object>();
@@ -163,7 +163,7 @@
                 yield return new CopyTableIntoExistingTable(builder.TableBuilder.ResilientTable.Scope.Context)
                 {
                     Name = "CopyToHistory",
-                    ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
+                    ConnectionString = builder.TableBuilder.ResilientTable.Scope.ConnectionString,
                     Configuration = new TableCopyConfiguration()
                     {
                         SourceTableName = builder.TableBuilder.ResilientTable.TempTableName,

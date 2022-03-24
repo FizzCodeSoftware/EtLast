@@ -53,7 +53,7 @@
             yield return new CustomMsSqlMergeStatement(builder.TableBuilder.ResilientTable.Scope.Context)
             {
                 Name = "CloseOpenEndedBaseRecords",
-                ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
+                ConnectionString = builder.TableBuilder.ResilientTable.Scope.ConnectionString,
                 CommandTimeout = 60 * 60,
                 SourceTableName = builder.TableBuilder.ResilientTable.TempTableName,
                 TargetTableName = builder.TableBuilder.ResilientTable.TableName,
@@ -80,7 +80,7 @@
             yield return new CopyTableIntoExistingTable(builder.TableBuilder.ResilientTable.Scope.Context)
             {
                 Name = "CopyToBase",
-                ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
+                ConnectionString = builder.TableBuilder.ResilientTable.Scope.ConnectionString,
                 Configuration = new TableCopyConfiguration()
                 {
                     SourceTableName = builder.TableBuilder.ResilientTable.TempTableName,

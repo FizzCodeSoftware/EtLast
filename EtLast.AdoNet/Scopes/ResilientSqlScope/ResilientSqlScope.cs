@@ -1,49 +1,86 @@
 ﻿namespace FizzCode.EtLast
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
+    using FizzCode.LightWeight.AdoNet;
+
+    public enum ResilientSqlScopeTempTableMode
+    {
+        KeepOnlyOnFailure, AlwaysKeep, AlwaysDrop
+    }
 
     public sealed class ResilientSqlScope : AbstractExecutable, IScope
     {
-        private ResilientSqlScopeConfiguration _configuration;
+        /// <summary>
+        /// The transaction scope kind around the finalizers. Default value is <see cref="TransactionScopeKind.RequiresNew"/>.
+        /// </summary>
+        public TransactionScopeKind InitializationTransactionScopeKind { get; init; } = TransactionScopeKind.RequiresNew;
 
-        public ResilientSqlScopeConfiguration Configuration
+        /// <summary>
+        /// The transaction scope kind around the finalizers. Default value is <see cref="TransactionScopeKind.RequiresNew"/>.
+        /// </summary>
+        public TransactionScopeKind FinalizerTransactionScopeKind { get; init; } = TransactionScopeKind.RequiresNew;
+
+        /// <summary>
+        /// The number of retries of finalizers. Default value is 3. Retrying finalizers is only supported if <seealso cref="FinalizerTransactionScopeKind"/> is set to <see cref="TransactionScopeKind.RequiresNew"/>.
+        /// </summary>
+        public int FinalizerRetryCount { get; init; } = 3;
+
+        /// <summary>
+        /// Default value is <see cref="ResilientSqlScopeTempTableMode.KeepOnlyOnFailure"/>.
+        /// </summary>
+        public ResilientSqlScopeTempTableMode TempTableMode { get; init; } = ResilientSqlScopeTempTableMode.KeepOnlyOnFailure;
+
+        public NamedConnectionString ConnectionString { get; init; }
+
+        /// <summary>
+        /// Allows the execution of initializers BEFORE the individual table processes are created and executed.
+        /// </summary>
+        public Action<ResilientSqlScopeProcessBuilder> Initializers { get; init; }
+
+        /// <summary>
+        /// Allows the execution of global finalizers BEFORE the individual table finalizers are created and executed.
+        /// </summary>
+        public Action<ResilientSqlScopeProcessBuilder> PreFinalizers { get; init; }
+
+        /// <summary>
+        /// Allows the execution of global finalizers AFTER the individual table finalizers are created and executed.
+        /// </summary>
+        public Action<ResilientSqlScopeProcessBuilder> PostFinalizers { get; init; }
+
+        private List<ResilientTable> _tables;
+        public List<ResilientTable> Tables
         {
-            get => _configuration;
+            get => _tables;
             init
             {
-                if (_configuration != null)
-                {
-                    _configuration.Scope = null;
-                    foreach (var table in _configuration.Tables)
-                    {
-                        table.Scope = null;
-                        if (table.AdditionalTables != null)
-                        {
-                            foreach (var additionalTable in table.AdditionalTables)
-                            {
-                                additionalTable.Scope = null;
-                            }
-                        }
-                    }
-                }
-
-                _configuration = value;
-                _configuration.Scope = this;
-
-                foreach (var table in _configuration.Tables)
+                _tables = value;
+                foreach (var table in value)
                 {
                     table.Scope = this;
                     if (table.AdditionalTables != null)
                     {
                         foreach (var additionalTable in table.AdditionalTables)
-                        {
                             additionalTable.Scope = this;
-                        }
                     }
                 }
             }
         }
+
+        /// <summary>
+        /// Used for table configurations where <see cref="ResilientTableBase.TempTableName"/> is "__".
+        /// Temp table name will be: AutoTempTablePrefix + TableName + AutoTempTablePostfix
+        /// </summary>
+        public string AutoTempTablePrefix { get; init; } = "__";
+
+        /// <summary>
+        /// Used for table configurations where <see cref="ResilientTableBase.TempTableName"/> is null.
+        /// Temp table name will be: AutoTempTablePrefix + TableName + AutoTempTablePostfix
+        /// </summary>
+        public string AutoTempTablePostfix { get; init; }
+
+        public AdditionalData AdditionalData { get; init; }
 
         public ResilientSqlScope(IEtlContext context)
             : base(context)
@@ -52,32 +89,29 @@
 
         protected override void ValidateImpl()
         {
-            if (Configuration == null)
-                throw new ProcessParameterNullException(this, nameof(Configuration));
+            if (Tables == null)
+                throw new ProcessParameterNullException(this, nameof(Tables));
 
-            if (Configuration.Tables == null)
-                throw new ProcessParameterNullException(this, nameof(Configuration.Tables));
-
-            if (Configuration.ConnectionString == null)
-                throw new ProcessParameterNullException(this, nameof(Configuration.ConnectionString));
+            if (ConnectionString == null)
+                throw new ProcessParameterNullException(this, nameof(ConnectionString));
         }
 
         protected override void ExecuteImpl()
         {
-            var maxRetryCount = Configuration.FinalizerRetryCount;
-            if (Configuration.FinalizerTransactionScopeKind != TransactionScopeKind.RequiresNew && maxRetryCount > 0)
-                throw new InvalidProcessParameterException(this, nameof(Configuration.FinalizerRetryCount), null, "retrying finalizers can be possible only if the " + nameof(Configuration.FinalizerTransactionScopeKind) + " is set to " + nameof(TransactionScopeKind.RequiresNew));
+            var maxRetryCount = FinalizerRetryCount;
+            if (FinalizerTransactionScopeKind != TransactionScopeKind.RequiresNew && maxRetryCount > 0)
+                throw new InvalidProcessParameterException(this, nameof(FinalizerRetryCount), null, "retrying finalizers can be possible only if the " + nameof(FinalizerTransactionScopeKind) + " is set to " + nameof(TransactionScopeKind.RequiresNew));
 
             var initialExceptionCount = Context.ExceptionCount;
             var success = false;
 
-            foreach (var table in Configuration.Tables)
+            foreach (var table in Tables)
             {
                 if (string.IsNullOrEmpty(table.TempTableName)
-                    && string.IsNullOrEmpty(Configuration.AutoTempTablePrefix)
-                    && string.IsNullOrEmpty(Configuration.AutoTempTablePostfix))
+                    && string.IsNullOrEmpty(AutoTempTablePrefix)
+                    && string.IsNullOrEmpty(AutoTempTablePostfix))
                 {
-                    throw new InvalidProcessParameterException(this, nameof(table.TempTableName), null, nameof(ResilientTable) + "." + nameof(ResilientTableBase.TempTableName) + " must be specified if there is no " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePrefix) + " or " + nameof(Configuration) + "." + nameof(Configuration.AutoTempTablePostfix) + " specified (table name: " + table.TableName + ")");
+                    throw new InvalidProcessParameterException(this, nameof(table.TempTableName), null, nameof(ResilientTable) + "." + nameof(ResilientTableBase.TempTableName) + " must be specified if there is no " + nameof(AutoTempTablePrefix) + " or " + nameof(AutoTempTablePostfix) + " specified (table name: " + table.TableName + ")");
                 }
 
                 if (string.IsNullOrEmpty(table.TableName))
@@ -109,7 +143,7 @@
                 if (Context.ExceptionCount > initialExceptionCount)
                     return;
 
-                if (Configuration.Initializers != null)
+                if (Initializers != null)
                 {
                     var initializationSuccessful = false;
                     Initialize(maxRetryCount, ref initialExceptionCount, ref initializationSuccessful);
@@ -121,7 +155,7 @@
                     }
                 }
 
-                foreach (var table in Configuration.Tables)
+                foreach (var table in Tables)
                 {
                     for (var partitionIndex = 0; ; partitionIndex++)
                     {
@@ -132,7 +166,7 @@
                         if (table.MainProcessCreator != null)
                         {
                             Context.Log(LogSeverity.Information, this, "processing table {TableName}",
-                                Configuration.ConnectionString.Unescape(table.TableName));
+                                ConnectionString.Unescape(table.TableName));
 
                             IExecutable[] mainProcessList;
 
@@ -158,7 +192,7 @@
                         }
 
                         Context.Log(LogSeverity.Information, this, "processing table {TableName}, (partition #{PartitionIndex})",
-                            Configuration.ConnectionString.Unescape(table.TableName), partitionIndex);
+                            ConnectionString.Unescape(table.TableName), partitionIndex);
 
                         IProducer mainEvaluableProcess;
 
@@ -180,16 +214,16 @@
                 for (var retryCounter = 0; retryCounter <= maxRetryCount; retryCounter++)
                 {
                     Context.Log(LogSeverity.Information, this, "finalization round {FinalizationRound} started", retryCounter);
-                    using (var scope = Context.BeginScope(this, Configuration.FinalizerTransactionScopeKind, LogSeverity.Information))
+                    using (var scope = Context.BeginScope(this, FinalizerTransactionScopeKind, LogSeverity.Information))
                     {
-                        if (Configuration.PreFinalizers != null)
+                        if (PreFinalizers != null)
                         {
                             IExecutable[] finalizers;
 
                             using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
                             {
                                 var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
-                                Configuration.PreFinalizers.Invoke(builder);
+                                PreFinalizers.Invoke(builder);
                                 finalizers = builder.Processes.Where(x => x != null).ToArray();
                             }
 
@@ -215,11 +249,11 @@
                         if (Context.ExceptionCount == initialExceptionCount)
                         {
                             var tablesOrderedTemp = new List<TableWithOrder>();
-                            for (var i = 0; i < Configuration.Tables.Count; i++)
+                            for (var i = 0; i < Tables.Count; i++)
                             {
                                 tablesOrderedTemp.Add(new TableWithOrder()
                                 {
-                                    Table = Configuration.Tables[i],
+                                    Table = Tables[i],
                                     OriginalIndex = i,
                                 });
                             }
@@ -256,7 +290,7 @@
                                 if (table.SkipFinalizersIfNoTempData && recordCounts[i] == 0)
                                 {
                                     Context.Log(LogSeverity.Debug, this, "no data found for {TableName}, skipping finalizers",
-                                        Configuration.ConnectionString.Unescape(table.TableName));
+                                        ConnectionString.Unescape(table.TableName));
 
                                     continue;
                                 }
@@ -276,7 +310,7 @@
 
                                     Context.Log(LogSeverity.Debug, this, "created {FinalizerCount} finalizer(s) for {TableName}",
                                         finalizers.Length,
-                                        Configuration.ConnectionString.Unescape(table.TableName));
+                                        ConnectionString.Unescape(table.TableName));
 
                                     if (table.AdditionalTables != null)
                                     {
@@ -290,7 +324,7 @@
 
                                             Context.Log(LogSeverity.Debug, this, "created {FinalizerCount} finalizer(s) for {TableName}",
                                                 finalizers.Length,
-                                                Configuration.ConnectionString.Unescape(additionalTable.TableName));
+                                                ConnectionString.Unescape(additionalTable.TableName));
                                         }
                                     }
                                 }
@@ -301,7 +335,7 @@
                                     {
                                         var preExceptionCount = Context.ExceptionCount;
                                         Context.Log(LogSeverity.Information, this, "finalizing {TableName} with {Process}",
-                                            Configuration.ConnectionString.Unescape(tableFinalizers.Key),
+                                            ConnectionString.Unescape(tableFinalizers.Key),
                                             finalizer.Name);
 
                                         finalizer.Execute(this);
@@ -313,14 +347,14 @@
                                 }
                             }
 
-                            if (Configuration.PostFinalizers != null && Context.ExceptionCount == initialExceptionCount)
+                            if (PostFinalizers != null && Context.ExceptionCount == initialExceptionCount)
                             {
                                 IExecutable[] finalizers;
 
                                 using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
                                 {
                                     var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
-                                    Configuration.PostFinalizers.Invoke(builder);
+                                    PostFinalizers.Invoke(builder);
                                     finalizers = builder.Processes.Where(x => x != null).ToArray();
                                 }
 
@@ -359,9 +393,9 @@
             }
             finally
             {
-                if (Configuration.TempTableMode != ResilientSqlScopeTempTableMode.AlwaysKeep)
+                if (TempTableMode != ResilientSqlScopeTempTableMode.AlwaysKeep)
                 {
-                    if (success || Configuration.TempTableMode == ResilientSqlScopeTempTableMode.AlwaysDrop)
+                    if (success || TempTableMode == ResilientSqlScopeTempTableMode.AlwaysDrop)
                     {
                         DropTempTables();
                     }
@@ -376,7 +410,7 @@
             var count = new GetTableRecordCount(Context)
             {
                 Name = "TempRecordCountReader",
-                ConnectionString = Configuration.ConnectionString,
+                ConnectionString = ConnectionString,
                 TableName = table.TempTableName,
             }.Execute(this);
 
@@ -388,14 +422,14 @@
             for (var retryCounter = 0; retryCounter <= maxRetryCount; retryCounter++)
             {
                 Context.Log(LogSeverity.Information, this, "initialization round {InitializationRound} started", retryCounter);
-                using (var scope = Context.BeginScope(this, Configuration.InitializationTransactionScopeKind, LogSeverity.Information))
+                using (var scope = Context.BeginScope(this, InitializationTransactionScopeKind, LogSeverity.Information))
                 {
                     IExecutable[] initializers;
 
                     using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
                     {
                         var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
-                        Configuration.Initializers.Invoke(builder);
+                        Initializers.Invoke(builder);
                         initializers = builder.Processes.Where(x => x != null).ToArray();
 
                         Context.Log(LogSeverity.Information, this, "created {InitializerCount} initializers", initializers?.Length ?? 0);
@@ -431,7 +465,7 @@
         private void CreateTempTables()
         {
             var config = new List<TableCopyConfiguration>();
-            foreach (var table in Configuration.Tables)
+            foreach (var table in Tables)
             {
                 config.Add(new TableCopyConfiguration()
                 {
@@ -457,7 +491,7 @@
             new CopyTableStructure(Context)
             {
                 Name = "RecreateTempTables",
-                ConnectionString = Configuration.ConnectionString,
+                ConnectionString = ConnectionString,
                 SuppressExistingTransactionScope = true,
                 Configuration = config,
             }.Execute(this);
@@ -465,17 +499,17 @@
 
         private void DropTempTables()
         {
-            var tempTableNames = Configuration.Tables
+            var tempTableNames = Tables
                 .Select(x => x.TempTableName);
 
-            var additionalTempTableNames = Configuration.Tables
+            var additionalTempTableNames = Tables
                 .Where(x => x.AdditionalTables != null)
                 .SelectMany(x => x.AdditionalTables.Select(y => y.TempTableName));
 
             new DropTables(Context)
             {
                 Name = "DropTempTables",
-                ConnectionString = Configuration.ConnectionString,
+                ConnectionString = ConnectionString,
                 TableNames = tempTableNames
                     .Concat(additionalTempTableNames)
                     .ToArray(),

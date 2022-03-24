@@ -52,7 +52,7 @@
                             ProcessCreator = filterRows => new CustomSqlAdoNetDbReader(builder.TableBuilder.ResilientTable.Scope.Context)
                             {
                                 Name = "ExistingRowsReader",
-                                ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
+                                ConnectionString = builder.TableBuilder.ResilientTable.Scope.ConnectionString,
                                 MainTableName = builder.TableBuilder.Table.SchemaAndName,
                                 Sql = "SELECT " + builder.MatchColumns[0].NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)
                                     + "," + string.Join(", ", finalValueColumns.Select(c => c.NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)))
@@ -110,7 +110,7 @@
                         ProcessCreator = filterRows => new CustomSqlAdoNetDbReader(builder.TableBuilder.ResilientTable.Scope.Context)
                         {
                             Name = "ExistingRowsReader",
-                            ConnectionString = builder.TableBuilder.ResilientTable.Scope.Configuration.ConnectionString,
+                            ConnectionString = builder.TableBuilder.ResilientTable.Scope.ConnectionString,
                             MainTableName = builder.TableBuilder.Table.SchemaAndName,
                             Sql = "SELECT " + builder.MatchColumns[0].NameEscaped(builder.TableBuilder.DwhBuilder.ConnectionString)
                                 + " FROM " + builder.TableBuilder.Table.EscapedName(builder.TableBuilder.DwhBuilder.ConnectionString)

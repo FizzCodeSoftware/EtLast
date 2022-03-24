@@ -9,7 +9,7 @@
             return builder.Add(new TruncateTable(builder.Table.Scope.Context)
             {
                 Name = "TruncateTargetTableFinalizer",
-                ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
+                ConnectionString = builder.Table.Scope.ConnectionString,
                 TableName = builder.Table.TableName,
                 CommandTimeout = commandTimeout,
             });
@@ -20,7 +20,7 @@
             return builder.Add(new DeleteTable(builder.Table.Scope.Context)
             {
                 Name = "DeleteTargetTableFinalizer",
-                ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
+                ConnectionString = builder.Table.Scope.ConnectionString,
                 TableName = builder.Table.TableName,
                 CommandTimeout = commandTimeout,
             });
@@ -34,7 +34,7 @@
             return builder.Add(new CopyTableIntoExistingTable(builder.Table.Scope.Context)
             {
                 Name = "CopyTableFinalizer",
-                ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
+                ConnectionString = builder.Table.Scope.ConnectionString,
                 Configuration = new TableCopyConfiguration()
                 {
                     SourceTableName = builder.Table.TempTableName,
@@ -55,7 +55,7 @@
             return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
             {
                 Name = "SimpleMergeFinalizer",
-                ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
+                ConnectionString = builder.Table.Scope.ConnectionString,
                 CommandTimeout = commandTimeout,
                 SourceTableName = builder.Table.TempTableName,
                 TargetTableName = builder.Table.TableName,
@@ -78,7 +78,7 @@
             return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
             {
                 Name = "SimpleMergeFinalizer",
-                ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
+                ConnectionString = builder.Table.Scope.ConnectionString,
                 CommandTimeout = commandTimeout,
                 SourceTableName = builder.Table.TempTableName,
                 TargetTableName = builder.Table.TableName,
@@ -99,7 +99,7 @@
             return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
             {
                 Name = "SimpleMergeUpdateOnlyFinalizer",
-                ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
+                ConnectionString = builder.Table.Scope.ConnectionString,
                 CommandTimeout = commandTimeout,
                 SourceTableName = builder.Table.TempTableName,
                 TargetTableName = builder.Table.TableName,
@@ -117,7 +117,7 @@
             return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
             {
                 Name = "SimpleMergeInsertOnlyFinalizer",
-                ConnectionString = builder.Table.Scope.Configuration.ConnectionString,
+                ConnectionString = builder.Table.Scope.ConnectionString,
                 CommandTimeout = commandTimeout,
                 SourceTableName = builder.Table.TempTableName,
                 TargetTableName = builder.Table.TableName,
@@ -130,14 +130,14 @@
 
         public static ResilientSqlScopeProcessBuilder MsSqlDisableForeignKeys(this ResilientSqlScopeProcessBuilder builder)
         {
-            if (builder.Scope.Configuration.Tables.Count > 1)
+            if (builder.Scope.Tables.Count > 1)
             {
                 builder.Processes.Add(new MsSqlDisableConstraintCheck(builder.Scope.Context)
                 {
                     Name = "disable foreign keys",
-                    ConnectionString = builder.Scope.Configuration.ConnectionString,
-                    TableNames = builder.Scope.Configuration.Tables.Select(x => x.TableName)
-                        .Concat(builder.Scope.Configuration.Tables.Where(x => x.AdditionalTables != null).SelectMany(x => x.AdditionalTables.Select(at => at.TableName)))
+                    ConnectionString = builder.Scope.ConnectionString,
+                    TableNames = builder.Scope.Tables.Select(x => x.TableName)
+                        .Concat(builder.Scope.Tables.Where(x => x.AdditionalTables != null).SelectMany(x => x.AdditionalTables.Select(at => at.TableName)))
                         .ToArray(),
                 });
             }
@@ -147,14 +147,14 @@
 
         public static ResilientSqlScopeProcessBuilder MsSqlEnableForeignKeys(this ResilientSqlScopeProcessBuilder builder)
         {
-            if (builder.Scope.Configuration.Tables.Count > 1)
+            if (builder.Scope.Tables.Count > 1)
             {
                 builder.Processes.Add(new MsSqlEnableConstraintCheck(builder.Scope.Context)
                 {
                     Name = "enable foreign keys",
-                    ConnectionString = builder.Scope.Configuration.ConnectionString,
-                    TableNames = builder.Scope.Configuration.Tables.Select(x => x.TableName)
-                        .Concat(builder.Scope.Configuration.Tables.Where(x => x.AdditionalTables != null).SelectMany(x => x.AdditionalTables.Select(at => at.TableName)))
+                    ConnectionString = builder.Scope.ConnectionString,
+                    TableNames = builder.Scope.Tables.Select(x => x.TableName)
+                        .Concat(builder.Scope.Tables.Where(x => x.AdditionalTables != null).SelectMany(x => x.AdditionalTables.Select(at => at.TableName)))
                         .ToArray(),
                 });
             }

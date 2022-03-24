@@ -49,9 +49,9 @@
         public string TempTableName
         {
             get => _tempTableName
-                ?? (Scope.Configuration.ConnectionString.IsEscaped(TableName)
-                    ? Scope.Configuration.ConnectionString.Escape(Scope.Configuration.AutoTempTablePrefix + Scope.Configuration.ConnectionString.Unescape(TableName) + Scope.Configuration.AutoTempTablePostfix)
-                    : Scope.Configuration.AutoTempTablePrefix + TableName + Scope.Configuration.AutoTempTablePostfix);
+                ?? (Scope.ConnectionString.IsEscaped(TableName)
+                    ? Scope.ConnectionString.Escape(Scope.AutoTempTablePrefix + Scope.ConnectionString.Unescape(TableName) + Scope.AutoTempTablePostfix)
+                    : Scope.AutoTempTablePrefix + TableName + Scope.AutoTempTablePostfix);
             init => _tempTableName = value;
         }
 
