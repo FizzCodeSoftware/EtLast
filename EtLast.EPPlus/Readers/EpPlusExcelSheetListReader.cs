@@ -40,6 +40,9 @@
                 if (stream == null)
                     yield break;
 
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    break;
+
                 ExcelPackage package;
                 try
                 {

@@ -106,11 +106,11 @@
 
             foreach (var stream in StreamProvider.GetStreams(this))
             {
-                if (Context.CancellationTokenSource.IsCancellationRequested)
-                    break;
-
                 if (stream == null)
                     yield break;
+
+                if (Context.CancellationTokenSource.IsCancellationRequested)
+                    break;
 
                 var firstRow = true;
                 var columnNames = ColumnNames;
