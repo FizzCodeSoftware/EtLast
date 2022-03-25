@@ -1,7 +1,6 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+public sealed class TransactionSettings
 {
-    public sealed class TransactionSettings
-    {
-        public int TransactionScopeTimeoutMinutes { get; init; } = 10;
-    }
+    public int TransactionScopeTimeoutMinutes { get; init; } = 10;
 }

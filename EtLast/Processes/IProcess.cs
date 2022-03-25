@@ -1,17 +1,16 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.ComponentModel;
+
+public interface IProcess
 {
-    using System.ComponentModel;
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    ProcessInvocationInfo InvocationInfo { get; set; }
 
-    public interface IProcess
-    {
-        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        ProcessInvocationInfo InvocationInfo { get; set; }
+    IEtlContext Context { get; }
+    string Name { get; }
 
-        IEtlContext Context { get; }
-        string Name { get; }
+    string Kind { get; }
 
-        string Kind { get; }
-
-        string GetTopic();
-    }
+    string GetTopic();
 }

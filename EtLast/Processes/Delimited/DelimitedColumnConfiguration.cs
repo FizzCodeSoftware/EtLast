@@ -1,23 +1,22 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+public class DelimitedColumnConfiguration
 {
-    public class DelimitedColumnConfiguration
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    public string SourceColumn { get; private set; }
+
+    public DelimitedColumnConfiguration FromSource(string sourceColumn)
     {
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public string SourceColumn { get; private set; }
+        SourceColumn = sourceColumn;
+        return this;
+    }
 
-        public DelimitedColumnConfiguration FromSource(string sourceColumn)
-        {
-            SourceColumn = sourceColumn;
-            return this;
-        }
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    public IValueFormatter CustomFormatter { get; set; }
 
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public IValueFormatter CustomFormatter { get; set; }
-
-        public DelimitedColumnConfiguration UseCustomFormatter(IValueFormatter formatter)
-        {
-            CustomFormatter = formatter;
-            return this;
-        }
+    public DelimitedColumnConfiguration UseCustomFormatter(IValueFormatter formatter)
+    {
+        CustomFormatter = formatter;
+        return this;
     }
 }

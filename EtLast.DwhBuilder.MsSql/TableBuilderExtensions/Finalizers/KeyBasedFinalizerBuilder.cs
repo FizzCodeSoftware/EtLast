@@ -1,41 +1,40 @@
-﻿namespace FizzCode.EtLast.DwhBuilder.MsSql
+﻿namespace FizzCode.EtLast.DwhBuilder.MsSql;
+
+using System;
+using System.Linq;
+using FizzCode.LightWeight.RelationalModel;
+
+public class KeyBasedFinalizerBuilder
 {
-    using System;
-    using System.Linq;
-    using FizzCode.LightWeight.RelationalModel;
+    internal DwhTableBuilder TableBuilder { get; }
+    internal RelationalColumn[] MatchColumns { get; private set; }
 
-    public class KeyBasedFinalizerBuilder
+    internal KeyBasedFinalizerBuilder(DwhTableBuilder tableBuilder)
     {
-        internal DwhTableBuilder TableBuilder { get; }
-        internal RelationalColumn[] MatchColumns { get; private set; }
+        TableBuilder = tableBuilder;
+    }
 
-        internal KeyBasedFinalizerBuilder(DwhTableBuilder tableBuilder)
-        {
-            TableBuilder = tableBuilder;
-        }
+    public KeyBasedFinalizerBuilder MatchByPrimaryKey()
+    {
+        if (TableBuilder.Table.PrimaryKeyColumns.Count == 0)
+            throw new NotSupportedException();
 
-        public KeyBasedFinalizerBuilder MatchByPrimaryKey()
-        {
-            if (TableBuilder.Table.PrimaryKeyColumns.Count == 0)
-                throw new NotSupportedException();
+        MatchColumns = TableBuilder.Table.PrimaryKeyColumns
+            .ToArray();
 
-            MatchColumns = TableBuilder.Table.PrimaryKeyColumns
-                .ToArray();
+        return this;
+    }
 
-            return this;
-        }
+    public KeyBasedFinalizerBuilder MatchBySpecificColumns(params RelationalColumn[] matchColumns)
+    {
+        MatchColumns = matchColumns;
+        return this;
+    }
 
-        public KeyBasedFinalizerBuilder MatchBySpecificColumns(params RelationalColumn[] matchColumns)
-        {
-            MatchColumns = matchColumns;
-            return this;
-        }
-
-        public KeyBasedFinalizerBuilder MatchBySpecificColumns(params string[] matchColumns)
-        {
-            return MatchBySpecificColumns(matchColumns
-                .Select(x => TableBuilder.Table[x])
-                .ToArray());
-        }
+    public KeyBasedFinalizerBuilder MatchBySpecificColumns(params string[] matchColumns)
+    {
+        return MatchBySpecificColumns(matchColumns
+            .Select(x => TableBuilder.Table[x])
+            .ToArray());
     }
 }

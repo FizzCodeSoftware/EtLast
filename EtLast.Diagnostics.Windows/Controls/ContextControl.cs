@@ -1,75 +1,74 @@
-﻿namespace FizzCode.EtLast.Diagnostics.Windows
+﻿namespace FizzCode.EtLast.Diagnostics.Windows;
+
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+using FizzCode.EtLast.Diagnostics.Interface;
+
+internal class ContextControl
 {
-    using System;
-    using System.Drawing;
-    using System.Windows.Forms;
-    using FizzCode.EtLast.Diagnostics.Interface;
+    public DiagContext Context { get; }
+    public Control Container { get; }
+    public ContextProcessInvocationListControl ProcessInvocationList { get; }
+    public ContextIoCommandListControl IoCommandList { get; }
+    public ContextSinkListControl SinkList { get; }
 
-    internal class ContextControl
+    public ContextControl(DiagContext context, Control container)
     {
-        public DiagContext Context { get; }
-        public Control Container { get; }
-        public ContextProcessInvocationListControl ProcessInvocationList { get; }
-        public ContextIoCommandListControl IoCommandList { get; }
-        public ContextSinkListControl SinkList { get; }
+        Context = context;
+        Container = container;
+        Container.SuspendLayout();
 
-        public ContextControl(DiagContext context, Control container)
+        try
         {
-            Context = context;
-            Container = container;
-            Container.SuspendLayout();
+            ProcessInvocationList = new ContextProcessInvocationListControl(container, context);
 
-            try
+            var ioCommandListContainer = new Panel()
             {
-                ProcessInvocationList = new ContextProcessInvocationListControl(container, context);
+                Parent = container,
+                BorderStyle = BorderStyle.FixedSingle,
+            };
 
-                var ioCommandListContainer = new Panel()
-                {
-                    Parent = container,
-                    BorderStyle = BorderStyle.FixedSingle,
-                };
-
-                IoCommandList = new ContextIoCommandListControl(ioCommandListContainer, context)
-                {
-                    LinkedProcessInvocationList = ProcessInvocationList,
-                };
-
-                var sinkListContainer = new Panel()
-                {
-                    Parent = container,
-                    BorderStyle = BorderStyle.FixedSingle,
-                    Width = 300,
-                };
-
-                SinkList = new ContextSinkListControl(sinkListContainer, context);
-
-                ProcessInvocationList.OnSelectionChanged += ProcessInvocationList_OnSelectionChanged;
-
-                container.Resize += Container_Resize;
-                Container_Resize(null, EventArgs.Empty);
-            }
-            finally
+            IoCommandList = new ContextIoCommandListControl(ioCommandListContainer, context)
             {
-                Container.ResumeLayout();
-            }
-        }
+                LinkedProcessInvocationList = ProcessInvocationList,
+            };
 
-        private void ProcessInvocationList_OnSelectionChanged(TrackedProcessInvocation process)
+            var sinkListContainer = new Panel()
+            {
+                Parent = container,
+                BorderStyle = BorderStyle.FixedSingle,
+                Width = 300,
+            };
+
+            SinkList = new ContextSinkListControl(sinkListContainer, context);
+
+            ProcessInvocationList.OnSelectionChanged += ProcessInvocationList_OnSelectionChanged;
+
+            container.Resize += Container_Resize;
+            Container_Resize(null, EventArgs.Empty);
+        }
+        finally
         {
-            IoCommandList.HighlightedProcess = process;
+            Container.ResumeLayout();
         }
+    }
 
-        private void Container_Resize(object sender, EventArgs e)
-        {
-            var cr = Container.ClientRectangle;
-            var y = cr.Top;
-            var h = cr.Height / 2;
-            ProcessInvocationList.ListView.Bounds = new Rectangle(cr.Left, y, cr.Width, h);
+    private void ProcessInvocationList_OnSelectionChanged(TrackedProcessInvocation process)
+    {
+        IoCommandList.HighlightedProcess = process;
+    }
 
-            y = ProcessInvocationList.ListView.Bottom;
-            h = cr.Height - y;
-            SinkList.Container.Bounds = new Rectangle(cr.Left, y, SinkList.Container.Width, h);
-            IoCommandList.Container.Bounds = new Rectangle(SinkList.Container.Right, ProcessInvocationList.ListView.Bottom, cr.Width - SinkList.Container.Width, h);
-        }
+    private void Container_Resize(object sender, EventArgs e)
+    {
+        var cr = Container.ClientRectangle;
+        var y = cr.Top;
+        var h = cr.Height / 2;
+        ProcessInvocationList.ListView.Bounds = new Rectangle(cr.Left, y, cr.Width, h);
+
+        y = ProcessInvocationList.ListView.Bottom;
+        h = cr.Height - y;
+        SinkList.Container.Bounds = new Rectangle(cr.Left, y, SinkList.Container.Width, h);
+        IoCommandList.Container.Bounds = new Rectangle(SinkList.Container.Right, ProcessInvocationList.ListView.Bottom, cr.Width - SinkList.Container.Width, h);
     }
 }

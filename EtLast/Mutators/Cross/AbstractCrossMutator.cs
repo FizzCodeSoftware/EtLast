@@ -1,23 +1,22 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.ComponentModel;
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public abstract class AbstractCrossMutator : AbstractMutator
 {
-    using System.ComponentModel;
+    public RowLookupBuilder LookupBuilder { get; init; }
 
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class AbstractCrossMutator : AbstractMutator
+    protected AbstractCrossMutator(IEtlContext context)
+        : base(context)
     {
-        public RowLookupBuilder LookupBuilder { get; init; }
+    }
 
-        protected AbstractCrossMutator(IEtlContext context)
-            : base(context)
-        {
-        }
+    protected override void ValidateMutator()
+    {
+        base.ValidateMutator();
 
-        protected override void ValidateMutator()
-        {
-            base.ValidateMutator();
-
-            if (LookupBuilder == null)
-                throw new ProcessParameterNullException(this, nameof(LookupBuilder));
-        }
+        if (LookupBuilder == null)
+            throw new ProcessParameterNullException(this, nameof(LookupBuilder));
     }
 }

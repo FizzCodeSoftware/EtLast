@@ -1,6 +1,5 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+public interface IEtlFlow : IEtlTask
 {
-    public interface IEtlFlow : IEtlTask
-    {
-    }
 }

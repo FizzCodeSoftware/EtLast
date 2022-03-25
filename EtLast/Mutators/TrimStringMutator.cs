@@ -1,69 +1,68 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.Collections.Generic;
+using System.ComponentModel;
+
+public sealed class TrimStringMutator : AbstractSimpleChangeMutator
 {
-    using System.Collections.Generic;
-    using System.ComponentModel;
+    public string[] Columns { get; init; }
 
-    public sealed class TrimStringMutator : AbstractSimpleChangeMutator
+    public TrimStringMutator(IEtlContext context)
+        : base(context)
     {
-        public string[] Columns { get; init; }
-
-        public TrimStringMutator(IEtlContext context)
-            : base(context)
-        {
-        }
-
-        protected override IEnumerable<IRow> MutateRow(IRow row)
-        {
-            Changes.Clear();
-
-            if (Columns != null)
-            {
-                foreach (var column in Columns)
-                {
-                    if (row[column] is string str && !string.IsNullOrEmpty(str))
-                    {
-                        var trimmed = str.Trim();
-                        if (trimmed != str)
-                        {
-                            Changes.Add(new KeyValuePair<string, object>(column, trimmed));
-                        }
-                    }
-                }
-            }
-            else
-            {
-                foreach (var kvp in row.Values)
-                {
-                    if (kvp.Value is string str && !string.IsNullOrEmpty(str))
-                    {
-                        var trimmed = str.Trim();
-                        if (trimmed != str)
-                        {
-                            Changes.Add(new KeyValuePair<string, object>(kvp.Key, trimmed));
-                        }
-                    }
-                }
-            }
-
-            row.MergeWith(Changes);
-            yield return row;
-        }
     }
 
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public static class TrimStringMutatorFluent
+    protected override IEnumerable<IRow> MutateRow(IRow row)
     {
-        public static IFluentProcessMutatorBuilder TrimString(this IFluentProcessMutatorBuilder builder, TrimStringMutator mutator)
+        Changes.Clear();
+
+        if (Columns != null)
         {
-            return builder.AddMutator(mutator);
+            foreach (var column in Columns)
+            {
+                if (row[column] is string str && !string.IsNullOrEmpty(str))
+                {
+                    var trimmed = str.Trim();
+                    if (trimmed != str)
+                    {
+                        Changes.Add(new KeyValuePair<string, object>(column, trimmed));
+                    }
+                }
+            }
+        }
+        else
+        {
+            foreach (var kvp in row.Values)
+            {
+                if (kvp.Value is string str && !string.IsNullOrEmpty(str))
+                {
+                    var trimmed = str.Trim();
+                    if (trimmed != str)
+                    {
+                        Changes.Add(new KeyValuePair<string, object>(kvp.Key, trimmed));
+                    }
+                }
+            }
         }
 
-        public static IFluentProcessMutatorBuilder TrimString(this IFluentProcessMutatorBuilder builder, params string[] columns)
+        row.MergeWith(Changes);
+        yield return row;
+    }
+}
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class TrimStringMutatorFluent
+{
+    public static IFluentProcessMutatorBuilder TrimString(this IFluentProcessMutatorBuilder builder, TrimStringMutator mutator)
+    {
+        return builder.AddMutator(mutator);
+    }
+
+    public static IFluentProcessMutatorBuilder TrimString(this IFluentProcessMutatorBuilder builder, params string[] columns)
+    {
+        return builder.AddMutator(new TrimStringMutator(builder.ProcessBuilder.Result.Context)
         {
-            return builder.AddMutator(new TrimStringMutator(builder.ProcessBuilder.Result.Context)
-            {
-                Columns = columns,
-            });
-        }
+            Columns = columns,
+        });
     }
 }

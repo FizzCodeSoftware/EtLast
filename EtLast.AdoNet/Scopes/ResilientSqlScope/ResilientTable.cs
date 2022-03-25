@@ -1,61 +1,60 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using FizzCode.LightWeight.AdoNet;
+
+public delegate IProducer ResilientTablePartitionedMainProcessCreatorDelegate(ResilientTable table, int partitionIndex);
+public delegate IEnumerable<IExecutable> ResilientTableMainProcessCreatorDelegate(ResilientTable table);
+public delegate IEnumerable<IExecutable> ResilientSqlScopeFinalizerCreatorDelegate(ResilientTableBase table);
+
+[DebuggerDisplay("{TableName}")]
+public sealed class ResilientTable : ResilientTableBase
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using FizzCode.LightWeight.AdoNet;
+    /// <summary>
+    /// Setting this to true forces the scope to suppress the ambient transaction scope while calling the process- and finalizer creator delegates. Default value is false.
+    /// </summary>
+    public bool SuppressTransactionScopeForCreators { get; set; }
 
-    public delegate IProducer ResilientTablePartitionedMainProcessCreatorDelegate(ResilientTable table, int partitionIndex);
-    public delegate IEnumerable<IExecutable> ResilientTableMainProcessCreatorDelegate(ResilientTable table);
-    public delegate IEnumerable<IExecutable> ResilientSqlScopeFinalizerCreatorDelegate(ResilientTableBase table);
+    public ResilientTablePartitionedMainProcessCreatorDelegate PartitionedMainProcessCreator { get; set; }
+    public ResilientTableMainProcessCreatorDelegate MainProcessCreator { get; set; }
 
-    [DebuggerDisplay("{TableName}")]
-    public sealed class ResilientTable : ResilientTableBase
+    /// <summary>
+    /// Default true. Skips finalizers for main table and all additional tables if the sum record count of the main temp table PLUS in all temp tables is zero.
+    /// </summary>
+    public bool SkipFinalizersIfNoTempData { get; set; } = true;
+
+    /// <summary>
+    /// Default 0.
+    /// </summary>
+    public int OrderDuringFinalization { get; set; }
+
+    public List<ResilientTableBase> AdditionalTables { get; set; }
+
+    public AdditionalData AdditionalData { get; set; }
+
+    public ResilientTableBase GetAdditionalTable(string tableName)
     {
-        /// <summary>
-        /// Setting this to true forces the scope to suppress the ambient transaction scope while calling the process- and finalizer creator delegates. Default value is false.
-        /// </summary>
-        public bool SuppressTransactionScopeForCreators { get; set; }
+        return AdditionalTables.Find(x => string.Equals(x.TableName, tableName, StringComparison.InvariantCultureIgnoreCase));
+    }
+}
 
-        public ResilientTablePartitionedMainProcessCreatorDelegate PartitionedMainProcessCreator { get; set; }
-        public ResilientTableMainProcessCreatorDelegate MainProcessCreator { get; set; }
+public class ResilientTableBase
+{
+    public ResilientSqlScope Scope { get; internal set; }
 
-        /// <summary>
-        /// Default true. Skips finalizers for main table and all additional tables if the sum record count of the main temp table PLUS in all temp tables is zero.
-        /// </summary>
-        public bool SkipFinalizersIfNoTempData { get; set; } = true;
+    public string TableName { get; init; }
 
-        /// <summary>
-        /// Default 0.
-        /// </summary>
-        public int OrderDuringFinalization { get; set; }
-
-        public List<ResilientTableBase> AdditionalTables { get; set; }
-
-        public AdditionalData AdditionalData { get; set; }
-
-        public ResilientTableBase GetAdditionalTable(string tableName)
-        {
-            return AdditionalTables.Find(x => string.Equals(x.TableName, tableName, StringComparison.InvariantCultureIgnoreCase));
-        }
+    private string _tempTableName;
+    public string TempTableName
+    {
+        get => _tempTableName
+            ?? Scope.ConnectionString.ChangeObjectIdentifier(TableName, Scope.AutoTempTablePrefix + Scope.ConnectionString.Unescape(Scope.ConnectionString.GetObjectIdentifier(TableName)) + Scope.AutoTempTablePostfix);
+        init => _tempTableName = value;
     }
 
-    public class ResilientTableBase
-    {
-        public ResilientSqlScope Scope { get; internal set; }
+    public string[] Columns { get; init; }
 
-        public string TableName { get; init; }
-
-        private string _tempTableName;
-        public string TempTableName
-        {
-            get => _tempTableName
-                ?? Scope.ConnectionString.ChangeObjectIdentifier(TableName, Scope.AutoTempTablePrefix + Scope.ConnectionString.Unescape(Scope.ConnectionString.GetObjectIdentifier(TableName)) + Scope.AutoTempTablePostfix);
-            init => _tempTableName = value;
-        }
-
-        public string[] Columns { get; init; }
-
-        public Action<ResilientSqlTableTableFinalizerBuilder> Finalizers { get; set; }
-    }
+    public Action<ResilientSqlTableTableFinalizerBuilder> Finalizers { get; set; }
 }

@@ -1,55 +1,54 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.Collections.Generic;
+using System.ComponentModel;
+
+public sealed class ReplaceErrorWithValueMutator : AbstractSimpleChangeMutator
 {
-    using System.Collections.Generic;
-    using System.ComponentModel;
+    public string[] Columns { get; init; }
+    public object Value { get; init; }
 
-    public sealed class ReplaceErrorWithValueMutator : AbstractSimpleChangeMutator
+    public ReplaceErrorWithValueMutator(IEtlContext context)
+        : base(context)
     {
-        public string[] Columns { get; init; }
-        public object Value { get; init; }
-
-        public ReplaceErrorWithValueMutator(IEtlContext context)
-            : base(context)
-        {
-        }
-
-        protected override IEnumerable<IRow> MutateRow(IRow row)
-        {
-            Changes.Clear();
-
-            if (Columns != null)
-            {
-                foreach (var column in Columns)
-                {
-                    if (row[column] is EtlRowError)
-                    {
-                        Changes.Add(new KeyValuePair<string, object>(column, Value));
-                    }
-                }
-            }
-            else
-            {
-                foreach (var kvp in row.Values)
-                {
-                    if (kvp.Value is EtlRowError)
-                    {
-                        Changes.Add(new KeyValuePair<string, object>(kvp.Key, Value));
-                    }
-                }
-            }
-
-            row.MergeWith(Changes);
-
-            yield return row;
-        }
     }
 
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public static class ReplaceErrorWithValueMutatorFluent
+    protected override IEnumerable<IRow> MutateRow(IRow row)
     {
-        public static IFluentProcessMutatorBuilder ReplaceErrorWithValue(this IFluentProcessMutatorBuilder builder, ReplaceErrorWithValueMutator mutator)
+        Changes.Clear();
+
+        if (Columns != null)
         {
-            return builder.AddMutator(mutator);
+            foreach (var column in Columns)
+            {
+                if (row[column] is EtlRowError)
+                {
+                    Changes.Add(new KeyValuePair<string, object>(column, Value));
+                }
+            }
         }
+        else
+        {
+            foreach (var kvp in row.Values)
+            {
+                if (kvp.Value is EtlRowError)
+                {
+                    Changes.Add(new KeyValuePair<string, object>(kvp.Key, Value));
+                }
+            }
+        }
+
+        row.MergeWith(Changes);
+
+        yield return row;
+    }
+}
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class ReplaceErrorWithValueMutatorFluent
+{
+    public static IFluentProcessMutatorBuilder ReplaceErrorWithValue(this IFluentProcessMutatorBuilder builder, ReplaceErrorWithValueMutator mutator)
+    {
+        return builder.AddMutator(mutator);
     }
 }

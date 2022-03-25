@@ -1,9 +1,8 @@
-﻿namespace FizzCode.EtLast
-{
-    using System.Collections.Generic;
+﻿namespace FizzCode.EtLast;
 
-    public interface IMerger : IProducer
-    {
-        List<IProducer> ProcessList { get; set; }
-    }
+using System.Collections.Generic;
+
+public interface IMerger : IProducer
+{
+    List<IProducer> ProcessList { get; set; }
 }

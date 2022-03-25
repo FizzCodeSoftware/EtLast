@@ -1,9 +1,8 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+public interface ISlimRow : IReadOnlySlimRow
 {
-    public interface ISlimRow : IReadOnlySlimRow
-    {
-        new object this[string column] { get; set; }
-        new object Tag { get; set; }
-        void Clear();
-    }
+    new object this[string column] { get; set; }
+    new object Tag { get; set; }
+    void Clear();
 }

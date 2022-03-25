@@ -1,36 +1,35 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.ComponentModel;
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public abstract class AbstractMemoryAggregationMutator : AbstractAggregationMutator
 {
-    using System.ComponentModel;
+    private IMemoryAggregationOperation _operation;
 
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class AbstractMemoryAggregationMutator : AbstractAggregationMutator
+    public IMemoryAggregationOperation Operation
     {
-        private IMemoryAggregationOperation _operation;
-
-        public IMemoryAggregationOperation Operation
+        get => _operation;
+        init
         {
-            get => _operation;
-            init
-            {
-                //_operation?.SetProcess(null);
+            //_operation?.SetProcess(null);
 
-                _operation = value;
-                _operation.SetProcess(this);
-            }
+            _operation = value;
+            _operation.SetProcess(this);
         }
+    }
 
-        protected AbstractMemoryAggregationMutator(IEtlContext context)
-            : base(context)
-        {
-        }
+    protected AbstractMemoryAggregationMutator(IEtlContext context)
+        : base(context)
+    {
+    }
 
-        protected override void ValidateImpl()
-        {
-            if (KeyGenerator == null)
-                throw new ProcessParameterNullException(this, nameof(KeyGenerator));
+    protected override void ValidateImpl()
+    {
+        if (KeyGenerator == null)
+            throw new ProcessParameterNullException(this, nameof(KeyGenerator));
 
-            if (Operation == null)
-                throw new ProcessParameterNullException(this, nameof(Operation));
-        }
+        if (Operation == null)
+            throw new ProcessParameterNullException(this, nameof(Operation));
     }
 }

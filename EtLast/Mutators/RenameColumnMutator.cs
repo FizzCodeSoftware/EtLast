@@ -1,91 +1,90 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.Collections.Generic;
+using System.ComponentModel;
+
+public enum ColumnAlreadyExistsAction
 {
-    using System.Collections.Generic;
-    using System.ComponentModel;
+    Skip,
+    RemoveRow,
+    Throw
+}
 
-    public enum ColumnAlreadyExistsAction
+public sealed class RenameColumnMutator : AbstractSimpleChangeMutator
+{
+    /// <summary>
+    /// Key is current name, Value is new name.
+    /// </summary>
+    public Dictionary<string, string> Columns { get; init; }
+
+    /// <summary>
+    /// Default value is <see cref="ColumnAlreadyExistsAction.Throw"/>
+    /// </summary>
+    public ColumnAlreadyExistsAction ActionIfTargetValueExists { get; init; } = ColumnAlreadyExistsAction.Throw;
+
+    public RenameColumnMutator(IEtlContext context)
+        : base(context)
     {
-        Skip,
-        RemoveRow,
-        Throw
     }
 
-    public sealed class RenameColumnMutator : AbstractSimpleChangeMutator
+    protected override IEnumerable<IRow> MutateRow(IRow row)
     {
-        /// <summary>
-        /// Key is current name, Value is new name.
-        /// </summary>
-        public Dictionary<string, string> Columns { get; init; }
+        Changes.Clear();
 
-        /// <summary>
-        /// Default value is <see cref="ColumnAlreadyExistsAction.Throw"/>
-        /// </summary>
-        public ColumnAlreadyExistsAction ActionIfTargetValueExists { get; init; } = ColumnAlreadyExistsAction.Throw;
-
-        public RenameColumnMutator(IEtlContext context)
-            : base(context)
+        var removeRow = false;
+        foreach (var kvp in Columns)
         {
-        }
-
-        protected override IEnumerable<IRow> MutateRow(IRow row)
-        {
-            Changes.Clear();
-
-            var removeRow = false;
-            foreach (var kvp in Columns)
+            if (row.HasValue(kvp.Value))
             {
-                if (row.HasValue(kvp.Value))
+                switch (ActionIfTargetValueExists)
                 {
-                    switch (ActionIfTargetValueExists)
-                    {
-                        case ColumnAlreadyExistsAction.RemoveRow:
-                            removeRow = true;
-                            continue;
-                        case ColumnAlreadyExistsAction.Skip:
-                            continue;
-                        case ColumnAlreadyExistsAction.Throw:
-                            var exception = new ColumnRenameException(this, row, kvp.Key, kvp.Value);
-                            throw exception;
-                    }
+                    case ColumnAlreadyExistsAction.RemoveRow:
+                        removeRow = true;
+                        continue;
+                    case ColumnAlreadyExistsAction.Skip:
+                        continue;
+                    case ColumnAlreadyExistsAction.Throw:
+                        var exception = new ColumnRenameException(this, row, kvp.Key, kvp.Value);
+                        throw exception;
                 }
-
-                var value = row[kvp.Key];
-                Changes.Add(new KeyValuePair<string, object>(kvp.Key, null));
-                Changes.Add(new KeyValuePair<string, object>(kvp.Value, value));
             }
 
-            if (!removeRow)
-            {
-                row.MergeWith(Changes);
-                yield return row;
-            }
+            var value = row[kvp.Key];
+            Changes.Add(new KeyValuePair<string, object>(kvp.Key, null));
+            Changes.Add(new KeyValuePair<string, object>(kvp.Value, value));
         }
 
-        protected override void ValidateMutator()
+        if (!removeRow)
         {
-            if (Columns == null)
-                throw new ProcessParameterNullException(this, nameof(Columns));
+            row.MergeWith(Changes);
+            yield return row;
         }
     }
 
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public static class RenameColumnMutatorFluent
+    protected override void ValidateMutator()
     {
-        public static IFluentProcessMutatorBuilder RenameColumn(this IFluentProcessMutatorBuilder builder, RenameColumnMutator mutator)
-        {
-            return builder.AddMutator(mutator);
-        }
+        if (Columns == null)
+            throw new ProcessParameterNullException(this, nameof(Columns));
+    }
+}
 
-        public static IFluentProcessMutatorBuilder RenameColumn(this IFluentProcessMutatorBuilder builder, string currentName, string newName)
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class RenameColumnMutatorFluent
+{
+    public static IFluentProcessMutatorBuilder RenameColumn(this IFluentProcessMutatorBuilder builder, RenameColumnMutator mutator)
+    {
+        return builder.AddMutator(mutator);
+    }
+
+    public static IFluentProcessMutatorBuilder RenameColumn(this IFluentProcessMutatorBuilder builder, string currentName, string newName)
+    {
+        return builder.AddMutator(new RenameColumnMutator(builder.ProcessBuilder.Result.Context)
         {
-            return builder.AddMutator(new RenameColumnMutator(builder.ProcessBuilder.Result.Context)
+            Name = nameof(RenameColumn) + "From" + currentName + "To" + newName,
+            Columns = new()
             {
-                Name = nameof(RenameColumn) + "From" + currentName + "To" + newName,
-                Columns = new()
-                {
-                    [currentName] = newName,
-                }
-            });
-        }
+                [currentName] = newName,
+            }
+        });
     }
 }

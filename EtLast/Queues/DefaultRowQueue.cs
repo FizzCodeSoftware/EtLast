@@ -1,86 +1,85 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading;
+
+public sealed class DefaultRowQueue : IRowQueue
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Threading;
+    private readonly AutoResetEvent _newRowEvent = new(false);
+    private readonly ManualResetEvent _noMoreRowsEvent = new(false);
+    private readonly ConcurrentQueue<IRow> _queue = new();
 
-    public sealed class DefaultRowQueue : IRowQueue
+    public void AddRow(IRow row)
     {
-        private readonly AutoResetEvent _newRowEvent = new(false);
-        private readonly ManualResetEvent _noMoreRowsEvent = new(false);
-        private readonly ConcurrentQueue<IRow> _queue = new();
+        _queue.Enqueue(row);
+        _newRowEvent.Set();
+    }
 
-        public void AddRow(IRow row)
+    public void AddRowNoSignal(IRow row)
+    {
+        _queue.Enqueue(row);
+    }
+
+    public void Signal()
+    {
+        _newRowEvent.Set();
+    }
+
+    public void SignalNoMoreRows()
+    {
+        _noMoreRowsEvent.Set();
+    }
+
+    public IEnumerable<IRow> GetConsumer(CancellationToken token)
+    {
+        var waitHandles = new[] { token.WaitHandle, _newRowEvent, _noMoreRowsEvent };
+
+        while (true)
         {
-            _queue.Enqueue(row);
-            _newRowEvent.Set();
-        }
+            if (token.IsCancellationRequested)
+                yield break;
 
-        public void AddRowNoSignal(IRow row)
-        {
-            _queue.Enqueue(row);
-        }
-
-        public void Signal()
-        {
-            _newRowEvent.Set();
-        }
-
-        public void SignalNoMoreRows()
-        {
-            _noMoreRowsEvent.Set();
-        }
-
-        public IEnumerable<IRow> GetConsumer(CancellationToken token)
-        {
-            var waitHandles = new[] { token.WaitHandle, _newRowEvent, _noMoreRowsEvent };
-
-            while (true)
+            IRow row;
+            while (!_queue.TryDequeue(out row))
             {
+                WaitHandle.WaitAny(waitHandles);
                 if (token.IsCancellationRequested)
                     yield break;
 
-                IRow row;
-                while (!_queue.TryDequeue(out row))
+                if (_noMoreRowsEvent.WaitOne(0))
                 {
-                    WaitHandle.WaitAny(waitHandles);
-                    if (token.IsCancellationRequested)
-                        yield break;
+                    while (_queue.TryDequeue(out row))
+                        yield return row;
 
-                    if (_noMoreRowsEvent.WaitOne(0))
-                    {
-                        while (_queue.TryDequeue(out row))
-                            yield return row;
-
-                        yield break;
-                    }
+                    yield break;
                 }
-
-                yield return row;
             }
+
+            yield return row;
         }
+    }
 
-        private bool disposedValue;
+    private bool disposedValue;
 
-        public void Dispose(bool disposing)
+    public void Dispose(bool disposing)
+    {
+        if (!disposedValue)
         {
-            if (!disposedValue)
+            if (disposing)
             {
-                if (disposing)
-                {
-                    _newRowEvent.Dispose();
-                    _noMoreRowsEvent.Dispose();
-                }
-
-                disposedValue = true;
+                _newRowEvent.Dispose();
+                _noMoreRowsEvent.Dispose();
             }
-        }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            disposedValue = true;
         }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }

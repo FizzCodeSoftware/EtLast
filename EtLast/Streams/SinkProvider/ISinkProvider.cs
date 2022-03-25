@@ -1,9 +1,8 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+public interface ISinkProvider
 {
-    public interface ISinkProvider
-    {
-        public void Validate(IProcess caller);
-        public NamedSink GetSink(IProcess caller, string partitionKey);
-        public bool AutomaticallyDispose { get; }
-    }
+    public void Validate(IProcess caller);
+    public NamedSink GetSink(IProcess caller, string partitionKey);
+    public bool AutomaticallyDispose { get; }
 }

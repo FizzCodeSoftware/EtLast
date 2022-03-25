@@ -1,8 +1,7 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+public interface IFluentProcessBuilder : IProcessBuilder
 {
-    public interface IFluentProcessBuilder : IProcessBuilder
-    {
-        IProducer Result { get; set; }
-        IFluentProcessMutatorBuilder ReadFrom(IProducer process);
-    }
+    IProducer Result { get; set; }
+    IFluentProcessMutatorBuilder ReadFrom(IProducer process);
 }

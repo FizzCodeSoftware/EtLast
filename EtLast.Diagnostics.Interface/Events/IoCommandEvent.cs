@@ -1,7 +1,6 @@
-﻿namespace FizzCode.EtLast.Diagnostics.Interface
+﻿namespace FizzCode.EtLast.Diagnostics.Interface;
+
+public abstract class IoCommandEvent : AbstractEvent
 {
-    public abstract class IoCommandEvent : AbstractEvent
-    {
-        public int Uid { get; set; }
-    }
+    public int Uid { get; set; }
 }

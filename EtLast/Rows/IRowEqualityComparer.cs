@@ -1,7 +1,6 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+public interface IRowEqualityComparer
 {
-    public interface IRowEqualityComparer
-    {
-        bool Equals(IReadOnlySlimRow leftRow, IReadOnlySlimRow rightRow);
-    }
+    bool Equals(IReadOnlySlimRow leftRow, IReadOnlySlimRow rightRow);
 }

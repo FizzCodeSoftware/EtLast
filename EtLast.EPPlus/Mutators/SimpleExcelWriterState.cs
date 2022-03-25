@@ -1,8 +1,7 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+public class SimpleExcelWriterState : BaseExcelWriterState
 {
-    public class SimpleExcelWriterState : BaseExcelWriterState
-    {
-        public int NextRow { get; set; } = 1;
-        public int NextCol { get; set; } = 1;
-    }
+    public int NextRow { get; set; } = 1;
+    public int NextCol { get; set; } = 1;
 }

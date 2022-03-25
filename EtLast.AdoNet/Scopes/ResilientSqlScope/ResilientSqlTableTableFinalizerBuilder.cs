@@ -1,16 +1,15 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.Collections.Generic;
+
+public sealed class ResilientSqlTableTableFinalizerBuilder
 {
-    using System.Collections.Generic;
+    public ResilientTableBase Table { get; init; }
+    public List<IExecutable> Finalizers { get; } = new List<IExecutable>();
 
-    public sealed class ResilientSqlTableTableFinalizerBuilder
+    public ResilientSqlTableTableFinalizerBuilder Add(IExecutable process)
     {
-        public ResilientTableBase Table { get; init; }
-        public List<IExecutable> Finalizers { get; } = new List<IExecutable>();
-
-        public ResilientSqlTableTableFinalizerBuilder Add(IExecutable process)
-        {
-            Finalizers.Add(process);
-            return this;
-        }
+        Finalizers.Add(process);
+        return this;
     }
 }

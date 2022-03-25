@@ -1,28 +1,27 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.Collections.Generic;
+using System.ComponentModel;
+
+public sealed class RemoveRowWithErrorMutator : AbstractMutator
 {
-    using System.Collections.Generic;
-    using System.ComponentModel;
-
-    public sealed class RemoveRowWithErrorMutator : AbstractMutator
+    public RemoveRowWithErrorMutator(IEtlContext context)
+        : base(context)
     {
-        public RemoveRowWithErrorMutator(IEtlContext context)
-            : base(context)
-        {
-        }
-
-        protected override IEnumerable<IRow> MutateRow(IRow row)
-        {
-            if (!row.HasError())
-                yield return row;
-        }
     }
 
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public static class RemoveRowWithErrorMutatorFluent
+    protected override IEnumerable<IRow> MutateRow(IRow row)
     {
-        public static IFluentProcessMutatorBuilder RemoveRow(this IFluentProcessMutatorBuilder builder, RemoveRowWithErrorMutator mutator)
-        {
-            return builder.AddMutator(mutator);
-        }
+        if (!row.HasError())
+            yield return row;
+    }
+}
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class RemoveRowWithErrorMutatorFluent
+{
+    public static IFluentProcessMutatorBuilder RemoveRow(this IFluentProcessMutatorBuilder builder, RemoveRowWithErrorMutator mutator)
+    {
+        return builder.AddMutator(mutator);
     }
 }

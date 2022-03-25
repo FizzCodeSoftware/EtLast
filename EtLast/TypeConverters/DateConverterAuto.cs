@@ -1,45 +1,44 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+using System.Globalization;
+
+public class DateConverterAuto : DateConverter
 {
-    using System;
-    using System.Globalization;
+    public string Format { get; }
+    public IFormatProvider FormatProvider { get; }
+    public DateTimeStyles DateTimeStyles { get; }
 
-    public class DateConverterAuto : DateConverter
+    public DateConverterAuto(IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces)
     {
-        public string Format { get; }
-        public IFormatProvider FormatProvider { get; }
-        public DateTimeStyles DateTimeStyles { get; }
+        FormatProvider = formatProvider;
+        DateTimeStyles = dateTimeStyles;
+    }
 
-        public DateConverterAuto(IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces)
-        {
-            FormatProvider = formatProvider;
-            DateTimeStyles = dateTimeStyles;
-        }
+    public DateConverterAuto(string format, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces)
+    {
+        Format = format;
+        FormatProvider = formatProvider;
+        DateTimeStyles = dateTimeStyles;
+    }
 
-        public DateConverterAuto(string format, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces)
+    public override object Convert(object source)
+    {
+        if (source is string str)
         {
-            Format = format;
-            FormatProvider = formatProvider;
-            DateTimeStyles = dateTimeStyles;
-        }
-
-        public override object Convert(object source)
-        {
-            if (source is string str)
+            if (Format != null)
             {
-                if (Format != null)
-                {
-                    if (DateTime.TryParseExact(str, Format, FormatProvider, DateTimeStyles, out var value))
-                    {
-                        return value.Date;
-                    }
-                }
-                else if (DateTime.TryParse(str, FormatProvider, DateTimeStyles, out var value))
+                if (DateTime.TryParseExact(str, Format, FormatProvider, DateTimeStyles, out var value))
                 {
                     return value.Date;
                 }
             }
-
-            return base.Convert(source);
+            else if (DateTime.TryParse(str, FormatProvider, DateTimeStyles, out var value))
+            {
+                return value.Date;
+            }
         }
+
+        return base.Convert(source);
     }
 }

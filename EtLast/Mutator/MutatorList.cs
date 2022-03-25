@@ -1,16 +1,15 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.Collections.Generic;
+
+public sealed class MutatorList : List<IEnumerable<IMutator>>
 {
-    using System.Collections.Generic;
-
-    public sealed class MutatorList : List<IEnumerable<IMutator>>
+    public MutatorList()
     {
-        public MutatorList()
-        {
-        }
+    }
 
-        public MutatorList(IEnumerable<IEnumerable<IMutator>> collection)
-            : base(collection)
-        {
-        }
+    public MutatorList(IEnumerable<IEnumerable<IMutator>> collection)
+        : base(collection)
+    {
     }
 }

@@ -1,148 +1,147 @@
 ﻿#pragma warning disable CA2213 // Disposable fields should be disposed
-namespace FizzCode.EtLast.Diagnostics.Windows
+namespace FizzCode.EtLast.Diagnostics.Windows;
+
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Windows.Forms;
+using FizzCode.EtLast.Diagnostics.Interface;
+
+public partial class MainForm : Form
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Drawing;
-    using System.Linq;
-    using System.Windows.Forms;
-    using FizzCode.EtLast.Diagnostics.Interface;
+    private readonly TabControl _sessionTabs;
+    private readonly DiagnosticsStateManager _stateManager;
+    private readonly Dictionary<string, SessionControl> _sessionTabManagers = new();
+    private readonly Timer _timer;
 
-    public partial class MainForm : Form
+    public MainForm()
     {
-        private readonly TabControl _sessionTabs;
-        private readonly DiagnosticsStateManager _stateManager;
-        private readonly Dictionary<string, SessionControl> _sessionTabManagers = new();
-        private readonly Timer _timer;
+        InitializeComponent();
 
-        public MainForm()
+        Font = new Font(Font.FontFamily, 9, FontStyle.Regular);
+        Text = "EtLast Diagnostics";
+
+        _stateManager = new DiagnosticsStateManager("http://+:8642/");
+        _stateManager.OnDiagSessionCreated += SessionCreated;
+
+        _sessionTabs = new TabControl()
         {
-            InitializeComponent();
+            Dock = DockStyle.Fill,
+            Parent = this,
+            DrawMode = TabDrawMode.OwnerDrawFixed,
+            SizeMode = TabSizeMode.Fixed,
+            ItemSize = new Size(96, 24),
+        };
 
-            Font = new Font(Font.FontFamily, 9, FontStyle.Regular);
-            Text = "EtLast Diagnostics";
+        _sessionTabs.DrawItem += DrawSessionTabHeader;
+        _sessionTabs.MouseDown += SessionTabs_MouseDown;
 
-            _stateManager = new DiagnosticsStateManager("http://+:8642/");
-            _stateManager.OnDiagSessionCreated += SessionCreated;
-
-            _sessionTabs = new TabControl()
-            {
-                Dock = DockStyle.Fill,
-                Parent = this,
-                DrawMode = TabDrawMode.OwnerDrawFixed,
-                SizeMode = TabSizeMode.Fixed,
-                ItemSize = new Size(96, 24),
-            };
-
-            _sessionTabs.DrawItem += DrawSessionTabHeader;
-            _sessionTabs.MouseDown += SessionTabs_MouseDown;
-
-            _timer = new Timer()
-            {
-                Interval = 500,
-                Enabled = false,
-            };
-            _timer.Tick += UpdateTimerTick;
-
-            _stateManager.Start();
-            _timer.Start();
-        }
-
-        private Rectangle GetSessionTabCloseButtonRectangle(Rectangle tabRectable)
+        _timer = new Timer()
         {
-            var height = 12;
-            return new Rectangle(tabRectable.Right - 10 - height, tabRectable.Top + ((tabRectable.Height - height) / 2), height, height);
-        }
+            Interval = 500,
+            Enabled = false,
+        };
+        _timer.Tick += UpdateTimerTick;
 
-        private void SessionTabs_MouseDown(object sender, MouseEventArgs e)
+        _stateManager.Start();
+        _timer.Start();
+    }
+
+    private Rectangle GetSessionTabCloseButtonRectangle(Rectangle tabRectable)
+    {
+        var height = 12;
+        return new Rectangle(tabRectable.Right - 10 - height, tabRectable.Top + ((tabRectable.Height - height) / 2), height, height);
+    }
+
+    private void SessionTabs_MouseDown(object sender, MouseEventArgs e)
+    {
+        var control = sender as TabControl;
+        for (var i = 0; i < control.TabPages.Count; i++)
         {
-            var control = sender as TabControl;
-            for (var i = 0; i < control.TabPages.Count; i++)
+            var rect = GetSessionTabCloseButtonRectangle(control.GetTabRect(i));
+            if (rect.Contains(e.Location))
             {
-                var rect = GetSessionTabCloseButtonRectangle(control.GetTabRect(i));
-                if (rect.Contains(e.Location))
+                if (MessageBox.Show("...you want to close this session?", "Are you sure...", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    if (MessageBox.Show("...you want to close this session?", "Are you sure...", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    var page = control.TabPages[i];
+                    var sessionId = page.Name;
+
+                    control.TabPages.Remove(page);
+
+                    if (_sessionTabManagers.TryGetValue(sessionId, out var sessionManager))
                     {
-                        var page = control.TabPages[i];
-                        var sessionId = page.Name;
-
-                        control.TabPages.Remove(page);
-
-                        if (_sessionTabManagers.TryGetValue(sessionId, out var sessionManager))
-                        {
-                            _sessionTabManagers.Remove(sessionId);
-                            sessionManager.Close();
-                        }
-
-                        page.Dispose();
-                        break;
+                        _sessionTabManagers.Remove(sessionId);
+                        sessionManager.Close();
                     }
+
+                    page.Dispose();
+                    break;
                 }
             }
         }
+    }
 
-        private readonly Font _sessionTabCloseFont = new("courier new", 10);
+    private readonly Font _sessionTabCloseFont = new("courier new", 10);
 
-        private void DrawSessionTabHeader(object sender, DrawItemEventArgs e)
+    private void DrawSessionTabHeader(object sender, DrawItemEventArgs e)
+    {
+        var control = sender as TabControl;
+        var textRect = e.Bounds;
+        var xRect = GetSessionTabCloseButtonRectangle(textRect);
+
+        var xFont = _sessionTabCloseFont;
+        var xSize = e.Graphics.MeasureString("x", xFont);
+        //e.Graphics.FillEllipse(Brushes.Red, xRect);
+        e.Graphics.DrawString("x", xFont, Brushes.Black, xRect.Left + ((xRect.Width - xSize.Width) / 2), xRect.Top + ((xRect.Height - xSize.Height) / 2));
+
+        var textFont = e.Font;
+        var textSize = e.Graphics.MeasureString(control.TabPages[e.Index].Text, textFont);
+        e.Graphics.DrawString(control.TabPages[e.Index].Text, textFont, Brushes.Black, textRect.Left + 12, textRect.Top + ((textRect.Height - textSize.Height) / 2));
+        e.DrawFocusRectangle();
+    }
+
+    private void UpdateTimerTick(object sender, EventArgs e)
+    {
+        _timer.Stop();
+        _stateManager.ProcessEvents();
+        _timer.Start();
+    }
+
+    private void SessionCreated(DiagSession session)
+    {
+        var sessionContainer = new TabPage(session.SessionId)
         {
-            var control = sender as TabControl;
-            var textRect = e.Bounds;
-            var xRect = GetSessionTabCloseButtonRectangle(textRect);
+            BorderStyle = BorderStyle.None,
+            Name = session.SessionId,
+        };
 
-            var xFont = _sessionTabCloseFont;
-            var xSize = e.Graphics.MeasureString("x", xFont);
-            //e.Graphics.FillEllipse(Brushes.Red, xRect);
-            e.Graphics.DrawString("x", xFont, Brushes.Black, xRect.Left + ((xRect.Width - xSize.Width) / 2), xRect.Top + ((xRect.Height - xSize.Height) / 2));
+        var manager = new SessionControl(session, sessionContainer, _stateManager);
+        _sessionTabManagers.Add(session.SessionId, manager);
+        _sessionTabs.TabPages.Add(sessionContainer);
+        _sessionTabs.SelectedTab = sessionContainer;
+    }
 
-            var textFont = e.Font;
-            var textSize = e.Graphics.MeasureString(control.TabPages[e.Index].Text, textFont);
-            e.Graphics.DrawString(control.TabPages[e.Index].Text, textFont, Brushes.Black, textRect.Left + 12, textRect.Top + ((textRect.Height - textSize.Height) / 2));
-            e.DrawFocusRectangle();
-        }
+    protected override void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
 
-        private void UpdateTimerTick(object sender, EventArgs e)
-        {
-            _timer.Stop();
-            _stateManager.ProcessEvents();
-            _timer.Start();
-        }
+        MaximizeOnSecondaryScreen();
+    }
 
-        private void SessionCreated(DiagSession session)
-        {
-            var sessionContainer = new TabPage(session.SessionId)
-            {
-                BorderStyle = BorderStyle.None,
-                Name = session.SessionId,
-            };
+    private void MaximizeOnSecondaryScreen()
+    {
+        var screen = Screen.AllScreens.Length == 1 || true
+            ? Screen.PrimaryScreen
+            : Screen.AllScreens
+                .Where(x => !x.Primary)
+                .OrderByDescending(x => x.Bounds.Width)
+                .First();
 
-            var manager = new SessionControl(session, sessionContainer, _stateManager);
-            _sessionTabManagers.Add(session.SessionId, manager);
-            _sessionTabs.TabPages.Add(sessionContainer);
-            _sessionTabs.SelectedTab = sessionContainer;
-        }
-
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
-
-            MaximizeOnSecondaryScreen();
-        }
-
-        private void MaximizeOnSecondaryScreen()
-        {
-            var screen = Screen.AllScreens.Length == 1 || true
-                ? Screen.PrimaryScreen
-                : Screen.AllScreens
-                    .Where(x => !x.Primary)
-                    .OrderByDescending(x => x.Bounds.Width)
-                    .First();
-
-            SuspendLayout();
-            Bounds = new Rectangle(screen.Bounds.Left, screen.Bounds.Top, Bounds.Width, Bounds.Height);
-            WindowState = FormWindowState.Maximized;
-            ResumeLayout();
-        }
+        SuspendLayout();
+        Bounds = new Rectangle(screen.Bounds.Left, screen.Bounds.Top, Bounds.Width, Bounds.Height);
+        WindowState = FormWindowState.Maximized;
+        ResumeLayout();
     }
 }
 #pragma warning restore CA2213 // Disposable fields should be disposed

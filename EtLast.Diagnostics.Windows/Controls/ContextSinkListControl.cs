@@ -1,90 +1,89 @@
-﻿namespace FizzCode.EtLast.Diagnostics.Windows
+﻿namespace FizzCode.EtLast.Diagnostics.Windows;
+
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+using BrightIdeasSoftware;
+using FizzCode.EtLast.Diagnostics.Interface;
+
+internal class ContextSinkListControl
 {
-    using System;
-    using System.Drawing;
-    using System.Windows.Forms;
-    using BrightIdeasSoftware;
-    using FizzCode.EtLast.Diagnostics.Interface;
+    public Control Container { get; }
+    public DiagContext Context { get; }
 
-    internal class ContextSinkListControl
+    private readonly ControlUpdater<TrackedSink> _updater;
+
+    public ContextSinkListControl(Control container, DiagContext context)
     {
-        public Control Container { get; }
-        public DiagContext Context { get; }
+        Container = container;
+        Context = context;
 
-        private readonly ControlUpdater<TrackedSink> _updater;
-
-        public ContextSinkListControl(Control container, DiagContext context)
+        _updater = new ControlUpdater<TrackedSink>(context, container)
         {
-            Container = container;
-            Context = context;
+            ItemFilter = ItemFilter,
+            AutoUpdateUntilContextLoaded = true,
+        };
 
-            _updater = new ControlUpdater<TrackedSink>(context, container)
+        _updater.CreateSearchBox(10, 10);
+
+        _updater.ListView.BorderStyle = BorderStyle.None;
+        _updater.ListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
+        _updater.ListView.Bounds = new Rectangle(Container.ClientRectangle.Left, Container.ClientRectangle.Top + 40, Container.ClientRectangle.Width, Container.ClientRectangle.Height - 40);
+        _updater.ListView.ItemActivate += ListView_ItemActivate;
+
+        _updater.ListView.Columns.Add(new OLVColumn()
+        {
+            Text = "Rows",
+            AspectGetter = x => (x as TrackedSink)?.RowCount,
+            AspectToStringConverter = x => ((int?)x)?.FormatToStringNoZero(),
+            TextAlign = HorizontalAlignment.Right,
+            HeaderTextAlign = HorizontalAlignment.Right,
+        });
+
+        _updater.ListView.Columns.Add(new OLVColumn()
+        {
+            Text = "Location",
+            AspectGetter = x => (x as TrackedSink)?.Location,
+        });
+
+        _updater.ListView.Columns.Add(new OLVColumn()
+        {
+            Text = "Path",
+            AspectGetter = x => (x as TrackedSink)?.Path,
+        });
+
+        context.WholePlaybook.OnSinkStarted += OnSinkStarted;
+
+        _updater.Start();
+    }
+
+    private void ListView_ItemActivate(object sender, EventArgs e)
+    {
+        if (_updater.ListView.GetItem(_updater.ListView.SelectedIndex).RowObject is TrackedSink sink)
+        {
+            var form = new Form()
             {
-                ItemFilter = ItemFilter,
-                AutoUpdateUntilContextLoaded = true,
+                FormBorderStyle = FormBorderStyle.SizableToolWindow,
+                Text = "Sink: " + sink.Location + (!string.IsNullOrEmpty(sink.Path) ? " / " + sink.Path : ""),
+                StartPosition = FormStartPosition.Manual,
+                Bounds = new Rectangle(Screen.PrimaryScreen.Bounds.Left + 100, Screen.PrimaryScreen.Bounds.Top + 100, Screen.PrimaryScreen.Bounds.Width - 200, Screen.PrimaryScreen.Bounds.Height - 200),
+                WindowState = FormWindowState.Maximized,
             };
 
-            _updater.CreateSearchBox(10, 10);
+            var control = new SinkControl(form, Context, sink);
+            control.Refresh();
 
-            _updater.ListView.BorderStyle = BorderStyle.None;
-            _updater.ListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
-            _updater.ListView.Bounds = new Rectangle(Container.ClientRectangle.Left, Container.ClientRectangle.Top + 40, Container.ClientRectangle.Width, Container.ClientRectangle.Height - 40);
-            _updater.ListView.ItemActivate += ListView_ItemActivate;
-
-            _updater.ListView.Columns.Add(new OLVColumn()
-            {
-                Text = "Rows",
-                AspectGetter = x => (x as TrackedSink)?.RowCount,
-                AspectToStringConverter = x => ((int?)x)?.FormatToStringNoZero(),
-                TextAlign = HorizontalAlignment.Right,
-                HeaderTextAlign = HorizontalAlignment.Right,
-            });
-
-            _updater.ListView.Columns.Add(new OLVColumn()
-            {
-                Text = "Location",
-                AspectGetter = x => (x as TrackedSink)?.Location,
-            });
-
-            _updater.ListView.Columns.Add(new OLVColumn()
-            {
-                Text = "Path",
-                AspectGetter = x => (x as TrackedSink)?.Path,
-            });
-
-            context.WholePlaybook.OnSinkStarted += OnSinkStarted;
-
-            _updater.Start();
+            form.ShowDialog();
         }
+    }
 
-        private void ListView_ItemActivate(object sender, EventArgs e)
-        {
-            if (_updater.ListView.GetItem(_updater.ListView.SelectedIndex).RowObject is TrackedSink sink)
-            {
-                var form = new Form()
-                {
-                    FormBorderStyle = FormBorderStyle.SizableToolWindow,
-                    Text = "Sink: " + sink.Location + (!string.IsNullOrEmpty(sink.Path) ? " / " + sink.Path : ""),
-                    StartPosition = FormStartPosition.Manual,
-                    Bounds = new Rectangle(Screen.PrimaryScreen.Bounds.Left + 100, Screen.PrimaryScreen.Bounds.Top + 100, Screen.PrimaryScreen.Bounds.Width - 200, Screen.PrimaryScreen.Bounds.Height - 200),
-                    WindowState = FormWindowState.Maximized,
-                };
+    private bool ItemFilter(TrackedSink sink)
+    {
+        return true;
+    }
 
-                var control = new SinkControl(form, Context, sink);
-                control.Refresh();
-
-                form.ShowDialog();
-            }
-        }
-
-        private bool ItemFilter(TrackedSink sink)
-        {
-            return true;
-        }
-
-        private void OnSinkStarted(Playbook playbook, TrackedSink sink)
-        {
-            _updater.AddItem(sink);
-        }
+    private void OnSinkStarted(Playbook playbook, TrackedSink sink)
+    {
+        _updater.AddItem(sink);
     }
 }

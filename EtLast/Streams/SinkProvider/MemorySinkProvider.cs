@@ -1,60 +1,59 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+using System.Globalization;
+using System.IO;
+
+public class MemorySinkProvider : ISinkProvider
 {
-    using System;
-    using System.Globalization;
-    using System.IO;
+    public string Topic => null;
 
-    public class MemorySinkProvider : ISinkProvider
+    public Func<MemoryStream> StreamCreator { get; init; }
+
+    private readonly string _sinkName = "MemorySink";
+    private readonly string _sinkLocation = "memory";
+    private readonly string _sinkPath = "memory";
+
+    /// <summary>
+    /// Default value is false
+    /// </summary>
+    public bool AutomaticallyDispose { get; init; }
+
+    public void Validate(IProcess caller)
     {
-        public string Topic => null;
+        if (StreamCreator == null)
+            throw new ProcessParameterNullException(caller, "SinkProvider." + nameof(StreamCreator));
 
-        public Func<MemoryStream> StreamCreator { get; init; }
+        if (_sinkName == null)
+            throw new ProcessParameterNullException(caller, "SinkProvider." + nameof(_sinkName));
 
-        private readonly string _sinkName = "MemorySink";
-        private readonly string _sinkLocation = "memory";
-        private readonly string _sinkPath = "memory";
+        if (_sinkLocation == null)
+            throw new ProcessParameterNullException(caller, "SinkProvider." + nameof(_sinkLocation));
 
-        /// <summary>
-        /// Default value is false
-        /// </summary>
-        public bool AutomaticallyDispose { get; init; }
+        if (_sinkPath == null)
+            throw new ProcessParameterNullException(caller, "SinkProvider." + nameof(_sinkPath));
+    }
 
-        public void Validate(IProcess caller)
+    public NamedSink GetSink(IProcess caller, string partitionKey)
+    {
+        var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.memoryWrite, _sinkLocation, _sinkPath, null, null, null, null,
+            "writing to memory stream");
+
+        try
         {
-            if (StreamCreator == null)
-                throw new ProcessParameterNullException(caller, "SinkProvider." + nameof(StreamCreator));
+            var sinkUid = caller.Context.GetSinkUid(_sinkLocation, _sinkPath);
 
-            if (_sinkName == null)
-                throw new ProcessParameterNullException(caller, "SinkProvider." + nameof(_sinkName));
-
-            if (_sinkLocation == null)
-                throw new ProcessParameterNullException(caller, "SinkProvider." + nameof(_sinkLocation));
-
-            if (_sinkPath == null)
-                throw new ProcessParameterNullException(caller, "SinkProvider." + nameof(_sinkPath));
+            var stream = StreamCreator.Invoke();
+            return new NamedSink(_sinkName, stream, iocUid, IoCommandKind.streamWrite, sinkUid);
         }
-
-        public NamedSink GetSink(IProcess caller, string partitionKey)
+        catch (Exception ex)
         {
-            var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.memoryWrite, _sinkLocation, _sinkPath, null, null, null, null,
-                "writing to memory stream");
+            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, iocUid, null, ex);
 
-            try
-            {
-                var sinkUid = caller.Context.GetSinkUid(_sinkLocation, _sinkPath);
-
-                var stream = StreamCreator.Invoke();
-                return new NamedSink(_sinkName, stream, iocUid, IoCommandKind.streamWrite, sinkUid);
-            }
-            catch (Exception ex)
-            {
-                caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, iocUid, null, ex);
-
-                var exception = new EtlException(caller, "error while writing memory stream", ex);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing memory stream: {0}, message: {1}", _sinkName, ex.Message));
-                exception.Data.Add("SinkName", _sinkName);
-                throw exception;
-            }
+            var exception = new EtlException(caller, "error while writing memory stream", ex);
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing memory stream: {0}, message: {1}", _sinkName, ex.Message));
+            exception.Data.Add("SinkName", _sinkName);
+            throw exception;
         }
     }
 }

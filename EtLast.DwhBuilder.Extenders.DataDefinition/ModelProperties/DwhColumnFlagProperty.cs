@@ -1,25 +1,24 @@
-﻿namespace FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition
+﻿namespace FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition;
+
+using FizzCode.DbTools.DataDefinition;
+
+public class DwhColumnFlagProperty : SqlColumnCustomProperty
 {
-    using FizzCode.DbTools.DataDefinition;
+    public string Name { get; }
 
-    public class DwhColumnFlagProperty : SqlColumnCustomProperty
+    public DwhColumnFlagProperty(SqlColumn column, string name)
+        : base(column)
     {
-        public string Name { get; }
-
-        public DwhColumnFlagProperty(SqlColumn column, string name)
-            : base(column)
-        {
-            Name = name;
-        }
+        Name = name;
     }
+}
 
-    public static class DwhColumnFlagPropertyHelper
+public static class DwhColumnFlagPropertyHelper
+{
+    public static SqlColumn DwhFlag(this SqlColumn sqlColumn, string name)
     {
-        public static SqlColumn DwhFlag(this SqlColumn sqlColumn, string name)
-        {
-            var property = new DwhColumnFlagProperty(sqlColumn, name);
-            sqlColumn.Properties.Add(property);
-            return sqlColumn;
-        }
+        var property = new DwhColumnFlagProperty(sqlColumn, name);
+        sqlColumn.Properties.Add(property);
+        return sqlColumn;
     }
 }

@@ -1,30 +1,29 @@
-﻿namespace FizzCode.EtLast.DwhBuilder.MsSql
+﻿namespace FizzCode.EtLast.DwhBuilder.MsSql;
+
+using System.Collections.Generic;
+using FizzCode.EtLast;
+
+public static partial class TableBuilderExtensions
 {
-    using System.Collections.Generic;
-    using FizzCode.EtLast;
-
-    public static partial class TableBuilderExtensions
+    public static DwhTableBuilder[] DeleteTargetTableFinalizer(this DwhTableBuilder[] builders)
     {
-        public static DwhTableBuilder[] DeleteTargetTableFinalizer(this DwhTableBuilder[] builders)
+        foreach (var builder in builders)
         {
-            foreach (var builder in builders)
-            {
-                builder.AddFinalizerCreator(CreateDeleteTargetTableFinalizer);
-            }
-
-            return builders;
+            builder.AddFinalizerCreator(CreateDeleteTargetTableFinalizer);
         }
 
-        private static IEnumerable<IExecutable> CreateDeleteTargetTableFinalizer(DwhTableBuilder builder)
-        {
-            builder.ResilientTable.SkipFinalizersIfNoTempData = false;
+        return builders;
+    }
 
-            yield return new DeleteTable(builder.ResilientTable.Scope.Context)
-            {
-                Name = "DeleteBase",
-                ConnectionString = builder.ResilientTable.Scope.ConnectionString,
-                TableName = builder.ResilientTable.TableName,
-            };
-        }
+    private static IEnumerable<IExecutable> CreateDeleteTargetTableFinalizer(DwhTableBuilder builder)
+    {
+        builder.ResilientTable.SkipFinalizersIfNoTempData = false;
+
+        yield return new DeleteTable(builder.ResilientTable.Scope.Context)
+        {
+            Name = "DeleteBase",
+            ConnectionString = builder.ResilientTable.Scope.ConnectionString,
+            TableName = builder.ResilientTable.TableName,
+        };
     }
 }

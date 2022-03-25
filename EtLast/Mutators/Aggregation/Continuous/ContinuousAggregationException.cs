@@ -1,17 +1,16 @@
-﻿namespace FizzCode.EtLast
-{
-    using System;
-    using System.Runtime.InteropServices;
+﻿namespace FizzCode.EtLast;
 
-    [ComVisible(true)]
-    [Serializable]
-    public class ContinuousAggregationException : EtlException
+using System;
+using System.Runtime.InteropServices;
+
+[ComVisible(true)]
+[Serializable]
+public class ContinuousAggregationException : EtlException
+{
+    public ContinuousAggregationException(ContinuousAggregationMutator mutator, IContinuousAggregationOperation operation, IRow row, Exception innerException)
+        : base(mutator, "error raised during the execution of a continuous aggregation", innerException)
     {
-        public ContinuousAggregationException(ContinuousAggregationMutator mutator, IContinuousAggregationOperation operation, IRow row, Exception innerException)
-            : base(mutator, "error raised during the execution of a continuous aggregation", innerException)
-        {
-            Data.Add("Operation", operation.GetType().GetFriendlyTypeName());
-            Data.Add("Row", row.ToDebugString(true));
-        }
+        Data.Add("Operation", operation.GetType().GetFriendlyTypeName());
+        Data.Add("Row", row.ToDebugString(true));
     }
 }

@@ -1,122 +1,121 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+
+public sealed class UnpivotMutator : AbstractMutator
 {
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Linq;
+    public Dictionary<string, string> FixColumns { get; init; }
+    public string NewColumnForDimension { get; init; }
+    public string NewColumnForValue { get; init; }
 
-    public sealed class UnpivotMutator : AbstractMutator
+    /// <summary>
+    /// Default value is true.
+    /// </summary>
+    public bool IgnoreIfValueIsNull { get; init; } = true;
+
+    /// <summary>
+    /// Default value is true;
+    /// </summary>
+    public bool CopyTag { get; init; } = true;
+
+    public string[] ValueColumns { get; init; }
+
+    private HashSet<string> _fixColumnNames;
+    private HashSet<string> _valueColumnNames;
+
+    public UnpivotMutator(IEtlContext context)
+        : base(context)
     {
-        public Dictionary<string, string> FixColumns { get; init; }
-        public string NewColumnForDimension { get; init; }
-        public string NewColumnForValue { get; init; }
+    }
 
-        /// <summary>
-        /// Default value is true.
-        /// </summary>
-        public bool IgnoreIfValueIsNull { get; init; } = true;
+    protected override void StartMutator()
+    {
+        _fixColumnNames = FixColumns != null
+            ? new HashSet<string>(FixColumns.Select(x => x.Value ?? x.Key))
+            : new HashSet<string>();
 
-        /// <summary>
-        /// Default value is true;
-        /// </summary>
-        public bool CopyTag { get; init; } = true;
+        _valueColumnNames = ValueColumns != null
+            ? new HashSet<string>(ValueColumns)
+            : new HashSet<string>();
+    }
 
-        public string[] ValueColumns { get; init; }
+    protected override void CloseMutator()
+    {
+        _fixColumnNames.Clear();
+        _fixColumnNames = null;
+        _valueColumnNames.Clear();
+        _valueColumnNames = null;
+    }
 
-        private HashSet<string> _fixColumnNames;
-        private HashSet<string> _valueColumnNames;
-
-        public UnpivotMutator(IEtlContext context)
-            : base(context)
+    protected override IEnumerable<IRow> MutateRow(IRow row)
+    {
+        if (ValueColumns == null)
         {
-        }
-
-        protected override void StartMutator()
-        {
-            _fixColumnNames = FixColumns != null
-                ? new HashSet<string>(FixColumns.Select(x => x.Value ?? x.Key))
-                : new HashSet<string>();
-
-            _valueColumnNames = ValueColumns != null
-                ? new HashSet<string>(ValueColumns)
-                : new HashSet<string>();
-        }
-
-        protected override void CloseMutator()
-        {
-            _fixColumnNames.Clear();
-            _fixColumnNames = null;
-            _valueColumnNames.Clear();
-            _valueColumnNames = null;
-        }
-
-        protected override IEnumerable<IRow> MutateRow(IRow row)
-        {
-            if (ValueColumns == null)
+            foreach (var kvp in row.Values)
             {
-                foreach (var kvp in row.Values)
-                {
-                    if (_fixColumnNames.Contains(kvp.Key))
-                        continue;
+                if (_fixColumnNames.Contains(kvp.Key))
+                    continue;
 
-                    var initialValues = FixColumns.Select(column => new KeyValuePair<string, object>(column.Key, row[column.Value ?? column.Key])).ToList();
-                    initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, kvp.Key));
-                    initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, kvp.Value));
+                var initialValues = FixColumns.Select(column => new KeyValuePair<string, object>(column.Key, row[column.Value ?? column.Key])).ToList();
+                initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, kvp.Key));
+                initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, kvp.Value));
 
-                    var newRow = Context.CreateRow(this, initialValues);
+                var newRow = Context.CreateRow(this, initialValues);
 
-                    if (CopyTag)
-                        newRow.Tag = row.Tag;
+                if (CopyTag)
+                    newRow.Tag = row.Tag;
 
-                    yield return newRow;
-                }
-            }
-            else
-            {
-                foreach (var col in ValueColumns)
-                {
-                    var value = row[col];
-                    if (value == null && IgnoreIfValueIsNull)
-                        continue;
-
-                    var initialValues = FixColumns != null
-                        ? FixColumns.Select(column => new KeyValuePair<string, object>(column.Key, row[column.Value ?? column.Key])).ToList()
-                        : row.Values.Where(kvp => !_valueColumnNames.Contains(kvp.Key)).ToList();
-
-                    initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, col));
-                    initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, value));
-
-                    var newRow = Context.CreateRow(this, initialValues);
-
-                    if (CopyTag)
-                        newRow.Tag = row.Tag;
-
-                    yield return newRow;
-                }
+                yield return newRow;
             }
         }
-
-        protected override void ValidateMutator()
+        else
         {
-            if (ValueColumns == null && FixColumns == null)
-                throw new InvalidProcessParameterException(this, nameof(ValueColumns), null, "if " + nameof(ValueColumns) + " is null then " + nameof(FixColumns) + " must be set");
+            foreach (var col in ValueColumns)
+            {
+                var value = row[col];
+                if (value == null && IgnoreIfValueIsNull)
+                    continue;
 
-            if (NewColumnForValue == null)
-                throw new ProcessParameterNullException(this, nameof(NewColumnForValue));
+                var initialValues = FixColumns != null
+                    ? FixColumns.Select(column => new KeyValuePair<string, object>(column.Key, row[column.Value ?? column.Key])).ToList()
+                    : row.Values.Where(kvp => !_valueColumnNames.Contains(kvp.Key)).ToList();
 
-            if (NewColumnForDimension == null)
-                throw new ProcessParameterNullException(this, nameof(NewColumnForDimension));
+                initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, col));
+                initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, value));
 
-            if (!IgnoreIfValueIsNull && ValueColumns == null)
-                throw new InvalidProcessParameterException(this, nameof(ValueColumns), null, "if " + nameof(IgnoreIfValueIsNull) + " is false then " + nameof(ValueColumns) + " must be set");
+                var newRow = Context.CreateRow(this, initialValues);
+
+                if (CopyTag)
+                    newRow.Tag = row.Tag;
+
+                yield return newRow;
+            }
         }
     }
 
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public static class UnpivotMutatorFluent
+    protected override void ValidateMutator()
     {
-        public static IFluentProcessMutatorBuilder Unpivot(this IFluentProcessMutatorBuilder builder, UnpivotMutator mutator)
-        {
-            return builder.AddMutator(mutator);
-        }
+        if (ValueColumns == null && FixColumns == null)
+            throw new InvalidProcessParameterException(this, nameof(ValueColumns), null, "if " + nameof(ValueColumns) + " is null then " + nameof(FixColumns) + " must be set");
+
+        if (NewColumnForValue == null)
+            throw new ProcessParameterNullException(this, nameof(NewColumnForValue));
+
+        if (NewColumnForDimension == null)
+            throw new ProcessParameterNullException(this, nameof(NewColumnForDimension));
+
+        if (!IgnoreIfValueIsNull && ValueColumns == null)
+            throw new InvalidProcessParameterException(this, nameof(ValueColumns), null, "if " + nameof(IgnoreIfValueIsNull) + " is false then " + nameof(ValueColumns) + " must be set");
+    }
+}
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class UnpivotMutatorFluent
+{
+    public static IFluentProcessMutatorBuilder Unpivot(this IFluentProcessMutatorBuilder builder, UnpivotMutator mutator)
+    {
+        return builder.AddMutator(mutator);
     }
 }

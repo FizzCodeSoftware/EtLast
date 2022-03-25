@@ -1,29 +1,28 @@
-﻿namespace FizzCode.EtLast.DwhBuilder.MsSql
+﻿namespace FizzCode.EtLast.DwhBuilder.MsSql;
+
+public static partial class TableBuilderExtensions
 {
-    public static partial class TableBuilderExtensions
+    public static DwhTableBuilder[] SetValidFromToDefault(this DwhTableBuilder[] builders)
     {
-        public static DwhTableBuilder[] SetValidFromToDefault(this DwhTableBuilder[] builders)
+        foreach (var builder in builders)
         {
-            foreach (var builder in builders)
+            if (builder.ValidFromColumn == null)
+                continue;
+
+            builder.AddMutatorCreator(builder => new[]
             {
-                if (builder.ValidFromColumn == null)
-                    continue;
-
-                builder.AddMutatorCreator(builder => new[]
+                new CustomMutator(builder.ResilientTable.Scope.Context)
                 {
-                    new CustomMutator(builder.ResilientTable.Scope.Context)
+                    Name = nameof(SetValidFromToDefault),
+                    Action = row =>
                     {
-                        Name = nameof(SetValidFromToDefault),
-                        Action = row =>
-                        {
-                            row[builder.ValidFromColumn.Name] = builder.DwhBuilder.DefaultValidFromDateTime;
-                            return true;
-                        },
+                        row[builder.ValidFromColumn.Name] = builder.DwhBuilder.DefaultValidFromDateTime;
+                        return true;
                     },
-                });
-            }
-
-            return builders;
+                },
+            });
         }
+
+        return builders;
     }
 }

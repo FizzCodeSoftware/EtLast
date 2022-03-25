@@ -1,31 +1,30 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+
+public delegate void MatchActionDelegate(IRow row, IReadOnlySlimRow match);
+
+public sealed class MatchAction
 {
-    using System;
+    public MatchMode Mode { get; }
+    public MatchActionDelegate CustomAction { get; init; }
 
-    public delegate void MatchActionDelegate(IRow row, IReadOnlySlimRow match);
-
-    public sealed class MatchAction
+    public MatchAction(MatchMode mode)
     {
-        public MatchMode Mode { get; }
-        public MatchActionDelegate CustomAction { get; init; }
+        Mode = mode;
+    }
 
-        public MatchAction(MatchMode mode)
+    public void InvokeCustomAction(IRow row, IReadOnlySlimRow match)
+    {
+        try
         {
-            Mode = mode;
+            var tracker = new TrackedRow(row);
+            CustomAction?.Invoke(tracker, match);
+            tracker.ApplyChanges();
         }
-
-        public void InvokeCustomAction(IRow row, IReadOnlySlimRow match)
+        catch (Exception ex)
         {
-            try
-            {
-                var tracker = new TrackedRow(row);
-                CustomAction?.Invoke(tracker, match);
-                tracker.ApplyChanges();
-            }
-            catch (Exception ex)
-            {
-                throw new MatchActionDelegateException(row.CurrentProcess, row, ex);
-            }
+            throw new MatchActionDelegateException(row.CurrentProcess, row, ex);
         }
     }
 }

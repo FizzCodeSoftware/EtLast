@@ -1,29 +1,28 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.IO;
+
+public class NamedStream
 {
-    using System.IO;
+    public string Name { get; }
+    public Stream Stream { get; private set; }
+    public int IoCommandUid { get; }
+    public IoCommandKind IoCommandKind { get; }
 
-    public class NamedStream
+    public NamedStream(string name, Stream stream, int ioCommandUid, IoCommandKind ioCommandKind)
     {
-        public string Name { get; }
-        public Stream Stream { get; private set; }
-        public int IoCommandUid { get; }
-        public IoCommandKind IoCommandKind { get; }
+        Name = name;
+        Stream = stream;
+        IoCommandUid = ioCommandUid;
+        IoCommandKind = ioCommandKind;
+    }
 
-        public NamedStream(string name, Stream stream, int ioCommandUid, IoCommandKind ioCommandKind)
+    public void Dispose()
+    {
+        if (Stream != null)
         {
-            Name = name;
-            Stream = stream;
-            IoCommandUid = ioCommandUid;
-            IoCommandKind = ioCommandKind;
-        }
-
-        public void Dispose()
-        {
-            if (Stream != null)
-            {
-                Stream.Dispose();
-                Stream = null;
-            }
+            Stream.Dispose();
+            Stream = null;
         }
     }
 }

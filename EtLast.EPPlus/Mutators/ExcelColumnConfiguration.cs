@@ -1,23 +1,22 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+public class ExcelColumnConfiguration
 {
-    public class ExcelColumnConfiguration
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    public string SourceColumn { get; private set; }
+
+    public ExcelColumnConfiguration FromSource(string sourceColumn)
     {
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public string SourceColumn { get; private set; }
+        SourceColumn = sourceColumn;
+        return this;
+    }
 
-        public ExcelColumnConfiguration FromSource(string sourceColumn)
-        {
-            SourceColumn = sourceColumn;
-            return this;
-        }
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    public string NumberFormat { get; private set; }
 
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public string NumberFormat { get; private set; }
-
-        public ExcelColumnConfiguration SetNumberFormat(string format)
-        {
-            NumberFormat = format;
-            return this;
-        }
+    public ExcelColumnConfiguration SetNumberFormat(string format)
+    {
+        NumberFormat = format;
+        return this;
     }
 }

@@ -1,21 +1,20 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.IO;
+
+public class NamedSink : NamedStream
 {
-    using System.IO;
+    public int SinkUid { get; }
+    public int RowsWritten { get; private set; }
 
-    public class NamedSink : NamedStream
+    public NamedSink(string name, Stream stream, int ioCommandUid, IoCommandKind ioCommandKind, int sinkUid)
+        : base(name, stream, ioCommandUid, ioCommandKind)
     {
-        public int SinkUid { get; }
-        public int RowsWritten { get; private set; }
+        SinkUid = sinkUid;
+    }
 
-        public NamedSink(string name, Stream stream, int ioCommandUid, IoCommandKind ioCommandKind, int sinkUid)
-            : base(name, stream, ioCommandUid, ioCommandKind)
-        {
-            SinkUid = sinkUid;
-        }
-
-        public void IncreaseRowsWritten()
-        {
-            RowsWritten++;
-        }
+    public void IncreaseRowsWritten()
+    {
+        RowsWritten++;
     }
 }

@@ -1,7 +1,6 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+public interface IExecutableWithResult<T> : IProcess
 {
-    public interface IExecutableWithResult<T> : IProcess
-    {
-        T Execute(IProcess caller);
-    }
+    T Execute(IProcess caller);
 }

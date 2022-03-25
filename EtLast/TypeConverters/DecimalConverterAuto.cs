@@ -1,38 +1,37 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+using System.Globalization;
+
+public class DecimalConverterAuto : DecimalConverter
 {
-    using System;
-    using System.Globalization;
+    public IFormatProvider FormatProvider { get; }
+    public NumberStyles NumberStyles { get; }
 
-    public class DecimalConverterAuto : DecimalConverter
+    public DecimalConverterAuto(IFormatProvider formatProvider, NumberStyles numberStyles = NumberStyles.Any)
     {
-        public IFormatProvider FormatProvider { get; }
-        public NumberStyles NumberStyles { get; }
+        FormatProvider = formatProvider;
+        NumberStyles = numberStyles;
+    }
 
-        public DecimalConverterAuto(IFormatProvider formatProvider, NumberStyles numberStyles = NumberStyles.Any)
+    public override object Convert(object source)
+    {
+        if (source is string str)
         {
-            FormatProvider = formatProvider;
-            NumberStyles = numberStyles;
-        }
-
-        public override object Convert(object source)
-        {
-            if (source is string str)
+            if (RemoveSubString != null)
             {
-                if (RemoveSubString != null)
+                foreach (var subStr in RemoveSubString)
                 {
-                    foreach (var subStr in RemoveSubString)
-                    {
-                        str = str.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
-                    }
-                }
-
-                if (decimal.TryParse(str, NumberStyles, FormatProvider, out var value))
-                {
-                    return value;
+                    str = str.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
                 }
             }
 
-            return base.Convert(source);
+            if (decimal.TryParse(str, NumberStyles, FormatProvider, out var value))
+            {
+                return value;
+            }
         }
+
+        return base.Convert(source);
     }
 }

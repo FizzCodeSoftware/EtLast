@@ -1,24 +1,23 @@
-﻿namespace FizzCode.EtLast.Tests
+﻿namespace FizzCode.EtLast.Tests;
+
+using System.Linq;
+
+public static class TestExecuter
 {
-    using System.Linq;
-
-    public static class TestExecuter
+    public static IEtlContext GetContext()
     {
-        public static IEtlContext GetContext()
+        return new EtlContext();
+    }
+
+    public static TestExecuterResult Execute(IProcessBuilder builder)
+    {
+        var result = new TestExecuterResult
         {
-            return new EtlContext();
-        }
+            Process = builder.Build(),
+        };
 
-        public static TestExecuterResult Execute(IProcessBuilder builder)
-        {
-            var result = new TestExecuterResult
-            {
-                Process = builder.Build(),
-            };
+        result.MutatedRows = result.Process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
 
-            result.MutatedRows = result.Process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
-
-            return result;
-        }
+        return result;
     }
 }

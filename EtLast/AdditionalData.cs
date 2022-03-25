@@ -1,32 +1,31 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+using System.Collections.Generic;
+
+public sealed class AdditionalData
 {
-    using System;
-    using System.Collections.Generic;
+    private readonly Dictionary<string, object> _data = new(StringComparer.OrdinalIgnoreCase);
 
-    public sealed class AdditionalData
+    public object this[string key]
     {
-        private readonly Dictionary<string, object> _data = new(StringComparer.OrdinalIgnoreCase);
+        get => GetAs<object>(key, null);
+        set => _data[key] = value;
+    }
 
-        public object this[string key]
+    public T GetAs<T>(string key, T defaultValue)
+    {
+        _data.TryGetValue(key, out var value);
+        if (value != null && value is T t)
         {
-            get => GetAs<object>(key, null);
-            set => _data[key] = value;
+            return t;
         }
 
-        public T GetAs<T>(string key, T defaultValue)
-        {
-            _data.TryGetValue(key, out var value);
-            if (value != null && value is T t)
-            {
-                return t;
-            }
+        return defaultValue;
+    }
 
-            return defaultValue;
-        }
-
-        public IEnumerable<KeyValuePair<string, object>> All()
-        {
-            return _data;
-        }
+    public IEnumerable<KeyValuePair<string, object>> All()
+    {
+        return _data;
     }
 }

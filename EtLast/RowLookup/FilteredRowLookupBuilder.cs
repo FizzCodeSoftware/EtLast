@@ -1,49 +1,48 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+
+public delegate IProducer ProcessCreatorForRowLookupBuilderDelegate(IReadOnlySlimRow[] filterRows);
+
+public sealed class FilteredRowLookupBuilder
 {
-    using System;
+    public ProcessCreatorForRowLookupBuilderDelegate ProcessCreator { get; set; }
+    public Func<IReadOnlySlimRow, string> KeyGenerator { get; set; }
 
-    public delegate IProducer ProcessCreatorForRowLookupBuilderDelegate(IReadOnlySlimRow[] filterRows);
-
-    public sealed class FilteredRowLookupBuilder
+    public RowLookup Build(IProcess caller, IReadOnlySlimRow[] filterRows)
     {
-        public ProcessCreatorForRowLookupBuilderDelegate ProcessCreator { get; set; }
-        public Func<IReadOnlySlimRow, string> KeyGenerator { get; set; }
+        var lookup = new RowLookup();
+        Append(lookup, caller, filterRows);
+        return lookup;
+    }
 
-        public RowLookup Build(IProcess caller, IReadOnlySlimRow[] filterRows)
+    public void Append(ICountableLookup lookup, IProcess caller, IReadOnlySlimRow[] filterRows)
+    {
+        var process = ProcessCreator.Invoke(filterRows);
+
+        var rows = process.Evaluate(caller).TakeRowsAndReleaseOwnership();
+        var rowCount = 0;
+        foreach (var row in rows)
         {
-            var lookup = new RowLookup();
-            Append(lookup, caller, filterRows);
-            return lookup;
-        }
+            rowCount++;
 
-        public void Append(ICountableLookup lookup, IProcess caller, IReadOnlySlimRow[] filterRows)
-        {
-            var process = ProcessCreator.Invoke(filterRows);
-
-            var rows = process.Evaluate(caller).TakeRowsAndReleaseOwnership();
-            var rowCount = 0;
-            foreach (var row in rows)
+            string key = null;
+            try
             {
-                rowCount++;
-
-                string key = null;
-                try
-                {
-                    key = KeyGenerator(row);
-                }
-                catch (Exception ex)
-                {
-                    throw KeyGeneratorException.Wrap(caller, row, ex);
-                }
-
-                if (string.IsNullOrEmpty(key))
-                    continue;
-
-                lookup.AddRow(key, row);
+                key = KeyGenerator(row);
+            }
+            catch (Exception ex)
+            {
+                throw KeyGeneratorException.Wrap(caller, row, ex);
             }
 
-            caller?.Context.Log(LogSeverity.Debug, caller, "fetched {RowCount} rows, lookup size is {LookupSize}",
-                rowCount, lookup.Count);
+            if (string.IsNullOrEmpty(key))
+                continue;
+
+            lookup.AddRow(key, row);
         }
+
+        caller?.Context.Log(LogSeverity.Debug, caller, "fetched {RowCount} rows, lookup size is {LookupSize}",
+            rowCount, lookup.Count);
     }
 }

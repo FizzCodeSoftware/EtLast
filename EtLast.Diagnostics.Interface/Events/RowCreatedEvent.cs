@@ -1,10 +1,9 @@
-﻿namespace FizzCode.EtLast.Diagnostics.Interface
-{
-    using System.Collections.Generic;
+﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-    public class RowCreatedEvent : AbstractRowEvent
-    {
-        public int ProcessInvocationUid { get; set; }
-        public KeyValuePair<string, object>[] Values { get; set; }
-    }
+using System.Collections.Generic;
+
+public class RowCreatedEvent : AbstractRowEvent
+{
+    public int ProcessInvocationUid { get; set; }
+    public KeyValuePair<string, object>[] Values { get; set; }
 }

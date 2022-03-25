@@ -1,21 +1,20 @@
-﻿namespace FizzCode.EtLast
-{
-    public enum LogSeverity { Verbose = 0, Debug = 1, Information = 2, Warning = 3, Error = 4, Fatal = 5, }
+﻿namespace FizzCode.EtLast;
 
-    public static class LogSeverityHelpers
+public enum LogSeverity { Verbose = 0, Debug = 1, Information = 2, Warning = 3, Error = 4, Fatal = 5, }
+
+public static class LogSeverityHelpers
+{
+    public static string ToShortString(this LogSeverity severity)
     {
-        public static string ToShortString(this LogSeverity severity)
+        return severity switch
         {
-            return severity switch
-            {
-                LogSeverity.Verbose => "VRB",
-                LogSeverity.Debug => "DBG",
-                LogSeverity.Information => "INF",
-                LogSeverity.Warning => "WRN",
-                LogSeverity.Error => "ERR",
-                LogSeverity.Fatal => "FTL",
-                _ => severity.ToString(),
-            };
-        }
+            LogSeverity.Verbose => "VRB",
+            LogSeverity.Debug => "DBG",
+            LogSeverity.Information => "INF",
+            LogSeverity.Warning => "WRN",
+            LogSeverity.Error => "ERR",
+            LogSeverity.Fatal => "FTL",
+            _ => severity.ToString(),
+        };
     }
 }

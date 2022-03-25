@@ -1,19 +1,18 @@
-﻿namespace FizzCode.EtLast
-{
-    using System;
-    using System.Runtime.InteropServices;
+﻿namespace FizzCode.EtLast;
 
-    [ComVisible(true)]
-    [Serializable]
-    public class InvalidParameterException : EtlException
+using System;
+using System.Runtime.InteropServices;
+
+[ComVisible(true)]
+[Serializable]
+public class InvalidParameterException : EtlException
+{
+    public InvalidParameterException(string location, string parameterName, object value, string cause)
+        : base("invalid parameter")
     {
-        public InvalidParameterException(string location, string parameterName, object value, string cause)
-            : base("invalid parameter")
-        {
-            Data.Add("Location", location);
-            Data.Add("Parameter", parameterName);
-            Data.Add("Value", value != null ? value.ToString() : "NULL");
-            Data.Add("Cause", cause);
-        }
+        Data.Add("Location", location);
+        Data.Add("Parameter", parameterName);
+        Data.Add("Value", value != null ? value.ToString() : "NULL");
+        Data.Add("Cause", cause);
     }
 }

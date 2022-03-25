@@ -1,9 +1,8 @@
-﻿namespace FizzCode.EtLast
-{
-    using OfficeOpenXml;
+﻿namespace FizzCode.EtLast;
 
-    public class BaseExcelWriterState
-    {
-        public ExcelWorksheet Worksheet { get; internal set; }
-    }
+using OfficeOpenXml;
+
+public class BaseExcelWriterState
+{
+    public ExcelWorksheet Worksheet { get; internal set; }
 }

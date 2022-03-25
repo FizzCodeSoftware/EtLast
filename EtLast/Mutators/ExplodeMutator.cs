@@ -1,61 +1,60 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.Collections.Generic;
+using System.ComponentModel;
+
+public delegate IEnumerable<ISlimRow> ExplodeDelegate(IReadOnlyRow row);
+
+public sealed class ExplodeMutator : AbstractMutator
 {
-    using System.Collections.Generic;
-    using System.ComponentModel;
+    /// <summary>
+    /// Default true.
+    /// </summary>
+    public bool RemoveOriginalRow { get; init; } = true;
 
-    public delegate IEnumerable<ISlimRow> ExplodeDelegate(IReadOnlyRow row);
+    public ExplodeDelegate RowCreator { get; init; }
 
-    public sealed class ExplodeMutator : AbstractMutator
+    public ExplodeMutator(IEtlContext context)
+        : base(context)
     {
-        /// <summary>
-        /// Default true.
-        /// </summary>
-        public bool RemoveOriginalRow { get; init; } = true;
+    }
 
-        public ExplodeDelegate RowCreator { get; init; }
+    protected override IEnumerable<IRow> MutateRow(IRow row)
+    {
+        if (!RemoveOriginalRow)
+            yield return row;
 
-        public ExplodeMutator(IEtlContext context)
-            : base(context)
+        var newRows = RowCreator.Invoke(row);
+        if (newRows != null)
         {
-        }
-
-        protected override IEnumerable<IRow> MutateRow(IRow row)
-        {
-            if (!RemoveOriginalRow)
-                yield return row;
-
-            var newRows = RowCreator.Invoke(row);
-            if (newRows != null)
+            foreach (var newRow in newRows)
             {
-                foreach (var newRow in newRows)
-                {
-                    yield return Context.CreateRow(this, newRow);
-                }
+                yield return Context.CreateRow(this, newRow);
             }
-        }
-
-        protected override void ValidateMutator()
-        {
-            if (RowCreator == null)
-                throw new ProcessParameterNullException(this, nameof(RowCreator));
         }
     }
 
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public static class ExplodeMutatorFluent
+    protected override void ValidateMutator()
     {
-        public static IFluentProcessMutatorBuilder Explode(this IFluentProcessMutatorBuilder builder, ExplodeMutator mutator)
-        {
-            return builder.AddMutator(mutator);
-        }
+        if (RowCreator == null)
+            throw new ProcessParameterNullException(this, nameof(RowCreator));
+    }
+}
 
-        public static IFluentProcessMutatorBuilder Explode(this IFluentProcessMutatorBuilder builder, string name, ExplodeDelegate rowCreator)
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class ExplodeMutatorFluent
+{
+    public static IFluentProcessMutatorBuilder Explode(this IFluentProcessMutatorBuilder builder, ExplodeMutator mutator)
+    {
+        return builder.AddMutator(mutator);
+    }
+
+    public static IFluentProcessMutatorBuilder Explode(this IFluentProcessMutatorBuilder builder, string name, ExplodeDelegate rowCreator)
+    {
+        return builder.AddMutator(new ExplodeMutator(builder.ProcessBuilder.Result.Context)
         {
-            return builder.AddMutator(new ExplodeMutator(builder.ProcessBuilder.Result.Context)
-            {
-                Name = name,
-                RowCreator = rowCreator,
-            });
-        }
+            Name = name,
+            RowCreator = rowCreator,
+        });
     }
 }

@@ -1,10 +1,9 @@
-﻿namespace FizzCode.EtLast.Tests
-{
-    using System.Collections.Generic;
+﻿namespace FizzCode.EtLast.Tests;
 
-    public class TestExecuterResult
-    {
-        public IProducer Process { get; set; }
-        public List<ISlimRow> MutatedRows { get; set; }
-    }
+using System.Collections.Generic;
+
+public class TestExecuterResult
+{
+    public IProducer Process { get; set; }
+    public List<ISlimRow> MutatedRows { get; set; }
 }

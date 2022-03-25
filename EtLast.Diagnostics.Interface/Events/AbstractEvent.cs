@@ -1,7 +1,6 @@
-﻿namespace FizzCode.EtLast.Diagnostics.Interface
+﻿namespace FizzCode.EtLast.Diagnostics.Interface;
+
+public abstract class AbstractEvent
 {
-    public abstract class AbstractEvent
-    {
-        public long Timestamp { get; set; }
-    }
+    public long Timestamp { get; set; }
 }

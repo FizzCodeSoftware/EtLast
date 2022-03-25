@@ -1,42 +1,41 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public class ContinuousAggregate
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
+    public SlimRow ResultRow { get; }
 
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public class ContinuousAggregate
+    public ContinuousAggregate(object tag)
     {
-        public SlimRow ResultRow { get; }
-
-        public ContinuousAggregate(object tag)
+        ResultRow = new SlimRow()
         {
-            ResultRow = new SlimRow()
-            {
-                Tag = tag,
-            };
-        }
+            Tag = tag,
+        };
+    }
 
-        public int RowsInGroup { get; set; }
-        private Dictionary<string, object> _state;
+    public int RowsInGroup { get; set; }
+    private Dictionary<string, object> _state;
 
-        public T GetStateValue<T>(string uniqueName, T defaultValue)
-        {
-            if (_state == null)
-                return defaultValue;
-
-            if (_state.TryGetValue(uniqueName, out var v) && (v is T value))
-                return value;
-
+    public T GetStateValue<T>(string uniqueName, T defaultValue)
+    {
+        if (_state == null)
             return defaultValue;
-        }
 
-        public void SetStateValue<T>(string uniqueName, T value)
-        {
-            if (_state == null)
-                _state = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        if (_state.TryGetValue(uniqueName, out var v) && (v is T value))
+            return value;
 
-            _state[uniqueName] = value;
-        }
+        return defaultValue;
+    }
+
+    public void SetStateValue<T>(string uniqueName, T value)
+    {
+        if (_state == null)
+            _state = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+        _state[uniqueName] = value;
     }
 }

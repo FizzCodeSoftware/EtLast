@@ -1,39 +1,38 @@
-﻿namespace FizzCode.EtLast.Diagnostics.Windows
+﻿namespace FizzCode.EtLast.Diagnostics.Windows;
+
+using System;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+
+public class ToolStripTextBoxWithPlaceHolderText : ToolStripTextBox
 {
-    using System;
-    using System.Runtime.InteropServices;
-    using System.Windows.Forms;
+    private string _placeHolder;
 
-    public class ToolStripTextBoxWithPlaceHolderText : ToolStripTextBox
+    public ToolStripTextBoxWithPlaceHolderText()
     {
-        private string _placeHolder;
-
-        public ToolStripTextBoxWithPlaceHolderText()
+        Control.HandleCreated += (s, e) =>
         {
-            Control.HandleCreated += (s, e) =>
-            {
-                if (!string.IsNullOrEmpty(_placeHolder))
-                    SetPlaceHolderText();
-            };
-        }
-
-        public string PlaceHolderText
-        {
-            get => _placeHolder;
-            set
-            {
-                _placeHolder = value;
+            if (!string.IsNullOrEmpty(_placeHolder))
                 SetPlaceHolderText();
-            }
-        }
-
-        private void SetPlaceHolderText()
-        {
-            const int EM_SETCUEBANNER = 0x1501;
-            _ = SendMessage(Control.Handle, EM_SETCUEBANNER, 0, _placeHolder);
-        }
-
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, string lParam);
+        };
     }
+
+    public string PlaceHolderText
+    {
+        get => _placeHolder;
+        set
+        {
+            _placeHolder = value;
+            SetPlaceHolderText();
+        }
+    }
+
+    private void SetPlaceHolderText()
+    {
+        const int EM_SETCUEBANNER = 0x1501;
+        _ = SendMessage(Control.Handle, EM_SETCUEBANNER, 0, _placeHolder);
+    }
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, string lParam);
 }

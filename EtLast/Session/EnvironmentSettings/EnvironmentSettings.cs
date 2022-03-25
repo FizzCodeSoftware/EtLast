@@ -1,13 +1,12 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+
+public sealed class EnvironmentSettings
 {
-    using System;
+    public SeqSettings SeqSettings { get; } = new SeqSettings();
+    public FileLogSettings FileLogSettings { get; } = new FileLogSettings();
+    public ConsoleLogSettings ConsoleLogSettings { get; } = new ConsoleLogSettings();
 
-    public sealed class EnvironmentSettings
-    {
-        public SeqSettings SeqSettings { get; } = new SeqSettings();
-        public FileLogSettings FileLogSettings { get; } = new FileLogSettings();
-        public ConsoleLogSettings ConsoleLogSettings { get; } = new ConsoleLogSettings();
-
-        public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromMinutes(60);
-    }
+    public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromMinutes(60);
 }

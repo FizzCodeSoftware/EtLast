@@ -1,17 +1,16 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.Collections.Generic;
+
+public sealed class ResilientSqlScopeProcessBuilder
 {
-    using System.Collections.Generic;
+    public ResilientSqlScope Scope { get; init; }
+    public List<IExecutable> Processes { get; } = new List<IExecutable>();
 
-    public sealed class ResilientSqlScopeProcessBuilder
+    public ResilientSqlScopeProcessBuilder Add(IExecutable process)
     {
-        public ResilientSqlScope Scope { get; init; }
-        public List<IExecutable> Processes { get; } = new List<IExecutable>();
+        Processes.Add(process);
 
-        public ResilientSqlScopeProcessBuilder Add(IExecutable process)
-        {
-            Processes.Add(process);
-
-            return this;
-        }
+        return this;
     }
 }

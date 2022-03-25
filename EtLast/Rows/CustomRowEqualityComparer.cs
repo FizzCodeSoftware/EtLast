@@ -1,19 +1,18 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+
+public delegate bool CustomRowEqualityComparerDelegate(IReadOnlySlimRow leftRow, IReadOnlySlimRow rightRow);
+
+public sealed class CustomRowEqualityComparer : IRowEqualityComparer
 {
-    using System;
+    public CustomRowEqualityComparerDelegate ComparerDelegate { get; set; }
 
-    public delegate bool CustomRowEqualityComparerDelegate(IReadOnlySlimRow leftRow, IReadOnlySlimRow rightRow);
-
-    public sealed class CustomRowEqualityComparer : IRowEqualityComparer
+    public bool Equals(IReadOnlySlimRow leftRow, IReadOnlySlimRow rightRow)
     {
-        public CustomRowEqualityComparerDelegate ComparerDelegate { get; set; }
+        if (ComparerDelegate == null)
+            throw new ArgumentException(nameof(ComparerDelegate) + " can not be null");
 
-        public bool Equals(IReadOnlySlimRow leftRow, IReadOnlySlimRow rightRow)
-        {
-            if (ComparerDelegate == null)
-                throw new ArgumentException(nameof(ComparerDelegate) + " can not be null");
-
-            return ComparerDelegate.Invoke(leftRow, rightRow);
-        }
+        return ComparerDelegate.Invoke(leftRow, rightRow);
     }
 }

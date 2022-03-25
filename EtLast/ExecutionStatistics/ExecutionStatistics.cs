@@ -1,54 +1,53 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+using System.Diagnostics;
+
+public sealed class ExecutionStatistics : IExecutionStatistics
 {
-    using System;
-    using System.Diagnostics;
+    public TimeSpan CpuTimeStart { get; private set; }
+    public long TotalAllocationsStart { get; private set; }
+    public long AllocationDifferenceStart { get; private set; }
 
-    public sealed class ExecutionStatistics : IExecutionStatistics
+    public TimeSpan CpuTimeFinish { get; private set; }
+    public long TotalAllocationsFinish { get; private set; }
+    public long AllocationDifferenceFinish { get; private set; }
+
+    public TimeSpan RunTime { get; private set; }
+    private Stopwatch _startedOn;
+
+    public void Start()
     {
-        public TimeSpan CpuTimeStart { get; private set; }
-        public long TotalAllocationsStart { get; private set; }
-        public long AllocationDifferenceStart { get; private set; }
+        GC.Collect();
+        CpuTimeStart = GetCpuTime();
+        TotalAllocationsStart = GetTotalAllocatedBytes();
+        AllocationDifferenceStart = GetCurrentAllocatedBytes();
+        _startedOn = Stopwatch.StartNew();
+    }
 
-        public TimeSpan CpuTimeFinish { get; private set; }
-        public long TotalAllocationsFinish { get; private set; }
-        public long AllocationDifferenceFinish { get; private set; }
+    public void Finish()
+    {
+        _startedOn.Stop();
+        RunTime = _startedOn.Elapsed;
 
-        public TimeSpan RunTime { get; private set; }
-        private Stopwatch _startedOn;
+        GC.Collect();
+        CpuTimeFinish = GetCpuTime();
+        TotalAllocationsFinish = GetTotalAllocatedBytes();
+        AllocationDifferenceFinish = GetCurrentAllocatedBytes();
+    }
 
-        public void Start()
-        {
-            GC.Collect();
-            CpuTimeStart = GetCpuTime();
-            TotalAllocationsStart = GetTotalAllocatedBytes();
-            AllocationDifferenceStart = GetCurrentAllocatedBytes();
-            _startedOn = Stopwatch.StartNew();
-        }
+    private static TimeSpan GetCpuTime()
+    {
+        return AppDomain.CurrentDomain.MonitoringTotalProcessorTime;
+    }
 
-        public void Finish()
-        {
-            _startedOn.Stop();
-            RunTime = _startedOn.Elapsed;
+    private static long GetCurrentAllocatedBytes()
+    {
+        return GC.GetTotalMemory(false);
+    }
 
-            GC.Collect();
-            CpuTimeFinish = GetCpuTime();
-            TotalAllocationsFinish = GetTotalAllocatedBytes();
-            AllocationDifferenceFinish = GetCurrentAllocatedBytes();
-        }
-
-        private static TimeSpan GetCpuTime()
-        {
-            return AppDomain.CurrentDomain.MonitoringTotalProcessorTime;
-        }
-
-        private static long GetCurrentAllocatedBytes()
-        {
-            return GC.GetTotalMemory(false);
-        }
-
-        private static long GetTotalAllocatedBytes()
-        {
-            return GC.GetTotalAllocatedBytes(false);
-        }
+    private static long GetTotalAllocatedBytes()
+    {
+        return GC.GetTotalAllocatedBytes(false);
     }
 }

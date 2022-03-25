@@ -1,33 +1,32 @@
-﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
+﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests;
+
+using System;
+using System.Collections.Generic;
+using FizzCode.EtLast;
+
+public class ThrowException : AbstractEtlTask
 {
-    using System;
-    using System.Collections.Generic;
-    using FizzCode.EtLast;
+    public Type ExceptionType { get; init; }
+    public string Message { get; init; }
 
-    public class ThrowException : AbstractEtlTask
+    public override void ValidateParameters()
     {
-        public Type ExceptionType { get; init; }
-        public string Message { get; init; }
+        if (ExceptionType == null)
+            throw new ProcessParameterNullException(this, nameof(ExceptionType));
 
-        public override void ValidateParameters()
+        if (Message == null)
+            throw new ProcessParameterNullException(this, nameof(Message));
+    }
+
+    public override IEnumerable<IExecutable> CreateProcesses()
+    {
+        yield return new CustomAction(Context)
         {
-            if (ExceptionType == null)
-                throw new ProcessParameterNullException(this, nameof(ExceptionType));
-
-            if (Message == null)
-                throw new ProcessParameterNullException(this, nameof(Message));
-        }
-
-        public override IEnumerable<IExecutable> CreateProcesses()
-        {
-            yield return new CustomAction(Context)
+            Action = _ =>
             {
-                Action = _ =>
-                {
-                    var ex = (Exception)Activator.CreateInstance(ExceptionType, new object[] { Message });
-                    throw ex;
-                },
-            };
-        }
+                var ex = (Exception)Activator.CreateInstance(ExceptionType, new object[] { Message });
+                throw ex;
+            },
+        };
     }
 }

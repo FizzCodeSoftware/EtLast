@@ -1,32 +1,31 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+using System.Collections.Generic;
+
+public delegate void TooManyMatchActionDelegate(IRow row, List<IReadOnlySlimRow> matches);
+
+public sealed class TooManyMatchAction
 {
-    using System;
-    using System.Collections.Generic;
+    public MatchMode Mode { get; }
+    public TooManyMatchActionDelegate CustomAction { get; init; }
 
-    public delegate void TooManyMatchActionDelegate(IRow row, List<IReadOnlySlimRow> matches);
-
-    public sealed class TooManyMatchAction
+    public TooManyMatchAction(MatchMode mode)
     {
-        public MatchMode Mode { get; }
-        public TooManyMatchActionDelegate CustomAction { get; init; }
+        Mode = mode;
+    }
 
-        public TooManyMatchAction(MatchMode mode)
+    public void InvokeCustomAction(IRow row, List<IReadOnlySlimRow> matches)
+    {
+        try
         {
-            Mode = mode;
+            var tracker = new TrackedRow(row);
+            CustomAction?.Invoke(tracker, matches);
+            tracker.ApplyChanges();
         }
-
-        public void InvokeCustomAction(IRow row, List<IReadOnlySlimRow> matches)
+        catch (Exception ex)
         {
-            try
-            {
-                var tracker = new TrackedRow(row);
-                CustomAction?.Invoke(tracker, matches);
-                tracker.ApplyChanges();
-            }
-            catch (Exception ex)
-            {
-                throw new TooManyMatchActionDelegateException(row.CurrentProcess, row, ex);
-            }
+            throw new TooManyMatchActionDelegateException(row.CurrentProcess, row, ex);
         }
     }
 }

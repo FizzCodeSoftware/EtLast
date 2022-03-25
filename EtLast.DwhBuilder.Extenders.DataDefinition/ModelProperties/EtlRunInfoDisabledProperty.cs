@@ -1,26 +1,25 @@
-﻿namespace FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition
+﻿namespace FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition;
+
+using FizzCode.DbTools.DataDefinition;
+
+public class EtlRunInfoDisabledProperty : SqlTableCustomProperty
 {
-    using FizzCode.DbTools.DataDefinition;
-
-    public class EtlRunInfoDisabledProperty : SqlTableCustomProperty
+    public EtlRunInfoDisabledProperty()
     {
-        public EtlRunInfoDisabledProperty()
-        {
-        }
-
-        public EtlRunInfoDisabledProperty(SqlTable table)
-            : base(table)
-        {
-        }
     }
 
-    public static class NoEtlRunColumnsPropertyHelper
+    public EtlRunInfoDisabledProperty(SqlTable table)
+        : base(table)
     {
-        public static EtlRunInfoDisabledProperty EtlRunInfoDisabled(this SqlTable sqlTable)
-        {
-            var property = new EtlRunInfoDisabledProperty(sqlTable);
-            sqlTable.Properties.Add(property);
-            return property;
-        }
+    }
+}
+
+public static class NoEtlRunColumnsPropertyHelper
+{
+    public static EtlRunInfoDisabledProperty EtlRunInfoDisabled(this SqlTable sqlTable)
+    {
+        var property = new EtlRunInfoDisabledProperty(sqlTable);
+        sqlTable.Properties.Add(property);
+        return property;
     }
 }

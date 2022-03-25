@@ -1,16 +1,15 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+
+public sealed class BasicScopeProcessFailedEventArgs : EventArgs
 {
-    using System;
+    public BasicScope Scope { get; }
+    public IExecutable Process { get; }
 
-    public sealed class BasicScopeProcessFailedEventArgs : EventArgs
+    public BasicScopeProcessFailedEventArgs(BasicScope scope, IExecutable process)
     {
-        public BasicScope Scope { get; }
-        public IExecutable Process { get; }
-
-        public BasicScopeProcessFailedEventArgs(BasicScope scope, IExecutable process)
-        {
-            Scope = scope;
-            Process = process;
-        }
+        Scope = scope;
+        Process = process;
     }
 }

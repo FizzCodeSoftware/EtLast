@@ -1,39 +1,38 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+public sealed class ProcessBuilder : IProcessBuilder
 {
-    public sealed class ProcessBuilder : IProcessBuilder
+    public IProducer InputProcess { get; set; }
+    public MutatorList Mutators { get; set; }
+
+    public IProducer Build()
     {
-        public IProducer InputProcess { get; set; }
-        public MutatorList Mutators { get; set; }
-
-        public IProducer Build()
+        if (Mutators == null || Mutators.Count == 0)
         {
-            if (Mutators == null || Mutators.Count == 0)
-            {
-                if (InputProcess == null)
-                    throw new InvalidParameterException(nameof(ProcessBuilder), nameof(InputProcess), null, "When " + nameof(InputProcess) + " is not specified then at least one mutator must be specified");
+            if (InputProcess == null)
+                throw new InvalidParameterException(nameof(ProcessBuilder), nameof(InputProcess), null, "When " + nameof(InputProcess) + " is not specified then at least one mutator must be specified");
 
-                return InputProcess;
-            }
+            return InputProcess;
+        }
 
-            var last = InputProcess;
-            foreach (var list in Mutators)
+        var last = InputProcess;
+        foreach (var list in Mutators)
+        {
+            if (list != null)
             {
-                if (list != null)
+                foreach (var mutator in list)
                 {
-                    foreach (var mutator in list)
+                    if (mutator != null)
                     {
-                        if (mutator != null)
-                        {
-                            mutator.InputProcess = last;
-                            last = mutator;
-                        }
+                        mutator.InputProcess = last;
+                        last = mutator;
                     }
                 }
             }
-
-            return last;
         }
 
-        public static IFluentProcessBuilder Fluent => new FluentProcessBuilder();
+        return last;
     }
+
+    public static IFluentProcessBuilder Fluent => new FluentProcessBuilder();
 }

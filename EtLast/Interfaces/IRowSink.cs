@@ -1,6 +1,5 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+public interface IRowSink : IMutator
 {
-    public interface IRowSink : IMutator
-    {
-    }
 }

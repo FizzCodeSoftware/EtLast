@@ -1,7 +1,6 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+public class ProcessResult
 {
-    public class ProcessResult
-    {
-        public int ExceptionCount { get; init; }
-    }
+    public int ExceptionCount { get; init; }
 }

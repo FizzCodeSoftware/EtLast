@@ -1,215 +1,214 @@
-﻿namespace FizzCode.EtLast.Diagnostics.Windows
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Drawing;
-    using System.Linq;
-    using System.Windows.Forms;
-    using BrightIdeasSoftware;
-    using FizzCode.EtLast.Diagnostics.Interface;
+﻿namespace FizzCode.EtLast.Diagnostics.Windows;
+
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Windows.Forms;
+using BrightIdeasSoftware;
+using FizzCode.EtLast.Diagnostics.Interface;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
-    internal class ControlUpdater<TItem>
+internal class ControlUpdater<TItem>
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
+{
+    public DiagContext Context { get; }
+    public Control Container { get; }
+    private readonly int _interval;
+    public ObjectListView ListView { get; }
+    public Func<TItem, bool> ItemFilter { get; set; }
+    public TextBox SearchBox { get; private set; }
+    public bool AutoUpdateUntilContextLoaded { get; set; }
+    public bool ContainsRows { get; set; }
+    public EventHandler<EventArgs> RefreshStarted { get; set; }
+    public EventHandler<EventArgs> RefreshFinished { get; set; }
+
+    private readonly Timer _timer;
+    private readonly List<TItem> _allItems = new();
+    private bool _newItem;
+
+    public ControlUpdater(DiagContext context, Control container, int interval = 1000, int firstInterval = 100)
     {
-        public DiagContext Context { get; }
-        public Control Container { get; }
-        private readonly int _interval;
-        public ObjectListView ListView { get; }
-        public Func<TItem, bool> ItemFilter { get; set; }
-        public TextBox SearchBox { get; private set; }
-        public bool AutoUpdateUntilContextLoaded { get; set; }
-        public bool ContainsRows { get; set; }
-        public EventHandler<EventArgs> RefreshStarted { get; set; }
-        public EventHandler<EventArgs> RefreshFinished { get; set; }
+        Context = context;
+        Container = container;
+        _interval = interval;
 
-        private readonly Timer _timer;
-        private readonly List<TItem> _allItems = new();
-        private bool _newItem;
-
-        public ControlUpdater(DiagContext context, Control container, int interval = 1000, int firstInterval = 100)
+        _timer = new Timer()
         {
-            Context = context;
-            Container = container;
-            _interval = interval;
+            Interval = firstInterval,
+            Enabled = false,
+        };
 
-            _timer = new Timer()
-            {
-                Interval = firstInterval,
-                Enabled = false,
-            };
+        ListView = CreateListView(container);
 
-            ListView = CreateListView(container);
-
-            _timer.Tick += Timer_Tick;
-        }
+        _timer.Tick += Timer_Tick;
+    }
 
 #pragma warning disable RCS1158 // Static member in generic type should use a type parameter.
-        public static ObjectListView CreateListView(Control container)
+    public static ObjectListView CreateListView(Control container)
 #pragma warning restore RCS1158 // Static member in generic type should use a type parameter.
+    {
+        var listView = new FastObjectListView()
         {
-            var listView = new FastObjectListView()
+            Parent = container,
+            BorderStyle = BorderStyle.FixedSingle,
+            ShowItemToolTips = true,
+            ShowGroups = false,
+            UseFiltering = true,
+            ShowCommandMenuOnRightClick = true,
+            SelectColumnsOnRightClickBehaviour = ObjectListView.ColumnSelectBehaviour.None,
+            ShowFilterMenuOnRightClick = true,
+            FullRowSelect = true,
+            UseAlternatingBackColors = true,
+            HeaderUsesThemes = true,
+            GridLines = true,
+            AlternateRowBackColor = Color.FromArgb(240, 240, 240),
+            UseFilterIndicator = true,
+            FilterMenuBuildStrategy = new DiagnosticsFilterMenuBuilder()
             {
-                Parent = container,
-                BorderStyle = BorderStyle.FixedSingle,
-                ShowItemToolTips = true,
-                ShowGroups = false,
-                UseFiltering = true,
-                ShowCommandMenuOnRightClick = true,
-                SelectColumnsOnRightClickBehaviour = ObjectListView.ColumnSelectBehaviour.None,
-                ShowFilterMenuOnRightClick = true,
-                FullRowSelect = true,
-                UseAlternatingBackColors = true,
-                HeaderUsesThemes = true,
-                GridLines = true,
-                AlternateRowBackColor = Color.FromArgb(240, 240, 240),
-                UseFilterIndicator = true,
-                FilterMenuBuildStrategy = new DiagnosticsFilterMenuBuilder()
+                MaxObjectsToConsider = int.MaxValue,
+            },
+            MultiSelect = false,
+            HideSelection = false,
+            /*UseHotItem = true,
+            HotItemStyle = new HotItemStyle()
+            {
+                Decoration = new RowBorderDecoration()
                 {
-                    MaxObjectsToConsider = int.MaxValue,
+                    BorderPen = new Pen(Color.DarkBlue, 1),
+                    BoundsPadding = new Size(1, 1),
+                    CornerRounding = 8,
                 },
-                MultiSelect = false,
-                HideSelection = false,
-                /*UseHotItem = true,
-                HotItemStyle = new HotItemStyle()
-                {
-                    Decoration = new RowBorderDecoration()
-                    {
-                        BorderPen = new Pen(Color.DarkBlue, 1),
-                        BoundsPadding = new Size(1, 1),
-                        CornerRounding = 8,
-                    },
-                },*/
-            };
+            },*/
+        };
 
-            listView.CellToolTip.IsBalloon = true;
+        listView.CellToolTip.IsBalloon = true;
 
-            return listView;
+        return listView;
+    }
+
+    public void CreateSearchBox(int x, int y, int w = 150, int h = 20)
+    {
+        SearchBox = new TextBox()
+        {
+            Parent = Container,
+            Bounds = new Rectangle(x, y, w, h),
+        };
+
+        SearchBox.TextChanged += (sender, e) =>
+        {
+            ListView.AdditionalFilter = !string.IsNullOrEmpty(SearchBox.Text)
+                ? TextMatchFilter.Contains(ListView, SearchBox.Text)
+                : null;
+        };
+    }
+
+    public void AddItem(TItem item)
+    {
+        _allItems.Add(item);
+        _newItem = true;
+    }
+
+    public void RefreshItems(bool resizeColumns)
+    {
+        RefreshStarted?.Invoke(this, EventArgs.Empty);
+
+        _newItem = false;
+
+        IEnumerable<TItem> query = _allItems;
+        if (ItemFilter != null)
+        {
+            query = query.Where(ItemFilter);
         }
 
-        public void CreateSearchBox(int x, int y, int w = 150, int h = 20)
+        if (resizeColumns)
         {
-            SearchBox = new TextBox()
-            {
-                Parent = Container,
-                Bounds = new Rectangle(x, y, w, h),
-            };
-
-            SearchBox.TextChanged += (sender, e) =>
-            {
-                ListView.AdditionalFilter = !string.IsNullOrEmpty(SearchBox.Text)
-                    ? TextMatchFilter.Contains(ListView, SearchBox.Text)
-                    : null;
-            };
-        }
-
-        public void AddItem(TItem item)
-        {
-            _allItems.Add(item);
-            _newItem = true;
-        }
-
-        public void RefreshItems(bool resizeColumns)
-        {
-            RefreshStarted?.Invoke(this, EventArgs.Empty);
-
-            _newItem = false;
-
-            IEnumerable<TItem> query = _allItems;
-            if (ItemFilter != null)
-            {
-                query = query.Where(ItemFilter);
-            }
-
-            if (resizeColumns)
-            {
-                ListView.BeginUpdate();
-                try
-                {
-                    ListView.SetObjects(query);
-
-                    ResizeListView(ListView);
-                }
-                finally
-                {
-                    ListView.EndUpdate();
-                }
-            }
-            else
+            ListView.BeginUpdate();
+            try
             {
                 ListView.SetObjects(query);
+
+                ResizeListView(ListView);
             }
-
-            RefreshFinished?.Invoke(this, EventArgs.Empty);
+            finally
+            {
+                ListView.EndUpdate();
+            }
         }
-
-        private void ResizeListView(ObjectListView listView)
+        else
         {
-            if (listView.Items.Count == 0)
-                return;
-
-            foreach (OLVColumn col in listView.Columns)
-            {
-                col.MinimumWidth = 0;
-                col.AutoResize(ContainsRows ? ColumnHeaderAutoResizeStyle.HeaderSize : ColumnHeaderAutoResizeStyle.ColumnContent);
-            }
-
-            foreach (OLVColumn col in listView.Columns)
-            {
-                col.Width += 5;
-            }
+            ListView.SetObjects(query);
         }
+
+        RefreshFinished?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void ResizeListView(ObjectListView listView)
+    {
+        if (listView.Items.Count == 0)
+            return;
+
+        foreach (OLVColumn col in listView.Columns)
+        {
+            col.MinimumWidth = 0;
+            col.AutoResize(ContainsRows ? ColumnHeaderAutoResizeStyle.HeaderSize : ColumnHeaderAutoResizeStyle.ColumnContent);
+        }
+
+        foreach (OLVColumn col in listView.Columns)
+        {
+            col.Width += 5;
+        }
+    }
 
 #pragma warning disable RCS1158 // Static member in generic type should use a type parameter.
-        public static void ResizeListViewWithRows(ObjectListView listView)
+    public static void ResizeListViewWithRows(ObjectListView listView)
 #pragma warning restore RCS1158 // Static member in generic type should use a type parameter.
+    {
+        foreach (OLVColumn col in listView.Columns)
         {
-            foreach (OLVColumn col in listView.Columns)
-            {
-                col.MinimumWidth = 0;
-                col.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
-            }
-
-            foreach (OLVColumn col in listView.Columns)
-            {
-                col.Width += 20;
-            }
+            col.MinimumWidth = 0;
+            col.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        foreach (OLVColumn col in listView.Columns)
         {
-            if (ListView?.Visible == true)
+            col.Width += 20;
+        }
+    }
+
+    private void Timer_Tick(object sender, EventArgs e)
+    {
+        if (ListView?.Visible == true)
+        {
+            var refresh = _newItem;
+            if (refresh)
             {
-                var refresh = _newItem;
-                if (refresh)
+                RefreshItems(true);
+            }
+            else if (AutoUpdateUntilContextLoaded)
+            {
+                if (Context?.FullyLoaded == true)
                 {
-                    RefreshItems(true);
+                    AutoUpdateUntilContextLoaded = false;
                 }
-                else if (AutoUpdateUntilContextLoaded)
-                {
-                    if (Context?.FullyLoaded == true)
-                    {
-                        AutoUpdateUntilContextLoaded = false;
-                    }
 
-                    ListView.Invalidate();
-                }
-            }
-
-            if (_interval != -1)
-            {
-                if (_timer.Interval != _interval)
-                    _timer.Interval = _interval;
-            }
-            else
-            {
-                _timer.Stop();
+                ListView.Invalidate();
             }
         }
 
-        public void Start()
+        if (_interval != -1)
         {
-            _timer.Start();
+            if (_timer.Interval != _interval)
+                _timer.Interval = _interval;
         }
+        else
+        {
+            _timer.Stop();
+        }
+    }
+
+    public void Start()
+    {
+        _timer.Start();
     }
 }

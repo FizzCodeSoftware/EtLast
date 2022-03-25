@@ -1,502 +1,501 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+
+public sealed class ContinuousGroupByOperation : AbstractContinuousAggregationOperation
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
+    public delegate void ContinuousGroupByAggregatorDelegate(ContinuousAggregate aggregate, IReadOnlySlimRow row);
+    public int AggregatorCount => _aggregators.Count;
+    private readonly List<ContinuousGroupByAggregatorDelegate> _aggregators = new();
 
-    public sealed class ContinuousGroupByOperation : AbstractContinuousAggregationOperation
+    public ContinuousGroupByOperation AddAggregator(ContinuousGroupByAggregatorDelegate aggregator)
     {
-        public delegate void ContinuousGroupByAggregatorDelegate(ContinuousAggregate aggregate, IReadOnlySlimRow row);
-        public int AggregatorCount => _aggregators.Count;
-        private readonly List<ContinuousGroupByAggregatorDelegate> _aggregators = new();
-
-        public ContinuousGroupByOperation AddAggregator(ContinuousGroupByAggregatorDelegate aggregator)
-        {
-            _aggregators.Add(aggregator);
-            return this;
-        }
-
-        public override void TransformAggregate(IReadOnlySlimRow row, ContinuousAggregate aggregate)
-        {
-            foreach (var aggregator in _aggregators)
-            {
-                aggregator.Invoke(aggregate, row);
-            }
-        }
+        _aggregators.Add(aggregator);
+        return this;
     }
 
-    public static class ContinuousGroupByOperationExtensions
+    public override void TransformAggregate(IReadOnlySlimRow row, ContinuousAggregate aggregate)
     {
-        /// <summary>
-        /// New value will be integer.
-        /// </summary>
-        public static ContinuousGroupByOperation AddIntNumberOfDistinctKeys(this ContinuousGroupByOperation op, string column, RowKeyGenerator keyGenerator)
+        foreach (var aggregator in _aggregators)
         {
-            var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddIntNumberOfDistinctKeys);
-            return op.AddAggregator((aggregate, row) =>
-            {
-                var key = keyGenerator.Invoke(row);
-                if (key != null)
-                {
-                    var hashset = aggregate.GetStateValue<HashSet<string>>(id, null);
-                    if (hashset == null)
-                    {
-                        hashset = new HashSet<string>();
-                        aggregate.SetStateValue(id, hashset);
-                    }
-
-                    if (!hashset.Contains(key))
-                    {
-                        hashset.Add(key);
-                        var newValue = hashset.Count;
-                        aggregate.ResultRow[column] = newValue;
-                    }
-                }
-            });
+            aggregator.Invoke(aggregate, row);
         }
+    }
+}
 
-        /// <summary>
-        /// New value will be integer.
-        /// </summary>
-        public static ContinuousGroupByOperation AddIntCount(this ContinuousGroupByOperation op, string targetColumn)
+public static class ContinuousGroupByOperationExtensions
+{
+    /// <summary>
+    /// New value will be integer.
+    /// </summary>
+    public static ContinuousGroupByOperation AddIntNumberOfDistinctKeys(this ContinuousGroupByOperation op, string column, RowKeyGenerator keyGenerator)
+    {
+        var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddIntNumberOfDistinctKeys);
+        return op.AddAggregator((aggregate, row) =>
         {
-            return op.AddAggregator((aggregate, row) =>
+            var key = keyGenerator.Invoke(row);
+            if (key != null)
+            {
+                var hashset = aggregate.GetStateValue<HashSet<string>>(id, null);
+                if (hashset == null)
+                {
+                    hashset = new HashSet<string>();
+                    aggregate.SetStateValue(id, hashset);
+                }
+
+                if (!hashset.Contains(key))
+                {
+                    hashset.Add(key);
+                    var newValue = hashset.Count;
+                    aggregate.ResultRow[column] = newValue;
+                }
+            }
+        });
+    }
+
+    /// <summary>
+    /// New value will be integer.
+    /// </summary>
+    public static ContinuousGroupByOperation AddIntCount(this ContinuousGroupByOperation op, string targetColumn)
+    {
+        return op.AddAggregator((aggregate, row) =>
+        {
+            var newValue = aggregate.ResultRow.GetAs(targetColumn, 0) + 1;
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
+
+    /// <summary>
+    /// New value will be integer.
+    /// </summary>
+    public static ContinuousGroupByOperation AddIntCountWhenNotNull(this ContinuousGroupByOperation op, string targetColumn, string columnToCheckForNull)
+    {
+        return op.AddAggregator((aggregate, row) =>
+        {
+            if (row.HasValue(columnToCheckForNull))
             {
                 var newValue = aggregate.ResultRow.GetAs(targetColumn, 0) + 1;
                 aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
+            }
+        });
+    }
 
-        /// <summary>
-        /// New value will be integer.
-        /// </summary>
-        public static ContinuousGroupByOperation AddIntCountWhenNotNull(this ContinuousGroupByOperation op, string targetColumn, string columnToCheckForNull)
+    /// <summary>
+    /// New value will be integer.
+    /// </summary>
+    public static ContinuousGroupByOperation AddIntCountWhenNull(this ContinuousGroupByOperation op, string targetColumn, string columnToCheckForNull)
+    {
+        return op.AddAggregator((aggregate, row) =>
         {
-            return op.AddAggregator((aggregate, row) =>
+            if (!row.HasValue(columnToCheckForNull))
             {
-                if (row.HasValue(columnToCheckForNull))
-                {
-                    var newValue = aggregate.ResultRow.GetAs(targetColumn, 0) + 1;
-                    aggregate.ResultRow[targetColumn] = newValue;
-                }
-            });
-        }
-
-        /// <summary>
-        /// New value will be integer.
-        /// </summary>
-        public static ContinuousGroupByOperation AddIntCountWhenNull(this ContinuousGroupByOperation op, string targetColumn, string columnToCheckForNull)
-        {
-            return op.AddAggregator((aggregate, row) =>
-            {
-                if (!row.HasValue(columnToCheckForNull))
-                {
-                    var newValue = aggregate.ResultRow.GetAs(targetColumn, 0) + 1;
-                    aggregate.ResultRow[targetColumn] = newValue;
-                }
-            });
-        }
-
-        /// <summary>
-        /// New value will be double.
-        /// </summary>
-        public static ContinuousGroupByOperation AddIntAverage(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
-        {
-            var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddIntAverage);
-
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
-
-            return op.AddAggregator((aggregate, row) =>
-            {
-                var newSum = aggregate.GetStateValue(id, 0) + row.GetAs(sourceColumn, 0);
-                aggregate.SetStateValue(id, newSum);
-
-                var newValue = newSum / (double)(aggregate.RowsInGroup + 1);
+                var newValue = aggregate.ResultRow.GetAs(targetColumn, 0) + 1;
                 aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
+            }
+        });
+    }
 
-        /// <summary>
-        /// New value will be double.
-        /// </summary>
-        public static ContinuousGroupByOperation AddLongAverage(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    /// <summary>
+    /// New value will be double.
+    /// </summary>
+    public static ContinuousGroupByOperation AddIntAverage(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddIntAverage);
+
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
+
+        return op.AddAggregator((aggregate, row) =>
         {
-            var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddLongAverage);
+            var newSum = aggregate.GetStateValue(id, 0) + row.GetAs(sourceColumn, 0);
+            aggregate.SetStateValue(id, newSum);
 
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
+            var newValue = newSum / (double)(aggregate.RowsInGroup + 1);
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
 
-            return op.AddAggregator((aggregate, row) =>
-            {
-                var newSum = aggregate.GetStateValue(id, 0L) + row.GetAs(sourceColumn, 0L);
-                aggregate.SetStateValue(id, newSum);
+    /// <summary>
+    /// New value will be double.
+    /// </summary>
+    public static ContinuousGroupByOperation AddLongAverage(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddLongAverage);
 
-                var newValue = newSum / (double)(aggregate.RowsInGroup + 1);
-                aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
 
-        /// <summary>
-        /// New value will be double.
-        /// </summary>
-        public static ContinuousGroupByOperation AddDoubleAverage(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+        return op.AddAggregator((aggregate, row) =>
         {
-            var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverage);
+            var newSum = aggregate.GetStateValue(id, 0L) + row.GetAs(sourceColumn, 0L);
+            aggregate.SetStateValue(id, newSum);
 
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
+            var newValue = newSum / (double)(aggregate.RowsInGroup + 1);
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
 
-            return op.AddAggregator((aggregate, row) =>
-            {
-                var newSum = aggregate.GetStateValue(id, 0.0d) + row.GetAs(sourceColumn, 0.0d);
-                aggregate.SetStateValue(id, newSum);
+    /// <summary>
+    /// New value will be double.
+    /// </summary>
+    public static ContinuousGroupByOperation AddDoubleAverage(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverage);
 
-                var newValue = newSum / (aggregate.RowsInGroup + 1);
-                aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
 
-        /// <summary>
-        /// New value will be double. Null values are ignored.
-        /// </summary>
-        public static ContinuousGroupByOperation AddDoubleAverageIgnoreNull(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+        return op.AddAggregator((aggregate, row) =>
         {
-            var idSum = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":sum";
-            var idCnt = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":cnt";
+            var newSum = aggregate.GetStateValue(id, 0.0d) + row.GetAs(sourceColumn, 0.0d);
+            aggregate.SetStateValue(id, newSum);
 
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
+            var newValue = newSum / (aggregate.RowsInGroup + 1);
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
 
-            return op.AddAggregator((aggregate, row) =>
-            {
-                if (!row.HasValue(sourceColumn))
-                    return;
+    /// <summary>
+    /// New value will be double. Null values are ignored.
+    /// </summary>
+    public static ContinuousGroupByOperation AddDoubleAverageIgnoreNull(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        var idSum = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":sum";
+        var idCnt = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":cnt";
 
-                var newSum = aggregate.GetStateValue(idSum, 0.0d) + row.GetAs(sourceColumn, 0.0);
-                aggregate.SetStateValue(idSum, newSum);
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
 
-                var newCnt = aggregate.GetStateValue(idCnt, 0) + 1;
-                aggregate.SetStateValue(idCnt, newCnt);
-
-                var newValue = newSum / newCnt;
-                aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
-
-        /// <summary>
-        /// New value will be decimal.
-        /// </summary>
-        public static ContinuousGroupByOperation AddDecimalAverage(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+        return op.AddAggregator((aggregate, row) =>
         {
-            var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDecimalAverage);
+            if (!row.HasValue(sourceColumn))
+                return;
 
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
+            var newSum = aggregate.GetStateValue(idSum, 0.0d) + row.GetAs(sourceColumn, 0.0);
+            aggregate.SetStateValue(idSum, newSum);
 
-            return op.AddAggregator((aggregate, row) =>
-            {
-                var newSum = aggregate.GetStateValue(id, 0m) + row.GetAs(sourceColumn, 0m);
-                aggregate.SetStateValue(id, newSum);
+            var newCnt = aggregate.GetStateValue(idCnt, 0) + 1;
+            aggregate.SetStateValue(idCnt, newCnt);
 
-                var newValue = newSum / (aggregate.RowsInGroup + 1);
-                aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
+            var newValue = newSum / newCnt;
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
 
-        /// <summary>
-        /// New value will be int.
-        /// </summary>
-        public static ContinuousGroupByOperation AddIntSum(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    /// <summary>
+    /// New value will be decimal.
+    /// </summary>
+    public static ContinuousGroupByOperation AddDecimalAverage(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDecimalAverage);
+
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
+
+        return op.AddAggregator((aggregate, row) =>
         {
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
+            var newSum = aggregate.GetStateValue(id, 0m) + row.GetAs(sourceColumn, 0m);
+            aggregate.SetStateValue(id, newSum);
 
-            return op.AddAggregator((aggregate, row) =>
-            {
-                var newValue = aggregate.ResultRow.GetAs(targetColumn, 0) + row.GetAs(sourceColumn, 0);
-                aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
+            var newValue = newSum / (aggregate.RowsInGroup + 1);
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
 
-        /// <summary>
-        /// New value will be long.
-        /// </summary>
-        public static ContinuousGroupByOperation AddLongSum(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    /// <summary>
+    /// New value will be int.
+    /// </summary>
+    public static ContinuousGroupByOperation AddIntSum(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
+
+        return op.AddAggregator((aggregate, row) =>
         {
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
+            var newValue = aggregate.ResultRow.GetAs(targetColumn, 0) + row.GetAs(sourceColumn, 0);
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
 
-            return op.AddAggregator((aggregate, row) =>
-            {
-                var newValue = aggregate.ResultRow.GetAs(targetColumn, 0L) + row.GetAs(sourceColumn, 0L);
-                aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
+    /// <summary>
+    /// New value will be long.
+    /// </summary>
+    public static ContinuousGroupByOperation AddLongSum(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
 
-        /// <summary>
-        /// New value will be double.
-        /// </summary>
-        public static ContinuousGroupByOperation AddDoubleSum(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+        return op.AddAggregator((aggregate, row) =>
         {
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
+            var newValue = aggregate.ResultRow.GetAs(targetColumn, 0L) + row.GetAs(sourceColumn, 0L);
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
 
-            return op.AddAggregator((aggregate, row) =>
-            {
-                var newValue = aggregate.ResultRow.GetAs(targetColumn, 0.0d) + row.GetAs(sourceColumn, 0.0d);
-                aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
+    /// <summary>
+    /// New value will be double.
+    /// </summary>
+    public static ContinuousGroupByOperation AddDoubleSum(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
 
-        /// <summary>
-        /// New value will be decimal.
-        /// </summary>
-        public static ContinuousGroupByOperation AddDecimalSum(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+        return op.AddAggregator((aggregate, row) =>
         {
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
+            var newValue = aggregate.ResultRow.GetAs(targetColumn, 0.0d) + row.GetAs(sourceColumn, 0.0d);
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
 
-            return op.AddAggregator((aggregate, row) =>
-            {
-                var newValue = aggregate.ResultRow.GetAs(targetColumn, 0m) + row.GetAs(sourceColumn, 0m);
-                aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
+    /// <summary>
+    /// New value will be decimal.
+    /// </summary>
+    public static ContinuousGroupByOperation AddDecimalSum(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
 
-        /// <summary>
-        /// New value will be int.
-        /// </summary>
-        public static ContinuousGroupByOperation AddIntMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+        return op.AddAggregator((aggregate, row) =>
         {
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
+            var newValue = aggregate.ResultRow.GetAs(targetColumn, 0m) + row.GetAs(sourceColumn, 0m);
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
 
-            return op.AddAggregator((aggregate, row) =>
-            {
-                var newValue = aggregate.ResultRow.HasValue(targetColumn)
-                    ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0), row.GetAs(sourceColumn, 0))
-                    : row.GetAs(sourceColumn, 0);
-                aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
+    /// <summary>
+    /// New value will be int.
+    /// </summary>
+    public static ContinuousGroupByOperation AddIntMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
 
-        /// <summary>
-        /// New value will be long.
-        /// </summary>
-        public static ContinuousGroupByOperation AddLongMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+        return op.AddAggregator((aggregate, row) =>
         {
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
+            var newValue = aggregate.ResultRow.HasValue(targetColumn)
+                ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0), row.GetAs(sourceColumn, 0))
+                : row.GetAs(sourceColumn, 0);
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
 
-            return op.AddAggregator((aggregate, row) =>
-            {
-                var newValue = aggregate.ResultRow.HasValue(targetColumn)
-                    ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0L), row.GetAs(sourceColumn, 0L))
-                    : row.GetAs(sourceColumn, 0L);
-                aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
+    /// <summary>
+    /// New value will be long.
+    /// </summary>
+    public static ContinuousGroupByOperation AddLongMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
 
-        /// <summary>
-        /// New value will be double.
-        /// </summary>
-        public static ContinuousGroupByOperation AddDoubleMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+        return op.AddAggregator((aggregate, row) =>
         {
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
+            var newValue = aggregate.ResultRow.HasValue(targetColumn)
+                ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0L), row.GetAs(sourceColumn, 0L))
+                : row.GetAs(sourceColumn, 0L);
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
 
-            return op.AddAggregator((aggregate, row) =>
-            {
-                var newValue = aggregate.ResultRow.HasValue(targetColumn)
-                    ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0.0d), row.GetAs(sourceColumn, 0.0d))
-                    : row.GetAs(sourceColumn, 0.0d);
-                aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
+    /// <summary>
+    /// New value will be double.
+    /// </summary>
+    public static ContinuousGroupByOperation AddDoubleMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
 
-        /// <summary>
-        /// New value will be decimal.
-        /// </summary>
-        public static ContinuousGroupByOperation AddDecimalMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+        return op.AddAggregator((aggregate, row) =>
         {
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
+            var newValue = aggregate.ResultRow.HasValue(targetColumn)
+                ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0.0d), row.GetAs(sourceColumn, 0.0d))
+                : row.GetAs(sourceColumn, 0.0d);
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
 
-            return op.AddAggregator((aggregate, row) =>
-            {
-                var newValue = aggregate.ResultRow.HasValue(targetColumn)
-                    ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0m), row.GetAs(sourceColumn, 0m))
-                    : row.GetAs(sourceColumn, 0m);
-                aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
+    /// <summary>
+    /// New value will be decimal.
+    /// </summary>
+    public static ContinuousGroupByOperation AddDecimalMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
 
-        /// <summary>
-        /// New value will be datetime.
-        /// </summary>
-        public static ContinuousGroupByOperation AddDateTimeMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+        return op.AddAggregator((aggregate, row) =>
         {
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
+            var newValue = aggregate.ResultRow.HasValue(targetColumn)
+                ? Math.Max(aggregate.ResultRow.GetAs(targetColumn, 0m), row.GetAs(sourceColumn, 0m))
+                : row.GetAs(sourceColumn, 0m);
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
 
-            return op.AddAggregator((aggregate, row) =>
-            {
-                if (aggregate.ResultRow.HasValue(targetColumn))
-                {
-                    var source = row.GetAs(sourceColumn, DateTime.MinValue);
-                    var target = aggregate.ResultRow.GetAs<DateTime>(targetColumn);
-                    if (source > target)
-                        aggregate.ResultRow[targetColumn] = source;
-                }
-                else
-                {
-                    aggregate.ResultRow[targetColumn] = row.GetAs(sourceColumn, DateTime.MinValue);
-                }
-            });
-        }
+    /// <summary>
+    /// New value will be datetime.
+    /// </summary>
+    public static ContinuousGroupByOperation AddDateTimeMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
 
-        /// <summary>
-        /// New value will be int.
-        /// </summary>
-        public static ContinuousGroupByOperation AddIntMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+        return op.AddAggregator((aggregate, row) =>
         {
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
-
-            return op.AddAggregator((aggregate, row) =>
+            if (aggregate.ResultRow.HasValue(targetColumn))
             {
-                var newValue = aggregate.ResultRow.HasValue(targetColumn)
-                    ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0), row.GetAs(sourceColumn, 0))
-                    : row.GetAs(sourceColumn, 0);
-                aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
+                var source = row.GetAs(sourceColumn, DateTime.MinValue);
+                var target = aggregate.ResultRow.GetAs<DateTime>(targetColumn);
+                if (source > target)
+                    aggregate.ResultRow[targetColumn] = source;
+            }
+            else
+            {
+                aggregate.ResultRow[targetColumn] = row.GetAs(sourceColumn, DateTime.MinValue);
+            }
+        });
+    }
 
-        /// <summary>
-        /// New value will be long.
-        /// </summary>
-        public static ContinuousGroupByOperation AddLongMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    /// <summary>
+    /// New value will be int.
+    /// </summary>
+    public static ContinuousGroupByOperation AddIntMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
+
+        return op.AddAggregator((aggregate, row) =>
         {
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
+            var newValue = aggregate.ResultRow.HasValue(targetColumn)
+                ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0), row.GetAs(sourceColumn, 0))
+                : row.GetAs(sourceColumn, 0);
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
 
-            return op.AddAggregator((aggregate, row) =>
-            {
-                var newValue = aggregate.ResultRow.HasValue(targetColumn)
-                    ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0L), row.GetAs(sourceColumn, 0L))
-                    : row.GetAs(sourceColumn, 0L);
-                aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
+    /// <summary>
+    /// New value will be long.
+    /// </summary>
+    public static ContinuousGroupByOperation AddLongMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
 
-        /// <summary>
-        /// New value will be double.
-        /// </summary>
-        public static ContinuousGroupByOperation AddDoubleMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+        return op.AddAggregator((aggregate, row) =>
         {
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
+            var newValue = aggregate.ResultRow.HasValue(targetColumn)
+                ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0L), row.GetAs(sourceColumn, 0L))
+                : row.GetAs(sourceColumn, 0L);
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
 
-            return op.AddAggregator((aggregate, row) =>
-            {
-                var newValue = aggregate.ResultRow.HasValue(targetColumn)
-                    ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0.0d), row.GetAs(sourceColumn, 0.0d))
-                    : row.GetAs(sourceColumn, 0.0d);
-                aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
+    /// <summary>
+    /// New value will be double.
+    /// </summary>
+    public static ContinuousGroupByOperation AddDoubleMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
 
-        /// <summary>
-        /// New value will be decimal.
-        /// </summary>
-        public static ContinuousGroupByOperation AddDecimalMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+        return op.AddAggregator((aggregate, row) =>
         {
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
+            var newValue = aggregate.ResultRow.HasValue(targetColumn)
+                ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0.0d), row.GetAs(sourceColumn, 0.0d))
+                : row.GetAs(sourceColumn, 0.0d);
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
 
-            return op.AddAggregator((aggregate, row) =>
-            {
-                var newValue = aggregate.ResultRow.HasValue(targetColumn)
-                    ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0m), row.GetAs(sourceColumn, 0m))
-                    : row.GetAs(sourceColumn, 0m);
-                aggregate.ResultRow[targetColumn] = newValue;
-            });
-        }
+    /// <summary>
+    /// New value will be decimal.
+    /// </summary>
+    public static ContinuousGroupByOperation AddDecimalMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
 
-        /// <summary>
-        /// New value will be datetime.
-        /// </summary>
-        public static ContinuousGroupByOperation AddDateTimeMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+        return op.AddAggregator((aggregate, row) =>
         {
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
+            var newValue = aggregate.ResultRow.HasValue(targetColumn)
+                ? Math.Min(aggregate.ResultRow.GetAs(targetColumn, 0m), row.GetAs(sourceColumn, 0m))
+                : row.GetAs(sourceColumn, 0m);
+            aggregate.ResultRow[targetColumn] = newValue;
+        });
+    }
 
-            return op.AddAggregator((aggregate, row) =>
-            {
-                if (aggregate.ResultRow.HasValue(targetColumn))
-                {
-                    var source = row.GetAs(sourceColumn, DateTime.MaxValue);
-                    var target = aggregate.ResultRow.GetAs<DateTime>(targetColumn);
-                    if (source < target)
-                        aggregate.ResultRow[targetColumn] = source;
-                }
-                else
-                {
-                    aggregate.ResultRow[targetColumn] = row.GetAs(sourceColumn, DateTime.MaxValue);
-                }
-            });
-        }
+    /// <summary>
+    /// New value will be datetime.
+    /// </summary>
+    public static ContinuousGroupByOperation AddDateTimeMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
+    {
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
 
-        /// <summary>
-        /// Calculates the standard deviation for an aggregate.
-        /// https://math.stackexchange.com/questions/198336/how-to-calculate-standard-deviation-with-streaming-inputs
-        /// </summary>
-        /// <param name="op">The operation</param>
-        /// <param name="useEntirePopulation">If true, equivalent to STDEV.P, if false, STDEV.S</param>
-        /// <param name="sourceColumn">The source column.</param>
-        /// <param name="targetColumn">The targe column.</param>
-        public static ContinuousGroupByOperation AddDoubleStandardDeviation(this ContinuousGroupByOperation op, bool useEntirePopulation, string sourceColumn, string targetColumn = null)
+        return op.AddAggregator((aggregate, row) =>
         {
-            if (targetColumn == null)
-                targetColumn = sourceColumn;
-
-            var idM2 = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":m2";
-            var idCnt = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":cnt";
-            var idMean = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":mean";
-
-            return op.AddAggregator((aggregate, row) =>
+            if (aggregate.ResultRow.HasValue(targetColumn))
             {
-                if (!row.HasValue(sourceColumn))
-                    return;
+                var source = row.GetAs(sourceColumn, DateTime.MaxValue);
+                var target = aggregate.ResultRow.GetAs<DateTime>(targetColumn);
+                if (source < target)
+                    aggregate.ResultRow[targetColumn] = source;
+            }
+            else
+            {
+                aggregate.ResultRow[targetColumn] = row.GetAs(sourceColumn, DateTime.MaxValue);
+            }
+        });
+    }
 
-                var m2 = aggregate.GetStateValue(idM2, 0.0);
-                var newCount = aggregate.GetStateValue(idCnt, 0) + 1;
-                var mean = aggregate.GetStateValue(idMean, 0.0);
+    /// <summary>
+    /// Calculates the standard deviation for an aggregate.
+    /// https://math.stackexchange.com/questions/198336/how-to-calculate-standard-deviation-with-streaming-inputs
+    /// </summary>
+    /// <param name="op">The operation</param>
+    /// <param name="useEntirePopulation">If true, equivalent to STDEV.P, if false, STDEV.S</param>
+    /// <param name="sourceColumn">The source column.</param>
+    /// <param name="targetColumn">The targe column.</param>
+    public static ContinuousGroupByOperation AddDoubleStandardDeviation(this ContinuousGroupByOperation op, bool useEntirePopulation, string sourceColumn, string targetColumn = null)
+    {
+        if (targetColumn == null)
+            targetColumn = sourceColumn;
 
-                var value = row.GetAs(sourceColumn, 0.0);
+        var idM2 = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":m2";
+        var idCnt = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":cnt";
+        var idMean = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":mean";
 
-                var delta = value - mean;
-                mean += delta / newCount;
-                m2 += delta * (value - mean);
+        return op.AddAggregator((aggregate, row) =>
+        {
+            if (!row.HasValue(sourceColumn))
+                return;
 
-                if (!useEntirePopulation && newCount < 2)
-                {
-                    aggregate.ResultRow[targetColumn] = null;
-                }
-                else
-                {
-                    var divider = useEntirePopulation
-                        ? newCount
-                        : newCount - 1;
+            var m2 = aggregate.GetStateValue(idM2, 0.0);
+            var newCount = aggregate.GetStateValue(idCnt, 0) + 1;
+            var mean = aggregate.GetStateValue(idMean, 0.0);
 
-                    aggregate.ResultRow[targetColumn] = Math.Sqrt(m2 / divider);
-                }
+            var value = row.GetAs(sourceColumn, 0.0);
 
-                aggregate.SetStateValue(idM2, m2);
-                aggregate.SetStateValue(idCnt, newCount);
-                aggregate.SetStateValue(idMean, mean);
-            });
-        }
+            var delta = value - mean;
+            mean += delta / newCount;
+            m2 += delta * (value - mean);
+
+            if (!useEntirePopulation && newCount < 2)
+            {
+                aggregate.ResultRow[targetColumn] = null;
+            }
+            else
+            {
+                var divider = useEntirePopulation
+                    ? newCount
+                    : newCount - 1;
+
+                aggregate.ResultRow[targetColumn] = Math.Sqrt(m2 / divider);
+            }
+
+            aggregate.SetStateValue(idM2, m2);
+            aggregate.SetStateValue(idCnt, newCount);
+            aggregate.SetStateValue(idMean, mean);
+        });
     }
 }

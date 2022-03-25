@@ -1,24 +1,23 @@
-﻿namespace FizzCode.EtLast.Diagnostics.Interface
+﻿namespace FizzCode.EtLast.Diagnostics.Interface;
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+
+[DebuggerDisplay("{SessionId}")]
+public class DiagSession
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
+    public string SessionId { get; }
+    public string DataFolder { get; }
+    public DateTime StartedOn { get; }
 
-    [DebuggerDisplay("{SessionId}")]
-    public class DiagSession
+    public List<DiagContext> ContextList { get; } = new List<DiagContext>();
+    public Dictionary<string, DiagContext> ContextListByName { get; } = new Dictionary<string, DiagContext>();
+
+    public DiagSession(string name, string dataFolder, DateTime startedOn)
     {
-        public string SessionId { get; }
-        public string DataFolder { get; }
-        public DateTime StartedOn { get; }
-
-        public List<DiagContext> ContextList { get; } = new List<DiagContext>();
-        public Dictionary<string, DiagContext> ContextListByName { get; } = new Dictionary<string, DiagContext>();
-
-        public DiagSession(string name, string dataFolder, DateTime startedOn)
-        {
-            SessionId = name;
-            DataFolder = dataFolder;
-            StartedOn = startedOn;
-        }
+        SessionId = name;
+        DataFolder = dataFolder;
+        StartedOn = startedOn;
     }
 }

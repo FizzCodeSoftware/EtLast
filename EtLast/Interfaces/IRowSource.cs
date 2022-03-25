@@ -1,6 +1,5 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+public interface IRowSource : IProducer
 {
-    public interface IRowSource : IProducer
-    {
-    }
 }

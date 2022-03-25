@@ -1,7 +1,6 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+public interface IProcessBuilder
 {
-    public interface IProcessBuilder
-    {
-        IProducer Build();
-    }
+    IProducer Build();
 }

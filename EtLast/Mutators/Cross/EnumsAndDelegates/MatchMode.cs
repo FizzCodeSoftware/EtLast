@@ -1,4 +1,3 @@
-﻿namespace FizzCode.EtLast
-{
-    public enum MatchMode { Remove, Throw, Custom, CustomThenRemove }
-}
+﻿namespace FizzCode.EtLast;
+
+public enum MatchMode { Remove, Throw, Custom, CustomThenRemove }

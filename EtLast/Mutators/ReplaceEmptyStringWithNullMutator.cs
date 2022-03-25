@@ -1,62 +1,61 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.Collections.Generic;
+using System.ComponentModel;
+
+public sealed class ReplaceEmptyStringWithNullMutator : AbstractSimpleChangeMutator
 {
-    using System.Collections.Generic;
-    using System.ComponentModel;
+    public string[] Columns { get; init; }
 
-    public sealed class ReplaceEmptyStringWithNullMutator : AbstractSimpleChangeMutator
+    public ReplaceEmptyStringWithNullMutator(IEtlContext context)
+        : base(context)
     {
-        public string[] Columns { get; init; }
-
-        public ReplaceEmptyStringWithNullMutator(IEtlContext context)
-            : base(context)
-        {
-        }
-
-        protected override IEnumerable<IRow> MutateRow(IRow row)
-        {
-            Changes.Clear();
-
-            if (Columns != null)
-            {
-                foreach (var column in Columns)
-                {
-                    if ((row[column] as string) == string.Empty)
-                    {
-                        Changes.Add(new KeyValuePair<string, object>(column, null));
-                    }
-                }
-            }
-            else
-            {
-                foreach (var kvp in row.Values)
-                {
-                    if ((kvp.Value as string) == string.Empty)
-                    {
-                        Changes.Add(new KeyValuePair<string, object>(kvp.Key, null));
-                    }
-                }
-            }
-
-            row.MergeWith(Changes);
-
-            yield return row;
-        }
     }
 
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public static class ReplaceEmptyStringWithNullMutatorFluent
+    protected override IEnumerable<IRow> MutateRow(IRow row)
     {
-        public static IFluentProcessMutatorBuilder ReplaceEmptyStringWithNull(this IFluentProcessMutatorBuilder builder, ReplaceEmptyStringWithNullMutator mutator)
+        Changes.Clear();
+
+        if (Columns != null)
         {
-            return builder.AddMutator(mutator);
+            foreach (var column in Columns)
+            {
+                if ((row[column] as string) == string.Empty)
+                {
+                    Changes.Add(new KeyValuePair<string, object>(column, null));
+                }
+            }
+        }
+        else
+        {
+            foreach (var kvp in row.Values)
+            {
+                if ((kvp.Value as string) == string.Empty)
+                {
+                    Changes.Add(new KeyValuePair<string, object>(kvp.Key, null));
+                }
+            }
         }
 
-        public static IFluentProcessMutatorBuilder ReplaceEmptyStringWithNull(this IFluentProcessMutatorBuilder builder, params string[] columns)
+        row.MergeWith(Changes);
+
+        yield return row;
+    }
+}
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class ReplaceEmptyStringWithNullMutatorFluent
+{
+    public static IFluentProcessMutatorBuilder ReplaceEmptyStringWithNull(this IFluentProcessMutatorBuilder builder, ReplaceEmptyStringWithNullMutator mutator)
+    {
+        return builder.AddMutator(mutator);
+    }
+
+    public static IFluentProcessMutatorBuilder ReplaceEmptyStringWithNull(this IFluentProcessMutatorBuilder builder, params string[] columns)
+    {
+        return builder.AddMutator(new ReplaceEmptyStringWithNullMutator(builder.ProcessBuilder.Result.Context)
         {
-            return builder.AddMutator(new ReplaceEmptyStringWithNullMutator(builder.ProcessBuilder.Result.Context)
-            {
-                Columns = columns,
-            });
-        }
+            Columns = columns,
+        });
     }
 }

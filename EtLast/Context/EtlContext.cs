@@ -1,316 +1,315 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+
+public sealed class EtlContext : IEtlContext
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Threading;
+    public Type RowType { get; private set; }
 
-    public sealed class EtlContext : IEtlContext
+    public List<Exception> Exceptions { get; } = new List<Exception>();
+    public int WarningCount { get; internal set; }
+    public AdditionalData AdditionalData { get; }
+
+    public string Uid { get; }
+    public DateTimeOffset CreatedOnUtc { get; }
+    public DateTimeOffset CreatedOnLocal { get; }
+
+    public List<IEtlContextListener> Listeners { get; } = new List<IEtlContextListener>();
+
+    /// <summary>
+    /// Default value: 10 minutes.
+    /// </summary>
+    public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromMinutes(10);
+
+    public CancellationTokenSource CancellationTokenSource { get; }
+
+    private int _nextRowUid;
+    private int _nextProcessInstanceUid;
+    private int _nextProcessInvocationUid;
+    private int _nextSinkUid;
+    private int _nextIoCommandUid;
+    private readonly List<Exception> _exceptions = new();
+    private readonly Dictionary<string, int> _sinks = new();
+
+    public EtlContext()
     {
-        public Type RowType { get; private set; }
+        SetRowType<DictionaryRow>();
+        CancellationTokenSource = new CancellationTokenSource();
+        AdditionalData = new AdditionalData();
 
-        public List<Exception> Exceptions { get; } = new List<Exception>();
-        public int WarningCount { get; internal set; }
-        public AdditionalData AdditionalData { get; }
+        Uid = Guid.NewGuid().ToString("D");
+        CreatedOnLocal = DateTimeOffset.Now;
+        CreatedOnUtc = CreatedOnLocal.ToUniversalTime();
+    }
 
-        public string Uid { get; }
-        public DateTimeOffset CreatedOnUtc { get; }
-        public DateTimeOffset CreatedOnLocal { get; }
+    public void SetRowType<T>() where T : IRow
+    {
+        RowType = typeof(T);
+    }
 
-        public List<IEtlContextListener> Listeners { get; } = new List<IEtlContextListener>();
+    public void Log(string transactionId, LogSeverity severity, IProcess process, string text, params object[] args)
+    {
+        if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
+            WarningCount++;
 
-        /// <summary>
-        /// Default value: 10 minutes.
-        /// </summary>
-        public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromMinutes(10);
-
-        public CancellationTokenSource CancellationTokenSource { get; }
-
-        private int _nextRowUid;
-        private int _nextProcessInstanceUid;
-        private int _nextProcessInvocationUid;
-        private int _nextSinkUid;
-        private int _nextIoCommandUid;
-        private readonly List<Exception> _exceptions = new();
-        private readonly Dictionary<string, int> _sinks = new();
-
-        public EtlContext()
+        foreach (var listener in Listeners)
         {
-            SetRowType<DictionaryRow>();
-            CancellationTokenSource = new CancellationTokenSource();
-            AdditionalData = new AdditionalData();
+            listener.OnLog(severity, false, transactionId, process, text, args);
+        }
+    }
 
-            Uid = Guid.NewGuid().ToString("D");
-            CreatedOnLocal = DateTimeOffset.Now;
-            CreatedOnUtc = CreatedOnLocal.ToUniversalTime();
+    public void Log(LogSeverity severity, IProcess process, string text, params object[] args)
+    {
+        if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
+            WarningCount++;
+
+        foreach (var listener in Listeners)
+        {
+            listener.OnLog(severity, false, null, process, text, args);
+        }
+    }
+
+    public void LogOps(LogSeverity severity, IProcess process, string text, params object[] args)
+    {
+        foreach (var listener in Listeners)
+        {
+            listener.OnLog(severity, true, null, process, text, args);
+        }
+    }
+
+    public void LogCustom(string fileName, IProcess process, string text, params object[] args)
+    {
+        foreach (var listener in Listeners)
+        {
+            listener.OnCustomLog(false, fileName, process, text, args);
+        }
+    }
+
+    public void LogCustomOps(string fileName, IProcess process, string text, params object[] args)
+    {
+        foreach (var listener in Listeners)
+        {
+            listener.OnCustomLog(true, fileName, process, text, args);
+        }
+    }
+
+    public int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
+    {
+        var uid = Interlocked.Increment(ref _nextIoCommandUid);
+        foreach (var listener in Listeners)
+        {
+            listener.OnContextIoCommandStart(uid, kind, location, null, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageArgs);
         }
 
-        public void SetRowType<T>() where T : IRow
+        return uid;
+    }
+
+    public int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string location, string path, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
+    {
+        var uid = Interlocked.Increment(ref _nextIoCommandUid);
+        foreach (var listener in Listeners)
         {
-            RowType = typeof(T);
+            listener.OnContextIoCommandStart(uid, kind, location, path, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageArgs);
         }
 
-        public void Log(string transactionId, LogSeverity severity, IProcess process, string text, params object[] args)
-        {
-            if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
-                WarningCount++;
+        return uid;
+    }
 
-            foreach (var listener in Listeners)
+    public void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount)
+    {
+        foreach (var listener in Listeners)
+        {
+            listener.OnContextIoCommandEnd(process, uid, kind, affectedDataCount, null);
+        }
+    }
+
+    public void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount, Exception exception)
+    {
+        foreach (var listener in Listeners)
+        {
+            listener.OnContextIoCommandEnd(process, uid, kind, affectedDataCount, exception);
+        }
+    }
+
+    public void RegisterWriteToSink(IReadOnlyRow row, int sinkUid)
+    {
+        foreach (var listener in Listeners)
+        {
+            listener.OnWriteToSink(row, sinkUid);
+        }
+    }
+
+    public IRow CreateRow(IProcess process)
+    {
+        var row = (IRow)Activator.CreateInstance(RowType);
+        row.Init(this, process, Interlocked.Increment(ref _nextRowUid), null);
+
+        foreach (var listener in Listeners)
+        {
+            listener.OnRowCreated(row);
+        }
+
+        return row;
+    }
+
+    public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues)
+    {
+        var row = (IRow)Activator.CreateInstance(RowType);
+        row.Init(this, process, Interlocked.Increment(ref _nextRowUid), initialValues);
+
+        foreach (var listener in Listeners)
+        {
+            listener.OnRowCreated(row);
+        }
+
+        return row;
+    }
+
+    public IRow CreateRow(IProcess process, IReadOnlySlimRow source)
+    {
+        var row = (IRow)Activator.CreateInstance(RowType);
+        row.Init(this, process, Interlocked.Increment(ref _nextRowUid), source.Values);
+        row.Tag = source.Tag;
+
+        foreach (var listener in Listeners)
+        {
+            listener.OnRowCreated(row);
+        }
+
+        return row;
+    }
+
+    public void AddException(IProcess process, Exception ex)
+    {
+        if (ex is OperationCanceledException)
+            return;
+
+        ex = ProcessExecutionException.Wrap(process, ex);
+
+        Exceptions.Add(ex);
+
+        lock (_exceptions)
+        {
+            if (_exceptions.Contains(ex))
             {
-                listener.OnLog(severity, false, transactionId, process, text, args);
-            }
-        }
-
-        public void Log(LogSeverity severity, IProcess process, string text, params object[] args)
-        {
-            if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
-                WarningCount++;
-
-            foreach (var listener in Listeners)
-            {
-                listener.OnLog(severity, false, null, process, text, args);
-            }
-        }
-
-        public void LogOps(LogSeverity severity, IProcess process, string text, params object[] args)
-        {
-            foreach (var listener in Listeners)
-            {
-                listener.OnLog(severity, true, null, process, text, args);
-            }
-        }
-
-        public void LogCustom(string fileName, IProcess process, string text, params object[] args)
-        {
-            foreach (var listener in Listeners)
-            {
-                listener.OnCustomLog(false, fileName, process, text, args);
-            }
-        }
-
-        public void LogCustomOps(string fileName, IProcess process, string text, params object[] args)
-        {
-            foreach (var listener in Listeners)
-            {
-                listener.OnCustomLog(true, fileName, process, text, args);
-            }
-        }
-
-        public int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
-        {
-            var uid = Interlocked.Increment(ref _nextIoCommandUid);
-            foreach (var listener in Listeners)
-            {
-                listener.OnContextIoCommandStart(uid, kind, location, null, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageArgs);
-            }
-
-            return uid;
-        }
-
-        public int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string location, string path, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
-        {
-            var uid = Interlocked.Increment(ref _nextIoCommandUid);
-            foreach (var listener in Listeners)
-            {
-                listener.OnContextIoCommandStart(uid, kind, location, path, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageArgs);
-            }
-
-            return uid;
-        }
-
-        public void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount)
-        {
-            foreach (var listener in Listeners)
-            {
-                listener.OnContextIoCommandEnd(process, uid, kind, affectedDataCount, null);
-            }
-        }
-
-        public void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount, Exception exception)
-        {
-            foreach (var listener in Listeners)
-            {
-                listener.OnContextIoCommandEnd(process, uid, kind, affectedDataCount, exception);
-            }
-        }
-
-        public void RegisterWriteToSink(IReadOnlyRow row, int sinkUid)
-        {
-            foreach (var listener in Listeners)
-            {
-                listener.OnWriteToSink(row, sinkUid);
-            }
-        }
-
-        public IRow CreateRow(IProcess process)
-        {
-            var row = (IRow)Activator.CreateInstance(RowType);
-            row.Init(this, process, Interlocked.Increment(ref _nextRowUid), null);
-
-            foreach (var listener in Listeners)
-            {
-                listener.OnRowCreated(row);
-            }
-
-            return row;
-        }
-
-        public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues)
-        {
-            var row = (IRow)Activator.CreateInstance(RowType);
-            row.Init(this, process, Interlocked.Increment(ref _nextRowUid), initialValues);
-
-            foreach (var listener in Listeners)
-            {
-                listener.OnRowCreated(row);
-            }
-
-            return row;
-        }
-
-        public IRow CreateRow(IProcess process, IReadOnlySlimRow source)
-        {
-            var row = (IRow)Activator.CreateInstance(RowType);
-            row.Init(this, process, Interlocked.Increment(ref _nextRowUid), source.Values);
-            row.Tag = source.Tag;
-
-            foreach (var listener in Listeners)
-            {
-                listener.OnRowCreated(row);
-            }
-
-            return row;
-        }
-
-        public void AddException(IProcess process, Exception ex)
-        {
-            if (ex is OperationCanceledException)
+                CancellationTokenSource.Cancel();
                 return;
-
-            ex = ProcessExecutionException.Wrap(process, ex);
-
-            Exceptions.Add(ex);
-
-            lock (_exceptions)
-            {
-                if (_exceptions.Contains(ex))
-                {
-                    CancellationTokenSource.Cancel();
-                    return;
-                }
-
-                _exceptions.Add(ex);
             }
 
-            foreach (var listener in Listeners)
-            {
-                listener.OnException(process, ex);
-            }
-
-            CancellationTokenSource.Cancel();
+            _exceptions.Add(ex);
         }
 
-        public List<Exception> GetExceptions()
+        foreach (var listener in Listeners)
+        {
+            listener.OnException(process, ex);
+        }
+
+        CancellationTokenSource.Cancel();
+    }
+
+    public List<Exception> GetExceptions()
+    {
+        lock (_exceptions)
+        {
+            return new List<Exception>(_exceptions);
+        }
+    }
+
+    public int ExceptionCount
+    {
+        get
         {
             lock (_exceptions)
             {
-                return new List<Exception>(_exceptions);
+                return _exceptions.Count;
             }
         }
+    }
 
-        public int ExceptionCount
+    public EtlTransactionScope BeginScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity)
+    {
+        return new EtlTransactionScope(this, process, kind, TransactionScopeTimeout, logSeverity);
+    }
+
+    public void SetRowOwner(IRow row, IProcess currentProcess)
+    {
+        if (row.CurrentProcess == currentProcess)
+            return;
+
+        var previousProcess = row.CurrentProcess;
+        row.CurrentProcess = currentProcess;
+
+        foreach (var listener in Listeners)
         {
-            get
-            {
-                lock (_exceptions)
-                {
-                    return _exceptions.Count;
-                }
-            }
+            listener.OnRowOwnerChanged(row, previousProcess, currentProcess);
         }
+    }
 
-        public EtlTransactionScope BeginScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity)
+    public void RegisterProcessInvocationStart(IProcess process, IProcess caller)
+    {
+        process.InvocationInfo = new ProcessInvocationInfo()
         {
-            return new EtlTransactionScope(this, process, kind, TransactionScopeTimeout, logSeverity);
+            InstanceUid = process.InvocationInfo?.InstanceUid ?? Interlocked.Increment(ref _nextProcessInstanceUid),
+            Number = (process.InvocationInfo?.Number ?? 0) + 1,
+            InvocationUid = Interlocked.Increment(ref _nextProcessInvocationUid),
+            LastInvocationStarted = Stopwatch.StartNew(),
+            Caller = caller,
+        };
+
+        foreach (var listener in Listeners)
+        {
+            listener.OnProcessInvocationStart(process);
         }
+    }
 
-        public void SetRowOwner(IRow row, IProcess currentProcess)
+    public void RegisterProcessInvocationEnd(IProcess process)
+    {
+        process.InvocationInfo.LastInvocationFinished = DateTimeOffset.Now;
+
+        foreach (var listener in Listeners)
         {
-            if (row.CurrentProcess == currentProcess)
-                return;
+            listener.OnProcessInvocationEnd(process);
+        }
+    }
 
-            var previousProcess = row.CurrentProcess;
-            row.CurrentProcess = currentProcess;
+    public void RegisterProcessInvocationEnd(IProcess process, long netElapsedMilliseconds)
+    {
+        process.InvocationInfo.LastInvocationFinished = DateTimeOffset.Now;
+        process.InvocationInfo.LastInvocationNetTimeMilliseconds = netElapsedMilliseconds;
 
+        foreach (var listener in Listeners)
+        {
+            listener.OnProcessInvocationEnd(process);
+        }
+    }
+
+    public int GetSinkUid(string location, string path)
+    {
+        var key = location + " / " + path;
+        if (!_sinks.TryGetValue(key, out var sinkUid))
+        {
+            sinkUid = Interlocked.Increment(ref _nextSinkUid);
+            _sinks.Add(key, sinkUid);
             foreach (var listener in Listeners)
             {
-                listener.OnRowOwnerChanged(row, previousProcess, currentProcess);
+                listener.OnSinkStarted(sinkUid, location, path);
             }
         }
 
-        public void RegisterProcessInvocationStart(IProcess process, IProcess caller)
+        return sinkUid;
+    }
+
+    public void Close()
+    {
+        foreach (var listener in Listeners)
         {
-            process.InvocationInfo = new ProcessInvocationInfo()
+            listener.OnContextClosed();
+            if (listener is IDisposable disp)
             {
-                InstanceUid = process.InvocationInfo?.InstanceUid ?? Interlocked.Increment(ref _nextProcessInstanceUid),
-                Number = (process.InvocationInfo?.Number ?? 0) + 1,
-                InvocationUid = Interlocked.Increment(ref _nextProcessInvocationUid),
-                LastInvocationStarted = Stopwatch.StartNew(),
-                Caller = caller,
-            };
-
-            foreach (var listener in Listeners)
-            {
-                listener.OnProcessInvocationStart(process);
-            }
-        }
-
-        public void RegisterProcessInvocationEnd(IProcess process)
-        {
-            process.InvocationInfo.LastInvocationFinished = DateTimeOffset.Now;
-
-            foreach (var listener in Listeners)
-            {
-                listener.OnProcessInvocationEnd(process);
-            }
-        }
-
-        public void RegisterProcessInvocationEnd(IProcess process, long netElapsedMilliseconds)
-        {
-            process.InvocationInfo.LastInvocationFinished = DateTimeOffset.Now;
-            process.InvocationInfo.LastInvocationNetTimeMilliseconds = netElapsedMilliseconds;
-
-            foreach (var listener in Listeners)
-            {
-                listener.OnProcessInvocationEnd(process);
-            }
-        }
-
-        public int GetSinkUid(string location, string path)
-        {
-            var key = location + " / " + path;
-            if (!_sinks.TryGetValue(key, out var sinkUid))
-            {
-                sinkUid = Interlocked.Increment(ref _nextSinkUid);
-                _sinks.Add(key, sinkUid);
-                foreach (var listener in Listeners)
-                {
-                    listener.OnSinkStarted(sinkUid, location, path);
-                }
-            }
-
-            return sinkUid;
-        }
-
-        public void Close()
-        {
-            foreach (var listener in Listeners)
-            {
-                listener.OnContextClosed();
-                if (listener is IDisposable disp)
-                {
-                    disp.Dispose();
-                }
+                disp.Dispose();
             }
         }
     }

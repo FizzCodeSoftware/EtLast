@@ -1,9 +1,8 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+public interface IEtlService
 {
-    public interface IEtlService
-    {
-        public IEtlSession Session { get; }
-        public void Start(IEtlSession session);
-        public void Stop();
-    }
+    public IEtlSession Session { get; }
+    public void Start(IEtlSession session);
+    public void Stop();
 }

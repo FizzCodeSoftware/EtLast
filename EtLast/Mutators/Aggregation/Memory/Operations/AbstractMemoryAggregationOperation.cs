@@ -1,19 +1,18 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public abstract class AbstractMemoryAggregationOperation : IMemoryAggregationOperation
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
+    public AbstractMemoryAggregationMutator Process { get; private set; }
 
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class AbstractMemoryAggregationOperation : IMemoryAggregationOperation
+    public abstract void TransformGroup(List<IReadOnlySlimRow> groupRows, Func<ISlimRow> aggregateCreator);
+
+    public void SetProcess(AbstractMemoryAggregationMutator process)
     {
-        public AbstractMemoryAggregationMutator Process { get; private set; }
-
-        public abstract void TransformGroup(List<IReadOnlySlimRow> groupRows, Func<ISlimRow> aggregateCreator);
-
-        public void SetProcess(AbstractMemoryAggregationMutator process)
-        {
-            Process = process;
-        }
+        Process = process;
     }
 }

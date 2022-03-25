@@ -1,22 +1,21 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+public sealed class FluentProcessBuilder : IFluentProcessBuilder
 {
-    public sealed class FluentProcessBuilder : IFluentProcessBuilder
+    internal FluentProcessBuilder()
     {
-        internal FluentProcessBuilder()
-        {
-        }
+    }
 
-        public IProducer Result { get; set; }
+    public IProducer Result { get; set; }
 
-        public IProducer Build()
-        {
-            return Result;
-        }
+    public IProducer Build()
+    {
+        return Result;
+    }
 
-        public IFluentProcessMutatorBuilder ReadFrom(IProducer process)
-        {
-            Result = process;
-            return new FluentProcessMutatorBuilder(this);
-        }
+    public IFluentProcessMutatorBuilder ReadFrom(IProducer process)
+    {
+        Result = process;
+        return new FluentProcessMutatorBuilder(this);
     }
 }

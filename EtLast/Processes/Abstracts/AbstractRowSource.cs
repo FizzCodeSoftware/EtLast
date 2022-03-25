@@ -1,94 +1,93 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+
+/// <summary>
+/// Row sources create rows - they may create or generate, read from different sources, copy from existing rows.
+/// </summary>
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public abstract class AbstractRowSource : AbstractEvaluable, IRowSource
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Diagnostics;
+    /// <summary>
+    /// Default false.
+    /// </summary>
+    public bool IgnoreRowsWithError { get; init; }
 
     /// <summary>
-    /// Row sources create rows - they may create or generate, read from different sources, copy from existing rows.
+    /// Default true.
     /// </summary>
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class AbstractRowSource : AbstractEvaluable, IRowSource
+    public bool IgnoreNullOrEmptyRows { get; init; } = true;
+
+    /// <summary>
+    /// First row index is (integer) 1
+    /// </summary>
+    public string AddRowIndexToColumn { get; init; }
+
+    private int _currentRowIndex;
+    protected bool AutomaticallyEvaluateAndYieldInputProcessRows { get; init; } = true;
+
+    protected AbstractRowSource(IEtlContext context)
+        : base(context)
     {
-        /// <summary>
-        /// Default false.
-        /// </summary>
-        public bool IgnoreRowsWithError { get; init; }
+    }
 
-        /// <summary>
-        /// Default true.
-        /// </summary>
-        public bool IgnoreNullOrEmptyRows { get; init; } = true;
+    protected sealed override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
+    {
+        var resultCount = 0;
 
-        /// <summary>
-        /// First row index is (integer) 1
-        /// </summary>
-        public string AddRowIndexToColumn { get; init; }
+        netTimeStopwatch.Stop();
+        var enumerator = Produce().GetEnumerator();
+        netTimeStopwatch.Start();
 
-        private int _currentRowIndex;
-        protected bool AutomaticallyEvaluateAndYieldInputProcessRows { get; init; } = true;
-
-        protected AbstractRowSource(IEtlContext context)
-            : base(context)
+        while (!Context.CancellationTokenSource.IsCancellationRequested)
         {
-        }
-
-        protected sealed override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
-        {
-            var resultCount = 0;
-
-            netTimeStopwatch.Stop();
-            var enumerator = Produce().GetEnumerator();
-            netTimeStopwatch.Start();
-
-            while (!Context.CancellationTokenSource.IsCancellationRequested)
+            IRow row;
+            try
             {
-                IRow row;
-                try
-                {
-                    if (!enumerator.MoveNext())
-                        break;
-
-                    row = enumerator.Current;
-                    if (!ProcessRowBeforeYield(row))
-                        continue;
-                }
-                catch (Exception ex)
-                {
-                    Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
+                if (!enumerator.MoveNext())
                     break;
-                }
 
-                resultCount++;
-                netTimeStopwatch.Stop();
-                yield return row;
-                netTimeStopwatch.Start();
+                row = enumerator.Current;
+                if (!ProcessRowBeforeYield(row))
+                    continue;
+            }
+            catch (Exception ex)
+            {
+                Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
+                break;
             }
 
+            resultCount++;
             netTimeStopwatch.Stop();
-            Context.Log(LogSeverity.Debug, this, "produced {RowCount} rows in {Elapsed}/{ElapsedWallClock}",
-                resultCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
-
-            Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+            yield return row;
+            netTimeStopwatch.Start();
         }
 
-        protected abstract IEnumerable<IRow> Produce();
+        netTimeStopwatch.Stop();
+        Context.Log(LogSeverity.Debug, this, "produced {RowCount} rows in {Elapsed}/{ElapsedWallClock}",
+            resultCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 
-        private bool ProcessRowBeforeYield(IRow row)
-        {
-            if (IgnoreRowsWithError && row.HasError())
-                return false;
+        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+    }
 
-            if (IgnoreNullOrEmptyRows && row.IsNullOrEmpty())
-                return false;
+    protected abstract IEnumerable<IRow> Produce();
 
-            if (AddRowIndexToColumn != null && !row.HasValue(AddRowIndexToColumn))
-                row[AddRowIndexToColumn] = _currentRowIndex;
+    private bool ProcessRowBeforeYield(IRow row)
+    {
+        if (IgnoreRowsWithError && row.HasError())
+            return false;
 
-            _currentRowIndex++;
+        if (IgnoreNullOrEmptyRows && row.IsNullOrEmpty())
+            return false;
 
-            return true;
-        }
+        if (AddRowIndexToColumn != null && !row.HasValue(AddRowIndexToColumn))
+            row[AddRowIndexToColumn] = _currentRowIndex;
+
+        _currentRowIndex++;
+
+        return true;
     }
 }

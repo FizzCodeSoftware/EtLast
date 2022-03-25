@@ -1,29 +1,28 @@
-﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests
+﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests;
+
+using System;
+using FizzCode.EtLast;
+
+public class ExceptionTest : AbstractEtlFlow
 {
-    using System;
-    using FizzCode.EtLast;
+    public Type ExceptionType { get; set; }
+    public string Message { get; set; }
 
-    public class ExceptionTest : AbstractEtlFlow
+    public override void ValidateParameters()
     {
-        public Type ExceptionType { get; set; }
-        public string Message { get; set; }
+        if (ExceptionType == null)
+            throw new ProcessParameterNullException(this, nameof(ExceptionType));
 
-        public override void ValidateParameters()
+        if (Message == null)
+            throw new ProcessParameterNullException(this, nameof(Message));
+    }
+
+    public override void Execute()
+    {
+        Session.ExecuteTask(this, new ThrowException()
         {
-            if (ExceptionType == null)
-                throw new ProcessParameterNullException(this, nameof(ExceptionType));
-
-            if (Message == null)
-                throw new ProcessParameterNullException(this, nameof(Message));
-        }
-
-        public override void Execute()
-        {
-            Session.ExecuteTask(this, new ThrowException()
-            {
-                ExceptionType = ExceptionType,
-                Message = Message,
-            });
-        }
+            ExceptionType = ExceptionType,
+            Message = Message,
+        });
     }
 }

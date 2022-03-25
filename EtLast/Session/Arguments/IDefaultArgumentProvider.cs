@@ -1,9 +1,8 @@
-﻿namespace FizzCode.EtLast
-{
-    using System.Collections.Generic;
+﻿namespace FizzCode.EtLast;
 
-    public interface IDefaultArgumentProvider
-    {
-        public Dictionary<string, object> Arguments { get; }
-    }
+using System.Collections.Generic;
+
+public interface IDefaultArgumentProvider
+{
+    public Dictionary<string, object> Arguments { get; }
 }

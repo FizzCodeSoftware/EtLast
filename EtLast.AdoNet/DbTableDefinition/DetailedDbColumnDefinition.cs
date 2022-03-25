@@ -1,27 +1,26 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.Data;
+
+public sealed class DetailedDbColumnDefinition
 {
-    using System.Data;
+    public string RowColumn { get; }
+    public string DbColumn { get; }
+    public DbType? DbType { get; init; }
 
-    public sealed class DetailedDbColumnDefinition
+    /// <summary>
+    /// Default value is true
+    /// </summary>
+    public bool Insert { get; init; } = true;
+
+    /// <summary>
+    /// Default value is false
+    /// </summary>
+    public bool IsKey { get; init; }
+
+    public DetailedDbColumnDefinition(string rowColumn, string dbColumn = null)
     {
-        public string RowColumn { get; }
-        public string DbColumn { get; }
-        public DbType? DbType { get; init; }
-
-        /// <summary>
-        /// Default value is true
-        /// </summary>
-        public bool Insert { get; init; } = true;
-
-        /// <summary>
-        /// Default value is false
-        /// </summary>
-        public bool IsKey { get; init; }
-
-        public DetailedDbColumnDefinition(string rowColumn, string dbColumn = null)
-        {
-            RowColumn = rowColumn;
-            DbColumn = dbColumn ?? rowColumn;
-        }
+        RowColumn = rowColumn;
+        DbColumn = dbColumn ?? rowColumn;
     }
 }

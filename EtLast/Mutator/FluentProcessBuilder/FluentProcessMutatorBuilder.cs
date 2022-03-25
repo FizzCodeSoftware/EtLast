@@ -1,75 +1,74 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+using System.Collections.Generic;
+
+internal sealed class FluentProcessMutatorBuilder : IFluentProcessMutatorBuilder
 {
-    using System;
-    using System.Collections.Generic;
+    public IFluentProcessBuilder ProcessBuilder { get; }
+    internal RowTestDelegate AutomaticallySetRowFilter { get; set; }
+    internal RowTagTestDelegate AutomaticallySetRowTagFilter { get; set; }
 
-    internal sealed class FluentProcessMutatorBuilder : IFluentProcessMutatorBuilder
+    internal FluentProcessMutatorBuilder(IFluentProcessBuilder parent)
     {
-        public IFluentProcessBuilder ProcessBuilder { get; }
-        internal RowTestDelegate AutomaticallySetRowFilter { get; set; }
-        internal RowTagTestDelegate AutomaticallySetRowTagFilter { get; set; }
+        ProcessBuilder = parent;
+    }
 
-        internal FluentProcessMutatorBuilder(IFluentProcessBuilder parent)
+    public IFluentProcessMutatorBuilder AddMutator(IMutator mutator)
+    {
+        if (AutomaticallySetRowFilter != null)
+            mutator.RowFilter = AutomaticallySetRowFilter;
+
+        if (AutomaticallySetRowTagFilter != null)
+            mutator.RowTagFilter = AutomaticallySetRowTagFilter;
+
+        mutator.InputProcess = ProcessBuilder.Result;
+        ProcessBuilder.Result = mutator;
+        return this;
+    }
+
+    public IFluentProcessMutatorBuilder AddMutators(IEnumerable<IMutator> mutators)
+    {
+        foreach (var mutator in mutators)
         {
-            ProcessBuilder = parent;
-        }
-
-        public IFluentProcessMutatorBuilder AddMutator(IMutator mutator)
-        {
-            if (AutomaticallySetRowFilter != null)
-                mutator.RowFilter = AutomaticallySetRowFilter;
-
             if (AutomaticallySetRowTagFilter != null)
+            {
                 mutator.RowTagFilter = AutomaticallySetRowTagFilter;
+            }
 
             mutator.InputProcess = ProcessBuilder.Result;
             ProcessBuilder.Result = mutator;
-            return this;
         }
 
-        public IFluentProcessMutatorBuilder AddMutators(IEnumerable<IMutator> mutators)
+        return this;
+    }
+
+    public IFluentProcessMutatorBuilder If(RowTestDelegate rowTester, Action<IFluentProcessMutatorBuilder> builder)
+    {
+        var tempBuilder = new FluentProcessMutatorBuilder(ProcessBuilder)
         {
-            foreach (var mutator in mutators)
-            {
-                if (AutomaticallySetRowTagFilter != null)
-                {
-                    mutator.RowTagFilter = AutomaticallySetRowTagFilter;
-                }
+            AutomaticallySetRowFilter = rowTester,
+        };
 
-                mutator.InputProcess = ProcessBuilder.Result;
-                ProcessBuilder.Result = mutator;
-            }
+        builder.Invoke(tempBuilder);
 
-            return this;
-        }
+        return this;
+    }
 
-        public IFluentProcessMutatorBuilder If(RowTestDelegate rowTester, Action<IFluentProcessMutatorBuilder> builder)
+    public IFluentProcessMutatorBuilder IfTag(RowTagTestDelegate tagTester, Action<IFluentProcessMutatorBuilder> builder)
+    {
+        var tempBuilder = new FluentProcessMutatorBuilder(ProcessBuilder)
         {
-            var tempBuilder = new FluentProcessMutatorBuilder(ProcessBuilder)
-            {
-                AutomaticallySetRowFilter = rowTester,
-            };
+            AutomaticallySetRowTagFilter = tagTester,
+        };
 
-            builder.Invoke(tempBuilder);
+        builder.Invoke(tempBuilder);
 
-            return this;
-        }
+        return this;
+    }
 
-        public IFluentProcessMutatorBuilder IfTag(RowTagTestDelegate tagTester, Action<IFluentProcessMutatorBuilder> builder)
-        {
-            var tempBuilder = new FluentProcessMutatorBuilder(ProcessBuilder)
-            {
-                AutomaticallySetRowTagFilter = tagTester,
-            };
-
-            builder.Invoke(tempBuilder);
-
-            return this;
-        }
-
-        public IProducer Build()
-        {
-            return ProcessBuilder.Build();
-        }
+    public IProducer Build()
+    {
+        return ProcessBuilder.Build();
     }
 }

@@ -1,49 +1,48 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.Collections.Generic;
+using System.ComponentModel;
+
+public sealed class AddIncrementalIntegerIdMutator : AbstractMutator
 {
-    using System.Collections.Generic;
-    using System.ComponentModel;
+    public string Column { get; init; }
 
-    public sealed class AddIncrementalIntegerIdMutator : AbstractMutator
+    /// <summary>
+    /// Default value is 0.
+    /// </summary>
+    public int FirstId { get; init; }
+
+    private int _nextId;
+
+    public AddIncrementalIntegerIdMutator(IEtlContext context)
+        : base(context)
     {
-        public string Column { get; init; }
-
-        /// <summary>
-        /// Default value is 0.
-        /// </summary>
-        public int FirstId { get; init; }
-
-        private int _nextId;
-
-        public AddIncrementalIntegerIdMutator(IEtlContext context)
-            : base(context)
-        {
-        }
-
-        protected override void StartMutator()
-        {
-            _nextId = FirstId;
-        }
-
-        protected override IEnumerable<IRow> MutateRow(IRow row)
-        {
-            row[Column] = _nextId;
-            _nextId++;
-            yield return row;
-        }
-
-        protected override void ValidateMutator()
-        {
-            if (string.IsNullOrEmpty(Column))
-                throw new ProcessParameterNullException(this, nameof(Column));
-        }
     }
 
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public static class AddIncrementalIdMutatorFluent
+    protected override void StartMutator()
     {
-        public static IFluentProcessMutatorBuilder AddIncrementalIntegerId(this IFluentProcessMutatorBuilder builder, AddIncrementalIntegerIdMutator mutator)
-        {
-            return builder.AddMutator(mutator);
-        }
+        _nextId = FirstId;
+    }
+
+    protected override IEnumerable<IRow> MutateRow(IRow row)
+    {
+        row[Column] = _nextId;
+        _nextId++;
+        yield return row;
+    }
+
+    protected override void ValidateMutator()
+    {
+        if (string.IsNullOrEmpty(Column))
+            throw new ProcessParameterNullException(this, nameof(Column));
+    }
+}
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class AddIncrementalIdMutatorFluent
+{
+    public static IFluentProcessMutatorBuilder AddIncrementalIntegerId(this IFluentProcessMutatorBuilder builder, AddIncrementalIntegerIdMutator mutator)
+    {
+        return builder.AddMutator(mutator);
     }
 }

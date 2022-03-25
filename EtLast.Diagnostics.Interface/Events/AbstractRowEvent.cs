@@ -1,7 +1,6 @@
-﻿namespace FizzCode.EtLast.Diagnostics.Interface
+﻿namespace FizzCode.EtLast.Diagnostics.Interface;
+
+public abstract class AbstractRowEvent : AbstractEvent
 {
-    public abstract class AbstractRowEvent : AbstractEvent
-    {
-        public int RowUid { get; set; }
-    }
+    public int RowUid { get; set; }
 }

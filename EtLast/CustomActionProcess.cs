@@ -1,33 +1,32 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+
+public sealed class CustomAction : AbstractExecutable
 {
-    using System;
+    public Action<CustomAction> Action { get; set; }
 
-    public sealed class CustomAction : AbstractExecutable
+    public CustomAction(IEtlContext context)
+        : base(context)
     {
-        public Action<CustomAction> Action { get; set; }
+    }
 
-        public CustomAction(IEtlContext context)
-            : base(context)
+    protected override void ValidateImpl()
+    {
+        if (Action == null)
+            throw new ProcessParameterNullException(this, nameof(Action));
+    }
+
+    protected override void ExecuteImpl()
+    {
+        try
         {
+            Action.Invoke(this);
         }
-
-        protected override void ValidateImpl()
+        catch (Exception ex)
         {
-            if (Action == null)
-                throw new ProcessParameterNullException(this, nameof(Action));
-        }
-
-        protected override void ExecuteImpl()
-        {
-            try
-            {
-                Action.Invoke(this);
-            }
-            catch (Exception ex)
-            {
-                var exception = new CustomCodeException(this, "error during the execution of custom code", ex);
-                throw exception;
-            }
+            var exception = new CustomCodeException(this, "error during the execution of custom code", ex);
+            throw exception;
         }
     }
 }

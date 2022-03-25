@@ -1,11 +1,10 @@
-﻿namespace FizzCode.EtLast
-{
-    public interface IReadOnlyRow : IReadOnlySlimRow
-    {
-        IEtlContext Context { get; }
-        int Uid { get; }
+﻿namespace FizzCode.EtLast;
 
-        IProcess CreatorProcess { get; }
-        IProcess CurrentProcess { get; }
-    }
+public interface IReadOnlyRow : IReadOnlySlimRow
+{
+    IEtlContext Context { get; }
+    int Uid { get; }
+
+    IProcess CreatorProcess { get; }
+    IProcess CurrentProcess { get; }
 }

@@ -1,191 +1,190 @@
-﻿namespace FizzCode.EtLast
-{
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Diagnostics;
+﻿namespace FizzCode.EtLast;
 
-    public delegate IEnumerable<ISlimRow> InMemoryExplodeDelegate(InMemoryExplodeMutator process, IReadOnlyList<IReadOnlySlimRow> rows);
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+
+public delegate IEnumerable<ISlimRow> InMemoryExplodeDelegate(InMemoryExplodeMutator process, IReadOnlyList<IReadOnlySlimRow> rows);
+
+/// <summary>
+/// Useful only for small amount of data due to all input rows are collected into a List and processed at once.
+/// </summary>
+public sealed class InMemoryExplodeMutator : AbstractEvaluable, IMutator
+{
+    public IProducer InputProcess { get; set; }
+    public RowTestDelegate RowFilter { get; set; }
+    public RowTagTestDelegate RowTagFilter { get; set; }
+
+    public InMemoryExplodeDelegate Action { get; init; }
 
     /// <summary>
-    /// Useful only for small amount of data due to all input rows are collected into a List and processed at once.
+    /// Default true.
     /// </summary>
-    public sealed class InMemoryExplodeMutator : AbstractEvaluable, IMutator
+    public bool RemoveOriginalRow { get; init; } = true;
+
+    public InMemoryExplodeMutator(IEtlContext context)
+        : base(context)
     {
-        public IProducer InputProcess { get; set; }
-        public RowTestDelegate RowFilter { get; set; }
-        public RowTagTestDelegate RowTagFilter { get; set; }
+    }
 
-        public InMemoryExplodeDelegate Action { get; init; }
+    protected override void ValidateImpl()
+    {
+        if (InputProcess == null)
+            throw new ProcessParameterNullException(this, nameof(InputProcess));
 
-        /// <summary>
-        /// Default true.
-        /// </summary>
-        public bool RemoveOriginalRow { get; init; } = true;
+        if (Action == null)
+            throw new ProcessParameterNullException(this, nameof(Action));
+    }
 
-        public InMemoryExplodeMutator(IEtlContext context)
-            : base(context)
-        {
-        }
+    protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
+    {
+        netTimeStopwatch.Stop();
+        var sourceEnumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+        netTimeStopwatch.Start();
 
-        protected override void ValidateImpl()
-        {
-            if (InputProcess == null)
-                throw new ProcessParameterNullException(this, nameof(InputProcess));
-
-            if (Action == null)
-                throw new ProcessParameterNullException(this, nameof(Action));
-        }
-
-        protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
+        var ignoredRowCount = 0;
+        var rows = new List<IReadOnlySlimRow>();
+        while (!Context.CancellationTokenSource.IsCancellationRequested)
         {
             netTimeStopwatch.Stop();
-            var sourceEnumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+            var finished = !sourceEnumerator.MoveNext();
             netTimeStopwatch.Start();
+            if (finished)
+                break;
 
-            var ignoredRowCount = 0;
-            var rows = new List<IReadOnlySlimRow>();
-            while (!Context.CancellationTokenSource.IsCancellationRequested)
+            var row = sourceEnumerator.Current;
+
+            var apply = false;
+            if (RowFilter != null)
             {
-                netTimeStopwatch.Stop();
-                var finished = !sourceEnumerator.MoveNext();
-                netTimeStopwatch.Start();
-                if (finished)
-                    break;
-
-                var row = sourceEnumerator.Current;
-
-                var apply = false;
-                if (RowFilter != null)
-                {
-                    try
-                    {
-                        apply = RowFilter.Invoke(row);
-                    }
-                    catch (Exception ex)
-                    {
-                        Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
-                        break;
-                    }
-
-                    if (!apply)
-                    {
-                        ignoredRowCount++;
-                        netTimeStopwatch.Stop();
-                        yield return row;
-                        netTimeStopwatch.Start();
-                        continue;
-                    }
-                }
-
-                if (RowTagFilter != null)
-                {
-                    try
-                    {
-                        apply = RowTagFilter.Invoke(row.Tag);
-                    }
-                    catch (Exception ex)
-                    {
-                        Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
-                        break;
-                    }
-
-                    if (!apply)
-                    {
-                        ignoredRowCount++;
-                        netTimeStopwatch.Stop();
-                        yield return row;
-                        netTimeStopwatch.Start();
-                        continue;
-                    }
-                }
-
-                rows.Add(row);
-            }
-
-            var resultCount = 0;
-
-            netTimeStopwatch.Stop();
-            var enumerator = Action.Invoke(this, rows).GetEnumerator();
-            netTimeStopwatch.Start();
-
-            if (!RemoveOriginalRow)
-            {
-                netTimeStopwatch.Stop();
-                foreach (var row in rows)
-                {
-                    yield return row as IRow;
-                }
-
-                netTimeStopwatch.Start();
-                resultCount += rows.Count;
-            }
-
-            while (!Context.CancellationTokenSource.IsCancellationRequested)
-            {
-                ISlimRow newRow;
                 try
                 {
-                    if (!enumerator.MoveNext())
-                        break;
-
-                    newRow = enumerator.Current;
+                    apply = RowFilter.Invoke(row);
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
+                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
                     break;
                 }
 
-                resultCount++;
-                netTimeStopwatch.Stop();
-                yield return Context.CreateRow(this, newRow);
-                netTimeStopwatch.Start();
+                if (!apply)
+                {
+                    ignoredRowCount++;
+                    netTimeStopwatch.Stop();
+                    yield return row;
+                    netTimeStopwatch.Start();
+                    continue;
+                }
             }
 
+            if (RowTagFilter != null)
+            {
+                try
+                {
+                    apply = RowTagFilter.Invoke(row.Tag);
+                }
+                catch (Exception ex)
+                {
+                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    break;
+                }
+
+                if (!apply)
+                {
+                    ignoredRowCount++;
+                    netTimeStopwatch.Stop();
+                    yield return row;
+                    netTimeStopwatch.Start();
+                    continue;
+                }
+            }
+
+            rows.Add(row);
+        }
+
+        var resultCount = 0;
+
+        netTimeStopwatch.Stop();
+        var enumerator = Action.Invoke(this, rows).GetEnumerator();
+        netTimeStopwatch.Start();
+
+        if (!RemoveOriginalRow)
+        {
             netTimeStopwatch.Stop();
-            Context.Log(LogSeverity.Debug, this, "processed {InputRowCount} rows and returned {RowCount} rows in {Elapsed}/{ElapsedWallClock}",
-                rows.Count, resultCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+            foreach (var row in rows)
+            {
+                yield return row as IRow;
+            }
 
-            Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+            netTimeStopwatch.Start();
+            resultCount += rows.Count;
         }
 
-        public IEnumerator<IMutator> GetEnumerator()
+        while (!Context.CancellationTokenSource.IsCancellationRequested)
         {
-            yield return this;
+            ISlimRow newRow;
+            try
+            {
+                if (!enumerator.MoveNext())
+                    break;
+
+                newRow = enumerator.Current;
+            }
+            catch (Exception ex)
+            {
+                Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
+                break;
+            }
+
+            resultCount++;
+            netTimeStopwatch.Stop();
+            yield return Context.CreateRow(this, newRow);
+            netTimeStopwatch.Start();
         }
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            yield return this;
-        }
+        netTimeStopwatch.Stop();
+        Context.Log(LogSeverity.Debug, this, "processed {InputRowCount} rows and returned {RowCount} rows in {Elapsed}/{ElapsedWallClock}",
+            rows.Count, resultCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+
+        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
     }
 
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public static class InMemoryExplodeMutatorFluent
+    public IEnumerator<IMutator> GetEnumerator()
     {
-        /// <summary>
-        /// Create any number of new rows based on the input rows.
-        /// <para>- memory footprint is high because all rows are collected before the delegate is called</para>
-        /// <para>- if the rows can be exploded one-by-one without knowing the other rows, then using <see cref="ExplodeMutatorFluent.Explode(IFluentProcessMutatorBuilder, ExplodeMutator)"/> is highly recommended.</para>
-        /// </summary>
-        public static IFluentProcessMutatorBuilder ExplodeInMemory(this IFluentProcessMutatorBuilder builder, InMemoryExplodeMutator mutator)
-        {
-            return builder.AddMutator(mutator);
-        }
+        yield return this;
+    }
 
-        /// <summary>
-        /// Create any number of new rows based on the input rows.
-        /// <para>- memory footprint is high because all rows are collected before the delegate is called</para>
-        /// <para>- if the rows can be exploded one-by-one without knowing the other rows, then using <see cref="ExplodeMutatorFluent.Explode(IFluentProcessMutatorBuilder, ExplodeMutator)"/> is highly recommended.</para>
-        /// </summary>
-        public static IFluentProcessMutatorBuilder ExplodeInMemory(this IFluentProcessMutatorBuilder builder, string name, InMemoryExplodeDelegate action)
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+    {
+        yield return this;
+    }
+}
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class InMemoryExplodeMutatorFluent
+{
+    /// <summary>
+    /// Create any number of new rows based on the input rows.
+    /// <para>- memory footprint is high because all rows are collected before the delegate is called</para>
+    /// <para>- if the rows can be exploded one-by-one without knowing the other rows, then using <see cref="ExplodeMutatorFluent.Explode(IFluentProcessMutatorBuilder, ExplodeMutator)"/> is highly recommended.</para>
+    /// </summary>
+    public static IFluentProcessMutatorBuilder ExplodeInMemory(this IFluentProcessMutatorBuilder builder, InMemoryExplodeMutator mutator)
+    {
+        return builder.AddMutator(mutator);
+    }
+
+    /// <summary>
+    /// Create any number of new rows based on the input rows.
+    /// <para>- memory footprint is high because all rows are collected before the delegate is called</para>
+    /// <para>- if the rows can be exploded one-by-one without knowing the other rows, then using <see cref="ExplodeMutatorFluent.Explode(IFluentProcessMutatorBuilder, ExplodeMutator)"/> is highly recommended.</para>
+    /// </summary>
+    public static IFluentProcessMutatorBuilder ExplodeInMemory(this IFluentProcessMutatorBuilder builder, string name, InMemoryExplodeDelegate action)
+    {
+        return builder.AddMutator(new InMemoryExplodeMutator(builder.ProcessBuilder.Result.Context)
         {
-            return builder.AddMutator(new InMemoryExplodeMutator(builder.ProcessBuilder.Result.Context)
-            {
-                Name = name,
-                Action = action,
-            });
-        }
+            Name = name,
+            Action = action,
+        });
     }
 }

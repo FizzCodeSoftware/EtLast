@@ -1,25 +1,24 @@
-﻿namespace FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition
+﻿namespace FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition;
+
+using FizzCode.DbTools.DataDefinition;
+
+public class SourceTableNameOverrideProperty : SqlTableProperty
 {
-    using FizzCode.DbTools.DataDefinition;
+    public string SourceTableName { get; }
 
-    public class SourceTableNameOverrideProperty : SqlTableProperty
+    public SourceTableNameOverrideProperty(SqlTable table, string sourceTableName)
+        : base(table)
     {
-        public string SourceTableName { get; }
-
-        public SourceTableNameOverrideProperty(SqlTable table, string sourceTableName)
-            : base(table)
-        {
-            SourceTableName = sourceTableName;
-        }
+        SourceTableName = sourceTableName;
     }
+}
 
-    public static class SourceTableNameOverridePropertyHelper
+public static class SourceTableNameOverridePropertyHelper
+{
+    public static SourceTableNameOverrideProperty SourceTableNameOverride(this SqlTable sqlTable, string sourceTableName)
     {
-        public static SourceTableNameOverrideProperty SourceTableNameOverride(this SqlTable sqlTable, string sourceTableName)
-        {
-            var property = new SourceTableNameOverrideProperty(sqlTable, sourceTableName);
-            sqlTable.Properties.Add(property);
-            return property;
-        }
+        var property = new SourceTableNameOverrideProperty(sqlTable, sourceTableName);
+        sqlTable.Properties.Add(property);
+        return property;
     }
 }

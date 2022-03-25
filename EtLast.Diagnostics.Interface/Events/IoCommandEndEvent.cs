@@ -1,8 +1,7 @@
-﻿namespace FizzCode.EtLast.Diagnostics.Interface
+﻿namespace FizzCode.EtLast.Diagnostics.Interface;
+
+public class IoCommandEndEvent : IoCommandEvent
 {
-    public class IoCommandEndEvent : IoCommandEvent
-    {
-        public int? AffectedDataCount { get; set; }
-        public string ErrorMessage { get; set; }
-    }
+    public int? AffectedDataCount { get; set; }
+    public string ErrorMessage { get; set; }
 }

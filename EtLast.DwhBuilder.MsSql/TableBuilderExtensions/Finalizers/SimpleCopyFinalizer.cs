@@ -1,48 +1,47 @@
-﻿namespace FizzCode.EtLast.DwhBuilder.MsSql
+﻿namespace FizzCode.EtLast.DwhBuilder.MsSql;
+
+using System.Collections.Generic;
+using System.Linq;
+using FizzCode.EtLast;
+
+public static partial class TableBuilderExtensions
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using FizzCode.EtLast;
-
-    public static partial class TableBuilderExtensions
+    public static DwhTableBuilder[] SimpleCopyFinalizer(this DwhTableBuilder[] builders)
     {
-        public static DwhTableBuilder[] SimpleCopyFinalizer(this DwhTableBuilder[] builders)
+        foreach (var builder in builders)
         {
-            foreach (var builder in builders)
-            {
-                builder.AddFinalizerCreator(CreateSimpleCopyFinalizer);
-            }
-
-            return builders;
+            builder.AddFinalizerCreator(CreateSimpleCopyFinalizer);
         }
 
-        private static IEnumerable<IExecutable> CreateSimpleCopyFinalizer(DwhTableBuilder builder)
+        return builders;
+    }
+
+    private static IEnumerable<IExecutable> CreateSimpleCopyFinalizer(DwhTableBuilder builder)
+    {
+        var columnDefaults = new Dictionary<string, object>();
+        if (builder.HasEtlRunInfo)
         {
-            var columnDefaults = new Dictionary<string, object>();
-            if (builder.HasEtlRunInfo)
-            {
-                columnDefaults[builder.EtlRunInsertColumnNameEscaped] = builder.DwhBuilder.EtlRunId.Value;
-                columnDefaults[builder.EtlRunUpdateColumnNameEscaped] = builder.DwhBuilder.EtlRunId.Value;
-            }
-
-            var columnNames = builder.Table.Columns
-                .Where(x => !x.GetUsedByEtlRunInfo())
-                .Select(c => c.NameEscaped(builder.ResilientTable.Scope.ConnectionString))
-                .ToArray();
-
-            yield return new CopyTableIntoExistingTable(builder.ResilientTable.Scope.Context)
-            {
-                Name = "CopyToBase",
-                ConnectionString = builder.ResilientTable.Scope.ConnectionString,
-                Configuration = new TableCopyConfiguration()
-                {
-                    SourceTableName = builder.ResilientTable.TempTableName,
-                    TargetTableName = builder.ResilientTable.TableName,
-                    Columns = columnNames.ToDictionary(x => x),
-                },
-                ColumnDefaults = columnDefaults,
-                CommandTimeout = 60 * 60,
-            };
+            columnDefaults[builder.EtlRunInsertColumnNameEscaped] = builder.DwhBuilder.EtlRunId.Value;
+            columnDefaults[builder.EtlRunUpdateColumnNameEscaped] = builder.DwhBuilder.EtlRunId.Value;
         }
+
+        var columnNames = builder.Table.Columns
+            .Where(x => !x.GetUsedByEtlRunInfo())
+            .Select(c => c.NameEscaped(builder.ResilientTable.Scope.ConnectionString))
+            .ToArray();
+
+        yield return new CopyTableIntoExistingTable(builder.ResilientTable.Scope.Context)
+        {
+            Name = "CopyToBase",
+            ConnectionString = builder.ResilientTable.Scope.ConnectionString,
+            Configuration = new TableCopyConfiguration()
+            {
+                SourceTableName = builder.ResilientTable.TempTableName,
+                TargetTableName = builder.ResilientTable.TableName,
+                Columns = columnNames.ToDictionary(x => x),
+            },
+            ColumnDefaults = columnDefaults,
+            CommandTimeout = 60 * 60,
+        };
     }
 }

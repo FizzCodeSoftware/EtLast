@@ -1,63 +1,62 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+using System.Globalization;
+using System.IO;
+
+public class LocalFileSinkProvider : ISinkProvider
 {
-    using System;
-    using System.Globalization;
-    using System.IO;
+    /// <summary>
+    /// Generates file name based on a partition key.
+    /// </summary>
+    public Func<string, string> FileNameGenerator { get; init; }
 
-    public class LocalFileSinkProvider : ISinkProvider
+    /// <summary>
+    /// Default value is true.
+    /// </summary>
+    public bool ThrowExceptionWhenFileExists { get; init; } = true;
+
+    public bool AutomaticallyDispose => true;
+
+    public void Validate(IProcess caller)
     {
-        /// <summary>
-        /// Generates file name based on a partition key.
-        /// </summary>
-        public Func<string, string> FileNameGenerator { get; init; }
+        if (FileNameGenerator == null)
+            throw new ProcessParameterNullException(caller, "SinkProvider." + nameof(FileNameGenerator));
+    }
 
-        /// <summary>
-        /// Default value is true.
-        /// </summary>
-        public bool ThrowExceptionWhenFileExists { get; init; } = true;
+    public NamedSink GetSink(IProcess caller, string partitionKey)
+    {
+        var fileName = FileNameGenerator.Invoke(partitionKey);
 
-        public bool AutomaticallyDispose => true;
+        var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileWrite, Path.GetDirectoryName(fileName), Path.GetFileName(fileName), null, null, null, null,
+            "writing to local file {FileName}", fileName);
 
-        public void Validate(IProcess caller)
+        if (File.Exists(fileName) && ThrowExceptionWhenFileExists)
         {
-            if (FileNameGenerator == null)
-                throw new ProcessParameterNullException(caller, "SinkProvider." + nameof(FileNameGenerator));
+            var exception = new LocalFileWriteException(caller, "local file already exist", fileName);
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local file already exist: {0}",
+                fileName));
+
+            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, 0, exception);
+            throw exception;
         }
 
-        public NamedSink GetSink(IProcess caller, string partitionKey)
+        try
         {
-            var fileName = FileNameGenerator.Invoke(partitionKey);
+            var sinkUid = caller.Context.GetSinkUid(Path.GetDirectoryName(fileName), Path.GetFileName(fileName));
 
-            var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileWrite, Path.GetDirectoryName(fileName), Path.GetFileName(fileName), null, null, null, null,
-                "writing to local file {FileName}", fileName);
+            var stream = new FileStream(fileName, FileMode.Append, FileAccess.Write, FileShare.Read);
+            return new NamedSink(fileName, stream, iocUid, IoCommandKind.fileWrite, sinkUid);
+        }
+        catch (Exception ex)
+        {
+            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, null, ex);
 
-            if (File.Exists(fileName) && ThrowExceptionWhenFileExists)
-            {
-                var exception = new LocalFileWriteException(caller, "local file already exist", fileName);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local file already exist: {0}",
-                    fileName));
+            var exception = new LocalFileWriteException(caller, "error while writing local file", fileName, ex);
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing local file: {0}, message: {1}",
+                fileName, ex.Message));
 
-                caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, 0, exception);
-                throw exception;
-            }
-
-            try
-            {
-                var sinkUid = caller.Context.GetSinkUid(Path.GetDirectoryName(fileName), Path.GetFileName(fileName));
-
-                var stream = new FileStream(fileName, FileMode.Append, FileAccess.Write, FileShare.Read);
-                return new NamedSink(fileName, stream, iocUid, IoCommandKind.fileWrite, sinkUid);
-            }
-            catch (Exception ex)
-            {
-                caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, null, ex);
-
-                var exception = new LocalFileWriteException(caller, "error while writing local file", fileName, ex);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing local file: {0}, message: {1}",
-                    fileName, ex.Message));
-
-                throw exception;
-            }
+            throw exception;
         }
     }
 }

@@ -1,4 +1,3 @@
-﻿namespace FizzCode.EtLast
-{
-    public delegate bool RowTagTestDelegate(object tag);
-}
+﻿namespace FizzCode.EtLast;
+
+public delegate bool RowTagTestDelegate(object tag);

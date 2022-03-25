@@ -1,42 +1,41 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System;
+
+public sealed class RowLookupBuilder
 {
-    using System;
+    public IProducer Process { get; set; }
+    public Func<IReadOnlySlimRow, string> KeyGenerator { get; set; }
 
-    public sealed class RowLookupBuilder
+    public RowLookup Build(IProcess caller)
     {
-        public IProducer Process { get; set; }
-        public Func<IReadOnlySlimRow, string> KeyGenerator { get; set; }
+        var lookup = new RowLookup();
+        Append(lookup, caller);
+        return lookup;
+    }
 
-        public RowLookup Build(IProcess caller)
+    public void Append(ICountableLookup lookup, IProcess caller)
+    {
+        var allRows = Process.Evaluate(caller).TakeRowsAndReleaseOwnership();
+        var rowCount = 0;
+        foreach (var row in allRows)
         {
-            var lookup = new RowLookup();
-            Append(lookup, caller);
-            return lookup;
-        }
+            rowCount++;
 
-        public void Append(ICountableLookup lookup, IProcess caller)
-        {
-            var allRows = Process.Evaluate(caller).TakeRowsAndReleaseOwnership();
-            var rowCount = 0;
-            foreach (var row in allRows)
+            string key = null;
+            try
             {
-                rowCount++;
-
-                string key = null;
-                try
-                {
-                    key = KeyGenerator(row);
-                }
-                catch (Exception ex)
-                {
-                    throw KeyGeneratorException.Wrap(caller, row, ex);
-                }
-
-                lookup.AddRow(key, row);
+                key = KeyGenerator(row);
+            }
+            catch (Exception ex)
+            {
+                throw KeyGeneratorException.Wrap(caller, row, ex);
             }
 
-            caller?.Context.Log(LogSeverity.Debug, caller, "fetched {RowCount} rows, lookup size is {LookupSize}",
-                rowCount, lookup.Count);
+            lookup.AddRow(key, row);
         }
+
+        caller?.Context.Log(LogSeverity.Debug, caller, "fetched {RowCount} rows, lookup size is {LookupSize}",
+            rowCount, lookup.Count);
     }
 }

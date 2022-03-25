@@ -1,20 +1,19 @@
-﻿namespace FizzCode.EtLast.Diagnostics.Interface
+﻿namespace FizzCode.EtLast.Diagnostics.Interface;
+
+using System.Diagnostics;
+
+[DebuggerDisplay("{Path}")]
+public class TrackedSink
 {
-    using System.Diagnostics;
+    public int UID { get; }
+    public string Location { get; }
+    public string Path { get; }
+    public int RowCount { get; set; }
 
-    [DebuggerDisplay("{Path}")]
-    public class TrackedSink
+    public TrackedSink(int uid, string location, string path)
     {
-        public int UID { get; }
-        public string Location { get; }
-        public string Path { get; }
-        public int RowCount { get; set; }
-
-        public TrackedSink(int uid, string location, string path)
-        {
-            UID = uid;
-            Location = location;
-            Path = path;
-        }
+        UID = uid;
+        Location = location;
+        Path = path;
     }
 }

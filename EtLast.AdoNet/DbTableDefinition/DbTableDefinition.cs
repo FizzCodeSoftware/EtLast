@@ -1,14 +1,13 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.Collections.Generic;
+
+public sealed class DbTableDefinition
 {
-    using System.Collections.Generic;
+    public string TableName { get; init; }
 
-    public sealed class DbTableDefinition
-    {
-        public string TableName { get; init; }
-
-        /// <summary>
-        /// Key is column in the row, value is column in the database table (can be null).
-        /// </summary>
-        public Dictionary<string, string> Columns { get; init; }
-    }
+    /// <summary>
+    /// Key is column in the row, value is column in the database table (can be null).
+    /// </summary>
+    public Dictionary<string, string> Columns { get; init; }
 }

@@ -1,15 +1,14 @@
-﻿namespace FizzCode.EtLast
+﻿namespace FizzCode.EtLast;
+
+using System.Collections.Generic;
+
+public interface IEtlTask : IProcess
 {
-    using System.Collections.Generic;
+    public IEtlSession Session { get; }
+    public IExecutionStatistics Statistics { get; }
 
-    public interface IEtlTask : IProcess
-    {
-        public IEtlSession Session { get; }
-        public IExecutionStatistics Statistics { get; }
+    public Dictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; }
 
-        public Dictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; }
-
-        public void ValidateParameters();
-        public ProcessResult Execute(IProcess caller, IEtlSession session);
-    }
+    public void ValidateParameters();
+    public ProcessResult Execute(IProcess caller, IEtlSession session);
 }
