@@ -34,7 +34,7 @@
             [ColorCode.Operation] = "\x1b[38;5;0085m",
             [ColorCode.Job] = "\x1b[38;5;0085m",
             [ColorCode.ConnectionStringName] = "\x1b[38;5;0135m",
-            [ColorCode.SourceOrTarget] = "\x1b[38;5;0035m",
+            [ColorCode.Location] = "\x1b[38;5;0035m",
             [ColorCode.Transaction] = "\x1b[38;5;0245m",
         };
 

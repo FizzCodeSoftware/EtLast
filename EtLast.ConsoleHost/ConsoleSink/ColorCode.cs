@@ -23,7 +23,7 @@
         Operation = 20,
         Job = 21,
         ConnectionStringName = 22,
-        SourceOrTarget = 23,
+        Location = 23,
         Transaction = 24,
         Task = 25,
     }
