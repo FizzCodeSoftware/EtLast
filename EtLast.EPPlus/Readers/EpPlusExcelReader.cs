@@ -39,7 +39,11 @@
 
         protected override IEnumerable<IRow> Produce()
         {
-            foreach (var stream in StreamProvider.GetStreams(this))
+            var streams = StreamProvider.GetStreams(this);
+            if (streams == null)
+                yield break;
+
+            foreach (var stream in streams)
             {
                 if (stream == null)
                     yield break;
