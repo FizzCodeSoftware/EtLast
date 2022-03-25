@@ -9,17 +9,11 @@
     <Copyright>Copyright © 2019-2021 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Platforms>AnyCPU</Platforms>
-    <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
     <AssemblyName>FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition</AssemblyName>
     <RootNamespace>FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
-    <Configurations>Debug;Release;LocalProjects</Configurations>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LocalProjects|AnyCPU'">
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG</DefineConstants>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -27,8 +21,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.DataDefinition" Version="2.0.23.6364" />
-    <PackageReference Condition="'$(Configuration)' != 'LocalProjects'" Include="FizzCode.DbTools.DataDefinition.MsSql" Version="2.0.23.6364" />
+    <PackageReference Include="FizzCode.DbTools.DataDefinition" Version="2.0.23.6364" />
+    <PackageReference Include="FizzCode.DbTools.DataDefinition.MsSql" Version="2.0.23.6364" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -41,7 +35,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
-    <ProjectReference Condition="'$(Configuration)' == 'LocalProjects'" Include="..\..\DbTools\DbTools.DataDefinition\DbTools.DataDefinition.csproj" />
     <ProjectReference Include="..\EtLast.DwhBuilder\EtLast.DwhBuilder.csproj" />
   </ItemGroup>
 

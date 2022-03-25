@@ -9,7 +9,6 @@
     <Copyright>Copyright © 2019-2021 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Platforms>AnyCPU</Platforms>
-    <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
     <AssemblyName>FizzCode.EtLast.Diagnostics.HttpSender</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Diagnostics.HttpSender</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -18,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="2.0.25.6441" />
+    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="2.0.26.6457" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

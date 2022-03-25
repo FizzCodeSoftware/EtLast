@@ -48,7 +48,7 @@ public partial class MainForm : Form
         _timer.Start();
     }
 
-    private Rectangle GetSessionTabCloseButtonRectangle(Rectangle tabRectable)
+    private static Rectangle GetSessionTabCloseButtonRectangle(Rectangle tabRectable)
     {
         var height = 12;
         return new Rectangle(tabRectable.Right - 10 - height, tabRectable.Top + ((tabRectable.Height - height) / 2), height, height);

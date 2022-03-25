@@ -131,14 +131,14 @@ public class ContextIndex
                 {
                     DiagnosticsEventKind.Log => (AbstractEvent)_eventParser.ReadLogEvent(reader),
                     DiagnosticsEventKind.RowCreated => _eventParser.ReadRowCreatedEvent(reader),
-                    DiagnosticsEventKind.RowOwnerChanged => _eventParser.ReadRowOwnerChangedEvent(reader),
+                    DiagnosticsEventKind.RowOwnerChanged => EventParser.ReadRowOwnerChangedEvent(reader),
                     DiagnosticsEventKind.RowValueChanged => _eventParser.ReadRowValueChangedEvent(reader),
                     DiagnosticsEventKind.SinkStarted => _eventParser.ReadSinkStartedEvent(reader),
                     DiagnosticsEventKind.WriteToSink => _eventParser.ReadWriteToSinkEvent(reader),
-                    DiagnosticsEventKind.ProcessInvocationStart => _eventParser.ReadProcessInvocationStartEvent(reader),
-                    DiagnosticsEventKind.ProcessInvocationEnd => _eventParser.ReadProcessInvocationEndEvent(reader),
+                    DiagnosticsEventKind.ProcessInvocationStart => EventParser.ReadProcessInvocationStartEvent(reader),
+                    DiagnosticsEventKind.ProcessInvocationEnd => EventParser.ReadProcessInvocationEndEvent(reader),
                     DiagnosticsEventKind.IoCommandStart => _eventParser.ReadIoCommandStartEvent(reader),
-                    DiagnosticsEventKind.IoCommandEnd => _eventParser.ReadIoCommandEndEvent(reader),
+                    DiagnosticsEventKind.IoCommandEnd => EventParser.ReadIoCommandEndEvent(reader),
                     _ => null,
                 };
 
@@ -290,14 +290,14 @@ public class ContextIndex
                             {
                                 DiagnosticsEventKind.Log => (AbstractEvent)_eventParser.ReadLogEvent(reader),
                                 DiagnosticsEventKind.RowCreated => _eventParser.ReadRowCreatedEvent(reader),
-                                DiagnosticsEventKind.RowOwnerChanged => _eventParser.ReadRowOwnerChangedEvent(reader),
+                                DiagnosticsEventKind.RowOwnerChanged => EventParser.ReadRowOwnerChangedEvent(reader),
                                 DiagnosticsEventKind.RowValueChanged => _eventParser.ReadRowValueChangedEvent(reader),
                                 DiagnosticsEventKind.SinkStarted => _eventParser.ReadSinkStartedEvent(reader),
                                 DiagnosticsEventKind.WriteToSink => _eventParser.ReadWriteToSinkEvent(reader),
-                                DiagnosticsEventKind.ProcessInvocationStart => _eventParser.ReadProcessInvocationStartEvent(reader),
-                                DiagnosticsEventKind.ProcessInvocationEnd => _eventParser.ReadProcessInvocationEndEvent(reader),
+                                DiagnosticsEventKind.ProcessInvocationStart => EventParser.ReadProcessInvocationStartEvent(reader),
+                                DiagnosticsEventKind.ProcessInvocationEnd => EventParser.ReadProcessInvocationEndEvent(reader),
                                 DiagnosticsEventKind.IoCommandStart => _eventParser.ReadIoCommandStartEvent(reader),
-                                DiagnosticsEventKind.IoCommandEnd => _eventParser.ReadIoCommandEndEvent(reader),
+                                DiagnosticsEventKind.IoCommandEnd => EventParser.ReadIoCommandEndEvent(reader),
                                 _ => null,
                             };
 
@@ -401,7 +401,7 @@ public class ContextIndex
                             {
                                 DiagnosticsEventKind.RowCreated => (AbstractRowEvent)_eventParser.ReadRowCreatedEvent(reader),
                                 DiagnosticsEventKind.RowValueChanged => _eventParser.ReadRowValueChangedEvent(reader),
-                                DiagnosticsEventKind.RowOwnerChanged => _eventParser.ReadRowOwnerChangedEvent(reader),
+                                DiagnosticsEventKind.RowOwnerChanged => EventParser.ReadRowOwnerChangedEvent(reader),
                                 _ => null,
                             };
 

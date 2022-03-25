@@ -9,17 +9,11 @@
     <Copyright>Copyright © 2019-2021 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Platforms>AnyCPU</Platforms>
-    <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
     <AssemblyName>FizzCode.EtLast.DwhBuilder</AssemblyName>
     <RootNamespace>FizzCode.EtLast.DwhBuilder</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
-    <Configurations>Debug;Release;LocalProjects</Configurations>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LocalProjects|AnyCPU'">
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG</DefineConstants>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -35,7 +29,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="FizzCode.LightWeight.RelationalModel" Version="2.0.25.6441" />
+    <PackageReference Include="FizzCode.LightWeight.RelationalModel" Version="2.0.26.6457" />
   </ItemGroup>
 
   <ItemGroup>

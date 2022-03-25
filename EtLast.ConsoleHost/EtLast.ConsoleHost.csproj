@@ -9,7 +9,6 @@
     <Copyright>Copyright © 2019-2021 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Platforms>AnyCPU</Platforms>
-    <CodeAnalysisRuleSet>..\FizzCode.ruleset</CodeAnalysisRuleSet>
     <AssemblyName>FizzCode.EtLast.ConsoleHost</AssemblyName>
     <RootNamespace>FizzCode.EtLast.ConsoleHost</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -23,7 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommandDotNet" Version="6.0.5" />
-    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="2.0.25.6441" />
+    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="2.0.26.6457" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>

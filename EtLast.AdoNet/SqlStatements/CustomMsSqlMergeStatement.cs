@@ -147,28 +147,28 @@ public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
                 if (kvp.Value is int[] intArray)
                 {
                     var newParamText = string.Join(",", intArray.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                    sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement[(idx + paramReference.Length)..];
+                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement[(idx + paramReference.Length)..]);
 
                     Parameters.Remove(kvp.Key);
                 }
                 else if (kvp.Value is long[] longArray)
                 {
                     var newParamText = string.Join(",", longArray.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                    sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement[(idx + paramReference.Length)..];
+                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement[(idx + paramReference.Length)..]);
 
                     Parameters.Remove(kvp.Key);
                 }
                 else if (kvp.Value is List<int> intList)
                 {
                     var newParamText = string.Join(",", intList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                    sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement[(idx + paramReference.Length)..];
+                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement[(idx + paramReference.Length)..]);
 
                     Parameters.Remove(kvp.Key);
                 }
                 else if (kvp.Value is List<long> longList)
                 {
                     var newParamText = string.Join(",", longList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                    sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement[(idx + paramReference.Length)..];
+                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement[(idx + paramReference.Length)..]);
 
                     Parameters.Remove(kvp.Key);
                 }

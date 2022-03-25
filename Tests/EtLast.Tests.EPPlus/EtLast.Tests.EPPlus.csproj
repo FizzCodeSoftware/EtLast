@@ -6,7 +6,6 @@
     <Platforms>AnyCPU</Platforms>
     <AssemblyName>FizzCode.EtLast.Tests.EPPlus</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Tests.EPPlus</RootNamespace>
-    <CodeAnalysisRuleSet>..\..\FizzCode.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>

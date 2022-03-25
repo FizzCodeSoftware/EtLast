@@ -36,7 +36,7 @@ public abstract class AbstractSqlStatementBase : AbstractExecutable
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    protected string InlineArrayParametersIfNecessary(string sqlStatement, ref Dictionary<string, object> parameters)
+    protected static string InlineArrayParametersIfNecessary(string sqlStatement, ref Dictionary<string, object> parameters)
     {
         if (parameters != null)
         {
@@ -51,14 +51,14 @@ public abstract class AbstractSqlStatementBase : AbstractExecutable
                 if (kvp.Value is int[] intArray)
                 {
                     var newParamText = string.Join(",", intArray.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                    sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement[(idx + paramReference.Length)..];
+                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement[(idx + paramReference.Length)..]);
 
                     parameters.Remove(kvp.Key);
                 }
                 else if (kvp.Value is long[] longArray)
                 {
                     var newParamText = string.Join(",", longArray.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                    sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement[(idx + paramReference.Length)..];
+                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement[(idx + paramReference.Length)..]);
 
                     parameters.Remove(kvp.Key);
                 }
@@ -76,21 +76,21 @@ public abstract class AbstractSqlStatementBase : AbstractExecutable
                     }
 
                     var newParamText = sb.ToString();
-                    sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement[(idx + paramReference.Length)..];
+                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement[(idx + paramReference.Length)..]);
 
                     parameters.Remove(kvp.Key);
                 }
                 else if (kvp.Value is List<int> intList)
                 {
                     var newParamText = string.Join(",", intList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                    sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement[(idx + paramReference.Length)..];
+                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement[(idx + paramReference.Length)..]);
 
                     parameters.Remove(kvp.Key);
                 }
                 else if (kvp.Value is List<long> longList)
                 {
                     var newParamText = string.Join(",", longList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                    sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement[(idx + paramReference.Length)..];
+                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement[(idx + paramReference.Length)..]);
 
                     parameters.Remove(kvp.Key);
                 }
@@ -108,7 +108,7 @@ public abstract class AbstractSqlStatementBase : AbstractExecutable
                     }
 
                     var newParamText = sb.ToString();
-                    sqlStatement = sqlStatement.Substring(0, idx) + newParamText + sqlStatement[(idx + paramReference.Length)..];
+                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement[(idx + paramReference.Length)..]);
 
                     parameters.Remove(kvp.Key);
                 }

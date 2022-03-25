@@ -11,17 +11,12 @@
     <Copyright>Copyright © 2019-2021 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Platforms>AnyCPU</Platforms>
-    <CodeAnalysisRuleSet>..\..\FizzCode.ruleset</CodeAnalysisRuleSet>
     <AssemblyName>FizzCode.EtLast.Tests.Integration</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Tests.Integration</RootNamespace>
-    <Configurations>Debug;Release;LocalProjects</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>DEBUG</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LocalProjects|AnyCPU'">
     <DefineConstants>DEBUG</DefineConstants>
   </PropertyGroup>
 

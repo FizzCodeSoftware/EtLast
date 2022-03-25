@@ -6,8 +6,6 @@ using System.IO;
 
 public class MemorySinkProvider : ISinkProvider
 {
-    public string Topic => null;
-
     public Func<MemoryStream> StreamCreator { get; init; }
 
     private readonly string _sinkName = "MemorySink";

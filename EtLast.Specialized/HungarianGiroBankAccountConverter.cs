@@ -40,8 +40,8 @@ public sealed class HungarianGiroBankAccountConverter : StringConverter
         {
             return accountNr.Length switch
             {
-                16 => accountNr.Substring(0, 8) + "-" + accountNr.Substring(8, 8),
-                24 => accountNr.Substring(0, 8) + "-" + accountNr.Substring(8, 8) + "-" + accountNr.Substring(16, 8),
+                16 => string.Concat(accountNr.AsSpan(0, 8), "-", accountNr.AsSpan(8, 8)),
+                24 => string.Concat(accountNr.Substring(0, 8), "-", accountNr.Substring(8, 8), "-", accountNr.Substring(16, 8)),
                 _ => accountNr,
             };
         }

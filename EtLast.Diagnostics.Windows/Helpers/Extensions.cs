@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows;
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -18,6 +19,6 @@ public static class Extensions
         if (text.Length <= length)
             return text;
 
-        return text.Substring(0, length - 3) + "...";
+        return string.Concat(text.AsSpan(0, length - 3), "...");
     }
 }

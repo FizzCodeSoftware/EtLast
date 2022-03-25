@@ -28,7 +28,7 @@ public class EventParser
         return value;
     }
 
-    public ProcessInvocationStartEvent ReadProcessInvocationStartEvent(ExtendedBinaryReader reader)
+    public static ProcessInvocationStartEvent ReadProcessInvocationStartEvent(ExtendedBinaryReader reader)
     {
         return new ProcessInvocationStartEvent
         {
@@ -43,7 +43,7 @@ public class EventParser
         };
     }
 
-    public ProcessInvocationEndEvent ReadProcessInvocationEndEvent(ExtendedBinaryReader reader)
+    public static ProcessInvocationEndEvent ReadProcessInvocationEndEvent(ExtendedBinaryReader reader)
     {
         return new ProcessInvocationEndEvent
         {
@@ -82,7 +82,7 @@ public class EventParser
         return evt;
     }
 
-    public IoCommandEndEvent ReadIoCommandEndEvent(ExtendedBinaryReader reader)
+    public static IoCommandEndEvent ReadIoCommandEndEvent(ExtendedBinaryReader reader)
     {
         var evt = new IoCommandEndEvent
         {
@@ -117,7 +117,7 @@ public class EventParser
         return evt;
     }
 
-    public RowOwnerChangedEvent ReadRowOwnerChangedEvent(ExtendedBinaryReader reader)
+    public static RowOwnerChangedEvent ReadRowOwnerChangedEvent(ExtendedBinaryReader reader)
     {
         return new RowOwnerChangedEvent
         {

@@ -6,7 +6,6 @@
     <Platforms>AnyCPU</Platforms>
     <AssemblyName>FizzCode.EtLast.Tests.DwhBuilder</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Tests.DwhBuilder</RootNamespace>
-    <CodeAnalysisRuleSet>..\..\FizzCode.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

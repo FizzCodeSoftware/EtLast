@@ -225,7 +225,7 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
             throw new ProcessParameterNullException(this, nameof(TableDefinition));
     }
 
-    public void SetParameter(IDbDataParameter parameter, object value, DbType? dbType, NamedConnectionString connectionString)
+    public static void SetParameter(IDbDataParameter parameter, object value, DbType? dbType, NamedConnectionString connectionString)
     {
         if (value == null)
         {
