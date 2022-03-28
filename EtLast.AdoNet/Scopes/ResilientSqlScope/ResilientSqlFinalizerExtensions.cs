@@ -15,7 +15,7 @@ public static class ResilientSqlFinalizerExtensions
         });
     }
 
-    public static ResilientSqlTableTableFinalizerBuilder DeleteTargetTable(this ResilientSqlTableTableFinalizerBuilder builder, int commandTimeout = 60 * 60)
+    public static ResilientSqlTableTableFinalizerBuilder DeleteTargetTable(this ResilientSqlTableTableFinalizerBuilder builder, string customWhereClause = null, int commandTimeout = 60 * 60)
     {
         return builder.Add(new DeleteTable(builder.Table.Scope.Context)
         {
@@ -23,6 +23,7 @@ public static class ResilientSqlFinalizerExtensions
             ConnectionString = builder.Table.Scope.ConnectionString,
             TableName = builder.Table.TableName,
             CommandTimeout = commandTimeout,
+            CustomWhereClause = customWhereClause,
         });
     }
 
