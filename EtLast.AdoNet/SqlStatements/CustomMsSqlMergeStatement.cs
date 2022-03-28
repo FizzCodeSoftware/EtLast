@@ -1,12 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-
 public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
 {
     public string SourceTableName { get; init; }

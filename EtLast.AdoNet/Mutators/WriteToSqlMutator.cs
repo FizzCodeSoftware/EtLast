@@ -1,15 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Transactions;
-using FizzCode.LightWeight.AdoNet;
-
 public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
 {
     public NamedConnectionString ConnectionString { get; init; }

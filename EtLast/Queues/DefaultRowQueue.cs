@@ -1,6 +1,6 @@
-﻿namespace FizzCode.EtLast;
+﻿using System.Collections.Concurrent;
 
-using System.Collections.Concurrent;
+namespace FizzCode.EtLast;
 
 public sealed class DefaultRowQueue : IRowQueue
 {

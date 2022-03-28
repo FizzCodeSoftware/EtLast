@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast.ConsoleHost;
 
-using System.Collections.Generic;
-using CommandDotNet;
-
 [Command("test", Description = "Test connection strings, modules, etc.")]
 [Subcommand]
 public class TestCommand

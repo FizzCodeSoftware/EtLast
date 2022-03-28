@@ -1,12 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Globalization;
-using FizzCode.LightWeight.AdoNet;
-
 public sealed class MsSqlEnableConstraintCheckFiltered : AbstractSqlStatements
 {
     public List<KeyValuePair<string, List<string>>> ConstraintNames { get; init; }

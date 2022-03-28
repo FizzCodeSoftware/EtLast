@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast.ConsoleHost;
 
-using CommandDotNet;
-
 [Command("list", Description = "List of modules.")]
 [Subcommand]
 public class ListCommand

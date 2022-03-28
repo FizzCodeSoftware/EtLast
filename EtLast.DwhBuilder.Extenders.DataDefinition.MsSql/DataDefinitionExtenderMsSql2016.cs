@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition.MsSql;
 
-using System.Collections.Generic;
-using System.Linq;
-using FizzCode.DbTools.DataDefinition;
-using FizzCode.DbTools.DataDefinition.MsSql2016;
-
 public static class DataDefinitionExtenderMsSql2016
 {
     public static void Extend(DatabaseDeclaration declaration, DwhBuilderConfiguration configuration)

@@ -1,15 +1,12 @@
 ﻿namespace FizzCode.EtLast.Tests;
 
-using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 public static class ThrowsInvalidProcessParameterExceptionHelper
 {
-#pragma warning disable RCS1175 // Unused this parameter.
     public static void ThrowsInvalidProcessParameterException<T>(this Assert assert)
         where T : IMutator
-#pragma warning restore RCS1175 // Unused this parameter.
     {
+        if (assert is null)
+            throw new ArgumentNullException(nameof(assert));
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {

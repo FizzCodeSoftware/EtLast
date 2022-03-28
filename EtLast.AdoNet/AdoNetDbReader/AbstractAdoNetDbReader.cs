@@ -1,16 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Transactions;
-using FizzCode.LightWeight.AdoNet;
-
 public delegate void ConnectionCreatorDelegate(AbstractAdoNetDbReader process, out DatabaseConnection connection, out IDbTransaction transaction);
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]

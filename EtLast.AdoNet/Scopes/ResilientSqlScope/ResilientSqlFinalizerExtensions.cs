@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Linq;
-
 public static class ResilientSqlFinalizerExtensions
 {
     public static ResilientSqlTableTableFinalizerBuilder TruncateTargetTable(this ResilientSqlTableTableFinalizerBuilder builder, int commandTimeout = 60 * 60)
@@ -50,7 +48,7 @@ public static class ResilientSqlFinalizerExtensions
     public static ResilientSqlTableTableFinalizerBuilder SimpleMsSqlMerge(this ResilientSqlTableTableFinalizerBuilder builder, string keyColumn, int commandTimeout = 60 * 60)
     {
         var columnsToUpdate = builder.Table.Columns
-            .Where(c => !string.Equals(c, keyColumn, System.StringComparison.InvariantCultureIgnoreCase))
+            .Where(c => !string.Equals(c, keyColumn, StringComparison.InvariantCultureIgnoreCase))
             .ToList();
 
         return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
@@ -73,7 +71,7 @@ public static class ResilientSqlFinalizerExtensions
     public static ResilientSqlTableTableFinalizerBuilder SimpleMsSqlMerge(this ResilientSqlTableTableFinalizerBuilder builder, string[] keyColumns, int commandTimeout = 60 * 60)
     {
         var columnsToUpdate = builder.Table.Columns
-            .Where(c => !keyColumns.Any(keyColumn => string.Equals(c, keyColumn, System.StringComparison.InvariantCultureIgnoreCase)))
+            .Where(c => !keyColumns.Any(keyColumn => string.Equals(c, keyColumn, StringComparison.InvariantCultureIgnoreCase)))
             .ToList();
 
         return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)

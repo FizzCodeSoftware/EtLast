@@ -1,13 +1,11 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests;
 
-using System.Collections.Generic;
-
 internal class DevWSDEVONE : IInstanceArgumentProvider
 {
     public string Instance => "WSDEVONE";
 
     public Dictionary<string, object> Arguments => new()
     {
-        ["ConnectionString"] = () => new LightWeight.AdoNet.NamedConnectionString("test", "Microsoft.Data.SqlClient", "Data Source=(local);Initial Catalog=\"EtLastIntegrationTest\";Integrated Security=SSPI;Connection Timeout=5;Encrypt=False", "2016"),
+        ["ConnectionString"] = () => new NamedConnectionString("test", "Microsoft.Data.SqlClient", "Data Source=(local);Initial Catalog=\"EtLastIntegrationTest\";Integrated Security=SSPI;Connection Timeout=5;Encrypt=False", "2016"),
     };
 }

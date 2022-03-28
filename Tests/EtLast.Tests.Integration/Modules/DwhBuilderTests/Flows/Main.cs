@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests;
 
-using FizzCode.EtLast;
-
 public class Main : AbstractEtlFlow
 {
     public override void ValidateParameters()

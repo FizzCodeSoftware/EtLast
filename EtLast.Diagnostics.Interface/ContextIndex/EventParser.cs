@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-using System.Collections.Generic;
-
 public class EventParser
 {
     private readonly Dictionary<int, string> _textDictionary;

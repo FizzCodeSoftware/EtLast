@@ -1,14 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows;
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Globalization;
-using System.Linq;
-using System.Windows.Forms;
-using BrightIdeasSoftware;
-using FizzCode.EtLast.Diagnostics.Interface;
-
 internal class ContextIoCommandListControl
 {
     public Control Container { get; }

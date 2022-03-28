@@ -1,12 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
-using System.Linq;
-using FizzCode.LightWeight.AdoNet;
-
 public sealed class CopyTableIntoExistingTable : AbstractSqlStatement
 {
     public TableCopyConfiguration Configuration { get; init; }

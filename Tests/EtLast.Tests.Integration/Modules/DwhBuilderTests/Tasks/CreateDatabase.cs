@@ -1,16 +1,6 @@
 ﻿#pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
 namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests;
 
-using System.Collections.Generic;
-using System.Data.Common;
-using FizzCode.DbTools;
-using FizzCode.DbTools.Common;
-using FizzCode.DbTools.DataDefinition;
-using FizzCode.DbTools.DataDefinition.MsSql2016;
-using FizzCode.DbTools.DataDefinition.SqlExecuter;
-using FizzCode.EtLast;
-using FizzCode.LightWeight.AdoNet;
-
 public class CreateDatabase : AbstractEtlTask
 {
     public NamedConnectionString ConnectionString { get; set; }

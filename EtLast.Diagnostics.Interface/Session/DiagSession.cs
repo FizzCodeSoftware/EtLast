@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-
 [DebuggerDisplay("{SessionId}")]
 public class DiagSession
 {

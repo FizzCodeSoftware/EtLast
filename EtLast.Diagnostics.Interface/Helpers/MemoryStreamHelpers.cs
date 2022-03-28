@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-using System.IO;
-
 public static class MemoryStreamHelpers
 {
     public static byte[] ReadFrom(this MemoryStream stream, long position, int size)

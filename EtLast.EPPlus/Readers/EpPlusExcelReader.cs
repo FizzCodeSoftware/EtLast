@@ -1,11 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using OfficeOpenXml;
-
 public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
 {
     public IStreamProvider StreamProvider { get; init; }

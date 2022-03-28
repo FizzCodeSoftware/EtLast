@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast.Tests;
 
-using System.Linq;
-
 public static class TestExecuter
 {
     public static IEtlContext GetContext()

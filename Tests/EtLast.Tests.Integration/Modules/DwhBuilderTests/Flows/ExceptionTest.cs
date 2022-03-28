@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests;
 
-using System;
-using FizzCode.EtLast;
-
 public class ExceptionTest : AbstractEtlFlow
 {
     public Type ExceptionType { get; set; }

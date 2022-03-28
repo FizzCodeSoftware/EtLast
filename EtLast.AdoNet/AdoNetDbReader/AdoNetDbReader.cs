@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
-using FizzCode.LightWeight.AdoNet;
-
 public sealed class AdoNetDbReader : AbstractAdoNetDbReader
 {
     public string TableName { get; init; }

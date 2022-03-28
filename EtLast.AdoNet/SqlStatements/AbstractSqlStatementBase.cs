@@ -1,14 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Transactions;
-using FizzCode.LightWeight.AdoNet;
-
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractSqlStatementBase : AbstractExecutable
 {

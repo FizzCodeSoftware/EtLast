@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.ServiceModel;
-
 public delegate TClient ServiceModelExpandMutatorClientCreatorDelegate<TChannel, TClient>(ServiceModelExpandMutator<TChannel, TClient> process, IReadOnlySlimRow row)
     where TChannel : class
     where TClient : ClientBase<TChannel>;

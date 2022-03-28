@@ -1,7 +1,7 @@
-﻿namespace FizzCode.EtLast;
-
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using System.Xml;
+
+namespace FizzCode.EtLast;
 
 public sealed class DataContractXmlSerializerMutator<T> : AbstractMutator
 {

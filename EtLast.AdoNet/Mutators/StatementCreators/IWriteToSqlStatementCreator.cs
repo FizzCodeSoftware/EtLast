@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Collections.Generic;
-using FizzCode.LightWeight.AdoNet;
-
 public interface IWriteToSqlStatementCreator
 {
     void Prepare(WriteToSqlMutator process, DetailedDbTableDefinition tableDefinition);

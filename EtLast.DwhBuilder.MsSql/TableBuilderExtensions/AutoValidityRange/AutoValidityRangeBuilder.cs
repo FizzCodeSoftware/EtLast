@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.MsSql;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using FizzCode.LightWeight.RelationalModel;
-
 public class AutoValidityRangeBuilder
 {
     internal DwhTableBuilder TableBuilder { get; }

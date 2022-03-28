@@ -1,13 +1,6 @@
-﻿#pragma warning disable CA2213 // Disposable fields should be disposed
-namespace FizzCode.EtLast.Diagnostics.Windows;
+﻿namespace FizzCode.EtLast.Diagnostics.Windows;
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
-using FizzCode.EtLast.Diagnostics.Interface;
-
+#pragma warning disable CA2213 // Disposable fields should be disposed
 public partial class MainForm : Form
 {
     private readonly TabControl _sessionTabs;

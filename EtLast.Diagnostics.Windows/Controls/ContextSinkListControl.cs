@@ -1,11 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows;
 
-using System;
-using System.Drawing;
-using System.Windows.Forms;
-using BrightIdeasSoftware;
-using FizzCode.EtLast.Diagnostics.Interface;
-
 internal class ContextSinkListControl
 {
     public Control Container { get; }

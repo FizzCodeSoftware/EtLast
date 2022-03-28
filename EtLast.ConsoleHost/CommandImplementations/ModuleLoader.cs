@@ -1,19 +1,8 @@
-﻿namespace FizzCode.EtLast.ConsoleHost;
-
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Runtime.Loader;
-using System.Threading;
-using FizzCode.EtLast;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
-using Serilog.Events;
 
+namespace FizzCode.EtLast.ConsoleHost;
 internal static class ModuleLoader
 {
     private static long _moduleAutoincrementId;
@@ -69,7 +58,7 @@ internal static class ModuleLoader
         }
 
         commandContext.Logger.Information("compiling module from {Folder}", PathHelpers.GetFriendlyPathName(moduleFolder));
-        var selfFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         var referenceAssemblyFolder = commandContext.HostConfiguration.CustomReferenceAssemblyFolder;
         if (string.IsNullOrEmpty(referenceAssemblyFolder))
@@ -93,15 +82,15 @@ internal static class ModuleLoader
                 && !Path.GetFileName(x).Equals("testhost.dll", StringComparison.InvariantCultureIgnoreCase));
         referenceFileNames.AddRange(localDllFileNames);
 
-        /*foreach (var fn in referenceFileNames)
-            Console.WriteLine(fn);*/
-
         var metadataReferences = referenceFileNames
             .Distinct()
             .Select(fn => MetadataReference.CreateFromFile(fn))
             .ToArray();
 
-        var csFileNames = Directory.GetFiles(moduleFolder, "*.cs", SearchOption.AllDirectories);
+        var csFileNames = Directory.GetFiles(moduleFolder, "*.cs", SearchOption.AllDirectories).ToList();
+        var globalCsFileName = Path.Combine(commandContext.HostConfiguration.ModulesFolder, "Global.cs");
+        if (File.Exists(globalCsFileName))
+            csFileNames.Add(globalCsFileName);
 
         var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp10);
         var syntaxTrees = csFileNames
@@ -170,7 +159,7 @@ internal static class ModuleLoader
         module.LoadContext?.Unload();
     }
 
-    private static List<T> LoadInstancesFromAssembly<T>(System.Reflection.Assembly assembly)
+    private static List<T> LoadInstancesFromAssembly<T>(Assembly assembly)
     {
         var result = new List<T>();
         var interfaceType = typeof(T);
@@ -205,7 +194,7 @@ internal static class ModuleLoader
         return result;
     }
 
-    private static List<Type> FindTypesFromAssembly<T>(System.Reflection.Assembly assembly)
+    private static List<Type> FindTypesFromAssembly<T>(Assembly assembly)
     {
         var result = new List<Type>();
         var interfaceType = typeof(T);

@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows;
 
-using System.Windows.Forms;
-
 public class MyListView : ListView
 {
     protected override void WndProc(ref Message m)

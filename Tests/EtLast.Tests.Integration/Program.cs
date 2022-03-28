@@ -1,6 +1,6 @@
 ﻿AppDomain.MonitoringIsEnabled = true;
 
-var result = CommandLineHandler.Run("EtLast Integration Tests", args);
+var result = FizzCode.EtLast.ConsoleHost.CommandLineHandler.Run("EtLast Integration Tests", args);
 
 #if DEBUG
 if (args?.Length > 0 && Debugger.IsAttached)

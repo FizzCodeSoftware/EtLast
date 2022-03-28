@@ -1,8 +1,6 @@
-﻿namespace FizzCode.EtLast.Tests;
+﻿using System.Runtime.Serialization;
 
-using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
+namespace FizzCode.EtLast.Tests;
 
 public static class TestData
 {

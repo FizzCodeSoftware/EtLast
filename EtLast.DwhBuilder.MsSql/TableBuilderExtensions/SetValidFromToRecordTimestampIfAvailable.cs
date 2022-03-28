@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.MsSql;
 
-using System;
-
 public static partial class TableBuilderExtensions
 {
     public static DwhTableBuilder[] SetValidFromToRecordTimestampIfAvailable(this DwhTableBuilder[] builders)

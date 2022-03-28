@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Globalization;
-using System.Transactions;
-using FizzCode.LightWeight.AdoNet;
-
 public static class EtlConnectionManager
 {
     private static readonly ConnectionManager _connectionManager = new()

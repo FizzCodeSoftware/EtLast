@@ -1,17 +1,5 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests;
 
-using System;
-using System.Collections.Generic;
-using FizzCode.EtLast;
-using FizzCode.EtLast.DwhBuilder;
-using FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition;
-using FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition.MsSql;
-using FizzCode.EtLast.DwhBuilder.MsSql;
-using FizzCode.LightWeight.AdoNet;
-using FizzCode.LightWeight.Collections;
-using FizzCode.LightWeight.RelationalModel;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 public class EtlRunInfoTest : AbstractEtlFlow
 {
     public NamedConnectionString ConnectionString { get; init; }

@@ -1,15 +1,12 @@
 ﻿namespace FizzCode.EtLast.Tests;
 
-using System.Collections.Generic;
-using FizzCode.LightWeight.Collections;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 public static class OrderedMatchHelper
 {
-#pragma warning disable RCS1175 // Unused this parameter.
     public static void ExactMatch(this Assert assert, List<ISlimRow> rows, List<CaseInsensitiveStringKeyDictionary<object>> referenceRows)
-#pragma warning restore RCS1175 // Unused this parameter.
     {
+        if (assert is null)
+            throw new ArgumentNullException(nameof(assert));
+
         Assert.AreEqual(referenceRows.Count, rows.Count);
         for (var i = 0; i < referenceRows.Count; i++)
         {

@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder;
 
-using System.Linq;
-using FizzCode.LightWeight.AdoNet;
-using FizzCode.LightWeight.RelationalModel;
-
 public static class RelationalModelAnnotations
 {
     public static bool GetUsedByEtlRunInfo(this RelationalColumn column)

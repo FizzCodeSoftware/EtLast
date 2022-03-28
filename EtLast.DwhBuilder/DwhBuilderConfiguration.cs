@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder;
 
-using System;
-
 public class DwhBuilderConfiguration
 {
     /// <summary>

@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using FizzCode.LightWeight.AdoNet;
-
 public sealed class GenericInsertSqlStatementCreator : IWriteToSqlStatementCreator
 {
     private string _dbColumns;

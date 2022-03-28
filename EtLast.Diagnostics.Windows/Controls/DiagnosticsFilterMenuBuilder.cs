@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows;
 
-using System.Collections;
-using System.Collections.Generic;
-using System.Windows.Forms;
-using BrightIdeasSoftware;
-
 public class DiagnosticsFilterMenuBuilder : FilterMenuBuilder
 {
     private bool _insideHandleItemCheckedWrapped;

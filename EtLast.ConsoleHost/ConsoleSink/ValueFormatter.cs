@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast.ConsoleHost.SerilogSink;
 
-using System;
-using System.Globalization;
-using System.IO;
-using Serilog.Events;
-
 internal static class ValueFormatter
 {
     public static void Format(LogEvent logEvent, LogEventPropertyValue value, TextWriter builder, string format, string propertyName)

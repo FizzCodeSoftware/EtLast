@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition;
 
-using FizzCode.DbTools.DataDefinition;
-
 public class DwhTableFlagProperty : SqlTableCustomProperty
 {
     public string Name { get; }

@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-
 public sealed class HungarianTaxNumberConverter : StringConverter
 {
     /// <summary>

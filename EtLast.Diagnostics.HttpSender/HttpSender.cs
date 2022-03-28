@@ -1,20 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics;
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading;
-using FizzCode.EtLast;
-using FizzCode.EtLast.Diagnostics.Interface;
-using FizzCode.LightWeight.Configuration;
-using Microsoft.Extensions.Configuration;
-using Serilog.Events;
-using Serilog.Parsing;
-
 public class HttpSender : IDisposable, IEtlSessionListener
 {
     public int MaxCommunicationErrorCount { get; } = 2;

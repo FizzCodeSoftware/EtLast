@@ -1,13 +1,4 @@
-﻿#pragma warning disable CA1001 // Types that own disposable fields should be disposable
-namespace FizzCode.EtLast.Diagnostics.Interface;
-
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
 public class ContextIndex
 {
@@ -425,4 +416,3 @@ public class ContextIndex
         Debug.WriteLine("row events read: " + eventsRead.ToString("D", CultureInfo.InvariantCulture));
     }
 }
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable

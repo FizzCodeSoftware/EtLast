@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Collections.Generic;
-
 public sealed class DbTableDefinition
 {
     public string TableName { get; init; }

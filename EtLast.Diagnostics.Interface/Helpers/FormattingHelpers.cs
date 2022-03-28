@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-using System;
-using System.Globalization;
-using System.Linq;
-
 public static class FormattingHelpers
 {
     public static string LongToString(long value)

@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-using System.Collections.Generic;
-using System.Diagnostics;
-
 [DebuggerDisplay("{Row}")]
 public class StoredRow
 {

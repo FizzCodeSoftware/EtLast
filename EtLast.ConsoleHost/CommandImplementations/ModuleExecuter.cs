@@ -1,19 +1,5 @@
 ﻿namespace FizzCode.EtLast.ConsoleHost;
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Transactions;
-using FizzCode.EtLast;
-using FizzCode.EtLast.ConsoleHost.SerilogSink;
-using Serilog;
-using Serilog.Events;
-using Serilog.Formatting.Compact;
-
 internal static class ModuleExecuter
 {
     public static ExecutionResult Execute(CommandContext commandContext, CompiledModule module, string[] commands)

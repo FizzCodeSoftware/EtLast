@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.MsSql;
 
-using System;
-using System.Linq;
-using FizzCode.LightWeight.RelationalModel;
-
 public class KeyBasedFinalizerBuilder
 {
     internal DwhTableBuilder TableBuilder { get; }

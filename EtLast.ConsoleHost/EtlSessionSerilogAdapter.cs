@@ -1,13 +1,4 @@
 ﻿namespace FizzCode.EtLast.ConsoleHost;
-
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Text;
-using Serilog;
-using Serilog.Events;
-
 internal class EtlSessionSerilogAdapter : IEtlContextListener
 {
     private readonly ILogger _logger;

@@ -1,15 +1,5 @@
 ﻿namespace FizzCode.EtLast.ConsoleHost.SerilogSink;
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Serilog.Core;
-using Serilog.Events;
-using Serilog.Formatting.Display;
-using Serilog.Parsing;
-
 internal class ConsoleSink : ILogEventSink
 {
     private readonly List<Action<LogEvent, TextWriter>> _writers;

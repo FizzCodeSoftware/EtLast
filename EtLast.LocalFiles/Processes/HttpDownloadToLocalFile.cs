@@ -1,10 +1,6 @@
-﻿namespace FizzCode.EtLast;
+﻿using System.Net.Http;
 
-using System;
-using System.Globalization;
-using System.IO;
-using System.Net.Http;
-
+namespace FizzCode.EtLast;
 public sealed class HttpDownloadToLocalFile : AbstractExecutable
 {
     public string Url { get; init; }

@@ -2,7 +2,7 @@
 
 public class ExcelColumnConfiguration
 {
-    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public string SourceColumn { get; private set; }
 
     public ExcelColumnConfiguration FromSource(string sourceColumn)
@@ -11,7 +11,7 @@ public class ExcelColumnConfiguration
         return this;
     }
 
-    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public string NumberFormat { get; private set; }
 
     public ExcelColumnConfiguration SetNumberFormat(string format)

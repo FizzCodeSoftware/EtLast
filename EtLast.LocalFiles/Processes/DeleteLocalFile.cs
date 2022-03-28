@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Globalization;
-using System.IO;
-
 public sealed class DeleteLocalFile : AbstractExecutable
 {
     public string FileName { get; init; }

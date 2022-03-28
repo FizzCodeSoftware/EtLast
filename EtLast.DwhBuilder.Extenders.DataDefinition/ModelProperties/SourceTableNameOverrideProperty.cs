@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition;
 
-using FizzCode.DbTools.DataDefinition;
-
 public class SourceTableNameOverrideProperty : SqlTableProperty
 {
     public string SourceTableName { get; }

@@ -1,11 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.MsSql;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using FizzCode.LightWeight.AdoNet;
-using FizzCode.LightWeight.RelationalModel;
-
 public delegate void SourceReadSqlStatementCustomizerDelegate(DwhTableBuilder tableBuilder, List<string> whereClauseList, Dictionary<string, object> parameters);
 
 public static partial class TableBuilderExtensions

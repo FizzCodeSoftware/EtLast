@@ -1,11 +1,5 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using FizzCode.EtLast;
-using FizzCode.LightWeight.AdoNet;
-
 public static class Helpers
 {
     public static DateTime EtlRunId1 { get; } = new DateTime(2001, 1, 1, 1, 1, 1, DateTimeKind.Utc);

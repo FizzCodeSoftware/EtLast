@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Collections.Generic;
-using System.Data;
-
 public static class DbCommandExtensions
 {
     public static void FillCommandParameters(this IDbCommand command, Dictionary<string, object> source)
@@ -20,7 +17,7 @@ public static class DbCommandExtensions
 
             if (isSqlServer)
             {
-                if (kvp.Value is System.DateTime)
+                if (kvp.Value is DateTime)
                 {
                     parameter.DbType = DbType.DateTime2;
                 }

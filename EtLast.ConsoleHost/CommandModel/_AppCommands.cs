@@ -1,10 +1,4 @@
-﻿#pragma warning disable CA1812, CA1822
-namespace FizzCode.EtLast.ConsoleHost;
-
-using System;
-using System.Collections.Generic;
-using CommandDotNet;
-using Serilog.Events;
+﻿namespace FizzCode.EtLast.ConsoleHost;
 
 [Command(">")]
 internal class AppCommands
@@ -75,4 +69,3 @@ internal class AppCommands
         CommandLineHandler.Terminated = true;
     }
 }
-#pragma warning restore CA1812, CA1822

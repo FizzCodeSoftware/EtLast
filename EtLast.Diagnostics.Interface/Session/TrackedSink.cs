@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-using System.Diagnostics;
-
 [DebuggerDisplay("{Path}")]
 public class TrackedSink
 {

@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-using System.Collections.Generic;
-using FizzCode.EtLast;
-
 public class LogEvent : AbstractEvent
 {
     public int? ProcessInvocationUID { get; set; }

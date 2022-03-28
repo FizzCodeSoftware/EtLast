@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using FizzCode.LightWeight.AdoNet;
-
 public sealed class AdoNetReaderConnectionScope
 {
     private readonly Dictionary<string, Tuple<DatabaseConnection, IDbTransaction>> _readerConnections = new();

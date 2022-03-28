@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder;
 
-using System.Linq;
-using FizzCode.LightWeight.RelationalModel;
-
 public static class RelationalModelExtender
 {
     public static T Extend<T>(T model, DwhBuilderConfiguration configuration)

@@ -1,18 +1,8 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows;
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Globalization;
-using System.Linq;
-using System.Windows.Forms;
-using FizzCode.EtLast.Diagnostics.Interface;
-
 public delegate void OnProcessInvocationListSelectionChanged(TrackedProcessInvocation process);
 
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable
 internal class ContextProcessInvocationListControl
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable
 {
     public DiagContext Context { get; }
     public MyListView ListView { get; }
@@ -90,7 +80,7 @@ internal class ContextProcessInvocationListControl
             var finishedRows = new HashSet<int>();
             var currentProcesses = new Dictionary<int, TrackedProcessInvocation>();
 
-            var rows = new Dictionary<int, TrackedRow>();
+            var rows = new Dictionary<int, TrackedEtlRow>();
             Context.Index.EnumerateThroughRowEvents(e =>
             {
                 if (relevantRowUids.Contains(e.RowUid) && !finishedRows.Contains(e.RowUid))
@@ -98,7 +88,7 @@ internal class ContextProcessInvocationListControl
                     if (e is RowCreatedEvent rce)
                     {
                         var creatorProc = Context.WholePlaybook.ProcessList[rce.ProcessInvocationUid];
-                        var row = new TrackedRow()
+                        var row = new TrackedEtlRow()
                         {
                             Uid = rce.RowUid,
                             CreatorProcess = creatorProc,

@@ -1,11 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition;
 
-using System;
-using System.Linq;
-using FizzCode.DbTools.DataDefinition;
-using FizzCode.LightWeight.Collections;
-using FizzCode.LightWeight.RelationalModel;
-
 public static class DwhDataDefinitionToRelationalModelConverter
 {
     public static RelationalModel Convert(DatabaseDefinition sourceDefinition, string defaultSourceSchemaName, CaseInsensitiveStringKeyDictionary<string> schemaNameMap = null, Func<SqlTable, bool> filterDelegate = null)

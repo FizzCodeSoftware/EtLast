@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.MsSql;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 public static partial class TableBuilderExtensions
 {
     public static DwhTableBuilder[] BaseIsCurrentFinalizer(this DwhTableBuilder[] builders, Action<KeyBasedFinalizerBuilder> customizer)

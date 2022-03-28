@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-using System;
-using System.Collections.Generic;
-
 public delegate void OnEventAddedDelegate(Playbook playbook, List<AbstractEvent> abstractEvents);
 public delegate void OnProcessInvokedDelegate(Playbook playbook, TrackedProcessInvocation process);
 public delegate void OnSinkStartedDelegate(Playbook playbook, TrackedSink sink);

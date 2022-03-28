@@ -1,6 +1,6 @@
-﻿namespace FizzCode.EtLast;
+﻿using Microsoft.Extensions.Configuration;
 
-using Microsoft.Extensions.Configuration;
+namespace FizzCode.EtLast;
 
 public interface IEtlSessionListener : IEtlContextListener
 {

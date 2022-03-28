@@ -1,12 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows;
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Windows.Forms;
-using BrightIdeasSoftware;
-using FizzCode.EtLast.Diagnostics.Interface;
-
 internal class SinkControl
 {
     public Control Container { get; }

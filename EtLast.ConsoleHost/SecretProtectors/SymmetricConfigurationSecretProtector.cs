@@ -1,12 +1,5 @@
 ﻿namespace FizzCode.EtLast.ConsoleHost;
 
-using System;
-using System.IO;
-using System.Security.Cryptography;
-using System.Text;
-using FizzCode.LightWeight.Configuration;
-using Microsoft.Extensions.Configuration;
-
 public class SymmetricConfigurationSecretProtector : IConfigurationSecretProtector
 {
     private byte[] _key;

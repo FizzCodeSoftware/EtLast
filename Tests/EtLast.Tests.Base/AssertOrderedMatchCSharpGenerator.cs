@@ -1,11 +1,5 @@
 ﻿namespace FizzCode.EtLast.Tests;
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-
 public static class AssertOrderedMatchCSharpGenerator
 {
     public static string GetGenerateAssertOrderedMatch(TestExecuterResult result)

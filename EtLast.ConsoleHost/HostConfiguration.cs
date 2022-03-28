@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast.ConsoleHost;
 
-using System;
-using System.Collections.Generic;
-using FizzCode.LightWeight.Configuration;
-using Microsoft.Extensions.Configuration;
-
 public class HostConfiguration
 {
     public string CustomReferenceAssemblyFolder { get; set; }

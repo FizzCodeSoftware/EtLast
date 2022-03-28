@@ -1,16 +1,6 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows;
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
-using BrightIdeasSoftware;
-using FizzCode.EtLast.Diagnostics.Interface;
-
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable
 internal class ControlUpdater<TItem>
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable
 {
     public DiagContext Context { get; }
     public Control Container { get; }

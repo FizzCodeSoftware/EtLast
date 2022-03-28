@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast.ConsoleHost.SerilogSink;
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using Serilog.Events;
-
 internal struct ColorCodeContext : IDisposable
 {
     private readonly TextWriter _builder;

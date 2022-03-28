@@ -1,10 +1,6 @@
 ﻿#pragma warning disable IDE1006 // Naming Styles
 namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests;
 
-using FizzCode.DbTools.DataDefinition;
-using FizzCode.DbTools.DataDefinition.MsSql2016;
-using FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition;
-
 public class TestDwhDefinition : DatabaseDeclaration
 {
     public TestDwhDefinition()

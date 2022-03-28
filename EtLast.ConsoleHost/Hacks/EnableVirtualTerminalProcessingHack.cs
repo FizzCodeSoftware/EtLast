@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast.ConsoleHost;
 
-using System;
-using System.Runtime.InteropServices;
-
 internal static class EnableVirtualTerminalProcessingHack
 {
     public static void ApplyHack()

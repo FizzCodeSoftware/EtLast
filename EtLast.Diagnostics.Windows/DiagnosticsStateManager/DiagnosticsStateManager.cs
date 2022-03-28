@@ -1,15 +1,8 @@
-﻿namespace FizzCode.EtLast.Diagnostics.Windows;
-
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Reflection;
-using System.Text;
 using System.Web;
-using FizzCode.EtLast.Diagnostics.Interface;
+
+namespace FizzCode.EtLast.Diagnostics.Windows;
 
 internal delegate void OnSessionCreatedDelegate(DiagSession session);
 internal delegate void OnDiagContextCreatedDelegate(DiagContext diagContext);

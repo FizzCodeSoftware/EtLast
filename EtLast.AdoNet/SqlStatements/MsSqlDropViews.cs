@@ -1,13 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using FizzCode.LightWeight.AdoNet;
-
 public enum MsSqlDropViewsProcessMode { All, SpecifiedViews, SpecifiedSchema }
 
 public sealed class MsSqlDropViews : AbstractSqlStatements

@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Collections.Generic;
-
 public sealed class ResilientSqlTableTableFinalizerBuilder
 {
     public ResilientTableBase Table { get; init; }

@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
-
 public sealed class GetTableRecordCount : AbstractSqlStatementWithResult<int>
 {
     public string TableName { get; init; }

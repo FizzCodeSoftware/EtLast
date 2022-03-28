@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-using System;
-using System.IO;
-using System.Text;
-
 public class ExtendedBinaryReader : BinaryReader
 {
     public ExtendedBinaryReader(Stream input, Encoding encoding)

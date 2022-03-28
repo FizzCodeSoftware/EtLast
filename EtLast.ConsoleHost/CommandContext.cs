@@ -1,15 +1,5 @@
 ﻿namespace FizzCode.EtLast.ConsoleHost;
 
-using System;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
-using System.Text;
-using FizzCode.EtLast.ConsoleHost.SerilogSink;
-using Microsoft.Extensions.Configuration;
-using Serilog;
-using Serilog.Events;
-
 public class CommandContext
 {
     public string HostLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-host");

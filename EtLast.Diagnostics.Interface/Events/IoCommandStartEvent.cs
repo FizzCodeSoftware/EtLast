@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-using System.Collections.Generic;
-
 public class IoCommandStartEvent : IoCommandEvent
 {
     public int ProcessInvocationUid { get; set; }

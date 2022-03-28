@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Collections.Generic;
-
 public sealed class TableCopyConfiguration
 {
     public string SourceTableName { get; init; }

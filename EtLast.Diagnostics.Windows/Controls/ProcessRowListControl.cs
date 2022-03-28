@@ -1,17 +1,10 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows;
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Windows.Forms;
-using BrightIdeasSoftware;
-using FizzCode.EtLast.Diagnostics.Interface;
-
 internal class ProcessRowListControl
 {
     public Control Container { get; }
     public TrackedProcessInvocation Process { get; }
-    public List<TrackedRow> Rows { get; }
+    public List<TrackedEtlRow> Rows { get; }
 
     // filters
     public RadioButton ShowAll { get; }
@@ -24,7 +17,7 @@ internal class ProcessRowListControl
 
     public ControlUpdater<ProcessRowModel> Updater { get; }
 
-    public ProcessRowListControl(Control container, TrackedProcessInvocation process, List<TrackedRow> rows)
+    public ProcessRowListControl(Control container, TrackedProcessInvocation process, List<TrackedEtlRow> rows)
     {
         Container = container;
         Process = process;
@@ -288,7 +281,7 @@ internal class ProcessRowListControl
 
     public class ProcessRowModel
     {
-        public TrackedRow TrackedRow { get; set; }
+        public TrackedEtlRow TrackedRow { get; set; }
         public int RowUid { get; set; }
         public object[] NewValues { get; set; }
         public string[] NewTypes { get; set; }

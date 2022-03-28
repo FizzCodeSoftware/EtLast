@@ -1,6 +1,6 @@
-﻿namespace FizzCode.EtLast;
+﻿using System.Reflection;
 
-using System.Reflection;
+namespace FizzCode.EtLast;
 
 [ComVisible(true)]
 [Serializable]

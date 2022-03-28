@@ -1,7 +1,6 @@
-﻿namespace FizzCode.EtLast;
+﻿using System.Reflection;
 
-using System.Reflection;
-using FizzCode.LightWeight.AdoNet;
+namespace FizzCode.EtLast;
 
 public class MySqlValueProcessor : ISqlValueProcessor
 {

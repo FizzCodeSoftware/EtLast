@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using FizzCode.LightWeight.AdoNet;
-
 public enum ResilientSqlScopeTempTableMode
 {
     KeepOnlyOnFailure, AlwaysKeep, AlwaysDrop

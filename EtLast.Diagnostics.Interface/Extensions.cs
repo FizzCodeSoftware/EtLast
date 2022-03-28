@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-using System.Globalization;
-
 public static class Extensions
 {
     public static string FormatToString(this int number, string format = "#,0")

@@ -1,11 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
-using System.Linq;
-
 public sealed class CustomSqlStatement : AbstractSqlStatement
 {
     public string SqlStatement { get; init; }

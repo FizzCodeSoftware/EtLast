@@ -1,17 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
-using System.Transactions;
-using FizzCode.LightWeight.AdoNet;
-using Microsoft.Data.SqlClient;
-
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable
 public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable
 {
     public NamedConnectionString ConnectionString { get; init; }
 

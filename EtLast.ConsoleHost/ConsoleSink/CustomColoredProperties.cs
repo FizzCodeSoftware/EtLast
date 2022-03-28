@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast.ConsoleHost.SerilogSink;
 
-using System.Collections.Generic;
-
 internal static class CustomColoredProperties
 {
     internal static Dictionary<string, ColorCode> Map { get; } = new Dictionary<string, ColorCode>()

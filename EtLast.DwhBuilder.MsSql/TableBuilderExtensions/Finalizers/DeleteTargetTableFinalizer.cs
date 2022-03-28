@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.MsSql;
 
-using System.Collections.Generic;
-using FizzCode.EtLast;
-
 public static partial class TableBuilderExtensions
 {
     public static DwhTableBuilder[] DeleteTargetTableFinalizer(this DwhTableBuilder[] builders)

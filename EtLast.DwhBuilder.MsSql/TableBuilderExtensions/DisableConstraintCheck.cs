@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.MsSql;
 
-using System.Collections.Generic;
-
 public static partial class TableBuilderExtensions
 {
     public static DwhTableBuilder[] DisableConstraintCheck(this DwhTableBuilder[] builders)

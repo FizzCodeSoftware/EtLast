@@ -1,14 +1,6 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows;
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Windows.Forms;
-using FizzCode.EtLast.Diagnostics.Interface;
-
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable
 internal class SessionControl
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable
 {
     public DiagSession Session { get; }
     public Control Container { get; }

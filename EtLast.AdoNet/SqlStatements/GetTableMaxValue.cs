@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
-
 public sealed class GetTableMaxValue<T> : AbstractSqlStatementWithResult<TableMaxValueResult<T>>
 {
     public string TableName { get; init; }

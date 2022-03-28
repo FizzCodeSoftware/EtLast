@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows;
 
-using System;
-using System.Windows.Forms;
-
 public static class ToolTipSingleton
 {
     private static readonly ToolTip _toolTip = new()

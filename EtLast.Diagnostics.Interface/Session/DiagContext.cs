@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-
 [DebuggerDisplay("{Name}")]
 public class DiagContext
 {

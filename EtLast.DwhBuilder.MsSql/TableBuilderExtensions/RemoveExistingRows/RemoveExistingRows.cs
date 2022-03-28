@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.MsSql;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using FizzCode.EtLast;
-
 public static partial class TableBuilderExtensions
 {
     public static DwhTableBuilder[] RemoveExistingRows(this DwhTableBuilder[] builders, Action<RemoveExistingRowsBuilder> customizer)

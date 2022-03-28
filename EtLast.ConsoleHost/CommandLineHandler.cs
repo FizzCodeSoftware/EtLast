@@ -1,15 +1,5 @@
 ﻿namespace FizzCode.EtLast.ConsoleHost;
 
-using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Threading;
-using CommandDotNet;
-using CommandDotNet.Help;
-using Serilog.Events;
-
 public static class CommandLineHandler
 {
     public static bool Terminated { get; set; }

@@ -1,12 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-
 [DebuggerDisplay("{Name}")]
 public class TrackedProcessInvocation
 {

@@ -1,11 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
-using FizzCode.LightWeight.AdoNet;
-
 public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
 {
     public string TableName { get; init; }

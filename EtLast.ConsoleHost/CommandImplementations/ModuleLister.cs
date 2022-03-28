@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast.ConsoleHost;
 
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
 internal static class ModuleLister
 {
     public static void ListModules(CommandContext commandContext)
