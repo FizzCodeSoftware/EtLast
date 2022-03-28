@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-
 public sealed class RowLookupBuilder
 {
     public IProducer Process { get; set; }

@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-
 public interface IEtlContext
 {
     public void SetRowType<T>() where T : IRow;

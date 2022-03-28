@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Diagnostics;
-
 public sealed class ProcessInvocationInfo
 {
     public int InvocationUid { get; set; }

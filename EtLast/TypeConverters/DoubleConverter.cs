@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Globalization;
-
 public class DoubleConverter : ITypeConverter
 {
     public string[] RemoveSubString { get; set; }

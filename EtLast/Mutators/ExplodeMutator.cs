@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Collections.Generic;
-using System.ComponentModel;
-
 public delegate IEnumerable<ISlimRow> ExplodeDelegate(IReadOnlyRow row);
 
 public sealed class ExplodeMutator : AbstractMutator

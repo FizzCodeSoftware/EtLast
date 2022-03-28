@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Transactions;
-
 public sealed class EtlTransactionScope : IDisposable
 {
     public IEtlContext Context { get; }

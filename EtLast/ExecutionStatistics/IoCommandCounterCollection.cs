@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-
 public class IoCommandCounterCollection : IEtlContextListener
 {
     public Dictionary<IoCommandKind, IoCommandCounter> Counters { get; } = new Dictionary<IoCommandKind, IoCommandCounter>();

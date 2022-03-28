@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Collections.Generic;
-
 public interface IRow : IReadOnlyRow, ISlimRow
 {
     new IProcess CurrentProcess { get; set; }

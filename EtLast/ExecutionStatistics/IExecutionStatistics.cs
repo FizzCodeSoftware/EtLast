@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-
 public interface IExecutionStatistics
 {
     TimeSpan CpuTimeStart { get; }

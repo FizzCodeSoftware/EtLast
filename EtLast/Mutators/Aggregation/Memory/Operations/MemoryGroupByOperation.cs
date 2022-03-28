@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 public sealed class MemoryGroupByOperation : AbstractMemoryAggregationOperation
 {
     public delegate void MemoryGroupByOperationDelegate(ISlimRow aggregate, List<IReadOnlySlimRow> groupRows);

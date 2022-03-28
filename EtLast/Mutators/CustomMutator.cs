@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-
 public delegate bool CustomMutatorDelegate(IRow row);
 
 public sealed class CustomMutator : AbstractMutator

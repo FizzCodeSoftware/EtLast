@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-
 public class ValueFormatter : IValueFormatter
 {
     public static ValueFormatter Default { get; } = new ValueFormatter();

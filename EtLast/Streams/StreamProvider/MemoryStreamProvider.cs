@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-
 public class MemoryStreamProvider : IStreamProvider
 {
     public Func<MemoryStream> StreamCreator { get; init; }

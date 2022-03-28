@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Globalization;
-
 public class LongConverterAuto : LongConverter
 {
     public IFormatProvider FormatProvider { get; }

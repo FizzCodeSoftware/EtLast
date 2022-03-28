@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-
 public sealed class EtlSessionArguments : IEtlSessionArguments
 {
     public IEnumerable<KeyValuePair<string, object>> All => _values;

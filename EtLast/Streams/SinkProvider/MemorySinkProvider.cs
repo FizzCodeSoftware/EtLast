@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Globalization;
-using System.IO;
-
 public class MemorySinkProvider : ISinkProvider
 {
     public Func<MemoryStream> StreamCreator { get; init; }

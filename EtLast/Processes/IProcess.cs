@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.ComponentModel;
-
 public interface IProcess
 {
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]

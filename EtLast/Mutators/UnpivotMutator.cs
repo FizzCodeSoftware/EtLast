@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-
 public sealed class UnpivotMutator : AbstractMutator
 {
     public Dictionary<string, string> FixColumns { get; init; }

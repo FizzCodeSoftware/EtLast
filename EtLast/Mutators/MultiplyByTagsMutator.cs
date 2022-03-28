@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Collections.Generic;
-using System.ComponentModel;
-
 public sealed class MultiplyByTagsMutator : AbstractMutator
 {
     /// <summary>

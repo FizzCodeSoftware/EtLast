@@ -1,11 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-
 /// <summary>
 /// Input must be pre-grouped by key columns.
 /// Group key generation is applied on the input rows on-the-fly. The collected group is processed when a new key is found.

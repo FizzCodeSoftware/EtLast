@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-
 public delegate void MatchActionDelegate(IRow row, IReadOnlySlimRow match);
 
 public sealed class MatchAction

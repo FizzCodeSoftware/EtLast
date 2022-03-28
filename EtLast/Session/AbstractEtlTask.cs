@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-
 public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 {
     public IEtlSession Session { get; private set; }

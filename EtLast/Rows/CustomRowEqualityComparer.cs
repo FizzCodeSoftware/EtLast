@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-
 public delegate bool CustomRowEqualityComparerDelegate(IReadOnlySlimRow leftRow, IReadOnlySlimRow rightRow);
 
 public sealed class CustomRowEqualityComparer : IRowEqualityComparer

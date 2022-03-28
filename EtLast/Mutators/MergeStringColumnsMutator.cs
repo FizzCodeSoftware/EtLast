@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-
 public sealed class MergeStringColumnsMutator : AbstractSimpleChangeMutator
 {
     public string[] ColumnsToMerge { get; set; }

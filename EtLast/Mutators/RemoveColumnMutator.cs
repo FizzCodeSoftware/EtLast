@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-
 public sealed class RemoveColumnMutator : AbstractSimpleChangeMutator
 {
     public string[] Columns { get; init; }

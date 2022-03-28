@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-
 public interface IFluentProcessMutatorBuilder : IProcessBuilder
 {
     IFluentProcessBuilder ProcessBuilder { get; }

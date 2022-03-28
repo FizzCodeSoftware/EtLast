@@ -1,11 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-
 [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
 public sealed class SlimRow : ISlimRow
 {
@@ -29,7 +23,7 @@ public sealed class SlimRow : ISlimRow
     {
         _values = initialValues is SlimRow slimRow
             ? new Dictionary<string, object>(slimRow._values, StringComparer.OrdinalIgnoreCase)
-            : initialValues is DictionaryRow dictionaryRow
+            : initialValues is Row dictionaryRow
                 ? new Dictionary<string, object>(dictionaryRow._values, StringComparer.OrdinalIgnoreCase)
                 : new Dictionary<string, object>(initialValues.Values, StringComparer.OrdinalIgnoreCase);
     }

@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
-
 public sealed class EtlContext : IEtlContext
 {
     public Type RowType { get; private set; }
@@ -36,7 +31,7 @@ public sealed class EtlContext : IEtlContext
 
     public EtlContext()
     {
-        SetRowType<DictionaryRow>();
+        SetRowType<Row>();
         CancellationTokenSource = new CancellationTokenSource();
         AdditionalData = new AdditionalData();
 

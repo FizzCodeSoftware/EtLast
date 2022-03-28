@@ -1,14 +1,11 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Globalization;
-
 public enum FailedTypeConversionAction { SetSpecialValue, WrapError }
 public enum SourceIsNullAction { SetSpecialValue, WrapError }
 
 public class ReaderColumnConfiguration : ReaderDefaultColumnConfiguration
 {
-    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public string SourceColumn { get; private set; }
 
     public ReaderColumnConfiguration(ITypeConverter converter)
@@ -77,7 +74,7 @@ public class ReaderDefaultColumnConfiguration
         return this;
     }
 
-    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual object Process(IProcess process, object value)
     {
         if (value == null)

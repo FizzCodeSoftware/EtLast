@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.ComponentModel;
-using System.Diagnostics;
-
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractExecutable : AbstractProcess, IExecutable
 {

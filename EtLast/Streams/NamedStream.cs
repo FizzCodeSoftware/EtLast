@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.IO;
-
 public class NamedStream
 {
     public string Name { get; }

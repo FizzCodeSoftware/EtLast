@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-
 public sealed class ColumnBasedRowEqualityComparer : IRowEqualityComparer
 {
     public string[] Columns { get; set; }

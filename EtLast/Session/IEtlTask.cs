@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Collections.Generic;
-
 public interface IEtlTask : IProcess
 {
     public IEtlSession Session { get; }

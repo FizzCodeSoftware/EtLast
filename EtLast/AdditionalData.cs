@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-
 public sealed class AdditionalData
 {
     private readonly Dictionary<string, object> _data = new(StringComparer.OrdinalIgnoreCase);

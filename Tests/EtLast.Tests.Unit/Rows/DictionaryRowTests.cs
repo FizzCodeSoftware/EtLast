@@ -12,7 +12,7 @@ public class DictionaryRowTests
     public void ToDebugStringStartsWithUid()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -30,7 +30,7 @@ public class DictionaryRowTests
     public void KeyCaseIgnored()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -46,7 +46,7 @@ public class DictionaryRowTests
     public void SingleNullColumnResultsNullKey()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>();
 
@@ -59,7 +59,7 @@ public class DictionaryRowTests
     public void MultipleNullColumnsResultsNonNullKey()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>();
 
@@ -72,7 +72,7 @@ public class DictionaryRowTests
     public void DateTimeKeyIsInvariantWithMilliseconds()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -88,7 +88,7 @@ public class DictionaryRowTests
     public void DateTimeOffsetKeyIsInvariantWithMilliseconds()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -104,7 +104,7 @@ public class DictionaryRowTests
     public void TimeSpanKeyIsInvariantWithDaysAndMilliseconds()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -120,7 +120,7 @@ public class DictionaryRowTests
     public void IntKeyIsInvariant()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -138,7 +138,7 @@ public class DictionaryRowTests
     public void HasErrorFalse()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -154,7 +154,7 @@ public class DictionaryRowTests
     public void HasErrorTrue()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -171,7 +171,7 @@ public class DictionaryRowTests
     public void NullValuesAreNotStored1()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -197,7 +197,7 @@ public class DictionaryRowTests
     public void NullValuesAreNotStored2()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -219,7 +219,7 @@ public class DictionaryRowTests
     public void IsNullOrEmptyTrue1()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var row = context.CreateRow(null);
         Assert.AreEqual(true, row.IsNullOrEmpty());
@@ -229,7 +229,7 @@ public class DictionaryRowTests
     public void IsNullOrEmptyTrue2()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var row = context.CreateRow(null);
         row["a"] = "";
@@ -240,7 +240,7 @@ public class DictionaryRowTests
     public void IsNullOrEmptyTrue3()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var row = context.CreateRow(null);
         row["a"] = "";
@@ -253,7 +253,7 @@ public class DictionaryRowTests
     public void IsNullOrEmptyFalse()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var row = context.CreateRow(null);
         row["a"] = 5;
@@ -264,7 +264,7 @@ public class DictionaryRowTests
     public void MergeTestWithRow()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var row = context.CreateRow(null);
         row["a"] = 1;
@@ -291,7 +291,7 @@ public class DictionaryRowTests
     public void MergeTestWithValues()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<DictionaryRow>();
+        context.SetRowType<Row>();
 
         var row = context.CreateRow(null);
         row["a"] = 1;

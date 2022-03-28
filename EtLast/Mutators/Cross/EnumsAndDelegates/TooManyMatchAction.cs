@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-
 public delegate void TooManyMatchActionDelegate(IRow row, List<IReadOnlySlimRow> matches);
 
 public sealed class TooManyMatchAction

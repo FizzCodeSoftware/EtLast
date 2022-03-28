@@ -1,9 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.IO;
 using System.Reflection;
-using System.Text;
 
 public static class PathHelpers
 {

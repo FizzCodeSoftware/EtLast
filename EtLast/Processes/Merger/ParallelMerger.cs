@@ -1,12 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Threading;
-using System.Transactions;
-
 public sealed class ParallelMerger : AbstractMerger
 {
     public ParallelMerger(IEtlContext context)

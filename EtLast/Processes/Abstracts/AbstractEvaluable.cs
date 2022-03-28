@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractEvaluable : AbstractProcess, IProducer
 {

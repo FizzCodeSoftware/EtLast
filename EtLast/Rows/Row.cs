@@ -1,13 +1,7 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-
 [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
-public sealed class DictionaryRow : IRow
+public sealed class Row : IRow
 {
     public IEtlContext Context { get; private set; }
     public IProcess CreatorProcess { get; private set; }

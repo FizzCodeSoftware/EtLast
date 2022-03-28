@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-
 public sealed class TrackedRow : IRow
 {
     private readonly IRow _originalRow;

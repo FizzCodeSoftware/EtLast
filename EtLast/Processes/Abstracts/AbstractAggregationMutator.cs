@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractAggregationMutator : AbstractEvaluable, IMutator
 {

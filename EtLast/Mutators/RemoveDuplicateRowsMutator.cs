@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-
 /// <summary>
 /// Input can be unordered.
 /// - discards input rows on-the-fly

@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-
 public sealed class CustomAction : AbstractExecutable
 {
     public Action<CustomAction> Action { get; set; }

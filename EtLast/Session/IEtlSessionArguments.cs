@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Collections.Generic;
-
 public interface IEtlSessionArguments
 {
     public IEnumerable<KeyValuePair<string, object>> All { get; }

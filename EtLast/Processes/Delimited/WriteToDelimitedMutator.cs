@@ -1,11 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Text;
-
 public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
 {
     public ISinkProvider SinkProvider { get; init; }

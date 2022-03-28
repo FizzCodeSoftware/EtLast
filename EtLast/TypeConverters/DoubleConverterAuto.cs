@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Globalization;
-
 public class DoubleConverterAuto : DoubleConverter
 {
     public IFormatProvider FormatProvider { get; }

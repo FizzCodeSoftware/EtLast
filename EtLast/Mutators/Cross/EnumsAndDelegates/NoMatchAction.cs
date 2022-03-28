@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-
 public delegate void NoMatchActionDelegate(IRow row);
 
 public sealed class NoMatchAction

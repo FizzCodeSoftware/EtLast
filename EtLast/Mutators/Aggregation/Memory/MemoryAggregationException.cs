@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-
 [ComVisible(true)]
 [Serializable]
 public class MemoryAggregationException : EtlException

@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Diagnostics;
-
 public static class ExceptionHelpers
 {
     public static string FormatExceptionWithDetails(this Exception exception, bool includeTrace = true)

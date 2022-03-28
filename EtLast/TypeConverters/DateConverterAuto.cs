@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Globalization;
-
 public class DateConverterAuto : DateConverter
 {
     public string Format { get; }

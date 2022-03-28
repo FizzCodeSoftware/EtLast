@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-
 public interface IEtlContextListener
 {
     void OnLog(LogSeverity severity, bool forOps, string transactionId, IProcess process, string text, params object[] args);

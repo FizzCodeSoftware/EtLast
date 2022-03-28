@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-
 public sealed class BasicScopeProcessFailedEventArgs : EventArgs
 {
     public BasicScope Scope { get; }

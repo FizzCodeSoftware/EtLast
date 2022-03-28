@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 public delegate IEnumerable<IExecutable> ProcessCreatorDelegate(BasicScope scope);
 
 /// <summary>

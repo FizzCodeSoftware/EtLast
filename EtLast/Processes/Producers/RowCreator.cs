@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-
 /// <summary>
 /// Creates <see cref="IRow"/>s from <see cref="InputRows"/>.
 /// Use to create test rows, or to produce fixed data.

@@ -1,9 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Globalization;
-using System.Transactions;
-
 public static class TransactionHelpers
 {
     public static string ToIdentifierString(this Transaction transaction)

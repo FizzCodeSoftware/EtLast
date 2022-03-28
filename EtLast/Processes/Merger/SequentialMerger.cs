@@ -1,10 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-
 public sealed class SequentialMerger : AbstractMerger
 {
     public SequentialMerger(IEtlContext context)

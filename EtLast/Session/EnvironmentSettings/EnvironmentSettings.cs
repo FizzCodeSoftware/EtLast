@@ -1,7 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System;
-
 public sealed class EnvironmentSettings
 {
     public SeqSettings SeqSettings { get; } = new SeqSettings();

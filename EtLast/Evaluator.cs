@@ -1,8 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-using System.Collections.Generic;
-using System.Linq;
-
 public sealed class Evaluator
 {
     private readonly IEnumerable<IRow> _input;
