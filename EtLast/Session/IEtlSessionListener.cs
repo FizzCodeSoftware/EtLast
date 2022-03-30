@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using FizzCode.LightWeight.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace FizzCode.EtLast;
 
