@@ -95,7 +95,7 @@ internal static class ModuleExecuter
                     }
                     catch (Exception ex)
                     {
-                        etlContext.Log(LogSeverity.Error, task, "failed, terminating execution, reason: ", task.Statistics.RunTime, ex.Message);
+                        etlContext.Log(LogSeverity.Error, task, "failed, terminating execution, reason: {0}", ex.Message);
                         result = ExecutionResult.ExecutionFailed;
                         etlContext.Close();
                         break; // stop processing tasks
