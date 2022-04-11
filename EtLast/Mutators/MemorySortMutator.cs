@@ -92,16 +92,39 @@ public class MemorySortMutator : AbstractEvaluable, IMutator
         Context.Log(LogSeverity.Debug, this, "mutated {MutatedRowCount} of {TotalRowCount} rows in {Elapsed}/{ElapsedWallClock}",
             mutatedRowCount, mutatedRowCount + ignoredRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 
-        var sortedRows = Sorter(rows);
-
-        foreach (var row in sortedRows)
+        IEnumerator<IRow> sortedRowsEnumerator = null;
+        try
         {
-            if (Context.CancellationTokenSource.IsCancellationRequested)
-                break;
+            sortedRowsEnumerator = Sorter(rows).GetEnumerator();
+        }
+        catch (Exception ex)
+        {
+            Context.AddException(this, new CustomCodeException(this, "error during the execution of custom sort code", ex));
+        }
 
-            netTimeStopwatch.Stop();
-            yield return row;
-            netTimeStopwatch.Start();
+        if (sortedRowsEnumerator != null)
+        {
+            while (!Context.CancellationTokenSource.IsCancellationRequested)
+            {
+                IRow row;
+                try
+                {
+                    netTimeStopwatch.Stop();
+                    var finished = !sortedRowsEnumerator.MoveNext();
+                    netTimeStopwatch.Start();
+                    if (finished)
+                        break;
+
+                    row = enumerator.Current;
+                }
+                catch (Exception ex)
+                {
+                    Context.AddException(this, new CustomCodeException(this, "error during the execution of custom sort code", ex));
+                    break;
+                }
+
+                yield return row;
+            }
         }
 
         netTimeStopwatch.Stop();
