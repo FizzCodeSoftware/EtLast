@@ -36,6 +36,13 @@ public class ReaderColumnConfiguration : ReaderDefaultColumnConfiguration
         base.WrapErrorWhenSourceIsNull();
         return this;
     }
+
+    public override string ToString()
+    {
+        return SourceColumn != null
+            ? "src:" + SourceColumn
+            : "";
+    }
 }
 
 public class ReaderDefaultColumnConfiguration

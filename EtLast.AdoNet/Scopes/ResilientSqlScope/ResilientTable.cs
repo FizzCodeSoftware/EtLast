@@ -52,4 +52,9 @@ public class ResilientTableBase
     public string[] Columns { get; init; }
 
     public Action<ResilientSqlTableTableFinalizerBuilder> Finalizers { get; set; }
+
+    public override string ToString()
+    {
+        return TableName + ": " + string.Join(',', Columns);
+    }
 }
