@@ -45,7 +45,7 @@ public class ValueFormatter : IValueFormatter
             return null;
 
         if (v is string str)
-            return "\"" + str + "\"";
+            return str;
 
         if (v is Enum e)
             return e.GetType().Name + "." + e.ToString();
@@ -54,7 +54,7 @@ public class ValueFormatter : IValueFormatter
             return b ? "true" : "false";
 
         if (v is char chr)
-            return "'" + chr.ToString(formatProvider) + "'";
+            return chr.ToString(formatProvider);
 
         if (v is string[] strArr)
             return "{" + string.Join(',', strArr.Select(x => Format(x, formatProvider))) + "}";
