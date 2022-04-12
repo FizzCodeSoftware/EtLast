@@ -55,6 +55,6 @@ public class ResilientTableBase
 
     public override string ToString()
     {
-        return TableName + ": " + string.Join(',', Columns);
+        return TableName + (Columns != null ? ": " + string.Join(',', Columns) : "");
     }
 }
