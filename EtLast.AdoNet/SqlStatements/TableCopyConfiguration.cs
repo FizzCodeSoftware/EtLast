@@ -12,8 +12,8 @@ public sealed class TableCopyConfiguration
 
     public override string ToString()
     {
-        return SourceTableName + "->" + TargetTableName + Columns != null
+        return SourceTableName + "->" + TargetTableName + (Columns != null
             ? ": " + string.Join(',', Columns.Select(x => x.Key + (x.Value != null && x.Key != x.Value ? "->" + x.Value : "")))
-            : "";
+            : "");
     }
 }
