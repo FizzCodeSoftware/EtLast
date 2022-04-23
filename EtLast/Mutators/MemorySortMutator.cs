@@ -115,7 +115,7 @@ public class MemorySortMutator : AbstractEvaluable, IMutator
                     if (finished)
                         break;
 
-                    row = enumerator.Current;
+                    row = sortedRowsEnumerator.Current;
                 }
                 catch (Exception ex)
                 {
