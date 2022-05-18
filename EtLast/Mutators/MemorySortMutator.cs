@@ -40,6 +40,14 @@ public class MemorySortMutator : AbstractEvaluable, IMutator
 
             var row = enumerator.Current;
 
+            if (row.Tag is HeartBeatTag)
+            {
+                netTimeStopwatch.Stop();
+                yield return row;
+                netTimeStopwatch.Start();
+                continue;
+            }
+
             var apply = false;
             if (RowFilter != null)
             {

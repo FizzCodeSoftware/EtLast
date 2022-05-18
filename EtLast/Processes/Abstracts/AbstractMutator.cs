@@ -45,6 +45,16 @@ public abstract class AbstractMutator : AbstractEvaluable, IMutator
 
             var row = enumerator.Current;
 
+            if (row.Tag is HeartBeatTag tag)
+            {
+                ProcessHeartBeatRow(row, tag);
+
+                netTimeStopwatch.Stop();
+                yield return row;
+                netTimeStopwatch.Start();
+                continue;
+            }
+
             var apply = false;
             if (RowFilter != null)
             {
@@ -175,6 +185,10 @@ public abstract class AbstractMutator : AbstractEvaluable, IMutator
     }
 
     protected abstract IEnumerable<IRow> MutateRow(IRow row);
+
+    protected virtual void ProcessHeartBeatRow(IReadOnlySlimRow row, HeartBeatTag tag)
+    {
+    }
 
     public IEnumerator<IMutator> GetEnumerator()
     {

@@ -209,6 +209,7 @@ public class TrackedRowTests
         row["trash"] = null;
         Assert.AreEqual(1, row.ColumnCount);
     }
+
     [TestMethod]
     public void IsNullOrEmptyTrue1()
     {

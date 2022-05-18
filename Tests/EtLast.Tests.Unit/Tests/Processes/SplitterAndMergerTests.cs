@@ -80,11 +80,8 @@ public class SplitterAndMergerTests
             var threadIndex = i;
             var thread = new Thread(() =>
             {
-                results[threadIndex] = new List<ISlimRow>();
-                foreach (var row in processes[threadIndex].Evaluate().TakeRowsAndReleaseOwnership())
-                {
-                    results[threadIndex].Add(row);
-                }
+                var rows = processes[threadIndex].Evaluate().TakeRowsAndReleaseOwnership();
+                results[threadIndex] = new List<ISlimRow>(rows);
             });
 
             thread.Start();

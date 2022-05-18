@@ -180,8 +180,7 @@ internal static class ModuleLoader
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
             var matchingTypes = assembly.GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t) && t.Namespace.EndsWith(moduleName, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+                .Where(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t) && t.Namespace.EndsWith(moduleName, StringComparison.OrdinalIgnoreCase));
 
             foreach (var foundType in matchingTypes)
             {
@@ -196,14 +195,10 @@ internal static class ModuleLoader
 
     private static List<Type> FindTypesFromAssembly<T>(Assembly assembly)
     {
-        var result = new List<Type>();
         var interfaceType = typeof(T);
-        foreach (var foundType in assembly.GetTypes().Where(x => interfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract))
-        {
-            result.Add(foundType);
-        }
-
-        return result;
+        return assembly.GetTypes()
+            .Where(x => interfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract)
+            .ToList();
     }
 
     private static List<Type> FindTypesFromAppDomain<T>(string moduleName)
@@ -213,13 +208,9 @@ internal static class ModuleLoader
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
             var matchingTypes = assembly.GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t) && t.Namespace.EndsWith(moduleName, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+                .Where(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t) && t.Namespace.EndsWith(moduleName, StringComparison.OrdinalIgnoreCase));
 
-            foreach (var foundType in matchingTypes)
-            {
-                result.Add(foundType);
-            }
+            result.AddRange(matchingTypes);
         }
 
         return result;

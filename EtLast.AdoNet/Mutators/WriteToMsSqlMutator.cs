@@ -26,11 +26,17 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
     /// </summary>
     public int BatchSize { get; init; } = 10000;
 
+    /// <summary>
+    /// Default value is 5000
+    /// </summary>
+    public int ForceWriteAfterNoDataMilliseconds { get; init; } = 5000;
+
     private int _rowsWritten;
     private DatabaseConnection _connection;
     private SqlBulkCopy _bulkCopy;
     private RowShadowReader _reader;
     private int? _sinkUid;
+    private Stopwatch _lastWrite;
 
     public WriteToMsSqlMutator(IEtlContext context)
         : base(context)
@@ -74,6 +80,18 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
         EtlConnectionManager.ReleaseConnection(this, ref _connection);
     }
 
+    protected override void ProcessHeartBeatRow(IReadOnlySlimRow row, HeartBeatTag tag)
+    {
+        if (_rowsWritten > 0 && _lastWrite != null && _reader.RowCount > 0 && _reader.RowCount < BatchSize && _lastWrite.ElapsedMilliseconds >= ForceWriteAfterNoDataMilliseconds)
+        {
+            InitConnection();
+            lock (_connection.Lock)
+            {
+                WriteToSql();
+            }
+        }
+    }
+
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {
         if (_sinkUid == null)
@@ -106,6 +124,15 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
 
     private void WriteToSql()
     {
+        if (_lastWrite == null)
+        {
+            _lastWrite = new Stopwatch();
+        }
+        else
+        {
+            _lastWrite.Restart();
+        }
+
         if (Transaction.Current == null)
             Context.Log(LogSeverity.Warning, this, "there is no active transaction!");
 

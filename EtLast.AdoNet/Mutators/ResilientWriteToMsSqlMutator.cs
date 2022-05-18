@@ -36,10 +36,16 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
     /// </summary>
     public int RetryDelayMilliseconds { get; init; } = 5000;
 
+    /// <summary>
+    /// Default value is 5000
+    /// </summary>
+    public int ForceWriteAfterNoDataMilliseconds { get; init; } = 5000;
+
     private int _rowsWritten;
     private Stopwatch _timer;
     private RowShadowReader _reader;
     private int? _sinkUid;
+    private Stopwatch _lastWrite;
 
     public ResilientWriteToMsSqlMutator(IEtlContext context)
         : base(context)
@@ -50,6 +56,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
     {
         _rowsWritten = 0;
         _timer = new Stopwatch();
+        _lastWrite = null;
 
         var columnIndexes = new Dictionary<string, int>();
         var i = 0;
@@ -73,6 +80,14 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
 
         _timer.Stop();
         _timer = null;
+    }
+
+    protected override void ProcessHeartBeatRow(IReadOnlySlimRow row, HeartBeatTag tag)
+    {
+        if (_rowsWritten > 0 && _lastWrite != null && _reader.RowCount > 0 && _reader.RowCount < BatchSize && _lastWrite.ElapsedMilliseconds >= ForceWriteAfterNoDataMilliseconds)
+        {
+            WriteToSql();
+        }
     }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
@@ -105,6 +120,15 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
     {
         var recordCount = _reader.RowCount;
         _timer.Restart();
+
+        if (_lastWrite == null)
+        {
+            _lastWrite = new Stopwatch();
+        }
+        else
+        {
+            _lastWrite.Restart();
+        }
 
         for (var retry = 0; retry <= MaxRetryCount; retry++)
         {

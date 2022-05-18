@@ -46,7 +46,8 @@ public abstract class AbstractRowSource : AbstractEvaluable, IRowSource
                     break;
 
                 row = enumerator.Current;
-                if (!ProcessRowBeforeYield(row))
+
+                if (row.Tag is not HeartBeatTag && !ProcessRowBeforeYield(row))
                     continue;
             }
             catch (Exception ex)

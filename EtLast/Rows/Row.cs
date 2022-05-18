@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast;
 
 [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
-public sealed class Row : IRow
+public class Row : IRow
 {
     public IEtlContext Context { get; private set; }
     public IProcess CreatorProcess { get; private set; }

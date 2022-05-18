@@ -20,6 +20,11 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
 
     public IWriteToSqlStatementCreator SqlStatementCreator { get; init; }
 
+    /// <summary>
+    /// Default value is 5000
+    /// </summary>
+    public int ForceWriteAfterNoDataMilliseconds { get; init; } = 5000;
+
     private DatabaseConnection _connection;
     private List<string> _statements;
 
@@ -28,6 +33,7 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
     private IDbCommand _command;
     private static readonly DbType[] _quotedParameterTypes = { DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength };
     private int? _sinkUid;
+    private Stopwatch _lastWrite;
 
     public WriteToSqlMutator(IEtlContext context)
         : base(context)
@@ -51,6 +57,17 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
         _statements = null;
 
         EtlConnectionManager.ReleaseConnection(this, ref _connection);
+    }
+
+    protected override void ProcessHeartBeatRow(IReadOnlySlimRow row, HeartBeatTag tag)
+    {
+        if (_rowsWritten > 0 && _lastWrite != null && _command != null && _statements.Count > 0 && _lastWrite.ElapsedMilliseconds >= ForceWriteAfterNoDataMilliseconds)
+        {
+            lock (_connection.Lock)
+            {
+                ExecuteStatements();
+            }
+        }
     }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
@@ -113,6 +130,15 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
 
     private void ExecuteStatements()
     {
+        if (_lastWrite == null)
+        {
+            _lastWrite = new Stopwatch();
+        }
+        else
+        {
+            _lastWrite.Restart();
+        }
+
         if (Transaction.Current == null)
             Context.Log(LogSeverity.Warning, this, "there is no active transaction!");
 

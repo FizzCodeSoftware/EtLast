@@ -168,6 +168,7 @@ csharp_style_prefer_extended_property_pattern = true:suggestion
 dotnet_diagnostic.CA1001.severity = silent
 dotnet_diagnostic.CA1032.severity = silent
 dotnet_diagnostic.CA1845.severity = suggestion
+csharp_style_prefer_method_group_conversion = true:silent
 ###############################
 # VB Coding Conventions       #
 ###############################
