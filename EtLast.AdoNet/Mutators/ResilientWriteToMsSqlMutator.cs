@@ -234,7 +234,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
                         exception.Data.Add("Timeout", CommandTimeout);
                         exception.Data.Add("Elapsed", _timer.Elapsed);
                         exception.Data.Add("TotalRowsWritten", _rowsWritten);
-                        if (ex is InvalidOperationException || ex is SqlException)
+                        if (ex is InvalidOperationException or SqlException)
                         {
                             var fileName = "bulk-copy-error-" + Context.CreatedOnLocal.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + ".tsv";
                             exception.Data.Add("DetailedRowLogFileName", fileName);

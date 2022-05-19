@@ -98,12 +98,12 @@ public sealed class EtlSession : IEtlSession
             if (argument.Key != null)
             {
                 var value = argument.Value;
-                if (value != null && value is Func<object> func)
+                if (value is Func<object> func)
                 {
                     value = func.Invoke();
                 }
 
-                if (value != null && value is Func<IEtlSessionArguments, object> funcWithArgs)
+                if (value is Func<IEtlSessionArguments, object> funcWithArgs)
                 {
                     value = funcWithArgs.Invoke(_arguments);
                 }

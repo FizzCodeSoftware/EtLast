@@ -13,7 +13,7 @@ public sealed class AdditionalData
     public T GetAs<T>(string key, T defaultValue)
     {
         _data.TryGetValue(key, out var value);
-        if (value != null && value is T t)
+        if (value is T t)
         {
             return t;
         }

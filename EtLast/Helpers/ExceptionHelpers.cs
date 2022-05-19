@@ -42,7 +42,7 @@ public static class ExceptionHelpers
                     foreach (var key in cex.Data.Keys)
                     {
                         var k = key.ToString();
-                        if (k == "ProcessName" || k == "ProcessKind" || k == "ProcessTopic" || k == "ProcessType" || k == "ProcessTypeAssembly")
+                        if (k is "ProcessName" or "ProcessKind" or "ProcessTopic" or "ProcessType" or "ProcessTypeAssembly")
                             continue;
 
                         if (k == "CallChain")

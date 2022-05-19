@@ -8,8 +8,8 @@ public static class DbCommandExtensions
             return;
 
         var commandType = command.GetType();
-        var isSqlServer = commandType.FullName == "Microsoft.Data.SqlClient.SqlCommand"
-            || commandType.FullName == "System.Data.SqlClient.SqlCommand";
+        var isSqlServer = commandType.FullName is "Microsoft.Data.SqlClient.SqlCommand"
+            or "System.Data.SqlClient.SqlCommand";
 
         foreach (var kvp in source)
         {

@@ -16,8 +16,7 @@ public sealed class DropViews : AbstractSqlStatements
         if (TableNames == null || TableNames.Length == 0)
             throw new ProcessParameterNullException(this, nameof(TableNames));
 
-        if ((ConnectionString.SqlEngine != SqlEngine.MsSql)
-            && (ConnectionString.SqlEngine != SqlEngine.MySql))
+        if (ConnectionString.SqlEngine is not SqlEngine.MsSql and not SqlEngine.MySql)
         {
             throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be Microsoft.Data.SqlClient or MySql.Data.MySqlClient");
         }

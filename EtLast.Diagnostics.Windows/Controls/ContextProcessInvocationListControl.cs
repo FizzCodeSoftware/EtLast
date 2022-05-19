@@ -231,13 +231,13 @@ internal class ContextProcessInvocationListControl
                     if (itemIsSelected)
                     {
                         subItem.BackColor = IsSelectedBackColor;
-                        if (i != 6 && i != 11)
+                        if (i is not 6 and not 11)
                             subItem.ForeColor = IsSelectedForeColor;
                     }
                     else
                     {
                         subItem.BackColor = ListView.BackColor;
-                        if (i != 6 && i != 11)
+                        if (i is not 6 and not 11)
                             subItem.ForeColor = ListView.ForeColor;
                     }
                 }

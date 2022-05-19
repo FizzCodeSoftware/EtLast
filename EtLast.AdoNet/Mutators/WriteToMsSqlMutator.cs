@@ -166,7 +166,7 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
             exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(column => column.Key + " => " + ConnectionString.Unescape(column.Value ?? column.Key))));
             exception.Data.Add("Timeout", CommandTimeout);
             exception.Data.Add("TotalRowsWritten", _rowsWritten);
-            if (ex is InvalidOperationException || ex is SqlException)
+            if (ex is InvalidOperationException or SqlException)
             {
                 var fileName = "bulk-copy-error-" + Context.CreatedOnLocal.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + ".tsv";
                 exception.Data.Add("DetailedRowLogFileName", fileName);

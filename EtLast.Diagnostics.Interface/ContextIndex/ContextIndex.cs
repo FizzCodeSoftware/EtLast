@@ -152,7 +152,7 @@ public class ContextIndex
                         sinkWriterStream.Write(eventBytes, 0, eventBytes.Length);
                     }
                 }
-                else if (evt is RowCreatedEvent || evt is RowValueChangedEvent || evt is RowOwnerChangedEvent)
+                else if (evt is RowCreatedEvent or RowValueChangedEvent or RowOwnerChangedEvent)
                 {
                     var eventBytes = input.ReadFrom(startPosition, (int)(input.Position - startPosition));
 

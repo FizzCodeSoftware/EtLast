@@ -129,7 +129,7 @@ from
 
             command.FillCommandParameters(parameters);
 
-            var tablesNamesHashSet = Mode == MsSqlDropForeignKeysProcessMode.InSpecifiedTables || Mode == MsSqlDropForeignKeysProcessMode.ToSpecifiedTables
+            var tablesNamesHashSet = Mode is MsSqlDropForeignKeysProcessMode.InSpecifiedTables or MsSqlDropForeignKeysProcessMode.ToSpecifiedTables
                 ? TableNames.Select(x => x.ToUpperInvariant()).ToHashSet()
                 : null;
 

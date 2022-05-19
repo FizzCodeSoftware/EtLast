@@ -62,7 +62,7 @@ public sealed class HungarianTaxNumberConverter : StringConverter
         if (!int.TryParse(parts[1], out var vatType))
             return false;
 
-        if (vatType < 1 || vatType > 5)
+        if (vatType is < 1 or > 5)
             return false;
 
         if (!int.TryParse(parts[2], out var region))

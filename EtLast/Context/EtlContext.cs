@@ -47,7 +47,7 @@ public sealed class EtlContext : IEtlContext
 
     public void Log(string transactionId, LogSeverity severity, IProcess process, string text, params object[] args)
     {
-        if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
+        if (severity is LogSeverity.Error or LogSeverity.Warning)
             WarningCount++;
 
         foreach (var listener in Listeners)
@@ -58,7 +58,7 @@ public sealed class EtlContext : IEtlContext
 
     public void Log(LogSeverity severity, IProcess process, string text, params object[] args)
     {
-        if (severity == LogSeverity.Error || severity == LogSeverity.Warning)
+        if (severity is LogSeverity.Error or LogSeverity.Warning)
             WarningCount++;
 
         foreach (var listener in Listeners)
