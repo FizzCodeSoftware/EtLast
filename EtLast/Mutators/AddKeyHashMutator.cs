@@ -6,7 +6,7 @@ public sealed class AddKeyHashMutator : AbstractMutator
     public string TargetColumn { get; init; }
 
     /// <summary>
-    /// Creates the hash algorithm used by this mutator. Default is <see cref="SHA256"/>.
+    /// Creates the hash algorithm used by this mutator. Default is <see cref="SHA256.Create()"/>.
     /// </summary>
     public Func<HashAlgorithm> HashAlgorithmCreator { get; init; } = () => SHA256.Create();
 
@@ -90,12 +90,31 @@ public static class AddHashMutatorFluent
         return builder.AddMutator(mutator);
     }
 
-    public static IFluentProcessMutatorBuilder AddKeyHash(this IFluentProcessMutatorBuilder builder, string targetColumn, params string[] columns)
+    public static IFluentProcessMutatorBuilder AddKeyHash(this IFluentProcessMutatorBuilder builder, string targetColumn, params string[] keyColumns)
     {
         return builder.AddMutator(new AddKeyHashMutator(builder.ProcessBuilder.Result.Context)
         {
             TargetColumn = targetColumn,
-            KeyColumns = columns,
+            KeyColumns = keyColumns,
+        });
+    }
+
+    public static IFluentProcessMutatorBuilder AddKeyHash(this IFluentProcessMutatorBuilder builder, string targetColumn, Func<HashAlgorithm> hashAlgorithmCreator)
+    {
+        return builder.AddMutator(new AddKeyHashMutator(builder.ProcessBuilder.Result.Context)
+        {
+            TargetColumn = targetColumn,
+            HashAlgorithmCreator = hashAlgorithmCreator,
+        });
+    }
+
+    public static IFluentProcessMutatorBuilder AddKeyHash(this IFluentProcessMutatorBuilder builder, string targetColumn, Func<HashAlgorithm> hashAlgorithmCreator, params string[] keyColumns)
+    {
+        return builder.AddMutator(new AddKeyHashMutator(builder.ProcessBuilder.Result.Context)
+        {
+            TargetColumn = targetColumn,
+            HashAlgorithmCreator = hashAlgorithmCreator,
+            KeyColumns = keyColumns,
         });
     }
 }
