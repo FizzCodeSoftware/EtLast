@@ -2,7 +2,7 @@
 
 public enum DelimitedLineHeader { NoHeader, HasHeader, IgnoreHeader }
 
-public sealed class DelimitedLineReader : AbstractRowSource, IRowSource
+public sealed class DelimitedLineReader : AbstractRowSource
 {
     public IStreamProvider StreamProvider { get; init; }
 

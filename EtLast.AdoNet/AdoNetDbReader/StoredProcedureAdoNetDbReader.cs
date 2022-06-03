@@ -1,18 +1,18 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CustomSqlAdoNetDbReader : AbstractAdoNetDbReader
+public sealed class StoredProcedureAdoNetDbReader : AbstractAdoNetDbReader
 {
     public string Sql { get; init; }
     public string MainTableName { get; init; }
 
-    public CustomSqlAdoNetDbReader(IEtlContext context)
+    public StoredProcedureAdoNetDbReader(IEtlContext context)
         : base(context)
     {
     }
 
     protected override CommandType GetCommandType()
     {
-        return CommandType.Text;
+        return CommandType.StoredProcedure;
     }
 
     public override string GetTopic()
@@ -40,22 +40,22 @@ public sealed class CustomSqlAdoNetDbReader : AbstractAdoNetDbReader
         if (MainTableName != null)
         {
             return Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, ConnectionString.Unescape(MainTableName), timeout, statement, transactionId, () => Parameters,
-                "querying from {ConnectionStringName}/{TableName} using custom query",
+                "querying from {ConnectionStringName}/{TableName} using stored procedure",
                 ConnectionString.Name, ConnectionString.Unescape(MainTableName));
         }
         else
         {
             return Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, timeout, statement, transactionId, () => Parameters,
-                "querying from {ConnectionStringName} using custom query",
+                "querying from {ConnectionStringName} using stored procedure",
                 ConnectionString.Name);
         }
     }
 }
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public static class CustomSqlAdoNetDbReaderFluent
+public static class StoredProcedureAdoNetDbReaderFluent
 {
-    public static IFluentProcessMutatorBuilder ReadFromCustomSql(this IFluentProcessBuilder builder, CustomSqlAdoNetDbReader reader)
+    public static IFluentProcessMutatorBuilder ReadFromStoredProcedure(this IFluentProcessBuilder builder, StoredProcedureAdoNetDbReader reader)
     {
         return builder.ReadFrom(reader);
     }

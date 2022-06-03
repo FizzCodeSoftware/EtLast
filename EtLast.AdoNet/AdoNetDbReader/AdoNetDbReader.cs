@@ -12,6 +12,11 @@ public sealed class AdoNetDbReader : AbstractAdoNetDbReader
     {
     }
 
+    protected override CommandType GetCommandType()
+    {
+        return CommandType.Text;
+    }
+
     public override string GetTopic()
     {
         return TableName != null
