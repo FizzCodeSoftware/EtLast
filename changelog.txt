@@ -1,3 +1,7 @@
+2022-06-29:
+	- fixed: use SourceColumn instead of Key in AdoNetDbReader.CreateSqlStatemet
+	- fixed: add parameterName to InvalidProcessParameterException message 
+
 2020-11-12:
 	- added: TagFilter to AbstractAggregationMutator and derived classes: MemoryAggregationMutator, SortedMemoryAggregationMutator, ContinuousAggregationMutator
 	- fixed: MemoryAggregationMutator, SortedMemoryAggregationMutator, ContinuousAggregationMutator properly copy the source Tag to the aggregates from now
