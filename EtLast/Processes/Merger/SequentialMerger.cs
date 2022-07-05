@@ -15,7 +15,7 @@ public sealed class SequentialMerger : AbstractMerger
     {
         foreach (var inputProcess in ProcessList)
         {
-            if (Context.CancellationTokenSource.IsCancellationRequested)
+            if (Context.CancellationToken.IsCancellationRequested)
                 yield break;
 
             var rows = inputProcess.Evaluate(this).TakeRowsAndTransferOwnership();

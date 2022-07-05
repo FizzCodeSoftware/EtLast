@@ -7,7 +7,5 @@ global using System.Net.Http;
 global using System.Text;
 global using System.Threading;
 global using FizzCode.EtLast.Diagnostics.Interface;
-global using FizzCode.LightWeight.Configuration;
-global using Microsoft.Extensions.Configuration;
 global using Serilog.Events;
 global using Serilog.Parsing;

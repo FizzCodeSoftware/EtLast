@@ -28,7 +28,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
         var ignoredRowCount = 0;
         var groupCount = 0;
         var aggregateCount = 0;
-        while (!Context.CancellationTokenSource.IsCancellationRequested)
+        while (!Context.CancellationToken.IsCancellationRequested)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -55,7 +55,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ProcessExecutionException.Wrap(this, row, ex));
                     break;
                 }
 
@@ -77,7 +77,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ProcessExecutionException.Wrap(this, row, ex));
                     break;
                 }
 
@@ -125,7 +125,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
                     catch (Exception ex)
                     {
                         var exception = new MemoryAggregationException(this, Operation, groupRows, ex);
-                        Context.AddException(this, exception);
+                        AddException(exception);
                         success = false;
                         break;
                     }
@@ -177,7 +177,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
             catch (Exception ex)
             {
                 var exception = new MemoryAggregationException(this, Operation, groupRows, ex);
-                Context.AddException(this, exception);
+                AddException(exception);
                 success = false;
             }
 

@@ -1,15 +1,16 @@
 ﻿namespace FizzCode.EtLast.ConsoleHost;
 
-public enum ExecutionResult
+public class ExecutionResult : IExecutionResult
 {
-    Success = 0,
+    public ExecutionStatusCode Status { get; set; } = ExecutionStatusCode.Success;
+    public List<TaskExectionResult> TaskResults { get; set; }
 
-    ModuleLoadError = 101,
+    public ExecutionResult()
+    {
+    }
 
-    ExecutionFailed = 201, // at least one task failed
-
-    UnexpectedError = 666,
-
-    HostConfigurationError = 1001,
-    HostArgumentError = 1002,
+    public ExecutionResult(ExecutionStatusCode status)
+    {
+        Status = status;
+    }
 }

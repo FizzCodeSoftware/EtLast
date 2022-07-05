@@ -8,6 +8,6 @@ public interface IEtlSession
     public T Service<T>() where T : IEtlService, new();
 
     public bool Success { get; }
-    public TaskResult<T> ExecuteTask<T>(IProcess caller, T task) where T : IEtlTask;
+    public TaskWithResult<T> ExecuteTask<T>(IProcess caller, T task) where T : IEtlTask;
     public ProcessResult ExecuteProcess(IProcess caller, IExecutable process);
 }

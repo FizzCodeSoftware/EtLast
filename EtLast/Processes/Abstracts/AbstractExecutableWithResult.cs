@@ -17,14 +17,14 @@ public abstract class AbstractExecutableWithResult<T> : AbstractProcess, IExecut
         {
             ValidateImpl();
 
-            if (Context.CancellationTokenSource.IsCancellationRequested)
+            if (Context.CancellationToken.IsCancellationRequested)
                 return default;
 
             return ExecuteImpl();
         }
         catch (Exception ex)
         {
-            Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
+            AddException(ProcessExecutionException.Wrap(this, ex));
         }
         finally
         {

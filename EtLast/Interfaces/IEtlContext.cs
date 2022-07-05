@@ -4,18 +4,16 @@ public interface IEtlContext
 {
     public void SetRowType<T>() where T : IRow;
 
-    public List<Exception> Exceptions { get; }
     public int WarningCount { get; }
     public AdditionalData AdditionalData { get; }
 
-    public string Uid { get; }
     public DateTimeOffset CreatedOnUtc { get; }
     public DateTimeOffset CreatedOnLocal { get; }
 
-    public TimeSpan TransactionScopeTimeout { get; }
+    public TimeSpan TransactionScopeTimeout { get; set; }
     public EtlTransactionScope BeginScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity);
 
-    public CancellationTokenSource CancellationTokenSource { get; }
+    public CancellationToken CancellationToken { get; }
 
     public List<IEtlContextListener> Listeners { get; }
 

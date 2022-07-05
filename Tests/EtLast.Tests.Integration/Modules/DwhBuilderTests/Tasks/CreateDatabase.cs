@@ -4,6 +4,7 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests;
 public class CreateDatabase : AbstractEtlTask
 {
     public NamedConnectionString ConnectionString { get; set; }
+    public NamedConnectionString ConnectionStringMaster { get; set; }
     public string DatabaseName { get; init; }
     public DatabaseDefinition Definition { get; set; }
 
@@ -30,9 +31,7 @@ public class CreateDatabase : AbstractEtlTask
 
                 proc.Context.Log(LogSeverity.Information, proc, "opening connection to {DatabaseName}", "master");
                 using var connection = DbProviderFactories.GetFactory(ConnectionString.ProviderName).CreateConnection();
-                // TODO connectionString should not be provided here
-                // TODO why not use DbTools.ReCreateDatabase?
-                connection.ConnectionString = "Data Source=(local)\\SQL2017;Initial Catalog=\"master\";Integrated Security=SSPI;Connection Timeout=5;Encrypt=False";
+                connection.ConnectionString = ConnectionStringMaster.ConnectionString;
                 connection.Open();
 
                 proc.Context.Log(LogSeverity.Information, proc, "dropping {DatabaseName}", DatabaseName);

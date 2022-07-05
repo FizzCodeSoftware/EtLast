@@ -2,5 +2,5 @@
 
 public class ProcessResult
 {
-    public int ExceptionCount { get; init; }
+    public List<Exception> Exceptions { get; } = new List<Exception>();
 }

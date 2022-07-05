@@ -34,7 +34,7 @@ public sealed class RowListener : AbstractRowSource, IRowListener
         var rowCount = 0;
 
         thread.Start();
-        while (!Context.CancellationTokenSource.IsCancellationRequested)
+        while (!Context.CancellationToken.IsCancellationRequested)
         {
             var hbElapsed = hbTimer.ElapsedMilliseconds;
             if (hbElapsed >= HeartBeatMilliseconds)

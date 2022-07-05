@@ -63,14 +63,14 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
         }
 
         var resultCount = 0;
-        if (enumerator != null && !Context.CancellationTokenSource.IsCancellationRequested)
+        if (enumerator != null && !Context.CancellationToken.IsCancellationRequested)
         {
             var initialValues = new Dictionary<string, object>();
 
             // key is the SOURCE column name
             var columnMap = Columns?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
-            while (!Context.CancellationTokenSource.IsCancellationRequested)
+            while (!Context.CancellationToken.IsCancellationRequested)
             {
                 try
                 {

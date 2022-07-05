@@ -111,14 +111,14 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
         LastDataRead = DateTime.Now;
 
         var resultCount = 0;
-        if (reader != null && !Context.CancellationTokenSource.IsCancellationRequested)
+        if (reader != null && !Context.CancellationToken.IsCancellationRequested)
         {
             var initialValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
             // key is the SOURCE column name
             var columnMap = Columns?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
-            while (!Context.CancellationTokenSource.IsCancellationRequested)
+            while (!Context.CancellationToken.IsCancellationRequested)
             {
                 try
                 {

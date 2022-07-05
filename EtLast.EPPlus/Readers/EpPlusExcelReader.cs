@@ -42,7 +42,7 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
             if (stream == null)
                 yield break;
 
-            if (Context.CancellationTokenSource.IsCancellationRequested)
+            if (Context.CancellationToken.IsCancellationRequested)
                 break;
 
             ExcelPackage package;

@@ -12,10 +12,10 @@ public sealed class EtlSession : IEtlSession
 
     private readonly List<IEtlService> _services = new();
 
-    public EtlSession(string id, EtlContext context, EtlSessionArguments arguments)
+    public EtlSession(string id, EtlSessionArguments arguments)
     {
         Id = id;
-        Context = context;
+        Context = new EtlContext();
         _arguments = arguments;
     }
 
@@ -42,19 +42,15 @@ public sealed class EtlSession : IEtlSession
         _services.Clear();
     }
 
-    public TaskResult<T> ExecuteTask<T>(IProcess caller, T task)
+    public TaskWithResult<T> ExecuteTask<T>(IProcess caller, T task)
         where T : IEtlTask
     {
         SetPublicSettableProperiesFromArguments(task);
 
         var result = task.Execute(caller, this);
-        Success = result.ExceptionCount == 0;
+        Success = result.Exceptions.Count == 0;
 
-        return new TaskResult<T>()
-        {
-            ExceptionCount = result.ExceptionCount,
-            Task = task,
-        };
+        return new TaskWithResult<T>(result, task);
     }
 
     public ProcessResult ExecuteProcess(IProcess caller, IExecutable process)
@@ -64,12 +60,11 @@ public sealed class EtlSession : IEtlSession
 
         var originalExceptionCount = Context.ExceptionCount;
         process.Execute(caller);
-        var result = new ProcessResult()
-        {
-            ExceptionCount = Context.ExceptionCount - originalExceptionCount,
-        };
 
-        Success = result.ExceptionCount == 0;
+        var result = new ProcessResult();
+        result.Exceptions.AddRange(Context.GetExceptions().Skip(originalExceptionCount));
+
+        Success = result.Exceptions.Count == 0;
         return result;
     }
 

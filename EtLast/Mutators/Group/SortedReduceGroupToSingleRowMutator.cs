@@ -47,7 +47,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractEvaluable, IMu
         var mutatedRowCount = 0;
         var ignoredRowCount = 0;
         var resultRowCount = 0;
-        while (!Context.CancellationTokenSource.IsCancellationRequested && success)
+        while (!Context.CancellationToken.IsCancellationRequested && success)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -74,7 +74,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractEvaluable, IMu
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ProcessExecutionException.Wrap(this, row, ex));
                     break;
                 }
 
@@ -96,7 +96,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractEvaluable, IMu
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ProcessExecutionException.Wrap(this, row, ex));
                     break;
                 }
 
@@ -172,7 +172,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractEvaluable, IMu
             }
             catch (Exception ex)
             {
-                Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
+                AddException(ProcessExecutionException.Wrap(this, ex));
                 return null;
             }
 

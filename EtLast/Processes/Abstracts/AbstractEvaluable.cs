@@ -27,7 +27,7 @@ public abstract class AbstractEvaluable : AbstractProcess, IProducer
         {
             ValidateImpl();
 
-            if (Context.CancellationTokenSource.IsCancellationRequested)
+            if (Context.CancellationToken.IsCancellationRequested)
                 return new Evaluator();
 
             if (Initializer != null)
@@ -41,7 +41,7 @@ public abstract class AbstractEvaluable : AbstractProcess, IProducer
                     throw new InitializerDelegateException(this, ex);
                 }
 
-                if (Context.CancellationTokenSource.IsCancellationRequested)
+                if (Context.CancellationToken.IsCancellationRequested)
                     return new Evaluator();
             }
 
@@ -49,7 +49,7 @@ public abstract class AbstractEvaluable : AbstractProcess, IProducer
         }
         catch (Exception ex)
         {
-            Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
+            AddException(ProcessExecutionException.Wrap(this, ex));
 
             netTimeStopwatch.Stop();
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);

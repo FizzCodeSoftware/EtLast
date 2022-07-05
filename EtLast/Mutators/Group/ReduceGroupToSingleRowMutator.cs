@@ -45,7 +45,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
         var mutatedRowCount = 0;
         var ignoredRowCount = 0;
         var resultRowCount = 0;
-        while (!Context.CancellationTokenSource.IsCancellationRequested)
+        while (!Context.CancellationToken.IsCancellationRequested)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -72,7 +72,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ProcessExecutionException.Wrap(this, row, ex));
                     break;
                 }
 
@@ -94,7 +94,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ProcessExecutionException.Wrap(this, row, ex));
                     break;
                 }
 
@@ -133,7 +133,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
 
         foreach (var group in groups.Values)
         {
-            if (Context.CancellationTokenSource.IsCancellationRequested)
+            if (Context.CancellationToken.IsCancellationRequested)
                 break;
 
             var singleRow = group as IRow;
@@ -169,7 +169,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
             }
             catch (Exception ex)
             {
-                Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
+                AddException(ProcessExecutionException.Wrap(this, ex));
                 break;
             }
 

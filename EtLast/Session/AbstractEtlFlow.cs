@@ -51,14 +51,12 @@ public abstract class AbstractEtlFlow : AbstractProcess, IEtlFlow
                 Session.Context.Listeners.Remove(_ioCommandCounterCollection);
             }
 
-            var result = new ProcessResult()
-            {
-                ExceptionCount = Context.ExceptionCount - originalExceptionCount,
-            };
+            var result = new ProcessResult();
+            result.Exceptions.AddRange(Context.GetExceptions().Skip(originalExceptionCount));
 
             _statistics.Finish();
             Context.Log(LogSeverity.Information, this, "flow {TaskResult} in {Elapsed}",
-                (result.ExceptionCount == 0) ? "finished" : "failed", _statistics.RunTime);
+                (Exceptions.Count == 0) ? "finished" : "failed", _statistics.RunTime);
 
             LogPrivateSettableProperties(LogSeverity.Debug);
 

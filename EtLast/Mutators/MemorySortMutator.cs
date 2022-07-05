@@ -30,7 +30,7 @@ public class MemorySortMutator : AbstractEvaluable, IMutator
         var mutatedRowCount = 0;
         var ignoredRowCount = 0;
 
-        while (!Context.CancellationTokenSource.IsCancellationRequested)
+        while (!Context.CancellationToken.IsCancellationRequested)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -57,7 +57,7 @@ public class MemorySortMutator : AbstractEvaluable, IMutator
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ProcessExecutionException.Wrap(this, row, ex));
                     break;
                 }
 
@@ -79,7 +79,7 @@ public class MemorySortMutator : AbstractEvaluable, IMutator
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ProcessExecutionException.Wrap(this, row, ex));
                     break;
                 }
 
@@ -107,12 +107,12 @@ public class MemorySortMutator : AbstractEvaluable, IMutator
         }
         catch (Exception ex)
         {
-            Context.AddException(this, new CustomCodeException(this, "error during the execution of custom sort code", ex));
+            AddException(new CustomCodeException(this, "error during the execution of custom sort code", ex));
         }
 
         if (sortedRowsEnumerator != null)
         {
-            while (!Context.CancellationTokenSource.IsCancellationRequested)
+            while (!Context.CancellationToken.IsCancellationRequested)
             {
                 IRow row;
                 try
@@ -127,7 +127,7 @@ public class MemorySortMutator : AbstractEvaluable, IMutator
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, new CustomCodeException(this, "error during the execution of custom sort code", ex));
+                    AddException(new CustomCodeException(this, "error during the execution of custom sort code", ex));
                     break;
                 }
 

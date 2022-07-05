@@ -24,14 +24,14 @@ public abstract class AbstractExecutable : AbstractProcess, IExecutable
         {
             ValidateImpl();
 
-            if (Context.CancellationTokenSource.IsCancellationRequested)
+            if (Context.CancellationToken.IsCancellationRequested)
                 return;
 
             ExecuteImpl();
         }
         catch (Exception ex)
         {
-            Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
+            AddException(ProcessExecutionException.Wrap(this, ex));
         }
         finally
         {

@@ -4,7 +4,6 @@ public sealed class EtlContext : IEtlContext
 {
     public Type RowType { get; private set; }
 
-    public List<Exception> Exceptions { get; } = new List<Exception>();
     public int WarningCount { get; internal set; }
     public AdditionalData AdditionalData { get; }
 
@@ -19,7 +18,8 @@ public sealed class EtlContext : IEtlContext
     /// </summary>
     public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromMinutes(10);
 
-    public CancellationTokenSource CancellationTokenSource { get; }
+    private readonly CancellationTokenSource _cancellationTokenSource;
+    public CancellationToken CancellationToken { get; }
 
     private int _nextRowUid;
     private int _nextProcessInstanceUid;
@@ -32,10 +32,11 @@ public sealed class EtlContext : IEtlContext
     public EtlContext()
     {
         SetRowType<Row>();
-        CancellationTokenSource = new CancellationTokenSource();
+        _cancellationTokenSource = new CancellationTokenSource();
+        CancellationToken = _cancellationTokenSource.Token;
+
         AdditionalData = new AdditionalData();
 
-        Uid = Guid.NewGuid().ToString("D");
         CreatedOnLocal = DateTimeOffset.Now;
         CreatedOnUtc = CreatedOnLocal.ToUniversalTime();
     }
@@ -179,18 +180,11 @@ public sealed class EtlContext : IEtlContext
 
     public void AddException(IProcess process, Exception ex)
     {
-        if (ex is OperationCanceledException)
-            return;
-
-        ex = ProcessExecutionException.Wrap(process, ex);
-
-        Exceptions.Add(ex);
-
         lock (_exceptions)
         {
             if (_exceptions.Contains(ex))
             {
-                CancellationTokenSource.Cancel();
+                _cancellationTokenSource.Cancel();
                 return;
             }
 
@@ -202,7 +196,7 @@ public sealed class EtlContext : IEtlContext
             listener.OnException(process, ex);
         }
 
-        CancellationTokenSource.Cancel();
+        _cancellationTokenSource.Cancel();
     }
 
     public List<Exception> GetExceptions()
@@ -307,5 +301,7 @@ public sealed class EtlContext : IEtlContext
                 disp.Dispose();
             }
         }
+
+        Listeners.Clear();
     }
 }

@@ -105,7 +105,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
             if (stream == null)
                 yield break;
 
-            if (Context.CancellationTokenSource.IsCancellationRequested)
+            if (Context.CancellationToken.IsCancellationRequested)
                 break;
 
             var firstRow = true;
@@ -116,7 +116,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
             {
                 reader = new StreamReader(stream.Stream);
 
-                while (!Context.CancellationTokenSource.IsCancellationRequested)
+                while (!Context.CancellationToken.IsCancellationRequested)
                 {
                     var line = GetLine(stream, reader, resultCount);
                     if (line == null)

@@ -1,14 +1,22 @@
 ﻿namespace FizzCode.EtLast.Diagnostics;
 
-public class HttpSender : IDisposable, IEtlSessionListener
+public class HttpSender : IDisposable, IEtlContextListener
 {
-    public int MaxCommunicationErrorCount { get; } = 2;
+    /// <summary>
+    /// Default value is 2.
+    /// </summary>
+    public int MaxCommunicationErrorCount { get; set; } = 2;
 
-    private Uri _uri;
+    /// <summary>
+    /// Default value is "http://localhost:8642"
+    /// </summary>
+    public string Url { get; set; }
+
+    private readonly Uri _uri;
     private HttpClient _client;
-    private Thread _workerThread;
-    private string _sessionId;
-    private string _contextName;
+    private readonly Thread _workerThread;
+    private readonly string _sessionId;
+    private readonly string _contextName;
     private ExtendedBinaryWriter _currentWriter;
     private ExtendedBinaryWriter _currentDictionaryWriter;
     private readonly object _currentWriterLock = new();
@@ -20,15 +28,14 @@ public class HttpSender : IDisposable, IEtlSessionListener
     private readonly object _messageTemplateCacheLock = new();
     private readonly MessageTemplateParser _messageTemplateParser = new();
 
-    public bool Init(IEtlSession session, IConfigurationSection configurationSection, IConfigurationSecretProtector configurationSecretProtector)
+    public HttpSender(IEtlSession session)
     {
+        if (Url == null)
+            return;
+
         _sessionId = session.Id;
         _contextName = session.Id;
-        var url = ConfigurationReader.GetCurrentValue(configurationSection, "Url", null, configurationSecretProtector);
-        if (url == null)
-            return false;
-
-        _uri = new Uri(url);
+        _uri = new Uri(Url);
 
         _client = new HttpClient
         {
@@ -39,7 +46,6 @@ public class HttpSender : IDisposable, IEtlSessionListener
 
         _workerThread = new Thread(WorkerMethod);
         _workerThread.Start();
-        return true;
     }
 
     private void WorkerMethod()

@@ -7,6 +7,7 @@ public abstract class AbstractProcess : IProcess
     public ProcessInvocationInfo InvocationInfo { get; set; }
 
     public IEtlContext Context { get; protected set; }
+    public List<Exception> Exceptions { get; } = new List<Exception>();
 
     public string Name { get; set; }
     public string Kind { get; }
@@ -93,5 +94,16 @@ public abstract class AbstractProcess : IProcess
             Context.Log(severity, this, "output [{ParameterName}] = {ParameterValue}",
                 property.Name, ValueFormatter.Default.Format(value, CultureInfo.InvariantCulture) ?? "<NULL>");
         }
+    }
+
+    protected void AddException(Exception ex)
+    {
+        if (ex is OperationCanceledException)
+            return;
+
+        ex = ProcessExecutionException.Wrap(this, ex);
+
+        Context.AddException(this, ex);
+        Exceptions.Add(ex);
     }
 }

@@ -7,20 +7,20 @@ internal static class ModuleLoader
 {
     private static long _moduleAutoincrementId;
 
-    public static ExecutionResult LoadModule(CommandContext commandContext, string moduleName, bool forceCompilation, out CompiledModule module)
+    public static ExecutionStatusCode LoadModule(Host host, string moduleName, bool forceCompilation, out CompiledModule module)
     {
         module = null;
 
-        var moduleFolder = Path.Combine(commandContext.HostConfiguration.ModulesFolder, moduleName);
+        var moduleFolder = Path.Combine(host.ModulesFolder, moduleName);
         if (!Directory.Exists(moduleFolder))
         {
-            commandContext.Logger.Write(LogEventLevel.Fatal, "can't find the module folder: {Folder}", moduleFolder);
-            return ExecutionResult.ModuleLoadError;
+            host.Logger.Write(LogEventLevel.Fatal, "can't find the module folder: {Folder}", moduleFolder);
+            return ExecutionStatusCode.ModuleLoadError;
         }
 
         // read back actual folder name casing
         moduleFolder = Directory
-            .GetDirectories(commandContext.HostConfiguration.ModulesFolder, moduleName, SearchOption.TopDirectoryOnly)
+            .GetDirectories(host.ModulesFolder, moduleName, SearchOption.TopDirectoryOnly)
             .FirstOrDefault();
 
         moduleName = Path.GetFileName(moduleFolder);
@@ -30,12 +30,12 @@ internal static class ModuleLoader
         var useAppDomain = !forceCompilation && Debugger.IsAttached;
         if (useAppDomain)
         {
-            commandContext.Logger.Information("loading module directly from AppDomain where namespace ends with '{Module}'", moduleName);
+            host.Logger.Information("loading module directly from AppDomain where namespace ends with '{Module}'", moduleName);
             var appDomainTasks = FindTypesFromAppDomain<IEtlTask>(moduleName);
             var startup = LoadInstancesFromAppDomain<IStartup>(moduleName).FirstOrDefault();
             var instanceConfigurationProviders = LoadInstancesFromAppDomain<IInstanceArgumentProvider>(moduleName);
             var defaultConfigurationProviders = LoadInstancesFromAppDomain<IDefaultArgumentProvider>(moduleName);
-            commandContext.Logger.Debug("finished in {Elapsed}", startedOn.Elapsed);
+            host.Logger.Debug("finished in {Elapsed}", startedOn.Elapsed);
 
             module = new CompiledModule()
             {
@@ -48,31 +48,33 @@ internal static class ModuleLoader
                 LoadContext = null,
             };
 
-            commandContext.Logger.Debug("{FlowCount} flows(s) found: {Task}",
+            host.Logger.Debug("{FlowCount} flows(s) found: {Task}",
                 module.TaskTypes.Count(x => x.IsAssignableTo(typeof(AbstractEtlFlow))), module.TaskTypes.Where(x => x.IsAssignableTo(typeof(AbstractEtlFlow))).Select(task => task.Name).ToArray());
 
-            commandContext.Logger.Debug("{TaskCount} task(s) found: {Task}",
+            host.Logger.Debug("{TaskCount} task(s) found: {Task}",
                 module.TaskTypes.Count(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))), module.TaskTypes.Where(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))).Select(task => task.Name).ToArray());
 
-            return ExecutionResult.Success;
+            return ExecutionStatusCode.Success;
         }
 
-        commandContext.Logger.Information("compiling module from {Folder}", PathHelpers.GetFriendlyPathName(moduleFolder));
+        host.Logger.Information("compiling module from {Folder}", PathHelpers.GetFriendlyPathName(moduleFolder));
         var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-        var referenceAssemblyFolder = commandContext.HostConfiguration.CustomReferenceAssemblyFolder;
-        if (string.IsNullOrEmpty(referenceAssemblyFolder))
+        var referenceDllFileNames = new List<string>();
+        foreach (var referenceAssemblyFolder in host.ReferenceAssemblyFolders)
         {
-            referenceAssemblyFolder = Directory.GetDirectories(@"c:\Program Files\dotnet\shared\Microsoft.NETCore.App\", "6.*")
+            var folder = Directory.GetDirectories(referenceAssemblyFolder, "6.*")
                 .OrderByDescending(x => new DirectoryInfo(x).CreationTime)
                 .FirstOrDefault();
+
+            host.Logger.Information("using assemblies from {ReferenceAssemblyFolder}", folder);
+
+            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "System*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "Microsoft.AspNetCore*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "Microsoft.Extensions*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "Microsoft.Net*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "netstandard.dll", SearchOption.TopDirectoryOnly));
         }
-
-        commandContext.Logger.Information("using assemblies from {ReferenceAssemblyFolder}", referenceAssemblyFolder);
-
-        var referenceDllFileNames = new List<string>();
-        referenceDllFileNames.AddRange(Directory.GetFiles(referenceAssemblyFolder, "System*.dll", SearchOption.TopDirectoryOnly));
-        referenceDllFileNames.AddRange(Directory.GetFiles(referenceAssemblyFolder, "netstandard.dll", SearchOption.TopDirectoryOnly));
 
         var referenceFileNames = new List<string>();
         referenceFileNames.AddRange(referenceDllFileNames.Where(x => !Path.GetFileNameWithoutExtension(x).EndsWith("Native", StringComparison.InvariantCultureIgnoreCase)));
@@ -88,7 +90,7 @@ internal static class ModuleLoader
             .ToArray();
 
         var csFileNames = Directory.GetFiles(moduleFolder, "*.cs", SearchOption.AllDirectories).ToList();
-        var globalCsFileName = Path.Combine(commandContext.HostConfiguration.ModulesFolder, "Global.cs");
+        var globalCsFileName = Path.Combine(host.ModulesFolder, "Global.cs");
         if (File.Exists(globalCsFileName))
             csFileNames.Add(globalCsFileName);
 
@@ -112,10 +114,10 @@ internal static class ModuleLoader
                 var failures = result.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
                 foreach (var error in failures)
                 {
-                    commandContext.Logger.Write(LogEventLevel.Fatal, "syntax error in module: {ErrorMessage}", error.ToString());
+                    host.Logger.Write(LogEventLevel.Fatal, "syntax error in module: {ErrorMessage}", error.ToString());
                 }
 
-                return ExecutionResult.ModuleLoadError;
+                return ExecutionStatusCode.ModuleLoadError;
             }
 
             assemblyStream.Seek(0, SeekOrigin.Begin);
@@ -127,7 +129,7 @@ internal static class ModuleLoader
             var compiledStartup = LoadInstancesFromAssembly<IStartup>(assembly).FirstOrDefault();
             var instanceConfigurationProviders = LoadInstancesFromAppDomain<IInstanceArgumentProvider>(moduleName);
             var defaultConfigurationProviders = LoadInstancesFromAppDomain<IDefaultArgumentProvider>(moduleName);
-            commandContext.Logger.Debug("compilation finished in {Elapsed}", startedOn.Elapsed);
+            host.Logger.Debug("compilation finished in {Elapsed}", startedOn.Elapsed);
 
             module = new CompiledModule()
             {
@@ -140,19 +142,19 @@ internal static class ModuleLoader
                 LoadContext = assemblyLoadContext,
             };
 
-            commandContext.Logger.Debug("{FlowCount} flows(s) found: {Task}",
+            host.Logger.Debug("{FlowCount} flows(s) found: {Task}",
                 module.TaskTypes.Count(x => x.IsAssignableTo(typeof(AbstractEtlFlow))), module.TaskTypes.Where(x => x.IsAssignableTo(typeof(AbstractEtlFlow))).Select(task => task.Name).ToArray());
 
-            commandContext.Logger.Debug("{TaskCount} task(s) found: {Task}",
+            host.Logger.Debug("{TaskCount} task(s) found: {Task}",
                 module.TaskTypes.Count(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))), module.TaskTypes.Where(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))).Select(task => task.Name).ToArray());
 
-            return ExecutionResult.Success;
+            return ExecutionStatusCode.Success;
         }
     }
 
-    public static void UnloadModule(CommandContext commandContext, CompiledModule module)
+    public static void UnloadModule(Host host, CompiledModule module)
     {
-        commandContext.Logger.Debug("unloading module {Module}", module.Name);
+        host.Logger.Debug("unloading module {Module}", module.Name);
 
         module.TaskTypes.Clear();
 

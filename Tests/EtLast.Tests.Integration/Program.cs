@@ -1,14 +1,19 @@
-﻿AppDomain.MonitoringIsEnabled = true;
+﻿using FizzCode.EtLast.ConsoleHost;
 
-var result = FizzCode.EtLast.ConsoleHost.CommandLineHandler.Run("EtLast Integration Tests", args);
-
-#if DEBUG
-if (args?.Length > 0 && Debugger.IsAttached)
-{
-    Console.WriteLine();
-    Console.WriteLine("done, press any key to continue");
-    Console.ReadKey();
-}
-#endif
-
-return (int)result;
+return (int)HostBuilder.New("EtLast Integration Tests")
+    .HandleCommandLineArgs(args)
+    .UseCommandLineListener(new ConsoleCommandLineListener())
+    .SetAlias("do", "run DwhBuilderTests Main")
+    .SetAlias("doex1", "run DwhBuilderTests CustomExceptionTest")
+    .SetAlias("doex2", "run DwhBuilderTests ExceptionTest")
+    .SetAlias("createdb", "run DwhBuilderTests CreateDatabase")
+    .SetAlias("test", "test-modules DwhBuilderTests")
+    //.DisableSerilogForModules()
+    //.DisableSerilogForCommands()
+    /*.RegisterEtlContextListener(session => new FizzCode.EtLast.Diagnostics.HttpSender(session)
+    {
+        MaxCommunicationErrorCount = 2,
+        Url = "http://localhost:8642",
+    })*/
+    .Build()
+    .Run();

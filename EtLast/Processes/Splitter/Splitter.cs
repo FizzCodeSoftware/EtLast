@@ -25,7 +25,7 @@ public sealed class Splitter<TRowQueue> : AbstractEvaluable
     protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
     {
         StartQueueFeeder();
-        return _queue.GetConsumer(Context.CancellationTokenSource.Token);
+        return _queue.GetConsumer(Context.CancellationToken);
     }
 
     private void StartQueueFeeder()

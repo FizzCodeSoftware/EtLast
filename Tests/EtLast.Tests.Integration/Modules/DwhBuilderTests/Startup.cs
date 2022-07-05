@@ -2,9 +2,9 @@
 
 public class Startup : IStartup
 {
-    public Dictionary<string, Func<IEtlSessionArguments, IEtlTask>> Commands => new()
+    public Dictionary<string, Func<IEtlSessionArguments, IEtlTask>> CustomTasks => new()
     {
-        ["ExceptionTestCommand"] = args => new ExceptionTest()
+        ["CustomExceptionTest"] = args => new ExceptionTest()
         {
             ExceptionType = typeof(InvalidOperationException),
             Message = "oops something went wrong",
@@ -14,7 +14,7 @@ public class Startup : IStartup
     public void Configure(EnvironmentSettings settings)
     {
         DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", Microsoft.Data.SqlClient.SqlClientFactory.Instance);
-        settings.FileLogSettings.MinimumLogLevel = LogSeverity.Warning;
-        settings.ConsoleLogSettings.MinimumLogLevel = LogSeverity.Verbose;
+        settings.FileLogSettings.MinimumLogLevel = LogSeverity.Information;
+        settings.ConsoleLogSettings.MinimumLogLevel = LogSeverity.Information;
     }
 }

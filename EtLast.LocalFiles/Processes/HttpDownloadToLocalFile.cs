@@ -27,7 +27,7 @@ public sealed class HttpDownloadToLocalFile : AbstractExecutable
             var iocUid = 0;
             try
             {
-                using (Context.CancellationTokenSource.Token.Register(clt.CancelPendingRequests))
+                using (Context.CancellationToken.Register(clt.CancelPendingRequests))
                 {
                     iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.httpGet, Url, null, null, null, null,
                         "downloading file from {Url} to local file {FileName}",

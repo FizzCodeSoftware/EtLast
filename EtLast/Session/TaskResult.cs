@@ -1,7 +1,13 @@
 ﻿namespace FizzCode.EtLast;
 
-public class TaskResult<T> : ProcessResult
+public class TaskWithResult<T> : ProcessResult
     where T : IEtlTask
 {
     public T Task { get; init; }
+
+    public TaskWithResult(ProcessResult result, T task)
+    {
+        Task = task;
+        Exceptions.AddRange(result.Exceptions);
+    }
 }

@@ -20,7 +20,7 @@ public abstract class AbstractMutator : AbstractEvaluable, IMutator
         }
         catch (Exception ex)
         {
-            Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
+            AddException(ProcessExecutionException.Wrap(this, ex));
             netTimeStopwatch.Stop();
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
             yield break;
@@ -35,7 +35,7 @@ public abstract class AbstractMutator : AbstractEvaluable, IMutator
         var mutatedRowCount = 0;
         var ignoredRowCount = 0;
 
-        while (!Context.CancellationTokenSource.IsCancellationRequested)
+        while (!Context.CancellationToken.IsCancellationRequested)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -64,7 +64,7 @@ public abstract class AbstractMutator : AbstractEvaluable, IMutator
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ProcessExecutionException.Wrap(this, row, ex));
                     break;
                 }
 
@@ -86,7 +86,7 @@ public abstract class AbstractMutator : AbstractEvaluable, IMutator
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ProcessExecutionException.Wrap(this, row, ex));
                     break;
                 }
 
@@ -112,7 +112,7 @@ public abstract class AbstractMutator : AbstractEvaluable, IMutator
 
                     if (mutatedRow.CurrentProcess != this)
                     {
-                        Context.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
+                        AddException(new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
                         break;
                     }
 
@@ -121,7 +121,7 @@ public abstract class AbstractMutator : AbstractEvaluable, IMutator
             }
             catch (Exception ex)
             {
-                Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                AddException(ProcessExecutionException.Wrap(this, row, ex));
                 break;
             }
 
@@ -147,7 +147,7 @@ public abstract class AbstractMutator : AbstractEvaluable, IMutator
         }
         catch (Exception ex)
         {
-            Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
+            AddException(ProcessExecutionException.Wrap(this, ex));
             netTimeStopwatch.Stop();
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
             yield break;

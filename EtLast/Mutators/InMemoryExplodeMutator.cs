@@ -40,7 +40,7 @@ public sealed class InMemoryExplodeMutator : AbstractEvaluable, IMutator
 
         var ignoredRowCount = 0;
         var rows = new List<IReadOnlySlimRow>();
-        while (!Context.CancellationTokenSource.IsCancellationRequested)
+        while (!Context.CancellationToken.IsCancellationRequested)
         {
             netTimeStopwatch.Stop();
             var finished = !sourceEnumerator.MoveNext();
@@ -67,7 +67,7 @@ public sealed class InMemoryExplodeMutator : AbstractEvaluable, IMutator
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ProcessExecutionException.Wrap(this, row, ex));
                     break;
                 }
 
@@ -89,7 +89,7 @@ public sealed class InMemoryExplodeMutator : AbstractEvaluable, IMutator
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ProcessExecutionException.Wrap(this, row, ex));
                     break;
                 }
 
@@ -124,7 +124,7 @@ public sealed class InMemoryExplodeMutator : AbstractEvaluable, IMutator
             resultCount += rows.Count;
         }
 
-        while (!Context.CancellationTokenSource.IsCancellationRequested)
+        while (!Context.CancellationToken.IsCancellationRequested)
         {
             ISlimRow newRow;
             try
@@ -136,7 +136,7 @@ public sealed class InMemoryExplodeMutator : AbstractEvaluable, IMutator
             }
             catch (Exception ex)
             {
-                Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
+                AddException(ProcessExecutionException.Wrap(this, ex));
                 break;
             }
 

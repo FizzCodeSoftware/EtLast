@@ -37,7 +37,7 @@ public abstract class AbstractRowSource : AbstractEvaluable, IRowSource
         var enumerator = Produce().GetEnumerator();
         netTimeStopwatch.Start();
 
-        while (!Context.CancellationTokenSource.IsCancellationRequested)
+        while (!Context.CancellationToken.IsCancellationRequested)
         {
             IRow row;
             try
@@ -52,7 +52,7 @@ public abstract class AbstractRowSource : AbstractEvaluable, IRowSource
             }
             catch (Exception ex)
             {
-                Context.AddException(this, ProcessExecutionException.Wrap(this, ex));
+                AddException(ProcessExecutionException.Wrap(this, ex));
                 break;
             }
 

@@ -40,8 +40,9 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 
             ValidateParameters();
 
+            var result = new ProcessResult();
+
             Context.Listeners.Add(_ioCommandCounterCollection);
-            var exceptionCount = 0;
             try
             {
                 var executables = CreateProcesses()?
@@ -57,9 +58,12 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 
                         executable.Execute(this);
 
-                        exceptionCount = Context.ExceptionCount - originalExceptionCount;
-                        if (exceptionCount > 0)
+                        var newExceptions = Context.GetExceptions().Skip(originalExceptionCount).ToList();
+                        if (newExceptions.Count > 0)
+                        {
+                            result.Exceptions.AddRange(newExceptions);
                             break;
+                        }
                     }
                 }
             }
@@ -68,15 +72,10 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
                 Session.Context.Listeners.Remove(_ioCommandCounterCollection);
             }
 
-            var result = new ProcessResult()
-            {
-                ExceptionCount = exceptionCount,
-            };
-
             _statistics.Finish();
 
             Context.Log(LogSeverity.Information, this, "task {TaskResult} in {Elapsed}",
-                (result.ExceptionCount == 0) ? "finished" : "failed", _statistics.RunTime);
+                (result.Exceptions.Count == 0) ? "finished" : "failed", _statistics.RunTime);
 
             LogPrivateSettableProperties(LogSeverity.Debug);
 

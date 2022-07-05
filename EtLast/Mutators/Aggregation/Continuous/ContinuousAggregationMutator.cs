@@ -50,7 +50,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
 
         var rowCount = 0;
         var ignoredRowCount = 0;
-        while (!Context.CancellationTokenSource.IsCancellationRequested)
+        while (!Context.CancellationToken.IsCancellationRequested)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -77,7 +77,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ProcessExecutionException.Wrap(this, row, ex));
                     break;
                 }
 
@@ -99,7 +99,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
                 }
                 catch (Exception ex)
                 {
-                    Context.AddException(this, ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ProcessExecutionException.Wrap(this, row, ex));
                     break;
                 }
 
@@ -160,7 +160,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
             catch (Exception ex)
             {
                 var exception = new ContinuousAggregationException(this, Operation, row, ex);
-                Context.AddException(this, exception);
+                AddException(exception);
                 break;
             }
 
@@ -176,7 +176,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
 
             foreach (var aggregate in aggregates.Values)
             {
-                if (Context.CancellationTokenSource.IsCancellationRequested)
+                if (Context.CancellationToken.IsCancellationRequested)
                     break;
 
                 var row = Context.CreateRow(this, aggregate.ResultRow);

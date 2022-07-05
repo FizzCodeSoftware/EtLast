@@ -38,7 +38,7 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
             if (stream == null)
                 yield break;
 
-            if (Context.CancellationTokenSource.IsCancellationRequested)
+            if (Context.CancellationToken.IsCancellationRequested)
                 break;
 
             ExcelPackage package;
@@ -75,7 +75,7 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
             {
                 foreach (var worksheet in workbook.Worksheets)
                 {
-                    if (Context.CancellationTokenSource.IsCancellationRequested)
+                    if (Context.CancellationToken.IsCancellationRequested)
                         yield break;
 
                     var initialValues = new Dictionary<string, object>

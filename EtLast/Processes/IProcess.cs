@@ -3,12 +3,12 @@
 public interface IProcess
 {
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    ProcessInvocationInfo InvocationInfo { get; set; }
+    public ProcessInvocationInfo InvocationInfo { get; set; }
 
-    IEtlContext Context { get; }
-    string Name { get; }
+    public IEtlContext Context { get; }
+    public List<Exception> Exceptions { get; }
 
-    string Kind { get; }
-
-    string GetTopic();
+    public string Name { get; }
+    public string Kind { get; }
+    public string GetTopic();
 }
