@@ -12,6 +12,11 @@ public sealed class AdoNetDbReader : AbstractAdoNetDbReader
     {
     }
 
+    protected override CommandType GetCommandType()
+    {
+        return CommandType.Text;
+    }
+
     public override string GetTopic()
     {
         return TableName != null
@@ -32,7 +37,7 @@ public sealed class AdoNetDbReader : AbstractAdoNetDbReader
         var columnList = "*";
         if (Columns?.Count > 0)
         {
-            columnList = string.Join(", ", Columns.Select(x => ConnectionString.Escape(x.Key)));
+            columnList = string.Join(", ", Columns.Select(x => ConnectionString.Escape(x.Value.SourceColumn ?? x.Key)));
         }
 
         var prefix = "";

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class EpPlusExcelSheetListReader : AbstractRowSource, IRowSource
+public sealed class EpPlusExcelSheetListReader : AbstractRowSource
 {
     public IStreamProvider StreamProvider { get; init; }
 

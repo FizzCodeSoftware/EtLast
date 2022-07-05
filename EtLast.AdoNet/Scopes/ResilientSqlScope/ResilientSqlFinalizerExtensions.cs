@@ -127,6 +127,16 @@ public static class ResilientSqlFinalizerExtensions
         });
     }
 
+    public static ResilientSqlScopeProcessBuilder CustomAction(this ResilientSqlScopeProcessBuilder builder, Action<CustomAction> action)
+    {
+        builder.Processes.Add(new CustomAction(builder.Scope.Context)
+        {
+            Action = action,
+        });
+
+        return builder;
+    }
+
     public static ResilientSqlScopeProcessBuilder MsSqlDisableForeignKeys(this ResilientSqlScopeProcessBuilder builder)
     {
         if (builder.Scope.Tables.Count > 1)
