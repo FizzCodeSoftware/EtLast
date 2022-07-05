@@ -30,7 +30,9 @@ public class CreateDatabase : AbstractEtlTask
 
                 proc.Context.Log(LogSeverity.Information, proc, "opening connection to {DatabaseName}", "master");
                 using var connection = DbProviderFactories.GetFactory(ConnectionString.ProviderName).CreateConnection();
-                connection.ConnectionString = "Data Source=(local);Initial Catalog=\"master\";Integrated Security=SSPI;Connection Timeout=5;Encrypt=False";
+                // TODO connectionString should not be provided here
+                // TODO why not use DbTools.ReCreateDatabase?
+                connection.ConnectionString = "Data Source=(local)\\SQL2017;Initial Catalog=\"master\";Integrated Security=SSPI;Connection Timeout=5;Encrypt=False";
                 connection.Open();
 
                 proc.Context.Log(LogSeverity.Information, proc, "dropping {DatabaseName}", DatabaseName);

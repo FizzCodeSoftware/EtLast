@@ -3,7 +3,7 @@
 public delegate void ConnectionCreatorDelegate(AbstractAdoNetDbReader process, out DatabaseConnection connection, out IDbTransaction transaction);
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractAdoNetDbReader : AbstractRowSource, IRowSource
+public abstract class AbstractAdoNetDbReader : AbstractRowSource
 {
     public NamedConnectionString ConnectionString { get; init; }
 
@@ -34,6 +34,8 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource, IRowSource
     /// Default value is true.
     /// </summary>
     public bool InlineArrayParameters { get; init; } = true;
+
+    protected abstract CommandType GetCommandType();
 
     protected AbstractAdoNetDbReader(IEtlContext context)
         : base(context)
@@ -78,6 +80,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource, IRowSource
             cmd = connection.Connection.CreateCommand();
             cmd.CommandTimeout = CommandTimeout;
             cmd.CommandText = sqlStatementProcessed;
+            cmd.CommandType = GetCommandType();
             cmd.Transaction = transaction;
             cmd.FillCommandParameters(Parameters);
 
