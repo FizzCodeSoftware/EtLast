@@ -10,6 +10,8 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+Tests/EtLast.Tests.Integration/Modules/**/Arguments/Instance/*.cs
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
