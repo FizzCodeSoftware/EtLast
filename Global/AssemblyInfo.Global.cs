@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("FizzCode Ltd.")]
 [assembly: AssemblyProduct("EtLast ETL (Extract, Transform and Load) library for .Net")]
-[assembly: AssemblyCopyright("Copyright © 2019-2021 FizzCode Ltd.")]
+[assembly: AssemblyCopyright("Copyright © 2019-2022 FizzCode Ltd.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]

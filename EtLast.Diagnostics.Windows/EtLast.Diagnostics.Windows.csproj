@@ -8,7 +8,7 @@
     <Authors>FizzCode Ltd.</Authors>
     <Company>FizzCode Ltd.</Company>
     <Product>EtLast ETL (Extract, Transform and Load) library for .NET</Product>
-    <Copyright>Copyright © 2019-2021 FizzCode Ltd.</Copyright>
+    <Copyright>Copyright © 2019-2022 FizzCode Ltd.</Copyright>
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Description>Diagnostics UI for EtLast ETL (Extract, Transform and Load)</Description>
     <AssemblyName>FizzCode.EtLast.Diagnostics.Windows</AssemblyName>
