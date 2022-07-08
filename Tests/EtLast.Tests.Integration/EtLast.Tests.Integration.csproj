@@ -46,7 +46,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Modules\DwhBuilderTests\Global.cs">
+    <Compile Update="Modules\Global.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Update="Modules\DwhBuilderTests\Arguments\DevWSDEVONE.cs">
