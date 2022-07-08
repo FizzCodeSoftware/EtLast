@@ -7,6 +7,7 @@ public interface IEtlContext
     public int WarningCount { get; }
     public AdditionalData AdditionalData { get; }
 
+    public string Uid { get; }
     public DateTimeOffset CreatedOnUtc { get; }
     public DateTimeOffset CreatedOnLocal { get; }
 

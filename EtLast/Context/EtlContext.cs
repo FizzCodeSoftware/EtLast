@@ -37,6 +37,7 @@ public sealed class EtlContext : IEtlContext
 
         AdditionalData = new AdditionalData();
 
+        Uid = Guid.NewGuid().ToString("D");
         CreatedOnLocal = DateTimeOffset.Now;
         CreatedOnUtc = CreatedOnLocal.ToUniversalTime();
     }
