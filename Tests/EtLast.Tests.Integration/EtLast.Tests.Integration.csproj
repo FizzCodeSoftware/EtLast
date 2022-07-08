@@ -49,16 +49,7 @@
     <Compile Update="Modules\Global.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Modules\DwhBuilderTests\Arguments\DevWSDEVONE.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
     <Compile Update="Modules\DwhBuilderTests\Arguments\Default.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
-    <Compile Update="Modules\DwhBuilderTests\Arguments\Production.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
-    <Compile Update="Modules\DwhBuilderTests\Arguments\DevWSDEVTWO.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Update="Modules\DwhBuilderTests\Flows\ExceptionTest.cs">

@@ -1,10 +1,13 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests;
 
 /// <summary>
-/// Normally this file does not exists in the source code repository, only on the production environment(s).
+/// If the <see cref="IInstanceArgumentProvider.Instance"/> name matches to the execution environment's name then
+/// the values found in them will override the values found in <see cref="IDefaultArgumentProvider"/> implementations.
 /// </summary>
-internal class Production : IDefaultArgumentProvider
+internal class ExampleInstanceArgumentProviderForMachine1 : IInstanceArgumentProvider
 {
+    public string Instance => "MACHINE1";
+
     public Dictionary<string, object> Arguments => new()
     {
         ["ConnectionString"] = () => new NamedConnectionString("test", "Microsoft.Data.SqlClient", "Data Source=(local);Initial Catalog=\"EtLastIntegrationTest\";Integrated Security=SSPI;Connection Timeout=5;Encrypt=False", "2016"),
