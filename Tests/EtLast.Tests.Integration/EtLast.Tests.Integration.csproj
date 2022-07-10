@@ -52,6 +52,9 @@
     <Compile Update="Modules\AdoNetTests\Startup.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Update="Modules\AdoNetTests\Tasks\DropDatabase.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
     <Compile Update="Modules\AdoNetTests\Tasks\CreateDatabase.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
