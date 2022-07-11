@@ -1,6 +1,4 @@
-﻿using FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests.Tasks;
-
-namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
+﻿namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
 [TestClass]
 public class Tests
