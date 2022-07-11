@@ -31,6 +31,9 @@ internal static class ModuleLoader
         if (useAppDomain)
         {
             host.HostLogger.Information("loading module directly from AppDomain where namespace ends with '{Module}'", moduleName);
+
+            ForceLoadLocalDllsToAppDomain();
+
             var appDomainTasks = FindTypesFromAppDomain<IEtlTask>(moduleName);
             var startup = LoadInstancesFromAppDomain<IStartup>(moduleName).FirstOrDefault();
             var instanceConfigurationProviders = LoadInstancesFromAppDomain<IInstanceArgumentProvider>(moduleName);
@@ -58,34 +61,8 @@ internal static class ModuleLoader
         }
 
         host.HostLogger.Information("compiling module from {Folder}", PathHelpers.GetFriendlyPathName(moduleFolder));
-        var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-        var referenceDllFileNames = new List<string>();
-        foreach (var referenceAssemblyFolder in host.ReferenceAssemblyFolders)
-        {
-            var folder = Directory.GetDirectories(referenceAssemblyFolder, "6.*")
-                .OrderByDescending(x => new DirectoryInfo(x).CreationTime)
-                .FirstOrDefault();
-
-            host.HostLogger.Information("using assemblies from {ReferenceAssemblyFolder}", folder);
-
-            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "System*.dll", SearchOption.TopDirectoryOnly));
-            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "Microsoft.AspNetCore*.dll", SearchOption.TopDirectoryOnly));
-            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "Microsoft.Extensions*.dll", SearchOption.TopDirectoryOnly));
-            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "Microsoft.Net*.dll", SearchOption.TopDirectoryOnly));
-            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "netstandard.dll", SearchOption.TopDirectoryOnly));
-        }
-
-        var referenceFileNames = new List<string>();
-        referenceFileNames.AddRange(referenceDllFileNames.Where(x => !Path.GetFileNameWithoutExtension(x).EndsWith("Native", StringComparison.InvariantCultureIgnoreCase)));
-
-        var localDllFileNames = Directory.GetFiles(selfFolder, "*.dll", SearchOption.TopDirectoryOnly)
-            .Where(x => Path.GetFileName(x) != "FizzCode.EtLast.ConsoleHost.dll"
-                && !Path.GetFileName(x).Equals("testhost.dll", StringComparison.InvariantCultureIgnoreCase));
-        referenceFileNames.AddRange(localDllFileNames);
-
-        var metadataReferences = referenceFileNames
-            .Distinct()
+        var metadataReferences = host.GetReferenceAssemblyFileNames()
             .Select(fn => MetadataReference.CreateFromFile(fn))
             .ToArray();
 
@@ -127,8 +104,8 @@ internal static class ModuleLoader
 
             var compiledTasks = FindTypesFromAssembly<IEtlTask>(assembly);
             var compiledStartup = LoadInstancesFromAssembly<IStartup>(assembly).FirstOrDefault();
-            var instanceConfigurationProviders = LoadInstancesFromAppDomain<IInstanceArgumentProvider>(moduleName);
-            var defaultConfigurationProviders = LoadInstancesFromAppDomain<IDefaultArgumentProvider>(moduleName);
+            var instanceConfigurationProviders = LoadInstancesFromAssembly<IInstanceArgumentProvider>(assembly);
+            var defaultConfigurationProviders = LoadInstancesFromAssembly<IDefaultArgumentProvider>(assembly);
             host.HostLogger.Debug("compilation finished in {Elapsed}", startedOn.Elapsed);
 
             module = new CompiledModule()
@@ -149,6 +126,42 @@ internal static class ModuleLoader
                 module.TaskTypes.Count(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))), module.TaskTypes.Where(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))).Select(task => task.Name).ToArray());
 
             return ExecutionStatusCode.Success;
+        }
+    }
+
+    private static void ForceLoadLocalDllsToAppDomain()
+    {
+        var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        var localDllFileNames = Directory.GetFiles(selfFolder, "*.dll", SearchOption.TopDirectoryOnly)
+            .Where(x =>
+            {
+                var fn = Path.GetFileName(x);
+                if (fn.Equals("testhost.dll", StringComparison.InvariantCultureIgnoreCase))
+                    return false;
+
+                if (fn.StartsWith("Microsoft", StringComparison.InvariantCultureIgnoreCase))
+                    return false;
+
+                if (fn.StartsWith("System", StringComparison.InvariantCultureIgnoreCase))
+                    return false;
+
+                return true;
+            });
+
+        foreach (var fn in localDllFileNames)
+        {
+            var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+            if (!loadedAssemblies.Any(x => string.Equals(fn, x.Location, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                Debug.WriteLine("loading " + fn);
+                try
+                {
+                    Assembly.LoadFile(fn);
+                }
+                catch (Exception)
+                {
+                }
+            }
         }
     }
 

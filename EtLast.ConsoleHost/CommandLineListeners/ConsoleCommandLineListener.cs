@@ -7,7 +7,6 @@ public class ConsoleCommandLineListener : ICommandLineListener
         Console.WriteLine("listening on console");
         while (!host.CancellationToken.IsCancellationRequested)
         {
-            Console.Write("> ");
             var commandLine = Console.ReadLine();
             if (string.IsNullOrEmpty(commandLine))
                 continue;

@@ -6,13 +6,13 @@ public sealed class EtlSession : IEtlSession
 {
     public string Id { get; }
     public IEtlContext Context { get; }
-    private readonly EtlSessionArguments _arguments;
+    private readonly ArgumentCollection _arguments;
 
     public bool Success { get; private set; }
 
     private readonly List<IEtlService> _services = new();
 
-    public EtlSession(string id, EtlSessionArguments arguments)
+    public EtlSession(string id, ArgumentCollection arguments)
     {
         Id = id;
         Context = new EtlContext();
@@ -98,7 +98,7 @@ public sealed class EtlSession : IEtlSession
                     value = func.Invoke();
                 }
 
-                if (value is Func<IEtlSessionArguments, object> funcWithArgs)
+                if (value is Func<IArgumentCollection, object> funcWithArgs)
                 {
                     value = funcWithArgs.Invoke(_arguments);
                 }

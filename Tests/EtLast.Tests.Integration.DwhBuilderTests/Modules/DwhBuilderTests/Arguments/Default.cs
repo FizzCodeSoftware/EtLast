@@ -7,7 +7,7 @@ internal class Default : IDefaultArgumentProvider
         ["DatabaseName"] = "EtLastIntegrationTest",
         ["CreateDatabase:Definition"] = () => new TestDwhDefinition(),
         ["ExceptionTest:ExceptionType"] = typeof(Exception),
-        ["ExceptionTest:Message"] = (IEtlSessionArguments args) =>
+        ["ExceptionTest:Message"] = (IArgumentCollection args) =>
             "oops something went wrong while trowing fake exceptions while processing the database called ["
             + args.Get<string>("DatabaseName")
             + "]",

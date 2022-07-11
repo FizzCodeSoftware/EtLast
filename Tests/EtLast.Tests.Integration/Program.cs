@@ -1,8 +1,20 @@
-﻿using FizzCode.EtLast.ConsoleHost;
+﻿using System;
+using FizzCode.EtLast.ConsoleHost;
 
 return (int)HostBuilder.New("EtLast Integration Tests")
     .HandleCommandLineArgs(args)
-    .UseCommandLineListener(new ConsoleCommandLineListener())
+    .UseCommandLineListener(hostArgs =>
+    {
+        Console.WriteLine("automatically compiled host argument values");
+        foreach (var kvp in hostArgs.All)
+        {
+            var v = hostArgs.Get<string>(kvp.Key);
+            if (v != null)
+                Console.WriteLine("[" + kvp.Key + "] = [" + v + "]");
+        }
+
+        return new ConsoleCommandLineListener();
+    })
     .SetAlias("do", "run DwhBuilderTests Main")
     .SetAlias("doex1", "run DwhBuilderTests CustomExceptionTest")
     .SetAlias("doex2", "run DwhBuilderTests ExceptionTest")

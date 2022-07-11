@@ -30,8 +30,21 @@ public class Host : IHost
         }
     }
 
+    private string _hostArgumentsFolder;
+    public string HostArgumentsFolder
+    {
+        get => _hostArgumentsFolder; set
+        {
+            _hostArgumentsFolder = value;
+            if (_hostArgumentsFolder.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))
+            {
+                _hostArgumentsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), _hostArgumentsFolder[2..]);
+            }
+        }
+    }
+
     public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-    public List<ICommandLineListener> CommandLineListeners { get; } = new List<ICommandLineListener>();
+    public List<Func<ArgumentCollection, ICommandLineListener>> CommandLineListenerCreators { get; } = new List<Func<ArgumentCollection, ICommandLineListener>>();
     public List<Func<IEtlSession, IEtlContextListener>> EtlContextListeners { get; } = new List<Func<IEtlSession, IEtlContextListener>>();
     public string[] CommandLineArgs { get; set; }
 
@@ -40,7 +53,8 @@ public class Host : IHost
     internal Host(string programName)
     {
         ProgramName = programName;
-        ModulesFolder = @".\modules";
+        ModulesFolder = @".\Modules";
+        HostArgumentsFolder = @".\HostArguments";
         ReferenceAssemblyFolders.Add(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\");
         ReferenceAssemblyFolders.Add(@"C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\");
     }
@@ -97,9 +111,27 @@ public class Host : IHost
         DisplayHelp();
         ModuleLister.ListModules(this);
 
-        var threads = new List<Thread>();
-        foreach (var listener in CommandLineListeners)
+        ArgumentCollection hostArguments = null;
+        try
         {
+            hostArguments = HostArgumentsLoader.LoadHostArguments(this);
+            if (hostArguments == null)
+            {
+                HostLogger.Write(LogEventLevel.Fatal, "unexpected exception while compiling host arguments");
+                return ExecutionStatusCode.HostArgumentError;
+            }
+        }
+        catch (Exception ex)
+        {
+            HostLogger.Write(LogEventLevel.Fatal, ex, "unexpected exception while compiling host arguments");
+            return ExecutionStatusCode.HostArgumentError;
+        }
+
+        var threads = new List<Thread>();
+        foreach (var creator in CommandLineListenerCreators)
+        {
+            var listener = creator.Invoke(hostArguments);
+
             var thread = new Thread(() =>
             {
                 try
@@ -116,16 +148,12 @@ public class Host : IHost
             thread.Start();
         }
 
+        // todo: watch for the cancellation token, and if it triggered but a thread is not terminated after 5 seconds, force abort the thread
+
         foreach (var thread in threads)
             thread.Join();
 
         return ExecutionStatusCode.Success;
-    }
-
-    public Host UseCommandLineListener(ICommandLineListener listener)
-    {
-        CommandLineListeners.Add(listener);
-        return this;
     }
 
     public IExecutionResult RunCommandLine(string commandLine)
@@ -276,5 +304,35 @@ public class Host : IHost
 
             Console.WriteLine();
         }
+    }
+
+    public List<string> GetReferenceAssemblyFileNames()
+    {
+        var referenceDllFileNames = new List<string>();
+        foreach (var referenceAssemblyFolder in ReferenceAssemblyFolders)
+        {
+            var folder = Directory.GetDirectories(referenceAssemblyFolder, "6.*")
+                .OrderByDescending(x => new DirectoryInfo(x).CreationTime)
+                .FirstOrDefault();
+
+            HostLogger.Information("using assemblies from {ReferenceAssemblyFolder}", folder);
+
+            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "System*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "Microsoft.AspNetCore*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "Microsoft.Extensions*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "Microsoft.Net*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "netstandard.dll", SearchOption.TopDirectoryOnly));
+        }
+
+        var referenceFileNames = new List<string>();
+        referenceFileNames.AddRange(referenceDllFileNames.Where(x => !Path.GetFileNameWithoutExtension(x).EndsWith("Native", StringComparison.InvariantCultureIgnoreCase)));
+
+        var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        var localDllFileNames = Directory.GetFiles(selfFolder, "*.dll", SearchOption.TopDirectoryOnly)
+            .Where(x => Path.GetFileName(x) != "FizzCode.EtLast.ConsoleHost.dll"
+                && !Path.GetFileName(x).Equals("testhost.dll", StringComparison.InvariantCultureIgnoreCase));
+        referenceFileNames.AddRange(localDllFileNames);
+
+        return referenceFileNames.Distinct().ToList();
     }
 }

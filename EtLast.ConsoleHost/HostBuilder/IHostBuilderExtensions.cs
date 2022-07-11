@@ -8,9 +8,9 @@ public static class IHostBuilderExtensions
         return builder;
     }
 
-    public static IHostBuilder UseCommandLineListener(this IHostBuilder builder, ICommandLineListener listener)
+    public static IHostBuilder UseCommandLineListener(this IHostBuilder builder, Func<ArgumentCollection, ICommandLineListener> listener)
     {
-        builder.Result.CommandLineListeners.Add(listener);
+        builder.Result.CommandLineListenerCreators.Add(listener);
         return builder;
     }
 
@@ -29,6 +29,12 @@ public static class IHostBuilderExtensions
     public static IHostBuilder AddReferenceAssemblyFolder(this IHostBuilder builder, string path)
     {
         builder.Result.ReferenceAssemblyFolders.Add(path);
+        return builder;
+    }
+
+    public static IHostBuilder UseHostArgumentsFolder(this IHostBuilder builder, string path)
+    {
+        builder.Result.HostArgumentsFolder = path;
         return builder;
     }
 

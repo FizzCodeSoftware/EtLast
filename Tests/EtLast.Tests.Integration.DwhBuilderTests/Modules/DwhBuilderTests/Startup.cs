@@ -2,7 +2,7 @@
 
 public class Startup : IStartup
 {
-    public Dictionary<string, Func<IEtlSessionArguments, IEtlTask>> CustomTasks => new()
+    public Dictionary<string, Func<IArgumentCollection, IEtlTask>> CustomTasks => new()
     {
         ["CustomExceptionTest"] = args => new ExceptionTest()
         {

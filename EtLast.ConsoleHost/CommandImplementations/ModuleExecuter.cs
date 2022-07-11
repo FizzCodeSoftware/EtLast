@@ -10,11 +10,11 @@ internal static class ModuleExecuter
         };
 
         var instance = Environment.MachineName;
-        var arguments = GetArguments(module, instance);
+        var arguments = new ArgumentCollection(module.DefaultArgumentProviders, module.InstanceArgumentProviders, instance);
 
         var environmentSettings = new EnvironmentSettings();
         module.Startup.Configure(environmentSettings);
-        var customTasks = new Dictionary<string, Func<IEtlSessionArguments, IEtlTask>>(module.Startup.CustomTasks, StringComparer.InvariantCultureIgnoreCase);
+        var customTasks = new Dictionary<string, Func<IArgumentCollection, IEtlTask>>(module.Startup.CustomTasks, StringComparer.InvariantCultureIgnoreCase);
 
         var sessionId = "s" + DateTime.Now.ToString("yyMMdd-HHmmss-ff", CultureInfo.InvariantCulture);
         var session = new EtlSession(sessionId, arguments);
@@ -135,33 +135,6 @@ internal static class ModuleExecuter
         }
 
         return executionResult;
-    }
-
-    private static EtlSessionArguments GetArguments(CompiledModule module, string instance)
-    {
-        var argumentValues = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
-
-        foreach (var provider in module.DefaultArgumentProviders)
-        {
-            var values = provider.Arguments;
-            if (values != null)
-            {
-                foreach (var kvp in values)
-                    argumentValues[kvp.Key] = kvp.Value;
-            }
-        }
-
-        foreach (var provider in module.InstanceArgumentProviders.Where(x => string.Equals(x.Instance, instance, StringComparison.InvariantCultureIgnoreCase)))
-        {
-            var values = provider.Arguments;
-            if (values != null)
-            {
-                foreach (var kvp in values)
-                    argumentValues[kvp.Key] = kvp.Value;
-            }
-        }
-
-        return new EtlSessionArguments(argumentValues);
     }
 
     private static void LogTaskCounters(IEtlContext context, IEtlTask task)
