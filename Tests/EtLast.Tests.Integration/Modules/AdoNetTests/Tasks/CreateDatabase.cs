@@ -1,4 +1,5 @@
 ﻿#pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
+
 namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
 public class CreateDatabase : AbstractEtlTask

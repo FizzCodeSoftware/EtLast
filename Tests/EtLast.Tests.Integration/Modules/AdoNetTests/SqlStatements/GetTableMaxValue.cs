@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
-internal class GetTableMaxValue : AbstractEtlTask
+public class GetTableMaxValue : AbstractEtlTask
 {
     public NamedConnectionString ConnectionString { get; init; }
     public string DatabaseName { get; init; }
