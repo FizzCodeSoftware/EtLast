@@ -8,14 +8,14 @@ public class Host : IHost
     public string HostLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-host");
     public string DevLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-dev");
     public string OpsLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-ops");
-    public ILogger Logger { get; private set; }
+    public ILogger HostLogger { get; private set; }
 
     public string ProgramName { get; }
 
     public List<string> ReferenceAssemblyFolders { get; } = new List<string>();
 
     public bool SerilogForModulesEnabled { get; set; } = true;
-    public bool SerilogForCommandsEnabled { get; set; } = true;
+    public bool SerilogForHostEnabled { get; set; } = true;
 
     private string _modulesFolder;
     public string ModulesFolder
@@ -45,14 +45,14 @@ public class Host : IHost
         ReferenceAssemblyFolders.Add(@"C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\");
     }
 
-    private ILogger CreateLogger()
+    private ILogger CreateHostLogger()
     {
         var config = new LoggerConfiguration();
 
-        if (SerilogForCommandsEnabled)
+        if (SerilogForHostEnabled)
         {
             config = config
-                .WriteTo.File(Path.Combine(HostLogFolder, "commands-.txt"),
+                .WriteTo.File(Path.Combine(HostLogFolder, "host-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Debug,
                     retainedFileCountLimit: int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
@@ -70,18 +70,18 @@ public class Host : IHost
 
     public ExecutionStatusCode Run()
     {
-        Logger = CreateLogger();
+        HostLogger = CreateHostLogger();
 
         AppDomain.MonitoringIsEnabled = true;
         AppDomain.CurrentDomain.UnhandledException -= UnhandledExceptionHandler;
         AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
         Console.WriteLine();
-        Logger.Information("{ProgramName} {ProgramVersion} started on {EtLast} {EtLastVersion}", ProgramName, Assembly.GetEntryAssembly().GetName().Version.ToString(), "EtLast", typeof(IEtlContext).Assembly.GetName().Version.ToString());
+        HostLogger.Information("{ProgramName} {ProgramVersion} started on {EtLast} {EtLastVersion}", ProgramName, Assembly.GetEntryAssembly().GetName().Version.ToString(), "EtLast", typeof(IEtlContext).Assembly.GetName().Version.ToString());
 
         if (CommandLineArgs?.Length > 0)
         {
-            Logger.Debug("command line arguments: {CommandLineArguments}", CommandLineArgs);
+            HostLogger.Debug("command line arguments: {CommandLineArguments}", CommandLineArgs);
             var result = RunCommandLine(CommandLineArgs).Status;
 
             if (Debugger.IsAttached)
@@ -102,7 +102,14 @@ public class Host : IHost
         {
             var thread = new Thread(() =>
             {
-                listener.Listen(this);
+                try
+                {
+                    listener.Listen(this);
+                }
+                catch (Exception ex)
+                {
+                    HostLogger.Write(LogEventLevel.Fatal, ex, "unexpected exception happened in command line listener");
+                }
             });
 
             threads.Add(thread);
@@ -186,7 +193,7 @@ public class Host : IHost
         catch (Exception ex)
         {
             var formattedMessage = ex.FormatExceptionWithDetails();
-            Logger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
+            HostLogger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
 
             return new ExecutionResult(ExecutionStatusCode.UnexpectedError);
         }
@@ -197,17 +204,17 @@ public class Host : IHost
         var result = new ExecutionResult();
         foreach (var moduleName in moduleNames)
         {
-            Logger.Information("loading module {Module}", moduleName);
+            HostLogger.Information("loading module {Module}", moduleName);
 
             ModuleLoader.LoadModule(this, moduleName, true, out var module);
             if (module != null)
             {
                 ModuleLoader.UnloadModule(this, module);
-                Logger.Information("validation {ValidationResult} for {Module}", "PASSED", moduleName);
+                HostLogger.Information("validation {ValidationResult} for {Module}", "PASSED", moduleName);
             }
             else
             {
-                Logger.Information("validation {ValidationResult} for {Module}", "FAILED", moduleName);
+                HostLogger.Information("validation {ValidationResult} for {Module}", "FAILED", moduleName);
                 result.Status = ExecutionStatusCode.ModuleLoadError;
             }
         }
@@ -217,7 +224,7 @@ public class Host : IHost
 
     private IExecutionResult RunModule(string moduleName, List<string> taskNames)
     {
-        Logger.Information("loading module {Module}", moduleName);
+        HostLogger.Information("loading module {Module}", moduleName);
 
         var loadResult = ModuleLoader.LoadModule(this, moduleName, false, out var module);
         if (loadResult != ExecutionStatusCode.Success)
@@ -236,9 +243,9 @@ public class Host : IHost
 
         var formattedMessage = ex.FormatExceptionWithDetails();
 
-        if (Logger != null)
+        if (HostLogger != null)
         {
-            Logger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
+            HostLogger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
         }
         else
         {

@@ -52,7 +52,7 @@ public static class IHostBuilderExtensions
 
     public static IHostBuilder DisableSerilogForCommands(this IHostBuilder builder)
     {
-        builder.Result.SerilogForCommandsEnabled = false;
+        builder.Result.SerilogForHostEnabled = false;
         return builder;
     }
 }

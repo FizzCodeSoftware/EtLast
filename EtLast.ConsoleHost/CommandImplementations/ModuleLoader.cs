@@ -14,7 +14,7 @@ internal static class ModuleLoader
         var moduleFolder = Path.Combine(host.ModulesFolder, moduleName);
         if (!Directory.Exists(moduleFolder))
         {
-            host.Logger.Write(LogEventLevel.Fatal, "can't find the module folder: {Folder}", moduleFolder);
+            host.HostLogger.Write(LogEventLevel.Fatal, "can't find the module folder: {Folder}", moduleFolder);
             return ExecutionStatusCode.ModuleLoadError;
         }
 
@@ -30,12 +30,12 @@ internal static class ModuleLoader
         var useAppDomain = !forceCompilation && Debugger.IsAttached;
         if (useAppDomain)
         {
-            host.Logger.Information("loading module directly from AppDomain where namespace ends with '{Module}'", moduleName);
+            host.HostLogger.Information("loading module directly from AppDomain where namespace ends with '{Module}'", moduleName);
             var appDomainTasks = FindTypesFromAppDomain<IEtlTask>(moduleName);
             var startup = LoadInstancesFromAppDomain<IStartup>(moduleName).FirstOrDefault();
             var instanceConfigurationProviders = LoadInstancesFromAppDomain<IInstanceArgumentProvider>(moduleName);
             var defaultConfigurationProviders = LoadInstancesFromAppDomain<IDefaultArgumentProvider>(moduleName);
-            host.Logger.Debug("finished in {Elapsed}", startedOn.Elapsed);
+            host.HostLogger.Debug("finished in {Elapsed}", startedOn.Elapsed);
 
             module = new CompiledModule()
             {
@@ -48,16 +48,16 @@ internal static class ModuleLoader
                 LoadContext = null,
             };
 
-            host.Logger.Debug("{FlowCount} flows(s) found: {Task}",
+            host.HostLogger.Debug("{FlowCount} flows(s) found: {Task}",
                 module.TaskTypes.Count(x => x.IsAssignableTo(typeof(AbstractEtlFlow))), module.TaskTypes.Where(x => x.IsAssignableTo(typeof(AbstractEtlFlow))).Select(task => task.Name).ToArray());
 
-            host.Logger.Debug("{TaskCount} task(s) found: {Task}",
+            host.HostLogger.Debug("{TaskCount} task(s) found: {Task}",
                 module.TaskTypes.Count(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))), module.TaskTypes.Where(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))).Select(task => task.Name).ToArray());
 
             return ExecutionStatusCode.Success;
         }
 
-        host.Logger.Information("compiling module from {Folder}", PathHelpers.GetFriendlyPathName(moduleFolder));
+        host.HostLogger.Information("compiling module from {Folder}", PathHelpers.GetFriendlyPathName(moduleFolder));
         var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         var referenceDllFileNames = new List<string>();
@@ -67,7 +67,7 @@ internal static class ModuleLoader
                 .OrderByDescending(x => new DirectoryInfo(x).CreationTime)
                 .FirstOrDefault();
 
-            host.Logger.Information("using assemblies from {ReferenceAssemblyFolder}", folder);
+            host.HostLogger.Information("using assemblies from {ReferenceAssemblyFolder}", folder);
 
             referenceDllFileNames.AddRange(Directory.GetFiles(folder, "System*.dll", SearchOption.TopDirectoryOnly));
             referenceDllFileNames.AddRange(Directory.GetFiles(folder, "Microsoft.AspNetCore*.dll", SearchOption.TopDirectoryOnly));
@@ -114,7 +114,7 @@ internal static class ModuleLoader
                 var failures = result.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
                 foreach (var error in failures)
                 {
-                    host.Logger.Write(LogEventLevel.Fatal, "syntax error in module: {ErrorMessage}", error.ToString());
+                    host.HostLogger.Write(LogEventLevel.Fatal, "syntax error in module: {ErrorMessage}", error.ToString());
                 }
 
                 return ExecutionStatusCode.ModuleLoadError;
@@ -129,7 +129,7 @@ internal static class ModuleLoader
             var compiledStartup = LoadInstancesFromAssembly<IStartup>(assembly).FirstOrDefault();
             var instanceConfigurationProviders = LoadInstancesFromAppDomain<IInstanceArgumentProvider>(moduleName);
             var defaultConfigurationProviders = LoadInstancesFromAppDomain<IDefaultArgumentProvider>(moduleName);
-            host.Logger.Debug("compilation finished in {Elapsed}", startedOn.Elapsed);
+            host.HostLogger.Debug("compilation finished in {Elapsed}", startedOn.Elapsed);
 
             module = new CompiledModule()
             {
@@ -142,10 +142,10 @@ internal static class ModuleLoader
                 LoadContext = assemblyLoadContext,
             };
 
-            host.Logger.Debug("{FlowCount} flows(s) found: {Task}",
+            host.HostLogger.Debug("{FlowCount} flows(s) found: {Task}",
                 module.TaskTypes.Count(x => x.IsAssignableTo(typeof(AbstractEtlFlow))), module.TaskTypes.Where(x => x.IsAssignableTo(typeof(AbstractEtlFlow))).Select(task => task.Name).ToArray());
 
-            host.Logger.Debug("{TaskCount} task(s) found: {Task}",
+            host.HostLogger.Debug("{TaskCount} task(s) found: {Task}",
                 module.TaskTypes.Count(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))), module.TaskTypes.Where(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))).Select(task => task.Name).ToArray());
 
             return ExecutionStatusCode.Success;
@@ -154,7 +154,7 @@ internal static class ModuleLoader
 
     public static void UnloadModule(Host host, CompiledModule module)
     {
-        host.Logger.Debug("unloading module {Module}", module.Name);
+        host.HostLogger.Debug("unloading module {Module}", module.Name);
 
         module.TaskTypes.Clear();
 
