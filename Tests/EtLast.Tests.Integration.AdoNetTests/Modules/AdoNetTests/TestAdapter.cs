@@ -18,11 +18,15 @@ public class TestAdapter
         new TestAdapter(shouldAllowErrExitCode).RunImpl(arguments, shouldAllowErrExitCode, maxRunTimeMilliseconds);
     }
 
-    private void RunImpl(string arguments, bool shouldAllowErrExitCode = false, int maxRunTimeMilliseconds =10000)
+    private void RunImpl(string arguments, bool shouldAllowErrExitCode, int maxRunTimeMilliseconds)
     {
         using (var process = new Process())
         {
-            process.StartInfo.FileName = @"FizzCode.EtLast.Tests.Integration.exe";
+#if (DEBUG)
+            process.StartInfo.FileName = @"../../../../EtLast.Tests.Integration/bin/debug/net6.0/FizzCode.EtLast.Tests.Integration.exe";
+#else
+            process.StartInfo.FileName = @"../../../../EtLast.Tests.Integration/bin/release/net6.0/FizzCode.EtLast.Tests.Integration.exe";
+#endif
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.Arguments = arguments;
@@ -37,6 +41,8 @@ public class TestAdapter
             process.BeginOutputReadLine();
 
             process.WaitForExit(maxRunTimeMilliseconds);
+            if (!process.HasExited)
+                Assert.Inconclusive("Process did not finish in allowed maximum run time.");
         }
 
         void process_Exited(object sender, EventArgs e)

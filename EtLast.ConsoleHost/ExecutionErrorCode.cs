@@ -7,4 +7,5 @@ public enum ExecutionStatusCode
     ExecutionFailed = 201, // at least one task failed
     UnexpectedError = 666,
     CommandArgumentError = 1001,
+    HostArgumentError = 1002,
 }

@@ -8,14 +8,14 @@ public class Host : IHost
     public string HostLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-host");
     public string DevLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-dev");
     public string OpsLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-ops");
-    public ILogger Logger { get; private set; }
+    public ILogger HostLogger { get; private set; }
 
     public string ProgramName { get; }
 
     public List<string> ReferenceAssemblyFolders { get; } = new List<string>();
 
     public bool SerilogForModulesEnabled { get; set; } = true;
-    public bool SerilogForCommandsEnabled { get; set; } = true;
+    public bool SerilogForHostEnabled { get; set; } = true;
 
     private string _modulesFolder;
     public string ModulesFolder
@@ -30,8 +30,21 @@ public class Host : IHost
         }
     }
 
+    private string _hostArgumentsFolder;
+    public string HostArgumentsFolder
+    {
+        get => _hostArgumentsFolder; set
+        {
+            _hostArgumentsFolder = value;
+            if (_hostArgumentsFolder.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))
+            {
+                _hostArgumentsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), _hostArgumentsFolder[2..]);
+            }
+        }
+    }
+
     public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-    public List<ICommandLineListener> CommandLineListeners { get; } = new List<ICommandLineListener>();
+    public List<Func<ArgumentCollection, ICommandLineListener>> CommandLineListenerCreators { get; } = new List<Func<ArgumentCollection, ICommandLineListener>>();
     public List<Func<IEtlSession, IEtlContextListener>> EtlContextListeners { get; } = new List<Func<IEtlSession, IEtlContextListener>>();
     public string[] CommandLineArgs { get; set; }
 
@@ -40,19 +53,20 @@ public class Host : IHost
     internal Host(string programName)
     {
         ProgramName = programName;
-        ModulesFolder = @".\modules";
+        ModulesFolder = @".\Modules";
+        HostArgumentsFolder = @".\HostArguments";
         ReferenceAssemblyFolders.Add(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\");
         ReferenceAssemblyFolders.Add(@"C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\");
     }
 
-    private ILogger CreateLogger()
+    private ILogger CreateHostLogger()
     {
         var config = new LoggerConfiguration();
 
-        if (SerilogForCommandsEnabled)
+        if (SerilogForHostEnabled)
         {
             config = config
-                .WriteTo.File(Path.Combine(HostLogFolder, "commands-.txt"),
+                .WriteTo.File(Path.Combine(HostLogFolder, "host-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Debug,
                     retainedFileCountLimit: int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
@@ -70,18 +84,18 @@ public class Host : IHost
 
     public ExecutionStatusCode Run()
     {
-        Logger = CreateLogger();
+        HostLogger = CreateHostLogger();
 
         AppDomain.MonitoringIsEnabled = true;
         AppDomain.CurrentDomain.UnhandledException -= UnhandledExceptionHandler;
         AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
         Console.WriteLine();
-        Logger.Information("{ProgramName} {ProgramVersion} started on {EtLast} {EtLastVersion}", ProgramName, Assembly.GetEntryAssembly().GetName().Version.ToString(), "EtLast", typeof(IEtlContext).Assembly.GetName().Version.ToString());
+        HostLogger.Information("{ProgramName} {ProgramVersion} started on {EtLast} {EtLastVersion}", ProgramName, Assembly.GetEntryAssembly().GetName().Version.ToString(), "EtLast", typeof(IEtlContext).Assembly.GetName().Version.ToString());
 
         if (CommandLineArgs?.Length > 0)
         {
-            Logger.Debug("command line arguments: {CommandLineArguments}", CommandLineArgs);
+            HostLogger.Debug("command line arguments: {CommandLineArguments}", CommandLineArgs);
             var result = RunCommandLine(CommandLineArgs).Status;
 
             if (Debugger.IsAttached)
@@ -97,28 +111,49 @@ public class Host : IHost
         DisplayHelp();
         ModuleLister.ListModules(this);
 
-        var threads = new List<Thread>();
-        foreach (var listener in CommandLineListeners)
+        ArgumentCollection hostArguments = null;
+        try
         {
+            hostArguments = HostArgumentsLoader.LoadHostArguments(this);
+            if (hostArguments == null)
+            {
+                HostLogger.Write(LogEventLevel.Fatal, "unexpected exception while compiling host arguments");
+                return ExecutionStatusCode.HostArgumentError;
+            }
+        }
+        catch (Exception ex)
+        {
+            HostLogger.Write(LogEventLevel.Fatal, ex, "unexpected exception while compiling host arguments");
+            return ExecutionStatusCode.HostArgumentError;
+        }
+
+        var threads = new List<Thread>();
+        foreach (var creator in CommandLineListenerCreators)
+        {
+            var listener = creator.Invoke(hostArguments);
+
             var thread = new Thread(() =>
             {
-                listener.Listen(this);
+                try
+                {
+                    listener.Listen(this);
+                }
+                catch (Exception ex)
+                {
+                    HostLogger.Write(LogEventLevel.Fatal, ex, "unexpected exception happened in command line listener");
+                }
             });
 
             threads.Add(thread);
             thread.Start();
         }
 
+        // todo: watch for the cancellation token, and if it triggered but a thread is not terminated after 5 seconds, force abort the thread
+
         foreach (var thread in threads)
             thread.Join();
 
         return ExecutionStatusCode.Success;
-    }
-
-    public Host UseCommandLineListener(ICommandLineListener listener)
-    {
-        CommandLineListeners.Add(listener);
-        return this;
     }
 
     public IExecutionResult RunCommandLine(string commandLine)
@@ -186,7 +221,7 @@ public class Host : IHost
         catch (Exception ex)
         {
             var formattedMessage = ex.FormatExceptionWithDetails();
-            Logger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
+            HostLogger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
 
             return new ExecutionResult(ExecutionStatusCode.UnexpectedError);
         }
@@ -197,17 +232,17 @@ public class Host : IHost
         var result = new ExecutionResult();
         foreach (var moduleName in moduleNames)
         {
-            Logger.Information("loading module {Module}", moduleName);
+            HostLogger.Information("loading module {Module}", moduleName);
 
             ModuleLoader.LoadModule(this, moduleName, true, out var module);
             if (module != null)
             {
                 ModuleLoader.UnloadModule(this, module);
-                Logger.Information("validation {ValidationResult} for {Module}", "PASSED", moduleName);
+                HostLogger.Information("validation {ValidationResult} for {Module}", "PASSED", moduleName);
             }
             else
             {
-                Logger.Information("validation {ValidationResult} for {Module}", "FAILED", moduleName);
+                HostLogger.Information("validation {ValidationResult} for {Module}", "FAILED", moduleName);
                 result.Status = ExecutionStatusCode.ModuleLoadError;
             }
         }
@@ -217,7 +252,7 @@ public class Host : IHost
 
     private IExecutionResult RunModule(string moduleName, List<string> taskNames)
     {
-        Logger.Information("loading module {Module}", moduleName);
+        HostLogger.Information("loading module {Module}", moduleName);
 
         var loadResult = ModuleLoader.LoadModule(this, moduleName, false, out var module);
         if (loadResult != ExecutionStatusCode.Success)
@@ -236,9 +271,9 @@ public class Host : IHost
 
         var formattedMessage = ex.FormatExceptionWithDetails();
 
-        if (Logger != null)
+        if (HostLogger != null)
         {
-            Logger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
+            HostLogger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
         }
         else
         {
@@ -269,5 +304,35 @@ public class Host : IHost
 
             Console.WriteLine();
         }
+    }
+
+    public List<string> GetReferenceAssemblyFileNames()
+    {
+        var referenceDllFileNames = new List<string>();
+        foreach (var referenceAssemblyFolder in ReferenceAssemblyFolders)
+        {
+            var folder = Directory.GetDirectories(referenceAssemblyFolder, "6.*")
+                .OrderByDescending(x => new DirectoryInfo(x).CreationTime)
+                .FirstOrDefault();
+
+            HostLogger.Information("using assemblies from {ReferenceAssemblyFolder}", folder);
+
+            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "System*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "Microsoft.AspNetCore*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "Microsoft.Extensions*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "Microsoft.Net*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "netstandard.dll", SearchOption.TopDirectoryOnly));
+        }
+
+        var referenceFileNames = new List<string>();
+        referenceFileNames.AddRange(referenceDllFileNames.Where(x => !Path.GetFileNameWithoutExtension(x).EndsWith("Native", StringComparison.InvariantCultureIgnoreCase)));
+
+        var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        var localDllFileNames = Directory.GetFiles(selfFolder, "*.dll", SearchOption.TopDirectoryOnly)
+            .Where(x => Path.GetFileName(x) != "FizzCode.EtLast.ConsoleHost.dll"
+                && !Path.GetFileName(x).Equals("testhost.dll", StringComparison.InvariantCultureIgnoreCase));
+        referenceFileNames.AddRange(localDllFileNames);
+
+        return referenceFileNames.Distinct().ToList();
     }
 }
