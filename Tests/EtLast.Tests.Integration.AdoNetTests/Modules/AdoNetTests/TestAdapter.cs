@@ -22,7 +22,7 @@ public class TestAdapter
     {
         using (var process = new Process())
         {
-#if (DEBUG)
+#if DEBUG
             process.StartInfo.FileName = @"../../../../EtLast.Tests.Integration/bin/debug/net6.0/FizzCode.EtLast.Tests.Integration.exe";
 #else
             process.StartInfo.FileName = @"../../../../EtLast.Tests.Integration/bin/release/net6.0/FizzCode.EtLast.Tests.Integration.exe";
@@ -51,12 +51,12 @@ public class TestAdapter
 
             Console.WriteLine($"process exited with code {exitCode}");
 
-            if(!shouldAllowErrExitCode)
-            { 
+            if (!shouldAllowErrExitCode)
+            {
                 Assert.AreEqual(0, exitCode, "Exit code is not 0.");
             }
 
-            if(AssertExceptionLogMessages.Count > 0)
+            if (AssertExceptionLogMessages.Count > 0)
             {
                 Assert.Fail(string.Join(Environment.NewLine, AssertExceptionLogMessages));
             }
@@ -70,7 +70,7 @@ public class TestAdapter
             var data = e.Data;
             foreach (var stopword in colorCodes)
             {
-                data = data.Replace(stopword, "");
+                data = data.Replace(stopword, "", StringComparison.InvariantCultureIgnoreCase);
             }
             Console.WriteLine(data);
         }
@@ -83,10 +83,10 @@ public class TestAdapter
             var data = e.Data;
             foreach (var stopword in colorCodes)
             {
-                data = data.Replace(stopword, "");
+                data = data.Replace(stopword, "", StringComparison.InvariantCultureIgnoreCase);
             }
 
-            if (data.Contains("AssertFailedException"))
+            if (data.Contains("AssertFailedException", StringComparison.InvariantCultureIgnoreCase))
             {
                 AssertExceptionLogMessages.Add(data);
             }
