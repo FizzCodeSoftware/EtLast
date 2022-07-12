@@ -5,6 +5,11 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Configurations>Debug;Release;Integration</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Integration|AnyCPU'">
+    <DefineConstants>$(DefineConstants)TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
     <ProjectReference Include="..\..\EtLast\EtLast.csproj" />
+    <ProjectReference Include="..\EtLast.Tests.Base\EtLast.Tests.Base.csproj" />
   </ItemGroup>
 
   <ItemGroup>

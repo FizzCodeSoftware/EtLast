@@ -32,13 +32,14 @@ public class StoredProcedureAdoNetDbReader : AbstractEtlTask
                     ConnectionString = ConnectionString,
                     Sql = "StoredProcedureAdoNetDbReaderTest"
                 })
-                .Build().Evaluate(this).TakeRowsAndTransferOwnership().ToList();
+                .Build().Evaluate(this).TakeRowsAndReleaseOwnership().ToList();
+                
 
                 Assert.AreEqual(2, result.Count);
-                Assert.AreEqual(result[0]["Id"], 1);
-                Assert.AreEqual(result[0]["Value"], "etlast");
-                Assert.AreEqual(result[1]["Id"], 2);
-                Assert.AreEqual(result[1]["Value"], "StoredProcedureAdoNetDbReaderTest");
+                Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Value"] = "etlast" },
+                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Value"] = "StoredProcedureAdoNetDbReaderTest" }
+                });
             }
         };
     }

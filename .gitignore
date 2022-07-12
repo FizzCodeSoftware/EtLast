@@ -11,6 +11,7 @@
 *.userprefs
 
 **/Arguments/Instance/*.cs
+**/HostArguments/Instance/*.cs
 
 # Build results
 [Dd]ebug/

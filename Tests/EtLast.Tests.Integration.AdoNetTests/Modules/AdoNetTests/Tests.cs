@@ -6,43 +6,46 @@ public class Tests
     [ClassInitialize]
     public static void Initialize(TestContext context)
     {
+#if INTEGRATION
         TestAdapter.Run($"run AdoNetTests {nameof(CreateDatabase)}");
+#endif
     }
 
     [ClassCleanup]
     public static void Cleanup()
     {
+#if INTEGRATION
         TestAdapter.Run($"run AdoNetTests {nameof(DropDatabase)}");
-
+#endif
     }
 
-    [TestMethod]
+    [TestMethodIntegration]
     [ExpectedException(typeof(AssertFailedException))]
     public void AssertFailTest()
     {
         TestAdapter.Run($"run AdoNetTests {nameof(AssertFail)}");
     }
 
-    [TestMethod]
+    [TestMethodIntegration]
     public void ExceptionTest()
     {
         TestAdapter.Run($"run AdoNetTests {nameof(Exception)}", true);
     }
 
-    [TestMethod]
+    [TestMethodIntegration]
     public void EtlExceptionTest()
     {
         TestAdapter.Run($"run AdoNetTests {nameof(EtlException)}", true);
     }
 
-    [TestMethod]
+    [TestMethodIntegration]
     public void GetTableMaxValueTest()
     {
         TestAdapter.Run($"run AdoNetTests {nameof(GetTableMaxValue)}");
 
     }
 
-    [TestMethod]
+    [TestMethodIntegration]
     public void StoredProcedureAdoNetDbReaderTest()
     {
         TestAdapter.Run($"run AdoNetTests {nameof(StoredProcedureAdoNetDbReader)}");
