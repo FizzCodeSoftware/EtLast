@@ -12,18 +12,10 @@ public class ResilientSqlScope : AbstractEtlTask
 
     public override IEnumerable<IExecutable> CreateProcesses()
     {
-        yield return new CustomAction(Context)
+        yield return new CustomSqlStatement(Context)
         {
-            Name = "Create ResilientSqlScopeTest table",
-            Action = proc =>
-            {
-                var customSqlStatement = new CustomSqlStatement(Context)
-                {
-                    ConnectionString = ConnectionString,
-                    SqlStatement = "CREATE TABLE ResilientSqlScopeTest (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));"
-                };
-                customSqlStatement.Execute(this);
-            }
+            ConnectionString = ConnectionString,
+            SqlStatement = "CREATE TABLE ResilientSqlScopeTest (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));"
         };
 
         yield return new EtLast.ResilientSqlScope(Context)
@@ -50,16 +42,15 @@ public class ResilientSqlScope : AbstractEtlTask
 
     private IEnumerable<IExecutable> CreateProcess(ResilientTable table)
     {
-        var x = table.Columns.Select(c => (c, c));
         yield return ProcessBuilder.Fluent
-            .UsePredefinedRows((RowCreator)TestData.Country(Context))
+            .ReadFrom(TestData.Country(Context))
             .WriteToMsSqlResilient(new ResilientWriteToMsSqlMutator(Context)
             {
                 ConnectionString = ConnectionString,
                 TableDefinition = new DbTableDefinition()
                 {
                     TableName = table.TempTableName,
-                    Columns = table.Columns.ToDictionary(c => c, c => c)
+                    Columns = table.Columns.ToDictionary(c => c, x => ConnectionString.Escape(x)),
                 }
             })
             .Build();
