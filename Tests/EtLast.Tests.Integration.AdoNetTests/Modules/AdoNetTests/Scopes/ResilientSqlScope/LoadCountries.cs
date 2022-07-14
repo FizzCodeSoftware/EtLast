@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
-public class ResilientSqlScopeLoadCountries : AbstractEtlTask
+public class LoadCountries : AbstractEtlTask
 {
     public NamedConnectionString ConnectionString { get; init; }
 
@@ -15,7 +15,7 @@ public class ResilientSqlScopeLoadCountries : AbstractEtlTask
         yield return new CustomSqlStatement(Context)
         {
             ConnectionString = ConnectionString,
-            SqlStatement = $"CREATE TABLE {nameof(ResilientSqlScopeLoadCountries)} (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));"
+            SqlStatement = $"CREATE TABLE {nameof(LoadCountries)} (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));"
         };
 
         yield return new ResilientSqlScope(Context)
@@ -25,7 +25,7 @@ public class ResilientSqlScopeLoadCountries : AbstractEtlTask
             {
                 new ResilientTable()
                 {
-                    TableName = nameof(ResilientSqlScopeLoadCountries),
+                    TableName = nameof(LoadCountries),
                     MainProcessCreator = table => CreateProcess(table),
                     Finalizers = builder => builder.CopyTable(),
                     Columns = TestData.CountryColumns,
@@ -33,7 +33,7 @@ public class ResilientSqlScopeLoadCountries : AbstractEtlTask
             },
         };
 
-        yield return TestHelpers.CreateReadSqlTableAndAssertExactMacth(this, ConnectionString, nameof(ResilientSqlScopeLoadCountries),
+        yield return TestHelpers.CreateReadSqlTableAndAssertExactMacth(this, ConnectionString, nameof(LoadCountries),
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "Hungary", ["Abbreviation2"] = "HU", ["Abbreviation3"] = "HUN" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "United States of America", ["Abbreviation2"] = "US", ["Abbreviation3"] = "USA" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "Spain", ["Abbreviation2"] = "ES", ["Abbreviation3"] = "ESP" },

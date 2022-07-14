@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
-public class ResilientSqlScopeMergeUpdateCountries : AbstractEtlTask
+public class MergeUpdateCountries : AbstractEtlTask
 {
     public NamedConnectionString ConnectionString { get; init; }
 
@@ -15,7 +15,7 @@ public class ResilientSqlScopeMergeUpdateCountries : AbstractEtlTask
         yield return new CustomSqlStatement(Context)
         {
             ConnectionString = ConnectionString,
-            SqlStatement = $"CREATE TABLE {nameof(ResilientSqlScopeMergeUpdateCountries)} (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));"
+            SqlStatement = $"CREATE TABLE {nameof(MergeUpdateCountries)} (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));"
         };
 
         yield return new ResilientSqlScope(Context)
@@ -25,7 +25,7 @@ public class ResilientSqlScopeMergeUpdateCountries : AbstractEtlTask
             {
                 new ResilientTable()
                 {
-                    TableName = nameof(ResilientSqlScopeMergeUpdateCountries),
+                    TableName = nameof(MergeUpdateCountries),
                     MainProcessCreator = table => LoadFirstTwoRows(table),
                     Finalizers = builder => builder.SimpleMsSqlMerge("Id"),
                     Columns = TestData.CountryColumns,
@@ -40,7 +40,7 @@ public class ResilientSqlScopeMergeUpdateCountries : AbstractEtlTask
             {
                 new ResilientTable()
                 {
-                    TableName = nameof(ResilientSqlScopeMergeUpdateCountries),
+                    TableName = nameof(MergeUpdateCountries),
                     MainProcessCreator = table => UpdateRow(table),
                     Finalizers = builder => builder.SimpleMsSqlMerge("Id"),
                     Columns = TestData.CountryColumns,
@@ -48,7 +48,7 @@ public class ResilientSqlScopeMergeUpdateCountries : AbstractEtlTask
             },
         };
 
-        yield return TestHelpers.CreateReadSqlTableAndAssertExactMacth(this, ConnectionString, nameof(ResilientSqlScopeMergeUpdateCountries),
+        yield return TestHelpers.CreateReadSqlTableAndAssertExactMacth(this, ConnectionString, nameof(MergeUpdateCountries),
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "Hungary", ["Abbreviation2"] = "HU", ["Abbreviation3"] = "HUN" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "United States of America Update", ["Abbreviation2"] = "UX", ["Abbreviation3"] = "USX" }
             );
