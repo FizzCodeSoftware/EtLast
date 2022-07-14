@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 
 namespace FizzCode.EtLast.ConsoleHost;
+
 internal static class ModuleLoader
 {
     private static long _moduleAutoincrementId;
@@ -150,8 +151,24 @@ internal static class ModuleLoader
 
         foreach (var fn in localDllFileNames)
         {
-            var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-            if (!loadedAssemblies.Any(x => string.Equals(fn, x.Location, StringComparison.InvariantCultureIgnoreCase)))
+            var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic);
+            var match = false;
+            foreach (var loadedAssembly in loadedAssemblies)
+            {
+                try
+                {
+                    if (string.Equals(fn, loadedAssembly.Location, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        match = true;
+                        break;
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            if (!match)
             {
                 Debug.WriteLine("loading " + fn);
                 try
