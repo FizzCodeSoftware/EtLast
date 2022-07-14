@@ -11,7 +11,7 @@ public static class TestHelpers
             Name = $"Read and check {table} table",
             Action = proc =>
             {
-                TestHelpers.ReadSqlTableAndAssertExactMacth(caller, connectionString, table, expectedRowsList);
+                ReadSqlTableAndAssertExactMacth(caller, connectionString, table, expectedRowsList);
             }
         };
     }

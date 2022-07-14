@@ -53,8 +53,14 @@ public class Tests
 
 
     [TestMethodIntegration]
-    public void ResilientSqlScopeTest()
+    public void ResilientSqlScopeLoadCountriesTest()
     {
-        TestAdapter.Run($"run AdoNetTests {nameof(ResilientSqlScope)}");
+        TestAdapter.Run($"run AdoNetTests {nameof(ResilientSqlScopeLoadCountries)}");
+    }
+
+    [TestMethodIntegration]
+    public void ResilientSqlScopeLoadThenInsertCountriesTest()
+    {
+        TestAdapter.Run($"run AdoNetTests {nameof(ResilientSqlScopeLoadThenInsertCountries)}");
     }
 }

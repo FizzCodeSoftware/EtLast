@@ -34,7 +34,55 @@
   </ItemGroup>
 
   <ItemGroup>
-	<Compile Update="Modules\**">
+    <Compile Update="Modules\AdoNetTests\AdoNetDbReader\StoredProcedureAdoNetDbReader.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\AdoNetTests\Arguments\Default.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\AdoNetTests\Arguments\Instance\gerleimr5.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\AdoNetTests\Flows\Main.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\AdoNetTests\Global.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\AdoNetTests\Scopes\ResilientSqlScope\ResilientSqlScopeLoadThenInsertCountries.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\AdoNetTests\TestHelpers.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\AdoNetTests\Scopes\ResilientSqlScope\ResilientSqlScopeLoadCountries.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\AdoNetTests\SqlStatements\GetTableMaxValue.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\AdoNetTests\Startup.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\AdoNetTests\Tasks\CreateDatabase.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\AdoNetTests\Tasks\DropDatabase.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\AdoNetTests\TestAdapter.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\AdoNetTests\TestAssertAndException\AssertFail.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\AdoNetTests\TestAssertAndException\EtlException.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\AdoNetTests\TestAssertAndException\Exception.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\AdoNetTests\Tests\Tests.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
   </ItemGroup>

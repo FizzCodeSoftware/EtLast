@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
-public class ResilientSqlScope : AbstractEtlTask
+public class ResilientSqlScopeLoadCountries : AbstractEtlTask
 {
     public NamedConnectionString ConnectionString { get; init; }
 
@@ -15,29 +15,30 @@ public class ResilientSqlScope : AbstractEtlTask
         yield return new CustomSqlStatement(Context)
         {
             ConnectionString = ConnectionString,
-            SqlStatement = "CREATE TABLE ResilientSqlScopeTest (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));"
+            SqlStatement = $"CREATE TABLE {nameof(ResilientSqlScopeLoadCountries)} (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));"
         };
 
-        yield return new EtLast.ResilientSqlScope(Context)
+        yield return new ResilientSqlScope(Context)
         {
             ConnectionString = ConnectionString,
             Tables = new()
             {
                 new ResilientTable()
                 {
-                    TableName = "ResilientSqlScopeTest",
+                    TableName = nameof(ResilientSqlScopeLoadCountries),
                     MainProcessCreator = table => CreateProcess(table),
-                    Finalizers = builder => builder.DeleteTargetTable().CopyTable(),
+                    Finalizers = builder => builder.CopyTable(),
                     Columns = TestData.CountryColumns,
                 },
             },
         };
 
-        yield return TestHelpers.CreateReadSqlTableAndAssertExactMacth(this, ConnectionString, "ResilientSqlScopeTest",
+        yield return TestHelpers.CreateReadSqlTableAndAssertExactMacth(this, ConnectionString, nameof(ResilientSqlScopeLoadCountries),
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "Hungary", ["Abbreviation2"] = "HU", ["Abbreviation3"] = "HUN" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "United States of America", ["Abbreviation2"] = "US", ["Abbreviation3"] = "USA" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "Spain", ["Abbreviation2"] = "ES", ["Abbreviation3"] = "ESP" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["Name"] = "Mexico", ["Abbreviation2"] = "MX", ["Abbreviation3"] = "MEX" });
+            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["Name"] = "Mexico", ["Abbreviation2"] = "MX", ["Abbreviation3"] = "MEX" }
+            );
     }
 
     private IEnumerable<IExecutable> CreateProcess(ResilientTable table)
