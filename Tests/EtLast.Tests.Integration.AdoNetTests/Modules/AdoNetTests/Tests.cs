@@ -50,4 +50,11 @@ public class Tests
     {
         TestAdapter.Run($"run AdoNetTests {nameof(StoredProcedureAdoNetDbReader)}");
     }
+
+
+    [TestMethodIntegration]
+    public void ResilientSqlScopeTest()
+    {
+        TestAdapter.Run($"run AdoNetTests {nameof(ResilientSqlScope)}");
+    }
 }

@@ -46,6 +46,12 @@
     <Compile Update="Modules\AdoNetTests\Global.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Update="Modules\AdoNetTests\TestHelpers.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\AdoNetTests\Scopes\ResilientSqlScope\ResilientSqlScope.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
     <Compile Update="Modules\AdoNetTests\SqlStatements\GetTableMaxValue.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>

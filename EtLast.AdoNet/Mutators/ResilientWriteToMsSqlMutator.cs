@@ -257,6 +257,9 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
         if (TableDefinition == null)
             throw new ProcessParameterNullException(this, nameof(TableDefinition));
 
+        if (TableDefinition.Columns == null)
+            throw new ProcessParameterNullException(this, nameof(TableDefinition) + "." + nameof(TableDefinition.Columns));
+
         if (ConnectionString.SqlEngine != SqlEngine.MsSql)
             throw new InvalidProcessParameterException(this, "ConnectionString", nameof(ConnectionString.ProviderName), "provider name must be Microsoft.Data.SqlClient");
     }

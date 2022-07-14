@@ -16,17 +16,23 @@ public static class OrderedMatchHelper
             foreach (var kvp in referenceRow)
             {
                 var expectedValue = kvp.Value;
-                Assert.AreNotEqual(null, expectedValue, "wrong test data");
+                Assert.AreNotEqual(null, expectedValue, $"expectedValue is null in row {i}");
                 var value = row[kvp.Key];
-                Assert.IsTrue(DefaultValueComparer.ValuesAreEqual(value, expectedValue));
+                AssertValuesAreEqual(expectedValue, value, kvp.Key, i);
             }
 
             foreach (var kvp in row.Values)
             {
                 var expectedValue = kvp.Value;
                 var value = referenceRow[kvp.Key];
-                Assert.IsTrue(DefaultValueComparer.ValuesAreEqual(value, expectedValue));
+                AssertValuesAreEqual(expectedValue, value, kvp.Key, i);
             }
         }
+    }
+
+    private static void AssertValuesAreEqual(object expected, object actual, string key, int row)
+    {
+        var areEqual = DefaultValueComparer.ValuesAreEqual(actual, expected);
+        Assert.IsTrue(areEqual, $"AssertValuesAreEqual failed. Expected:<{expected}>.Actual:<{actual}>, Key: {key}, in row {row}.");
     }
 }

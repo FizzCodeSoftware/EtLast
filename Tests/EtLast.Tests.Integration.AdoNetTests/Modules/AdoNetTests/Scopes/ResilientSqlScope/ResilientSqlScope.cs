@@ -1,0 +1,67 @@
+﻿namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
+
+public class ResilientSqlScope : AbstractEtlTask
+{
+    public NamedConnectionString ConnectionString { get; init; }
+
+    public override void ValidateParameters()
+    {
+        if (ConnectionString == null)
+            throw new ProcessParameterNullException(this, nameof(ConnectionString));
+    }
+
+    public override IEnumerable<IExecutable> CreateProcesses()
+    {
+        yield return new CustomAction(Context)
+        {
+            Name = "Create ResilientSqlScopeTest table",
+            Action = proc =>
+            {
+                var customSqlStatement = new CustomSqlStatement(Context)
+                {
+                    ConnectionString = ConnectionString,
+                    SqlStatement = "CREATE TABLE ResilientSqlScopeTest (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));"
+                };
+                customSqlStatement.Execute(this);
+            }
+        };
+
+        yield return new EtLast.ResilientSqlScope(Context)
+        {
+            ConnectionString = ConnectionString,
+            Tables = new()
+            {
+                new ResilientTable()
+                {
+                    TableName = "ResilientSqlScopeTest",
+                    MainProcessCreator = table => CreateProcess(table),
+                    Finalizers = builder => builder.DeleteTargetTable().CopyTable(),
+                    Columns = TestData.CountryColumns,
+                },
+            },
+        };
+
+        yield return TestHelpers.CreateReadSqlTableAndAssertExactMacth(this, ConnectionString, "ResilientSqlScopeTest",
+            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "Hungary", ["Abbreviation2"] = "HU", ["Abbreviation3"] = "HUN" },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "United States of America", ["Abbreviation2"] = "US", ["Abbreviation3"] = "USA" },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "Spain", ["Abbreviation2"] = "ES", ["Abbreviation3"] = "ESP" },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["Name"] = "Mexico", ["Abbreviation2"] = "MX", ["Abbreviation3"] = "MEX" });
+    }
+
+    private IEnumerable<IExecutable> CreateProcess(ResilientTable table)
+    {
+        var x = table.Columns.Select(c => (c, c));
+        yield return ProcessBuilder.Fluent
+            .UsePredefinedRows((RowCreator)TestData.Country(Context))
+            .WriteToMsSqlResilient(new ResilientWriteToMsSqlMutator(Context)
+            {
+                ConnectionString = ConnectionString,
+                TableDefinition = new DbTableDefinition()
+                {
+                    TableName = table.TempTableName,
+                    Columns = table.Columns.ToDictionary(c => c, c => c)
+                }
+            })
+            .Build();
+    }
+}
