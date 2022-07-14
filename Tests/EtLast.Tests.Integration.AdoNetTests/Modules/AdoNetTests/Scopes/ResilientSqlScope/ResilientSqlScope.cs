@@ -22,7 +22,7 @@ public class ResilientSqlScope : AbstractEtlTask
                     ConnectionString = ConnectionString,
                     SqlStatement = "CREATE TABLE ResilientSqlScopeTest (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));"
                 };
-                customSqlStatement.Execute(this);
+                customSqlStatement.Execute(proc);
             }
         };
 
@@ -50,7 +50,6 @@ public class ResilientSqlScope : AbstractEtlTask
 
     private IEnumerable<IExecutable> CreateProcess(ResilientTable table)
     {
-        var x = table.Columns.Select(c => (c, c));
         yield return ProcessBuilder.Fluent
             .UsePredefinedRows((RowCreator)TestData.Country(Context))
             .WriteToMsSqlResilient(new ResilientWriteToMsSqlMutator(Context)
