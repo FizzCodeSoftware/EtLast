@@ -63,4 +63,16 @@ public class Tests
     {
         TestAdapter.Run($"run AdoNetTests {nameof(ResilientSqlScopeLoadThenInsertCountries)}");
     }
+
+    [TestMethodIntegration]
+    public void ResilientSqlScopeMergeCountriesTest()
+    {
+        TestAdapter.Run($"run AdoNetTests {nameof(ResilientSqlScopeMergeOnlyInsertCountries)}");
+    }
+
+    [TestMethodIntegration]
+    public void ResilientSqlScopeMergeUpdateCountriesTest()
+    {
+        TestAdapter.Run($"run AdoNetTests {nameof(ResilientSqlScopeMergeUpdateCountries)}");
+    }
 }
