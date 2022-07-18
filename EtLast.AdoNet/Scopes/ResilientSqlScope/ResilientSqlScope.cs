@@ -281,6 +281,12 @@ public sealed class ResilientSqlScope : AbstractExecutable, IScope
 
                         for (var i = 0; i < tablesOrdered.Count; i++)
                         {
+                            Context.Log(LogSeverity.Verbose, this, "temp table {TableName} contains {RecordCount} records",
+                                ConnectionString.Unescape(tablesOrdered[i].TempTableName), recordCounts[i]);
+                        }
+
+                        for (var i = 0; i < tablesOrdered.Count; i++)
+                        {
                             var table = tablesOrdered[i];
                             if (table.SkipFinalizersIfNoTempData && recordCounts[i] == 0)
                             {
