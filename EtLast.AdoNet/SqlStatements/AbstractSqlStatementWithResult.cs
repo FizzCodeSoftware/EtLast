@@ -6,7 +6,7 @@ public abstract class AbstractSqlStatementWithResult<T> : AbstractExecutableWith
     public NamedConnectionString ConnectionString { get; set; }
 
     /// <summary>
-    /// Default value is 600.
+    /// Default value is 3600.
     /// </summary>
     public int CommandTimeout { get; init; } = 60 * 60;
 
