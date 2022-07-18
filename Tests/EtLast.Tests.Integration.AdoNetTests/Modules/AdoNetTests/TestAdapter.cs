@@ -4,21 +4,18 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
 public class TestAdapter
 {
-    private bool ShouldAllowErrExitCode { get; set; }
-
     private readonly List<string> AssertExceptionLogMessages = new();
 
-    public TestAdapter(bool shouldAllowErrExitCode)
+    public TestAdapter()
     {
-        ShouldAllowErrExitCode = shouldAllowErrExitCode;
     }
 
     public static void Run(string arguments, bool shouldAllowErrExitCode = false, int maxRunTimeMilliseconds = 10000)
     {
-        new TestAdapter(shouldAllowErrExitCode).RunImpl(arguments, shouldAllowErrExitCode, maxRunTimeMilliseconds);
+        new TestAdapter().RunImpl(arguments, shouldAllowErrExitCode, maxRunTimeMilliseconds);
     }
 
-    private void RunImpl(string arguments, bool shouldAllowErrExitCode, int maxRunTimeMilliseconds)
+    public void RunImpl(string arguments, bool shouldAllowErrExitCode, int maxRunTimeMilliseconds)
     {
         using (var process = new Process())
         {
@@ -51,14 +48,14 @@ public class TestAdapter
 
             Console.WriteLine($"process exited with code {exitCode}");
 
-            if (!shouldAllowErrExitCode)
-            {
-                Assert.AreEqual(0, exitCode, "Exit code is not 0.");
-            }
-
             if (AssertExceptionLogMessages.Count > 0)
             {
                 Assert.Fail(string.Join(Environment.NewLine, AssertExceptionLogMessages));
+            }
+
+            if (!shouldAllowErrExitCode)
+            {
+                Assert.AreEqual(0, exitCode, "Exit code is not 0.");
             }
         }
 
@@ -70,7 +67,7 @@ public class TestAdapter
             var data = e.Data;
             foreach (var stopword in colorCodes)
             {
-                data = data.Replace(stopword, "", StringComparison.InvariantCultureIgnoreCase);
+                data = data.Replace(stopword, "", StringComparison.Ordinal);
             }
             Console.WriteLine(data);
         }
@@ -83,11 +80,12 @@ public class TestAdapter
             var data = e.Data;
             foreach (var stopword in colorCodes)
             {
-                data = data.Replace(stopword, "", StringComparison.InvariantCultureIgnoreCase);
+                data = data.Replace(stopword, "", StringComparison.Ordinal);
             }
 
-            if (data.Contains("AssertFailedException", StringComparison.InvariantCultureIgnoreCase))
+            if (data.Contains("AssertFailedException", StringComparison.Ordinal))
             {
+                data = data.Replace("AssertValuesAreEqual failed", Environment.NewLine + "AssertValuesAreEqual failed");
                 AssertExceptionLogMessages.Add(data);
             }
 
@@ -95,5 +93,5 @@ public class TestAdapter
         }
     }
 
-    private static readonly List<string> colorCodes = new() { "[38;5;0015m", "[38;5;0008m", "[38;5;0045m", "[38;5;0008m", "[38;5;0035m", "[38;5;0209m", "[38;5;0220m", "[38;5;0204m", "[38;5;0228m", "[38;5;0007m", "[38;5;0027m", "[38;5;0033m", "[38;5;0085m", "[38;5;0220m", "[48;5;0196m", "[38;5;000m", "[38;5;0214m", "[38;5;0133m", "[38;5;0135m", "[38;5;0245m", "[48;5;0214m", "[0m" };
+    private static readonly List<string> colorCodes = new() { "\x1b[38;5;0015m", "\x1b[38;5;0008m", "\x1b[38;5;0045m", "\x1b[38;5;0008m", "\x1b[38;5;0035m", "\x1b[38;5;0209m", "\x1b[38;5;0220m", "\x1b[38;5;0204m", "\x1b[38;5;0228m", "\x1b[38;5;0007m", "\x1b[38;5;0027m", "\x1b[38;5;0033m", "\x1b[38;5;0085m", "\x1b[38;5;0220m", "\x1b[48;5;0196m", "\x1b[38;5;000m", "\x1b[38;5;0214m", "\x1b[38;5;0133m", "\x1b[38;5;0135m", "\x1b[38;5;0245m", "\x1b[48;5;0214m", "\x1b[0m" };
 }

@@ -9,8 +9,15 @@ public sealed class DbTableDefinition
     /// </summary>
     public Dictionary<string, string> Columns { get; init; }
 
-    public override string ToString()
+    public override string ToString() 
     {
-        return TableName + ": " + string.Join(',', Columns.Select(x => x.Key + "->" + x.Value));
+        if (Columns == null)
+        {
+            return TableName + ": (null)";
+        }
+        else
+        { 
+            return TableName + ": " + string.Join(',', Columns?.Select(x => x.Key + "->" + x.Value));
+        }
     }
 }

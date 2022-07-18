@@ -7,7 +7,7 @@ public static class OrderedMatchHelper
         if (assert is null)
             throw new ArgumentNullException(nameof(assert));
 
-        Assert.AreEqual(referenceRows.Count, rows.Count);
+        Assert.AreEqual(referenceRows.Count, rows.Count, $"AssertValuesAreEqual failed, number of expected rows are not equal to actual number of rows.");
         for (var i = 0; i < referenceRows.Count; i++)
         {
             var referenceRow = referenceRows[i];
@@ -16,17 +16,23 @@ public static class OrderedMatchHelper
             foreach (var kvp in referenceRow)
             {
                 var expectedValue = kvp.Value;
-                Assert.AreNotEqual(null, expectedValue, "wrong test data");
+                Assert.AreNotEqual(null, expectedValue, $"expectedValue is null in row {i}");
                 var value = row[kvp.Key];
-                Assert.IsTrue(DefaultValueComparer.ValuesAreEqual(value, expectedValue));
+                AssertValuesAreEqual(expectedValue, value, kvp.Key, i);
             }
 
             foreach (var kvp in row.Values)
             {
                 var expectedValue = kvp.Value;
                 var value = referenceRow[kvp.Key];
-                Assert.IsTrue(DefaultValueComparer.ValuesAreEqual(value, expectedValue));
+                AssertValuesAreEqual(expectedValue, value, kvp.Key, i);
             }
         }
+    }
+
+    private static void AssertValuesAreEqual(object expected, object actual, string key, int row)
+    {
+        var areEqual = DefaultValueComparer.ValuesAreEqual(actual, expected);
+        Assert.IsTrue(areEqual, $"AssertValuesAreEqual failed. Expected:<{expected}>.Actual:<{actual}>, Key: {key}, in row {row}.");
     }
 }
