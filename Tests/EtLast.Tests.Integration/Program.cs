@@ -5,7 +5,7 @@ return (int)HostBuilder.New("EtLast Integration Tests")
     .HandleCommandLineArgs(args)
     .UseCommandLineListener(hostArgs =>
     {
-        Console.WriteLine("automatically compiled host argument values");
+        Console.WriteLine("list of automatically compiled host argument values:");
         foreach (var kvp in hostArgs.All)
         {
             var v = hostArgs.Get<string>(kvp.Key);

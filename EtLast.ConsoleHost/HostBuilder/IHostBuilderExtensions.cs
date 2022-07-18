@@ -62,14 +62,15 @@ public static class IHostBuilderExtensions
         return builder;
     }
 
-    public static IHostBuilder SetMaxTransactionTimeout(this IHostBuilder builder, TimeSpan maxValue)
+    /// <summary>
+    /// .NET allows maximum 10 minute long transactions, but each <see cref="Host"/> automatically apply a hack with 4 hours, which can be overwritten by using this method.
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <param name="maxTimeout"></param>
+    /// <returns></returns>
+    public static IHostBuilder SetMaxTransactionTimeout(this IHostBuilder builder, TimeSpan maxTimeout)
     {
-        var field = typeof(TransactionManager).GetField("s_cachedMaxTimeout", BindingFlags.NonPublic | BindingFlags.Static);
-        field.SetValue(null, true);
-
-        field = typeof(TransactionManager).GetField("s_maximumTimeout", BindingFlags.NonPublic | BindingFlags.Static);
-        field.SetValue(null, maxValue);
-
+        builder.Result.MaxTransactionTimeout = maxTimeout;
         return builder;
     }
 }

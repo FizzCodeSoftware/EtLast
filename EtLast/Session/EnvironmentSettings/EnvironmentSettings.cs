@@ -6,5 +6,8 @@ public sealed class EnvironmentSettings
     public FileLogSettings FileLogSettings { get; } = new FileLogSettings();
     public ConsoleLogSettings ConsoleLogSettings { get; } = new ConsoleLogSettings();
 
-    public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromMinutes(60);
+    /// <summary>
+    /// Default value is 4 hours.
+    /// </summary>
+    public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromHours(4);
 }

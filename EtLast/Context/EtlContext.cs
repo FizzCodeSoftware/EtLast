@@ -14,9 +14,9 @@ public sealed class EtlContext : IEtlContext
     public List<IEtlContextListener> Listeners { get; } = new List<IEtlContextListener>();
 
     /// <summary>
-    /// Default value: 10 minutes.
+    /// Default value: 4 hours, but .NET maximizes the timeout in 10 minutes.
     /// </summary>
-    public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromMinutes(10);
+    public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromHours(4);
 
     private readonly CancellationTokenSource _cancellationTokenSource;
     public CancellationToken CancellationToken { get; }

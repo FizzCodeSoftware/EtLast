@@ -17,6 +17,8 @@ public class Host : IHost
     public bool SerilogForModulesEnabled { get; set; } = true;
     public bool SerilogForHostEnabled { get; set; } = true;
 
+    public TimeSpan MaxTransactionTimeout = TimeSpan.FromHours(4);
+
     private string _modulesFolder;
     public string ModulesFolder
     {
@@ -126,6 +128,8 @@ public class Host : IHost
             HostLogger.Write(LogEventLevel.Fatal, ex, "unexpected exception while compiling host arguments");
             return ExecutionStatusCode.HostArgumentError;
         }
+
+        SetMaxTransactionTimeout(MaxTransactionTimeout);
 
         var threads = new List<Thread>();
         foreach (var creator in CommandLineListenerCreators)
@@ -334,5 +338,19 @@ public class Host : IHost
         referenceFileNames.AddRange(localDllFileNames);
 
         return referenceFileNames.Distinct().ToList();
+    }
+
+    private void SetMaxTransactionTimeout(TimeSpan maxValue)
+    {
+        if (TransactionManager.MaximumTimeout == maxValue)
+            return;
+
+        HostLogger.Write(LogEventLevel.Information, "maximum transaction timeout is set to {MaxTransactionTimeout}", maxValue);
+
+        var field = typeof(TransactionManager).GetField("s_cachedMaxTimeout", BindingFlags.NonPublic | BindingFlags.Static);
+        field.SetValue(null, true);
+
+        field = typeof(TransactionManager).GetField("s_maximumTimeout", BindingFlags.NonPublic | BindingFlags.Static);
+        field.SetValue(null, maxValue);
     }
 }
