@@ -377,10 +377,11 @@ public sealed class ResilientSqlScope : AbstractExecutable, IScope
                     if (currentExceptionCount == initialExceptionCount)
                     {
                         scope.Complete();
-
-                        success = true;
-                        break;
                     }
+
+                    currentExceptionCount = Context.ExceptionCount;
+                    if (currentExceptionCount == initialExceptionCount)
+                        break;
 
                     initialExceptionCount = currentExceptionCount;
                 }

@@ -6,10 +6,6 @@ public class TestAdapter
 {
     private readonly List<string> AssertExceptionLogMessages = new();
 
-    public TestAdapter()
-    {
-    }
-
     public static void Run(string arguments, bool shouldAllowErrExitCode = false, int maxRunTimeMilliseconds = 10000)
     {
         new TestAdapter().RunImpl(arguments, shouldAllowErrExitCode, maxRunTimeMilliseconds);
@@ -20,18 +16,18 @@ public class TestAdapter
         using (var process = new Process())
         {
 #if DEBUG
-            process.StartInfo.FileName = @"../../../../EtLast.Tests.Integration/bin/debug/net6.0/FizzCode.EtLast.Tests.Integration.exe";
+            process.StartInfo.FileName = "../../../../EtLast.Tests.Integration/bin/debug/net6.0/FizzCode.EtLast.Tests.Integration.exe";
 #else
-            process.StartInfo.FileName = @"../../../../EtLast.Tests.Integration/bin/release/net6.0/FizzCode.EtLast.Tests.Integration.exe";
+            process.StartInfo.FileName = "../../../../EtLast.Tests.Integration/bin/release/net6.0/FizzCode.EtLast.Tests.Integration.exe";
 #endif
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.Arguments = arguments;
 
             process.EnableRaisingEvents = true;
-            process.OutputDataReceived += new DataReceivedEventHandler(process_OutputDataReceived);
-            process.ErrorDataReceived += new DataReceivedEventHandler(process_ErrorDataReceived);
-            process.Exited += new EventHandler(process_Exited);
+            process.OutputDataReceived += process_OutputDataReceived;
+            process.ErrorDataReceived += process_ErrorDataReceived;
+            process.Exited += process_Exited;
 
             process.Start();
             process.BeginErrorReadLine();
@@ -46,7 +42,7 @@ public class TestAdapter
         {
             var exitCode = ((Process)sender).ExitCode;
 
-            Console.WriteLine($"process exited with code {exitCode}");
+            Console.WriteLine("process exited with code " + exitCode);
 
             if (AssertExceptionLogMessages.Count > 0)
             {
@@ -85,7 +81,7 @@ public class TestAdapter
 
             if (data.Contains("AssertFailedException", StringComparison.Ordinal))
             {
-                data = data.Replace("AssertValuesAreEqual failed", Environment.NewLine + "AssertValuesAreEqual failed");
+                data = data.Replace("AssertValuesAreEqual failed", Environment.NewLine + "AssertValuesAreEqual failed", StringComparison.InvariantCultureIgnoreCase);
                 AssertExceptionLogMessages.Add(data);
             }
 

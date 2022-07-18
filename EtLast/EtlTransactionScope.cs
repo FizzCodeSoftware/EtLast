@@ -59,15 +59,24 @@ public sealed class EtlTransactionScope : IDisposable
         Context.RegisterIoCommandSuccess(Process, IoCommandKind.dbTransaction, iocUid, null);
     }
 
-    public void Complete()
+    public bool Complete()
     {
         if (Scope == null)
-            return;
+            return true;
 
         if (Kind == TransactionScopeKind.Suppress)
         {
-            Scope.Complete();
-            return;
+            try
+            {
+                Scope.Complete();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Completed = false;
+                Context.AddException(Process, ex);
+                return false;
+            }
         }
 
         var transactionId = Transaction.Current.ToIdentifierString();
@@ -82,11 +91,14 @@ public sealed class EtlTransactionScope : IDisposable
             Completed = true;
 
             Context.RegisterIoCommandSuccess(Process, IoCommandKind.dbTransaction, iocUid, null);
+            return true;
         }
         catch (Exception ex)
         {
             Completed = false;
             Context.RegisterIoCommandFailed(Process, IoCommandKind.dbTransaction, iocUid, null, ex);
+            Context.AddException(Process, ex);
+            return false;
         }
     }
 
