@@ -5,7 +5,7 @@ public enum ResilientSqlScopeTempTableMode
     KeepOnlyOnFailure, AlwaysKeep, AlwaysDrop
 }
 
-public sealed class ResilientSqlScope : AbstractExecutable, IScope
+public sealed partial class ResilientSqlScope : AbstractExecutable, IScope
 {
     /// <summary>
     /// The transaction scope kind around the finalizers. Default value is <see cref="TransactionScopeKind.RequiresNew"/>.
@@ -93,8 +93,7 @@ public sealed class ResilientSqlScope : AbstractExecutable, IScope
 
     protected override void ExecuteImpl()
     {
-        var maxRetryCount = FinalizerRetryCount;
-        if (FinalizerTransactionScopeKind != TransactionScopeKind.RequiresNew && maxRetryCount > 0)
+        if (FinalizerTransactionScopeKind != TransactionScopeKind.RequiresNew && FinalizerRetryCount > 0)
             throw new InvalidProcessParameterException(this, nameof(FinalizerRetryCount), null, "retrying finalizers can be possible only if the " + nameof(FinalizerTransactionScopeKind) + " is set to " + nameof(TransactionScopeKind.RequiresNew));
 
         var initialExceptionCount = Context.ExceptionCount;
@@ -138,16 +137,11 @@ public sealed class ResilientSqlScope : AbstractExecutable, IScope
             if (Context.ExceptionCount > initialExceptionCount)
                 return;
 
-            if (Initializers != null)
+            var ok = Initialize(ref initialExceptionCount);
+            if (!ok)
             {
-                var initializationSuccessful = false;
-                Initialize(maxRetryCount, ref initialExceptionCount, ref initializationSuccessful);
-
-                if (!initializationSuccessful)
-                {
-                    Context.Log(LogSeverity.Information, this, "initialization failed after {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
-                    return;
-                }
+                Context.Log(LogSeverity.Information, this, "initialization failed after {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
+                return;
             }
 
             foreach (var table in Tables)
@@ -206,195 +200,7 @@ public sealed class ResilientSqlScope : AbstractExecutable, IScope
                 }
             }
 
-            for (var retryCounter = 0; retryCounter <= maxRetryCount; retryCounter++)
-            {
-                Context.Log(LogSeverity.Information, this, "finalization round {FinalizationRound} started", retryCounter);
-                using (var scope = Context.BeginScope(this, FinalizerTransactionScopeKind, LogSeverity.Information))
-                {
-                    if (PreFinalizers != null)
-                    {
-                        IExecutable[] finalizers;
-
-                        using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
-                        {
-                            var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
-                            PreFinalizers.Invoke(builder);
-                            finalizers = builder.Processes.Where(x => x != null).ToArray();
-                        }
-
-                        if (finalizers?.Length > 0)
-                        {
-                            Context.Log(LogSeverity.Debug, this, "created {PreFinalizerCount} pre-finalizer(s)",
-                                finalizers?.Length ?? 0);
-
-                            foreach (var finalizer in finalizers)
-                            {
-                                var preExceptionCount = Context.ExceptionCount;
-
-                                Context.Log(LogSeverity.Information, this, "starting pre-finalizer: {Process}",
-                                    finalizer.Name);
-
-                                finalizer.Execute(this);
-                                if (Context.ExceptionCount > preExceptionCount)
-                                    break;
-                            }
-                        }
-                    }
-
-                    if (Context.ExceptionCount == initialExceptionCount)
-                    {
-                        var tablesOrderedTemp = new List<TableWithOrder>();
-                        for (var i = 0; i < Tables.Count; i++)
-                        {
-                            tablesOrderedTemp.Add(new TableWithOrder()
-                            {
-                                Table = Tables[i],
-                                OriginalIndex = i,
-                            });
-                        }
-
-                        var tablesOrdered = tablesOrderedTemp
-                            .OrderBy(x => x.Table.OrderDuringFinalization)
-                            .ThenBy(x => x.OriginalIndex)
-                            .Select(x => x.Table)
-                            .ToList();
-
-                        var recordCounts = new int[tablesOrdered.Count];
-                        for (var i = 0; i < tablesOrdered.Count; i++)
-                        {
-                            var table = tablesOrdered[i];
-
-                            var recordCount = CountTempRecordsIn(table);
-                            if (table.AdditionalTables?.Count > 0)
-                            {
-                                foreach (var additionalTable in table.AdditionalTables)
-                                {
-                                    recordCount += CountTempRecordsIn(additionalTable);
-                                }
-                            }
-
-                            recordCounts[i] = recordCount;
-                        }
-
-                        Context.Log(LogSeverity.Information, this, "{TableCountWithData} of {TotalTableCount} temp table contains data",
-                            recordCounts.Count(x => x > 0), recordCounts.Length);
-
-                        for (var i = 0; i < tablesOrdered.Count; i++)
-                        {
-                            Context.Log(LogSeverity.Verbose, this, "temp table {TableName} contains {RecordCount} records",
-                                ConnectionString.Unescape(tablesOrdered[i].TempTableName), recordCounts[i]);
-                        }
-
-                        for (var i = 0; i < tablesOrdered.Count; i++)
-                        {
-                            var table = tablesOrdered[i];
-                            if (table.SkipFinalizersIfNoTempData && recordCounts[i] == 0)
-                            {
-                                Context.Log(LogSeverity.Debug, this, "no data found for {TableName}, skipping finalizers",
-                                    ConnectionString.Unescape(table.TableName));
-
-                                continue;
-                            }
-
-                            var creatorScopeKind = table.SuppressTransactionScopeForCreators
-                                ? TransactionScopeKind.Suppress
-                                : TransactionScopeKind.None;
-
-                            var allFinalizers = new Dictionary<string, IExecutable[]>();
-                            using (var creatorScope = Context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
-                            {
-                                var builder = new ResilientSqlTableTableFinalizerBuilder() { Table = table };
-                                table.Finalizers.Invoke(builder);
-                                var finalizers = builder.Finalizers.Where(x => x != null).ToArray();
-
-                                allFinalizers[table.TableName] = finalizers;
-
-                                Context.Log(LogSeverity.Debug, this, "created {FinalizerCount} finalizer(s) for {TableName}",
-                                    finalizers.Length,
-                                    ConnectionString.Unescape(table.TableName));
-
-                                if (table.AdditionalTables != null)
-                                {
-                                    foreach (var additionalTable in table.AdditionalTables)
-                                    {
-                                        builder = new ResilientSqlTableTableFinalizerBuilder() { Table = additionalTable };
-                                        additionalTable.Finalizers.Invoke(builder);
-                                        finalizers = builder.Finalizers.Where(x => x != null).ToArray();
-
-                                        allFinalizers[additionalTable.TableName] = finalizers;
-
-                                        Context.Log(LogSeverity.Debug, this, "created {FinalizerCount} finalizer(s) for {TableName}",
-                                            finalizers.Length,
-                                            ConnectionString.Unescape(additionalTable.TableName));
-                                    }
-                                }
-                            }
-
-                            foreach (var tableFinalizers in allFinalizers)
-                            {
-                                foreach (var finalizer in tableFinalizers.Value)
-                                {
-                                    var preExceptionCount = Context.ExceptionCount;
-                                    Context.Log(LogSeverity.Information, this, "finalizing {TableName} with {Process}",
-                                        ConnectionString.Unescape(tableFinalizers.Key),
-                                        finalizer.Name);
-
-                                    finalizer.Execute(this);
-                                    if (Context.ExceptionCount > preExceptionCount)
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (PostFinalizers != null && Context.ExceptionCount == initialExceptionCount)
-                        {
-                            IExecutable[] finalizers;
-
-                            using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
-                            {
-                                var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
-                                PostFinalizers.Invoke(builder);
-                                finalizers = builder.Processes.Where(x => x != null).ToArray();
-                            }
-
-                            if (finalizers?.Length > 0)
-                            {
-                                Context.Log(LogSeverity.Debug, this, "created {PostFinalizerCount} post-finalizer(s)",
-                                    finalizers?.Length ?? 0);
-
-                                foreach (var finalizer in finalizers)
-                                {
-                                    var preExceptionCount = Context.ExceptionCount;
-
-                                    Context.Log(LogSeverity.Information, this, "starting post-finalizer: {Process}",
-                                        finalizer.Name);
-
-                                    finalizer.Execute(this);
-                                    if (Context.ExceptionCount > preExceptionCount)
-                                        break;
-                                }
-                            }
-                        }
-                    }
-
-                    var currentExceptionCount = Context.ExceptionCount;
-                    if (currentExceptionCount == initialExceptionCount)
-                    {
-                        scope.Complete();
-                    }
-
-                    currentExceptionCount = Context.ExceptionCount;
-                    if (currentExceptionCount == initialExceptionCount)
-                    {
-                        success = true;
-                        break;
-                    }
-
-                    initialExceptionCount = currentExceptionCount;
-                }
-            }
+            success = Finalize(ref initialExceptionCount);
         }
         finally
         {
@@ -420,51 +226,6 @@ public sealed class ResilientSqlScope : AbstractExecutable, IScope
         }.Execute(this);
 
         return count;
-    }
-
-    private void Initialize(int maxRetryCount, ref int initialExceptionCount, ref bool initializationSuccessful)
-    {
-        for (var retryCounter = 0; retryCounter <= maxRetryCount; retryCounter++)
-        {
-            Context.Log(LogSeverity.Information, this, "initialization round {InitializationRound} started", retryCounter);
-            using (var scope = Context.BeginScope(this, InitializationTransactionScopeKind, LogSeverity.Information))
-            {
-                IExecutable[] initializers;
-
-                using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
-                {
-                    var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
-                    Initializers.Invoke(builder);
-                    initializers = builder.Processes.Where(x => x != null).ToArray();
-
-                    Context.Log(LogSeverity.Information, this, "created {InitializerCount} initializers", initializers?.Length ?? 0);
-                }
-
-                if (initializers?.Length > 0)
-                {
-                    Context.Log(LogSeverity.Information, this, "starting initializers");
-
-                    foreach (var initializer in initializers)
-                    {
-                        var preExceptionCount = Context.ExceptionCount;
-                        initializer.Execute(this);
-                        if (Context.ExceptionCount > preExceptionCount)
-                            break;
-                    }
-                }
-
-                var currentExceptionCount = Context.ExceptionCount;
-                if (currentExceptionCount == initialExceptionCount)
-                {
-                    scope.Complete();
-
-                    initializationSuccessful = true;
-                    break;
-                }
-
-                initialExceptionCount = currentExceptionCount;
-            }
-        }
     }
 
     private void CreateTempTables()

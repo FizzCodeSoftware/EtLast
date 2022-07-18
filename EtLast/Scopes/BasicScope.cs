@@ -38,49 +38,54 @@ public sealed class BasicScope : AbstractExecutable, IScope
 
     protected override void ExecuteImpl()
     {
-        using (var scope = Context.BeginScope(this, TransactionScopeKind, LogSeverity.Information))
+        try
         {
-            var failed = false;
-
-            var creators = new List<ProcessCreatorDelegate>();
-            if (ProcessCreator != null)
-                creators.Add(ProcessCreator);
-
-            if (ProcessCreators != null)
-                creators.AddRange(ProcessCreators);
-
-            foreach (var creator in creators)
+            using (var scope = Context.BeginScope(this, TransactionScopeKind, LogSeverity.Information))
             {
-                IExecutable[] processes = null;
-                using (var creatorScope = Context.BeginScope(this, CreationTransactionScopeKind, LogSeverity.Information))
+                var success = true;
+
+                var creators = new List<ProcessCreatorDelegate>();
+                if (ProcessCreator != null)
+                    creators.Add(ProcessCreator);
+
+                if (ProcessCreators != null)
+                    creators.AddRange(ProcessCreators);
+
+                foreach (var creator in creators)
                 {
-                    processes = creator.Invoke(this).Where(x => x != null).ToArray();
-                }
-
-                if (processes.Length == 0)
-                    continue;
-
-                foreach (var process in processes)
-                {
-                    var initialExceptionCount = Context.ExceptionCount;
-
-                    process.Execute(this);
-
-                    if (Context.ExceptionCount != initialExceptionCount)
+                    IExecutable[] processes = null;
+                    using (var creatorScope = Context.BeginScope(this, CreationTransactionScopeKind, LogSeverity.Information))
                     {
-                        OnError?.Invoke(this, new BasicScopeProcessFailedEventArgs(this, process));
+                        processes = creator.Invoke(this).Where(x => x != null).ToArray();
+                    }
 
-                        failed = true;
-                        if (StopOnError)
-                            break;
+                    if (processes.Length == 0)
+                        continue;
+
+                    foreach (var process in processes)
+                    {
+                        var initialExceptionCount = Context.ExceptionCount;
+
+                        process.Execute(this);
+
+                        if (Context.ExceptionCount != initialExceptionCount)
+                        {
+                            OnError?.Invoke(this, new BasicScopeProcessFailedEventArgs(this, process));
+
+                            success = false;
+                            if (StopOnError)
+                                break;
+                        }
                     }
                 }
-            }
 
-            if (!failed)
-            {
-                scope.Complete();
-            }
+                if (success)
+                    scope.Complete();
+            } // dispose scope
+        }
+        catch (Exception ex)
+        {
+            AddException(ex);
         }
     }
 }
