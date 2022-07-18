@@ -1,9 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractMutator : AbstractEvaluable, IMutator
+public abstract class AbstractMutator : AbstractProducer, IMutator
 {
-    public IProducer InputProcess { get; set; }
+    public IProducer Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
 
@@ -21,15 +21,13 @@ public abstract class AbstractMutator : AbstractEvaluable, IMutator
         catch (Exception ex)
         {
             AddException(ex);
-            netTimeStopwatch.Stop();
-            Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
             yield break;
         }
 
         var mutatedRows = new List<IRow>();
 
         netTimeStopwatch.Stop();
-        var enumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+        var enumerator = Input.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
         netTimeStopwatch.Start();
 
         var mutatedRowCount = 0;
@@ -148,26 +146,20 @@ public abstract class AbstractMutator : AbstractEvaluable, IMutator
         catch (Exception ex)
         {
             AddException(ex);
-            netTimeStopwatch.Stop();
-            Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
             yield break;
         }
-
-        netTimeStopwatch.Stop();
 
         if (mutatedRowCount + ignoredRowCount > 0)
         {
             Context.Log(LogSeverity.Debug, this, "mutated {MutatedRowCount} of {TotalRowCount} rows in {Elapsed}/{ElapsedWallClock}",
                 mutatedRowCount, mutatedRowCount + ignoredRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
         }
-
-        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
     }
 
     protected sealed override void ValidateImpl()
     {
-        if (InputProcess == null)
-            throw new ProcessParameterNullException(this, nameof(InputProcess));
+        if (Input == null)
+            throw new ProcessParameterNullException(this, nameof(Input));
 
         ValidateMutator();
     }

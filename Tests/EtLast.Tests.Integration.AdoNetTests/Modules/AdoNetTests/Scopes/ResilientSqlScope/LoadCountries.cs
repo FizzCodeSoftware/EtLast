@@ -10,7 +10,7 @@ public class LoadCountries : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    public override IEnumerable<IExecutable> CreateProcesses()
+    public override IEnumerable<IJob> CreateJobs()
     {
         yield return new CustomSqlStatement(Context)
         {
@@ -26,7 +26,7 @@ public class LoadCountries : AbstractEtlTask
                 new ResilientTable()
                 {
                     TableName = nameof(LoadCountries),
-                    MainProcessCreator = table => CreateProcess(table),
+                    JobCreator = table => CreateProcess(table),
                     Finalizers = builder => builder.CopyTable(),
                     Columns = TestData.CountryColumns,
                 },
@@ -41,7 +41,7 @@ public class LoadCountries : AbstractEtlTask
             );
     }
 
-    private IEnumerable<IExecutable> CreateProcess(ResilientTable table)
+    private IEnumerable<IJob> CreateProcess(ResilientTable table)
     {
         yield return ProcessBuilder.Fluent
             .ReadFrom(TestData.Country(Context))

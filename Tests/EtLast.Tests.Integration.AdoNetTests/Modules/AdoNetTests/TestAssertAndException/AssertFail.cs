@@ -6,9 +6,9 @@ public class AssertFail : AbstractEtlTask
     {
     }
 
-    public override IEnumerable<IExecutable> CreateProcesses()
+    public override IEnumerable<IJob> CreateJobs()
     {
-        yield return new CustomAction(Context)
+        yield return new CustomJob(Context)
         {
             Name = "StoredProcedureAdoNetDbReader",
             Action = proc =>

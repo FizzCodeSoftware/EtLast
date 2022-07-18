@@ -8,7 +8,7 @@ public abstract class AbstractSqlStatement : AbstractSqlStatementBase
     {
     }
 
-    protected override void ExecuteImpl()
+    protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
         var parameters = new Dictionary<string, object>();
         var sqlStatement = CreateSqlStatement(parameters);

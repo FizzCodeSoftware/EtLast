@@ -53,7 +53,7 @@ public sealed class EtlSession : IEtlSession
         return new TaskWithResult<T>(result, task);
     }
 
-    public ProcessResult ExecuteProcess(IProcess caller, IExecutable process)
+    public ProcessResult ExecuteProcess(IProcess caller, IJob process)
     {
         if (process is IEtlTask)
             throw new ArgumentException("For executing tasks, use " + nameof(ExecuteTask) + " instead.", nameof(process));

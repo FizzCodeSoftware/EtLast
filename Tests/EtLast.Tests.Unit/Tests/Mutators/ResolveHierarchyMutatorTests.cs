@@ -9,7 +9,7 @@ public class ResolveHierarchyMutatorTests
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.RoleHierarchy(context),
+            InputJob = TestData.RoleHierarchy(context),
             Mutators = new MutatorList()
             {
                 new ResolveHierarchyMutator(context)
@@ -42,7 +42,7 @@ public class ResolveHierarchyMutatorTests
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.RoleHierarchy(context),
+            InputJob = TestData.RoleHierarchy(context),
             Mutators = new MutatorList()
             {
                 new ResolveHierarchyMutator(context)
@@ -75,7 +75,7 @@ public class ResolveHierarchyMutatorTests
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.RoleHierarchy(context),
+            InputJob = TestData.RoleHierarchy(context),
             Mutators = new MutatorList()
             {
                 new ResolveHierarchyMutator(context)
@@ -107,7 +107,7 @@ public class ResolveHierarchyMutatorTests
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.RoleHierarchy(context),
+            InputJob = TestData.RoleHierarchy(context),
             Mutators = new MutatorList()
             {
                 new ResolveHierarchyMutator(context)
@@ -141,7 +141,7 @@ public class ResolveHierarchyMutatorTests
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.RoleHierarchy(context),
+            InputJob = TestData.RoleHierarchy(context),
             Mutators = new MutatorList()
             {
                 new InPlaceConvertMutator(context)

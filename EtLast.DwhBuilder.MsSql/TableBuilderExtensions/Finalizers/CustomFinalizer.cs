@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.MsSql;
 
-public delegate IEnumerable<IExecutable> CustomFinalizerCreatorDelegate(DwhTableBuilder builder, DateTimeOffset? currentEtlRunId);
+public delegate IEnumerable<IJob> CustomFinalizerCreatorDelegate(DwhTableBuilder builder, DateTimeOffset? currentEtlRunId);
 
 public static partial class TableBuilderExtensions
 {

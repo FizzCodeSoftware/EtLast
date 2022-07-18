@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public interface IExecutable : IProcess
+public interface IJob : IProcess
 {
     void Execute(IProcess caller);
 }

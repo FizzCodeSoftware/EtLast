@@ -1,9 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractBatchedMutator : AbstractEvaluable, IMutator
+public abstract class AbstractBatchedMutator : AbstractProducer, IMutator
 {
-    public IProducer InputProcess { get; set; }
+    public IProducer Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
 
@@ -28,8 +28,6 @@ public abstract class AbstractBatchedMutator : AbstractEvaluable, IMutator
         catch (Exception ex)
         {
             AddException(ex);
-            netTimeStopwatch.Stop();
-            Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
             yield break;
         }
 
@@ -37,7 +35,7 @@ public abstract class AbstractBatchedMutator : AbstractEvaluable, IMutator
         var removedRows = new List<IRow>();
 
         netTimeStopwatch.Stop();
-        var enumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+        var enumerator = Input.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
         netTimeStopwatch.Start();
 
         var batch = new List<IRow>();
@@ -261,8 +259,6 @@ public abstract class AbstractBatchedMutator : AbstractEvaluable, IMutator
         catch (Exception ex)
         {
             AddException(ex);
-            netTimeStopwatch.Stop();
-            Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
             yield break;
         }
 
@@ -273,14 +269,12 @@ public abstract class AbstractBatchedMutator : AbstractEvaluable, IMutator
             Context.Log(LogSeverity.Debug, this, "mutated {MutatedRowCount}/{TotalRowCount} rows in {Elapsed}/{ElapsedWallClock} in {BatchCount} batches",
                 mutatedRowCount, mutatedRowCount + ignoredRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed, batchCount);
         }
-
-        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
     }
 
     protected sealed override void ValidateImpl()
     {
-        if (InputProcess == null)
-            throw new ProcessParameterNullException(this, nameof(InputProcess));
+        if (Input == null)
+            throw new ProcessParameterNullException(this, nameof(Input));
 
         ValidateMutator();
     }

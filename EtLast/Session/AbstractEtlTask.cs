@@ -11,7 +11,7 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 
     private readonly IoCommandCounterCollection _ioCommandCounterCollection = new();
 
-    public abstract IEnumerable<IExecutable> CreateProcesses();
+    public abstract IEnumerable<IJob> CreateJobs();
 
     protected AbstractEtlTask()
     {
@@ -27,9 +27,9 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
         Context.RegisterProcessInvocationStart(this, caller);
 
         if (caller != null)
-            Context.Log(LogSeverity.Information, this, "task started by {Process}", caller.Name);
+            Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Process}", Kind, caller.Name);
         else
-            Context.Log(LogSeverity.Information, this, "task started");
+            Context.Log(LogSeverity.Information, this, "{ProcessKind} started", Kind);
 
         LogPublicSettableProperties(LogSeverity.Debug);
 
@@ -45,18 +45,18 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
             Context.Listeners.Add(_ioCommandCounterCollection);
             try
             {
-                var executables = CreateProcesses()?
+                var jobs = CreateJobs()?
                     .Where(x => x != null)
                     .ToList();
 
-                if (executables?.Count > 0)
+                if (jobs?.Count > 0)
                 {
-                    for (var executableIndex = 0; executableIndex < executables.Count; executableIndex++)
+                    for (var jobIndex = 0; jobIndex < jobs.Count; jobIndex++)
                     {
-                        var executable = executables[executableIndex];
+                        var job = jobs[jobIndex];
                         var originalExceptionCount = Context.ExceptionCount;
 
-                        executable.Execute(this);
+                        job.Execute(this);
 
                         var newExceptions = Context.GetExceptions().Skip(originalExceptionCount).ToList();
                         if (newExceptions.Count > 0)
@@ -74,8 +74,8 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 
             _statistics.Finish();
 
-            Context.Log(LogSeverity.Information, this, "task {TaskResult} in {Elapsed}",
-                (result.Exceptions.Count == 0) ? "finished" : "failed", _statistics.RunTime);
+            Context.Log(LogSeverity.Information, this, "{ProcessKind} {TaskResult} in {Elapsed}",
+                Kind, (result.Exceptions.Count == 0) ? "finished" : "failed", _statistics.RunTime);
 
             LogPrivateSettableProperties(LogSeverity.Debug);
 

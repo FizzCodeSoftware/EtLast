@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed partial class ResilientSqlScope : AbstractExecutable, IScope
+public sealed partial class ResilientSqlScope : AbstractJob, IScope
 {
     private bool Finalize(ref int initialExceptionCount)
     {
@@ -44,28 +44,26 @@ public sealed partial class ResilientSqlScope : AbstractExecutable, IScope
     {
         if (PostFinalizers != null)
         {
-            IExecutable[] finalizers;
+            IJob[] processes;
 
             using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
             {
                 var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
                 PostFinalizers.Invoke(builder);
-                finalizers = builder.Processes.Where(x => x != null).ToArray();
+                processes = builder.Processes.Where(x => x != null).ToArray();
             }
 
-            if (finalizers?.Length > 0)
+            if (processes?.Length > 0)
             {
                 Context.Log(LogSeverity.Debug, this, "created {PostFinalizerCount} post-finalizer(s)",
-                    finalizers?.Length ?? 0);
+                    processes?.Length ?? 0);
 
-                foreach (var finalizer in finalizers)
+                foreach (var process in processes)
                 {
                     var preExceptionCount = Context.ExceptionCount;
 
-                    Context.Log(LogSeverity.Information, this, "starting post-finalizer: {Process}",
-                        finalizer.Name);
+                    process.Execute(this);
 
-                    finalizer.Execute(this);
                     if (Context.ExceptionCount > preExceptionCount)
                         break;
                 }
@@ -132,7 +130,7 @@ public sealed partial class ResilientSqlScope : AbstractExecutable, IScope
                 ? TransactionScopeKind.Suppress
                 : TransactionScopeKind.None;
 
-            var allFinalizers = new Dictionary<string, IExecutable[]>();
+            var allFinalizers = new Dictionary<string, IJob[]>();
             using (var creatorScope = Context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
             {
                 var builder = new ResilientSqlTableTableFinalizerBuilder() { Table = table };
@@ -164,18 +162,14 @@ public sealed partial class ResilientSqlScope : AbstractExecutable, IScope
 
             foreach (var tableFinalizers in allFinalizers)
             {
-                foreach (var finalizer in tableFinalizers.Value)
+                foreach (var process in tableFinalizers.Value)
                 {
                     var preExceptionCount = Context.ExceptionCount;
-                    Context.Log(LogSeverity.Information, this, "finalizing {TableName} with {Process}",
-                        ConnectionString.Unescape(tableFinalizers.Key),
-                        finalizer.Name);
 
-                    finalizer.Execute(this);
+                    process.Execute(this);
+
                     if (Context.ExceptionCount > preExceptionCount)
-                    {
                         break;
-                    }
                 }
             }
         }
@@ -186,28 +180,26 @@ public sealed partial class ResilientSqlScope : AbstractExecutable, IScope
         if (PreFinalizers == null)
             return;
 
-        IExecutable[] finalizers;
+        IJob[] processes;
 
         using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
         {
             var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
             PreFinalizers.Invoke(builder);
-            finalizers = builder.Processes.Where(x => x != null).ToArray();
+            processes = builder.Processes.Where(x => x != null).ToArray();
         }
 
-        if (finalizers?.Length > 0)
+        if (processes?.Length > 0)
         {
             Context.Log(LogSeverity.Debug, this, "created {PreFinalizerCount} pre-finalizer(s)",
-                finalizers?.Length ?? 0);
+                processes?.Length ?? 0);
 
-            foreach (var finalizer in finalizers)
+            foreach (var process in processes)
             {
                 var preExceptionCount = Context.ExceptionCount;
 
-                Context.Log(LogSeverity.Information, this, "starting pre-finalizer: {Process}",
-                    finalizer.Name);
+                process.Execute(this);
 
-                finalizer.Execute(this);
                 if (Context.ExceptionCount > preExceptionCount)
                     break;
             }

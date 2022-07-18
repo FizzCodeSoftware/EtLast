@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class Splitter<TRowQueue> : AbstractEvaluable
+public sealed class Splitter<TRowQueue> : AbstractProducer
     where TRowQueue : IRowQueue, new()
 {
     public IProducer InputProcess { get; set; }

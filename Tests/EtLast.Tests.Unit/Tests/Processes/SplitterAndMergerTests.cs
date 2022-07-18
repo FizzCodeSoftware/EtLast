@@ -21,7 +21,7 @@ public class SplitterAndMergerTests
         {
             processes[i] = new CustomMutator(context)
             {
-                InputProcess = splitter,
+                Input = splitter,
                 Action = row =>
                 {
                     Thread.Sleep(new Random().Next(10));
@@ -62,7 +62,7 @@ public class SplitterAndMergerTests
         {
             processes[i] = new CustomMutator(context)
             {
-                InputProcess = splitter,
+                Input = splitter,
                 Action = row =>
                 {
                     Thread.Sleep(new Random().Next(10));
@@ -120,7 +120,7 @@ public class SplitterAndMergerTests
         {
             merger.ProcessList.Add(new CustomMutator(context)
             {
-                InputProcess = TestData.Person(context),
+                Input = TestData.Person(context),
                 Action = row =>
                 {
                     Thread.Sleep(new Random().Next(100));
@@ -163,7 +163,7 @@ public class SplitterAndMergerTests
         {
             merger.ProcessList.Add(new CustomMutator(context)
             {
-                InputProcess = splitter,
+                Input = splitter,
                 Action = row =>
                 {
                     Thread.Sleep(new Random().Next(10));

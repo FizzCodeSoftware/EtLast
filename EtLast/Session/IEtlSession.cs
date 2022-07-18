@@ -9,5 +9,5 @@ public interface IEtlSession
 
     public bool Success { get; }
     public TaskWithResult<T> ExecuteTask<T>(IProcess caller, T task) where T : IEtlTask;
-    public ProcessResult ExecuteProcess(IProcess caller, IExecutable process);
+    public ProcessResult ExecuteProcess(IProcess caller, IJob process);
 }

@@ -15,7 +15,7 @@ public class RemoveDuplicateRowsMutatorTests
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.Person(context),
+            InputJob = TestData.Person(context),
             Mutators = new MutatorList()
             {
                 new RemoveDuplicateRowsMutator(context)
@@ -44,7 +44,7 @@ public class RemoveDuplicateRowsMutatorTests
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.Person(context),
+            InputJob = TestData.Person(context),
             Mutators = new MutatorList()
             {
                 new RemoveDuplicateRowsMutator(context)
@@ -74,7 +74,7 @@ public class RemoveDuplicateRowsMutatorTests
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.Person(context),
+            InputJob = TestData.Person(context),
             Mutators = new MutatorList()
             {
                 new RemoveDuplicateRowsMutator(context)

@@ -11,7 +11,7 @@ public class DataContractXmlDeSerializerConverterTests
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.Person(context),
+            InputJob = TestData.Person(context),
             Mutators = new MutatorList()
             {
                 new InPlaceConvertMutator(context)

@@ -1,14 +1,19 @@
 ﻿namespace FizzCode.EtLast;
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractExecutableWithResult<T> : AbstractProcess, IExecutableWithResult<T>
+public abstract class AbstractJobWithResult<T> : AbstractProcess, IJobWithResult<T>
 {
-    protected AbstractExecutableWithResult(IEtlContext context)
+    protected AbstractJobWithResult(IEtlContext context)
         : base(context)
     {
     }
 
-    public T Execute(IProcess caller = null)
+    public void Execute(IProcess caller)
+    {
+        ExecuteWithResult(caller);
+    }
+
+    public T ExecuteWithResult(IProcess caller = null)
     {
         Context.RegisterProcessInvocationStart(this, caller);
 

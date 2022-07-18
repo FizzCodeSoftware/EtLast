@@ -9,7 +9,7 @@ public class ProcessBuilderTests
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.Person(context),
+            InputJob = TestData.Person(context),
             Mutators = new MutatorList()
             {
                 new CustomMutator(context)
@@ -22,7 +22,7 @@ public class ProcessBuilderTests
         var process = builder.Build();
         Assert.IsNotNull(process);
         Assert.IsTrue(process is CustomMutator);
-        Assert.IsNotNull((process as CustomMutator).InputProcess);
+        Assert.IsNotNull((process as CustomMutator).Input);
     }
 
     [TestMethod]
@@ -31,7 +31,7 @@ public class ProcessBuilderTests
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.Person(context),
+            InputJob = TestData.Person(context),
             Mutators = new MutatorList()
             {
                 new CustomMutator(context)
@@ -48,8 +48,8 @@ public class ProcessBuilderTests
         var process = builder.Build();
         Assert.IsNotNull(process);
         Assert.IsTrue(process is CustomMutator);
-        Assert.IsTrue((process as CustomMutator).InputProcess is CustomMutator);
-        Assert.IsNotNull(((process as CustomMutator).InputProcess as CustomMutator).InputProcess);
+        Assert.IsTrue((process as CustomMutator).Input is CustomMutator);
+        Assert.IsNotNull(((process as CustomMutator).Input as CustomMutator).Input);
     }
 
     [TestMethod]
@@ -70,7 +70,7 @@ public class ProcessBuilderTests
         var process = builder.Build();
         Assert.IsNotNull(process);
         Assert.IsTrue(process is CustomMutator);
-        Assert.IsNull((process as CustomMutator).InputProcess);
+        Assert.IsNull((process as CustomMutator).Input);
     }
 
     [TestMethod]
@@ -79,7 +79,7 @@ public class ProcessBuilderTests
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.Person(context),
+            InputJob = TestData.Person(context),
             Mutators = new MutatorList(),
         };
 

@@ -12,7 +12,7 @@ public static partial class TableBuilderExtensions
         return builders;
     }
 
-    private static IEnumerable<IExecutable> CreateSimpleCopyFinalizer(DwhTableBuilder builder)
+    private static IEnumerable<IJob> CreateSimpleCopyFinalizer(DwhTableBuilder builder)
     {
         var columnDefaults = new Dictionary<string, object>();
         if (builder.HasEtlRunInfo)

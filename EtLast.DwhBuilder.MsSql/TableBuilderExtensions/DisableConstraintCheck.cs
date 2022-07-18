@@ -12,7 +12,7 @@ public static partial class TableBuilderExtensions
         return builders;
     }
 
-    private static IEnumerable<IExecutable> CreateDisableConstraintCheckFinalizer(DwhTableBuilder builder)
+    private static IEnumerable<IJob> CreateDisableConstraintCheckFinalizer(DwhTableBuilder builder)
     {
         if (builder.Table.ForeignKeys.Count == 0)
             yield break;
@@ -29,7 +29,7 @@ public static partial class TableBuilderExtensions
             CommandTimeout = 60 * 60,
         };
 
-        yield return new CustomAction(builder.ResilientTable.Scope.Context)
+        yield return new CustomJob(builder.ResilientTable.Scope.Context)
         {
             Name = "UpdateConstraintList",
             Action = process =>

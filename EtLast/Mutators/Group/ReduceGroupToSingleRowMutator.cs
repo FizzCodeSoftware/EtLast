@@ -6,9 +6,9 @@ public delegate IRow ReduceGroupToSingleRowDelegate(IProcess process, IReadOnlyL
 /// Input can be unordered. Group key generation is applied on the input rows on-the-fly, but group processing is started only after all groups are created.
 /// - keeps all input rows in memory (!)
 /// </summary>
-public sealed class ReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
+public sealed class ReduceGroupToSingleRowMutator : AbstractProducer, IMutator
 {
-    public IProducer InputProcess { get; set; }
+    public IProducer Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
 
@@ -39,7 +39,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
         var groups = new Dictionary<string, object>();
 
         netTimeStopwatch.Stop();
-        var enumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+        var enumerator = Input.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
         netTimeStopwatch.Start();
 
         var mutatedRowCount = 0;
@@ -189,12 +189,8 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
             }
         }
 
-        netTimeStopwatch.Stop();
-
         Context.Log(LogSeverity.Debug, this, "returned {ResultRowCount} rows in {Elapsed}/{ElapsedWallClock}",
             resultRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
-
-        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
     }
 
     public IEnumerator<IMutator> GetEnumerator()

@@ -1,14 +1,14 @@
 ﻿namespace FizzCode.EtLast;
 
-public delegate IEnumerable<IExecutable> ProcessCreatorDelegate(BasicScope scope);
+public delegate IEnumerable<IJob> ProcessCreatorDelegate(BasicScope scope);
 
 /// <summary>
-/// The default etl scope to execute multiple processes, optionally supporting ambient transaction scopes.
+/// The default etl scope to execute multiple jobs, optionally supporting ambient transaction scopes.
 /// </summary>
-public sealed class BasicScope : AbstractExecutable, IScope
+public sealed class BasicScope : AbstractJob, IScope
 {
-    public ProcessCreatorDelegate ProcessCreator { get; set; }
-    public IEnumerable<ProcessCreatorDelegate> ProcessCreators { get; set; }
+    public ProcessCreatorDelegate JobCreator { get; set; }
+    public IEnumerable<ProcessCreatorDelegate> JobCreators { get; set; }
 
     /// <summary>
     /// Default value is <see cref="TransactionScopeKind.None"/>.
@@ -16,7 +16,7 @@ public sealed class BasicScope : AbstractExecutable, IScope
     public TransactionScopeKind TransactionScopeKind { get; set; } = TransactionScopeKind.None;
 
     /// <summary>
-    /// Default value is <see cref="TransactionScopeKind.None"/> which means creation of the executables happens directly within the exection scope.
+    /// Default value is <see cref="TransactionScopeKind.None"/> which means creation of the jobs happens directly within the caller scope.
     /// </summary>
     public TransactionScopeKind CreationTransactionScopeKind { get; set; } = TransactionScopeKind.None;
 
@@ -36,41 +36,40 @@ public sealed class BasicScope : AbstractExecutable, IScope
     {
     }
 
-    protected override void ExecuteImpl()
+    protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
+        var success = true;
         try
         {
             using (var scope = Context.BeginScope(this, TransactionScopeKind, LogSeverity.Information))
             {
-                var success = true;
-
                 var creators = new List<ProcessCreatorDelegate>();
-                if (ProcessCreator != null)
-                    creators.Add(ProcessCreator);
+                if (JobCreator != null)
+                    creators.Add(JobCreator);
 
-                if (ProcessCreators != null)
-                    creators.AddRange(ProcessCreators);
+                if (JobCreators != null)
+                    creators.AddRange(JobCreators);
 
                 foreach (var creator in creators)
                 {
-                    IExecutable[] processes = null;
+                    IJob[] jobs = null;
                     using (var creatorScope = Context.BeginScope(this, CreationTransactionScopeKind, LogSeverity.Information))
                     {
-                        processes = creator.Invoke(this).Where(x => x != null).ToArray();
+                        jobs = creator.Invoke(this).Where(x => x != null).ToArray();
                     }
 
-                    if (processes.Length == 0)
+                    if (jobs.Length == 0)
                         continue;
 
-                    foreach (var process in processes)
+                    foreach (var job in jobs)
                     {
                         var initialExceptionCount = Context.ExceptionCount;
 
-                        process.Execute(this);
+                        job.Execute(this);
 
                         if (Context.ExceptionCount != initialExceptionCount)
                         {
-                            OnError?.Invoke(this, new BasicScopeProcessFailedEventArgs(this, process));
+                            OnError?.Invoke(this, new BasicScopeProcessFailedEventArgs(this, job));
 
                             success = false;
                             if (StopOnError)
@@ -85,6 +84,7 @@ public sealed class BasicScope : AbstractExecutable, IScope
         }
         catch (Exception ex)
         {
+            success = false;
             AddException(ex);
         }
     }

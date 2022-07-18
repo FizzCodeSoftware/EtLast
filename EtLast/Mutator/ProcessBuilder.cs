@@ -2,20 +2,20 @@
 
 public sealed class ProcessBuilder : IProcessBuilder
 {
-    public IProducer InputProcess { get; set; }
+    public IProducer InputJob { get; set; }
     public MutatorList Mutators { get; set; }
 
     public IProducer Build()
     {
         if (Mutators == null || Mutators.Count == 0)
         {
-            if (InputProcess == null)
-                throw new InvalidParameterException(nameof(ProcessBuilder), nameof(InputProcess), null, "When " + nameof(InputProcess) + " is not specified then at least one mutator must be specified");
+            if (InputJob == null)
+                throw new InvalidParameterException(nameof(ProcessBuilder), nameof(InputJob), null, "When " + nameof(InputJob) + " is not specified then at least one mutator must be specified");
 
-            return InputProcess;
+            return InputJob;
         }
 
-        var last = InputProcess;
+        var last = InputJob;
         foreach (var list in Mutators)
         {
             if (list != null)
@@ -24,7 +24,7 @@ public sealed class ProcessBuilder : IProcessBuilder
                 {
                     if (mutator != null)
                     {
-                        mutator.InputProcess = last;
+                        mutator.Input = last;
                         last = mutator;
                     }
                 }

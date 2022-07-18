@@ -1,9 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public class MemorySortMutator : AbstractEvaluable, IMutator
+public class MemorySortMutator : AbstractProducer, IMutator
 {
-    public IProducer InputProcess { get; set; }
+    public IProducer Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
     public Func<IEnumerable<IRow>, IEnumerable<IRow>> Sorter { get; init; }
@@ -24,7 +24,7 @@ public class MemorySortMutator : AbstractEvaluable, IMutator
         var rows = new List<IRow>();
 
         netTimeStopwatch.Stop();
-        var enumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+        var enumerator = Input.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
         netTimeStopwatch.Start();
 
         var mutatedRowCount = 0;
@@ -135,11 +135,8 @@ public class MemorySortMutator : AbstractEvaluable, IMutator
             }
         }
 
-        netTimeStopwatch.Stop();
         Context.Log(LogSeverity.Debug, this, "sorted {RowCount} rows in {Elapsed}/{ElapsedWallClock}",
             mutatedRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
-
-        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
     }
 
     public IEnumerator<IMutator> GetEnumerator()

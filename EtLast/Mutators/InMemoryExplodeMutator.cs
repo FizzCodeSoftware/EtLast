@@ -5,9 +5,9 @@ public delegate IEnumerable<ISlimRow> InMemoryExplodeDelegate(InMemoryExplodeMut
 /// <summary>
 /// Useful only for small amount of data due to all input rows are collected into a List and processed at once.
 /// </summary>
-public sealed class InMemoryExplodeMutator : AbstractEvaluable, IMutator
+public sealed class InMemoryExplodeMutator : AbstractProducer, IMutator
 {
-    public IProducer InputProcess { get; set; }
+    public IProducer Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
 
@@ -25,8 +25,8 @@ public sealed class InMemoryExplodeMutator : AbstractEvaluable, IMutator
 
     protected override void ValidateImpl()
     {
-        if (InputProcess == null)
-            throw new ProcessParameterNullException(this, nameof(InputProcess));
+        if (Input == null)
+            throw new ProcessParameterNullException(this, nameof(Input));
 
         if (Action == null)
             throw new ProcessParameterNullException(this, nameof(Action));
@@ -35,7 +35,7 @@ public sealed class InMemoryExplodeMutator : AbstractEvaluable, IMutator
     protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
     {
         netTimeStopwatch.Stop();
-        var sourceEnumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+        var sourceEnumerator = Input.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
         netTimeStopwatch.Start();
 
         var ignoredRowCount = 0;
@@ -146,11 +146,8 @@ public sealed class InMemoryExplodeMutator : AbstractEvaluable, IMutator
             netTimeStopwatch.Start();
         }
 
-        netTimeStopwatch.Stop();
         Context.Log(LogSeverity.Debug, this, "processed {InputRowCount} rows and returned {RowCount} rows in {Elapsed}/{ElapsedWallClock}",
             rows.Count, resultCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
-
-        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
     }
 
     public IEnumerator<IMutator> GetEnumerator()

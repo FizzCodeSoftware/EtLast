@@ -10,7 +10,7 @@ public class MergeUpdateCountries : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    public override IEnumerable<IExecutable> CreateProcesses()
+    public override IEnumerable<IJob> CreateJobs()
     {
         yield return new CustomSqlStatement(Context)
         {
@@ -26,7 +26,7 @@ public class MergeUpdateCountries : AbstractEtlTask
                 new ResilientTable()
                 {
                     TableName = nameof(MergeUpdateCountries),
-                    MainProcessCreator = table => LoadFirstTwoRows(table),
+                    JobCreator = table => LoadFirstTwoRows(table),
                     Finalizers = builder => builder.SimpleMsSqlMerge("Id"),
                     Columns = TestData.CountryColumns,
                 },
@@ -41,7 +41,7 @@ public class MergeUpdateCountries : AbstractEtlTask
                 new ResilientTable()
                 {
                     TableName = nameof(MergeUpdateCountries),
-                    MainProcessCreator = table => UpdateRow(table),
+                    JobCreator = table => UpdateRow(table),
                     Finalizers = builder => builder.SimpleMsSqlMerge("Id"),
                     Columns = TestData.CountryColumns,
                 },
@@ -54,7 +54,7 @@ public class MergeUpdateCountries : AbstractEtlTask
             );
     }
 
-    private IEnumerable<IExecutable> LoadFirstTwoRows(ResilientTable table)
+    private IEnumerable<IJob> LoadFirstTwoRows(ResilientTable table)
     {
         yield return ProcessBuilder.Fluent
             .ReadFrom(new RowCreator(Context)
@@ -74,7 +74,7 @@ public class MergeUpdateCountries : AbstractEtlTask
             .Build();
     }
 
-    private IEnumerable<IExecutable> UpdateRow(ResilientTable table)
+    private IEnumerable<IJob> UpdateRow(ResilientTable table)
     {
         var data = TestData.CountryData.Skip(1).Take(1).ToArray();
         data[0][1] = "United States of America Update";

@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 
 namespace FizzCode.EtLast;
-public sealed class HttpDownloadToLocalFile : AbstractExecutable
+public sealed class HttpDownloadToLocalFile : AbstractJob
 {
     public string Url { get; init; }
     public string FileName { get; init; }
@@ -20,7 +20,7 @@ public sealed class HttpDownloadToLocalFile : AbstractExecutable
             throw new ProcessParameterNullException(this, nameof(FileName));
     }
 
-    protected override void ExecuteImpl()
+    protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
         using (var clt = new HttpClient())
         {

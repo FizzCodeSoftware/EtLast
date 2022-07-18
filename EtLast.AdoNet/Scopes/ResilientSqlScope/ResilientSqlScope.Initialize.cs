@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed partial class ResilientSqlScope : AbstractExecutable, IScope
+public sealed partial class ResilientSqlScope : AbstractJob, IScope
 {
     private bool Initialize(ref int initialExceptionCount)
     {
@@ -36,7 +36,7 @@ public sealed partial class ResilientSqlScope : AbstractExecutable, IScope
 
     private void CreateAndExecuteInitializers()
     {
-        IExecutable[] initializers;
+        IJob[] initializers;
 
         using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
         {
@@ -51,10 +51,12 @@ public sealed partial class ResilientSqlScope : AbstractExecutable, IScope
         {
             Context.Log(LogSeverity.Information, this, "starting initializers");
 
-            foreach (var initializer in initializers)
+            foreach (var process in initializers)
             {
                 var preExceptionCount = Context.ExceptionCount;
-                initializer.Execute(this);
+
+                process.Execute(this);
+
                 if (Context.ExceptionCount > preExceptionCount)
                     break;
             }

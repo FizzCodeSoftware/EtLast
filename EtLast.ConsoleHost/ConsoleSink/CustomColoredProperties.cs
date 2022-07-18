@@ -12,7 +12,7 @@ internal static class CustomColoredProperties
         ["Process"] = ColorCode.Process,
         ["ActiveTask"] = ColorCode.Task,
         ["Task"] = ColorCode.Task,
-        ["InputProcess"] = ColorCode.Process,
+        ["Input"] = ColorCode.Process,
         ["Operation"] = ColorCode.Operation,
         ["Job"] = ColorCode.Job,
         ["Transaction"] = ColorCode.Transaction,

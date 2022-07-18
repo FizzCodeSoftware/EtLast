@@ -208,7 +208,7 @@ public static class BatchedKeyTestMutatorFluent
     /// - the existing rows are read from a dynamically compiled <see cref="RowLookup"/>, created for each batch based on the input rows (usually using a distinct list of foreign keys)
     /// - keeps the rows of a batch in the memory
     /// - 1 lookup is built for each batch
-    /// - if MatchAction.CustomAction is not null and MatchActionContainsMatch is true then all rows of the lookup are kept in the memory, otherwise a <see cref="CountableOnlyRowLookup"/> is used.
+    /// - if MatchAction.CustomJob is not null and MatchActionContainsMatch is true then all rows of the lookup are kept in the memory, otherwise a <see cref="CountableOnlyRowLookup"/> is used.
     /// </summary>
     public static IFluentProcessMutatorBuilder KeyTestBatched(this IFluentProcessMutatorBuilder builder, BatchedKeyTestMutator mutator)
     {

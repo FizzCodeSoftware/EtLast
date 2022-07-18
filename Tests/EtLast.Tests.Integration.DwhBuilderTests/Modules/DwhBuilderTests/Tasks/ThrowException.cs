@@ -14,9 +14,9 @@ public class ThrowException : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(Message));
     }
 
-    public override IEnumerable<IExecutable> CreateProcesses()
+    public override IEnumerable<IJob> CreateJobs()
     {
-        yield return new CustomAction(Context)
+        yield return new CustomJob(Context)
         {
             Action = _ =>
             {

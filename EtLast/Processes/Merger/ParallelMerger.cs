@@ -69,9 +69,6 @@ public sealed class ParallelMerger : AbstractMerger
         {
             thread.Join();
         }
-
-        Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
-        Context.RegisterProcessInvocationEnd(this);
     }
 }
 

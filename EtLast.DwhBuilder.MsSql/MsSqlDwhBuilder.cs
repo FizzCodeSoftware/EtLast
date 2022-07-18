@@ -63,7 +63,7 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
 
     private void CreatePreFinalizers(ResilientSqlScopeProcessBuilder builder)
     {
-        var process = new CustomAction(Context)
+        var process = new CustomJob(Context)
         {
             Name = "ReadAllEnabledForeignKeys",
             Action = (proc) =>
@@ -205,7 +205,7 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
         {
             var process = new ProcessBuilder()
             {
-                InputProcess = new EnumerableImporter(builder.Scope.Context)
+                InputJob = new EnumerableImporter(builder.Scope.Context)
                 {
                     Name = "EtlRunInfoCreator",
                     InputGenerator = process =>

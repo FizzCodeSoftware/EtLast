@@ -10,7 +10,7 @@ public static class ThrowsInvalidProcessParameterExceptionHelper
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.Person(context),
+            InputJob = TestData.Person(context),
             Mutators = new MutatorList()
             {
                 (T)Activator.CreateInstance(typeof(T), context),

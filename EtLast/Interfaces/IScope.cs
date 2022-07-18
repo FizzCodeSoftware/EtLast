@@ -1,5 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-public interface IScope : IExecutable
+public interface IScope : IJob
 {
 }

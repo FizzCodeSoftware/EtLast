@@ -45,7 +45,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
         }
 
         netTimeStopwatch.Stop();
-        var enumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+        var enumerator = Input.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
         netTimeStopwatch.Start();
 
         var rowCount = 0;
@@ -210,8 +210,6 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
             Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created a 0 aggregates in {Elapsed}, ignored: {IgnoredRowCount}",
                 rowCount, InvocationInfo.LastInvocationStarted.Elapsed, ignoredRowCount);
         }
-
-        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
     }
 }
 

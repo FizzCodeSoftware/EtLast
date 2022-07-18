@@ -50,7 +50,7 @@ public class EtlRunInfoOptimizedTest : AbstractEtlFlow
         TestSecondDwhBuilder();
     }
 
-    private IExecutable CreateFirstDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
+    private IJob CreateFirstDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
     {
         var builder = new MsSqlDwhBuilder(Context, "FirstDwhBuilder", Helpers.EtlRunId1)
         {
@@ -107,7 +107,7 @@ public class EtlRunInfoOptimizedTest : AbstractEtlFlow
         Assert.AreEqual(3, result.Count);
     }
 
-    private IExecutable CreateSecondDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
+    private IJob CreateSecondDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
     {
         var builder = new MsSqlDwhBuilder(Context, "SecondDwhBuilder", Helpers.EtlRunId2)
         {

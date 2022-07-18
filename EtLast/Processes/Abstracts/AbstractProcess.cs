@@ -30,19 +30,19 @@ public abstract class AbstractProcess : IProcess
 
     private static string GetProcessKind(IProcess process)
     {
-        if (process.GetType().GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IExecutableWithResult<>)))
+        if (process.GetType().GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IJobWithResult<>)))
             return "jobWithResult";
 
         return process switch
         {
-            IEtlFlow _ => "flow",
-            IEtlTask _ => "task",
-            IRowSource _ => "source",
-            IRowSink _ => "sink",
-            IMutator _ => "mutator",
-            IScope _ => "scope",
-            IProducer _ => "producer",
-            IExecutable _ => "job",
+            IEtlFlow => "flow",
+            IEtlTask => "task",
+            IRowSource => "source",
+            IRowSink => "sink",
+            IMutator => "mutator",
+            IScope => "scope",
+            IProducer => "producer",
+            IJob => "job",
             _ => "unknown",
         };
     }

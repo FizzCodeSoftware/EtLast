@@ -5,9 +5,9 @@
 /// Group key generation is applied on the input rows on-the-fly. The collected group is processed when a new key is found.
 /// - keeps all input rows in memory (!)
 /// </summary>
-public sealed class SortedReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
+public sealed class SortedReduceGroupToSingleRowMutator : AbstractProducer, IMutator
 {
-    public IProducer InputProcess { get; set; }
+    public IProducer Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
 
@@ -39,7 +39,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractEvaluable, IMu
         string lastKey = null;
 
         netTimeStopwatch.Stop();
-        var enumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+        var enumerator = Input.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
         netTimeStopwatch.Start();
 
         var success = true;
@@ -150,12 +150,8 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractEvaluable, IMu
             }
         }
 
-        netTimeStopwatch.Stop();
-
         Context.Log(LogSeverity.Debug, this, "evaluated {MutatedRowCount} of {TotalRowCount} rows and returned {ResultRowCount} rows in {Elapsed}/{ElapsedWallClock}",
             mutatedRowCount, mutatedRowCount + ignoredRowCount, resultRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
-
-        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
     }
 
     private IRow ReduceGroup(List<IRow> group)

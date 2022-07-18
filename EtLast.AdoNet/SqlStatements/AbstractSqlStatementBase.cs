@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast;
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractSqlStatementBase : AbstractExecutable
+public abstract class AbstractSqlStatementBase : AbstractJob
 {
     public NamedConnectionString ConnectionString { get; init; }
 

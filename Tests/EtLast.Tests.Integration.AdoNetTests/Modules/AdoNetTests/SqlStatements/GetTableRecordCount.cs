@@ -14,7 +14,7 @@ public class GetTableRecordCount : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(DatabaseName));
     }
 
-    public override IEnumerable<IExecutable> CreateProcesses()
+    public override IEnumerable<IJob> CreateJobs()
     {
         yield return new CustomSqlStatement(Context)
         {
@@ -23,8 +23,8 @@ public class GetTableRecordCount : AbstractEtlTask
                     $"INSERT INTO {nameof(GetTableRecordCount)} (Id, DateTimeValue) VALUES (1, '2022.07.08');" +
                     $"INSERT INTO {nameof(GetTableRecordCount)} (Id, DateTimeValue) VALUES (1, '2022.07.09');",
         };
-        
-        yield return new CustomAction(Context)
+
+        yield return new CustomJob(Context)
         {
             Name = nameof(GetTableRecordCount),
             Action = proc =>
@@ -33,7 +33,7 @@ public class GetTableRecordCount : AbstractEtlTask
                 {
                     ConnectionString = ConnectionString,
                     TableName = ConnectionString.Escape(nameof(GetTableRecordCount)),
-                }.Execute();
+                }.ExecuteWithResult();
 
                 Assert.AreEqual(2, result);
             }

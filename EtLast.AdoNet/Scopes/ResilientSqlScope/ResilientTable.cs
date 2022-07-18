@@ -1,8 +1,8 @@
 ﻿namespace FizzCode.EtLast;
 
-public delegate IProducer ResilientTablePartitionedMainProcessCreatorDelegate(ResilientTable table, int partitionIndex);
-public delegate IEnumerable<IExecutable> ResilientTableMainProcessCreatorDelegate(ResilientTable table);
-public delegate IEnumerable<IExecutable> ResilientSqlScopeFinalizerCreatorDelegate(ResilientTableBase table);
+public delegate IProducer ResilientTablePartitionedProducerCreatorDelegate(ResilientTable table, int partitionIndex);
+public delegate IEnumerable<IJob> ResilientTableJobCreatorDelegate(ResilientTable table);
+public delegate IEnumerable<IJob> ResilientSqlScopeFinalizerCreatorDelegate(ResilientTableBase table);
 
 [DebuggerDisplay("{TableName}")]
 public sealed class ResilientTable : ResilientTableBase
@@ -12,8 +12,8 @@ public sealed class ResilientTable : ResilientTableBase
     /// </summary>
     public bool SuppressTransactionScopeForCreators { get; set; }
 
-    public ResilientTablePartitionedMainProcessCreatorDelegate PartitionedMainProcessCreator { get; set; }
-    public ResilientTableMainProcessCreatorDelegate MainProcessCreator { get; set; }
+    public ResilientTablePartitionedProducerCreatorDelegate PartitionedProducerCreator { get; set; }
+    public ResilientTableJobCreatorDelegate JobCreator { get; set; }
 
     /// <summary>
     /// Default true. Skips finalizers for main table and all additional tables if the sum record count of the main temp table PLUS in all temp tables is zero.

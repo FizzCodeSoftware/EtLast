@@ -18,7 +18,7 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
         var groupCount = 0;
 
         netTimeStopwatch.Stop();
-        var enumerator = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+        var enumerator = Input.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
         netTimeStopwatch.Start();
 
         var rowCount = 0;
@@ -154,11 +154,8 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
 
         groups.Clear();
 
-        netTimeStopwatch.Stop();
         Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows, created {GroupCount} groups and created {AggregateCount} aggregates in {Elapsed}/{ElapsedWallClock}, ignored: {IgnoredRowCount}",
             rowCount, groupCount, aggregateCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed, ignoredRowCount);
-
-        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
     }
 }
 

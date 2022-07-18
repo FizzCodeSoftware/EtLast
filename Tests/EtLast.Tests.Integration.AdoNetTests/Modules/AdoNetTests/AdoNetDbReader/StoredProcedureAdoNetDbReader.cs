@@ -10,7 +10,7 @@ public class StoredProcedureAdoNetDbReader : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    public override IEnumerable<IExecutable> CreateProcesses()
+    public override IEnumerable<IJob> CreateJobs()
     {
         yield return new CustomSqlStatement(Context)
         {
@@ -21,7 +21,7 @@ public class StoredProcedureAdoNetDbReader : AbstractEtlTask
                     "SELECT 2 AS Id, 'StoredProcedureAdoNetDbReaderTest' AS Value",
         };
 
-        yield return new CustomAction(Context)
+        yield return new CustomJob(Context)
         {
             Name = "StoredProcedureAdoNetDbReader",
             Action = proc =>

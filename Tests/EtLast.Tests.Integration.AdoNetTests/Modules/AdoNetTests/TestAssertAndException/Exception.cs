@@ -9,9 +9,9 @@ public class Exception : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
         
-    public override IEnumerable<IExecutable> CreateProcesses()
+    public override IEnumerable<IJob> CreateJobs()
     {
-        yield return new CustomAction(Context)
+        yield return new CustomJob(Context)
         {
             Name = $"{nameof(Exception)}",
             Action = proc =>

@@ -1,10 +1,10 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CustomAction : AbstractExecutable
+public sealed class CustomJob : AbstractJob
 {
-    public Action<CustomAction> Action { get; set; }
+    public Action<CustomJob> Action { get; set; }
 
-    public CustomAction(IEtlContext context)
+    public CustomJob(IEtlContext context)
         : base(context)
     {
     }
@@ -15,7 +15,7 @@ public sealed class CustomAction : AbstractExecutable
             throw new ProcessParameterNullException(this, nameof(Action));
     }
 
-    protected override void ExecuteImpl()
+    protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
         try
         {

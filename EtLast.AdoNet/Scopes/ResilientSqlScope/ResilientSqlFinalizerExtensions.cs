@@ -155,9 +155,9 @@ public static class ResilientSqlFinalizerExtensions
         });
     }
 
-    public static ResilientSqlScopeProcessBuilder CustomAction(this ResilientSqlScopeProcessBuilder builder, Action<CustomAction> action)
+    public static ResilientSqlScopeProcessBuilder CustomJob(this ResilientSqlScopeProcessBuilder builder, Action<CustomJob> action)
     {
-        builder.Processes.Add(new CustomAction(builder.Scope.Context)
+        builder.Processes.Add(new CustomJob(builder.Scope.Context)
         {
             Action = action,
         });

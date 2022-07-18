@@ -5,7 +5,7 @@ public enum ResilientSqlScopeTempTableMode
     KeepOnlyOnFailure, AlwaysKeep, AlwaysDrop
 }
 
-public sealed partial class ResilientSqlScope : AbstractExecutable, IScope
+public sealed partial class ResilientSqlScope : AbstractJob, IScope
 {
     /// <summary>
     /// The transaction scope kind around the finalizers. Default value is <see cref="TransactionScopeKind.RequiresNew"/>.
@@ -91,7 +91,7 @@ public sealed partial class ResilientSqlScope : AbstractExecutable, IScope
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    protected override void ExecuteImpl()
+    protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
         if (FinalizerTransactionScopeKind != TransactionScopeKind.RequiresNew && FinalizerRetryCount > 0)
             throw new InvalidProcessParameterException(this, nameof(FinalizerRetryCount), null, "retrying finalizers can be possible only if the " + nameof(FinalizerTransactionScopeKind) + " is set to " + nameof(TransactionScopeKind.RequiresNew));
@@ -111,11 +111,11 @@ public sealed partial class ResilientSqlScope : AbstractExecutable, IScope
             if (string.IsNullOrEmpty(table.TableName))
                 throw new ProcessParameterNullException(this, nameof(ResilientTableBase.TableName));
 
-            if (table.MainProcessCreator == null && table.PartitionedMainProcessCreator == null)
-                throw new InvalidProcessParameterException(this, nameof(ResilientTable.MainProcessCreator) + "/" + nameof(ResilientTable.PartitionedMainProcessCreator), null, nameof(ResilientTable.MainProcessCreator) + " or " + nameof(ResilientTable.PartitionedMainProcessCreator) + " must be supplied for " + table.TableName);
+            if (table.JobCreator == null && table.PartitionedProducerCreator == null)
+                throw new InvalidProcessParameterException(this, nameof(ResilientTable.JobCreator) + "/" + nameof(ResilientTable.PartitionedProducerCreator), null, nameof(ResilientTable.JobCreator) + " or " + nameof(ResilientTable.PartitionedProducerCreator) + " must be supplied for " + table.TableName);
 
-            if (table.MainProcessCreator != null && table.PartitionedMainProcessCreator != null)
-                throw new InvalidProcessParameterException(this, nameof(ResilientTable.MainProcessCreator) + "/" + nameof(ResilientTable.PartitionedMainProcessCreator), null, "only one of " + nameof(ResilientTable.MainProcessCreator) + " or " + nameof(ResilientTable.PartitionedMainProcessCreator) + " can be supplied for " + table.TableName);
+            if (table.JobCreator != null && table.PartitionedProducerCreator != null)
+                throw new InvalidProcessParameterException(this, nameof(ResilientTable.JobCreator) + "/" + nameof(ResilientTable.PartitionedProducerCreator), null, "only one of " + nameof(ResilientTable.JobCreator) + " or " + nameof(ResilientTable.PartitionedProducerCreator) + " can be supplied for " + table.TableName);
 
             if (table.Finalizers == null)
                 throw new ProcessParameterNullException(this, nameof(ResilientTable.Finalizers));
@@ -140,7 +140,7 @@ public sealed partial class ResilientSqlScope : AbstractExecutable, IScope
             var ok = Initialize(ref initialExceptionCount);
             if (!ok)
             {
-                Context.Log(LogSeverity.Information, this, "initialization failed after {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
+                Context.Log(LogSeverity.Information, this, "initialization failed in {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
                 return;
             }
 
@@ -152,16 +152,16 @@ public sealed partial class ResilientSqlScope : AbstractExecutable, IScope
                         ? TransactionScopeKind.Suppress
                         : TransactionScopeKind.None;
 
-                    if (table.MainProcessCreator != null)
+                    if (table.JobCreator != null)
                     {
                         Context.Log(LogSeverity.Information, this, "processing table {TableName}",
                             ConnectionString.Unescape(table.TableName));
 
-                        IExecutable[] mainProcessList;
+                        IJob[] mainProcessList;
 
                         using (var creatorScope = Context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
                         {
-                            mainProcessList = table.MainProcessCreator
+                            mainProcessList = table.JobCreator
                                 .Invoke(table)
                                 .Where(x => x != null)
                                 .ToArray();
@@ -183,14 +183,14 @@ public sealed partial class ResilientSqlScope : AbstractExecutable, IScope
                     Context.Log(LogSeverity.Information, this, "processing table {TableName}, (partition #{PartitionIndex})",
                         ConnectionString.Unescape(table.TableName), partitionIndex);
 
-                    IProducer mainEvaluableProcess;
+                    IProducer mainProducer;
 
                     using (var creatorScope = Context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
                     {
-                        mainEvaluableProcess = table.PartitionedMainProcessCreator.Invoke(table, partitionIndex);
+                        mainProducer = table.PartitionedProducerCreator.Invoke(table, partitionIndex);
                     }
 
-                    var rowCount = mainEvaluableProcess.Evaluate(this).CountRowsWithoutTransfer();
+                    var rowCount = mainProducer.Evaluate(this).CountRowsWithoutTransfer();
 
                     if (Context.ExceptionCount > initialExceptionCount)
                         return;
@@ -212,8 +212,6 @@ public sealed partial class ResilientSqlScope : AbstractExecutable, IScope
                 }
             }
         }
-
-        Context.Log(LogSeverity.Information, this, success ? "finished in {Elapsed}" : "failed after {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
     }
 
     private int CountTempRecordsIn(ResilientTableBase table)
@@ -223,7 +221,7 @@ public sealed partial class ResilientSqlScope : AbstractExecutable, IScope
             Name = "TempRecordCountReader",
             ConnectionString = ConnectionString,
             TableName = table.TempTableName,
-        }.Execute(this);
+        }.ExecuteWithResult(this);
 
         return count;
     }

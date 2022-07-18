@@ -24,9 +24,6 @@ public sealed class SequentialMerger : AbstractMerger
                 yield return row;
             }
         }
-
-        Context.Log(LogSeverity.Debug, this, "finished in {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
-        Context.RegisterProcessInvocationEnd(this);
     }
 }
 

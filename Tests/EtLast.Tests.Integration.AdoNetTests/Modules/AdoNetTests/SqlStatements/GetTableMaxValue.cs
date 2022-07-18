@@ -14,7 +14,7 @@ public class GetTableMaxValue : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(DatabaseName));
     }
 
-    public override IEnumerable<IExecutable> CreateProcesses()
+    public override IEnumerable<IJob> CreateJobs()
     {
         yield return new CustomSqlStatement(Context)
         {
@@ -23,8 +23,8 @@ public class GetTableMaxValue : AbstractEtlTask
                     $"INSERT INTO {nameof(GetTableMaxValue)} (Id, DateTimeValue) VALUES (1, '2022.07.08');" +
                     $"INSERT INTO {nameof(GetTableMaxValue)} (Id, DateTimeValue) VALUES (1, '2022.07.09');",
         };
-        
-        yield return new CustomAction(Context)
+
+        yield return new CustomJob(Context)
         {
             Name = nameof(GetTableMaxValue),
             Action = proc =>
@@ -34,7 +34,7 @@ public class GetTableMaxValue : AbstractEtlTask
                     ConnectionString = ConnectionString,
                     TableName = ConnectionString.Escape(nameof(GetTableMaxValue)),
                     ColumnName = "DateTimeValue",
-                }.Execute();
+                }.ExecuteWithResult();
 
                 Assert.AreEqual(new DateTime(2022, 7, 9), result.MaxValue);
             }

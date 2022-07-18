@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class DeleteLocalFile : AbstractExecutable
+public sealed class DeleteLocalFile : AbstractJob
 {
     public string FileName { get; init; }
 
@@ -15,7 +15,7 @@ public sealed class DeleteLocalFile : AbstractExecutable
             throw new ProcessParameterNullException(this, nameof(FileName));
     }
 
-    protected override void ExecuteImpl()
+    protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
         if (!File.Exists(FileName))
         {

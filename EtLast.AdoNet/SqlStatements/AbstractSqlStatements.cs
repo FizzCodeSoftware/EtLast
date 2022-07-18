@@ -8,7 +8,7 @@ public abstract class AbstractSqlStatements : AbstractSqlStatementBase
     {
     }
 
-    protected override void ExecuteImpl()
+    protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
         using (var scope = SuppressExistingTransactionScope ? new TransactionScope(TransactionScopeOption.Suppress) : null)
         {

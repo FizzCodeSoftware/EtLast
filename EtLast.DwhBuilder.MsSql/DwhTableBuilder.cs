@@ -21,7 +21,7 @@ public class DwhTableBuilder : IDwhTableBuilder
     public string ValidToColumnName { get; }
     public string ValidToColumnNameEscaped { get; }
 
-    private readonly List<Func<DwhTableBuilder, IEnumerable<IExecutable>>> _finalizerCreators = new();
+    private readonly List<Func<DwhTableBuilder, IEnumerable<IJob>>> _finalizerCreators = new();
     private readonly List<MutatorCreatorDelegate> _mutatorCreators = new();
     private Func<DateTimeOffset?, IProducer> _inputProcessCreator;
 
@@ -52,7 +52,7 @@ public class DwhTableBuilder : IDwhTableBuilder
         _mutatorCreators.Add(creator);
     }
 
-    internal void AddFinalizerCreator(Func<DwhTableBuilder, IEnumerable<IExecutable>> creator)
+    internal void AddFinalizerCreator(Func<DwhTableBuilder, IEnumerable<IJob>> creator)
     {
         _finalizerCreators.Add(creator);
     }
@@ -65,7 +65,7 @@ public class DwhTableBuilder : IDwhTableBuilder
     internal void Build()
     {
         ResilientTable.Finalizers = CreateTableFinalizers;
-        ResilientTable.MainProcessCreator = _ => CreateTableMainProcess();
+        ResilientTable.JobCreator = _ => CreateTableMainProcess();
     }
 
     private IMutator CreateTempWriter(ResilientTable table, RelationalTable dwhTable)
@@ -92,7 +92,7 @@ public class DwhTableBuilder : IDwhTableBuilder
         };
     }
 
-    private IEnumerable<IExecutable> CreateTableMainProcess()
+    private IEnumerable<IJob> CreateTableMainProcess()
     {
         var mutators = new MutatorList();
         foreach (var creator in _mutatorCreators)
@@ -112,7 +112,7 @@ public class DwhTableBuilder : IDwhTableBuilder
 
         yield return new ProcessBuilder()
         {
-            InputProcess = inputProcess,
+            InputJob = inputProcess,
             Mutators = mutators,
         }.Build();
     }
@@ -129,7 +129,7 @@ public class DwhTableBuilder : IDwhTableBuilder
             ConnectionString = ResilientTable.Scope.ConnectionString,
             TableName = ResilientTable.TableName,
             ColumnName = recordTimestampIndicatorColumn.NameEscaped(ResilientTable.Scope.ConnectionString),
-        }.Execute(ResilientTable.Scope);
+        }.ExecuteWithResult(ResilientTable.Scope);
 
         if (result == null)
             return null;

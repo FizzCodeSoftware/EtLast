@@ -24,9 +24,6 @@ public sealed class Evaluator
             row.Context.SetRowOwner(row, _caller);
             yield return row;
         }
-
-        /*if (_process != null)
-            _process.Context.RegisterProcessInvocationEnd(_process);*/
     }
 
     public IEnumerable<ISlimRow> TakeRowsAndReleaseOwnership()

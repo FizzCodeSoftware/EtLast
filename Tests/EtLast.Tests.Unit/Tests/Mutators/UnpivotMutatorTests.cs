@@ -15,7 +15,7 @@ public class UnpivotMutatorTests
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.PersonalAssetsPivot(context),
+            InputJob = TestData.PersonalAssetsPivot(context),
             Mutators = new MutatorList()
             {
                 new UnpivotMutator(context)
@@ -55,7 +55,7 @@ public class UnpivotMutatorTests
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.PersonalAssetsPivot(context),
+            InputJob = TestData.PersonalAssetsPivot(context),
             Mutators = new MutatorList()
             {
                 new UnpivotMutator(context)
@@ -96,7 +96,7 @@ public class UnpivotMutatorTests
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.PersonalAssetsPivot(context),
+            InputJob = TestData.PersonalAssetsPivot(context),
             Mutators = new MutatorList()
             {
                 new UnpivotMutator(context)
@@ -139,7 +139,7 @@ public class UnpivotMutatorTests
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.PersonalAssetsPivot(context),
+            InputJob = TestData.PersonalAssetsPivot(context),
             Mutators = new MutatorList()
             {
                 new UnpivotMutator(context)
@@ -175,7 +175,7 @@ public class UnpivotMutatorTests
         var context = TestExecuter.GetContext();
         var builder = new ProcessBuilder()
         {
-            InputProcess = TestData.PersonalAssetsPivot(context),
+            InputJob = TestData.PersonalAssetsPivot(context),
             Mutators = new MutatorList()
             {
                 new UnpivotMutator(context)

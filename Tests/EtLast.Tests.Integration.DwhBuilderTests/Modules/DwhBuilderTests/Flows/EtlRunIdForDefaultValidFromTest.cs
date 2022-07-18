@@ -39,7 +39,7 @@ public class EtlRunIdForDefaultValidFromTest : AbstractEtlFlow
         if (!Session.Success)
             return;
 
-        /*Session.ExecuteProcess(this, new CustomAction(context) { Then = _ => throw new Exception("sht") });
+        /*Session.ExecuteProcess(this, new CustomJob(context) { Then = _ => throw new Exception("sht") });
         if (!Session.Success)
             return;*/
 
@@ -58,7 +58,7 @@ public class EtlRunIdForDefaultValidFromTest : AbstractEtlFlow
         TestSecondDwhBuilder();
     }
 
-    private IExecutable CreateFirstDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
+    private IJob CreateFirstDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
     {
         var builder = new MsSqlDwhBuilder(Context, "FirstDwhBuilder", Helpers.EtlRunId1)
         {
@@ -104,7 +104,7 @@ public class EtlRunIdForDefaultValidFromTest : AbstractEtlFlow
         Assert.AreEqual(4, result.Count);
     }
 
-    private IExecutable CreateSecondDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
+    private IJob CreateSecondDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
     {
         var builder = new MsSqlDwhBuilder(Context, "SecondDwhBuilder", Helpers.EtlRunId2)
         {

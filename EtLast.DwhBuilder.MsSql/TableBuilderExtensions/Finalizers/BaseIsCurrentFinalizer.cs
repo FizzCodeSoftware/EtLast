@@ -18,7 +18,7 @@ public static partial class TableBuilderExtensions
         return builders;
     }
 
-    private static IEnumerable<IExecutable> CreateBaseIsCurrentFinalizer(KeyBasedFinalizerBuilder builder)
+    private static IEnumerable<IJob> CreateBaseIsCurrentFinalizer(KeyBasedFinalizerBuilder builder)
     {
         var hasHistoryTable = builder.TableBuilder.Table.GetHasHistoryTable();
 

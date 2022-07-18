@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast;
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractMerger : AbstractEvaluable, IMerger
+public abstract class AbstractMerger : AbstractProducer, IMerger
 {
     public List<IProducer> ProcessList { get; set; }
 

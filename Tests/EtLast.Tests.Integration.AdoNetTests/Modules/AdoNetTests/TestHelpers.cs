@@ -2,11 +2,11 @@
 
 public static class TestHelpers
 {
-    public static CustomAction CreateReadSqlTableAndAssertExactMacth(IProcess caller, NamedConnectionString connectionString, string table, params CaseInsensitiveStringKeyDictionary<object>[] expectedRows)
+    public static CustomJob CreateReadSqlTableAndAssertExactMacth(IProcess caller, NamedConnectionString connectionString, string table, params CaseInsensitiveStringKeyDictionary<object>[] expectedRows)
     {
 
         var expectedRowsList = new List<CaseInsensitiveStringKeyDictionary<object>>(expectedRows);
-        return new CustomAction(caller.Context)
+        return new CustomJob(caller.Context)
         {
             Name = $"Read and check {table} table",
             Action = proc =>

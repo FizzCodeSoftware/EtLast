@@ -19,7 +19,7 @@ internal sealed class FluentProcessMutatorBuilder : IFluentProcessMutatorBuilder
         if (AutomaticallySetRowTagFilter != null)
             mutator.RowTagFilter = AutomaticallySetRowTagFilter;
 
-        mutator.InputProcess = ProcessBuilder.Result;
+        mutator.Input = ProcessBuilder.Result;
         ProcessBuilder.Result = mutator;
         return this;
     }
@@ -33,7 +33,7 @@ internal sealed class FluentProcessMutatorBuilder : IFluentProcessMutatorBuilder
                 mutator.RowTagFilter = AutomaticallySetRowTagFilter;
             }
 
-            mutator.InputProcess = ProcessBuilder.Result;
+            mutator.Input = ProcessBuilder.Result;
             ProcessBuilder.Result = mutator;
         }
 

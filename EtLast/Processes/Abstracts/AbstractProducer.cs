@@ -1,12 +1,12 @@
 ﻿namespace FizzCode.EtLast;
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractEvaluable : AbstractProcess, IProducer
+public abstract class AbstractProducer : AbstractProcess, IProducer
 {
     public virtual bool ConsumerShouldNotBuffer { get; }
     public Action<IProducer> Initializer { get; init; }
 
-    protected AbstractEvaluable(IEtlContext context)
+    protected AbstractProducer(IEtlContext context)
         : base(context)
     {
     }
@@ -16,9 +16,9 @@ public abstract class AbstractEvaluable : AbstractProcess, IProducer
         Context.RegisterProcessInvocationStart(this, caller);
 
         if (caller != null)
-            Context.Log(LogSeverity.Information, this, "process started by {Process}", caller.Name);
+            Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Process}", Kind, caller.Name);
         else
-            Context.Log(LogSeverity.Information, this, "process started");
+            Context.Log(LogSeverity.Information, this, "{ProcessKind} started", Kind);
 
         LogPublicSettableProperties(LogSeverity.Verbose);
 
@@ -45,7 +45,7 @@ public abstract class AbstractEvaluable : AbstractProcess, IProducer
                     return new Evaluator();
             }
 
-            return new Evaluator(caller, EvaluateImpl(netTimeStopwatch));
+            return new Evaluator(caller, EvaluateInternal(netTimeStopwatch));
         }
         catch (Exception ex)
         {
@@ -53,8 +53,26 @@ public abstract class AbstractEvaluable : AbstractProcess, IProducer
 
             netTimeStopwatch.Stop();
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+            Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}",
+                Kind, "failed", InvocationInfo.LastInvocationStarted.Elapsed);
+
             return new Evaluator();
         }
+    }
+
+    private IEnumerable<IRow> EvaluateInternal(Stopwatch netTimeStopwatch)
+    {
+        var enumerable = EvaluateImpl(netTimeStopwatch);
+        foreach (var row in enumerable)
+        {
+            yield return row;
+        }
+
+        netTimeStopwatch.Stop();
+        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+
+        Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}",
+            Kind, "finished", InvocationInfo.LastInvocationStarted.Elapsed);
     }
 
     protected abstract IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch);

@@ -4,7 +4,7 @@
 /// Row sources create rows - they may create or generate, read from different sources, copy from existing rows.
 /// </summary>
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractRowSource : AbstractEvaluable, IRowSource
+public abstract class AbstractRowSource : AbstractProducer, IRowSource
 {
     /// <summary>
     /// Default false.
@@ -62,11 +62,8 @@ public abstract class AbstractRowSource : AbstractEvaluable, IRowSource
             netTimeStopwatch.Start();
         }
 
-        netTimeStopwatch.Stop();
         Context.Log(LogSeverity.Debug, this, "produced {RowCount} rows in {Elapsed}/{ElapsedWallClock}",
             resultCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
-
-        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
     }
 
     protected abstract IEnumerable<IRow> Produce();

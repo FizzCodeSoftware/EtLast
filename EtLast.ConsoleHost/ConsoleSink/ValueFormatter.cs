@@ -64,14 +64,14 @@ internal static class ValueFormatter
             case char chv:
                 ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.ScalarValue, "\'" + chv.ToString(CultureInfo.InvariantCulture) + "\'");
                 break;
-            case sbyte _:
-            case byte _:
-            case short _:
-            case ushort _:
-            case int _:
-            case uint _:
-            case long _:
-            case ulong _:
+            case sbyte:
+            case byte:
+            case short:
+            case ushort:
+            case int:
+            case uint:
+            case long:
+            case ulong:
                 using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.NumberValue))
                 {
                     if (string.IsNullOrEmpty(format))
@@ -85,9 +85,9 @@ internal static class ValueFormatter
 
                     break;
                 }
-            case float _:
-            case double _:
-            case decimal _:
+            case float:
+            case double:
+            case decimal:
                 using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.NumberValue))
                 {
                     if (string.IsNullOrEmpty(format))
@@ -134,14 +134,14 @@ internal static class ValueFormatter
 
                     break;
                 }
-            case DateTime _:
+            case DateTime:
                 using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.ScalarValue))
                 {
                     value.Render(builder, "yyyy.MM.dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
                 }
 
                 break;
-            case DateTimeOffset _:
+            case DateTimeOffset:
                 using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.ScalarValue))
                 {
                     value.Render(builder, "yyyy.MM.dd HH:mm:ss.fff zzz", CultureInfo.InvariantCulture);

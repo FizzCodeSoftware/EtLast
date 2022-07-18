@@ -27,9 +27,9 @@ public abstract class AbstractEtlFlow : AbstractProcess, IEtlFlow
         Context.RegisterProcessInvocationStart(this, caller);
 
         if (caller != null)
-            Context.Log(LogSeverity.Information, this, "flow started by {Process}", caller.Name);
+            Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Process}", Kind, caller.Name);
         else
-            Context.Log(LogSeverity.Information, this, "flow started");
+            Context.Log(LogSeverity.Information, this, "{ProcessKind} started", Kind);
 
         LogPublicSettableProperties(LogSeverity.Debug);
 
@@ -55,8 +55,8 @@ public abstract class AbstractEtlFlow : AbstractProcess, IEtlFlow
             result.Exceptions.AddRange(Context.GetExceptions().Skip(originalExceptionCount));
 
             _statistics.Finish();
-            Context.Log(LogSeverity.Information, this, "flow {TaskResult} in {Elapsed}",
-                (Exceptions.Count == 0) ? "finished" : "failed", _statistics.RunTime);
+            Context.Log(LogSeverity.Information, this, "{ProcessKind} {TaskResult} in {Elapsed}",
+                Kind, (Exceptions.Count == 0) ? "finished" : "failed", _statistics.RunTime);
 
             LogPrivateSettableProperties(LogSeverity.Debug);
 
