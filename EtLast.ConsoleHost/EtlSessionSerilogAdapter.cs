@@ -388,7 +388,15 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
 
     public void OnContextIoCommandEnd(IProcess process, int uid, IoCommandKind kind, int? affectedDataCount, Exception ex)
     {
-        if (ex != null)
+        if (ex == null)
+        {
+            if (affectedDataCount != null)
+            {
+                _ioLogger.Write(LogEventLevel.Verbose, "{IoCommandUid}/{IoCommandKind}, affected data count: {AffectedDataCount}",
+                    "#" + uid.ToString("D", CultureInfo.InvariantCulture), kind.ToString(), affectedDataCount);
+            }
+        }
+        else
         {
             var sb = new StringBuilder();
             var values = new List<object>();
