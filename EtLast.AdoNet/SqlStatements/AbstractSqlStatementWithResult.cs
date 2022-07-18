@@ -8,7 +8,7 @@ public abstract class AbstractSqlStatementWithResult<T> : AbstractExecutableWith
     /// <summary>
     /// Default value is 600.
     /// </summary>
-    public int CommandTimeout { get; init; } = 600;
+    public int CommandTimeout { get; init; } = 60 * 60;
 
     /// <summary>
     /// If true, this statement will be executed out of ambient transaction scope.
