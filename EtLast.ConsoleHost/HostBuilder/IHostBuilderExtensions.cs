@@ -61,4 +61,15 @@ public static class IHostBuilderExtensions
         builder.Result.SerilogForHostEnabled = false;
         return builder;
     }
+
+    public static IHostBuilder SetMaxTransactionTimeout(this IHostBuilder builder, TimeSpan maxValue)
+    {
+        var field = typeof(TransactionManager).GetField("s_cachedMaxTimeout", BindingFlags.NonPublic | BindingFlags.Static);
+        field.SetValue(null, true);
+
+        field = typeof(TransactionManager).GetField("s_maximumTimeout", BindingFlags.NonPublic | BindingFlags.Static);
+        field.SetValue(null, maxValue);
+
+        return builder;
+    }
 }
