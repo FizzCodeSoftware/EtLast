@@ -50,7 +50,7 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ex, row);
                     break;
                 }
 
@@ -72,7 +72,7 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ex, row);
                     break;
                 }
 

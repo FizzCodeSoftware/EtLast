@@ -27,7 +27,7 @@ public abstract class AbstractBatchedMutator : AbstractEvaluable, IMutator
         }
         catch (Exception ex)
         {
-            AddException(ProcessExecutionException.Wrap(this, ex));
+            AddException(ex);
             netTimeStopwatch.Stop();
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
             yield break;
@@ -75,7 +75,7 @@ public abstract class AbstractBatchedMutator : AbstractEvaluable, IMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ex, row);
                     break;
                 }
 
@@ -97,7 +97,7 @@ public abstract class AbstractBatchedMutator : AbstractEvaluable, IMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ex, row);
                     break;
                 }
 
@@ -120,7 +120,7 @@ public abstract class AbstractBatchedMutator : AbstractEvaluable, IMutator
             }
             catch (Exception ex)
             {
-                AddException(ProcessExecutionException.Wrap(this, row, ex));
+                AddException(ex, row);
                 failed = true;
                 break;
             }
@@ -163,7 +163,7 @@ public abstract class AbstractBatchedMutator : AbstractEvaluable, IMutator
                     }
                     catch (Exception ex)
                     {
-                        AddException(ProcessExecutionException.Wrap(this, row, ex));
+                        AddException(ex, row);
                         failed = true;
                         break;
                     }
@@ -178,7 +178,7 @@ public abstract class AbstractBatchedMutator : AbstractEvaluable, IMutator
                     }
                     catch (Exception ex)
                     {
-                        AddException(ProcessExecutionException.Wrap(this, row, ex));
+                        AddException(ex, row);
                         failed = true;
                         break;
                     }
@@ -221,7 +221,7 @@ public abstract class AbstractBatchedMutator : AbstractEvaluable, IMutator
             }
             catch (Exception ex)
             {
-                AddException(ProcessExecutionException.Wrap(this, ex));
+                AddException(ex);
                 failed = true;
             }
 
@@ -260,7 +260,7 @@ public abstract class AbstractBatchedMutator : AbstractEvaluable, IMutator
         }
         catch (Exception ex)
         {
-            AddException(ProcessExecutionException.Wrap(this, ex));
+            AddException(ex);
             netTimeStopwatch.Stop();
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
             yield break;

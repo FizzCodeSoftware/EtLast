@@ -24,7 +24,7 @@ public abstract class AbstractExecutableWithResult<T> : AbstractProcess, IExecut
         }
         catch (Exception ex)
         {
-            AddException(ProcessExecutionException.Wrap(this, ex));
+            AddException(ex);
         }
         finally
         {

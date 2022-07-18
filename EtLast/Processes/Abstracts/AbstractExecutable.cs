@@ -31,7 +31,7 @@ public abstract class AbstractExecutable : AbstractProcess, IExecutable
         }
         catch (Exception ex)
         {
-            AddException(ProcessExecutionException.Wrap(this, ex));
+            AddException(ex);
         }
         finally
         {

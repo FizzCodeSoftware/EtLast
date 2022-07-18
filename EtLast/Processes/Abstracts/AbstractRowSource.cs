@@ -52,7 +52,7 @@ public abstract class AbstractRowSource : AbstractEvaluable, IRowSource
             }
             catch (Exception ex)
             {
-                AddException(ProcessExecutionException.Wrap(this, ex));
+                AddException(ex);
                 break;
             }
 

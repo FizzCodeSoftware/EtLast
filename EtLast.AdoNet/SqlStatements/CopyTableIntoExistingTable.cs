@@ -9,6 +9,9 @@ public sealed class CopyTableIntoExistingTable : AbstractSqlStatement
     /// </summary>
     public string WhereClause { get; init; }
 
+    /// <summary>
+    /// Default value is false.
+    /// </summary>
     public bool CopyIdentityColumns { get; init; }
 
     public Dictionary<string, object> ColumnDefaults { get; init; }

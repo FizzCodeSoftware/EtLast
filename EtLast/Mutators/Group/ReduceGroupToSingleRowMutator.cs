@@ -72,7 +72,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ex, row);
                     break;
                 }
 
@@ -94,7 +94,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ex, row);
                     break;
                 }
 
@@ -169,7 +169,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractEvaluable, IMutator
             }
             catch (Exception ex)
             {
-                AddException(ProcessExecutionException.Wrap(this, ex));
+                AddException(ex);
                 break;
             }
 

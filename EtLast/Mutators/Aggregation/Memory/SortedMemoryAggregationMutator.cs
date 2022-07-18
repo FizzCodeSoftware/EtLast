@@ -55,7 +55,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
                 }
                 catch (Exception ex)
                 {
-                    AddException(ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ex, row);
                     break;
                 }
 
@@ -77,7 +77,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
                 }
                 catch (Exception ex)
                 {
-                    AddException(ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ex, row);
                     break;
                 }
 

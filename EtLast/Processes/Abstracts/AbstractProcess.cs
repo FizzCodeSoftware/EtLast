@@ -101,7 +101,30 @@ public abstract class AbstractProcess : IProcess
         if (ex is OperationCanceledException)
             return;
 
-        ex = ProcessExecutionException.Wrap(this, ex);
+        if (ex is not EtlException)
+            ex = new ProcessExecutionException(this, ex);
+
+        Context.AddException(this, ex);
+        Exceptions.Add(ex);
+    }
+
+    protected void AddException(Exception ex, IReadOnlySlimRow row)
+    {
+        if (ex is OperationCanceledException)
+            return;
+
+        if (ex is EtlException eex)
+        {
+            var str = row.ToDebugString(true);
+            if ((eex.Data["Row"] is not string rowString) || !string.Equals(rowString, str, StringComparison.Ordinal))
+            {
+                eex.Data["Row"] = str;
+            }
+        }
+        else
+        {
+            ex = new ProcessExecutionException(this, row, ex);
+        }
 
         Context.AddException(this, ex);
         Exceptions.Add(ex);

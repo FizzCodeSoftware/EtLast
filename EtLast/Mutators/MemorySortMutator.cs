@@ -57,7 +57,7 @@ public class MemorySortMutator : AbstractEvaluable, IMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ex, row);
                     break;
                 }
 
@@ -79,7 +79,7 @@ public class MemorySortMutator : AbstractEvaluable, IMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ex, row);
                     break;
                 }
 

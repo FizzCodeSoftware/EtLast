@@ -55,11 +55,4 @@ public class ProcessExecutionException : EtlException
 
         return new ProcessExecutionException(process, row, ex);
     }
-
-    public static EtlException Wrap(IProcess process, Exception ex)
-    {
-        return (ex is EtlException eex)
-            ? eex
-            : new ProcessExecutionException(process, ex);
-    }
 }

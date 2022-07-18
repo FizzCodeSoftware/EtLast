@@ -49,7 +49,7 @@ public abstract class AbstractEvaluable : AbstractProcess, IProducer
         }
         catch (Exception ex)
         {
-            AddException(ProcessExecutionException.Wrap(this, ex));
+            AddException(ex);
 
             netTimeStopwatch.Stop();
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);

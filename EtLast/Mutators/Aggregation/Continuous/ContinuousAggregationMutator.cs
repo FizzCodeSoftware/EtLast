@@ -77,7 +77,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ex, row);
                     break;
                 }
 
@@ -99,7 +99,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ex, row);
                     break;
                 }
 

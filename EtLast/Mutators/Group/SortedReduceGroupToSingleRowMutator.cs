@@ -74,7 +74,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractEvaluable, IMu
                 }
                 catch (Exception ex)
                 {
-                    AddException(ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ex, row);
                     break;
                 }
 
@@ -96,7 +96,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractEvaluable, IMu
                 }
                 catch (Exception ex)
                 {
-                    AddException(ProcessExecutionException.Wrap(this, row, ex));
+                    AddException(ex, row);
                     break;
                 }
 
@@ -172,7 +172,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractEvaluable, IMu
             }
             catch (Exception ex)
             {
-                AddException(ProcessExecutionException.Wrap(this, ex));
+                AddException(ex);
                 return null;
             }
 
