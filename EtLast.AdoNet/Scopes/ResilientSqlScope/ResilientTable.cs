@@ -39,6 +39,9 @@ public class ResilientTableBase
 {
     public ResilientSqlScope Scope { get; internal set; }
 
+    /// <summary>
+    /// Table name must be escaped.
+    /// </summary>
     public string TableName { get; init; }
 
     private string _tempTableName;
@@ -49,6 +52,9 @@ public class ResilientTableBase
         init => _tempTableName = value;
     }
 
+    /// <summary>
+    /// Column names must be unescaped.
+    /// </summary>
     public string[] Columns { get; init; }
 
     public Action<ResilientSqlTableTableFinalizerBuilder> Finalizers { get; set; }

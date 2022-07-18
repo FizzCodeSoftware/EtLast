@@ -38,7 +38,7 @@ public static class ResilientSqlFinalizerExtensions
             {
                 SourceTableName = builder.Table.TempTableName,
                 TargetTableName = builder.Table.TableName,
-                Columns = builder.Table.Columns?.ToDictionary(x => x),
+                Columns = builder.Table.Columns?.ToDictionary(x => x, x => builder.Table.Scope.ConnectionString.Escape(x)),
             },
             CommandTimeout = commandTimeout,
             CopyIdentityColumns = copyIdentityColumns,
@@ -48,8 +48,10 @@ public static class ResilientSqlFinalizerExtensions
     public static ResilientSqlTableTableFinalizerBuilder SimpleMsSqlMerge(this ResilientSqlTableTableFinalizerBuilder builder, string keyColumn, int commandTimeout = 60 * 60)
     {
         var columnsToUpdate = builder.Table.Columns
-            .Where(c => !string.Equals(c, keyColumn, StringComparison.InvariantCultureIgnoreCase))
+            .Where(x => !string.Equals(x, keyColumn, StringComparison.InvariantCultureIgnoreCase))
             .ToList();
+
+        keyColumn = builder.Table.Scope.ConnectionString.Escape(keyColumn);
 
         return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
         {
@@ -62,16 +64,22 @@ public static class ResilientSqlFinalizerExtensions
             TargetTableAlias = "t",
             OnCondition = "((s." + keyColumn + "=t." + keyColumn + ") or (s." + keyColumn + " is null and t." + keyColumn + " is null))",
             WhenMatchedAction = columnsToUpdate.Count > 0
-                ? "update set " + string.Join(",", columnsToUpdate.Select(c => "t." + c + "=s." + c))
+                ? "update set " + string.Join(",", columnsToUpdate
+                    .Select(x => builder.Table.Scope.ConnectionString.Escape(x))
+                    .Select(x => "t." + x + "=s." + x))
                 : null,
-            WhenNotMatchedByTargetAction = "insert (" + string.Join(",", builder.Table.Columns) + ") values (" + string.Join(",", builder.Table.Columns.Select(c => "s." + c)) + ")",
+            WhenNotMatchedByTargetAction = "insert ("
+                + string.Join(",", builder.Table.Columns
+                    .Select(x => builder.Table.Scope.ConnectionString.Escape(x))) + ") values ("
+                + string.Join(",", builder.Table.Columns
+                    .Select(x => "s." + builder.Table.Scope.ConnectionString.Escape(x))) + ")",
         });
     }
 
     public static ResilientSqlTableTableFinalizerBuilder SimpleMsSqlMerge(this ResilientSqlTableTableFinalizerBuilder builder, string[] keyColumns, int commandTimeout = 60 * 60)
     {
         var columnsToUpdate = builder.Table.Columns
-            .Where(c => !keyColumns.Any(keyColumn => string.Equals(c, keyColumn, StringComparison.InvariantCultureIgnoreCase)))
+            .Where(x => !keyColumns.Any(keyColumn => string.Equals(x, keyColumn, StringComparison.InvariantCultureIgnoreCase)))
             .ToList();
 
         return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
@@ -83,17 +91,27 @@ public static class ResilientSqlFinalizerExtensions
             TargetTableName = builder.Table.TableName,
             SourceTableAlias = "s",
             TargetTableAlias = "t",
-            OnCondition = string.Join(" and ", keyColumns.Select(x => "((s." + x + "=t." + x + ") or (s." + x + " is null and t." + x + " is null))")),
+            OnCondition = string.Join(" and ", keyColumns
+                .Select(x => builder.Table.Scope.ConnectionString.Escape(x))
+                .Select(x => "((s." + x + "=t." + x + ") or (s." + x + " is null and t." + x + " is null))")),
             WhenMatchedAction = columnsToUpdate.Count > 0
-                ? "update set " + string.Join(",", columnsToUpdate.Select(c => "t." + c + "=s." + c))
+                ? "update set " + string.Join(",", columnsToUpdate
+                    .Select(x => builder.Table.Scope.ConnectionString.Escape(x))
+                    .Select(x => "t." + x + "=s." + x))
                 : null,
-            WhenNotMatchedByTargetAction = "insert (" + string.Join(",", builder.Table.Columns) + ") values (" + string.Join(",", builder.Table.Columns.Select(c => "s." + c)) + ")",
+            WhenNotMatchedByTargetAction = "insert ("
+                + string.Join(",", builder.Table.Columns
+                    .Select(x => builder.Table.Scope.ConnectionString.Escape(x))) + ") values ("
+                + string.Join(",", builder.Table.Columns
+                    .Select(x => "s." + builder.Table.Scope.ConnectionString.Escape(x))) + ")",
         });
     }
 
     public static ResilientSqlTableTableFinalizerBuilder SimpleMsSqlMergeUpdateOnly(this ResilientSqlTableTableFinalizerBuilder builder, string[] keyColumns, int commandTimeout = 60 * 60)
     {
-        var columnsToUpdate = builder.Table.Columns.Where(c => !keyColumns.Contains(c)).ToList();
+        var columnsToUpdate = builder.Table.Columns
+            .Where(x => !keyColumns.Contains(x))
+            .ToList();
 
         return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
         {
@@ -104,9 +122,13 @@ public static class ResilientSqlFinalizerExtensions
             TargetTableName = builder.Table.TableName,
             SourceTableAlias = "s",
             TargetTableAlias = "t",
-            OnCondition = string.Join(" and ", keyColumns.Select(x => "((s." + x + "=t." + x + ") or (s." + x + " is null and t." + x + " is null))")),
+            OnCondition = string.Join(" and ", keyColumns
+                .Select(x => builder.Table.Scope.ConnectionString.Escape(x))
+                .Select(x => "((s." + x + "=t." + x + ") or (s." + x + " is null and t." + x + " is null))")),
             WhenMatchedAction = columnsToUpdate.Count > 0
-                ? "update set " + string.Join(",", columnsToUpdate.Select(c => "t." + c + "=s." + c))
+                ? "update set " + string.Join(",", columnsToUpdate
+                    .Select(x => builder.Table.Scope.ConnectionString.Escape(x))
+                    .Select(x => "t." + x + "=s." + x))
                 : null,
         });
     }
@@ -122,8 +144,14 @@ public static class ResilientSqlFinalizerExtensions
             TargetTableName = builder.Table.TableName,
             SourceTableAlias = "s",
             TargetTableAlias = "t",
-            OnCondition = string.Join(" and ", keyColumns.Select(x => "((s." + x + "=t." + x + ") or (s." + x + " is null and t." + x + " is null))")),
-            WhenNotMatchedByTargetAction = "insert (" + string.Join(",", builder.Table.Columns) + ") values (" + string.Join(",", builder.Table.Columns.Select(c => "s." + c)) + ")",
+            OnCondition = string.Join(" and ", keyColumns
+                .Select(x => builder.Table.Scope.ConnectionString.Escape(x))
+                .Select(x => "((s." + x + "=t." + x + ") or (s." + x + " is null and t." + x + " is null))")),
+            WhenNotMatchedByTargetAction = "insert ("
+                + string.Join(",", builder.Table.Columns
+                    .Select(x => builder.Table.Scope.ConnectionString.Escape(x)))
+                + ") values (" + string.Join(",", builder.Table.Columns
+                    .Select(x => "s." + builder.Table.Scope.ConnectionString.Escape(x))) + ")",
         });
     }
 

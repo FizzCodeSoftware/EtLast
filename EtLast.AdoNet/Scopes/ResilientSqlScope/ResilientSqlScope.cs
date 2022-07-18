@@ -487,7 +487,7 @@ public sealed class ResilientSqlScope : AbstractExecutable, IScope
                     {
                         SourceTableName = additionalTable.TableName,
                         TargetTableName = additionalTable.TempTableName,
-                        Columns = additionalTable.Columns?.ToDictionary(x => x),
+                        Columns = table.Columns.ToDictionary(c => c, x => ConnectionString.Escape(x)),
                     });
                 }
             }
