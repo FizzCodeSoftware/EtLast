@@ -381,7 +381,10 @@ public sealed class ResilientSqlScope : AbstractExecutable, IScope
 
                     currentExceptionCount = Context.ExceptionCount;
                     if (currentExceptionCount == initialExceptionCount)
+                    {
+                        success = true;
                         break;
+                    }
 
                     initialExceptionCount = currentExceptionCount;
                 }
