@@ -91,7 +91,9 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
             }
 
             var row = enumerator.Current;
+            netTimeStopwatch.Stop();
             yield return row;
+            netTimeStopwatch.Start();
         }
 
         netTimeStopwatch.Stop();
