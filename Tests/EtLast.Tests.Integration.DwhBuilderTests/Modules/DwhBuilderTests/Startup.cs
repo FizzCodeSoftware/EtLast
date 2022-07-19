@@ -14,7 +14,7 @@ public class Startup : IStartup
     public void Configure(EnvironmentSettings settings)
     {
         DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", Microsoft.Data.SqlClient.SqlClientFactory.Instance);
-        settings.FileLogSettings.MinimumLogLevel = LogSeverity.Verbose;
-        settings.ConsoleLogSettings.MinimumLogLevel = LogSeverity.Verbose;
+        settings.FileLogSettings.MinimumLogLevel = LogSeverity.Information;
+        settings.ConsoleLogSettings.MinimumLogLevel = LogSeverity.Information;
     }
 }

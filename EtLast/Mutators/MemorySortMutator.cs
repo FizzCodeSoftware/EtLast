@@ -24,7 +24,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
         var rows = new List<IRow>();
 
         netTimeStopwatch.Stop();
-        var enumerator = Input.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+        var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
         netTimeStopwatch.Start();
 
         var mutatedRowCount = 0;

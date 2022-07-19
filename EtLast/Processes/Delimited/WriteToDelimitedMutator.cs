@@ -40,9 +40,9 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
     public bool WriteHeader { get; init; } = true;
 
     /// <summary>
-    /// Key is the output column title AND the column in the row (later can be customized by setting a <see cref="DelimitedColumnConfiguration"/>).
+    /// Key is the output column title AND the column in the row (later can be customized by setting a <see cref="DelimitedColumn"/>).
     /// </summary>
-    public Dictionary<string, DelimitedColumnConfiguration> Columns { get; init; }
+    public Dictionary<string, DelimitedColumn> Columns { get; init; }
 
     public PartitionKeyGenerator PartitionKeyGenerator { get; set; }
 

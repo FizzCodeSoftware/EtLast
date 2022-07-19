@@ -4,7 +4,6 @@ public sealed class Splitter<TRowQueue> : AbstractSequence
     where TRowQueue : IRowQueue, new()
 {
     public ISequence InputProcess { get; set; }
-    public override bool ConsumerShouldNotBuffer => InputProcess?.ConsumerShouldNotBuffer == true;
 
     private TRowQueue _queue;
     private Thread _feederThread;
@@ -46,7 +45,7 @@ public sealed class Splitter<TRowQueue> : AbstractSequence
     {
         Transaction.Current = tran as Transaction;
 
-        var rows = InputProcess.Evaluate(this).TakeRowsAndTransferOwnership();
+        var rows = InputProcess.TakeRowsAndTransferOwnership(this);
 
         foreach (var row in rows)
         {

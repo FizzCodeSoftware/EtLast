@@ -10,9 +10,7 @@ public class EnumerableImporterTests
         var builder = SequenceBuilder.Fluent
         .ImportEnumerable(new EnumerableImporter(context)
         {
-            InputGenerator = caller => TestData.Person(context)
-                .Evaluate(caller)
-                .TakeRowsAndReleaseOwnership(),
+            InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
         });
 
         var result = TestExecuter.Execute(builder);
@@ -36,13 +34,11 @@ public class EnumerableImporterTests
         var builder = SequenceBuilder.Fluent
         .ImportEnumerable(new EnumerableImporter(context)
         {
-            InputGenerator = caller => TestData.Person(context)
-                .Evaluate(caller)
-                .TakeRowsAndReleaseOwnership(),
+            InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
             Columns = new()
             {
-                ["ID"] = new ReaderColumnConfiguration(new StringConverter()),
-                ["age"] = new ReaderColumnConfiguration(new LongConverter()).ValueWhenSourceIsNull(-1L),
+                ["ID"] = new ReaderColumn(new StringConverter()),
+                ["age"] = new ReaderColumn(new LongConverter()).ValueWhenSourceIsNull(-1L),
             },
         });
 
@@ -67,13 +63,11 @@ public class EnumerableImporterTests
         var builder = SequenceBuilder.Fluent
         .ImportEnumerable(new EnumerableImporter(context)
         {
-            InputGenerator = caller => TestData.Person(context)
-                .Evaluate(caller)
-                .TakeRowsAndReleaseOwnership(),
+            InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
             Columns = new()
             {
-                ["ID"] = new ReaderColumnConfiguration(new StringConverter()),
-                ["age"] = new ReaderColumnConfiguration(new LongConverter()).ValueWhenSourceIsNull(-1L),
+                ["ID"] = new ReaderColumn(new StringConverter()),
+                ["age"] = new ReaderColumn(new LongConverter()).ValueWhenSourceIsNull(-1L),
             },
             CopyOnlySpecifiedColumns = true,
         });

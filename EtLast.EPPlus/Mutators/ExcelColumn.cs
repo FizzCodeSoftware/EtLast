@@ -1,22 +1,22 @@
 ﻿namespace FizzCode.EtLast;
 
-public class DelimitedColumnConfiguration
+public class ExcelColumn
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
     public string SourceColumn { get; private set; }
 
-    public DelimitedColumnConfiguration FromSource(string sourceColumn)
+    public ExcelColumn FromSource(string sourceColumn)
     {
         SourceColumn = sourceColumn;
         return this;
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public IValueFormatter CustomFormatter { get; set; }
+    public string NumberFormat { get; private set; }
 
-    public DelimitedColumnConfiguration UseCustomFormatter(IValueFormatter formatter)
+    public ExcelColumn SetNumberFormat(string format)
     {
-        CustomFormatter = formatter;
+        NumberFormat = format;
         return this;
     }
 }

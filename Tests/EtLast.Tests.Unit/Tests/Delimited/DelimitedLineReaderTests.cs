@@ -13,12 +13,12 @@ public class DelimitedLineReaderTests
             },
             Columns = new()
             {
-                ["Id"] = new ReaderColumnConfiguration(new IntConverter()),
-                ["Name"] = new ReaderColumnConfiguration(new StringConverter()),
-                ["ValueString"] = new ReaderColumnConfiguration(new StringConverter()).FromSource("Value1"),
-                ["ValueInt"] = new ReaderColumnConfiguration(new IntConverter()).FromSource("Value2"),
-                ["ValueDate"] = new ReaderColumnConfiguration(new DateConverter()).FromSource("Value3"),
-                ["ValueDouble"] = new ReaderColumnConfiguration(new DoubleConverter()).FromSource("Value4"),
+                ["Id"] = new ReaderColumn(new IntConverter()),
+                ["Name"] = new ReaderColumn(new StringConverter()),
+                ["ValueString"] = new ReaderColumn(new StringConverter()).FromSource("Value1"),
+                ["ValueInt"] = new ReaderColumn(new IntConverter()).FromSource("Value2"),
+                ["ValueDate"] = new ReaderColumn(new DateConverter()).FromSource("Value3"),
+                ["ValueDouble"] = new ReaderColumn(new DoubleConverter()).FromSource("Value4"),
             },
             Header = DelimitedLineHeader.HasHeader,
             RemoveSurroundingDoubleQuotes = removeSurroundingDoubleQuotes
@@ -35,9 +35,9 @@ public class DelimitedLineReaderTests
             },
             Columns = new()
             {
-                ["Id"] = new ReaderColumnConfiguration(new IntConverter()),
-                ["Name"] = new ReaderColumnConfiguration(new StringConverter()),
-                ["Value"] = new ReaderColumnConfiguration(new StringConverter())
+                ["Id"] = new ReaderColumn(new IntConverter()),
+                ["Name"] = new ReaderColumn(new StringConverter()),
+                ["Value"] = new ReaderColumn(new StringConverter())
             },
             Header = DelimitedLineHeader.HasHeader,
             TreatEmptyStringAsNull = treatEmptyStringsAsNull,
@@ -233,12 +233,12 @@ public class DelimitedLineReaderTests
                 },
                 Columns = new()
                 {
-                    ["Id"] = new ReaderColumnConfiguration(new IntConverter()),
-                    ["Name"] = new ReaderColumnConfiguration(new StringConverter()),
-                    ["Value1"] = new ReaderColumnConfiguration(new StringConverter()),
-                    ["Value2"] = new ReaderColumnConfiguration(new IntConverter()),
-                    ["Value3"] = new ReaderColumnConfiguration(new StringConverter()),
-                    ["Value4"] = new ReaderColumnConfiguration(new StringConverter()),
+                    ["Id"] = new ReaderColumn(new IntConverter()),
+                    ["Name"] = new ReaderColumn(new StringConverter()),
+                    ["Value1"] = new ReaderColumn(new StringConverter()),
+                    ["Value2"] = new ReaderColumn(new IntConverter()),
+                    ["Value3"] = new ReaderColumn(new StringConverter()),
+                    ["Value4"] = new ReaderColumn(new StringConverter()),
                 },
                 Header = DelimitedLineHeader.HasHeader,
             });
@@ -266,12 +266,12 @@ public class DelimitedLineReaderTests
                 ColumnNames = new[] { "Id", "Name", "Value1", "Value2", "Value3", "Value4" },
                 Columns = new()
                 {
-                    ["Id"] = new ReaderColumnConfiguration(new IntConverter()),
-                    ["Name"] = new ReaderColumnConfiguration(new StringConverter()),
-                    ["Value1"] = new ReaderColumnConfiguration(new StringConverter()),
-                    ["Value2"] = new ReaderColumnConfiguration(new IntConverter()),
-                    ["Value3"] = new ReaderColumnConfiguration(new StringConverter()),
-                    ["Value4"] = new ReaderColumnConfiguration(new StringConverter()),
+                    ["Id"] = new ReaderColumn(new IntConverter()),
+                    ["Name"] = new ReaderColumn(new StringConverter()),
+                    ["Value1"] = new ReaderColumn(new StringConverter()),
+                    ["Value2"] = new ReaderColumn(new IntConverter()),
+                    ["Value3"] = new ReaderColumn(new StringConverter()),
+                    ["Value4"] = new ReaderColumn(new StringConverter()),
                 },
                 Header = DelimitedLineHeader.IgnoreHeader,
             });

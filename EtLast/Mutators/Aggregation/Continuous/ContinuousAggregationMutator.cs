@@ -45,7 +45,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
         }
 
         netTimeStopwatch.Stop();
-        var enumerator = Input.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+        var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
         netTimeStopwatch.Start();
 
         var rowCount = 0;

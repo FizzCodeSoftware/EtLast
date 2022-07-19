@@ -18,8 +18,8 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
     /// </summary>
     public bool AutomaticallyTrimAllStringValues { get; init; } = true;
 
-    public Dictionary<string, ReaderColumnConfiguration> Columns { get; init; }
-    public ReaderDefaultColumnConfiguration DefaultColumns { get; init; }
+    public Dictionary<string, ReaderColumn> Columns { get; init; }
+    public ReaderDefaultColumn DefaultColumns { get; init; }
 
     protected bool Transpose { get; init; } // todo: implement working transpose
 
@@ -66,7 +66,7 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
             throw new NotImplementedException("Transpose is not finished yet, must be tested before used");
         }
 
-        var columnIndexes = new List<(string rowColumn, int index, ReaderDefaultColumnConfiguration configuration)>();
+        var columnIndexes = new List<(string rowColumn, int index, ReaderDefaultColumn configuration)>();
 
         // key is the SOURCE column name
         var columnMap = Columns?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
@@ -157,9 +157,9 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
 
             excelColumn = EnsureDistinctColumnNames(excelColumns, excelColumn);
 
-            if (columnMap.TryGetValue(excelColumn, out var columnConfiguration))
+            if (columnMap.TryGetValue(excelColumn, out var column))
             {
-                columnIndexes.Add((columnConfiguration.rowColumn, colIndex, columnConfiguration.config));
+                columnIndexes.Add((column.rowColumn, colIndex, column.config));
             }
             else if (DefaultColumns != null)
             {

@@ -7,9 +7,9 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
     public string SheetName { get; init; }
 
     /// <summary>
-    /// Key is the output column title AND the column in the row (later can be customized by setting a <see cref="ExcelColumnConfiguration"/>).
+    /// Key is the output column title AND the column in the row (later can be customized by setting a <see cref="ExcelColumn"/>).
     /// </summary>
-    public Dictionary<string, ExcelColumnConfiguration> Columns { get; init; }
+    public Dictionary<string, ExcelColumn> Columns { get; init; }
 
     public Action<ExcelPackage, SimpleExcelWriterState> Finalize { get; init; }
 

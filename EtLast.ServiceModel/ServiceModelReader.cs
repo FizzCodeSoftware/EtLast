@@ -17,8 +17,8 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
     /// </summary>
     public bool TreatEmptyStringAsNull { get; init; } = true;
 
-    public Dictionary<string, ReaderColumnConfiguration> Columns { get; init; }
-    public ReaderDefaultColumnConfiguration DefaultColumns { get; init; }
+    public Dictionary<string, ReaderColumn> Columns { get; init; }
+    public ReaderDefaultColumn DefaultColumns { get; init; }
 
     public ServiceModelReaderClientCreatorDelegate<TChannel, TClient> ClientCreator { get; init; }
     public ServiceModelReaderClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; init; }
@@ -98,10 +98,10 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
                     if (value != null && TreatEmptyStringAsNull && (value is string str) && string.IsNullOrEmpty(str))
                         value = null;
 
-                    if (columnMap.TryGetValue(column, out var columnConfiguration))
+                    if (columnMap.TryGetValue(column, out var col))
                     {
-                        value = columnConfiguration.config.Process(this, value);
-                        initialValues[columnConfiguration.rowColumn] = value;
+                        value = col.config.Process(this, value);
+                        initialValues[col.rowColumn] = value;
                     }
                     else if (DefaultColumns != null)
                     {

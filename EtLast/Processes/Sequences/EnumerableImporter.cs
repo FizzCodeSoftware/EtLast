@@ -6,8 +6,8 @@ public sealed class EnumerableImporter : AbstractRowSource
 {
     public EnumerableImporterDelegate InputGenerator { get; set; }
 
-    public Dictionary<string, ReaderColumnConfiguration> Columns { get; set; }
-    public ReaderDefaultColumnConfiguration DefaultColumns { get; set; }
+    public Dictionary<string, ReaderColumn> Columns { get; set; }
+    public ReaderDefaultColumn DefaultColumns { get; set; }
 
     /// <summary>
     /// Default false.
@@ -56,7 +56,7 @@ public sealed class EnumerableImporter : AbstractRowSource
             else
             {
                 var columnMap = Columns != null
-                    ? new Dictionary<string, ReaderColumnConfiguration>(Columns, StringComparer.InvariantCultureIgnoreCase)
+                    ? new Dictionary<string, ReaderColumn>(Columns, StringComparer.InvariantCultureIgnoreCase)
                     : null;
 
                 foreach (var inputRow in inputRows)

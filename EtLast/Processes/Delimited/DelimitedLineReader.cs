@@ -6,8 +6,8 @@ public sealed class DelimitedLineReader : AbstractRowSource
 {
     public IStreamProvider StreamProvider { get; init; }
 
-    public Dictionary<string, ReaderColumnConfiguration> Columns { get; init; }
-    public ReaderDefaultColumnConfiguration DefaultColumns { get; init; }
+    public Dictionary<string, ReaderColumn> Columns { get; init; }
+    public ReaderDefaultColumn DefaultColumns { get; init; }
 
     /// <summary>
     /// Default true.
@@ -300,10 +300,10 @@ public sealed class DelimitedLineReader : AbstractRowSource
                             sourceValue = null;
                         }
 
-                        if (columnMap != null && columnMap.TryGetValue(csvColumn, out var columnConfiguration))
+                        if (columnMap != null && columnMap.TryGetValue(csvColumn, out var column))
                         {
-                            var value = columnConfiguration.config.Process(this, sourceValue);
-                            initialValues.Add(new KeyValuePair<string, object>(columnConfiguration.rowColumn, value));
+                            var value = column.config.Process(this, sourceValue);
+                            initialValues.Add(new KeyValuePair<string, object>(column.rowColumn, value));
                         }
                         else if (DefaultColumns != null)
                         {

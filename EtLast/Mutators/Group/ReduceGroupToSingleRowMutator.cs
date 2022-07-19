@@ -39,7 +39,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
         var groups = new Dictionary<string, object>();
 
         netTimeStopwatch.Stop();
-        var enumerator = Input.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+        var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
         netTimeStopwatch.Start();
 
         var mutatedRowCount = 0;

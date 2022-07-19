@@ -13,12 +13,12 @@ public class WriteToDelimitedMutatorTests
             },
             Columns = new()
             {
-                ["Id"] = new ReaderColumnConfiguration(new IntConverter()),
-                ["Name"] = new ReaderColumnConfiguration(new StringConverter()),
-                ["ValueString"] = new ReaderColumnConfiguration(new StringConverter()).FromSource("Value1"),
-                ["ValueInt"] = new ReaderColumnConfiguration(new IntConverter()).FromSource("Value2"),
-                ["ValueDate"] = new ReaderColumnConfiguration(new DateConverter()).FromSource("Value3"),
-                ["ValueDouble"] = new ReaderColumnConfiguration(new DoubleConverter()).FromSource("Value4"),
+                ["Id"] = new ReaderColumn(new IntConverter()),
+                ["Name"] = new ReaderColumn(new StringConverter()),
+                ["ValueString"] = new ReaderColumn(new StringConverter()).FromSource("Value1"),
+                ["ValueInt"] = new ReaderColumn(new IntConverter()).FromSource("Value2"),
+                ["ValueDate"] = new ReaderColumn(new DateConverter()).FromSource("Value3"),
+                ["ValueDouble"] = new ReaderColumn(new DoubleConverter()).FromSource("Value4"),
             },
             Header = DelimitedLineHeader.HasHeader,
             RemoveSurroundingDoubleQuotes = removeSurroundingDoubleQuotes
@@ -45,7 +45,7 @@ public class WriteToDelimitedMutatorTests
                         ["id"] = null,
                         ["name"] = null,
                         ["age"] = null,
-                        ["HeightInCm"] = new DelimitedColumnConfiguration().FromSource("height"),
+                        ["HeightInCm"] = new DelimitedColumn().FromSource("height"),
                         ["eyeColor"] = null,
                         ["countryId"] = null,
                         ["birthDate"] = null,
@@ -79,14 +79,14 @@ public class WriteToDelimitedMutatorTests
                     Header = DelimitedLineHeader.HasHeader,
                     Columns = new()
                     {
-                        ["id"] = new ReaderColumnConfiguration(new IntConverter()),
-                        ["name"] = new ReaderColumnConfiguration(new StringConverter()),
-                        ["age"] = new ReaderColumnConfiguration(new IntConverter()),
-                        ["HeightInCm"] = new ReaderColumnConfiguration(new IntConverter()),
-                        ["eyeColor"] = new ReaderColumnConfiguration(new StringConverter()),
-                        ["countryId"] = new ReaderColumnConfiguration(new IntConverter()),
-                        ["birthDate"] = new ReaderColumnConfiguration(new DateTimeConverter()),
-                        ["lastChangedTime"] = new ReaderColumnConfiguration(new DateTimeConverter()),
+                        ["id"] = new ReaderColumn(new IntConverter()),
+                        ["name"] = new ReaderColumn(new StringConverter()),
+                        ["age"] = new ReaderColumn(new IntConverter()),
+                        ["HeightInCm"] = new ReaderColumn(new IntConverter()),
+                        ["eyeColor"] = new ReaderColumn(new StringConverter()),
+                        ["countryId"] = new ReaderColumn(new IntConverter()),
+                        ["birthDate"] = new ReaderColumn(new DateTimeConverter()),
+                        ["lastChangedTime"] = new ReaderColumn(new DateTimeConverter()),
                     },
                 });
 
@@ -129,10 +129,10 @@ public class WriteToDelimitedMutatorTests
                     {
                         ["Id"] = null,
                         ["Name"] = null,
-                        ["Value1"] = new DelimitedColumnConfiguration().FromSource("ValueString"),
-                        ["Value2"] = new DelimitedColumnConfiguration().FromSource("ValueInt"),
-                        ["Value3"] = new DelimitedColumnConfiguration().FromSource("ValueDate"),
-                        ["Value4"] = new DelimitedColumnConfiguration().FromSource("ValueDouble"),
+                        ["Value1"] = new DelimitedColumn().FromSource("ValueString"),
+                        ["Value2"] = new DelimitedColumn().FromSource("ValueInt"),
+                        ["Value3"] = new DelimitedColumn().FromSource("ValueDate"),
+                        ["Value4"] = new DelimitedColumn().FromSource("ValueDouble"),
                     },
                 });
 

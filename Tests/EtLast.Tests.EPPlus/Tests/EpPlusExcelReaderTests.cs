@@ -12,12 +12,12 @@ public class EpPlusExcelReaderTests
             SheetIndex = sheetIndex,
             Columns = new()
             {
-                ["Id"] = new ReaderColumnConfiguration(new IntConverter()).ValueWhenSourceIsNull(string.Empty),
-                ["Name"] = new ReaderColumnConfiguration(new StringConverter()).ValueWhenSourceIsNull(string.Empty),
-                ["ValueString"] = new ReaderColumnConfiguration(new StringConverter()).FromSource("Value1").ValueWhenSourceIsNull(string.Empty),
-                ["ValueInt"] = new ReaderColumnConfiguration(new IntConverter()).FromSource("Value2"),
-                ["ValueDate"] = new ReaderColumnConfiguration(new DateConverter()).FromSource("Value3"),
-                ["ValueDouble"] = new ReaderColumnConfiguration(new DoubleConverter()).FromSource("Value4"),
+                ["Id"] = new ReaderColumn(new IntConverter()).ValueWhenSourceIsNull(string.Empty),
+                ["Name"] = new ReaderColumn(new StringConverter()).ValueWhenSourceIsNull(string.Empty),
+                ["ValueString"] = new ReaderColumn(new StringConverter()).FromSource("Value1").ValueWhenSourceIsNull(string.Empty),
+                ["ValueInt"] = new ReaderColumn(new IntConverter()).FromSource("Value2"),
+                ["ValueDate"] = new ReaderColumn(new DateConverter()).FromSource("Value3"),
+                ["ValueDouble"] = new ReaderColumn(new DoubleConverter()).FromSource("Value4"),
             },
             AutomaticallyTrimAllStringValues = automaticallyTrimAllStringValues,
         };
@@ -75,8 +75,8 @@ public class EpPlusExcelReaderTests
             SheetIndex = 0,
             Columns = new()
             {
-                ["Age"] = new ReaderColumnConfiguration(new IntConverter()),
-                ["Name"] = new ReaderColumnConfiguration(new StringConverter()),
+                ["Age"] = new ReaderColumn(new IntConverter()),
+                ["Name"] = new ReaderColumn(new StringConverter()),
             },
         };
 

@@ -190,7 +190,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
                         mainProducer = table.PartitionedProducerCreator.Invoke(table, partitionIndex);
                     }
 
-                    var rowCount = mainProducer.Evaluate(this).CountRowsWithoutTransfer();
+                    var rowCount = mainProducer.CountRowsAndReleaseOwnership(null);
 
                     if (Context.ExceptionCount > initialExceptionCount)
                         return;

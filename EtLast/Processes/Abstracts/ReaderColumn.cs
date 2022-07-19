@@ -3,35 +3,35 @@
 public enum FailedTypeConversionAction { SetSpecialValue, WrapError }
 public enum SourceIsNullAction { SetSpecialValue, WrapError }
 
-public class ReaderColumnConfiguration : ReaderDefaultColumnConfiguration
+public class ReaderColumn : ReaderDefaultColumn
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
     public string SourceColumn { get; private set; }
 
-    public ReaderColumnConfiguration(ITypeConverter converter)
+    public ReaderColumn(ITypeConverter converter)
         : base(converter)
     {
     }
 
-    public ReaderColumnConfiguration FromSource(string sourceColumn)
+    public ReaderColumn FromSource(string sourceColumn)
     {
         SourceColumn = sourceColumn;
         return this;
     }
 
-    public new ReaderColumnConfiguration ValueWhenConversionFailed(object value)
+    public new ReaderColumn ValueWhenConversionFailed(object value)
     {
         base.ValueWhenConversionFailed(value);
         return this;
     }
 
-    public new ReaderColumnConfiguration ValueWhenSourceIsNull(object value)
+    public new ReaderColumn ValueWhenSourceIsNull(object value)
     {
         base.ValueWhenSourceIsNull(value);
         return this;
     }
 
-    public new ReaderColumnConfiguration WrapErrorWhenSourceIsNull()
+    public new ReaderColumn WrapErrorWhenSourceIsNull()
     {
         base.WrapErrorWhenSourceIsNull();
         return this;
@@ -45,7 +45,7 @@ public class ReaderColumnConfiguration : ReaderDefaultColumnConfiguration
     }
 }
 
-public class ReaderDefaultColumnConfiguration
+public class ReaderDefaultColumn
 {
     protected ITypeConverter Converter { get; }
 
@@ -55,26 +55,26 @@ public class ReaderDefaultColumnConfiguration
     protected SourceIsNullAction SourceIsNullAction { get; private set; } = SourceIsNullAction.SetSpecialValue;
     protected object SpecialValueIfSourceIsNull { get; private set; }
 
-    public ReaderDefaultColumnConfiguration(ITypeConverter converter)
+    public ReaderDefaultColumn(ITypeConverter converter)
     {
         Converter = converter;
     }
 
-    public ReaderDefaultColumnConfiguration ValueWhenConversionFailed(object value)
+    public ReaderDefaultColumn ValueWhenConversionFailed(object value)
     {
         FailedTypeConversionAction = FailedTypeConversionAction.SetSpecialValue;
         SpecialValueIfTypeConversionFailed = value;
         return this;
     }
 
-    public ReaderDefaultColumnConfiguration ValueWhenSourceIsNull(object value)
+    public ReaderDefaultColumn ValueWhenSourceIsNull(object value)
     {
         SourceIsNullAction = SourceIsNullAction.SetSpecialValue;
         SpecialValueIfSourceIsNull = value;
         return this;
     }
 
-    public ReaderDefaultColumnConfiguration WrapErrorWhenSourceIsNull()
+    public ReaderDefaultColumn WrapErrorWhenSourceIsNull()
     {
         SourceIsNullAction = SourceIsNullAction.WrapError;
         SpecialValueIfSourceIsNull = null;

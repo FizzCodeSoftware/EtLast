@@ -8,9 +8,9 @@ public static class TestHelpers
         return new CustomJob(caller.Context)
         {
             Name = $"Read and check {table} table",
-            Action = proc =>
+            Action = job =>
             {
-                ReadSqlTableAndAssertExactMacth(caller, connectionString, table, expectedRowsList);
+                ReadSqlTableAndAssertExactMacth(job, connectionString, table, expectedRowsList);
             }
         };
     }
@@ -33,6 +33,6 @@ public static class TestHelpers
             Name = "Reader",
             ConnectionString = connectionString,
             TableName = connectionString.Escape(table, schema),
-        }.Evaluate(caller).TakeRowsAndReleaseOwnership().ToList();
+        }.TakeRowsAndReleaseOwnership(caller).ToList();
     }
 }

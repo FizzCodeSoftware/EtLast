@@ -12,6 +12,6 @@ public static class Helpers
             Name = "Reader",
             ConnectionString = connectionString,
             TableName = connectionString.Escape(table, schema),
-        }.Evaluate(caller).TakeRowsAndReleaseOwnership().ToList();
+        }.TakeRowsAndReleaseOwnership(caller).ToList();
     }
 }

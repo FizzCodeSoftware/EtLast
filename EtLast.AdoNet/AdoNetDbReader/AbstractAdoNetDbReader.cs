@@ -7,8 +7,8 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
 {
     public NamedConnectionString ConnectionString { get; init; }
 
-    public Dictionary<string, ReaderColumnConfiguration> Columns { get; init; }
-    public ReaderDefaultColumnConfiguration DefaultColumns { get; init; }
+    public Dictionary<string, ReaderColumn> Columns { get; init; }
+    public ReaderDefaultColumn DefaultColumns { get; init; }
 
     /// <summary>
     /// If true, this process will execute out of ambient transaction scope. Default value is false.
@@ -146,7 +146,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                     var columnName = string.Intern(reader.GetName(i));
 
                     var rowColumn = columnName;
-                    ReaderDefaultColumnConfiguration config = null;
+                    ReaderDefaultColumn config = null;
 
                     if (columnMap != null && columnMap.TryGetValue(columnName, out var cc))
                     {

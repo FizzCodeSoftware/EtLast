@@ -17,8 +17,8 @@ public class ReadExcelReaderConversionTests
                 SheetName = "DateBroken",
                 Columns = new()
                 {
-                    ["Id"] = new ReaderColumnConfiguration(new IntConverter()),
-                    ["Date"] = new ReaderColumnConfiguration(new DateConverter()),
+                    ["Id"] = new ReaderColumn(new IntConverter()),
+                    ["Date"] = new ReaderColumn(new DateConverter()),
                 },
             });
 

@@ -18,7 +18,7 @@ public sealed class FilteredRowLookupBuilder
     {
         var process = ProcessCreator.Invoke(filterRows);
 
-        var rows = process.Evaluate(caller).TakeRowsAndReleaseOwnership();
+        var rows = process.TakeRowsAndReleaseOwnership(caller);
         var rowCount = 0;
         foreach (var row in rows)
         {

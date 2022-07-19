@@ -21,21 +21,21 @@ public class CreateDatabase : AbstractEtlTask
         yield return new CustomJob(Context)
         {
             Name = "CreateDatabase",
-            Action = proc =>
+            Action = job =>
             {
                 Microsoft.Data.SqlClient.SqlConnection.ClearAllPools();
 
-                proc.Context.Log(LogSeverity.Information, proc, "opening connection to {DatabaseName}", "master");
+                job.Context.Log(LogSeverity.Information, job, "opening connection to {DatabaseName}", "master");
                 using var connection = DbProviderFactories.GetFactory(ConnectionStringMaster.ProviderName).CreateConnection();
                 connection.ConnectionString = ConnectionStringMaster.ConnectionString;
                 connection.Open();
 
-                proc.Context.Log(LogSeverity.Information, proc, "dropping {DatabaseName}", DatabaseName);
+                job.Context.Log(LogSeverity.Information, job, "dropping {DatabaseName}", DatabaseName);
                 using var dropCommand = connection.CreateCommand();
                 dropCommand.CommandText = "IF EXISTS(select * from sys.databases where name='" + DatabaseName + "') ALTER DATABASE [" + DatabaseName + "] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE IF EXISTS [" + DatabaseName + "]";
                 dropCommand.ExecuteNonQuery();
 
-                proc.Context.Log(LogSeverity.Information, proc, "creating {DatabaseName}", DatabaseName);
+                job.Context.Log(LogSeverity.Information, job, "creating {DatabaseName}", DatabaseName);
                 using var createCommand = connection.CreateCommand();
                 createCommand.CommandText = "CREATE DATABASE [" + DatabaseName + "];";
                 createCommand.ExecuteNonQuery();

@@ -15,7 +15,7 @@ return (int)HostBuilder.New("EtLast Integration Tests")
 
         return new ConsoleCommandLineListener();
     })
-    .SetAlias("do", "run DwhBuilderTests Main")
+    .SetAlias("dwh", "run DwhBuilderTests Main")
     .SetAlias("doex1", "run DwhBuilderTests CustomExceptionTest")
     .SetAlias("doex2", "run DwhBuilderTests ExceptionTest")
     .SetAlias("createdb", "run DwhBuilderTests CreateDatabase")

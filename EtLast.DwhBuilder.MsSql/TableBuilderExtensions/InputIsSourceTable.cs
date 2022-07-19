@@ -45,7 +45,7 @@ public static partial class TableBuilderExtensions
                 ? null
                 : string.Join(" and ", whereClauseList),
             Parameters = parameterList,
-            Columns = sourceSqlTable.Columns.ToDictionary(column => column.Name, column => new ReaderColumnConfiguration(null)),
+            Columns = sourceSqlTable.Columns.ToDictionary(column => column.Name, column => new ReaderColumn(null)),
         };
     }
 }

@@ -18,7 +18,7 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
         var groupCount = 0;
 
         netTimeStopwatch.Stop();
-        var enumerator = Input.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+        var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
         netTimeStopwatch.Start();
 
         var rowCount = 0;

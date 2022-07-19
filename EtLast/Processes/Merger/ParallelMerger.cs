@@ -29,9 +29,7 @@ public sealed class ParallelMerger : AbstractMerger
                 {
                     using (var ts = depTran != null ? new TransactionScope(depTran, TimeSpan.FromDays(1)) : null)
                     {
-                        var rows = sequence
-                            .Evaluate(this)
-                            .TakeRowsAndTransferOwnership();
+                        var rows = sequence.TakeRowsAndTransferOwnership(this);
 
                         foreach (var row in rows)
                         {
