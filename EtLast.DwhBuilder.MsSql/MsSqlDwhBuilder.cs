@@ -66,10 +66,10 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
         var process = new CustomJob(Context)
         {
             Name = "ReadAllEnabledForeignKeys",
-            Action = (proc) =>
+            Action = job =>
             {
                 var startedOn = Stopwatch.StartNew();
-                var connection = EtlConnectionManager.GetNewConnection(ConnectionString, proc);
+                var connection = EtlConnectionManager.GetNewConnection(ConnectionString, job);
                 using (var command = connection.Connection.CreateCommand())
                 {
                     command.CommandTimeout = 60 * 60;
@@ -82,7 +82,7 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
 	                            sys.foreign_keys fk
                                 where fk.is_disabled=0";
 
-                    var iocUid = builder.Scope.Context.RegisterIoCommandStart(proc, IoCommandKind.dbReadMeta, ConnectionString.Name, "SYS.FOREIGN_KEYS", command.CommandTimeout, command.CommandText, null, null,
+                    var iocUid = builder.Scope.Context.RegisterIoCommandStart(job, IoCommandKind.dbReadMeta, ConnectionString.Name, "SYS.FOREIGN_KEYS", command.CommandTimeout, command.CommandText, null, null,
                         "querying enabled foreign key names from {ConnectionStringName}",
                         ConnectionString.Name);
 
@@ -105,17 +105,17 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
                                 list.Add(ConnectionString.Escape((string)reader["fkName"]));
                             }
 
-                            builder.Scope.Context.RegisterIoCommandSuccess(proc, IoCommandKind.dbReadMeta, iocUid, recordsRead);
+                            builder.Scope.Context.RegisterIoCommandSuccess(job, IoCommandKind.dbReadMeta, iocUid, recordsRead);
                         }
 
-                        builder.Scope.Context.Log(LogSeverity.Information, proc, "{ForeignKeyCount} enabled foreign keys acquired from information schema of {ConnectionStringName} in {Elapsed}",
+                        builder.Scope.Context.Log(LogSeverity.Debug, job, "{ForeignKeyCount} enabled foreign keys acquired from information schema of {ConnectionStringName} in {Elapsed}",
                             _enabledConstraintsByTable.Sum(x => x.Value.Count), ConnectionString.Name, startedOn.Elapsed);
                     }
                     catch (Exception ex)
                     {
-                        builder.Scope.Context.RegisterIoCommandFailed(proc, IoCommandKind.dbReadMeta, iocUid, null, ex);
+                        builder.Scope.Context.RegisterIoCommandFailed(job, IoCommandKind.dbReadMeta, iocUid, null, ex);
 
-                        var exception = new SqlSchemaReadException(proc, "enabled foreign key names", ex);
+                        var exception = new SqlSchemaReadException(job, "enabled foreign key names", ex);
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "enabled foreign key list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                             ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
                         exception.Data.Add("ConnectionStringName", ConnectionString.Name);
@@ -126,7 +126,7 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
                     }
                 }
 
-                EtlConnectionManager.ReleaseConnection(proc, ref connection);
+                EtlConnectionManager.ReleaseConnection(job, ref connection);
             }
         };
 

@@ -27,7 +27,7 @@ public class GetTableMaxValue : AbstractEtlTask
         yield return new CustomJob(Context)
         {
             Name = nameof(GetTableMaxValue),
-            Action = proc =>
+            Action = job =>
             {
                 var result = new GetTableMaxValue<DateTime>(Context)
                 {

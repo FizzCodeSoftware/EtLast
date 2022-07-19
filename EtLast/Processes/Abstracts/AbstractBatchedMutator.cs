@@ -35,7 +35,7 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
         var removedRows = new List<IRow>();
 
         netTimeStopwatch.Stop();
-        var enumerator = Input.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+        var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
         netTimeStopwatch.Start();
 
         var batch = new List<IRow>();

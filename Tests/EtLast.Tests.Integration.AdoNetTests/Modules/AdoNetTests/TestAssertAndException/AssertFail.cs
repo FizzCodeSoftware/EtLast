@@ -11,7 +11,7 @@ public class AssertFail : AbstractEtlTask
         yield return new CustomJob(Context)
         {
             Name = "StoredProcedureAdoNetDbReader",
-            Action = proc =>
+            Action = job =>
             {
                 Assert.Fail("Expected fail from Assert TestAssertAndException");
             }

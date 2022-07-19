@@ -3,7 +3,6 @@
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractSequence : AbstractProcess, ISequence
 {
-    public virtual bool ConsumerShouldNotBuffer { get; }
     public Action<ISequence> Initializer { get; init; }
 
     protected AbstractSequence(IEtlContext context)
@@ -11,7 +10,7 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
     {
     }
 
-    public Evaluator Evaluate(IProcess caller = null)
+    private IEnumerable<IRow> Evaluate(IProcess caller)
     {
         Context.RegisterProcessInvocationStart(this, caller);
 
@@ -26,26 +25,36 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
         try
         {
             ValidateImpl();
+        }
+        catch (Exception ex)
+        {
+            netTimeStopwatch.Stop();
+            AddException(ex);
+            yield break;
+        }
 
-            if (Context.CancellationToken.IsCancellationRequested)
-                return new Evaluator();
+        if (Context.CancellationToken.IsCancellationRequested)
+            yield break;
 
-            if (Initializer != null)
+        if (Initializer != null)
+        {
+            try
             {
-                try
-                {
-                    Initializer.Invoke(this);
-                }
-                catch (Exception ex)
-                {
-                    throw new InitializerDelegateException(this, ex);
-                }
-
-                if (Context.CancellationToken.IsCancellationRequested)
-                    return new Evaluator();
+                Initializer.Invoke(this);
+            }
+            catch (Exception ex)
+            {
+                throw new InitializerDelegateException(this, ex);
             }
 
-            return new Evaluator(caller, EvaluateInternal(netTimeStopwatch));
+            if (Context.CancellationToken.IsCancellationRequested)
+                yield break;
+        }
+
+        IEnumerator<IRow> enumerator;
+        try
+        {
+            enumerator = EvaluateImpl(netTimeStopwatch).GetEnumerator();
         }
         catch (Exception ex)
         {
@@ -56,15 +65,32 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
             Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}",
                 Kind, "failed", InvocationInfo.LastInvocationStarted.Elapsed);
 
-            return new Evaluator();
+            yield break;
         }
-    }
 
-    private IEnumerable<IRow> EvaluateInternal(Stopwatch netTimeStopwatch)
-    {
-        var enumerable = EvaluateImpl(netTimeStopwatch);
-        foreach (var row in enumerable)
+        while (!Context.CancellationToken.IsCancellationRequested)
         {
+            try
+            {
+                netTimeStopwatch.Stop();
+                var finished = !enumerator.MoveNext();
+                netTimeStopwatch.Start();
+                if (finished)
+                    break;
+            }
+            catch (Exception ex)
+            {
+                AddException(ex);
+
+                netTimeStopwatch.Stop();
+                Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+                Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}",
+                    Kind, "failed", InvocationInfo.LastInvocationStarted.Elapsed);
+
+                yield break;
+            }
+
+            var row = enumerator.Current;
             yield return row;
         }
 
@@ -80,7 +106,42 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
 
     public void Execute(IProcess caller)
     {
-        var evaluator = Evaluate(caller);
-        evaluator.ExecuteWithoutTransfer();
+        CountRowsAndReleaseOwnership(caller);
+    }
+
+    public IEnumerable<IRow> TakeRowsAndTransferOwnership(IProcess caller)
+    {
+        foreach (var row in Evaluate(caller))
+        {
+            row.Context.SetRowOwner(row, caller);
+            yield return row;
+        }
+    }
+
+    public IEnumerable<ISlimRow> TakeRowsAndReleaseOwnership(IProcess caller)
+    {
+        foreach (var row in Evaluate(caller))
+        {
+            if (caller != null)
+                row.Context.SetRowOwner(row, caller);
+
+            row.Context.SetRowOwner(row, null);
+
+            yield return row;
+        }
+    }
+
+    public int CountRowsAndReleaseOwnership(IProcess caller)
+    {
+        var count = 0;
+        foreach (var row in Evaluate(caller))
+        {
+            row.Context.SetRowOwner(row, caller);
+            row.Context.SetRowOwner(row, null);
+
+            count++;
+        }
+
+        return count;
     }
 }

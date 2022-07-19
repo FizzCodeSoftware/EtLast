@@ -27,7 +27,7 @@ public abstract class AbstractMutator : AbstractSequence, IMutator
         var mutatedRows = new List<IRow>();
 
         netTimeStopwatch.Stop();
-        var enumerator = Input.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+        var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
         netTimeStopwatch.Start();
 
         var mutatedRowCount = 0;

@@ -14,7 +14,7 @@ public static class TestExecuter
             Process = builder.Build(),
         };
 
-        result.MutatedRows = result.Process.Evaluate().TakeRowsAndReleaseOwnership().ToList();
+        result.MutatedRows = result.Process.TakeRowsAndReleaseOwnership(null).ToList();
 
         return result;
     }

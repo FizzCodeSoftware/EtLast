@@ -35,7 +35,7 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
     protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
     {
         netTimeStopwatch.Stop();
-        var sourceEnumerator = Input.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+        var sourceEnumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
         netTimeStopwatch.Start();
 
         var ignoredRowCount = 0;

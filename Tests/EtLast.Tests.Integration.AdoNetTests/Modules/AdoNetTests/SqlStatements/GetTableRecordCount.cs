@@ -27,7 +27,7 @@ public class GetTableRecordCount : AbstractEtlTask
         yield return new CustomJob(Context)
         {
             Name = nameof(GetTableRecordCount),
-            Action = proc =>
+            Action = job =>
             {
                 var result = new EtLast.GetTableRecordCount(Context)
                 {

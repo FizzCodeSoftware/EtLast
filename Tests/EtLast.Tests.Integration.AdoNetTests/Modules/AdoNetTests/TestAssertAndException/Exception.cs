@@ -14,7 +14,7 @@ public class Exception : AbstractEtlTask
         yield return new CustomJob(Context)
         {
             Name = nameof(Exception),
-            Action = proc =>
+            Action = job =>
             {
                 throw new System.Exception("Test Exception.");
             }

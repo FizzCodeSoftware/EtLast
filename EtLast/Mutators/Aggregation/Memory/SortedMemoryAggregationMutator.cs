@@ -19,7 +19,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
         string lastKey = null;
 
         netTimeStopwatch.Stop();
-        var enumerator = Input.Evaluate(this).TakeRowsAndTransferOwnership().GetEnumerator();
+        var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
         netTimeStopwatch.Start();
 
         var success = true;

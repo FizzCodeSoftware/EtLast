@@ -14,7 +14,7 @@ public class EtlException : AbstractEtlTask
         yield return new CustomJob(Context)
         {
             Name = nameof(EtlException),
-            Action = proc =>
+            Action = job =>
             {
                 var process = new EtLast.StoredProcedureAdoNetDbReader(Context)
                 {
@@ -22,7 +22,7 @@ public class EtlException : AbstractEtlTask
                     Sql = "NotExisting_StoredProcedure"
                 };
 
-                var result = process.Evaluate(this).TakeRowsAndTransferOwnership().ToList();
+                var result = process.TakeRowsAndTransferOwnership(this).ToList();
 
                 var exceptions = Context.GetExceptions();
 

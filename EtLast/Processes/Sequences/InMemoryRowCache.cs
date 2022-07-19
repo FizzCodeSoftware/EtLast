@@ -27,7 +27,7 @@ public sealed class InMemoryRowCache : AbstractRowSource
         {
             if (!_firstEvaluationFinished)
             {
-                throw new ProcessExecutionException(this, "the memory cache is not built yet before the second call on " + nameof(InMemoryRowCache) + "." + nameof(Evaluate));
+                throw new ProcessExecutionException(this, "the memory cache is not built yet before the second evaluation");
             }
 
             foreach (var row in _cache)
@@ -44,7 +44,7 @@ public sealed class InMemoryRowCache : AbstractRowSource
         else
         {
             _cache = new List<IReadOnlySlimRow>();
-            var inputRows = InputProcess.Evaluate(this).TakeRowsAndReleaseOwnership();
+            var inputRows = InputProcess.TakeRowsAndReleaseOwnership(this);
             foreach (var row in inputRows)
             {
                 if (IgnoreRowsWithError && row.HasError())

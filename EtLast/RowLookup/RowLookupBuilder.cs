@@ -14,7 +14,7 @@ public sealed class RowLookupBuilder
 
     public void Append(ICountableLookup lookup, IProcess caller)
     {
-        var allRows = Process.Evaluate(caller).TakeRowsAndReleaseOwnership();
+        var allRows = Process.TakeRowsAndReleaseOwnership(caller);
         var rowCount = 0;
         foreach (var row in allRows)
         {

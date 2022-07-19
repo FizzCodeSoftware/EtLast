@@ -10,9 +10,7 @@ public class EnumerableImporterTests
         var builder = SequenceBuilder.Fluent
         .ImportEnumerable(new EnumerableImporter(context)
         {
-            InputGenerator = caller => TestData.Person(context)
-                .Evaluate(caller)
-                .TakeRowsAndReleaseOwnership(),
+            InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
         });
 
         var result = TestExecuter.Execute(builder);
@@ -36,9 +34,7 @@ public class EnumerableImporterTests
         var builder = SequenceBuilder.Fluent
         .ImportEnumerable(new EnumerableImporter(context)
         {
-            InputGenerator = caller => TestData.Person(context)
-                .Evaluate(caller)
-                .TakeRowsAndReleaseOwnership(),
+            InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
             Columns = new()
             {
                 ["ID"] = new ReaderColumnConfiguration(new StringConverter()),
@@ -67,9 +63,7 @@ public class EnumerableImporterTests
         var builder = SequenceBuilder.Fluent
         .ImportEnumerable(new EnumerableImporter(context)
         {
-            InputGenerator = caller => TestData.Person(context)
-                .Evaluate(caller)
-                .TakeRowsAndReleaseOwnership(),
+            InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
             Columns = new()
             {
                 ["ID"] = new ReaderColumnConfiguration(new StringConverter()),

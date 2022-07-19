@@ -12,7 +12,7 @@ public class SplitterAndMergerTests
         {
             InputProcess = new EnumerableImporter(context)
             {
-                InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
+                InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
             },
         };
 
@@ -34,7 +34,7 @@ public class SplitterAndMergerTests
         var results = new List<ISlimRow>[3];
         for (var i = 0; i < 3; i++)
         {
-            results[i] = processes[i].Evaluate().TakeRowsAndReleaseOwnership().ToList();
+            results[i] = processes[i].TakeRowsAndReleaseOwnership(null).ToList();
         }
 
         Assert.AreEqual(7, results[0].Count);
@@ -53,7 +53,7 @@ public class SplitterAndMergerTests
         {
             InputProcess = new EnumerableImporter(context)
             {
-                InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
+                InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
             },
         };
 
@@ -80,7 +80,7 @@ public class SplitterAndMergerTests
             var threadIndex = i;
             var thread = new Thread(() =>
             {
-                var rows = processes[threadIndex].Evaluate().TakeRowsAndReleaseOwnership();
+                var rows = processes[threadIndex].TakeRowsAndReleaseOwnership(null);
                 results[threadIndex] = new List<ISlimRow>(rows);
             });
 
@@ -94,7 +94,7 @@ public class SplitterAndMergerTests
         }
 
         Assert.AreEqual(7, results[0].Count + results[1].Count + results[2].Count);
-        foreach (var p in TestData.Person(context).Evaluate().TakeRowsAndReleaseOwnership())
+        foreach (var p in TestData.Person(context).TakeRowsAndReleaseOwnership(null))
         {
             Assert.IsTrue(
                 results[0].Any(m => m.GetAs<int>("id") == p.GetAs<int>("id"))
@@ -130,9 +130,9 @@ public class SplitterAndMergerTests
             });
         }
 
-        var result = merger.Evaluate().TakeRowsAndReleaseOwnership().ToList();
+        var result = merger.TakeRowsAndReleaseOwnership(null).ToList();
         Assert.AreEqual(21, result.Count);
-        foreach (var p in TestData.Person(context).Evaluate().TakeRowsAndReleaseOwnership())
+        foreach (var p in TestData.Person(context).TakeRowsAndReleaseOwnership(null))
         {
             Assert.AreEqual(3, result.Count(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
         }
@@ -150,7 +150,7 @@ public class SplitterAndMergerTests
         {
             InputProcess = new EnumerableImporter(context)
             {
-                InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
+                InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
             },
         };
 
@@ -173,9 +173,9 @@ public class SplitterAndMergerTests
             });
         }
 
-        var result = merger.Evaluate().TakeRowsAndReleaseOwnership().ToList();
+        var result = merger.TakeRowsAndReleaseOwnership(null).ToList();
         Assert.AreEqual(7, result.Count);
-        foreach (var p in TestData.Person(context).Evaluate().TakeRowsAndReleaseOwnership())
+        foreach (var p in TestData.Person(context).TakeRowsAndReleaseOwnership(null))
         {
             Assert.IsTrue(result.Any(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
         }
@@ -194,7 +194,7 @@ public class SplitterAndMergerTests
         var builder = SequenceBuilder.Fluent
             .ImportEnumerable(new EnumerableImporter(context)
             {
-                InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
+                InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
             })
             .ProcessOnMultipleThreads(3, (i, mb) => mb
                .CustomCode(new CustomMutator(context)
@@ -218,7 +218,7 @@ public class SplitterAndMergerTests
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
-        foreach (var p in TestData.Person(context).Evaluate().TakeRowsAndReleaseOwnership())
+        foreach (var p in TestData.Person(context).TakeRowsAndReleaseOwnership(null))
         {
             Assert.IsTrue(result.MutatedRows.Any(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
         }

@@ -24,7 +24,7 @@ public class StoredProcedureAdoNetDbReader : AbstractEtlTask
         yield return new CustomJob(Context)
         {
             Name = "StoredProcedureAdoNetDbReader",
-            Action = proc =>
+            Action = job =>
             {
                 var result = SequenceBuilder.Fluent
                 .ReadFromStoredProcedure(new EtLast.StoredProcedureAdoNetDbReader(Context)
@@ -32,7 +32,7 @@ public class StoredProcedureAdoNetDbReader : AbstractEtlTask
                     ConnectionString = ConnectionString,
                     Sql = "StoredProcedureAdoNetDbReaderTest"
                 })
-                .Build().Evaluate(this).TakeRowsAndReleaseOwnership().ToList();
+                .Build().TakeRowsAndReleaseOwnership(this).ToList();
 
                 Assert.AreEqual(2, result.Count);
                 Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
