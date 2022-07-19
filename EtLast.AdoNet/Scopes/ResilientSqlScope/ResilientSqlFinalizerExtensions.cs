@@ -38,7 +38,9 @@ public static class ResilientSqlFinalizerExtensions
             {
                 SourceTableName = builder.Table.TempTableName,
                 TargetTableName = builder.Table.TableName,
-                Columns = builder.Table.Columns?.ToDictionary(x => x, x => builder.Table.Scope.ConnectionString.Escape(x)),
+                Columns = builder.Table.Columns?
+                    .Select(x => builder.Table.Scope.ConnectionString.Escape(x))
+                    .ToDictionary(x => x, x => x),
             },
             CommandTimeout = commandTimeout,
             CopyIdentityColumns = copyIdentityColumns,
