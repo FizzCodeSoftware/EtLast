@@ -27,11 +27,11 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
-            netTimeStopwatch.Start();
             if (finished)
                 break;
 
             var row = enumerator.Current;
+            netTimeStopwatch.Start();
 
             if (row.Tag is HeartBeatTag)
             {
@@ -97,6 +97,8 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
 
             list.Add(row);
         }
+
+        netTimeStopwatch.Start();
 
         var aggregateCount = 0;
         var aggregates = new List<SlimRow>();

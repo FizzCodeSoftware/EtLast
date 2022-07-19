@@ -32,11 +32,11 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
-            netTimeStopwatch.Start();
             if (finished)
                 break;
 
             var row = enumerator.Current;
+            netTimeStopwatch.Start();
 
             if (row.Tag is HeartBeatTag)
             {
@@ -151,6 +151,8 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
 
             groupRows.Add(row);
         }
+
+        netTimeStopwatch.Start();
 
         if (success && groupRows.Count > 0)
         {

@@ -49,11 +49,11 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
-            netTimeStopwatch.Start();
             if (finished)
                 break;
 
             var row = enumerator.Current;
+            netTimeStopwatch.Start();
 
             if (row.Tag is HeartBeatTag)
             {
@@ -125,6 +125,8 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
                 list.Add(row);
             }
         }
+
+        netTimeStopwatch.Start();
 
         Context.Log(LogSeverity.Debug, this, "evaluated {MutatedRowCount} of {TotalRowCount} rows and created {GroupCount} groups in {Elapsed}/{ElapsedWallClock}",
             mutatedRowCount, mutatedRowCount + ignoredRowCount, groups.Count, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);

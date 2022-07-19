@@ -141,8 +141,10 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
             }
 
             resultCount++;
+            var resultRow = Context.CreateRow(this, newRow);
+
             netTimeStopwatch.Stop();
-            yield return Context.CreateRow(this, newRow);
+            yield return resultRow;
             netTimeStopwatch.Start();
         }
 

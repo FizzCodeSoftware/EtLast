@@ -54,11 +54,11 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
-            netTimeStopwatch.Start();
             if (finished)
                 break;
 
             var row = enumerator.Current;
+            netTimeStopwatch.Start();
 
             if (row.Tag is HeartBeatTag)
             {
@@ -168,6 +168,8 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
 
             Context.SetRowOwner(row, null);
         }
+
+        netTimeStopwatch.Start();
 
         if (aggregates != null)
         {

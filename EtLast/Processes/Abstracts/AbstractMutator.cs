@@ -37,11 +37,11 @@ public abstract class AbstractMutator : AbstractSequence, IMutator
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
-            netTimeStopwatch.Start();
             if (finished)
                 break;
 
             var row = enumerator.Current;
+            netTimeStopwatch.Start();
 
             if (row.Tag is HeartBeatTag tag)
             {
@@ -138,6 +138,8 @@ public abstract class AbstractMutator : AbstractSequence, IMutator
 
             mutatedRows.Clear();
         }
+
+        netTimeStopwatch.Start();
 
         try
         {

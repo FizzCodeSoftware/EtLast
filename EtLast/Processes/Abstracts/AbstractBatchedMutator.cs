@@ -50,11 +50,11 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
-            netTimeStopwatch.Start();
             if (finished)
                 break;
 
             var row = enumerator.Current;
+            netTimeStopwatch.Start();
 
             if (row.Tag is HeartBeatTag)
             {
@@ -208,6 +208,8 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
                 }
             }
         }
+
+        netTimeStopwatch.Start();
 
         // process remaining rows
         if (batch.Count > 0 && !failed)

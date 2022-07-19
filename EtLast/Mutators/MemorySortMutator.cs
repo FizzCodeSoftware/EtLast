@@ -34,11 +34,11 @@ public class MemorySortMutator : AbstractSequence, IMutator
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
-            netTimeStopwatch.Start();
             if (finished)
                 break;
 
             var row = enumerator.Current;
+            netTimeStopwatch.Start();
 
             if (row.Tag is HeartBeatTag)
             {
@@ -97,6 +97,8 @@ public class MemorySortMutator : AbstractSequence, IMutator
             rows.Add(row);
         }
 
+        netTimeStopwatch.Start();
+
         Context.Log(LogSeverity.Debug, this, "mutated {MutatedRowCount} of {TotalRowCount} rows in {Elapsed}/{ElapsedWallClock}",
             mutatedRowCount, mutatedRowCount + ignoredRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 
@@ -117,9 +119,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
                 IRow row;
                 try
                 {
-                    netTimeStopwatch.Stop();
                     var finished = !sortedRowsEnumerator.MoveNext();
-                    netTimeStopwatch.Start();
                     if (finished)
                         break;
 

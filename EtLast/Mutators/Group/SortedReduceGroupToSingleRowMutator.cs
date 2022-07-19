@@ -51,11 +51,11 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
-            netTimeStopwatch.Start();
             if (finished)
                 break;
 
             var row = enumerator.Current;
+            netTimeStopwatch.Start();
 
             if (row.Tag is HeartBeatTag)
             {
@@ -136,6 +136,8 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
 
             group.Add(row);
         }
+
+        netTimeStopwatch.Start();
 
         if (success && group.Count > 0)
         {

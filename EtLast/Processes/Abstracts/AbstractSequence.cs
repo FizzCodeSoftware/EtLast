@@ -33,67 +33,67 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
             yield break;
         }
 
-        if (Context.CancellationToken.IsCancellationRequested)
-            yield break;
-
-        if (Initializer != null)
+        if (!Context.CancellationToken.IsCancellationRequested)
         {
-            try
+            if (Initializer != null)
             {
-                Initializer.Invoke(this);
-            }
-            catch (Exception ex)
-            {
-                throw new InitializerDelegateException(this, ex);
-            }
-
-            if (Context.CancellationToken.IsCancellationRequested)
-                yield break;
-        }
-
-        IEnumerator<IRow> enumerator;
-        try
-        {
-            enumerator = EvaluateImpl(netTimeStopwatch).GetEnumerator();
-        }
-        catch (Exception ex)
-        {
-            AddException(ex);
-
-            netTimeStopwatch.Stop();
-            Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
-            Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-                Kind, "failed", InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
-
-            yield break;
-        }
-
-        while (!Context.CancellationToken.IsCancellationRequested)
-        {
-            try
-            {
-                netTimeStopwatch.Stop();
-                var finished = !enumerator.MoveNext();
-                netTimeStopwatch.Start();
-                if (finished)
-                    break;
-            }
-            catch (Exception ex)
-            {
-                AddException(ex);
-
-                netTimeStopwatch.Stop();
-                Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
-                Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-                    Kind, "failed", InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
-
-                yield break;
+                try
+                {
+                    Initializer.Invoke(this);
+                }
+                catch (Exception ex)
+                {
+                    throw new InitializerDelegateException(this, ex);
+                }
             }
 
-            var row = enumerator.Current;
-            netTimeStopwatch.Stop();
-            yield return row;
-            netTimeStopwatch.Start();
+            if (!Context.CancellationToken.IsCancellationRequested)
+            {
+                IEnumerator<IRow> enumerator;
+                try
+                {
+                    enumerator = EvaluateImpl(netTimeStopwatch).GetEnumerator();
+                }
+                catch (Exception ex)
+                {
+                    AddException(ex);
+
+                    netTimeStopwatch.Stop();
+                    Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+                    Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}/{ElapsedWallClock}",
+                        Kind, "failed", InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+
+                    yield break;
+                }
+
+                while (!Context.CancellationToken.IsCancellationRequested)
+                {
+                    try
+                    {
+                        netTimeStopwatch.Stop();
+                        var finished = !enumerator.MoveNext();
+                        netTimeStopwatch.Start();
+                        if (finished)
+                            break;
+                    }
+                    catch (Exception ex)
+                    {
+                        AddException(ex);
+
+                        netTimeStopwatch.Stop();
+                        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+                        Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}/{ElapsedWallClock}",
+                            Kind, "failed", InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+
+                        yield break;
+                    }
+
+                    netTimeStopwatch.Stop();
+                    var row = enumerator.Current;
+                    yield return row;
+                    netTimeStopwatch.Start();
+                }
+            }
         }
 
         netTimeStopwatch.Stop();
