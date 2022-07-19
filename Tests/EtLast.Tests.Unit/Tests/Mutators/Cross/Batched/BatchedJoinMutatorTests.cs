@@ -14,7 +14,7 @@ public class BatchedJoinMutatorTests
     {
         var context = TestExecuter.GetContext();
         var executedBatchCount = 0;
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .JoinBatched(new BatchedJoinMutator(context)
             {
@@ -62,7 +62,7 @@ public class BatchedJoinMutatorTests
     {
         var context = TestExecuter.GetContext();
         var executedBatchCount = 0;
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .JoinBatched(new BatchedJoinMutator(context)
             {
@@ -103,7 +103,7 @@ public class BatchedJoinMutatorTests
     {
         var context = TestExecuter.GetContext();
         var executedBatchCount = 0;
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .JoinBatched(new BatchedJoinMutator(context)
             {
@@ -145,7 +145,7 @@ public class BatchedJoinMutatorTests
     {
         var context = TestExecuter.GetContext();
         var executedBatchCount = 0;
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .JoinBatched(new BatchedJoinMutator(context)
             {
@@ -182,7 +182,7 @@ public class BatchedJoinMutatorTests
         var executedBatchCount = 0;
         var executedLeftKeyDelegateCount = 0;
         var executedRightKeyDelegateCount = 0;
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .JoinBatched(new BatchedJoinMutator(context)
             {
@@ -221,7 +221,7 @@ public class BatchedJoinMutatorTests
         var executedBatchCount = 0;
         var executedLeftKeyDelegateCount = 0;
         var executedRightKeyDelegateCount = 0;
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .JoinBatched(new BatchedJoinMutator(context)
             {
@@ -264,7 +264,7 @@ public class BatchedJoinMutatorTests
         var executedBatchCount = 0;
         var executedLeftKeyDelegateCount = 0;
         var executedRightKeyDelegateCount = 0;
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .JoinBatched(new BatchedJoinMutator(context)
             {

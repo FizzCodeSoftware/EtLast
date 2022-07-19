@@ -80,7 +80,7 @@ public sealed class DataContractXmlSerializerMutator<T> : AbstractMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class DataContractXmlSerializerMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder SerializeToXml<T>(this IFluentProcessMutatorBuilder builder, DataContractXmlSerializerMutator<T> mutator)
+    public static IFluentSequenceMutatorBuilder SerializeToXml<T>(this IFluentSequenceMutatorBuilder builder, DataContractXmlSerializerMutator<T> mutator)
     {
         return builder.AddMutator(mutator);
     }

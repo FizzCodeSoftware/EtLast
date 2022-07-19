@@ -122,7 +122,7 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class ServiceModelReaderFluent
 {
-    public static IFluentProcessMutatorBuilder ReadFromService<TChannel, TClient>(this IFluentProcessBuilder builder, ServiceModelReader<TChannel, TClient> reader)
+    public static IFluentSequenceMutatorBuilder ReadFromService<TChannel, TClient>(this IFluentSequenceBuilder builder, ServiceModelReader<TChannel, TClient> reader)
         where TChannel : class
         where TClient : ClientBase<TChannel>
     {

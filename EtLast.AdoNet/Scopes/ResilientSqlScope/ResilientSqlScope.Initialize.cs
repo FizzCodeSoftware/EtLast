@@ -42,7 +42,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
         {
             var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
             Initializers.Invoke(builder);
-            initializers = builder.Processes.Where(x => x != null).ToArray();
+            initializers = builder.Jobs.Where(x => x != null).ToArray();
 
             Context.Log(LogSeverity.Information, this, "created {InitializerCount} initializers", initializers?.Length ?? 0);
         }

@@ -50,12 +50,12 @@ public sealed class TrimStringMutator : AbstractSimpleChangeMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class TrimStringMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder TrimString(this IFluentProcessMutatorBuilder builder, TrimStringMutator mutator)
+    public static IFluentSequenceMutatorBuilder TrimString(this IFluentSequenceMutatorBuilder builder, TrimStringMutator mutator)
     {
         return builder.AddMutator(mutator);
     }
 
-    public static IFluentProcessMutatorBuilder TrimString(this IFluentProcessMutatorBuilder builder, params string[] columns)
+    public static IFluentSequenceMutatorBuilder TrimString(this IFluentSequenceMutatorBuilder builder, params string[] columns)
     {
         return builder.AddMutator(new TrimStringMutator(builder.ProcessBuilder.Result.Context)
         {

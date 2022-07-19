@@ -216,7 +216,7 @@ public static class SortedMemoryAggregationMutatorFluent
     /// <para>- if there is an ordering mismatch in the input then later appearances of a previously processed key will create new aggregated group(s)</para>
     /// <para>- memory footprint is very low because only rows of one group are collected before aggregation is executed on them</para>
     /// </summary>
-    public static IFluentProcessMutatorBuilder AggregateOrdered(this IFluentProcessMutatorBuilder builder, SortedMemoryAggregationMutator mutator)
+    public static IFluentSequenceMutatorBuilder AggregateOrdered(this IFluentSequenceMutatorBuilder builder, SortedMemoryAggregationMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

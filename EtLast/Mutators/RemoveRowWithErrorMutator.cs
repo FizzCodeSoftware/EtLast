@@ -17,7 +17,7 @@ public sealed class RemoveRowWithErrorMutator : AbstractMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class RemoveRowWithErrorMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder RemoveRow(this IFluentProcessMutatorBuilder builder, RemoveRowWithErrorMutator mutator)
+    public static IFluentSequenceMutatorBuilder RemoveRow(this IFluentSequenceMutatorBuilder builder, RemoveRowWithErrorMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

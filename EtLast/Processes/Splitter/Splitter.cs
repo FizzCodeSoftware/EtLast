@@ -1,9 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class Splitter<TRowQueue> : AbstractProducer
+public sealed class Splitter<TRowQueue> : AbstractSequence
     where TRowQueue : IRowQueue, new()
 {
-    public IProducer InputProcess { get; set; }
+    public ISequence InputProcess { get; set; }
     public override bool ConsumerShouldNotBuffer => InputProcess?.ConsumerShouldNotBuffer == true;
 
     private TRowQueue _queue;

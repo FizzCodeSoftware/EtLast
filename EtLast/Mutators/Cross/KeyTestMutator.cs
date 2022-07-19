@@ -143,7 +143,7 @@ public static class KeyTestMutatorFluent
     /// - the existing rows are read from a single <see cref="RowLookup"/>
     /// - if MatchAction.CustomJob is not null and MatchActionContainsMatch is true then all rows of the lookup are kept in the memory, otherwise a <see cref="CountableOnlyRowLookup"/> is used.
     /// </summary>
-    public static IFluentProcessMutatorBuilder KeyTest(this IFluentProcessMutatorBuilder builder, KeyTestMutator mutator)
+    public static IFluentSequenceMutatorBuilder KeyTest(this IFluentSequenceMutatorBuilder builder, KeyTestMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

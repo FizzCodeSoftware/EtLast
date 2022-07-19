@@ -9,74 +9,54 @@ public class DataContractXmlDeSerializerConverterTests
     public void ComplexTestCombinedWithSerializer()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.Person(context))
+        .ConvertValue(new InPlaceConvertMutator(context)
         {
-            InputJob = TestData.Person(context),
-            Mutators = new MutatorList()
+            Columns = new[] { "birthDate" },
+            TypeConverter = new DateConverterAuto(new CultureInfo("hu-HU")),
+            ActionIfInvalid = InvalidValueAction.Throw,
+        })
+        .Explode("ReplaceWithModel", row =>
+        {
+            var newRow = new SlimRow
             {
-                new InPlaceConvertMutator(context)
+                ["personModel"] = new PersonModel()
                 {
-                    Columns = new[] { "birthDate" },
-                    TypeConverter = new DateConverterAuto(new CultureInfo("hu-HU")),
-                    ActionIfInvalid = InvalidValueAction.Throw,
-                },
-                new ExplodeMutator(context)
-                {
-                    RowCreator = row =>
-                    {
-                        var newRow = new SlimRow
-                        {
-                            ["personModel"] = new PersonModel()
-                            {
-                                Id = row.GetAs<int>("id"),
-                                Name = row.GetAs<string>("name"),
-                                Age = row.GetAs<int?>("age"),
-                                BirthDate = row.GetAs<DateTime?>("birthDate"),
-                            }
-                        };
+                    Id = row.GetAs<int>("id"),
+                    Name = row.GetAs<string>("name"),
+                    Age = row.GetAs<int?>("age"),
+                    BirthDate = row.GetAs<DateTime?>("birthDate"),
+                }
+            };
 
-                        return new[] { newRow };
-                    },
-                },
-                new DataContractXmlSerializerMutator<PersonModel>(context)
-                {
-                     SourceColumn = "personModel",
-                     TargetColumn = "personModelXml",
-                },
-                new RemoveColumnMutator(context)
-                {
-                    Columns = new[] { "personModel" },
-                },
-                new InPlaceConvertMutator(context)
-                {
-                    Columns = new[] { "personModelXml" },
-                    TypeConverter = new DataContractXmlDeSerializerConverter<PersonModel>(),
-                },
-                new RenameColumnMutator(context)
-                {
-                    Columns = new()
-                    {
-                        ["personModelXml"] = "personModel",
-                    },
-                },
-                new ExplodeMutator(context)
-                {
-                    RowCreator = row =>
-                    {
-                        var personModel = row.GetAs<PersonModel>("personModel");
-                        var newRow = new SlimRow()
-                        {
-                            ["id"] = personModel.Id,
-                            ["name"] = personModel.Name,
-                            ["age"] = personModel.Age,
-                            ["birthDate"] = personModel.BirthDate,
-                        };
+            return new[] { newRow };
+        })
+        .SerializeToXml(new DataContractXmlSerializerMutator<PersonModel>(context)
+        {
+            SourceColumn = "personModel",
+            TargetColumn = "personModelXml",
+        })
+        .RemoveColumn("personModel")
+        .ConvertValue(new InPlaceConvertMutator(context)
+        {
+            Columns = new[] { "personModelXml" },
+            TypeConverter = new DataContractXmlDeSerializerConverter<PersonModel>(),
+        })
+        .RenameColumn("personModelXml", "personModel")
+        .Explode("ReplaceWithColumns", row =>
+        {
+            var personModel = row.GetAs<PersonModel>("personModel");
+            var newRow = new SlimRow()
+            {
+                ["id"] = personModel.Id,
+                ["name"] = personModel.Name,
+                ["age"] = personModel.Age,
+                ["birthDate"] = personModel.BirthDate,
+            };
 
-                        return new[] { newRow };
-                    },
-                },
-            },
-        };
+            return new[] { newRow };
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(7, result.MutatedRows.Count);

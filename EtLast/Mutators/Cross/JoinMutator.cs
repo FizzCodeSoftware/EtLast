@@ -165,7 +165,7 @@ public static class JoinMutatorFluent
     /// Copy columns to input rows from existing rows using key matching. If there are more than 1 matches for a row, then it will be duplicated for each subsequent match (like a traditional SQL join operation).
     /// - the existing rows are read from a single <see cref="RowLookup"/>
     /// </summary>
-    public static IFluentProcessMutatorBuilder Join(this IFluentProcessMutatorBuilder builder, JoinMutator mutator)
+    public static IFluentSequenceMutatorBuilder Join(this IFluentSequenceMutatorBuilder builder, JoinMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

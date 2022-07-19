@@ -43,12 +43,12 @@ public sealed class RemoveColumnMutator : AbstractSimpleChangeMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class RemoveColumnMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder RemoveColumn(this IFluentProcessMutatorBuilder builder, RemoveColumnMutator mutator)
+    public static IFluentSequenceMutatorBuilder RemoveColumn(this IFluentSequenceMutatorBuilder builder, RemoveColumnMutator mutator)
     {
         return builder.AddMutator(mutator);
     }
 
-    public static IFluentProcessMutatorBuilder RemoveColumn(this IFluentProcessMutatorBuilder builder, params string[] columns)
+    public static IFluentSequenceMutatorBuilder RemoveColumn(this IFluentSequenceMutatorBuilder builder, params string[] columns)
     {
         return builder.AddMutator(new RemoveColumnMutator(builder.ProcessBuilder.Result.Context)
         {

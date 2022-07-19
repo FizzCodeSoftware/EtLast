@@ -107,7 +107,7 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class EpPlusExcelSheetListReaderFluent
 {
-    public static IFluentProcessMutatorBuilder ReadSheetListFromExcel(this IFluentProcessBuilder builder, EpPlusExcelSheetListReader reader)
+    public static IFluentSequenceMutatorBuilder ReadSheetListFromExcel(this IFluentSequenceBuilder builder, EpPlusExcelSheetListReader reader)
     {
         return builder.ReadFrom(reader);
     }

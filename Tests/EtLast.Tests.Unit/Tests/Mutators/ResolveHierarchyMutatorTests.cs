@@ -7,21 +7,16 @@ public class ResolveHierarchyMutatorTests
     public void KeepOriginalLevelColumns()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.RoleHierarchy(context))
+        .ResolveHierarchy(new ResolveHierarchyMutator(context)
         {
-            InputJob = TestData.RoleHierarchy(context),
-            Mutators = new MutatorList()
-            {
-                new ResolveHierarchyMutator(context)
-                {
-                    IdentityColumn = "id",
-                    NewColumnWithParentId = "parentId",
-                    NewColumnWithLevel = "level",
-                    LevelColumns = new[] { "level1", "level2", "level3" },
-                    RemoveLevelColumns = false,
-                },
-            },
-        };
+            IdentityColumn = "id",
+            NewColumnWithParentId = "parentId",
+            NewColumnWithLevel = "level",
+            LevelColumns = new[] { "level1", "level2", "level3" },
+            RemoveLevelColumns = false,
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
@@ -40,21 +35,16 @@ public class ResolveHierarchyMutatorTests
     public void RemoveLevelColumns()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.RoleHierarchy(context))
+        .ResolveHierarchy(new ResolveHierarchyMutator(context)
         {
-            InputJob = TestData.RoleHierarchy(context),
-            Mutators = new MutatorList()
-            {
-                new ResolveHierarchyMutator(context)
-                {
-                    IdentityColumn = "id",
-                    NewColumnWithParentId = "parentId",
-                    NewColumnWithLevel = "level",
-                    LevelColumns = new[] { "level1", "level2", "level3" },
-                    RemoveLevelColumns = true,
-                },
-            },
-        };
+            IdentityColumn = "id",
+            NewColumnWithParentId = "parentId",
+            NewColumnWithLevel = "level",
+            LevelColumns = new[] { "level1", "level2", "level3" },
+            RemoveLevelColumns = true,
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
@@ -73,20 +63,15 @@ public class ResolveHierarchyMutatorTests
     public void NoNewLevelColumn()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.RoleHierarchy(context))
+        .ResolveHierarchy(new ResolveHierarchyMutator(context)
         {
-            InputJob = TestData.RoleHierarchy(context),
-            Mutators = new MutatorList()
-            {
-                new ResolveHierarchyMutator(context)
-                {
-                    IdentityColumn = "id",
-                    NewColumnWithParentId = "parentId",
-                    LevelColumns = new[] { "level1", "level2", "level3" },
-                    RemoveLevelColumns = true,
-                },
-            },
-        };
+            IdentityColumn = "id",
+            NewColumnWithParentId = "parentId",
+            LevelColumns = new[] { "level1", "level2", "level3" },
+            RemoveLevelColumns = true,
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
@@ -105,22 +90,17 @@ public class ResolveHierarchyMutatorTests
     public void NewNameColumn()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.RoleHierarchy(context))
+        .ResolveHierarchy(new ResolveHierarchyMutator(context)
         {
-            InputJob = TestData.RoleHierarchy(context),
-            Mutators = new MutatorList()
-            {
-                new ResolveHierarchyMutator(context)
-                {
-                    IdentityColumn = "id",
-                    NewColumnWithParentId = "parentId",
-                    NewColumnWithLevel = "level",
-                    NewColumnWithName = "name",
-                    LevelColumns = new[] { "level1", "level2", "level3" },
-                    RemoveLevelColumns = true,
-                },
-            },
-        };
+            IdentityColumn = "id",
+            NewColumnWithParentId = "parentId",
+            NewColumnWithLevel = "level",
+            NewColumnWithName = "name",
+            LevelColumns = new[] { "level1", "level2", "level3" },
+            RemoveLevelColumns = true,
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
@@ -139,26 +119,21 @@ public class ResolveHierarchyMutatorTests
     public void IdentityColumnIsString()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.RoleHierarchy(context))
+        .ConvertValue(new InPlaceConvertMutator(context)
         {
-            InputJob = TestData.RoleHierarchy(context),
-            Mutators = new MutatorList()
-            {
-                new InPlaceConvertMutator(context)
-                {
-                    Columns = new[] {"id" },
-                    TypeConverter = new StringConverter(),
-                },
-                new ResolveHierarchyMutator(context)
-                {
-                    IdentityColumn = "id",
-                    NewColumnWithParentId = "parentId",
-                    NewColumnWithLevel = "level",
-                    LevelColumns = new[] { "level1", "level2", "level3" },
-                    RemoveLevelColumns = false,
-                },
-            },
-        };
+            Columns = new[] { "id" },
+            TypeConverter = new StringConverter(),
+        })
+        .ResolveHierarchy(new ResolveHierarchyMutator(context)
+        {
+            IdentityColumn = "id",
+            NewColumnWithParentId = "parentId",
+            NewColumnWithLevel = "level",
+            LevelColumns = new[] { "level1", "level2", "level3" },
+            RemoveLevelColumns = false,
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(6, result.MutatedRows.Count);

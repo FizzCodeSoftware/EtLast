@@ -68,12 +68,12 @@ public sealed class RenameColumnMutator : AbstractSimpleChangeMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class RenameColumnMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder RenameColumn(this IFluentProcessMutatorBuilder builder, RenameColumnMutator mutator)
+    public static IFluentSequenceMutatorBuilder RenameColumn(this IFluentSequenceMutatorBuilder builder, RenameColumnMutator mutator)
     {
         return builder.AddMutator(mutator);
     }
 
-    public static IFluentProcessMutatorBuilder RenameColumn(this IFluentProcessMutatorBuilder builder, string currentName, string newName)
+    public static IFluentSequenceMutatorBuilder RenameColumn(this IFluentSequenceMutatorBuilder builder, string currentName, string newName)
     {
         return builder.AddMutator(new RenameColumnMutator(builder.ProcessBuilder.Result.Context)
         {

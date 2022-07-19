@@ -3,11 +3,11 @@
 public sealed class ResilientSqlScopeProcessBuilder
 {
     public ResilientSqlScope Scope { get; init; }
-    public List<IJob> Processes { get; } = new List<IJob>();
+    public List<IJob> Jobs { get; } = new List<IJob>();
 
     public ResilientSqlScopeProcessBuilder Add(IJob process)
     {
-        Processes.Add(process);
+        Jobs.Add(process);
 
         return this;
     }

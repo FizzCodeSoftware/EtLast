@@ -79,7 +79,7 @@ public sealed class RowListener : AbstractRowSource, IRowListener
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class RowListenerFluent
 {
-    public static IFluentProcessMutatorBuilder Listen(this IFluentProcessBuilder builder, RowListener listener)
+    public static IFluentSequenceMutatorBuilder Listen(this IFluentSequenceBuilder builder, RowListener listener)
     {
         return builder.ReadFrom(listener);
     }

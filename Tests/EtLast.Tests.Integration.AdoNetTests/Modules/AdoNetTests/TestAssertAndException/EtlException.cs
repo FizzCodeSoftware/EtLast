@@ -13,7 +13,7 @@ public class EtlException : AbstractEtlTask
     {
         yield return new CustomJob(Context)
         {
-            Name = $"{nameof(EtlException)}",
+            Name = nameof(EtlException),
             Action = proc =>
             {
                 var process = new EtLast.StoredProcedureAdoNetDbReader(Context)

@@ -3,9 +3,9 @@
 [TestClass]
 public class SortedMemoryAggregationMutatorTests
 {
-    private static IProcessBuilder GetBuilder(IEtlContext context, IMemoryAggregationOperation op, ITypeConverter converter)
+    private static ISequenceBuilder GetBuilder(IEtlContext context, IMemoryAggregationOperation op, ITypeConverter converter)
     {
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.PersonSortedByName(context));
 
         if (converter != null)

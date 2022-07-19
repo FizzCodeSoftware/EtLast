@@ -13,7 +13,7 @@ public class CompareWithRowMutatorTests
     public void RemoveWhenMatchAndEquals()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .CompareWithRow(new CompareWithRowMutator(context)
             {
@@ -43,7 +43,7 @@ public class CompareWithRowMutatorTests
     public void RemoveWhenNoMatch()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .CompareWithRow(new CompareWithRowMutator(context)
             {
@@ -74,7 +74,7 @@ public class CompareWithRowMutatorTests
     public void RemoveWhenMatchByIdAge()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .CompareWithRow(new CompareWithRowMutator(context)
             {
@@ -105,7 +105,7 @@ public class CompareWithRowMutatorTests
     public void MatchButDifferentAction()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .CompareWithRow(new CompareWithRowMutator(context)
             {

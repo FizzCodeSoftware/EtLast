@@ -48,7 +48,7 @@ public class DelimitedLineReaderTests
     public void BasicTest()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadDelimitedLines(GetReader(context, @"TestData\Sample.csv"))
             .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
             {
@@ -69,7 +69,7 @@ public class DelimitedLineReaderTests
     public void QuotedTest1()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadDelimitedLines(GetReader(context, @"TestData\QuotedSample1.csv"));
 
         var result = TestExecuter.Execute(builder);
@@ -85,7 +85,7 @@ public class DelimitedLineReaderTests
     public void QuotedTest1KeepSurroundingDoubleQuotes()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadDelimitedLines(GetReader(context, @"TestData\QuotedSample1.csv", removeSurroundingDoubleQuotes: false))
             .ThrowExceptionOnRowError();
 
@@ -102,7 +102,7 @@ public class DelimitedLineReaderTests
     public void QuotedTest2()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadDelimitedLines(GetSimpleReader(context, @"TestData\QuotedSample2.csv"));
 
         var result = TestExecuter.Execute(builder);
@@ -119,7 +119,7 @@ public class DelimitedLineReaderTests
     public void QuotedTest3EmptyStringsUntouched()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadDelimitedLines(GetSimpleReader(context, @"TestData\QuotedSample3.csv", treatEmptyStringsAsNull: false));
 
         var result = TestExecuter.Execute(builder);
@@ -141,7 +141,7 @@ public class DelimitedLineReaderTests
     public void QuotedTest3EmptyStringsRemoved()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadDelimitedLines(GetSimpleReader(context, @"TestData\QuotedSample3.csv", treatEmptyStringsAsNull: true));
 
         var result = TestExecuter.Execute(builder);
@@ -163,7 +163,7 @@ public class DelimitedLineReaderTests
     public void NewLineTest1()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadDelimitedLines(GetReader(context, @"TestData\NewLineSample1.csv"))
             .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
             {
@@ -183,7 +183,7 @@ public class DelimitedLineReaderTests
     public void NewLineTest2()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadDelimitedLines(GetReader(context, @"TestData\NewLineSample2.csv"))
             .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
             {
@@ -203,7 +203,7 @@ public class DelimitedLineReaderTests
     public void InvalidConversion()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadDelimitedLines(GetReader(context, @"TestData\SampleInvalidConversion.csv"))
             .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
             {
@@ -224,7 +224,7 @@ public class DelimitedLineReaderTests
     public void BrokenHeaderNegative()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadDelimitedLines(new DelimitedLineReader(context)
             {
                 StreamProvider = new LocalFileStreamProvider()
@@ -256,7 +256,7 @@ public class DelimitedLineReaderTests
     public void BrokenHeaderPositive()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadDelimitedLines(new DelimitedLineReader(context)
             {
                 StreamProvider = new LocalFileStreamProvider()

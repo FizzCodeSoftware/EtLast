@@ -13,7 +13,7 @@ public class ExpandFromLookupMutatorTests
     public void Complex()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .ExpandFromLookup(new ExpandFromLookupMutator(context)
             {

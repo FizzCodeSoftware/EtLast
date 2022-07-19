@@ -13,7 +13,7 @@ public class SortedReduceGroupToSingleRowMutatorTests
     public void PartialAndFullRemoval()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.PersonSortedByName(context))
             .ConvertValue(new InPlaceConvertMutator(context)
             {
@@ -48,7 +48,7 @@ public class SortedReduceGroupToSingleRowMutatorTests
     public void IgnoreSelectorForSingleRowGroupsTrue()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.PersonSortedByName(context))
             .ConvertValue(new InPlaceConvertMutator(context)
             {
@@ -87,7 +87,7 @@ public class SortedReduceGroupToSingleRowMutatorTests
     public void IgnoreSelectorForSingleRowGroupsDefaultFalse()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.PersonSortedByName(context))
             .ConvertValue(new InPlaceConvertMutator(context)
             {

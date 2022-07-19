@@ -16,7 +16,7 @@ public class SplitterAndMergerTests
             },
         };
 
-        var processes = new IProducer[4];
+        var processes = new ISequence[4];
         for (var i = 0; i < 3; i++)
         {
             processes[i] = new CustomMutator(context)
@@ -57,7 +57,7 @@ public class SplitterAndMergerTests
             },
         };
 
-        var processes = new IProducer[4];
+        var processes = new ISequence[4];
         for (var i = 0; i < 3; i++)
         {
             processes[i] = new CustomMutator(context)
@@ -113,12 +113,12 @@ public class SplitterAndMergerTests
 
         var merger = new ParallelMerger(context)
         {
-            ProcessList = new List<IProducer>(),
+            SequenceList = new List<ISequence>(),
         };
 
         for (var i = 0; i < 3; i++)
         {
-            merger.ProcessList.Add(new CustomMutator(context)
+            merger.SequenceList.Add(new CustomMutator(context)
             {
                 Input = TestData.Person(context),
                 Action = row =>
@@ -156,12 +156,12 @@ public class SplitterAndMergerTests
 
         var merger = new ParallelMerger(context)
         {
-            ProcessList = new List<IProducer>(),
+            SequenceList = new List<ISequence>(),
         };
 
         for (var i = 0; i < 3; i++)
         {
-            merger.ProcessList.Add(new CustomMutator(context)
+            merger.SequenceList.Add(new CustomMutator(context)
             {
                 Input = splitter,
                 Action = row =>
@@ -191,7 +191,7 @@ public class SplitterAndMergerTests
 
         var n = 0;
 
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ImportEnumerable(new EnumerableImporter(context)
             {
                 InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),

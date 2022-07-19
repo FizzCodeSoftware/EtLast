@@ -55,7 +55,7 @@ public sealed class StoredProcedureAdoNetDbReader : AbstractAdoNetDbReader
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class StoredProcedureAdoNetDbReaderFluent
 {
-    public static IFluentProcessMutatorBuilder ReadFromStoredProcedure(this IFluentProcessBuilder builder, StoredProcedureAdoNetDbReader reader)
+    public static IFluentSequenceMutatorBuilder ReadFromStoredProcedure(this IFluentSequenceBuilder builder, StoredProcedureAdoNetDbReader reader)
     {
         return builder.ReadFrom(reader);
     }

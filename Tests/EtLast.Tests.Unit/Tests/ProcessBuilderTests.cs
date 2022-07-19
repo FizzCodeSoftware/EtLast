@@ -7,17 +7,12 @@ public class ProcessBuilderTests
     public void InputAndOneMutator()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.Person(context))
+        .CustomCode(new CustomMutator(context)
         {
-            InputJob = TestData.Person(context),
-            Mutators = new MutatorList()
-            {
-                new CustomMutator(context)
-                {
-                    Action = row => true,
-                },
-            },
-        };
+            Action = row => true,
+        });
 
         var process = builder.Build();
         Assert.IsNotNull(process);
@@ -29,21 +24,16 @@ public class ProcessBuilderTests
     public void InputAndTwoMutators()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.Person(context))
+        .CustomCode(new CustomMutator(context)
         {
-            InputJob = TestData.Person(context),
-            Mutators = new MutatorList()
-            {
-                new CustomMutator(context)
-                {
-                    Action = row => true,
-                },
-                new CustomMutator(context)
-                {
-                    Action = row => true,
-                },
-            },
-        };
+            Action = row => true,
+        })
+        .CustomCode(new CustomMutator(context)
+        {
+            Action = row => true,
+        });
 
         var process = builder.Build();
         Assert.IsNotNull(process);
@@ -53,38 +43,14 @@ public class ProcessBuilderTests
     }
 
     [TestMethod]
-    public void OneMutator()
-    {
-        var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
-        {
-            Mutators = new MutatorList()
-            {
-                new CustomMutator(context)
-                {
-                    Action = row => true,
-                },
-            },
-        };
-
-        var process = builder.Build();
-        Assert.IsNotNull(process);
-        Assert.IsTrue(process is CustomMutator);
-        Assert.IsNull((process as CustomMutator).Input);
-    }
-
-    [TestMethod]
     public void InputOnly()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
-        {
-            InputJob = TestData.Person(context),
-            Mutators = new MutatorList(),
-        };
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.Person(context));
 
         var process = builder.Build();
         Assert.IsNotNull(process);
-        Assert.IsTrue(process is AbstractRowSource);
+        Assert.IsTrue(process is IRowSource);
     }
 }

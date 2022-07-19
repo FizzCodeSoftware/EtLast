@@ -80,7 +80,7 @@ public sealed class DataContractXmlDeSerializerMutator<T> : AbstractMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class DataContractXmlDeSerializerMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder DeSerializeFromXml<T>(this IFluentProcessMutatorBuilder builder, DataContractXmlDeSerializerMutator<T> mutator)
+    public static IFluentSequenceMutatorBuilder DeSerializeFromXml<T>(this IFluentSequenceMutatorBuilder builder, DataContractXmlDeSerializerMutator<T> mutator)
     {
         return builder.AddMutator(mutator);
     }

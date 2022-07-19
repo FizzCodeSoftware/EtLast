@@ -34,7 +34,7 @@ public static class TestData
         public DateTime? BirthDate { get; set; }
     }
 
-    public static IProducer Country(IEtlContext context)
+    public static ISequence Country(IEtlContext context)
     {
         return new RowCreator(context)
         {
@@ -43,7 +43,7 @@ public static class TestData
         };
     }
 
-    public static IProducer Person(IEtlContext context)
+    public static ISequence Person(IEtlContext context)
     {
         return new RowCreator(context)
         {
@@ -62,7 +62,7 @@ public static class TestData
         };
     }
 
-    public static IProducer PersonSortedByName(IEtlContext context)
+    public static ISequence PersonSortedByName(IEtlContext context)
     {
         return new RowCreator(context)
         {
@@ -81,7 +81,7 @@ public static class TestData
         };
     }
 
-    public static IProducer PersonChanged(IEtlContext context)
+    public static ISequence PersonChanged(IEtlContext context)
     {
         return new RowCreator(context)
         {
@@ -100,7 +100,7 @@ public static class TestData
         };
     }
 
-    public static IProducer PersonEyeColor(IEtlContext context)
+    public static ISequence PersonEyeColor(IEtlContext context)
     {
         return new RowCreator(context)
         {
@@ -119,7 +119,7 @@ public static class TestData
         };
     }
 
-    public static IProducer RoleHierarchy(IEtlContext context)
+    public static ISequence RoleHierarchy(IEtlContext context)
     {
         return new RowCreator(context)
         {
@@ -137,7 +137,7 @@ public static class TestData
         };
     }
 
-    public static IProducer PersonalAssetsPivot(IEtlContext context)
+    public static ISequence PersonalAssetsPivot(IEtlContext context)
     {
         return new RowCreator(context)
         {

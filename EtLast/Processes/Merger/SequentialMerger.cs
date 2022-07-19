@@ -13,12 +13,12 @@ public sealed class SequentialMerger : AbstractMerger
 
     protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
     {
-        foreach (var inputProcess in ProcessList)
+        foreach (var sequence in SequenceList)
         {
             if (Context.CancellationToken.IsCancellationRequested)
                 yield break;
 
-            var rows = inputProcess.Evaluate(this).TakeRowsAndTransferOwnership();
+            var rows = sequence.Evaluate(this).TakeRowsAndTransferOwnership();
             foreach (var row in rows)
             {
                 yield return row;
@@ -30,7 +30,7 @@ public sealed class SequentialMerger : AbstractMerger
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class SequentialMergerFluent
 {
-    public static IFluentProcessMutatorBuilder SequentialMerge(this IFluentProcessBuilder builder, IEtlContext context, string name, Action<SequentialMergerBuilder> merger)
+    public static IFluentSequenceMutatorBuilder SequentialMerge(this IFluentSequenceBuilder builder, IEtlContext context, string name, Action<SequentialMergerBuilder> merger)
     {
         var subBuilder = new SequentialMergerBuilder(context, name);
         merger.Invoke(subBuilder);
@@ -47,13 +47,13 @@ public class SequentialMergerBuilder
         Merger = new SequentialMerger(context)
         {
             Name = name,
-            ProcessList = new List<IProducer>(),
+            SequenceList = new List<ISequence>(),
         };
     }
 
-    public SequentialMergerBuilder AddInput(IProducer input)
+    public SequentialMergerBuilder Add(ISequence sequence)
     {
-        Merger.ProcessList.Add(input);
+        Merger.SequenceList.Add(sequence);
         return this;
     }
 }

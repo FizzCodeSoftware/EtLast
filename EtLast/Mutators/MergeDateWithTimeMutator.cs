@@ -77,7 +77,7 @@ public sealed class MergeDateWithTimeMutator : AbstractMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class MergeDateWithTimeMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder MergeDateWithTime(this IFluentProcessMutatorBuilder builder, MergeDateWithTimeMutator mutator)
+    public static IFluentSequenceMutatorBuilder MergeDateWithTime(this IFluentSequenceMutatorBuilder builder, MergeDateWithTimeMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

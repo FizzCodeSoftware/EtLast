@@ -85,12 +85,12 @@ public sealed class AddKeyHashMutator : AbstractMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class AddHashMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder AddKeyHash(this IFluentProcessMutatorBuilder builder, AddKeyHashMutator mutator)
+    public static IFluentSequenceMutatorBuilder AddKeyHash(this IFluentSequenceMutatorBuilder builder, AddKeyHashMutator mutator)
     {
         return builder.AddMutator(mutator);
     }
 
-    public static IFluentProcessMutatorBuilder AddKeyHash(this IFluentProcessMutatorBuilder builder, string targetColumn, params string[] keyColumns)
+    public static IFluentSequenceMutatorBuilder AddKeyHash(this IFluentSequenceMutatorBuilder builder, string targetColumn, params string[] keyColumns)
     {
         return builder.AddMutator(new AddKeyHashMutator(builder.ProcessBuilder.Result.Context)
         {
@@ -99,7 +99,7 @@ public static class AddHashMutatorFluent
         });
     }
 
-    public static IFluentProcessMutatorBuilder AddKeyHash(this IFluentProcessMutatorBuilder builder, string targetColumn, Func<HashAlgorithm> hashAlgorithmCreator)
+    public static IFluentSequenceMutatorBuilder AddKeyHash(this IFluentSequenceMutatorBuilder builder, string targetColumn, Func<HashAlgorithm> hashAlgorithmCreator)
     {
         return builder.AddMutator(new AddKeyHashMutator(builder.ProcessBuilder.Result.Context)
         {
@@ -108,7 +108,7 @@ public static class AddHashMutatorFluent
         });
     }
 
-    public static IFluentProcessMutatorBuilder AddKeyHash(this IFluentProcessMutatorBuilder builder, string targetColumn, Func<HashAlgorithm> hashAlgorithmCreator, params string[] keyColumns)
+    public static IFluentSequenceMutatorBuilder AddKeyHash(this IFluentSequenceMutatorBuilder builder, string targetColumn, Func<HashAlgorithm> hashAlgorithmCreator, params string[] keyColumns)
     {
         return builder.AddMutator(new AddKeyHashMutator(builder.ProcessBuilder.Result.Context)
         {

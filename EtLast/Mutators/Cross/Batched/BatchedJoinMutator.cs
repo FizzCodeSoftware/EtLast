@@ -164,7 +164,7 @@ public static class BatchedJoinMutatorFluent
     /// - keeps the rows of a batch in the memory
     /// - 1 lookup is built for each batch
     /// </summary>
-    public static IFluentProcessMutatorBuilder JoinBatched(this IFluentProcessMutatorBuilder builder, BatchedJoinMutator mutator)
+    public static IFluentSequenceMutatorBuilder JoinBatched(this IFluentSequenceMutatorBuilder builder, BatchedJoinMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

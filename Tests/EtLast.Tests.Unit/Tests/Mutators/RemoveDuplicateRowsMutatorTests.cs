@@ -13,17 +13,12 @@ public class RemoveDuplicateRowsMutatorTests
     public void SingleKey()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.Person(context))
+        .RemoveDuplicateRows(new RemoveDuplicateRowsMutator(context)
         {
-            InputJob = TestData.Person(context),
-            Mutators = new MutatorList()
-            {
-                new RemoveDuplicateRowsMutator(context)
-                {
-                    KeyGenerator = row => row.GenerateKey("name"),
-                },
-            },
-        };
+            KeyGenerator = row => row.GenerateKey("name"),
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
@@ -42,17 +37,12 @@ public class RemoveDuplicateRowsMutatorTests
     public void CompositeKey()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.Person(context))
+        .RemoveDuplicateRows(new RemoveDuplicateRowsMutator(context)
         {
-            InputJob = TestData.Person(context),
-            Mutators = new MutatorList()
-            {
-                new RemoveDuplicateRowsMutator(context)
-                {
-                    KeyGenerator = row => row.GenerateKey("id", "name"),
-                },
-            },
-        };
+            KeyGenerator = row => row.GenerateKey("id", "name"),
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
@@ -72,17 +62,12 @@ public class RemoveDuplicateRowsMutatorTests
     public void NullKey()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.Person(context))
+        .RemoveDuplicateRows(new RemoveDuplicateRowsMutator(context)
         {
-            InputJob = TestData.Person(context),
-            Mutators = new MutatorList()
-            {
-                new RemoveDuplicateRowsMutator(context)
-                {
-                    KeyGenerator = row => row.GenerateKey("eyeColor"),
-                },
-            },
-        };
+            KeyGenerator = row => row.GenerateKey("eyeColor"),
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(4, result.MutatedRows.Count);

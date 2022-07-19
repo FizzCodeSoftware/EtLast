@@ -42,7 +42,7 @@ public sealed class RowCreator : AbstractRowSource
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class RowCreatorFluent
 {
-    public static IFluentProcessMutatorBuilder UsePredefinedRows(this IFluentProcessBuilder builder, RowCreator creator)
+    public static IFluentSequenceMutatorBuilder UsePredefinedRows(this IFluentSequenceBuilder builder, RowCreator creator)
     {
         return builder.ReadFrom(creator);
     }

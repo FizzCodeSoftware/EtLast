@@ -349,7 +349,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class DelimitedFileReaderFluent
 {
-    public static IFluentProcessMutatorBuilder ReadDelimitedLines(this IFluentProcessBuilder builder, DelimitedLineReader reader)
+    public static IFluentSequenceMutatorBuilder ReadDelimitedLines(this IFluentSequenceBuilder builder, DelimitedLineReader reader)
     {
         return builder.ReadFrom(reader);
     }

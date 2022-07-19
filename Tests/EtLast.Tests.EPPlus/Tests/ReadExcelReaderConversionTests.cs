@@ -7,7 +7,7 @@ public class ReadExcelReaderConversionTests
     public void WrapIsWorking()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFromExcel(new EpPlusExcelReader(context)
             {
                 StreamProvider = new LocalFileStreamProvider()

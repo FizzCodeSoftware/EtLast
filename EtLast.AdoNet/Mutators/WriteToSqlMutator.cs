@@ -284,7 +284,7 @@ public static class WriteToSqlMutatorFluent
     /// <para>Doesn't support retrying the SQL operation and any failure will put the ETL context into a failed state.</para>
     /// <para>It is not recommended to use this mutator to access a remote SQL database.</para>
     /// </summary>
-    public static IFluentProcessMutatorBuilder WriteToSql(this IFluentProcessMutatorBuilder builder, WriteToSqlMutator mutator)
+    public static IFluentSequenceMutatorBuilder WriteToSql(this IFluentSequenceMutatorBuilder builder, WriteToSqlMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

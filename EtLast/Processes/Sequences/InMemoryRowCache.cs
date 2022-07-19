@@ -8,7 +8,7 @@ public sealed class InMemoryRowCache : AbstractRowSource
     /// <summary>
     /// The process evaluates and yields the rows from the input process.
     /// </summary>
-    public IProducer InputProcess { get; set; }
+    public ISequence InputProcess { get; set; }
 
     public InMemoryRowCache(IEtlContext context)
         : base(context)
@@ -64,12 +64,12 @@ public sealed class InMemoryRowCache : AbstractRowSource
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class InMemoryRowCacheFluent
 {
-    public static IFluentProcessMutatorBuilder ReadFromInMemoryRowCache(this IFluentProcessBuilder builder, InMemoryRowCache cache)
+    public static IFluentSequenceMutatorBuilder ReadFromInMemoryRowCache(this IFluentSequenceBuilder builder, InMemoryRowCache cache)
     {
         return builder.ReadFrom(cache);
     }
 
-    public static IProducer BuildToInMemoryRowCache(this IFluentProcessMutatorBuilder builder, string name = null)
+    public static ISequence BuildToInMemoryRowCache(this IFluentSequenceMutatorBuilder builder, string name = null)
     {
         return new InMemoryRowCache(builder.ProcessBuilder.Result.Context)
         {

@@ -5,9 +5,9 @@
 /// Group key generation is applied on the input rows on-the-fly. The collected group is processed when a new key is found.
 /// - keeps all input rows in memory (!)
 /// </summary>
-public sealed class SortedReduceGroupToSingleRowMutator : AbstractProducer, IMutator
+public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMutator
 {
-    public IProducer Input { get; set; }
+    public ISequence Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
 
@@ -208,7 +208,7 @@ public static class SortedReduceGroupToSingleRowMutatorFluent
     /// <para>- if there is an ordering mismatch in the input then later appearances of a previously processed key will create new group(s) and selection will be executed on the new group again</para>
     /// <para>- memory footprint is very low because only rows of one group are collected before selection is executed on them</para>
     /// </summary>
-    public static IFluentProcessMutatorBuilder ReduceGroupToSingleRowOrdered(this IFluentProcessMutatorBuilder builder, SortedReduceGroupToSingleRowMutator mutator)
+    public static IFluentSequenceMutatorBuilder ReduceGroupToSingleRowOrdered(this IFluentSequenceMutatorBuilder builder, SortedReduceGroupToSingleRowMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

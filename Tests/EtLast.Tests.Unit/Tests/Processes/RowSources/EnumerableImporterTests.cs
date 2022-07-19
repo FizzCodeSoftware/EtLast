@@ -7,14 +7,13 @@ public class EnumerableImporterTests
     public void FullCopy()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ImportEnumerable(new EnumerableImporter(context)
         {
-            InputJob = new EnumerableImporter(context)
-            {
-                InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
-            },
-            Mutators = new MutatorList(),
-        };
+            InputGenerator = caller => TestData.Person(context)
+                .Evaluate(caller)
+                .TakeRowsAndReleaseOwnership(),
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
@@ -34,19 +33,18 @@ public class EnumerableImporterTests
     public void CopyOnlySpecifiedColumnsOff()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ImportEnumerable(new EnumerableImporter(context)
         {
-            InputJob = new EnumerableImporter(context)
+            InputGenerator = caller => TestData.Person(context)
+                .Evaluate(caller)
+                .TakeRowsAndReleaseOwnership(),
+            Columns = new()
             {
-                InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
-                Columns = new()
-                {
-                    ["ID"] = new ReaderColumnConfiguration(new StringConverter()),
-                    ["age"] = new ReaderColumnConfiguration(new LongConverter()).ValueWhenSourceIsNull(-1L),
-                },
+                ["ID"] = new ReaderColumnConfiguration(new StringConverter()),
+                ["age"] = new ReaderColumnConfiguration(new LongConverter()).ValueWhenSourceIsNull(-1L),
             },
-            Mutators = new MutatorList(),
-        };
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
@@ -66,20 +64,19 @@ public class EnumerableImporterTests
     public void CopyOnlySpecifiedColumnsOn()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ImportEnumerable(new EnumerableImporter(context)
         {
-            InputJob = new EnumerableImporter(context)
+            InputGenerator = caller => TestData.Person(context)
+                .Evaluate(caller)
+                .TakeRowsAndReleaseOwnership(),
+            Columns = new()
             {
-                InputGenerator = caller => TestData.Person(context).Evaluate(caller).TakeRowsAndReleaseOwnership(),
-                Columns = new()
-                {
-                    ["ID"] = new ReaderColumnConfiguration(new StringConverter()),
-                    ["age"] = new ReaderColumnConfiguration(new LongConverter()).ValueWhenSourceIsNull(-1L),
-                },
-                CopyOnlySpecifiedColumns = true,
+                ["ID"] = new ReaderColumnConfiguration(new StringConverter()),
+                ["age"] = new ReaderColumnConfiguration(new LongConverter()).ValueWhenSourceIsNull(-1L),
             },
-            Mutators = new MutatorList(),
-        };
+            CopyOnlySpecifiedColumns = true,
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(7, result.MutatedRows.Count);

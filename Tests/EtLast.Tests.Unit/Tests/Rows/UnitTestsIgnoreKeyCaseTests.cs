@@ -7,11 +7,8 @@ public class UnitTestsIgnoreKeyCaseTests
     public void KeyCaseIsIgnoredDuringUnitTests()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
-        {
-            InputJob = TestData.Person(context),
-            Mutators = new MutatorList(),
-        };
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.Person(context));
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(7, result.MutatedRows.Count);

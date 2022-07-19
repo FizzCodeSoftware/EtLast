@@ -8,7 +8,7 @@ public class ExceptionFormatTests
     {
         var context = TestExecuter.GetContext();
 
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .CustomCode(new CustomMutator(context)
             {
@@ -30,7 +30,7 @@ public class ExceptionFormatTests
     {
         var context = TestExecuter.GetContext();
 
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .CustomCode(new CustomMutator(context));
 
@@ -45,7 +45,7 @@ public class ExceptionFormatTests
     public void DummyForDevelopment3()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .Join(new JoinMutator(context)
             {
@@ -70,7 +70,7 @@ public class ExceptionFormatTests
     public void DummyForDevelopment4()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .Join(new JoinMutator(context)
             {
@@ -101,7 +101,7 @@ public class ExceptionFormatTests
     public void DummyForDevelopment5()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .Join(new JoinMutator(context)
             {

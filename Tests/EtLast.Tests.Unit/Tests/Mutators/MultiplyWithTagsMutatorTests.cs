@@ -13,7 +13,7 @@ public class MultiplyWithTagsMutatorTests
     public void TestAlone()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .CreateTaggedVersions(new MultiplyByTagsMutator(context)
             {
@@ -56,7 +56,7 @@ public class MultiplyWithTagsMutatorTests
     public void TestWithFluent()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .CreateTaggedVersions("one", 2, 29m)
             .IfTag(tag => tag is string v && v == "one", builder => builder

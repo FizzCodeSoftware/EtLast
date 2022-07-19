@@ -13,17 +13,12 @@ public class RemoveRowMutatorTests
     public void DelegateThrowsExceptionIf()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.Person(context))
+        .RemoveRow(new RemoveRowMutator(context)
         {
-            InputJob = TestData.Person(context),
-            Mutators = new MutatorList()
-            {
-                new RemoveRowMutator(context)
-                {
-                    RowFilter = row => row.GetAs<int>("id") >= 4 && (row.GetAs<double>("id") == 7.0d),
-                },
-            },
-        };
+            RowFilter = row => row.GetAs<int>("id") >= 4 && (row.GetAs<double>("id") == 7.0d),
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(4, result.MutatedRows.Count);
@@ -41,17 +36,12 @@ public class RemoveRowMutatorTests
     public void RemoveAll()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.Person(context))
+        .RemoveRow(new RemoveRowMutator(context)
         {
-            InputJob = TestData.Person(context),
-            Mutators = new MutatorList()
-            {
-                new RemoveRowMutator(context)
-                {
-                    RowFilter = row => true,
-                },
-            },
-        };
+            RowFilter = row => true,
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(0, result.MutatedRows.Count);
@@ -63,17 +53,12 @@ public class RemoveRowMutatorTests
     public void RemoveNone()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.Person(context))
+        .RemoveRow(new RemoveRowMutator(context)
         {
-            InputJob = TestData.Person(context),
-            Mutators = new MutatorList()
-            {
-                new RemoveRowMutator(context)
-                {
-                    RowFilter = row => false,
-                },
-            },
-        };
+            RowFilter = row => false,
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
@@ -93,17 +78,12 @@ public class RemoveRowMutatorTests
     public void RemoveSome()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.Person(context))
+        .RemoveRow(new RemoveRowMutator(context)
         {
-            InputJob = TestData.Person(context),
-            Mutators = new MutatorList()
-            {
-                new RemoveRowMutator(context)
-                {
-                    RowFilter = row => row.GetAs<string>("name") == "A",
-                },
-            },
-        };
+            RowFilter = row => row.GetAs<string>("name") == "A",
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(5, result.MutatedRows.Count);

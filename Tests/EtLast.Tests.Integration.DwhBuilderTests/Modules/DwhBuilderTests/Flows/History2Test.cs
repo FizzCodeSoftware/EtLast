@@ -241,7 +241,7 @@ public class History2Test : AbstractEtlFlow
         Assert.AreEqual(2, result.Count);
     }
 
-    public static IProducer CreatePeople1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
+    public static ISequence CreatePeople1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
     {
         return new RowCreator(tableBuilder.ResilientTable.Scope.Context)
         {
@@ -258,7 +258,7 @@ public class History2Test : AbstractEtlFlow
         };
     }
 
-    public static IProducer CreatePeople2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
+    public static ISequence CreatePeople2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
     {
         return new RowCreator(tableBuilder.ResilientTable.Scope.Context)
         {
@@ -275,7 +275,7 @@ public class History2Test : AbstractEtlFlow
         };
     }
 
-    public static IProducer CreatePeopleRating1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
+    public static ISequence CreatePeopleRating1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
     {
         return new RowCreator(tableBuilder.ResilientTable.Scope.Context)
         {
@@ -290,7 +290,7 @@ public class History2Test : AbstractEtlFlow
         };
     }
 
-    public static IProducer CreatePeopleRating2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
+    public static ISequence CreatePeopleRating2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
     {
         return new RowCreator(tableBuilder.ResilientTable.Scope.Context)
         {
@@ -303,7 +303,7 @@ public class History2Test : AbstractEtlFlow
         };
     }
 
-    public static IProducer CreatePet1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
+    public static ISequence CreatePet1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
     {
         return new RowCreator(tableBuilder.ResilientTable.Scope.Context)
         {
@@ -319,7 +319,7 @@ public class History2Test : AbstractEtlFlow
         };
     }
 
-    public static IProducer CreatePet2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
+    public static ISequence CreatePet2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
     {
         return new RowCreator(tableBuilder.ResilientTable.Scope.Context)
         {

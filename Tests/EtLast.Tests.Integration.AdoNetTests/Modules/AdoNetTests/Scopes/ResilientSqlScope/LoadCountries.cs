@@ -43,7 +43,7 @@ public class LoadCountries : AbstractEtlTask
 
     private IEnumerable<IJob> CreateProcess(ResilientTable table)
     {
-        yield return ProcessBuilder.Fluent
+        yield return SequenceBuilder.Fluent
             .ReadFrom(TestData.Country(Context))
             .WriteToMsSqlResilient(new ResilientWriteToMsSqlMutator(Context)
             {

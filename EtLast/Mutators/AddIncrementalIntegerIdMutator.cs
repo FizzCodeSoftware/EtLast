@@ -38,7 +38,7 @@ public sealed class AddIncrementalIntegerIdMutator : AbstractMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class AddIncrementalIdMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder AddIncrementalIntegerId(this IFluentProcessMutatorBuilder builder, AddIncrementalIntegerIdMutator mutator)
+    public static IFluentSequenceMutatorBuilder AddIncrementalIntegerId(this IFluentSequenceMutatorBuilder builder, AddIncrementalIntegerIdMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

@@ -116,7 +116,7 @@ public sealed class InPlaceConvertMutator : AbstractSimpleChangeMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class InPlaceConvertMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder ConvertValue(this IFluentProcessMutatorBuilder builder, InPlaceConvertMutator mutator)
+    public static IFluentSequenceMutatorBuilder ConvertValue(this IFluentSequenceMutatorBuilder builder, InPlaceConvertMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

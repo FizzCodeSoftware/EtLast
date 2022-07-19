@@ -6,9 +6,9 @@ public delegate IRow ReduceGroupToSingleRowDelegate(IProcess process, IReadOnlyL
 /// Input can be unordered. Group key generation is applied on the input rows on-the-fly, but group processing is started only after all groups are created.
 /// - keeps all input rows in memory (!)
 /// </summary>
-public sealed class ReduceGroupToSingleRowMutator : AbstractProducer, IMutator
+public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
 {
-    public IProducer Input { get; set; }
+    public ISequence Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
 
@@ -211,9 +211,9 @@ public static class ReduceGroupToSingleRowMutatorFluent
     /// Organize input rows into groups and activates a selector which must select zero or one row from the group to be kept. All other rows of the group are discared.
     /// <para>- input can be unordered</para>
     /// <para>- returns all selected rows at once when everything is processed. Memory footprint is high because all rows in all groups are collected before selection</para>
-    /// <para>- if the input is ordered then <see cref="SortedReduceGroupToSingleRowMutatorFluent.ReduceGroupToSingleRowOrdered(IFluentProcessMutatorBuilder, SortedReduceGroupToSingleRowMutator)"/> should be used for much lower memory footprint and stream-like behavior</para>
+    /// <para>- if the input is ordered then <see cref="SortedReduceGroupToSingleRowMutatorFluent.ReduceGroupToSingleRowOrdered(IFluentSequenceMutatorBuilder, SortedReduceGroupToSingleRowMutator)"/> should be used for much lower memory footprint and stream-like behavior</para>
     /// </summary>
-    public static IFluentProcessMutatorBuilder ReduceGroupToSingleRow(this IFluentProcessMutatorBuilder builder, ReduceGroupToSingleRowMutator mutator)
+    public static IFluentSequenceMutatorBuilder ReduceGroupToSingleRow(this IFluentSequenceMutatorBuilder builder, ReduceGroupToSingleRowMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

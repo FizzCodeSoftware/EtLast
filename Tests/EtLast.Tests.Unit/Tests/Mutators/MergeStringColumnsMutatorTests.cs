@@ -13,7 +13,7 @@ public class MergeStringColumnsMutatorTests
     public void Merge()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .MergeStringColumns(new MergeStringColumnsMutator(context)
             {

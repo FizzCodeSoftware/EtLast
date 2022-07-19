@@ -21,7 +21,7 @@ public class EpPlusExcelSheetReaderTests
         var context = TestExecuter.GetContext();
         var reader = GetReader(context, @".\TestData\MissingFile.xlsx");
 
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(reader)
             .ThrowExceptionOnRowError();
 
@@ -38,7 +38,7 @@ public class EpPlusExcelSheetReaderTests
         var context = TestExecuter.GetContext();
         var reader = GetReader(context, @".\TestData\Test.xlsx");
 
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(reader)
             .ThrowExceptionOnRowError();
 

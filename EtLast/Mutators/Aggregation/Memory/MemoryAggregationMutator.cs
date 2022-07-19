@@ -166,10 +166,10 @@ public static class MemoryAggregationMutatorFluent
     /// <para>- input can be unordered</para>
     /// <para>- returns all aggregates at once when everything is processed (blocks execution)</para>
     /// <para>- memory footprint is high because all rows in all groups are collected before aggregation</para>
-    /// <para>- if the input is ordered then <see cref="SortedMemoryAggregationMutatorFluent.AggregateOrdered(IFluentProcessMutatorBuilder, SortedMemoryAggregationMutator)"/> should be used for much lower memory footprint and stream-like behavior</para>
-    /// <para>- if the input is unordered but only basic operations are used then <see cref="ContinuousAggregationMutatorFluent.AggregateContinuously(IFluentProcessMutatorBuilder, ContinuousAggregationMutator)"/> should be used</para>
+    /// <para>- if the input is ordered then <see cref="SortedMemoryAggregationMutatorFluent.AggregateOrdered(IFluentSequenceMutatorBuilder, SortedMemoryAggregationMutator)"/> should be used for much lower memory footprint and stream-like behavior</para>
+    /// <para>- if the input is unordered but only basic operations are used then <see cref="ContinuousAggregationMutatorFluent.AggregateContinuously(IFluentSequenceMutatorBuilder, ContinuousAggregationMutator)"/> should be used</para>
     /// </summary>
-    public static IFluentProcessMutatorBuilder Aggregate(this IFluentProcessMutatorBuilder builder, MemoryAggregationMutator mutator)
+    public static IFluentSequenceMutatorBuilder Aggregate(this IFluentSequenceMutatorBuilder builder, MemoryAggregationMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

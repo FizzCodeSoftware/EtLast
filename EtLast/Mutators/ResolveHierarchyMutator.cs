@@ -83,7 +83,7 @@ public sealed class ResolveHierarchyMutator : AbstractSimpleChangeMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class HierarchyParentIdCalculatorMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder ResolveHierarchy(this IFluentProcessMutatorBuilder builder, ResolveHierarchyMutator mutator)
+    public static IFluentSequenceMutatorBuilder ResolveHierarchy(this IFluentSequenceMutatorBuilder builder, ResolveHierarchyMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

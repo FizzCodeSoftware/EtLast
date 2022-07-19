@@ -43,12 +43,12 @@ public sealed class CustomMutator : AbstractMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class CustomMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder CustomCode(this IFluentProcessMutatorBuilder builder, CustomMutator mutator)
+    public static IFluentSequenceMutatorBuilder CustomCode(this IFluentSequenceMutatorBuilder builder, CustomMutator mutator)
     {
         return builder.AddMutator(mutator);
     }
 
-    public static IFluentProcessMutatorBuilder CustomCode(this IFluentProcessMutatorBuilder builder, string name, Action<IRow> action)
+    public static IFluentSequenceMutatorBuilder CustomCode(this IFluentSequenceMutatorBuilder builder, string name, Action<IRow> action)
     {
         return builder.AddMutator(new CustomMutator(builder.ProcessBuilder.Result.Context)
         {
@@ -60,7 +60,7 @@ public static class CustomMutatorFluent
         });
     }
 
-    public static IFluentProcessMutatorBuilder CustomCode(this IFluentProcessMutatorBuilder builder, string name, CustomMutatorDelegate action)
+    public static IFluentSequenceMutatorBuilder CustomCode(this IFluentSequenceMutatorBuilder builder, string name, CustomMutatorDelegate action)
     {
         return builder.AddMutator(new CustomMutator(builder.ProcessBuilder.Result.Context)
         {

@@ -13,7 +13,7 @@ public class ReplaceStringMutatorTests
     public void CaseSensitive()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .ReplaceString(new ReplaceStringMutator(context)
             {
@@ -41,7 +41,7 @@ public class ReplaceStringMutatorTests
     public void CaseSensitiveNegative()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .ReplaceString(new ReplaceStringMutator(context)
             {
@@ -69,7 +69,7 @@ public class ReplaceStringMutatorTests
     public void CaseInsensitive()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .ReplaceString(new ReplaceStringMutator(context)
             {

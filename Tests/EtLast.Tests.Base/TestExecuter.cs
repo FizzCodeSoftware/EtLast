@@ -7,7 +7,7 @@ public static class TestExecuter
         return new EtlContext();
     }
 
-    public static TestExecuterResult Execute(IProcessBuilder builder)
+    public static TestExecuterResult Execute(ISequenceBuilder builder)
     {
         var result = new TestExecuterResult
         {

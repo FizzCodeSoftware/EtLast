@@ -3,9 +3,9 @@
 [TestClass]
 public class ContinuousAggregationMutatorTests
 {
-    private static IProcessBuilder GetBuilder(IEtlContext context, IContinuousAggregationOperation op, ITypeConverter converter)
+    private static ISequenceBuilder GetBuilder(IEtlContext context, IContinuousAggregationOperation op, ITypeConverter converter)
     {
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context));
 
         if (converter != null)
@@ -40,7 +40,7 @@ public class ContinuousAggregationMutatorTests
     public void NoKeyDecimalAverage()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .ConvertValue(new InPlaceConvertMutator(context)
             {

@@ -1,17 +1,17 @@
 ﻿namespace FizzCode.EtLast;
 
-internal sealed class FluentProcessMutatorBuilder : IFluentProcessMutatorBuilder
+internal sealed class FluentSequenceMutatorBuilder : IFluentSequenceMutatorBuilder
 {
-    public IFluentProcessBuilder ProcessBuilder { get; }
+    public IFluentSequenceBuilder ProcessBuilder { get; }
     internal RowTestDelegate AutomaticallySetRowFilter { get; set; }
     internal RowTagTestDelegate AutomaticallySetRowTagFilter { get; set; }
 
-    internal FluentProcessMutatorBuilder(IFluentProcessBuilder parent)
+    internal FluentSequenceMutatorBuilder(IFluentSequenceBuilder parent)
     {
         ProcessBuilder = parent;
     }
 
-    public IFluentProcessMutatorBuilder AddMutator(IMutator mutator)
+    public IFluentSequenceMutatorBuilder AddMutator(IMutator mutator)
     {
         if (AutomaticallySetRowFilter != null)
             mutator.RowFilter = AutomaticallySetRowFilter;
@@ -24,7 +24,7 @@ internal sealed class FluentProcessMutatorBuilder : IFluentProcessMutatorBuilder
         return this;
     }
 
-    public IFluentProcessMutatorBuilder AddMutators(IEnumerable<IMutator> mutators)
+    public IFluentSequenceMutatorBuilder AddMutators(IEnumerable<IMutator> mutators)
     {
         foreach (var mutator in mutators)
         {
@@ -40,9 +40,9 @@ internal sealed class FluentProcessMutatorBuilder : IFluentProcessMutatorBuilder
         return this;
     }
 
-    public IFluentProcessMutatorBuilder If(RowTestDelegate rowTester, Action<IFluentProcessMutatorBuilder> builder)
+    public IFluentSequenceMutatorBuilder If(RowTestDelegate rowTester, Action<IFluentSequenceMutatorBuilder> builder)
     {
-        var tempBuilder = new FluentProcessMutatorBuilder(ProcessBuilder)
+        var tempBuilder = new FluentSequenceMutatorBuilder(ProcessBuilder)
         {
             AutomaticallySetRowFilter = rowTester,
         };
@@ -52,9 +52,9 @@ internal sealed class FluentProcessMutatorBuilder : IFluentProcessMutatorBuilder
         return this;
     }
 
-    public IFluentProcessMutatorBuilder IfTag(RowTagTestDelegate tagTester, Action<IFluentProcessMutatorBuilder> builder)
+    public IFluentSequenceMutatorBuilder IfTag(RowTagTestDelegate tagTester, Action<IFluentSequenceMutatorBuilder> builder)
     {
-        var tempBuilder = new FluentProcessMutatorBuilder(ProcessBuilder)
+        var tempBuilder = new FluentSequenceMutatorBuilder(ProcessBuilder)
         {
             AutomaticallySetRowTagFilter = tagTester,
         };
@@ -64,7 +64,7 @@ internal sealed class FluentProcessMutatorBuilder : IFluentProcessMutatorBuilder
         return this;
     }
 
-    public IProducer Build()
+    public ISequence Build()
     {
         return ProcessBuilder.Build();
     }

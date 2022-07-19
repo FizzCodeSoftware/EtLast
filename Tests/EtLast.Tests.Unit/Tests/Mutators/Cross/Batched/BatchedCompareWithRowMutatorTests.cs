@@ -13,7 +13,7 @@ public class BatchedCompareWithRowMutatorTests
     public void RemoveWhenMatchAndEquals()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .CompareWithRowBatched(new BatchedCompareWithRowMutator(context)
             {
@@ -43,7 +43,7 @@ public class BatchedCompareWithRowMutatorTests
     public void RemoveWhenNoMatch()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .CompareWithRowBatched(new BatchedCompareWithRowMutator(context)
             {
@@ -74,7 +74,7 @@ public class BatchedCompareWithRowMutatorTests
     public void RemoveWhenMatchByIdAge()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .CompareWithRowBatched(new BatchedCompareWithRowMutator(context)
             {
@@ -105,7 +105,7 @@ public class BatchedCompareWithRowMutatorTests
     public void MatchButDifferentAction()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .CompareWithRowBatched(new BatchedCompareWithRowMutator(context)
             {

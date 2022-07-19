@@ -23,7 +23,7 @@ public class DwhTableBuilder : IDwhTableBuilder
 
     private readonly List<Func<DwhTableBuilder, IEnumerable<IJob>>> _finalizerCreators = new();
     private readonly List<MutatorCreatorDelegate> _mutatorCreators = new();
-    private Func<DateTimeOffset?, IProducer> _inputProcessCreator;
+    private Func<DateTimeOffset?, ISequence> _inputCreator;
 
     public DwhTableBuilder(MsSqlDwhBuilder builder, ResilientTable resilientTable, RelationalTable table)
     {
@@ -57,9 +57,9 @@ public class DwhTableBuilder : IDwhTableBuilder
         _finalizerCreators.Add(creator);
     }
 
-    internal void SetInputProcessCreator(Func<DateTimeOffset?, IProducer> creator)
+    internal void SetInputProcessCreator(Func<DateTimeOffset?, ISequence> creator)
     {
-        _inputProcessCreator = creator;
+        _inputCreator = creator;
     }
 
     internal void Build()
@@ -94,7 +94,7 @@ public class DwhTableBuilder : IDwhTableBuilder
 
     private IEnumerable<IJob> CreateTableMainProcess()
     {
-        var mutators = new MutatorList();
+        var mutators = new List<IEnumerable<IMutator>>();
         foreach (var creator in _mutatorCreators)
         {
             mutators.Add(creator?.Invoke(this));
@@ -108,13 +108,23 @@ public class DwhTableBuilder : IDwhTableBuilder
             maxRecordTimestamp = GetMaxRecordTimestamp();
         }
 
-        var inputProcess = _inputProcessCreator?.Invoke(maxRecordTimestamp);
-
-        yield return new ProcessBuilder()
+        var last = _inputCreator?.Invoke(maxRecordTimestamp);
+        foreach (var list in mutators)
         {
-            InputJob = inputProcess,
-            Mutators = mutators,
-        }.Build();
+            if (list != null)
+            {
+                foreach (var mutator in list)
+                {
+                    if (mutator != null)
+                    {
+                        mutator.Input = last;
+                        last = mutator;
+                    }
+                }
+            }
+        }
+
+        yield return last;
     }
 
     private DateTimeOffset? GetMaxRecordTimestamp()

@@ -53,7 +53,7 @@ public static class ColumnValidationMutatorFluent
     /// <summary>
     /// Runs a test against a value in a row and if the test returns FALSE then the corresponding value will be replaced with an <see cref="EtlRowError"/>.
     /// </summary>
-    public static IFluentProcessMutatorBuilder ValidateColumn(this IFluentProcessMutatorBuilder builder, ColumnValidationMutator mutator)
+    public static IFluentSequenceMutatorBuilder ValidateColumn(this IFluentSequenceMutatorBuilder builder, ColumnValidationMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

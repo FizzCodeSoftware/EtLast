@@ -14,7 +14,7 @@ public class CustomMutatorTests
     {
         var invocationCount = 0;
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .CustomCode(new CustomMutator(context)
             {
@@ -38,7 +38,7 @@ public class CustomMutatorTests
     public void RemoveRowsWithDelegate()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .CustomCode(new CustomMutator(context)
             {
@@ -63,7 +63,7 @@ public class CustomMutatorTests
     public void IfDelegate()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .CustomCode(new CustomMutator(context)
             {
@@ -95,7 +95,7 @@ public class CustomMutatorTests
     public void TagFilterDelegate()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .SetTag(new SetTagMutator(context)
             {

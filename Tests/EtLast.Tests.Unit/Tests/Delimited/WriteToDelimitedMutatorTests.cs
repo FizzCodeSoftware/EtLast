@@ -31,7 +31,7 @@ public class WriteToDelimitedMutatorTests
         using (var outputStream = new MemoryStream())
         {
             var context = TestExecuter.GetContext();
-            var builder = ProcessBuilder.Fluent
+            var builder = SequenceBuilder.Fluent
                 .ReadFrom(TestData.Person(context))
                 .WriteToDelimited(new WriteToDelimitedMutator(context)
                 {
@@ -69,7 +69,7 @@ public class WriteToDelimitedMutatorTests
             outputStream.Position = 0;
 
             context = TestExecuter.GetContext();
-            builder = ProcessBuilder.Fluent
+            builder = SequenceBuilder.Fluent
                 .ReadDelimitedLines(new DelimitedLineReader(context)
                 {
                     StreamProvider = new MemoryStreamProvider()
@@ -111,7 +111,7 @@ public class WriteToDelimitedMutatorTests
         using (var outputStream = new MemoryStream())
         {
             var context = TestExecuter.GetContext();
-            var builder = ProcessBuilder.Fluent
+            var builder = SequenceBuilder.Fluent
                 .ReadDelimitedLines(GetReader(context, @"TestData\NewLineSample1.csv"))
                 .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
                 {

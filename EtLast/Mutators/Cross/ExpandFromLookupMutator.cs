@@ -93,7 +93,7 @@ public static class ExpandFromLookupMutatorFluent
     /// Copy columns to input rows from existing rows using a custom selector.
     /// - <see cref="ExpandFromLookupMutator.MatchSelector"/> can select 0 or 1 row from a single <see cref="RowLookup"/> for each row
     /// </summary>
-    public static IFluentProcessMutatorBuilder ExpandFromLookup(this IFluentProcessMutatorBuilder builder, ExpandFromLookupMutator mutator)
+    public static IFluentSequenceMutatorBuilder ExpandFromLookup(this IFluentSequenceMutatorBuilder builder, ExpandFromLookupMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

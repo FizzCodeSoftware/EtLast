@@ -49,7 +49,7 @@ public static class ThrowExceptionOnDuplicateKeyMutatorFluent
     /// <para>- input can be unordered</para>
     /// <para>- all keys are stored in memory</para>
     /// </summary>
-    public static IFluentProcessMutatorBuilder ThrowExceptionOnDuplicateKey(this IFluentProcessMutatorBuilder builder, ThrowExceptionOnDuplicateKeyMutator mutator)
+    public static IFluentSequenceMutatorBuilder ThrowExceptionOnDuplicateKey(this IFluentSequenceMutatorBuilder builder, ThrowExceptionOnDuplicateKeyMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

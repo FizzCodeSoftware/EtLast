@@ -43,12 +43,12 @@ public sealed class ReplaceEmptyStringWithNullMutator : AbstractSimpleChangeMuta
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class ReplaceEmptyStringWithNullMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder ReplaceEmptyStringWithNull(this IFluentProcessMutatorBuilder builder, ReplaceEmptyStringWithNullMutator mutator)
+    public static IFluentSequenceMutatorBuilder ReplaceEmptyStringWithNull(this IFluentSequenceMutatorBuilder builder, ReplaceEmptyStringWithNullMutator mutator)
     {
         return builder.AddMutator(mutator);
     }
 
-    public static IFluentProcessMutatorBuilder ReplaceEmptyStringWithNull(this IFluentProcessMutatorBuilder builder, params string[] columns)
+    public static IFluentSequenceMutatorBuilder ReplaceEmptyStringWithNull(this IFluentSequenceMutatorBuilder builder, params string[] columns)
     {
         return builder.AddMutator(new ReplaceEmptyStringWithNullMutator(builder.ProcessBuilder.Result.Context)
         {

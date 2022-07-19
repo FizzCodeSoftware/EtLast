@@ -110,7 +110,7 @@ public sealed class EnumerableImporter : AbstractRowSource
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class EnumerableImporterFluent
 {
-    public static IFluentProcessMutatorBuilder ImportEnumerable(this IFluentProcessBuilder builder, EnumerableImporter importer)
+    public static IFluentSequenceMutatorBuilder ImportEnumerable(this IFluentSequenceBuilder builder, EnumerableImporter importer)
     {
         return builder.ReadFrom(importer);
     }

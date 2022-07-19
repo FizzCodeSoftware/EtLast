@@ -183,7 +183,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
                     Context.Log(LogSeverity.Information, this, "processing table {TableName}, (partition #{PartitionIndex})",
                         ConnectionString.Unescape(table.TableName), partitionIndex);
 
-                    IProducer mainProducer;
+                    ISequence mainProducer;
 
                     using (var creatorScope = Context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
                     {

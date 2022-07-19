@@ -37,12 +37,12 @@ public sealed class ThrowExceptionOnRowErrorMutator : AbstractMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class ThrowExceptionOnRowErrorMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder ThrowExceptionOnRowError(this IFluentProcessMutatorBuilder builder, ThrowExceptionOnRowErrorMutator mutator)
+    public static IFluentSequenceMutatorBuilder ThrowExceptionOnRowError(this IFluentSequenceMutatorBuilder builder, ThrowExceptionOnRowErrorMutator mutator)
     {
         return builder.AddMutator(mutator);
     }
 
-    public static IFluentProcessMutatorBuilder ThrowExceptionOnRowError(this IFluentProcessMutatorBuilder builder)
+    public static IFluentSequenceMutatorBuilder ThrowExceptionOnRowError(this IFluentSequenceMutatorBuilder builder)
     {
         return builder.AddMutator(new ThrowExceptionOnRowErrorMutator(builder.ProcessBuilder.Result.Context));
     }

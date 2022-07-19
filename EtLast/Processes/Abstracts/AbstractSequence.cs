@@ -1,12 +1,12 @@
 ﻿namespace FizzCode.EtLast;
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractProducer : AbstractProcess, IProducer
+public abstract class AbstractSequence : AbstractProcess, ISequence
 {
     public virtual bool ConsumerShouldNotBuffer { get; }
-    public Action<IProducer> Initializer { get; init; }
+    public Action<ISequence> Initializer { get; init; }
 
-    protected AbstractProducer(IEtlContext context)
+    protected AbstractSequence(IEtlContext context)
         : base(context)
     {
     }

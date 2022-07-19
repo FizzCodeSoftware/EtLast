@@ -126,7 +126,7 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class ServiceModelExpandMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder ExpandWithServiceResponse<TChannel, TClient>(this IFluentProcessMutatorBuilder builder, ServiceModelExpandMutator<TChannel, TClient> mutator)
+    public static IFluentSequenceMutatorBuilder ExpandWithServiceResponse<TChannel, TClient>(this IFluentSequenceMutatorBuilder builder, ServiceModelExpandMutator<TChannel, TClient> mutator)
         where TChannel : class
         where TClient : ClientBase<TChannel>
     {

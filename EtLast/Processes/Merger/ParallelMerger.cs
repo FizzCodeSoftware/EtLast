@@ -17,10 +17,10 @@ public sealed class ParallelMerger : AbstractMerger
         var finishedCount = 0;
         using var queue = new DefaultRowQueue();
 
-        for (var i = 0; i < ProcessList.Count; i++)
+        for (var i = 0; i < SequenceList.Count; i++)
         {
             var threadIndex = i; // capture variable for thread
-            var inputProcess = ProcessList[threadIndex];
+            var sequence = SequenceList[threadIndex];
 
             var thread = new Thread(tran =>
             {
@@ -29,7 +29,9 @@ public sealed class ParallelMerger : AbstractMerger
                 {
                     using (var ts = depTran != null ? new TransactionScope(depTran, TimeSpan.FromDays(1)) : null)
                     {
-                        var rows = inputProcess.Evaluate(this).TakeRowsAndTransferOwnership();
+                        var rows = sequence
+                            .Evaluate(this)
+                            .TakeRowsAndTransferOwnership();
 
                         foreach (var row in rows)
                         {
@@ -39,7 +41,7 @@ public sealed class ParallelMerger : AbstractMerger
                         ts?.Complete();
 
                         Interlocked.Increment(ref finishedCount);
-                        if (finishedCount == ProcessList.Count)
+                        if (finishedCount == SequenceList.Count)
                         {
                             queue.SignalNoMoreRows();
                         }
@@ -75,7 +77,7 @@ public sealed class ParallelMerger : AbstractMerger
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class ParallelMergerFluent
 {
-    public static IFluentProcessMutatorBuilder ProcessOnMultipleThreads(this IFluentProcessMutatorBuilder builder, int threadCount, Action<int, IFluentProcessMutatorBuilder> mutatorBuilder)
+    public static IFluentSequenceMutatorBuilder ProcessOnMultipleThreads(this IFluentSequenceMutatorBuilder builder, int threadCount, Action<int, IFluentSequenceMutatorBuilder> mutatorBuilder)
     {
         var splitter = new Splitter<DefaultRowQueue>(builder.ProcessBuilder.Result.Context)
         {
@@ -86,17 +88,17 @@ public static class ParallelMergerFluent
         var merger = new ParallelMerger(builder.ProcessBuilder.Result.Context)
         {
             Name = "ParallelMerger",
-            ProcessList = new List<IProducer>(),
+            SequenceList = new List<ISequence>(),
         };
 
         for (var i = 0; i < threadCount; i++)
         {
-            var subBuilder = ProcessBuilder.Fluent;
+            var subBuilder = SequenceBuilder.Fluent;
             var subMutatorBuilder = subBuilder.ReadFrom(splitter);
             mutatorBuilder.Invoke(i, subMutatorBuilder);
 
             var subProcess = subBuilder.Result;
-            merger.ProcessList.Add(subProcess);
+            merger.SequenceList.Add(subProcess);
         }
 
         builder.ProcessBuilder.Result = merger;

@@ -83,7 +83,7 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class EpPlusExcelReaderFluent
 {
-    public static IFluentProcessMutatorBuilder ReadFromExcel(this IFluentProcessBuilder builder, EpPlusExcelReader reader)
+    public static IFluentSequenceMutatorBuilder ReadFromExcel(this IFluentSequenceBuilder builder, EpPlusExcelReader reader)
     {
         return builder.ReadFrom(reader);
     }

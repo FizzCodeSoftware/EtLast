@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public interface IProducer : IJob
+public interface ISequence : IJob
 {
     /// <summary>
     /// Some consumer processes use buffering to process the rows enumerated from their input.

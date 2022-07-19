@@ -13,7 +13,7 @@ public class JoinMutatorTests
     public void NoMatchCustom()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .Join(new JoinMutator(context)
             {
@@ -54,7 +54,7 @@ public class JoinMutatorTests
     public void NoMatchRemove()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .Join(new JoinMutator(context)
             {
@@ -88,7 +88,7 @@ public class JoinMutatorTests
     public void NoMatchThrow()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .Join(new JoinMutator(context)
             {
@@ -125,7 +125,7 @@ public class JoinMutatorTests
         var context = TestExecuter.GetContext();
         var executedLeftKeyDelegateCount = 0;
         var executedRightKeyDelegateCount = 0;
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .Join(new JoinMutator(context)
             {
@@ -163,7 +163,7 @@ public class JoinMutatorTests
         var context = TestExecuter.GetContext();
         var executedLeftKeyDelegateCount = 0;
         var executedRightKeyDelegateCount = 0;
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .Join(new JoinMutator(context)
             {
@@ -195,7 +195,7 @@ public class JoinMutatorTests
         var context = TestExecuter.GetContext();
         var executedLeftKeyDelegateCount = 0;
         var executedRightKeyDelegateCount = 0;
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .Join(new JoinMutator(context)
             {

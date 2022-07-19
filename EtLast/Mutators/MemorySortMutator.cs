@@ -1,9 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public class MemorySortMutator : AbstractProducer, IMutator
+public class MemorySortMutator : AbstractSequence, IMutator
 {
-    public IProducer Input { get; set; }
+    public ISequence Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
     public Func<IEnumerable<IRow>, IEnumerable<IRow>> Sorter { get; init; }
@@ -153,12 +153,12 @@ public class MemorySortMutator : AbstractProducer, IMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class MemorySortMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder SortInMemory(this IFluentProcessMutatorBuilder builder, MemorySortMutator mutator)
+    public static IFluentSequenceMutatorBuilder SortInMemory(this IFluentSequenceMutatorBuilder builder, MemorySortMutator mutator)
     {
         return builder.AddMutator(mutator);
     }
 
-    public static IFluentProcessMutatorBuilder SortInMemory(this IFluentProcessMutatorBuilder builder, string name, Func<IEnumerable<IRow>, IEnumerable<IRow>> sorter)
+    public static IFluentSequenceMutatorBuilder SortInMemory(this IFluentSequenceMutatorBuilder builder, string name, Func<IEnumerable<IRow>, IEnumerable<IRow>> sorter)
     {
         return builder.AddMutator(new MemorySortMutator(builder.ProcessBuilder.Result.Context)
         {

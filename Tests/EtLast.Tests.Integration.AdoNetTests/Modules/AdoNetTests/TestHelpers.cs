@@ -4,7 +4,6 @@ public static class TestHelpers
 {
     public static CustomJob CreateReadSqlTableAndAssertExactMacth(IProcess caller, NamedConnectionString connectionString, string table, params CaseInsensitiveStringKeyDictionary<object>[] expectedRows)
     {
-
         var expectedRowsList = new List<CaseInsensitiveStringKeyDictionary<object>>(expectedRows);
         return new CustomJob(caller.Context)
         {

@@ -130,7 +130,7 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
             }
         };
 
-        builder.Processes.Add(process);
+        builder.Jobs.Add(process);
 
         foreach (var creator in _preFinalizerCreators)
         {
@@ -144,7 +144,7 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
         var constraintCheckDisabledOnTables = builder.Scope.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
         if (constraintCheckDisabledOnTables != null)
         {
-            builder.Processes.Add(new MsSqlEnableConstraintCheckFiltered(builder.Scope.Context)
+            builder.Jobs.Add(new MsSqlEnableConstraintCheckFiltered(builder.Scope.Context)
             {
                 Name = "EnableForeignKeys",
                 ConnectionString = builder.Scope.ConnectionString,
@@ -161,7 +161,7 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
         var etlRunInfoTable = Model.GetEtlRunInfoTable();
         if (etlRunInfoTable != null)
         {
-            builder.Processes.Add(new CustomSqlStatement(builder.Scope.Context)
+            builder.Jobs.Add(new CustomSqlStatement(builder.Scope.Context)
             {
                 Name = "UpdateEtlRun",
                 ConnectionString = builder.Scope.ConnectionString,
@@ -203,63 +203,59 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
         var etlRunInfoTable = Model.GetEtlRunInfoTable();
         if (etlRunInfoTable != null)
         {
-            var process = new ProcessBuilder()
+            var job = SequenceBuilder.Fluent
+            .ImportEnumerable(new EnumerableImporter(builder.Scope.Context)
             {
-                InputJob = new EnumerableImporter(builder.Scope.Context)
+                Name = "EtlRunInfoCreator",
+                InputGenerator = process =>
                 {
-                    Name = "EtlRunInfoCreator",
-                    InputGenerator = process =>
+                    var currentId = _etlRunIdUtcOverride ?? DateTime.UtcNow;
+
+                    currentId = new DateTime(
+                        currentId.Year,
+                        currentId.Month,
+                        currentId.Day,
+                        currentId.Hour,
+                        currentId.Minute,
+                        currentId.Second,
+                        currentId.Millisecond / 10 * 10, // 10 msec accuracy
+                        DateTimeKind.Utc);
+
+                    EtlRunId = currentId;
+                    EtlRunIdAsDateTimeOffset = new DateTimeOffset(currentId, new TimeSpan(0));
+
+                    builder.Scope.Context.AdditionalData["CurrentEtlRunId"] = currentId;
+
+                    var row = new SlimRow()
                     {
-                        var currentId = _etlRunIdUtcOverride ?? DateTime.UtcNow;
+                        ["StartedOn"] = currentId,
+                        ["Name"] = builder.Scope.Name,
+                        ["MachineName"] = Environment.MachineName,
+                        ["UserName"] = Environment.UserName,
+                    };
 
-                        currentId = new DateTime(
-                            currentId.Year,
-                            currentId.Month,
-                            currentId.Day,
-                            currentId.Hour,
-                            currentId.Minute,
-                            currentId.Second,
-                            currentId.Millisecond / 10 * 10, // 10 msec accuracy
-                            DateTimeKind.Utc);
-
-                        EtlRunId = currentId;
-                        EtlRunIdAsDateTimeOffset = new DateTimeOffset(currentId, new TimeSpan(0));
-
-                        builder.Scope.Context.AdditionalData["CurrentEtlRunId"] = currentId;
-
-                        var row = new SlimRow()
-                        {
-                            ["StartedOn"] = currentId,
-                            ["Name"] = builder.Scope.Name,
-                            ["MachineName"] = Environment.MachineName,
-                            ["UserName"] = Environment.UserName,
-                        };
-
-                        return new[] { row };
-                    }
-                },
-                Mutators = new MutatorList()
+                    return new[] { row };
+                }
+            })
+            .WriteToMsSqlResilient(new ResilientWriteToMsSqlMutator(builder.Scope.Context)
+            {
+                Name = "EtlRunInfoWriter",
+                ConnectionString = ConnectionString,
+                TableDefinition = new DbTableDefinition()
                 {
-                    new ResilientWriteToMsSqlMutator(builder.Scope.Context)
+                    TableName = etlRunInfoTable.EscapedName(ConnectionString),
+                    Columns = new()
                     {
-                        Name = "EtlRunInfoWriter",
-                        ConnectionString = ConnectionString,
-                        TableDefinition = new DbTableDefinition()
-                        {
-                            TableName = etlRunInfoTable.EscapedName(ConnectionString),
-                            Columns = new()
-                            {
-                                ["StartedOn"] = ConnectionString.Escape("StartedOn"),
-                                ["Name"] = ConnectionString.Escape("Name"),
-                                ["MachineName"] = ConnectionString.Escape("MachineName"),
-                                ["UserName"] = ConnectionString.Escape("UserName"),
-                            },
-                        },
+                        ["StartedOn"] = ConnectionString.Escape("StartedOn"),
+                        ["Name"] = ConnectionString.Escape("Name"),
+                        ["MachineName"] = ConnectionString.Escape("MachineName"),
+                        ["UserName"] = ConnectionString.Escape("UserName"),
                     },
                 },
-            }.Build();
+            })
+            .Build();
 
-            builder.Processes.Add(process);
+            builder.Jobs.Add(job);
         }
     }
 

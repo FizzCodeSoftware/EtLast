@@ -41,7 +41,7 @@ public abstract class AbstractProcess : IProcess
             IRowSink => "sink",
             IMutator => "mutator",
             IScope => "scope",
-            IProducer => "producer",
+            ISequence => "sequence",
             IJob => "job",
             _ => "unknown",
         };

@@ -40,7 +40,7 @@ public sealed class ReplaceStringMutator : AbstractMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class ReplaceStringMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder ReplaceString(this IFluentProcessMutatorBuilder builder, ReplaceStringMutator mutator)
+    public static IFluentSequenceMutatorBuilder ReplaceString(this IFluentSequenceMutatorBuilder builder, ReplaceStringMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

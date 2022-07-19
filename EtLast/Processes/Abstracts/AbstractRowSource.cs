@@ -4,7 +4,7 @@
 /// Row sources create rows - they may create or generate, read from different sources, copy from existing rows.
 /// </summary>
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractRowSource : AbstractProducer, IRowSource
+public abstract class AbstractRowSource : AbstractSequence, IRowSource
 {
     /// <summary>
     /// Default false.

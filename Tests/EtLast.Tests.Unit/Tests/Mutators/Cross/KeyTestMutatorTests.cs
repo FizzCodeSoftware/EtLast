@@ -15,7 +15,7 @@ public class KeyTestMutatorTests
     public void Complex(bool matchActionContainsMatch)
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .KeyTest(new KeyTestMutator(context)
             {

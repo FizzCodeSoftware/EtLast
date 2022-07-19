@@ -2,7 +2,7 @@
 
 public sealed class RowLookupBuilder
 {
-    public IProducer Process { get; set; }
+    public ISequence Process { get; set; }
     public Func<IReadOnlySlimRow, string> KeyGenerator { get; set; }
 
     public RowLookup Build(IProcess caller)

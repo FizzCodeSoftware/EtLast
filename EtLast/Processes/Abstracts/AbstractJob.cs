@@ -30,7 +30,6 @@ public abstract class AbstractJob : AbstractProcess, IJob
 
             ExecuteImpl(netTimeStopwatch);
             netTimeStopwatch.Stop();
-
         }
         catch (Exception ex)
         {

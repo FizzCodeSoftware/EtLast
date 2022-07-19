@@ -23,7 +23,7 @@ public sealed class SetTagMutator : AbstractMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class SetTagMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder SetTag(this IFluentProcessMutatorBuilder builder, SetTagMutator mutator)
+    public static IFluentSequenceMutatorBuilder SetTag(this IFluentSequenceMutatorBuilder builder, SetTagMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

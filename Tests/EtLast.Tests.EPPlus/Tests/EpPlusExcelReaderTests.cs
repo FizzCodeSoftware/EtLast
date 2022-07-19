@@ -29,7 +29,7 @@ public class EpPlusExcelReaderTests
         var context = TestExecuter.GetContext();
         var reader = GetReader(context, new LocalFileStreamProvider() { FileName = @".\TestData\MissingFile.xlsx" }, sheetName: "anySheet");
 
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(reader)
             .ThrowExceptionOnRowError();
 
@@ -46,7 +46,7 @@ public class EpPlusExcelReaderTests
         var context = TestExecuter.GetContext();
         var reader = GetReader(context, new LocalFileStreamProvider() { FileName = @".\TestData\Test.xlsx" }, sheetName: "MergeAtIndex0");
 
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(reader)
             .ThrowExceptionOnRowError();
 
@@ -80,7 +80,7 @@ public class EpPlusExcelReaderTests
             },
         };
 
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(reader)
             .ThrowExceptionOnRowError();
 
@@ -106,7 +106,7 @@ public class EpPlusExcelReaderTests
         var context = TestExecuter.GetContext();
         var reader = GetReader(context, new LocalFileStreamProvider() { FileName = @".\TestData\Test.xlsx" }, sheetIndex: 0);
 
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(reader)
             .ThrowExceptionOnRowError();
 
@@ -127,7 +127,7 @@ public class EpPlusExcelReaderTests
         var context = TestExecuter.GetContext();
         var reader = GetReader(context, new LocalFileStreamProvider() { FileName = @".\TestData\Test.xlsx" }, sheetName: "MergeAtIndex0", automaticallyTrimAllStringValues: false);
 
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(reader)
             .ThrowExceptionOnRowError();
 

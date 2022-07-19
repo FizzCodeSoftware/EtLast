@@ -1,9 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractBatchedMutator : AbstractProducer, IMutator
+public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
 {
-    public IProducer Input { get; set; }
+    public ISequence Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
 

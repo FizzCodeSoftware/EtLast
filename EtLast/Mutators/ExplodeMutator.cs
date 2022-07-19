@@ -41,12 +41,12 @@ public sealed class ExplodeMutator : AbstractMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class ExplodeMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder Explode(this IFluentProcessMutatorBuilder builder, ExplodeMutator mutator)
+    public static IFluentSequenceMutatorBuilder Explode(this IFluentSequenceMutatorBuilder builder, ExplodeMutator mutator)
     {
         return builder.AddMutator(mutator);
     }
 
-    public static IFluentProcessMutatorBuilder Explode(this IFluentProcessMutatorBuilder builder, string name, ExplodeDelegate rowCreator)
+    public static IFluentSequenceMutatorBuilder Explode(this IFluentSequenceMutatorBuilder builder, string name, ExplodeDelegate rowCreator)
     {
         return builder.AddMutator(new ExplodeMutator(builder.ProcessBuilder.Result.Context)
         {

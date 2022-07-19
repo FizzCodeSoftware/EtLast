@@ -131,7 +131,7 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class EpPlusSimpleRowWriterMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder WriteRowToExcelSimple(this IFluentProcessMutatorBuilder builder, EpPlusSimpleRowWriterMutator mutator)
+    public static IFluentSequenceMutatorBuilder WriteRowToExcelSimple(this IFluentSequenceMutatorBuilder builder, EpPlusSimpleRowWriterMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

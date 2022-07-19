@@ -26,14 +26,13 @@ public class StoredProcedureAdoNetDbReader : AbstractEtlTask
             Name = "StoredProcedureAdoNetDbReader",
             Action = proc =>
             {
-                var result = ProcessBuilder.Fluent.ReadFromStoredProcedure(
-                new EtLast.StoredProcedureAdoNetDbReader(Context)
+                var result = SequenceBuilder.Fluent
+                .ReadFromStoredProcedure(new EtLast.StoredProcedureAdoNetDbReader(Context)
                 {
                     ConnectionString = ConnectionString,
                     Sql = "StoredProcedureAdoNetDbReaderTest"
                 })
                 .Build().Evaluate(this).TakeRowsAndReleaseOwnership().ToList();
-                
 
                 Assert.AreEqual(2, result.Count);
                 Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {

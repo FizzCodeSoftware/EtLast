@@ -56,7 +56,7 @@ public class MergeUpdateCountries : AbstractEtlTask
 
     private IEnumerable<IJob> LoadFirstTwoRows(ResilientTable table)
     {
-        yield return ProcessBuilder.Fluent
+        yield return SequenceBuilder.Fluent
             .ReadFrom(new RowCreator(Context)
             {
                 Columns = TestData.CountryColumns,
@@ -81,7 +81,7 @@ public class MergeUpdateCountries : AbstractEtlTask
         data[0][2] = "UX";
         data[0][3] = "USX";
 
-        yield return ProcessBuilder.Fluent
+        yield return SequenceBuilder.Fluent
             .ReadFrom(new RowCreator(Context)
             {
                 Columns = TestData.CountryColumns,

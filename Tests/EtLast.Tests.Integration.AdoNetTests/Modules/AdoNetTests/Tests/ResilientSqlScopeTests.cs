@@ -25,7 +25,6 @@ public class ResilientSqlScopeTests
         TestAdapter.Run($"run AdoNetTests {nameof(StoredProcedureAdoNetDbReader)}");
     }
 
-
     [TestMethodIntegration]
     public void LoadCountriesTest()
     {

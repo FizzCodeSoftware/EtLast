@@ -157,7 +157,7 @@ public static class ResilientSqlFinalizerExtensions
 
     public static ResilientSqlScopeProcessBuilder CustomJob(this ResilientSqlScopeProcessBuilder builder, Action<CustomJob> action)
     {
-        builder.Processes.Add(new CustomJob(builder.Scope.Context)
+        builder.Jobs.Add(new CustomJob(builder.Scope.Context)
         {
             Action = action,
         });
@@ -169,7 +169,7 @@ public static class ResilientSqlFinalizerExtensions
     {
         if (builder.Scope.Tables.Count > 1)
         {
-            builder.Processes.Add(new MsSqlDisableConstraintCheck(builder.Scope.Context)
+            builder.Jobs.Add(new MsSqlDisableConstraintCheck(builder.Scope.Context)
             {
                 Name = "disable foreign keys",
                 ConnectionString = builder.Scope.ConnectionString,
@@ -186,7 +186,7 @@ public static class ResilientSqlFinalizerExtensions
     {
         if (builder.Scope.Tables.Count > 1)
         {
-            builder.Processes.Add(new MsSqlEnableConstraintCheck(builder.Scope.Context)
+            builder.Jobs.Add(new MsSqlEnableConstraintCheck(builder.Scope.Context)
             {
                 Name = "enable foreign keys",
                 ConnectionString = builder.Scope.ConnectionString,

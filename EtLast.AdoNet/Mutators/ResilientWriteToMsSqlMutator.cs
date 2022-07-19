@@ -278,7 +278,7 @@ public static class MsSqlWriteWithMicroTransactionsMutatorFluent
     /// <para>Creates a new transaction scope for each batch which suppress any existing transaction scope.</para>
     /// <para>Retrying the SQL operation is supported and enabled by default.</para>
     /// </summary>
-    public static IFluentProcessMutatorBuilder WriteToMsSqlResilient(this IFluentProcessMutatorBuilder builder, ResilientWriteToMsSqlMutator mutator)
+    public static IFluentSequenceMutatorBuilder WriteToMsSqlResilient(this IFluentSequenceMutatorBuilder builder, ResilientWriteToMsSqlMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

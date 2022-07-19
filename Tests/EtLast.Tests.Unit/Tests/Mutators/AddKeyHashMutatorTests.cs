@@ -13,7 +13,7 @@ public class AddKeyHashMutatorTests
     public void OneColumn()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .AddKeyHash("height-hash", "height");
 
@@ -35,7 +35,7 @@ public class AddKeyHashMutatorTests
     public void AllColumns()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .AddKeyHash(new AddKeyHashMutator(context)
             {
@@ -61,7 +61,7 @@ public class AddKeyHashMutatorTests
     public void NullIfNoKey()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .AddKeyHash("eyeColor-hash", "eyeColor");
 

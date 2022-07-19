@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.MsSql;
 
-public delegate IProducer CustomInputProcessCreatorDelegate(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp);
+public delegate ISequence CustomInputProcessCreatorDelegate(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp);
 
 public static partial class TableBuilderExtensions
 {

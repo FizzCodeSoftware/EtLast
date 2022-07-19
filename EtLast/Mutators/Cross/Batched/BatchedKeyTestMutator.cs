@@ -210,7 +210,7 @@ public static class BatchedKeyTestMutatorFluent
     /// - 1 lookup is built for each batch
     /// - if MatchAction.CustomJob is not null and MatchActionContainsMatch is true then all rows of the lookup are kept in the memory, otherwise a <see cref="CountableOnlyRowLookup"/> is used.
     /// </summary>
-    public static IFluentProcessMutatorBuilder KeyTestBatched(this IFluentProcessMutatorBuilder builder, BatchedKeyTestMutator mutator)
+    public static IFluentSequenceMutatorBuilder KeyTestBatched(this IFluentSequenceMutatorBuilder builder, BatchedKeyTestMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

@@ -13,17 +13,12 @@ public class ThrowExceptionOnDuplicateKeyMutatorTests
     public void SingleKey()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.Person(context))
+        .ThrowExceptionOnDuplicateKey(new ThrowExceptionOnDuplicateKeyMutator(context)
         {
-            InputJob = TestData.Person(context),
-            Mutators = new MutatorList()
-            {
-                new ThrowExceptionOnDuplicateKeyMutator(context)
-                {
-                    RowKeyGenerator = row => row.GenerateKey("name"),
-                },
-            },
-        };
+            RowKeyGenerator = row => row.GenerateKey("name"),
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(5, result.MutatedRows.Count);
@@ -42,17 +37,12 @@ public class ThrowExceptionOnDuplicateKeyMutatorTests
     public void CompositeKey()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.Person(context))
+        .ThrowExceptionOnDuplicateKey(new ThrowExceptionOnDuplicateKeyMutator(context)
         {
-            InputJob = TestData.Person(context),
-            Mutators = new MutatorList()
-            {
-                new ThrowExceptionOnDuplicateKeyMutator(context)
-                {
-                    RowKeyGenerator = row => row.GenerateKey("id", "name"),
-                },
-            },
-        };
+            RowKeyGenerator = row => row.GenerateKey("id", "name"),
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
@@ -72,17 +62,12 @@ public class ThrowExceptionOnDuplicateKeyMutatorTests
     public void NullKey()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.Person(context))
+        .ThrowExceptionOnDuplicateKey(new ThrowExceptionOnDuplicateKeyMutator(context)
         {
-            InputJob = TestData.Person(context),
-            Mutators = new MutatorList()
-            {
-                new ThrowExceptionOnDuplicateKeyMutator(context)
-                {
-                    RowKeyGenerator = row => row.GenerateKey("EYECOLOR"),
-                },
-            },
-        };
+            RowKeyGenerator = row => row.GenerateKey("EYECOLOR"),
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(4, result.MutatedRows.Count);

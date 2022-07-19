@@ -5,9 +5,9 @@ public delegate IEnumerable<ISlimRow> InMemoryExplodeDelegate(InMemoryExplodeMut
 /// <summary>
 /// Useful only for small amount of data due to all input rows are collected into a List and processed at once.
 /// </summary>
-public sealed class InMemoryExplodeMutator : AbstractProducer, IMutator
+public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
 {
-    public IProducer Input { get; set; }
+    public ISequence Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
 
@@ -167,9 +167,9 @@ public static class InMemoryExplodeMutatorFluent
     /// <summary>
     /// Create any number of new rows based on the input rows.
     /// <para>- memory footprint is high because all rows are collected before the delegate is called</para>
-    /// <para>- if the rows can be exploded one-by-one without knowing the other rows, then using <see cref="ExplodeMutatorFluent.Explode(IFluentProcessMutatorBuilder, ExplodeMutator)"/> is highly recommended.</para>
+    /// <para>- if the rows can be exploded one-by-one without knowing the other rows, then using <see cref="ExplodeMutatorFluent.Explode(IFluentSequenceMutatorBuilder, ExplodeMutator)"/> is highly recommended.</para>
     /// </summary>
-    public static IFluentProcessMutatorBuilder ExplodeInMemory(this IFluentProcessMutatorBuilder builder, InMemoryExplodeMutator mutator)
+    public static IFluentSequenceMutatorBuilder ExplodeInMemory(this IFluentSequenceMutatorBuilder builder, InMemoryExplodeMutator mutator)
     {
         return builder.AddMutator(mutator);
     }
@@ -177,9 +177,9 @@ public static class InMemoryExplodeMutatorFluent
     /// <summary>
     /// Create any number of new rows based on the input rows.
     /// <para>- memory footprint is high because all rows are collected before the delegate is called</para>
-    /// <para>- if the rows can be exploded one-by-one without knowing the other rows, then using <see cref="ExplodeMutatorFluent.Explode(IFluentProcessMutatorBuilder, ExplodeMutator)"/> is highly recommended.</para>
+    /// <para>- if the rows can be exploded one-by-one without knowing the other rows, then using <see cref="ExplodeMutatorFluent.Explode(IFluentSequenceMutatorBuilder, ExplodeMutator)"/> is highly recommended.</para>
     /// </summary>
-    public static IFluentProcessMutatorBuilder ExplodeInMemory(this IFluentProcessMutatorBuilder builder, string name, InMemoryExplodeDelegate action)
+    public static IFluentSequenceMutatorBuilder ExplodeInMemory(this IFluentSequenceMutatorBuilder builder, string name, InMemoryExplodeDelegate action)
     {
         return builder.AddMutator(new InMemoryExplodeMutator(builder.ProcessBuilder.Result.Context)
         {

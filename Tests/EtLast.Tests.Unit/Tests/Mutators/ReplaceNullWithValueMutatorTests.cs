@@ -13,7 +13,7 @@ public class ReplaceNullWithValueMutatorTests
     public void ReplaceOne()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .ReplaceNullWithValue(new ReplaceNullWithValueMutator(context)
             {
@@ -39,7 +39,7 @@ public class ReplaceNullWithValueMutatorTests
     public void ReplaceMany()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .ReplaceNullWithValue(new ReplaceNullWithValueMutator(context)
             {
@@ -65,7 +65,7 @@ public class ReplaceNullWithValueMutatorTests
     public void ReplaceNothing()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .ReplaceNullWithValue(new ReplaceNullWithValueMutator(context)
             {

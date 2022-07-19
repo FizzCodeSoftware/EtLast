@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public interface IMerger : IProducer
+public interface IMerger : ISequence
 {
-    List<IProducer> ProcessList { get; set; }
+    List<ISequence> SequenceList { get; set; }
 }

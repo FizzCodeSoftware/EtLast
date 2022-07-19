@@ -13,23 +13,18 @@ public class UnpivotMutatorTests
     public void FixColumnsIgnoreNull()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.PersonalAssetsPivot(context))
+        .Unpivot(new UnpivotMutator(context)
         {
-            InputJob = TestData.PersonalAssetsPivot(context),
-            Mutators = new MutatorList()
+            FixColumns = new()
             {
-                new UnpivotMutator(context)
-                {
-                    FixColumns = new()
-                    {
-                        ["assetId"] = "id",
-                        ["personName"] = null
-                    },
-                    NewColumnForDimension = "asset-kind",
-                    NewColumnForValue = "amount",
-                },
+                ["assetId"] = "id",
+                ["personName"] = null
             },
-        };
+            NewColumnForDimension = "asset-kind",
+            NewColumnForValue = "amount",
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(11, result.MutatedRows.Count);
@@ -53,24 +48,19 @@ public class UnpivotMutatorTests
     public void BothColumnsIgnoreNull()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.PersonalAssetsPivot(context))
+        .Unpivot(new UnpivotMutator(context)
         {
-            InputJob = TestData.PersonalAssetsPivot(context),
-            Mutators = new MutatorList()
+            FixColumns = new()
             {
-                new UnpivotMutator(context)
-                {
-                    FixColumns = new()
-                    {
-                        ["assetId"] = "id",
-                        ["personName"] = null
-                    },
-                    NewColumnForDimension = "asset-kind",
-                    NewColumnForValue = "amount",
-                    ValueColumns = new[] { "cars", "houses", "kids" },
-                },
+                ["assetId"] = "id",
+                ["personName"] = null
             },
-        };
+            NewColumnForDimension = "asset-kind",
+            NewColumnForValue = "amount",
+            ValueColumns = new[] { "cars", "houses", "kids" },
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(11, result.MutatedRows.Count);
@@ -94,25 +84,20 @@ public class UnpivotMutatorTests
     public void BothColumnsKeepNull()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.PersonalAssetsPivot(context))
+        .Unpivot(new UnpivotMutator(context)
         {
-            InputJob = TestData.PersonalAssetsPivot(context),
-            Mutators = new MutatorList()
+            FixColumns = new()
             {
-                new UnpivotMutator(context)
-                {
-                    FixColumns = new()
-                    {
-                        ["assetId"] = "id",
-                        ["personName"] = null,
-                    },
-                    NewColumnForDimension = "asset-kind",
-                    NewColumnForValue = "amount",
-                    IgnoreIfValueIsNull = false,
-                    ValueColumns = new[] { "cars", "houses", "kids" },
-                },
+                ["assetId"] = "id",
+                ["personName"] = null,
             },
-        };
+            NewColumnForDimension = "asset-kind",
+            NewColumnForValue = "amount",
+            IgnoreIfValueIsNull = false,
+            ValueColumns = new[] { "cars", "houses", "kids" },
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(12, result.MutatedRows.Count);
@@ -137,19 +122,14 @@ public class UnpivotMutatorTests
     public void ValueColumnsIgnoreNull()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.PersonalAssetsPivot(context))
+        .Unpivot(new UnpivotMutator(context)
         {
-            InputJob = TestData.PersonalAssetsPivot(context),
-            Mutators = new MutatorList()
-            {
-                new UnpivotMutator(context)
-                {
-                    ValueColumns = new[] { "cars", "houses", "kids" },
-                    NewColumnForDimension = "asset-kind",
-                    NewColumnForValue = "amount",
-                },
-            },
-        };
+            ValueColumns = new[] { "cars", "houses", "kids" },
+            NewColumnForDimension = "asset-kind",
+            NewColumnForValue = "amount",
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(11, result.MutatedRows.Count);
@@ -173,20 +153,15 @@ public class UnpivotMutatorTests
     public void ValueColumnsKeepNull()
     {
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.PersonalAssetsPivot(context))
+        .Unpivot(new UnpivotMutator(context)
         {
-            InputJob = TestData.PersonalAssetsPivot(context),
-            Mutators = new MutatorList()
-            {
-                new UnpivotMutator(context)
-                {
-                    NewColumnForDimension = "asset-kind",
-                    NewColumnForValue = "amount",
-                    IgnoreIfValueIsNull = false,
-                    ValueColumns = new[] { "cars", "houses", "kids" },
-                },
-            },
-        };
+            NewColumnForDimension = "asset-kind",
+            NewColumnForValue = "amount",
+            IgnoreIfValueIsNull = false,
+            ValueColumns = new[] { "cars", "houses", "kids" },
+        });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(12, result.MutatedRows.Count);

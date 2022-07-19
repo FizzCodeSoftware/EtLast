@@ -7,7 +7,7 @@ public class DataContractXmlSerializerMutatorTests
     public void CombinedTest()
     {
         var context = TestExecuter.GetContext();
-        var builder = ProcessBuilder.Fluent
+        var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
             .ConvertValue(new InPlaceConvertMutator(context)
             {

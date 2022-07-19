@@ -9,7 +9,7 @@ public class Main : AbstractEtlFlow
     public override void Execute()
     {
         Session.ExecuteTask(this, new CreateDatabase());
-        
+
         Session.ExecuteTask(this, new GetTableMaxValue());
         Session.ExecuteTask(this, new StoredProcedureAdoNetDbReader());
         Session.ExecuteTask(this, new LoadCountries());

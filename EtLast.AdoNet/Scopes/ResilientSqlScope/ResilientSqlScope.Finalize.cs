@@ -50,7 +50,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
             {
                 var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
                 PostFinalizers.Invoke(builder);
-                processes = builder.Processes.Where(x => x != null).ToArray();
+                processes = builder.Jobs.Where(x => x != null).ToArray();
             }
 
             if (processes?.Length > 0)
@@ -186,7 +186,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
         {
             var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
             PreFinalizers.Invoke(builder);
-            processes = builder.Processes.Where(x => x != null).ToArray();
+            processes = builder.Jobs.Where(x => x != null).ToArray();
         }
 
         if (processes?.Length > 0)

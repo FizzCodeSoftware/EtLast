@@ -222,7 +222,7 @@ public static class ContinuousAggregationMutatorFluent
     /// <para>- memory footprint depends on input (only the aggregates of all groups are stored in memory during evaluation)</para>
     /// <para>- the usable operations are slightly limited</para>
     /// </summary>
-    public static IFluentProcessMutatorBuilder AggregateContinuously(this IFluentProcessMutatorBuilder builder, ContinuousAggregationMutator mutator)
+    public static IFluentSequenceMutatorBuilder AggregateContinuously(this IFluentSequenceMutatorBuilder builder, ContinuousAggregationMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

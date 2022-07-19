@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public delegate IProducer ProcessCreatorForRowLookupBuilderDelegate(IReadOnlySlimRow[] filterRows);
+public delegate ISequence ProcessCreatorForRowLookupBuilderDelegate(IReadOnlySlimRow[] filterRows);
 
 public sealed class FilteredRowLookupBuilder
 {

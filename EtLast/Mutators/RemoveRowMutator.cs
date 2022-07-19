@@ -24,12 +24,12 @@ public sealed class RemoveRowMutator : AbstractMutator
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class RemoveRowMutatorFluent
 {
-    public static IFluentProcessMutatorBuilder RemoveRow(this IFluentProcessMutatorBuilder builder, RemoveRowMutator mutator)
+    public static IFluentSequenceMutatorBuilder RemoveRow(this IFluentSequenceMutatorBuilder builder, RemoveRowMutator mutator)
     {
         return builder.AddMutator(mutator);
     }
 
-    public static IFluentProcessMutatorBuilder RemoveRow(this IFluentProcessMutatorBuilder builder, string name, RowTestDelegate rowTestDelegate)
+    public static IFluentSequenceMutatorBuilder RemoveRow(this IFluentSequenceMutatorBuilder builder, string name, RowTestDelegate rowTestDelegate)
     {
         return builder.AddMutator(new RemoveRowMutator(builder.ProcessBuilder.Result.Context)
         {
@@ -38,7 +38,7 @@ public static class RemoveRowMutatorFluent
         });
     }
 
-    public static IFluentProcessMutatorBuilder RemoveAllRow(this IFluentProcessMutatorBuilder builder)
+    public static IFluentSequenceMutatorBuilder RemoveAllRow(this IFluentSequenceMutatorBuilder builder)
     {
         return builder.AddMutator(new RemoveRowMutator(builder.ProcessBuilder.Result.Context)
         {

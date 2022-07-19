@@ -8,14 +8,9 @@ public static class ThrowsInvalidProcessParameterExceptionHelper
         if (assert is null)
             throw new ArgumentNullException(nameof(assert));
         var context = TestExecuter.GetContext();
-        var builder = new ProcessBuilder()
-        {
-            InputJob = TestData.Person(context),
-            Mutators = new MutatorList()
-            {
-                (T)Activator.CreateInstance(typeof(T), context),
-            },
-        };
+        var builder = SequenceBuilder.Fluent
+        .ReadFrom(TestData.Person(context))
+        .AddMutator((T)Activator.CreateInstance(typeof(T), context));
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(0, result.MutatedRows.Count);

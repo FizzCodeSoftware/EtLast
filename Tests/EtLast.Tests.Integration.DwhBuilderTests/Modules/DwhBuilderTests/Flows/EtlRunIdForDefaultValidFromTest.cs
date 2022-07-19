@@ -153,7 +153,7 @@ public class EtlRunIdForDefaultValidFromTest : AbstractEtlFlow
         Assert.AreEqual(3, result.Count);
     }
 
-    public static IProducer CreateCompany1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
+    public static ISequence CreateCompany1(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
     {
         return new RowCreator(tableBuilder.ResilientTable.Scope.Context)
         {
@@ -168,7 +168,7 @@ public class EtlRunIdForDefaultValidFromTest : AbstractEtlFlow
         };
     }
 
-    public static IProducer CreateCompany2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
+    public static ISequence CreateCompany2(DwhTableBuilder tableBuilder, DateTimeOffset? maxRecordTimestamp)
     {
         return new RowCreator(tableBuilder.ResilientTable.Scope.Context)
         {
