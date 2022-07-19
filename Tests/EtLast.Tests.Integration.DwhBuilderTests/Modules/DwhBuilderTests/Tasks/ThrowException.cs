@@ -18,6 +18,7 @@ public class ThrowException : AbstractEtlTask
     {
         yield return new CustomJob(Context)
         {
+            Name = nameof(ThrowException),
             Action = _ =>
             {
                 var ex = (Exception)Activator.CreateInstance(ExceptionType, new object[] { Message });
