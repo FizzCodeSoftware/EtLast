@@ -139,9 +139,10 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 
                 allFinalizers[table.TableName] = finalizers;
 
-                Context.Log(LogSeverity.Debug, this, "created {FinalizerCount} finalizer(s) for {TableName}",
+                Context.Log(LogSeverity.Debug, this, "created {FinalizerCount} finalizer(s) for {TableName} (record count: {RecordCount})",
                     finalizers.Length,
-                    ConnectionString.Unescape(table.TableName));
+                    ConnectionString.Unescape(table.TableName),
+                    recordCounts[i]);
 
                 if (table.AdditionalTables != null)
                 {
