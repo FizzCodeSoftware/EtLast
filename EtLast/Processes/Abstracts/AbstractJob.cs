@@ -29,19 +29,19 @@ public abstract class AbstractJob : AbstractProcess, IJob
                 return;
 
             ExecuteImpl(netTimeStopwatch);
-            netTimeStopwatch.Stop();
         }
         catch (Exception ex)
         {
-            netTimeStopwatch.Stop();
             AddException(ex);
         }
         finally
         {
+            netTimeStopwatch.Stop();
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
         }
 
-        Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}", Kind, Context.ExceptionCount == originalExceptionCount ? "finished" : "failed", InvocationInfo.LastInvocationStarted.Elapsed);
+        Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}/{ElapsedWallClock}",
+            Kind, Context.ExceptionCount == originalExceptionCount ? "finished" : "failed", InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
     }
 
     protected abstract void ExecuteImpl(Stopwatch netTimeStopwatch);

@@ -62,8 +62,8 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
 
             netTimeStopwatch.Stop();
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
-            Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}",
-                Kind, "failed", InvocationInfo.LastInvocationStarted.Elapsed);
+            Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}/{ElapsedWallClock}",
+                Kind, "failed", InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 
             yield break;
         }
@@ -84,8 +84,8 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
 
                 netTimeStopwatch.Stop();
                 Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
-                Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}",
-                    Kind, "failed", InvocationInfo.LastInvocationStarted.Elapsed);
+                Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}/{ElapsedWallClock}",
+                    Kind, "failed", InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 
                 yield break;
             }
@@ -97,8 +97,8 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
         netTimeStopwatch.Stop();
         Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
 
-        Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}",
-            Kind, "finished", InvocationInfo.LastInvocationStarted.Elapsed);
+        Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}/{ElapsedWallClock}",
+            Kind, "finished", InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
     }
 
     protected abstract IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch);
