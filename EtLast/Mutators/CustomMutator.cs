@@ -52,6 +52,7 @@ public static class CustomMutatorFluent
     {
         return builder.AddMutator(new CustomMutator(builder.ProcessBuilder.Result.Context)
         {
+            Name = name,
             Action = row =>
             {
                 action.Invoke(row);
