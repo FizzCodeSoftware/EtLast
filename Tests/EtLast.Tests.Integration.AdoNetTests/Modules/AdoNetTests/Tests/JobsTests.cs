@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
 [TestClass]
-public class SqlStatementsTests
+public class JobsTests
 {
     [ClassInitialize]
     public static void Initialize(TestContext context)
@@ -29,5 +29,11 @@ public class SqlStatementsTests
     public void GetTableRecordCountTest()
     {
         TestAdapter.Run($"run AdoNetTests {nameof(GetTableRecordCount)}");
+    }
+
+    [TestMethodIntegration]
+    public void CreatePrimaryKeyConstraintTest()
+    {
+        TestAdapter.Run($"run AdoNetTests {nameof(CreatePrimaryKeyConstraint)}");
     }
 }

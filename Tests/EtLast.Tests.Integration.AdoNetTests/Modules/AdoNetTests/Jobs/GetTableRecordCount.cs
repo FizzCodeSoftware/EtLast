@@ -21,7 +21,7 @@ public class GetTableRecordCount : AbstractEtlTask
             ConnectionString = ConnectionString,
             SqlStatement = $"CREATE TABLE {nameof(GetTableRecordCount)} (Id INT NOT NULL, DateTimeValue DATETIME2);" +
                     $"INSERT INTO {nameof(GetTableRecordCount)} (Id, DateTimeValue) VALUES (1, '2022.07.08');" +
-                    $"INSERT INTO {nameof(GetTableRecordCount)} (Id, DateTimeValue) VALUES (1, '2022.07.09');",
+                    $"INSERT INTO {nameof(GetTableRecordCount)} (Id, DateTimeValue) VALUES (2, '2022.07.09');",
         };
 
         yield return new CustomJob(Context)
