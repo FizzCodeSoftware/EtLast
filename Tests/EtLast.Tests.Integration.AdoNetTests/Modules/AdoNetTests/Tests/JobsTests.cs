@@ -22,24 +22,24 @@ public class JobsTests
     [TestMethodIntegration]
     public void GetTableMaxValueTest()
     {
-        TestAdapter.Run($"run AdoNetTests {nameof(GetTableMaxValue)}");
+        TestAdapter.Run($"run AdoNetTests {nameof(GetTableMaxValueTests)}");
     }
 
     [TestMethodIntegration]
     public void GetTableRecordCountTest()
     {
-        TestAdapter.Run($"run AdoNetTests {nameof(GetTableRecordCount)}");
+        TestAdapter.Run($"run AdoNetTests {nameof(GetTableRecordCountTests)}");
     }
 
     [TestMethodIntegration]
     public void CreatePrimaryKeyConstraintTest()
     {
-        TestAdapter.Run($"run AdoNetTests {nameof(CreatePrimaryKeyConstraint)}");
+        TestAdapter.Run($"run AdoNetTests {nameof(CreatePrimaryKeyConstraintTests)}");
     }
 
     [TestMethodIntegration]
     public void CustomSqlAdoNetDbReaderTest()
     {
-        TestAdapter.Run($"run AdoNetTests {nameof(CustomSqlAdoNetDbReader)}");
+        TestAdapter.Run($"run AdoNetTests {nameof(CustomSqlAdoNetDbReaderTests)}");
     }
 }

@@ -10,14 +10,14 @@ public class Main : AbstractEtlFlow
     {
         Session.ExecuteTask(this, new CreateDatabase());
 
-        Session.ExecuteTask(this, new GetTableMaxValue());
-        Session.ExecuteTask(this, new StoredProcedureAdoNetDbReader());
+        Session.ExecuteTask(this, new GetTableMaxValueTests());
+        Session.ExecuteTask(this, new StoredProcedureAdoNetDbReaderTests());
         Session.ExecuteTask(this, new LoadCountries());
         Session.ExecuteTask(this, new LoadThenInsertCountries());
         Session.ExecuteTask(this, new MergeOnlyInsertCountries());
         Session.ExecuteTask(this, new MergeUpdateCountries());
-        Session.ExecuteTask(this, new CreatePrimaryKeyConstraint());
-        Session.ExecuteTask(this, new CustomSqlAdoNetDbReader());
+        Session.ExecuteTask(this, new CreatePrimaryKeyConstraintTests());
+        Session.ExecuteTask(this, new CustomSqlAdoNetDbReaderTests());
 
         Session.ExecuteTask(this, new DropDatabase());
     }

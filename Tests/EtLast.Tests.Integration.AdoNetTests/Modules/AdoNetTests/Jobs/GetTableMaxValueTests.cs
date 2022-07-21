@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
-public class GetTableMaxValue : AbstractEtlTask
+public class GetTableMaxValueTests : AbstractEtlTask
 {
     public NamedConnectionString ConnectionString { get; init; }
     public string DatabaseName { get; init; }
@@ -19,20 +19,20 @@ public class GetTableMaxValue : AbstractEtlTask
         yield return new CustomSqlStatement(Context)
         {
             ConnectionString = ConnectionString,
-            SqlStatement = $"CREATE TABLE {nameof(GetTableMaxValue)} (Id INT NOT NULL, DateTimeValue DATETIME2);" +
-                    $"INSERT INTO {nameof(GetTableMaxValue)} (Id, DateTimeValue) VALUES (1, '2022.07.08');" +
-                    $"INSERT INTO {nameof(GetTableMaxValue)} (Id, DateTimeValue) VALUES (1, '2022.07.09');",
+            SqlStatement = $"CREATE TABLE {nameof(GetTableMaxValueTests)} (Id INT NOT NULL, DateTimeValue DATETIME2);" +
+                    $"INSERT INTO {nameof(GetTableMaxValueTests)} (Id, DateTimeValue) VALUES (1, '2022.07.08');" +
+                    $"INSERT INTO {nameof(GetTableMaxValueTests)} (Id, DateTimeValue) VALUES (1, '2022.07.09');",
         };
 
         yield return new CustomJob(Context)
         {
-            Name = nameof(GetTableMaxValue),
+            Name = nameof(GetTableMaxValueTests),
             Action = job =>
             {
                 var result = new GetTableMaxValue<DateTime>(Context)
                 {
                     ConnectionString = ConnectionString,
-                    TableName = ConnectionString.Escape(nameof(GetTableMaxValue)),
+                    TableName = ConnectionString.Escape(nameof(GetTableMaxValueTests)),
                     ColumnName = "DateTimeValue",
                 }.ExecuteWithResult();
 

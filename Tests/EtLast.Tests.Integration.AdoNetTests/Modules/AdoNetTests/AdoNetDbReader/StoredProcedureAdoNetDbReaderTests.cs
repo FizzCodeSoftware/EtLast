@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
-public class CustomSqlAdoNetDbReader : AbstractEtlTask
+public class StoredProcedureAdoNetDbReaderTests : AbstractEtlTask
 {
     public NamedConnectionString ConnectionString { get; init; }
 
@@ -12,24 +12,32 @@ public class CustomSqlAdoNetDbReader : AbstractEtlTask
 
     public override IEnumerable<IJob> CreateJobs()
     {
+        yield return new CustomSqlStatement(Context)
+        {
+            ConnectionString = ConnectionString,
+            SqlStatement = "CREATE PROCEDURE StoredProcedureAdoNetDbReaderTest AS " +
+                    "SELECT 1 AS Id, 'etlast' AS Value " +
+                    "UNION " +
+                    "SELECT 2 AS Id, 'StoredProcedureAdoNetDbReaderTest' AS Value",
+        };
+
         yield return new CustomJob(Context)
         {
-            Name = "CustomSqlAdoNetDbReader",
+            Name = "StoredProcedureAdoNetDbReader",
             Action = job =>
             {
                 var result = SequenceBuilder.Fluent
-                .ReadFromCustomSql(new EtLast.CustomSqlAdoNetDbReader(Context)
+                .ReadFromStoredProcedure(new StoredProcedureAdoNetDbReader(Context)
                 {
                     ConnectionString = ConnectionString,
-                    MainTableName = "none",
-                    Sql = "SELECT 1 as Id UNION SELECT 2 as Id"
+                    Sql = "StoredProcedureAdoNetDbReaderTest"
                 })
                 .Build().TakeRowsAndReleaseOwnership(this).ToList();
 
                 Assert.AreEqual(2, result.Count);
                 Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1},
-                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2}
+                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Value"] = "etlast" },
+                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Value"] = "StoredProcedureAdoNetDbReaderTest" }
                 });
             }
         };

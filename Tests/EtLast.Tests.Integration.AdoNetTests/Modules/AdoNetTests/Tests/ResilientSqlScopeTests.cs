@@ -22,7 +22,7 @@ public class ResilientSqlScopeTests
     [TestMethodIntegration]
     public void StoredProcedureAdoNetDbReaderTest()
     {
-        TestAdapter.Run($"run AdoNetTests {nameof(StoredProcedureAdoNetDbReader)}");
+        TestAdapter.Run($"run AdoNetTests {nameof(StoredProcedureAdoNetDbReaderTests)}");
     }
 
     [TestMethodIntegration]
