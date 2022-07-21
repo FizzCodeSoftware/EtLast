@@ -48,4 +48,10 @@ public class JobsTests
     {
         TestAdapter.Run($"run AdoNetTests {nameof(CopyTableIntoExistingTableTests)}");
     }
+
+    [TestMethodIntegration]
+    public void CopyTableIntoNewTableTest()
+    {
+        TestAdapter.Run($"run AdoNetTests {nameof(CopyTableIntoNewTableTests)}");
+    }
 }
