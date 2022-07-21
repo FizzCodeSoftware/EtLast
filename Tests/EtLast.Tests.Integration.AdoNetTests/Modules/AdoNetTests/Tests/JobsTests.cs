@@ -36,4 +36,10 @@ public class JobsTests
     {
         TestAdapter.Run($"run AdoNetTests {nameof(CreatePrimaryKeyConstraint)}");
     }
+
+    [TestMethodIntegration]
+    public void CustomSqlAdoNetDbReaderTest()
+    {
+        TestAdapter.Run($"run AdoNetTests {nameof(CustomSqlAdoNetDbReader)}");
+    }
 }
