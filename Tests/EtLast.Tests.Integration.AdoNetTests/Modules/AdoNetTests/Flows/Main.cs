@@ -18,6 +18,7 @@ public class Main : AbstractEtlFlow
         Session.ExecuteTask(this, new MergeUpdateCountries());
         Session.ExecuteTask(this, new CreatePrimaryKeyConstraintTests());
         Session.ExecuteTask(this, new CustomSqlAdoNetDbReaderTests());
+        Session.ExecuteTask(this, new CopyTableIntoExistingTableTests());
 
         Session.ExecuteTask(this, new DropDatabase());
     }

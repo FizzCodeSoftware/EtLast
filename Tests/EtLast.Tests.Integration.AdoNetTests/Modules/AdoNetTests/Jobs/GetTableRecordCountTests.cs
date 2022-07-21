@@ -3,21 +3,18 @@
 public class GetTableRecordCountTests : AbstractEtlTask
 {
     public NamedConnectionString ConnectionString { get; init; }
-    public string DatabaseName { get; init; }
 
     public override void ValidateParameters()
     {
         if (ConnectionString == null)
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
-
-        if (DatabaseName == null)
-            throw new ProcessParameterNullException(this, nameof(DatabaseName));
     }
 
     public override IEnumerable<IJob> CreateJobs()
     {
         yield return new CustomSqlStatement(Context)
         {
+            Name = "Create table and insert content",
             ConnectionString = ConnectionString,
             SqlStatement = $"CREATE TABLE {nameof(GetTableRecordCountTests)} (Id INT NOT NULL, DateTimeValue DATETIME2);" +
                     $"INSERT INTO {nameof(GetTableRecordCountTests)} (Id, DateTimeValue) VALUES (1, '2022.07.08');" +
@@ -26,11 +23,12 @@ public class GetTableRecordCountTests : AbstractEtlTask
 
         yield return new CustomJob(Context)
         {
-            Name = nameof(GetTableRecordCountTests),
+            Name = "Check record count",
             Action = job =>
             {
-                var result = new EtLast.GetTableRecordCount(Context)
+                var result = new GetTableRecordCount(Context)
                 {
+                    Name = "Get record count",
                     ConnectionString = ConnectionString,
                     TableName = ConnectionString.Escape(nameof(GetTableRecordCountTests)),
                 }.ExecuteWithResult();

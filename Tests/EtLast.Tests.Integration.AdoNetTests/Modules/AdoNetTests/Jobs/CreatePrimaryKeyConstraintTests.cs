@@ -18,6 +18,7 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
     {
         yield return new CustomSqlStatement(Context)
         {
+            Name = "Create table",
             ConnectionString = ConnectionString,
             SqlStatement = $"CREATE TABLE {nameof(CreatePrimaryKeyConstraintTests)} (Id INT NOT NULL, DateTimeValue DATETIME2);" +
                     $"INSERT INTO {nameof(CreatePrimaryKeyConstraintTests)} (Id, DateTimeValue) VALUES (1, '2022.07.08');" +
@@ -29,8 +30,9 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
             Name = "Check no primary key",
             Action = job =>
             {
-                var countOfPrimaryKeys = new EtLast.GetTableRecordCount(Context)
+                var countOfPrimaryKeys = new GetTableRecordCount(Context)
                 {
+                    Name = "Read primary key(s) (1)",
                     ConnectionString = ConnectionString,
                     TableName = "INFORMATION_SCHEMA.TABLE_CONSTRAINTS",
                     CustomWhereClause = @$"TABLE_NAME = '{nameof(CreatePrimaryKeyConstraintTests)}'
@@ -48,8 +50,9 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
             Name = "Check primary key exist",
             Action = job =>
             {
-                new EtLast.CreatePrimaryKeyConstraint(Context)
+                new CreatePrimaryKeyConstraint(Context)
                 {
+                    Name = "Create primary key",  
                     ConnectionString = ConnectionString,
                     TableName = ConnectionString.Escape(nameof(CreatePrimaryKeyConstraintTests)),
                     ConstraintName = "PK_" + nameof(CreatePrimaryKeyConstraintTests),
@@ -57,8 +60,9 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
                 }.Execute();
 
 
-            var countOfPrimaryKeys = new EtLast.GetTableRecordCount(Context)
+            var countOfPrimaryKeys = new GetTableRecordCount(Context)
             {
+                Name = "Read primary key(s)(2)",
                 ConnectionString = ConnectionString,
                 TableName = "INFORMATION_SCHEMA.TABLE_CONSTRAINTS",
                 CustomWhereClause = @$"TABLE_NAME = '{nameof(CreatePrimaryKeyConstraintTests)}'
@@ -66,7 +70,6 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
                                 AND CONSTRAINT_CATALOG = '{DatabaseName}'
                                 AND CONSTRAINT_TYPE = 'PRIMARY KEY'",
                 }.ExecuteWithResult();
-
                 
                 Assert.AreEqual(1, countOfPrimaryKeys);
             }

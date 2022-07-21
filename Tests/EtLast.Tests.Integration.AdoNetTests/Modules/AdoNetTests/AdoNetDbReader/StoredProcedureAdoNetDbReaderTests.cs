@@ -14,6 +14,7 @@ public class StoredProcedureAdoNetDbReaderTests : AbstractEtlTask
     {
         yield return new CustomSqlStatement(Context)
         {
+            Name = "Create procedure",
             ConnectionString = ConnectionString,
             SqlStatement = "CREATE PROCEDURE StoredProcedureAdoNetDbReaderTest AS " +
                     "SELECT 1 AS Id, 'etlast' AS Value " +
@@ -23,12 +24,13 @@ public class StoredProcedureAdoNetDbReaderTests : AbstractEtlTask
 
         yield return new CustomJob(Context)
         {
-            Name = "StoredProcedureAdoNetDbReader",
+            Name = "Check procedure result",
             Action = job =>
             {
                 var result = SequenceBuilder.Fluent
                 .ReadFromStoredProcedure(new StoredProcedureAdoNetDbReader(Context)
                 {
+                    Name = "Call procedure",
                     ConnectionString = ConnectionString,
                     Sql = "StoredProcedureAdoNetDbReaderTest"
                 })

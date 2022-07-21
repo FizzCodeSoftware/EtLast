@@ -42,4 +42,10 @@ public class JobsTests
     {
         TestAdapter.Run($"run AdoNetTests {nameof(CustomSqlAdoNetDbReaderTests)}");
     }
+
+    [TestMethodIntegration]
+    public void CopyTableIntoExistingTableTest()
+    {
+        TestAdapter.Run($"run AdoNetTests {nameof(CopyTableIntoExistingTableTests)}");
+    }
 }

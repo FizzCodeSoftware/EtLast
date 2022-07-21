@@ -14,12 +14,14 @@ public class MergeUpdateCountries : AbstractEtlTask
     {
         yield return new CustomSqlStatement(Context)
         {
+            Name = "Create table",
             ConnectionString = ConnectionString,
             SqlStatement = $"CREATE TABLE {nameof(MergeUpdateCountries)} (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));"
         };
 
         yield return new ResilientSqlScope(Context)
         {
+            Name = "Execute resilient scope 1",
             ConnectionString = ConnectionString,
             Tables = new()
             {
@@ -35,6 +37,7 @@ public class MergeUpdateCountries : AbstractEtlTask
 
         yield return new ResilientSqlScope(Context)
         {
+            Name = "Execute resilient scope 2",
             ConnectionString = ConnectionString,
             Tables = new()
             {
@@ -59,11 +62,13 @@ public class MergeUpdateCountries : AbstractEtlTask
         yield return SequenceBuilder.Fluent
             .ReadFrom(new RowCreator(Context)
             {
+                Name = "Create first two rows",
                 Columns = TestData.CountryColumns,
                 InputRows = TestData.CountryData.Take(2).ToList()
             })
             .WriteToMsSqlResilient(new ResilientWriteToMsSqlMutator(Context)
             {
+                Name = "Write first two rows",
                 ConnectionString = ConnectionString,
                 TableDefinition = new DbTableDefinition()
                 {
@@ -84,11 +89,13 @@ public class MergeUpdateCountries : AbstractEtlTask
         yield return SequenceBuilder.Fluent
             .ReadFrom(new RowCreator(Context)
             {
+                Name = "Create updated row",
                 Columns = TestData.CountryColumns,
-                InputRows = TestData.CountryData.Skip(1).Take(1).ToList()
+                InputRows = data.ToList()
             })
             .WriteToMsSqlResilient(new ResilientWriteToMsSqlMutator(Context)
             {
+                Name = "Write updated row", 
                 ConnectionString = ConnectionString,
                 TableDefinition = new DbTableDefinition()
                 {
