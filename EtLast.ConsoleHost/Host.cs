@@ -333,8 +333,12 @@ public class Host : IHost
 
         var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         var localDllFileNames = Directory.GetFiles(selfFolder, "*.dll", SearchOption.TopDirectoryOnly)
-            .Where(x => Path.GetFileName(x) != "FizzCode.EtLast.ConsoleHost.dll"
+            .Where(x =>
+                    Path.GetFileName(x) != "FizzCode.EtLast.ConsoleHost.dll"
+                && Path.GetFileName(x) != "Microsoft.Data.SqlClient.SNI.dll"
+                && !Path.GetFileNameWithoutExtension(x).EndsWith("Native", StringComparison.InvariantCultureIgnoreCase)
                 && !Path.GetFileName(x).Equals("testhost.dll", StringComparison.InvariantCultureIgnoreCase));
+
         referenceFileNames.AddRange(localDllFileNames);
 
         return referenceFileNames.Distinct().ToList();
