@@ -14,6 +14,7 @@
     <AssemblyName>FizzCode.EtLast.Tests.Integration</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Tests.Integration</RootNamespace>
     <Configurations>Debug;Release</Configurations>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -48,31 +49,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="HostArguments\Default.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
-    <Compile Update="Modules\AdoNetTests\Flows\Main.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
-    <Compile Update="Modules\AdoNetTests\Startup.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
-    <Compile Update="Modules\AdoNetTests\Tasks\DropDatabase.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
-    <Compile Update="Modules\AdoNetTests\Tasks\CreateDatabase.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
-    <Compile Update="Modules\AdoNetTests\TestAssertAndException\AssertFail.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
-    <Compile Update="Modules\AdoNetTests\TestAssertAndException\EtlException.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
-    <Compile Update="Modules\AdoNetTests\TestAssertAndException\Exception.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
-    <Compile Update="Modules\Global.cs">
+    <Compile Update="HostArguments\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
   </ItemGroup>

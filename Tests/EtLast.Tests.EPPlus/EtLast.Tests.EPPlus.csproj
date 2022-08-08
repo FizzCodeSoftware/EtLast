@@ -6,6 +6,7 @@
     <Platforms>AnyCPU</Platforms>
     <AssemblyName>FizzCode.EtLast.Tests.EPPlus</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Tests.EPPlus</RootNamespace>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>

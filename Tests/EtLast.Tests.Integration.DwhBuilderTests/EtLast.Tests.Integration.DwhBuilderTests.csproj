@@ -5,6 +5,7 @@
     <IsPackable>false</IsPackable>
     <AssemblyName>FizzCode.EtLast.Tests.Integration.DwhBuilderTests</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Tests.Integration.DwhBuilderTests</RootNamespace>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>

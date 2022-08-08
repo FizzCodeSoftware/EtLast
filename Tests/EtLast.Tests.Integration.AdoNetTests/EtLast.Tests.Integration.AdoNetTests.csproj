@@ -6,6 +6,7 @@
     <AssemblyName>FizzCode.EtLast.Tests.Integration.AdoNetTests</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Tests.Integration.AdoNetTests</RootNamespace>
     <Configurations>Debug;Release;Integration</Configurations>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Integration|AnyCPU'">
