@@ -8,9 +8,9 @@ public static class IHostBuilderExtensions
         return builder;
     }
 
-    public static IHostBuilder UseCommandLineListener(this IHostBuilder builder, Func<ArgumentCollection, ICommandLineListener> listener)
+    public static IHostBuilder UseCommandLineListener(this IHostBuilder builder, Func<ArgumentCollection, ICommandLineListener> listenerCreator)
     {
-        builder.Result.CommandLineListenerCreators.Add(listener);
+        builder.Result.CommandLineListenerCreators.Add(listenerCreator);
         return builder;
     }
 

@@ -135,6 +135,8 @@ public class Host : IHost
         foreach (var creator in CommandLineListenerCreators)
         {
             var listener = creator.Invoke(hostArguments);
+            if (listener == null)
+                continue;
 
             var thread = new Thread(() =>
             {
