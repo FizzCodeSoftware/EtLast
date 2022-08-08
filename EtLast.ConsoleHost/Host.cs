@@ -328,20 +328,32 @@ public class Host : IHost
             referenceDllFileNames.AddRange(Directory.GetFiles(folder, "netstandard.dll", SearchOption.TopDirectoryOnly));
         }
 
-        var referenceFileNames = new List<string>();
-        referenceFileNames.AddRange(referenceDllFileNames.Where(x => !Path.GetFileNameWithoutExtension(x).EndsWith("Native", StringComparison.InvariantCultureIgnoreCase)));
+        var referenceFileNames = referenceDllFileNames
+            .Where(x => !Path.GetFileNameWithoutExtension(x).EndsWith("Native", StringComparison.InvariantCultureIgnoreCase))
+            .ToList();
 
         var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         var localDllFileNames = Directory.GetFiles(selfFolder, "*.dll", SearchOption.TopDirectoryOnly)
-            .Where(x =>
-                    Path.GetFileName(x) != "FizzCode.EtLast.ConsoleHost.dll"
-                && Path.GetFileName(x) != "Microsoft.Data.SqlClient.SNI.dll"
-                && !Path.GetFileNameWithoutExtension(x).EndsWith("Native", StringComparison.InvariantCultureIgnoreCase)
+            .Where(x => Path.GetFileName(x) != "FizzCode.EtLast.ConsoleHost.dll"
                 && !Path.GetFileName(x).Equals("testhost.dll", StringComparison.InvariantCultureIgnoreCase));
 
         referenceFileNames.AddRange(localDllFileNames);
 
-        return referenceFileNames.Distinct().ToList();
+        return referenceFileNames
+            .Distinct()
+            .Where(x =>
+            {
+                try
+                {
+                    var _ = AssemblyName.GetAssemblyName(x);
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            })
+            .ToList();
     }
 
     private void SetMaxTransactionTimeout(TimeSpan maxValue)

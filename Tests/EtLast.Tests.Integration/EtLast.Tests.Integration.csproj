@@ -20,7 +20,7 @@
   <!-- runtime settings -->
   <PropertyGroup>
     <SelfContained>false</SelfContained>
-    <!--<RuntimeIdentifier>win-x64</RuntimeIdentifier>-->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
   </PropertyGroup>
 
