@@ -148,16 +148,18 @@ public class Host : IHost
                 {
                     HostLogger.Write(LogEventLevel.Fatal, ex, "unexpected exception happened in command line listener");
                 }
+
+                Console.WriteLine(listener.GetType().Name + " thread finished");
             });
 
             threads.Add(thread);
             thread.Start();
         }
 
-        // todo: watch for the cancellation token, and if it triggered but a thread is not terminated after 5 seconds, force abort the thread
-
         foreach (var thread in threads)
             thread.Join();
+
+        Console.WriteLine("all listener threads finished");
 
         return ExecutionStatusCode.Success;
     }

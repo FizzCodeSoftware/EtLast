@@ -10,13 +10,13 @@ public static class TestData
     public static string[] RoleHierarchyColumns { get; } = { "id", "code", "level1", "level2", "level3" };
     public static string[] PersonalAssetsPivotColumns { get; } = { "id", "personName", "cars", "houses", "kids" };
 
-    public static List<object[]> CountryData { get; } = new List<object[]>()
-        {
-            new object[] { 1, "Hungary", "HU", "HUN" },
-            new object[] { 2, "United States of America", "US", "USA" },
-            new object[] { 3, "Spain", "ES", "ESP", },
-            new object[] { 4, "Mexico", "MX", "MEX" },
-        };
+    public static List<object[]> CountryData => new()
+    {
+        new object[] { 1, "Hungary", "HU", "HUN" },
+        new object[] { 2, "United States of America", "US", "USA" },
+        new object[] { 3, "Spain", "ES", "ESP", },
+        new object[] { 4, "Mexico", "MX", "MEX" },
+    };
 
     [DataContract]
     public class PersonModel

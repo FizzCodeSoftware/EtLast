@@ -95,7 +95,7 @@ public class MergeUpdateCountries : AbstractEtlTask
             })
             .WriteToMsSqlResilient(new ResilientWriteToMsSqlMutator(Context)
             {
-                Name = "Write updated row", 
+                Name = "Write updated row",
                 ConnectionString = ConnectionString,
                 TableDefinition = new DbTableDefinition()
                 {
