@@ -25,12 +25,15 @@ public class ConsoleCommandLineListener : ICommandLineListener
                     commands.RemoveAt(0);
                 }
             }
-            Thread.Sleep(10);
 
             if (commandLine != null)
             {
                 var result = host.RunCommandLine(commandLine);
                 Console.WriteLine("command commandLine: " + result.Status.ToString());
+            }
+            else
+            {
+                Thread.Sleep(10);
             }
         }
 
