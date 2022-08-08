@@ -148,8 +148,6 @@ public class Host : IHost
                 {
                     HostLogger.Write(LogEventLevel.Fatal, ex, "unexpected exception happened in command line listener");
                 }
-
-                Console.WriteLine(listener.GetType().Name + " thread finished");
             });
 
             threads.Add(thread);
@@ -158,8 +156,6 @@ public class Host : IHost
 
         foreach (var thread in threads)
             thread.Join();
-
-        Console.WriteLine("all listener threads finished");
 
         return ExecutionStatusCode.Success;
     }

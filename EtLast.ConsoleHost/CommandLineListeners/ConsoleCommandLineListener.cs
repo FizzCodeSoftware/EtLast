@@ -37,7 +37,7 @@ public class ConsoleCommandLineListener : ICommandLineListener
             }
         }
 
-        Console.WriteLine("listening on console finished: " + thread.ThreadState.ToString());
+        //Console.WriteLine("listening on console finished: " + thread.ThreadState.ToString());
     }
 
     private static ThreadStart ListenForNewCommand(IHost host, List<string> commands, object lck)
