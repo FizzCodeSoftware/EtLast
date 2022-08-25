@@ -3,7 +3,7 @@
 /// <summary>
 /// Input must be pre-grouped by key columns.
 /// Group key generation is applied on the input rows on-the-fly. The collected group is processed when a new key is found.
-/// - keeps all input rows in memory (!)
+/// - keeps all row keys in memory (!)
 /// </summary>
 public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMutator
 {

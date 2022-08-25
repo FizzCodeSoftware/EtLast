@@ -5,7 +5,7 @@
 public class SqlMergeException : EtlException
 {
     public SqlMergeException(IProcess process, Exception innerException)
-        : base(process, "database merge failed")
+        : base(process, "database merge failed", innerException)
     {
     }
 }

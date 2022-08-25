@@ -5,7 +5,7 @@
 public class SqlConnectionException : EtlException
 {
     public SqlConnectionException(IProcess process, Exception innerException)
-        : base(process, "database connection failed")
+        : base(process, "database connection failed", innerException)
     {
     }
 }

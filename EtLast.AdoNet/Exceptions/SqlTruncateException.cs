@@ -5,7 +5,7 @@
 public class SqlTruncateException : EtlException
 {
     public SqlTruncateException(IProcess process, Exception innerException)
-        : base(process, "database truncate failed")
+        : base(process, "database truncate failed", innerException)
     {
     }
 }

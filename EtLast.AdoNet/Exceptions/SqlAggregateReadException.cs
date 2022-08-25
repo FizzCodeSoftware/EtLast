@@ -5,7 +5,7 @@
 public class SqlAggregateReadException : EtlException
 {
     public SqlAggregateReadException(IProcess process, Exception innerException, string category)
-        : base(process, "database aggregate read failed: " + category)
+        : base(process, "database aggregate read failed: " + category, innerException)
     {
     }
 }

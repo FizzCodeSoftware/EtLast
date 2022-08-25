@@ -5,7 +5,7 @@
 public class SqlIdentityResetException : EtlException
 {
     public SqlIdentityResetException(IProcess process, Exception innerException)
-        : base(process, "database identity counter reset failed")
+        : base(process, "database identity counter reset failed", innerException)
     {
     }
 }

@@ -5,7 +5,7 @@
 public class SqlRecordCountReadException : EtlException
 {
     public SqlRecordCountReadException(IProcess process, Exception innerException)
-        : base(process, "database table record count query failed")
+        : base(process, "database table record count query failed", innerException)
     {
     }
 }
