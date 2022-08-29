@@ -2,11 +2,16 @@
 
 public sealed partial class ResilientSqlScope : AbstractJob, IScope
 {
-    private bool Finalize(ref int initialExceptionCount)
+    private bool Finalize(int initialExceptionCount)
     {
-        for (var retryCounter = 0; retryCounter <= FinalizerRetryCount; retryCounter++)
+        for (var round = 0; round <= FinalizerRetryCount; round++)
         {
-            Context.Log(LogSeverity.Information, this, "finalization round {FinalizationRound} started", retryCounter);
+            if (Context.IsTerminating)
+                return false;
+
+            // todo: Exception management in IEtlContext is not thread safe
+
+            Context.Log(LogSeverity.Information, this, "finalization round {FinalizationRound} started", round);
             try
             {
                 using (var scope = Context.BeginScope(this, FinalizerTransactionScopeKind, LogSeverity.Information))
@@ -34,7 +39,11 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
             if (Context.ExceptionCount == initialExceptionCount)
                 return true;
 
-            initialExceptionCount = Context.ExceptionCount;
+            if (round < FinalizerRetryCount)
+            {
+                Context.ResetInternalCancellationToken();
+                Context.ResetExceptionCount(initialExceptionCount);
+            }
         }
 
         return false;

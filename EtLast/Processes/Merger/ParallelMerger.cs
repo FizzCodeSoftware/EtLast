@@ -60,7 +60,7 @@ public sealed class ParallelMerger : AbstractMerger
             threads.Add(thread);
         }
 
-        foreach (var row in queue.GetConsumer(Context.CancellationToken))
+        foreach (var row in queue.GetConsumer(Context.InternalCancellationToken))
         {
             yield return row;
         }

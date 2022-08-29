@@ -15,7 +15,7 @@ public sealed class SequentialMerger : AbstractMerger
     {
         foreach (var sequence in SequenceList)
         {
-            if (Context.CancellationToken.IsCancellationRequested)
+            if (Context.IsTerminating)
                 yield break;
 
             var rows = sequence.TakeRowsAndTransferOwnership(this);

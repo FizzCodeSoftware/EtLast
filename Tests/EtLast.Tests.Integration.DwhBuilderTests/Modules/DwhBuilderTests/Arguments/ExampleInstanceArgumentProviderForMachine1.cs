@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests.Arguments;
+﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests;
 
 /// <summary>
 /// If the <see cref="IInstanceArgumentProvider.Instance"/> name matches to the execution environment's name then

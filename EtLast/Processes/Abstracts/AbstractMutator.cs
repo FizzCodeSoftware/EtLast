@@ -39,7 +39,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
             yield break;
         }
 
-        if (!Context.CancellationToken.IsCancellationRequested)
+        if (!Context.IsTerminating)
         {
             if (Initializer != null)
             {
@@ -54,7 +54,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
                 }
             }
 
-            if (!Context.CancellationToken.IsCancellationRequested)
+            if (!Context.IsTerminating)
             {
                 try
                 {
@@ -75,7 +75,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
                 var mutatedRowCount = 0;
                 var ignoredRowCount = 0;
 
-                while (!Context.CancellationToken.IsCancellationRequested)
+                while (!Context.IsTerminating)
                 {
                     netTimeStopwatch.Stop();
                     var finished = !enumerator.MoveNext();

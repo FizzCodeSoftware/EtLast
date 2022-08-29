@@ -30,7 +30,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
         var mutatedRowCount = 0;
         var ignoredRowCount = 0;
 
-        while (!Context.CancellationToken.IsCancellationRequested)
+        while (!Context.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -114,7 +114,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
 
         if (sortedRowsEnumerator != null)
         {
-            while (!Context.CancellationToken.IsCancellationRequested)
+            while (!Context.IsTerminating)
             {
                 IRow row;
                 try

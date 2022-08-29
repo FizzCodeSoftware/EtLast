@@ -23,7 +23,7 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
 
         var rowCount = 0;
         var ignoredRowCount = 0;
-        while (!Context.CancellationToken.IsCancellationRequested)
+        while (!Context.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -104,7 +104,7 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
         var aggregates = new List<SlimRow>();
         foreach (var groupRows in groups.Values)
         {
-            if (Context.CancellationToken.IsCancellationRequested)
+            if (Context.IsTerminating)
                 break;
 
             try

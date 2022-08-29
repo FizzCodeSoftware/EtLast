@@ -46,7 +46,7 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
         var ignoredRowCount = 0;
         var batchCount = 0;
 
-        while (!Context.CancellationToken.IsCancellationRequested)
+        while (!Context.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();

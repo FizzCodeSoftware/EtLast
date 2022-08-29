@@ -47,7 +47,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
         var mutatedRowCount = 0;
         var ignoredRowCount = 0;
         var resultRowCount = 0;
-        while (!Context.CancellationToken.IsCancellationRequested && success)
+        while (!Context.IsTerminating && success)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();

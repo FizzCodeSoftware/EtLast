@@ -25,7 +25,7 @@ public abstract class AbstractJob : AbstractProcess, IJob
         {
             ValidateImpl();
 
-            if (Context.CancellationToken.IsCancellationRequested)
+            if (Context.IsTerminating)
                 return;
 
             ExecuteImpl(netTimeStopwatch);

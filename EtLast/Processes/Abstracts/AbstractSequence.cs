@@ -33,7 +33,7 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
             yield break;
         }
 
-        if (!Context.CancellationToken.IsCancellationRequested)
+        if (!Context.IsTerminating)
         {
             if (Initializer != null)
             {
@@ -47,7 +47,7 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
                 }
             }
 
-            if (!Context.CancellationToken.IsCancellationRequested)
+            if (!Context.IsTerminating)
             {
                 IEnumerator<IRow> enumerator;
                 try
@@ -66,7 +66,7 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
                     yield break;
                 }
 
-                while (!Context.CancellationToken.IsCancellationRequested)
+                while (!Context.IsTerminating)
                 {
                     try
                     {

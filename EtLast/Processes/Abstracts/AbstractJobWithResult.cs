@@ -22,7 +22,7 @@ public abstract class AbstractJobWithResult<T> : AbstractProcess, IJobWithResult
         {
             ValidateImpl();
 
-            if (Context.CancellationToken.IsCancellationRequested)
+            if (Context.IsTerminating)
                 return default;
 
             return ExecuteImpl();

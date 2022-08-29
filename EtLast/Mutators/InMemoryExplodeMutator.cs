@@ -40,7 +40,7 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
 
         var ignoredRowCount = 0;
         var rows = new List<IReadOnlySlimRow>();
-        while (!Context.CancellationToken.IsCancellationRequested)
+        while (!Context.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !sourceEnumerator.MoveNext();
@@ -124,7 +124,7 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
             resultCount += rows.Count;
         }
 
-        while (!Context.CancellationToken.IsCancellationRequested)
+        while (!Context.IsTerminating)
         {
             ISlimRow newRow;
             try

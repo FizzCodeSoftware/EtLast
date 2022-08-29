@@ -50,7 +50,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
 
         var rowCount = 0;
         var ignoredRowCount = 0;
-        while (!Context.CancellationToken.IsCancellationRequested)
+        while (!Context.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -178,7 +178,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
 
             foreach (var aggregate in aggregates.Values)
             {
-                if (Context.CancellationToken.IsCancellationRequested)
+                if (Context.IsTerminating)
                     break;
 
                 var row = Context.CreateRow(this, aggregate.ResultRow);

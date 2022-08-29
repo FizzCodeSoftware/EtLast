@@ -14,7 +14,15 @@ public interface IEtlContext
     public TimeSpan TransactionScopeTimeout { get; set; }
     public EtlTransactionScope BeginScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity);
 
-    public CancellationToken CancellationToken { get; }
+    /// <summary>
+    /// Returns true if cancellation is requested in <see cref="InternalCancellationToken"/> or <see cref="Terminate"/> was called.
+    /// </summary>
+    public bool IsTerminating { get; }
+    public void Terminate();
+
+    public CancellationToken InternalCancellationToken { get; }
+    public void ResetInternalCancellationToken();
+    public void ResetExceptionCount(int count);
 
     public List<IEtlContextListener> Listeners { get; }
 

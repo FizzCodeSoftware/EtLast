@@ -137,7 +137,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
             if (Context.ExceptionCount > initialExceptionCount)
                 return;
 
-            var ok = Initialize(ref initialExceptionCount);
+            var ok = Initialize(initialExceptionCount);
             if (!ok)
             {
                 Context.Log(LogSeverity.Information, this, "initialization failed in {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
@@ -200,7 +200,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
                 }
             }
 
-            success = Finalize(ref initialExceptionCount);
+            success = Finalize(initialExceptionCount);
         }
         finally
         {

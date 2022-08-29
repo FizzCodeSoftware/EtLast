@@ -37,7 +37,7 @@ public abstract class AbstractRowSource : AbstractSequence, IRowSource
         var enumerator = Produce().GetEnumerator();
         netTimeStopwatch.Start();
 
-        while (!Context.CancellationToken.IsCancellationRequested)
+        while (!Context.IsTerminating)
         {
             IRow row;
             try

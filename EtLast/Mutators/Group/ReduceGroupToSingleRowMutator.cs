@@ -45,7 +45,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
         var mutatedRowCount = 0;
         var ignoredRowCount = 0;
         var resultRowCount = 0;
-        while (!Context.CancellationToken.IsCancellationRequested)
+        while (!Context.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -135,7 +135,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
 
         foreach (var group in groups.Values)
         {
-            if (Context.CancellationToken.IsCancellationRequested)
+            if (Context.IsTerminating)
                 break;
 
             var singleRow = group as IRow;

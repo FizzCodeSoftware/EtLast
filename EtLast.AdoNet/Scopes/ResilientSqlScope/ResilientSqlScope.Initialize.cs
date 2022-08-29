@@ -2,14 +2,14 @@
 
 public sealed partial class ResilientSqlScope : AbstractJob, IScope
 {
-    private bool Initialize(ref int initialExceptionCount)
+    private bool Initialize(int initialExceptionCount)
     {
         if (Initializers == null)
             return true;
 
-        for (var retryCounter = 0; retryCounter <= FinalizerRetryCount; retryCounter++)
+        for (var round = 0; round <= FinalizerRetryCount; round++)
         {
-            Context.Log(LogSeverity.Information, this, "initialization round {InitializationRound} started", retryCounter);
+            Context.Log(LogSeverity.Information, this, "initialization round {InitializationRound} started", round);
             try
             {
                 using (var scope = Context.BeginScope(this, InitializationTransactionScopeKind, LogSeverity.Information))
@@ -28,7 +28,11 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
             if (Context.ExceptionCount == initialExceptionCount)
                 return true;
 
-            initialExceptionCount = Context.ExceptionCount;
+            if (round < FinalizerRetryCount)
+            {
+                Context.ResetInternalCancellationToken();
+                Context.ResetExceptionCount(initialExceptionCount);
+            }
         }
 
         return false;

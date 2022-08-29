@@ -18,8 +18,10 @@ public sealed class EtlContext : IEtlContext
     /// </summary>
     public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromHours(4);
 
-    private readonly CancellationTokenSource _cancellationTokenSource;
-    public CancellationToken CancellationToken { get; }
+    private CancellationTokenSource _cancellationTokenSource;
+    public CancellationToken InternalCancellationToken { get; private set; }
+    public bool IsTerminating => InternalCancellationToken.IsCancellationRequested || _terminating;
+    private bool _terminating;
 
     private int _nextRowUid;
     private int _nextProcessInstanceUid;
@@ -32,14 +34,37 @@ public sealed class EtlContext : IEtlContext
     public EtlContext()
     {
         SetRowType<Row>();
-        _cancellationTokenSource = new CancellationTokenSource();
-        CancellationToken = _cancellationTokenSource.Token;
+
+        ResetInternalCancellationToken();
 
         AdditionalData = new AdditionalData();
 
         Uid = Guid.NewGuid().ToString("D");
         CreatedOnLocal = DateTimeOffset.Now;
         CreatedOnUtc = CreatedOnLocal.ToUniversalTime();
+    }
+
+    public void Terminate()
+    {
+        _terminating = true;
+        _cancellationTokenSource.Cancel();
+    }
+
+    public void ResetInternalCancellationToken()
+    {
+        _cancellationTokenSource = new CancellationTokenSource();
+        InternalCancellationToken = _cancellationTokenSource.Token;
+    }
+
+    public void ResetExceptionCount(int count)
+    {
+        lock (_exceptions)
+        {
+            if (_exceptions.Count > count)
+            {
+                _exceptions.RemoveRange(count, _exceptions.Count - count);
+            }
+        }
     }
 
     public void SetRowType<T>() where T : IRow

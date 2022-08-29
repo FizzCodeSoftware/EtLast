@@ -26,7 +26,7 @@ public sealed class RowCreator : AbstractRowSource
 
         foreach (var inputRow in InputRows)
         {
-            if (Context.CancellationToken.IsCancellationRequested)
+            if (Context.IsTerminating)
                 yield break;
 
             var initialValues = Enumerable

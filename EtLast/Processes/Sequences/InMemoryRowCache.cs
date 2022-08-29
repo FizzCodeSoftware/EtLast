@@ -32,7 +32,7 @@ public sealed class InMemoryRowCache : AbstractRowSource
 
             foreach (var row in _cache)
             {
-                if (Context.CancellationToken.IsCancellationRequested)
+                if (Context.IsTerminating)
                     yield break;
 
                 var newRow = Context.CreateRow(this, row);

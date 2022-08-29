@@ -28,7 +28,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
         var ignoredRowCount = 0;
         var groupCount = 0;
         var aggregateCount = 0;
-        while (!Context.CancellationToken.IsCancellationRequested)
+        while (!Context.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
