@@ -91,8 +91,6 @@ public sealed class CopyTableIntoExistingTable : AbstractSqlStatement
         return statement;
     }
 
-    private static int x = 0;
-
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
         var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbWriteCopy, ConnectionString.Name, ConnectionString.Unescape(Configuration.TargetTableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
@@ -102,11 +100,6 @@ public sealed class CopyTableIntoExistingTable : AbstractSqlStatement
         try
         {
             var recordCount = command.ExecuteNonQuery();
-            x++;
-
-            if (x == 1)
-                throw new Exception("fake exception");
-
             Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteCopy, iocUid, recordCount);
         }
         catch (Exception ex)
