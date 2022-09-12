@@ -27,8 +27,8 @@ public class AddKeyHashMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["name"] = "E", ["age"] = -3, ["height"] = 160, ["countryId"] = 1, ["lastChangedTime"] = new DateTime(2019, 1, 1, 23, 59, 59, 0), ["height-hash"] = "a512db2741cd20693e4b16f19891e72b9ff12cead72761fc5e92d2aaf34740c1" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["name"] = "A", ["age"] = 11, ["height"] = 140, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0), ["height-hash"] = "dbae772db29058a88f9bd830e957c695347c41b6162a7eb9a9ea13def34be56b" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 6, ["name"] = "fake", ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0), ["height-hash"] = "dbae772db29058a88f9bd830e957c695347c41b6162a7eb9a9ea13def34be56b" } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -53,8 +53,8 @@ public class AddKeyHashMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["name"] = "E", ["age"] = -3, ["height"] = 160, ["countryId"] = 1, ["lastChangedTime"] = new DateTime(2019, 1, 1, 23, 59, 59, 0), ["hash"] = "E1C5AC9DFC8822A28A42099F43F8087451B98E562D74EA3BEB7222A55BB3D729" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["name"] = "A", ["age"] = 11, ["height"] = 140, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0), ["hash"] = "1CF436127B6DB3D54CB58C3AC9502EE679DC1307FC6B39687301760D7C31F3BB" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 6, ["name"] = "fake", ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0), ["hash"] = "FD52C4555964784D62EFA9B4521FCACF87C3E9EE068F418F6B8245A08EB0F770" } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -75,7 +75,7 @@ public class AddKeyHashMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["name"] = "E", ["age"] = -3, ["height"] = 160, ["countryId"] = 1, ["lastChangedTime"] = new DateTime(2019, 1, 1, 23, 59, 59, 0) },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["name"] = "A", ["age"] = 11, ["height"] = 140, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0) },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 6, ["name"] = "fake", ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0) } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 }

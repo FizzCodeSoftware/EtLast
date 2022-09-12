@@ -16,7 +16,7 @@ public class SplitterAndMergerTests
             },
         };
 
-        var processes = new ISequence[4];
+        var processes = new ISequence[3];
         for (var i = 0; i < 3; i++)
         {
             processes[i] = new CustomMutator(context)
@@ -40,8 +40,12 @@ public class SplitterAndMergerTests
         Assert.AreEqual(7, results[0].Count);
         Assert.AreEqual(0, results[1].Count);
         Assert.AreEqual(0, results[2].Count);
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, processes[0].InvocationContext.Exceptions.Count);
+        Assert.AreEqual(0, processes[1].InvocationContext.Exceptions.Count);
+        Assert.AreEqual(0, processes[2].InvocationContext.Exceptions.Count);
+        Assert.AreNotEqual(processes[0].InvocationContext, processes[1].InvocationContext);
+        Assert.AreNotEqual(processes[0].InvocationContext, processes[2].InvocationContext);
+        Assert.AreNotEqual(processes[1].InvocationContext, processes[2].InvocationContext);
     }
 
     [TestMethod]
@@ -57,7 +61,7 @@ public class SplitterAndMergerTests
             },
         };
 
-        var processes = new ISequence[4];
+        var processes = new ISequence[3];
         for (var i = 0; i < 3; i++)
         {
             processes[i] = new CustomMutator(context)
@@ -102,8 +106,7 @@ public class SplitterAndMergerTests
                 || results[2].Any(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
         }
 
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, processes.Sum(x => x.InvocationContext.Exceptions.Count));
     }
 
     [TestMethod]
@@ -118,16 +121,18 @@ public class SplitterAndMergerTests
 
         for (var i = 0; i < 3; i++)
         {
-            merger.SequenceList.Add(new CustomMutator(context)
-            {
-                Input = TestData.Person(context),
-                Action = row =>
+            merger.SequenceList.Add(SequenceBuilder.Fluent
+                .ReadFrom(TestData.Person(context))
+                .CustomCode(new CustomMutator(context)
                 {
-                    Thread.Sleep(new Random().Next(100));
-                    row["ThreadIndex"] = i;
-                    return true;
-                },
-            });
+                    Action = row =>
+                    {
+                        Thread.Sleep(new Random().Next(100));
+                        row["ThreadIndex"] = i;
+                        return true;
+                    },
+                })
+                .Build());
         }
 
         var result = merger.TakeRowsAndReleaseOwnership(null).ToList();
@@ -137,8 +142,8 @@ public class SplitterAndMergerTests
             Assert.AreEqual(3, result.Count(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
         }
 
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, merger.SequenceList.Sum(x => x.InvocationContext.Exceptions.Count));
+        Assert.AreEqual(0, merger.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -161,16 +166,18 @@ public class SplitterAndMergerTests
 
         for (var i = 0; i < 3; i++)
         {
-            merger.SequenceList.Add(new CustomMutator(context)
-            {
-                Input = splitter,
-                Action = row =>
+            merger.SequenceList.Add(SequenceBuilder.Fluent
+                .ReadFrom(splitter)
+                .CustomCode(new CustomMutator(context)
                 {
-                    Thread.Sleep(new Random().Next(10));
-                    row["ThreadIndex"] = i;
-                    return true;
-                },
-            });
+                    Action = row =>
+                    {
+                        Thread.Sleep(new Random().Next(10));
+                        row["ThreadIndex"] = i;
+                        return true;
+                    },
+                })
+                .Build());
         }
 
         var result = merger.TakeRowsAndReleaseOwnership(null).ToList();
@@ -180,8 +187,8 @@ public class SplitterAndMergerTests
             Assert.IsTrue(result.Any(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
         }
 
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, merger.SequenceList.Sum(x => x.InvocationContext.Exceptions.Count));
+        Assert.AreEqual(0, merger.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -223,7 +230,6 @@ public class SplitterAndMergerTests
             Assert.IsTrue(result.MutatedRows.Any(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
         }
 
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 }

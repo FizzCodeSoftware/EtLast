@@ -16,7 +16,7 @@ public class ExceptionTest : AbstractEtlFlow
 
     public override void Execute()
     {
-        Session.ExecuteTask(this, new ThrowException()
+        ExecuteTask(new ThrowException()
         {
             ExceptionType = ExceptionType,
             Message = Message,

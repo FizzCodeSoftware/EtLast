@@ -25,26 +25,26 @@ public class EtlRunInfoTest : AbstractEtlFlow
         DataDefinitionExtenderMsSql2016.Extend(databaseDeclaration, configuration);
         RelationalModelExtender.Extend(model, configuration);
 
-        Session.ExecuteTask(this, new CreateDatabase()
+        var ok = ExecuteTask(new CreateDatabase()
         {
             ConnectionString = ConnectionString,
             Definition = databaseDeclaration,
             DatabaseName = DatabaseName,
-        });
+        }).Success;
 
-        if (!Session.Success)
+        if (!ok)
             return;
 
-        Session.ExecuteProcess(this, CreateFirstDwhBuilder(configuration, model));
+        ok = ExecuteJob(CreateFirstDwhBuilder(configuration, model)).Success;
 
-        if (!Session.Success)
+        if (!ok)
             return;
 
         TestFirstDwhBuilder();
 
-        Session.ExecuteProcess(this, CreateSecondDwhBuilder(configuration, model));
+        ok = ExecuteJob(CreateSecondDwhBuilder(configuration, model)).Success;
 
-        if (!Session.Success)
+        if (!ok)
             return;
 
         TestSecondDwhBuilder();

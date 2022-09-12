@@ -13,8 +13,16 @@ internal static class ModuleExecuter
         var arguments = new ArgumentCollection(module.DefaultArgumentProviders, module.InstanceArgumentProviders, instance);
 
         var environmentSettings = new EnvironmentSettings();
-        module.Startup.Configure(environmentSettings);
-        var customTasks = new Dictionary<string, Func<IArgumentCollection, IEtlTask>>(module.Startup.CustomTasks, StringComparer.InvariantCultureIgnoreCase);
+        Dictionary<string, Func<IArgumentCollection, IEtlTask>> customTasks;
+        if (module.Startup != null)
+        {
+            module.Startup.Configure(environmentSettings);
+            customTasks = new Dictionary<string, Func<IArgumentCollection, IEtlTask>>(module.Startup.CustomTasks, StringComparer.InvariantCultureIgnoreCase);
+        }
+        else
+        {
+            customTasks = new Dictionary<string, Func<IArgumentCollection, IEtlTask>>();
+        }
 
         var sessionId = "s" + DateTime.Now.ToString("yyMMdd-HHmmss-ff", CultureInfo.InvariantCulture);
         var session = new EtlSession(sessionId, arguments);
@@ -46,6 +54,11 @@ internal static class ModuleExecuter
             }
         }
 
+        if (module.Startup == null)
+        {
+            session.Context.Log(LogSeverity.Warning, null, "Can't find a startup class implementing " + nameof(IStartup) + ".");
+        }
+
         session.Context.Log(LogSeverity.Information, null, "session {SessionId} started", sessionId);
 
         if (!string.IsNullOrEmpty(environmentSettings.SeqSettings.Url))
@@ -54,14 +67,18 @@ internal static class ModuleExecuter
         }
 
         var sessionStartedOn = Stopwatch.StartNew();
-        var sessionExceptions = new List<Exception>();
 
         var taskResults = new List<TaskExectionResult>();
+
+        var invocationContext = new ProcessInvocationContext(session.Context);
 
         try
         {
             foreach (var taskName in taskNames)
             {
+                if (invocationContext.IsTerminating)
+                    break;
+
                 IEtlTask task = null;
                 if (customTasks.TryGetValue(taskName, out var taskCreator))
                 {
@@ -82,32 +99,26 @@ internal static class ModuleExecuter
 
                 try
                 {
-                    try
-                    {
-                        var taskResult = session.ExecuteTask(null, task) as ProcessResult;
-                        taskResults.Add(new TaskExectionResult(task, taskResult));
-                        executionResult.TaskResults.Add(new TaskExectionResult(task, taskResult));
+                    task.SetArguments(session.Arguments);
+                    task.Execute(null, session, invocationContext);
 
-                        sessionExceptions.AddRange(taskResult.Exceptions);
+                    taskResults.Add(new TaskExectionResult(task));
+                    executionResult.TaskResults.Add(new TaskExectionResult(task));
 
-                        if (sessionExceptions.Count > 0)
-                        {
-                            session.Context.Log(LogSeverity.Error, task, "failed, terminating execution");
-                            executionResult.Status = ExecutionStatusCode.ExecutionFailed;
-                            session.Context.Close();
-                            break; // stop processing tasks
-                        }
-                    }
-                    catch (Exception ex)
+                    if (invocationContext.Failed)
                     {
-                        session.Context.Log(LogSeverity.Error, task, "failed, terminating execution, reason: {0}", ex.Message);
+                        session.Context.Log(LogSeverity.Error, task, "failed, terminating execution");
                         executionResult.Status = ExecutionStatusCode.ExecutionFailed;
                         session.Context.Close();
                         break; // stop processing tasks
                     }
                 }
-                catch (TransactionAbortedException)
+                catch (Exception ex)
                 {
+                    session.Context.Log(LogSeverity.Error, task, "failed, terminating execution, reason: {0}", ex.Message);
+                    executionResult.Status = ExecutionStatusCode.ExecutionFailed;
+                    session.Context.Close();
+                    break; // stop processing tasks
                 }
 
                 LogTaskCounters(session.Context, task);

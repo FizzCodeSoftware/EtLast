@@ -4,7 +4,6 @@ public interface IEtlContext
 {
     public void SetRowType<T>() where T : IRow;
 
-    public int WarningCount { get; }
     public AdditionalData AdditionalData { get; }
 
     public string Uid { get; }
@@ -14,15 +13,7 @@ public interface IEtlContext
     public TimeSpan TransactionScopeTimeout { get; set; }
     public EtlTransactionScope BeginScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity);
 
-    /// <summary>
-    /// Returns true if cancellation is requested in <see cref="InternalCancellationToken"/> or <see cref="Terminate"/> was called.
-    /// </summary>
-    public bool IsTerminating { get; }
-    public void Terminate();
-
-    public CancellationToken InternalCancellationToken { get; }
-    public void ResetInternalCancellationToken();
-    public void ResetExceptionCount(int count);
+    public CancellationToken CancellationToken { get; }
 
     public List<IEtlContextListener> Listeners { get; }
 
@@ -43,11 +34,6 @@ public interface IEtlContext
     public void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount, Exception exception);
 
     public void RegisterWriteToSink(IReadOnlyRow row, int sinkUid);
-
-    public void AddException(IProcess process, Exception ex);
-    public List<Exception> GetExceptions();
-
-    public int ExceptionCount { get; }
 
     public void SetRowOwner(IRow row, IProcess currentProcess);
 

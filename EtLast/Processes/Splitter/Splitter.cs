@@ -24,7 +24,7 @@ public sealed class Splitter<TRowQueue> : AbstractSequence
     protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
     {
         StartQueueFeeder();
-        return _queue.GetConsumer(Context.InternalCancellationToken);
+        return _queue.GetConsumer(Context.CancellationToken);
     }
 
     private void StartQueueFeeder()
@@ -35,20 +35,24 @@ public sealed class Splitter<TRowQueue> : AbstractSequence
             {
                 _queue = new TRowQueue();
 
-                _feederThread = new Thread(QueueFeederWorker);
-                _feederThread.Start(Transaction.Current);
+                _feederThread = new Thread(() => QueueFeederWorker(Transaction.Current));
+                _feederThread.Start();
             }
         }
     }
 
-    private void QueueFeederWorker(object tran)
+    private void QueueFeederWorker(Transaction tran)
     {
-        Transaction.Current = tran as Transaction;
+        Transaction.Current = tran;
 
+        // todo: multiple caller invocation contexts vs 1 input invocation context
         var rows = InputProcess.TakeRowsAndTransferOwnership(this);
 
         foreach (var row in rows)
         {
+            if (InvocationContext.IsTerminating)
+                break;
+
             _queue.AddRow(row);
         }
 

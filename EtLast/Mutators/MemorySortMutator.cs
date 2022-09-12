@@ -30,7 +30,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
         var mutatedRowCount = 0;
         var ignoredRowCount = 0;
 
-        while (!Context.IsTerminating)
+        while (!InvocationContext.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -57,7 +57,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ex, row);
+                    InvocationContext.AddException(this, ex, row);
                     break;
                 }
 
@@ -79,7 +79,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ex, row);
+                    InvocationContext.AddException(this, ex, row);
                     break;
                 }
 
@@ -109,12 +109,12 @@ public class MemorySortMutator : AbstractSequence, IMutator
         }
         catch (Exception ex)
         {
-            AddException(new CustomCodeException(this, "error during the execution of custom sort code", ex));
+            InvocationContext.AddException(this, new CustomCodeException(this, "error during the execution of custom sort code", ex));
         }
 
         if (sortedRowsEnumerator != null)
         {
-            while (!Context.IsTerminating)
+            while (!InvocationContext.IsTerminating)
             {
                 IRow row;
                 try
@@ -127,7 +127,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(new CustomCodeException(this, "error during the execution of custom sort code", ex));
+                    InvocationContext.AddException(this, new CustomCodeException(this, "error during the execution of custom sort code", ex));
                     break;
                 }
 

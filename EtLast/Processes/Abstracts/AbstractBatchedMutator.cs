@@ -27,7 +27,7 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
         }
         catch (Exception ex)
         {
-            AddException(ex);
+            InvocationContext.AddException(this, ex);
             yield break;
         }
 
@@ -46,7 +46,7 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
         var ignoredRowCount = 0;
         var batchCount = 0;
 
-        while (!Context.IsTerminating)
+        while (!InvocationContext.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -73,7 +73,7 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ex, row);
+                    InvocationContext.AddException(this, ex, row);
                     break;
                 }
 
@@ -95,7 +95,7 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ex, row);
+                    InvocationContext.AddException(this, ex, row);
                     break;
                 }
 
@@ -118,7 +118,7 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
             }
             catch (Exception ex)
             {
-                AddException(ex, row);
+                InvocationContext.AddException(this, ex, row);
                 failed = true;
                 break;
             }
@@ -136,7 +136,7 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
                 {
                     if (mutatedRow.CurrentProcess != this)
                     {
-                        AddException(new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
+                        InvocationContext.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
                         failed = true;
                         break;
                     }
@@ -161,7 +161,7 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
                     }
                     catch (Exception ex)
                     {
-                        AddException(ex, row);
+                        InvocationContext.AddException(this, ex, row);
                         failed = true;
                         break;
                     }
@@ -176,7 +176,7 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
                     }
                     catch (Exception ex)
                     {
-                        AddException(ex, row);
+                        InvocationContext.AddException(this, ex, row);
                         failed = true;
                         break;
                     }
@@ -191,7 +191,7 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
                     {
                         if (mutatedRow.CurrentProcess != this)
                         {
-                            AddException(new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
+                            InvocationContext.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
                             failed = true;
                             break;
                         }
@@ -221,7 +221,7 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
             }
             catch (Exception ex)
             {
-                AddException(ex);
+                InvocationContext.AddException(this, ex);
                 failed = true;
             }
 
@@ -237,7 +237,7 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
                 {
                     if (mutatedRow.CurrentProcess != this)
                     {
-                        AddException(new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
+                        InvocationContext.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
                         failed = true;
                         break;
                     }
@@ -260,8 +260,7 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
         }
         catch (Exception ex)
         {
-            AddException(ex);
-            yield break;
+            InvocationContext.AddException(this, ex);
         }
 
         netTimeStopwatch.Stop();

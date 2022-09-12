@@ -40,8 +40,8 @@ public class UnpivotMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -76,8 +76,8 @@ public class UnpivotMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -114,8 +114,8 @@ public class UnpivotMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -145,8 +145,8 @@ public class UnpivotMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -178,7 +178,7 @@ public class UnpivotMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 }

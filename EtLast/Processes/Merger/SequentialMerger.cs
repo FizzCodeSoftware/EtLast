@@ -15,12 +15,15 @@ public sealed class SequentialMerger : AbstractMerger
     {
         foreach (var sequence in SequenceList)
         {
-            if (Context.IsTerminating)
-                yield break;
+            if (InvocationContext.IsTerminating)
+                break;
 
             var rows = sequence.TakeRowsAndTransferOwnership(this);
             foreach (var row in rows)
             {
+                if (InvocationContext.IsTerminating)
+                    break;
+
                 yield return row;
             }
         }

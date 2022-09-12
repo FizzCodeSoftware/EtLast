@@ -40,7 +40,7 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
 
         var ignoredRowCount = 0;
         var rows = new List<IReadOnlySlimRow>();
-        while (!Context.IsTerminating)
+        while (!InvocationContext.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !sourceEnumerator.MoveNext();
@@ -67,7 +67,7 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ex, row);
+                    InvocationContext.AddException(this, ex, row);
                     break;
                 }
 
@@ -89,7 +89,7 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ex, row);
+                    InvocationContext.AddException(this, ex, row);
                     break;
                 }
 
@@ -124,7 +124,7 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
             resultCount += rows.Count;
         }
 
-        while (!Context.IsTerminating)
+        while (!InvocationContext.IsTerminating)
         {
             ISlimRow newRow;
             try
@@ -136,7 +136,7 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
             }
             catch (Exception ex)
             {
-                AddException(ex);
+                InvocationContext.AddException(this, ex);
                 break;
             }
 

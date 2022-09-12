@@ -31,7 +31,7 @@ public class MergeStringColumnsMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["Merged"] = "E", ["age"] = -3, ["height"] = 160, ["countryId"] = 1, ["lastChangedTime"] = new DateTime(2019, 1, 1, 23, 59, 59, 0) },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["Merged"] = "A", ["age"] = 11, ["height"] = 140, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0) },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 6, ["Merged"] = "fake", ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0) } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 }

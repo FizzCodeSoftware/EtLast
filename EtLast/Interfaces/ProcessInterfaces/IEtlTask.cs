@@ -8,5 +8,7 @@ public interface IEtlTask : IProcess
     public Dictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; }
 
     public void ValidateParameters();
-    public ProcessResult Execute(IProcess caller, IEtlSession session);
+    public void Execute(IProcess caller, IEtlSession session, ProcessInvocationContext invocationContext);
+
+    public void SetArguments(ArgumentCollection arguments);
 }

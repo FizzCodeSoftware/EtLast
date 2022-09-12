@@ -56,6 +56,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Tests.Integration.Dw
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Tests.Integration.AdoNetTests", "Tests\EtLast.Tests.Integration.AdoNetTests\EtLast.Tests.Integration.AdoNetTests.csproj", "{3F82FFBD-E92B-4E64-A7E6-EFA21F8C8E14}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Tests.Integration.FlowTests", "Tests\EtLast.Tests.Integration.FlowTests\EtLast.Tests.Integration.FlowTests.csproj", "{26416897-8FD1-48A4-A5BA-F338E9966211}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -189,6 +191,12 @@ Global
 		{3F82FFBD-E92B-4E64-A7E6-EFA21F8C8E14}.Integration|Any CPU.Build.0 = Integration|Any CPU
 		{3F82FFBD-E92B-4E64-A7E6-EFA21F8C8E14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F82FFBD-E92B-4E64-A7E6-EFA21F8C8E14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26416897-8FD1-48A4-A5BA-F338E9966211}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26416897-8FD1-48A4-A5BA-F338E9966211}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26416897-8FD1-48A4-A5BA-F338E9966211}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
+		{26416897-8FD1-48A4-A5BA-F338E9966211}.Integration|Any CPU.Build.0 = Debug|Any CPU
+		{26416897-8FD1-48A4-A5BA-F338E9966211}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26416897-8FD1-48A4-A5BA-F338E9966211}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -201,6 +209,7 @@ Global
 		{455E8BA4-C33B-438F-BBF5-C2E868D0CE79} = {31564631-1C65-4B5D-BBC6-7831C887D0D8}
 		{FEC42030-DE6A-4EF7-ADF3-D992DA193311} = {31564631-1C65-4B5D-BBC6-7831C887D0D8}
 		{3F82FFBD-E92B-4E64-A7E6-EFA21F8C8E14} = {31564631-1C65-4B5D-BBC6-7831C887D0D8}
+		{26416897-8FD1-48A4-A5BA-F338E9966211} = {31564631-1C65-4B5D-BBC6-7831C887D0D8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2B1A4546-5839-4F14-8E4D-8404CA122935}

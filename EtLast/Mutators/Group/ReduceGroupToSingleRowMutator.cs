@@ -45,7 +45,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
         var mutatedRowCount = 0;
         var ignoredRowCount = 0;
         var resultRowCount = 0;
-        while (!Context.IsTerminating)
+        while (!InvocationContext.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -72,7 +72,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ex, row);
+                    InvocationContext.AddException(this, ex, row);
                     break;
                 }
 
@@ -94,7 +94,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ex, row);
+                    InvocationContext.AddException(this, ex, row);
                     break;
                 }
 
@@ -135,7 +135,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
 
         foreach (var group in groups.Values)
         {
-            if (Context.IsTerminating)
+            if (InvocationContext.IsTerminating)
                 break;
 
             var singleRow = group as IRow;
@@ -171,7 +171,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
             }
             catch (Exception ex)
             {
-                AddException(ex);
+                InvocationContext.AddException(this, ex);
                 break;
             }
 

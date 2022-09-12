@@ -7,7 +7,8 @@ public abstract class AbstractProcess : IProcess
     public ProcessInvocationInfo InvocationInfo { get; set; }
 
     public IEtlContext Context { get; protected set; }
-    public List<Exception> Exceptions { get; } = new List<Exception>();
+    public ProcessInvocationContext InvocationContext { get; protected set; }
+    public bool Success => InvocationContext?.IsTerminating != true;
 
     public string Name { get; set; }
     public string Kind { get; }
@@ -94,39 +95,5 @@ public abstract class AbstractProcess : IProcess
             Context.Log(severity, this, "output [{ParameterName}] = {ParameterValue}",
                 property.Name, ValueFormatter.Default.Format(value, CultureInfo.InvariantCulture) ?? "<NULL>");
         }
-    }
-
-    protected void AddException(Exception ex)
-    {
-        if (ex is OperationCanceledException)
-            return;
-
-        if (ex is not EtlException)
-            ex = new ProcessExecutionException(this, ex);
-
-        Context.AddException(this, ex);
-        Exceptions.Add(ex);
-    }
-
-    protected void AddException(Exception ex, IReadOnlySlimRow row)
-    {
-        if (ex is OperationCanceledException)
-            return;
-
-        if (ex is EtlException eex)
-        {
-            var str = row.ToDebugString(true);
-            if ((eex.Data["Row"] is not string rowString) || !string.Equals(rowString, str, StringComparison.Ordinal))
-            {
-                eex.Data["Row"] = str;
-            }
-        }
-        else
-        {
-            ex = new ProcessExecutionException(this, row, ex);
-        }
-
-        Context.AddException(this, ex);
-        Exceptions.Add(ex);
     }
 }

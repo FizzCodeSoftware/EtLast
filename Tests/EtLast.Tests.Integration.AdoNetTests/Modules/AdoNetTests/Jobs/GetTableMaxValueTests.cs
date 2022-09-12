@@ -32,7 +32,7 @@ public class GetTableMaxValueTests : AbstractEtlTask
                     ConnectionString = ConnectionString,
                     TableName = ConnectionString.Escape(nameof(GetTableMaxValueTests)),
                     ColumnName = "DateTimeValue",
-                }.ExecuteWithResult();
+                }.ExecuteWithResult(job);
 
                 Assert.AreEqual(new DateTime(2022, 7, 9), result.MaxValue);
             }

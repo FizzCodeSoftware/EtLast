@@ -32,7 +32,7 @@ public sealed class InMemoryRowCache : AbstractRowSource
 
             foreach (var row in _cache)
             {
-                if (Context.IsTerminating)
+                if (InvocationContext.IsTerminating)
                     yield break;
 
                 var newRow = Context.CreateRow(this, row);
@@ -44,9 +44,12 @@ public sealed class InMemoryRowCache : AbstractRowSource
         else
         {
             _cache = new List<IReadOnlySlimRow>();
-            var inputRows = InputProcess.TakeRowsAndReleaseOwnership(this);
+            var inputRows = InputProcess.TakeRowsAndReleaseOwnership(this, InvocationContext);
             foreach (var row in inputRows)
             {
+                if (InvocationContext.IsTerminating)
+                    break;
+
                 if (IgnoreRowsWithError && row.HasError())
                     continue;
 

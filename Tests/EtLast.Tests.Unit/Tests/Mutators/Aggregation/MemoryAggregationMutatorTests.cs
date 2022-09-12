@@ -51,8 +51,7 @@ public class MemoryAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["height"] = 160m },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["height"] = 160m },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["height"] = 140m } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -70,8 +69,7 @@ public class MemoryAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39m },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3m },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0m } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -89,8 +87,7 @@ public class MemoryAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39m },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3m },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0m } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -108,8 +105,7 @@ public class MemoryAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39m },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3m },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0m } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -127,8 +123,7 @@ public class MemoryAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["height"] = 160d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["height"] = 160d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["height"] = 140d } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -146,8 +141,7 @@ public class MemoryAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0d } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -165,8 +159,7 @@ public class MemoryAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0d } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -184,8 +177,7 @@ public class MemoryAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0d } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -203,8 +195,7 @@ public class MemoryAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["height"] = 160d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["height"] = 160d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["height"] = 140d } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -222,8 +213,7 @@ public class MemoryAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0 } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -241,8 +231,7 @@ public class MemoryAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0 } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -260,8 +249,7 @@ public class MemoryAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0 } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -279,8 +267,7 @@ public class MemoryAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["height"] = 160d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["height"] = 160d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["height"] = 140d } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -298,8 +285,7 @@ public class MemoryAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39L },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3L },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0L } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -317,8 +303,7 @@ public class MemoryAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39L },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3L },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0L } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -336,8 +321,7 @@ public class MemoryAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39L },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3L },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0L } });
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(0, exceptions.Count);
+        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
     }
 
     [TestMethod]
@@ -347,8 +331,7 @@ public class MemoryAggregationMutatorTests
         var builder = GetBuilder(context, new MemoryGroupByOperation().AddLongSum("age"), null);
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(0, result.MutatedRows.Count);
-        var exceptions = context.GetExceptions();
-        Assert.AreEqual(1, exceptions.Count);
-        Assert.IsTrue(exceptions[0] is MemoryAggregationException);
+        Assert.AreEqual(1, result.Process.InvocationContext.Exceptions.Count);
+        Assert.IsTrue(result.Process.InvocationContext.Exceptions[0] is MemoryAggregationException);
     }
 }

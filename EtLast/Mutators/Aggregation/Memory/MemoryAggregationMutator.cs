@@ -23,7 +23,7 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
 
         var rowCount = 0;
         var ignoredRowCount = 0;
-        while (!Context.IsTerminating)
+        while (!InvocationContext.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -50,7 +50,7 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ex, row);
+                    InvocationContext.AddException(this, ex, row);
                     break;
                 }
 
@@ -72,7 +72,7 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ex, row);
+                    InvocationContext.AddException(this, ex, row);
                     break;
                 }
 
@@ -104,7 +104,7 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
         var aggregates = new List<SlimRow>();
         foreach (var groupRows in groups.Values)
         {
-            if (Context.IsTerminating)
+            if (InvocationContext.IsTerminating)
                 break;
 
             try
@@ -130,8 +130,7 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
             }
             catch (Exception ex)
             {
-                var exception = new MemoryAggregationException(this, Operation, groupRows, ex);
-                AddException(exception);
+                InvocationContext.AddException(this, new MemoryAggregationException(this, Operation, groupRows, ex));
                 break;
             }
 

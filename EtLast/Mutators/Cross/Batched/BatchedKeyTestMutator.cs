@@ -106,6 +106,9 @@ public sealed class BatchedKeyTestMutator : AbstractBatchedCrossMutator
 
         foreach (var row in rows)
         {
+            if (InvocationContext.IsTerminating)
+                break;
+
             var key = GenerateRowKey(row);
 
             var removeRow = false;

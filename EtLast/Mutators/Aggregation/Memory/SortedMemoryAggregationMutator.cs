@@ -28,7 +28,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
         var ignoredRowCount = 0;
         var groupCount = 0;
         var aggregateCount = 0;
-        while (!Context.IsTerminating)
+        while (!InvocationContext.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -55,7 +55,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
                 }
                 catch (Exception ex)
                 {
-                    AddException(ex, row);
+                    InvocationContext.AddException(this, ex, row);
                     break;
                 }
 
@@ -77,7 +77,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
                 }
                 catch (Exception ex)
                 {
-                    AddException(ex, row);
+                    InvocationContext.AddException(this, ex, row);
                     break;
                 }
 
@@ -124,8 +124,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
                     }
                     catch (Exception ex)
                     {
-                        var exception = new MemoryAggregationException(this, Operation, groupRows, ex);
-                        AddException(exception);
+                        InvocationContext.AddException(this, new MemoryAggregationException(this, Operation, groupRows, ex));
                         success = false;
                         break;
                     }
@@ -178,8 +177,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
             }
             catch (Exception ex)
             {
-                var exception = new MemoryAggregationException(this, Operation, groupRows, ex);
-                AddException(exception);
+                InvocationContext.AddException(this, new MemoryAggregationException(this, Operation, groupRows, ex));
                 success = false;
             }
 

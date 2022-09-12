@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast;
+﻿using System.Reflection;
+
+namespace FizzCode.EtLast;
 
 public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 {
@@ -19,12 +21,13 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 
     public abstract void ValidateParameters();
 
-    public ProcessResult Execute(IProcess caller, IEtlSession session)
+    public void Execute(IProcess caller, IEtlSession session, ProcessInvocationContext invocationContext)
     {
         Session = session;
         Context = session.Context;
 
         Context.RegisterProcessInvocationStart(this, caller);
+        InvocationContext = invocationContext ?? caller?.InvocationContext ?? new ProcessInvocationContext(Context);
 
         if (caller != null)
             Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Process}", Kind, caller.Name);
@@ -40,8 +43,6 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 
             ValidateParameters();
 
-            var result = new ProcessResult();
-
             Context.Listeners.Add(_ioCommandCounterCollection);
             try
             {
@@ -54,16 +55,11 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
                     for (var jobIndex = 0; jobIndex < jobs.Count; jobIndex++)
                     {
                         var job = jobs[jobIndex];
-                        var originalExceptionCount = Context.ExceptionCount;
 
                         job.Execute(this);
 
-                        var newExceptions = Context.GetExceptions().Skip(originalExceptionCount).ToList();
-                        if (newExceptions.Count > 0)
-                        {
-                            result.Exceptions.AddRange(newExceptions);
+                        if (InvocationContext.IsTerminating)
                             break;
-                        }
                     }
                 }
             }
@@ -75,16 +71,60 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
             _statistics.Finish();
 
             Context.Log(LogSeverity.Information, this, "{ProcessKind} {TaskResult} in {Elapsed}",
-                Kind, (result.Exceptions.Count == 0) ? "finished" : "failed", _statistics.RunTime);
+                Kind, InvocationContext.ToLogString(), _statistics.RunTime);
 
             LogPrivateSettableProperties(LogSeverity.Debug);
-
-            return result;
         }
         finally
         {
             netTimeStopwatch.Stop();
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+        }
+    }
+
+    public void SetArguments(ArgumentCollection arguments)
+    {
+        var baseProperties = typeof(AbstractEtlTask).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly)
+            .Concat(typeof(AbstractProcess).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
+            .Select(x => x.Name)
+            .ToHashSet();
+
+        var properties = GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
+            .Where(p => p.SetMethod?.IsPublic == true && !baseProperties.Contains(p.Name))
+            .ToList();
+
+        foreach (var property in properties)
+        {
+            if (property.GetValue(this) != null)
+                continue;
+
+            var argument = arguments.All.FirstOrDefault(x => string.Equals(x.Key, property.Name, StringComparison.InvariantCultureIgnoreCase));
+            if (argument.Key == null)
+            {
+                argument = arguments.All.FirstOrDefault(x => string.Equals(x.Key, Name + ":" + property.Name, StringComparison.InvariantCultureIgnoreCase));
+            }
+
+            if (argument.Key != null)
+            {
+                var value = argument.Value;
+                if (value is Func<object> func)
+                {
+                    value = func.Invoke();
+                }
+
+                if (value is Func<IArgumentCollection, object> funcWithArgs)
+                {
+                    value = funcWithArgs.Invoke(arguments);
+                }
+
+                if (value != null && property.PropertyType.IsAssignableFrom(value.GetType()))
+                {
+                    property.SetValue(this, value);
+                }
+                else
+                {
+                }
+            }
         }
     }
 }

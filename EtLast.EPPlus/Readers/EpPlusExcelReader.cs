@@ -40,9 +40,9 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
         foreach (var stream in streams)
         {
             if (stream == null)
-                yield break;
+                continue;
 
-            if (Context.IsTerminating)
+            if (InvocationContext.IsTerminating)
                 break;
 
             ExcelPackage package;

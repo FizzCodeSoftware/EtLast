@@ -37,9 +37,9 @@ public abstract class AbstractRowSource : AbstractSequence, IRowSource
         var enumerator = Produce().GetEnumerator();
         netTimeStopwatch.Start();
 
-        while (!Context.IsTerminating)
+        while (!InvocationContext.IsTerminating)
         {
-            IRow row;
+            IRow row = null;
             try
             {
                 if (!enumerator.MoveNext())
@@ -52,14 +52,16 @@ public abstract class AbstractRowSource : AbstractSequence, IRowSource
             }
             catch (Exception ex)
             {
-                AddException(ex);
-                break;
+                InvocationContext.AddException(this, ex);
             }
 
-            resultCount++;
-            netTimeStopwatch.Stop();
-            yield return row;
-            netTimeStopwatch.Start();
+            if (row != null && !InvocationContext.IsTerminating)
+            {
+                resultCount++;
+                netTimeStopwatch.Stop();
+                yield return row;
+                netTimeStopwatch.Start();
+            }
         }
 
         Context.Log(LogSeverity.Debug, this, "produced {RowCount} rows in {Elapsed}/{ElapsedWallClock}",

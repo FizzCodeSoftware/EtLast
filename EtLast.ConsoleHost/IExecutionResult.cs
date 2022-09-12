@@ -16,7 +16,7 @@ public class TaskExectionResult
     public Dictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; }
     public List<Exception> Exceptions { get; }
 
-    public TaskExectionResult(IEtlTask task, ProcessResult result)
+    public TaskExectionResult(IEtlTask task)
     {
         TaskType = task.GetType();
         TaskName = task.Name;
@@ -24,6 +24,6 @@ public class TaskExectionResult
         TaskTopic = task.GetTopic();
         Statistics = task.Statistics;
         IoCommandCounters = task.IoCommandCounters;
-        Exceptions = result.Exceptions.ToList();
+        Exceptions = task.InvocationContext.Exceptions.ToList();
     }
 }

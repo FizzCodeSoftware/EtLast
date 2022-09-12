@@ -2,30 +2,28 @@
 
 public sealed partial class ResilientSqlScope : AbstractJob, IScope
 {
-    private bool Finalize(int initialExceptionCount)
+    private void Finalize(ProcessInvocationContext invocationContext)
     {
         for (var round = 0; round <= FinalizerRetryCount; round++)
         {
-            if (Context.IsTerminating)
-                return false;
-
-            // todo: Exception management in IEtlContext is not thread safe
+            if (InvocationContext.IsTerminating)
+                return;
 
             Context.Log(LogSeverity.Information, this, "finalization round {FinalizationRound} started", round);
             try
             {
                 using (var scope = Context.BeginScope(this, FinalizerTransactionScopeKind, LogSeverity.Information))
                 {
-                    CreateAndExecutePreFinalizers();
+                    CreateAndExecutePreFinalizers(invocationContext);
 
-                    if (Context.ExceptionCount == initialExceptionCount)
+                    if (!invocationContext.IsTerminating)
                     {
-                        CreateAndExecuteFinalizers();
-                        if (Context.ExceptionCount == initialExceptionCount)
+                        CreateAndExecuteFinalizers(invocationContext);
+                        if (!invocationContext.IsTerminating)
                         {
-                            CreateAndExecutePostFinalizers();
+                            CreateAndExecutePostFinalizers(invocationContext);
 
-                            if (Context.ExceptionCount == initialExceptionCount)
+                            if (!invocationContext.IsTerminating)
                                 scope.Complete();
                         }
                     }
@@ -33,23 +31,20 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
             }
             catch (Exception ex)
             {
-                AddException(ex);
+                invocationContext.AddException(this, ex);
             }
 
-            if (Context.ExceptionCount == initialExceptionCount)
-                return true;
+            if (!invocationContext.IsTerminating)
+                return;
 
-            if (round < FinalizerRetryCount)
+            if (round >= FinalizerRetryCount)
             {
-                Context.ResetInternalCancellationToken();
-                Context.ResetExceptionCount(initialExceptionCount);
+                InvocationContext.TakeExceptions(invocationContext);
             }
         }
-
-        return false;
     }
 
-    private void CreateAndExecutePostFinalizers()
+    private void CreateAndExecutePostFinalizers(ProcessInvocationContext invocationContext)
     {
         if (PostFinalizers != null)
         {
@@ -69,18 +64,16 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 
                 foreach (var process in processes)
                 {
-                    var preExceptionCount = Context.ExceptionCount;
+                    process.Execute(this, invocationContext);
 
-                    process.Execute(this);
-
-                    if (Context.ExceptionCount > preExceptionCount)
+                    if (invocationContext.IsTerminating)
                         break;
                 }
             }
         }
     }
 
-    private void CreateAndExecuteFinalizers()
+    private void CreateAndExecuteFinalizers(ProcessInvocationContext invocationContext)
     {
         var tablesOrderedTemp = new List<TableWithOrder>();
         for (var i = 0; i < Tables.Count; i++)
@@ -174,18 +167,16 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
             {
                 foreach (var process in tableFinalizers.Value)
                 {
-                    var preExceptionCount = Context.ExceptionCount;
+                    process.Execute(this, invocationContext);
 
-                    process.Execute(this);
-
-                    if (Context.ExceptionCount > preExceptionCount)
+                    if (invocationContext.IsTerminating)
                         break;
                 }
             }
         }
     }
 
-    private void CreateAndExecutePreFinalizers()
+    private void CreateAndExecutePreFinalizers(ProcessInvocationContext invocationContext)
     {
         if (PreFinalizers == null)
             return;
@@ -206,11 +197,9 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 
             foreach (var process in processes)
             {
-                var preExceptionCount = Context.ExceptionCount;
+                process.Execute(this, invocationContext);
 
-                process.Execute(this);
-
-                if (Context.ExceptionCount > preExceptionCount)
+                if (invocationContext.IsTerminating)
                     break;
             }
         }

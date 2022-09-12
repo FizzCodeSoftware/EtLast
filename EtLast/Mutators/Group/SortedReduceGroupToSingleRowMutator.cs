@@ -42,12 +42,10 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
         var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
         netTimeStopwatch.Start();
 
-        var success = true;
-
         var mutatedRowCount = 0;
         var ignoredRowCount = 0;
         var resultRowCount = 0;
-        while (!Context.IsTerminating && success)
+        while (!InvocationContext.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -74,7 +72,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
                 }
                 catch (Exception ex)
                 {
-                    AddException(ex, row);
+                    InvocationContext.AddException(this, ex, row);
                     break;
                 }
 
@@ -96,7 +94,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
                 }
                 catch (Exception ex)
                 {
-                    AddException(ex, row);
+                    InvocationContext.AddException(this, ex, row);
                     break;
                 }
 
@@ -116,8 +114,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
             {
                 lastKey = key;
 
-                var exceptionCount = Context.ExceptionCount;
-                var groupRow = ReduceGroup(group);
+                var groupRow = ReduceGroup(group, InvocationContext);
 
                 if (groupRow != null)
                 {
@@ -126,23 +123,19 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
                     yield return groupRow;
                     netTimeStopwatch.Start();
                 }
-
-                if (Context.ExceptionCount != exceptionCount)
-                {
-                    success = false;
-                    break;
-                }
             }
 
-            group.Add(row);
+            if (!InvocationContext.IsTerminating)
+            {
+                group.Add(row);
+            }
         }
 
         netTimeStopwatch.Start();
 
-        if (success && group.Count > 0)
+        if (!InvocationContext.IsTerminating && group.Count > 0)
         {
-            var groupRow = ReduceGroup(group);
-
+            var groupRow = ReduceGroup(group, InvocationContext);
             if (groupRow != null)
             {
                 resultRowCount++;
@@ -156,7 +149,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
             mutatedRowCount, mutatedRowCount + ignoredRowCount, resultRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
     }
 
-    private IRow ReduceGroup(List<IRow> group)
+    private IRow ReduceGroup(List<IRow> group, ProcessInvocationContext invocationContext)
     {
         if (group.Count == 0)
             return null;
@@ -170,7 +163,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
             }
             catch (Exception ex)
             {
-                AddException(ex);
+                invocationContext.AddException(this, ex);
                 return null;
             }
 

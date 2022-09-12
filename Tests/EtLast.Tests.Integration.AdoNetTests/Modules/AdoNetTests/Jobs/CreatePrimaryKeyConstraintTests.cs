@@ -39,7 +39,7 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
                                 AND CONSTRAINT_SCHEMA = 'dbo'
                                 AND CONSTRAINT_CATALOG = '{DatabaseName}'
                                 AND CONSTRAINT_TYPE = 'PRIMARY KEY'",
-                }.ExecuteWithResult();
+                }.ExecuteWithResult(job);
 
                 Assert.AreEqual(0, countOfPrimaryKeys);
             }
@@ -52,25 +52,24 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
             {
                 new CreatePrimaryKeyConstraint(Context)
                 {
-                    Name = "Create primary key",  
+                    Name = "Create primary key",
                     ConnectionString = ConnectionString,
                     TableName = ConnectionString.Escape(nameof(CreatePrimaryKeyConstraintTests)),
                     ConstraintName = "PK_" + nameof(CreatePrimaryKeyConstraintTests),
                     Columns = new[] { "Id" }
-                }.Execute();
+                }.Execute(job);
 
-
-            var countOfPrimaryKeys = new GetTableRecordCount(Context)
-            {
-                Name = "Read primary key(s)(2)",
-                ConnectionString = ConnectionString,
-                TableName = "INFORMATION_SCHEMA.TABLE_CONSTRAINTS",
-                CustomWhereClause = @$"TABLE_NAME = '{nameof(CreatePrimaryKeyConstraintTests)}'
+                var countOfPrimaryKeys = new GetTableRecordCount(Context)
+                {
+                    Name = "Read primary key(s)(2)",
+                    ConnectionString = ConnectionString,
+                    TableName = "INFORMATION_SCHEMA.TABLE_CONSTRAINTS",
+                    CustomWhereClause = @$"TABLE_NAME = '{nameof(CreatePrimaryKeyConstraintTests)}'
                                 AND CONSTRAINT_SCHEMA = 'dbo'
                                 AND CONSTRAINT_CATALOG = '{DatabaseName}'
                                 AND CONSTRAINT_TYPE = 'PRIMARY KEY'",
-                }.ExecuteWithResult();
-                
+                }.ExecuteWithResult(job);
+
                 Assert.AreEqual(1, countOfPrimaryKeys);
             }
         };

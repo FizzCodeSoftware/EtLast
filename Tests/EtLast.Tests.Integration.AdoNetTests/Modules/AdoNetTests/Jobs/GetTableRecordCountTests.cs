@@ -31,7 +31,7 @@ public class GetTableRecordCountTests : AbstractEtlTask
                     Name = "Get record count",
                     ConnectionString = ConnectionString,
                     TableName = ConnectionString.Escape(nameof(GetTableRecordCountTests)),
-                }.ExecuteWithResult();
+                }.ExecuteWithResult(job);
 
                 Assert.AreEqual(2, result);
             }

@@ -8,19 +8,19 @@ public class Main : AbstractEtlFlow
 
     public override void Execute()
     {
-        Session.ExecuteTask(this, new CreateDatabase());
+        ExecuteTask(new CreateDatabase());
 
-        Session.ExecuteTask(this, new GetTableMaxValueTests());
-        Session.ExecuteTask(this, new StoredProcedureAdoNetDbReaderTests());
-        Session.ExecuteTask(this, new LoadCountries());
-        Session.ExecuteTask(this, new LoadThenInsertCountries());
-        Session.ExecuteTask(this, new MergeOnlyInsertCountries());
-        Session.ExecuteTask(this, new MergeUpdateCountries());
-        Session.ExecuteTask(this, new CreatePrimaryKeyConstraintTests());
-        Session.ExecuteTask(this, new CustomSqlAdoNetDbReaderTests());
-        Session.ExecuteTask(this, new CopyTableIntoExistingTableTests());
-        Session.ExecuteTask(this, new CopyTableIntoNewTableTests());
+        ExecuteTask(new GetTableMaxValueTests());
+        ExecuteTask(new StoredProcedureAdoNetDbReaderTests());
+        ExecuteTask(new LoadCountries());
+        ExecuteTask(new LoadThenInsertCountries());
+        ExecuteTask(new MergeOnlyInsertCountries());
+        ExecuteTask(new MergeUpdateCountries());
+        ExecuteTask(new CreatePrimaryKeyConstraintTests());
+        ExecuteTask(new CustomSqlAdoNetDbReaderTests());
+        ExecuteTask(new CopyTableIntoExistingTableTests());
+        ExecuteTask(new CopyTableIntoNewTableTests());
 
-        Session.ExecuteTask(this, new DropDatabase());
+        ExecuteTask(new DropDatabase());
     }
 }

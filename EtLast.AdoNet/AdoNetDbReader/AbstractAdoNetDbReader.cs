@@ -111,14 +111,14 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
         LastDataRead = DateTime.Now;
 
         var resultCount = 0;
-        if (reader != null && !Context.IsTerminating)
+        if (reader != null && !InvocationContext.IsTerminating)
         {
             var initialValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
             // key is the SOURCE column name
             var columnMap = Columns?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
-            while (!Context.IsTerminating)
+            while (!InvocationContext.IsTerminating)
             {
                 try
                 {
@@ -154,8 +154,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         config = cc.config;
                     }
 
-                    if (config == null)
-                        config = DefaultColumns;
+                    config ??= DefaultColumns;
 
                     var value = reader.GetValue(i);
                     if (value is DBNull)

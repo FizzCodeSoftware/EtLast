@@ -169,7 +169,7 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
 
         var initialValues = new List<KeyValuePair<string, object>>();
 
-        for (var rowIndex = FirstDataRow; rowIndex <= endRow && !Context.IsTerminating; rowIndex++)
+        for (var rowIndex = FirstDataRow; rowIndex <= endRow && !InvocationContext.IsTerminating; rowIndex++)
         {
             if (IgnoreNullOrEmptyRows)
             {

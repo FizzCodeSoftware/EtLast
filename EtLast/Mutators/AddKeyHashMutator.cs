@@ -48,14 +48,12 @@ public sealed class AddKeyHashMutator : AbstractMutator
 
         if (key != null)
         {
-            if (_hashAlgorithm == null)
-                _hashAlgorithm = HashAlgorithmCreator.Invoke();
+            _hashAlgorithm ??= HashAlgorithmCreator.Invoke();
 
             var keyBytes = Encoding.UTF8.GetBytes(key);
             var hash = _hashAlgorithm.ComputeHash(keyBytes);
 
-            if (_hashStringBuilder == null)
-                _hashStringBuilder = new StringBuilder();
+            _hashStringBuilder ??= new StringBuilder();
 
             for (var i = 0; i < hash.Length; i++)
             {

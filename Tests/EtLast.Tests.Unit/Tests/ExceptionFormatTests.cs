@@ -20,7 +20,7 @@ public class ExceptionFormatTests
 
         var process = builder.Build();
         process.Execute(null);
-        var msg = context.GetExceptions()[0].FormatExceptionWithDetails(true);
+        var msg = process.InvocationContext.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
         Debugger.Break();
     }
@@ -36,7 +36,7 @@ public class ExceptionFormatTests
 
         var process = builder.Build();
         process.Execute(null);
-        var msg = context.GetExceptions()[0].FormatExceptionWithDetails(true);
+        var msg = process.InvocationContext.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
         Debugger.Break();
     }
@@ -61,7 +61,7 @@ public class ExceptionFormatTests
 
         var process = builder.Build();
         process.Execute(null);
-        var msg = context.GetExceptions()[0].FormatExceptionWithDetails(true);
+        var msg = process.InvocationContext.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
         Debugger.Break();
     }
@@ -92,7 +92,7 @@ public class ExceptionFormatTests
 
         var process = builder.Build();
         process.Execute(null);
-        var msg = context.GetExceptions()[0].FormatExceptionWithDetails(true);
+        var msg = process.InvocationContext.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
         Debugger.Break();
     }
@@ -120,7 +120,7 @@ public class ExceptionFormatTests
 
         var process = builder.Build();
         process.Execute(null);
-        var msg = context.GetExceptions()[0].FormatExceptionWithDetails(true);
+        var msg = process.InvocationContext.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
         Debugger.Break();
     }

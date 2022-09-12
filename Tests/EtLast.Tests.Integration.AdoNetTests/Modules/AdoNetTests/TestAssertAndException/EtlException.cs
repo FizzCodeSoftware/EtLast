@@ -16,7 +16,7 @@ public class EtlException : AbstractEtlTask
             Name = nameof(EtlException),
             Action = job =>
             {
-                var process = new EtLast.StoredProcedureAdoNetDbReader(Context)
+                var process = new StoredProcedureAdoNetDbReader(Context)
                 {
                     ConnectionString = ConnectionString,
                     Sql = "NotExisting_StoredProcedure"
@@ -24,9 +24,7 @@ public class EtlException : AbstractEtlTask
 
                 var result = process.TakeRowsAndTransferOwnership(this).ToList();
 
-                var exceptions = Context.GetExceptions();
-
-                Assert.AreEqual(1, Context.ExceptionCount);
+                Assert.AreEqual(1, process.InvocationContext.Exceptions.Count);
             }
         };
     }

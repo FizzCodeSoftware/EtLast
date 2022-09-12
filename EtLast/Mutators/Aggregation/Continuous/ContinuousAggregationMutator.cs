@@ -50,7 +50,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
 
         var rowCount = 0;
         var ignoredRowCount = 0;
-        while (!Context.IsTerminating)
+        while (!InvocationContext.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -77,7 +77,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ex, row);
+                    InvocationContext.AddException(this, ex, row);
                     break;
                 }
 
@@ -99,7 +99,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
                 }
                 catch (Exception ex)
                 {
-                    AddException(ex, row);
+                    InvocationContext.AddException(this, ex, row);
                     break;
                 }
 
@@ -159,8 +159,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
             }
             catch (Exception ex)
             {
-                var exception = new ContinuousAggregationException(this, Operation, row, ex);
-                AddException(exception);
+                InvocationContext.AddException(this, new ContinuousAggregationException(this, Operation, row, ex));
                 break;
             }
 
@@ -178,7 +177,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
 
             foreach (var aggregate in aggregates.Values)
             {
-                if (Context.IsTerminating)
+                if (InvocationContext.IsTerminating)
                     break;
 
                 var row = Context.CreateRow(this, aggregate.ResultRow);

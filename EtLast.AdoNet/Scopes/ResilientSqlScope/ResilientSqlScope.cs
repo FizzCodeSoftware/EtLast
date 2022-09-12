@@ -96,9 +96,6 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
         if (FinalizerTransactionScopeKind != TransactionScopeKind.RequiresNew && FinalizerRetryCount > 0)
             throw new InvalidProcessParameterException(this, nameof(FinalizerRetryCount), null, "retrying finalizers can be possible only if the " + nameof(FinalizerTransactionScopeKind) + " is set to " + nameof(TransactionScopeKind.RequiresNew));
 
-        var initialExceptionCount = Context.ExceptionCount;
-        var success = false;
-
         foreach (var table in Tables)
         {
             if (string.IsNullOrEmpty(table.TempTableName)
@@ -134,11 +131,12 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
         {
             CreateTempTables();
 
-            if (Context.ExceptionCount > initialExceptionCount)
+            if (InvocationContext.IsTerminating)
                 return;
 
-            var ok = Initialize(initialExceptionCount);
-            if (!ok)
+            var initializerInvocationContext = new ProcessInvocationContext(Context);
+            Initialize(initializerInvocationContext);
+            if (InvocationContext.Failed)
             {
                 Context.Log(LogSeverity.Information, this, "initialization failed in {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
                 return;
@@ -146,6 +144,9 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 
             foreach (var table in Tables)
             {
+                if (InvocationContext.Failed)
+                    return;
+
                 for (var partitionIndex = 0; ; partitionIndex++)
                 {
                     var creatorScopeKind = table.SuppressTransactionScopeForCreators
@@ -169,12 +170,9 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 
                         foreach (var process in mainProcessList)
                         {
-                            var preExceptionCount = Context.ExceptionCount;
                             process.Execute(this);
-                            if (Context.ExceptionCount > initialExceptionCount)
-                            {
+                            if (InvocationContext.IsTerminating)
                                 return;
-                            }
                         }
 
                         break;
@@ -192,7 +190,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 
                     var rowCount = mainProducer.CountRowsAndReleaseOwnership(null);
 
-                    if (Context.ExceptionCount > initialExceptionCount)
+                    if (InvocationContext.IsTerminating)
                         return;
 
                     if (rowCount == 0)
@@ -200,13 +198,14 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
                 }
             }
 
-            success = Finalize(initialExceptionCount);
+            var finalizerInvocationContext = new ProcessInvocationContext(Context);
+            Finalize(finalizerInvocationContext);
         }
         finally
         {
             if (TempTableMode != ResilientSqlScopeTempTableMode.AlwaysKeep)
             {
-                if (success || TempTableMode == ResilientSqlScopeTempTableMode.AlwaysDrop)
+                if (!InvocationContext.Failed || TempTableMode == ResilientSqlScopeTempTableMode.AlwaysDrop)
                 {
                     DropTempTables();
                 }

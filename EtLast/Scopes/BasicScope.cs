@@ -38,7 +38,6 @@ public sealed class BasicScope : AbstractJob, IScope
 
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
-        var success = true;
         try
         {
             using (var scope = Context.BeginScope(this, TransactionScopeKind, LogSeverity.Information))
@@ -50,6 +49,7 @@ public sealed class BasicScope : AbstractJob, IScope
                 if (JobCreators != null)
                     creators.AddRange(JobCreators);
 
+                var success = true;
                 foreach (var creator in creators)
                 {
                     IJob[] jobs = null;
@@ -63,17 +63,21 @@ public sealed class BasicScope : AbstractJob, IScope
 
                     foreach (var job in jobs)
                     {
-                        var initialExceptionCount = Context.ExceptionCount;
+                        var jobInvocationContext = new ProcessInvocationContext(Context);
+                        job.Execute(this, jobInvocationContext);
 
-                        job.Execute(this);
-
-                        if (Context.ExceptionCount != initialExceptionCount)
+                        if (InvocationContext.Failed)
                         {
                             OnError?.Invoke(this, new BasicScopeProcessFailedEventArgs(this, job));
+                        }
 
+                        if (StopOnError)
+                            InvocationContext.TakeExceptions(jobInvocationContext);
+
+                        if (InvocationContext.IsTerminating)
+                        {
                             success = false;
-                            if (StopOnError)
-                                break;
+                            break;
                         }
                     }
                 }
@@ -84,8 +88,7 @@ public sealed class BasicScope : AbstractJob, IScope
         }
         catch (Exception ex)
         {
-            success = false;
-            AddException(ex);
+            InvocationContext.AddException(this, ex);
         }
     }
 }

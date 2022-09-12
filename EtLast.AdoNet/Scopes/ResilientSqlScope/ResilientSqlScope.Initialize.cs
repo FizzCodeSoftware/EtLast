@@ -2,43 +2,43 @@
 
 public sealed partial class ResilientSqlScope : AbstractJob, IScope
 {
-    private bool Initialize(int initialExceptionCount)
+    private void Initialize(ProcessInvocationContext invocationContext)
     {
         if (Initializers == null)
-            return true;
+            return;
 
         for (var round = 0; round <= FinalizerRetryCount; round++)
         {
+            if (InvocationContext.IsTerminating)
+                return;
+
             Context.Log(LogSeverity.Information, this, "initialization round {InitializationRound} started", round);
             try
             {
                 using (var scope = Context.BeginScope(this, InitializationTransactionScopeKind, LogSeverity.Information))
                 {
-                    CreateAndExecuteInitializers();
+                    CreateAndExecuteInitializers(invocationContext);
 
-                    if (Context.ExceptionCount == initialExceptionCount)
+                    if (!invocationContext.IsTerminating)
                         scope.Complete();
                 } // dispose scope
             }
             catch (Exception ex)
             {
-                AddException(ex);
+                invocationContext.AddException(this, ex);
             }
 
-            if (Context.ExceptionCount == initialExceptionCount)
-                return true;
+            if (!invocationContext.IsTerminating)
+                return;
 
-            if (round < FinalizerRetryCount)
+            if (round >= FinalizerRetryCount)
             {
-                Context.ResetInternalCancellationToken();
-                Context.ResetExceptionCount(initialExceptionCount);
+                InvocationContext.TakeExceptions(invocationContext);
             }
         }
-
-        return false;
     }
 
-    private void CreateAndExecuteInitializers()
+    private void CreateAndExecuteInitializers(ProcessInvocationContext invocationContext)
     {
         IJob[] initializers;
 
@@ -57,11 +57,9 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 
             foreach (var process in initializers)
             {
-                var preExceptionCount = Context.ExceptionCount;
+                process.Execute(this, invocationContext);
 
-                process.Execute(this);
-
-                if (Context.ExceptionCount > preExceptionCount)
+                if (invocationContext.IsTerminating)
                     break;
             }
         }

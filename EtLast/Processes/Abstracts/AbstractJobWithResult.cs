@@ -10,34 +10,49 @@ public abstract class AbstractJobWithResult<T> : AbstractProcess, IJobWithResult
 
     public void Execute(IProcess caller)
     {
-        ExecuteWithResult(caller);
+        ExecuteWithResult(caller, null);
     }
 
-    public T ExecuteWithResult(IProcess caller = null)
+    public void Execute(IProcess caller, ProcessInvocationContext invocationContext)
+    {
+        ExecuteWithResult(caller, invocationContext);
+    }
+
+    public T ExecuteWithResult(IProcess caller)
+    {
+        return ExecuteWithResult(caller, null);
+    }
+
+    public T ExecuteWithResult(IProcess caller, ProcessInvocationContext invocationContext)
     {
         Context.RegisterProcessInvocationStart(this, caller);
+        InvocationContext = invocationContext ?? caller?.InvocationContext ?? new ProcessInvocationContext(Context);
+
+        LogPublicSettableProperties(LogSeverity.Verbose);
 
         var netTimeStopwatch = Stopwatch.StartNew();
+        T result = default;
         try
         {
             ValidateImpl();
 
-            if (Context.IsTerminating)
-                return default;
-
-            return ExecuteImpl();
+            if (!InvocationContext.IsTerminating)
+            {
+                result = ExecuteImpl();
+            }
         }
         catch (Exception ex)
         {
-            AddException(ex);
-        }
-        finally
-        {
-            netTimeStopwatch.Stop();
-            Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+            InvocationContext.AddException(this, ex);
         }
 
-        return default;
+        netTimeStopwatch.Stop();
+        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+
+        Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}/{ElapsedWallClock}",
+            Kind, InvocationContext.ToLogString(), InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+
+        return result;
     }
 
     protected abstract void ValidateImpl();

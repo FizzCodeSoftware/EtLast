@@ -105,7 +105,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
             if (stream == null)
                 yield break;
 
-            if (Context.IsTerminating)
+            if (InvocationContext.IsTerminating)
                 break;
 
             var firstRow = true;
@@ -116,7 +116,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
             {
                 reader = new StreamReader(stream.Stream);
 
-                while (!Context.IsTerminating)
+                while (!InvocationContext.IsTerminating)
                 {
                     var line = GetLine(stream, reader, resultCount);
                     if (line == null)
