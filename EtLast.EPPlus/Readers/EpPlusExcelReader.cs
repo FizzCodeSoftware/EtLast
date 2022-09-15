@@ -37,6 +37,7 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
         if (streams == null)
             yield break;
 
+        var rowCount = 0;
         foreach (var stream in streams)
         {
             if (stream == null)
@@ -61,7 +62,6 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
                 throw exception;
             }
 
-            var rowCount = 0;
             try
             {
                 foreach (var row in ProduceFrom(stream, package))
