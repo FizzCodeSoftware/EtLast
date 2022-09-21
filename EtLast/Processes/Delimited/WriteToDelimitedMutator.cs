@@ -78,7 +78,7 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
         _delimiterBytes = Encoding.GetBytes(new[] { Delimiter });
         _lineEndingBytes = Encoding.GetBytes(LineEnding);
         _escapedQuote = new string(new[] { Escape, Quote });
-        _quoteRequiredChars = new[] { Quote, Escape, '\r', '\n' };
+        _quoteRequiredChars = new[] { Delimiter, Quote, Escape, '\r', '\n' };
         _quoteAsString = Quote.ToString();
 
         _rowCounter = 0;
