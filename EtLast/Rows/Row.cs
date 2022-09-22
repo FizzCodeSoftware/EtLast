@@ -204,8 +204,7 @@ public class Row : IRow
             {
                 if (currentValue != null)
                 {
-                    if (changedValues == null)
-                        changedValues = new List<KeyValuePair<string, object>>();
+                    changedValues ??= new List<KeyValuePair<string, object>>();
 
                     changedValues.Add(kvp);
                     _values.Remove(kvp.Key);
@@ -213,8 +212,7 @@ public class Row : IRow
             }
             else if (currentValue == null || kvp.Value != currentValue)
             {
-                if (changedValues == null)
-                    changedValues = new List<KeyValuePair<string, object>>();
+                changedValues ??= new List<KeyValuePair<string, object>>();
 
                 changedValues.Add(kvp);
 

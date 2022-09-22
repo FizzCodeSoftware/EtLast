@@ -64,8 +64,7 @@ public sealed class TrackedRow : IRow
                 return;
             }
 
-            if (_staging == null)
-                _staging = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            _staging ??= new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
             _staging[column] = value;
         }

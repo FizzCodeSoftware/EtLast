@@ -94,8 +94,7 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {
-        if (_sinkUid == null)
-            _sinkUid = Context.GetSinkUid(ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
+        _sinkUid ??= Context.GetSinkUid(ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
 
         Context.RegisterWriteToSink(row, _sinkUid.Value);
 

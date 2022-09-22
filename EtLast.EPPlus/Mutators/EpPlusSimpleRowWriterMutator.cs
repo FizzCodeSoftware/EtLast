@@ -62,10 +62,7 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {
-        if (_sinkUid == null)
-        {
-            _sinkUid = Context.GetSinkUid(FileName, SheetName);
-        }
+        _sinkUid ??= Context.GetSinkUid(FileName, SheetName);
 
         Context.RegisterWriteToSink(row, _sinkUid.Value);
         _rowCount++;

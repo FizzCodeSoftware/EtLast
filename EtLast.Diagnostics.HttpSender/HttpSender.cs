@@ -140,8 +140,7 @@ public class HttpSender : IDisposable, IEtlContextListener
                 key = _textDictionary.Count + 1;
                 _textDictionary.Add(text, key);
 
-                if (_currentDictionaryWriter == null)
-                    _currentDictionaryWriter = new ExtendedBinaryWriter(new MemoryStream(), Encoding.UTF8);
+                _currentDictionaryWriter ??= new ExtendedBinaryWriter(new MemoryStream(), Encoding.UTF8);
 
                 _currentDictionaryWriter.Write((byte)DiagnosticsEventKind.TextDictionaryKeyAdded);
                 var eventDataLengthPos = (int)_currentDictionaryWriter.BaseStream.Position;
@@ -171,8 +170,7 @@ public class HttpSender : IDisposable, IEtlContextListener
             if (_finished)
                 throw new Exception("unexpected call of " + nameof(SendDiagnostics));
 
-            if (_currentWriter == null)
-                _currentWriter = new ExtendedBinaryWriter(new MemoryStream(), Encoding.UTF8);
+            _currentWriter ??= new ExtendedBinaryWriter(new MemoryStream(), Encoding.UTF8);
 
             _currentWriter.Write((byte)kind);
             var eventDataLengthPos = (int)_currentWriter.BaseStream.Position;

@@ -29,8 +29,7 @@ public class ContinuousAggregate
 
     public void SetStateValue<T>(string uniqueName, T value)
     {
-        if (_state == null)
-            _state = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        _state ??= new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
         _state[uniqueName] = value;
     }

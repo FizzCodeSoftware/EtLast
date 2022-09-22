@@ -100,8 +100,7 @@ public static class ContinuousGroupByOperationExtensions
     {
         var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddIntAverage);
 
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -120,8 +119,7 @@ public static class ContinuousGroupByOperationExtensions
     {
         var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddLongAverage);
 
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -140,8 +138,7 @@ public static class ContinuousGroupByOperationExtensions
     {
         var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverage);
 
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -161,8 +158,7 @@ public static class ContinuousGroupByOperationExtensions
         var idSum = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":sum";
         var idCnt = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":cnt";
 
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -187,8 +183,7 @@ public static class ContinuousGroupByOperationExtensions
     {
         var id = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDecimalAverage);
 
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -205,8 +200,7 @@ public static class ContinuousGroupByOperationExtensions
     /// </summary>
     public static ContinuousGroupByOperation AddIntSum(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -220,8 +214,7 @@ public static class ContinuousGroupByOperationExtensions
     /// </summary>
     public static ContinuousGroupByOperation AddLongSum(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -235,8 +228,7 @@ public static class ContinuousGroupByOperationExtensions
     /// </summary>
     public static ContinuousGroupByOperation AddDoubleSum(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -250,8 +242,7 @@ public static class ContinuousGroupByOperationExtensions
     /// </summary>
     public static ContinuousGroupByOperation AddDecimalSum(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -265,8 +256,7 @@ public static class ContinuousGroupByOperationExtensions
     /// </summary>
     public static ContinuousGroupByOperation AddIntMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -282,8 +272,7 @@ public static class ContinuousGroupByOperationExtensions
     /// </summary>
     public static ContinuousGroupByOperation AddLongMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -299,8 +288,7 @@ public static class ContinuousGroupByOperationExtensions
     /// </summary>
     public static ContinuousGroupByOperation AddDoubleMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -316,8 +304,7 @@ public static class ContinuousGroupByOperationExtensions
     /// </summary>
     public static ContinuousGroupByOperation AddDecimalMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -333,8 +320,7 @@ public static class ContinuousGroupByOperationExtensions
     /// </summary>
     public static ContinuousGroupByOperation AddDateTimeMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -357,8 +343,7 @@ public static class ContinuousGroupByOperationExtensions
     /// </summary>
     public static ContinuousGroupByOperation AddIntMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -374,8 +359,7 @@ public static class ContinuousGroupByOperationExtensions
     /// </summary>
     public static ContinuousGroupByOperation AddLongMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -391,8 +375,7 @@ public static class ContinuousGroupByOperationExtensions
     /// </summary>
     public static ContinuousGroupByOperation AddDoubleMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -408,8 +391,7 @@ public static class ContinuousGroupByOperationExtensions
     /// </summary>
     public static ContinuousGroupByOperation AddDecimalMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -425,8 +407,7 @@ public static class ContinuousGroupByOperationExtensions
     /// </summary>
     public static ContinuousGroupByOperation AddDateTimeMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         return op.AddAggregator((aggregate, row) =>
         {
@@ -454,8 +435,7 @@ public static class ContinuousGroupByOperationExtensions
     /// <param name="targetColumn">The targe column.</param>
     public static ContinuousGroupByOperation AddDoubleStandardDeviation(this ContinuousGroupByOperation op, bool useEntirePopulation, string sourceColumn, string targetColumn = null)
     {
-        if (targetColumn == null)
-            targetColumn = sourceColumn;
+        targetColumn ??= sourceColumn;
 
         var idM2 = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":m2";
         var idCnt = op.AggregatorCount.ToString("D", CultureInfo.InvariantCulture) + ":" + nameof(AddDoubleAverageIgnoreNull) + ":cnt";
