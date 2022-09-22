@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.DbTools.Configuration" Version="2.0.24.6505" />
+    <PackageReference Include="FizzCode.DbTools.Configuration" Version="2.0.25.6662" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
