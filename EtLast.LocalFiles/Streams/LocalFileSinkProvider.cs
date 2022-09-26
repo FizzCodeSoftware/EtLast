@@ -60,7 +60,7 @@ public class LocalFileSinkProvider : ISinkProvider
         }
 
         var directory = Path.GetDirectoryName(fileName);
-        if (!Directory.Exists(directory))
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
         {
             try
             {
