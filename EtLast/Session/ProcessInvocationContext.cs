@@ -15,6 +15,16 @@ public class ProcessInvocationContext
 
     public void AddException(IProcess process, Exception ex)
     {
+        if (ex is AggregateException aex)
+        {
+            foreach (var aexIn in aex.InnerExceptions)
+            {
+                AddException(process, aexIn);
+            }
+
+            return;
+        }
+
         if (ex is OperationCanceledException)
             return;
 
