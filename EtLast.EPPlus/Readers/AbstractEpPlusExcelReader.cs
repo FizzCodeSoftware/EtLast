@@ -59,12 +59,10 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
 
     protected IEnumerable<IRow> ProduceFrom(NamedStream stream, ExcelPackage package)
     {
-        var name = stream?.Name ?? package.File?.FullName;
+        var name = stream?.Name ?? package.File?.FullName ?? "preloaded";
 
         if (Transpose)
-        {
             throw new NotImplementedException("Transpose is not finished yet, must be tested before used");
-        }
 
         var columnIndexes = new List<(string rowColumn, int index, ReaderDefaultColumn configuration)>();
 
@@ -89,7 +87,9 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
                 exception.Data.Add("SheetName", SheetName);
                 exception.Data.Add("ExistingSheetNames", string.Join(",", workbook?.Worksheets.Select(x => x.Name)));
 
-                Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
+                if (stream != null)
+                    Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
+
                 throw exception;
             }
             else
@@ -101,7 +101,9 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
                 exception.Data.Add("SheetIndex", SheetIndex.ToString("D", CultureInfo.InvariantCulture));
                 exception.Data.Add("ExistingSheetNames", string.Join(",", workbook?.Worksheets.Select(x => x.Name)));
 
-                Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
+                if (stream != null)
+                    Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
+
                 throw exception;
             }
         }

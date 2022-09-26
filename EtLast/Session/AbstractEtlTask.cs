@@ -98,31 +98,15 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
             if (property.GetValue(this) != null)
                 continue;
 
-            var argument = arguments.All.FirstOrDefault(x => string.Equals(x.Key, property.Name, StringComparison.InvariantCultureIgnoreCase));
-            if (argument.Key == null)
+            var key = arguments.AllKeys.FirstOrDefault(x => string.Equals(x, property.Name, StringComparison.InvariantCultureIgnoreCase));
+            key ??= arguments.AllKeys.FirstOrDefault(x => string.Equals(x, Name + ":" + property.Name, StringComparison.InvariantCultureIgnoreCase));
+
+            if (key != null)
             {
-                argument = arguments.All.FirstOrDefault(x => string.Equals(x.Key, Name + ":" + property.Name, StringComparison.InvariantCultureIgnoreCase));
-            }
-
-            if (argument.Key != null)
-            {
-                var value = argument.Value;
-                if (value is Func<object> func)
-                {
-                    value = func.Invoke();
-                }
-
-                if (value is Func<IArgumentCollection, object> funcWithArgs)
-                {
-                    value = funcWithArgs.Invoke(arguments);
-                }
-
+                var value = arguments.Get(key);
                 if (value != null && property.PropertyType.IsAssignableFrom(value.GetType()))
                 {
                     property.SetValue(this, value);
-                }
-                else
-                {
                 }
             }
         }

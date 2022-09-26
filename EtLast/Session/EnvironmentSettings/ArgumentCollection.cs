@@ -2,7 +2,7 @@
 
 public sealed class ArgumentCollection : IArgumentCollection
 {
-    public IEnumerable<KeyValuePair<string, object>> All => _values;
+    public IEnumerable<string> AllKeys => _values.Keys;
 
     private readonly Dictionary<string, object> _values;
 
@@ -13,7 +13,7 @@ public sealed class ArgumentCollection : IArgumentCollection
             : new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
     }
 
-    public T Get<T>(string key, T defaultValue = default)
+    public T GetAs<T>(string key, T defaultValue = default)
     {
         if (_values.TryGetValue(key, out var value))
         {
@@ -30,30 +30,46 @@ public sealed class ArgumentCollection : IArgumentCollection
         return defaultValue;
     }
 
+    public object Get(string key, object defaultValue = null)
+    {
+        if (_values.TryGetValue(key, out var value))
+        {
+            if (value is Func<object> func)
+                value = func.Invoke();
+
+            if (value is Func<IArgumentCollection, object> funcWithArgs)
+                value = funcWithArgs.Invoke(this);
+
+            return value;
+        }
+
+        return defaultValue;
+    }
+
     public ArgumentCollection(List<IDefaultArgumentProvider> defaultProviders, List<IInstanceArgumentProvider> instanceProviders, string instance)
     {
-        var argumentValues = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+        var values = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
 
         foreach (var provider in defaultProviders)
         {
-            var values = provider.Arguments;
-            if (values != null)
+            var args = provider.Arguments;
+            if (args != null)
             {
-                foreach (var kvp in values)
-                    argumentValues[kvp.Key] = kvp.Value;
+                foreach (var kvp in args)
+                    values[kvp.Key] = kvp.Value;
             }
         }
 
         foreach (var provider in instanceProviders.Where(x => string.Equals(x.Instance, instance, StringComparison.InvariantCultureIgnoreCase)))
         {
-            var values = provider.Arguments;
-            if (values != null)
+            var args = provider.Arguments;
+            if (args != null)
             {
-                foreach (var kvp in values)
-                    argumentValues[kvp.Key] = kvp.Value;
+                foreach (var kvp in args)
+                    values[kvp.Key] = kvp.Value;
             }
         }
 
-        _values = argumentValues;
+        _values = values;
     }
 }

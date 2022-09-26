@@ -2,8 +2,8 @@
 
 public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
 {
-    public string FileName { get; init; }
-    public ExcelPackage ExistingPackage { get; init; }
+    public ISinkProvider SinkProvider { get; init; }
+
     public string SheetName { get; init; }
 
     /// <summary>
@@ -11,12 +11,12 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
     /// </summary>
     public Dictionary<string, ExcelColumn> Columns { get; init; }
 
+    public PartitionKeyGenerator PartitionKeyGenerator { get; set; }
+    private readonly Dictionary<string, InternalSink> _sinks = new();
+
     public Action<ExcelPackage, SimpleExcelWriterState> Finalize { get; init; }
 
-    private SimpleExcelWriterState _state;
-    private ExcelPackage _package;
-    private int? _sinkUid;
-    private int _rowCount;
+    private int _rowCounter;
 
     public EpPlusSimpleRowWriterMutator(IEtlContext context)
         : base(context)
@@ -25,84 +25,116 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
 
     protected override void StartMutator()
     {
-        _state = new SimpleExcelWriterState();
-        _rowCount = 0;
+        _rowCounter = 0;
+    }
+
+    private InternalSink GetSink(string partitionKey)
+    {
+        var internalKey = partitionKey ?? "\0__nopartition__\0";
+
+        if (_sinks.TryGetValue(internalKey, out var existing))
+            return existing;
+
+        var sink = SinkProvider.GetSink(this, partitionKey);
+        var package = new ExcelPackage(sink.Stream);
+        var workSheet = package.Workbook.Worksheets.Add(SheetName);
+
+        var newSink = new InternalSink()
+        {
+            Sink = sink,
+            Package = package,
+            State = new SimpleExcelWriterState()
+            {
+                Worksheet = workSheet,
+                NextRow = 1,
+                NextCol = 1,
+            },
+        };
+
+        foreach (var col in Columns)
+        {
+            newSink.State.Worksheet.Cells[newSink.State.NextRow, newSink.State.NextCol].Value = col.Key;
+            newSink.State.NextCol++;
+        }
+
+        newSink.State.NextRow++;
+        newSink.State.NextCol = 1;
+
+        _sinks.Add(internalKey, newSink);
+        return newSink;
     }
 
     protected override void CloseMutator()
     {
-        if (_state.Worksheet != null)
+        foreach (var sink in _sinks.Values)
         {
-            Finalize?.Invoke(_package, _state);
-        }
-
-        if (ExistingPackage == null && _package != null)
-        {
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.fileWrite, Path.GetDirectoryName(FileName), Path.GetFileName(FileName), null, null, null, null,
-                "saving file to {FileName}",
-                PathHelpers.GetFriendlyPathName(FileName));
-
-            try
+            if (sink.State.Worksheet != null)
             {
-                _package.Save();
-                Context.RegisterIoCommandSuccess(this, IoCommandKind.fileWrite, iocUid, _rowCount);
-            }
-            catch (Exception ex)
-            {
-                Context.RegisterIoCommandFailed(this, IoCommandKind.fileWrite, iocUid, null, ex);
-                throw;
+                Finalize?.Invoke(sink.Package, sink.State);
             }
 
-            _package.Dispose();
-            _package = null;
+            if (sink.Package != null)
+            {
+                try
+                {
+                    sink.Package.Save();
+                    Context.RegisterIoCommandSuccess(this, IoCommandKind.fileWrite, sink.Sink.IoCommandUid, _rowCounter);
+                }
+                catch (Exception ex)
+                {
+                    Context.RegisterIoCommandFailed(this, IoCommandKind.fileWrite, sink.Sink.IoCommandUid, null, ex);
+                    throw;
+                }
+
+                sink.Package.Dispose();
+            }
         }
 
-        _state = null;
+        if (SinkProvider.AutomaticallyDispose)
+        {
+            foreach (var sink in _sinks.Values)
+            {
+                sink.Sink.Stream.Flush();
+                sink.Sink.Stream.Close();
+                sink.Sink.Stream.Dispose();
+            }
+        }
+
+        _sinks.Clear();
     }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {
-        _sinkUid ??= Context.GetSinkUid(FileName, SheetName);
+        var partitionKey = PartitionKeyGenerator?.Invoke(row, _rowCounter);
+        _rowCounter++;
 
-        Context.RegisterWriteToSink(row, _sinkUid.Value);
-        _rowCount++;
+        var sink = GetSink(partitionKey);
 
-        if (_package == null) // lazy load here instead of prepare
-        {
-            _package = ExistingPackage ?? new ExcelPackage(new FileInfo(FileName));
-
-            _state.Worksheet = _package.Workbook.Worksheets.Add(SheetName);
-            _state.NextRow = 1;
-            _state.NextCol = 1;
-            foreach (var col in Columns)
-            {
-                _state.Worksheet.Cells[_state.NextRow, _state.NextCol].Value = col.Key;
-                _state.NextCol++;
-            }
-
-            _state.NextRow++;
-        }
+        Context.RegisterWriteToSink(row, sink.Sink.SinkUid);
 
         try
         {
-            _state.NextCol = 1;
             foreach (var col in Columns)
             {
-                var range = _state.Worksheet.Cells[_state.NextRow, _state.NextCol];
+                var range = sink.State.Worksheet.Cells[sink.State.NextRow, sink.State.NextCol];
                 range.Value = row[col.Value?.SourceColumn ?? col.Key];
                 if (col.Value?.NumberFormat != null)
                     range.Style.Numberformat.Format = col.Value.NumberFormat;
 
-                _state.NextCol++;
+                sink.State.NextCol++;
             }
 
-            _state.NextRow++;
+            sink.State.NextRow++;
+            sink.State.NextCol = 1;
+            sink.Sink.IncreaseRowsWritten();
         }
         catch (Exception ex)
         {
+            Context.RegisterIoCommandFailed(this, sink.Sink.IoCommandKind, sink.Sink.IoCommandUid, sink.Sink.RowsWritten, ex);
+
             var exception = new ProcessExecutionException(this, row, "error raised during writing an excel file", ex);
-            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel file, file name: {0}, message: {1}, row: {2}", FileName, ex.Message, row.ToDebugString()));
-            exception.Data.Add("FileName", FileName);
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel sink: {0}", sink.Sink.Name));
+            exception.Data.Add("Sink", sink.Sink.Name);
             exception.Data.Add("SheetName", SheetName);
             throw exception;
         }
@@ -114,14 +146,23 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
     {
         base.ValidateMutator();
 
-        if (string.IsNullOrEmpty(FileName))
-            throw new ProcessParameterNullException(this, nameof(FileName));
+        if (SinkProvider == null)
+            throw new ProcessParameterNullException(this, nameof(SinkProvider));
+
+        SinkProvider.Validate(this);
 
         if (string.IsNullOrEmpty(SheetName))
             throw new ProcessParameterNullException(this, nameof(SheetName));
 
         if (Columns == null)
             throw new ProcessParameterNullException(this, nameof(Columns));
+    }
+
+    private class InternalSink
+    {
+        public NamedSink Sink { get; init; }
+        public ExcelPackage Package { get; init; }
+        public SimpleExcelWriterState State { get; init; }
     }
 }
 

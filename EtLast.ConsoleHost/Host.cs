@@ -170,6 +170,11 @@ public class Host : IHost
         return RunCommandLine(commandLineParts);
     }
 
+    public void Terminate()
+    {
+        _cancellationTokenSource.Cancel();
+    }
+
     public IExecutionResult RunCommandLine(string[] commandLineParts)
     {
         if (commandLineParts?.Length >= 1 && CommandAliases.TryGetValue(commandLineParts[0], out var alias))
@@ -186,7 +191,7 @@ public class Host : IHost
             switch (commandLineParts[0].ToLowerInvariant())
             {
                 case "exit":
-                    _cancellationTokenSource.Cancel();
+                    Terminate();
                     break;
                 case "help":
                     DisplayHelp();

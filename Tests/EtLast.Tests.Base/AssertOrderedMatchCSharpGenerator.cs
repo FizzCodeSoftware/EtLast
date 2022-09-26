@@ -6,21 +6,21 @@ public static class AssertOrderedMatchCSharpGenerator
     {
         var sb = new StringBuilder();
 
-        sb.Append("\t\t\tAssert.AreEqual(").Append(result.MutatedRows.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", result.MutatedRows.Count);");
+        sb.Append("\t\tAssert.AreEqual(").Append(result.MutatedRows.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", result.MutatedRows.Count);");
         if (result.MutatedRows.Count > 0)
         {
             sb.AppendLine("Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {");
-            sb.AppendJoin(",\n", result.MutatedRows.Select(row => "\t\t\t\tnew CaseInsensitiveStringKeyDictionary<object>() { " + string.Join(", ", row.Values.Select(kvp => "[\"" + kvp.Key + "\"] = " + FormatToCSharpVariable(row[kvp.Key]))) + " }"));
+            sb.AppendJoin(",\n", result.MutatedRows.Select(row => "\t\t\tnew CaseInsensitiveStringKeyDictionary<object>() { " + string.Join(", ", row.Values.Select(kvp => "[\"" + kvp.Key + "\"] = " + FormatToCSharpVariable(row[kvp.Key]))) + " }"));
             sb.AppendLine(" });");
         }
 
         var exceptions = result.Process.InvocationContext.Exceptions;
-        sb.Append("\t\t\tAssert.AreEqual(").Append(exceptions.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", result.Process.InvocationContext.Exceptions.Count);");
+        sb.Append("\t\tAssert.AreEqual(").Append(exceptions.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", result.Process.InvocationContext.Exceptions.Count);");
 
         for (var i = 0; i < exceptions.Count; i++)
         {
             var ex = exceptions[i];
-            sb.Append("\t\t\tAssert.IsTrue(result.Process.InvocationContext.Exceptions[").Append(i.ToString("D", CultureInfo.InvariantCulture)).Append("] is ").Append(ex.GetType().Name).AppendLine(");");
+            sb.Append("\t\tAssert.IsTrue(result.Process.InvocationContext.Exceptions[").Append(i.ToString("D", CultureInfo.InvariantCulture)).Append("] is ").Append(ex.GetType().Name).AppendLine(");");
         }
 
         return sb.ToString();

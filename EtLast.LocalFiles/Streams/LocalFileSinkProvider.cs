@@ -1,5 +1,7 @@
 ﻿namespace FizzCode.EtLast;
 
+public enum LocalSinkFileExistsAction { None, Exception, Overwrite }
+
 public class LocalFileSinkProvider : ISinkProvider
 {
     /// <summary>
@@ -8,9 +10,9 @@ public class LocalFileSinkProvider : ISinkProvider
     public Func<string, string> FileNameGenerator { get; init; }
 
     /// <summary>
-    /// Default value is true.
+    /// Default value is <see cref="LocalSinkFileExistsAction.Exception"/>.
     /// </summary>
-    public bool ThrowExceptionWhenFileExists { get; init; } = true;
+    public LocalSinkFileExistsAction ActionWhenFileExists { get; init; } = LocalSinkFileExistsAction.Exception;
 
     public bool AutomaticallyDispose => true;
 
@@ -27,14 +29,53 @@ public class LocalFileSinkProvider : ISinkProvider
         var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileWrite, Path.GetDirectoryName(fileName), Path.GetFileName(fileName), null, null, null, null,
             "writing to local file {FileName}", fileName);
 
-        if (File.Exists(fileName) && ThrowExceptionWhenFileExists)
+        if (File.Exists(fileName))
         {
-            var exception = new LocalFileWriteException(caller, "local file already exist", fileName);
-            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local file already exist: {0}",
-                fileName));
+            if (ActionWhenFileExists == LocalSinkFileExistsAction.Exception)
+            {
+                var exception = new LocalFileWriteException(caller, "local file already exist", fileName);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local file already exist: {0}",
+                    fileName));
 
-            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, 0, exception);
-            throw exception;
+                caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, 0, exception);
+                throw exception;
+            }
+            else if (ActionWhenFileExists == LocalSinkFileExistsAction.Overwrite)
+            {
+                try
+                {
+                    File.Delete(fileName);
+                }
+                catch (Exception ex)
+                {
+                    caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, null, ex);
+
+                    var exception = new LocalFileWriteException(caller, "error while writing local file / file deletion failed", fileName, ex);
+                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing local file: {0}, file deletion failed, message: {1}",
+                        fileName, ex.Message));
+
+                    throw exception;
+                }
+            }
+        }
+
+        var directory = Path.GetDirectoryName(fileName);
+        if (!Directory.Exists(directory))
+        {
+            try
+            {
+                Directory.CreateDirectory(directory);
+            }
+            catch (Exception ex)
+            {
+                caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, null, ex);
+
+                var exception = new LocalFileWriteException(caller, "error while writing local file / directory creation failed", fileName, ex);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing local file: {0}, directory creation failed, message: {1}",
+                    fileName, ex.Message));
+
+                throw exception;
+            }
         }
 
         try
