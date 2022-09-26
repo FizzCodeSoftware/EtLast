@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast;
+﻿using System.Reflection;
+
+namespace FizzCode.EtLast;
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractProcess : IProcess
@@ -7,8 +9,9 @@ public abstract class AbstractProcess : IProcess
     public ProcessInvocationInfo InvocationInfo { get; set; }
 
     public IEtlContext Context { get; protected set; }
-    public ProcessInvocationContext InvocationContext { get; protected set; }
-    public bool Success => InvocationContext?.IsTerminating != true;
+
+    public Pipe Pipe { get; protected set; }
+    public bool Success => Pipe?.IsTerminating != true;
 
     public string Name { get; set; }
     public string Kind { get; }
@@ -31,7 +34,7 @@ public abstract class AbstractProcess : IProcess
 
     private static string GetProcessKind(IProcess process)
     {
-        if (process.GetType().GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IJobWithResult<>)))
+        if (process.GetType().GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IProcessWithResult<>)))
             return "jobWithResult";
 
         return process switch
@@ -43,7 +46,7 @@ public abstract class AbstractProcess : IProcess
             IMutator => "mutator",
             IScope => "scope",
             ISequence => "sequence",
-            IJob => "job",
+            IProcess => "process",
             _ => "unknown",
         };
     }
@@ -61,12 +64,12 @@ public abstract class AbstractProcess : IProcess
 
     protected void LogPublicSettableProperties(LogSeverity severity)
     {
-        var baseProperties = typeof(AbstractEtlTask).GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.DeclaredOnly)
-            .Concat(typeof(AbstractProcess).GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.DeclaredOnly))
+        var baseProperties = typeof(AbstractEtlTask).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly)
+            .Concat(typeof(AbstractProcess).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
             .Select(x => x.Name)
             .ToHashSet();
 
-        var properties = GetType().GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Public)
+        var properties = GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
             .Where(p => p.SetMethod?.IsPublic == true && !baseProperties.Contains(p.Name))
             .ToList();
 
@@ -80,12 +83,12 @@ public abstract class AbstractProcess : IProcess
 
     protected void LogPrivateSettableProperties(LogSeverity severity)
     {
-        var baseProperties = typeof(AbstractEtlTask).GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.DeclaredOnly)
-            .Concat(typeof(AbstractProcess).GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.DeclaredOnly))
+        var baseProperties = typeof(AbstractEtlTask).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly)
+            .Concat(typeof(AbstractProcess).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
             .Select(x => x.Name)
             .ToHashSet();
 
-        var properties = GetType().GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Public)
+        var properties = GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
             .Where(p => p.SetMethod?.IsPublic == false && !baseProperties.Contains(p.Name))
             .ToList();
 
@@ -95,5 +98,48 @@ public abstract class AbstractProcess : IProcess
             Context.Log(severity, this, "output [{ParameterName}] = {ParameterValue}",
                 property.Name, ValueFormatter.Default.Format(value, CultureInfo.InvariantCulture) ?? "<NULL>");
         }
+    }
+
+    public virtual void Execute(IProcess caller)
+    {
+        Execute(caller, null);
+    }
+
+    public abstract void Execute(IProcess caller, Pipe pipe);
+
+    public void SetContext(IEtlContext context, bool onlyNull = true)
+    {
+        Context = context;
+
+        var baseProperties = typeof(AbstractEtlTask).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly)
+            .Concat(typeof(AbstractProcess).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
+            .Select(x => x.Name)
+            .ToHashSet();
+
+        var properties = GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
+            .Where(p => p.SetMethod?.IsPublic == true && !baseProperties.Contains(p.Name))
+            .ToList();
+
+        foreach (var property in properties)
+        {
+            if (onlyNull && property.GetValue(this) != null)
+                continue;
+
+            var key = context.Arguments.AllKeys.FirstOrDefault(x => string.Equals(x, property.Name, StringComparison.InvariantCultureIgnoreCase));
+            key ??= context.Arguments.AllKeys.FirstOrDefault(x => string.Equals(x, Name + ":" + property.Name, StringComparison.InvariantCultureIgnoreCase));
+
+            if (key != null)
+            {
+                var value = context.Arguments.Get(key);
+                if (value != null && property.PropertyType.IsAssignableFrom(value.GetType()))
+                {
+                    property.SetValue(this, value);
+                }
+            }
+        }
+    }
+
+    public virtual void ValidateParameters()
+    {
     }
 }

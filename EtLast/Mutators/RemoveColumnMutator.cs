@@ -33,7 +33,7 @@ public sealed class RemoveColumnMutator : AbstractSimpleChangeMutator
         yield return row;
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
         if (Columns == null || Columns.Length == 0)
             throw new ProcessParameterNullException(this, nameof(Columns));

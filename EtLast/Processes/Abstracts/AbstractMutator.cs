@@ -13,10 +13,10 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
     {
     }
 
-    private IEnumerable<IRow> Evaluate(IProcess caller, ProcessInvocationContext invocationContext)
+    private IEnumerable<IRow> Evaluate(IProcess caller, Pipe pipe)
     {
         Context.RegisterProcessInvocationStart(this, caller);
-        InvocationContext = invocationContext ?? caller?.InvocationContext ?? new ProcessInvocationContext(Context);
+        Pipe = pipe ?? caller?.Pipe ?? new Pipe(Context);
 
         if (caller != null)
             Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Process}", Kind, caller.Name);
@@ -31,15 +31,15 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
             if (Input == null)
                 throw new ProcessParameterNullException(this, nameof(Input));
 
-            ValidateMutator();
+            ValidateParameters();
         }
         catch (Exception ex)
         {
             netTimeStopwatch.Stop();
-            InvocationContext.AddException(this, ex);
+            Pipe.AddException(this, ex);
         }
 
-        if (!InvocationContext.IsTerminating)
+        if (!Pipe.IsTerminating)
         {
             if (Initializer != null)
             {
@@ -49,11 +49,11 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
                 }
                 catch (Exception ex)
                 {
-                    InvocationContext.AddException(this, new InitializerDelegateException(this, ex));
+                    Pipe.AddException(this, new InitializerDelegateException(this, ex));
                 }
             }
 
-            if (!InvocationContext.IsTerminating)
+            if (!Pipe.IsTerminating)
             {
                 try
                 {
@@ -61,11 +61,11 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
                 }
                 catch (Exception ex)
                 {
-                    InvocationContext.AddException(this, ex);
+                    Pipe.AddException(this, ex);
                 }
             }
 
-            if (!InvocationContext.IsTerminating)
+            if (!Pipe.IsTerminating)
             {
                 var mutatedRows = new List<IRow>();
 
@@ -76,7 +76,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
                 var mutatedRowCount = 0;
                 var ignoredRowCount = 0;
 
-                while (!InvocationContext.IsTerminating)
+                while (!Pipe.IsTerminating)
                 {
                     netTimeStopwatch.Stop();
                     var finished = !enumerator.MoveNext();
@@ -105,7 +105,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
                         }
                         catch (Exception ex)
                         {
-                            InvocationContext.AddException(this, ex, row);
+                            Pipe.AddException(this, ex, row);
                             break;
                         }
 
@@ -127,7 +127,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
                         }
                         catch (Exception ex)
                         {
-                            InvocationContext.AddException(this, ex, row);
+                            Pipe.AddException(this, ex, row);
                             break;
                         }
 
@@ -153,7 +153,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
 
                             if (mutatedRow.CurrentProcess != this)
                             {
-                                InvocationContext.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
+                                Pipe.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
                                 break;
                             }
 
@@ -162,7 +162,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
                     }
                     catch (Exception ex)
                     {
-                        InvocationContext.AddException(this, ex, row);
+                        Pipe.AddException(this, ex, row);
                         break;
                     }
 
@@ -190,7 +190,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
                 }
                 catch (Exception ex)
                 {
-                    InvocationContext.AddException(this, ex);
+                    Pipe.AddException(this, ex);
                 }
 
                 if (mutatedRowCount + ignoredRowCount > 0)
@@ -205,46 +205,46 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
         Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
 
         Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-            Kind, InvocationContext.ToLogString(), InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+            Kind, Pipe.ToLogString(), InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
     }
 
-    public void Execute(IProcess caller)
+    public override void Execute(IProcess caller)
     {
         CountRowsAndReleaseOwnership(caller);
     }
 
-    public void Execute(IProcess caller, ProcessInvocationContext invocationContext)
+    public override void Execute(IProcess caller, Pipe pipe)
     {
-        CountRowsAndReleaseOwnership(caller, invocationContext);
+        CountRowsAndReleaseOwnership(caller, pipe);
     }
 
     public IEnumerable<IRow> TakeRowsAndTransferOwnership(IProcess caller)
     {
-        return TakeRowsAndTransferOwnership(caller, caller?.InvocationContext);
+        return TakeRowsAndTransferOwnership(caller, caller?.Pipe);
     }
 
     public IEnumerable<ISlimRow> TakeRowsAndReleaseOwnership(IProcess caller)
     {
-        return TakeRowsAndReleaseOwnership(caller, caller?.InvocationContext);
+        return TakeRowsAndReleaseOwnership(caller, caller?.Pipe);
     }
 
     public int CountRowsAndReleaseOwnership(IProcess caller)
     {
-        return CountRowsAndReleaseOwnership(caller, caller?.InvocationContext);
+        return CountRowsAndReleaseOwnership(caller, caller?.Pipe);
     }
 
-    public IEnumerable<IRow> TakeRowsAndTransferOwnership(IProcess caller, ProcessInvocationContext invocationContext)
+    public IEnumerable<IRow> TakeRowsAndTransferOwnership(IProcess caller, Pipe pipe)
     {
-        foreach (var row in Evaluate(caller, invocationContext))
+        foreach (var row in Evaluate(caller, pipe))
         {
             row.Context.SetRowOwner(row, caller);
             yield return row;
         }
     }
 
-    public IEnumerable<ISlimRow> TakeRowsAndReleaseOwnership(IProcess caller, ProcessInvocationContext invocationContext)
+    public IEnumerable<ISlimRow> TakeRowsAndReleaseOwnership(IProcess caller, Pipe pipe)
     {
-        foreach (var row in Evaluate(caller, invocationContext))
+        foreach (var row in Evaluate(caller, pipe))
         {
             if (caller != null)
                 row.Context.SetRowOwner(row, caller);
@@ -255,10 +255,10 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
         }
     }
 
-    public int CountRowsAndReleaseOwnership(IProcess caller, ProcessInvocationContext invocationContext)
+    public int CountRowsAndReleaseOwnership(IProcess caller, Pipe pipe)
     {
         var count = 0;
-        foreach (var row in Evaluate(caller, invocationContext))
+        foreach (var row in Evaluate(caller, pipe))
         {
             row.Context.SetRowOwner(row, caller);
             row.Context.SetRowOwner(row, null);
@@ -267,10 +267,6 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
         }
 
         return count;
-    }
-
-    protected virtual void ValidateMutator()
-    {
     }
 
     protected virtual void StartMutator()

@@ -60,9 +60,9 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
     {
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
-        base.ValidateMutator();
+        base.ValidateParameters();
 
         if (SinkProvider == null)
             throw new ProcessParameterNullException(this, nameof(SinkProvider));

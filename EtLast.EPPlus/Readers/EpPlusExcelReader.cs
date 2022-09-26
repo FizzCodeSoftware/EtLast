@@ -43,7 +43,7 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
             if (stream == null)
                 continue;
 
-            if (InvocationContext.IsTerminating)
+            if (Pipe.IsTerminating)
                 break;
 
             ExcelPackage package;

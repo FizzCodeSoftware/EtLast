@@ -1,5 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-public interface IScope : IJob
+public interface IScope : IProcess
 {
 }

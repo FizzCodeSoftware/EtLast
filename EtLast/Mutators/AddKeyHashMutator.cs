@@ -67,7 +67,7 @@ public sealed class AddKeyHashMutator : AbstractMutator
         yield return row;
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
         if (KeyColumns?.Length == 0)
             throw new ProcessParameterNullException(this, nameof(KeyColumns));

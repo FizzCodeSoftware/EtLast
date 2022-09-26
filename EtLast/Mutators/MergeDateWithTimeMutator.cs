@@ -58,7 +58,7 @@ public sealed class MergeDateWithTimeMutator : AbstractMutator
             yield return row;
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
         if (string.IsNullOrEmpty(TargetColumn))
             throw new ProcessParameterNullException(this, nameof(TargetColumn));

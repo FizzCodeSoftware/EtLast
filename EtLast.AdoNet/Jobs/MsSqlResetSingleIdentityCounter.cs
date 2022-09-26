@@ -17,9 +17,9 @@ public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
             : null;
     }
 
-    protected override void ValidateImpl()
+    public override void ValidateParameters()
     {
-        base.ValidateImpl();
+        base.ValidateParameters();
 
         if (TableName == null)
             throw new ProcessParameterNullException(this, nameof(TableName));

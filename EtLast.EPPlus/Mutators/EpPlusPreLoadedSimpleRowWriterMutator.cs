@@ -80,9 +80,9 @@ public sealed class EpPlusPreLoadedSimpleRowWriterMutator : AbstractMutator, IRo
         yield return row;
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
-        base.ValidateMutator();
+        base.ValidateParameters();
 
         if (PreLoadedFile == null)
             throw new ProcessParameterNullException(this, nameof(PreLoadedFile));

@@ -17,9 +17,9 @@ public sealed class DeleteTable : AbstractSqlStatement
             : null;
     }
 
-    protected override void ValidateImpl()
+    public override void ValidateParameters()
     {
-        base.ValidateImpl();
+        base.ValidateParameters();
 
         if (string.IsNullOrEmpty(TableName))
             throw new ProcessParameterNullException(this, nameof(TableName));

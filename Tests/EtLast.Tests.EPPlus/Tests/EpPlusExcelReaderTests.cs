@@ -35,8 +35,8 @@ public class EpPlusExcelReaderTests
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(0, result.MutatedRows.Count);
-        Assert.AreEqual(1, result.Process.InvocationContext.Exceptions.Count);
-        Assert.IsTrue(result.Process.InvocationContext.Exceptions[0] is LocalFileReadException);
+        Assert.AreEqual(1, result.Process.Pipe.Exceptions.Count);
+        Assert.IsTrue(result.Process.Pipe.Exceptions[0] is LocalFileReadException);
     }
 
     [TestMethod]
@@ -57,7 +57,7 @@ public class EpPlusExcelReaderTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "C", ["ValueString"] = "C", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "X", ["ValueString"] = "X", ["ValueInt"] = 2, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 98d } });
 
-        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
 
     [TestMethod]
@@ -96,7 +96,7 @@ public class EpPlusExcelReaderTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["Age"] = 10, ["Name"] = "y" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Age"] = 11, ["Name"] = "z" } });
 
-        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
 
     [TestMethod]
@@ -117,7 +117,7 @@ public class EpPlusExcelReaderTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "C", ["ValueString"] = "C", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "X", ["ValueString"] = "X", ["ValueInt"] = 2, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 98d } });
 
-        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
 
     [TestMethod]
@@ -138,6 +138,6 @@ public class EpPlusExcelReaderTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "C", ["ValueString"] = "C", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "X", ["ValueString"] = "X", ["ValueInt"] = 2, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 98d } });
 
-        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
 }

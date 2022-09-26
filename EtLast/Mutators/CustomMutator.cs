@@ -33,7 +33,7 @@ public sealed class CustomMutator : AbstractMutator
             yield return row;
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
         if (Action == null)
             throw new ProcessParameterNullException(this, nameof(Action));

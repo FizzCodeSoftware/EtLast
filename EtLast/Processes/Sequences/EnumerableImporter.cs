@@ -37,7 +37,7 @@ public sealed class EnumerableImporter : AbstractRowSource
             {
                 foreach (var inputRow in inputRows)
                 {
-                    if (InvocationContext.IsTerminating)
+                    if (Pipe.IsTerminating)
                         yield break;
 
                     foreach (var columnKvp in Columns)
@@ -61,7 +61,7 @@ public sealed class EnumerableImporter : AbstractRowSource
 
                 foreach (var inputRow in inputRows)
                 {
-                    if (InvocationContext.IsTerminating)
+                    if (Pipe.IsTerminating)
                         yield break;
 
                     foreach (var columnKvp in Columns)
@@ -98,7 +98,7 @@ public sealed class EnumerableImporter : AbstractRowSource
         {
             foreach (var row in inputRows)
             {
-                if (InvocationContext.IsTerminating)
+                if (Pipe.IsTerminating)
                     yield break;
 
                 yield return Context.CreateRow(this, row);

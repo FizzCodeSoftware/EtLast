@@ -16,9 +16,9 @@ public sealed class RemoveDuplicateRowsMutator : AbstractMutator
     {
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
-        base.ValidateMutator();
+        base.ValidateParameters();
 
         if (KeyGenerator == null)
             throw new ProcessParameterNullException(this, nameof(KeyGenerator));

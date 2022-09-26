@@ -2,14 +2,14 @@
 
 public sealed partial class ResilientSqlScope : AbstractJob, IScope
 {
-    private void Initialize(ProcessInvocationContext invocationContext)
+    private void Initialize(Pipe pipe)
     {
         if (Initializers == null)
             return;
 
         for (var round = 0; round <= FinalizerRetryCount; round++)
         {
-            if (InvocationContext.IsTerminating)
+            if (Pipe.IsTerminating)
                 return;
 
             Context.Log(LogSeverity.Information, this, "initialization round {InitializationRound} started", round);
@@ -17,30 +17,30 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
             {
                 using (var scope = Context.BeginScope(this, InitializationTransactionScopeKind, LogSeverity.Information))
                 {
-                    CreateAndExecuteInitializers(invocationContext);
+                    CreateAndExecuteInitializers(pipe);
 
-                    if (!invocationContext.IsTerminating)
+                    if (!pipe.IsTerminating)
                         scope.Complete();
                 } // dispose scope
             }
             catch (Exception ex)
             {
-                invocationContext.AddException(this, ex);
+                pipe.AddException(this, ex);
             }
 
-            if (!invocationContext.IsTerminating)
+            if (!pipe.IsTerminating)
                 return;
 
             if (round >= FinalizerRetryCount)
             {
-                InvocationContext.TakeExceptions(invocationContext);
+                Pipe.TakeExceptions(pipe);
             }
         }
     }
 
-    private void CreateAndExecuteInitializers(ProcessInvocationContext invocationContext)
+    private void CreateAndExecuteInitializers(Pipe pipe)
     {
-        IJob[] initializers;
+        IProcess[] initializers;
 
         using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
         {
@@ -57,9 +57,9 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 
             foreach (var process in initializers)
             {
-                process.Execute(this, invocationContext);
+                process.Execute(this, pipe);
 
-                if (invocationContext.IsTerminating)
+                if (pipe.IsTerminating)
                     break;
             }
         }

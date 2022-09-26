@@ -18,9 +18,9 @@ public sealed class CreatePrimaryKeyConstraint : AbstractSqlStatement
             : null;
     }
 
-    protected override void ValidateImpl()
+    public override void ValidateParameters()
     {
-        base.ValidateImpl();
+        base.ValidateParameters();
 
         if (string.IsNullOrEmpty(TableName))
             throw new ProcessParameterNullException(this, nameof(TableName));

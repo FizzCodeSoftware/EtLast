@@ -19,9 +19,9 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
     {
     }
 
-    protected override void ValidateImpl()
+    public override void ValidateParameters()
     {
-        base.ValidateImpl();
+        base.ValidateParameters();
 
         switch (Mode)
         {

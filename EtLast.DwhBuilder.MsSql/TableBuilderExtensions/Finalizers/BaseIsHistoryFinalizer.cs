@@ -18,7 +18,7 @@ public static partial class TableBuilderExtensions
         return builders;
     }
 
-    private static IEnumerable<IJob> CreateBaseIsHistoryFinalizer(KeyBasedFinalizerBuilder builder)
+    private static IEnumerable<IProcess> CreateBaseIsHistoryFinalizer(KeyBasedFinalizerBuilder builder)
     {
         var mergeIntoBaseColumns = builder.TableBuilder.Table.Columns
             .Where(x => !x.GetUsedByEtlRunInfo());

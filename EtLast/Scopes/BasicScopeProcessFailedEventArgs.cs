@@ -3,9 +3,9 @@
 public sealed class BasicScopeProcessFailedEventArgs : EventArgs
 {
     public BasicScope Scope { get; }
-    public IJob Process { get; }
+    public IProcess Process { get; }
 
-    public BasicScopeProcessFailedEventArgs(BasicScope scope, IJob process)
+    public BasicScopeProcessFailedEventArgs(BasicScope scope, IProcess process)
     {
         Scope = scope;
         Process = process;

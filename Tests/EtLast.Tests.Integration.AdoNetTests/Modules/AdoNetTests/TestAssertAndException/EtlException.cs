@@ -9,7 +9,7 @@ public class EtlException : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    public override IEnumerable<IJob> CreateJobs()
+    public override IEnumerable<IProcess> CreateJobs()
     {
         yield return new CustomJob(Context)
         {
@@ -24,7 +24,7 @@ public class EtlException : AbstractEtlTask
 
                 var result = process.TakeRowsAndTransferOwnership(this).ToList();
 
-                Assert.AreEqual(1, process.InvocationContext.Exceptions.Count);
+                Assert.AreEqual(1, process.Pipe.Exceptions.Count);
             }
         };
     }

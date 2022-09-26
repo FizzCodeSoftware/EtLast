@@ -14,7 +14,7 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(DatabaseName));
     }
 
-    public override IEnumerable<IJob> CreateJobs()
+    public override IEnumerable<IProcess> CreateJobs()
     {
         yield return new CustomSqlStatement(Context)
         {

@@ -4,7 +4,7 @@ public static class TestExecuter
 {
     public static IEtlContext GetContext()
     {
-        return new EtlContext();
+        return new EtlContext(null);
     }
 
     public static TestExecuterResult Execute(ISequenceBuilder builder)
@@ -14,7 +14,7 @@ public static class TestExecuter
             Process = builder.Build(),
         };
 
-        result.MutatedRows = result.Process.TakeRowsAndReleaseOwnership(null).ToList();
+        result.MutatedRows = result.Process.TakeRowsAndReleaseOwnership(null, null).ToList();
 
         return result;
     }

@@ -9,9 +9,9 @@ public sealed class CopyTableStructure : AbstractSqlStatements
     {
     }
 
-    protected override void ValidateImpl()
+    public override void ValidateParameters()
     {
-        base.ValidateImpl();
+        base.ValidateParameters();
 
         if (Configuration == null)
             throw new ProcessParameterNullException(this, nameof(Configuration));

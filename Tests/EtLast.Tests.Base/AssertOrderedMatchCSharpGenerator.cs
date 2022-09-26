@@ -14,13 +14,13 @@ public static class AssertOrderedMatchCSharpGenerator
             sb.AppendLine(" });");
         }
 
-        var exceptions = result.Process.InvocationContext.Exceptions;
-        sb.Append("\t\tAssert.AreEqual(").Append(exceptions.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", result.Process.InvocationContext.Exceptions.Count);");
+        var exceptions = result.Process.Pipe.Exceptions;
+        sb.Append("\t\tAssert.AreEqual(").Append(exceptions.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", result.Process.Pipe.Exceptions.Count);");
 
         for (var i = 0; i < exceptions.Count; i++)
         {
             var ex = exceptions[i];
-            sb.Append("\t\tAssert.IsTrue(result.Process.InvocationContext.Exceptions[").Append(i.ToString("D", CultureInfo.InvariantCulture)).Append("] is ").Append(ex.GetType().Name).AppendLine(");");
+            sb.Append("\t\tAssert.IsTrue(result.Process.Pipe.Exceptions[").Append(i.ToString("D", CultureInfo.InvariantCulture)).Append("] is ").Append(ex.GetType().Name).AppendLine(");");
         }
 
         return sb.ToString();

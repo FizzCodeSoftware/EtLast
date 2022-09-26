@@ -28,7 +28,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
         var ignoredRowCount = 0;
         var groupCount = 0;
         var aggregateCount = 0;
-        while (!InvocationContext.IsTerminating)
+        while (!Pipe.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -55,7 +55,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
                 }
                 catch (Exception ex)
                 {
-                    InvocationContext.AddException(this, ex, row);
+                    Pipe.AddException(this, ex, row);
                     break;
                 }
 
@@ -77,7 +77,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
                 }
                 catch (Exception ex)
                 {
-                    InvocationContext.AddException(this, ex, row);
+                    Pipe.AddException(this, ex, row);
                     break;
                 }
 
@@ -124,7 +124,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
                     }
                     catch (Exception ex)
                     {
-                        InvocationContext.AddException(this, new MemoryAggregationException(this, Operation, groupRows, ex));
+                        Pipe.AddException(this, new MemoryAggregationException(this, Operation, groupRows, ex));
                         success = false;
                         break;
                     }
@@ -177,7 +177,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
             }
             catch (Exception ex)
             {
-                InvocationContext.AddException(this, new MemoryAggregationException(this, Operation, groupRows, ex));
+                Pipe.AddException(this, new MemoryAggregationException(this, Operation, groupRows, ex));
                 success = false;
             }
 

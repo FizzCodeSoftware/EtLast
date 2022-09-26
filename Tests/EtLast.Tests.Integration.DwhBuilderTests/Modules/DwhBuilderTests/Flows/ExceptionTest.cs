@@ -16,10 +16,11 @@ public class ExceptionTest : AbstractEtlFlow
 
     public override void Execute()
     {
-        ExecuteTask(new ThrowException()
-        {
-            ExceptionType = ExceptionType,
-            Message = Message,
-        });
+        NewPipe()
+            .StartWith(new ThrowException()
+            {
+                ExceptionType = ExceptionType,
+                Message = Message,
+            });
     }
 }

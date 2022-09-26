@@ -53,7 +53,7 @@ public sealed class BatchedJoinMutator : AbstractBatchedCrossMutator
         var lookup = LookupBuilder.Build(this, rows.ToArray());
         foreach (var row in rows)
         {
-            if (InvocationContext.IsTerminating)
+            if (Pipe.IsTerminating)
                 break;
 
             var key = GenerateRowKey(row);

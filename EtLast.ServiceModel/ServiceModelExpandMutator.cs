@@ -110,7 +110,7 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
             yield return row;
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
         if (ClientCreator == null)
             throw new ProcessParameterNullException(this, nameof(ClientCreator));

@@ -12,7 +12,7 @@ public static partial class TableBuilderExtensions
         return builders;
     }
 
-    private static IEnumerable<IJob> CreateDeleteTargetTableFinalizer(DwhTableBuilder builder)
+    private static IEnumerable<IProcess> CreateDeleteTargetTableFinalizer(DwhTableBuilder builder)
     {
         builder.ResilientTable.SkipFinalizersIfNoTempData = false;
 

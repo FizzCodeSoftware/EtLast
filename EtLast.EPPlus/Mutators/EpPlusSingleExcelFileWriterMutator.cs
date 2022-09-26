@@ -86,9 +86,9 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
         yield return row;
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
-        base.ValidateMutator();
+        base.ValidateParameters();
 
         if (string.IsNullOrEmpty(FileName))
             throw new ProcessParameterNullException(this, nameof(FileName));

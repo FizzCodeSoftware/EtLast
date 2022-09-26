@@ -10,10 +10,10 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
     {
     }
 
-    private IEnumerable<IRow> Evaluate(IProcess caller, ProcessInvocationContext invocationContext)
+    private IEnumerable<IRow> Evaluate(IProcess caller, Pipe pipe)
     {
         Context.RegisterProcessInvocationStart(this, caller);
-        InvocationContext = invocationContext ?? caller?.InvocationContext ?? new ProcessInvocationContext(Context);
+        Pipe = pipe ?? caller?.Pipe ?? new Pipe(Context);
 
         if (caller != null)
             Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Process}", Kind, caller.Name);
@@ -30,10 +30,10 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
         catch (Exception ex)
         {
             netTimeStopwatch.Stop();
-            InvocationContext.AddException(this, ex);
+            Pipe.AddException(this, ex);
         }
 
-        if (!InvocationContext.IsTerminating)
+        if (!Pipe.IsTerminating)
         {
             if (Initializer != null)
             {
@@ -43,11 +43,11 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
                 }
                 catch (Exception ex)
                 {
-                    InvocationContext.AddException(this, new InitializerDelegateException(this, ex));
+                    Pipe.AddException(this, new InitializerDelegateException(this, ex));
                 }
             }
 
-            if (!InvocationContext.IsTerminating)
+            if (!Pipe.IsTerminating)
             {
                 IEnumerator<IRow> enumerator = null;
                 try
@@ -56,7 +56,7 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
                 }
                 catch (Exception ex)
                 {
-                    InvocationContext.AddException(this, ex);
+                    Pipe.AddException(this, ex);
 
                     netTimeStopwatch.Stop();
                     Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
@@ -64,7 +64,7 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
                         Kind, "failed", InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
                 }
 
-                while (enumerator != null && !InvocationContext.IsTerminating)
+                while (enumerator != null && !Pipe.IsTerminating)
                 {
                     try
                     {
@@ -76,7 +76,7 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
                     }
                     catch (Exception ex)
                     {
-                        InvocationContext.AddException(this, ex);
+                        Pipe.AddException(this, ex);
 
                         netTimeStopwatch.Stop();
                         Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
@@ -84,7 +84,7 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
                             Kind, "failed", InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
                     }
 
-                    if (!InvocationContext.IsTerminating)
+                    if (!Pipe.IsTerminating)
                     {
                         netTimeStopwatch.Stop();
                         var row = enumerator.Current;
@@ -99,49 +99,49 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
         Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
 
         Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-            Kind, InvocationContext.ToLogString(), InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+            Kind, Pipe.ToLogString(), InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
     }
 
     protected abstract IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch);
     protected abstract void ValidateImpl();
 
-    public void Execute(IProcess caller)
+    public override void Execute(IProcess caller)
     {
         CountRowsAndReleaseOwnership(caller);
     }
 
-    public void Execute(IProcess caller, ProcessInvocationContext invocationContext)
+    public override void Execute(IProcess caller, Pipe pipe)
     {
-        CountRowsAndReleaseOwnership(caller, invocationContext);
+        CountRowsAndReleaseOwnership(caller, pipe);
     }
 
     public IEnumerable<IRow> TakeRowsAndTransferOwnership(IProcess caller)
     {
-        return TakeRowsAndTransferOwnership(caller, caller?.InvocationContext);
+        return TakeRowsAndTransferOwnership(caller, caller?.Pipe);
     }
 
     public IEnumerable<ISlimRow> TakeRowsAndReleaseOwnership(IProcess caller)
     {
-        return TakeRowsAndReleaseOwnership(caller, caller?.InvocationContext);
+        return TakeRowsAndReleaseOwnership(caller, caller?.Pipe);
     }
 
     public int CountRowsAndReleaseOwnership(IProcess caller)
     {
-        return CountRowsAndReleaseOwnership(caller, caller?.InvocationContext);
+        return CountRowsAndReleaseOwnership(caller, caller?.Pipe);
     }
 
-    public IEnumerable<IRow> TakeRowsAndTransferOwnership(IProcess caller, ProcessInvocationContext invocationContext)
+    public IEnumerable<IRow> TakeRowsAndTransferOwnership(IProcess caller, Pipe pipe)
     {
-        foreach (var row in Evaluate(caller, invocationContext))
+        foreach (var row in Evaluate(caller, pipe))
         {
             row.Context.SetRowOwner(row, caller);
             yield return row;
         }
     }
 
-    public IEnumerable<ISlimRow> TakeRowsAndReleaseOwnership(IProcess caller, ProcessInvocationContext invocationContext)
+    public IEnumerable<ISlimRow> TakeRowsAndReleaseOwnership(IProcess caller, Pipe pipe)
     {
-        foreach (var row in Evaluate(caller, invocationContext))
+        foreach (var row in Evaluate(caller, pipe))
         {
             if (caller != null)
                 row.Context.SetRowOwner(row, caller);
@@ -152,10 +152,10 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
         }
     }
 
-    public int CountRowsAndReleaseOwnership(IProcess caller, ProcessInvocationContext invocationContext)
+    public int CountRowsAndReleaseOwnership(IProcess caller, Pipe pipe)
     {
         var count = 0;
-        foreach (var row in Evaluate(caller, invocationContext))
+        foreach (var row in Evaluate(caller, pipe))
         {
             row.Context.SetRowOwner(row, caller);
             row.Context.SetRowOwner(row, null);

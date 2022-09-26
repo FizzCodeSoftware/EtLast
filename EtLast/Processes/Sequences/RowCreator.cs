@@ -26,7 +26,7 @@ public sealed class RowCreator : AbstractRowSource
 
         foreach (var inputRow in InputRows)
         {
-            if (InvocationContext.IsTerminating)
+            if (Pipe.IsTerminating)
                 yield break;
 
             var initialValues = Enumerable

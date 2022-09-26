@@ -27,7 +27,7 @@ public sealed class MultiplyByTagsMutator : AbstractMutator
         }
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
         if (Tags == null || Tags.Length == 0)
             throw new ProcessParameterNullException(this, nameof(Tags));

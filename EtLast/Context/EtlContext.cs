@@ -5,7 +5,9 @@ public sealed class EtlContext : IEtlContext
     public Type RowType { get; private set; }
 
     public AdditionalData AdditionalData { get; }
+    public ArgumentCollection Arguments { get; }
 
+    public string Id { get; }
     public string Uid { get; }
     public DateTimeOffset CreatedOnUtc { get; }
     public DateTimeOffset CreatedOnLocal { get; }
@@ -19,6 +21,7 @@ public sealed class EtlContext : IEtlContext
 
     private readonly CancellationTokenSource _cancellationTokenSource;
     public CancellationToken CancellationToken { get; }
+    private readonly List<IEtlService> _services = new();
 
     private int _nextRowUid;
     private int _nextProcessInstanceUid;
@@ -27,7 +30,7 @@ public sealed class EtlContext : IEtlContext
     private int _nextIoCommandUid;
     private readonly Dictionary<string, int> _sinks = new();
 
-    public EtlContext()
+    public EtlContext(ArgumentCollection arguments)
     {
         SetRowType<Row>();
 
@@ -35,10 +38,25 @@ public sealed class EtlContext : IEtlContext
         CancellationToken = _cancellationTokenSource.Token;
 
         AdditionalData = new AdditionalData();
+        Arguments = arguments;
 
+        Id = "s" + DateTime.Now.ToString("yyMMdd-HHmmss-ff", CultureInfo.InvariantCulture);
         Uid = Guid.NewGuid().ToString("D");
         CreatedOnLocal = DateTimeOffset.Now;
         CreatedOnUtc = CreatedOnLocal.ToUniversalTime();
+    }
+
+    public T Service<T>() where T : IEtlService, new()
+    {
+        var service = _services.OfType<T>().FirstOrDefault();
+        if (service != null)
+            return service;
+
+        service = new T();
+        service.Start(this);
+        _services.Add(service);
+
+        return service;
     }
 
     public void Terminate()
@@ -268,5 +286,15 @@ public sealed class EtlContext : IEtlContext
         }
 
         Listeners.Clear();
+    }
+
+    public void StopServices()
+    {
+        foreach (var service in _services)
+        {
+            service.Stop();
+        }
+
+        _services.Clear();
     }
 }

@@ -24,6 +24,6 @@ public class TaskExectionResult
         TaskTopic = task.GetTopic();
         Statistics = task.Statistics;
         IoCommandCounters = task.IoCommandCounters;
-        Exceptions = task.InvocationContext.Exceptions.ToList();
+        Exceptions = task.Pipe.Exceptions.ToList();
     }
 }

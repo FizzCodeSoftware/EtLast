@@ -50,7 +50,7 @@ public sealed class Splitter<TRowQueue> : AbstractSequence
 
         foreach (var row in rows)
         {
-            if (InvocationContext.IsTerminating)
+            if (Pipe.IsTerminating)
                 break;
 
             _queue.AddRow(row);

@@ -21,7 +21,7 @@ public abstract class AbstractSqlStatementBase : AbstractJob
     /// </summary>
     public bool SuppressExistingTransactionScope { get; init; }
 
-    protected override void ValidateImpl()
+    public override void ValidateParameters()
     {
         if (ConnectionString == null)
             throw new ProcessParameterNullException(this, nameof(ConnectionString));

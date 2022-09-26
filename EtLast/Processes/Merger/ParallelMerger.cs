@@ -33,7 +33,7 @@ public sealed class ParallelMerger : AbstractMerger
 
                         foreach (var row in rows)
                         {
-                            if (InvocationContext.IsTerminating)
+                            if (Pipe.IsTerminating)
                                 break;
 
                             queue.AddRow(row);

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public delegate IEnumerable<IJob> ProcessCreatorDelegate(BasicScope scope);
+public delegate IEnumerable<IProcess> ProcessCreatorDelegate(BasicScope scope);
 
 /// <summary>
 /// The default etl scope to execute multiple jobs, optionally supporting ambient transaction scopes.
@@ -25,14 +25,10 @@ public sealed class BasicScope : AbstractJob, IScope
     /// </summary>
     public bool StopOnError { get; set; } = true;
 
-    public EventHandler<BasicScopeProcessFailedEventArgs> OnError { get; set; }
+    public EventHandler<BasicScopeProcessFailedEventArgs> OnFailure { get; set; }
 
     public BasicScope(IEtlContext context, string topic, string name = null)
         : base(context)
-    {
-    }
-
-    protected override void ValidateImpl()
     {
     }
 
@@ -52,7 +48,7 @@ public sealed class BasicScope : AbstractJob, IScope
                 var success = true;
                 foreach (var creator in creators)
                 {
-                    IJob[] jobs = null;
+                    IProcess[] jobs = null;
                     using (var creatorScope = Context.BeginScope(this, CreationTransactionScopeKind, LogSeverity.Information))
                     {
                         jobs = creator.Invoke(this).Where(x => x != null).ToArray();
@@ -63,18 +59,18 @@ public sealed class BasicScope : AbstractJob, IScope
 
                     foreach (var job in jobs)
                     {
-                        var jobInvocationContext = new ProcessInvocationContext(Context);
-                        job.Execute(this, jobInvocationContext);
+                        var isolatedPipe = new Pipe(Context);
+                        job.Execute(this, isolatedPipe);
 
-                        if (InvocationContext.Failed)
+                        if (isolatedPipe.Failed)
                         {
-                            OnError?.Invoke(this, new BasicScopeProcessFailedEventArgs(this, job));
+                            OnFailure?.Invoke(this, new BasicScopeProcessFailedEventArgs(this, job));
                         }
 
                         if (StopOnError)
-                            InvocationContext.TakeExceptions(jobInvocationContext);
+                            Pipe.TakeExceptions(isolatedPipe);
 
-                        if (InvocationContext.IsTerminating)
+                        if (Pipe.IsTerminating)
                         {
                             success = false;
                             break;
@@ -88,7 +84,7 @@ public sealed class BasicScope : AbstractJob, IScope
         }
         catch (Exception ex)
         {
-            InvocationContext.AddException(this, ex);
+            Pipe.AddException(this, ex);
         }
     }
 }

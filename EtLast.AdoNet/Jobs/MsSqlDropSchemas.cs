@@ -9,9 +9,9 @@ public sealed class MsSqlDropSchemas : AbstractSqlStatements
     {
     }
 
-    protected override void ValidateImpl()
+    public override void ValidateParameters()
     {
-        base.ValidateImpl();
+        base.ValidateParameters();
 
         if (SchemaNames == null || SchemaNames.Length == 0)
             throw new ProcessParameterNullException(this, nameof(SchemaNames));

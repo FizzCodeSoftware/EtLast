@@ -9,7 +9,7 @@ public sealed class CustomJob : AbstractJob
     {
     }
 
-    protected override void ValidateImpl()
+    public override void ValidateParameters()
     {
         if (Action == null)
             throw new ProcessParameterNullException(this, nameof(Action));

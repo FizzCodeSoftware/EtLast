@@ -15,7 +15,7 @@ public sealed class SetTagMutator : AbstractMutator
         yield return row;
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
     }
 }

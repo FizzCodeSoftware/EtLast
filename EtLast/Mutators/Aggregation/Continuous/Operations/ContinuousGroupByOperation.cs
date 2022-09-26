@@ -24,7 +24,7 @@ public sealed class ContinuousGroupByOperation : AbstractContinuousAggregationOp
 public static class ContinuousGroupByOperationExtensions
 {
     /// <summary>
-    /// New value will be integer.
+    /// StartWith value will be integer.
     /// </summary>
     public static ContinuousGroupByOperation AddIntNumberOfDistinctKeys(this ContinuousGroupByOperation op, string column, RowKeyGenerator keyGenerator)
     {
@@ -52,7 +52,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be integer.
+    /// StartWith value will be integer.
     /// </summary>
     public static ContinuousGroupByOperation AddIntCount(this ContinuousGroupByOperation op, string targetColumn)
     {
@@ -64,7 +64,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be integer.
+    /// StartWith value will be integer.
     /// </summary>
     public static ContinuousGroupByOperation AddIntCountWhenNotNull(this ContinuousGroupByOperation op, string targetColumn, string columnToCheckForNull)
     {
@@ -79,7 +79,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be integer.
+    /// StartWith value will be integer.
     /// </summary>
     public static ContinuousGroupByOperation AddIntCountWhenNull(this ContinuousGroupByOperation op, string targetColumn, string columnToCheckForNull)
     {
@@ -94,7 +94,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be double.
+    /// StartWith value will be double.
     /// </summary>
     public static ContinuousGroupByOperation AddIntAverage(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -113,7 +113,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be double.
+    /// StartWith value will be double.
     /// </summary>
     public static ContinuousGroupByOperation AddLongAverage(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -132,7 +132,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be double.
+    /// StartWith value will be double.
     /// </summary>
     public static ContinuousGroupByOperation AddDoubleAverage(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -151,7 +151,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be double. Null values are ignored.
+    /// StartWith value will be double. Null values are ignored.
     /// </summary>
     public static ContinuousGroupByOperation AddDoubleAverageIgnoreNull(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -177,7 +177,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be decimal.
+    /// StartWith value will be decimal.
     /// </summary>
     public static ContinuousGroupByOperation AddDecimalAverage(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -196,7 +196,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be int.
+    /// StartWith value will be int.
     /// </summary>
     public static ContinuousGroupByOperation AddIntSum(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -210,7 +210,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be long.
+    /// StartWith value will be long.
     /// </summary>
     public static ContinuousGroupByOperation AddLongSum(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -224,7 +224,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be double.
+    /// StartWith value will be double.
     /// </summary>
     public static ContinuousGroupByOperation AddDoubleSum(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -238,7 +238,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be decimal.
+    /// StartWith value will be decimal.
     /// </summary>
     public static ContinuousGroupByOperation AddDecimalSum(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -252,7 +252,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be int.
+    /// StartWith value will be int.
     /// </summary>
     public static ContinuousGroupByOperation AddIntMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -268,7 +268,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be long.
+    /// StartWith value will be long.
     /// </summary>
     public static ContinuousGroupByOperation AddLongMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -284,7 +284,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be double.
+    /// StartWith value will be double.
     /// </summary>
     public static ContinuousGroupByOperation AddDoubleMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -300,7 +300,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be decimal.
+    /// StartWith value will be decimal.
     /// </summary>
     public static ContinuousGroupByOperation AddDecimalMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -316,7 +316,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be datetime.
+    /// StartWith value will be datetime.
     /// </summary>
     public static ContinuousGroupByOperation AddDateTimeMax(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -339,7 +339,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be int.
+    /// StartWith value will be int.
     /// </summary>
     public static ContinuousGroupByOperation AddIntMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -355,7 +355,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be long.
+    /// StartWith value will be long.
     /// </summary>
     public static ContinuousGroupByOperation AddLongMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -371,7 +371,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be double.
+    /// StartWith value will be double.
     /// </summary>
     public static ContinuousGroupByOperation AddDoubleMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -387,7 +387,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be decimal.
+    /// StartWith value will be decimal.
     /// </summary>
     public static ContinuousGroupByOperation AddDecimalMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -403,7 +403,7 @@ public static class ContinuousGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be datetime.
+    /// StartWith value will be datetime.
     /// </summary>
     public static ContinuousGroupByOperation AddDateTimeMin(this ContinuousGroupByOperation op, string sourceColumn, string targetColumn = null)
     {

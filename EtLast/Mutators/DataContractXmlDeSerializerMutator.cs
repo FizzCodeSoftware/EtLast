@@ -67,7 +67,7 @@ public sealed class DataContractXmlDeSerializerMutator<T> : AbstractMutator
             yield return row;
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
         if (SourceColumn == null)
             throw new ProcessParameterNullException(this, nameof(SourceColumn));

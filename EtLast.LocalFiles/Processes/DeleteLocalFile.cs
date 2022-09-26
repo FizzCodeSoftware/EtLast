@@ -9,7 +9,7 @@ public sealed class DeleteLocalFile : AbstractJob
     {
     }
 
-    protected override void ValidateImpl()
+    public override void ValidateParameters()
     {
         if (string.IsNullOrEmpty(FileName))
             throw new ProcessParameterNullException(this, nameof(FileName));

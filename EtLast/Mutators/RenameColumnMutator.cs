@@ -58,7 +58,7 @@ public sealed class RenameColumnMutator : AbstractSimpleChangeMutator
         }
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
         if (Columns == null)
             throw new ProcessParameterNullException(this, nameof(Columns));

@@ -38,7 +38,7 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
             if (stream == null)
                 yield break;
 
-            if (InvocationContext.IsTerminating)
+            if (Pipe.IsTerminating)
                 break;
 
             ExcelPackage package;
@@ -75,7 +75,7 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
             {
                 foreach (var worksheet in workbook.Worksheets)
                 {
-                    if (InvocationContext.IsTerminating)
+                    if (Pipe.IsTerminating)
                         yield break;
 
                     var initialValues = new Dictionary<string, object>

@@ -12,9 +12,9 @@ public sealed class RemoveRowMutator : AbstractMutator
         return Enumerable.Empty<IRow>();
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
-        base.ValidateMutator();
+        base.ValidateParameters();
 
         if (RowFilter == null && RowTagFilter == null)
             throw new ProcessParameterNullException(this, nameof(RowFilter) + " and " + nameof(RowTagFilter));

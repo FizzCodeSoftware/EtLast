@@ -22,7 +22,7 @@ public class RemoveColumnMutatorTests
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(0, result.MutatedRows.Sum(x => x.ColumnCount));
-        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
 
     [TestMethod]
@@ -47,6 +47,6 @@ public class RemoveColumnMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["age"] = 11, ["height"] = 140, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0) },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 6, ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0) } });
 
-        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
 }

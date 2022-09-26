@@ -12,7 +12,7 @@ public static partial class TableBuilderExtensions
         return builders;
     }
 
-    private static IEnumerable<IJob> CreateDisableConstraintCheckFinalizer(DwhTableBuilder builder)
+    private static IEnumerable<IProcess> CreateDisableConstraintCheckFinalizer(DwhTableBuilder builder)
     {
         if (builder.Table.ForeignKeys.Count == 0)
             yield break;

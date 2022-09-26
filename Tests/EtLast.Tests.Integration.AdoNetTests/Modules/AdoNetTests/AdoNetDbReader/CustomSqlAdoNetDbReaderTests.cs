@@ -10,7 +10,7 @@ public class CustomSqlAdoNetDbReaderTests : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    public override IEnumerable<IJob> CreateJobs()
+    public override IEnumerable<IProcess> CreateJobs()
     {
         yield return new CustomJob(Context)
         {

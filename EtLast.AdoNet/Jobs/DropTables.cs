@@ -9,9 +9,9 @@ public sealed class DropTables : AbstractSqlStatements
     {
     }
 
-    protected override void ValidateImpl()
+    public override void ValidateParameters()
     {
-        base.ValidateImpl();
+        base.ValidateParameters();
 
         if (TableNames == null || TableNames.Length == 0)
             throw new ProcessParameterNullException(this, nameof(TableNames));

@@ -1,8 +1,8 @@
 ﻿namespace FizzCode.EtLast;
 
 public delegate ISequence ResilientTablePartitionedProducerCreatorDelegate(ResilientTable table, int partitionIndex);
-public delegate IEnumerable<IJob> ResilientTableJobCreatorDelegate(ResilientTable table);
-public delegate IEnumerable<IJob> ResilientSqlScopeFinalizerCreatorDelegate(ResilientTableBase table);
+public delegate IEnumerable<IProcess> ResilientTableJobCreatorDelegate(ResilientTable table);
+public delegate IEnumerable<IProcess> ResilientSqlScopeFinalizerCreatorDelegate(ResilientTableBase table);
 
 [DebuggerDisplay("{TableName}")]
 public sealed class ResilientTable : ResilientTableBase

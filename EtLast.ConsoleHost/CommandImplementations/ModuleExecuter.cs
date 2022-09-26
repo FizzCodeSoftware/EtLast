@@ -24,9 +24,10 @@ internal static class ModuleExecuter
             customTasks = new Dictionary<string, Func<IArgumentCollection, IEtlTask>>();
         }
 
-        var sessionId = "s" + DateTime.Now.ToString("yyMMdd-HHmmss-ff", CultureInfo.InvariantCulture);
-        var session = new EtlSession(sessionId, arguments);
-        session.Context.TransactionScopeTimeout = environmentSettings.TransactionScopeTimeout;
+        var context = new EtlContext(arguments)
+        {
+            TransactionScopeTimeout = environmentSettings.TransactionScopeTimeout
+        };
 
         try
         {
@@ -34,15 +35,15 @@ internal static class ModuleExecuter
             {
                 foreach (var listenerCreator in host.EtlContextListeners)
                 {
-                    session.Context.Listeners.Add(listenerCreator.Invoke(session));
+                    context.Listeners.Add(listenerCreator.Invoke(context));
                 }
             }
         }
         catch (Exception ex)
         {
             var formattedMessage = ex.FormatExceptionWithDetails();
-            session.Context.Log(LogSeverity.Fatal, null, "{ErrorMessage}", formattedMessage);
-            session.Context.LogOps(LogSeverity.Fatal, null, "{ErrorMessage}", formattedMessage);
+            context.Log(LogSeverity.Fatal, null, "{ErrorMessage}", formattedMessage);
+            context.LogOps(LogSeverity.Fatal, null, "{ErrorMessage}", formattedMessage);
         }
 
         if (host.SerilogForModulesEnabled)
@@ -50,33 +51,33 @@ internal static class ModuleExecuter
             if (environmentSettings.FileLogSettings.Enabled || environmentSettings.ConsoleLogSettings.Enabled || !string.IsNullOrEmpty(environmentSettings.SeqSettings.Url))
             {
                 var serilogAdapter = new EtlSessionSerilogAdapter(environmentSettings, host.DevLogFolder, host.OpsLogFolder);
-                session.Context.Listeners.Add(serilogAdapter);
+                context.Listeners.Add(serilogAdapter);
             }
         }
 
         if (module.Startup == null)
         {
-            session.Context.Log(LogSeverity.Warning, null, "Can't find a startup class implementing " + nameof(IStartup) + ".");
+            context.Log(LogSeverity.Warning, null, "Can't find a startup class implementing " + nameof(IStartup) + ".");
         }
 
-        session.Context.Log(LogSeverity.Information, null, "session {SessionId} started", sessionId);
+        context.Log(LogSeverity.Information, null, "context {ContextUId} started", context.Uid);
 
         if (!string.IsNullOrEmpty(environmentSettings.SeqSettings.Url))
         {
-            session.Context.Log(LogSeverity.Debug, null, "all session logs will be sent to SEQ listening on {SeqUrl}", environmentSettings.SeqSettings.Url);
+            context.Log(LogSeverity.Debug, null, "all context logs will be sent to SEQ listening on {SeqUrl}", environmentSettings.SeqSettings.Url);
         }
 
         var sessionStartedOn = Stopwatch.StartNew();
 
         var taskResults = new List<TaskExectionResult>();
 
-        var invocationContext = new ProcessInvocationContext(session.Context);
+        var pipe = new Pipe(context);
 
         try
         {
             foreach (var taskName in taskNames)
             {
-                if (invocationContext.IsTerminating)
+                if (pipe.IsTerminating)
                     break;
 
                 IEtlTask task = null;
@@ -93,53 +94,53 @@ internal static class ModuleExecuter
 
                 if (task == null)
                 {
-                    session.Context.Log(LogSeverity.Error, null, "unknown task/flow type: " + taskName);
+                    context.Log(LogSeverity.Error, null, "unknown task/flow type: " + taskName);
                     break;
                 }
 
                 try
                 {
-                    task.SetArguments(session.Arguments);
-                    task.Execute(null, session, invocationContext);
+                    task.SetContext(context, true);
+                    task.Execute(null, pipe);
 
                     taskResults.Add(new TaskExectionResult(task));
                     executionResult.TaskResults.Add(new TaskExectionResult(task));
 
-                    if (invocationContext.Failed)
+                    if (pipe.Failed)
                     {
-                        session.Context.Log(LogSeverity.Error, task, "failed, terminating execution");
+                        context.Log(LogSeverity.Error, task, "failed, terminating execution");
                         executionResult.Status = ExecutionStatusCode.ExecutionFailed;
-                        session.Context.Close();
+                        context.Close();
                         break; // stop processing tasks
                     }
                 }
                 catch (Exception ex)
                 {
-                    session.Context.Log(LogSeverity.Error, task, "failed, terminating execution, reason: {0}", ex.Message);
+                    context.Log(LogSeverity.Error, task, "failed, terminating execution, reason: {0}", ex.Message);
                     executionResult.Status = ExecutionStatusCode.ExecutionFailed;
-                    session.Context.Close();
+                    context.Close();
                     break; // stop processing tasks
                 }
 
-                LogTaskCounters(session.Context, task);
+                LogTaskCounters(context, task);
             }
 
-            session.Stop();
+            context.StopServices();
 
             if (taskResults.Count > 0)
             {
-                session.Context.Log(LogSeverity.Information, null, "-------");
-                session.Context.Log(LogSeverity.Information, null, "SUMMARY");
-                session.Context.Log(LogSeverity.Information, null, "-------");
+                context.Log(LogSeverity.Information, null, "-------");
+                context.Log(LogSeverity.Information, null, "SUMMARY");
+                context.Log(LogSeverity.Information, null, "-------");
 
                 var longestTaskName = taskResults.Max(x => x.TaskName.Length);
                 foreach (var taskResult in taskResults)
                 {
-                    LogTaskSummary(session.Context, taskResult, longestTaskName);
+                    LogTaskSummary(context, taskResult, longestTaskName);
                 }
             }
 
-            session.Context.Close();
+            context.Close();
         }
         catch (TransactionAbortedException)
         {

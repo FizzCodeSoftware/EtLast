@@ -15,7 +15,7 @@ public class HttpSender : IDisposable, IEtlContextListener
     private readonly Uri _uri;
     private HttpClient _client;
     private readonly Thread _workerThread;
-    private readonly string _sessionId;
+    private readonly string _contextId;
     private readonly string _contextName;
     private ExtendedBinaryWriter _currentWriter;
     private ExtendedBinaryWriter _currentDictionaryWriter;
@@ -28,13 +28,13 @@ public class HttpSender : IDisposable, IEtlContextListener
     private readonly object _messageTemplateCacheLock = new();
     private readonly MessageTemplateParser _messageTemplateParser = new();
 
-    public HttpSender(IEtlSession session)
+    public HttpSender(IEtlContext context)
     {
         if (Url == null)
             return;
 
-        _sessionId = session.Id;
-        _contextName = session.Id;
+        _contextId = context.Id;
+        _contextName = context.Uid;
         _uri = new Uri(Url);
 
         _client = new HttpClient
@@ -101,7 +101,7 @@ public class HttpSender : IDisposable, IEtlContextListener
     {
         writer?.Flush();
 
-        var fullUri = new Uri(_uri, "diag?sid=" + _sessionId + (_contextName != null ? "&ctx=" + _contextName : ""));
+        var fullUri = new Uri(_uri, "diag?sid=" + _contextId + (_contextName != null ? "&ctx=" + _contextName : ""));
 
         var binaryContent = writer != null
             ? (writer.BaseStream as MemoryStream).ToArray()

@@ -4,8 +4,11 @@ public interface IEtlContext
 {
     public void SetRowType<T>() where T : IRow;
 
+    public ArgumentCollection Arguments { get; }
+    public T Service<T>() where T : IEtlService, new();
     public AdditionalData AdditionalData { get; }
 
+    public string Id { get; }
     public string Uid { get; }
     public DateTimeOffset CreatedOnUtc { get; }
     public DateTimeOffset CreatedOnLocal { get; }
@@ -43,4 +46,5 @@ public interface IEtlContext
     public int GetSinkUid(string location, string path);
 
     public void Close();
+    public void StopServices();
 }

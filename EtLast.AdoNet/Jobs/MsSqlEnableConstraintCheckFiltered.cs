@@ -9,9 +9,9 @@ public sealed class MsSqlEnableConstraintCheckFiltered : AbstractSqlStatements
     {
     }
 
-    protected override void ValidateImpl()
+    public override void ValidateParameters()
     {
-        base.ValidateImpl();
+        base.ValidateParameters();
 
         if (ConstraintNames == null || ConstraintNames.Count == 0)
             throw new ProcessParameterNullException(this, nameof(ConstraintNames));

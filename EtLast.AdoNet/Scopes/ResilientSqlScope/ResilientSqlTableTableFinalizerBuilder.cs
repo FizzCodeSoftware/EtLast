@@ -3,9 +3,9 @@
 public sealed class ResilientSqlTableTableFinalizerBuilder
 {
     public ResilientTableBase Table { get; init; }
-    public List<IJob> Finalizers { get; } = new List<IJob>();
+    public List<IProcess> Finalizers { get; } = new List<IProcess>();
 
-    public ResilientSqlTableTableFinalizerBuilder Add(IJob process)
+    public ResilientSqlTableTableFinalizerBuilder Add(IProcess process)
     {
         Finalizers.Add(process);
         return this;

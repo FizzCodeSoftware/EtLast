@@ -37,7 +37,7 @@ public sealed class ColumnValidationMutator : AbstractMutator
         yield return row;
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
         if (string.IsNullOrEmpty(Column))
             throw new ProcessParameterNullException(this, nameof(Column));

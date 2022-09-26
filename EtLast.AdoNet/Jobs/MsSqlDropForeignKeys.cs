@@ -23,9 +23,9 @@ public sealed class MsSqlDropForeignKeys : AbstractSqlStatements
 
     private List<Tuple<string, int>> _tableNamesAndCounts;
 
-    protected override void ValidateImpl()
+    public override void ValidateParameters()
     {
-        base.ValidateImpl();
+        base.ValidateParameters();
 
         switch (Mode)
         {

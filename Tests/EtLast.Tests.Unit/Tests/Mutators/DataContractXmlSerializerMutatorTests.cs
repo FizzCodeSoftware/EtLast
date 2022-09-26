@@ -77,6 +77,6 @@ public class DataContractXmlSerializerMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["name"] = "E", ["age"] = -3 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["name"] = "A", ["age"] = 11, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0) },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 6, ["name"] = "fake", ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0) } });
-        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
 }

@@ -27,7 +27,7 @@ public sealed class ReplaceStringMutator : AbstractMutator
         yield return row;
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
         if (ColumnName == null)
             throw new ProcessParameterNullException(this, nameof(ColumnName));

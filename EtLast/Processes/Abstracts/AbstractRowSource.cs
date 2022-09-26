@@ -37,7 +37,7 @@ public abstract class AbstractRowSource : AbstractSequence, IRowSource
         var enumerator = Produce().GetEnumerator();
         netTimeStopwatch.Start();
 
-        while (!InvocationContext.IsTerminating)
+        while (!Pipe.IsTerminating)
         {
             IRow row = null;
             try
@@ -52,10 +52,10 @@ public abstract class AbstractRowSource : AbstractSequence, IRowSource
             }
             catch (Exception ex)
             {
-                InvocationContext.AddException(this, ex);
+                Pipe.AddException(this, ex);
             }
 
-            if (row != null && !InvocationContext.IsTerminating)
+            if (row != null && !Pipe.IsTerminating)
             {
                 resultCount++;
                 netTimeStopwatch.Stop();

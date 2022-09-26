@@ -10,7 +10,7 @@ public class LoadCountries : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    public override IEnumerable<IJob> CreateJobs()
+    public override IEnumerable<IProcess> CreateJobs()
     {
         yield return new CustomSqlStatement(Context)
         {
@@ -43,7 +43,7 @@ public class LoadCountries : AbstractEtlTask
             );
     }
 
-    private IEnumerable<IJob> CreateProcess(ResilientTable table)
+    private IEnumerable<IProcess> CreateProcess(ResilientTable table)
     {
         yield return SequenceBuilder.Fluent
             .ReadFrom(TestData.Country(Context))

@@ -10,10 +10,8 @@ public abstract class AbstractCrossMutator : AbstractMutator
     {
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
-        base.ValidateMutator();
-
         if (LookupBuilder == null)
             throw new ProcessParameterNullException(this, nameof(LookupBuilder));
     }

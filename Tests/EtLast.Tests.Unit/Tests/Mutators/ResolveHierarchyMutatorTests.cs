@@ -28,7 +28,7 @@ public class ResolveHierarchyMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["code"] = "E", ["level2"] = "EEE", ["parentId"] = 0, ["level"] = 1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["code"] = "F", ["level2"] = "FFF", ["parentId"] = 0, ["level"] = 1 } });
 
-        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
 
     [TestMethod]
@@ -56,7 +56,7 @@ public class ResolveHierarchyMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["code"] = "E", ["parentId"] = 0, ["level"] = 1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["code"] = "F", ["parentId"] = 0, ["level"] = 1 } });
 
-        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
 
     [TestMethod]
@@ -83,7 +83,7 @@ public class ResolveHierarchyMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["code"] = "E", ["parentId"] = 0 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["code"] = "F", ["parentId"] = 0 } });
 
-        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
 
     [TestMethod]
@@ -112,7 +112,7 @@ public class ResolveHierarchyMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["code"] = "E", ["parentId"] = 0, ["level"] = 1, ["name"] = "EEE" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["code"] = "F", ["parentId"] = 0, ["level"] = 1, ["name"] = "FFF" } });
 
-        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
 
     [TestMethod]
@@ -145,6 +145,6 @@ public class ResolveHierarchyMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = "4", ["code"] = "E", ["level2"] = "EEE", ["parentId"] = "0", ["level"] = 1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = "5", ["code"] = "F", ["level2"] = "FFF", ["parentId"] = "0", ["level"] = 1 } });
 
-        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
 }

@@ -192,9 +192,9 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
         _reader.Reset();
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
-        base.ValidateMutator();
+        base.ValidateParameters();
 
         if (ConnectionString == null)
             throw new ProcessParameterNullException(this, nameof(ConnectionString));

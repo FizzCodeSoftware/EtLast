@@ -28,7 +28,7 @@ public class AddKeyHashMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["name"] = "A", ["age"] = 11, ["height"] = 140, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0), ["height-hash"] = "dbae772db29058a88f9bd830e957c695347c41b6162a7eb9a9ea13def34be56b" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 6, ["name"] = "fake", ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0), ["height-hash"] = "dbae772db29058a88f9bd830e957c695347c41b6162a7eb9a9ea13def34be56b" } });
 
-        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
 
     [TestMethod]
@@ -54,7 +54,7 @@ public class AddKeyHashMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["name"] = "A", ["age"] = 11, ["height"] = 140, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0), ["hash"] = "1CF436127B6DB3D54CB58C3AC9502EE679DC1307FC6B39687301760D7C31F3BB" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 6, ["name"] = "fake", ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0), ["hash"] = "FD52C4555964784D62EFA9B4521FCACF87C3E9EE068F418F6B8245A08EB0F770" } });
 
-        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
 
     [TestMethod]
@@ -76,6 +76,6 @@ public class AddKeyHashMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["name"] = "A", ["age"] = 11, ["height"] = 140, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0) },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 6, ["name"] = "fake", ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0) } });
 
-        Assert.AreEqual(0, result.Process.InvocationContext.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
 }

@@ -1,11 +1,7 @@
-﻿using System.Reflection;
-
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 {
-    public IEtlSession Session { get; private set; }
-
     private readonly ExecutionStatistics _statistics = new();
     public IExecutionStatistics Statistics => _statistics;
 
@@ -13,21 +9,16 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 
     private readonly IoCommandCounterCollection _ioCommandCounterCollection = new();
 
-    public abstract IEnumerable<IJob> CreateJobs();
+    public abstract IEnumerable<IProcess> CreateJobs();
 
     protected AbstractEtlTask()
     {
     }
 
-    public abstract void ValidateParameters();
-
-    public void Execute(IProcess caller, IEtlSession session, ProcessInvocationContext invocationContext)
+    public override void Execute(IProcess caller, Pipe pipe)
     {
-        Session = session;
-        Context = session.Context;
-
         Context.RegisterProcessInvocationStart(this, caller);
-        InvocationContext = invocationContext ?? caller?.InvocationContext ?? new ProcessInvocationContext(Context);
+        Pipe = pipe ?? caller?.Pipe ?? new Pipe(Context);
 
         if (caller != null)
             Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Process}", Kind, caller.Name);
@@ -58,20 +49,20 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 
                         job.Execute(this);
 
-                        if (InvocationContext.IsTerminating)
+                        if (Pipe.IsTerminating)
                             break;
                     }
                 }
             }
             finally
             {
-                Session.Context.Listeners.Remove(_ioCommandCounterCollection);
+                Context.Listeners.Remove(_ioCommandCounterCollection);
             }
 
             _statistics.Finish();
 
             Context.Log(LogSeverity.Information, this, "{ProcessKind} {TaskResult} in {Elapsed}",
-                Kind, InvocationContext.ToLogString(), _statistics.RunTime);
+                Kind, Pipe.ToLogString(), _statistics.RunTime);
 
             LogPrivateSettableProperties(LogSeverity.Debug);
         }
@@ -79,36 +70,6 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
         {
             netTimeStopwatch.Stop();
             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
-        }
-    }
-
-    public void SetArguments(ArgumentCollection arguments)
-    {
-        var baseProperties = typeof(AbstractEtlTask).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly)
-            .Concat(typeof(AbstractProcess).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
-            .Select(x => x.Name)
-            .ToHashSet();
-
-        var properties = GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
-            .Where(p => p.SetMethod?.IsPublic == true && !baseProperties.Contains(p.Name))
-            .ToList();
-
-        foreach (var property in properties)
-        {
-            if (property.GetValue(this) != null)
-                continue;
-
-            var key = arguments.AllKeys.FirstOrDefault(x => string.Equals(x, property.Name, StringComparison.InvariantCultureIgnoreCase));
-            key ??= arguments.AllKeys.FirstOrDefault(x => string.Equals(x, Name + ":" + property.Name, StringComparison.InvariantCultureIgnoreCase));
-
-            if (key != null)
-            {
-                var value = arguments.Get(key);
-                if (value != null && property.PropertyType.IsAssignableFrom(value.GetType()))
-                {
-                    property.SetValue(this, value);
-                }
-            }
         }
     }
 }

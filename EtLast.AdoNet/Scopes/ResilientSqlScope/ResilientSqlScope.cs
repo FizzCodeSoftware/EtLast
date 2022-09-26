@@ -82,7 +82,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
     {
     }
 
-    protected override void ValidateImpl()
+    public override void ValidateParameters()
     {
         if (Tables == null)
             throw new ProcessParameterNullException(this, nameof(Tables));
@@ -131,12 +131,12 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
         {
             CreateTempTables();
 
-            if (InvocationContext.IsTerminating)
+            if (Pipe.IsTerminating)
                 return;
 
-            var initializerInvocationContext = new ProcessInvocationContext(Context);
-            Initialize(initializerInvocationContext);
-            if (InvocationContext.Failed)
+            var initializerPipe = new Pipe(Context);
+            Initialize(initializerPipe);
+            if (Pipe.Failed)
             {
                 Context.Log(LogSeverity.Information, this, "initialization failed in {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
                 return;
@@ -144,7 +144,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 
             foreach (var table in Tables)
             {
-                if (InvocationContext.Failed)
+                if (Pipe.Failed)
                     return;
 
                 for (var partitionIndex = 0; ; partitionIndex++)
@@ -158,7 +158,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
                         Context.Log(LogSeverity.Information, this, "processing table {TableName}",
                             ConnectionString.Unescape(table.TableName));
 
-                        IJob[] mainProcessList;
+                        IProcess[] mainProcessList;
 
                         using (var creatorScope = Context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
                         {
@@ -171,7 +171,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
                         foreach (var process in mainProcessList)
                         {
                             process.Execute(this);
-                            if (InvocationContext.IsTerminating)
+                            if (Pipe.IsTerminating)
                                 return;
                         }
 
@@ -190,7 +190,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 
                     var rowCount = mainProducer.CountRowsAndReleaseOwnership(null);
 
-                    if (InvocationContext.IsTerminating)
+                    if (Pipe.IsTerminating)
                         return;
 
                     if (rowCount == 0)
@@ -198,14 +198,14 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
                 }
             }
 
-            var finalizerInvocationContext = new ProcessInvocationContext(Context);
-            Finalize(finalizerInvocationContext);
+            var finalizerPipe = new Pipe(Context);
+            Finalize(finalizerPipe);
         }
         finally
         {
             if (TempTableMode != ResilientSqlScopeTempTableMode.AlwaysKeep)
             {
-                if (!InvocationContext.Failed || TempTableMode == ResilientSqlScopeTempTableMode.AlwaysDrop)
+                if (!Pipe.Failed || TempTableMode == ResilientSqlScopeTempTableMode.AlwaysDrop)
                 {
                     DropTempTables();
                 }

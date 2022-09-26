@@ -34,7 +34,7 @@ public sealed class RowListener : AbstractRowSource, IRowListener
         var rowCount = 0;
 
         thread.Start();
-        while (!InvocationContext.IsTerminating)
+        while (!Pipe.IsTerminating)
         {
             var hbElapsed = hbTimer.ElapsedMilliseconds;
             if (hbElapsed >= HeartBeatMilliseconds)

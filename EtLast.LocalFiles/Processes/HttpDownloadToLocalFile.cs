@@ -11,7 +11,7 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
     {
     }
 
-    protected override void ValidateImpl()
+    public override void ValidateParameters()
     {
         if (string.IsNullOrEmpty(Url))
             throw new ProcessParameterNullException(this, nameof(Url));

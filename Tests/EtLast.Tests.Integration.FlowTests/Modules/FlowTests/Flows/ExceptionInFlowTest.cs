@@ -2,34 +2,36 @@
 
 public class ExceptionInFlowTest : AbstractEtlFlow
 {
+    public bool ThrowErrorEnabled { get; set; }
+
     public override void ValidateParameters()
     {
     }
 
     public override void Execute()
     {
-        var mainTask = ExecuteTask(new ThrowExceptionFlow());
-        if (!mainTask.Success)
+        if (!ThrowErrorEnabled)
         {
-            var failNotificationTask = ExecuteTask(new ShowMessageTask()
-            {
-                Message = t => t.InvocationContext.IsTerminating
-                    ? "FAILED"
-                    : "WORKS PROPERLY",
-            });
-
-            var terminatingBefore = InvocationContext.Failed;
-
-            InvocationContext.TakeExceptions(mainTask.InvocationContext);
-
-            var terminatingAfter = InvocationContext.Failed;
-
-            ExecuteTask(new ShowMessageTask()
-            {
-                Message = t => !terminatingBefore && terminatingAfter
-                    ? "WORKS PROPERLY"
-                    : "FAILED",
-            });
+            NewPipe()
+                .StartWith(new ThrowExceptionFlow())
+                .OnError(previous => new ShowMessageTask()
+                {
+                    Message = t => t.Pipe.IsTerminating || !previous.IsTerminating
+                        ? "#1001 FAILED"
+                        : "#1001 WORKS PROPERLY",
+                });
+        }
+        else
+        {
+            NewPipe()
+                .StartWith(new ThrowExceptionFlow())
+                .OnError(previous => new ShowMessageTask()
+                {
+                    Message = t => t.Pipe.IsTerminating || !previous.IsTerminating
+                        ? "#1002 FAILED"
+                        : "#1002 WORKS PROPERLY",
+                })
+                .ThrowOnError();
         }
     }
 }

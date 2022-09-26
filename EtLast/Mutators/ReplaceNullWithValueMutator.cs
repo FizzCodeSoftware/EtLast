@@ -33,7 +33,7 @@ public sealed class ReplaceNullWithValueMutator : AbstractSimpleChangeMutator
         yield return row;
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
         if (Value == null)
             throw new ProcessParameterNullException(this, nameof(Value));

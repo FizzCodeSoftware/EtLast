@@ -47,7 +47,7 @@ public class Host : IHost
 
     public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     public List<Func<ArgumentCollection, ICommandLineListener>> CommandLineListenerCreators { get; } = new List<Func<ArgumentCollection, ICommandLineListener>>();
-    public List<Func<IEtlSession, IEtlContextListener>> EtlContextListeners { get; } = new List<Func<IEtlSession, IEtlContextListener>>();
+    public List<Func<IEtlContext, IEtlContextListener>> EtlContextListeners { get; } = new List<Func<IEtlContext, IEtlContextListener>>();
     public string[] CommandLineArgs { get; set; }
 
     private static readonly Regex _regEx = new("(?<=\")[^\"]*(?=\")|[^\" ]+");

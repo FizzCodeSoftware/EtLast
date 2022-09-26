@@ -63,14 +63,14 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
         }
 
         var resultCount = 0;
-        if (enumerator != null && !InvocationContext.IsTerminating)
+        if (enumerator != null && !Pipe.IsTerminating)
         {
             var initialValues = new Dictionary<string, object>();
 
             // key is the SOURCE column name
             var columnMap = Columns?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
-            while (!InvocationContext.IsTerminating)
+            while (!Pipe.IsTerminating)
             {
                 try
                 {

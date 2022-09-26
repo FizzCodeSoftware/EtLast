@@ -11,9 +11,9 @@ public sealed class ThrowExceptionOnDuplicateKeyMutator : AbstractMutator
     {
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
-        base.ValidateMutator();
+        base.ValidateParameters();
 
         if (RowKeyGenerator == null)
             throw new ProcessParameterNullException(this, nameof(RowKeyGenerator));

@@ -31,7 +31,7 @@ public sealed class ExplodeMutator : AbstractMutator
         }
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
         if (RowCreator == null)
             throw new ProcessParameterNullException(this, nameof(RowCreator));

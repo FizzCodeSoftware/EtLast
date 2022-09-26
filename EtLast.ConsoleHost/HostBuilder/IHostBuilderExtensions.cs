@@ -14,7 +14,7 @@ public static class IHostBuilderExtensions
         return builder;
     }
 
-    public static IHostBuilder RegisterEtlContextListener(this IHostBuilder builder, Func<IEtlSession, IEtlContextListener> listenerCreator)
+    public static IHostBuilder RegisterEtlContextListener(this IHostBuilder builder, Func<IEtlContext, IEtlContextListener> listenerCreator)
     {
         builder.Result.EtlContextListeners.Add(listenerCreator);
         return builder;

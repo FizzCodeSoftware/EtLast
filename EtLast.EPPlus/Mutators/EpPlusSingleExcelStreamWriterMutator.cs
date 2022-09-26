@@ -87,9 +87,9 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
         yield return row;
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
-        base.ValidateMutator();
+        base.ValidateParameters();
 
         if (Stream == null)
             throw new ProcessParameterNullException(this, nameof(Stream));

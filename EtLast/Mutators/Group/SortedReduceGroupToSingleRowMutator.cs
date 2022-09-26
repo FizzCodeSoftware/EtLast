@@ -45,7 +45,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
         var mutatedRowCount = 0;
         var ignoredRowCount = 0;
         var resultRowCount = 0;
-        while (!InvocationContext.IsTerminating)
+        while (!Pipe.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -72,7 +72,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
                 }
                 catch (Exception ex)
                 {
-                    InvocationContext.AddException(this, ex, row);
+                    Pipe.AddException(this, ex, row);
                     break;
                 }
 
@@ -94,7 +94,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
                 }
                 catch (Exception ex)
                 {
-                    InvocationContext.AddException(this, ex, row);
+                    Pipe.AddException(this, ex, row);
                     break;
                 }
 
@@ -114,7 +114,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
             {
                 lastKey = key;
 
-                var groupRow = ReduceGroup(group, InvocationContext);
+                var groupRow = ReduceGroup(group, Pipe);
 
                 if (groupRow != null)
                 {
@@ -125,7 +125,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
                 }
             }
 
-            if (!InvocationContext.IsTerminating)
+            if (!Pipe.IsTerminating)
             {
                 group.Add(row);
             }
@@ -133,9 +133,9 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
 
         netTimeStopwatch.Start();
 
-        if (!InvocationContext.IsTerminating && group.Count > 0)
+        if (!Pipe.IsTerminating && group.Count > 0)
         {
-            var groupRow = ReduceGroup(group, InvocationContext);
+            var groupRow = ReduceGroup(group, Pipe);
             if (groupRow != null)
             {
                 resultRowCount++;
@@ -149,7 +149,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
             mutatedRowCount, mutatedRowCount + ignoredRowCount, resultRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
     }
 
-    private IRow ReduceGroup(List<IRow> group, ProcessInvocationContext invocationContext)
+    private IRow ReduceGroup(List<IRow> group, Pipe pipe)
     {
         if (group.Count == 0)
             return null;
@@ -163,7 +163,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
             }
             catch (Exception ex)
             {
-                invocationContext.AddException(this, ex);
+                pipe.AddException(this, ex);
                 return null;
             }
 

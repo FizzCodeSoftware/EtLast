@@ -21,7 +21,7 @@ public class DwhTableBuilder : IDwhTableBuilder
     public string ValidToColumnName { get; }
     public string ValidToColumnNameEscaped { get; }
 
-    private readonly List<Func<DwhTableBuilder, IEnumerable<IJob>>> _finalizerCreators = new();
+    private readonly List<Func<DwhTableBuilder, IEnumerable<IProcess>>> _finalizerCreators = new();
     private readonly List<MutatorCreatorDelegate> _mutatorCreators = new();
     private Func<DateTimeOffset?, ISequence> _inputCreator;
 
@@ -52,7 +52,7 @@ public class DwhTableBuilder : IDwhTableBuilder
         _mutatorCreators.Add(creator);
     }
 
-    internal void AddFinalizerCreator(Func<DwhTableBuilder, IEnumerable<IJob>> creator)
+    internal void AddFinalizerCreator(Func<DwhTableBuilder, IEnumerable<IProcess>> creator)
     {
         _finalizerCreators.Add(creator);
     }
@@ -92,7 +92,7 @@ public class DwhTableBuilder : IDwhTableBuilder
         };
     }
 
-    private IEnumerable<IJob> CreateTableMainProcess()
+    private IEnumerable<IProcess> CreateTableMainProcess()
     {
         var mutators = new List<IEnumerable<IMutator>>();
         foreach (var creator in _mutatorCreators)

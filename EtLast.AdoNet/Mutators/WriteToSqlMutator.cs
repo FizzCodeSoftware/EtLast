@@ -223,9 +223,9 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
         return sb.ToString();
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
-        base.ValidateMutator();
+        base.ValidateParameters();
 
         if (ConnectionString == null)
             throw new ProcessParameterNullException(this, nameof(ConnectionString));

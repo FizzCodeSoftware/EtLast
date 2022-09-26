@@ -70,7 +70,7 @@ public sealed class ResolveHierarchyMutator : AbstractSimpleChangeMutator
         yield return row;
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
         if (string.IsNullOrEmpty(IdentityColumn))
             throw new ProcessParameterNullException(this, nameof(IdentityColumn));

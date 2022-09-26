@@ -6,7 +6,7 @@ public class AssertFail : AbstractEtlTask
     {
     }
 
-    public override IEnumerable<IJob> CreateJobs()
+    public override IEnumerable<IProcess> CreateJobs()
     {
         yield return new CustomJob(Context)
         {

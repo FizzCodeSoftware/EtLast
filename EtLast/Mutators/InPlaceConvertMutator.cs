@@ -100,7 +100,7 @@ public sealed class InPlaceConvertMutator : AbstractSimpleChangeMutator
         }
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
         if (TypeConverter == null)
             throw new ProcessParameterNullException(this, nameof(TypeConverter));

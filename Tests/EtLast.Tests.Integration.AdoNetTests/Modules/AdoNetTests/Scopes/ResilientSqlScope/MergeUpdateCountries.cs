@@ -10,7 +10,7 @@ public class MergeUpdateCountries : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    public override IEnumerable<IJob> CreateJobs()
+    public override IEnumerable<IProcess> CreateJobs()
     {
         yield return new CustomSqlStatement(Context)
         {
@@ -57,7 +57,7 @@ public class MergeUpdateCountries : AbstractEtlTask
             );
     }
 
-    private IEnumerable<IJob> LoadFirstTwoRows(ResilientTable table)
+    private IEnumerable<IProcess> LoadFirstTwoRows(ResilientTable table)
     {
         yield return SequenceBuilder.Fluent
             .ReadFrom(new RowCreator(Context)
@@ -79,7 +79,7 @@ public class MergeUpdateCountries : AbstractEtlTask
             .Build();
     }
 
-    private IEnumerable<IJob> UpdateRow(ResilientTable table)
+    private IEnumerable<IProcess> UpdateRow(ResilientTable table)
     {
         var data = TestData.CountryData.Skip(1).Take(1).ToArray();
         data[0][1] = "United States of America Update";

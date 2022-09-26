@@ -43,7 +43,7 @@ public sealed class MergeStringColumnsMutator : AbstractSimpleChangeMutator
         yield return row;
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
         if (string.IsNullOrEmpty(TargetColumn))
             throw new ProcessParameterNullException(this, nameof(TargetColumn));

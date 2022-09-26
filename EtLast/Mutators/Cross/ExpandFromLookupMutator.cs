@@ -71,9 +71,9 @@ public sealed class ExpandFromLookupMutator : AbstractCrossMutator
             yield return row;
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
-        base.ValidateMutator();
+        base.ValidateParameters();
 
         if (MatchSelector == null)
             throw new ProcessParameterNullException(this, nameof(MatchSelector));

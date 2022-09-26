@@ -25,32 +25,20 @@ public class EtlRunInfoTest : AbstractEtlFlow
         DataDefinitionExtenderMsSql2016.Extend(databaseDeclaration, configuration);
         RelationalModelExtender.Extend(model, configuration);
 
-        var ok = ExecuteTask(new CreateDatabase()
-        {
-            ConnectionString = ConnectionString,
-            Definition = databaseDeclaration,
-            DatabaseName = DatabaseName,
-        }).Success;
-
-        if (!ok)
-            return;
-
-        ok = ExecuteJob(CreateFirstDwhBuilder(configuration, model)).Success;
-
-        if (!ok)
-            return;
-
-        TestFirstDwhBuilder();
-
-        ok = ExecuteJob(CreateSecondDwhBuilder(configuration, model)).Success;
-
-        if (!ok)
-            return;
-
-        TestSecondDwhBuilder();
+        NewPipe()
+            .StartWith(new CreateDatabase()
+            {
+                ConnectionString = ConnectionString,
+                Definition = databaseDeclaration,
+                DatabaseName = DatabaseName,
+            })
+            .OnSuccess(pipe => CreateFirstDwhBuilder(configuration, model))
+            .OnSuccess(pipe => TestFirstDwhBuilder)
+            .OnSuccess(pipe => CreateSecondDwhBuilder(configuration, model))
+            .OnSuccess(pipe => TestSecondDwhBuilder);
     }
 
-    private IJob CreateFirstDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
+    private IProcess CreateFirstDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
     {
         var builder = new MsSqlDwhBuilder(Context, "FirstDwhBuilder", Helpers.EtlRunId1)
         {
@@ -101,7 +89,7 @@ public class EtlRunInfoTest : AbstractEtlFlow
         Assert.AreEqual(3, result.Count);
     }
 
-    private IJob CreateSecondDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
+    private IProcess CreateSecondDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
     {
         var builder = new MsSqlDwhBuilder(Context, "SecondDwhBuilder", Helpers.EtlRunId2)
         {

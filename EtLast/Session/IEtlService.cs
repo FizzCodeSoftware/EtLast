@@ -2,7 +2,7 @@
 
 public interface IEtlService
 {
-    public IEtlSession Session { get; }
-    public void Start(IEtlSession session);
+    public IEtlContext Context { get; }
+    public void Start(IEtlContext context);
     public void Stop();
 }

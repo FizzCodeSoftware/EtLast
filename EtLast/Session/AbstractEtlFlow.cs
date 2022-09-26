@@ -1,11 +1,7 @@
-﻿using System.Reflection;
-
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 public abstract class AbstractEtlFlow : AbstractProcess, IEtlFlow
 {
-    public IEtlSession Session { get; private set; }
-
     private readonly ExecutionStatistics _statistics = new();
     public IExecutionStatistics Statistics => _statistics;
 
@@ -19,15 +15,10 @@ public abstract class AbstractEtlFlow : AbstractProcess, IEtlFlow
     {
     }
 
-    public abstract void ValidateParameters();
-
-    public void Execute(IProcess caller, IEtlSession session, ProcessInvocationContext invocationContext)
+    public override void Execute(IProcess caller, Pipe pipe)
     {
-        Session = session;
-        Context = session.Context;
-
         Context.RegisterProcessInvocationStart(this, caller);
-        InvocationContext = invocationContext ?? caller?.InvocationContext ?? new ProcessInvocationContext(Context);
+        Pipe = pipe ?? caller?.Pipe ?? new Pipe(Context);
 
         if (caller != null)
             Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Process}", Kind, caller.Name);
@@ -45,10 +36,10 @@ public abstract class AbstractEtlFlow : AbstractProcess, IEtlFlow
         }
         catch (Exception ex)
         {
-            InvocationContext.AddException(this, ex);
+            Pipe.AddException(this, ex);
         }
 
-        if (!InvocationContext.IsTerminating)
+        if (!Pipe.IsTerminating)
         {
             Context.Listeners.Add(_ioCommandCounterCollection);
             try
@@ -57,16 +48,16 @@ public abstract class AbstractEtlFlow : AbstractProcess, IEtlFlow
             }
             catch (Exception ex)
             {
-                InvocationContext.AddException(this, ex);
+                Pipe.AddException(this, ex);
             }
             finally
             {
-                Session.Context.Listeners.Remove(_ioCommandCounterCollection);
+                Context.Listeners.Remove(_ioCommandCounterCollection);
             }
 
             _statistics.Finish();
             Context.Log(LogSeverity.Information, this, "{ProcessKind} {TaskResult} in {Elapsed}",
-                Kind, InvocationContext.ToLogString(), _statistics.RunTime);
+                Kind, Pipe.ToLogString(), _statistics.RunTime);
 
             LogPrivateSettableProperties(LogSeverity.Debug);
         }
@@ -75,51 +66,9 @@ public abstract class AbstractEtlFlow : AbstractProcess, IEtlFlow
         Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
     }
 
-    public T ExecuteTask<T>(T task)
-        where T : IEtlTask
+    public IPipeStarter NewPipe()
     {
-        task.SetArguments(Session.Arguments);
-
-        var taskInvocationContext = new ProcessInvocationContext(Context);
-        task.Execute(this, Session, taskInvocationContext);
-        return task;
-    }
-
-    public T ExecuteJob<T>(T job)
-        where T : IJob
-    {
-        var jobInvocationContext = new ProcessInvocationContext(Context);
-        job.Execute(this, jobInvocationContext);
-        return job;
-    }
-
-    public void SetArguments(ArgumentCollection arguments)
-    {
-        var baseProperties = typeof(AbstractEtlTask).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly)
-            .Concat(typeof(AbstractProcess).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
-            .Select(x => x.Name)
-            .ToHashSet();
-
-        var properties = GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
-            .Where(p => p.SetMethod?.IsPublic == true && !baseProperties.Contains(p.Name))
-            .ToList();
-
-        foreach (var property in properties)
-        {
-            if (property.GetValue(this) != null)
-                continue;
-
-            var key = arguments.AllKeys.FirstOrDefault(x => string.Equals(x, property.Name, StringComparison.InvariantCultureIgnoreCase));
-            key ??= arguments.AllKeys.FirstOrDefault(x => string.Equals(x, Name + ":" + property.Name, StringComparison.InvariantCultureIgnoreCase));
-
-            if (key != null)
-            {
-                var value = arguments.Get(key);
-                if (value != null && property.PropertyType.IsAssignableFrom(value.GetType()))
-                {
-                    property.SetValue(this, value);
-                }
-            }
-        }
+        var pipe = new Pipe(Context);
+        return new PipeBuilder(this, pipe);
     }
 }

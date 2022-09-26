@@ -10,7 +10,7 @@ public class MergeOnlyInsertCountries : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    public override IEnumerable<IJob> CreateJobs()
+    public override IEnumerable<IProcess> CreateJobs()
     {
         yield return new CustomSqlStatement(Context)
         {
@@ -58,7 +58,7 @@ public class MergeOnlyInsertCountries : AbstractEtlTask
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["Name"] = "Mexico", ["Abbreviation2"] = "MX", ["Abbreviation3"] = "MEX" });
     }
 
-    private IEnumerable<IJob> LoadFirstTwoRows(ResilientTable table)
+    private IEnumerable<IProcess> LoadFirstTwoRows(ResilientTable table)
     {
         yield return SequenceBuilder.Fluent
             .ReadFrom(new RowCreator(Context)
@@ -80,7 +80,7 @@ public class MergeOnlyInsertCountries : AbstractEtlTask
             .Build();
     }
 
-    private IEnumerable<IJob> LoadSecondTwoRows(ResilientTable table)
+    private IEnumerable<IProcess> LoadSecondTwoRows(ResilientTable table)
     {
         yield return SequenceBuilder.Fluent
             .ReadFrom(new RowCreator(Context)

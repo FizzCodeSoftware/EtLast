@@ -91,7 +91,7 @@ public sealed class UnpivotMutator : AbstractMutator
         }
     }
 
-    protected override void ValidateMutator()
+    public override void ValidateParameters()
     {
         if (ValueColumns == null && FixColumns == null)
             throw new InvalidProcessParameterException(this, nameof(ValueColumns), null, "if " + nameof(ValueColumns) + " is null then " + nameof(FixColumns) + " must be set");

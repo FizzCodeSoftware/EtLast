@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class ProcessInvocationContext
+public class Pipe
 {
     public IEtlContext Context { get; }
 
@@ -8,7 +8,7 @@ public class ProcessInvocationContext
     public bool Failed => Exceptions.Count > 0;
     public bool IsTerminating => Context.CancellationToken.IsCancellationRequested || Failed;
 
-    public ProcessInvocationContext(IEtlContext context)
+    public Pipe(IEtlContext context)
     {
         Context = context;
     }
@@ -73,9 +73,9 @@ public class ProcessInvocationContext
         return "success";
     }
 
-    public void TakeExceptions(ProcessInvocationContext otherInvocationContext)
+    public void TakeExceptions(Pipe from)
     {
-        if (otherInvocationContext.Exceptions.Count > 0)
-            Exceptions.AddRange(otherInvocationContext.Exceptions);
+        if (from.Exceptions.Count > 0)
+            Exceptions.AddRange(from.Exceptions);
     }
 }

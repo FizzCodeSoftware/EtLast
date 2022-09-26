@@ -8,12 +8,13 @@ public class Main : AbstractEtlFlow
 
     public override void Execute()
     {
-        ExecuteTask(new EtlRunInfoTest());
-        ExecuteTask(new EtlRunInfoOptimizedTest());
-        ExecuteTask(new History1Test());
-        ExecuteTask(new History2Test());
-        ExecuteTask(new History3Test());
-        ExecuteTask(new NullValidityTest());
-        ExecuteTask(new EtlRunIdForDefaultValidFromTest());
+        NewPipe()
+            .StartWith(new EtlRunInfoTest())
+            .OnSuccess(pipe => new EtlRunInfoOptimizedTest())
+            .OnSuccess(pipe => new History1Test())
+            .OnSuccess(pipe => new History2Test())
+            .OnSuccess(pipe => new History3Test())
+            .OnSuccess(pipe => new NullValidityTest())
+            .OnSuccess(pipe => new EtlRunIdForDefaultValidFromTest());
     }
 }

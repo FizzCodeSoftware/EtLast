@@ -30,7 +30,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
         var mutatedRowCount = 0;
         var ignoredRowCount = 0;
 
-        while (!InvocationContext.IsTerminating)
+        while (!Pipe.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -57,7 +57,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    InvocationContext.AddException(this, ex, row);
+                    Pipe.AddException(this, ex, row);
                     break;
                 }
 
@@ -79,7 +79,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    InvocationContext.AddException(this, ex, row);
+                    Pipe.AddException(this, ex, row);
                     break;
                 }
 
@@ -109,12 +109,12 @@ public class MemorySortMutator : AbstractSequence, IMutator
         }
         catch (Exception ex)
         {
-            InvocationContext.AddException(this, new CustomCodeException(this, "error during the execution of custom sort code", ex));
+            Pipe.AddException(this, new CustomCodeException(this, "error during the execution of custom sort code", ex));
         }
 
         if (sortedRowsEnumerator != null)
         {
-            while (!InvocationContext.IsTerminating)
+            while (!Pipe.IsTerminating)
             {
                 IRow row;
                 try
@@ -127,7 +127,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    InvocationContext.AddException(this, new CustomCodeException(this, "error during the execution of custom sort code", ex));
+                    Pipe.AddException(this, new CustomCodeException(this, "error during the execution of custom sort code", ex));
                     break;
                 }
 

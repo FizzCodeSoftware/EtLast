@@ -2,11 +2,11 @@
 
 public abstract class AbstractEtlService : IEtlService
 {
-    public IEtlSession Session { get; private set; }
+    public IEtlContext Context { get; private set; }
 
-    public void Start(IEtlSession session)
+    public void Start(IEtlContext context)
     {
-        Session = session;
+        Context = context;
         OnStart();
     }
 

@@ -25,7 +25,7 @@ public sealed class MemoryGroupByOperation : AbstractMemoryAggregationOperation
 public static class MemoryGroupByOperationExtensions
 {
     /// <summary>
-    /// New value will be double.
+    /// StartWith value will be double.
     /// </summary>
     public static MemoryGroupByOperation AddIntAverage(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -33,7 +33,7 @@ public static class MemoryGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be double.
+    /// StartWith value will be double.
     /// </summary>
     public static MemoryGroupByOperation AddLongAverage(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -41,7 +41,7 @@ public static class MemoryGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be double.
+    /// StartWith value will be double.
     /// </summary>
     public static MemoryGroupByOperation AddDoubleAverage(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -49,7 +49,7 @@ public static class MemoryGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be decimal.
+    /// StartWith value will be decimal.
     /// </summary>
     public static MemoryGroupByOperation AddDecimalAverage(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -57,7 +57,7 @@ public static class MemoryGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be int.
+    /// StartWith value will be int.
     /// </summary>
     public static MemoryGroupByOperation AddIntSum(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -65,7 +65,7 @@ public static class MemoryGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be long.
+    /// StartWith value will be long.
     /// </summary>
     public static MemoryGroupByOperation AddLongSum(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -73,7 +73,7 @@ public static class MemoryGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be double.
+    /// StartWith value will be double.
     /// </summary>
     public static MemoryGroupByOperation AddDoubleSum(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -81,7 +81,7 @@ public static class MemoryGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be decimal.
+    /// StartWith value will be decimal.
     /// </summary>
     public static MemoryGroupByOperation AddDecimalSum(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -89,7 +89,7 @@ public static class MemoryGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be int.
+    /// StartWith value will be int.
     /// </summary>
     public static MemoryGroupByOperation AddIntMax(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -97,7 +97,7 @@ public static class MemoryGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be long.
+    /// StartWith value will be long.
     /// </summary>
     public static MemoryGroupByOperation AddLongMax(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -105,7 +105,7 @@ public static class MemoryGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be double.
+    /// StartWith value will be double.
     /// </summary>
     public static MemoryGroupByOperation AddDoubleMax(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -113,7 +113,7 @@ public static class MemoryGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be decimal.
+    /// StartWith value will be decimal.
     /// </summary>
     public static MemoryGroupByOperation AddDecimalMax(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -121,7 +121,7 @@ public static class MemoryGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be int.
+    /// StartWith value will be int.
     /// </summary>
     public static MemoryGroupByOperation AddIntMin(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -129,7 +129,7 @@ public static class MemoryGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be long.
+    /// StartWith value will be long.
     /// </summary>
     public static MemoryGroupByOperation AddLongMin(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -137,7 +137,7 @@ public static class MemoryGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be double.
+    /// StartWith value will be double.
     /// </summary>
     public static MemoryGroupByOperation AddDoubleMin(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
     {
@@ -145,7 +145,7 @@ public static class MemoryGroupByOperationExtensions
     }
 
     /// <summary>
-    /// New value will be decimal.
+    /// StartWith value will be decimal.
     /// </summary>
     public static MemoryGroupByOperation AddDecimalMin(this MemoryGroupByOperation op, string sourceColumn, string targetColumn = null)
     {

@@ -1,21 +1,21 @@
 ﻿namespace FizzCode.EtLast;
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractJobWithResult<T> : AbstractProcess, IJobWithResult<T>
+public abstract class AbstractProcessWithResult<T> : AbstractProcess, IProcessWithResult<T>
 {
-    protected AbstractJobWithResult(IEtlContext context)
+    protected AbstractProcessWithResult(IEtlContext context)
         : base(context)
     {
     }
 
-    public void Execute(IProcess caller)
+    public override void Execute(IProcess caller)
     {
         ExecuteWithResult(caller, null);
     }
 
-    public void Execute(IProcess caller, ProcessInvocationContext invocationContext)
+    public override void Execute(IProcess caller, Pipe pipe)
     {
-        ExecuteWithResult(caller, invocationContext);
+        ExecuteWithResult(caller, pipe);
     }
 
     public T ExecuteWithResult(IProcess caller)
@@ -23,10 +23,10 @@ public abstract class AbstractJobWithResult<T> : AbstractProcess, IJobWithResult
         return ExecuteWithResult(caller, null);
     }
 
-    public T ExecuteWithResult(IProcess caller, ProcessInvocationContext invocationContext)
+    public T ExecuteWithResult(IProcess caller, Pipe pipe)
     {
         Context.RegisterProcessInvocationStart(this, caller);
-        InvocationContext = invocationContext ?? caller?.InvocationContext ?? new ProcessInvocationContext(Context);
+        Pipe = pipe ?? caller?.Pipe ?? new Pipe(Context);
 
         LogPublicSettableProperties(LogSeverity.Verbose);
 
@@ -36,21 +36,21 @@ public abstract class AbstractJobWithResult<T> : AbstractProcess, IJobWithResult
         {
             ValidateImpl();
 
-            if (!InvocationContext.IsTerminating)
+            if (!Pipe.IsTerminating)
             {
                 result = ExecuteImpl();
             }
         }
         catch (Exception ex)
         {
-            InvocationContext.AddException(this, ex);
+            Pipe.AddException(this, ex);
         }
 
         netTimeStopwatch.Stop();
         Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
 
         Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-            Kind, InvocationContext.ToLogString(), InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+            Kind, Pipe.ToLogString(), InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 
         return result;
     }

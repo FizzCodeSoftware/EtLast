@@ -3,9 +3,9 @@
 public sealed class ResilientSqlScopeProcessBuilder
 {
     public ResilientSqlScope Scope { get; init; }
-    public List<IJob> Jobs { get; } = new List<IJob>();
+    public List<IProcess> Jobs { get; } = new List<IProcess>();
 
-    public ResilientSqlScopeProcessBuilder Add(IJob process)
+    public ResilientSqlScopeProcessBuilder Add(IProcess process)
     {
         Jobs.Add(process);
 
