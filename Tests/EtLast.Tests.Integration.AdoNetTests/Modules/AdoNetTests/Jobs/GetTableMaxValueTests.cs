@@ -14,7 +14,7 @@ public class GetTableMaxValueTests : AbstractEtlTask
     {
         yield return new CustomSqlStatement(Context)
         {
-            Name = "Create table and insert content",
+            Name = "CreateTableAndInsertContent",
             ConnectionString = ConnectionString,
             SqlStatement = $"CREATE TABLE {nameof(GetTableMaxValueTests)} (Id INT NOT NULL, DateTimeValue DATETIME2);" +
                     $"INSERT INTO {nameof(GetTableMaxValueTests)} (Id, DateTimeValue) VALUES (1, '2022.07.08');" +
@@ -23,12 +23,12 @@ public class GetTableMaxValueTests : AbstractEtlTask
 
         yield return new CustomJob(Context)
         {
-            Name = "Check max value",
+            Name = "CheckMaxValue",
             Action = job =>
             {
                 var result = new GetTableMaxValue<DateTime>(Context)
                 {
-                    Name = "Get table max value",
+                    Name = "GetTableMaxValue",
                     ConnectionString = ConnectionString,
                     TableName = ConnectionString.Escape(nameof(GetTableMaxValueTests)),
                     ColumnName = "DateTimeValue",

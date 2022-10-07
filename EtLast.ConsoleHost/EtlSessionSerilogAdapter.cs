@@ -195,8 +195,15 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
 
         if (process != null)
         {
+            var proc = process.InvocationInfo.Caller;
+            while (proc != null)
+            {
+                proc = proc.InvocationInfo.Caller;
+                sb.Append('.');
+            }
+
             IEtlTask task = null;
-            var proc = process;
+            proc = process;
             while (proc != null)
             {
                 if (proc is IEtlTask t)
@@ -210,21 +217,14 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
 
             if (task != null)
             {
-                sb.Append("[{ActiveTask}] ");
+                sb.Append("{ActiveTask} ");
                 values.Add(task.Name);
             }
 
             if (process != task)
             {
-                sb.Append("[{ActiveProcess}] ");
+                sb.Append("{ActiveProcess} ");
                 values.Add(process.Name);
-            }
-
-            var topic = process.GetTopic();
-            if (topic != null)
-            {
-                sb.Append("[{ActiveTopic}] ");
-                values.Add(topic);
             }
         }
 
@@ -237,6 +237,13 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
         sb.Append(text);
         if (args != null)
             values.AddRange(args);
+
+        var topic = process?.GetTopic();
+        if (topic != null)
+        {
+            sb.Append(" *{ActiveTopic}");
+            values.Add(topic);
+        }
 
         var logger = forOps
             ? _opsLogger

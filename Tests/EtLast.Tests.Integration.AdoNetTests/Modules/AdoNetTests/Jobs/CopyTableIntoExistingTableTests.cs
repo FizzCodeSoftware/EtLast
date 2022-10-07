@@ -14,7 +14,7 @@ public class CopyTableIntoExistingTableTests : AbstractEtlTask
     {
         yield return new CustomSqlStatement(Context)
         {
-            Name = "Create source table",
+            Name = "CreateSourceTable",
             ConnectionString = ConnectionString,
             SqlStatement = $"CREATE TABLE {nameof(CopyTableIntoExistingTableTests)} (Id INT NOT NULL, Value NVARCHAR(255));" +
                     $"INSERT INTO {nameof(CopyTableIntoExistingTableTests)} (Id, Value) VALUES (1, 'etlast');" +
@@ -23,7 +23,7 @@ public class CopyTableIntoExistingTableTests : AbstractEtlTask
 
         yield return new CustomSqlStatement(Context)
         {
-            Name = "Create target table",
+            Name = "CreateTargetTable",
             ConnectionString = ConnectionString,
             SqlStatement = $"CREATE TABLE {nameof(CopyTableIntoExistingTableTests)}Target (Id INT NOT NULL, Value NVARCHAR(255));"
         };
@@ -40,13 +40,13 @@ public class CopyTableIntoExistingTableTests : AbstractEtlTask
 
         yield return new CustomJob(Context)
         {
-            Name = "Check target table contents",
+            Name = "CheckTargetTableContents",
             Action = job =>
             {
                 var result = SequenceBuilder.Fluent
                 .ReadFrom(new AdoNetDbReader(Context)
                 {
-                    Name = "Read target table contents",
+                    Name = "ReadTargetTableContents",
                     ConnectionString = ConnectionString,
                     TableName = $"{nameof(CopyTableIntoExistingTableTests)}Target"
                 }).Build().TakeRowsAndReleaseOwnership(this).ToList();

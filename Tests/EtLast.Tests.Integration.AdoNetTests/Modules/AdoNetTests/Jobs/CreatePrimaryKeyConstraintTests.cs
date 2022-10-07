@@ -18,7 +18,7 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
     {
         yield return new CustomSqlStatement(Context)
         {
-            Name = "Create table",
+            Name = "CreateTable",
             ConnectionString = ConnectionString,
             SqlStatement = $"CREATE TABLE {nameof(CreatePrimaryKeyConstraintTests)} (Id INT NOT NULL, DateTimeValue DATETIME2);" +
                     $"INSERT INTO {nameof(CreatePrimaryKeyConstraintTests)} (Id, DateTimeValue) VALUES (1, '2022.07.08');" +
@@ -27,12 +27,12 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
 
         yield return new CustomJob(Context)
         {
-            Name = "Check no primary key",
+            Name = "CheckNoPrimaryKey",
             Action = job =>
             {
                 var countOfPrimaryKeys = new GetTableRecordCount(Context)
                 {
-                    Name = "Read primary key(s) (1)",
+                    Name = "ReadPrimaryKey1",
                     ConnectionString = ConnectionString,
                     TableName = "INFORMATION_SCHEMA.TABLE_CONSTRAINTS",
                     CustomWhereClause = @$"TABLE_NAME = '{nameof(CreatePrimaryKeyConstraintTests)}'
@@ -47,12 +47,12 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
 
         yield return new CustomJob(Context)
         {
-            Name = "Check primary key exist",
+            Name = "CheckPrimaryKeyExist",
             Action = job =>
             {
                 new CreatePrimaryKeyConstraint(Context)
                 {
-                    Name = "Create primary key",
+                    Name = "CreatePrimaryKey",
                     ConnectionString = ConnectionString,
                     TableName = ConnectionString.Escape(nameof(CreatePrimaryKeyConstraintTests)),
                     ConstraintName = "PK_" + nameof(CreatePrimaryKeyConstraintTests),
@@ -61,7 +61,7 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
 
                 var countOfPrimaryKeys = new GetTableRecordCount(Context)
                 {
-                    Name = "Read primary key(s)(2)",
+                    Name = "ReadPrimaryKey2",
                     ConnectionString = ConnectionString,
                     TableName = "INFORMATION_SCHEMA.TABLE_CONSTRAINTS",
                     CustomWhereClause = @$"TABLE_NAME = '{nameof(CreatePrimaryKeyConstraintTests)}'

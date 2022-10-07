@@ -14,13 +14,13 @@ public class CustomSqlAdoNetDbReaderTests : AbstractEtlTask
     {
         yield return new CustomJob(Context)
         {
-            Name = "Check custom sql result",
+            Name = "CheckCustomSqlResult",
             Action = job =>
             {
                 var result = SequenceBuilder.Fluent
                 .ReadFromCustomSql(new CustomSqlAdoNetDbReader(Context)
                 {
-                    Name = "Return custom sql result",
+                    Name = "ReturnCustomSqlResult",
                     ConnectionString = ConnectionString,
                     MainTableName = "none",
                     Sql = "SELECT 1 as Id UNION SELECT 2 as Id"

@@ -14,7 +14,7 @@ public class CopyTableIntoNewTableTests : AbstractEtlTask
     {
         yield return new CustomSqlStatement(Context)
         {
-            Name = "Create source table",
+            Name = "CreateSourceTable",
             ConnectionString = ConnectionString,
             SqlStatement = $"CREATE TABLE {nameof(CopyTableIntoNewTableTests)} (Id INT NOT NULL, Value NVARCHAR(255));" +
                     $"INSERT INTO {nameof(CopyTableIntoNewTableTests)} (Id, Value) VALUES (1, 'etlast');" +
@@ -33,7 +33,7 @@ public class CopyTableIntoNewTableTests : AbstractEtlTask
 
         yield return new CustomJob(Context)
         {
-            Name = "Check target table contents",
+            Name = "CheckTargetTableContents",
             Action = job =>
             {
                 var result = SequenceBuilder.Fluent

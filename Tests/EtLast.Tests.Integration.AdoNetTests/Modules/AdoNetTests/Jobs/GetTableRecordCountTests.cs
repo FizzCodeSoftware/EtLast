@@ -14,7 +14,7 @@ public class GetTableRecordCountTests : AbstractEtlTask
     {
         yield return new CustomSqlStatement(Context)
         {
-            Name = "Create table and insert content",
+            Name = "CreateTableAndInsertContent",
             ConnectionString = ConnectionString,
             SqlStatement = $"CREATE TABLE {nameof(GetTableRecordCountTests)} (Id INT NOT NULL, DateTimeValue DATETIME2);" +
                     $"INSERT INTO {nameof(GetTableRecordCountTests)} (Id, DateTimeValue) VALUES (1, '2022.07.08');" +
@@ -23,12 +23,12 @@ public class GetTableRecordCountTests : AbstractEtlTask
 
         yield return new CustomJob(Context)
         {
-            Name = "Check record count",
+            Name = "CheckRecordCount",
             Action = job =>
             {
                 var result = new GetTableRecordCount(Context)
                 {
-                    Name = "Get record count",
+                    Name = "GetRecordCount",
                     ConnectionString = ConnectionString,
                     TableName = ConnectionString.Escape(nameof(GetTableRecordCountTests)),
                 }.ExecuteWithResult(job);

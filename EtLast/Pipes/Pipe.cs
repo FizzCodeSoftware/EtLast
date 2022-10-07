@@ -70,7 +70,7 @@ public class Pipe
         if (Failed)
             return "failed";
 
-        return "success";
+        return "completed";
     }
 
     public void TakeExceptions(Pipe from)

@@ -14,14 +14,14 @@ public class LoadCountries : AbstractEtlTask
     {
         yield return new CustomSqlStatement(Context)
         {
-            Name = "Create table",
+            Name = "CreateTable",
             ConnectionString = ConnectionString,
             SqlStatement = $"CREATE TABLE {nameof(LoadCountries)} (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));"
         };
 
         yield return new ResilientSqlScope(Context)
         {
-            Name = "Execute resilient scope",
+            Name = "ExecuteResilientScope",
             ConnectionString = ConnectionString,
             Tables = new()
             {
@@ -49,7 +49,7 @@ public class LoadCountries : AbstractEtlTask
             .ReadFrom(TestData.Country(Context))
             .WriteToMsSqlResilient(new ResilientWriteToMsSqlMutator(Context)
             {
-                Name = "Write content to table",
+                Name = "WriteContentToTable",
                 ConnectionString = ConnectionString,
                 TableDefinition = new DbTableDefinition()
                 {

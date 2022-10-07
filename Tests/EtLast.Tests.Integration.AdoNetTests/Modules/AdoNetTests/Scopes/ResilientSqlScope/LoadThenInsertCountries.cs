@@ -14,14 +14,14 @@ public class LoadThenInsertCountries : AbstractEtlTask
     {
         yield return new CustomSqlStatement(Context)
         {
-            Name = "Create table",
+            Name = "CreateTable",
             ConnectionString = ConnectionString,
             SqlStatement = $"CREATE TABLE {nameof(LoadThenInsertCountries)} (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));"
         };
 
         yield return new ResilientSqlScope(Context)
         {
-            Name = "Execute resilient scope 1",
+            Name = "ExecuteResilientScope1",
             ConnectionString = ConnectionString,
             Tables = new()
             {
@@ -37,7 +37,7 @@ public class LoadThenInsertCountries : AbstractEtlTask
 
         yield return new ResilientSqlScope(Context)
         {
-            Name = "Execute resilient scope 2",
+            Name = "ExecuteResilientScope2",
             ConnectionString = ConnectionString,
             Tables = new()
             {
@@ -63,13 +63,13 @@ public class LoadThenInsertCountries : AbstractEtlTask
         yield return SequenceBuilder.Fluent
             .ReadFrom(new RowCreator(Context)
             {
-                Name = "Create first two rows",
+                Name = "CreateFirstTwoRows",
                 Columns = TestData.CountryColumns,
                 InputRows = TestData.CountryData.Take(2).ToList()
             })
             .WriteToMsSqlResilient(new ResilientWriteToMsSqlMutator(Context)
             {
-                Name = "Write first two rows",
+                Name = "WriteFirstTwoRows",
                 ConnectionString = ConnectionString,
                 TableDefinition = new DbTableDefinition()
                 {
@@ -85,13 +85,13 @@ public class LoadThenInsertCountries : AbstractEtlTask
         yield return SequenceBuilder.Fluent
             .ReadFrom(new RowCreator(Context)
             {
-                Name = "Create second two rows",
+                Name = "CreateSecondTwoRows",
                 Columns = TestData.CountryColumns,
                 InputRows = TestData.CountryData.Skip(2).ToList()
             })
             .WriteToMsSqlResilient(new ResilientWriteToMsSqlMutator(Context)
             {
-                Name = "Write second two rows",
+                Name = "WriteSecondTwoRows",
                 ConnectionString = ConnectionString,
                 TableDefinition = new DbTableDefinition()
                 {

@@ -7,7 +7,7 @@ public static class TestHelpers
         var expectedRowsList = new List<CaseInsensitiveStringKeyDictionary<object>>(expectedRows);
         return new CustomJob(caller.Context)
         {
-            Name = $"Read and check {table} table",
+            Name = "ReadAndCheck" + table + "Table",
             Action = job =>
             {
                 ReadSqlTableAndAssertExactMacth(job, connectionString, table, expectedRowsList);
