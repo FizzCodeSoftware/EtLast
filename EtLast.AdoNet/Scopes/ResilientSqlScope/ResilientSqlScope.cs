@@ -245,7 +245,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
                     {
                         SourceTableName = additionalTable.TableName,
                         TargetTableName = additionalTable.TempTableName,
-                        Columns = table.Columns.ToDictionary(c => c, x => ConnectionString.Escape(x)),
+                        Columns = additionalTable.Columns.ToDictionary(c => c, x => ConnectionString.Escape(x)),
                     });
                 }
             }
