@@ -56,7 +56,6 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
                 var exception = new StreamReadException(this, "excel steram read failed", stream, ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel stream read failed: {0}, message: {1}",
                     stream.Name, ex.Message));
-                exception.Data.Add("StreamName", stream.Name);
 
                 Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, null, ex);
                 throw exception;
