@@ -64,8 +64,8 @@ public abstract class AbstractRowSource : AbstractSequence, IRowSource
             }
         }
 
-        Context.Log(LogSeverity.Debug, this, "produced {RowCount} rows in {Elapsed}/{ElapsedWallClock}",
-            resultCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+        Context.Log(LogSeverity.Debug, this, "produced {RowCount} rows",
+            resultCount);
     }
 
     protected abstract IEnumerable<IRow> Produce();

@@ -22,8 +22,6 @@ public sealed class RowCreator : AbstractRowSource
 
     protected override IEnumerable<IRow> Produce()
     {
-        Context.Log(LogSeverity.Debug, this, "returning pre-defined rows");
-
         foreach (var inputRow in InputRows)
         {
             if (Pipe.IsTerminating)

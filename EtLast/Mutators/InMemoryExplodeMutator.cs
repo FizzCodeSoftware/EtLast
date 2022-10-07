@@ -148,8 +148,8 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
             netTimeStopwatch.Start();
         }
 
-        Context.Log(LogSeverity.Debug, this, "processed {InputRowCount} rows and returned {RowCount} rows in {Elapsed}/{ElapsedWallClock}",
-            rows.Count, resultCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+        Context.Log(LogSeverity.Debug, this, "processed {InputRowCount} rows and returned {RowCount} rows",
+            rows.Count, resultCount);
     }
 
     public IEnumerator<IMutator> GetEnumerator()

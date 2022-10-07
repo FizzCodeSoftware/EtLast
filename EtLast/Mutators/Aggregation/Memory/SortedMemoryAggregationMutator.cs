@@ -202,8 +202,8 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
             }
         }
 
-        Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows, created {GroupCount} groups and created {AggregateCount} aggregates in {Elapsed}/{ElapsedWallClock}, ignored: {IgnoredRowCount}",
-            rowCount, groupCount, aggregateCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed, ignoredRowCount);
+        Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows, created {GroupCount} groups and created {AggregateCount} aggregates, ignored: {IgnoredRowCount}",
+            rowCount, groupCount, aggregateCount, ignoredRowCount);
     }
 }
 

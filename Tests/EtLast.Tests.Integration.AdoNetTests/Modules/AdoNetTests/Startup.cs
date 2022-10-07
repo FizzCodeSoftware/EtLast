@@ -8,6 +8,6 @@ public class Startup : IStartup
     {
         DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", Microsoft.Data.SqlClient.SqlClientFactory.Instance);
         settings.FileLogSettings.MinimumLogLevel = LogSeverity.Information;
-        settings.ConsoleLogSettings.MinimumLogLevel = LogSeverity.Information;
+        settings.ConsoleLogSettings.MinimumLogLevel = LogSeverity.Debug;
     }
 }

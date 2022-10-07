@@ -197,8 +197,8 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
 
                 if (mutatedRowCount + ignoredRowCount > 0)
                 {
-                    Context.Log(LogSeverity.Debug, this, "mutated {MutatedRowCount} of {TotalRowCount} rows in {Elapsed}/{ElapsedWallClock}",
-                        mutatedRowCount, mutatedRowCount + ignoredRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+                    Context.Log(LogSeverity.Debug, this, "mutated {MutatedRowCount} of {TotalRowCount} rows",
+                        mutatedRowCount, mutatedRowCount + ignoredRowCount);
                 }
             }
         }

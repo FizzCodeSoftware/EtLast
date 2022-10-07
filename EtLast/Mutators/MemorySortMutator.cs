@@ -99,8 +99,8 @@ public class MemorySortMutator : AbstractSequence, IMutator
 
         netTimeStopwatch.Start();
 
-        Context.Log(LogSeverity.Debug, this, "mutated {MutatedRowCount} of {TotalRowCount} rows in {Elapsed}/{ElapsedWallClock}",
-            mutatedRowCount, mutatedRowCount + ignoredRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+        Context.Log(LogSeverity.Debug, this, "collected {MutatedRowCount} of {TotalRowCount} rows",
+            mutatedRowCount, mutatedRowCount + ignoredRowCount);
 
         IEnumerator<IRow> sortedRowsEnumerator = null;
         try
@@ -135,8 +135,8 @@ public class MemorySortMutator : AbstractSequence, IMutator
             }
         }
 
-        Context.Log(LogSeverity.Debug, this, "sorted {RowCount} rows in {Elapsed}/{ElapsedWallClock}",
-            mutatedRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+        Context.Log(LogSeverity.Debug, this, "sorted {RowCount} rows",
+            mutatedRowCount);
     }
 
     public IEnumerator<IMutator> GetEnumerator()

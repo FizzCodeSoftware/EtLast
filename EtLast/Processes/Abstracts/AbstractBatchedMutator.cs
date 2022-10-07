@@ -267,8 +267,8 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
 
         if (mutatedRowCount + ignoredRowCount > 0)
         {
-            Context.Log(LogSeverity.Debug, this, "mutated {MutatedRowCount}/{TotalRowCount} rows in {Elapsed}/{ElapsedWallClock} in {BatchCount} batches",
-                mutatedRowCount, mutatedRowCount + ignoredRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed, batchCount);
+            Context.Log(LogSeverity.Debug, this, "mutated {MutatedRowCount}/{TotalRowCount} rows in {BatchCount} batches",
+                mutatedRowCount, mutatedRowCount + ignoredRowCount, batchCount);
         }
     }
 

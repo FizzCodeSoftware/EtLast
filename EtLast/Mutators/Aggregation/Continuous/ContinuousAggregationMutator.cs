@@ -188,28 +188,27 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
             }
 
             netTimeStopwatch.Stop();
-            Context.Log(LogSeverity.Debug, this, "created {AggregateRowCount} aggregates in {Elapsed}/{ElapsedWallClock}",
-                aggregates.Count, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "created {AggregateRowCount} aggregates",
+                aggregates.Count);
 
             aggregates.Clear();
         }
         else if (singleAggregate != null)
         {
-            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created 1 aggregate in {Elapsed}, ignored: {IgnoredRowCount}",
-                rowCount, InvocationInfo.LastInvocationStarted.Elapsed, ignoredRowCount);
+            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created 1 aggregate, ignored: {IgnoredRowCount}",
+                rowCount, ignoredRowCount);
 
             var row = Context.CreateRow(this, singleAggregate.ResultRow);
 
             netTimeStopwatch.Stop();
             yield return row;
 
-            Context.Log(LogSeverity.Debug, this, "created a single aggregate in {Elapsed}/{ElapsedWallClock}",
-                InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "created a single aggregate");
         }
         else
         {
-            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created a 0 aggregates in {Elapsed}, ignored: {IgnoredRowCount}",
-                rowCount, InvocationInfo.LastInvocationStarted.Elapsed, ignoredRowCount);
+            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created a 0 aggregates, ignored: {IgnoredRowCount}",
+                rowCount, ignoredRowCount);
         }
     }
 }

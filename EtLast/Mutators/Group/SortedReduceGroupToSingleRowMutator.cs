@@ -145,8 +145,8 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
             }
         }
 
-        Context.Log(LogSeverity.Debug, this, "evaluated {MutatedRowCount} of {TotalRowCount} rows and returned {ResultRowCount} rows in {Elapsed}/{ElapsedWallClock}",
-            mutatedRowCount, mutatedRowCount + ignoredRowCount, resultRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+        Context.Log(LogSeverity.Debug, this, "evaluated {MutatedRowCount} of {TotalRowCount} rows and returned {ResultRowCount} rows",
+            mutatedRowCount, mutatedRowCount + ignoredRowCount, resultRowCount);
     }
 
     private IRow ReduceGroup(List<IRow> group, Pipe pipe)

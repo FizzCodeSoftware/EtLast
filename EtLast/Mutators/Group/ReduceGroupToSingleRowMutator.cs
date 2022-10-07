@@ -128,8 +128,8 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
 
         netTimeStopwatch.Start();
 
-        Context.Log(LogSeverity.Debug, this, "evaluated {MutatedRowCount} of {TotalRowCount} rows and created {GroupCount} groups in {Elapsed}/{ElapsedWallClock}",
-            mutatedRowCount, mutatedRowCount + ignoredRowCount, groups.Count, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+        Context.Log(LogSeverity.Debug, this, "evaluated {MutatedRowCount} of {TotalRowCount} rows and created {GroupCount} groups",
+            mutatedRowCount, mutatedRowCount + ignoredRowCount, groups.Count);
 
         var fakeList = new List<IRow>();
 
@@ -191,8 +191,8 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
             }
         }
 
-        Context.Log(LogSeverity.Debug, this, "returned {ResultRowCount} rows in {Elapsed}/{ElapsedWallClock}",
-            resultRowCount, InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+        Context.Log(LogSeverity.Debug, this, "returned {ResultRowCount} rows",
+            resultRowCount);
     }
 
     public IEnumerator<IMutator> GetEnumerator()
