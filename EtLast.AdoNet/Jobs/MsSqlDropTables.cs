@@ -101,10 +101,10 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
                         var exception = new SqlSchemaReadException(this, "table names", ex);
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "table list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                             ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
-                        exception.Data.Add("ConnectionStringName", ConnectionString.Name);
-                        exception.Data.Add("Statement", command.CommandText);
-                        exception.Data.Add("Timeout", command.CommandTimeout);
-                        exception.Data.Add("Elapsed", startedOn.Elapsed);
+                        exception.Data["ConnectionStringName"] = ConnectionString.Name;
+                        exception.Data["Statement"] = command.CommandText;
+                        exception.Data["Timeout"] = command.CommandTimeout;
+                        exception.Data["Elapsed"] = startedOn.Elapsed;
                         throw exception;
                     }
                 }
@@ -154,11 +154,11 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop table, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                 ConnectionString.Name, ConnectionString.Unescape(tableName), ex.Message, command.CommandText, command.CommandTimeout));
 
-            exception.Data.Add("ConnectionStringName", ConnectionString.Name);
-            exception.Data.Add("TableName", ConnectionString.Unescape(tableName));
-            exception.Data.Add("Statement", command.CommandText);
-            exception.Data.Add("Timeout", command.CommandTimeout);
-            exception.Data.Add("Elapsed", startedOn.Elapsed);
+            exception.Data["ConnectionStringName"] = ConnectionString.Name;
+            exception.Data["TableName"] = ConnectionString.Unescape(tableName);
+            exception.Data["Statement"] = command.CommandText;
+            exception.Data["Timeout"] = command.CommandTimeout;
+            exception.Data["Elapsed"] = startedOn.Elapsed;
             throw exception;
         }
     }

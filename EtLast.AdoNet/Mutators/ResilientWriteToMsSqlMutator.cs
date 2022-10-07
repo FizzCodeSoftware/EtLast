@@ -233,16 +233,16 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
                     var exception = new SqlWriteException(this, ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db write failed, connection string key: {0}, table: {1}, message: {2}",
                         ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message));
-                    exception.Data.Add("ConnectionStringName", ConnectionString.Name);
-                    exception.Data.Add("TableName", ConnectionString.Unescape(TableDefinition.TableName));
-                    exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(column => column.Key + " => " + ConnectionString.Unescape(column.Value ?? column.Key))));
-                    exception.Data.Add("Timeout", CommandTimeout);
-                    exception.Data.Add("Elapsed", _timer.Elapsed);
-                    exception.Data.Add("TotalRowsWritten", _rowsWritten);
+                    exception.Data["ConnectionStringName"] = ConnectionString.Name;
+                    exception.Data["TableName"] = ConnectionString.Unescape(TableDefinition.TableName);
+                    exception.Data["Columns"] = string.Join(", ", TableDefinition.Columns.Select(column => column.Key + " => " + ConnectionString.Unescape(column.Value ?? column.Key)));
+                    exception.Data["Timeout"] = CommandTimeout;
+                    exception.Data["Elapsed"] = _timer.Elapsed;
+                    exception.Data["TotalRowsWritten"] = _rowsWritten;
                     if (ex is InvalidOperationException or SqlException)
                     {
                         var fileName = "bulk-copy-error-" + Context.CreatedOnLocal.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + ".tsv";
-                        exception.Data.Add("DetailedRowLogFileName", fileName);
+                        exception.Data["DetailedRowLogFileName"] = fileName;
                     }
 
                     throw exception;

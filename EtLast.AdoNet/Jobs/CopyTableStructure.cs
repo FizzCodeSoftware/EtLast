@@ -77,17 +77,17 @@ public sealed class CopyTableStructure : AbstractSqlStatements
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to create table, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message: {4}, command: {5}, timeout: {6}",
                 ConnectionString.Name, ConnectionString.Unescape(config.SourceTableName), ConnectionString.Unescape(config.TargetTableName), config.Columns != null ? string.Join(",", config.Columns.Select(column => column.Value ?? column.Key)) : "all", ex.Message, command.CommandText, command.CommandTimeout));
 
-            exception.Data.Add("ConnectionStringName", ConnectionString.Name);
-            exception.Data.Add("SourceTableName", ConnectionString.Unescape(config.SourceTableName));
-            exception.Data.Add("TargetTableName", ConnectionString.Unescape(config.TargetTableName));
+            exception.Data["ConnectionStringName"] = ConnectionString.Name;
+            exception.Data["SourceTableName"] = ConnectionString.Unescape(config.SourceTableName);
+            exception.Data["TargetTableName"] = ConnectionString.Unescape(config.TargetTableName);
             if (config.Columns != null)
             {
-                exception.Data.Add("SourceColumns", string.Join(",", config.Columns.Select(column => ConnectionString.Unescape(column.Value ?? column.Key))));
+                exception.Data["SourceColumns"] = string.Join(",", config.Columns.Select(column => ConnectionString.Unescape(column.Value ?? column.Key)));
             }
 
-            exception.Data.Add("Statement", command.CommandText);
-            exception.Data.Add("Timeout", command.CommandTimeout);
-            exception.Data.Add("Elapsed", startedOn.Elapsed);
+            exception.Data["Statement"] = command.CommandText;
+            exception.Data["Timeout"] = command.CommandTimeout;
+            exception.Data["Elapsed"] = startedOn.Elapsed;
             throw exception;
         }
     }

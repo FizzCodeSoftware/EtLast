@@ -79,7 +79,7 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel file, file name: {0}, message: {1}, row: {2}",
                 FileName, ex.Message, row.ToDebugString()));
 
-            exception.Data.Add("FileName", FileName);
+            exception.Data["FileName"] = FileName;
             throw exception;
         }
 

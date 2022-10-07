@@ -12,7 +12,7 @@ public class ProcessExecutionException : EtlException
     public ProcessExecutionException(IProcess process, IReadOnlySlimRow row, Exception innerException)
         : this(process, "error raised during the execution of a process", innerException)
     {
-        Data.Add("Row", row.ToDebugString(true));
+        Data["Row"] = row.ToDebugString(true);
     }
 
     public ProcessExecutionException(IProcess process, string message)
@@ -23,7 +23,7 @@ public class ProcessExecutionException : EtlException
     public ProcessExecutionException(IProcess process, IReadOnlySlimRow row, string message)
         : base(process, message)
     {
-        Data.Add("Row", row.ToDebugString(true));
+        Data["Row"] = row.ToDebugString(true);
     }
 
     public ProcessExecutionException(IProcess process, string message, Exception innerException)
@@ -34,7 +34,7 @@ public class ProcessExecutionException : EtlException
     public ProcessExecutionException(IProcess process, IReadOnlySlimRow row, string message, Exception innerException)
         : base(process, message, innerException)
     {
-        Data.Add("Row", row.ToDebugString(true));
+        Data["Row"] = row.ToDebugString(true);
     }
 
     public static EtlException Wrap(IProcess process, IReadOnlySlimRow row, Exception ex)

@@ -7,7 +7,7 @@ public class DuplicateKeyException : EtlException
     public DuplicateKeyException(IProcess process, IReadOnlySlimRow row, string key)
         : base(process, "duplicate keys found")
     {
-        Data.Add("Key", key);
-        Data.Add("Row", row.ToDebugString(true));
+        Data["Key"] = key;
+        Data["Row"] = row.ToDebugString(true);
     }
 }

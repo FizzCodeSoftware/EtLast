@@ -49,8 +49,8 @@ public sealed class MergeDateWithTimeMutator : AbstractMutator
                 break;
             default:
                 var exception = new InvalidValuesException(this, row);
-                exception.Data.Add("SourceDate", sourceDate != null ? sourceDate.ToString() + " (" + sourceDate.GetType().GetFriendlyTypeName() + ")" : "NULL");
-                exception.Data.Add("SourceTime", sourceTime != null ? sourceTime.ToString() + " (" + sourceTime.GetType().GetFriendlyTypeName() + ")" : "NULL");
+                exception.Data["SourceDate"] = sourceDate != null ? sourceDate.ToString() + " (" + sourceDate.GetType().GetFriendlyTypeName() + ")" : "NULL";
+                exception.Data["SourceTime"] = sourceTime != null ? sourceTime.ToString() + " (" + sourceTime.GetType().GetFriendlyTypeName() + ")" : "NULL";
                 throw exception;
         }
 

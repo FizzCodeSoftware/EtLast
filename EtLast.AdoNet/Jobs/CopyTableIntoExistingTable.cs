@@ -114,17 +114,17 @@ public sealed class CopyTableIntoExistingTable : AbstractSqlStatement
                     : "all",
                 ex.Message, command.CommandText, CommandTimeout));
 
-            exception.Data.Add("ConnectionStringName", ConnectionString.Name);
-            exception.Data.Add("SourceTableName", ConnectionString.Unescape(Configuration.SourceTableName));
-            exception.Data.Add("TargetTableName", ConnectionString.Unescape(Configuration.TargetTableName));
+            exception.Data["ConnectionStringName"] = ConnectionString.Name;
+            exception.Data["SourceTableName"] = ConnectionString.Unescape(Configuration.SourceTableName);
+            exception.Data["TargetTableName"] = ConnectionString.Unescape(Configuration.TargetTableName);
             if (Configuration.Columns != null)
             {
-                exception.Data.Add("SourceColumns", string.Join(",", Configuration.Columns.Select(column => ConnectionString.Unescape(column.Value ?? column.Key))));
+                exception.Data["SourceColumns"] = string.Join(",", Configuration.Columns.Select(column => ConnectionString.Unescape(column.Value ?? column.Key)));
             }
 
-            exception.Data.Add("Statement", command.CommandText);
-            exception.Data.Add("Timeout", CommandTimeout);
-            exception.Data.Add("Elapsed", InvocationInfo.LastInvocationStarted.Elapsed);
+            exception.Data["Statement"] = command.CommandText;
+            exception.Data["Timeout"] = CommandTimeout;
+            exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
             throw exception;
         }
     }

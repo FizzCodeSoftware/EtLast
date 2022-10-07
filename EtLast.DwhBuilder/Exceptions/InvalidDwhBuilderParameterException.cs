@@ -8,9 +8,9 @@ public class InvalidDwhBuilderParameterException<TTableBuilder> : EtlException
     public InvalidDwhBuilderParameterException(IDwhBuilder<TTableBuilder> builder, string parameterName, object value, string cause)
         : base("invalid DWH builder parameter")
     {
-        Data.Add("Builder", builder.ScopeName);
-        Data.Add("Parameter", parameterName);
-        Data.Add("Value", value != null ? value.ToString() : "NULL");
-        Data.Add("Cause", cause);
+        Data["Builder"] = builder.ScopeName;
+        Data["Parameter"] = parameterName;
+        Data["Value"] = value != null ? value.ToString() : "NULL";
+        Data["Cause"] = cause;
     }
 }

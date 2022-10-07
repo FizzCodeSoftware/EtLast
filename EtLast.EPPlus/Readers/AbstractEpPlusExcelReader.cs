@@ -83,9 +83,9 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
                 var exception = new ProcessExecutionException(this, "can't find excel sheet by name");
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "can't find excel sheet, stream: {0}, sheet name: {1}, existing sheet names: {2}",
                     name, SheetName, string.Join(",", workbook?.Worksheets.Select(x => x.Name))));
-                exception.Data.Add("Stream", name);
-                exception.Data.Add("SheetName", SheetName);
-                exception.Data.Add("ExistingSheetNames", string.Join(",", workbook?.Worksheets.Select(x => x.Name)));
+                exception.Data["Stream"] = name;
+                exception.Data["SheetName"] = SheetName;
+                exception.Data["ExistingSheetNames"] = string.Join(",", workbook?.Worksheets.Select(x => x.Name));
 
                 if (stream != null)
                     Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
@@ -97,9 +97,9 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
                 var exception = new ProcessExecutionException(this, "can't find excel sheet by index");
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "can't find excel sheet, stream: {0}, sheet index: {1}, existing sheet names: {2}",
                     name, SheetIndex.ToString("D", CultureInfo.InvariantCulture), string.Join(",", workbook?.Worksheets.Select(x => x.Name))));
-                exception.Data.Add("Stream", name);
-                exception.Data.Add("SheetIndex", SheetIndex.ToString("D", CultureInfo.InvariantCulture));
-                exception.Data.Add("ExistingSheetNames", string.Join(",", workbook?.Worksheets.Select(x => x.Name)));
+                exception.Data["Stream"] = name;
+                exception.Data["SheetIndex"] = SheetIndex.ToString("D", CultureInfo.InvariantCulture);
+                exception.Data["ExistingSheetNames"] = string.Join(",", workbook?.Worksheets.Select(x => x.Name));
 
                 if (stream != null)
                     Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);

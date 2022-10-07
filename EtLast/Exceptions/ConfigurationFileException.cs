@@ -7,12 +7,12 @@ public class ConfigurationFileException : EtlException
     public ConfigurationFileException(string path, string message)
         : base(message)
     {
-        Data.Add("Path", path);
+        Data["Path"] = path;
     }
 
     public ConfigurationFileException(string path, string message, Exception innerException)
         : base(message, innerException)
     {
-        Data.Add("Path", path);
+        Data["Path"] = path;
     }
 }

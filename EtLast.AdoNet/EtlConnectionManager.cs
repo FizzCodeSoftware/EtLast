@@ -45,9 +45,9 @@ public static class EtlConnectionManager
                 {
                     var exception = new EtlException(process, "can't connect to database", ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "can't connect to database, connection string key: {0}, message: {1}", connectionString.Name, ex.Message));
-                    exception.Data.Add("ConnectionStringName", connectionString.Name);
-                    exception.Data.Add("ProviderName", connectionString.ProviderName);
-                    exception.Data.Add("NumberOfAttempts", maxRetryCount + 1);
+                    exception.Data["ConnectionStringName"] = connectionString.Name;
+                    exception.Data["ProviderName"] = connectionString.ProviderName;
+                    exception.Data["NumberOfAttempts"] = maxRetryCount + 1;
                     throw exception;
                 }
             });
@@ -93,9 +93,9 @@ public static class EtlConnectionManager
                 {
                     var exception = new EtlException(process, "can't connect to database", ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "can't connect to database, connection string key: {0}, message: {1}", connectionString.Name, ex.Message));
-                    exception.Data.Add("ConnectionStringName", connectionString.Name);
-                    exception.Data.Add("ProviderName", connectionString.ProviderName);
-                    exception.Data.Add("NumberOfAttempts", maxRetryCount + 1);
+                    exception.Data["ConnectionStringName"] = connectionString.Name;
+                    exception.Data["ProviderName"] = connectionString.ProviderName;
+                    exception.Data["NumberOfAttempts"] = maxRetryCount + 1;
                     throw exception;
                 }
             });

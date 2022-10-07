@@ -60,12 +60,12 @@ public sealed class GetTableMaxValue<T> : AbstractSqlStatementWithResult<TableMa
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table max value query failed, connection string key: {0}, table: {1}, column: {2}, message: {3}, command: {4}, timeout: {5}",
                 ConnectionString.Name, ConnectionString.Unescape(TableName), ConnectionString.Unescape(ColumnName), ex.Message, command.CommandText, CommandTimeout));
 
-            exception.Data.Add("ConnectionStringName", ConnectionString.Name);
-            exception.Data.Add("TableName", ConnectionString.Unescape(TableName));
-            exception.Data.Add("ColumnName", ConnectionString.Unescape(ColumnName));
-            exception.Data.Add("Statement", command.CommandText);
-            exception.Data.Add("Timeout", CommandTimeout);
-            exception.Data.Add("Elapsed", InvocationInfo.LastInvocationStarted.Elapsed);
+            exception.Data["ConnectionStringName"] = ConnectionString.Name;
+            exception.Data["TableName"] = ConnectionString.Unescape(TableName);
+            exception.Data["ColumnName"] = ConnectionString.Unescape(ColumnName);
+            exception.Data["Statement"] = command.CommandText;
+            exception.Data["Timeout"] = CommandTimeout;
+            exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
             throw exception;
         }
     }

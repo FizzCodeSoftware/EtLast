@@ -55,12 +55,12 @@ public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "identity counter reset failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                 ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
 
-            exception.Data.Add("ConnectionStringName", ConnectionString.Name);
-            exception.Data.Add("Table", TableName);
-            exception.Data.Add("IdentityColumn", IdentityColumnName);
-            exception.Data.Add("Statement", command.CommandText);
-            exception.Data.Add("Timeout", command.CommandTimeout);
-            exception.Data.Add("Elapsed", InvocationInfo.LastInvocationStarted.Elapsed);
+            exception.Data["ConnectionStringName"] = ConnectionString.Name;
+            exception.Data["Table"] = TableName;
+            exception.Data["IdentityColumn"] = IdentityColumnName;
+            exception.Data["Statement"] = command.CommandText;
+            exception.Data["Timeout"] = command.CommandTimeout;
+            exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
             throw exception;
         }
     }

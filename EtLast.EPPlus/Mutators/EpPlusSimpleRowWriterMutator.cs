@@ -134,8 +134,8 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
 
             var exception = new ProcessExecutionException(this, row, "error raised during writing an excel file", ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel sink: {0}", sink.Sink.Name));
-            exception.Data.Add("Sink", sink.Sink.Name);
-            exception.Data.Add("SheetName", SheetName);
+            exception.Data["Sink"] = sink.Sink.Name;
+            exception.Data["SheetName"] = SheetName;
             throw exception;
         }
 

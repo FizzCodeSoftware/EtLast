@@ -116,10 +116,10 @@ public sealed class TrackedRow : IRow
         catch (Exception ex)
         {
             var exception = new InvalidCastException("error raised during a cast operation", ex);
-            exception.Data.Add("Column", column);
-            exception.Data.Add("Value", value != null ? value.ToString() : "NULL");
-            exception.Data.Add("SourceType", (value?.GetType()).GetFriendlyTypeName());
-            exception.Data.Add("TargetType", TypeHelpers.GetFriendlyTypeName(typeof(T)));
+            exception.Data["Column"] = column;
+            exception.Data["Value"] = value != null ? value.ToString() : "NULL";
+            exception.Data["SourceType"] = (value?.GetType()).GetFriendlyTypeName();
+            exception.Data["TargetType"] = TypeHelpers.GetFriendlyTypeName(typeof(T));
             throw exception;
         }
     }

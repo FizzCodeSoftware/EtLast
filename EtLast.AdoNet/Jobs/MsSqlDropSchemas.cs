@@ -48,11 +48,11 @@ public sealed class MsSqlDropSchemas : AbstractSqlStatements
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop schema, connection string key: {0}, schema: {1}, message: {2}, command: {3}, timeout: {4}",
                 ConnectionString.Name, ConnectionString.Unescape(schemaName), ex.Message, command.CommandText, command.CommandTimeout));
 
-            exception.Data.Add("ConnectionStringName", ConnectionString.Name);
-            exception.Data.Add("SchemaName", ConnectionString.Unescape(schemaName));
-            exception.Data.Add("Statement", command.CommandText);
-            exception.Data.Add("Timeout", command.CommandTimeout);
-            exception.Data.Add("Elapsed", startedOn.Elapsed);
+            exception.Data["ConnectionStringName"] = ConnectionString.Name;
+            exception.Data["SchemaName"] = ConnectionString.Unescape(schemaName);
+            exception.Data["Statement"] = command.CommandText;
+            exception.Data["Timeout"] = command.CommandTimeout;
+            exception.Data["Elapsed"] = startedOn.Elapsed;
             throw exception;
         }
     }

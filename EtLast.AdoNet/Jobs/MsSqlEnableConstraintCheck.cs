@@ -53,10 +53,10 @@ public sealed class MsSqlEnableConstraintCheck : AbstractSqlStatements
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to enable constraint check, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                 ConnectionString.Name, tableName, ex.Message, command.CommandText, command.CommandTimeout));
 
-            exception.Data.Add("TableName", ConnectionString.Unescape(tableName));
-            exception.Data.Add("Statement", command.CommandText);
-            exception.Data.Add("Timeout", command.CommandTimeout);
-            exception.Data.Add("Elapsed", startedOn.Elapsed);
+            exception.Data["TableName"] = ConnectionString.Unescape(tableName);
+            exception.Data["Statement"] = command.CommandText;
+            exception.Data["Timeout"] = command.CommandTimeout;
+            exception.Data["Elapsed"] = startedOn.Elapsed;
             throw exception;
         }
     }

@@ -7,8 +7,8 @@ public class InvalidProcessParameterException : EtlException
     public InvalidProcessParameterException(IProcess process, string parameterName, object value, string cause)
         : base(process, "invalid parameter: " + parameterName + ", " + cause)
     {
-        Data.Add("Parameter", parameterName);
-        Data.Add("Value", value != null ? value.ToString() : "NULL");
-        Data.Add("Cause", cause);
+        Data["Parameter"] = parameterName;
+        Data["Value"] = value != null ? value.ToString() : "NULL";
+        Data["Cause"] = cause;
     }
 }

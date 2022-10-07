@@ -7,8 +7,8 @@ public class ColumnRenameException : EtlException
     public ColumnRenameException(IProcess process, IReadOnlySlimRow row, string currentName, string newName)
         : base(process, "specified target column already exists")
     {
-        Data.Add("CurrentName", currentName);
-        Data.Add("NewName", newName);
-        Data.Add("Row", row.ToDebugString(true));
+        Data["CurrentName"] = currentName;
+        Data["NewName"] = newName;
+        Data["Row"] = row.ToDebugString(true);
     }
 }

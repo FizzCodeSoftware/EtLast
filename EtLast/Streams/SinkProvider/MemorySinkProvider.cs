@@ -46,7 +46,7 @@ public class MemorySinkProvider : ISinkProvider
 
             var exception = new EtlException(caller, "error while writing memory stream", ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing memory stream: {0}, message: {1}", _sinkName, ex.Message));
-            exception.Data.Add("SinkName", _sinkName);
+            exception.Data["SinkName"] = _sinkName;
             throw exception;
         }
     }

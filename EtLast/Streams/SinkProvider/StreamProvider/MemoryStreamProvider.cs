@@ -49,7 +49,7 @@ public class MemoryStreamProvider : IStreamProvider
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening stream: {0}, message: {1}",
                 _streamName, ex.Message));
 
-            exception.Data.Add("StreamName", _streamName);
+            exception.Data["StreamName"] = _streamName;
             throw exception;
         }
     }

@@ -7,9 +7,9 @@ public class InvalidParameterException : EtlException
     public InvalidParameterException(string location, string parameterName, object value, string cause)
         : base("invalid parameter")
     {
-        Data.Add("Location", location);
-        Data.Add("Parameter", parameterName);
-        Data.Add("Value", value != null ? value.ToString() : "NULL");
-        Data.Add("Cause", cause);
+        Data["Location"] = location;
+        Data["Parameter"] = parameterName;
+        Data["Value"] = value != null ? value.ToString() : "NULL";
+        Data["Cause"] = cause;
     }
 }

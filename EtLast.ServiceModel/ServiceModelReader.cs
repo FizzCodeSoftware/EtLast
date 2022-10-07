@@ -58,7 +58,7 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
             Context.RegisterIoCommandFailed(this, IoCommandKind.serviceRead, iocUid, null, ex);
             var exception = new EtlException(this, "error while reading data from service", ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from service: {0}", client.Endpoint.Address.ToString()));
-            exception.Data.Add("Endpoint", client.Endpoint.Address.ToString());
+            exception.Data["Endpoint"] = client.Endpoint.Address.ToString();
             throw exception;
         }
 
@@ -82,7 +82,7 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
                     Context.RegisterIoCommandFailed(this, IoCommandKind.serviceRead, iocUid, resultCount, ex);
                     var exception = new EtlException(this, "error while reading data from service", ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from service: {0}", client.Endpoint.Address.ToString()));
-                    exception.Data.Add("Endpoint", client.Endpoint.Address.ToString());
+                    exception.Data["Endpoint"] = client.Endpoint.Address.ToString();
                     throw exception;
                 }
 

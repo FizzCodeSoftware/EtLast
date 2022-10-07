@@ -110,7 +110,7 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
         catch (Exception ex)
         {
             var exception = new SqlConnectionException(this, ex);
-            exception.Data.Add("ConnectionStringName", ConnectionString.Name);
+            exception.Data["ConnectionStringName"] = ConnectionString.Name;
             throw exception;
         }
     }
@@ -165,14 +165,14 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
             var exception = new SqlWriteException(this, ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db write failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",
                 ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message, sqlStatement));
-            exception.Data.Add("ConnectionStringName", ConnectionString.Name);
-            exception.Data.Add("TableName", ConnectionString.Unescape(TableDefinition.TableName));
-            exception.Data.Add("Columns", string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + ConnectionString.Unescape(x.DbColumn))));
-            exception.Data.Add("SqlStatement", sqlStatement);
-            exception.Data.Add("SqlStatementCompiled", CompileSql(_command));
-            exception.Data.Add("Timeout", CommandTimeout);
-            exception.Data.Add("SqlStatementCreator", SqlStatementCreator.GetType().GetFriendlyTypeName());
-            exception.Data.Add("TotalRowsWritten", _rowsWritten);
+            exception.Data["ConnectionStringName"] = ConnectionString.Name;
+            exception.Data["TableName"] = ConnectionString.Unescape(TableDefinition.TableName);
+            exception.Data["Columns"] = string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + ConnectionString.Unescape(x.DbColumn)));
+            exception.Data["SqlStatement"] = sqlStatement;
+            exception.Data["SqlStatementCompiled"] = CompileSql(_command);
+            exception.Data["Timeout"] = CommandTimeout;
+            exception.Data["SqlStatementCreator"] = SqlStatementCreator.GetType().GetFriendlyTypeName();
+            exception.Data["TotalRowsWritten"] = _rowsWritten;
             throw exception;
         }
 

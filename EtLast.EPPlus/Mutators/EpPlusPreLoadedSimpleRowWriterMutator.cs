@@ -72,8 +72,8 @@ public sealed class EpPlusPreLoadedSimpleRowWriterMutator : AbstractMutator, IRo
         {
             var exception = new ProcessExecutionException(this, row, "error raised during writing an excel package", ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel package, file name: {0}, message: {1}, row: {2}", _fileName, ex.Message, row.ToDebugString()));
-            exception.Data.Add("FileName", _fileName);
-            exception.Data.Add("SheetName", SheetName);
+            exception.Data["FileName"] = _fileName;
+            exception.Data["SheetName"] = SheetName;
             throw exception;
         }
 

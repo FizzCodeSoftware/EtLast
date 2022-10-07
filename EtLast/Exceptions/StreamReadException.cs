@@ -7,12 +7,12 @@ public class StreamReadException : EtlException
     public StreamReadException(IProcess process, string message, NamedStream stream)
         : base(process, message)
     {
-        Data.Add("StreamName", stream.Name);
+        Data["StreamName"] = stream.Name;
     }
 
     public StreamReadException(IProcess process, string message, NamedStream stream, Exception innerException)
         : base(process, message, innerException)
     {
-        Data.Add("StreamName", stream.Name);
+        Data["StreamName"] = stream.Name;
     }
 }

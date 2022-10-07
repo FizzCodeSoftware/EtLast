@@ -118,10 +118,10 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
                         var exception = new SqlSchemaReadException(job, "enabled foreign key names", ex);
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "enabled foreign key list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                             ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
-                        exception.Data.Add("ConnectionStringName", ConnectionString.Name);
-                        exception.Data.Add("Statement", command.CommandText);
-                        exception.Data.Add("Timeout", command.CommandTimeout);
-                        exception.Data.Add("Elapsed", startedOn.Elapsed);
+                        exception.Data["ConnectionStringName"] = ConnectionString.Name;
+                        exception.Data["Statement"] = command.CommandText;
+                        exception.Data["Timeout"] = command.CommandTimeout;
+                        exception.Data["Elapsed"] = startedOn.Elapsed;
                         throw exception;
                     }
                 }

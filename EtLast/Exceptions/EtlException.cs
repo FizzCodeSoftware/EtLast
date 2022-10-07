@@ -13,7 +13,7 @@ public class EtlException : Exception
     {
         var trace = GetTraceFromStackFrames(new StackTrace(true).GetFrames());
         if (trace != null)
-            Data.Add("Trace", trace);
+            Data["Trace"] = trace;
     }
 
     public EtlException(string message, Exception innerException)
@@ -21,7 +21,7 @@ public class EtlException : Exception
     {
         var trace = GetTraceFromStackFrames(new StackTrace(true).GetFrames());
         if (trace != null)
-            Data.Add("Trace", trace);
+            Data["Trace"] = trace;
     }
 
     public EtlException(IProcess process, string message)
@@ -29,23 +29,23 @@ public class EtlException : Exception
     {
         var trace = GetTraceFromStackFrames(new StackTrace(true).GetFrames());
         if (trace != null)
-            Data.Add("Trace", trace);
+            Data["Trace"] = trace;
 
-        Data.Add("ProcessName", process.Name);
+        Data["ProcessName"] = process.Name;
 
         var topic = process.GetTopic();
         if (topic != null)
-            Data.Add("ProcessTopic", topic);
+            Data["ProcessTopic"] = topic;
 
-        Data.Add("ProcessType", process.GetType().GetFriendlyTypeName());
+        Data["ProcessType"] = process.GetType().GetFriendlyTypeName();
 
         var assembly = process.GetType().Assembly?.GetName()?.Name;
         if (assembly != null)
-            Data.Add("ProcessTypeAssembly", assembly);
+            Data["ProcessTypeAssembly"] = assembly;
 
-        Data.Add("ProcessKind", process.Kind);
+        Data["ProcessKind"] = process.Kind;
 
-        Data.Add("CallChain", GetCallChain(process));
+        Data["CallChain"] = GetCallChain(process);
     }
 
     public EtlException(IProcess process, string message, Exception innerException)
@@ -53,22 +53,22 @@ public class EtlException : Exception
     {
         var trace = GetTraceFromStackFrames(new StackTrace(true).GetFrames());
         if (trace != null)
-            Data.Add("Trace", trace);
+            Data["Trace"] = trace;
 
-        Data.Add("ProcessName", process.Name);
+        Data["ProcessName"] = process.Name;
         var topic = process.GetTopic();
         if (topic != null)
-            Data.Add("ProcessTopic", topic);
+            Data["ProcessTopic"] = topic;
 
-        Data.Add("ProcessType", process.GetType().GetFriendlyTypeName());
+        Data["ProcessType"] = process.GetType().GetFriendlyTypeName();
 
         var assembly = process.GetType().Assembly?.GetName()?.Name;
         if (assembly != null)
-            Data.Add("ProcessTypeAssembly", assembly);
+            Data["ProcessTypeAssembly"] = assembly;
 
-        Data.Add("ProcessKind", process.Kind);
+        Data["ProcessKind"] = process.Kind;
 
-        Data.Add("CallChain", GetCallChain(process));
+        Data["CallChain"] = GetCallChain(process);
     }
 
     public static string GetTraceFromStackFrames(StackFrame[] frames)

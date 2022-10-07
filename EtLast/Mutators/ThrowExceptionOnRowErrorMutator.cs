@@ -19,10 +19,10 @@ public sealed class ThrowExceptionOnRowErrorMutator : AbstractMutator
                 if (kvp.Value is EtlRowError)
                 {
                     var error = kvp.Value as EtlRowError;
-                    exception.Data.Add("Column" + index.ToString("D", CultureInfo.InvariantCulture), kvp.Key);
-                    exception.Data.Add("Value" + index.ToString("D", CultureInfo.InvariantCulture), error.OriginalValue != null
+                    exception.Data["Column" + index.ToString("D", CultureInfo.InvariantCulture)] = kvp.Key;
+                    exception.Data["Value" + index.ToString("D", CultureInfo.InvariantCulture)] = error.OriginalValue != null
                         ? error.OriginalValue + " (" + error.OriginalValue.GetType().GetFriendlyTypeName() + ")"
-                        : "NULL");
+                        : "NULL";
                     index++;
                 }
             }

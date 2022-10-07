@@ -102,8 +102,8 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                 var exception = new SqlReadException(this, ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query, message: {0}, connection string key: {1}, SQL statement: {2}",
                     ex.Message, ConnectionString.Name, sqlStatement));
-                exception.Data.Add("ConnectionStringName", ConnectionString.Name);
-                exception.Data.Add("Statement", cmd.CommandText);
+                exception.Data["ConnectionStringName"] = ConnectionString.Name;
+                exception.Data["Statement"] = cmd.CommandText;
                 throw exception;
             }
         }
@@ -131,10 +131,10 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                     var exception = new SqlReadException(this, ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query after successfully reading {0} rows, message: {1}, connection string key: {2}, SQL statement: {3}",
                         resultCount, ex.Message, ConnectionString.Name, sqlStatement));
-                    exception.Data.Add("ConnectionStringName", ConnectionString.Name);
-                    exception.Data.Add("Statement", cmd.CommandText);
-                    exception.Data.Add("RowIndex", resultCount);
-                    exception.Data.Add("SecondsSinceLastRead", LastDataRead.Subtract(DateTime.Now).TotalSeconds.ToString(CultureInfo.InvariantCulture));
+                    exception.Data["ConnectionStringName"] = ConnectionString.Name;
+                    exception.Data["Statement"] = cmd.CommandText;
+                    exception.Data["RowIndex"] = resultCount;
+                    exception.Data["SecondsSinceLastRead"] = LastDataRead.Subtract(DateTime.Now).TotalSeconds.ToString(CultureInfo.InvariantCulture);
                     throw exception;
                 }
 
