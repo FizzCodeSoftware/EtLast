@@ -77,8 +77,15 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, IoCommandKind.serviceRead, iocUid, null, ex);
                 _client = default;
+
+                var exception = new EtlException(this, "error while reading data from service", ex);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from service: {0}",
+                    _client.Endpoint.Address.ToString()));
+                exception.Data["EndpointAddress"] = _client.Endpoint.Address.ToString();
+
+                Context.RegisterIoCommandFailed(this, IoCommandKind.serviceRead, iocUid, null, exception);
+                throw exception;
             }
         }
 

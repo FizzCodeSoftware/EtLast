@@ -177,7 +177,15 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
                     }
                     catch (Exception ex)
                     {
-                        Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBulk, iocUid, recordCount, ex);
+                        var exception = new SqlWriteException(this, ex);
+                        exception.Data["ConnectionStringName"] = ConnectionString.Name;
+                        exception.Data["TableName"] = ConnectionString.Unescape(TableDefinition.TableName);
+                        exception.Data["Columns"] = string.Join(", ", TableDefinition.Columns.Select(column => column.Key + " => " + ConnectionString.Unescape(column.Value ?? column.Key)));
+                        exception.Data["Timeout"] = CommandTimeout;
+                        exception.Data["Elapsed"] = _timer.Elapsed;
+                        exception.Data["TotalRowsWritten"] = _rowsWritten;
+
+                        Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBulk, iocUid, recordCount, exception);
                     }
 
                     if (success)

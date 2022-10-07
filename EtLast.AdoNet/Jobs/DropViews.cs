@@ -41,8 +41,6 @@ public sealed class DropViews : AbstractSqlStatements
         }
         catch (Exception ex)
         {
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, iocUid, null, ex);
-
             var exception = new SqlSchemaChangeException(this, "drop view", ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop view, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                 ConnectionString.Name, ConnectionString.Unescape(viewName), ex.Message, command.CommandText, command.CommandTimeout));
@@ -52,6 +50,8 @@ public sealed class DropViews : AbstractSqlStatements
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = startedOn.Elapsed;
+
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, iocUid, null, exception);
             throw exception;
         }
     }

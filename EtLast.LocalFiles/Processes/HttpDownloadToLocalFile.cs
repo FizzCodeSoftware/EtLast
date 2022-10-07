@@ -44,11 +44,13 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, IoCommandKind.httpGet, iocUid, null, ex);
-
                 var exception = new HttpDownloadToLocalFileException(this, "http download to local file failed", Url, FileName, ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "http download to local file failed, url: {0}, file name: {1}, message: {2}",
                     Url, FileName, ex.Message));
+                exception.Data["Url"] = Url;
+                exception.Data["FileName"] = FileName;
+
+                Context.RegisterIoCommandFailed(this, IoCommandKind.httpGet, iocUid, null, exception);
                 throw exception;
             }
         }

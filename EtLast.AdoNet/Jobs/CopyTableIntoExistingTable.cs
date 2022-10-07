@@ -104,8 +104,6 @@ public sealed class CopyTableIntoExistingTable : AbstractSqlStatement
         }
         catch (Exception ex)
         {
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteCopy, iocUid, null, ex);
-
             var exception = new SqlSchemaChangeException(this, "copy table into existing", ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table copy failed, connection string key: {0}, source table: {1}, target table: {2}, source columns: {3}, message: {4}, command: {5}, timeout: {6}",
                 ConnectionString.Name, ConnectionString.Unescape(Configuration.SourceTableName), ConnectionString.Unescape(Configuration.TargetTableName),
@@ -125,6 +123,8 @@ public sealed class CopyTableIntoExistingTable : AbstractSqlStatement
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
+
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteCopy, iocUid, null, exception);
             throw exception;
         }
     }

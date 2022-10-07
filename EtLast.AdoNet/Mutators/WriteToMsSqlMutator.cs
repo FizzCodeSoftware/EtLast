@@ -151,8 +151,6 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
         }
         catch (Exception ex)
         {
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBulk, iocUid, recordCount, ex);
-
             EtlConnectionManager.ReleaseConnection(this, ref _connection);
             _bulkCopy.Close();
             _bulkCopy = null;
@@ -186,6 +184,7 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
                 }
             }
 
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBulk, iocUid, recordCount, exception);
             throw exception;
         }
 

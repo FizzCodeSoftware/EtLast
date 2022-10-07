@@ -62,8 +62,6 @@ public sealed class CustomSqlStatement : AbstractSqlStatement
         }
         catch (Exception ex)
         {
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, iocUid, null, ex);
-
             var exception = new SqlStatementException(this, ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "custom SQL statement failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                 ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
@@ -72,6 +70,8 @@ public sealed class CustomSqlStatement : AbstractSqlStatement
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
+
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, iocUid, null, exception);
             throw exception;
         }
     }

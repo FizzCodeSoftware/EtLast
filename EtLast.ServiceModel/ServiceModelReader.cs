@@ -55,10 +55,12 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
         }
         catch (Exception ex)
         {
-            Context.RegisterIoCommandFailed(this, IoCommandKind.serviceRead, iocUid, null, ex);
             var exception = new EtlException(this, "error while reading data from service", ex);
-            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from service: {0}", client.Endpoint.Address.ToString()));
-            exception.Data["Endpoint"] = client.Endpoint.Address.ToString();
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from service: {0}",
+                client.Endpoint.Address.ToString()));
+            exception.Data["EndpointAddress"] = client.Endpoint.Address.ToString();
+
+            Context.RegisterIoCommandFailed(this, IoCommandKind.serviceRead, iocUid, null, exception);
             throw exception;
         }
 

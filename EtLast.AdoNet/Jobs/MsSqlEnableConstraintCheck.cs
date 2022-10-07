@@ -47,8 +47,6 @@ public sealed class MsSqlEnableConstraintCheck : AbstractSqlStatements
         }
         catch (Exception ex)
         {
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, iocUid, null, ex);
-
             var exception = new SqlSchemaChangeException(this, "enable constraint check", ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to enable constraint check, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                 ConnectionString.Name, tableName, ex.Message, command.CommandText, command.CommandTimeout));
@@ -57,6 +55,8 @@ public sealed class MsSqlEnableConstraintCheck : AbstractSqlStatements
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = startedOn.Elapsed;
+
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, iocUid, null, exception);
             throw exception;
         }
     }

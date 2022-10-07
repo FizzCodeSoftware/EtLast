@@ -82,8 +82,13 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
                 }
                 catch (Exception ex)
                 {
-                    Context.RegisterIoCommandFailed(this, IoCommandKind.fileWrite, sink.Sink.IoCommandUid, null, ex);
-                    throw;
+                    var exception = new ProcessExecutionException(this, "error raised during writing an excel file", ex);
+                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel sink: {0}", sink.Sink.Name));
+                    exception.Data["Sink"] = sink.Sink.Name;
+                    exception.Data["SheetName"] = SheetName;
+
+                    Context.RegisterIoCommandFailed(this, IoCommandKind.fileWrite, sink.Sink.IoCommandUid, null, exception);
+                    throw exception;
                 }
 
                 sink.Package.Dispose();
@@ -130,12 +135,12 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
         }
         catch (Exception ex)
         {
-            Context.RegisterIoCommandFailed(this, sink.Sink.IoCommandKind, sink.Sink.IoCommandUid, sink.Sink.RowsWritten, ex);
-
             var exception = new ProcessExecutionException(this, row, "error raised during writing an excel file", ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel sink: {0}", sink.Sink.Name));
             exception.Data["Sink"] = sink.Sink.Name;
             exception.Data["SheetName"] = SheetName;
+
+            Context.RegisterIoCommandFailed(this, sink.Sink.IoCommandKind, sink.Sink.IoCommandUid, sink.Sink.RowsWritten, exception);
             throw exception;
         }
 

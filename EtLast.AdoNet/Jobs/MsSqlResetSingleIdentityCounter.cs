@@ -49,8 +49,6 @@ public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
         }
         catch (Exception ex)
         {
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbIdentityReset, iocUid, null, ex);
-
             var exception = new SqlIdentityResetException(this, ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "identity counter reset failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                 ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
@@ -61,6 +59,8 @@ public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
+
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbIdentityReset, iocUid, null, exception);
             throw exception;
         }
     }

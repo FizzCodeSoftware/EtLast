@@ -351,7 +351,7 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
             }
 
             sb.Append("{IoCommandUid}/{IoCommandKind}");
-            values.Add("#" + uid.ToString("D", CultureInfo.InvariantCulture));
+            values.Add("IO#" + uid.ToString("D", CultureInfo.InvariantCulture));
             values.Add(kind.ToString());
 
             if (location != null)
@@ -393,7 +393,7 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
             if (affectedDataCount != null)
             {
                 _ioLogger.Write(LogEventLevel.Verbose, "{IoCommandUid}/{IoCommandKind}, affected data count: {AffectedDataCount}",
-                    "#" + uid.ToString("D", CultureInfo.InvariantCulture), kind.ToString(), affectedDataCount);
+                    "IO#" + uid.ToString("D", CultureInfo.InvariantCulture), kind.ToString(), affectedDataCount);
             }
         }
         else
@@ -422,7 +422,7 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
             }
 
             sb.Append("{IoCommandUid}/EXCEPTION, {ErrorMessage}");
-            values.Add("#" + uid.ToString("D", CultureInfo.InvariantCulture));
+            values.Add("IO#" + uid.ToString("D", CultureInfo.InvariantCulture));
             values.Add(ex.FormatExceptionWithDetails());
 
             _ioLogger.Write(LogEventLevel.Error, sb.ToString(), values.ToArray());

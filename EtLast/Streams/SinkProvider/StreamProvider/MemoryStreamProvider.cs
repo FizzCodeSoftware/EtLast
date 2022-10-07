@@ -43,13 +43,12 @@ public class MemoryStreamProvider : IStreamProvider
         }
         catch (Exception ex)
         {
-            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, iocUid, null, ex);
-
-            var exception = new EtlException(caller, "error while opening stream", ex);
-            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening stream: {0}, message: {1}",
+            var exception = new EtlException(caller, "error while opening memory stream", ex);
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening memory stream: {0}, message: {1}",
                 _streamName, ex.Message));
-
             exception.Data["StreamName"] = _streamName;
+
+            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, iocUid, null, exception);
             throw exception;
         }
     }

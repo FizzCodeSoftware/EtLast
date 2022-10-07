@@ -65,8 +65,6 @@ public sealed class DropTables : AbstractSqlStatements
         }
         catch (Exception ex)
         {
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbDropTable, iocUid, null, ex);
-
             var exception = new SqlSchemaChangeException(this, "drop table", ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "failed to drop table, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                 ConnectionString.Name, ConnectionString.Unescape(tableName), ex.Message, command.CommandText, command.CommandTimeout));
@@ -76,6 +74,8 @@ public sealed class DropTables : AbstractSqlStatements
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = startedOn.Elapsed;
+
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbDropTable, iocUid, null, exception);
             throw exception;
         }
     }

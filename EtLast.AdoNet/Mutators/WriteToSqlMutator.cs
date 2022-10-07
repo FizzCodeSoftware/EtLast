@@ -160,8 +160,6 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
         }
         catch (Exception ex)
         {
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBatch, iocUid, recordCount, ex);
-
             var exception = new SqlWriteException(this, ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db write failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",
                 ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message, sqlStatement));
@@ -173,6 +171,8 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["SqlStatementCreator"] = SqlStatementCreator.GetType().GetFriendlyTypeName();
             exception.Data["TotalRowsWritten"] = _rowsWritten;
+
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBatch, iocUid, recordCount, exception);
             throw exception;
         }
 

@@ -46,8 +46,6 @@ public sealed class TruncateTable : AbstractSqlStatement
         }
         catch (Exception ex)
         {
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadCount, iocUid, null, ex);
-
             var exception = new SqlRecordCountReadException(this, ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table truncate failed, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                 ConnectionString.Name, ConnectionString.Unescape(TableName), ex.Message, command.CommandText, CommandTimeout));
@@ -57,6 +55,8 @@ public sealed class TruncateTable : AbstractSqlStatement
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
+
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadCount, iocUid, null, exception);
             throw exception;
         }
 
@@ -72,8 +72,6 @@ public sealed class TruncateTable : AbstractSqlStatement
         }
         catch (Exception ex)
         {
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbDelete, iocUid, null, ex);
-
             var exception = new SqlTruncateException(this, ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "database table truncate failed, connection string key: {0}, table: {1}, message: {2}, command: {3}, timeout: {4}",
                 ConnectionString.Name, ConnectionString.Unescape(TableName), ex.Message, originalStatement, CommandTimeout));
@@ -83,6 +81,8 @@ public sealed class TruncateTable : AbstractSqlStatement
             exception.Data["Statement"] = originalStatement;
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
+
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbDelete, iocUid, null, exception);
             throw exception;
         }
     }

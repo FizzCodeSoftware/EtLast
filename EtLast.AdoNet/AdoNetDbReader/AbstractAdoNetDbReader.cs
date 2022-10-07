@@ -97,13 +97,13 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, iocUid, null, ex);
-
                 var exception = new SqlReadException(this, ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query, message: {0}, connection string key: {1}, SQL statement: {2}",
                     ex.Message, ConnectionString.Name, sqlStatement));
                 exception.Data["ConnectionStringName"] = ConnectionString.Name;
                 exception.Data["Statement"] = cmd.CommandText;
+
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, iocUid, null, exception);
                 throw exception;
             }
         }
@@ -127,7 +127,6 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                 }
                 catch (Exception ex)
                 {
-                    Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, iocUid, resultCount, ex);
                     var exception = new SqlReadException(this, ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query after successfully reading {0} rows, message: {1}, connection string key: {2}, SQL statement: {3}",
                         resultCount, ex.Message, ConnectionString.Name, sqlStatement));
@@ -135,6 +134,8 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                     exception.Data["Statement"] = cmd.CommandText;
                     exception.Data["RowIndex"] = resultCount;
                     exception.Data["SecondsSinceLastRead"] = LastDataRead.Subtract(DateTime.Now).TotalSeconds.ToString(CultureInfo.InvariantCulture);
+
+                    Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, iocUid, resultCount, exception);
                     throw exception;
                 }
 

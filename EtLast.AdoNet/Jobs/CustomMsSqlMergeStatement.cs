@@ -111,8 +111,6 @@ public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
         }
         catch (Exception ex)
         {
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteMerge, iocUid, null, ex);
-
             var exception = new SqlMergeException(this, ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "merge statement failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                 ConnectionString.Name, ex.Message, command.CommandText, CommandTimeout));
@@ -121,6 +119,8 @@ public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
+
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteMerge, iocUid, null, exception);
             throw exception;
         }
     }

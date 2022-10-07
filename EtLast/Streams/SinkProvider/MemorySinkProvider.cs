@@ -42,11 +42,12 @@ public class MemorySinkProvider : ISinkProvider
         }
         catch (Exception ex)
         {
-            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, iocUid, null, ex);
-
             var exception = new EtlException(caller, "error while writing memory stream", ex);
-            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing memory stream: {0}, message: {1}", _sinkName, ex.Message));
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing memory stream: {0}, message: {1}",
+                _sinkName, ex.Message));
             exception.Data["SinkName"] = _sinkName;
+
+            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, iocUid, null, exception);
             throw exception;
         }
     }

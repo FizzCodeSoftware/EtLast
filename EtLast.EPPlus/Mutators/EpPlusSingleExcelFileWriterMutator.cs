@@ -44,8 +44,13 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, IoCommandKind.fileWrite, iocUid, null, ex);
-                throw;
+                var exception = new ProcessExecutionException(this, "error raised during writing an excel file", ex);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel file, file name: {0}, message: {1}",
+                    FileName, ex.Message));
+                exception.Data["FileName"] = FileName;
+
+                Context.RegisterIoCommandFailed(this, IoCommandKind.fileWrite, iocUid, null, exception);
+                throw exception;
             }
 
             _package.Dispose();
@@ -78,7 +83,6 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
             var exception = new ProcessExecutionException(this, row, "error raised during writing an excel file", ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel file, file name: {0}, message: {1}, row: {2}",
                 FileName, ex.Message, row.ToDebugString()));
-
             exception.Data["FileName"] = FileName;
             throw exception;
         }

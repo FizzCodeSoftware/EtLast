@@ -53,10 +53,12 @@ public class LocalFileStreamProvider : IStreamProvider
         }
         catch (Exception ex)
         {
-            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, iocUid, null, ex);
-
             var exception = new LocalFileReadException(caller, "error while opening local file", FileName, ex);
-            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening local file: {0}, message: {1}", FileName, ex.Message));
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening local file: {0}, message: {1}",
+                FileName, ex.Message));
+            exception.Data["FileName"] = FileName;
+
+            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, iocUid, null, exception);
             throw exception;
         }
     }

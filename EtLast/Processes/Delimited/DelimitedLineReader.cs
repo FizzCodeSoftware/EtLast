@@ -337,10 +337,11 @@ public sealed class DelimitedLineReader : AbstractRowSource
         }
         catch (Exception ex)
         {
-            Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, resultCount, ex);
             var exception = new EtlException(this, "error while reading delimited data from stream", ex);
             exception.Data["StreamName"] = stream.Name;
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading delimited data from stream: {0}, message: {1}", stream.Name, ex.Message));
+
+            Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, resultCount, exception);
             throw exception;
         }
     }

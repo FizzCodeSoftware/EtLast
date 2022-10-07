@@ -48,12 +48,12 @@ public class LocalFileSinkProvider : ISinkProvider
                 }
                 catch (Exception ex)
                 {
-                    caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, null, ex);
-
                     var exception = new LocalFileWriteException(caller, "error while writing local file / file deletion failed", fileName, ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing local file: {0}, file deletion failed, message: {1}",
                         fileName, ex.Message));
+                    exception.Data["FileName"] = fileName;
 
+                    caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, null, exception);
                     throw exception;
                 }
             }
@@ -68,12 +68,13 @@ public class LocalFileSinkProvider : ISinkProvider
             }
             catch (Exception ex)
             {
-                caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, null, ex);
-
                 var exception = new LocalFileWriteException(caller, "error while writing local file / directory creation failed", fileName, ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing local file: {0}, directory creation failed, message: {1}",
                     fileName, ex.Message));
+                exception.Data["FileName"] = fileName;
+                exception.Data["Directory"] = directory;
 
+                caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, null, exception);
                 throw exception;
             }
         }
@@ -87,12 +88,12 @@ public class LocalFileSinkProvider : ISinkProvider
         }
         catch (Exception ex)
         {
-            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, null, ex);
-
             var exception = new LocalFileWriteException(caller, "error while writing local file", fileName, ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing local file: {0}, message: {1}",
                 fileName, ex.Message));
+            exception.Data["FileName"] = fileName;
 
+            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, null, exception);
             throw exception;
         }
     }

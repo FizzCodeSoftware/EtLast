@@ -51,8 +51,9 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
                 var exception = new StreamReadException(this, "excel steram read failed", stream, ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel stream read failed: {0}, message: {1}",
                     stream.Name, ex.Message));
+                exception.Data["StreamName"] = stream.Name;
 
-                Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, null, ex);
+                Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, null, exception);
                 throw exception;
             }
 
@@ -64,6 +65,7 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
                 var exception = new StreamReadException(this, "excel stream read failed", stream);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel stream read failed: {0}",
                     stream.Name));
+                exception.Data["StreamName"] = stream.Name;
 
                 Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
                 throw exception;

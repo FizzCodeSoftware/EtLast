@@ -113,8 +113,6 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
                     }
                     catch (Exception ex)
                     {
-                        builder.Scope.Context.RegisterIoCommandFailed(job, IoCommandKind.dbReadMeta, iocUid, null, ex);
-
                         var exception = new SqlSchemaReadException(job, "enabled foreign key names", ex);
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "enabled foreign key list query failed, connection string key: {0}, message: {1}, command: {2}, timeout: {3}",
                             ConnectionString.Name, ex.Message, command.CommandText, command.CommandTimeout));
@@ -122,6 +120,8 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
                         exception.Data["Statement"] = command.CommandText;
                         exception.Data["Timeout"] = command.CommandTimeout;
                         exception.Data["Elapsed"] = startedOn.Elapsed;
+
+                        builder.Scope.Context.RegisterIoCommandFailed(job, IoCommandKind.dbReadMeta, iocUid, null, exception);
                         throw exception;
                     }
                 }
