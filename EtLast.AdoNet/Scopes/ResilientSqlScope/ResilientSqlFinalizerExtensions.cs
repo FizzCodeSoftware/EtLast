@@ -174,7 +174,7 @@ public static class ResilientSqlFinalizerExtensions
         {
             builder.Jobs.Add(new MsSqlDisableConstraintCheck(builder.Scope.Context)
             {
-                Name = "disable foreign keys",
+                Name = "DisableForeignKeys",
                 ConnectionString = builder.Scope.ConnectionString,
                 TableNames = builder.Scope.Tables.Select(x => x.TableName)
                     .Concat(builder.Scope.Tables.Where(x => x.AdditionalTables != null).SelectMany(x => x.AdditionalTables.Select(at => at.TableName)))
@@ -191,7 +191,7 @@ public static class ResilientSqlFinalizerExtensions
         {
             builder.Jobs.Add(new MsSqlEnableConstraintCheck(builder.Scope.Context)
             {
-                Name = "enable foreign keys",
+                Name = "EnableForeignKeys",
                 ConnectionString = builder.Scope.ConnectionString,
                 TableNames = builder.Scope.Tables.Select(x => x.TableName)
                     .Concat(builder.Scope.Tables.Where(x => x.AdditionalTables != null).SelectMany(x => x.AdditionalTables.Select(at => at.TableName)))
