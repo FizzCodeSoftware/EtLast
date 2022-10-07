@@ -34,9 +34,6 @@ public abstract class AbstractProcess : IProcess
 
     private static string GetProcessKind(IProcess process)
     {
-        if (process.GetType().GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IProcessWithResult<>)))
-            return "jobWithResult";
-
         return process switch
         {
             IEtlFlow => "flow",

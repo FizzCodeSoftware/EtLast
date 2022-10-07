@@ -202,7 +202,7 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
                 sb.Append('.');
             }
 
-            IEtlTask task = null;
+            /*IEtlTask task = null;
             proc = process;
             while (proc != null)
             {
@@ -222,6 +222,17 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
             }
 
             if (process != task)
+            {
+                sb.Append("{ActiveProcess} ");
+                values.Add(process.Name);
+            }*/
+
+            if (process is IEtlTask)
+            {
+                sb.Append("{ActiveTask} ");
+                values.Add(process.Name);
+            }
+            else
             {
                 sb.Append("{ActiveProcess} ");
                 values.Add(process.Name);

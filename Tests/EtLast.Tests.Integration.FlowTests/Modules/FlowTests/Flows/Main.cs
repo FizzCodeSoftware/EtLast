@@ -36,7 +36,6 @@ public class Main : AbstractEtlFlow
             .OnError(pipe => new ShowMessageTask()
             {
                 Message = t => "#1005 WORKS PROPERLY",
-            })
-            .ThrowOnError();
+            });
     }
 }
