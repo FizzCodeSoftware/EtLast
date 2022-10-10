@@ -240,7 +240,7 @@ from
                 .Take(lastSucceededIndex + 1)
                 .Sum(x => x.Item2);
 
-        Context.Log(transactionId, LogSeverity.Debug, this, "{ForeignKeyCount} foreign keys for {TableCount} table(s) successfully dropped on {ConnectionStringName} in {Elapsed}",
-            fkCount, lastSucceededIndex + 1, ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed);
+        Context.Log(transactionId, LogSeverity.Debug, this, "{ForeignKeyCount} foreign keys for {TableCount} table(s) successfully dropped on {ConnectionStringName}",
+            fkCount, lastSucceededIndex + 1, ConnectionString.Name);
     }
 }

@@ -63,7 +63,7 @@ public sealed class MsSqlDisableConstraintCheck : AbstractSqlStatements
         if (lastSucceededIndex == -1)
             return;
 
-        Context.Log(transactionId, LogSeverity.Debug, this, "constraint check successfully disabled on {TableCount} tables on {ConnectionStringName} in {Elapsed}",
-            lastSucceededIndex + 1, ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed);
+        Context.Log(transactionId, LogSeverity.Debug, this, "constraint check successfully disabled on {TableCount} tables on {ConnectionStringName}",
+            lastSucceededIndex + 1, ConnectionString.Name);
     }
 }

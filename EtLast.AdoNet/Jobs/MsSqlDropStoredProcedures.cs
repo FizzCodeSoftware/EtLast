@@ -160,7 +160,7 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
         if (lastSucceededIndex == -1)
             return;
 
-        Context.Log(transactionId, LogSeverity.Debug, this, "{StoredProcedureCount} stored procedure(s) successfully dropped on {ConnectionStringName} in {Elapsed}", lastSucceededIndex + 1,
-            ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed);
+        Context.Log(transactionId, LogSeverity.Debug, this, "{StoredProcedureCount} stored procedure(s) successfully dropped on {ConnectionStringName}", lastSucceededIndex + 1,
+            ConnectionString.Name);
     }
 }

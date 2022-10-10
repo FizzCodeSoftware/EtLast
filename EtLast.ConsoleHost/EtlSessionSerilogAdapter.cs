@@ -198,8 +198,8 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
             var proc = process.InvocationInfo.Caller;
             while (proc != null)
             {
-                proc = proc.InvocationInfo.Caller;
                 sb.Append('.');
+                proc = proc.InvocationInfo.Caller;
             }
 
             /*IEtlTask task = null;

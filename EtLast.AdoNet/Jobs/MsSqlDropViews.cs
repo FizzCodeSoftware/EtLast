@@ -156,7 +156,7 @@ public sealed class MsSqlDropViews : AbstractSqlStatements
         if (lastSucceededIndex == -1)
             return;
 
-        Context.Log(transactionId, LogSeverity.Debug, this, "{ViewCount} view(s) successfully dropped on {ConnectionStringName} in {Elapsed}", lastSucceededIndex + 1,
-            ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed);
+        Context.Log(transactionId, LogSeverity.Debug, this, "{ViewCount} view(s) successfully dropped on {ConnectionStringName}", lastSucceededIndex + 1,
+            ConnectionString.Name);
     }
 }

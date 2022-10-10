@@ -138,7 +138,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
             Initialize(initializerPipe);
             if (Pipe.Failed)
             {
-                Context.Log(LogSeverity.Information, this, "initialization failed in {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
+                Context.Log(LogSeverity.Information, this, "initialization failed after {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
                 return;
             }
 

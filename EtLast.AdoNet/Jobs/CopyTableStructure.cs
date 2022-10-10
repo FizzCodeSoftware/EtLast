@@ -97,7 +97,7 @@ public sealed class CopyTableStructure : AbstractSqlStatements
         if (lastSucceededIndex == -1)
             return;
 
-        Context.Log(transactionId, LogSeverity.Debug, this, "{TableCount} table(s) successfully created on {ConnectionStringName} in {Elapsed}", lastSucceededIndex + 1,
-            ConnectionString.Name, InvocationInfo.LastInvocationStarted.Elapsed);
+        Context.Log(transactionId, LogSeverity.Debug, this, "{TableCount} table(s) successfully created on {ConnectionStringName}", lastSucceededIndex + 1,
+            ConnectionString.Name);
     }
 }

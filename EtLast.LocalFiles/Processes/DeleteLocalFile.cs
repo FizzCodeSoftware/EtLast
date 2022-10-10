@@ -28,8 +28,8 @@ public sealed class DeleteLocalFile : AbstractJob
         try
         {
             File.Delete(FileName);
-            Context.Log(LogSeverity.Debug, this, "successfully deleted local file '{FileName}' in {Elapsed}", FileName,
-                InvocationInfo.LastInvocationStarted.Elapsed);
+            Context.Log(LogSeverity.Debug, this, "successfully deleted local file '{FileName}'",
+                FileName);
         }
         catch (Exception ex)
         {
