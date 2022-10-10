@@ -28,6 +28,13 @@ public abstract class AbstractProcessWithResult<T> : AbstractProcess, IProcessWi
         Context.RegisterProcessInvocationStart(this, caller);
         Pipe = pipe ?? caller?.Pipe ?? new Pipe(Context);
 
+        if (caller is IEtlTask)
+            Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Task}", Kind, caller.Name);
+        else if (caller != null)
+            Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Process}", Kind, caller.Name);
+        else
+            Context.Log(LogSeverity.Information, this, "{ProcessKind} started", Kind);
+
         LogPublicSettableProperties(LogSeverity.Verbose);
 
         var netTimeStopwatch = Stopwatch.StartNew();

@@ -44,6 +44,9 @@ public sealed class GetTableRecordCount : AbstractSqlStatementWithResult<int>
             if (result is not int recordCount)
                 recordCount = 0;
 
+            Context.Log(LogSeverity.Debug, this, "record count in {ConnectionStringName}/{TableName} is {RecordCount}",
+                ConnectionString.Name, ConnectionString.Unescape(TableName), recordCount);
+
             Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadCount, iocUid, recordCount);
             return recordCount;
         }
