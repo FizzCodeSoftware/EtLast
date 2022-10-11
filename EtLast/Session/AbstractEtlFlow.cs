@@ -20,13 +20,7 @@ public abstract class AbstractEtlFlow : AbstractProcess, IEtlFlow
         Context.RegisterProcessInvocationStart(this, caller);
         Pipe = pipe ?? caller?.Pipe ?? new Pipe(Context);
 
-        if (caller is IEtlTask)
-            Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Task}", Kind, caller.Name);
-        else if (caller != null)
-            Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Process}", Kind, caller.Name);
-        else
-            Context.Log(LogSeverity.Information, this, "{ProcessKind} started", Kind);
-
+        LogCall(caller);
         LogPublicSettableProperties(LogSeverity.Debug);
 
         var netTimeStopwatch = Stopwatch.StartNew();
@@ -58,8 +52,8 @@ public abstract class AbstractEtlFlow : AbstractProcess, IEtlFlow
             }
 
             _statistics.Finish();
-            Context.Log(LogSeverity.Information, this, "{ProcessKind} {TaskResult} in {Elapsed}",
-                Kind, Pipe.ToLogString(), _statistics.RunTime);
+            Context.Log(LogSeverity.Information, this, "{TaskResult} in {Elapsed}",
+                Pipe.ToLogString(), _statistics.RunTime);
 
             LogPrivateSettableProperties(LogSeverity.Debug);
         }

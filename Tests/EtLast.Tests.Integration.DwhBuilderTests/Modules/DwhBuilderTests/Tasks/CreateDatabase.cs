@@ -24,7 +24,7 @@ public class CreateDatabase : AbstractEtlTask
     {
         yield return new CustomJob(Context)
         {
-            Name = "CreateDatabase",
+            Name = "CreateDb",
             Action = job =>
             {
                 Microsoft.Data.SqlClient.SqlConnection.ClearAllPools();

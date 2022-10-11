@@ -28,13 +28,7 @@ public abstract class AbstractProcessWithResult<T> : AbstractProcess, IProcessWi
         Context.RegisterProcessInvocationStart(this, caller);
         Pipe = pipe ?? caller?.Pipe ?? new Pipe(Context);
 
-        if (caller is IEtlTask)
-            Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Task}", Kind, caller.Name);
-        else if (caller != null)
-            Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Process}", Kind, caller.Name);
-        else
-            Context.Log(LogSeverity.Information, this, "{ProcessKind} started", Kind);
-
+        LogCall(caller);
         LogPublicSettableProperties(LogSeverity.Verbose);
 
         var netTimeStopwatch = Stopwatch.StartNew();
@@ -56,8 +50,8 @@ public abstract class AbstractProcessWithResult<T> : AbstractProcess, IProcessWi
         netTimeStopwatch.Stop();
         Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
 
-        Context.Log(LogSeverity.Information, this, "{ProcessKind} {ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-            Kind, Pipe.ToLogString(), InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+        Context.Log(LogSeverity.Information, this, "{ProcessResult} in {Elapsed}/{ElapsedWallClock}",
+            Pipe.ToLogString(), InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 
         return result;
     }

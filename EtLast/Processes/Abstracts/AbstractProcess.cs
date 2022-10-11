@@ -32,6 +32,29 @@ public abstract class AbstractProcess : IProcess
         Kind = GetProcessKind(this);
     }
 
+    protected void LogCall(IProcess caller)
+    {
+        var typeName = GetType().GetFriendlyTypeName();
+        if (Name == typeName)
+        {
+            if (caller is IEtlTask)
+                Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Task}", Kind, caller.Name);
+            else if (caller != null)
+                Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Process}", Kind, caller.Name);
+            else
+                Context.Log(LogSeverity.Information, this, "{ProcessKind} started", Kind);
+        }
+        else
+        {
+            if (caller is IEtlTask)
+                Context.Log(LogSeverity.Information, this, "{ProcessKind}/{ProcessType} started by {Task}", typeName, Kind, caller.Name);
+            else if (caller != null)
+                Context.Log(LogSeverity.Information, this, "{ProcessKind}/{ProcessType} started by {Process}", typeName, Kind, caller.Name);
+            else
+                Context.Log(LogSeverity.Information, this, "{ProcessKind}/{ProcessType} started", typeName, Kind);
+        }
+    }
+
     private static string GetProcessKind(IProcess process)
     {
         return process switch

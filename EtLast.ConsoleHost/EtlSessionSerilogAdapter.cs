@@ -348,27 +348,26 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
 
             if (process != null)
             {
-                var topic = process.GetTopic();
-                if (topic != null)
+                var proc = process.InvocationInfo.Caller;
+                while (proc != null)
                 {
-                    sb.Append("[{ActiveProcess}/{ActiveTopic}] ");
+                    sb.Append('.');
+                    proc = proc.InvocationInfo.Caller;
+                }
+
+                if (process is IEtlTask)
+                {
+                    sb.Append("{ActiveTask} ");
                     values.Add(process.Name);
-                    values.Add(topic);
                 }
                 else
                 {
-                    sb.Append("[{ActiveProcess}] ");
+                    sb.Append("{ActiveProcess} ");
                     values.Add(process.Name);
                 }
             }
 
-            if (transactionId != null)
-            {
-                sb.Append("/{ActiveTransaction}/ ");
-                values.Add(transactionId);
-            }
-
-            sb.Append("{IoCommandUid}/{IoCommandKind}");
+            sb.Append("{IoCommandUid}/{IoCommandKind} started");
             values.Add("IO#" + uid.ToString("D", CultureInfo.InvariantCulture));
             values.Add(kind.ToString());
 
@@ -387,7 +386,13 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
             if (timeoutSeconds != null)
             {
                 sb.Append(", timeout: {IoCommandTimeout}");
-                values.Add(timeoutSeconds);
+                values.Add(timeoutSeconds.Value);
+            }
+
+            if (transactionId != null)
+            {
+                sb.Append(", transaction: {ActiveTransaction}");
+                values.Add(transactionId);
             }
 
             sb.Append(", message: ").Append(message);
@@ -400,51 +405,67 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
                 values.Add(command);
             }
 
+            var topic = process?.GetTopic();
+            if (topic != null)
+            {
+                sb.Append(" *{ActiveTopic}");
+                values.Add(topic);
+            }
+
             _ioLogger.Write(LogEventLevel.Verbose, sb.ToString(), values.ToArray());
         }
     }
 
     public void OnContextIoCommandEnd(IProcess process, int uid, IoCommandKind kind, int? affectedDataCount, Exception ex)
     {
+        var sb = new StringBuilder();
+        var values = new List<object>();
+
+        if (process != null)
+        {
+            var proc = process.InvocationInfo.Caller;
+            while (proc != null)
+            {
+                sb.Append('.');
+                proc = proc.InvocationInfo.Caller;
+            }
+
+            if (process is IEtlTask)
+            {
+                sb.Append("{ActiveTask} ");
+                values.Add(process.Name);
+            }
+            else
+            {
+                sb.Append("{ActiveProcess} ");
+                values.Add(process.Name);
+            }
+        }
+
+        sb.Append("{IoCommandUid}/{IoCommandKind} {IoResult}");
+        values.Add("IO#" + uid.ToString("D", CultureInfo.InvariantCulture));
+        values.Add(kind.ToString());
+        values.Add(ex == null
+            ? "finished"
+            : "failed");
+
         if (ex == null)
         {
             if (affectedDataCount != null)
             {
-                _ioLogger.Write(LogEventLevel.Verbose, "{IoCommandUid}/{IoCommandKind}, affected data count: {AffectedDataCount}",
-                    "IO#" + uid.ToString("D", CultureInfo.InvariantCulture), kind.ToString(), affectedDataCount);
+                sb.Append(", affected data count: {AffectedDataCount}");
+                values.Add(affectedDataCount);
             }
         }
         else
         {
-            var sb = new StringBuilder();
-            var values = new List<object>();
-
-            if (process != null)
-            {
-                var topic = process.GetTopic();
-                if (topic != null)
-                {
-                    // todo: we need task capture somehow...
-                    sb.Append("[{ActiveProcess}/{ActiveTopic}] ");
-                    values.Add(process.Name);
-                    values.Add(topic);
-                }
-                else
-                {
-                    sb.Append("[{ActiveProcess}] ");
-                    values.Add(process.Name);
-                }
-            }
-            else
-            {
-            }
-
-            sb.Append("{IoCommandUid}/EXCEPTION, {ErrorMessage}");
-            values.Add("IO#" + uid.ToString("D", CultureInfo.InvariantCulture));
+            sb.Append(", {ErrorMessage}");
             values.Add(ex.FormatExceptionWithDetails());
-
-            _ioLogger.Write(LogEventLevel.Error, sb.ToString(), values.ToArray());
         }
+
+        _ioLogger.Write(ex == null
+            ? LogEventLevel.Verbose
+            : LogEventLevel.Error, sb.ToString(), values.ToArray());
     }
 
     public void OnRowCreated(IReadOnlyRow row)
