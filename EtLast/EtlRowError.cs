@@ -2,17 +2,27 @@
 
 public sealed class EtlRowError
 {
-    public object OriginalValue { get; set; }
-    public IProcess Process { get; set; }
-    public string Message { get; set; }
-
-    public EtlRowError()
-    {
-    }
+    public object OriginalValue { get; }
+    public IProcess Process { get; }
+    public string Message { get; }
 
     public EtlRowError(object originalValue)
     {
         OriginalValue = originalValue;
+    }
+
+    public EtlRowError(IProcess process, object originalValue, string message)
+    {
+        Process = process;
+        OriginalValue = originalValue;
+        Message = message;
+    }
+
+    public EtlRowError(IProcess process, object originalValue, Exception ex)
+    {
+        Process = process;
+        OriginalValue = originalValue;
+        Message = ex.Message;
     }
 
     public override string ToString()

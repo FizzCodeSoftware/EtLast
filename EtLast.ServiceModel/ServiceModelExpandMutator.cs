@@ -103,12 +103,7 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
                     removeRow = true;
                     break;
                 case InvalidValueAction.WrapError:
-                    row[TargetColumn] = new EtlRowError
-                    {
-                        Process = this,
-                        OriginalValue = null,
-                        Message = "SOAP invocation failed",
-                    };
+                    row[TargetColumn] = new EtlRowError(this, null, "SOAP invocation failed");
                     break;
             }
         }

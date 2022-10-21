@@ -53,12 +53,7 @@ public sealed class DataContractXmlSerializerMutator<T> : AbstractMutator
                     removeRow = true;
                     break;
                 case InvalidValueAction.WrapError:
-                    row[TargetColumn] = new EtlRowError
-                    {
-                        Process = this,
-                        OriginalValue = null,
-                        Message = "DataContract XML serialization failed: " + ex.Message,
-                    };
+                    row[TargetColumn] = new EtlRowError(this, null, "DataContract XML serialization failed: " + ex.Message);
                     break;
             }
         }

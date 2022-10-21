@@ -60,12 +60,7 @@ public sealed class InPlaceConvertMutator : AbstractSimpleChangeMutator
                         removeRow = true;
                         break;
                     case InvalidValueAction.WrapError:
-                        Changes.Add(new KeyValuePair<string, object>(column, new EtlRowError
-                        {
-                            Process = this,
-                            OriginalValue = source,
-                            Message = string.Format(CultureInfo.InvariantCulture, "null source detected by {0}", Name),
-                        }));
+                        Changes.Add(new KeyValuePair<string, object>(column, new EtlRowError(this, source, "null source detected by " + Name)));
                         break;
                 }
 
@@ -83,12 +78,7 @@ public sealed class InPlaceConvertMutator : AbstractSimpleChangeMutator
                     removeRow = true;
                     break;
                 case InvalidValueAction.WrapError:
-                    Changes.Add(new KeyValuePair<string, object>(column, new EtlRowError
-                    {
-                        Process = this,
-                        OriginalValue = source,
-                        Message = string.Format(CultureInfo.InvariantCulture, "invalid source detected by {0}", Name),
-                    }));
+                    Changes.Add(new KeyValuePair<string, object>(column, new EtlRowError(this, source, "invalid source detected by " + Name)));
                     break;
             }
         }

@@ -89,12 +89,7 @@ public class ReaderDefaultColumn
             switch (SourceIsNullAction)
             {
                 case SourceIsNullAction.WrapError:
-                    return new EtlRowError()
-                    {
-                        Process = process,
-                        OriginalValue = null,
-                        Message = string.Format(CultureInfo.InvariantCulture, "null value found"),
-                    };
+                    return new EtlRowError(process, null, "null value found");
                 case SourceIsNullAction.SetSpecialValue:
                     return SpecialValueIfSourceIsNull;
                 default:
@@ -110,12 +105,7 @@ public class ReaderDefaultColumn
             switch (FailedTypeConversionAction)
             {
                 case FailedTypeConversionAction.WrapError:
-                    return new EtlRowError()
-                    {
-                        Process = process,
-                        OriginalValue = value,
-                        Message = string.Format(CultureInfo.InvariantCulture, "type conversion failed ({0})", Converter.GetType().GetFriendlyTypeName()),
-                    };
+                    return new EtlRowError(process, value, "type conversion failed (" + Converter.GetType().GetFriendlyTypeName() + ")");
                 case FailedTypeConversionAction.SetSpecialValue:
                     return SpecialValueIfTypeConversionFailed;
                 default:

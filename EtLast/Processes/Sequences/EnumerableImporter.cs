@@ -47,9 +47,9 @@ public sealed class EnumerableImporter : AbstractRowSource
                         {
                             initialValues[columnKvp.Key] = columnKvp.Value.Process(this, value);
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-                            initialValues[columnKvp.Key] = new EtlRowError(value);
+                            initialValues[columnKvp.Key] = new EtlRowError(this, value, ex);
                         }
                     }
 
@@ -78,9 +78,9 @@ public sealed class EnumerableImporter : AbstractRowSource
                         {
                             initialValues[columnKvp.Key] = columnKvp.Value.Process(this, value);
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-                            initialValues[columnKvp.Key] = new EtlRowError(value);
+                            initialValues[columnKvp.Key] = new EtlRowError(this, value, ex);
                         }
                     }
 
@@ -94,9 +94,9 @@ public sealed class EnumerableImporter : AbstractRowSource
                                 {
                                     initialValues[valueKvp.Key] = DefaultColumns.Process(this, valueKvp.Value);
                                 }
-                                catch (Exception)
+                                catch (Exception ex)
                                 {
-                                    initialValues[valueKvp.Key] = new EtlRowError(valueKvp.Value);
+                                    initialValues[valueKvp.Key] = new EtlRowError(this, valueKvp.Value, ex);
                                 }
                             }
                             else

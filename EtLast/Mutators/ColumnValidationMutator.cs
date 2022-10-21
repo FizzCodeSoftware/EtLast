@@ -26,12 +26,7 @@ public sealed class ColumnValidationMutator : AbstractMutator
         var valid = Test(this, row, Column);
         if (!valid)
         {
-            row[Column] = new EtlRowError()
-            {
-                Process = this,
-                OriginalValue = row[Column],
-                Message = ErrorMessage,
-            };
+            row[Column] = new EtlRowError(this, row[Column], ErrorMessage);
         }
 
         yield return row;

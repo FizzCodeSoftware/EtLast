@@ -216,9 +216,9 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
                 {
                     value = kvp.configuration.Process(this, value);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    value = new EtlRowError(value);
+                    value = new EtlRowError(this, value, ex);
                 }
 
                 initialValues.Add(new KeyValuePair<string, object>(kvp.rowColumn, value));

@@ -175,9 +175,9 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         {
                             value = config.Process(this, value);
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-                            value = new EtlRowError(value);
+                            value = new EtlRowError(this, value, ex);
                         }
                     }
 

@@ -305,9 +305,9 @@ public sealed class DelimitedLineReader : AbstractRowSource
                             {
                                 initialValues[col.rowColumn] = col.config.Process(this, value);
                             }
-                            catch (Exception)
+                            catch (Exception ex)
                             {
-                                initialValues[col.rowColumn] = new EtlRowError(value);
+                                initialValues[col.rowColumn] = new EtlRowError(this, value, ex);
                             }
                         }
                         else if (DefaultColumns != null)
@@ -316,9 +316,9 @@ public sealed class DelimitedLineReader : AbstractRowSource
                             {
                                 initialValues[csvColumn] = DefaultColumns.Process(this, value);
                             }
-                            catch (Exception)
+                            catch (Exception ex)
                             {
-                                initialValues[csvColumn] = new EtlRowError(value);
+                                initialValues[csvColumn] = new EtlRowError(this, value, ex);
                             }
                         }
                     }

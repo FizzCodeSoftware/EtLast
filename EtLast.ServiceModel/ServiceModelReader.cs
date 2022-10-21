@@ -106,9 +106,9 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
                         {
                             initialValues[col.rowColumn] = col.config.Process(this, value);
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-                            initialValues[col.rowColumn] = new EtlRowError(value);
+                            initialValues[col.rowColumn] = new EtlRowError(this, value, ex);
                         }
                     }
                     else if (DefaultColumns != null)
@@ -117,9 +117,9 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
                         {
                             initialValues[column] = DefaultColumns.Process(this, value);
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-                            initialValues[column] = new EtlRowError(value);
+                            initialValues[column] = new EtlRowError(this, value, ex);
                         }
                     }
                 }
