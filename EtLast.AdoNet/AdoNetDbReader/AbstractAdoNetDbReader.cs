@@ -171,7 +171,14 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
 
                     if (config != null)
                     {
-                        value = config.Process(this, value);
+                        try
+                        {
+                            value = config.Process(this, value);
+                        }
+                        catch (Exception)
+                        {
+                            value = new EtlRowError(value);
+                        }
                     }
 
                     initialValues[rowColumn] = value;

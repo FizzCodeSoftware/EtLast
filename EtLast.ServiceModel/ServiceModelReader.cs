@@ -102,13 +102,25 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
 
                     if (columnMap.TryGetValue(column, out var col))
                     {
-                        value = col.config.Process(this, value);
-                        initialValues[col.rowColumn] = value;
+                        try
+                        {
+                            initialValues[col.rowColumn] = col.config.Process(this, value);
+                        }
+                        catch (Exception)
+                        {
+                            initialValues[col.rowColumn] = new EtlRowError(value);
+                        }
                     }
                     else if (DefaultColumns != null)
                     {
-                        value = DefaultColumns.Process(this, value);
-                        initialValues[column] = value;
+                        try
+                        {
+                            initialValues[column] = DefaultColumns.Process(this, value);
+                        }
+                        catch (Exception)
+                        {
+                            initialValues[column] = new EtlRowError(value);
+                        }
                     }
                 }
 

@@ -78,12 +78,12 @@ public sealed class DelimitedLineReader : AbstractRowSource
 
     protected override IEnumerable<IRow> Produce()
     {
-        // key is the SOURCE column name
+        // key is the SOURCE col name
         var columnMap = Columns?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
         var resultCount = 0;
 
-        var initialValues = new List<KeyValuePair<string, object>>();
+        var initialValues = new Dictionary<string, object>();
 
         var partList = new List<string>(100);
         var builder = new StringBuilder(2000);
@@ -259,10 +259,9 @@ public sealed class DelimitedLineReader : AbstractRowSource
                                     {
                                         if (string.Equals(columnName, columnNames[j], StringComparison.InvariantCultureIgnoreCase))
                                         {
-                                            var message = "delimited input contains more than one columns with the same name: " + columnName;
-                                            var exception = new EtlException(this, "error while processing delimited input: " + message);
-                                            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while processing delimited input: {0}, message: {1}", StreamProvider.GetType(), message));
-                                            exception.Data["StreamName"] = stream.Name;
+                                            var exception = new DelimitedReadException(this, "delimited input contains more than one columns with the same name", stream);
+                                            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "delimited input contains more than one columns with the same name: {0}, {1}", stream.Name, columnName));
+                                            exception.Data["Column"] = columnName;
 
                                             Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
                                             throw exception;
@@ -285,30 +284,42 @@ public sealed class DelimitedLineReader : AbstractRowSource
 
                         var valueString = partList[i];
 
-                        object sourceValue = valueString;
+                        object value = valueString;
 
                         if (removeSurroundingDoubleQuotes
                            && valueString.Length > 1
                            && valueString.StartsWith("\"", StringComparison.Ordinal)
                            && valueString.EndsWith("\"", StringComparison.Ordinal))
                         {
-                            sourceValue = valueString[1..^1];
+                            value = valueString[1..^1];
                         }
 
-                        if (sourceValue != null && treatEmptyStringAsNull && (sourceValue is string str) && string.IsNullOrEmpty(str))
+                        if (value != null && treatEmptyStringAsNull && (value is string str) && string.IsNullOrEmpty(str))
                         {
-                            sourceValue = null;
+                            value = null;
                         }
 
-                        if (columnMap != null && columnMap.TryGetValue(csvColumn, out var column))
+                        if (columnMap != null && columnMap.TryGetValue(csvColumn, out var col))
                         {
-                            var value = column.config.Process(this, sourceValue);
-                            initialValues.Add(new KeyValuePair<string, object>(column.rowColumn, value));
+                            try
+                            {
+                                initialValues[col.rowColumn] = col.config.Process(this, value);
+                            }
+                            catch (Exception)
+                            {
+                                initialValues[col.rowColumn] = new EtlRowError(value);
+                            }
                         }
                         else if (DefaultColumns != null)
                         {
-                            var value = DefaultColumns.Process(this, sourceValue);
-                            initialValues.Add(new KeyValuePair<string, object>(csvColumn, value));
+                            try
+                            {
+                                initialValues[csvColumn] = DefaultColumns.Process(this, value);
+                            }
+                            catch (Exception)
+                            {
+                                initialValues[csvColumn] = new EtlRowError(value);
+                            }
                         }
                     }
 
@@ -337,8 +348,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
         }
         catch (Exception ex)
         {
-            var exception = new EtlException(this, "error while reading delimited data from stream", ex);
-            exception.Data["StreamName"] = stream.Name;
+            var exception = new DelimitedReadException(this, "error while reading delimited data from stream", stream, ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading delimited data from stream: {0}, message: {1}", stream.Name, ex.Message));
 
             Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, resultCount, exception);

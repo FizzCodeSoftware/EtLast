@@ -42,8 +42,15 @@ public sealed class EnumerableImporter : AbstractRowSource
 
                     foreach (var columnKvp in Columns)
                     {
-                        var value = columnKvp.Value.Process(this, inputRow[columnKvp.Value.SourceColumn ?? columnKvp.Key]);
-                        initialValues[columnKvp.Key] = value;
+                        var value = inputRow[columnKvp.Value.SourceColumn ?? columnKvp.Key];
+                        try
+                        {
+                            initialValues[columnKvp.Key] = columnKvp.Value.Process(this, value);
+                        }
+                        catch (Exception)
+                        {
+                            initialValues[columnKvp.Key] = new EtlRowError(value);
+                        }
                     }
 
                     var newRow = Context.CreateRow(this, initialValues);
@@ -66,8 +73,15 @@ public sealed class EnumerableImporter : AbstractRowSource
 
                     foreach (var columnKvp in Columns)
                     {
-                        var value = columnKvp.Value.Process(this, inputRow[columnKvp.Value.SourceColumn ?? columnKvp.Key]);
-                        initialValues[columnKvp.Key] = value;
+                        var value = inputRow[columnKvp.Value.SourceColumn ?? columnKvp.Key];
+                        try
+                        {
+                            initialValues[columnKvp.Key] = columnKvp.Value.Process(this, value);
+                        }
+                        catch (Exception)
+                        {
+                            initialValues[columnKvp.Key] = new EtlRowError(value);
+                        }
                     }
 
                     foreach (var valueKvp in inputRow.Values)
@@ -76,8 +90,14 @@ public sealed class EnumerableImporter : AbstractRowSource
                         {
                             if (DefaultColumns != null)
                             {
-                                var value = DefaultColumns.Process(this, valueKvp.Value);
-                                initialValues[valueKvp.Key] = value;
+                                try
+                                {
+                                    initialValues[valueKvp.Key] = DefaultColumns.Process(this, valueKvp.Value);
+                                }
+                                catch (Exception)
+                                {
+                                    initialValues[valueKvp.Key] = new EtlRowError(valueKvp.Value);
+                                }
                             }
                             else
                             {

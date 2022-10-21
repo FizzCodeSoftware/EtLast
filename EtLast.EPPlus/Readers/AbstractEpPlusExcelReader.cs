@@ -80,7 +80,7 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
         {
             if (!string.IsNullOrEmpty(SheetName))
             {
-                var exception = new ProcessExecutionException(this, "can't find excel sheet by name");
+                var exception = new ExcelReadException(this, "can't find excel sheet by name");
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "can't find excel sheet, stream: {0}, sheet name: {1}, existing sheet names: {2}",
                     name, SheetName, string.Join(",", workbook?.Worksheets.Select(x => x.Name))));
                 exception.Data["Stream"] = name;
@@ -94,7 +94,7 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
             }
             else
             {
-                var exception = new ProcessExecutionException(this, "can't find excel sheet by index");
+                var exception = new ExcelReadException(this, "can't find excel sheet by index");
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "can't find excel sheet, stream: {0}, sheet index: {1}, existing sheet names: {2}",
                     name, SheetIndex.ToString("D", CultureInfo.InvariantCulture), string.Join(",", workbook?.Worksheets.Select(x => x.Name))));
                 exception.Data["Stream"] = name;
@@ -171,6 +171,7 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
 
         var initialValues = new List<KeyValuePair<string, object>>();
 
+        var resultCount = 0;
         for (var rowIndex = FirstDataRow; rowIndex <= endRow && !Pipe.IsTerminating; rowIndex++)
         {
             if (IgnoreNullOrEmptyRows)
@@ -211,11 +212,20 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
                     value = str;
                 }
 
-                value = kvp.configuration.Process(this, value);
+                try
+                {
+                    value = kvp.configuration.Process(this, value);
+                }
+                catch (Exception)
+                {
+                    value = new EtlRowError(value);
+                }
+
                 initialValues.Add(new KeyValuePair<string, object>(kvp.rowColumn, value));
             }
 
             yield return Context.CreateRow(this, initialValues);
+            resultCount++;
         }
     }
 
