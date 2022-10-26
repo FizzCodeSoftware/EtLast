@@ -173,7 +173,8 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
                         Caller = InvocationInfo.Caller,
                         Scope = this,
                         Topic = tableFinalizers.Key,
-                        Action = "finalized with " + process.Name + " (" + process.GetType().GetFriendlyTypeName() + ")",
+                        Action = "finalized",
+                        Process = process,
                     });
 
                     process.Execute(this, pipe);

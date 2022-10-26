@@ -152,13 +152,27 @@ internal static class ModuleExecuter
                     var actions = scopeActions.Where(x => x.Topic == topic).ToArray();
                     foreach (var action in actions)
                     {
-                        if (action.Caller != null)
+                        if (action.Process != null)
                         {
-                            context.Log(LogSeverity.Information, null, "\t{ActiveTopic} in {ActiveProcess} is {Action}", action.Topic, action.Caller, action.Action);
+                            if (action.Caller != null)
+                            {
+                                context.Log(LogSeverity.Information, null, "\t{ActiveTopic} in {ActiveProcess} #{ActiveProcessUid} is {Action} by {Process} #{ProcessUid}, {ProcessType}", action.Topic, action.Caller.Name, action.Caller.InvocationInfo.InvocationUid, action.Action, action.Process.Name, action.Process.InvocationInfo.InvocationUid, action.Process.GetType().GetFriendlyTypeName());
+                            }
+                            else
+                            {
+                                context.Log(LogSeverity.Information, null, "\t{ActiveTopic} is {Action} by {Process} #{ProcessUid}, {ProcessType}", action.Topic, action.Action, action.Process.Name, action.Process.InvocationInfo.InvocationUid, action.Process.GetType().GetFriendlyTypeName());
+                            }
                         }
                         else
                         {
-                            context.Log(LogSeverity.Information, null, "\t{ActiveTopic} is {Action}", action.Topic, action.Action);
+                            if (action.Caller != null)
+                            {
+                                context.Log(LogSeverity.Information, null, "\t{ActiveTopic} in {ActiveProcess} #{ActiveProcessUid} is {Action}", action.Topic, action.Caller.Name, action.Caller.InvocationInfo.InvocationUid, action.Action);
+                            }
+                            else
+                            {
+                                context.Log(LogSeverity.Information, null, "\t{ActiveTopic} is {Action}", action.Topic, action.Action);
+                            }
                         }
                     }
                 }

@@ -7,4 +7,5 @@ public class ScopeAction
     public IScope Scope { get; init; }
     public string Topic { get; init; }
     public string Action { get; init; }
+    public IProcess Process { get; init; }
 }
