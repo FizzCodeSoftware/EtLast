@@ -7,8 +7,16 @@ public sealed class EtlContext : IEtlContext
     public AdditionalData AdditionalData { get; }
     public ArgumentCollection Arguments { get; }
 
+    /// <summary>
+    /// Returns a readable but not unique identifier of the context. Example: s220530-123059-99
+    /// </summary>
     public string Id { get; }
+
+    /// <summary>
+    /// Returns the unique identifier of the context.
+    /// </summary>
     public string Uid { get; }
+
     public DateTimeOffset CreatedOnUtc { get; }
     public DateTimeOffset CreatedOnLocal { get; }
 
@@ -30,6 +38,8 @@ public sealed class EtlContext : IEtlContext
     private int _nextIoCommandUid;
     private readonly Dictionary<string, int> _sinks = new();
 
+    private readonly List<ScopeAction> _scopeActions = new();
+
     public EtlContext(ArgumentCollection arguments)
     {
         SetRowType<Row>();
@@ -44,6 +54,16 @@ public sealed class EtlContext : IEtlContext
         Uid = Guid.NewGuid().ToString("D");
         CreatedOnLocal = DateTimeOffset.Now;
         CreatedOnUtc = CreatedOnLocal.ToUniversalTime();
+    }
+
+    public void RegisterScopeAction(ScopeAction action)
+    {
+        _scopeActions.Add(action);
+    }
+
+    public ScopeAction[] GetScopeActions()
+    {
+        return _scopeActions.ToArray();
     }
 
     public T Service<T>() where T : IEtlService, new()
@@ -195,7 +215,7 @@ public sealed class EtlContext : IEtlContext
         return row;
     }
 
-    public EtlTransactionScope BeginScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity)
+    public EtlTransactionScope BeginTransactionScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity)
     {
         return new EtlTransactionScope(this, process, kind, TransactionScopeTimeout, logSeverity);
     }

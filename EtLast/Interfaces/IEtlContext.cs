@@ -8,13 +8,16 @@ public interface IEtlContext
     public T Service<T>() where T : IEtlService, new();
     public AdditionalData AdditionalData { get; }
 
+    public void RegisterScopeAction(ScopeAction action);
+    public ScopeAction[] GetScopeActions();
+
     public string Id { get; }
     public string Uid { get; }
     public DateTimeOffset CreatedOnUtc { get; }
     public DateTimeOffset CreatedOnLocal { get; }
 
     public TimeSpan TransactionScopeTimeout { get; set; }
-    public EtlTransactionScope BeginScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity);
+    public EtlTransactionScope BeginTransactionScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity);
 
     public CancellationToken CancellationToken { get; }
 

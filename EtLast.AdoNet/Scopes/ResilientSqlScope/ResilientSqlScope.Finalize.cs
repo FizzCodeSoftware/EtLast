@@ -12,7 +12,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
             Context.Log(LogSeverity.Information, this, "finalization round {FinalizationRound} started", round);
             try
             {
-                using (var scope = Context.BeginScope(this, FinalizerTransactionScopeKind, LogSeverity.Information))
+                using (var scope = Context.BeginTransactionScope(this, FinalizerTransactionScopeKind, LogSeverity.Information))
                 {
                     CreateAndExecutePreFinalizers(pipe);
 
@@ -50,7 +50,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
         {
             IProcess[] processes;
 
-            using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
+            using (var creatorScope = Context.BeginTransactionScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
             {
                 var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
                 PostFinalizers.Invoke(builder);
@@ -133,7 +133,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
                 : TransactionScopeKind.None;
 
             var allFinalizers = new Dictionary<string, IProcess[]>();
-            using (var creatorScope = Context.BeginScope(this, creatorScopeKind, LogSeverity.Information))
+            using (var creatorScope = Context.BeginTransactionScope(this, creatorScopeKind, LogSeverity.Information))
             {
                 var builder = new ResilientSqlTableTableFinalizerBuilder() { Table = table };
                 table.Finalizers.Invoke(builder);
@@ -167,6 +167,15 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
             {
                 foreach (var process in tableFinalizers.Value)
                 {
+                    Context.RegisterScopeAction(new ScopeAction()
+                    {
+                        Context = Context,
+                        Caller = InvocationInfo.Caller,
+                        Scope = this,
+                        Topic = tableFinalizers.Key,
+                        Action = "finalized with " + process.Name + " (" + process.GetType().GetFriendlyTypeName() + ")",
+                    });
+
                     process.Execute(this, pipe);
 
                     if (pipe.IsTerminating)
@@ -183,7 +192,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 
         IProcess[] processes;
 
-        using (var creatorScope = Context.BeginScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
+        using (var creatorScope = Context.BeginTransactionScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
         {
             var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
             PreFinalizers.Invoke(builder);

@@ -136,7 +136,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
 
             try
             {
-                using (var scope = Context.BeginScope(this, TransactionScopeKind.RequiresNew, LogSeverity.Debug))
+                using (var scope = Context.BeginTransactionScope(this, TransactionScopeKind.RequiresNew, LogSeverity.Debug))
                 {
                     var transactionId = Transaction.Current.ToIdentifierString();
 

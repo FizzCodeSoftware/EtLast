@@ -27,7 +27,7 @@ public sealed class BasicScope : AbstractJob, IScope
 
     public EventHandler<BasicScopeProcessFailedEventArgs> OnFailure { get; set; }
 
-    public BasicScope(IEtlContext context, string topic, string name = null)
+    public BasicScope(IEtlContext context)
         : base(context)
     {
     }
@@ -36,7 +36,7 @@ public sealed class BasicScope : AbstractJob, IScope
     {
         try
         {
-            using (var scope = Context.BeginScope(this, TransactionScopeKind, LogSeverity.Information))
+            using (var scope = Context.BeginTransactionScope(this, TransactionScopeKind, LogSeverity.Information))
             {
                 var creators = new List<ProcessCreatorDelegate>();
                 if (JobCreator != null)
@@ -49,7 +49,7 @@ public sealed class BasicScope : AbstractJob, IScope
                 foreach (var creator in creators)
                 {
                     IProcess[] jobs = null;
-                    using (var creatorScope = Context.BeginScope(this, CreationTransactionScopeKind, LogSeverity.Information))
+                    using (var creatorScope = Context.BeginTransactionScope(this, CreationTransactionScopeKind, LogSeverity.Information))
                     {
                         jobs = creator.Invoke(this).Where(x => x != null).ToArray();
                     }

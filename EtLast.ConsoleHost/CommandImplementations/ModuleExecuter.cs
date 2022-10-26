@@ -140,6 +140,30 @@ internal static class ModuleExecuter
                 }
             }
 
+            var scopeActions = context.GetScopeActions();
+            if (scopeActions?.Length > 0)
+            {
+                context.Log(LogSeverity.Information, null, "-------------");
+                context.Log(LogSeverity.Information, null, "SCOPE ACTIONS");
+                context.Log(LogSeverity.Information, null, "-------------");
+                var topics = scopeActions.Select(x => x.Topic).Distinct().ToArray().OrderBy(x => x);
+                foreach (var topic in topics)
+                {
+                    var actions = scopeActions.Where(x => x.Topic == topic).ToArray();
+                    foreach (var action in actions)
+                    {
+                        if (action.Caller != null)
+                        {
+                            context.Log(LogSeverity.Information, null, "\t{ActiveTopic} in {ActiveProcess} is {Action}", action.Topic, action.Caller, action.Action);
+                        }
+                        else
+                        {
+                            context.Log(LogSeverity.Information, null, "\t{ActiveTopic} is {Action}", action.Topic, action.Action);
+                        }
+                    }
+                }
+            }
+
             context.Close();
         }
         catch (TransactionAbortedException)

@@ -66,7 +66,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
         var sqlStatementProcessed = InlineArrayParametersIfNecessary(sqlStatement);
         int iocUid;
 
-        using (var scope = Context.BeginScope(this, SuppressExistingTransactionScope ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Debug))
+        using (var scope = Context.BeginTransactionScope(this, SuppressExistingTransactionScope ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Debug))
         {
             if (CustomConnectionCreator != null)
             {
