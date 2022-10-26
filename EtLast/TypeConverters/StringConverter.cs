@@ -20,6 +20,11 @@ public class StringConverter : ITypeConverter
     /// </summary>
     public bool RemoveSpaces { get; set; }
 
+    /// <summary>
+    /// Default false.
+    /// </summary>
+    public bool ReplaceEmptyStringWithNull { get; set; }
+
     public StringConverter(IFormatProvider formatProvider = null)
     {
         FormatProvider = formatProvider;
@@ -36,11 +41,6 @@ public class StringConverter : ITypeConverter
         var result = ConvertToString(source);
         if (!string.IsNullOrEmpty(result))
         {
-            if (TrimStartEnd)
-            {
-                result = result.Trim();
-            }
-
             if (RemoveLineBreaks)
             {
                 result = result
@@ -48,10 +48,20 @@ public class StringConverter : ITypeConverter
                     .Replace("\n", "", StringComparison.InvariantCultureIgnoreCase);
             }
 
+            if (TrimStartEnd)
+            {
+                result = result.Trim();
+            }
+
             if (RemoveSpaces)
             {
                 result = result
                     .Replace(" ", "", StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            if (ReplaceEmptyStringWithNull && result == string.Empty)
+            {
+                result = null;
             }
         }
 

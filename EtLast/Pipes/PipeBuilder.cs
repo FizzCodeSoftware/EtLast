@@ -14,21 +14,29 @@ public class PipeBuilder : IPipeStarter, IPipeBuilder
     public IPipeBuilder StartWith<T>(T process)
         where T : IProcess
     {
-        process.SetContext(_flow.Context);
-
         var pipe = new Pipe(_flow.Context);
-        process.Execute(_flow, pipe);
+
+        if (process != null)
+        {
+            process.SetContext(_flow.Context);
+            process.Execute(_flow, pipe);
+        }
+
         return new PipeBuilder(_flow, pipe);
     }
 
     public IPipeBuilder StartWith<T>(out T result, T process)
         where T : IProcess
     {
-        result = process;
-        process.SetContext(_flow.Context);
-
         var pipe = new Pipe(_flow.Context);
-        process.Execute(_flow, pipe);
+        result = process;
+
+        if (process != null)
+        {
+            process.SetContext(_flow.Context);
+            process.Execute(_flow, pipe);
+        }
+
         return new PipeBuilder(_flow, pipe);
     }
 
