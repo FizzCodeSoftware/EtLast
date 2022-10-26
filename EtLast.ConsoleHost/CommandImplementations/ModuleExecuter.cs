@@ -144,7 +144,7 @@ internal static class ModuleExecuter
                         sb.Clear();
                         args.Clear();
 
-                        sb.Append("\t{ActiveTopic} ");
+                        sb.Append("\tTPC#{ActiveTopic} ");
                         args.Add(action.Topic);
                         if (action.Caller != null)
                         {

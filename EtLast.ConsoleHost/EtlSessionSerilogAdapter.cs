@@ -258,7 +258,7 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
         var topic = process?.GetTopic();
         if (topic != null)
         {
-            sb.Append(" *{ActiveTopic}");
+            sb.Append(" TPC#{ActiveTopic}");
             values.Add(topic);
         }
 
@@ -420,7 +420,7 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
             var topic = process?.GetTopic();
             if (topic != null)
             {
-                sb.Append(" *{ActiveTopic}");
+                sb.Append(" TPC#{ActiveTopic}");
                 values.Add(topic);
             }
 
