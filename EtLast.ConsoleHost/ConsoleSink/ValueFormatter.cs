@@ -50,14 +50,16 @@ internal static class ValueFormatter
                 ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.NullValue, "NULL");
                 break;
             case string strv:
-                if (string.IsNullOrEmpty(propertyName) || !CustomColoredProperties.Map.TryGetValue(propertyName, out var colorCode))
-                    colorCode = ColorCode.StringValue;
-
-                using (ColorCodeContext.StartOverridden(builder, logEvent, colorCode))
                 {
-                    builder.Write(strv);
-                    break;
+                    if (string.IsNullOrEmpty(propertyName) || !CustomColoredProperties.Map.TryGetValue(propertyName, out var colorCode))
+                        colorCode = ColorCode.StringValue;
+
+                    using (ColorCodeContext.StartOverridden(builder, logEvent, colorCode))
+                    {
+                        builder.Write(strv);
+                    }
                 }
+                break;
             case bool bv:
                 ColorCodeContext.WriteOverridden(builder, logEvent, ColorCode.BooleanValue, bv ? "true" : "false");
                 break;
@@ -72,19 +74,23 @@ internal static class ValueFormatter
             case uint:
             case long:
             case ulong:
-                using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.NumberValue))
                 {
-                    if (string.IsNullOrEmpty(format))
-                    {
-                        value.Render(builder, DefaultIntegerFormat, CultureInfo.InvariantCulture);
-                    }
-                    else
-                    {
-                        value.Render(builder, format, CultureInfo.InvariantCulture);
-                    }
+                    if (string.IsNullOrEmpty(propertyName) || !CustomColoredProperties.Map.TryGetValue(propertyName, out var colorCode))
+                        colorCode = ColorCode.NumberValue;
 
-                    break;
+                    using (ColorCodeContext.StartOverridden(builder, logEvent, colorCode))
+                    {
+                        if (string.IsNullOrEmpty(format))
+                        {
+                            value.Render(builder, DefaultIntegerFormat, CultureInfo.InvariantCulture);
+                        }
+                        else
+                        {
+                            value.Render(builder, format, CultureInfo.InvariantCulture);
+                        }
+                    }
                 }
+                break;
             case float:
             case double:
             case decimal:

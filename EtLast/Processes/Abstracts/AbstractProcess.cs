@@ -38,18 +38,18 @@ public abstract class AbstractProcess : IProcess
         if (Name == typeName)
         {
             if (caller is IEtlTask)
-                Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Task}", Kind, caller.Name);
+                Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Task} INV#{TaskInvocationUid}", Kind, caller.Name, caller.InvocationInfo.InvocationUid);
             else if (caller != null)
-                Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Process}", Kind, caller.Name);
+                Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Process} INV#{ProcessInvocationUid}", Kind, caller.Name, caller.InvocationInfo.InvocationUid);
             else
                 Context.Log(LogSeverity.Information, this, "{ProcessKind} started", Kind);
         }
         else
         {
             if (caller is IEtlTask)
-                Context.Log(LogSeverity.Information, this, "{ProcessKind}/{ProcessType} started by {Task}", typeName, Kind, caller.Name);
+                Context.Log(LogSeverity.Information, this, "{ProcessKind}/{ProcessType} started by {Task} INV#{TaskInvocationUid}", typeName, Kind, caller.Name, caller.InvocationInfo.InvocationUid);
             else if (caller != null)
-                Context.Log(LogSeverity.Information, this, "{ProcessKind}/{ProcessType} started by {Process}", typeName, Kind, caller.Name);
+                Context.Log(LogSeverity.Information, this, "{ProcessKind}/{ProcessType} started by {Process} INV#{ProcessInvocationUid}", typeName, Kind, caller.Name, caller.InvocationInfo.InvocationUid);
             else
                 Context.Log(LogSeverity.Information, this, "{ProcessKind}/{ProcessType} started", typeName, Kind);
         }

@@ -127,19 +127,6 @@ internal static class ModuleExecuter
 
             context.StopServices();
 
-            if (taskResults.Count > 0)
-            {
-                context.Log(LogSeverity.Information, null, "-------");
-                context.Log(LogSeverity.Information, null, "SUMMARY");
-                context.Log(LogSeverity.Information, null, "-------");
-
-                var longestTaskName = taskResults.Max(x => x.TaskName.Length);
-                foreach (var taskResult in taskResults)
-                {
-                    LogTaskSummary(context, taskResult, longestTaskName);
-                }
-            }
-
             var scopeActions = context.GetScopeActions();
             if (scopeActions?.Length > 0)
             {
@@ -147,33 +134,52 @@ internal static class ModuleExecuter
                 context.Log(LogSeverity.Information, null, "SCOPE ACTIONS");
                 context.Log(LogSeverity.Information, null, "-------------");
                 var topics = scopeActions.Select(x => x.Topic).Distinct().ToArray().OrderBy(x => x);
+                var sb = new StringBuilder();
+                var args = new List<object>();
                 foreach (var topic in topics)
                 {
                     var actions = scopeActions.Where(x => x.Topic == topic).ToArray();
                     foreach (var action in actions)
                     {
+                        sb.Clear();
+                        args.Clear();
+
+                        sb.Append("\t{ActiveTopic} ");
+                        args.Add(action.Topic);
+                        if (action.Caller != null)
+                        {
+                            var typ = action.Caller is IEtlTask ? "Task" : "Process";
+                            sb.Append("in {Active").Append(typ).Append("} INV#{Active").Append(typ).Append("InvocationUid} ");
+                            args.Add(action.Caller.Name);
+                            args.Add(action.Caller.InvocationInfo.InvocationUid);
+                        }
+
+                        sb.Append("is {Action}");
+                        args.Add(action.Action);
+
                         if (action.Process != null)
                         {
-                            if (action.Caller != null)
-                            {
-                                context.Log(LogSeverity.Information, null, "\t{ActiveTopic} in {ActiveProcess} #{ActiveProcessUid} is {Action} by {Process} #{ProcessUid}, {ProcessType}", action.Topic, action.Caller.Name, action.Caller.InvocationInfo.InvocationUid, action.Action, action.Process.Name, action.Process.InvocationInfo.InvocationUid, action.Process.GetType().GetFriendlyTypeName());
-                            }
-                            else
-                            {
-                                context.Log(LogSeverity.Information, null, "\t{ActiveTopic} is {Action} by {Process} #{ProcessUid}, {ProcessType}", action.Topic, action.Action, action.Process.Name, action.Process.InvocationInfo.InvocationUid, action.Process.GetType().GetFriendlyTypeName());
-                            }
+                            var typ = action.Process is IEtlTask ? "Task" : "Process";
+                            sb.Append(" by {").Append(typ).Append("} INV#{").Append(typ).Append("InvocationUid}, {ProcessType}");
+                            args.Add(action.Process.Name);
+                            args.Add(action.Process.InvocationInfo.InvocationUid);
+                            args.Add(action.Process.GetType().GetFriendlyTypeName());
                         }
-                        else
-                        {
-                            if (action.Caller != null)
-                            {
-                                context.Log(LogSeverity.Information, null, "\t{ActiveTopic} in {ActiveProcess} #{ActiveProcessUid} is {Action}", action.Topic, action.Caller.Name, action.Caller.InvocationInfo.InvocationUid, action.Action);
-                            }
-                            else
-                            {
-                                context.Log(LogSeverity.Information, null, "\t{ActiveTopic} is {Action}", action.Topic, action.Action);
-                            }
-                        }
+
+                        context.Log(LogSeverity.Information, null, sb.ToString(), args.ToArray());
+                    }
+                }
+
+                if (taskResults.Count > 0)
+                {
+                    context.Log(LogSeverity.Information, null, "-------");
+                    context.Log(LogSeverity.Information, null, "SUMMARY");
+                    context.Log(LogSeverity.Information, null, "-------");
+
+                    var longestTaskName = taskResults.Max(x => x.TaskName.Length);
+                    foreach (var taskResult in taskResults)
+                    {
+                        LogTaskSummary(context, taskResult, longestTaskName);
                     }
                 }
             }

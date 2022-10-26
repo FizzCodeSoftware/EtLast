@@ -230,12 +230,18 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
             if (process is IEtlTask)
             {
                 sb.Append("{ActiveTask} ");
+                sb.Append("INV#{ActiveTaskInvocationUid} ");
+
                 values.Add(process.Name);
+                values.Add(process.InvocationInfo.InvocationUid);
             }
             else
             {
                 sb.Append("{ActiveProcess} ");
+                sb.Append("INV#{ActiveProcessInvocationUid} ");
+
                 values.Add(process.Name);
+                values.Add(process.InvocationInfo.InvocationUid);
             }
         }
 
@@ -358,12 +364,18 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
                 if (process is IEtlTask)
                 {
                     sb.Append("{ActiveTask} ");
+                    sb.Append("#{ActiveTaskInvocationUid} ");
+
                     values.Add(process.Name);
+                    values.Add(process.InvocationInfo.InvocationUid);
                 }
                 else
                 {
                     sb.Append("{ActiveProcess} ");
+                    sb.Append("#{ActiveProcessInvocationUid} ");
+
                     values.Add(process.Name);
+                    values.Add(process.InvocationInfo.InvocationUid);
                 }
             }
 
