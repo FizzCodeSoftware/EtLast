@@ -23,8 +23,8 @@ public static class OrderedMatchHelper
 
             foreach (var kvp in row.Values)
             {
-                var expectedValue = kvp.Value;
-                var value = referenceRow[kvp.Key];
+                var expectedValue = referenceRow[kvp.Key];
+                var value = kvp.Value;
                 AssertValuesAreEqual(expectedValue, value, kvp.Key, i);
             }
         }

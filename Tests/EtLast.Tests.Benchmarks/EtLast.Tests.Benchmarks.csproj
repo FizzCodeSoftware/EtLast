@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <Platforms>AnyCPU</Platforms>
+    <AssemblyName>EtLast.Tests.Benchmarks</AssemblyName>
+    <RootNamespace>FizzCode.EtLast.Benchmarks</RootNamespace>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\EtLast.LocalFiles\EtLast.LocalFiles.csproj" />
+    <ProjectReference Include="..\..\EtLast\EtLast.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -4,6 +4,21 @@ public class LocalFileStreamProvider : IStreamProvider
 {
     public string FileName { get; init; }
 
+    public static FileStreamOptions DefaultOptions => new()
+    {
+        Mode = FileMode.Open,
+        Access = FileAccess.Read,
+        Share = FileShare.Read,
+        Options = FileOptions.None,
+        BufferSize = 4096,
+        PreallocationSize = 0,
+    };
+
+    /// <summary>
+    /// Default value is <see cref="DefaultOptions"/>
+    /// </summary>
+    public FileStreamOptions Options { get; init; } = DefaultOptions;
+
     /// <summary>
     /// Default value is true.
     /// </summary>
@@ -45,7 +60,7 @@ public class LocalFileStreamProvider : IStreamProvider
 
         try
         {
-            var stream = new FileStream(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var stream = new FileStream(FileName, Options);
             return new[]
             {
                 new NamedStream(FileName, stream, iocUid, IoCommandKind.fileRead),
