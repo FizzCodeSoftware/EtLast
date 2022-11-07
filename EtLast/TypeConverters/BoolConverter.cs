@@ -7,6 +7,14 @@ public class BoolConverter : ITypeConverter
         if (source is bool)
             return source;
 
+        if (source is string stringValue)
+        {
+            if (stringValue.Trim() == "1")
+                return true;
+            else if (stringValue.Trim() == "0")
+                return false;
+        }
+
         if (source is sbyte sbv)
             return sbv == 1;
 
@@ -30,14 +38,6 @@ public class BoolConverter : ITypeConverter
 
         if (source is ulong ulv)
             return ulv == 1;
-
-        if (source is string str)
-        {
-            if (str.Trim() == "1")
-                return true;
-            else if (str.Trim() == "0")
-                return false;
-        }
 
         return null;
     }

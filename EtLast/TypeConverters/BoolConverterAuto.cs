@@ -7,9 +7,9 @@ public class BoolConverterAuto : BoolConverter
 
     public override object Convert(object source)
     {
-        if (source is string str)
+        if (source is string stringValue)
         {
-            switch (str.ToUpperInvariant().Trim())
+            switch (stringValue.ToUpperInvariant().Trim())
             {
                 case "TRUE":
                 case "YES":
@@ -19,10 +19,10 @@ public class BoolConverterAuto : BoolConverter
                     return false;
             }
 
-            if (KnownTrueString != null && string.Equals(str.Trim(), KnownTrueString, StringComparison.InvariantCultureIgnoreCase))
+            if (KnownTrueString != null && string.Equals(stringValue.Trim(), KnownTrueString, StringComparison.InvariantCultureIgnoreCase))
                 return true;
 
-            if (KnownFalseString != null && string.Equals(str.Trim(), KnownFalseString, StringComparison.InvariantCultureIgnoreCase))
+            if (KnownFalseString != null && string.Equals(stringValue.Trim(), KnownFalseString, StringComparison.InvariantCultureIgnoreCase))
                 return false;
         }
 

@@ -21,16 +21,16 @@ public class DateConverterAuto : DateConverter
 
     public override object Convert(object source)
     {
-        if (source is string str)
+        if (source is string stringValue)
         {
             if (Format != null)
             {
-                if (DateTime.TryParseExact(str, Format, FormatProvider, DateTimeStyles, out var value))
+                if (DateTime.TryParseExact(stringValue, Format, FormatProvider, DateTimeStyles, out var value))
                 {
                     return value.Date;
                 }
             }
-            else if (DateTime.TryParse(str, FormatProvider, DateTimeStyles, out var value))
+            else if (DateTime.TryParse(stringValue, FormatProvider, DateTimeStyles, out var value))
             {
                 return value.Date;
             }

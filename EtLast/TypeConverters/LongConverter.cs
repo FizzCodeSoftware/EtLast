@@ -9,6 +9,20 @@ public class LongConverter : ITypeConverter
         if (source is long)
             return source;
 
+        if (source is string stringValue)
+        {
+            if (RemoveSubString != null)
+            {
+                foreach (var subStr in RemoveSubString)
+                {
+                    stringValue = stringValue.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
+                }
+            }
+
+            if (long.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
+                return value;
+        }
+
         // smaller whole numbers
         if (source is sbyte sbv)
             return System.Convert.ToInt64(sbv);
@@ -44,20 +58,6 @@ public class LongConverter : ITypeConverter
 
         if (source is bool boolv)
             return boolv ? 1L : 0L;
-
-        if (source is string str)
-        {
-            if (RemoveSubString != null)
-            {
-                foreach (var subStr in RemoveSubString)
-                {
-                    str = str.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
-                }
-            }
-
-            if (long.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
-                return value;
-        }
 
         return null;
     }

@@ -9,6 +9,20 @@ public class IntConverter : ITypeConverter
         if (source is int)
             return source;
 
+        if (source is string stringValue)
+        {
+            if (RemoveSubString != null)
+            {
+                foreach (var subStr in RemoveSubString)
+                {
+                    stringValue = stringValue.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
+                }
+            }
+
+            if (int.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
+                return value;
+        }
+
         // smaller whole numbers
         if (source is sbyte sbv)
             return System.Convert.ToInt32(sbv);
@@ -44,20 +58,6 @@ public class IntConverter : ITypeConverter
 
         if (source is bool boolv)
             return boolv ? 1 : 0;
-
-        if (source is string str)
-        {
-            if (RemoveSubString != null)
-            {
-                foreach (var subStr in RemoveSubString)
-                {
-                    str = str.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
-                }
-            }
-
-            if (int.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
-                return value;
-        }
 
         return null;
     }

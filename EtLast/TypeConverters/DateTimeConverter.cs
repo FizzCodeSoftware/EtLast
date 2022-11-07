@@ -9,13 +9,13 @@ public class DateTimeConverter : ITypeConverter
         if (source is DateTime dt)
             return dt;
 
-        if (source is string str)
+        if (source is string stringValue)
         {
-            if (EpochDate != null && double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var dv))
+            if (EpochDate != null && double.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var dv))
             {
                 source = dv;
             }
-            else if (DateTime.TryParse(str, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out var value))
+            else if (DateTime.TryParse(stringValue, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out var value))
             {
                 return value;
             }

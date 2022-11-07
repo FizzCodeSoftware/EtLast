@@ -13,17 +13,17 @@ public class LongConverterAuto : LongConverter
 
     public override object Convert(object source)
     {
-        if (source is string str)
+        if (source is string stringValue)
         {
             if (RemoveSubString != null)
             {
                 foreach (var subStr in RemoveSubString)
                 {
-                    str = str.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
+                    stringValue = stringValue.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
                 }
             }
 
-            if (long.TryParse(str, NumberStyles, FormatProvider, out var value))
+            if (long.TryParse(stringValue, NumberStyles, FormatProvider, out var value))
             {
                 return value;
             }

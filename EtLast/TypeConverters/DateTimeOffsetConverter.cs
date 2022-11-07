@@ -7,9 +7,9 @@ public class DateTimeOffsetConverter : ITypeConverter
         if (source is DateTimeOffset)
             return source;
 
-        if (source is string str)
+        if (source is string stringValue)
         {
-            if (DateTimeOffset.TryParse(str, out var value))
+            if (DateTimeOffset.TryParse(stringValue, out var value))
             {
                 return value;
             }

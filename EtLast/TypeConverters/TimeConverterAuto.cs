@@ -21,22 +21,22 @@ public class TimeConverterAuto : TimeConverter
 
     public override object Convert(object source)
     {
-        if (source is string str)
+        if (source is string stringValue)
         {
             if (Format != null)
             {
-                if (TimeSpan.TryParseExact(str, Format, FormatProvider, out var tsValue))
+                if (TimeSpan.TryParseExact(stringValue, Format, FormatProvider, out var tsValue))
                     return tsValue;
 
-                if (DateTime.TryParseExact(str, Format, FormatProvider, DateTimeStyles, out var dtValue))
+                if (DateTime.TryParseExact(stringValue, Format, FormatProvider, DateTimeStyles, out var dtValue))
                     return new TimeSpan(0, dtValue.Hour, dtValue.Minute, dtValue.Second, dtValue.Millisecond);
             }
             else
             {
-                if (TimeSpan.TryParse(str, FormatProvider, out var tsValue))
+                if (TimeSpan.TryParse(stringValue, FormatProvider, out var tsValue))
                     return tsValue;
 
-                if (DateTime.TryParse(str, FormatProvider, DateTimeStyles, out var dtValue))
+                if (DateTime.TryParse(stringValue, FormatProvider, DateTimeStyles, out var dtValue))
                     return new TimeSpan(0, dtValue.Hour, dtValue.Minute, dtValue.Second, dtValue.Millisecond);
             }
         }

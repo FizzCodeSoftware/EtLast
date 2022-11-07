@@ -13,17 +13,17 @@ public class DoubleConverterAuto : DoubleConverter
 
     public override object Convert(object source)
     {
-        if (source is string str)
+        if (source is string stringValue)
         {
             if (RemoveSubString != null)
             {
                 foreach (var subStr in RemoveSubString)
                 {
-                    str = str.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
+                    stringValue = stringValue.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
                 }
             }
 
-            if (double.TryParse(str, NumberStyles, FormatProvider, out var value))
+            if (double.TryParse(stringValue, NumberStyles, FormatProvider, out var value))
             {
                 return value;
             }

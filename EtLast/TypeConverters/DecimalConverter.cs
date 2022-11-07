@@ -9,6 +9,20 @@ public class DecimalConverter : ITypeConverter
         if (source is decimal)
             return source;
 
+        if (source is string stringValue)
+        {
+            if (RemoveSubString != null)
+            {
+                foreach (var subStr in RemoveSubString)
+                {
+                    stringValue = stringValue.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
+                }
+            }
+
+            if (decimal.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
+                return value;
+        }
+
         // whole numbers
         if (source is sbyte sbv)
             return System.Convert.ToDecimal(sbv);
@@ -40,20 +54,6 @@ public class DecimalConverter : ITypeConverter
 
         if (source is float fv)
             return System.Convert.ToDecimal(fv);
-
-        if (source is string str)
-        {
-            if (RemoveSubString != null)
-            {
-                foreach (var subStr in RemoveSubString)
-                {
-                    str = str.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
-                }
-            }
-
-            if (decimal.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
-                return value;
-        }
 
         return null;
     }

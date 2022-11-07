@@ -13,17 +13,17 @@ public class DecimalConverterAuto : DecimalConverter
 
     public override object Convert(object source)
     {
-        if (source is string str)
+        if (source is string stringValue)
         {
             if (RemoveSubString != null)
             {
                 foreach (var subStr in RemoveSubString)
                 {
-                    str = str.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
+                    stringValue = stringValue.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
                 }
             }
 
-            if (decimal.TryParse(str, NumberStyles, FormatProvider, out var value))
+            if (decimal.TryParse(stringValue, NumberStyles, FormatProvider, out var value))
             {
                 return value;
             }

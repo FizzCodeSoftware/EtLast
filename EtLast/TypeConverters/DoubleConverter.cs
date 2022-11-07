@@ -9,6 +9,20 @@ public class DoubleConverter : ITypeConverter
         if (source is double)
             return source;
 
+        if (source is string stringValue)
+        {
+            if (RemoveSubString != null)
+            {
+                foreach (var subStr in RemoveSubString)
+                {
+                    stringValue = stringValue.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
+                }
+            }
+
+            if (double.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
+                return value;
+        }
+
         // whole numbers
         if (source is sbyte sbv)
             return System.Convert.ToDouble(sbv);
@@ -40,20 +54,6 @@ public class DoubleConverter : ITypeConverter
 
         if (source is decimal dcv)
             return System.Convert.ToDouble(dcv);
-
-        if (source is string str)
-        {
-            if (RemoveSubString != null)
-            {
-                foreach (var subStr in RemoveSubString)
-                {
-                    str = str.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
-                }
-            }
-
-            if (double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
-                return value;
-        }
 
         return null;
     }

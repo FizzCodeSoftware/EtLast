@@ -172,8 +172,8 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
 
         if (aggregates != null)
         {
-            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups in {Elapsed}, ignored: {IgnoredRowCount}",
-                rowCount, aggregates.Count, InvocationInfo.LastInvocationStarted.Elapsed, ignoredRowCount);
+            Context.Log(LogSeverity.Debug, this, "evaluated {RowCount} input rows and created {GroupCount} groups, ignored: {IgnoredRowCount}",
+                rowCount, aggregates.Count, ignoredRowCount);
 
             foreach (var aggregate in aggregates.Values)
             {

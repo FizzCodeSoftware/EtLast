@@ -38,7 +38,10 @@ public class StringConverter : ITypeConverter
 
     public virtual object Convert(object source)
     {
-        var result = ConvertToString(source);
+        var result = source is string stringValue
+            ? stringValue
+            : ConvertToString(source);
+
         if (!string.IsNullOrEmpty(result))
         {
             if (RemoveLineBreaks)

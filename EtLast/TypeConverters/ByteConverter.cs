@@ -9,6 +9,20 @@ public class ByteConverter : ITypeConverter
         if (source is byte)
             return source;
 
+        if (source is string stringValue)
+        {
+            if (RemoveSubString != null)
+            {
+                foreach (var subStr in RemoveSubString)
+                {
+                    stringValue = stringValue.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
+                }
+            }
+
+            if (byte.TryParse(stringValue, out var value))
+                return value;
+        }
+
         if (source is sbyte sbv && sbv >= byte.MinValue)
             return System.Convert.ToByte(sbv);
 
@@ -43,20 +57,6 @@ public class ByteConverter : ITypeConverter
 
         if (source is bool boolv)
             return boolv ? (byte)1 : (byte)0;
-
-        if (source is string str)
-        {
-            if (RemoveSubString != null)
-            {
-                foreach (var subStr in RemoveSubString)
-                {
-                    str = str.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
-                }
-            }
-
-            if (byte.TryParse(str, out var value))
-                return value;
-        }
 
         return null;
     }
