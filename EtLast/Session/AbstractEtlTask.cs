@@ -9,7 +9,7 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 
     private readonly IoCommandCounterCollection _ioCommandCounterCollection = new();
 
-    public abstract IEnumerable<IProcess> CreateJobs();
+    public abstract IEnumerable<IProcess> CreateJobs(IProcess caller);
 
     protected AbstractEtlTask()
     {
@@ -33,7 +33,7 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
             Context.Listeners.Add(_ioCommandCounterCollection);
             try
             {
-                var jobs = CreateJobs()?
+                var jobs = CreateJobs(caller)?
                     .Where(x => x != null)
                     .ToList();
 

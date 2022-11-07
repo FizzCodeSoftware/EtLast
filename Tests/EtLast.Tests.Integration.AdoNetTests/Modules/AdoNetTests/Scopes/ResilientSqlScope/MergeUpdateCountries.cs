@@ -10,7 +10,7 @@ public class MergeUpdateCountries : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    public override IEnumerable<IProcess> CreateJobs()
+    public override IEnumerable<IProcess> CreateJobs(IProcess caller)
     {
         yield return new CustomSqlStatement(Context)
         {

@@ -20,7 +20,7 @@ public class CreateDatabase : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(Definition));
     }
 
-    public override IEnumerable<IProcess> CreateJobs()
+    public override IEnumerable<IProcess> CreateJobs(IProcess caller)
     {
         yield return new CustomJob(Context)
         {

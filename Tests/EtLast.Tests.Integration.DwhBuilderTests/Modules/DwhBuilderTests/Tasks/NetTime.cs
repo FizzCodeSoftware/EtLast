@@ -6,7 +6,7 @@ public class NetTime : AbstractEtlTask
     {
     }
 
-    public override IEnumerable<IProcess> CreateJobs()
+    public override IEnumerable<IProcess> CreateJobs(IProcess caller)
     {
         yield return CreateSequence(1);
         yield return CreateSequence(100);

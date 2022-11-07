@@ -9,7 +9,7 @@ public class EtlException : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    public override IEnumerable<IProcess> CreateJobs()
+    public override IEnumerable<IProcess> CreateJobs(IProcess caller)
     {
         yield return new CustomJob(Context)
         {

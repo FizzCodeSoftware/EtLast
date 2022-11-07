@@ -16,7 +16,7 @@ public class DropDatabase : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(DatabaseName));
     }
 
-    public override IEnumerable<IProcess> CreateJobs()
+    public override IEnumerable<IProcess> CreateJobs(IProcess caller)
     {
         yield return new CustomJob(Context)
         {

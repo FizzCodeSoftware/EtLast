@@ -8,7 +8,7 @@ public class GetFilesTask : AbstractEtlTask
     {
     }
 
-    public override IEnumerable<IProcess> CreateJobs()
+    public override IEnumerable<IProcess> CreateJobs(IProcess caller)
     {
         yield return new CustomJob(Context)
         {
