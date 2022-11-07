@@ -10,7 +10,7 @@ public class ShowMessageTask : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(Message));
     }
 
-    public override IEnumerable<IProcess> CreateJobs(IProcess caller)
+    public override IEnumerable<IProcess> CreateJobs()
     {
         yield return new CustomJob(Context)
         {
