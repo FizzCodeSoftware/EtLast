@@ -57,8 +57,8 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 
             _statistics.Finish();
 
-            Context.Log(LogSeverity.Information, this, "{TaskResult} in {Elapsed}",
-                Pipe.ToLogString(), _statistics.RunTime);
+            Context.Log(LogSeverity.Information, this, "{TaskResult} in {Elapsed}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
+                Pipe.ToLogString(), Statistics.RunTime, Statistics.CpuTime, Statistics.TotalAllocations, Statistics.AllocationDifference);
 
             LogPrivateSettableProperties(LogSeverity.Debug);
         }

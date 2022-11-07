@@ -118,6 +118,12 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
             // key is the SOURCE column name
             var columnMap = Columns?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
+            var fieldCount = reader.FieldCount;
+
+            var sqlColumns = new string[fieldCount];
+            for (var i = 0; i < fieldCount; i++)
+                sqlColumns[i] = reader.GetName(i);
+
             while (!Pipe.IsTerminating)
             {
                 try
@@ -142,9 +148,9 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                 LastDataRead = DateTime.Now;
 
                 initialValues.Clear();
-                for (var i = 0; i < reader.FieldCount; i++)
+                for (var i = 0; i < fieldCount; i++)
                 {
-                    var columnName = string.Intern(reader.GetName(i));
+                    var columnName = sqlColumns[i];
 
                     var rowColumn = columnName;
                     ReaderDefaultColumn config = null;

@@ -52,8 +52,8 @@ public abstract class AbstractEtlFlow : AbstractProcess, IEtlFlow
             }
 
             _statistics.Finish();
-            Context.Log(LogSeverity.Information, this, "{TaskResult} in {Elapsed}",
-                Pipe.ToLogString(), _statistics.RunTime);
+            Context.Log(LogSeverity.Information, this, "{TaskResult} in {Elapsed}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
+                Pipe.ToLogString(), Statistics.RunTime, Statistics.CpuTime, Statistics.TotalAllocations, Statistics.AllocationDifference);
 
             LogPrivateSettableProperties(LogSeverity.Debug);
         }
@@ -64,7 +64,6 @@ public abstract class AbstractEtlFlow : AbstractProcess, IEtlFlow
 
     public IPipeStarter NewPipe()
     {
-        var pipe = new Pipe(Context);
-        return new PipeBuilder(this, pipe);
+        return PipeBuilder.NewIsolatedPipe(Context, this);
     }
 }

@@ -2,42 +2,47 @@
 
 public class PipeBuilder : IPipeStarter, IPipeBuilder
 {
-    private readonly IEtlFlow _flow;
+    private readonly IEtlContext _context;
+    private readonly IProcess _caller;
     private readonly Pipe _pipe;
 
-    internal PipeBuilder(IEtlFlow flow, Pipe wire)
+    private PipeBuilder(IEtlContext context, IProcess caller, Pipe pipe)
     {
-        _flow = flow;
-        _pipe = wire;
+        _context = context;
+        _caller = caller;
+        _pipe = pipe;
+    }
+
+    public static IPipeStarter NewIsolatedPipe(IEtlContext context, IProcess caller)
+    {
+        var isolatedPipe = new Pipe(context);
+        return new PipeBuilder(context, caller, isolatedPipe);
     }
 
     public IPipeBuilder StartWith<T>(T process)
         where T : IProcess
     {
-        var pipe = new Pipe(_flow.Context);
-
         if (process != null)
         {
-            process.SetContext(_flow.Context);
-            process.Execute(_flow, pipe);
+            process.SetContext(_context);
+            process.Execute(_caller, _pipe);
         }
 
-        return new PipeBuilder(_flow, pipe);
+        return this;
     }
 
     public IPipeBuilder StartWith<T>(out T result, T process)
         where T : IProcess
     {
-        var pipe = new Pipe(_flow.Context);
         result = process;
 
         if (process != null)
         {
-            process.SetContext(_flow.Context);
-            process.Execute(_flow, pipe);
+            process.SetContext(_context);
+            process.Execute(_caller, _pipe);
         }
 
-        return new PipeBuilder(_flow, pipe);
+        return this;
     }
 
     public IPipeBuilder OnSuccess(Func<Pipe, Action> processCreator)
@@ -48,13 +53,13 @@ public class PipeBuilder : IPipeStarter, IPipeBuilder
         var action = processCreator.Invoke(_pipe);
         if (action != null)
         {
-            var process = new CustomJob(_flow.Context)
+            var process = new CustomJob(_context)
             {
                 Action = _ => action.Invoke(),
             };
 
-            process.SetContext(_flow.Context);
-            process.Execute(_flow, _pipe);
+            process.SetContext(_context);
+            process.Execute(_caller, _pipe);
         }
 
         return this;
@@ -68,8 +73,8 @@ public class PipeBuilder : IPipeStarter, IPipeBuilder
         var process = processCreator.Invoke(_pipe);
         if (process != null)
         {
-            process.SetContext(_flow.Context);
-            process.Execute(_flow, _pipe);
+            process.SetContext(_context);
+            process.Execute(_caller, _pipe);
         }
 
         return this;
@@ -86,8 +91,8 @@ public class PipeBuilder : IPipeStarter, IPipeBuilder
         result = processCreator.Invoke(_pipe);
         if (result != null)
         {
-            result.SetContext(_flow.Context);
-            result.Execute(_flow, _pipe);
+            result.SetContext(_context);
+            result.Execute(_caller, _pipe);
         }
 
         return this;
@@ -95,8 +100,8 @@ public class PipeBuilder : IPipeStarter, IPipeBuilder
 
     public IPipeBuilder IsolatedPipe(Action<Pipe, IPipeStarter> handler)
     {
-        var isolatedPipe = new Pipe(_flow.Context);
-        var newBuilder = new PipeBuilder(_flow, isolatedPipe);
+        var isolatedPipe = new Pipe(_context);
+        var newBuilder = new PipeBuilder(_context, _caller, isolatedPipe);
         handler.Invoke(_pipe, newBuilder);
 
         return this;
@@ -109,9 +114,9 @@ public class PipeBuilder : IPipeStarter, IPipeBuilder
             var process = processCreator.Invoke(_pipe);
             if (process != null)
             {
-                process.SetContext(_flow.Context);
-                var isolatedWire = new Pipe(_flow.Context);
-                process.Execute(_flow, isolatedWire);
+                process.SetContext(_context);
+                var isolatedWire = new Pipe(_context);
+                process.Execute(_caller, isolatedWire);
             }
         }
 
