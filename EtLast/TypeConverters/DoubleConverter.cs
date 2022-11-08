@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class DoubleConverter : ITypeConverter
+public class DoubleConverter : ITypeConverter, ITextConverter
 {
     public string[] RemoveSubString { get; set; }
 
@@ -54,6 +54,28 @@ public class DoubleConverter : ITypeConverter
 
         if (source is decimal dcv)
             return System.Convert.ToDouble(dcv);
+
+        return null;
+    }
+
+    public object Convert(TextReaderStringBuilder source)
+    {
+        if (RemoveSubString != null)
+        {
+            var stringValue = source.GetContentAsString();
+            foreach (var subStr in RemoveSubString)
+            {
+                stringValue = stringValue.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            if (double.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
+                return value;
+        }
+        else
+        {
+            if (double.TryParse(source.GetContentAsSpan(), NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
+                return value;
+        }
 
         return null;
     }

@@ -14,8 +14,8 @@ public class DelimitedLineReaderOldTests
             Columns = new()
             {
                 ["Id"] = new ReaderColumn(new IntConverter()),
-                ["Name"] = new ReaderColumn(new StringConverter()),
-                ["ValueString"] = new ReaderColumn(new StringConverter()).FromSource("Value1"),
+                ["Name"] = new ReaderColumn(null),
+                ["ValueString"] = new ReaderColumn(null).FromSource("Value1"),
                 ["ValueInt"] = new ReaderColumn(new IntConverter()).FromSource("Value2"),
                 ["ValueDate"] = new ReaderColumn(new DateConverter()).FromSource("Value3"),
                 ["ValueDouble"] = new ReaderColumn(new DoubleConverter()).FromSource("Value4"),
@@ -36,8 +36,8 @@ public class DelimitedLineReaderOldTests
             Columns = new()
             {
                 ["Id"] = new ReaderColumn(new IntConverter()),
-                ["Name"] = new ReaderColumn(new StringConverter()),
-                ["Value"] = new ReaderColumn(new StringConverter())
+                ["Name"] = new ReaderColumn(null),
+                ["Value"] = new ReaderColumn(null)
             },
             Header = DelimitedLineHeader.HasHeader,
             TreatEmptyStringAsNull = treatEmptyStringsAsNull,
@@ -61,6 +61,40 @@ public class DelimitedLineReaderOldTests
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d } });
+
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+    }
+
+    [TestMethod]
+    public void SkipColumnsTest()
+    {
+        var context = TestExecuter.GetContext();
+        var builder = SequenceBuilder.Fluent
+            .ReadDelimitedLinesOld(new DelimitedLineReaderOld(context)
+            {
+                StreamProvider = new LocalFileStreamProvider()
+                {
+                    FileName = @"TestData\Sample.csv",
+                },
+                Columns = new()
+                {
+                    ["Id"] = new ReaderColumn(new IntConverter()),
+                    ["Name"] = new ReaderColumn(null),
+                    ["ValueDouble"] = new ReaderColumn(new DoubleConverter()).FromSource("Value4"),
+                },
+                Header = DelimitedLineHeader.HasHeader,
+            })
+            .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
+            {
+                Columns = new[] { "ValueDate" },
+                Value = null,
+            });
+
+        var result = TestExecuter.Execute(builder);
+        Assert.AreEqual(2, result.MutatedRows.Count);
+        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A" },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["ValueDouble"] = 1.234d } });
 
         Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
@@ -234,11 +268,11 @@ public class DelimitedLineReaderOldTests
                 Columns = new()
                 {
                     ["Id"] = new ReaderColumn(new IntConverter()),
-                    ["Name"] = new ReaderColumn(new StringConverter()),
-                    ["Value1"] = new ReaderColumn(new StringConverter()),
+                    ["Name"] = new ReaderColumn(null),
+                    ["Value1"] = new ReaderColumn(null),
                     ["Value2"] = new ReaderColumn(new IntConverter()),
-                    ["Value3"] = new ReaderColumn(new StringConverter()),
-                    ["Value4"] = new ReaderColumn(new StringConverter()),
+                    ["Value3"] = new ReaderColumn(null),
+                    ["Value4"] = new ReaderColumn(null),
                 },
                 Header = DelimitedLineHeader.HasHeader,
             });
@@ -267,11 +301,11 @@ public class DelimitedLineReaderOldTests
                 Columns = new()
                 {
                     ["Id"] = new ReaderColumn(new IntConverter()),
-                    ["Name"] = new ReaderColumn(new StringConverter()),
-                    ["Value1"] = new ReaderColumn(new StringConverter()),
+                    ["Name"] = new ReaderColumn(null),
+                    ["Value1"] = new ReaderColumn(null),
                     ["Value2"] = new ReaderColumn(new IntConverter()),
-                    ["Value3"] = new ReaderColumn(new StringConverter()),
-                    ["Value4"] = new ReaderColumn(new StringConverter()),
+                    ["Value3"] = new ReaderColumn(null),
+                    ["Value4"] = new ReaderColumn(null),
                 },
                 Header = DelimitedLineHeader.IgnoreHeader,
             });

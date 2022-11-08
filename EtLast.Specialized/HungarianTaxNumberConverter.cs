@@ -13,9 +13,6 @@ public sealed class HungarianTaxNumberConverter : StringConverter
     public HungarianTaxNumberConverter(string formatHint = null, IFormatProvider formatProviderHint = null)
         : base(formatHint, formatProviderHint)
     {
-        RemoveSpaces = true;
-        RemoveLineBreaks = true;
-        TrimStartEnd = true;
     }
 
     public override object Convert(object source)
@@ -25,36 +22,41 @@ public sealed class HungarianTaxNumberConverter : StringConverter
         return Convert(taxNr, AutomaticallyAddHyphens);
     }
 
-    public static string Convert(string taxNr, bool automaticallyAddHyphens)
+    public static string Convert(string value, bool automaticallyAddHyphens)
     {
-        if (string.IsNullOrEmpty(taxNr))
+        if (string.IsNullOrEmpty(value))
             return null;
 
-        if (!Validate(taxNr))
+        value = value
+            .Replace(" ", "", StringComparison.Ordinal)
+            .Replace("\n", "", StringComparison.Ordinal)
+            .Trim();
+
+        if (!Validate(value))
             return null;
 
-        if (automaticallyAddHyphens && taxNr.Length == 11 && !taxNr.Contains('-', StringComparison.InvariantCultureIgnoreCase))
+        if (automaticallyAddHyphens && value.Length == 11 && !value.Contains('-', StringComparison.InvariantCultureIgnoreCase))
         {
-            taxNr = taxNr.Substring(0, 8) + "-" + taxNr.Substring(8, 1) + "-" + taxNr.Substring(9, 2);
+            value = value.Substring(0, 8) + "-" + value.Substring(8, 1) + "-" + value.Substring(9, 2);
         }
 
-        return taxNr;
+        return value;
     }
 
-    public static bool Validate(string taxNr)
+    public static bool Validate(string value)
     {
         string[] parts;
 
-        if (!taxNr.Contains('-', StringComparison.InvariantCultureIgnoreCase))
+        if (!value.Contains('-', StringComparison.InvariantCultureIgnoreCase))
         {
-            if (taxNr.Length != 11)
+            if (value.Length != 11)
                 return false;
 
-            parts = new[] { taxNr.Substring(0, 8), taxNr.Substring(8, 1), taxNr.Substring(9, 2) };
+            parts = new[] { value.Substring(0, 8), value.Substring(8, 1), value.Substring(9, 2) };
         }
         else
         {
-            parts = taxNr.Split('-');
+            parts = value.Split('-');
             if (parts.Length != 3 || parts[0].Length != 8 || parts[1].Length != 1 || parts[2].Length != 2)
                 return false;
         }

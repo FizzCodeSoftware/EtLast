@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class IntConverter : ITypeConverter
+public class IntConverter : ITypeConverter, ITextConverter
 {
     public string[] RemoveSubString { get; set; }
 
@@ -58,6 +58,28 @@ public class IntConverter : ITypeConverter
 
         if (source is bool boolv)
             return boolv ? 1 : 0;
+
+        return null;
+    }
+
+    public object Convert(TextReaderStringBuilder source)
+    {
+        if (RemoveSubString != null)
+        {
+            var stringValue = source.GetContentAsString();
+            foreach (var subStr in RemoveSubString)
+            {
+                stringValue = stringValue.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            if (int.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
+                return value;
+        }
+        else
+        {
+            if (int.TryParse(source.GetContentAsSpan(), NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
+                return value;
+        }
 
         return null;
     }

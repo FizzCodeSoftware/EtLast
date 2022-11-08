@@ -12,52 +12,53 @@ public sealed class HungarianGiroBankAccountConverter : StringConverter
     public HungarianGiroBankAccountConverter(string formatHint = null, IFormatProvider formatProviderHint = null)
         : base(formatHint, formatProviderHint)
     {
-        RemoveSpaces = true;
-        RemoveLineBreaks = true;
-        TrimStartEnd = true;
     }
 
     public override object Convert(object source)
     {
-        var taxNr = base.Convert(source) as string;
-
-        return Convert(taxNr, AutomaticallyAddHyphens);
+        var value = base.Convert(source) as string;
+        return Convert(value, AutomaticallyAddHyphens);
     }
 
-    public static string Convert(string accountNr, bool automaticallyAddHyphens)
+    public static string Convert(string value, bool automaticallyAddHyphens)
     {
-        if (string.IsNullOrEmpty(accountNr))
+        if (string.IsNullOrEmpty(value))
             return null;
 
-        if (!Validate(accountNr))
+        value = value
+            .Replace(" ", "", StringComparison.Ordinal)
+            .Replace("\n", "", StringComparison.Ordinal)
+            .Trim();
+
+        if (!Validate(value))
             return null;
 
-        if (automaticallyAddHyphens && !accountNr.Contains('-', StringComparison.InvariantCultureIgnoreCase))
+        if (automaticallyAddHyphens && !value.Contains('-', StringComparison.InvariantCultureIgnoreCase))
         {
-            return accountNr.Length switch
+            return value.Length switch
             {
-                16 => string.Concat(accountNr.AsSpan(0, 8), "-", accountNr.AsSpan(8, 8)),
-                24 => string.Concat(accountNr.Substring(0, 8), "-", accountNr.Substring(8, 8), "-", accountNr.Substring(16, 8)),
-                _ => accountNr,
+                16 => string.Concat(value.AsSpan(0, 8), "-", value.AsSpan(8, 8)),
+                24 => string.Concat(value.Substring(0, 8), "-", value.Substring(8, 8), "-", value.Substring(16, 8)),
+                _ => value,
             };
         }
 
-        return accountNr;
+        return value;
     }
 
-    public static bool Validate(string accountNr)
+    public static bool Validate(string value)
     {
         string[] parts;
 
-        if (!accountNr.Contains('-', StringComparison.InvariantCultureIgnoreCase))
+        if (!value.Contains('-', StringComparison.InvariantCultureIgnoreCase))
         {
-            switch (accountNr.Length)
+            switch (value.Length)
             {
                 case 16:
-                    parts = new[] { accountNr.Substring(0, 8), accountNr.Substring(8, 8) };
+                    parts = new[] { value.Substring(0, 8), value.Substring(8, 8) };
                     break;
                 case 24:
-                    parts = new[] { accountNr.Substring(0, 8), accountNr.Substring(8, 8), accountNr.Substring(16, 8) };
+                    parts = new[] { value.Substring(0, 8), value.Substring(8, 8), value.Substring(16, 8) };
                     break;
                 default:
                     return false;
@@ -65,7 +66,7 @@ public sealed class HungarianGiroBankAccountConverter : StringConverter
         }
         else
         {
-            parts = accountNr.Split('-', StringSplitOptions.RemoveEmptyEntries);
+            parts = value.Split('-', StringSplitOptions.RemoveEmptyEntries);
             if ((parts.Length != 2 && parts.Length != 3) || parts.Any(x => x.Length != 8))
                 return false;
         }

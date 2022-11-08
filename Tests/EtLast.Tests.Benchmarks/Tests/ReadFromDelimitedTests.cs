@@ -78,8 +78,8 @@ public class ReadFromDelimitedTests
             },
             Columns = new()
             {
-                ["1"] = new ReaderColumn(new StringConverter()),
-                ["2"] = new ReaderColumn(new IntConverter()),
+                ["1"] = new TextReaderColumn(),
+                ["2"] = new TextReaderColumn(new IntConverter()),
             },
             Header = DelimitedLineHeader.HasHeader,
         };
@@ -129,8 +129,8 @@ public class ReadFromDelimitedTests
             },
             Columns = new()
             {
-                ["1"] = new ReaderColumn(new StringConverter()),
-                ["2"] = new ReaderColumn(new IntConverter()),
+                ["1"] = new TextReaderColumn(),
+                ["2"] = new TextReaderColumn(new IntConverter()),
             },
             Header = DelimitedLineHeader.HasHeader,
         };

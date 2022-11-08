@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class DateConverter : ITypeConverter
+public class DateConverter : ITypeConverter, ITextConverter
 {
     public DateTime? EpochDate { get; set; }
 
@@ -50,6 +50,27 @@ public class DateConverter : ITypeConverter
                 {
                 }
             }
+        }
+
+        return null;
+    }
+
+    public object Convert(TextReaderStringBuilder source)
+    {
+        var span = source.GetContentAsSpan();
+        if (EpochDate != null && double.TryParse(span, NumberStyles.Any, CultureInfo.InvariantCulture, out var dv))
+        {
+            try
+            {
+                return EpochDate.Value.AddDays(dv).Date;
+            }
+            catch
+            {
+            }
+        }
+        else if (DateTime.TryParse(span, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out var value))
+        {
+            return value.Date;
         }
 
         return null;

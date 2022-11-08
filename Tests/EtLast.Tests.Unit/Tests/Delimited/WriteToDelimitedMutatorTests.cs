@@ -13,12 +13,12 @@ public class WriteToDelimitedMutatorTests
             },
             Columns = new()
             {
-                ["Id"] = new ReaderColumn(new IntConverter()),
-                ["Name"] = new ReaderColumn(new StringConverter()),
-                ["ValueString"] = new ReaderColumn(new StringConverter()).FromSource("Value1"),
-                ["ValueInt"] = new ReaderColumn(new IntConverter()).FromSource("Value2"),
-                ["ValueDate"] = new ReaderColumn(new DateConverter()).FromSource("Value3"),
-                ["ValueDouble"] = new ReaderColumn(new DoubleConverter()).FromSource("Value4"),
+                ["Id"] = new TextReaderColumn(new IntConverter()),
+                ["Name"] = new TextReaderColumn(),
+                ["ValueString"] = new TextReaderColumn().FromSource("Value1"),
+                ["ValueInt"] = new TextReaderColumn(new IntConverter()).FromSource("Value2"),
+                ["ValueDate"] = new TextReaderColumn(new DateConverter()).FromSource("Value3"),
+                ["ValueDouble"] = new TextReaderColumn(new DoubleConverter()).FromSource("Value4"),
             },
             Header = DelimitedLineHeader.HasHeader,
             RemoveSurroundingDoubleQuotes = removeSurroundingDoubleQuotes
@@ -79,14 +79,14 @@ public class WriteToDelimitedMutatorTests
                     Header = DelimitedLineHeader.HasHeader,
                     Columns = new()
                     {
-                        ["id"] = new ReaderColumn(new IntConverter()),
-                        ["name"] = new ReaderColumn(new StringConverter()),
-                        ["age"] = new ReaderColumn(new IntConverter()),
-                        ["HeightInCm"] = new ReaderColumn(new IntConverter()),
-                        ["eyeColor"] = new ReaderColumn(new StringConverter()),
-                        ["countryId"] = new ReaderColumn(new IntConverter()),
-                        ["birthDate"] = new ReaderColumn(new DateTimeConverter()),
-                        ["lastChangedTime"] = new ReaderColumn(new DateTimeConverter()),
+                        ["id"] = new TextReaderColumn(new IntConverter()),
+                        ["name"] = new TextReaderColumn(),
+                        ["age"] = new TextReaderColumn(new IntConverter()),
+                        ["HeightInCm"] = new TextReaderColumn(new IntConverter()),
+                        ["eyeColor"] = new TextReaderColumn(),
+                        ["countryId"] = new TextReaderColumn(new IntConverter()),
+                        ["birthDate"] = new TextReaderColumn(new DateTimeConverter()),
+                        ["lastChangedTime"] = new TextReaderColumn(new DateTimeConverter()),
                     },
                 });
 

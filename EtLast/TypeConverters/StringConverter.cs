@@ -5,26 +5,6 @@ public class StringConverter : ITypeConverter
     public string FormatHint { get; }
     public IFormatProvider FormatProvider { get; }
 
-    /// <summary>
-    /// Default false.
-    /// </summary>
-    public bool TrimStartEnd { get; set; }
-
-    /// <summary>
-    /// Default false.
-    /// </summary>
-    public bool RemoveLineBreaks { get; set; }
-
-    /// <summary>
-    /// Default false.
-    /// </summary>
-    public bool RemoveSpaces { get; set; }
-
-    /// <summary>
-    /// Default false.
-    /// </summary>
-    public bool ReplaceEmptyStringWithNull { get; set; }
-
     public StringConverter(IFormatProvider formatProvider = null)
     {
         FormatProvider = formatProvider;
@@ -38,65 +18,35 @@ public class StringConverter : ITypeConverter
 
     public virtual object Convert(object source)
     {
-        var result = source is string stringValue
-            ? stringValue
-            : ConvertToString(source);
-
-        if (!string.IsNullOrEmpty(result))
+        string result = null;
+        if (source is not string stringValue)
         {
-            if (RemoveLineBreaks)
+            if (source is IFormattable formattable)
             {
-                result = result
-                    .Replace("\r", "", StringComparison.InvariantCultureIgnoreCase)
-                    .Replace("\n", "", StringComparison.InvariantCultureIgnoreCase);
+                try
+                {
+                    result = formattable.ToString(FormatHint, FormatProvider ?? CultureInfo.InvariantCulture);
+                }
+                catch
+                {
+                }
             }
-
-            if (TrimStartEnd)
+            else
             {
-                result = result.Trim();
+                try
+                {
+                    result = source.ToString();
+                }
+                catch
+                {
+                }
             }
-
-            if (RemoveSpaces)
-            {
-                result = result
-                    .Replace(" ", "", StringComparison.InvariantCultureIgnoreCase);
-            }
-
-            if (ReplaceEmptyStringWithNull && result == string.Empty)
-            {
-                result = null;
-            }
+        }
+        else
+        {
+            result = stringValue;
         }
 
         return result;
-    }
-
-    protected string ConvertToString(object source)
-    {
-        if (source is string stringValue)
-        {
-            return stringValue;
-        }
-
-        if (source is IFormattable formattable)
-        {
-            try
-            {
-                return formattable.ToString(FormatHint, FormatProvider ?? CultureInfo.InvariantCulture);
-            }
-            catch
-            {
-            }
-        }
-
-        try
-        {
-            return source.ToString();
-        }
-        catch
-        {
-        }
-
-        return null;
     }
 }

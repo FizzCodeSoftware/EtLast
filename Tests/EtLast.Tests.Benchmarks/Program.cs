@@ -1,5 +1,7 @@
 ﻿using FizzCode.EtLast.Benchmarks;
 
-BenchmarkRunner.Run<ReadFromDelimitedTests>();
+//new ReadFromDelimitedTestsInternal().ReadFromDelimitedFile();
+
+BenchmarkRunner.Run<ReadFromDelimitedTestsInternal>();
 
 Console.ReadLine();

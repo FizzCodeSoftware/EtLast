@@ -6,8 +6,8 @@ public sealed class DelimitedLineReader : AbstractRowSource
 {
     public IStreamProvider StreamProvider { get; init; }
 
-    public Dictionary<string, ReaderColumn> Columns { get; init; }
-    public ReaderDefaultColumn DefaultColumns { get; init; }
+    public Dictionary<string, TextReaderColumn> Columns { get; init; }
+    public TextReaderDefaultColumn DefaultColumns { get; init; }
 
     /// <summary>
     /// Default true.
@@ -87,9 +87,9 @@ public sealed class DelimitedLineReader : AbstractRowSource
         var resultCount = 0;
 
         var initialValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        var columnCount = 0;
 
-        var partList = new List<string>(100);
-        var builder = new StringBuilder(2000);
+        var builder = new TextReaderStringBuilder();
 
         // capture for performance
         var delimiter = Delimiter;
@@ -111,7 +111,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
                 break;
 
             var firstRow = true;
-            var columnNames = ColumnNames;
+            var columnNames = ColumnNames?.ToList() ?? new List<string>();
 
             //Console.WriteLine("new stream :" + stream.Stream.Length);
 
@@ -137,6 +137,9 @@ public sealed class DelimitedLineReader : AbstractRowSource
                 var fileCompleted = false;
                 var noMoreData = false;
                 var lineCompleted = false;
+
+                var hasColumnNames = ColumnNames != null;
+
                 while (!fileCompleted)
                 {
                     var remaining = bufferLength - bufferPosition;
@@ -277,36 +280,47 @@ public sealed class DelimitedLineReader : AbstractRowSource
 
                             if (lastCharInLine || (quotes == 0 && c == delimiter))
                             {
-                                if (builderLength == 0)
-                                {
-                                    partList.Add(string.Empty);
-                                }
-                                else
+                                if (builderLength > 0)
                                 {
                                     // x
-                                    if (removeSurroundingDoubleQuotes
-                                        && builderLength > 1
-                                        && cellStartsWithQuote
-                                        && builder[builderLength - 1] == '\"')
-                                    {
-                                        if (builderLength > 2)
-                                        {
-                                            partList.Add(builder.ToString(1, builderLength - 2));
-                                        }
-                                        else
-                                        {
-                                            partList.Add(string.Empty);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        partList.Add(builder.ToString());
-                                    }
+                                    NewMethod(columnMap, initialValues, columnCount, builder, removeSurroundingDoubleQuotes, columnNames, builderLength, hasColumnNames);
+                                    columnCount++;
                                     // x
 
                                     builder.Clear();
                                     builderLength = 0;
                                     cellStartsWithQuote = false;
+                                }
+                                else
+                                {
+                                    if (hasColumnNames)
+                                    {
+                                        if (columnCount < columnNames.Count)
+                                        {
+                                            var columnName = columnNames[columnCount];
+                                            if (columnMap != null)
+                                            {
+                                                if (columnMap.TryGetValue(columnName, out var col))
+                                                {
+                                                    initialValues[col.rowColumn] = null;
+                                                }
+                                                else
+                                                {
+                                                    initialValues[columnName] = null;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                initialValues[columnName] = null;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        columnNames.Add(string.Empty);
+                                    }
+
+                                    columnCount++;
                                 }
                             }
 
@@ -318,26 +332,11 @@ public sealed class DelimitedLineReader : AbstractRowSource
 
                         if (builderLength > 0)
                         {
-                            // x
-                            if (removeSurroundingDoubleQuotes
-                                && builderLength > 1
-                                && cellStartsWithQuote
-                                && builder[builderLength - 1] == '\"')
+                            if (hasColumnNames)
                             {
-                                if (builderLength > 2)
-                                {
-                                    partList.Add(builder.ToString(1, builderLength - 2));
-                                }
-                                else
-                                {
-                                    partList.Add(string.Empty);
-                                }
+                                NewMethod(columnMap, initialValues, columnCount, builder, removeSurroundingDoubleQuotes, columnNames, builderLength, hasColumnNames);
+                                columnCount++;
                             }
-                            else
-                            {
-                                partList.Add(builder.ToString());
-                            }
-                            // x
 
                             builder.Clear();
                             builderLength = 0;
@@ -350,12 +349,38 @@ public sealed class DelimitedLineReader : AbstractRowSource
                         if (skipLines > 0)
                         {
                             skipLines--;
-                            partList.Clear();
+                            initialValues.Clear();
+                            columnCount = 0;
+                            //partList.Clear();
                             builder.Clear();
                             builderLength = 0;
                             quotes = 0;
                             cellStartsWithQuote = false;
                             continue;
+                        }
+
+                        if (!hasColumnNames)
+                        {
+                            hasColumnNames = columnNames.Count > 0;
+                            if (hasColumnNames)
+                            {
+                                for (var i = 0; i < columnNames.Count - 1; i++)
+                                {
+                                    var columnName = columnNames[i];
+                                    for (var j = i + 1; j < columnNames.Count; j++)
+                                    {
+                                        if (string.Equals(columnName, columnNames[j], StringComparison.InvariantCultureIgnoreCase))
+                                        {
+                                            var exception = new DelimitedReadException(this, "delimited input contains more than one columns with the same name", stream);
+                                            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "delimited input contains more than one columns with the same name: {0}, {1}", stream.Name, columnName));
+                                            exception.Data["Column"] = columnName;
+
+                                            Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
+                                            throw exception;
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         if (firstRow)
@@ -364,29 +389,9 @@ public sealed class DelimitedLineReader : AbstractRowSource
 
                             if (Header != DelimitedLineHeader.NoHeader)
                             {
-                                if (Header == DelimitedLineHeader.HasHeader)
-                                {
-                                    columnNames = partList.ToArray();
-
-                                    for (var i = 0; i < columnNames.Length - 1; i++)
-                                    {
-                                        var columnName = columnNames[i];
-                                        for (var j = i + 1; j < columnNames.Length; j++)
-                                        {
-                                            if (string.Equals(columnName, columnNames[j], StringComparison.InvariantCultureIgnoreCase))
-                                            {
-                                                var exception = new DelimitedReadException(this, "delimited input contains more than one columns with the same name", stream);
-                                                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "delimited input contains more than one columns with the same name: {0}, {1}", stream.Name, columnName));
-                                                exception.Data["Column"] = columnName;
-
-                                                Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
-                                                throw exception;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                partList.Clear();
+                                initialValues.Clear();
+                                columnCount = 0;
+                                //partList.Clear();
                                 builder.Clear();
                                 builderLength = 0;
                                 quotes = 0;
@@ -395,45 +400,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
                             }
                         }
 
-                        initialValues.Clear();
-                        var colCnt = Math.Min(columnNames.Length, partList.Count);
-
-                        for (var i = 0; i < colCnt; i++)
-                        {
-                            var csvColumn = columnNames[i];
-                            if (ignoreColumns?.Contains(csvColumn) == true)
-                                continue;
-
-                            var str = partList[i];
-                            var value = treatEmptyStringAsNull && string.IsNullOrEmpty(str)
-                                ? null
-                                : str;
-
-                            if (columnMap != null && columnMap.TryGetValue(csvColumn, out var col))
-                            {
-                                try
-                                {
-                                    initialValues[col.rowColumn] = col.config.Process(this, value);
-                                }
-                                catch (Exception ex)
-                                {
-                                    initialValues[col.rowColumn] = new EtlRowError(this, value, ex);
-                                }
-                            }
-                            else if (DefaultColumns != null)
-                            {
-                                try
-                                {
-                                    initialValues[csvColumn] = DefaultColumns.Process(this, value);
-                                }
-                                catch (Exception ex)
-                                {
-                                    initialValues[csvColumn] = new EtlRowError(this, value, ex);
-                                }
-                            }
-                        }
-
-                        partList.Clear();
+                        //partList.Clear();
                         builder.Clear();
                         builderLength = 0;
                         quotes = 0;
@@ -441,6 +408,8 @@ public sealed class DelimitedLineReader : AbstractRowSource
 
                         resultCount++;
                         yield return Context.CreateRow(this, initialValues);
+                        initialValues.Clear();
+                        columnCount = 0;
 
                         if (Pipe.IsTerminating)
                             break;
@@ -456,6 +425,58 @@ public sealed class DelimitedLineReader : AbstractRowSource
                     reader?.Dispose();
                 }
             }
+        }
+    }
+
+    private void NewMethod(Dictionary<string, (string rowColumn, TextReaderColumn config)> columnMap, Dictionary<string, object> initialValues, int columnCount, TextReaderStringBuilder builder, bool removeSurroundingDoubleQuotes, List<string> columnNames, int builderLength, bool hasColumnNames)
+    {
+        string colName = null;
+        TextReaderDefaultColumn column = null;
+        if (hasColumnNames)
+        {
+            if (columnCount >= columnNames.Count)
+                return;
+
+            colName = columnNames[columnCount];
+            if (columnMap != null)
+            {
+                if (columnMap.TryGetValue(colName, out var col))
+                {
+                    colName = col.rowColumn;
+                    column = col.config;
+                }
+                else if (DefaultColumns != null)
+                {
+                    column = DefaultColumns;
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                column = DefaultColumns;
+            }
+        }
+
+        if (removeSurroundingDoubleQuotes)
+            builder.RemoveSurroundingDoubleQuotes();
+
+        if (hasColumnNames)
+        {
+            try
+            {
+                initialValues[colName] = column.Process(this, builder);
+            }
+            catch (Exception ex)
+            {
+                initialValues[colName] = new EtlRowError(this, builder.GetContentAsString(), ex);
+            }
+        }
+        else
+        {
+            columnNames.Add(builder.GetContentAsString());
         }
     }
 }

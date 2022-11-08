@@ -13,19 +13,19 @@ public class DelimitedLineReaderTests
             },
             Columns = new()
             {
-                ["Id"] = new ReaderColumn(new IntConverter()),
-                ["Name"] = new ReaderColumn(new StringConverter()),
-                ["ValueString"] = new ReaderColumn(new StringConverter()).FromSource("Value1"),
-                ["ValueInt"] = new ReaderColumn(new IntConverter()).FromSource("Value2"),
-                ["ValueDate"] = new ReaderColumn(new DateConverter()).FromSource("Value3"),
-                ["ValueDouble"] = new ReaderColumn(new DoubleConverter()).FromSource("Value4"),
+                ["Id"] = new TextReaderColumn(new IntConverter()),
+                ["Name"] = new TextReaderColumn(),
+                ["ValueString"] = new TextReaderColumn().FromSource("Value1"),
+                ["ValueInt"] = new TextReaderColumn(new IntConverter()).FromSource("Value2"),
+                ["ValueDate"] = new TextReaderColumn(new DateConverter()).FromSource("Value3"),
+                ["ValueDouble"] = new TextReaderColumn(new DoubleConverter()).FromSource("Value4"),
             },
             Header = DelimitedLineHeader.HasHeader,
             RemoveSurroundingDoubleQuotes = removeSurroundingDoubleQuotes
         };
     }
 
-    private static DelimitedLineReader GetSimpleReader(IEtlContext context, string fileName, bool treatEmptyStringsAsNull = true)
+    private static DelimitedLineReader GetSimpleReader(IEtlContext context, string fileName)
     {
         return new DelimitedLineReader(context)
         {
@@ -35,12 +35,11 @@ public class DelimitedLineReaderTests
             },
             Columns = new()
             {
-                ["Id"] = new ReaderColumn(new IntConverter()),
-                ["Name"] = new ReaderColumn(new StringConverter()),
-                ["Value"] = new ReaderColumn(new StringConverter())
+                ["Id"] = new TextReaderColumn(new IntConverter()),
+                ["Name"] = new TextReaderColumn(),
+                ["Value"] = new TextReaderColumn()
             },
             Header = DelimitedLineHeader.HasHeader,
-            TreatEmptyStringAsNull = treatEmptyStringsAsNull,
         };
     }
 
@@ -61,6 +60,40 @@ public class DelimitedLineReaderTests
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d } });
+
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+    }
+
+    [TestMethod]
+    public void SkipColumnsTest()
+    {
+        var context = TestExecuter.GetContext();
+        var builder = SequenceBuilder.Fluent
+            .ReadDelimitedLines(new DelimitedLineReader(context)
+            {
+                StreamProvider = new LocalFileStreamProvider()
+                {
+                    FileName = @"TestData\Sample.csv",
+                },
+                Columns = new()
+                {
+                    ["Id"] = new TextReaderColumn(new IntConverter()),
+                    ["Name"] = new TextReaderColumn(),
+                    ["ValueDouble"] = new TextReaderColumn(new DoubleConverter()).FromSource("Value4"),
+                },
+                Header = DelimitedLineHeader.HasHeader,
+            })
+            .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
+            {
+                Columns = new[] { "ValueDate" },
+                Value = null,
+            });
+
+        var result = TestExecuter.Execute(builder);
+        Assert.AreEqual(2, result.MutatedRows.Count);
+        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A" },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["ValueDouble"] = 1.234d } });
 
         Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
@@ -116,33 +149,11 @@ public class DelimitedLineReaderTests
     }
 
     [TestMethod]
-    public void QuotedTest3EmptyStringsUntouched()
+    public void QuotedTest3()
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadDelimitedLines(GetSimpleReader(context, @"TestData\QuotedSample3.csv", treatEmptyStringsAsNull: false));
-
-        var result = TestExecuter.Execute(builder);
-        Assert.AreEqual(8, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "", ["Value"] = "A" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "B", ["Value"] = "" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "C", ["Value"] = "\"" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["Name"] = "\"", ["Value"] = "D" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 5, ["Name"] = "E", ["Value"] = "\"\"" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 6, ["Name"] = "\"\"", ["Value"] = "F" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 7, ["Name"] = "G", ["Value"] = "\"a\"" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 8, ["Name"] = "\"b\"", ["Value"] = "H" } });
-
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
-    }
-
-    [TestMethod]
-    public void QuotedTest3EmptyStringsRemoved()
-    {
-        var context = TestExecuter.GetContext();
-        var builder = SequenceBuilder.Fluent
-            .ReadDelimitedLines(GetSimpleReader(context, @"TestData\QuotedSample3.csv", treatEmptyStringsAsNull: true));
+            .ReadDelimitedLines(GetSimpleReader(context, @"TestData\QuotedSample3.csv"));
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(8, result.MutatedRows.Count);
@@ -233,12 +244,12 @@ public class DelimitedLineReaderTests
                 },
                 Columns = new()
                 {
-                    ["Id"] = new ReaderColumn(new IntConverter()),
-                    ["Name"] = new ReaderColumn(new StringConverter()),
-                    ["Value1"] = new ReaderColumn(new StringConverter()),
-                    ["Value2"] = new ReaderColumn(new IntConverter()),
-                    ["Value3"] = new ReaderColumn(new StringConverter()),
-                    ["Value4"] = new ReaderColumn(new StringConverter()),
+                    ["Id"] = new TextReaderColumn(new IntConverter()),
+                    ["Name"] = new TextReaderColumn(),
+                    ["Value1"] = new TextReaderColumn(),
+                    ["Value2"] = new TextReaderColumn(new IntConverter()),
+                    ["Value3"] = new TextReaderColumn(),
+                    ["Value4"] = new TextReaderColumn(),
                 },
                 Header = DelimitedLineHeader.HasHeader,
             });
@@ -266,12 +277,12 @@ public class DelimitedLineReaderTests
                 ColumnNames = new[] { "Id", "Name", "Value1", "Value2", "Value3", "Value4" },
                 Columns = new()
                 {
-                    ["Id"] = new ReaderColumn(new IntConverter()),
-                    ["Name"] = new ReaderColumn(new StringConverter()),
-                    ["Value1"] = new ReaderColumn(new StringConverter()),
-                    ["Value2"] = new ReaderColumn(new IntConverter()),
-                    ["Value3"] = new ReaderColumn(new StringConverter()),
-                    ["Value4"] = new ReaderColumn(new StringConverter()),
+                    ["Id"] = new TextReaderColumn(new IntConverter()),
+                    ["Name"] = new TextReaderColumn(),
+                    ["Value1"] = new TextReaderColumn(),
+                    ["Value2"] = new TextReaderColumn(new IntConverter()),
+                    ["Value3"] = new TextReaderColumn(),
+                    ["Value4"] = new TextReaderColumn(),
                 },
                 Header = DelimitedLineHeader.IgnoreHeader,
             });
