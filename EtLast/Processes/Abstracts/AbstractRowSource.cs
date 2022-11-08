@@ -55,7 +55,7 @@ public abstract class AbstractRowSource : AbstractSequence, IRowSource
                 Pipe.AddException(this, ex);
             }
 
-            if (row != null && !Pipe.IsTerminating)
+            if (row != null)
             {
                 resultCount++;
                 netTimeStopwatch.Stop();

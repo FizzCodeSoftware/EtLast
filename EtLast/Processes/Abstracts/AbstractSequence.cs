@@ -60,32 +60,35 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
                         Pipe.ToLogString(), InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
                 }
 
-                while (enumerator != null && !Pipe.IsTerminating)
+                if (enumerator != null)
                 {
-                    try
+                    while (!Pipe.IsTerminating)
                     {
-                        netTimeStopwatch.Stop();
-                        var finished = !enumerator.MoveNext();
-                        netTimeStopwatch.Start();
-                        if (finished)
-                            break;
-                    }
-                    catch (Exception ex)
-                    {
-                        Pipe.AddException(this, ex);
+                        try
+                        {
+                            netTimeStopwatch.Stop();
+                            var finished = !enumerator.MoveNext();
+                            netTimeStopwatch.Start();
+                            if (finished)
+                                break;
+                        }
+                        catch (Exception ex)
+                        {
+                            Pipe.AddException(this, ex);
 
-                        netTimeStopwatch.Stop();
-                        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
-                        Context.Log(LogSeverity.Information, this, "{ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-                            Pipe.ToLogString(), InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
-                    }
+                            netTimeStopwatch.Stop();
+                            Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+                            Context.Log(LogSeverity.Information, this, "{ProcessResult} in {Elapsed}/{ElapsedWallClock}",
+                                Pipe.ToLogString(), InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+                        }
 
-                    if (!Pipe.IsTerminating)
-                    {
-                        netTimeStopwatch.Stop();
-                        var row = enumerator.Current;
-                        yield return row;
-                        netTimeStopwatch.Start();
+                        if (!Pipe.IsTerminating)
+                        {
+                            netTimeStopwatch.Stop();
+                            var row = enumerator.Current;
+                            yield return row;
+                            netTimeStopwatch.Start();
+                        }
                     }
                 }
             }

@@ -458,23 +458,6 @@ public sealed class DelimitedLineReader : AbstractRowSource
             }
         }
     }
-
-    private string GetLine(NamedStream stream, StreamReader reader, int resultCount)
-    {
-        try
-        {
-            var line = reader.ReadLine();
-            return line;
-        }
-        catch (Exception ex)
-        {
-            var exception = new DelimitedReadException(this, "error while reading delimited data from stream", stream, ex);
-            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading delimited data from stream: {0}, message: {1}", stream.Name, ex.Message));
-
-            Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, resultCount, exception);
-            throw exception;
-        }
-    }
 }
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
