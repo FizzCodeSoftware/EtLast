@@ -6,7 +6,7 @@ public class TextReaderColumn : TextReaderDefaultColumn
     public string SourceColumn { get; private set; }
 
     public TextReaderColumn()
-        : base(null)
+        : base()
     {
     }
 
@@ -56,6 +56,10 @@ public class TextReaderDefaultColumn
 
     protected SourceIsNullAction SourceIsNullAction { get; private set; } = SourceIsNullAction.SetSpecialValue;
     protected object SpecialValueIfSourceIsNull { get; private set; }
+
+    public TextReaderDefaultColumn()
+    {
+    }
 
     public TextReaderDefaultColumn(ITextConverter converter)
     {

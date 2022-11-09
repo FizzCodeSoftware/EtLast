@@ -28,4 +28,31 @@ public class BoolConverterAuto : BoolConverter
 
         return base.Convert(source);
     }
+
+    public override object Convert(TextReaderStringBuilder source)
+    {
+        var stringValue = source.GetContentAsString();
+        switch (stringValue.ToUpperInvariant().Trim())
+        {
+            case "TRUE":
+            case "YES":
+                return true;
+            case "FALSE":
+            case "NO":
+                return false;
+        }
+
+        if (KnownTrueString != null && string.Equals(stringValue.Trim(), KnownTrueString, StringComparison.InvariantCultureIgnoreCase))
+            return true;
+
+        if (KnownFalseString != null && string.Equals(stringValue.Trim(), KnownFalseString, StringComparison.InvariantCultureIgnoreCase))
+            return false;
+
+        if (stringValue.Trim() == "1")
+            return true;
+        else if (stringValue.Trim() == "0")
+            return false;
+
+        return null;
+    }
 }

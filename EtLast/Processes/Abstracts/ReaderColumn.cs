@@ -9,7 +9,7 @@ public class ReaderColumn : ReaderDefaultColumn
     public string SourceColumn { get; private set; }
 
     public ReaderColumn()
-        : base(null)
+        : base()
     {
     }
 
@@ -59,6 +59,10 @@ public class ReaderDefaultColumn
 
     protected SourceIsNullAction SourceIsNullAction { get; private set; } = SourceIsNullAction.SetSpecialValue;
     protected object SpecialValueIfSourceIsNull { get; private set; }
+
+    public ReaderDefaultColumn()
+    {
+    }
 
     public ReaderDefaultColumn(ITypeConverter converter)
     {
