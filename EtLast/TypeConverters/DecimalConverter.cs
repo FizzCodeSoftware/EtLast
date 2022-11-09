@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class DecimalConverter : ITypeConverter
+public class DecimalConverter : ITypeConverter, ITextConverter
 {
     public string[] RemoveSubString { get; set; }
 
@@ -54,6 +54,29 @@ public class DecimalConverter : ITypeConverter
 
         if (source is float fv)
             return System.Convert.ToDecimal(fv);
+
+        return null;
+    }
+
+
+    public object Convert(TextReaderStringBuilder source)
+    {
+        if (RemoveSubString != null)
+        {
+            var stringValue = source.GetContentAsString();
+            foreach (var subStr in RemoveSubString)
+            {
+                stringValue = stringValue.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            if (decimal.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
+                return value;
+        }
+        else
+        {
+            if (decimal.TryParse(source.GetContentAsSpan(), NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
+                return value;
+        }
 
         return null;
     }

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class BoolConverter : ITypeConverter
+public class BoolConverter : ITypeConverter, ITextConverter
 {
     public virtual object Convert(object source)
     {
@@ -38,6 +38,18 @@ public class BoolConverter : ITypeConverter
 
         if (source is ulong ulv)
             return ulv == 1;
+
+        return null;
+    }
+
+    public object Convert(TextReaderStringBuilder source)
+    {
+        var stringValue = source.GetContentAsString();
+
+        if (stringValue.Trim() == "1")
+            return true;
+        else if (stringValue.Trim() == "0")
+            return false;
 
         return null;
     }
