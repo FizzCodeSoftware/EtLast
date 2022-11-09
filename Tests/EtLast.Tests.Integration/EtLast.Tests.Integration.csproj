@@ -50,7 +50,6 @@
     <ProjectReference Include="..\..\EtLast.DwhBuilder\EtLast.DwhBuilder.csproj" />
     <ProjectReference Include="..\..\EtLast.EPPlus\EtLast.EPPlus.csproj" />
     <ProjectReference Include="..\..\EtLast\EtLast.csproj" />
-    <ProjectReference Include="..\EtLast.Tests.Base\EtLast.Tests.Base.csproj" />
     <ProjectReference Include="..\EtLast.Tests.Integration.AdoNetTests\EtLast.Tests.Integration.AdoNetTests.csproj" />
     <ProjectReference Include="..\EtLast.Tests.Integration.DwhBuilderTests\EtLast.Tests.Integration.DwhBuilderTests.csproj" />
     <ProjectReference Include="..\EtLast.Tests.Integration.FlowTests\EtLast.Tests.Integration.FlowTests.csproj" />
