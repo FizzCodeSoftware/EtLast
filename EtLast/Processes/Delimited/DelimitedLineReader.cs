@@ -111,7 +111,47 @@ public sealed class DelimitedLineReader : AbstractRowSource
                 break;
 
             var firstRow = true;
-            var columnNames = ColumnNames?.ToList() ?? new List<string>();
+            var columns = new List<MappedColumn>();
+            if (ColumnNames != null)
+            {
+                foreach (var c in ColumnNames)
+                {
+                    var colName = c;
+                    TextReaderDefaultColumn column = null;
+                    if (columnMap != null)
+                    {
+                        if (columnMap.TryGetValue(c, out var col))
+                        {
+                            colName = col.rowColumn;
+                            column = col.config;
+                        }
+                        else if (DefaultColumns != null)
+                        {
+                            column = DefaultColumns;
+                        }
+                        else
+                        {
+                            // skipped column
+                            columns.Add(new MappedColumn()
+                            {
+                                NameInRow = c,
+                            });
+
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        column = DefaultColumns;
+                    }
+
+                    columns.Add(new MappedColumn()
+                    {
+                        NameInRow = colName,
+                        Column = column,
+                    });
+                }
+            }
 
             //Console.WriteLine("new stream :" + stream.Stream.Length);
 
@@ -283,7 +323,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
                                 if (builderLength > 0)
                                 {
                                     // x
-                                    NewMethod(columnMap, initialValues, columnCount, builder, removeSurroundingDoubleQuotes, columnNames, builderLength, hasColumnNames);
+                                    NewMethod(columnMap, initialValues, columnCount, builder, removeSurroundingDoubleQuotes, columns, builderLength, hasColumnNames);
                                     columnCount++;
                                     // x
 
@@ -295,29 +335,20 @@ public sealed class DelimitedLineReader : AbstractRowSource
                                 {
                                     if (hasColumnNames)
                                     {
-                                        if (columnCount < columnNames.Count)
+                                        if (columnCount < columns.Count)
                                         {
-                                            var columnName = columnNames[columnCount];
-                                            if (columnMap != null)
-                                            {
-                                                if (columnMap.TryGetValue(columnName, out var col))
-                                                {
-                                                    initialValues[col.rowColumn] = null;
-                                                }
-                                                else
-                                                {
-                                                    initialValues[columnName] = null;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                initialValues[columnName] = null;
-                                            }
+                                            var column = columns[columnCount];
+                                            initialValues[column.NameInRow] = null;
                                         }
                                     }
                                     else
                                     {
-                                        columnNames.Add(string.Empty);
+                                        columns.Add(new MappedColumn()
+                                        {
+                                            NameInSource = string.Empty,
+                                            NameInRow = string.Empty,
+                                            Column = null,
+                                        });
                                     }
 
                                     columnCount++;
@@ -334,7 +365,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
                         {
                             if (hasColumnNames)
                             {
-                                NewMethod(columnMap, initialValues, columnCount, builder, removeSurroundingDoubleQuotes, columnNames, builderLength, hasColumnNames);
+                                NewMethod(columnMap, initialValues, columnCount, builder, removeSurroundingDoubleQuotes, columns, builderLength, hasColumnNames);
                                 columnCount++;
                             }
 
@@ -361,19 +392,19 @@ public sealed class DelimitedLineReader : AbstractRowSource
 
                         if (!hasColumnNames)
                         {
-                            hasColumnNames = columnNames.Count > 0;
+                            hasColumnNames = columns.Count > 0;
                             if (hasColumnNames)
                             {
-                                for (var i = 0; i < columnNames.Count - 1; i++)
+                                for (var i = 0; i < columns.Count - 1; i++)
                                 {
-                                    var columnName = columnNames[i];
-                                    for (var j = i + 1; j < columnNames.Count; j++)
+                                    var column = columns[i];
+                                    for (var j = i + 1; j < columns.Count; j++)
                                     {
-                                        if (string.Equals(columnName, columnNames[j], StringComparison.InvariantCultureIgnoreCase))
+                                        if (string.Equals(column.NameInSource, columns[j].NameInSource, StringComparison.InvariantCultureIgnoreCase))
                                         {
                                             var exception = new DelimitedReadException(this, "delimited input contains more than one columns with the same name", stream);
-                                            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "delimited input contains more than one columns with the same name: {0}, {1}", stream.Name, columnName));
-                                            exception.Data["Column"] = columnName;
+                                            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "delimited input contains more than one columns with the same name: {0}, {1}", stream.Name, column.NameInSource));
+                                            exception.Data["Column"] = column.NameInSource;
 
                                             Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
                                             throw exception;
@@ -428,16 +459,42 @@ public sealed class DelimitedLineReader : AbstractRowSource
         }
     }
 
-    private void NewMethod(Dictionary<string, (string rowColumn, TextReaderColumn config)> columnMap, Dictionary<string, object> initialValues, int columnCount, TextReaderStringBuilder builder, bool removeSurroundingDoubleQuotes, List<string> columnNames, int builderLength, bool hasColumnNames)
+    private class MappedColumn
     {
-        string colName = null;
-        TextReaderDefaultColumn column = null;
+        public string NameInSource { get; set; }
+        public string NameInRow { get; set; }
+        public TextReaderDefaultColumn Column { get; set; }
+    }
+
+    private void NewMethod(Dictionary<string, (string rowColumn, TextReaderColumn config)> columnMap, Dictionary<string, object> initialValues, int columnCount, TextReaderStringBuilder builder, bool removeSurroundingDoubleQuotes, List<MappedColumn> columns, int builderLength, bool hasColumnNames)
+    {
+        if (removeSurroundingDoubleQuotes)
+            builder.RemoveSurroundingDoubleQuotes();
+
         if (hasColumnNames)
         {
-            if (columnCount >= columnNames.Count)
+            if (columnCount >= columns.Count)
                 return;
 
-            colName = columnNames[columnCount];
+            var col = columns[columnCount];
+            if (col.Column == null)
+                return;
+
+            try
+            {
+                initialValues[col.NameInRow] = col.Column.Process(this, builder);
+            }
+            catch (Exception ex)
+            {
+                initialValues[col.NameInRow] = new EtlRowError(this, builder.GetContentAsString(), ex);
+            }
+        }
+        else
+        {
+            var originalName = builder.GetContentAsString();
+            var colName = originalName;
+
+            TextReaderDefaultColumn column;
             if (columnMap != null)
             {
                 if (columnMap.TryGetValue(colName, out var col))
@@ -451,6 +508,14 @@ public sealed class DelimitedLineReader : AbstractRowSource
                 }
                 else
                 {
+                    // skipped c
+                    columns.Add(new MappedColumn()
+                    {
+                        NameInSource = colName,
+                        NameInRow = colName,
+                        Column = null,
+                    });
+
                     return;
                 }
             }
@@ -458,25 +523,13 @@ public sealed class DelimitedLineReader : AbstractRowSource
             {
                 column = DefaultColumns;
             }
-        }
 
-        if (removeSurroundingDoubleQuotes)
-            builder.RemoveSurroundingDoubleQuotes();
-
-        if (hasColumnNames)
-        {
-            try
+            columns.Add(new MappedColumn()
             {
-                initialValues[colName] = column.Process(this, builder);
-            }
-            catch (Exception ex)
-            {
-                initialValues[colName] = new EtlRowError(this, builder.GetContentAsString(), ex);
-            }
-        }
-        else
-        {
-            columnNames.Add(builder.GetContentAsString());
+                NameInSource = originalName,
+                NameInRow = colName,
+                Column = column,
+            });
         }
     }
 }

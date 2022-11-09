@@ -15,7 +15,18 @@ public class ReadFromDelimitedTestsInternal
             {
                 FileName = @"h:\data\syngenta\PhenomenaShare\2019.csv",
             },
-            DefaultColumns = new TextReaderColumn(new DoubleConverter()).ValueWhenConversionFailed(null),
+            //DefaultColumns = new TextReaderColumn(new DoubleConverter()).ValueWhenConversionFailed(null),
+            Columns = new()
+            {
+                ["TrialId"] = new TextReaderColumn().FromSource("trial_id"),
+                ["AbbreviatedCode"] = new TextReaderColumn().FromSource("abbreviated_code"),
+                ["HighName"] = new TextReaderColumn().FromSource("highname"),
+                ["MaterialId"] = new TextReaderColumn().FromSource("material_id"),
+                ["Year"] = new TextReaderColumn(new IntConverter()).FromSource("year"),
+                ["EntryNumber"] = new TextReaderColumn(new IntConverter()).FromSource("entry_no"),
+                ["IsCheck"] = new TextReaderColumn(new BoolConverterAuto()).FromSource("is_check"),
+                ["Notes"] = new TextReaderColumn().FromSource("NOTET"),
+            },
             Header = DelimitedLineHeader.HasHeader,
         };
 
@@ -38,14 +49,15 @@ public class ReadFromDelimitedTestsInternal
             },
             Columns = new()
             {
-                ["year"] = new ReaderColumn(new IntConverter()),
-                ["maturity_group"] = new ReaderColumn(new IntConverter()),
-                ["planting_area_code"] = new ReaderColumn(new IntConverter()),
-                ["planting_date_days"] = new ReaderColumn(new IntConverter()),
-                ["location_code"] = new ReaderColumn(new IntConverter()),
-                ["entry_no"] = new ReaderColumn(new IntConverter()),
+                ["TrialId"] = new ReaderColumn().FromSource("trial_id"),
+                ["AbbreviatedCode"] = new ReaderColumn().FromSource("abbreviated_code"),
+                ["HighName"] = new ReaderColumn().FromSource("highname"),
+                ["MaterialId"] = new ReaderColumn().FromSource("material_id"),
+                ["Year"] = new ReaderColumn(new IntConverter()).FromSource("year"),
+                ["EntryNumber"] = new ReaderColumn(new IntConverter()).FromSource("entry_no"),
+                ["IsCheck"] = new ReaderColumn(new BoolConverterAuto()).FromSource("is_check"),
+                ["Notes"] = new ReaderColumn().FromSource("NOTET"),
             },
-            DefaultColumns = new ReaderColumn(new DoubleConverter()).ValueWhenConversionFailed(null),
             Header = DelimitedLineHeader.HasHeader,
         };
 

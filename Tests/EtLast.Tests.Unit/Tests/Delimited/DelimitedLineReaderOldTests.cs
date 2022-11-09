@@ -100,6 +100,33 @@ public class DelimitedLineReaderOldTests
     }
 
     [TestMethod]
+    public void MixedColumnsTest()
+    {
+        var context = TestExecuter.GetContext();
+        var builder = SequenceBuilder.Fluent
+            .ReadDelimitedLinesOld(new DelimitedLineReaderOld(context)
+            {
+                StreamProvider = new LocalFileStreamProvider()
+                {
+                    FileName = @"TestData\Sample.csv",
+                },
+                Columns = new()
+                {
+                    ["Id"] = new ReaderColumn(new IntConverter()),
+                },
+                DefaultColumns = new ReaderDefaultColumn(),
+                Header = DelimitedLineHeader.HasHeader,
+            });
+
+        var result = TestExecuter.Execute(builder);
+        Assert.AreEqual(2, result.MutatedRows.Count);
+        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = "-1" },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["Value2"] = "3", ["Value3"] = "2019.04.25", ["Value4"] = "1.234" } });
+        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+    }
+
+    [TestMethod]
     public void QuotedTest1()
     {
         var context = TestExecuter.GetContext();
