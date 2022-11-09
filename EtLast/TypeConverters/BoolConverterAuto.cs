@@ -31,26 +31,21 @@ public class BoolConverterAuto : BoolConverter
 
     public override object Convert(TextReaderStringBuilder source)
     {
-        var stringValue = source.GetContentAsString();
-        switch (stringValue.ToUpperInvariant().Trim())
-        {
-            case "TRUE":
-            case "YES":
-                return true;
-            case "FALSE":
-            case "NO":
-                return false;
-        }
-
-        if (KnownTrueString != null && string.Equals(stringValue.Trim(), KnownTrueString, StringComparison.InvariantCultureIgnoreCase))
+        var span = source.GetContentAsSpan().Trim();
+        if (span.Equals("TRUE", StringComparison.InvariantCultureIgnoreCase) ||
+            span.Equals("YES", StringComparison.InvariantCultureIgnoreCase) ||
+            span.Equals("1", StringComparison.InvariantCultureIgnoreCase))
             return true;
 
-        if (KnownFalseString != null && string.Equals(stringValue.Trim(), KnownFalseString, StringComparison.InvariantCultureIgnoreCase))
-            return false;
-
-        if (stringValue.Trim() == "1")
+        if (span.Equals("FALSE", StringComparison.InvariantCultureIgnoreCase) ||
+            span.Equals("NO", StringComparison.InvariantCultureIgnoreCase) ||
+            span.Equals("0", StringComparison.InvariantCultureIgnoreCase))
             return true;
-        else if (stringValue.Trim() == "0")
+
+        if (KnownTrueString != null && span.Equals(KnownTrueString, StringComparison.InvariantCultureIgnoreCase))
+            return true;
+
+        if (KnownFalseString != null && span.Equals(KnownFalseString, StringComparison.InvariantCultureIgnoreCase))
             return false;
 
         return null;
