@@ -7,6 +7,7 @@
     <AssemblyName>FizzCode.EtLast.Tests.Unit</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Tests.Unit</RootNamespace>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <ItemGroup>

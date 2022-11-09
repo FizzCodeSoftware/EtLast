@@ -42,14 +42,14 @@ public abstract class AbstractSqlStatementBase : AbstractJob
                 if (kvp.Value is int[] intArray)
                 {
                     var newParamText = string.Join(",", intArray.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement[(idx + paramReference.Length)..]);
+                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement.AsSpan(idx + paramReference.Length));
 
                     parameters.Remove(kvp.Key);
                 }
                 else if (kvp.Value is long[] longArray)
                 {
                     var newParamText = string.Join(",", longArray.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement[(idx + paramReference.Length)..]);
+                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement.AsSpan(idx + paramReference.Length));
 
                     parameters.Remove(kvp.Key);
                 }
@@ -67,21 +67,21 @@ public abstract class AbstractSqlStatementBase : AbstractJob
                     }
 
                     var newParamText = sb.ToString();
-                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement[(idx + paramReference.Length)..]);
+                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement.AsSpan(idx + paramReference.Length));
 
                     parameters.Remove(kvp.Key);
                 }
                 else if (kvp.Value is List<int> intList)
                 {
                     var newParamText = string.Join(",", intList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement[(idx + paramReference.Length)..]);
+                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement.AsSpan(idx + paramReference.Length));
 
                     parameters.Remove(kvp.Key);
                 }
                 else if (kvp.Value is List<long> longList)
                 {
                     var newParamText = string.Join(",", longList.Select(x => x.ToString("D", CultureInfo.InvariantCulture)));
-                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement[(idx + paramReference.Length)..]);
+                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement.AsSpan(idx + paramReference.Length));
 
                     parameters.Remove(kvp.Key);
                 }
@@ -99,7 +99,7 @@ public abstract class AbstractSqlStatementBase : AbstractJob
                     }
 
                     var newParamText = sb.ToString();
-                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement[(idx + paramReference.Length)..]);
+                    sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement.AsSpan(idx + paramReference.Length));
 
                     parameters.Remove(kvp.Key);
                 }

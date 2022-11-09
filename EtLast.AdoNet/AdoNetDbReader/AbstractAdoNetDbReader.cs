@@ -297,7 +297,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
 
                     if (newParamText != null)
                     {
-                        sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement[(idx + paramReference.Length)..]);
+                        sqlStatement = string.Concat(sqlStatement.AsSpan(0, idx), newParamText, sqlStatement.AsSpan(idx + paramReference.Length));
                         startIndex = idx + newParamText.Length;
 
                         Parameters.Remove(kvp.Key);
