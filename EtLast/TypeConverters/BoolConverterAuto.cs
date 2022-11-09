@@ -40,7 +40,7 @@ public class BoolConverterAuto : BoolConverter
         if (span.Equals("FALSE", StringComparison.InvariantCultureIgnoreCase) ||
             span.Equals("NO", StringComparison.InvariantCultureIgnoreCase) ||
             span.Equals("0", StringComparison.InvariantCultureIgnoreCase))
-            return true;
+            return false;
 
         if (KnownTrueString != null && span.Equals(KnownTrueString, StringComparison.InvariantCultureIgnoreCase))
             return true;
