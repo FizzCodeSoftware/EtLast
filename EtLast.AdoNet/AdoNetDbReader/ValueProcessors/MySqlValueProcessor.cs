@@ -13,7 +13,7 @@ public class MySqlValueProcessor : ISqlValueProcessor
         return connectionString.SqlEngine == SqlEngine.MySql;
     }
 
-    public object ProcessValue(object value, string column)
+    public object ProcessValue(object value)
     {
         if (value == null)
             return null;

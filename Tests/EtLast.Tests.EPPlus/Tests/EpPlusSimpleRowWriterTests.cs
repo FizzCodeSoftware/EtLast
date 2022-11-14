@@ -80,10 +80,10 @@ public class EpPlusSimpleRowWriterTests
                 Columns = new()
                 {
                     ["id"] = new ReaderColumn(new IntConverter()),
-                    ["name"] = new ReaderColumn(new StringConverter()),
+                    ["name"] = new ReaderColumn(),
                     ["age"] = new ReaderColumn(new IntConverter()),
                     ["height"] = new ReaderColumn(new IntConverter()),
-                    ["eyeColor"] = new ReaderColumn(new StringConverter()),
+                    ["eyeColor"] = new ReaderColumn(),
                     ["countryId"] = new ReaderColumn(new IntConverter()),
                     ["birth date"] = new ReaderColumn(new StringConverter()),
                     ["lastChangedTime"] = new ReaderColumn(new DoubleConverter()),
@@ -177,10 +177,10 @@ public class EpPlusSimpleRowWriterTests
                 Columns = new()
                 {
                     ["id"] = new ReaderColumn(new IntConverter()),
-                    ["name"] = new ReaderColumn(new StringConverter()),
+                    ["name"] = new ReaderColumn(),
                     ["age"] = new ReaderColumn(new IntConverter()),
                     ["height"] = new ReaderColumn(new IntConverter()),
-                    ["eyeColor"] = new ReaderColumn(new StringConverter()),
+                    ["eyeColor"] = new ReaderColumn(),
                     ["countryId"] = new ReaderColumn(new IntConverter()),
                     ["birth date"] = new ReaderColumn(new StringConverter()),
                     ["lastChangedTime"] = new ReaderColumn(new DoubleConverter()),

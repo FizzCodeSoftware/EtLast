@@ -36,21 +36,21 @@ public class EnumerableImporterTests
             InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
             Columns = new()
             {
-                ["ID"] = new ReaderColumn(new StringConverter()),
-                ["age"] = new ReaderColumn(new LongConverter()).ValueWhenSourceIsNull(-1L),
+                ["ID"] = new ReaderColumn(),
+                ["age"] = new ReaderColumn().ValueWhenSourceIsNull(-1L),
             },
         });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "0", ["age"] = 17L, ["name"] = "A", ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "1", ["age"] = 8L, ["name"] = "B", ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0) },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "2", ["age"] = 27L, ["name"] = "C", ["height"] = 170, ["eyeColor"] = "green", ["countryId"] = 2, ["birthDate"] = new DateTime(2014, 1, 21, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 11, 21, 17, 11, 58, 0) },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "3", ["age"] = 39L, ["name"] = "D", ["height"] = 160, ["eyeColor"] = "fake", ["birthDate"] = "2018.07.11", ["lastChangedTime"] = new DateTime(2017, 8, 1, 4, 9, 1, 0) },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "4", ["age"] = -3L, ["name"] = "E", ["height"] = 160, ["countryId"] = 1, ["lastChangedTime"] = new DateTime(2019, 1, 1, 23, 59, 59, 0) },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "5", ["age"] = 11L, ["name"] = "A", ["height"] = 140, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0) },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "6", ["age"] = -1L, ["name"] = "fake", ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0) } });
+            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 0, ["age"] = 17, ["name"] = "A", ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 1, ["age"] = 8, ["name"] = "B", ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0) },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 2, ["age"] = 27, ["name"] = "C", ["height"] = 170, ["eyeColor"] = "green", ["countryId"] = 2, ["birthDate"] = new DateTime(2014, 1, 21, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 11, 21, 17, 11, 58, 0) },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 3, ["age"] = 39, ["name"] = "D", ["height"] = 160, ["eyeColor"] = "fake", ["birthDate"] = "2018.07.11", ["lastChangedTime"] = new DateTime(2017, 8, 1, 4, 9, 1, 0) },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 4, ["age"] = -3, ["name"] = "E", ["height"] = 160, ["countryId"] = 1, ["lastChangedTime"] = new DateTime(2019, 1, 1, 23, 59, 59, 0) },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 5, ["age"] = 11, ["name"] = "A", ["height"] = 140, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0) },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 6, ["age"] = -1L, ["name"] = "fake", ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0) } });
         Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
 
@@ -64,8 +64,8 @@ public class EnumerableImporterTests
             InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
             Columns = new()
             {
-                ["ID"] = new ReaderColumn(new StringConverter()),
-                ["age"] = new ReaderColumn(new LongConverter()).ValueWhenSourceIsNull(-1L),
+                ["ID"] = new ReaderColumn(),
+                ["age"] = new ReaderColumn().ValueWhenSourceIsNull(-1L),
             },
             CopyOnlySpecifiedColumns = true,
         });
@@ -73,13 +73,13 @@ public class EnumerableImporterTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "0", ["age"] = 17L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "1", ["age"] = 8L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "2", ["age"] = 27L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "3", ["age"] = 39L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "4", ["age"] = -3L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "5", ["age"] = 11L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = "6", ["age"] = -1L } });
+            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 0, ["age"] = 17 },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 1, ["age"] = 8 },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 2, ["age"] = 27 },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 3, ["age"] = 39 },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 4, ["age"] = -3 },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 5, ["age"] = 11 },
+            new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 6, ["age"] = -1L } });
         Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
     }
 }

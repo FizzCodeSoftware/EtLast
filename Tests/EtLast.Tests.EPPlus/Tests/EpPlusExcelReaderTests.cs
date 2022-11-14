@@ -13,8 +13,8 @@ public class EpPlusExcelReaderTests
             Columns = new()
             {
                 ["Id"] = new ReaderColumn(new IntConverter()).ValueWhenSourceIsNull(string.Empty),
-                ["Name"] = new ReaderColumn(new StringConverter()).ValueWhenSourceIsNull(string.Empty),
-                ["ValueString"] = new ReaderColumn(new StringConverter()).FromSource("Value1").ValueWhenSourceIsNull(string.Empty),
+                ["Name"] = new ReaderColumn().ValueWhenSourceIsNull(string.Empty),
+                ["ValueString"] = new ReaderColumn().FromSource("Value1").ValueWhenSourceIsNull(string.Empty),
                 ["ValueInt"] = new ReaderColumn(new IntConverter()).FromSource("Value2"),
                 ["ValueDate"] = new ReaderColumn(new DateConverter()).FromSource("Value3"),
                 ["ValueDouble"] = new ReaderColumn(new DoubleConverter()).FromSource("Value4"),

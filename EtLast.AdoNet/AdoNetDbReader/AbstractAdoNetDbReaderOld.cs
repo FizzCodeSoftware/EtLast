@@ -1,9 +1,7 @@
 ﻿namespace FizzCode.EtLast;
 
-public delegate void ConnectionCreatorDelegate(AbstractAdoNetDbReader process, out DatabaseConnection connection, out IDbTransaction transaction);
-
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractAdoNetDbReader : AbstractRowSource
+public abstract class AbstractAdoNetDbReaderOld : AbstractRowSource
 {
     public NamedConnectionString ConnectionString { get; init; }
 
@@ -15,8 +13,6 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
     /// See <see cref="TransactionScopeOption.Suppress"/>.
     /// </summary>
     public bool SuppressExistingTransactionScope { get; init; }
-
-    public ConnectionCreatorDelegate CustomConnectionCreator { get; init; }
 
     /// <summary>
     /// Default value is 3600.
@@ -37,7 +33,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
 
     protected abstract CommandType GetCommandType();
 
-    protected AbstractAdoNetDbReader(IEtlContext context)
+    protected AbstractAdoNetDbReaderOld(IEtlContext context)
         : base(context)
     {
         SqlValueProcessors.Add(new MySqlValueProcessor());
@@ -68,14 +64,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
 
         using (var scope = Context.BeginTransactionScope(this, SuppressExistingTransactionScope ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Debug))
         {
-            if (CustomConnectionCreator != null)
-            {
-                CustomConnectionCreator.Invoke(this, out connection, out transaction);
-            }
-            else
-            {
-                connection = EtlConnectionManager.GetConnection(ConnectionString, this);
-            }
+            connection = EtlConnectionManager.GetConnection(ConnectionString, this);
 
             cmd = connection.Connection.CreateCommand();
             cmd.CommandTimeout = CommandTimeout;
@@ -84,9 +73,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
             cmd.Transaction = transaction;
             cmd.FillCommandParameters(Parameters);
 
-            var transactionId = (CustomConnectionCreator != null && cmd.Transaction != null)
-                ? "custom (" + cmd.Transaction.IsolationLevel.ToString() + ")"
-                : Transaction.Current.ToIdentifierString();
+            var transactionId = Transaction.Current.ToIdentifierString();
 
             iocUid = RegisterIoCommandStart(transactionId, cmd.CommandTimeout, sqlStatement);
 
@@ -119,37 +106,10 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
             var columnMap = Columns?.ToDictionary(kvp => kvp.Value?.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
             var fieldCount = reader.FieldCount;
-            var columns = new MappedColumn[fieldCount];
-            for (var i = 0; i < fieldCount; i++)
-            {
-                var name = reader.GetName(i);
 
-                if (DefaultColumns != null)
-                {
-                    columns[i] = columnMap != null && columnMap.TryGetValue(name, out var cc)
-                        ? new MappedColumn()
-                        {
-                            NameInRow = cc.rowColumn,
-                            Config = (cc.config as ReaderDefaultColumn) ?? DefaultColumns,
-                        }
-                        : new MappedColumn()
-                        {
-                            NameInRow = name,
-                            Config = DefaultColumns,
-                        };
-                }
-                else
-                {
-                    if (columnMap.TryGetValue(name, out var cc))
-                    {
-                        columns[i] = new MappedColumn()
-                        {
-                            NameInRow = name,
-                            Config = cc.config,
-                        };
-                    }
-                }
-            }
+            var sqlColumns = new string[fieldCount];
+            for (var i = 0; i < fieldCount; i++)
+                sqlColumns[i] = reader.GetName(i);
 
             while (!Pipe.IsTerminating)
             {
@@ -177,9 +137,18 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                 initialValues.Clear();
                 for (var i = 0; i < fieldCount; i++)
                 {
-                    var cc = columns[i];
-                    if (cc == null)
-                        continue;
+                    var columnName = sqlColumns[i];
+
+                    var rowColumn = columnName;
+                    ReaderDefaultColumn config = null;
+
+                    if (columnMap != null && columnMap.TryGetValue(columnName, out var cc))
+                    {
+                        rowColumn = cc.rowColumn;
+                        config = cc.config;
+                    }
+
+                    config ??= DefaultColumns;
 
                     var value = reader.GetValue(i);
                     if (value is DBNull)
@@ -193,11 +162,11 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         }
                     }
 
-                    if (cc.Config != null)
+                    if (config != null)
                     {
                         try
                         {
-                            value = cc.Config.Process(this, value);
+                            value = config.Process(this, value);
                         }
                         catch (Exception ex)
                         {
@@ -205,7 +174,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         }
                     }
 
-                    initialValues[cc.NameInRow] = value;
+                    initialValues[rowColumn] = value;
                 }
 
                 resultCount++;
@@ -242,10 +211,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
             cmd = null;
         }
 
-        if (CustomConnectionCreator == null)
-        {
-            EtlConnectionManager.ReleaseConnection(this, ref connection);
-        }
+        EtlConnectionManager.ReleaseConnection(this, ref connection);
     }
 
     private string InlineArrayParametersIfNecessary(string sqlStatement)
@@ -329,12 +295,6 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
         }
 
         return sqlStatement;
-    }
-
-    private class MappedColumn
-    {
-        public string NameInRow { get; init; }
-        public ReaderDefaultColumn Config { get; init; }
     }
 
     protected abstract int RegisterIoCommandStart(string transactionId, int timeout, string statement);

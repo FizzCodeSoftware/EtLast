@@ -10,6 +10,10 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.0-preview1.22518.1">
@@ -20,9 +24,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
     <ProjectReference Include="..\..\EtLast.LocalFiles\EtLast.LocalFiles.csproj" />
     <ProjectReference Include="..\..\EtLast\EtLast.csproj" />
   </ItemGroup>

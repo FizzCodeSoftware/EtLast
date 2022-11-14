@@ -106,7 +106,7 @@ public class ReadFromDelimitedTests
             },
             Columns = new()
             {
-                ["1"] = new ReaderColumn(new StringConverter()),
+                ["1"] = new ReaderColumn(),
                 ["2"] = new ReaderColumn(new IntConverter()),
             },
             Header = DelimitedLineHeader.HasHeader,
@@ -152,7 +152,7 @@ public class ReadFromDelimitedTests
             },
             Columns = new()
             {
-                ["1"] = new ReaderColumn(new StringConverter()),
+                ["1"] = new ReaderColumn(),
                 ["2"] = new ReaderColumn(new IntConverter()),
             },
             Header = DelimitedLineHeader.HasHeader,

@@ -1,13 +1,13 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class AdoNetDbReader : AbstractAdoNetDbReader
+public sealed class AdoNetDbReaderOld : AbstractAdoNetDbReaderOld
 {
     public string TableName { get; init; }
     public string CustomWhereClause { get; init; }
     public string CustomOrderByClause { get; init; }
     public int RecordCountLimit { get; init; }
 
-    public AdoNetDbReader(IEtlContext context)
+    public AdoNetDbReaderOld(IEtlContext context)
         : base(context)
     {
     }
@@ -83,9 +83,9 @@ public sealed class AdoNetDbReader : AbstractAdoNetDbReader
 }
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public static class AdoNetDbReaderFluent
+public static class AdoNetDbReaderOldFluent
 {
-    public static IFluentSequenceMutatorBuilder ReadFromSql(this IFluentSequenceBuilder builder, AdoNetDbReader reader)
+    public static IFluentSequenceMutatorBuilder ReadFromSqlOld(this IFluentSequenceBuilder builder, AdoNetDbReaderOld reader)
     {
         return builder.ReadFrom(reader);
     }
