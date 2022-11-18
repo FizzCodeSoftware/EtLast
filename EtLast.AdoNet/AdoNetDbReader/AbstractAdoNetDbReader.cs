@@ -138,7 +138,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                             Config = DefaultColumns,
                         };
                 }
-                else
+                else if (columnMap != null)
                 {
                     if (columnMap.TryGetValue(name, out var cc))
                     {
@@ -148,6 +148,14 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                             Config = cc.config,
                         };
                     }
+                }
+                else
+                {
+                    columns[i] = new MappedColumn()
+                    {
+                        NameInRow = name,
+                        Config = null,
+                    };
                 }
             }
 
@@ -177,8 +185,8 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                 initialValues.Clear();
                 for (var i = 0; i < fieldCount; i++)
                 {
-                    var cc = columns[i];
-                    if (cc == null)
+                    var column = columns[i];
+                    if (column == null)
                         continue;
 
                     var value = reader.GetValue(i);
@@ -193,11 +201,11 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         }
                     }
 
-                    if (cc.Config != null)
+                    if (column.Config != null)
                     {
                         try
                         {
-                            value = cc.Config.Process(this, value);
+                            value = column.Config.Process(this, value);
                         }
                         catch (Exception ex)
                         {
@@ -205,7 +213,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         }
                     }
 
-                    initialValues[cc.NameInRow] = value;
+                    initialValues[column.NameInRow] = value;
                 }
 
                 resultCount++;

@@ -46,13 +46,19 @@ public class ConsoleCommandLineListener : ICommandLineListener
         {
             while (!host.CancellationToken.IsCancellationRequested)
             {
-                var commandLine = Console.ReadLine();
-                if (!string.IsNullOrEmpty(commandLine))
+                try
                 {
-                    lock (lck)
+                    var commandLine = Console.ReadLine();
+                    if (!string.IsNullOrEmpty(commandLine))
                     {
-                        commands.Add(commandLine);
+                        lock (lck)
+                        {
+                            commands.Add(commandLine);
+                        }
                     }
+                }
+                catch (Exception)
+                {
                 }
             }
         };
