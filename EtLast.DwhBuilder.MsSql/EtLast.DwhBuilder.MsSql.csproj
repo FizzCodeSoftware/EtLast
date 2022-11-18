@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <PackageId>FizzCode.EtLast.DwhBuilder.MsSql</PackageId>
     <Authors>FizzCode Ltd.</Authors>
     <Company>FizzCode Ltd.</Company>

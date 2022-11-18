@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <PackageId>FizzCode.EtLast.AdoNet</PackageId>
     <Authors>FizzCode Ltd.</Authors>
     <Company>FizzCode Ltd.</Company>
@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.LightWeight.AdoNet.DbConnection" Version="2.0.34.6718" />
+    <PackageReference Include="FizzCode.LightWeight.AdoNet.DbConnection" Version="2.0.35.6727" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.0-preview1.22518.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

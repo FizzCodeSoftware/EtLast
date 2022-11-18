@@ -1,9 +1,11 @@
 ﻿namespace FizzCode.EtLast.Benchmarks;
 
 [MemoryDiagnoser]
+[SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net60, 1, 1, 1, 3)]
+[SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net70, 1, 1, 1, 3)]
 public class ReadFromDelimitedTests
 {
-    [Params(100000)]
+    [Params(1000000)]
     public int RowCount;
 
     private MemoryStream _stream;
