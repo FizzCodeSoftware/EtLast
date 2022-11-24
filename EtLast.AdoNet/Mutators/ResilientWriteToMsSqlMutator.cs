@@ -186,17 +186,19 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
                         exception.Data["TotalRowsWritten"] = _rowsWritten;
 
                         Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBulk, iocUid, recordCount, exception);
+                        throw exception;
                     }
 
                     if (success)
+                    {
                         scope.Complete();
+                        _rowsWritten += recordCount;
+                        _reader.Reset();
+                        break;
+                    }
                 } // dispose scope
-
-                _rowsWritten += recordCount;
-                _reader.Reset();
-                break;
             }
-            catch (Exception ex)
+            catch (Exception ex) // catch previously thrown SqlWriteException during write OR an exception thrown by scope.Complete()
             {
                 if (connection != null)
                 {
@@ -208,7 +210,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
 
                 if (retry == 0 && (ex is InvalidOperationException || ex is SqlException))
                 {
-                    var fileName = "bulk-copy-error-" + Context.CreatedOnLocal.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + ".tsv";
+                    var fileName = "bulk-copy-error-" + Context.CreatedOnLocal.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + "_" + InvocationInfo.InvocationUid.ToString("D", CultureInfo.InvariantCulture) + ".tsv";
                     Context.LogCustom(fileName, this, "bulk copy error: " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName) + ", exception: " + ex.GetType().GetFriendlyTypeName() + ": " + ex.Message);
                     Context.LogCustom(fileName, this, string.Join("\t", _reader.ColumnIndexes.Select(kvp => kvp.Key)));
 
@@ -238,22 +240,23 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
                 }
                 else
                 {
-                    var exception = new SqlWriteException(this, ex);
-                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db write failed, connection string key: {0}, table: {1}, message: {2}",
-                        ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message));
-                    exception.Data["ConnectionStringName"] = ConnectionString.Name;
-                    exception.Data["TableName"] = ConnectionString.Unescape(TableDefinition.TableName);
-                    exception.Data["Columns"] = string.Join(", ", TableDefinition.Columns.Select(column => column.Key + " => " + ConnectionString.Unescape(column.Value ?? column.Key)));
-                    exception.Data["Timeout"] = CommandTimeout;
-                    exception.Data["Elapsed"] = _timer.Elapsed;
-                    exception.Data["TotalRowsWritten"] = _rowsWritten;
-                    if (ex is InvalidOperationException or SqlException)
+                    if (ex is not SqlWriteException)
                     {
-                        var fileName = "bulk-copy-error-" + Context.CreatedOnLocal.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + ".tsv";
-                        exception.Data["DetailedRowLogFileName"] = fileName;
+                        var exception = new SqlWriteException(this, ex);
+                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db write failed, connection string key: {0}, table: {1}, message: {2}",
+                            ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message));
+                        exception.Data["ConnectionStringName"] = ConnectionString.Name;
+                        exception.Data["TableName"] = ConnectionString.Unescape(TableDefinition.TableName);
+                        exception.Data["Columns"] = string.Join(", ", TableDefinition.Columns.Select(column => column.Key + " => " + ConnectionString.Unescape(column.Value ?? column.Key)));
+                        exception.Data["Timeout"] = CommandTimeout;
+                        exception.Data["Elapsed"] = _timer.Elapsed;
+                        exception.Data["TotalRowsWritten"] = _rowsWritten;
+                        throw exception;
                     }
-
-                    throw exception;
+                    else
+                    {
+                        throw;
+                    }
                 }
             }
         }
