@@ -68,9 +68,10 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
                 netTimeStopwatch.Stop();
                 var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
                 netTimeStopwatch.Start();
-
-                var mutatedRowCount = 0;
                 var ignoredRowCount = 0;
+                var removedRowCount = 0;
+                var keptRowCount = 0;
+                var addedRowCount = 0;
 
                 while (!Pipe.IsTerminating)
                 {
@@ -137,15 +138,20 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
                         }
                     }
 
-                    mutatedRowCount++;
-
                     var kept = false;
                     try
                     {
                         foreach (var mutatedRow in MutateRow(row))
                         {
                             if (mutatedRow == row)
+                            {
+                                keptRowCount++;
                                 kept = true;
+                            }
+                            else
+                            {
+                                addedRowCount++;
+                            }
 
                             if (mutatedRow.CurrentProcess != this)
                             {
@@ -164,6 +170,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
 
                     if (!kept)
                     {
+                        removedRowCount++;
                         Context.SetRowOwner(row, null);
                     }
 
@@ -189,10 +196,10 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
                     Pipe.AddException(this, ex);
                 }
 
-                if (mutatedRowCount + ignoredRowCount > 0)
+                if (ignoredRowCount + keptRowCount + removedRowCount > 0)
                 {
-                    Context.Log(LogSeverity.Debug, this, "mutated {MutatedRowCount} of {TotalRowCount} rows",
-                        mutatedRowCount, mutatedRowCount + ignoredRowCount);
+                    Context.Log(LogSeverity.Debug, this, "processed {MutatedRowCount} of {TotalRowCount} input rows: {IgnoredRowCount} ignored, {KeptRowCount} kept, {RemovedRowCount} removed, {AddedRowCount} added",
+                        keptRowCount + removedRowCount, ignoredRowCount + keptRowCount + removedRowCount, ignoredRowCount, keptRowCount, removedRowCount, addedRowCount);
                 }
             }
         }
