@@ -27,6 +27,8 @@ public sealed class EtlContext : IEtlContext
     /// </summary>
     public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromHours(4);
 
+    public bool IsTerminating { get; private set; }
+
     private readonly CancellationTokenSource _cancellationTokenSource;
     public CancellationToken CancellationToken { get; }
     private readonly List<IEtlService> _services = new();
@@ -82,6 +84,7 @@ public sealed class EtlContext : IEtlContext
     public void Terminate()
     {
         _cancellationTokenSource.Cancel();
+        IsTerminating = true;
     }
 
     public void SetRowType<T>() where T : IRow

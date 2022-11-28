@@ -19,6 +19,8 @@ public interface IEtlContext
     public TimeSpan TransactionScopeTimeout { get; set; }
     public EtlTransactionScope BeginTransactionScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity);
 
+    public void Terminate();
+    public bool IsTerminating { get; }
     public CancellationToken CancellationToken { get; }
 
     public List<IEtlContextListener> Listeners { get; }

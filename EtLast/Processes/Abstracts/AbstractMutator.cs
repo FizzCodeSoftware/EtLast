@@ -35,175 +35,190 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
             Pipe.AddException(this, ex);
         }
 
-        if (!Pipe.IsTerminating)
+        if (Pipe.IsTerminating)
         {
-            if (Initializer != null)
+            Finish(netTimeStopwatch);
+            yield break;
+        }
+
+        if (Initializer != null)
+        {
+            try
             {
-                try
-                {
-                    Initializer.Invoke(this);
-                }
-                catch (Exception ex)
-                {
-                    Pipe.AddException(this, new InitializerDelegateException(this, ex));
-                }
+                Initializer.Invoke(this);
             }
-
-            if (!Pipe.IsTerminating)
+            catch (Exception ex)
             {
-                try
-                {
-                    StartMutator();
-                }
-                catch (Exception ex)
-                {
-                    Pipe.AddException(this, ex);
-                }
-            }
-
-            if (!Pipe.IsTerminating)
-            {
-                var mutatedRows = new List<IRow>();
-
                 netTimeStopwatch.Stop();
-                var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
-                netTimeStopwatch.Start();
-                var ignoredRowCount = 0;
-                var removedRowCount = 0;
-                var keptRowCount = 0;
-                var addedRowCount = 0;
-
-                while (!Pipe.IsTerminating)
-                {
-                    netTimeStopwatch.Stop();
-                    var finished = !enumerator.MoveNext();
-                    if (finished)
-                        break;
-
-                    var row = enumerator.Current;
-                    netTimeStopwatch.Start();
-
-                    if (row.Tag is HeartBeatTag tag)
-                    {
-                        ProcessHeartBeatRow(row, tag);
-
-                        netTimeStopwatch.Stop();
-                        yield return row;
-                        netTimeStopwatch.Start();
-                        continue;
-                    }
-
-                    var apply = false;
-                    if (RowFilter != null)
-                    {
-                        try
-                        {
-                            apply = RowFilter.Invoke(row);
-                        }
-                        catch (Exception ex)
-                        {
-                            Pipe.AddException(this, ex, row);
-                            break;
-                        }
-
-                        if (!apply)
-                        {
-                            ignoredRowCount++;
-                            netTimeStopwatch.Stop();
-                            yield return row;
-                            netTimeStopwatch.Start();
-                            continue;
-                        }
-                    }
-
-                    if (RowTagFilter != null)
-                    {
-                        try
-                        {
-                            apply = RowTagFilter.Invoke(row.Tag);
-                        }
-                        catch (Exception ex)
-                        {
-                            Pipe.AddException(this, ex, row);
-                            break;
-                        }
-
-                        if (!apply)
-                        {
-                            ignoredRowCount++;
-                            netTimeStopwatch.Stop();
-                            yield return row;
-                            netTimeStopwatch.Start();
-                            continue;
-                        }
-                    }
-
-                    var kept = false;
-                    try
-                    {
-                        foreach (var mutatedRow in MutateRow(row))
-                        {
-                            if (mutatedRow == row)
-                            {
-                                keptRowCount++;
-                                kept = true;
-                            }
-                            else
-                            {
-                                addedRowCount++;
-                            }
-
-                            if (mutatedRow.CurrentProcess != this)
-                            {
-                                Pipe.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
-                                break;
-                            }
-
-                            mutatedRows.Add(mutatedRow);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Pipe.AddException(this, ex, row);
-                        break;
-                    }
-
-                    if (!kept)
-                    {
-                        removedRowCount++;
-                        Context.SetRowOwner(row, null);
-                    }
-
-                    netTimeStopwatch.Stop();
-                    foreach (var mutatedRow in mutatedRows)
-                    {
-                        yield return mutatedRow;
-                    }
-
-                    netTimeStopwatch.Start();
-
-                    mutatedRows.Clear();
-                }
-
-                netTimeStopwatch.Start();
-
-                try
-                {
-                    CloseMutator();
-                }
-                catch (Exception ex)
-                {
-                    Pipe.AddException(this, ex);
-                }
-
-                if (ignoredRowCount + keptRowCount + removedRowCount > 0)
-                {
-                    Context.Log(LogSeverity.Debug, this, "processed {MutatedRowCount} of {TotalRowCount} input rows: {IgnoredRowCount} ignored, {KeptRowCount} kept, {RemovedRowCount} removed, {AddedRowCount} added",
-                        keptRowCount + removedRowCount, ignoredRowCount + keptRowCount + removedRowCount, ignoredRowCount, keptRowCount, removedRowCount, addedRowCount);
-                }
+                Pipe.AddException(this, new InitializerDelegateException(this, ex));
             }
         }
 
+        if (Pipe.IsTerminating)
+        {
+            Finish(netTimeStopwatch);
+            yield break;
+        }
+
+        try
+        {
+            StartMutator();
+        }
+        catch (Exception ex)
+        {
+            Pipe.AddException(this, ex);
+        }
+
+        if (Pipe.IsTerminating)
+        {
+            Finish(netTimeStopwatch);
+            yield break;
+        }
+
+        netTimeStopwatch.Stop();
+        var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
+        netTimeStopwatch.Start();
+
+        var ignoredRowCount = 0;
+        var removedRowCount = 0;
+        var keptRowCount = 0;
+        var addedRowCount = 0;
+        var mutatedRows = new List<IRow>();
+
+        while (!Pipe.IsTerminating)
+        {
+            netTimeStopwatch.Stop();
+            var finished = !enumerator.MoveNext();
+            if (finished)
+                break;
+
+            var row = enumerator.Current;
+            netTimeStopwatch.Start();
+
+            if (row.Tag is HeartBeatTag tag)
+            {
+                ProcessHeartBeatRow(row, tag);
+
+                netTimeStopwatch.Stop();
+                yield return row;
+                netTimeStopwatch.Start();
+                continue;
+            }
+
+            var apply = false;
+            if (RowFilter != null)
+            {
+                try
+                {
+                    apply = RowFilter.Invoke(row);
+                }
+                catch (Exception ex)
+                {
+                    Pipe.AddException(this, ex, row);
+                    break;
+                }
+
+                if (!apply)
+                {
+                    ignoredRowCount++;
+                    netTimeStopwatch.Stop();
+                    yield return row;
+                    netTimeStopwatch.Start();
+                    continue;
+                }
+            }
+
+            if (RowTagFilter != null)
+            {
+                try
+                {
+                    apply = RowTagFilter.Invoke(row.Tag);
+                }
+                catch (Exception ex)
+                {
+                    Pipe.AddException(this, ex, row);
+                    break;
+                }
+
+                if (!apply)
+                {
+                    ignoredRowCount++;
+                    netTimeStopwatch.Stop();
+                    yield return row;
+                    netTimeStopwatch.Start();
+                    continue;
+                }
+            }
+
+            var kept = false;
+            try
+            {
+                foreach (var mutatedRow in MutateRow(row))
+                {
+                    if (mutatedRow == row)
+                    {
+                        keptRowCount++;
+                        kept = true;
+                    }
+                    else
+                    {
+                        addedRowCount++;
+                    }
+
+                    if (mutatedRow.CurrentProcess != this)
+                    {
+                        Pipe.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
+                        break;
+                    }
+
+                    mutatedRows.Add(mutatedRow);
+                }
+            }
+            catch (Exception ex)
+            {
+                Pipe.AddException(this, ex, row);
+                break;
+            }
+
+            if (!kept)
+            {
+                removedRowCount++;
+                Context.SetRowOwner(row, null);
+            }
+
+            netTimeStopwatch.Stop();
+            foreach (var mutatedRow in mutatedRows)
+            {
+                yield return mutatedRow;
+            }
+
+            netTimeStopwatch.Start();
+
+            mutatedRows.Clear();
+        }
+
+        netTimeStopwatch.Start();
+
+        try
+        {
+            CloseMutator();
+        }
+        catch (Exception ex)
+        {
+            Pipe.AddException(this, ex);
+        }
+
+        if (ignoredRowCount + keptRowCount + removedRowCount > 0)
+        {
+            Context.Log(LogSeverity.Debug, this, "processed {MutatedRowCount} of {TotalRowCount} input rows: {IgnoredRowCount} ignored, {KeptRowCount} kept, {RemovedRowCount} removed, {AddedRowCount} added",
+                keptRowCount + removedRowCount, ignoredRowCount + keptRowCount + removedRowCount, ignoredRowCount, keptRowCount, removedRowCount, addedRowCount);
+        }
+
+        Finish(netTimeStopwatch);
+    }
+
+    private void Finish(Stopwatch netTimeStopwatch)
+    {
         netTimeStopwatch.Stop();
         Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
 

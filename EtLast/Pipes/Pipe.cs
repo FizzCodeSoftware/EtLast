@@ -6,7 +6,7 @@ public class Pipe
 
     public List<Exception> Exceptions { get; } = new List<Exception>();
     public bool Failed => Exceptions.Count > 0;
-    public bool IsTerminating => Context.CancellationToken.IsCancellationRequested || Failed;
+    public bool IsTerminating => Context.IsTerminating || Failed;
 
     public Pipe(IEtlContext context)
     {
