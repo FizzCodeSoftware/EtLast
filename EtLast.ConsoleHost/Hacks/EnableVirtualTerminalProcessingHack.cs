@@ -7,7 +7,7 @@ internal static class EnableVirtualTerminalProcessingHack
         try
         {
             var stdOut = GetStdHandle(-11);
-            if (stdOut != -1 && GetConsoleMode(stdOut, out var mode))
+            if (stdOut != (IntPtr)(-1) && GetConsoleMode(stdOut, out var mode))
             {
                 SetConsoleMode(stdOut, mode | 0x4);
             }
