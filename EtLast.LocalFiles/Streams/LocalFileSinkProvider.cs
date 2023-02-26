@@ -83,7 +83,7 @@ public class LocalFileSinkProvider : ISinkProvider
         {
             var sinkUid = caller.Context.GetSinkUid(Path.GetDirectoryName(fileName), Path.GetFileName(fileName));
 
-            var stream = new FileStream(fileName, FileMode.Append, FileAccess.Write, FileShare.Read);
+            var stream = new FileStream(fileName, FileMode.Append, FileAccess.ReadWrite, FileShare.Read);
             return new NamedSink(fileName, stream, iocUid, IoCommandKind.fileWrite, sinkUid);
         }
         catch (Exception ex)
