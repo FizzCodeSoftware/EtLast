@@ -35,8 +35,23 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
         if (_sinks.TryGetValue(internalKey, out var existing))
             return existing;
 
+        ExcelPackage package;
+
         var sink = SinkProvider.GetSink(this, partitionKey);
-        var package = new ExcelPackage(sink.Stream);
+        if (sink.Stream.Length == 0)
+        {
+            package = new ExcelPackage(sink.Stream);
+        }
+        else
+        {
+            var existingContent = new MemoryStream((int)sink.Stream.Length);
+            sink.Stream.CopyTo(existingContent, 81920);
+            existingContent.Position = 0;
+
+            sink.Stream.SetLength(0);
+            package = new ExcelPackage(sink.Stream, existingContent);
+        }
+
         var workSheet = package.Workbook.Worksheets.Add(SheetName);
 
         var newSink = new InternalSink()
@@ -77,7 +92,7 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
             {
                 try
                 {
-                    sink.Package.Save();
+                    sink.Package.SaveAs(sink.Sink.Stream);
                     Context.RegisterIoCommandSuccess(this, IoCommandKind.fileWrite, sink.Sink.IoCommandUid, _rowCounter);
                 }
                 catch (Exception ex)
