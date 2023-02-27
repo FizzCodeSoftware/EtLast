@@ -47,6 +47,8 @@ public class EpPlusSimpleRowWriterTests
                 {
                     FileNameGenerator = partition => directory + "\\test.xlsx",
                     ActionWhenFileExists = LocalSinkFileExistsAction.Overwrite,
+                    FileMode = FileMode.OpenOrCreate,
+                    FileAccess = FileAccess.ReadWrite,
                 },
                 SheetName = "person",
                 Finalize = (package, state) =>
@@ -144,6 +146,8 @@ public class EpPlusSimpleRowWriterTests
                 {
                     FileNameGenerator = partition => directory + "\\test-" + partition + ".xlsx",
                     ActionWhenFileExists = LocalSinkFileExistsAction.Overwrite,
+                    FileMode = FileMode.OpenOrCreate,
+                    FileAccess = FileAccess.ReadWrite,
                 },
                 SheetName = "person",
                 Finalize = (package, state) =>

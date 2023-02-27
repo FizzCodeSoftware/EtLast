@@ -14,6 +14,21 @@ public class LocalFileSinkProvider : ISinkProvider
     /// </summary>
     public LocalSinkFileExistsAction ActionWhenFileExists { get; init; } = LocalSinkFileExistsAction.Exception;
 
+    /// <summary>
+    /// Default value is <see cref="FileMode.Append"/>.
+    /// </summary>
+    public FileMode FileMode { get; init; } = FileMode.Append;
+
+    /// <summary>
+    /// Default value is <see cref="FileAccess.Write"/>.
+    /// </summary>
+    public FileAccess FileAccess { get; init; } = FileAccess.Write;
+
+    /// <summary>
+    /// Default value is <see cref="= FileShare.Read"/>.
+    /// </summary>
+    public FileShare FileShare { get; init; } = FileShare.Read;
+
     public bool AutomaticallyDispose => true;
 
     public void Validate(IProcess caller)
@@ -83,7 +98,7 @@ public class LocalFileSinkProvider : ISinkProvider
         {
             var sinkUid = caller.Context.GetSinkUid(Path.GetDirectoryName(fileName), Path.GetFileName(fileName));
 
-            var stream = new FileStream(fileName, FileMode.Append, FileAccess.Write, FileShare.Read);
+            var stream = new FileStream(fileName, FileMode, FileAccess, FileShare);
             return new NamedSink(fileName, stream, iocUid, IoCommandKind.fileWrite, sinkUid);
         }
         catch (Exception ex)
