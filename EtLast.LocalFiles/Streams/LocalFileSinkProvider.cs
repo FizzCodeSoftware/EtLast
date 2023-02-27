@@ -25,7 +25,7 @@ public class LocalFileSinkProvider : ISinkProvider
     public FileAccess FileAccess { get; init; } = FileAccess.Write;
 
     /// <summary>
-    /// Default value is <see cref="= FileShare.Read"/>.
+    /// Default value is <see cref="FileShare.Read"/>.
     /// </summary>
     public FileShare FileShare { get; init; } = FileShare.Read;
 
