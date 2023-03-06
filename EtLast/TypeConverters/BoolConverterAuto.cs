@@ -35,12 +35,16 @@ public class BoolConverterAuto : BoolConverter
         if (span.Equals("TRUE", StringComparison.InvariantCultureIgnoreCase) ||
             span.Equals("YES", StringComparison.InvariantCultureIgnoreCase) ||
             span.Equals("1", StringComparison.InvariantCultureIgnoreCase))
+        {
             return true;
+        }
 
         if (span.Equals("FALSE", StringComparison.InvariantCultureIgnoreCase) ||
             span.Equals("NO", StringComparison.InvariantCultureIgnoreCase) ||
             span.Equals("0", StringComparison.InvariantCultureIgnoreCase))
+        {
             return false;
+        }
 
         if (KnownTrueString != null && span.Equals(KnownTrueString, StringComparison.InvariantCultureIgnoreCase))
             return true;
