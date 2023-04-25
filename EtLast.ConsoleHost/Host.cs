@@ -70,10 +70,10 @@ public class Host : IHost
             config = config
                 .WriteTo.File(Path.Combine(HostLogFolder, "host-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Debug,
-                    retainedFileCountLimit: int.MaxValue,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
-                    rollingInterval: RollingInterval.Day,
                     formatProvider: CultureInfo.InvariantCulture,
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: int.MaxValue,
                     encoding: Encoding.UTF8)
 
                 .WriteTo.Sink(new ConsoleSink("{Timestamp:HH:mm:ss.fff} [{Level}] {Message} {Properties}{NewLine}{Exception}"), LogEventLevel.Debug);

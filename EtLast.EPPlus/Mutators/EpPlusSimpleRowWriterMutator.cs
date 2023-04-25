@@ -2,21 +2,20 @@
 
 public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
 {
-    public ISinkProvider SinkProvider { get; init; }
+    public required ISinkProvider SinkProvider { get; init; }
 
-    public string SheetName { get; init; }
+    public required string SheetName { get; init; }
 
     /// <summary>
     /// Key is the output column title AND the column in the row (later can be customized by setting a <see cref="ExcelColumn"/>).
     /// </summary>
-    public Dictionary<string, ExcelColumn> Columns { get; init; }
+    public required Dictionary<string, ExcelColumn> Columns { get; init; }
 
     public PartitionKeyGenerator PartitionKeyGenerator { get; set; }
-    private readonly Dictionary<string, InternalSink> _sinks = new();
-
     public Action<ExcelPackage, SimpleExcelWriterState> Finalize { get; init; }
 
     private int _rowCounter;
+    private readonly Dictionary<string, InternalSink> _sinks = new();
 
     public EpPlusSimpleRowWriterMutator(IEtlContext context)
         : base(context)

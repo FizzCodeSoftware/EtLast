@@ -7,8 +7,15 @@ public abstract class AbstractAggregationMutator : AbstractSequence, IMutator
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
 
-    public Dictionary<string, string> FixColumns { get; init; }
-    public Func<IRow, string> KeyGenerator { get; init; }
+    /// <summary>
+    /// Null is allowed, which means no fix columns will be copied to the output.
+    /// </summary>
+    public required Dictionary<string, string> FixColumns { get; init; }
+
+    /// <summary>
+    /// Null is allowed, which means no partitioning will happen on the source.
+    /// </summary>
+    public required Func<IRow, string> KeyGenerator { get; init; }
 
     protected AbstractAggregationMutator(IEtlContext context)
         : base(context)

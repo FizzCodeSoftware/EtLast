@@ -2,12 +2,8 @@
 
 public sealed class AddIncrementalIntegerIdMutator : AbstractMutator
 {
-    public string Column { get; init; }
-
-    /// <summary>
-    /// Default value is 0.
-    /// </summary>
-    public int FirstId { get; init; }
+    public required string Column { get; init; }
+    public required int FirstId { get; init; }
 
     private int _nextId;
 

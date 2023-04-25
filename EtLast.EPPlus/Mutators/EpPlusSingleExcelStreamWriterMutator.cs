@@ -3,10 +3,10 @@
 public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutator, IRowSink
     where TState : BaseExcelWriterState, new()
 {
-    public string SinkLocation { get; init; }
-    public Stream Stream { get; init; }
+    public required string SinkLocation { get; init; }
+    public required Stream Stream { get; init; }
     public Action<ExcelPackage, TState> Initialize { get; init; }
-    public Action<IRow, ExcelPackage, TState> Action { get; init; }
+    public required Action<IRow, ExcelPackage, TState> Action { get; init; }
     public Action<ExcelPackage, TState> Finalize { get; init; }
     public ExcelPackage ExistingPackage { get; init; }
 

@@ -12,15 +12,12 @@ public class ExceptionFormatTests
             .ReadFrom(TestData.Person(context))
             .CustomCode(new CustomMutator(context)
             {
-                Action = row =>
-                {
-                    throw new Exception("ohh");
-                },
+                Action = _ => throw new Exception("ohh"),
             });
 
         var process = builder.Build();
         process.Execute(null);
-        var msg = process.Pipe.Exceptions[0].FormatExceptionWithDetails(true);
+        var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
         Debugger.Break();
     }
@@ -32,11 +29,14 @@ public class ExceptionFormatTests
 
         var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person(context))
-            .CustomCode(new CustomMutator(context));
+            .CustomCode(new CustomMutator(context)
+            {
+                Action = null,
+            });
 
         var process = builder.Build();
         process.Execute(null);
-        var msg = process.Pipe.Exceptions[0].FormatExceptionWithDetails(true);
+        var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
         Debugger.Break();
     }
@@ -61,7 +61,7 @@ public class ExceptionFormatTests
 
         var process = builder.Build();
         process.Execute(null);
-        var msg = process.Pipe.Exceptions[0].FormatExceptionWithDetails(true);
+        var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
         Debugger.Break();
     }
@@ -82,17 +82,14 @@ public class ExceptionFormatTests
                 RowKeyGenerator = row => row.GenerateKey("id"),
                 NoMatchAction = new NoMatchAction(MatchMode.Custom)
                 {
-                    CustomAction = row =>
-                    {
-                        throw new Exception("ohh");
-                    },
+                    CustomAction = _ => throw new Exception("ohh"),
                 },
                 Columns = new(),
             });
 
         var process = builder.Build();
         process.Execute(null);
-        var msg = process.Pipe.Exceptions[0].FormatExceptionWithDetails(true);
+        var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
         Debugger.Break();
     }
@@ -111,16 +108,13 @@ public class ExceptionFormatTests
                     KeyGenerator = row => row.GenerateKey("personId"),
                 },
                 RowKeyGenerator = row => row.GenerateKey("id"),
-                MatchCustomAction = (row, match) =>
-                {
-                    throw new Exception("ohh");
-                },
+                MatchCustomAction = (_, _) => throw new Exception("ohh"),
                 Columns = new(),
             });
 
         var process = builder.Build();
         process.Execute(null);
-        var msg = process.Pipe.Exceptions[0].FormatExceptionWithDetails(true);
+        var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
         Debugger.Break();
     }

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests;
 
-public class History1Test : AbstractEtlFlow
+public class History1Test : AbstractEtlTask
 {
     public NamedConnectionString ConnectionString { get; init; }
     public string DatabaseName { get; init; }
@@ -14,7 +14,7 @@ public class History1Test : AbstractEtlFlow
             throw new ProcessParameterNullException(this, nameof(DatabaseName));
     }
 
-    public override void Execute()
+    public override void Execute(IFlow flow)
     {
         var databaseDeclaration = new TestDwhDefinition();
         databaseDeclaration.GetTable("dbo", "People").HasHistoryTable();
@@ -29,17 +29,17 @@ public class History1Test : AbstractEtlFlow
         DataDefinitionExtenderMsSql2016.Extend(databaseDeclaration, configuration);
         RelationalModelExtender.Extend(model, configuration);
 
-        NewPipe()
-            .StartWith(new CreateDatabase()
+        flow
+            .OnSuccess(() => new CreateDatabase()
             {
                 ConnectionString = ConnectionString,
                 Definition = databaseDeclaration,
                 DatabaseName = DatabaseName,
             })
-            .OnSuccess(pipe => CreateFirstDwhBuilder(configuration, model))
-            .OnSuccess(pipe => TestFirstDwhBuilder)
-            .OnSuccess(pipe => CreateSecondDwhBuilder(configuration, model))
-            .OnSuccess(pipe => TestSecondDwhBuilder);
+            .OnSuccess(() => CreateFirstDwhBuilder(configuration, model))
+            .OnSuccess(() => new CustomJob(Context) { Action = TestFirstDwhBuilder, })
+            .OnSuccess(() => CreateSecondDwhBuilder(configuration, model))
+            .OnSuccess(() => new CustomJob(Context) { Action = TestSecondDwhBuilder, });
     }
 
     private IProcess CreateFirstDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)
@@ -78,7 +78,7 @@ public class History1Test : AbstractEtlFlow
         return builder.Build();
     }
 
-    private void TestFirstDwhBuilder()
+    private void TestFirstDwhBuilder(CustomJob job)
     {
         var result = Helpers.ReadRows(this, ConnectionString, "dbo", "People");
         Assert.AreEqual(5, result.Count);
@@ -148,7 +148,7 @@ public class History1Test : AbstractEtlFlow
         return builder.Build();
     }
 
-    private void TestSecondDwhBuilder()
+    private void TestSecondDwhBuilder(CustomJob job)
     {
         var result = Helpers.ReadRows(this, ConnectionString, "dbo", "People");
         Assert.AreEqual(5, result.Count);

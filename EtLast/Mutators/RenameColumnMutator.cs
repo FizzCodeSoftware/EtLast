@@ -4,7 +4,8 @@ public enum ColumnAlreadyExistsAction
 {
     Skip,
     RemoveRow,
-    Throw
+    Throw,
+    Overwrite,
 }
 
 public sealed class RenameColumnMutator : AbstractSimpleChangeMutator
@@ -12,12 +13,12 @@ public sealed class RenameColumnMutator : AbstractSimpleChangeMutator
     /// <summary>
     /// Key is current name, Value is new name.
     /// </summary>
-    public Dictionary<string, string> Columns { get; init; }
+    public required Dictionary<string, string> Columns { get; init; }
 
     /// <summary>
-    /// Default value is <see cref="ColumnAlreadyExistsAction.Throw"/>
+    /// Default value is <see cref="ColumnAlreadyExistsAction.Overwrite"/>
     /// </summary>
-    public ColumnAlreadyExistsAction ActionIfTargetValueExists { get; init; } = ColumnAlreadyExistsAction.Throw;
+    public required ColumnAlreadyExistsAction ActionIfTargetValueExists { get; init; } = ColumnAlreadyExistsAction.Overwrite;
 
     public RenameColumnMutator(IEtlContext context)
         : base(context)
@@ -31,7 +32,7 @@ public sealed class RenameColumnMutator : AbstractSimpleChangeMutator
         var removeRow = false;
         foreach (var kvp in Columns)
         {
-            if (row.HasValue(kvp.Value))
+            if (row.HasValue(kvp.Value) && ActionIfTargetValueExists != ColumnAlreadyExistsAction.Overwrite)
             {
                 switch (ActionIfTargetValueExists)
                 {
@@ -78,6 +79,7 @@ public static class RenameColumnMutatorFluent
         return builder.AddMutator(new RenameColumnMutator(builder.ProcessBuilder.Result.Context)
         {
             Name = nameof(RenameColumn) + "From" + currentName + "To" + newName,
+            ActionIfTargetValueExists = ColumnAlreadyExistsAction.Overwrite,
             Columns = new()
             {
                 [currentName] = newName,

@@ -10,29 +10,30 @@ public class CustomSqlAdoNetDbReaderTests : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    public override IEnumerable<IProcess> CreateJobs()
+    public override void Execute(IFlow flow)
     {
-        yield return new CustomJob(Context)
-        {
-            Name = "CheckCustomSqlResult",
-            Action = job =>
+        flow
+            .OnSuccess(() => new CustomJob(Context)
             {
-                var result = SequenceBuilder.Fluent
-                .ReadFromCustomSql(new CustomSqlAdoNetDbReader(Context)
+                Name = "CheckCustomSqlResult",
+                Action = job =>
                 {
-                    Name = "ReturnCustomSqlResult",
-                    ConnectionString = ConnectionString,
-                    MainTableName = "none",
-                    Sql = "SELECT 1 as Id UNION SELECT 2 as Id"
-                })
-                .Build().TakeRowsAndReleaseOwnership(this).ToList();
+                    var result = SequenceBuilder.Fluent
+                    .ReadFromCustomSql(new CustomSqlAdoNetDbReader(Context)
+                    {
+                        Name = "ReturnCustomSqlResult",
+                        ConnectionString = ConnectionString,
+                        MainTableName = "none",
+                        Sql = "SELECT 1 as Id UNION SELECT 2 as Id"
+                    })
+                    .Build().TakeRowsAndReleaseOwnership(this).ToList();
 
-                Assert.AreEqual(2, result.Count);
-                Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1},
-                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2}
-                });
-            }
-        };
+                    Assert.AreEqual(2, result.Count);
+                    Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                        new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1},
+                        new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2}
+                    });
+                }
+            });
     }
 }

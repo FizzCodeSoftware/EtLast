@@ -6,8 +6,8 @@
 /// </summary>
 public sealed class RowCreator : AbstractRowSource
 {
-    public string[] Columns { get; set; }
-    public List<object[]> InputRows { get; set; }
+    public required string[] Columns { get; init; }
+    public required List<object[]> InputRows { get; init; }
 
     public RowCreator(IEtlContext context)
         : base(context)
@@ -18,13 +18,16 @@ public sealed class RowCreator : AbstractRowSource
     {
         if (InputRows == null)
             throw new ProcessParameterNullException(this, nameof(InputRows));
+
+        if (Columns == null)
+            throw new ProcessParameterNullException(this, nameof(Columns));
     }
 
     protected override IEnumerable<IRow> Produce()
     {
         foreach (var inputRow in InputRows)
         {
-            if (Pipe.IsTerminating)
+            if (FlowState.IsTerminating)
                 yield break;
 
             var initialValues = Enumerable

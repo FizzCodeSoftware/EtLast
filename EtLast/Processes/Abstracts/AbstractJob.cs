@@ -8,10 +8,10 @@ public abstract class AbstractJob : AbstractProcess
     {
     }
 
-    public override void Execute(IProcess caller, Pipe pipe)
+    public override void Execute(IProcess caller, FlowState flowState)
     {
         Context.RegisterProcessInvocationStart(this, caller);
-        Pipe = pipe ?? caller?.Pipe ?? new Pipe(Context);
+        FlowState = flowState ?? caller?.FlowState ?? new FlowState(Context);
 
         LogCall(caller);
         LogPublicSettableProperties(LogSeverity.Verbose);
@@ -21,21 +21,21 @@ public abstract class AbstractJob : AbstractProcess
         {
             ValidateParameters();
 
-            if (!Pipe.IsTerminating)
+            if (!FlowState.IsTerminating)
             {
                 ExecuteImpl(netTimeStopwatch);
             }
         }
         catch (Exception ex)
         {
-            Pipe.AddException(this, ex);
+            FlowState.AddException(this, ex);
         }
 
         netTimeStopwatch.Stop();
         Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
 
         Context.Log(LogSeverity.Information, this, "{ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-            Pipe.ToLogString(), InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+            FlowState.StatusToLogString(), InvocationInfo.InvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
     }
 
     protected abstract void ExecuteImpl(Stopwatch netTimeStopwatch);

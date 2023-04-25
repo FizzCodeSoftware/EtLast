@@ -29,6 +29,6 @@ public class TrimStringMutatorTests
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Name"] = "John, Oliver", ["Pets"] = "  Ubul" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Name"] = "Andrew, Smith", ["Pets"] = "Winston,Marley" } });
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 }

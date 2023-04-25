@@ -2,7 +2,8 @@
 
 public sealed class KeyTestMutator : AbstractCrossMutator
 {
-    public RowKeyGenerator RowKeyGenerator { get; init; }
+    public required RowKeyGenerator RowKeyGenerator { get; init; }
+
     public NoMatchAction NoMatchAction { get; init; }
     public MatchAction MatchAction { get; init; }
 
@@ -24,7 +25,7 @@ public sealed class KeyTestMutator : AbstractCrossMutator
             ? new RowLookup()
             : new CountableOnlyRowLookup();
 
-        LookupBuilder.Append(_lookup, this);
+        LookupBuilder.AddTo(_lookup, this);
     }
 
     protected override void CloseMutator()
@@ -51,9 +52,9 @@ public sealed class KeyTestMutator : AbstractCrossMutator
                     case MatchMode.Custom:
                         {
                             IReadOnlySlimRow match = null;
-                            if (MatchActionContainsMatch)
+                            if (_lookup is RowLookup rl)
                             {
-                                match = (_lookup as RowLookup).GetSingleRowByKey(key);
+                                match = rl.GetSingleRowByKey(key);
                             }
 
                             MatchAction.InvokeCustomAction(row, match);
@@ -64,9 +65,9 @@ public sealed class KeyTestMutator : AbstractCrossMutator
                             removeRow = true;
 
                             IReadOnlySlimRow match = null;
-                            if (MatchActionContainsMatch)
+                            if (_lookup is RowLookup rl)
                             {
-                                match = (_lookup as RowLookup).GetSingleRowByKey(key);
+                                match = rl.GetSingleRowByKey(key);
                             }
 
                             MatchAction.InvokeCustomAction(row, match);

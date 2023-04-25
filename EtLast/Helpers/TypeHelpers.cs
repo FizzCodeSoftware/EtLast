@@ -32,7 +32,7 @@ public static class TypeHelpers
         if (type.IsGenericType)
         {
             return string.Format(CultureInfo.InvariantCulture, "{0}<{1}>",
-                type.Name.Substring(0, type.Name.LastIndexOf("`", StringComparison.InvariantCultureIgnoreCase)),
+                type.Name[..type.Name.LastIndexOf("`", StringComparison.InvariantCultureIgnoreCase)],
                 string.Join(", ", type.GetGenericArguments().Select(x => x.GetFriendlyTypeName(false))));
         }
 

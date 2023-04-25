@@ -2,9 +2,9 @@
 
 public sealed class MergeDateWithTimeMutator : AbstractMutator
 {
-    public string TargetColumn { get; init; }
-    public string SourceDateColumn { get; init; }
-    public string SourceTimeColumn { get; init; }
+    public required string TargetColumn { get; init; }
+    public required string SourceDateColumn { get; init; }
+    public required string SourceTimeColumn { get; init; }
 
     /// <summary>
     /// Default value is <see cref="InvalidValueAction.WrapError"/>

@@ -1,27 +1,27 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
-public class Main : AbstractEtlFlow
+public class Main : AbstractEtlTask
 {
     public override void ValidateParameters()
     {
     }
 
-    public override void Execute()
+    public override void Execute(IFlow flow)
     {
-        NewPipe()
-            .StartWith(new CreateDatabase())
-            .OnSuccess(pipe => new GetTableMaxValueTests())
-            .OnSuccess(pipe => new StoredProcedureAdoNetDbReaderTests())
-            .OnSuccess(pipe => new LoadCountries())
-            .OnSuccess(pipe => new LoadThenInsertCountries())
-            .OnSuccess(pipe => new MergeOnlyInsertCountries())
-            .OnSuccess(pipe => new MergeUpdateCountries())
-            .OnSuccess(pipe => new CreatePrimaryKeyConstraintTests())
-            .OnSuccess(pipe => new CustomSqlAdoNetDbReaderTests())
-            .OnSuccess(pipe => new CopyTableIntoExistingTableTests())
-            .OnSuccess(pipe => new CopyTableIntoNewTableTests())
-            .OnSuccess(pipe => new DropDatabase())
-            .OnError(pipe => new DropDatabase())
+        flow
+            .OnSuccess(() => new CreateDatabase())
+            .OnSuccess(() => new GetTableMaxValueTests())
+            .OnSuccess(() => new StoredProcedureAdoNetDbReaderTests())
+            .OnSuccess(() => new LoadCountries())
+            .OnSuccess(() => new LoadThenInsertCountries())
+            .OnSuccess(() => new MergeOnlyInsertCountries())
+            .OnSuccess(() => new MergeUpdateCountries())
+            .OnSuccess(() => new CreatePrimaryKeyConstraintTests())
+            .OnSuccess(() => new CustomSqlAdoNetDbReaderTests())
+            .OnSuccess(() => new CopyTableIntoExistingTableTests())
+            .OnSuccess(() => new CopyTableIntoNewTableTests())
+            .OnSuccess(() => new DropDatabase())
+            .HandleErrorIsolated(ctx => new DropDatabase())
             .ThrowOnError();
     }
 }

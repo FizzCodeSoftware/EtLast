@@ -12,16 +12,16 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
     where TChannel : class
     where TClient : ClientBase<TChannel>
 {
+    public required ServiceModelReaderClientCreatorDelegate<TChannel, TClient> ClientCreator { get; init; }
+    public required ServiceModelReaderClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; init; }
+    public required Dictionary<string, ReaderColumn> Columns { get; init; }
+
+    public ReaderDefaultColumn DefaultColumns { get; init; }
+
     /// <summary>
     /// Default value is true.
     /// </summary>
     public bool TreatEmptyStringAsNull { get; init; } = true;
-
-    public Dictionary<string, ReaderColumn> Columns { get; init; }
-    public ReaderDefaultColumn DefaultColumns { get; init; }
-
-    public ServiceModelReaderClientCreatorDelegate<TChannel, TClient> ClientCreator { get; init; }
-    public ServiceModelReaderClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; init; }
 
     public ServiceModelReader(IEtlContext context)
         : base(context)
@@ -65,14 +65,14 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
         }
 
         var resultCount = 0;
-        if (enumerator != null && !Pipe.IsTerminating)
+        if (enumerator != null && !FlowState.IsTerminating)
         {
             var initialValues = new Dictionary<string, object>();
 
             // key is the SOURCE column name
             var columnMap = Columns?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
-            while (!Pipe.IsTerminating)
+            while (!FlowState.IsTerminating)
             {
                 try
                 {

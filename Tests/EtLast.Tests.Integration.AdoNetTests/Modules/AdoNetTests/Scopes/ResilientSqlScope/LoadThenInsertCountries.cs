@@ -10,52 +10,52 @@ public class LoadThenInsertCountries : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    public override IEnumerable<IProcess> CreateJobs()
+    public override void Execute(IFlow flow)
     {
-        yield return new CustomSqlStatement(Context)
-        {
-            Name = "CreateTable",
-            ConnectionString = ConnectionString,
-            SqlStatement = $"CREATE TABLE {nameof(LoadThenInsertCountries)} (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));"
-        };
-
-        yield return new ResilientSqlScope(Context)
-        {
-            Name = "ExecuteResilientScope1",
-            ConnectionString = ConnectionString,
-            Tables = new()
+        flow
+            .OnSuccess(() => new CustomSqlStatement(Context)
             {
-                new ResilientTable()
-                {
-                    TableName = nameof(LoadThenInsertCountries),
-                    JobCreator = table => LoadFirstTwoRows(table),
-                    Finalizers = builder => builder.CopyTable(),
-                    Columns = TestData.CountryColumns,
-                },
-            },
-        };
-
-        yield return new ResilientSqlScope(Context)
-        {
-            Name = "ExecuteResilientScope2",
-            ConnectionString = ConnectionString,
-            Tables = new()
+                Name = "CreateTable",
+                ConnectionString = ConnectionString,
+                SqlStatement = $"CREATE TABLE {nameof(LoadThenInsertCountries)} (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));",
+                MainTableName = nameof(LoadThenInsertCountries),
+            })
+            .OnSuccess(() => new ResilientSqlScope(Context)
             {
-                new ResilientTable()
+                Name = "ExecuteResilientScope1",
+                ConnectionString = ConnectionString,
+                Tables = new()
                 {
-                    TableName = nameof(LoadThenInsertCountries),
-                    JobCreator = table => LoadSecondTwoRows(table),
-                    Finalizers = builder => builder.CopyTable(),
-                    Columns = TestData.CountryColumns,
+                    new ResilientTable()
+                    {
+                        TableName = nameof(LoadThenInsertCountries),
+                        JobCreator = LoadFirstTwoRows,
+                        Finalizers = builder => builder.CopyTable(),
+                        Columns = TestData.CountryColumns,
+                    },
                 },
-            },
-        };
-
-        yield return TestHelpers.CreateReadSqlTableAndAssertExactMacth(this, ConnectionString, nameof(LoadThenInsertCountries),
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "Hungary", ["Abbreviation2"] = "HU", ["Abbreviation3"] = "HUN" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "United States of America", ["Abbreviation2"] = "US", ["Abbreviation3"] = "USA" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "Spain", ["Abbreviation2"] = "ES", ["Abbreviation3"] = "ESP" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["Name"] = "Mexico", ["Abbreviation2"] = "MX", ["Abbreviation3"] = "MEX" });
+            })
+            .OnSuccess(() => new ResilientSqlScope(Context)
+            {
+                Name = "ExecuteResilientScope2",
+                ConnectionString = ConnectionString,
+                Tables = new()
+                {
+                    new ResilientTable()
+                    {
+                        TableName = nameof(LoadThenInsertCountries),
+                        JobCreator = LoadSecondTwoRows,
+                        Finalizers = builder => builder.CopyTable(),
+                        Columns = TestData.CountryColumns,
+                    },
+                },
+            })
+            .OnSuccess(() => TestHelpers.CreateReadSqlTableAndAssertExactMacth(this, ConnectionString, nameof(LoadThenInsertCountries),
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "Hungary", ["Abbreviation2"] = "HU", ["Abbreviation3"] = "HUN" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "United States of America", ["Abbreviation2"] = "US", ["Abbreviation3"] = "USA" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "Spain", ["Abbreviation2"] = "ES", ["Abbreviation3"] = "ESP" },
+                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["Name"] = "Mexico", ["Abbreviation2"] = "MX", ["Abbreviation3"] = "MEX" })
+            );
     }
 
     private IEnumerable<IProcess> LoadFirstTwoRows(ResilientTable table)

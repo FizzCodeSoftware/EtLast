@@ -6,7 +6,8 @@ public class MemorySortMutator : AbstractSequence, IMutator
     public ISequence Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
-    public Func<IEnumerable<IRow>, IEnumerable<IRow>> Sorter { get; init; }
+
+    public required Func<IEnumerable<IRow>, IEnumerable<IRow>> Sorter { get; init; }
 
     public MemorySortMutator(IEtlContext context)
         : base(context)
@@ -30,7 +31,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
         var mutatedRowCount = 0;
         var ignoredRowCount = 0;
 
-        while (!Pipe.IsTerminating)
+        while (!FlowState.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -57,7 +58,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    Pipe.AddException(this, ex, row);
+                    FlowState.AddException(this, ex, row);
                     break;
                 }
 
@@ -79,7 +80,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    Pipe.AddException(this, ex, row);
+                    FlowState.AddException(this, ex, row);
                     break;
                 }
 
@@ -109,12 +110,12 @@ public class MemorySortMutator : AbstractSequence, IMutator
         }
         catch (Exception ex)
         {
-            Pipe.AddException(this, new CustomCodeException(this, "error during the execution of custom sort code", ex));
+            FlowState.AddException(this, new CustomCodeException(this, "error during the execution of custom sort code", ex));
         }
 
         if (sortedRowsEnumerator != null)
         {
-            while (!Pipe.IsTerminating)
+            while (!FlowState.IsTerminating)
             {
                 IRow row;
                 try
@@ -127,7 +128,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    Pipe.AddException(this, new CustomCodeException(this, "error during the execution of custom sort code", ex));
+                    FlowState.AddException(this, new CustomCodeException(this, "error during the execution of custom sort code", ex));
                     break;
                 }
 

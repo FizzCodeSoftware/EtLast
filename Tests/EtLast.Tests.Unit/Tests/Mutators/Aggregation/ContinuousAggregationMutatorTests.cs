@@ -49,6 +49,8 @@ public class ContinuousAggregationMutatorTests
             })
             .AggregateContinuously(new ContinuousAggregationMutator(context)
             {
+                KeyGenerator = null,
+                FixColumns = null,
                 Operation = new ContinuousGroupByOperation()
                     .AddDecimalMin("height", "min-height")
                     .AddDecimalMax("height", "max-height"),
@@ -59,7 +61,7 @@ public class ContinuousAggregationMutatorTests
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
             new CaseInsensitiveStringKeyDictionary<object>() { ["min-height"] = 140m, ["max-height"] = 190m } });
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -77,7 +79,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["height"] = 160m },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["height"] = 160m },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["height"] = 140m } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -95,7 +97,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39m },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3m },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0m } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -113,7 +115,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39m },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3m },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0m } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -131,7 +133,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39m },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3m },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0m } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -149,7 +151,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["height"] = 160d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["height"] = 160d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["height"] = 140d } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -167,7 +169,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake" } });
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -185,7 +187,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0d } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -203,7 +205,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0d } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -221,7 +223,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0d } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -239,7 +241,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["height"] = 160d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["height"] = 160d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["height"] = 140d } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -257,7 +259,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0 } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -275,7 +277,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0 } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -293,7 +295,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0 } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -311,7 +313,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["height"] = 160d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["height"] = 160d },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["height"] = 140d } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -329,7 +331,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39L },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3L },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0L } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -347,7 +349,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39L },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3L },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0L } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -365,7 +367,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39L },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3L },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0L } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -375,8 +377,8 @@ public class ContinuousAggregationMutatorTests
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddLongSum("age"), null);
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(0, result.MutatedRows.Count);
-        Assert.AreEqual(1, result.Process.Pipe.Exceptions.Count);
-        Assert.IsTrue(result.Process.Pipe.Exceptions[0] is ContinuousAggregationException);
+        Assert.AreEqual(1, result.Process.FlowState.Exceptions.Count);
+        Assert.IsTrue(result.Process.FlowState.Exceptions[0] is ContinuousAggregationException);
     }
 
     [TestMethod]
@@ -394,7 +396,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["count"] = 1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["count"] = 1 } });
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -412,7 +414,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["count"] = 1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake" } });
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -429,7 +431,7 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["count"] = 1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake" } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -446,6 +448,6 @@ public class ContinuousAggregationMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["count"] = 1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["count"] = 1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["count"] = 1 } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 }

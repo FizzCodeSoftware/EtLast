@@ -2,9 +2,13 @@
 
 public sealed class GetTableMaxValue<T> : AbstractSqlStatementWithResult<TableMaxValueResult<T>>
 {
-    public string TableName { get; init; }
-    public string ColumnName { get; init; }
-    public string CustomWhereClause { get; init; }
+    public required string TableName { get; init; }
+    public required string ColumnName { get; init; }
+
+    /// <summary>
+    /// Set to null to get the max value of all records in the column.
+    /// </summary>
+    public required string WhereClause { get; init; }
 
     public GetTableMaxValue(IEtlContext context)
         : base(context)
@@ -21,9 +25,9 @@ public sealed class GetTableMaxValue<T> : AbstractSqlStatementWithResult<TableMa
 
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)
     {
-        return string.IsNullOrEmpty(CustomWhereClause)
+        return string.IsNullOrEmpty(WhereClause)
             ? "SELECT MAX(" + ColumnName + ") AS maxValue, COUNT(*) AS cnt FROM " + TableName
-            : "SELECT MAX(" + ColumnName + ") AS maxValue, COUNT(*) AS cnt FROM " + TableName + " WHERE " + CustomWhereClause;
+            : "SELECT MAX(" + ColumnName + ") AS maxValue, COUNT(*) AS cnt FROM " + TableName + " WHERE " + WhereClause;
     }
 
     protected override TableMaxValueResult<T> RunCommandAndGetResult(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
@@ -63,7 +67,7 @@ public sealed class GetTableMaxValue<T> : AbstractSqlStatementWithResult<TableMa
             exception.Data["ColumnName"] = ConnectionString.Unescape(ColumnName);
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = CommandTimeout;
-            exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
+            exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
             Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadAggregate, iocUid, null, exception);
             throw exception;

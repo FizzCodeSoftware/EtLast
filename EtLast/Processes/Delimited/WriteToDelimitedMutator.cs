@@ -2,17 +2,17 @@
 
 public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
 {
-    public ISinkProvider SinkProvider { get; init; }
+    public required ISinkProvider SinkProvider { get; init; }
 
     /// <summary>
     /// Default value is <see cref="Encoding.UTF8"/>
     /// </summary>
-    public Encoding Encoding { get; init; } = Encoding.UTF8;
+    public required Encoding Encoding { get; init; } = Encoding.UTF8;
 
     /// <summary>
     /// Default value is <see cref="CultureInfo.InvariantCulture"/>;
     /// </summary>
-    public IFormatProvider FormatProvider { get; init; } = CultureInfo.InvariantCulture;
+    public required IFormatProvider FormatProvider { get; init; } = CultureInfo.InvariantCulture;
 
     /// <summary>
     /// Default value is \r\n
@@ -32,12 +32,12 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
     /// <summary>
     /// Default value is ';'.
     /// </summary>
-    public char Delimiter { get; init; } = ';';
+    public required char Delimiter { get; init; } = ';';
 
     /// <summary>
     /// Default value is true
     /// </summary>
-    public bool WriteHeader { get; init; } = true;
+    public required bool WriteHeader { get; init; } = true;
 
     /// <summary>
     /// Key is the output column title AND the column in the row (later can be customized by setting a <see cref="DelimitedColumn"/>).

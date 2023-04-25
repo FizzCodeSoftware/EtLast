@@ -95,31 +95,22 @@ public class ReaderDefaultColumn
     {
         if (value == null)
         {
-            switch (SourceIsNullAction)
+            return SourceIsNullAction switch
             {
-                case SourceIsNullAction.WrapError:
-                    return new EtlRowError(process, null, "null value found");
-                case SourceIsNullAction.SetSpecialValue:
-                    return SpecialValueIfSourceIsNull;
-                default:
-                    throw new NotImplementedException(SourceIsNullAction.ToString() + " is not supported yet");
-            }
+                SourceIsNullAction.WrapError => new EtlRowError(process, null, "null value found"),
+                SourceIsNullAction.SetSpecialValue => SpecialValueIfSourceIsNull,
+                _ => throw new NotImplementedException(SourceIsNullAction.ToString() + " is not supported yet"),
+            };
         }
         if (value != null && Converter != null)
         {
             var newValue = Converter.Convert(value);
-            if (newValue != null)
-                return newValue;
-
-            switch (FailedTypeConversionAction)
+            return newValue ?? FailedTypeConversionAction switch
             {
-                case FailedTypeConversionAction.WrapError:
-                    return new EtlRowError(process, value, "type conversion failed (" + Converter.GetType().GetFriendlyTypeName() + ")");
-                case FailedTypeConversionAction.SetSpecialValue:
-                    return SpecialValueIfTypeConversionFailed;
-                default:
-                    throw new NotImplementedException(FailedTypeConversionAction.ToString() + " is not supported yet");
-            }
+                FailedTypeConversionAction.WrapError => new EtlRowError(process, value, "type conversion failed (" + Converter.GetType().GetFriendlyTypeName() + ")"),
+                FailedTypeConversionAction.SetSpecialValue => SpecialValueIfTypeConversionFailed,
+                _ => throw new NotImplementedException(FailedTypeConversionAction.ToString() + " is not supported yet"),
+            };
         }
 
         return value;

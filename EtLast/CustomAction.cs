@@ -2,7 +2,7 @@
 
 public sealed class CustomJob : AbstractJob
 {
-    public Action<CustomJob> Action { get; set; }
+    public required Action<CustomJob> Action { get; init; }
 
     public CustomJob(IEtlContext context)
         : base(context)

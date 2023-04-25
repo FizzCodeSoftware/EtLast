@@ -42,7 +42,7 @@ public class BoolConverter : ITypeConverter, ITextConverter
         return null;
     }
 
-    public virtual object Convert(TextReaderStringBuilder source)
+    public virtual object Convert(TextBuilder source)
     {
         var stringValue = source.GetContentAsString();
 

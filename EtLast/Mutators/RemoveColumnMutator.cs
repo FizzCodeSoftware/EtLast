@@ -2,7 +2,7 @@
 
 public sealed class RemoveColumnMutator : AbstractSimpleChangeMutator
 {
-    public string[] Columns { get; init; }
+    public required string[] Columns { get; init; }
 
     public RemoveColumnMutator(IEtlContext context)
         : base(context)

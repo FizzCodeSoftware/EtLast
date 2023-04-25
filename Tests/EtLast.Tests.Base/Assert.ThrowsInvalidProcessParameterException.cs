@@ -14,7 +14,7 @@ public static class ThrowsInvalidProcessParameterExceptionHelper
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(0, result.MutatedRows.Count);
-        Assert.AreEqual(1, result.Process.Pipe.Exceptions.Count);
-        Assert.IsTrue(result.Process.Pipe.Exceptions[0] is InvalidProcessParameterException);
+        Assert.AreEqual(1, result.Process.FlowState.Exceptions.Count);
+        Assert.IsTrue(result.Process.FlowState.Exceptions[0] is InvalidProcessParameterException);
     }
 }

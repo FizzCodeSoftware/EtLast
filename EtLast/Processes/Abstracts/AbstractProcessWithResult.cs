@@ -13,9 +13,9 @@ public abstract class AbstractProcessWithResult<T> : AbstractProcess, IProcessWi
         ExecuteWithResult(caller, null);
     }
 
-    public override void Execute(IProcess caller, Pipe pipe)
+    public override void Execute(IProcess caller, FlowState flowState)
     {
-        ExecuteWithResult(caller, pipe);
+        ExecuteWithResult(caller, flowState);
     }
 
     public T ExecuteWithResult(IProcess caller)
@@ -23,10 +23,10 @@ public abstract class AbstractProcessWithResult<T> : AbstractProcess, IProcessWi
         return ExecuteWithResult(caller, null);
     }
 
-    public T ExecuteWithResult(IProcess caller, Pipe pipe)
+    public T ExecuteWithResult(IProcess caller, FlowState flowState)
     {
         Context.RegisterProcessInvocationStart(this, caller);
-        Pipe = pipe ?? caller?.Pipe ?? new Pipe(Context);
+        FlowState = flowState ?? caller?.FlowState ?? new FlowState(Context);
 
         LogCall(caller);
         LogPublicSettableProperties(LogSeverity.Verbose);
@@ -37,21 +37,21 @@ public abstract class AbstractProcessWithResult<T> : AbstractProcess, IProcessWi
         {
             ValidateImpl();
 
-            if (!Pipe.IsTerminating)
+            if (!FlowState.IsTerminating)
             {
                 result = ExecuteImpl();
             }
         }
         catch (Exception ex)
         {
-            Pipe.AddException(this, ex);
+            FlowState.AddException(this, ex);
         }
 
         netTimeStopwatch.Stop();
         Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
 
         Context.Log(LogSeverity.Information, this, "{ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-            Pipe.ToLogString(), InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+            FlowState.StatusToLogString(), InvocationInfo.InvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
 
         return result;
     }

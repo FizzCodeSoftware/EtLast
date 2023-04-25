@@ -12,9 +12,9 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
     where TChannel : class
     where TClient : ClientBase<TChannel>
 {
-    public ServiceModelExpandMutatorClientCreatorDelegate<TChannel, TClient> ClientCreator { get; init; }
-    public ServiceModelExpandMutatorClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; init; }
-    public string TargetColumn { get; init; }
+    public required ServiceModelExpandMutatorClientCreatorDelegate<TChannel, TClient> ClientCreator { get; init; }
+    public required ServiceModelExpandMutatorClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; init; }
+    public required string TargetColumn { get; init; }
 
     /// <summary>
     /// Default value is <see cref="InvalidValueAction.Keep"/>

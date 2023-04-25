@@ -7,8 +7,11 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
     /// <summary>
     /// Default value is <see cref="MsSqlDropStoredProceduresProcessMode.SpecifiedStoredProcedures"/>
     /// </summary>
-    public MsSqlDropStoredProceduresProcessMode Mode { get; init; } = MsSqlDropStoredProceduresProcessMode.SpecifiedStoredProcedures;
+    public required MsSqlDropStoredProceduresProcessMode Mode { get; init; } = MsSqlDropStoredProceduresProcessMode.SpecifiedStoredProcedures;
 
+    /// <summary>
+    /// Must be set if <see cref="Mode"/> is set to <see cref="MsSqlDropStoredProceduresProcessMode.InSpecifiedSchema"/>
+    /// </summary>
     public string SchemaName { get; init; }
 
     /// <summary>

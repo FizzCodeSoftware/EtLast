@@ -8,14 +8,12 @@ public class GetFilesTask : AbstractEtlTask
     {
     }
 
-    public override IEnumerable<IProcess> CreateJobs()
+    public override void Execute(IFlow flow)
     {
-        yield return new CustomJob(Context)
-        {
-            Action = job =>
+        flow
+            .OnSuccess(() => new CustomJob(Context)
             {
-                FileNames = new() { "a.txt", "b.txt", "c.txt" };
-            },
-        };
+                Action = job => FileNames = new() { "a.txt", "b.txt", "c.txt" },
+            });
     }
 }

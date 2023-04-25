@@ -4,17 +4,17 @@ public delegate ISequence ProcessCreatorForRowLookupBuilderDelegate(IReadOnlySli
 
 public sealed class FilteredRowLookupBuilder
 {
-    public ProcessCreatorForRowLookupBuilderDelegate ProcessCreator { get; set; }
-    public Func<IReadOnlySlimRow, string> KeyGenerator { get; set; }
+    public required ProcessCreatorForRowLookupBuilderDelegate ProcessCreator { get; init; }
+    public required Func<IReadOnlySlimRow, string> KeyGenerator { get; init; }
 
     public RowLookup Build(IProcess caller, IReadOnlySlimRow[] filterRows)
     {
         var lookup = new RowLookup();
-        Append(lookup, caller, filterRows);
+        AddTo(lookup, caller, filterRows);
         return lookup;
     }
 
-    public void Append(ICountableLookup lookup, IProcess caller, IReadOnlySlimRow[] filterRows)
+    public void AddTo(ICountableLookup lookup, IProcess caller, IReadOnlySlimRow[] filterRows)
     {
         var process = ProcessCreator.Invoke(filterRows);
 

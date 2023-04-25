@@ -10,38 +10,40 @@ public class StoredProcedureAdoNetDbReaderTests : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    public override IEnumerable<IProcess> CreateJobs()
+    public override void Execute(IFlow flow)
     {
-        yield return new CustomSqlStatement(Context)
-        {
-            Name = "CreateProcedure",
-            ConnectionString = ConnectionString,
-            SqlStatement = "CREATE PROCEDURE StoredProcedureAdoNetDbReaderTest AS " +
-                    "SELECT 1 AS Id, 'etlast' AS Value " +
-                    "UNION " +
-                    "SELECT 2 AS Id, 'StoredProcedureAdoNetDbReaderTest' AS Value",
-        };
-
-        yield return new CustomJob(Context)
-        {
-            Name = "CheckProcedureResult",
-            Action = job =>
+        flow
+            .OnSuccess(() => new CustomSqlStatement(Context)
             {
-                var result = SequenceBuilder.Fluent
-                .ReadFromStoredProcedure(new StoredProcedureAdoNetDbReader(Context)
+                Name = "CreateProcedure",
+                ConnectionString = ConnectionString,
+                SqlStatement = "CREATE PROCEDURE StoredProcedureAdoNetDbReaderTest AS " +
+                "SELECT 1 AS Id, 'etlast' AS Value " +
+                "UNION " +
+                "SELECT 2 AS Id, 'StoredProcedureAdoNetDbReaderTest' AS Value",
+                MainTableName = "StoredProcedureAdoNetDbReaderTest",
+            })
+            .OnSuccess(() => new CustomJob(Context)
+            {
+                Name = "CheckProcedureResult",
+                Action = job =>
                 {
-                    Name = "CallProcedure",
-                    ConnectionString = ConnectionString,
-                    Sql = "StoredProcedureAdoNetDbReaderTest"
-                })
-                .Build().TakeRowsAndReleaseOwnership(this).ToList();
+                    var result = SequenceBuilder.Fluent
+                    .ReadFromStoredProcedure(new StoredProcedureAdoNetDbReader(Context)
+                    {
+                        Name = "CallProcedure",
+                        ConnectionString = ConnectionString,
+                        Sql = "StoredProcedureAdoNetDbReaderTest",
+                        MainTableName = null,
+                    })
+                    .Build().TakeRowsAndReleaseOwnership(this).ToList();
 
-                Assert.AreEqual(2, result.Count);
-                Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                    Assert.AreEqual(2, result.Count);
+                    Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                     new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Value"] = "etlast" },
                     new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Value"] = "StoredProcedureAdoNetDbReaderTest" }
-                });
-            }
-        };
+                    });
+                }
+            });
     }
 }

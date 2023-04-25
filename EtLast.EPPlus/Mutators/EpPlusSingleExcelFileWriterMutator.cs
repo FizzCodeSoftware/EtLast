@@ -3,9 +3,9 @@
 public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator, IRowSink
     where TState : BaseExcelWriterState, new()
 {
-    public string FileName { get; init; }
+    public required string FileName { get; init; }
     public Action<ExcelPackage, TState> Initialize { get; init; }
-    public Action<IRow, ExcelPackage, TState> Action { get; init; }
+    public required Action<IRow, ExcelPackage, TState> Action { get; init; }
     public Action<ExcelPackage, TState> Finalize { get; init; }
     public ExcelPackage ExistingPackage { get; init; }
 

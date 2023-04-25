@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class TextReaderStringBuilder
+public class TextBuilder
 {
     private char[] _buffer = new char[8];
     public int Start { get; private set; }

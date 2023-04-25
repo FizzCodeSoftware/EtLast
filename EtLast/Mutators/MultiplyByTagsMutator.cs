@@ -5,9 +5,9 @@ public sealed class MultiplyByTagsMutator : AbstractMutator
     /// <summary>
     /// Default true.
     /// </summary>
-    public bool RemoveOriginalRow { get; init; } = true;
+    public required bool RemoveOriginalRow { get; init; } = true;
 
-    public object[] Tags { get; init; }
+    public required object[] Tags { get; init; }
 
     public MultiplyByTagsMutator(IEtlContext context)
         : base(context)
@@ -47,6 +47,7 @@ public static class MultiplyWithTagsMutatorFluent
         return builder.AddMutator(new MultiplyByTagsMutator(builder.ProcessBuilder.Result.Context)
         {
             Tags = tags,
+            RemoveOriginalRow = true,
         });
     }
 }

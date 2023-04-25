@@ -58,7 +58,7 @@ public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
             exception.Data["IdentityColumn"] = IdentityColumnName;
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = command.CommandTimeout;
-            exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
+            exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
             Context.RegisterIoCommandFailed(this, IoCommandKind.dbIdentityReset, iocUid, null, exception);
             throw exception;

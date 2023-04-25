@@ -2,17 +2,17 @@
 
 public sealed class RowLookupBuilder
 {
-    public ISequence Process { get; set; }
-    public Func<IReadOnlySlimRow, string> KeyGenerator { get; set; }
+    public required ISequence Process { get; init; }
+    public required Func<IReadOnlySlimRow, string> KeyGenerator { get; init; }
 
     public RowLookup Build(IProcess caller)
     {
         var lookup = new RowLookup();
-        Append(lookup, caller);
+        AddTo(lookup, caller);
         return lookup;
     }
 
-    public void Append(ICountableLookup lookup, IProcess caller)
+    public void AddTo(ICountableLookup lookup, IProcess caller)
     {
         var allRows = Process.TakeRowsAndReleaseOwnership(caller);
         var rowCount = 0;

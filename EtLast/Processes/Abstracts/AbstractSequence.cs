@@ -10,10 +10,10 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
     {
     }
 
-    private IEnumerable<IRow> Evaluate(IProcess caller, Pipe pipe)
+    private IEnumerable<IRow> Evaluate(IProcess caller, FlowState flowState)
     {
         Context.RegisterProcessInvocationStart(this, caller);
-        Pipe = pipe ?? caller?.Pipe ?? new Pipe(Context);
+        FlowState = flowState ?? caller?.FlowState ?? new FlowState(Context);
 
         LogCall(caller);
         LogPublicSettableProperties(LogSeverity.Verbose);
@@ -26,10 +26,10 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
         catch (Exception ex)
         {
             netTimeStopwatch.Stop();
-            Pipe.AddException(this, ex);
+            FlowState.AddException(this, ex);
         }
 
-        if (!Pipe.IsTerminating)
+        if (!FlowState.IsTerminating)
         {
             if (Initializer != null)
             {
@@ -39,11 +39,11 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
                 }
                 catch (Exception ex)
                 {
-                    Pipe.AddException(this, new InitializerDelegateException(this, ex));
+                    FlowState.AddException(this, new InitializerDelegateException(this, ex));
                 }
             }
 
-            if (!Pipe.IsTerminating)
+            if (!FlowState.IsTerminating)
             {
                 IEnumerator<IRow> enumerator = null;
                 try
@@ -52,17 +52,17 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
                 }
                 catch (Exception ex)
                 {
-                    Pipe.AddException(this, ex);
+                    FlowState.AddException(this, ex);
 
                     netTimeStopwatch.Stop();
                     Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
                     Context.Log(LogSeverity.Information, this, "{ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-                        Pipe.ToLogString(), InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+                        FlowState.StatusToLogString(), InvocationInfo.InvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
                 }
 
                 if (enumerator != null)
                 {
-                    while (!Pipe.IsTerminating)
+                    while (!FlowState.IsTerminating)
                     {
                         try
                         {
@@ -74,15 +74,15 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
                         }
                         catch (Exception ex)
                         {
-                            Pipe.AddException(this, ex);
+                            FlowState.AddException(this, ex);
 
                             netTimeStopwatch.Stop();
                             Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
                             Context.Log(LogSeverity.Information, this, "{ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-                                Pipe.ToLogString(), InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+                                FlowState.StatusToLogString(), InvocationInfo.InvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
                         }
 
-                        if (!Pipe.IsTerminating)
+                        if (!FlowState.IsTerminating)
                         {
                             netTimeStopwatch.Stop();
                             var row = enumerator.Current;
@@ -98,7 +98,7 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
         Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
 
         Context.Log(LogSeverity.Information, this, "{ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-            Pipe.ToLogString(), InvocationInfo.LastInvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+            FlowState.StatusToLogString(), InvocationInfo.InvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
     }
 
     protected abstract IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch);
@@ -109,38 +109,38 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
         CountRowsAndReleaseOwnership(caller);
     }
 
-    public override void Execute(IProcess caller, Pipe pipe)
+    public override void Execute(IProcess caller, FlowState flowState)
     {
-        CountRowsAndReleaseOwnership(caller, pipe);
+        CountRowsAndReleaseOwnership(caller, flowState);
     }
 
     public IEnumerable<IRow> TakeRowsAndTransferOwnership(IProcess caller)
     {
-        return TakeRowsAndTransferOwnership(caller, caller?.Pipe);
+        return TakeRowsAndTransferOwnership(caller, caller?.FlowState);
     }
 
     public IEnumerable<ISlimRow> TakeRowsAndReleaseOwnership(IProcess caller)
     {
-        return TakeRowsAndReleaseOwnership(caller, caller?.Pipe);
+        return TakeRowsAndReleaseOwnership(caller, caller?.FlowState);
     }
 
     public int CountRowsAndReleaseOwnership(IProcess caller)
     {
-        return CountRowsAndReleaseOwnership(caller, caller?.Pipe);
+        return CountRowsAndReleaseOwnership(caller, caller?.FlowState);
     }
 
-    public IEnumerable<IRow> TakeRowsAndTransferOwnership(IProcess caller, Pipe pipe)
+    public IEnumerable<IRow> TakeRowsAndTransferOwnership(IProcess caller, FlowState flowState)
     {
-        foreach (var row in Evaluate(caller, pipe))
+        foreach (var row in Evaluate(caller, flowState))
         {
             row.Context.SetRowOwner(row, caller);
             yield return row;
         }
     }
 
-    public IEnumerable<ISlimRow> TakeRowsAndReleaseOwnership(IProcess caller, Pipe pipe)
+    public IEnumerable<ISlimRow> TakeRowsAndReleaseOwnership(IProcess caller, FlowState flowState)
     {
-        foreach (var row in Evaluate(caller, pipe))
+        foreach (var row in Evaluate(caller, flowState))
         {
             if (caller != null)
                 row.Context.SetRowOwner(row, caller);
@@ -151,10 +151,10 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
         }
     }
 
-    public int CountRowsAndReleaseOwnership(IProcess caller, Pipe pipe)
+    public int CountRowsAndReleaseOwnership(IProcess caller, FlowState flowState)
     {
         var count = 0;
-        foreach (var row in Evaluate(caller, pipe))
+        foreach (var row in Evaluate(caller, flowState))
         {
             row.Context.SetRowOwner(row, caller);
             row.Context.SetRowOwner(row, null);

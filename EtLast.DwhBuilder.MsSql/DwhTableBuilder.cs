@@ -139,6 +139,7 @@ public class DwhTableBuilder : IDwhTableBuilder
             ConnectionString = ResilientTable.Scope.ConnectionString,
             TableName = ResilientTable.TableName,
             ColumnName = recordTimestampIndicatorColumn.NameEscaped(ResilientTable.Scope.ConnectionString),
+            WhereClause = null,
         }.ExecuteWithResult(ResilientTable.Scope);
 
         if (result == null)

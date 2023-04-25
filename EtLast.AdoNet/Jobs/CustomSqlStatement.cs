@@ -2,8 +2,9 @@
 
 public sealed class CustomSqlStatement : AbstractSqlStatement
 {
-    public string SqlStatement { get; init; }
-    public string MainTableName { get; init; }
+    public required string SqlStatement { get; init; }
+    public required string MainTableName { get; init; }
+
     public Dictionary<string, object> Parameters { get; init; }
 
     /// <summary>
@@ -69,7 +70,7 @@ public sealed class CustomSqlStatement : AbstractSqlStatement
             exception.Data["ConnectionStringName"] = ConnectionString.Name;
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = command.CommandTimeout;
-            exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
+            exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
             Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, iocUid, null, exception);
             throw exception;

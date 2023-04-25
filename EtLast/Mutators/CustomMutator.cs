@@ -4,7 +4,7 @@ public delegate bool CustomMutatorDelegate(IRow row);
 
 public sealed class CustomMutator : AbstractMutator
 {
-    public CustomMutatorDelegate Action { get; init; }
+    public required CustomMutatorDelegate Action { get; init; }
 
     public CustomMutator(IEtlContext context)
         : base(context)

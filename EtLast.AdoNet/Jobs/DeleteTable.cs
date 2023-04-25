@@ -2,8 +2,12 @@
 
 public sealed class DeleteTable : AbstractSqlStatement
 {
-    public string TableName { get; init; }
-    public string CustomWhereClause { get; init; }
+    public required string TableName { get; init; }
+
+    /// <summary>
+    /// Set to null for a full table delete, but consider using <see cref="TruncateTable"/> if the target table has no FK references.
+    /// </summary>
+    public required string WhereClause { get; init; }
 
     public DeleteTable(IEtlContext context)
         : base(context)
@@ -27,9 +31,9 @@ public sealed class DeleteTable : AbstractSqlStatement
 
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)
     {
-        return string.IsNullOrEmpty(CustomWhereClause)
+        return string.IsNullOrEmpty(WhereClause)
             ? "DELETE FROM " + TableName
-            : "DELETE FROM " + TableName + " WHERE " + CustomWhereClause;
+            : "DELETE FROM " + TableName + " WHERE " + WhereClause;
     }
 
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
@@ -53,7 +57,7 @@ public sealed class DeleteTable : AbstractSqlStatement
             exception.Data["TableName"] = ConnectionString.Unescape(TableName);
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = CommandTimeout;
-            exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
+            exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
             Context.RegisterIoCommandFailed(this, IoCommandKind.dbDelete, iocUid, null, exception);
             throw exception;

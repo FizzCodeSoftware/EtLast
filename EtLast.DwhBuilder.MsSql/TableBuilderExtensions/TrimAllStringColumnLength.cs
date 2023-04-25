@@ -38,7 +38,7 @@ public static partial class TableBuilderExtensions
 
                     if (strv.Length > col.length)
                     {
-                        var trimv = strv.Substring(0, col.length);
+                        var trimv = strv[..col.length];
                         row[col.column.Name] = trimv;
 
                         row.CurrentProcess.Context.Log(LogSeverity.Warning, row.CurrentProcess, "too long string trimmed on {ConnectionStringName}/{TableName}, column: {Column}, max length: {MaxLength}, original value: {Value}, trimmed value: {TrimValue}",

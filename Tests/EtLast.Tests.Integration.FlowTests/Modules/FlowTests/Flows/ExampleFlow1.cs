@@ -2,23 +2,23 @@
 
 namespace FizzCode.EtLast.Tests.Integration.Modules.FlowTests;
 
-public class ExampleFlow1 : AbstractEtlFlow
+public class ExampleFlow1 : AbstractEtlTask
 {
     public override void ValidateParameters()
     {
     }
 
-    public override void Execute()
+    public override void Execute(IFlow flow)
     {
-        NewPipe()
-            .StartWith(new ThrowExceptionFlow())
-            .OnSuccess(pipe => new ShowMessageTask()
+        flow
+            .OnSuccess(() => new ThrowExceptionTask())
+            .OnSuccess(() => new ShowMessageTask()
             {
                 Message = t => "awesome",
             })
-            .OnError(pipe => new ShowMessageTask()
+            .HandleErrorIsolated(parentCtx => new ShowMessageTask()
             {
-                Message = t => "FIRST TASK FAILED: " + string.Join("\n", pipe.Exceptions.Select(x => x.Message)),
+                Message = t => "FIRST TASK FAILED: " + string.Join("\n", parentCtx.ParentFlowState.Exceptions.Select(x => x.Message)),
             })
             .ThrowOnError();
     }

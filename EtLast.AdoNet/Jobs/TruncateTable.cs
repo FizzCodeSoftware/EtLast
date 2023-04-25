@@ -54,7 +54,7 @@ public sealed class TruncateTable : AbstractSqlStatement
             exception.Data["TableName"] = ConnectionString.Unescape(TableName);
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = CommandTimeout;
-            exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
+            exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
             Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadCount, iocUid, null, exception);
             throw exception;
@@ -80,7 +80,7 @@ public sealed class TruncateTable : AbstractSqlStatement
             exception.Data["TableName"] = ConnectionString.Unescape(TableName);
             exception.Data["Statement"] = originalStatement;
             exception.Data["Timeout"] = CommandTimeout;
-            exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
+            exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
             Context.RegisterIoCommandFailed(this, IoCommandKind.dbDelete, iocUid, null, exception);
             throw exception;

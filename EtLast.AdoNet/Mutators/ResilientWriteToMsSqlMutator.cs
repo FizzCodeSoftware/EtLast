@@ -82,7 +82,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
         _timer = null;
     }
 
-    protected override void ProcessHeartBeatRow(IReadOnlySlimRow row, HeartBeatTag tag)
+    protected override void ProcessHeartBeatTag(HeartBeatTag tag)
     {
         if (_rowsWritten > 0 && _lastWrite != null && _reader.RowCount > 0 && _reader.RowCount < BatchSize && _lastWrite.ElapsedMilliseconds >= ForceWriteAfterNoDataMilliseconds)
         {

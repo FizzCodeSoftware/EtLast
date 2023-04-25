@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows;
 
-#pragma warning disable CA2213 // Disposable fields should be disposed
 public partial class MainForm : Form
 {
     private readonly TabControl _sessionTabs;
@@ -43,7 +42,7 @@ public partial class MainForm : Form
 
     private static Rectangle GetSessionTabCloseButtonRectangle(Rectangle tabRectable)
     {
-        var height = 12;
+        const int height = 12;
         return new Rectangle(tabRectable.Right - 10 - height, tabRectable.Top + ((tabRectable.Height - height) / 2), height, height);
     }
 
@@ -137,4 +136,3 @@ public partial class MainForm : Form
         ResumeLayout();
     }
 }
-#pragma warning restore CA2213 // Disposable fields should be disposed

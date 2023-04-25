@@ -3,19 +3,7 @@
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractMemoryAggregationMutator : AbstractAggregationMutator
 {
-    private IMemoryAggregationOperation _operation;
-
-    public IMemoryAggregationOperation Operation
-    {
-        get => _operation;
-        init
-        {
-            //_operation?.SetProcess(null);
-
-            _operation = value;
-            _operation.SetProcess(this);
-        }
-    }
+    public required IMemoryAggregationOperation Operation { get; init; }
 
     protected AbstractMemoryAggregationMutator(IEtlContext context)
         : base(context)

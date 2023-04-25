@@ -2,7 +2,7 @@
 
 public sealed class DeleteLocalFile : AbstractJob
 {
-    public string FileName { get; init; }
+    public required string FileName { get; init; }
 
     public DeleteLocalFile(IEtlContext context)
         : base(context)

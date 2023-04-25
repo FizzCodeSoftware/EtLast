@@ -21,6 +21,7 @@ public class DelimitedLineReaderTests
                 ["ValueDouble"] = new TextReaderColumn(new DoubleConverter()).FromSource("Value4"),
             },
             Header = DelimitedLineHeader.HasHeader,
+            Delimiter = ';',
             RemoveSurroundingDoubleQuotes = removeSurroundingDoubleQuotes
         };
     }
@@ -40,6 +41,7 @@ public class DelimitedLineReaderTests
                 ["Value"] = new TextReaderColumn()
             },
             Header = DelimitedLineHeader.HasHeader,
+            Delimiter = ';',
         };
     }
 
@@ -61,7 +63,7 @@ public class DelimitedLineReaderTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d } });
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -82,6 +84,7 @@ public class DelimitedLineReaderTests
                     ["ValueDouble"] = new TextReaderColumn(new DoubleConverter()).FromSource("Value4"),
                 },
                 Header = DelimitedLineHeader.HasHeader,
+                Delimiter = ';',
             })
             .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
             {
@@ -95,7 +98,7 @@ public class DelimitedLineReaderTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["ValueDouble"] = 1.234d } });
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -115,6 +118,7 @@ public class DelimitedLineReaderTests
                 },
                 DefaultColumns = new TextReaderDefaultColumn(),
                 Header = DelimitedLineHeader.HasHeader,
+                Delimiter = ';',
             });
 
         var result = TestExecuter.Execute(builder);
@@ -122,7 +126,7 @@ public class DelimitedLineReaderTests
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = "-1" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["Value2"] = "3", ["Value3"] = "2019.04.25", ["Value4"] = "1.234" } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -138,7 +142,7 @@ public class DelimitedLineReaderTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "te\"s\"t;test", ["ValueInt"] = -1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "tes\"t;t\"est", ["ValueInt"] = -1 } });
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -155,7 +159,7 @@ public class DelimitedLineReaderTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "\"te\"s\"t;test\"", ["ValueInt"] = -1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "\"tes\"t;t\"est\"", ["ValueInt"] = -1 } });
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -172,7 +176,7 @@ public class DelimitedLineReaderTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "B", ["Value"] = "test\"" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "C", ["Value"] = "test\"\"" } });
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -194,7 +198,7 @@ public class DelimitedLineReaderTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 7, ["Name"] = "G", ["Value"] = "\"a\"" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 8, ["Name"] = "\"b\"", ["Value"] = "H" } });
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -214,7 +218,7 @@ public class DelimitedLineReaderTests
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = " A", ["ValueString"] = "test\r\n continues", ["ValueInt"] = -1 } });
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -234,7 +238,7 @@ public class DelimitedLineReaderTests
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "test\"\r\ncontinues", ["ValueInt"] = -1 } });
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -255,7 +259,7 @@ public class DelimitedLineReaderTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = new EtlRowError("X"), ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d } });
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -279,6 +283,7 @@ public class DelimitedLineReaderTests
                     ["Value4"] = new TextReaderColumn(),
                 },
                 Header = DelimitedLineHeader.HasHeader,
+                Delimiter = ';',
             });
 
         var result = TestExecuter.Execute(builder);
@@ -287,7 +292,7 @@ public class DelimitedLineReaderTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = -1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["Value2"] = 3 } });
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -312,6 +317,7 @@ public class DelimitedLineReaderTests
                     ["Value4"] = new TextReaderColumn(),
                 },
                 Header = DelimitedLineHeader.IgnoreHeader,
+                Delimiter = ';',
             });
 
         var result = TestExecuter.Execute(builder);
@@ -320,6 +326,6 @@ public class DelimitedLineReaderTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = -1 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["Value2"] = 3, ["Value3"] = "1", ["Value4"] = "1.234" } });
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 }

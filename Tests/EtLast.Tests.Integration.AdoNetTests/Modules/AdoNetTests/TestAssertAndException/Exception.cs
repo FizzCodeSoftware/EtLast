@@ -9,15 +9,16 @@ public class Exception : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    public override IEnumerable<IProcess> CreateJobs()
+    public override void Execute(IFlow flow)
     {
-        yield return new CustomJob(Context)
-        {
-            Name = nameof(Exception),
-            Action = job =>
+        flow
+            .OnSuccess(() => new CustomJob(Context)
             {
-                throw new System.Exception("Test Exception.");
-            }
-        };
+                Name = nameof(Exception),
+                Action = job =>
+                {
+                    throw new System.Exception("Test Exception.");
+                }
+            });
     }
 }

@@ -23,7 +23,7 @@ public class EnumerableImporterTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["name"] = "E", ["age"] = -3, ["height"] = 160, ["countryId"] = 1, ["lastChangedTime"] = new DateTime(2019, 1, 1, 23, 59, 59, 0) },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["name"] = "A", ["age"] = 11, ["height"] = 140, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0) },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 6, ["name"] = "fake", ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0) } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -51,7 +51,7 @@ public class EnumerableImporterTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 4, ["age"] = -3, ["name"] = "E", ["height"] = 160, ["countryId"] = 1, ["lastChangedTime"] = new DateTime(2019, 1, 1, 23, 59, 59, 0) },
             new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 5, ["age"] = 11, ["name"] = "A", ["height"] = 140, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0) },
             new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 6, ["age"] = -1L, ["name"] = "fake", ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0) } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -80,6 +80,6 @@ public class EnumerableImporterTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 4, ["age"] = -3 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 5, ["age"] = 11 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["ID"] = 6, ["age"] = -1L } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 }

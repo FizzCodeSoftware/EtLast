@@ -2,7 +2,7 @@
 
 public class MemorySinkProvider : ISinkProvider
 {
-    public Func<MemoryStream> StreamCreator { get; init; }
+    public required Func<MemoryStream> StreamCreator { get; init; }
 
     private readonly string _sinkName = "MemorySink";
     private readonly string _sinkLocation = "memory";
@@ -11,7 +11,7 @@ public class MemorySinkProvider : ISinkProvider
     /// <summary>
     /// Default value is false
     /// </summary>
-    public bool AutomaticallyDispose { get; init; }
+    public required bool AutomaticallyDispose { get; init; }
 
     public void Validate(IProcess caller)
     {

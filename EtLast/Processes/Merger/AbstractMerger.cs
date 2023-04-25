@@ -3,7 +3,7 @@
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractMerger : AbstractSequence, IMerger
 {
-    public List<ISequence> SequenceList { get; set; }
+    public required List<ISequence> SequenceList { get; init; }
 
     protected AbstractMerger(IEtlContext context)
         : base(context)

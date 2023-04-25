@@ -2,5 +2,5 @@
 
 public interface ITextConverter
 {
-    object Convert(TextReaderStringBuilder source);
+    object Convert(TextBuilder source);
 }

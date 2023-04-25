@@ -1,7 +1,9 @@
-﻿namespace FizzCode.EtLast.Benchmarks;
+﻿using System.Globalization;
+using System.Text;
+
+namespace FizzCode.EtLast.Benchmarks;
 
 [MemoryDiagnoser]
-[SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net60, 1, 1, 1, 3)]
 [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net70, 1, 1, 1, 3)]
 public class ReadFromDelimitedTests
 {
@@ -25,10 +27,15 @@ public class ReadFromDelimitedTests
             })
             .WriteToDelimited(new WriteToDelimitedMutator(context)
             {
+                Delimiter = ';',
+                WriteHeader = true,
+                Encoding = Encoding.UTF8,
+                FormatProvider = CultureInfo.InvariantCulture,
                 Quote = '"',
                 SinkProvider = new MemorySinkProvider()
                 {
                     StreamCreator = () => _stream,
+                    AutomaticallyDispose = true,
                 },
                 Columns = new()
                 {
@@ -38,10 +45,16 @@ public class ReadFromDelimitedTests
             })
             .WriteToDelimited(new WriteToDelimitedMutator(context)
             {
+                Delimiter = ';',
+                WriteHeader = true,
+                Encoding = Encoding.UTF8,
+                FormatProvider = CultureInfo.InvariantCulture,
                 Quote = '"',
                 SinkProvider = new LocalFileSinkProvider()
                 {
-                    FileNameGenerator = partition => _file,
+                    FileNameGenerator = _ => _file,
+                    ActionWhenFileExists = LocalSinkFileExistsAction.DeleteAndContinue,
+                    FileMode = FileMode.CreateNew,
                 },
                 Columns = new()
                 {
@@ -84,6 +97,7 @@ public class ReadFromDelimitedTests
                 ["2"] = new TextReaderColumn(new IntConverter()),
             },
             Header = DelimitedLineHeader.HasHeader,
+            Delimiter = ';',
         };
 
         var result = process.TakeRowsAndReleaseOwnership(null, null).ToList();
@@ -112,6 +126,7 @@ public class ReadFromDelimitedTests
                 ["2"] = new ReaderColumn(new IntConverter()),
             },
             Header = DelimitedLineHeader.HasHeader,
+            Delimiter = ';',
         };
 
         var result = process.TakeRowsAndReleaseOwnership(null, null).ToList();
@@ -135,6 +150,7 @@ public class ReadFromDelimitedTests
                 ["2"] = new TextReaderColumn(new IntConverter()),
             },
             Header = DelimitedLineHeader.HasHeader,
+            Delimiter = ';',
         };
 
         var result = process.TakeRowsAndReleaseOwnership(null, null).ToList();
@@ -158,6 +174,7 @@ public class ReadFromDelimitedTests
                 ["2"] = new ReaderColumn(new IntConverter()),
             },
             Header = DelimitedLineHeader.HasHeader,
+            Delimiter = ';',
         };
 
         var result = process.TakeRowsAndReleaseOwnership(null, null).ToList();

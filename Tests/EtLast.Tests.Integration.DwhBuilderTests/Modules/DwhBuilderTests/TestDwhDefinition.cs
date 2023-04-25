@@ -1,5 +1,4 @@
-﻿#pragma warning disable IDE1006 // Naming Styles
-namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests;
+﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests;
 
 public class TestDwhDefinition : DatabaseDeclaration
 {
@@ -40,4 +39,3 @@ public class TestDwhDefinition : DatabaseDeclaration
         table.AddNVarChar("Name", 100);
     });
 }
-#pragma warning restore IDE1006 // Naming Styles

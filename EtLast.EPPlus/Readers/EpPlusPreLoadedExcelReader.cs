@@ -5,7 +5,7 @@ public sealed class EpPlusPreLoadedExcelReader : AbstractEpPlusExcelReader
     /// <summary>
     /// Usage: reader.PreLoadedFile = new ExcelPackage(new FileInfo(fileName));
     /// </summary>
-    public ExcelPackage PreLoadedFile { get; init; }
+    public required ExcelPackage PreLoadedFile { get; init; }
 
     public EpPlusPreLoadedExcelReader(IEtlContext context)
         : base(context)

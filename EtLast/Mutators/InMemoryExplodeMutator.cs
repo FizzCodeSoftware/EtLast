@@ -11,7 +11,7 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
 
-    public InMemoryExplodeDelegate Action { get; init; }
+    public required InMemoryExplodeDelegate Action { get; init; }
 
     /// <summary>
     /// Default true.
@@ -40,7 +40,7 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
 
         var ignoredRowCount = 0;
         var rows = new List<IReadOnlySlimRow>();
-        while (!Pipe.IsTerminating)
+        while (!FlowState.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !sourceEnumerator.MoveNext();
@@ -67,7 +67,7 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    Pipe.AddException(this, ex, row);
+                    FlowState.AddException(this, ex, row);
                     break;
                 }
 
@@ -89,7 +89,7 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    Pipe.AddException(this, ex, row);
+                    FlowState.AddException(this, ex, row);
                     break;
                 }
 
@@ -124,7 +124,7 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
             resultCount += rows.Count;
         }
 
-        while (!Pipe.IsTerminating)
+        while (!FlowState.IsTerminating)
         {
             ISlimRow newRow;
             try
@@ -136,7 +136,7 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
             }
             catch (Exception ex)
             {
-                Pipe.AddException(this, ex);
+                FlowState.AddException(this, ex);
                 break;
             }
 

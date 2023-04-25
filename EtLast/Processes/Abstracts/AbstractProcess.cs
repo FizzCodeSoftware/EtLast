@@ -10,14 +10,14 @@ public abstract class AbstractProcess : IProcess
 
     public IEtlContext Context { get; protected set; }
 
-    public Pipe Pipe { get; protected set; }
-    public bool Success => Pipe?.IsTerminating != true;
+    public FlowState FlowState { get; protected set; }
+    public bool Success => FlowState?.IsTerminating != true;
 
     public string Name { get; set; }
     public string Kind { get; }
 
     /// <summary>
-    ///  Reserved for lazy-initialized <see cref="AbstractEtlFlow"/> and <see cref="AbstractEtlTask"/> types.
+    ///  Reserved for lazy-initialized <see cref="AbstractEtlTask"/> types.
     /// </summary>
     internal AbstractProcess()
     {
@@ -59,7 +59,6 @@ public abstract class AbstractProcess : IProcess
     {
         return process switch
         {
-            IEtlFlow => "flow",
             IEtlTask => "task",
             IRowSource => "source",
             IRowSink => "sink",
@@ -125,9 +124,9 @@ public abstract class AbstractProcess : IProcess
         Execute(caller, null);
     }
 
-    public abstract void Execute(IProcess caller, Pipe pipe);
+    public abstract void Execute(IProcess caller, FlowState flow);
 
-    public void SetContext(IEtlContext context, bool onlyNull = true)
+    public void SetContext(IEtlContext context, bool overwrite = false)
     {
         Context = context;
 
@@ -142,7 +141,7 @@ public abstract class AbstractProcess : IProcess
 
         foreach (var property in properties)
         {
-            if (onlyNull && property.GetValue(this) != null)
+            if (!overwrite && property.GetValue(this) != null)
                 continue;
 
             var key = context.Arguments.AllKeys.FirstOrDefault(x => string.Equals(x, property.Name, StringComparison.InvariantCultureIgnoreCase));

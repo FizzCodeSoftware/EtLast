@@ -8,7 +8,7 @@ public class ColumnBasedRowEqualityComparerTests
     {
         var a = new SlimRow() { ["id"] = 12, ["name"] = "x", };
         var b = new SlimRow() { ["id"] = 12, ["name"] = "x", };
-        var result = new ColumnBasedRowEqualityComparer().Equals(a, b);
+        var result = new AllColumnBasedRowEqualityComparer().Equals(a, b);
         Assert.IsTrue(result);
     }
 
@@ -35,7 +35,7 @@ public class ColumnBasedRowEqualityComparerTests
     {
         var a = new SlimRow() { ["id"] = 12, ["name"] = "x", };
         var b = new SlimRow() { ["id"] = 12, ["name"] = "y", };
-        var result = new ColumnBasedRowEqualityComparer().Equals(a, b);
+        var result = new AllColumnBasedRowEqualityComparer().Equals(a, b);
         Assert.IsFalse(result);
     }
 
@@ -44,7 +44,7 @@ public class ColumnBasedRowEqualityComparerTests
     {
         var a = new SlimRow() { ["id"] = 12, ["name"] = new EtlRowError("x"), };
         var b = new SlimRow() { ["id"] = 12, ["name"] = new EtlRowError("x"), };
-        var result = new ColumnBasedRowEqualityComparer().Equals(a, b);
+        var result = new AllColumnBasedRowEqualityComparer().Equals(a, b);
         Assert.IsTrue(result);
     }
 
@@ -53,7 +53,7 @@ public class ColumnBasedRowEqualityComparerTests
     {
         var a = new SlimRow() { ["id"] = 12, ["name"] = new EtlRowError("x"), };
         var b = new SlimRow() { ["id"] = 12, ["name"] = new EtlRowError("y"), };
-        var result = new ColumnBasedRowEqualityComparer().Equals(a, b);
+        var result = new AllColumnBasedRowEqualityComparer().Equals(a, b);
         Assert.IsFalse(result);
     }
 
@@ -62,7 +62,7 @@ public class ColumnBasedRowEqualityComparerTests
     {
         var a = new SlimRow() { ["id"] = 12, };
         var b = new SlimRow() { ["id"] = 12, };
-        var result = new ColumnBasedRowEqualityComparer().Equals(a, b);
+        var result = new AllColumnBasedRowEqualityComparer().Equals(a, b);
         Assert.IsTrue(result);
     }
 
@@ -71,7 +71,7 @@ public class ColumnBasedRowEqualityComparerTests
     {
         var a = new SlimRow() { ["id"] = 12, };
         var b = new SlimRow() { ["id"] = 13, };
-        var result = new ColumnBasedRowEqualityComparer().Equals(a, b);
+        var result = new AllColumnBasedRowEqualityComparer().Equals(a, b);
         Assert.IsFalse(result);
     }
 
@@ -80,7 +80,7 @@ public class ColumnBasedRowEqualityComparerTests
     {
         var a = new SlimRow() { ["id"] = -6.5d, };
         var b = new SlimRow() { ["id"] = -13d / 2d, };
-        var result = new ColumnBasedRowEqualityComparer().Equals(a, b);
+        var result = new AllColumnBasedRowEqualityComparer().Equals(a, b);
         Assert.IsTrue(result);
     }
 
@@ -89,7 +89,7 @@ public class ColumnBasedRowEqualityComparerTests
     {
         var a = new SlimRow() { ["id"] = -1d, };
         var b = new SlimRow() { ["id"] = -1.01d, };
-        var result = new ColumnBasedRowEqualityComparer().Equals(a, b);
+        var result = new AllColumnBasedRowEqualityComparer().Equals(a, b);
         Assert.IsFalse(result);
     }
 
@@ -99,7 +99,7 @@ public class ColumnBasedRowEqualityComparerTests
         var person = new TestData.PersonModel();
         var a = new SlimRow() { ["person"] = person, };
         var b = new SlimRow() { ["person"] = person, };
-        var result = new ColumnBasedRowEqualityComparer().Equals(a, b);
+        var result = new AllColumnBasedRowEqualityComparer().Equals(a, b);
         Assert.IsTrue(result);
     }
 
@@ -108,7 +108,7 @@ public class ColumnBasedRowEqualityComparerTests
     {
         var a = new SlimRow() { ["person"] = new TestData.PersonModel(), };
         var b = new SlimRow() { ["person"] = new TestData.PersonModel(), };
-        var result = new ColumnBasedRowEqualityComparer().Equals(a, b);
+        var result = new AllColumnBasedRowEqualityComparer().Equals(a, b);
         Assert.IsFalse(result);
     }
 
@@ -117,7 +117,7 @@ public class ColumnBasedRowEqualityComparerTests
     {
         var a = new SlimRow() { ["color"] = Color.Red, };
         var b = new SlimRow() { ["color"] = Color.Red, };
-        var result = new ColumnBasedRowEqualityComparer().Equals(a, b);
+        var result = new AllColumnBasedRowEqualityComparer().Equals(a, b);
         Assert.IsTrue(result);
     }
 
@@ -126,7 +126,7 @@ public class ColumnBasedRowEqualityComparerTests
     {
         var a = new SlimRow() { ["color"] = Color.Red, };
         var b = new SlimRow() { ["color"] = Color.Black, };
-        var result = new ColumnBasedRowEqualityComparer().Equals(a, b);
+        var result = new AllColumnBasedRowEqualityComparer().Equals(a, b);
         Assert.IsFalse(result);
     }
 }

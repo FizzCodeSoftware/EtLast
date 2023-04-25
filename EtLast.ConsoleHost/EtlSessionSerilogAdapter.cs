@@ -10,80 +10,80 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
 
     public EtlSessionSerilogAdapter(EnvironmentSettings environmentSettings, string devLogFolder, string opsLogFolder)
     {
-        _logger = CreateLogger(environmentSettings, devLogFolder, opsLogFolder);
-        _opsLogger = CreateOpsLogger(environmentSettings, devLogFolder, opsLogFolder);
-        _ioLogger = CreateIoLogger(environmentSettings, devLogFolder, opsLogFolder);
+        _logger = CreateLogger(environmentSettings, devLogFolder);
+        _opsLogger = CreateOpsLogger(environmentSettings, opsLogFolder);
+        _ioLogger = CreateIoLogger(environmentSettings, devLogFolder);
 
         _devLogFolder = devLogFolder;
         _opsLogFolder = opsLogFolder;
     }
 
-    private ILogger CreateLogger(EnvironmentSettings settings, string devLogFolder, string opsLogFolder)
+    private ILogger CreateLogger(EnvironmentSettings settings, string folder)
     {
         var config = new LoggerConfiguration();
 
         if (settings.FileLogSettings.Enabled)
         {
             config = config
-                .WriteTo.File(new CompactJsonFormatter(), Path.Combine(devLogFolder, "events-.json"),
+                .WriteTo.File(new CompactJsonFormatter(), Path.Combine(folder, "events-.json"),
                     restrictedToMinimumLevel: (LogEventLevel)settings.FileLogSettings.MinimumLogLevel,
-                    retainedFileCountLimit: settings.FileLogSettings.RetainSettings.InfoFileCount,
                     rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: settings.FileLogSettings.RetainSettings.InfoFileCount,
                     encoding: Encoding.UTF8)
 
-                .WriteTo.File(Path.Combine(devLogFolder, "2-info-.txt"),
+                .WriteTo.File(Path.Combine(folder, "2-info-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Information,
+                    outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                    formatProvider: CultureInfo.InvariantCulture,
+                    rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: settings.FileLogSettings.RetainSettings.InfoFileCount,
-                    outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
-                    rollingInterval: RollingInterval.Day,
-                    formatProvider: CultureInfo.InvariantCulture,
                     encoding: Encoding.UTF8)
 
-                .WriteTo.File(Path.Combine(devLogFolder, "3-warning-.txt"),
+                .WriteTo.File(Path.Combine(folder, "3-warning-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Warning,
-                    retainedFileCountLimit: settings.FileLogSettings.RetainSettings.ImportantFileCount,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
-                    rollingInterval: RollingInterval.Day,
                     formatProvider: CultureInfo.InvariantCulture,
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: settings.FileLogSettings.RetainSettings.ImportantFileCount,
                     encoding: Encoding.UTF8)
 
-                .WriteTo.File(Path.Combine(devLogFolder, "4-error-.txt"),
+                .WriteTo.File(Path.Combine(folder, "4-error-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Error,
-                    retainedFileCountLimit: settings.FileLogSettings.RetainSettings.ImportantFileCount,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
-                    rollingInterval: RollingInterval.Day,
                     formatProvider: CultureInfo.InvariantCulture,
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: settings.FileLogSettings.RetainSettings.ImportantFileCount,
                     encoding: Encoding.UTF8)
 
-                .WriteTo.File(Path.Combine(devLogFolder, "5-fatal-.txt"),
+                .WriteTo.File(Path.Combine(folder, "5-fatal-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Fatal,
-                    retainedFileCountLimit: settings.FileLogSettings.RetainSettings.ImportantFileCount,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
-                    rollingInterval: RollingInterval.Day,
                     formatProvider: CultureInfo.InvariantCulture,
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: settings.FileLogSettings.RetainSettings.ImportantFileCount,
                     encoding: Encoding.UTF8);
 
             if (settings.FileLogSettings.MinimumLogLevel <= LogSeverity.Debug)
             {
                 config = config
-                    .WriteTo.File(Path.Combine(devLogFolder, "1-debug-.txt"),
+                    .WriteTo.File(Path.Combine(folder, "1-debug-.txt"),
                         restrictedToMinimumLevel: LogEventLevel.Debug,
-                        retainedFileCountLimit: settings.FileLogSettings.RetainSettings.LowFileCount,
                         outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
-                        rollingInterval: RollingInterval.Day,
                         formatProvider: CultureInfo.InvariantCulture,
+                        rollingInterval: RollingInterval.Day,
+                        retainedFileCountLimit: settings.FileLogSettings.RetainSettings.LowFileCount,
                         encoding: Encoding.UTF8);
             }
 
             if (settings.FileLogSettings.MinimumLogLevel <= LogSeverity.Verbose)
             {
                 config = config
-                    .WriteTo.File(Path.Combine(devLogFolder, "0-verbose-.txt"),
+                    .WriteTo.File(Path.Combine(folder, "0-verbose-.txt"),
                         restrictedToMinimumLevel: LogEventLevel.Verbose,
-                        retainedFileCountLimit: settings.FileLogSettings.RetainSettings.LowFileCount,
                         outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
-                        rollingInterval: RollingInterval.Day,
                         formatProvider: CultureInfo.InvariantCulture,
+                        rollingInterval: RollingInterval.Day,
+                        retainedFileCountLimit: settings.FileLogSettings.RetainSettings.LowFileCount,
                         encoding: Encoding.UTF8);
             }
         }
@@ -105,43 +105,43 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
         return config.CreateLogger();
     }
 
-    private ILogger CreateOpsLogger(EnvironmentSettings settings, string devLogFolder, string opsLogFolder)
+    private ILogger CreateOpsLogger(EnvironmentSettings settings, string folder)
     {
         var config = new LoggerConfiguration();
 
         if (settings.FileLogSettings.Enabled)
         {
             config = config
-                .WriteTo.File(Path.Combine(opsLogFolder, "2-info-.txt"),
+                .WriteTo.File(Path.Combine(folder, "2-info-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Information,
+                    outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                    formatProvider: CultureInfo.InvariantCulture,
+                    rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: settings.FileLogSettings.RetainSettings.InfoFileCount,
-                    outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
-                    rollingInterval: RollingInterval.Day,
-                    formatProvider: CultureInfo.InvariantCulture,
                     encoding: Encoding.UTF8)
 
-                .WriteTo.File(Path.Combine(opsLogFolder, "3-warning-.txt"),
+                .WriteTo.File(Path.Combine(folder, "3-warning-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Warning,
-                    retainedFileCountLimit: settings.FileLogSettings.RetainSettings.ImportantFileCount,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
-                    rollingInterval: RollingInterval.Day,
                     formatProvider: CultureInfo.InvariantCulture,
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: settings.FileLogSettings.RetainSettings.ImportantFileCount,
                     encoding: Encoding.UTF8)
 
-                .WriteTo.File(Path.Combine(opsLogFolder, "4-error-.txt"),
+                .WriteTo.File(Path.Combine(folder, "4-error-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Error,
-                    retainedFileCountLimit: settings.FileLogSettings.RetainSettings.ImportantFileCount,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
-                    rollingInterval: RollingInterval.Day,
                     formatProvider: CultureInfo.InvariantCulture,
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: settings.FileLogSettings.RetainSettings.ImportantFileCount,
                     encoding: Encoding.UTF8)
 
-                .WriteTo.File(Path.Combine(opsLogFolder, "5-fatal-.txt"),
+                .WriteTo.File(Path.Combine(folder, "5-fatal-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Fatal,
-                    retainedFileCountLimit: settings.FileLogSettings.RetainSettings.ImportantFileCount,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
-                    rollingInterval: RollingInterval.Day,
                     formatProvider: CultureInfo.InvariantCulture,
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: settings.FileLogSettings.RetainSettings.ImportantFileCount,
                     encoding: Encoding.UTF8);
         }
 
@@ -150,19 +150,19 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
         return config.CreateLogger();
     }
 
-    private ILogger CreateIoLogger(EnvironmentSettings settings, string devLogFolder, string opsLogFolder)
+    private ILogger CreateIoLogger(EnvironmentSettings settings, string folder)
     {
         var config = new LoggerConfiguration();
 
         if (settings.FileLogSettings.Enabled)
         {
             config = config
-                .WriteTo.File(Path.Combine(devLogFolder, "io-.txt"),
+                .WriteTo.File(Path.Combine(folder, "io-.txt"),
                     restrictedToMinimumLevel: (LogEventLevel)settings.FileLogSettings.MinimumLogLevelIo,
-                    retainedFileCountLimit: settings.FileLogSettings.RetainSettings.LowFileCount,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
-                    rollingInterval: RollingInterval.Day,
                     formatProvider: CultureInfo.InvariantCulture,
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: settings.FileLogSettings.RetainSettings.LowFileCount,
                     encoding: Encoding.UTF8);
         }
 
@@ -283,6 +283,8 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
             }
             catch (Exception)
             {
+                if (!Directory.Exists(logsFolder))
+                    return;
             }
         }
 

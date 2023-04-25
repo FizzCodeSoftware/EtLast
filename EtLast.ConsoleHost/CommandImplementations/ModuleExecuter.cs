@@ -4,11 +4,7 @@ internal static class ModuleExecuter
 {
     public static IExecutionResult Execute(Host host, CompiledModule module, string[] taskNames)
     {
-        var executionResult = new ExecutionResult
-        {
-            TaskResults = new List<TaskExectionResult>(),
-        };
-
+        var executionResult = new ExecutionResult();
         var instance = Environment.MachineName;
         var arguments = new ArgumentCollection(module.DefaultArgumentProviders, module.InstanceArgumentProviders, instance);
 
@@ -71,7 +67,7 @@ internal static class ModuleExecuter
 
         var taskResults = new List<TaskExectionResult>();
 
-        var pipe = new Pipe(context);
+        var pipe = new FlowState(context);
 
         try
         {
@@ -100,7 +96,7 @@ internal static class ModuleExecuter
 
                 try
                 {
-                    task.SetContext(context, true);
+                    task.SetContext(context);
                     task.Execute(null, pipe);
 
                     taskResults.Add(new TaskExectionResult(task));

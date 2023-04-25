@@ -14,7 +14,7 @@ public static class AssertOrderedMatchCSharpGenerator
             sb.AppendLine(" });");
         }
 
-        var exceptions = result.Process.Pipe.Exceptions;
+        var exceptions = result.Process.FlowState.Exceptions;
         sb.Append("\t\tAssert.AreEqual(").Append(exceptions.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", result.Process.Pipe.Exceptions.Count);");
 
         for (var i = 0; i < exceptions.Count; i++)

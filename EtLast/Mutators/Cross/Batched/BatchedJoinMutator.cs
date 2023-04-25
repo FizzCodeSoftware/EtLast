@@ -2,7 +2,7 @@
 
 public sealed class BatchedJoinMutator : AbstractBatchedCrossMutator
 {
-    public Dictionary<string, string> Columns { get; init; }
+    public required Dictionary<string, string> Columns { get; init; }
     public NoMatchAction NoMatchAction { get; init; }
     public MatchActionDelegate MatchCustomAction { get; init; }
 
@@ -53,7 +53,7 @@ public sealed class BatchedJoinMutator : AbstractBatchedCrossMutator
         var lookup = LookupBuilder.Build(this, rows.ToArray());
         foreach (var row in rows)
         {
-            if (Pipe.IsTerminating)
+            if (FlowState.IsTerminating)
                 break;
 
             var key = GenerateRowKey(row);
@@ -101,7 +101,7 @@ public sealed class BatchedJoinMutator : AbstractBatchedCrossMutator
                     if (CopyTag)
                         newRow.Tag = row.Tag;
 
-                    InvokeCustomMatchAction(row, newRow, match);
+                    InvokeCustomMatchAction(newRow, match);
 
                     mutatedRows.Add(newRow);
                 }
@@ -134,7 +134,7 @@ public sealed class BatchedJoinMutator : AbstractBatchedCrossMutator
         lookup.Clear();
     }
 
-    private void InvokeCustomMatchAction(IReadOnlySlimRow row, IRow newRow, IReadOnlySlimRow match)
+    private void InvokeCustomMatchAction(IRow newRow, IReadOnlySlimRow match)
     {
         try
         {

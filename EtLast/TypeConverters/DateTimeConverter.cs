@@ -2,7 +2,7 @@
 
 public class DateTimeConverter : ITypeConverter, ITextConverter
 {
-    public DateTime? EpochDate { get; set; }
+    public DateTime? EpochDate { get; init; }
 
     public virtual object Convert(object source)
     {
@@ -49,7 +49,7 @@ public class DateTimeConverter : ITypeConverter, ITextConverter
         return null;
     }
 
-    public object Convert(TextReaderStringBuilder source)
+    public object Convert(TextBuilder source)
     {
         var span = source.GetContentAsSpan();
         if (EpochDate != null && double.TryParse(span, NumberStyles.Any, CultureInfo.InvariantCulture, out var dv))

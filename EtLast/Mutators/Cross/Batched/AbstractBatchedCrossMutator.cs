@@ -3,8 +3,8 @@
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractBatchedCrossMutator : AbstractBatchedMutator
 {
-    public FilteredRowLookupBuilder LookupBuilder { get; init; }
-    public RowKeyGenerator RowKeyGenerator { get; init; }
+    public required FilteredRowLookupBuilder LookupBuilder { get; init; }
+    public required RowKeyGenerator RowKeyGenerator { get; init; }
 
     protected AbstractBatchedCrossMutator(IEtlContext context)
         : base(context)

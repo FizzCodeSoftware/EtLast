@@ -13,7 +13,7 @@ public class TaskExectionResult
     public string TaskKind { get; }
     public string TaskTopic { get; }
     public IExecutionStatistics Statistics { get; }
-    public Dictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; }
+    public IReadOnlyDictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; }
     public List<Exception> Exceptions { get; }
 
     public TaskExectionResult(IEtlTask task)
@@ -24,6 +24,6 @@ public class TaskExectionResult
         TaskTopic = task.GetTopic();
         Statistics = task.Statistics;
         IoCommandCounters = task.IoCommandCounters;
-        Exceptions = task.Pipe.Exceptions.ToList();
+        Exceptions = task.FlowState.Exceptions.ToList();
     }
 }

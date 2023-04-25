@@ -3,8 +3,8 @@
 namespace FizzCode.EtLast;
 public sealed class HttpDownloadToLocalFile : AbstractJob
 {
-    public string Url { get; init; }
-    public string FileName { get; init; }
+    public required string Url { get; init; }
+    public required string FileName { get; init; }
 
     public HttpDownloadToLocalFile(IEtlContext context)
         : base(context)

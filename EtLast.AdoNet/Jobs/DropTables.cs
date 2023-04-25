@@ -2,7 +2,7 @@
 
 public sealed class DropTables : AbstractSqlStatements
 {
-    public string[] TableNames { get; init; }
+    public required string[] TableNames { get; init; }
 
     public DropTables(IEtlContext context)
         : base(context)

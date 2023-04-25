@@ -5,7 +5,7 @@ public sealed class HungarianTaxNumberConverter : StringConverter
     /// <summary>
     /// Default true.
     /// </summary>
-    public bool AutomaticallyAddHyphens { get; init; } = true;
+    public required bool AutomaticallyAddHyphens { get; init; } = true;
 
     public static Dictionary<int, string> RegionNames { get; } = CreateRegionNamesDictionary();
     private static readonly int[] _checkSumNumbers = new[] { 9, 7, 3, 1, 9, 7, 3 };
@@ -37,7 +37,7 @@ public sealed class HungarianTaxNumberConverter : StringConverter
 
         if (automaticallyAddHyphens && value.Length == 11 && !value.Contains('-', StringComparison.InvariantCultureIgnoreCase))
         {
-            value = value.Substring(0, 8) + "-" + value.Substring(8, 1) + "-" + value.Substring(9, 2);
+            value = value[..8] + "-" + value.Substring(8, 1) + "-" + value.Substring(9, 2);
         }
 
         return value;
@@ -52,7 +52,7 @@ public sealed class HungarianTaxNumberConverter : StringConverter
             if (value.Length != 11)
                 return false;
 
-            parts = new[] { value.Substring(0, 8), value.Substring(8, 1), value.Substring(9, 2) };
+            parts = new[] { value[..8], value.Substring(8, 1), value.Substring(9, 2) };
         }
         else
         {

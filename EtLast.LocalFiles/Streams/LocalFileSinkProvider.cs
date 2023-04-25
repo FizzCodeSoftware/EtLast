@@ -1,23 +1,23 @@
 ﻿namespace FizzCode.EtLast;
 
-public enum LocalSinkFileExistsAction { None, Exception, Overwrite }
+public enum LocalSinkFileExistsAction { Continue, Exception, DeleteAndContinue }
 
 public class LocalFileSinkProvider : ISinkProvider
 {
     /// <summary>
     /// Generates file name based on a partition key.
     /// </summary>
-    public Func<string, string> FileNameGenerator { get; init; }
+    public required Func<string, string> FileNameGenerator { get; init; }
 
     /// <summary>
     /// Default value is <see cref="LocalSinkFileExistsAction.Exception"/>.
     /// </summary>
-    public LocalSinkFileExistsAction ActionWhenFileExists { get; init; } = LocalSinkFileExistsAction.Exception;
+    public required LocalSinkFileExistsAction ActionWhenFileExists { get; init; } = LocalSinkFileExistsAction.Exception;
 
     /// <summary>
     /// Default value is <see cref="FileMode.Append"/>.
     /// </summary>
-    public FileMode FileMode { get; init; } = FileMode.Append;
+    public required FileMode FileMode { get; init; } = FileMode.Append;
 
     /// <summary>
     /// Default value is <see cref="FileAccess.Write"/>.
@@ -34,7 +34,7 @@ public class LocalFileSinkProvider : ISinkProvider
     public void Validate(IProcess caller)
     {
         if (FileNameGenerator == null)
-            throw new ProcessParameterNullException(caller, "SinkProvider." + nameof(FileNameGenerator));
+            throw new ProcessParameterNullException(caller, nameof(FileNameGenerator));
     }
 
     public NamedSink GetSink(IProcess caller, string partitionKey)
@@ -44,7 +44,7 @@ public class LocalFileSinkProvider : ISinkProvider
         var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileWrite, Path.GetDirectoryName(fileName), Path.GetFileName(fileName), null, null, null, null,
             "writing to local file {FileName}", fileName);
 
-        if (File.Exists(fileName))
+        if (ActionWhenFileExists != LocalSinkFileExistsAction.Continue && File.Exists(fileName))
         {
             if (ActionWhenFileExists == LocalSinkFileExistsAction.Exception)
             {
@@ -55,7 +55,7 @@ public class LocalFileSinkProvider : ISinkProvider
                 caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, 0, exception);
                 throw exception;
             }
-            else if (ActionWhenFileExists == LocalSinkFileExistsAction.Overwrite)
+            else if (ActionWhenFileExists == LocalSinkFileExistsAction.DeleteAndContinue)
             {
                 try
                 {

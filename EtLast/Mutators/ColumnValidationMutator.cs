@@ -4,17 +4,17 @@ public delegate bool ColumnValidationDelegate(ColumnValidationMutator process, I
 
 public sealed class ColumnValidationMutator : AbstractMutator
 {
-    public string Column { get; init; }
+    public required string Column { get; init; }
 
     /// <summary>
-    /// Default value is "validation failed"
+    /// If this delegate returns false then the corresponding value of the row will be replaced with an <see cref="EtlRowError"/>
     /// </summary>
-    public string ErrorMessage { get; init; } = "validation failed";
+    public required ColumnValidationDelegate Test { get; init; }
 
     /// <summary>
-    /// If this delegate returns false then the corresponding value of the row will be replaced with an <see cref="EtlRowError"/>.
+    /// Error message in the <see cref="EtlRowError"/>
     /// </summary>
-    public ColumnValidationDelegate Test { get; init; }
+    public required string ErrorMessage { get; init; }
 
     public ColumnValidationMutator(IEtlContext context)
         : base(context)
@@ -39,6 +39,9 @@ public sealed class ColumnValidationMutator : AbstractMutator
 
         if (Test == null)
             throw new ProcessParameterNullException(this, nameof(Test));
+
+        if (string.IsNullOrEmpty(ErrorMessage))
+            throw new ProcessParameterNullException(this, nameof(ErrorMessage));
     }
 }
 

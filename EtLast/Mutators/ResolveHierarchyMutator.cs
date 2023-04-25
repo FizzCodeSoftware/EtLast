@@ -2,16 +2,16 @@
 
 public sealed class ResolveHierarchyMutator : AbstractSimpleChangeMutator
 {
-    public string IdentityColumn { get; init; }
-    public string[] LevelColumns { get; init; }
-    public string NewColumnWithParentId { get; init; }
-    public string NewColumnWithName { get; init; }
-    public string NewColumnWithLevel { get; init; }
+    public required string IdentityColumn { get; init; }
+    public required string[] LevelColumns { get; init; }
+    public required string NewColumnWithParentId { get; init; }
+    public required string NewColumnWithName { get; init; }
+    public required string NewColumnWithLevel { get; init; }
 
     /// <summary>
     /// Default value is false.
     /// </summary>
-    public bool RemoveLevelColumns { get; init; }
+    public required bool RemoveLevelColumns { get; init; }
 
     private object[] _lastIdOfLevel;
 

@@ -80,7 +80,7 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
         EtlConnectionManager.ReleaseConnection(this, ref _connection);
     }
 
-    protected override void ProcessHeartBeatRow(IReadOnlySlimRow row, HeartBeatTag tag)
+    protected override void ProcessHeartBeatTag(HeartBeatTag tag)
     {
         if (_rowsWritten > 0 && _lastWrite != null && _reader.RowCount > 0 && _reader.RowCount < BatchSize && _lastWrite.ElapsedMilliseconds >= ForceWriteAfterNoDataMilliseconds)
         {

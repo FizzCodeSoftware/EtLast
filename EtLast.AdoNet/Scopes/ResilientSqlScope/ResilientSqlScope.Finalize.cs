@@ -2,11 +2,13 @@
 
 public sealed partial class ResilientSqlScope : AbstractJob, IScope
 {
-    private void Finalize(Pipe pipe)
+    private void FinalizeScope()
     {
+        var flowState = new FlowState(Context);
+
         for (var round = 0; round <= FinalizerRetryCount; round++)
         {
-            if (Pipe.IsTerminating)
+            if (flowState.IsTerminating)
                 return;
 
             Context.Log(LogSeverity.Information, this, "finalization round {FinalizationRound} started", round);
@@ -14,16 +16,16 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
             {
                 using (var scope = Context.BeginTransactionScope(this, FinalizerTransactionScopeKind, LogSeverity.Information))
                 {
-                    CreateAndExecutePreFinalizers(pipe);
+                    CreateAndExecutePreFinalizers(flowState);
 
-                    if (!pipe.IsTerminating)
+                    if (!flowState.IsTerminating)
                     {
-                        CreateAndExecuteFinalizers(pipe);
-                        if (!pipe.IsTerminating)
+                        CreateAndExecuteFinalizers(flowState);
+                        if (!flowState.IsTerminating)
                         {
-                            CreateAndExecutePostFinalizers(pipe);
+                            CreateAndExecutePostFinalizers(flowState);
 
-                            if (!pipe.IsTerminating)
+                            if (!flowState.IsTerminating)
                                 scope.Complete();
                         }
                     }
@@ -31,20 +33,20 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
             }
             catch (Exception ex)
             {
-                pipe.AddException(this, ex);
+                flowState.AddException(this, ex);
             }
 
-            if (!pipe.IsTerminating)
+            if (!flowState.IsTerminating)
                 return;
 
             if (round >= FinalizerRetryCount)
             {
-                Pipe.TakeExceptions(pipe);
+                flowState.TakeExceptions(flowState);
             }
         }
     }
 
-    private void CreateAndExecutePostFinalizers(Pipe pipe)
+    private void CreateAndExecutePostFinalizers(FlowState flowState)
     {
         if (PostFinalizers != null)
         {
@@ -64,16 +66,16 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 
                 foreach (var process in processes)
                 {
-                    process.Execute(this, pipe);
+                    process.Execute(this, flowState);
 
-                    if (pipe.IsTerminating)
+                    if (flowState.IsTerminating)
                         break;
                 }
             }
         }
     }
 
-    private void CreateAndExecuteFinalizers(Pipe pipe)
+    private void CreateAndExecuteFinalizers(FlowState flowState)
     {
         var tablesOrderedTemp = new List<TableWithOrder>();
         for (var i = 0; i < Tables.Count; i++)
@@ -177,16 +179,16 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
                         Process = process,
                     });
 
-                    process.Execute(this, pipe);
+                    process.Execute(this, flowState);
 
-                    if (pipe.IsTerminating)
+                    if (flowState.IsTerminating)
                         break;
                 }
             }
         }
     }
 
-    private void CreateAndExecutePreFinalizers(Pipe pipe)
+    private void CreateAndExecutePreFinalizers(FlowState flowState)
     {
         if (PreFinalizers == null)
             return;
@@ -207,9 +209,9 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 
             foreach (var process in processes)
             {
-                process.Execute(this, pipe);
+                process.Execute(this, flowState);
 
-                if (pipe.IsTerminating)
+                if (flowState.IsTerminating)
                     break;
             }
         }

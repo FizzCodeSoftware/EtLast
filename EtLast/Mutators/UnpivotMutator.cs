@@ -3,8 +3,8 @@
 public sealed class UnpivotMutator : AbstractMutator
 {
     public Dictionary<string, string> FixColumns { get; init; }
-    public string NewColumnForDimension { get; init; }
-    public string NewColumnForValue { get; init; }
+    public required string NewColumnForDimension { get; init; }
+    public required string NewColumnForValue { get; init; }
 
     /// <summary>
     /// Default value is true.

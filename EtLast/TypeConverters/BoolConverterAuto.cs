@@ -2,8 +2,8 @@
 
 public class BoolConverterAuto : BoolConverter
 {
-    public string KnownTrueString { get; set; }
-    public string KnownFalseString { get; set; }
+    public string KnownTrueString { get; init; }
+    public string KnownFalseString { get; init; }
 
     public override object Convert(object source)
     {
@@ -13,9 +13,11 @@ public class BoolConverterAuto : BoolConverter
             {
                 case "TRUE":
                 case "YES":
+                case "1":
                     return true;
                 case "FALSE":
                 case "NO":
+                case "0":
                     return false;
             }
 
@@ -29,7 +31,7 @@ public class BoolConverterAuto : BoolConverter
         return base.Convert(source);
     }
 
-    public override object Convert(TextReaderStringBuilder source)
+    public override object Convert(TextBuilder source)
     {
         var span = source.GetContentAsSpan().Trim();
         if (span.Equals("TRUE", StringComparison.InvariantCultureIgnoreCase) ||

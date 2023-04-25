@@ -7,13 +7,16 @@ public sealed class MsSqlDropForeignKeys : AbstractSqlStatements
     /// <summary>
     /// Default value is <see cref="MsSqlDropForeignKeysProcessMode.ToSpecifiedTables"/>
     /// </summary>
-    public MsSqlDropForeignKeysProcessMode Mode { get; init; } = MsSqlDropForeignKeysProcessMode.ToSpecifiedTables;
+    public required MsSqlDropForeignKeysProcessMode Mode { get; init; } = MsSqlDropForeignKeysProcessMode.ToSpecifiedTables;
 
     /// <summary>
     /// Table names must include schema name.
     /// </summary>
     public string[] TableNames { get; init; }
 
+    /// <summary>
+    /// Must be set if <see cref="Mode"/> is set to <see cref="MsSqlDropForeignKeysProcessMode.InSpecifiedSchema"/> or <see cref="MsSqlDropForeignKeysProcessMode.ToSpecifiedSchema"/>
+    /// </summary>
     public string SchemaName { get; init; }
 
     public MsSqlDropForeignKeys(IEtlContext context)

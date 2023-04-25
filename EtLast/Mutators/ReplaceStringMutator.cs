@@ -2,14 +2,14 @@
 
 public sealed class ReplaceStringMutator : AbstractMutator
 {
-    public string ColumnName { get; init; }
-    public string OldString { get; init; }
-    public string NewString { get; init; }
+    public required string ColumnName { get; init; }
+    public required string OldString { get; init; }
+    public required string NewString { get; init; }
 
     /// <summary>
     /// Default value is <see cref="StringComparison.InvariantCulture"/>.
     /// </summary>
-    public StringComparison StringComparison { get; init; } = StringComparison.InvariantCulture;
+    public required StringComparison StringComparison { get; init; } = StringComparison.InvariantCulture;
 
     public ReplaceStringMutator(IEtlContext context)
         : base(context)

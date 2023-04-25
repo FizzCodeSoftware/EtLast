@@ -2,8 +2,12 @@
 
 public sealed class StoredProcedureAdoNetDbReader : AbstractAdoNetDbReader
 {
-    public string Sql { get; init; }
-    public string MainTableName { get; init; }
+    public required string Sql { get; init; }
+
+    /// <summary>
+    /// The name the SP is referred in the logs.
+    /// </summary>
+    public required string MainTableName { get; init; }
 
     public StoredProcedureAdoNetDbReader(IEtlContext context)
         : base(context)

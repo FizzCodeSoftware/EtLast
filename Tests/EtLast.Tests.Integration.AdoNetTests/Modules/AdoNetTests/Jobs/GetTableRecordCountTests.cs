@@ -10,31 +10,33 @@ public class GetTableRecordCountTests : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    public override IEnumerable<IProcess> CreateJobs()
+    public override void Execute(IFlow flow)
     {
-        yield return new CustomSqlStatement(Context)
-        {
-            Name = "CreateTableAndInsertContent",
-            ConnectionString = ConnectionString,
-            SqlStatement = $"CREATE TABLE {nameof(GetTableRecordCountTests)} (Id INT NOT NULL, DateTimeValue DATETIME2);" +
+        flow
+            .OnSuccess(() => new CustomSqlStatement(Context)
+            {
+                Name = "CreateTableAndInsertContent",
+                ConnectionString = ConnectionString,
+                SqlStatement = $"CREATE TABLE {nameof(GetTableRecordCountTests)} (Id INT NOT NULL, DateTimeValue DATETIME2);" +
                     $"INSERT INTO {nameof(GetTableRecordCountTests)} (Id, DateTimeValue) VALUES (1, '2022.07.08');" +
                     $"INSERT INTO {nameof(GetTableRecordCountTests)} (Id, DateTimeValue) VALUES (2, '2022.07.09');",
-        };
-
-        yield return new CustomJob(Context)
-        {
-            Name = "CheckRecordCount",
-            Action = job =>
+                MainTableName = nameof(GetTableRecordCountTests),
+            })
+            .OnSuccess(() => new CustomJob(Context)
             {
-                var result = new GetTableRecordCount(Context)
+                Name = "CheckRecordCount",
+                Action = job =>
                 {
-                    Name = "GetRecordCount",
-                    ConnectionString = ConnectionString,
-                    TableName = ConnectionString.Escape(nameof(GetTableRecordCountTests)),
-                }.ExecuteWithResult(job);
+                    var result = new GetTableRecordCount(Context)
+                    {
+                        Name = "GetRecordCount",
+                        ConnectionString = ConnectionString,
+                        TableName = ConnectionString.Escape(nameof(GetTableRecordCountTests)),
+                        WhereClause = null,
+                    }.ExecuteWithResult(job);
 
-                Assert.AreEqual(2, result);
-            }
-        };
+                    Assert.AreEqual(2, result);
+                }
+            });
     }
 }

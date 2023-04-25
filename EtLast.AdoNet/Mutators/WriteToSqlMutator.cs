@@ -59,7 +59,7 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
         EtlConnectionManager.ReleaseConnection(this, ref _connection);
     }
 
-    protected override void ProcessHeartBeatRow(IReadOnlySlimRow row, HeartBeatTag tag)
+    protected override void ProcessHeartBeatTag(HeartBeatTag tag)
     {
         if (_rowsWritten > 0 && _lastWrite != null && _command != null && _statements.Count > 0 && _lastWrite.ElapsedMilliseconds >= ForceWriteAfterNoDataMilliseconds)
         {
@@ -122,7 +122,7 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
         var parameter = _command.CreateParameter();
         parameter.ParameterName = "@" + _command.Parameters.Count.ToString("D", CultureInfo.InvariantCulture);
 
-        SetParameter(parameter, value, dbColumnDefinition.DbType, ConnectionString);
+        SetParameter(parameter, value, dbColumnDefinition.DbType);
 
         _command.Parameters.Add(parameter);
     }
@@ -240,7 +240,7 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
             throw new ProcessParameterNullException(this, nameof(TableDefinition));
     }
 
-    public static void SetParameter(IDbDataParameter parameter, object value, DbType? dbType, NamedConnectionString connectionString)
+    public static void SetParameter(IDbDataParameter parameter, object value, DbType? dbType)
     {
         if (value == null)
         {

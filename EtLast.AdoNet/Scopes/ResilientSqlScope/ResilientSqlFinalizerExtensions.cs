@@ -21,7 +21,7 @@ public static class ResilientSqlFinalizerExtensions
             ConnectionString = builder.Table.Scope.ConnectionString,
             TableName = builder.Table.TableName,
             CommandTimeout = commandTimeout,
-            CustomWhereClause = customWhereClause,
+            WhereClause = customWhereClause,
         });
     }
 

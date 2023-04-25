@@ -2,8 +2,9 @@
 
 public sealed class JoinMutator : AbstractCrossMutator
 {
-    public RowKeyGenerator RowKeyGenerator { get; init; }
-    public Dictionary<string, string> Columns { get; init; }
+    public required RowKeyGenerator RowKeyGenerator { get; init; }
+    public required Dictionary<string, string> Columns { get; init; }
+
     public NoMatchAction NoMatchAction { get; init; }
     public MatchActionDelegate MatchCustomAction { get; init; }
 
@@ -91,7 +92,7 @@ public sealed class JoinMutator : AbstractCrossMutator
                 if (CopyTag)
                     newRow.Tag = row.Tag;
 
-                InvokeCustomMatchAction(row, newRow, match);
+                InvokeCustomMatchAction(newRow, match);
 
                 yield return newRow;
             }
@@ -119,7 +120,7 @@ public sealed class JoinMutator : AbstractCrossMutator
             yield return row;
     }
 
-    private void InvokeCustomMatchAction(IReadOnlySlimRow row, IRow newRow, IReadOnlySlimRow match)
+    private void InvokeCustomMatchAction(IRow newRow, IReadOnlySlimRow match)
     {
         try
         {

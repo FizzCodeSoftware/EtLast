@@ -4,10 +4,15 @@ public enum DelimitedLineHeader { NoHeader, HasHeader, IgnoreHeader }
 
 public sealed class DelimitedLineReader : AbstractRowSource
 {
-    public IStreamProvider StreamProvider { get; init; }
+    public required IStreamProvider StreamProvider { get; init; }
 
     public Dictionary<string, TextReaderColumn> Columns { get; init; }
     public TextReaderDefaultColumn DefaultColumns { get; init; }
+
+    /// <summary>
+    /// Default <see cref="DelimitedLineHeader.NoHeader"/>.
+    /// </summary>
+    public required DelimitedLineHeader Header { get; init; }
 
     /// <summary>
     /// Default true.
@@ -18,11 +23,6 @@ public sealed class DelimitedLineReader : AbstractRowSource
     /// Default true. If a value starts and ends with double quote (") characters, then both will be removed (this happens before type conversion)
     /// </summary>
     public bool RemoveSurroundingDoubleQuotes { get; init; } = true;
-
-    /// <summary>
-    /// Default <see cref="DelimitedLineHeader.NoHeader"/>.
-    /// </summary>
-    public DelimitedLineHeader Header { get; init; }
 
     /// <summary>
     /// Default null. Column names must be set if <see cref="Header"/> is <see cref="DelimitedLineHeader.NoHeader"/> or <see cref="DelimitedLineHeader.IgnoreHeader"/>, otherwise it should be left null.
@@ -37,7 +37,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
     /// <summary>
     /// Default value is ';'.
     /// </summary>
-    public char Delimiter { get; init; } = ';';
+    public required char Delimiter { get; init; } = ';';
 
     /// <summary>
     /// Default value is 0
@@ -89,7 +89,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
         var initialValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
         var columnCount = 0;
 
-        var builder = new TextReaderStringBuilder();
+        var builder = new TextBuilder();
 
         // capture for performance
         var delimiter = Delimiter;
@@ -107,7 +107,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
             if (stream == null)
                 yield break;
 
-            if (Pipe.IsTerminating)
+            if (FlowState.IsTerminating)
                 break;
 
             var firstRow = true;
@@ -323,7 +323,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
                                 if (builderLength > 0)
                                 {
                                     // x
-                                    NewMethod(columnMap, initialValues, columnCount, builder, removeSurroundingDoubleQuotes, columns, builderLength, hasColumnNames);
+                                    NewMethod(columnMap, initialValues, columnCount, builder, removeSurroundingDoubleQuotes, columns, hasColumnNames);
                                     columnCount++;
                                     // x
 
@@ -354,7 +354,6 @@ public sealed class DelimitedLineReader : AbstractRowSource
                                     columnCount++;
                                 }
                             }
-
                         }
                     }
                     else
@@ -365,7 +364,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
                         {
                             if (hasColumnNames)
                             {
-                                NewMethod(columnMap, initialValues, columnCount, builder, removeSurroundingDoubleQuotes, columns, builderLength, hasColumnNames);
+                                NewMethod(columnMap, initialValues, columnCount, builder, removeSurroundingDoubleQuotes, columns, hasColumnNames);
                                 columnCount++;
                             }
 
@@ -442,7 +441,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
                         initialValues.Clear();
                         columnCount = 0;
 
-                        if (Pipe.IsTerminating)
+                        if (FlowState.IsTerminating)
                             break;
                     }
                 }
@@ -466,7 +465,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
         public TextReaderDefaultColumn Column { get; set; }
     }
 
-    private void NewMethod(Dictionary<string, (string rowColumn, TextReaderColumn config)> columnMap, Dictionary<string, object> initialValues, int columnCount, TextReaderStringBuilder builder, bool removeSurroundingDoubleQuotes, List<MappedColumn> columns, int builderLength, bool hasColumnNames)
+    private void NewMethod(Dictionary<string, (string rowColumn, TextReaderColumn config)> columnMap, Dictionary<string, object> initialValues, int columnCount, TextBuilder builder, bool removeSurroundingDoubleQuotes, List<MappedColumn> columns, bool hasColumnNames)
     {
         if (removeSurroundingDoubleQuotes)
             builder.RemoveSurroundingDoubleQuotes();

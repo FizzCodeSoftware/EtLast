@@ -2,7 +2,7 @@
 
 public sealed class DropViews : AbstractSqlStatements
 {
-    public string[] TableNames { get; init; }
+    public required string[] TableNames { get; init; }
 
     public DropViews(IEtlContext context)
         : base(context)

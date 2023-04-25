@@ -12,7 +12,7 @@ public sealed class MsSqlEnableConstraintCheck : AbstractSqlStatements
     public override string GetTopic()
     {
         return ConnectionString != null && TableNames?.Length > 0
-            ? string.Join(",", TableNames.Select(x => ConnectionString.Unescape(x)))
+            ? string.Join(",", TableNames.Select(ConnectionString.Unescape))
             : null;
     }
 

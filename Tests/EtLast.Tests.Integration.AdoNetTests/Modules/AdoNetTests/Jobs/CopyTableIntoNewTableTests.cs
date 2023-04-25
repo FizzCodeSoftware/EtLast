@@ -10,47 +10,47 @@ public class CopyTableIntoNewTableTests : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
-    public override IEnumerable<IProcess> CreateJobs()
+    public override void Execute(IFlow flow)
     {
-        yield return new CustomSqlStatement(Context)
-        {
-            Name = "CreateSourceTable",
-            ConnectionString = ConnectionString,
-            SqlStatement = $"CREATE TABLE {nameof(CopyTableIntoNewTableTests)} (Id INT NOT NULL, Value NVARCHAR(255));" +
+        flow
+            .OnSuccess(() => new CustomSqlStatement(Context)
+            {
+                Name = "CreateSourceTable",
+                ConnectionString = ConnectionString,
+                SqlStatement = $"CREATE TABLE {nameof(CopyTableIntoNewTableTests)} (Id INT NOT NULL, Value NVARCHAR(255));" +
                     $"INSERT INTO {nameof(CopyTableIntoNewTableTests)} (Id, Value) VALUES (1, 'etlast');" +
                     $"INSERT INTO {nameof(CopyTableIntoNewTableTests)} (Id, Value) VALUES (2, 'CopyTableIntoExistingTableTest');",
-        };
-
-        yield return new CopyTableIntoNewTable(Context)
-        {
-            ConnectionString = ConnectionString,
-            Configuration = new TableCopyConfiguration()
+                MainTableName = nameof(CopyTableIntoNewTableTests),
+            })
+            .OnSuccess(() => new CopyTableIntoNewTable(Context)
             {
-                SourceTableName = $"{nameof(CopyTableIntoNewTableTests)}",
-                TargetTableName = $"{nameof(CopyTableIntoNewTableTests)}Target"
-            }
-        };
-
-        yield return new CustomJob(Context)
-        {
-            Name = "CheckTargetTableContents",
-            Action = job =>
+                ConnectionString = ConnectionString,
+                Configuration = new TableCopyConfiguration()
+                {
+                    SourceTableName = nameof(CopyTableIntoNewTableTests),
+                    TargetTableName = $"{nameof(CopyTableIntoNewTableTests)}Target"
+                }
+            })
+            .OnSuccess(() => new CustomJob(Context)
             {
-                var result = SequenceBuilder.Fluent
-                .ReadFrom(new AdoNetDbReader(Context)
+                Name = "CheckTargetTableContents",
+                Action = job =>
                 {
-                    Name = "Read target table contents",
-                    ConnectionString = ConnectionString,
-                    TableName = $"{nameof(CopyTableIntoNewTableTests)}Target"
-                }).Build().TakeRowsAndReleaseOwnership(this).ToList();
+                    var result = SequenceBuilder.Fluent
+                    .ReadFrom(new AdoNetDbReader(Context)
+                    {
+                        Name = "Read target table contents",
+                        ConnectionString = ConnectionString,
+                        TableName = $"{nameof(CopyTableIntoNewTableTests)}Target"
+                    }).Build().TakeRowsAndReleaseOwnership(this).ToList();
 
-                Assert.AreEqual(2, result.Count);
-                Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>()
-                {
-                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Value"] = "etlast" },
-                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Value"] = "CopyTableIntoExistingTableTest" }
-                });
-            }
-        };
+                    Assert.AreEqual(2, result.Count);
+                    Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>()
+                    {
+                        new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Value"] = "etlast" },
+                        new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Value"] = "CopyTableIntoExistingTableTest" }
+                    });
+                }
+            });
     }
 }

@@ -6,28 +6,29 @@ public class NetTime : AbstractEtlTask
     {
     }
 
-    public override IEnumerable<IProcess> CreateJobs()
+    public override void Execute(IFlow flow)
     {
-        yield return CreateSequence(1);
-        yield return CreateSequence(100);
-        yield return CreateSequence(10000);
+        flow
+            .OnSuccess(() => CreateSequence(1))
+            .OnSuccess(() => CreateSequence(100))
+            .OnSuccess(() => CreateSequence(10000));
     }
 
     private ISequence CreateSequence(int mod)
     {
         return SequenceBuilder.Fluent
-        .ImportEnumerable(new EnumerableImporter(Context)
-        {
-            Name = "SlowSource",
-            InputGenerator = process => DelayedInputGenerator(process, 1000000 / mod, mod),
-        })
-        .CustomCode("QuickMutator", row => true)
-        .CustomCode("SlowMutator", row =>
-        {
-            ExpensiveStuff(mod);
-            return true;
-        })
-        .Build();
+            .ImportEnumerable(new EnumerableImporter(Context)
+            {
+                Name = "SlowSource",
+                InputGenerator = process => DelayedInputGenerator(process, 1000000 / mod, mod),
+            })
+            .CustomCode("QuickMutator", row => true)
+            .CustomCode("SlowMutator", row =>
+            {
+                ExpensiveStuff(mod);
+                return true;
+            })
+            .Build();
     }
 
     private IEnumerable<IReadOnlySlimRow> DelayedInputGenerator(EnumerableImporter process, int count, int mod)

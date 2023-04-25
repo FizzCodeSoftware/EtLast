@@ -5,7 +5,6 @@ internal class Default : IDefaultArgumentProvider
     public Dictionary<string, object> Arguments => new()
     {
         ["DatabaseName"] = "EtLastIntegrationTest",
-        ["CreateDatabase:Definition"] = () => new TestDwhDefinition(),
         ["ExceptionTest:ExceptionType"] = typeof(Exception),
         ["ExceptionTest:Message"] = (IArgumentCollection args) =>
             "oops something went wrong while trowing fake exceptions while processing the database called ["

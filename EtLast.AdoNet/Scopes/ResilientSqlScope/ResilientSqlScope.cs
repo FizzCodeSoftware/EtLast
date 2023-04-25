@@ -131,20 +131,19 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
         {
             CreateTempTables();
 
-            if (Pipe.IsTerminating)
+            if (FlowState.IsTerminating)
                 return;
 
-            var initializerPipe = new Pipe(Context);
-            Initialize(initializerPipe);
-            if (Pipe.Failed)
+            InitializeScope();
+            if (FlowState.Failed)
             {
-                Context.Log(LogSeverity.Information, this, "initialization failed after {Elapsed}", InvocationInfo.LastInvocationStarted.Elapsed);
+                Context.Log(LogSeverity.Information, this, "initialization failed after {Elapsed}", InvocationInfo.InvocationStarted.Elapsed);
                 return;
             }
 
             foreach (var table in Tables)
             {
-                if (Pipe.Failed)
+                if (FlowState.Failed)
                     return;
 
                 for (var partitionIndex = 0; ; partitionIndex++)
@@ -171,7 +170,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
                         foreach (var process in mainProcessList)
                         {
                             process.Execute(this);
-                            if (Pipe.IsTerminating)
+                            if (FlowState.IsTerminating)
                                 return;
                         }
 
@@ -190,7 +189,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 
                     var rowCount = mainProducer.CountRowsAndReleaseOwnership(null);
 
-                    if (Pipe.IsTerminating)
+                    if (FlowState.IsTerminating)
                         return;
 
                     if (rowCount == 0)
@@ -198,14 +197,13 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
                 }
             }
 
-            var finalizerPipe = new Pipe(Context);
-            Finalize(finalizerPipe);
+            FinalizeScope();
         }
         finally
         {
             if (TempTableMode != ResilientSqlScopeTempTableMode.AlwaysKeep)
             {
-                if (!Pipe.Failed || TempTableMode == ResilientSqlScopeTempTableMode.AlwaysDrop)
+                if (!FlowState.Failed || TempTableMode == ResilientSqlScopeTempTableMode.AlwaysDrop)
                 {
                     DropTempTables();
                 }
@@ -220,6 +218,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
             Name = "TempRecordCountReader",
             ConnectionString = ConnectionString,
             TableName = table.TempTableName,
+            WhereClause = null,
         }.ExecuteWithResult(this);
 
         return count;

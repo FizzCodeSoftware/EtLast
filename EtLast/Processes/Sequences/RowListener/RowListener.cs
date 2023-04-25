@@ -4,12 +4,12 @@ namespace FizzCode.EtLast.Processes.Producers.RowListener;
 
 public sealed class RowListener : AbstractRowSource, IRowListener
 {
-    public Action<IRowListener> Worker { get; set; }
+    public required Action<IRowListener> Worker { get; init; }
 
     /// <summary>
     /// Default value is 1000.
     /// </summary>
-    public int HeartBeatMilliseconds { get; set; } = 1000;
+    public required int HeartBeatMilliseconds { get; init; } = 1000;
 
     private ConcurrentQueue<IReadOnlySlimRow> _queue;
 
@@ -34,17 +34,19 @@ public sealed class RowListener : AbstractRowSource, IRowListener
         var rowCount = 0;
 
         thread.Start();
-        while (!Pipe.IsTerminating)
+        while (!FlowState.IsTerminating)
         {
             var hbElapsed = hbTimer.ElapsedMilliseconds;
             if (hbElapsed >= HeartBeatMilliseconds)
             {
                 var hbRow = Context.CreateRow(this);
-                hbRow["Index"] = hbCount;
-                hbRow["RowCount"] = rowCount;
-                hbRow["Now"] = DateTimeOffset.Now;
-                if (hbCount > 0)
-                    hbRow["Elapsed"] = hbElapsed;
+                hbRow.Tag = new HeartBeatTag()
+                {
+                    Index = hbCount,
+                    RowCount = rowCount,
+                    Timestamp = DateTimeOffset.Now,
+                    ElapsedMilliseconds = hbElapsed,
+                };
 
                 yield return hbRow;
                 hbCount++;
@@ -54,12 +56,11 @@ public sealed class RowListener : AbstractRowSource, IRowListener
             {
                 yield return Context.CreateRow(this, row);
                 rowCount++;
-                continue;
+                continue; // no sleep when queue has a row
             }
-            else if (!thread.IsAlive)
-            {
+
+            if (!thread.IsAlive)
                 break;
-            }
 
             Thread.Sleep(1);
         }

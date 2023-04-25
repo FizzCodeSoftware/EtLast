@@ -11,8 +11,8 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
 
-    public Func<IReadOnlyRow, string> KeyGenerator { get; init; }
-    public ReduceGroupToSingleRowDelegate Selector { get; init; }
+    public required Func<IReadOnlyRow, string> KeyGenerator { get; init; }
+    public required ReduceGroupToSingleRowDelegate Selector { get; init; }
 
     /// <summary>
     /// Default false. Setting to true means the Selector won't be called for groups with a single row - which can improve performance and/or introduce side effects.
@@ -45,7 +45,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
         var mutatedRowCount = 0;
         var ignoredRowCount = 0;
         var resultRowCount = 0;
-        while (!Pipe.IsTerminating)
+        while (!FlowState.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -72,7 +72,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
                 }
                 catch (Exception ex)
                 {
-                    Pipe.AddException(this, ex, row);
+                    FlowState.AddException(this, ex, row);
                     break;
                 }
 
@@ -94,7 +94,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
                 }
                 catch (Exception ex)
                 {
-                    Pipe.AddException(this, ex, row);
+                    FlowState.AddException(this, ex, row);
                     break;
                 }
 
@@ -114,7 +114,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
             {
                 lastKey = key;
 
-                var groupRow = ReduceGroup(group, Pipe);
+                var groupRow = ReduceGroup(group);
 
                 if (groupRow != null)
                 {
@@ -125,7 +125,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
                 }
             }
 
-            if (!Pipe.IsTerminating)
+            if (!FlowState.IsTerminating)
             {
                 group.Add(row);
             }
@@ -133,9 +133,9 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
 
         netTimeStopwatch.Start();
 
-        if (!Pipe.IsTerminating && group.Count > 0)
+        if (!FlowState.IsTerminating && group.Count > 0)
         {
-            var groupRow = ReduceGroup(group, Pipe);
+            var groupRow = ReduceGroup(group);
             if (groupRow != null)
             {
                 resultRowCount++;
@@ -149,7 +149,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
             mutatedRowCount, mutatedRowCount + ignoredRowCount, resultRowCount);
     }
 
-    private IRow ReduceGroup(List<IRow> group, Pipe pipe)
+    private IRow ReduceGroup(List<IRow> group)
     {
         if (group.Count == 0)
             return null;
@@ -163,7 +163,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
             }
             catch (Exception ex)
             {
-                pipe.AddException(this, ex);
+                FlowState.AddException(this, ex);
                 return null;
             }
 

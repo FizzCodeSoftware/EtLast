@@ -11,19 +11,19 @@ public sealed class BasicScope : AbstractJob, IScope
     public IEnumerable<ProcessCreatorDelegate> JobCreators { get; set; }
 
     /// <summary>
-    /// Default value is <see cref="TransactionScopeKind.None"/>.
+    /// Default value is <see cref="TransactionScopeKind.Required"/>
     /// </summary>
-    public TransactionScopeKind TransactionScopeKind { get; set; } = TransactionScopeKind.None;
+    public required TransactionScopeKind TransactionScopeKind { get; init; } = TransactionScopeKind.Required;
 
     /// <summary>
-    /// Default value is <see cref="TransactionScopeKind.None"/> which means creation of the jobs happens directly within the caller scope.
+    /// Default value is <see cref="TransactionScopeKind.None"/>
     /// </summary>
-    public TransactionScopeKind CreationTransactionScopeKind { get; set; } = TransactionScopeKind.None;
+    public required TransactionScopeKind CreationTransactionScopeKind { get; init; } = TransactionScopeKind.None;
 
     /// <summary>
     /// Default value is true.
     /// </summary>
-    public bool StopOnError { get; set; } = true;
+    public required bool StopOnError { get; init; } = true;
 
     public EventHandler<BasicScopeProcessFailedEventArgs> OnFailure { get; set; }
 
@@ -48,29 +48,29 @@ public sealed class BasicScope : AbstractJob, IScope
                 var success = true;
                 foreach (var creator in creators)
                 {
-                    IProcess[] jobs = null;
+                    IProcess[] processList = null;
                     using (var creatorScope = Context.BeginTransactionScope(this, CreationTransactionScopeKind, LogSeverity.Information))
                     {
-                        jobs = creator.Invoke(this).Where(x => x != null).ToArray();
+                        processList = creator.Invoke(this).Where(x => x != null).ToArray();
                     }
 
-                    if (jobs.Length == 0)
+                    if (processList.Length == 0)
                         continue;
 
-                    foreach (var job in jobs)
+                    foreach (var process in processList)
                     {
-                        var isolatedPipe = new Pipe(Context);
-                        job.Execute(this, isolatedPipe);
+                        var isolatedFlow = new FlowState(Context);
+                        process.Execute(this, isolatedFlow);
 
-                        if (isolatedPipe.Failed)
+                        if (isolatedFlow.Failed)
                         {
-                            OnFailure?.Invoke(this, new BasicScopeProcessFailedEventArgs(this, job));
+                            OnFailure?.Invoke(this, new BasicScopeProcessFailedEventArgs(this, process));
                         }
 
                         if (StopOnError)
-                            Pipe.TakeExceptions(isolatedPipe);
+                            FlowState.TakeExceptions(isolatedFlow);
 
-                        if (Pipe.IsTerminating)
+                        if (FlowState.IsTerminating)
                         {
                             success = false;
                             break;
@@ -84,7 +84,7 @@ public sealed class BasicScope : AbstractJob, IScope
         }
         catch (Exception ex)
         {
-            Pipe.AddException(this, ex);
+            FlowState.AddException(this, ex);
         }
     }
 }

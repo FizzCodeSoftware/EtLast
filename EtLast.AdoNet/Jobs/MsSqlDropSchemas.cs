@@ -2,7 +2,7 @@
 
 public sealed class MsSqlDropSchemas : AbstractSqlStatements
 {
-    public string[] SchemaNames { get; init; }
+    public required string[] SchemaNames { get; init; }
 
     public MsSqlDropSchemas(IEtlContext context)
         : base(context)

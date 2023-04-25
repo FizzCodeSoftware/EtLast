@@ -2,13 +2,13 @@
 
 public sealed class EpPlusPreLoadedSimpleRowWriterMutator : AbstractMutator, IRowSink
 {
-    public ExcelPackage PreLoadedFile { get; init; }
-    public string SheetName { get; init; }
+    public required ExcelPackage PreLoadedFile { get; init; }
+    public required string SheetName { get; init; }
 
     /// <summary>
     /// Key is the output column title AND the column in the row (later can be customized by setting a <see cref="ExcelColumn"/>).
     /// </summary>
-    public Dictionary<string, ExcelColumn> Columns { get; init; }
+    public required Dictionary<string, ExcelColumn> Columns { get; init; }
 
     public Action<ExcelPackage, SimpleExcelWriterState> Finalize { get; init; }
 

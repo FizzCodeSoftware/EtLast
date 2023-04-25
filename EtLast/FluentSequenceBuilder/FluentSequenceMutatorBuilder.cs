@@ -2,14 +2,9 @@
 
 internal sealed class FluentSequenceMutatorBuilder : IFluentSequenceMutatorBuilder
 {
-    public IFluentSequenceBuilder ProcessBuilder { get; }
-    internal RowTestDelegate AutomaticallySetRowFilter { get; set; }
-    internal RowTagTestDelegate AutomaticallySetRowTagFilter { get; set; }
-
-    internal FluentSequenceMutatorBuilder(IFluentSequenceBuilder parent)
-    {
-        ProcessBuilder = parent;
-    }
+    public required IFluentSequenceBuilder ProcessBuilder { get; init; }
+    internal required RowTestDelegate AutomaticallySetRowFilter { get; init; }
+    internal required RowTagTestDelegate AutomaticallySetRowTagFilter { get; init; }
 
     public IFluentSequenceMutatorBuilder AddMutator(IMutator mutator)
     {
@@ -42,24 +37,24 @@ internal sealed class FluentSequenceMutatorBuilder : IFluentSequenceMutatorBuild
 
     public IFluentSequenceMutatorBuilder If(RowTestDelegate rowTester, Action<IFluentSequenceMutatorBuilder> builder)
     {
-        var tempBuilder = new FluentSequenceMutatorBuilder(ProcessBuilder)
+        builder.Invoke(new FluentSequenceMutatorBuilder()
         {
+            ProcessBuilder = ProcessBuilder,
             AutomaticallySetRowFilter = rowTester,
-        };
-
-        builder.Invoke(tempBuilder);
+            AutomaticallySetRowTagFilter = null,
+        });
 
         return this;
     }
 
     public IFluentSequenceMutatorBuilder IfTag(RowTagTestDelegate tagTester, Action<IFluentSequenceMutatorBuilder> builder)
     {
-        var tempBuilder = new FluentSequenceMutatorBuilder(ProcessBuilder)
+        builder.Invoke(new FluentSequenceMutatorBuilder()
         {
+            ProcessBuilder = ProcessBuilder,
+            AutomaticallySetRowFilter = null,
             AutomaticallySetRowTagFilter = tagTester,
-        };
-
-        builder.Invoke(tempBuilder);
+        });
 
         return this;
     }

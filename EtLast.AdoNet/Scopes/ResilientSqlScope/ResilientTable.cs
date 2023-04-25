@@ -10,7 +10,7 @@ public sealed class ResilientTable : ResilientTableBase
     /// <summary>
     /// Setting this to true forces the scope to suppress the ambient transaction scope while calling the process- and finalizer creator delegates. Default value is false.
     /// </summary>
-    public bool SuppressTransactionScopeForCreators { get; set; }
+    public bool SuppressTransactionScopeForCreators { get; init; }
 
     public ResilientTablePartitionedProducerCreatorDelegate PartitionedProducerCreator { get; set; }
     public ResilientTableJobCreatorDelegate JobCreator { get; set; }
@@ -42,7 +42,7 @@ public class ResilientTableBase
     /// <summary>
     /// Table name must be escaped.
     /// </summary>
-    public string TableName { get; init; }
+    public required string TableName { get; init; }
 
     private string _tempTableName;
     public string TempTableName
@@ -57,7 +57,7 @@ public class ResilientTableBase
     /// </summary>
     public string[] Columns { get; init; }
 
-    public Action<ResilientSqlTableTableFinalizerBuilder> Finalizers { get; set; }
+    public required Action<ResilientSqlTableTableFinalizerBuilder> Finalizers { get; set; }
 
     public override string ToString()
     {

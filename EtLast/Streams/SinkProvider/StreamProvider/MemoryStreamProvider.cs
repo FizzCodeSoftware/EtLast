@@ -2,7 +2,7 @@
 
 public class MemoryStreamProvider : IStreamProvider
 {
-    public Func<MemoryStream> StreamCreator { get; init; }
+    public required Func<MemoryStream> StreamCreator { get; init; }
 
     private readonly string _streamName = "MemoryStream";
     private readonly string _streamLocation = "memory";

@@ -1,5 +1,4 @@
-﻿#pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
-
+﻿
 namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
 public class DropDatabase : AbstractEtlTask
@@ -16,26 +15,26 @@ public class DropDatabase : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(DatabaseName));
     }
 
-    public override IEnumerable<IProcess> CreateJobs()
+    public override void Execute(IFlow flow)
     {
-        yield return new CustomJob(Context)
-        {
-            Name = "DropDatabase",
-            Action = job =>
+        flow
+            .OnSuccess(() => new CustomJob(Context)
             {
-                Microsoft.Data.SqlClient.SqlConnection.ClearAllPools();
+                Name = "DropDatabase",
+                Action = job =>
+                {
+                    Microsoft.Data.SqlClient.SqlConnection.ClearAllPools();
 
-                job.Context.Log(LogSeverity.Information, job, "opening connection to {DatabaseName}", "master");
-                using var connection = DbProviderFactories.GetFactory(ConnectionStringMaster.ProviderName).CreateConnection();
-                connection.ConnectionString = ConnectionStringMaster.ConnectionString;
-                connection.Open();
+                    job.Context.Log(LogSeverity.Information, job, "opening connection to {DatabaseName}", "master");
+                    using var connection = DbProviderFactories.GetFactory(ConnectionStringMaster.ProviderName).CreateConnection();
+                    connection.ConnectionString = ConnectionStringMaster.ConnectionString;
+                    connection.Open();
 
-                job.Context.Log(LogSeverity.Information, job, "dropping database {DatabaseName}", DatabaseName);
-                using var dropCommand = connection.CreateCommand();
-                dropCommand.CommandText = "IF EXISTS(select * from sys.databases where name='" + DatabaseName + "') ALTER DATABASE [" + DatabaseName + "] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE IF EXISTS [" + DatabaseName + "]";
-                dropCommand.ExecuteNonQuery();
-            }
-        };
+                    job.Context.Log(LogSeverity.Information, job, "dropping database {DatabaseName}", DatabaseName);
+                    using var dropCommand = connection.CreateCommand();
+                    dropCommand.CommandText = "IF EXISTS(select * from sys.databases where name='" + DatabaseName + "') ALTER DATABASE [" + DatabaseName + "] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE IF EXISTS [" + DatabaseName + "]";
+                    dropCommand.ExecuteNonQuery();
+                }
+            });
     }
 }
-#pragma warning restore CA2100 // Review SQL queries for security vulnerabilities

@@ -14,7 +14,7 @@ public class RowLookupTests
             KeyGenerator = row => row.GenerateKey("id"),
         };
 
-        builder.Append(lookup, null);
+        builder.AddTo(lookup, null);
         Assert.AreEqual(7, lookup.Keys.Count());
         Assert.AreEqual(7, lookup.Count);
         Assert.AreEqual(1, lookup.CountByKey("0"));
@@ -37,7 +37,7 @@ public class RowLookupTests
             KeyGenerator = row => row.GenerateKey("age"),
         };
 
-        builder.Append(lookup, null);
+        builder.AddTo(lookup, null);
         Assert.AreEqual(6, lookup.Keys.Count());
         Assert.AreEqual(6, lookup.Count);
         Assert.AreEqual(1, lookup.CountByKey("17"));
@@ -60,7 +60,7 @@ public class RowLookupTests
             KeyGenerator = row => row.GenerateKey("name"),
         };
 
-        builder.Append(lookup, null);
+        builder.AddTo(lookup, null);
         Assert.AreEqual(6, lookup.Keys.Count());
         Assert.AreEqual(2, lookup.CountByKey("A"));
         Assert.AreEqual(1, lookup.CountByKey("B"));

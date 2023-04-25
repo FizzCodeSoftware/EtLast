@@ -2,7 +2,7 @@
 
 public sealed class CopyTableStructure : AbstractSqlStatements
 {
-    public List<TableCopyConfiguration> Configuration { get; init; }
+    public required List<TableCopyConfiguration> Configuration { get; init; }
 
     public CopyTableStructure(IEtlContext context)
         : base(context)

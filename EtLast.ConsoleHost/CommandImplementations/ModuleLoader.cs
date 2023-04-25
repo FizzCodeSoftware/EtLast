@@ -52,11 +52,8 @@ internal static class ModuleLoader
                 LoadContext = null,
             };
 
-            host.HostLogger.Debug("{FlowCount} flows(s) found: {Task}",
-                module.TaskTypes.Count(x => x.IsAssignableTo(typeof(AbstractEtlFlow))), module.TaskTypes.Where(x => x.IsAssignableTo(typeof(AbstractEtlFlow))).Select(task => task.Name).ToArray());
-
             host.HostLogger.Debug("{TaskCount} task(s) found: {Task}",
-                module.TaskTypes.Count(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))), module.TaskTypes.Where(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))).Select(task => task.Name).ToArray());
+                module.TaskTypes.Count(x => !x.IsAssignableTo(typeof(AbstractEtlTask))), module.TaskTypes.Where(x => !x.IsAssignableTo(typeof(AbstractEtlTask))).Select(task => task.Name).ToArray());
 
             return ExecutionStatusCode.Success;
         }
@@ -120,11 +117,8 @@ internal static class ModuleLoader
                 LoadContext = assemblyLoadContext,
             };
 
-            host.HostLogger.Debug("{FlowCount} flows(s) found: {Task}",
-                module.TaskTypes.Count(x => x.IsAssignableTo(typeof(AbstractEtlFlow))), module.TaskTypes.Where(x => x.IsAssignableTo(typeof(AbstractEtlFlow))).Select(task => task.Name).ToArray());
-
             host.HostLogger.Debug("{TaskCount} task(s) found: {Task}",
-                module.TaskTypes.Count(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))), module.TaskTypes.Where(x => !x.IsAssignableTo(typeof(AbstractEtlFlow))).Select(task => task.Name).ToArray());
+                module.TaskTypes.Count(x => !x.IsAssignableTo(typeof(AbstractEtlTask))), module.TaskTypes.Where(x => !x.IsAssignableTo(typeof(AbstractEtlTask))).Select(task => task.Name).ToArray());
 
             return ExecutionStatusCode.Success;
         }
@@ -155,6 +149,7 @@ internal static class ModuleLoader
             var match = false;
             foreach (var loadedAssembly in loadedAssemblies)
             {
+#pragma warning disable RCS1075 // Avoid empty catch clause that catches System.Exception.
                 try
                 {
                     if (string.Equals(fn, loadedAssembly.Location, StringComparison.InvariantCultureIgnoreCase))
@@ -179,6 +174,7 @@ internal static class ModuleLoader
                 {
                 }
             }
+#pragma warning restore RCS1075 // Avoid empty catch clause that catches System.Exception.
         }
     }
 

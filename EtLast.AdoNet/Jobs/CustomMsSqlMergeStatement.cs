@@ -2,17 +2,22 @@
 
 public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
 {
-    public string SourceTableName { get; init; }
+    public required string SourceTableName { get; init; }
+    public required string TargetTableName { get; init; }
+    public required string OnCondition { get; init; }
+
     public string SourceTableAlias { get; init; }
-    public string TargetTableName { get; init; }
     public string TargetTableAlias { get; init; }
-    public string OnCondition { get; init; }
+
     public string WhenMatchedCondition { get; init; }
     public string WhenMatchedAction { get; init; }
+
     public string WhenNotMatchedByTargetCondition { get; init; }
     public string WhenNotMatchedByTargetAction { get; init; }
+
     public string WhenNotMatchedBySourceCondition { get; init; }
     public string WhenNotMatchedBySourceAction { get; init; }
+
     public Dictionary<string, object> Parameters { get; init; }
 
     /// <summary>
@@ -43,6 +48,9 @@ public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
 
         if (string.IsNullOrEmpty(TargetTableName))
             throw new ProcessParameterNullException(this, nameof(TargetTableName));
+
+        if (string.IsNullOrEmpty(OnCondition))
+            throw new ProcessParameterNullException(this, nameof(OnCondition));
     }
 
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)
@@ -118,7 +126,7 @@ public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
             exception.Data["ConnectionStringName"] = ConnectionString.Name;
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = CommandTimeout;
-            exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
+            exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
             Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteMerge, iocUid, null, exception);
             throw exception;

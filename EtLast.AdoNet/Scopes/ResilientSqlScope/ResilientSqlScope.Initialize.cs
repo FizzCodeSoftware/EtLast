@@ -2,14 +2,15 @@
 
 public sealed partial class ResilientSqlScope : AbstractJob, IScope
 {
-    private void Initialize(Pipe pipe)
+    private void InitializeScope()
     {
         if (Initializers == null)
             return;
 
+        var flowState = new FlowState(Context);
         for (var round = 0; round <= FinalizerRetryCount; round++)
         {
-            if (Pipe.IsTerminating)
+            if (flowState.IsTerminating)
                 return;
 
             Context.Log(LogSeverity.Information, this, "initialization round {InitializationRound} started", round);
@@ -17,28 +18,28 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
             {
                 using (var scope = Context.BeginTransactionScope(this, InitializationTransactionScopeKind, LogSeverity.Information))
                 {
-                    CreateAndExecuteInitializers(pipe);
+                    CreateAndExecuteInitializers(flowState);
 
-                    if (!pipe.IsTerminating)
+                    if (!flowState.IsTerminating)
                         scope.Complete();
                 } // dispose scope
             }
             catch (Exception ex)
             {
-                pipe.AddException(this, ex);
+                flowState.AddException(this, ex);
             }
 
-            if (!pipe.IsTerminating)
+            if (!flowState.IsTerminating)
                 return;
 
             if (round >= FinalizerRetryCount)
             {
-                Pipe.TakeExceptions(pipe);
+                flowState.TakeExceptions(flowState);
             }
         }
     }
 
-    private void CreateAndExecuteInitializers(Pipe pipe)
+    private void CreateAndExecuteInitializers(FlowState flowState)
     {
         IProcess[] initializers;
 
@@ -57,9 +58,9 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 
             foreach (var process in initializers)
             {
-                process.Execute(this, pipe);
+                process.Execute(this, flowState);
 
-                if (pipe.IsTerminating)
+                if (flowState.IsTerminating)
                     break;
             }
         }

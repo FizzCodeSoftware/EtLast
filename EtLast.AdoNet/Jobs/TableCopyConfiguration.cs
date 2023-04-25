@@ -2,8 +2,8 @@
 
 public sealed class TableCopyConfiguration
 {
-    public string SourceTableName { get; init; }
-    public string TargetTableName { get; init; }
+    public required string SourceTableName { get; init; }
+    public required string TargetTableName { get; init; }
 
     /// <summary>
     /// Optional. In case of NULL all columns will be copied to the target table.

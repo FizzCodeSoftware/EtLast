@@ -12,8 +12,8 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
 
-    public Func<IReadOnlyRow, string> KeyGenerator { get; init; }
-    public ReduceGroupToSingleRowDelegate Selector { get; init; }
+    public required Func<IReadOnlyRow, string> KeyGenerator { get; init; }
+    public required ReduceGroupToSingleRowDelegate Selector { get; init; }
 
     /// <summary>
     /// Default false. Setting to true means the Selector won't be called for groups with a single row - which can improve performance and/or introduce side effects.
@@ -45,7 +45,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
         var mutatedRowCount = 0;
         var ignoredRowCount = 0;
         var resultRowCount = 0;
-        while (!Pipe.IsTerminating)
+        while (!FlowState.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -72,7 +72,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    Pipe.AddException(this, ex, row);
+                    FlowState.AddException(this, ex, row);
                     break;
                 }
 
@@ -94,7 +94,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    Pipe.AddException(this, ex, row);
+                    FlowState.AddException(this, ex, row);
                     break;
                 }
 
@@ -135,7 +135,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
 
         foreach (var group in groups.Values)
         {
-            if (Pipe.IsTerminating)
+            if (FlowState.IsTerminating)
                 break;
 
             var singleRow = group as IRow;
@@ -171,7 +171,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
             }
             catch (Exception ex)
             {
-                Pipe.AddException(this, ex);
+                FlowState.AddException(this, ex);
                 break;
             }
 

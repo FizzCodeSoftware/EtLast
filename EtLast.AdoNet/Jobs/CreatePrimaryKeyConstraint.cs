@@ -2,9 +2,9 @@
 
 public sealed class CreatePrimaryKeyConstraint : AbstractSqlStatement
 {
-    public string TableName { get; init; }
-    public string ConstraintName { get; init; }
-    public string[] Columns { get; init; }
+    public required string TableName { get; init; }
+    public required string ConstraintName { get; init; }
+    public required string[] Columns { get; init; }
 
     public CreatePrimaryKeyConstraint(IEtlContext context)
         : base(context)
@@ -58,7 +58,7 @@ public sealed class CreatePrimaryKeyConstraint : AbstractSqlStatement
             exception.Data["TableName"] = ConnectionString.Unescape(TableName);
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = CommandTimeout;
-            exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
+            exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
             Context.RegisterIoCommandFailed(this, IoCommandKind.dbDelete, iocUid, null, exception);
             throw exception;

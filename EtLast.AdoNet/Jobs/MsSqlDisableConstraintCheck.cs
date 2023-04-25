@@ -2,7 +2,7 @@
 
 public sealed class MsSqlDisableConstraintCheck : AbstractSqlStatements
 {
-    public string[] TableNames { get; init; }
+    public required string[] TableNames { get; init; }
 
     public MsSqlDisableConstraintCheck(IEtlContext context)
         : base(context)
@@ -12,7 +12,7 @@ public sealed class MsSqlDisableConstraintCheck : AbstractSqlStatements
     public override string GetTopic()
     {
         return ConnectionString != null && TableNames?.Length > 0
-            ? string.Join(",", TableNames.Select(x => ConnectionString.Unescape(x)))
+            ? string.Join(",", TableNames.Select(ConnectionString.Unescape))
             : null;
     }
 

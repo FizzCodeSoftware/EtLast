@@ -14,16 +14,17 @@ public class ThrowException : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(Message));
     }
 
-    public override IEnumerable<IProcess> CreateJobs()
+    public override void Execute(IFlow flow)
     {
-        yield return new CustomJob(Context)
-        {
-            Name = nameof(ThrowException),
-            Action = _ =>
+        flow
+            .OnSuccess(() => new CustomJob(Context)
             {
-                var ex = (Exception)Activator.CreateInstance(ExceptionType, new object[] { Message });
-                throw ex;
-            },
-        };
+                Name = nameof(ThrowException),
+                Action = _ =>
+                {
+                    var ex = (Exception)Activator.CreateInstance(ExceptionType, new object[] { Message });
+                    throw ex;
+                },
+            });
     }
 }

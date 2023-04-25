@@ -3,7 +3,7 @@
 public sealed class Splitter<TRowQueue> : AbstractSequence
     where TRowQueue : IRowQueue, new()
 {
-    public ISequence InputProcess { get; set; }
+    public required ISequence InputProcess { get; init; }
 
     private TRowQueue _queue;
     private Thread _feederThread;
@@ -50,7 +50,7 @@ public sealed class Splitter<TRowQueue> : AbstractSequence
 
         foreach (var row in rows)
         {
-            if (Pipe.IsTerminating)
+            if (FlowState.IsTerminating)
                 break;
 
             _queue.AddRow(row);

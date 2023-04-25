@@ -2,13 +2,14 @@
 
 public sealed class AddKeyHashMutator : AbstractMutator
 {
-    public string[] KeyColumns { get; init; }
-    public string TargetColumn { get; init; }
+    public required string TargetColumn { get; init; }
 
     /// <summary>
-    /// Creates the hash algorithm used by this mutator. Default is <see cref="SHA256.Create()"/>.
+    /// Creates the hash algorithm used by this mutator. Recommendation is <see cref="SHA256.Create()"/>.
     /// </summary>
-    public Func<HashAlgorithm> HashAlgorithmCreator { get; init; } = () => SHA256.Create();
+    public required Func<HashAlgorithm> HashAlgorithmCreator { get; init; }
+
+    public string[] KeyColumns { get; init; }
 
     /// <summary>
     /// Default value is false.
@@ -94,6 +95,7 @@ public static class AddHashMutatorFluent
         {
             TargetColumn = targetColumn,
             KeyColumns = keyColumns,
+            HashAlgorithmCreator = SHA256.Create,
         });
     }
 

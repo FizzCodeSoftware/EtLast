@@ -10,19 +10,7 @@
 /// </summary>
 public class ContinuousAggregationMutator : AbstractAggregationMutator
 {
-    private IContinuousAggregationOperation _operation;
-
-    public IContinuousAggregationOperation Operation
-    {
-        get => _operation;
-        init
-        {
-            //_operation?.SetProcess(null);
-
-            _operation = value;
-            _operation.SetProcess(this);
-        }
-    }
+    public required IContinuousAggregationOperation Operation { get; init; }
 
     public ContinuousAggregationMutator(IEtlContext context)
         : base(context)
@@ -40,9 +28,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
         Dictionary<string, ContinuousAggregate> aggregates = null;
         ContinuousAggregate singleAggregate = null;
         if (KeyGenerator != null)
-        {
             aggregates = new Dictionary<string, ContinuousAggregate>();
-        }
 
         netTimeStopwatch.Stop();
         var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
@@ -50,7 +36,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
 
         var rowCount = 0;
         var ignoredRowCount = 0;
-        while (!Pipe.IsTerminating)
+        while (!FlowState.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -77,7 +63,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
                 }
                 catch (Exception ex)
                 {
-                    Pipe.AddException(this, ex, row);
+                    FlowState.AddException(this, ex, row);
                     break;
                 }
 
@@ -99,7 +85,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
                 }
                 catch (Exception ex)
                 {
-                    Pipe.AddException(this, ex, row);
+                    FlowState.AddException(this, ex, row);
                     break;
                 }
 
@@ -159,7 +145,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
             }
             catch (Exception ex)
             {
-                Pipe.AddException(this, new ContinuousAggregationException(this, Operation, row, ex));
+                FlowState.AddException(this, new ContinuousAggregationException(this, Operation, row, ex));
                 break;
             }
 
@@ -177,7 +163,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
 
             foreach (var aggregate in aggregates.Values)
             {
-                if (Pipe.IsTerminating)
+                if (FlowState.IsTerminating)
                     break;
 
                 var row = Context.CreateRow(this, aggregate.ResultRow);

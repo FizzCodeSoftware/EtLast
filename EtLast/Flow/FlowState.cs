@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class Pipe
+public class FlowState
 {
     public IEtlContext Context { get; }
 
@@ -8,7 +8,7 @@ public class Pipe
     public bool Failed => Exceptions.Count > 0;
     public bool IsTerminating => Context.IsTerminating || Failed;
 
-    public Pipe(IEtlContext context)
+    public FlowState(IEtlContext context)
     {
         Context = context;
     }
@@ -19,7 +19,7 @@ public class Pipe
         {
             foreach (var aexIn in aex.InnerExceptions)
             {
-                AddException(process, aexIn);
+                AddException(process, aexIn); // recursion
             }
 
             return;
@@ -65,7 +65,7 @@ public class Pipe
         Exceptions.Add(ex);
     }
 
-    public string ToLogString()
+    public string StatusToLogString()
     {
         if (Failed)
             return "failed";
@@ -73,7 +73,7 @@ public class Pipe
         return "completed";
     }
 
-    public void TakeExceptions(Pipe from)
+    public void TakeExceptions(FlowState from)
     {
         if (from.Exceptions.Count > 0)
             Exceptions.AddRange(from.Exceptions);

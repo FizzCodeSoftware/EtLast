@@ -3,7 +3,7 @@
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractCrossMutator : AbstractMutator
 {
-    public RowLookupBuilder LookupBuilder { get; init; }
+    public required RowLookupBuilder LookupBuilder { get; init; }
 
     protected AbstractCrossMutator(IEtlContext context)
         : base(context)

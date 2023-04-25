@@ -2,7 +2,7 @@
 
 public class LocalFileStreamProvider : IStreamProvider
 {
-    public string FileName { get; init; }
+    public required string FileName { get; init; }
 
     public static FileStreamOptions DefaultOptions => new()
     {
@@ -34,7 +34,7 @@ public class LocalFileStreamProvider : IStreamProvider
     public void Validate(IProcess caller)
     {
         if (FileName == null)
-            throw new ProcessParameterNullException(caller, "StreamProvider." + nameof(FileName));
+            throw new ProcessParameterNullException(caller, nameof(FileName));
     }
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)

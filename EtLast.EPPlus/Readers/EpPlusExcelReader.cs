@@ -2,7 +2,7 @@
 
 public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
 {
-    public IStreamProvider StreamProvider { get; init; }
+    public required IStreamProvider StreamProvider { get; init; }
 
     public EpPlusExcelReader(IEtlContext context)
         : base(context)
@@ -43,7 +43,7 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
             if (stream == null)
                 continue;
 
-            if (Pipe.IsTerminating)
+            if (FlowState.IsTerminating)
                 break;
 
             ExcelPackage package;

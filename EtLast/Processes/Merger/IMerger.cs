@@ -2,5 +2,5 @@
 
 public interface IMerger : ISequence
 {
-    List<ISequence> SequenceList { get; set; }
+    List<ISequence> SequenceList { get; init; }
 }

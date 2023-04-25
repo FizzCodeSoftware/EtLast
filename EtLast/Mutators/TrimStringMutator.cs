@@ -2,7 +2,7 @@
 
 public sealed class TrimStringMutator : AbstractSimpleChangeMutator
 {
-    public string[] Columns { get; init; }
+    public required string[] Columns { get; init; }
 
     public TrimStringMutator(IEtlContext context)
         : base(context)

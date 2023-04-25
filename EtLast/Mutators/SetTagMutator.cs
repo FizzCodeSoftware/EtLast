@@ -2,7 +2,7 @@
 
 public sealed class SetTagMutator : AbstractMutator
 {
-    public object Tag { get; init; }
+    public required object Tag { get; init; }
 
     public SetTagMutator(IEtlContext context)
         : base(context)

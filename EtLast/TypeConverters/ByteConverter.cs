@@ -2,7 +2,7 @@
 
 public class ByteConverter : ITypeConverter
 {
-    public string[] RemoveSubString { get; set; }
+    public string[] RemoveSubString { get; init; }
 
     public virtual object Convert(object source)
     {

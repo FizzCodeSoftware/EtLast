@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks>net7.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <AssemblyName>FizzCode.EtLast.Tests.Integration.FlowTests</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Tests.Integration.FlowTests</RootNamespace>
@@ -24,6 +24,12 @@
   
   <ItemGroup>
     <Compile Update="Modules\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Update="Modules\FlowTests\Flows\ExampleFlow3.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
   </ItemGroup>

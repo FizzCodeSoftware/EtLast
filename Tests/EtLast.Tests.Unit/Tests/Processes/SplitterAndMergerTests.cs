@@ -40,12 +40,12 @@ public class SplitterAndMergerTests
         Assert.AreEqual(7, results[0].Count);
         Assert.AreEqual(0, results[1].Count);
         Assert.AreEqual(0, results[2].Count);
-        Assert.AreEqual(0, processes[0].Pipe.Exceptions.Count);
-        Assert.AreEqual(0, processes[1].Pipe.Exceptions.Count);
-        Assert.AreEqual(0, processes[2].Pipe.Exceptions.Count);
-        Assert.AreNotEqual(processes[0].Pipe, processes[1].Pipe);
-        Assert.AreNotEqual(processes[0].Pipe, processes[2].Pipe);
-        Assert.AreNotEqual(processes[1].Pipe, processes[2].Pipe);
+        Assert.AreEqual(0, processes[0].FlowState.Exceptions.Count);
+        Assert.AreEqual(0, processes[1].FlowState.Exceptions.Count);
+        Assert.AreEqual(0, processes[2].FlowState.Exceptions.Count);
+        Assert.AreNotEqual(processes[0].FlowState, processes[1].FlowState);
+        Assert.AreNotEqual(processes[0].FlowState, processes[2].FlowState);
+        Assert.AreNotEqual(processes[1].FlowState, processes[2].FlowState);
     }
 
     [TestMethod]
@@ -106,7 +106,7 @@ public class SplitterAndMergerTests
                 || results[2].Any(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
         }
 
-        Assert.AreEqual(0, processes.Sum(x => x.Pipe.Exceptions.Count));
+        Assert.AreEqual(0, processes.Sum(x => x.FlowState.Exceptions.Count));
     }
 
     [TestMethod]
@@ -142,8 +142,8 @@ public class SplitterAndMergerTests
             Assert.AreEqual(3, result.Count(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
         }
 
-        Assert.AreEqual(0, merger.SequenceList.Sum(x => x.Pipe.Exceptions.Count));
-        Assert.AreEqual(0, merger.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, merger.SequenceList.Sum(x => x.FlowState.Exceptions.Count));
+        Assert.AreEqual(0, merger.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -187,8 +187,8 @@ public class SplitterAndMergerTests
             Assert.IsTrue(result.Any(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
         }
 
-        Assert.AreEqual(0, merger.SequenceList.Sum(x => x.Pipe.Exceptions.Count));
-        Assert.AreEqual(0, merger.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, merger.SequenceList.Sum(x => x.FlowState.Exceptions.Count));
+        Assert.AreEqual(0, merger.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -230,6 +230,6 @@ public class SplitterAndMergerTests
             Assert.IsTrue(result.MutatedRows.Any(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
         }
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 }

@@ -1,20 +1,20 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests;
 
-public class Main : AbstractEtlFlow
+public class Main : AbstractEtlTask
 {
     public override void ValidateParameters()
     {
     }
 
-    public override void Execute()
+    public override void Execute(IFlow flow)
     {
-        NewPipe()
-            .StartWith(new EtlRunInfoTest())
-            .OnSuccess(pipe => new EtlRunInfoOptimizedTest())
-            .OnSuccess(pipe => new History1Test())
-            .OnSuccess(pipe => new History2Test())
-            .OnSuccess(pipe => new History3Test())
-            .OnSuccess(pipe => new NullValidityTest())
-            .OnSuccess(pipe => new EtlRunIdForDefaultValidFromTest());
+        flow
+            .OnSuccess(() => new EtlRunInfoTest())
+            .OnSuccess(() => new EtlRunInfoOptimizedTest())
+            .OnSuccess(() => new History1Test())
+            .OnSuccess(() => new History2Test())
+            .OnSuccess(() => new History3Test())
+            .OnSuccess(() => new NullValidityTest())
+            .OnSuccess(() => new EtlRunIdForDefaultValidFromTest());
     }
 }

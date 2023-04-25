@@ -33,7 +33,7 @@ public sealed class ParallelMerger : AbstractMerger
 
                         foreach (var row in rows)
                         {
-                            if (Pipe.IsTerminating)
+                            if (FlowState.IsTerminating)
                                 break;
 
                             queue.AddRow(row);
@@ -98,8 +98,7 @@ public static class ParallelMergerFluent
             var subMutatorBuilder = subBuilder.ReadFrom(splitter);
             mutatorBuilder.Invoke(i, subMutatorBuilder);
 
-            var subProcess = subBuilder.Result;
-            merger.SequenceList.Add(subProcess);
+            merger.SequenceList.Add(subBuilder.Result);
         }
 
         builder.ProcessBuilder.Result = merger;

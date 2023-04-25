@@ -2,7 +2,7 @@
 
 public class LongConverter : ITypeConverter, ITextConverter
 {
-    public string[] RemoveSubString { get; set; }
+    public string[] RemoveSubString { get; init; }
 
     public virtual object Convert(object source)
     {
@@ -62,7 +62,7 @@ public class LongConverter : ITypeConverter, ITextConverter
         return null;
     }
 
-    public object Convert(TextReaderStringBuilder source)
+    public object Convert(TextBuilder source)
     {
         if (RemoveSubString != null)
         {

@@ -2,7 +2,7 @@
 
 public sealed class CopyTableIntoNewTable : AbstractSqlStatement
 {
-    public TableCopyConfiguration Configuration { get; init; }
+    public required TableCopyConfiguration Configuration { get; init; }
 
     /// <summary>
     /// Optional. Default is NULL which means everything will be transferred from the old table to the new table.
@@ -89,7 +89,7 @@ public sealed class CopyTableIntoNewTable : AbstractSqlStatement
 
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = command.CommandTimeout;
-            exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
+            exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
             Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteCopy, iocUid, null, exception);
             throw exception;

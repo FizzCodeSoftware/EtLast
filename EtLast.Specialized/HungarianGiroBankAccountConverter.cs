@@ -5,9 +5,9 @@ public sealed class HungarianGiroBankAccountConverter : StringConverter
     /// <summary>
     /// Default true.
     /// </summary>
-    public bool AutomaticallyAddHyphens { get; init; } = true;
+    public required bool AutomaticallyAddHyphens { get; init; } = true;
 
-    private static readonly int[] _checkSumNumbers = new[] { 9, 7, 3, 1, 9, 7, 3 };
+    private static readonly int[] _checksumNumbers = new[] { 9, 7, 3, 1, 9, 7, 3 };
 
     public HungarianGiroBankAccountConverter(string formatHint = null, IFormatProvider formatProviderHint = null)
         : base(formatHint, formatProviderHint)
@@ -38,7 +38,7 @@ public sealed class HungarianGiroBankAccountConverter : StringConverter
             return value.Length switch
             {
                 16 => string.Concat(value.AsSpan(0, 8), "-", value.AsSpan(8, 8)),
-                24 => string.Concat(value.Substring(0, 8), "-", value.Substring(8, 8), "-", value.Substring(16, 8)),
+                24 => string.Concat(value[..8], "-", value.Substring(8, 8), "-", value.Substring(16, 8)),
                 _ => value,
             };
         }
@@ -55,10 +55,10 @@ public sealed class HungarianGiroBankAccountConverter : StringConverter
             switch (value.Length)
             {
                 case 16:
-                    parts = new[] { value.Substring(0, 8), value.Substring(8, 8) };
+                    parts = new[] { value[..8], value.Substring(8, 8) };
                     break;
                 case 24:
-                    parts = new[] { value.Substring(0, 8), value.Substring(8, 8), value.Substring(16, 8) };
+                    parts = new[] { value[..8], value.Substring(8, 8), value.Substring(16, 8) };
                     break;
                 default:
                     return false;
@@ -79,7 +79,7 @@ public sealed class HungarianGiroBankAccountConverter : StringConverter
             if (!int.TryParse(firstPart[i].ToString(CultureInfo.InvariantCulture), out var digit))
                 return false;
 
-            digitSum += digit * _checkSumNumbers[i];
+            digitSum += digit * _checksumNumbers[i];
         }
 
         var checkSum = digitSum % 10;

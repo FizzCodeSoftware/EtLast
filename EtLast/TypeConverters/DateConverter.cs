@@ -2,7 +2,7 @@
 
 public class DateConverter : ITypeConverter, ITextConverter
 {
-    public DateTime? EpochDate { get; set; }
+    public DateTime? EpochDate { get; init; }
 
     // https://en.wikipedia.org/wiki/Epoch_(reference_date)
     public static DateTime ExcelEpochDate { get; } = new DateTime(1899, 12, 30);
@@ -55,7 +55,7 @@ public class DateConverter : ITypeConverter, ITextConverter
         return null;
     }
 
-    public object Convert(TextReaderStringBuilder source)
+    public object Convert(TextBuilder source)
     {
         var span = source.GetContentAsSpan();
         if (EpochDate != null && double.TryParse(span, NumberStyles.Any, CultureInfo.InvariantCulture, out var dv))

@@ -2,12 +2,12 @@
 
 public class LocalDirectoryStreamProvider : IStreamProvider
 {
-    public string Directory { get; init; }
+    public required string Directory { get; init; }
 
     /// <summary>
     /// Default value is "*.*"
     /// </summary>
-    public string SearchPattern { get; init; } = "*.*";
+    public required string SearchPattern { get; init; } = "*.*";
 
     /// <summary>
     /// Default value is true.
@@ -25,10 +25,10 @@ public class LocalDirectoryStreamProvider : IStreamProvider
     public void Validate(IProcess caller)
     {
         if (Directory == null)
-            throw new ProcessParameterNullException(caller, "StreamProvider." + nameof(Directory));
+            throw new ProcessParameterNullException(caller, nameof(Directory));
 
         if (SearchPattern == null)
-            throw new ProcessParameterNullException(caller, "StreamProvider." + nameof(SearchPattern));
+            throw new ProcessParameterNullException(caller, nameof(SearchPattern));
     }
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)

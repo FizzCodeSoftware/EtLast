@@ -5,10 +5,10 @@ namespace FizzCode.EtLast;
 
 public sealed class DataContractXmlDeSerializerMutator<T> : AbstractMutator
 {
-    public string SourceColumn { get; init; }
-    public string TargetColumn { get; init; }
+    public required string SourceColumn { get; init; }
+    public required string TargetColumn { get; init; }
 
-    public InvalidValueAction ActionIfFailed { get; init; }
+    public required InvalidValueAction ActionIfFailed { get; init; }
     public object SpecialValueIfFailed { get; init; }
 
     public DataContractXmlDeSerializerMutator(IEtlContext context)

@@ -2,7 +2,7 @@
 
 public sealed class ThrowExceptionOnRowErrorMutator : AbstractMutator
 {
-    private int _rowIndex = 0;
+    private int _rowIndex;
 
     public ThrowExceptionOnRowErrorMutator(IEtlContext context)
         : base(context)

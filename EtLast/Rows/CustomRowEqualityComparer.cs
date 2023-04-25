@@ -4,7 +4,7 @@ public delegate bool CustomRowEqualityComparerDelegate(IReadOnlySlimRow leftRow,
 
 public sealed class CustomRowEqualityComparer : IRowEqualityComparer
 {
-    public CustomRowEqualityComparerDelegate ComparerDelegate { get; set; }
+    public required CustomRowEqualityComparerDelegate ComparerDelegate { get; init; }
 
     public bool Equals(IReadOnlySlimRow leftRow, IReadOnlySlimRow rightRow)
     {

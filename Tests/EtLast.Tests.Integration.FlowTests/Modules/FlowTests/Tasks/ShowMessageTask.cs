@@ -10,15 +10,16 @@ public class ShowMessageTask : AbstractEtlTask
             throw new ProcessParameterNullException(this, nameof(Message));
     }
 
-    public override IEnumerable<IProcess> CreateJobs()
+    public override void Execute(IFlow flow)
     {
-        yield return new CustomJob(Context)
-        {
-            Action = job =>
+        flow
+            .OnSuccess(() => new CustomJob(Context)
             {
-                var msg = Message.Invoke(this);
-                Context.Log(LogSeverity.Warning, job, msg);
-            },
-        };
+                Action = job =>
+                {
+                    var msg = Message.Invoke(this);
+                    Context.Log(LogSeverity.Warning, job, msg);
+                },
+            });
     }
 }

@@ -150,7 +150,7 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
                 ConnectionString = builder.Scope.ConnectionString,
                 ConstraintNames = constraintCheckDisabledOnTables
                     .Distinct()
-                    .Where(x => _enabledConstraintsByTable.ContainsKey(x))
+                    .Where(_enabledConstraintsByTable.ContainsKey)
                     .OrderBy(x => x)
                     .Select(x => new KeyValuePair<string, List<string>>(x, _enabledConstraintsByTable[x]))
                     .ToList(),
@@ -207,7 +207,7 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
             .ImportEnumerable(new EnumerableImporter(builder.Scope.Context)
             {
                 Name = "EtlRunInfoCreator",
-                InputGenerator = process =>
+                InputGenerator = _ =>
                 {
                     var currentId = _etlRunIdUtcOverride ?? DateTime.UtcNow;
 
@@ -281,6 +281,7 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
                 TableName = table.EscapedName(ConnectionString),
                 TempTableName = GetEscapedTempTableName(table),
                 Columns = tempColumns.Select(x => x.Name).ToArray(),
+                Finalizers = null, // set later
             };
 
             var tableBuilder = new DwhTableBuilder(this, resilientTable, table);

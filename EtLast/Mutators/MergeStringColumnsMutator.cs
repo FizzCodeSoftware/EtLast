@@ -2,9 +2,9 @@
 
 public sealed class MergeStringColumnsMutator : AbstractSimpleChangeMutator
 {
-    public string[] ColumnsToMerge { get; set; }
-    public string TargetColumn { get; set; }
-    public string Separator { get; set; }
+    public required string[] ColumnsToMerge { get; init; }
+    public required string TargetColumn { get; init; }
+    public required string Separator { get; init; }
 
     private readonly StringBuilder _sb = new();
 

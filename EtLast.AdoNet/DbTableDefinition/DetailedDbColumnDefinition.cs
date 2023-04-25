@@ -1,4 +1,5 @@
 ﻿namespace FizzCode.EtLast;
+
 public sealed class DetailedDbColumnDefinition
 {
     public string RowColumn { get; }

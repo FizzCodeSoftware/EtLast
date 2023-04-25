@@ -8,7 +8,7 @@ public sealed class InMemoryRowCache : AbstractRowSource
     /// <summary>
     /// The process evaluates and yields the rows from the input process.
     /// </summary>
-    public ISequence InputProcess { get; set; }
+    public required ISequence InputProcess { get; init; }
 
     public InMemoryRowCache(IEtlContext context)
         : base(context)
@@ -32,7 +32,7 @@ public sealed class InMemoryRowCache : AbstractRowSource
 
             foreach (var row in _cache)
             {
-                if (Pipe.IsTerminating)
+                if (FlowState.IsTerminating)
                     yield break;
 
                 var newRow = Context.CreateRow(this, row);
@@ -44,10 +44,10 @@ public sealed class InMemoryRowCache : AbstractRowSource
         else
         {
             _cache = new List<IReadOnlySlimRow>();
-            var inputRows = InputProcess.TakeRowsAndReleaseOwnership(this, Pipe);
+            var inputRows = InputProcess.TakeRowsAndReleaseOwnership(this, FlowState);
             foreach (var row in inputRows)
             {
-                if (Pipe.IsTerminating)
+                if (FlowState.IsTerminating)
                     break;
 
                 if (IgnoreRowsWithError && row.HasError())

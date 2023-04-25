@@ -21,6 +21,7 @@ public static partial class TableBuilderExtensions
             Name = "DeleteBase",
             ConnectionString = builder.ResilientTable.Scope.ConnectionString,
             TableName = builder.ResilientTable.TableName,
+            WhereClause = null,
         };
     }
 }

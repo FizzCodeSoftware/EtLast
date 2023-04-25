@@ -78,11 +78,25 @@ public class EtlException : Exception
 
         var ctorsFiltered = false;
         var currentFrameAdded = false;
-        //var mainAssembyName = typeof(IEtlContext).Assembly.GetName().Name;
         var builder = new StringBuilder();
+
+        var maxAssemblyNameLength = frames.Max(frame =>
+        {
+            var method = frame.GetMethod();
+            if (method == null)
+                return 0;
+
+            return (method.DeclaringType?.Assembly?.GetName().Name)?.Length ?? 0;
+        });
 
         foreach (var frame in frames)
         {
+            var method = frame.GetMethod();
+            if (method == null)
+                continue;
+
+            var assemblyName = method.DeclaringType?.Assembly?.GetName().Name;
+
             if (!ctorsFiltered)
             {
                 if (frame.GetMethod().IsConstructor || frame.GetMethod().IsStatic)
@@ -91,18 +105,16 @@ public class EtlException : Exception
                 ctorsFiltered = true;
             }
 
+            if (method.Name == nameof(FlowState.AddException))
+                continue;
+
             if (!currentFrameAdded)
             {
-                builder.AppendLine(FrameToString(frame));
+                builder.AppendLine(FrameToString(frame, method, assemblyName, maxAssemblyNameLength));
                 currentFrameAdded = true;
                 continue;
             }
 
-            var method = frame.GetMethod();
-            if (method == null)
-                continue;
-
-            var assemblyName = method.DeclaringType?.Assembly?.GetName()?.Name;
             if (assemblyName != null)
             {
                 if (assemblyName.Equals("CommandDotNet", StringComparison.OrdinalIgnoreCase))
@@ -127,26 +139,21 @@ public class EtlException : Exception
                 }
             }
 
-            builder.AppendLine(FrameToString(frame));
+            builder.AppendLine(FrameToString(frame, method, assemblyName, maxAssemblyNameLength));
         }
 
         return builder.ToString().Trim();
     }
 
-    public static string FrameToString(StackFrame frame)
+    private static string FrameToString(StackFrame frame, MethodBase method, string assemblyName, int maxAssemblyNameLength)
     {
         var sb = new StringBuilder(200);
 
-        var method = frame.GetMethod();
-        if (method == null)
-            return "<unknown method>";
-
         var ignoreMethod = false;
 
-        var assemblyName = method.DeclaringType?.Assembly?.GetName().Name;
         if (assemblyName != null)
         {
-            sb.Append('(').Append(assemblyName).Append(") ");
+            sb.Append("in ").Append(assemblyName.PadRight(maxAssemblyNameLength + 1)).Append(": ");
         }
 
         if (!method.Name.StartsWith("<", StringComparison.Ordinal) && method.DeclaringType != null)

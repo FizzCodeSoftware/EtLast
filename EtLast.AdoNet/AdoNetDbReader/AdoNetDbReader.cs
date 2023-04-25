@@ -2,7 +2,7 @@
 
 public sealed class AdoNetDbReader : AbstractAdoNetDbReader
 {
-    public string TableName { get; init; }
+    public required string TableName { get; init; }
     public string CustomWhereClause { get; init; }
     public string CustomOrderByClause { get; init; }
     public int RecordCountLimit { get; init; }

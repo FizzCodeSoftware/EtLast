@@ -53,7 +53,7 @@ public class BatchedJoinMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["name"] = "E", ["age"] = -3, ["height"] = 160, ["countryId"] = 1, ["lastChangedTime"] = new DateTime(2019, 1, 1, 23, 59, 59, 0), ["eyeColor"] = "not found" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 5, ["name"] = "A", ["age"] = 11, ["height"] = 140, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0), ["eyeColor"] = "not found" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 6, ["name"] = "fake", ["height"] = 140, ["countryId"] = 5, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0), ["eyeColor"] = "not found" } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -93,7 +93,7 @@ public class BatchedJoinMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0), ["color"] = "blue" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0), ["color"] = "yellow" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 2, ["name"] = "C", ["age"] = 27, ["height"] = 170, ["eyeColor"] = "green", ["countryId"] = 2, ["birthDate"] = new DateTime(2014, 1, 21, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 11, 21, 17, 11, 58, 0), ["color"] = "black" } });
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
     [TestMethod]
@@ -133,8 +133,8 @@ public class BatchedJoinMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0), ["color"] = "blue" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0), ["color"] = "yellow" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 2, ["name"] = "C", ["age"] = 27, ["height"] = 170, ["eyeColor"] = "green", ["countryId"] = 2, ["birthDate"] = new DateTime(2014, 1, 21, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 11, 21, 17, 11, 58, 0), ["color"] = "black" } });
-        Assert.AreEqual(1, result.Process.Pipe.Exceptions.Count);
-        Assert.IsTrue(result.Process.Pipe.Exceptions[0] is NoMatchException);
+        Assert.AreEqual(1, result.Process.FlowState.Exceptions.Count);
+        Assert.IsTrue(result.Process.FlowState.Exceptions[0] is NoMatchException);
     }
 
     [TestMethod]
@@ -167,8 +167,8 @@ public class BatchedJoinMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(1, executedBatchCount);
         Assert.AreEqual(0, result.MutatedRows.Count);
-        Assert.AreEqual(1, result.Process.Pipe.Exceptions.Count);
-        Assert.IsTrue(result.Process.Pipe.Exceptions[0] is NoMatchException);
+        Assert.AreEqual(1, result.Process.FlowState.Exceptions.Count);
+        Assert.IsTrue(result.Process.FlowState.Exceptions[0] is NoMatchException);
     }
 
     [TestMethod]
@@ -205,8 +205,8 @@ public class BatchedJoinMutatorTests
         Assert.AreEqual(3, executedLeftKeyDelegateCount);
         Assert.AreEqual(7, executedRightKeyDelegateCount);
         Assert.AreEqual(0, result.MutatedRows.Count);
-        Assert.AreEqual(1, result.Process.Pipe.Exceptions.Count);
-        Assert.IsTrue(result.Process.Pipe.Exceptions[0] is KeyGeneratorException);
+        Assert.AreEqual(1, result.Process.FlowState.Exceptions.Count);
+        Assert.IsTrue(result.Process.FlowState.Exceptions[0] is KeyGeneratorException);
     }
 
     [TestMethod]
@@ -247,8 +247,8 @@ public class BatchedJoinMutatorTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "yellow" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "red" },
             new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["color"] = "green" } });
-        Assert.AreEqual(1, result.Process.Pipe.Exceptions.Count);
-        Assert.IsTrue(result.Process.Pipe.Exceptions[0] is KeyGeneratorException);
+        Assert.AreEqual(1, result.Process.FlowState.Exceptions.Count);
+        Assert.IsTrue(result.Process.FlowState.Exceptions[0] is KeyGeneratorException);
     }
 
     [TestMethod]
@@ -284,7 +284,7 @@ public class BatchedJoinMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(1, executedBatchCount);
         Assert.AreEqual(0, result.MutatedRows.Count);
-        Assert.AreEqual(1, result.Process.Pipe.Exceptions.Count);
-        Assert.IsTrue(result.Process.Pipe.Exceptions[0] is ProcessExecutionException);
+        Assert.AreEqual(1, result.Process.FlowState.Exceptions.Count);
+        Assert.IsTrue(result.Process.FlowState.Exceptions[0] is ProcessExecutionException);
     }
 }

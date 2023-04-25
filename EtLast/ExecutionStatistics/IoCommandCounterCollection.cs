@@ -2,7 +2,8 @@
 
 public class IoCommandCounterCollection : IEtlContextListener
 {
-    public Dictionary<IoCommandKind, IoCommandCounter> Counters { get; } = new Dictionary<IoCommandKind, IoCommandCounter>();
+    public IReadOnlyDictionary<IoCommandKind, IoCommandCounter> Counters => _counters;
+    private readonly Dictionary<IoCommandKind, IoCommandCounter> _counters = new();
 
     public void OnContextIoCommandStart(int uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
     {
@@ -10,10 +11,10 @@ public class IoCommandCounterCollection : IEtlContextListener
 
     public void OnContextIoCommandEnd(IProcess process, int uid, IoCommandKind kind, int? affectedDataCount, Exception ex)
     {
-        Counters.TryGetValue(kind, out var counter);
+        _counters.TryGetValue(kind, out var counter);
         if (counter == null)
         {
-            Counters[kind] = counter = new IoCommandCounter();
+            _counters[kind] = counter = new IoCommandCounter();
         }
 
         counter.InvocationCount++;

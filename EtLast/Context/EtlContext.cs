@@ -244,7 +244,7 @@ public sealed class EtlContext : IEtlContext
             InstanceUid = process.InvocationInfo?.InstanceUid ?? Interlocked.Increment(ref _nextProcessInstanceUid),
             Number = (process.InvocationInfo?.Number ?? 0) + 1,
             InvocationUid = Interlocked.Increment(ref _nextProcessInvocationUid),
-            LastInvocationStarted = Stopwatch.StartNew(),
+            InvocationStarted = Stopwatch.StartNew(),
             Caller = caller,
         };
 

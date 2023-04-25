@@ -1,16 +1,18 @@
-﻿namespace FizzCode.EtLast.Tests.Integration.Modules.FlowTests;
+﻿using System.Linq;
 
-public class ExampleFlow2 : AbstractEtlFlow
+namespace FizzCode.EtLast.Tests.Integration.Modules.FlowTests;
+
+public class ExampleFlow2 : AbstractEtlTask
 {
     public override void ValidateParameters()
     {
     }
 
-    public override void Execute()
+    public override void Execute(IFlow flow)
     {
-        NewPipe()
-            .StartWith(out var fileListTask, new GetFilesTask())
-            .OnError(previous => new ShowMessageTask()
+        flow
+            .OnSuccess(out var fileListTask, () => new GetFilesTask())
+            .HandleErrorIsolated(parentCtx => new ShowMessageTask()
             {
                 Message = t => "awesome",
             })
@@ -18,14 +20,14 @@ public class ExampleFlow2 : AbstractEtlFlow
 
         foreach (var file in fileListTask.FileNames)
         {
-            NewPipe()
-                .StartWith(new ShowMessageTask()
+            flow
+                .OnSuccess(() => new ShowMessageTask()
                 {
                     Message = t => "file found: " + file,
                 })
-                .OnError(previous => new ShowMessageTask()
+                .HandleErrorIsolated(ctx => new ShowMessageTask()
                 {
-                    Message = t => "failed :(",
+                    Message = t => "failed: " + string.Join(", ", ctx.ParentFlowState.Exceptions.Select(x => x.Message)),
                 })
                 .ThrowOnError();
         }

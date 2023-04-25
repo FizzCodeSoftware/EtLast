@@ -2,10 +2,11 @@
 
 public sealed class ExpandFromLookupMutator : AbstractCrossMutator
 {
-    public Dictionary<string, string> Columns { get; init; }
+    public required Dictionary<string, string> Columns { get; init; }
+    public required SelectRowFromLookupDelegate MatchSelector { get; init; }
+
     public NoMatchAction NoMatchAction { get; init; }
     public MatchActionDelegate MatchCustomAction { get; init; }
-    public SelectRowFromLookupDelegate MatchSelector { get; init; }
 
     private RowLookup _lookup;
     private List<KeyValuePair<string, object>> _changes;

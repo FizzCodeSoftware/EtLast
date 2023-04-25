@@ -2,11 +2,11 @@
 
 internal sealed class FluentSequenceBuilder : IFluentSequenceBuilder
 {
+    public ISequence Result { get; set; }
+
     internal FluentSequenceBuilder()
     {
     }
-
-    public ISequence Result { get; set; }
 
     public ISequence Build()
     {
@@ -16,6 +16,11 @@ internal sealed class FluentSequenceBuilder : IFluentSequenceBuilder
     public IFluentSequenceMutatorBuilder ReadFrom(ISequence process)
     {
         Result = process;
-        return new FluentSequenceMutatorBuilder(this);
+        return new FluentSequenceMutatorBuilder()
+        {
+            ProcessBuilder = this,
+            AutomaticallySetRowFilter = null,
+            AutomaticallySetRowTagFilter = null,
+        };
     }
 }

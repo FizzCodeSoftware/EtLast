@@ -2,7 +2,7 @@
 
 public sealed class BatchedCompareWithRowMutator : AbstractBatchedCrossMutator
 {
-    public IRowEqualityComparer EqualityComparer { get; init; }
+    public required IRowEqualityComparer EqualityComparer { get; init; }
     public MatchAction MatchAndEqualsAction { get; init; }
     public MatchAction MatchButDifferentAction { get; init; }
     public NoMatchAction NoMatchAction { get; init; }

@@ -5,6 +5,8 @@ public enum EpPlusExcelHeaderCellMode { Join, KeepFirst, KeepLast }
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractEpPlusExcelReader : AbstractRowSource
 {
+    public required Dictionary<string, ReaderColumn> Columns { get; init; }
+
     public string SheetName { get; init; }
     public int SheetIndex { get; init; } = -1;
 
@@ -18,7 +20,6 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
     /// </summary>
     public bool AutomaticallyTrimAllStringValues { get; init; } = true;
 
-    public Dictionary<string, ReaderColumn> Columns { get; init; }
     public ReaderDefaultColumn DefaultColumns { get; init; }
 
     protected bool Transpose { get; init; } // todo: implement working transpose
@@ -172,7 +173,7 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
         var initialValues = new List<KeyValuePair<string, object>>();
 
         var resultCount = 0;
-        for (var rowIndex = FirstDataRow; rowIndex <= endRow && !Pipe.IsTerminating; rowIndex++)
+        for (var rowIndex = FirstDataRow; rowIndex <= endRow && !FlowState.IsTerminating; rowIndex++)
         {
             if (IgnoreNullOrEmptyRows)
             {

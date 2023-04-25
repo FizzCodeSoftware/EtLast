@@ -27,8 +27,8 @@ public class EpPlusExcelSheetReaderTests
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(0, result.MutatedRows.Count);
-        Assert.AreEqual(1, result.Process.Pipe.Exceptions.Count);
-        Assert.IsTrue(result.Process.Pipe.Exceptions[0] is LocalFileReadException);
+        Assert.AreEqual(1, result.Process.FlowState.Exceptions.Count);
+        Assert.IsTrue(result.Process.FlowState.Exceptions[0] is LocalFileReadException);
     }
 
     [TestMethod]
@@ -47,6 +47,6 @@ public class EpPlusExcelSheetReaderTests
             new CaseInsensitiveStringKeyDictionary<object>() { ["Stream"] = @".\TestData\Test.xlsx", ["Index"] = 0, ["Name"] = "MergeAtIndex0", ["Color"] = System.Drawing.Color.FromArgb(0, 0, 0, 0), ["Visible"] = true, ["idx"] = 0 },
             new CaseInsensitiveStringKeyDictionary<object>() { ["Stream"] = @".\TestData\Test.xlsx", ["Index"] = 1, ["Name"] = "DateBroken", ["Color"] = System.Drawing.Color.FromArgb(0, 0, 0, 0), ["Visible"] = true, ["idx"] = 1 } });
 
-        Assert.AreEqual(0, result.Process.Pipe.Exceptions.Count);
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 }

@@ -3,7 +3,7 @@
 public class ExecutionResult : IExecutionResult
 {
     public ExecutionStatusCode Status { get; set; } = ExecutionStatusCode.Success;
-    public List<TaskExectionResult> TaskResults { get; set; }
+    public List<TaskExectionResult> TaskResults { get; } = new List<TaskExectionResult>();
 
     public ExecutionResult()
     {

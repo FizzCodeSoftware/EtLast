@@ -7,7 +7,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
     /// <summary>
     /// Default value is <see cref="MsSqlDropTablesProcessMode.SpecifiedTables"/>
     /// </summary>
-    public MsSqlDropTablesProcessMode Mode { get; init; } = MsSqlDropTablesProcessMode.SpecifiedTables;
+    public required MsSqlDropTablesProcessMode Mode { get; init; } = MsSqlDropTablesProcessMode.SpecifiedTables;
 
     public string SchemaName { get; init; }
     public string[] TableNames { get; init; }

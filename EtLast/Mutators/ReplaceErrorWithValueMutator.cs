@@ -2,8 +2,8 @@
 
 public sealed class ReplaceErrorWithValueMutator : AbstractSimpleChangeMutator
 {
-    public string[] Columns { get; init; }
-    public object Value { get; init; }
+    public required string[] Columns { get; init; }
+    public required object Value { get; init; }
 
     public ReplaceErrorWithValueMutator(IEtlContext context)
         : base(context)

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.DwhBuilderTests;
 
-public class ExceptionTest : AbstractEtlFlow
+public class ExceptionTest : AbstractEtlTask
 {
     public Type ExceptionType { get; set; }
     public string Message { get; set; }
@@ -14,10 +14,10 @@ public class ExceptionTest : AbstractEtlFlow
             throw new ProcessParameterNullException(this, nameof(Message));
     }
 
-    public override void Execute()
+    public override void Execute(IFlow flow)
     {
-        NewPipe()
-            .StartWith(new ThrowException()
+        flow
+            .OnSuccess(() => new ThrowException()
             {
                 ExceptionType = ExceptionType,
                 Message = Message,

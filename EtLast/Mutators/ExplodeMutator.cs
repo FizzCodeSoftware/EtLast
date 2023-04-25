@@ -7,9 +7,9 @@ public sealed class ExplodeMutator : AbstractMutator
     /// <summary>
     /// Default true.
     /// </summary>
-    public bool RemoveOriginalRow { get; init; } = true;
+    public required bool RemoveOriginalRow { get; init; } = true;
 
-    public ExplodeDelegate RowCreator { get; init; }
+    public required ExplodeDelegate RowCreator { get; init; }
 
     public ExplodeMutator(IEtlContext context)
         : base(context)
@@ -51,6 +51,7 @@ public static class ExplodeMutatorFluent
         return builder.AddMutator(new ExplodeMutator(builder.ProcessBuilder.Result.Context)
         {
             Name = name,
+            RemoveOriginalRow = true,
             RowCreator = rowCreator,
         });
     }

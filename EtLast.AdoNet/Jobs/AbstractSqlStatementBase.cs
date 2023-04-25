@@ -3,7 +3,7 @@
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractSqlStatementBase : AbstractJob
 {
-    public NamedConnectionString ConnectionString { get; init; }
+    public required NamedConnectionString ConnectionString { get; init; }
 
     /// <summary>
     /// Default value is 600.

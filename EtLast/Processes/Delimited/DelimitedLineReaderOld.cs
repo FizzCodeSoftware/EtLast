@@ -2,7 +2,7 @@
 
 public sealed class DelimitedLineReaderOld : AbstractRowSource
 {
-    public IStreamProvider StreamProvider { get; init; }
+    public required IStreamProvider StreamProvider { get; init; }
 
     public Dictionary<string, ReaderColumn> Columns { get; init; }
     public ReaderDefaultColumn DefaultColumns { get; init; }
@@ -20,7 +20,7 @@ public sealed class DelimitedLineReaderOld : AbstractRowSource
     /// <summary>
     /// Default <see cref="DelimitedLineHeader.NoHeader"/>.
     /// </summary>
-    public DelimitedLineHeader Header { get; init; }
+    public required DelimitedLineHeader Header { get; init; }
 
     /// <summary>
     /// Default null. Column names must be set if <see cref="Header"/> is <see cref="DelimitedLineHeader.NoHeader"/> or <see cref="DelimitedLineHeader.IgnoreHeader"/>, otherwise it should be left null.
@@ -35,7 +35,7 @@ public sealed class DelimitedLineReaderOld : AbstractRowSource
     /// <summary>
     /// Default value is ';'.
     /// </summary>
-    public char Delimiter { get; init; } = ';';
+    public required char Delimiter { get; init; } = ';';
 
     /// <summary>
     /// Default value is 0
@@ -103,7 +103,7 @@ public sealed class DelimitedLineReaderOld : AbstractRowSource
             if (stream == null)
                 yield break;
 
-            if (Pipe.IsTerminating)
+            if (FlowState.IsTerminating)
                 break;
 
             var firstRow = true;
@@ -114,7 +114,7 @@ public sealed class DelimitedLineReaderOld : AbstractRowSource
             {
                 reader = new StreamReader(stream.Stream);
 
-                while (!Pipe.IsTerminating)
+                while (!FlowState.IsTerminating)
                 {
                     var line = GetLine(stream, reader, resultCount);
                     if (line == null)

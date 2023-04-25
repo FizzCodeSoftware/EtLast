@@ -2,8 +2,9 @@
 
 public sealed class CompareWithRowMutator : AbstractCrossMutator
 {
-    public RowKeyGenerator RowKeyGenerator { get; init; }
-    public IRowEqualityComparer EqualityComparer { get; init; }
+    public required RowKeyGenerator RowKeyGenerator { get; init; }
+    public required IRowEqualityComparer EqualityComparer { get; init; }
+
     public MatchAction MatchAndEqualsAction { get; init; }
     public MatchAction MatchButDifferentAction { get; init; }
     public NoMatchAction NoMatchAction { get; init; }
@@ -106,6 +107,9 @@ public sealed class CompareWithRowMutator : AbstractCrossMutator
         if (RowKeyGenerator == null)
             throw new ProcessParameterNullException(this, nameof(RowKeyGenerator));
 
+        if (EqualityComparer == null)
+            throw new ProcessParameterNullException(this, nameof(EqualityComparer));
+
         if (MatchAndEqualsAction == null && NoMatchAction == null && MatchButDifferentAction == null)
             throw new InvalidProcessParameterException(this, nameof(MatchAndEqualsAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must be specified: " + nameof(MatchAndEqualsAction) + " or " + nameof(NoMatchAction) + " or " + nameof(MatchButDifferentAction));
 
@@ -121,9 +125,6 @@ public sealed class CompareWithRowMutator : AbstractCrossMutator
         {
             throw new InvalidProcessParameterException(this, nameof(MatchAndEqualsAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must use a different action mode: " + nameof(MatchAndEqualsAction) + " or " + nameof(NoMatchAction));
         }
-
-        if (EqualityComparer == null)
-            throw new ProcessParameterNullException(this, nameof(EqualityComparer));
     }
 
     private string GenerateRowKey(IReadOnlyRow row)

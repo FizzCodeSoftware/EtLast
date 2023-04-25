@@ -42,7 +42,7 @@ internal class ContextProcessInvocationListControl
         ListView.MouseLeave += (s, a) => ToolTipSingleton.Remove(ListView);
         ListView.MouseUp += ListView_MouseUp;
 
-        var fix = 40 + 60 + 60 + 140;
+        const int fix = 40 + 60 + 60 + 140;
         ListView.Columns.Add("#", 40);
         ListView.Columns.Add("time", 60);
 

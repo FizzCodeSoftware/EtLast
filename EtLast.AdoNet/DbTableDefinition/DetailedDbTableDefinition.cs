@@ -2,6 +2,6 @@
 
 public sealed class DetailedDbTableDefinition
 {
-    public string TableName { get; set; }
-    public DetailedDbColumnDefinition[] Columns { get; set; }
+    public required string TableName { get; set; }
+    public required DetailedDbColumnDefinition[] Columns { get; set; }
 }

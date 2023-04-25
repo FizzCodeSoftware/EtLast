@@ -2,7 +2,7 @@
 
 public sealed class EpPlusExcelSheetListReader : AbstractRowSource
 {
-    public IStreamProvider StreamProvider { get; init; }
+    public required IStreamProvider StreamProvider { get; init; }
 
     /// <summary>
     /// Default value is "Stream".
@@ -38,7 +38,7 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
             if (stream == null)
                 yield break;
 
-            if (Pipe.IsTerminating)
+            if (FlowState.IsTerminating)
                 break;
 
             ExcelPackage package;
@@ -57,7 +57,7 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
                 throw exception;
             }
 
-            var rowCount = 0;
+            const int rowCount = 0;
             package.Compatibility.IsWorksheets1Based = false;
             var workbook = package.Workbook;
             if (workbook == null)
@@ -75,7 +75,7 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
             {
                 foreach (var worksheet in workbook.Worksheets)
                 {
-                    if (Pipe.IsTerminating)
+                    if (FlowState.IsTerminating)
                         yield break;
 
                     var initialValues = new Dictionary<string, object>

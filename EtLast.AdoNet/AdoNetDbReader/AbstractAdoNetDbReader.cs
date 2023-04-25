@@ -5,7 +5,7 @@ public delegate void ConnectionCreatorDelegate(AbstractAdoNetDbReader process, o
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractAdoNetDbReader : AbstractRowSource
 {
-    public NamedConnectionString ConnectionString { get; init; }
+    public required NamedConnectionString ConnectionString { get; init; }
 
     public Dictionary<string, ReaderColumn> Columns { get; init; }
     public ReaderDefaultColumn DefaultColumns { get; init; }
@@ -111,7 +111,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
         LastDataRead = DateTime.Now;
 
         var resultCount = 0;
-        if (reader != null && !Pipe.IsTerminating)
+        if (reader != null && !FlowState.IsTerminating)
         {
             var initialValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
@@ -159,7 +159,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                 }
             }
 
-            while (!Pipe.IsTerminating)
+            while (!FlowState.IsTerminating)
             {
                 try
                 {
@@ -229,12 +229,12 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
             {
                 reader.Close();
                 reader.Dispose();
+                reader = null;
             }
             catch (Exception)
             {
+                reader = null;
             }
-
-            reader = null;
         }
 
         if (cmd != null)
@@ -242,12 +242,12 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
             try
             {
                 cmd.Dispose();
+                cmd = null;
             }
             catch (Exception)
             {
+                cmd = null;
             }
-
-            cmd = null;
         }
 
         if (CustomConnectionCreator == null)

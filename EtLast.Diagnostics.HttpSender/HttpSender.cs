@@ -392,7 +392,7 @@ public class HttpSender : IDisposable, IEtlContextListener
         SendDiagnostics(DiagnosticsEventKind.ProcessInvocationEnd, writer =>
         {
             writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
-            writer.Write(process.InvocationInfo.LastInvocationStarted.ElapsedMilliseconds);
+            writer.Write(process.InvocationInfo.InvocationStarted.ElapsedMilliseconds);
             writer.WriteNullable(process.InvocationInfo.LastInvocationNetTimeMilliseconds);
         });
     }

@@ -2,7 +2,7 @@
 
 public sealed class ReplaceEmptyStringWithNullMutator : AbstractSimpleChangeMutator
 {
-    public string[] Columns { get; init; }
+    public required string[] Columns { get; init; }
 
     public ReplaceEmptyStringWithNullMutator(IEtlContext context)
         : base(context)
@@ -17,7 +17,7 @@ public sealed class ReplaceEmptyStringWithNullMutator : AbstractSimpleChangeMuta
         {
             foreach (var column in Columns)
             {
-                if ((row[column] as string) == string.Empty)
+                if (row[column] is string { Length: 0 })
                 {
                     Changes.Add(new KeyValuePair<string, object>(column, null));
                 }
@@ -27,7 +27,7 @@ public sealed class ReplaceEmptyStringWithNullMutator : AbstractSimpleChangeMuta
         {
             foreach (var kvp in row.Values)
             {
-                if ((kvp.Value as string) == string.Empty)
+                if (kvp.Value is string { Length: 0 })
                 {
                     Changes.Add(new KeyValuePair<string, object>(kvp.Key, null));
                 }

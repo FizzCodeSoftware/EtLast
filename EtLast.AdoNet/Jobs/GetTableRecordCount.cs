@@ -2,8 +2,12 @@
 
 public sealed class GetTableRecordCount : AbstractSqlStatementWithResult<int>
 {
-    public string TableName { get; init; }
-    public string CustomWhereClause { get; init; }
+    public required string TableName { get; init; }
+
+    /// <summary>
+    /// Set to null to get the count of all records in the table.
+    /// </summary>
+    public required string WhereClause { get; init; }
 
     public GetTableRecordCount(IEtlContext context)
         : base(context)
@@ -27,9 +31,9 @@ public sealed class GetTableRecordCount : AbstractSqlStatementWithResult<int>
 
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)
     {
-        return string.IsNullOrEmpty(CustomWhereClause)
+        return string.IsNullOrEmpty(WhereClause)
             ? "SELECT COUNT(*) FROM " + TableName
-            : "SELECT COUNT(*) FROM " + TableName + " WHERE " + CustomWhereClause;
+            : "SELECT COUNT(*) FROM " + TableName + " WHERE " + WhereClause;
     }
 
     protected override int RunCommandAndGetResult(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
@@ -60,7 +64,7 @@ public sealed class GetTableRecordCount : AbstractSqlStatementWithResult<int>
             exception.Data["TableName"] = ConnectionString.Unescape(TableName);
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = CommandTimeout;
-            exception.Data["Elapsed"] = InvocationInfo.LastInvocationStarted.Elapsed;
+            exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
             Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadCount, iocUid, null, exception);
             throw exception;

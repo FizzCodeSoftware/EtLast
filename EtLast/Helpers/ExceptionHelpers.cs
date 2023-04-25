@@ -42,19 +42,7 @@ public static class ExceptionHelpers
                     foreach (var key in cex.Data.Keys)
                     {
                         var k = key.ToString();
-                        if (k is "ProcessName" or "ProcessKind" or "ProcessTopic" or "ProcessType" or "ProcessTypeAssembly")
-                            continue;
-
-                        if (k == "CallChain")
-                            continue;
-
-                        if (k == "OpsMessage")
-                            continue;
-
-                        if (k == "Trace")
-                            continue;
-
-                        if (k == "Row")
+                        if (k is "ProcessName" or "ProcessKind" or "ProcessTopic" or "ProcessType" or "ProcessTypeAssembly" or "CallChain" or "OpsMessage" or "Trace" or "Row")
                             continue;
 
                         if (k.Contains("Row", StringComparison.InvariantCultureIgnoreCase) && cex.Data[key] is string rowStr && rowStr.StartsWith("uid", StringComparison.InvariantCultureIgnoreCase))

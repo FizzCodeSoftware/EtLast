@@ -4,7 +4,7 @@ public delegate IEnumerable<IReadOnlySlimRow> EnumerableImporterDelegate(Enumera
 
 public sealed class EnumerableImporter : AbstractRowSource
 {
-    public EnumerableImporterDelegate InputGenerator { get; set; }
+    public required EnumerableImporterDelegate InputGenerator { get; init; }
 
     public Dictionary<string, ReaderColumn> Columns { get; set; }
     public ReaderDefaultColumn DefaultColumns { get; set; }
@@ -37,7 +37,7 @@ public sealed class EnumerableImporter : AbstractRowSource
             {
                 foreach (var inputRow in inputRows)
                 {
-                    if (Pipe.IsTerminating)
+                    if (FlowState.IsTerminating)
                         yield break;
 
                     foreach (var columnKvp in Columns)
@@ -68,7 +68,7 @@ public sealed class EnumerableImporter : AbstractRowSource
 
                 foreach (var inputRow in inputRows)
                 {
-                    if (Pipe.IsTerminating)
+                    if (FlowState.IsTerminating)
                         yield break;
 
                     foreach (var columnKvp in Columns)
@@ -118,7 +118,7 @@ public sealed class EnumerableImporter : AbstractRowSource
         {
             foreach (var row in inputRows)
             {
-                if (Pipe.IsTerminating)
+                if (FlowState.IsTerminating)
                     yield break;
 
                 yield return Context.CreateRow(this, row);

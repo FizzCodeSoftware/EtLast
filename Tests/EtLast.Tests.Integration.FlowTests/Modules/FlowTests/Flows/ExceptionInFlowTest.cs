@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.FlowTests;
 
-public class ExceptionInFlowTest : AbstractEtlFlow
+public class ExceptionInFlowTest : AbstractEtlTask
 {
     public bool ThrowErrorEnabled { get; set; }
 
@@ -8,30 +8,34 @@ public class ExceptionInFlowTest : AbstractEtlFlow
     {
     }
 
-    public override void Execute()
+    public override void Execute(IFlow flow)
     {
         if (!ThrowErrorEnabled)
         {
-            NewPipe()
-                .StartWith(new ThrowExceptionFlow())
-                .OnError(previous => new ShowMessageTask()
-                {
-                    Message = t => t.Pipe.IsTerminating || !previous.IsTerminating
-                        ? "#1001 FAILED"
-                        : "#1001 WORKS PROPERLY",
-                });
+            flow
+                .RunIsolated(parentCtx => parentCtx.IsolatedFlow
+                    .StartWith(() => new ThrowExceptionTask())
+                    .HandleErrorIsolated(ctx => new ShowMessageTask()
+                    {
+                        Message = t => !t.FlowState.IsTerminating && ctx.ParentFlowState.IsTerminating
+                            ? "#1001 WORKS PROPERLY"
+                            : "#1001 FAILED",
+                    })
+                );
         }
         else
         {
-            NewPipe()
-                .StartWith(new ThrowExceptionFlow())
-                .OnError(previous => new ShowMessageTask()
-                {
-                    Message = t => t.Pipe.IsTerminating || !previous.IsTerminating
-                        ? "#1002 FAILED"
-                        : "#1002 WORKS PROPERLY",
-                })
-                .ThrowOnError();
+            flow
+                .RunIsolated(parentCtx => parentCtx.IsolatedFlow
+                    .StartWith(() => new ThrowExceptionTask())
+                    .HandleErrorIsolated(ctx => new ShowMessageTask()
+                    {
+                        Message = t => !t.FlowState.IsTerminating && ctx.ParentFlowState.IsTerminating
+                            ? "#1002 WORKS PROPERLY"
+                            : "#1002 FAILED",
+                    })
+                    .ThrowOnError()
+                );
         }
     }
 }

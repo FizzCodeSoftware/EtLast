@@ -7,7 +7,7 @@ public class TestMethodIntegrationAttribute : TestMethodAttribute
 #if INTEGRATION
         return base.Execute(testMethod);
 #else
-            return new TestResult[] { new TestResult { Outcome = UnitTestOutcome.Inconclusive } };
+        return new TestResult[] { new TestResult { Outcome = UnitTestOutcome.Inconclusive } };
 #endif
     }
 }

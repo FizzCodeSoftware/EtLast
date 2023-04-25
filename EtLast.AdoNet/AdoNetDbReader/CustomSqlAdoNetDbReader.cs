@@ -2,8 +2,8 @@
 
 public sealed class CustomSqlAdoNetDbReader : AbstractAdoNetDbReader
 {
-    public string Sql { get; init; }
-    public string MainTableName { get; init; }
+    public required string Sql { get; init; }
+    public required string MainTableName { get; init; }
 
     public CustomSqlAdoNetDbReader(IEtlContext context)
         : base(context)

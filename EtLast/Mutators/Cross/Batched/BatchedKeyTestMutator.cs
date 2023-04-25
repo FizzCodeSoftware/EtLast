@@ -5,6 +5,8 @@ public sealed class BatchedKeyTestMutator : AbstractBatchedCrossMutator
     public NoMatchAction NoMatchAction { get; init; }
     public MatchAction MatchAction { get; init; }
 
+    // todo: separate to new class... completely different behavior
+
     /// <summary>
     /// Default true. If <see cref="MatchAction.CustomAction"/> is used then setting this to false results in significantly less memory usage.
     /// </summary>
@@ -64,9 +66,9 @@ public sealed class BatchedKeyTestMutator : AbstractBatchedCrossMutator
                     case MatchMode.Custom:
                         {
                             IReadOnlySlimRow match = null;
-                            if (MatchActionContainsMatch)
+                            if (_lookup is RowLookup rl)
                             {
-                                match = (_lookup as RowLookup).GetSingleRowByKey(key);
+                                match = rl.GetSingleRowByKey(key);
                             }
 
                             MatchAction.InvokeCustomAction(row, match);
@@ -77,9 +79,9 @@ public sealed class BatchedKeyTestMutator : AbstractBatchedCrossMutator
                             removeOriginal = true;
 
                             IReadOnlySlimRow match = null;
-                            if (MatchActionContainsMatch)
+                            if (_lookup is RowLookup rl)
                             {
-                                match = (_lookup as RowLookup).GetSingleRowByKey(key);
+                                match = rl.GetSingleRowByKey(key);
                             }
 
                             MatchAction.InvokeCustomAction(row, match);
@@ -102,11 +104,11 @@ public sealed class BatchedKeyTestMutator : AbstractBatchedCrossMutator
 
     protected override void MutateBatch(List<IRow> rows, List<IRow> mutatedRows, List<IRow> removedRows)
     {
-        LookupBuilder.Append(_lookup, this, rows.ToArray());
+        LookupBuilder.AddTo(_lookup, this, rows.ToArray());
 
         foreach (var row in rows)
         {
-            if (Pipe.IsTerminating)
+            if (FlowState.IsTerminating)
                 break;
 
             var key = GenerateRowKey(row);
@@ -145,9 +147,9 @@ public sealed class BatchedKeyTestMutator : AbstractBatchedCrossMutator
                     case MatchMode.Custom:
                         {
                             IReadOnlySlimRow match = null;
-                            if (MatchActionContainsMatch)
+                            if (_lookup is RowLookup rl)
                             {
-                                match = (_lookup as RowLookup).GetSingleRowByKey(key);
+                                match = rl.GetSingleRowByKey(key);
                             }
 
                             MatchAction.InvokeCustomAction(row, match);
@@ -158,9 +160,9 @@ public sealed class BatchedKeyTestMutator : AbstractBatchedCrossMutator
                             removeRow = true;
 
                             IReadOnlySlimRow match = null;
-                            if (MatchActionContainsMatch)
+                            if (_lookup is RowLookup rl)
                             {
-                                match = (_lookup as RowLookup).GetSingleRowByKey(key);
+                                match = rl.GetSingleRowByKey(key);
                             }
 
                             MatchAction.InvokeCustomAction(row, match);
