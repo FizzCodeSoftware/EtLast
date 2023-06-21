@@ -9,12 +9,12 @@ public class Main : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .OnSuccess(() => new EtlRunInfoTest())
-            .OnSuccess(() => new EtlRunInfoOptimizedTest())
-            .OnSuccess(() => new History1Test())
-            .OnSuccess(() => new History2Test())
-            .OnSuccess(() => new History3Test())
-            .OnSuccess(() => new NullValidityTest())
-            .OnSuccess(() => new EtlRunIdForDefaultValidFromTest());
+            .ContinueWith(() => new EtlRunInfoTest())
+            .ContinueWith(() => new EtlRunInfoOptimizedTest())
+            .ContinueWith(() => new History1Test())
+            .ContinueWith(() => new History2Test())
+            .ContinueWith(() => new History3Test())
+            .ContinueWith(() => new NullValidityTest())
+            .ContinueWith(() => new EtlRunIdForDefaultValidFromTest());
     }
 }

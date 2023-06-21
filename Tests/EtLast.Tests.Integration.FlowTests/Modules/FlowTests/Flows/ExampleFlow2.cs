@@ -11,8 +11,8 @@ public class ExampleFlow2 : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .OnSuccess(out var fileListTask, () => new GetFilesTask())
-            .HandleErrorIsolated(parentCtx => new ShowMessageTask()
+            .ContinueWith(out var fileListTask, () => new GetFilesTask())
+            .HandleError(parentCtx => new ShowMessageTask()
             {
                 Message = t => "awesome",
             })
@@ -21,11 +21,11 @@ public class ExampleFlow2 : AbstractEtlTask
         foreach (var file in fileListTask.FileNames)
         {
             flow
-                .OnSuccess(() => new ShowMessageTask()
+                .ContinueWith(() => new ShowMessageTask()
                 {
                     Message = t => "file found: " + file,
                 })
-                .HandleErrorIsolated(ctx => new ShowMessageTask()
+                .HandleError(ctx => new ShowMessageTask()
                 {
                     Message = t => "failed: " + string.Join(", ", ctx.ParentFlowState.Exceptions.Select(x => x.Message)),
                 })

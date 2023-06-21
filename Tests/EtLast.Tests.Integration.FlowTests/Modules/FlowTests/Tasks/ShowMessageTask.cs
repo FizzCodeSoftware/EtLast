@@ -13,7 +13,7 @@ public class ShowMessageTask : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .OnSuccess(() => new CustomJob(Context)
+            .ContinueWith(() => new CustomJob(Context)
             {
                 Action = job =>
                 {

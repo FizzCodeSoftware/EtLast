@@ -17,7 +17,7 @@ public class ExceptionTest : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .OnSuccess(() => new ThrowException()
+            .ContinueWith(() => new ThrowException()
             {
                 ExceptionType = ExceptionType,
                 Message = Message,

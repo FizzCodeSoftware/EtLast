@@ -26,16 +26,16 @@ public class History3Test : AbstractEtlTask
         RelationalModelExtender.Extend(model, configuration);
 
         flow
-            .OnSuccess(() => new CreateDatabase()
+            .ContinueWith(() => new CreateDatabase()
             {
                 ConnectionString = ConnectionString,
                 Definition = databaseDeclaration,
                 DatabaseName = DatabaseName,
             })
-            .OnSuccess(() => CreateFirstDwhBuilder(configuration, model))
-            .OnSuccess(() => new CustomJob(Context) { Action = TestFirstDwhBuilder, })
-            .OnSuccess(() => CreateSecondDwhBuilder(configuration, model))
-            .OnSuccess(() => new CustomJob(Context) { Action = TestSecondDwhBuilder, });
+            .ContinueWith(() => CreateFirstDwhBuilder(configuration, model))
+            .ContinueWith(() => new CustomJob(Context) { Action = TestFirstDwhBuilder, })
+            .ContinueWith(() => CreateSecondDwhBuilder(configuration, model))
+            .ContinueWith(() => new CustomJob(Context) { Action = TestSecondDwhBuilder, });
     }
 
     private IProcess CreateFirstDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)

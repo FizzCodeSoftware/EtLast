@@ -13,14 +13,14 @@ public class LoadThenInsertCountries : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .OnSuccess(() => new CustomSqlStatement(Context)
+            .ContinueWith(() => new CustomSqlStatement(Context)
             {
                 Name = "CreateTable",
                 ConnectionString = ConnectionString,
                 SqlStatement = $"CREATE TABLE {nameof(LoadThenInsertCountries)} (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));",
                 MainTableName = nameof(LoadThenInsertCountries),
             })
-            .OnSuccess(() => new ResilientSqlScope(Context)
+            .ContinueWith(() => new ResilientSqlScope(Context)
             {
                 Name = "ExecuteResilientScope1",
                 ConnectionString = ConnectionString,
@@ -35,7 +35,7 @@ public class LoadThenInsertCountries : AbstractEtlTask
                     },
                 },
             })
-            .OnSuccess(() => new ResilientSqlScope(Context)
+            .ContinueWith(() => new ResilientSqlScope(Context)
             {
                 Name = "ExecuteResilientScope2",
                 ConnectionString = ConnectionString,
@@ -50,7 +50,7 @@ public class LoadThenInsertCountries : AbstractEtlTask
                     },
                 },
             })
-            .OnSuccess(() => TestHelpers.CreateReadSqlTableAndAssertExactMacth(this, ConnectionString, nameof(LoadThenInsertCountries),
+            .ContinueWith(() => TestHelpers.CreateReadSqlTableAndAssertExactMacth(this, ConnectionString, nameof(LoadThenInsertCountries),
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "Hungary", ["Abbreviation2"] = "HU", ["Abbreviation3"] = "HUN" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "United States of America", ["Abbreviation2"] = "US", ["Abbreviation3"] = "USA" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "Spain", ["Abbreviation2"] = "ES", ["Abbreviation3"] = "ESP" },

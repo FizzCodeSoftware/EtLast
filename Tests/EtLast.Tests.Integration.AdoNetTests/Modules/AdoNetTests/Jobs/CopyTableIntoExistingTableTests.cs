@@ -13,7 +13,7 @@ public class CopyTableIntoExistingTableTests : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .OnSuccess(() => new CustomSqlStatement(Context)
+            .ContinueWith(() => new CustomSqlStatement(Context)
             {
                 Name = "CreateSourceTable",
                 ConnectionString = ConnectionString,
@@ -22,14 +22,14 @@ public class CopyTableIntoExistingTableTests : AbstractEtlTask
                     $"INSERT INTO {nameof(CopyTableIntoExistingTableTests)} (Id, Value) VALUES (2, 'CopyTableIntoExistingTableTest');",
                 MainTableName = nameof(CopyTableIntoExistingTableTests),
             })
-            .OnSuccess(() => new CustomSqlStatement(Context)
+            .ContinueWith(() => new CustomSqlStatement(Context)
             {
                 Name = "CreateTargetTable",
                 ConnectionString = ConnectionString,
                 SqlStatement = $"CREATE TABLE {nameof(CopyTableIntoExistingTableTests)}Target (Id INT NOT NULL, Value NVARCHAR(255));",
                 MainTableName = nameof(CopyTableIntoExistingTableTests) + "Target",
             })
-            .OnSuccess(() => new CopyTableIntoExistingTable(Context)
+            .ContinueWith(() => new CopyTableIntoExistingTable(Context)
             {
                 ConnectionString = ConnectionString,
                 Configuration = new TableCopyConfiguration()
@@ -38,7 +38,7 @@ public class CopyTableIntoExistingTableTests : AbstractEtlTask
                     TargetTableName = $"{nameof(CopyTableIntoExistingTableTests)}Target",
                 }
             })
-            .OnSuccess(() => new CustomJob(Context)
+            .ContinueWith(() => new CustomJob(Context)
             {
                 Name = "CheckTargetTableContents",
                 Action = job =>

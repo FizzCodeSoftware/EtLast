@@ -13,9 +13,9 @@ public class ExceptionInFlowTest : AbstractEtlTask
         if (!ThrowErrorEnabled)
         {
             flow
-                .RunIsolated(parentCtx => parentCtx.IsolatedFlow
-                    .StartWith(() => new ThrowExceptionTask())
-                    .HandleErrorIsolated(ctx => new ShowMessageTask()
+                .Isolate(parentCtx => parentCtx.IsolatedFlow
+                    .ContinueWith(() => new ThrowExceptionTask())
+                    .HandleError(ctx => new ShowMessageTask()
                     {
                         Message = t => !t.FlowState.IsTerminating && ctx.ParentFlowState.IsTerminating
                             ? "#1001 WORKS PROPERLY"
@@ -26,9 +26,9 @@ public class ExceptionInFlowTest : AbstractEtlTask
         else
         {
             flow
-                .RunIsolated(parentCtx => parentCtx.IsolatedFlow
-                    .StartWith(() => new ThrowExceptionTask())
-                    .HandleErrorIsolated(ctx => new ShowMessageTask()
+                .Isolate(parentCtx => parentCtx.IsolatedFlow
+                    .ContinueWith(() => new ThrowExceptionTask())
+                    .HandleError(ctx => new ShowMessageTask()
                     {
                         Message = t => !t.FlowState.IsTerminating && ctx.ParentFlowState.IsTerminating
                             ? "#1002 WORKS PROPERLY"

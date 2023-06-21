@@ -9,19 +9,19 @@ public class Main : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .OnSuccess(() => new CreateDatabase())
-            .OnSuccess(() => new GetTableMaxValueTests())
-            .OnSuccess(() => new StoredProcedureAdoNetDbReaderTests())
-            .OnSuccess(() => new LoadCountries())
-            .OnSuccess(() => new LoadThenInsertCountries())
-            .OnSuccess(() => new MergeOnlyInsertCountries())
-            .OnSuccess(() => new MergeUpdateCountries())
-            .OnSuccess(() => new CreatePrimaryKeyConstraintTests())
-            .OnSuccess(() => new CustomSqlAdoNetDbReaderTests())
-            .OnSuccess(() => new CopyTableIntoExistingTableTests())
-            .OnSuccess(() => new CopyTableIntoNewTableTests())
-            .OnSuccess(() => new DropDatabase())
-            .HandleErrorIsolated(ctx => new DropDatabase())
+            .ContinueWith(() => new CreateDatabase())
+            .ContinueWith(() => new GetTableMaxValueTests())
+            .ContinueWith(() => new StoredProcedureAdoNetDbReaderTests())
+            .ContinueWith(() => new LoadCountries())
+            .ContinueWith(() => new LoadThenInsertCountries())
+            .ContinueWith(() => new MergeOnlyInsertCountries())
+            .ContinueWith(() => new MergeUpdateCountries())
+            .ContinueWith(() => new CreatePrimaryKeyConstraintTests())
+            .ContinueWith(() => new CustomSqlAdoNetDbReaderTests())
+            .ContinueWith(() => new CopyTableIntoExistingTableTests())
+            .ContinueWith(() => new CopyTableIntoNewTableTests())
+            .ContinueWith(() => new DropDatabase())
+            .HandleError(ctx => new DropDatabase())
             .ThrowOnError();
     }
 }

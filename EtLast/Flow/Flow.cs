@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class Flow : IFlowStarter, IFlow
+public sealed class Flow : IFlow
 {
     private readonly IEtlContext _context;
     private readonly IProcess _caller;
@@ -13,60 +13,18 @@ public sealed class Flow : IFlowStarter, IFlow
         _flowState = flowState;
     }
 
-    public static IFlowStarter New(IEtlContext context, IProcess caller)
+    public static IFlow New(IEtlContext context, IProcess caller)
     {
         var flowState = new FlowState(context);
         return new Flow(context, caller, flowState);
     }
 
-    public IFlow StartWith(Func<Action<CustomJob>> actionCreator)
-    {
-        var action = actionCreator.Invoke();
-        if (action != null)
-        {
-            var job = new CustomJob(_context)
-            {
-                Name = action.Method.Name,
-                Action = action.Invoke,
-            };
-
-            job.SetContext(_context);
-            job.Execute(_caller, _flowState);
-        }
-
-        return this;
-    }
-
-    public IFlow StartWith<T>(Func<T> processCreator)
-        where T : IProcess
-    {
-        var process = processCreator.Invoke();
-        if (process != null)
-        {
-            process.SetContext(_context);
-            process.Execute(_caller, _flowState);
-        }
-
-        return this;
-    }
-
-    public IFlow StartWith<T>(out T result, Func<T> processCreator)
-        where T : IProcess
-    {
-        result = processCreator.Invoke();
-
-        if (result != null)
-        {
-            result.SetContext(_context);
-            result.Execute(_caller, _flowState);
-        }
-
-        return this;
-    }
-
-    public IFlow StartWith<T>(Func<IFluentSequenceBuilder, T> sequenceBuilder)
+    public IFlow ContinueWith<T>(Func<IFluentSequenceBuilder, T> sequenceBuilder)
         where T : ISequence
     {
+        if (_flowState.IsTerminating)
+            return this;
+
         var sequence = sequenceBuilder.Invoke(SequenceBuilder.Fluent);
         if (sequence != null)
         {
@@ -77,7 +35,7 @@ public sealed class Flow : IFlowStarter, IFlow
         return this;
     }
 
-    public IFlow OnSuccess<T>(Func<T> processCreator)
+    public IFlow ContinueWith<T>(Func<T> processCreator)
          where T : IProcess
     {
         if (_flowState.IsTerminating)
@@ -93,7 +51,7 @@ public sealed class Flow : IFlowStarter, IFlow
         return this;
     }
 
-    public IFlow OnSuccess<T>(out T result, Func<T> processCreator)
+    public IFlow ContinueWith<T>(out T result, Func<T> processCreator)
         where T : IProcess
     {
         result = default;
@@ -111,7 +69,7 @@ public sealed class Flow : IFlowStarter, IFlow
         return this;
     }
 
-    public IFlow RunIsolated(Action<IsolatedFlowContext> starter)
+    public IFlow Isolate(Action<IsolatedFlowContext> starter)
     {
         starter.Invoke(new IsolatedFlowContext()
         {
@@ -122,7 +80,7 @@ public sealed class Flow : IFlowStarter, IFlow
         return this;
     }
 
-    public IFlow HandleErrorIsolated<T>(Func<FlowErrorContext, T> processCreator)
+    public IFlow HandleError<T>(Func<FlowErrorContext, T> processCreator)
         where T : IProcess
     {
         if (_flowState.IsTerminating && _flowState.Exceptions.Count > 0)

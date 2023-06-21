@@ -11,8 +11,8 @@ public class ExampleFlow3 : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .OnSuccess(out var fileListTask, () => new GetFilesTask())
-            .HandleErrorIsolated(parentCtx => new ShowMessageTask()
+            .ContinueWith(out var fileListTask, () => new GetFilesTask())
+            .HandleError(parentCtx => new ShowMessageTask()
             {
                 Message = t => "awesome",
             })
@@ -25,8 +25,8 @@ public class ExampleFlow3 : AbstractEtlTask
                 try
                 {
                     flow
-                        .RunIsolated(ctx => ctx.IsolatedFlow
-                            .StartWith(() => new ShowMessageTask()
+                        .Isolate(ctx => ctx.IsolatedFlow
+                            .ContinueWith(() => new ShowMessageTask()
                             {
                                 Name = "ShowMessageForFile",
                                 Message = t =>
@@ -37,7 +37,7 @@ public class ExampleFlow3 : AbstractEtlTask
                                     return "file found: " + file;
                                 },
                             })
-                            .HandleErrorIsolated(ctx => new ShowMessageTask()
+                            .HandleError(ctx => new ShowMessageTask()
                             {
                                 Name = "ShowErrorMessage",
                                 Message = t => "failed: " + string.Join(", ", ctx.ParentFlowState.Exceptions.Select(x => x.Message)),

@@ -17,7 +17,7 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .OnSuccess(() => new CustomSqlStatement(Context)
+            .ContinueWith(() => new CustomSqlStatement(Context)
             {
                 Name = "CreateTable",
                 ConnectionString = ConnectionString,
@@ -26,7 +26,7 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
                     $"INSERT INTO {nameof(CreatePrimaryKeyConstraintTests)} (Id, DateTimeValue) VALUES (2, '2022.07.09');",
                 MainTableName = nameof(CreatePrimaryKeyConstraintTests),
             })
-            .OnSuccess(() => new CustomJob(Context)
+            .ContinueWith(() => new CustomJob(Context)
             {
                 Name = "CheckNoPrimaryKey",
                 Action = job =>
@@ -45,7 +45,7 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
                     Assert.AreEqual(0, countOfPrimaryKeys);
                 }
             })
-            .OnSuccess(() => new CustomJob(Context)
+            .ContinueWith(() => new CustomJob(Context)
             {
                 Name = "CheckPrimaryKeyExist",
                 Action = job =>

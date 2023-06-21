@@ -9,32 +9,32 @@ public class Main : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .OnSuccess(() => new ExampleFlow3())
-            .OnSuccess(() => new ExceptionInFlowTest()
+            .ContinueWith(() => new ExampleFlow3())
+            .ContinueWith(() => new ExceptionInFlowTest()
             {
                 ThrowErrorEnabled = false,
             })
-            .RunIsolated(parentCtx => parentCtx.IsolatedFlow
-                .StartWith(() => new ShowMessageTask()
+            .Isolate(parentCtx => parentCtx.IsolatedFlow
+                .ContinueWith(() => new ShowMessageTask()
                 {
                     Message = t => !parentCtx.ParentFlowState.IsTerminating && !t.FlowState.IsTerminating
                         ? "#1003 WORKS PROPERLY"
                         : "#1003 FAILED",
                 })
             )
-            .OnSuccess(() => new ExceptionInFlowTest()
+            .ContinueWith(() => new ExceptionInFlowTest()
             {
                 ThrowErrorEnabled = true,
             })
-            .RunIsolated(parentCtx => parentCtx.IsolatedFlow
-                .StartWith(() => new ShowMessageTask()
+            .Isolate(parentCtx => parentCtx.IsolatedFlow
+                .ContinueWith(() => new ShowMessageTask()
                 {
                     Message = t => !parentCtx.ParentFlowState.IsTerminating && !t.FlowState.IsTerminating
                         ? "#1004 FAILED"
                         : "#1004 WORKS PROPERLY",
                 })
             )
-            .HandleErrorIsolated(ctx => new ShowMessageTask()
+            .HandleError(ctx => new ShowMessageTask()
             {
                 Message = t => "#1005 WORKS PROPERLY",
             });
