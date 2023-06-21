@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.FlowTests;
 
-public class GetFilesTask : AbstractEtlTask
+public class GetFiles : AbstractEtlTask
 {
     public List<string> FileNames { get; private set; }
 

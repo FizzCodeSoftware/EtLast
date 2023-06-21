@@ -27,6 +27,8 @@ public sealed class EtlContext : IEtlContext
     /// </summary>
     public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromHours(4);
 
+    public int ElapsedMillisecondsLimitToLog { get; set; } = 100;
+
     public bool IsTerminating { get; private set; }
 
     private readonly CancellationTokenSource _cancellationTokenSource;
@@ -218,7 +220,7 @@ public sealed class EtlContext : IEtlContext
         return row;
     }
 
-    public EtlTransactionScope BeginTransactionScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity)
+    public EtlTransactionScope BeginTransactionScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity = LogSeverity.Information)
     {
         return new EtlTransactionScope(this, process, kind, TransactionScopeTimeout, logSeverity);
     }

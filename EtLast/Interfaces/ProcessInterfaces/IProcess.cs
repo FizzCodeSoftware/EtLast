@@ -11,6 +11,8 @@ public interface IProcess
     public IEtlContext Context { get; }
 
     public string Name { get; }
+    public string InvocationName => InvocationInfo.InvocationUid + "~" + Name;
+
     public string Kind { get; }
     public string GetTopic();
 

@@ -21,7 +21,7 @@ public class Main : AbstractEtlTask
             .ContinueWith(() => new CopyTableIntoExistingTableTests())
             .ContinueWith(() => new CopyTableIntoNewTableTests())
             .ContinueWith(() => new DropDatabase())
-            .HandleError(ctx => new DropDatabase())
+            .HandleError(() => new DropDatabase())
             .ThrowOnError();
     }
 }

@@ -40,8 +40,8 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
             Context.Listeners.Add(_ioCommandCounterCollection);
             try
             {
-                var pe = new Flow(Context, this, FlowState);
-                Execute(pe);
+                var flow = new Flow(Context, this, FlowState);
+                Execute(flow);
             }
             catch (Exception ex)
             {
@@ -53,8 +53,20 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
             }
 
             _statistics.Finish();
-            Context.Log(LogSeverity.Information, this, "{TaskResult} in {Elapsed}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
-                FlowState.StatusToLogString(), Statistics.RunTime, Statistics.CpuTime, Statistics.TotalAllocations, Statistics.AllocationDifference);
+
+            if (InvocationInfo.InvocationStarted.Elapsed.TotalMilliseconds >= Context.ElapsedMillisecondsLimitToLog)
+            {
+                Context.Log(LogSeverity.Information, this, "{ProcessResult} in {Elapsed}, CPU time: {CpuTime}",
+                    FlowState.StatusToLogString(), Statistics.RunTime, Statistics.CpuTime);
+            }
+            else
+            {
+                Context.Log(LogSeverity.Information, this, "{ProcessResult}",
+                    FlowState.StatusToLogString());
+            }
+
+            Context.Log(LogSeverity.Debug, this, "elapsed: {Elapsed}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
+                Statistics.RunTime, Statistics.CpuTime, Statistics.TotalAllocations, Statistics.AllocationDifference);
 
             LogPrivateSettableProperties(LogSeverity.Debug);
         }

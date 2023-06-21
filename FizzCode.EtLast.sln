@@ -8,7 +8,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Global", "Global", "{9BB952
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		Global\AssemblyInfo.Global.cs = Global\AssemblyInfo.Global.cs
-		changelog.txt = changelog.txt
 		README.md = README.md
 	EndProjectSection
 EndProject

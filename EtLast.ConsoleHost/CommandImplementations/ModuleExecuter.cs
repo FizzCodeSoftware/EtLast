@@ -38,8 +38,8 @@ internal static class ModuleExecuter
         catch (Exception ex)
         {
             var formattedMessage = ex.FormatExceptionWithDetails();
-            context.Log(LogSeverity.Fatal, null, "{ErrorMessage}", formattedMessage);
-            context.LogOps(LogSeverity.Fatal, null, "{ErrorMessage}", formattedMessage);
+            context.Log(LogSeverity.Error, null, "{ErrorMessage}", formattedMessage);
+            context.LogOps(LogSeverity.Error, null, "{ErrorMessage}", formattedMessage);
         }
 
         if (host.SerilogForModulesEnabled)
@@ -104,7 +104,7 @@ internal static class ModuleExecuter
 
                     if (pipe.Failed)
                     {
-                        context.Log(LogSeverity.Error, task, "failed, terminating execution");
+                        context.Log(LogSeverity.Fatal, task, "failed, terminating execution");
                         executionResult.Status = ExecutionStatusCode.ExecutionFailed;
                         context.Close();
                         break; // stop processing tasks
@@ -112,7 +112,7 @@ internal static class ModuleExecuter
                 }
                 catch (Exception ex)
                 {
-                    context.Log(LogSeverity.Error, task, "failed, terminating execution, reason: {0}", ex.Message);
+                    context.Log(LogSeverity.Fatal, task, "failed, terminating execution, reason: {0}", ex.Message);
                     executionResult.Status = ExecutionStatusCode.ExecutionFailed;
                     context.Close();
                     break; // stop processing tasks
@@ -145,9 +145,8 @@ internal static class ModuleExecuter
                         if (action.Caller != null)
                         {
                             var typ = action.Caller is IEtlTask ? "Task" : "Process";
-                            sb.Append("in {Active").Append(typ).Append("} INV#{Active").Append(typ).Append("InvocationUid} ");
-                            args.Add(action.Caller.Name);
-                            args.Add(action.Caller.InvocationInfo.InvocationUid);
+                            sb.Append("in {Active").Append(typ).Append("} ");
+                            args.Add(action.Caller.InvocationName);
                         }
 
                         sb.Append("is {Action}");
@@ -156,9 +155,8 @@ internal static class ModuleExecuter
                         if (action.Process != null)
                         {
                             var typ = action.Process is IEtlTask ? "Task" : "Process";
-                            sb.Append(" by {").Append(typ).Append("} INV#{").Append(typ).Append("InvocationUid}, {ProcessType}");
+                            sb.Append(" by {").Append(typ).Append("}, {ProcessType}");
                             args.Add(action.Process.Name);
-                            args.Add(action.Process.InvocationInfo.InvocationUid);
                             args.Add(action.Process.GetType().GetFriendlyTypeName());
                         }
 
@@ -232,12 +230,12 @@ internal static class ModuleExecuter
 
         if (result.Exceptions.Count == 0)
         {
-            context.Log(LogSeverity.Information, null, "{Task}{spacing1} run-time is {Elapsed}, result is {Result}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
+            context.Log(LogSeverity.Information, null, "{Task}{spacing1} run-time is {Elapsed}, result is {ProcessResult}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
                 result.TaskName, spacing1, result.Statistics.RunTime, "success", result.Statistics.CpuTime, result.Statistics.TotalAllocations, result.Statistics.AllocationDifference);
         }
         else
         {
-            context.Log(LogSeverity.Information, null, "{Task}{spacing1} run-time is {Elapsed}, result is {Result}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
+            context.Log(LogSeverity.Information, null, "{Task}{spacing1} run-time is {Elapsed}, result is {ProcessResult}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
                 result.TaskName, spacing1, result.Statistics.RunTime, "failed", result.Statistics.CpuTime, result.Statistics.TotalAllocations, result.Statistics.AllocationDifference);
         }
 

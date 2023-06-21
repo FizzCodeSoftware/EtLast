@@ -17,7 +17,8 @@ public interface IEtlContext
     public DateTimeOffset CreatedOnLocal { get; }
 
     public TimeSpan TransactionScopeTimeout { get; set; }
-    public EtlTransactionScope BeginTransactionScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity);
+    public int ElapsedMillisecondsLimitToLog { get; set; }
+    public EtlTransactionScope BeginTransactionScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity = LogSeverity.Information);
 
     public void Terminate();
     public bool IsTerminating { get; }

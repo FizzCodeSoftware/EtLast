@@ -5,7 +5,7 @@ internal struct ColorCodeContext : IDisposable
     private readonly TextWriter _builder;
     private static readonly IDictionary<ColorCode, string> _colorCodeValues = new Dictionary<ColorCode, string>
     {
-        [ColorCode.Exception] = "\x1b[38;5;0015m",
+        //[ColorCode.Exception] = "\x1b[38;5;0015m",
         [ColorCode.TimeStamp_Property_Exception] = "\x1b[38;5;0007m",
         [ColorCode.Value] = "\x1b[38;5;0008m",
         [ColorCode.NullValue] = "\x1b[38;5;0027m",
@@ -19,7 +19,7 @@ internal struct ColorCodeContext : IDisposable
         [ColorCode.LvlTokenDbg] = "\x1b[38;5;0008m",
         [ColorCode.LvlTokenInf] = "\x1b[38;5;0015m",
         [ColorCode.LvlTokenWrn] = "\x1b[38;5;000m\x1b[48;5;0214m",
-        [ColorCode.LvlTokenErr] = "\x1b[38;5;0015m\x1b[48;5;0196m",
+        [ColorCode.LvlTokenErr] = "\x1b[38;5;0196m",
         [ColorCode.LvlTokenFtl] = "\x1b[38;5;0015m\x1b[48;5;0196m",
         //[ColorCode.Module] = "\x1b[38;5;0007m",
         //[ColorCode.Plugin] = "\x1b[38;5;0007m",
@@ -31,6 +31,8 @@ internal struct ColorCodeContext : IDisposable
         [ColorCode.ConnectionStringName] = "\x1b[38;5;0135m",
         [ColorCode.Location] = "\x1b[38;5;0035m",
         [ColorCode.Transaction] = "\x1b[38;5;0245m",
+        [ColorCode.Result] = "\x1b[38;5;0015m",
+        [ColorCode.ResultFailed] = "\x1b[38;5;0015m\x1b[48;5;0196m",
     };
 
     private const string ResetColorCodeValue = "\x1b[0m";
@@ -40,7 +42,9 @@ internal struct ColorCodeContext : IDisposable
         _builder = builder;
     }
 
+#pragma warning disable IDE0251 // Make member 'readonly'
     public void Dispose()
+#pragma warning restore IDE0251 // Make member 'readonly'
     {
         _builder.Write(ResetColorCodeValue);
     }
@@ -86,8 +90,8 @@ internal struct ColorCodeContext : IDisposable
             LogEventLevel.Verbose => ColorCode.LvlTokenVrb,
             LogEventLevel.Debug => ColorCode.LvlTokenDbg,
             LogEventLevel.Warning => ColorCode.LvlTokenWrn,
-            LogEventLevel.Fatal => ColorCode.LvlTokenFtl,
             LogEventLevel.Error => ColorCode.LvlTokenErr,
+            LogEventLevel.Fatal => ColorCode.LvlTokenFtl,
             _ => colorCode,
         };
     }

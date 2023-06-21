@@ -7,6 +7,8 @@ internal static class CustomColoredProperties
         //["Module"] = ColorCode.Module,
         //["Plugin"] = ColorCode.Plugin,
         ["ActiveTopic"] = ColorCode.Topic,
+        ["IoResult"] = ColorCode.Result,
+        ["ProcessResult"] = ColorCode.Result,
         ["Caller"] = ColorCode.Process,
         ["Process"] = ColorCode.Process,
         ["ActiveProcess"] = ColorCode.Process,

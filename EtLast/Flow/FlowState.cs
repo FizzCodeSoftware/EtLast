@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class FlowState
+public class FlowState : IReadOnlyFlowState
 {
     public IEtlContext Context { get; }
 
@@ -15,6 +15,12 @@ public class FlowState
 
     public void AddException(IProcess process, Exception ex)
     {
+        if (ex is OperationCanceledException)
+            return;
+
+        if (Exceptions.Contains(ex))
+            return;
+
         if (ex is AggregateException aex)
         {
             foreach (var aexIn in aex.InnerExceptions)
@@ -24,9 +30,6 @@ public class FlowState
 
             return;
         }
-
-        if (ex is OperationCanceledException)
-            return;
 
         if (ex is not EtlException)
             ex = new ProcessExecutionException(process, ex);
@@ -42,6 +45,9 @@ public class FlowState
     public void AddException(IProcess process, Exception ex, IReadOnlySlimRow row)
     {
         if (ex is OperationCanceledException)
+            return;
+
+        if (Exceptions.Contains(ex))
             return;
 
         if (ex is EtlException eex)

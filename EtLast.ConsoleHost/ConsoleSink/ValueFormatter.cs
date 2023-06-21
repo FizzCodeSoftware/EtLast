@@ -54,6 +54,9 @@ internal static class ValueFormatter
                     if (string.IsNullOrEmpty(propertyName) || !CustomColoredProperties.Map.TryGetValue(propertyName, out var colorCode))
                         colorCode = ColorCode.StringValue;
 
+                    if (colorCode == ColorCode.Result && strv != "success" && strv != "completed" && strv != "finished")
+                        colorCode = ColorCode.ResultFailed;
+
                     using (ColorCodeContext.StartOverridden(builder, logEvent, colorCode))
                     {
                         builder.Write(strv);

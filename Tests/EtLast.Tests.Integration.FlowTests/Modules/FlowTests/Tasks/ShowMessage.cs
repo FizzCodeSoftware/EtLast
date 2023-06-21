@@ -1,8 +1,8 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.FlowTests;
 
-public class ShowMessageTask : AbstractEtlTask
+public class ShowMessage : AbstractEtlTask
 {
-    public Func<ShowMessageTask, string> Message { get; set; }
+    public Func<string> Message { get; set; }
 
     public override void ValidateParameters()
     {
@@ -15,9 +15,10 @@ public class ShowMessageTask : AbstractEtlTask
         flow
             .ContinueWith(() => new CustomJob(Context)
             {
+                Name = "ShowMessageJob",
                 Action = job =>
                 {
-                    var msg = Message.Invoke(this);
+                    var msg = Message.Invoke();
                     Context.Log(LogSeverity.Warning, job, msg);
                 },
             });

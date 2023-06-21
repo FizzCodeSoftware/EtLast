@@ -13,6 +13,8 @@ public sealed class ResilientTable : ResilientTableBase
     public bool SuppressTransactionScopeForCreators { get; init; }
 
     public ResilientTablePartitionedProducerCreatorDelegate PartitionedProducerCreator { get; set; }
+
+    // todo: consider using IFlow somehow
     public ResilientTableJobCreatorDelegate JobCreator { get; set; }
 
     /// <summary>

@@ -60,16 +60,4 @@ public class CreateDatabase : AbstractEtlTask
                 }
             });
     }
-
-    private void x(object sender, DbTools.Common.Logger.LogEventArgs e)
-    {
-        if (e.Exception != null)
-        {
-            Context.Log(LogSeverity.Fatal, this, e.Text, e.Arguments);
-            return;
-        }
-
-        Context.Log((LogSeverity)e.Severity, this, e.Text, e.Arguments);
-
-    }
 }

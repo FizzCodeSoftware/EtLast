@@ -198,50 +198,19 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
             var proc = process.InvocationInfo.Caller;
             while (proc != null)
             {
-                sb.Append('.');
+                sb.Append("  ");
                 proc = proc.InvocationInfo.Caller;
             }
-
-            /*IEtlTask task = null;
-            proc = process;
-            while (proc != null)
-            {
-                if (proc is IEtlTask t)
-                {
-                    task = t;
-                    break;
-                }
-
-                proc = proc.InvocationInfo.Caller;
-            }
-
-            if (task != null)
-            {
-                sb.Append("{ActiveTask} ");
-                values.Add(task.Name);
-            }
-
-            if (process != task)
-            {
-                sb.Append("{ActiveProcess} ");
-                values.Add(process.Name);
-            }*/
 
             if (process is IEtlTask)
             {
                 sb.Append("{ActiveTask} ");
-                sb.Append("INV#{ActiveTaskInvocationUid} ");
-
-                values.Add(process.Name);
-                values.Add(process.InvocationInfo.InvocationUid);
+                values.Add(process.InvocationName);
             }
             else
             {
                 sb.Append("{ActiveProcess} ");
-                sb.Append("INV#{ActiveProcessInvocationUid} ");
-
-                values.Add(process.Name);
-                values.Add(process.InvocationInfo.InvocationUid);
+                values.Add(process.InvocationName);
             }
         }
 
@@ -317,11 +286,11 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
 
         foreach (var opsError in opsErrors)
         {
-            Log(LogSeverity.Fatal, true, null, process, opsError);
+            Log(LogSeverity.Error, true, null, process, opsError);
         }
 
         var msg = exception.FormatExceptionWithDetails();
-        Log(LogSeverity.Fatal, false, null, process, "{ErrorMessage}", msg);
+        Log(LogSeverity.Error, false, null, process, "{ErrorMessage}", msg);
     }
 
     public void GetOpsMessagesRecursive(Exception ex, List<string> messages)
@@ -366,18 +335,12 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
                 if (process is IEtlTask)
                 {
                     sb.Append("{ActiveTask} ");
-                    sb.Append("#{ActiveTaskInvocationUid} ");
-
-                    values.Add(process.Name);
-                    values.Add(process.InvocationInfo.InvocationUid);
+                    values.Add(process.InvocationName);
                 }
                 else
                 {
                     sb.Append("{ActiveProcess} ");
-                    sb.Append("#{ActiveProcessInvocationUid} ");
-
-                    values.Add(process.Name);
-                    values.Add(process.InvocationInfo.InvocationUid);
+                    values.Add(process.InvocationName);
                 }
             }
 
@@ -447,12 +410,12 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
             if (process is IEtlTask)
             {
                 sb.Append("{ActiveTask} ");
-                values.Add(process.Name);
+                values.Add(process.InvocationName);
             }
             else
             {
                 sb.Append("{ActiveProcess} ");
-                values.Add(process.Name);
+                values.Add(process.InvocationName);
             }
         }
 

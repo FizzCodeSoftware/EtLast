@@ -26,4 +26,6 @@ internal enum ColorCode
     Location = 23,
     Transaction = 24,
     Task = 25,
+    Result = 26,
+    ResultFailed = 27,
 }

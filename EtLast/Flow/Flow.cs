@@ -6,6 +6,8 @@ public sealed class Flow : IFlow
     private readonly IProcess _caller;
     private readonly FlowState _flowState;
 
+    public IReadOnlyFlowState State => _flowState;
+
     internal Flow(IEtlContext context, IProcess caller, FlowState flowState)
     {
         _context = context;
@@ -69,27 +71,49 @@ public sealed class Flow : IFlow
         return this;
     }
 
-    public IFlow Isolate(Action<IsolatedFlowContext> starter)
+    public IFlow Isolate(Action<IFlow> builder)
     {
-        starter.Invoke(new IsolatedFlowContext()
+#pragma warning disable RCS1075 // Avoid empty catch clause that catches System.Exception.
+        try
         {
-            ParentFlowState = _flowState,
-            IsolatedFlow = new Flow(_context, _caller, new FlowState(_context))
-        });
+            builder.Invoke(new Flow(_context, _caller, new FlowState(_context)));
+        }
+        catch (Exception)
+        {
+        }
+#pragma warning restore RCS1075 // Avoid empty catch clause that catches System.Exception.
 
         return this;
     }
 
-    public IFlow HandleError<T>(Func<FlowErrorContext, T> processCreator)
+    public IFlow Scope(TransactionScopeKind kind, Action builder, LogSeverity logSeverity = LogSeverity.Information)
+    {
+        using (var scope = _context.BeginTransactionScope(_caller, kind, logSeverity))
+        {
+            try
+            {
+                builder.Invoke();
+
+                if (!_flowState.Failed)
+                {
+                    scope.Complete();
+                }
+            }
+            catch (Exception ex)
+            {
+                _flowState.AddException(_caller, ex);
+            }
+        }
+
+        return this;
+    }
+
+    public IFlow HandleError<T>(Func<T> processCreator)
         where T : IProcess
     {
         if (_flowState.IsTerminating && _flowState.Exceptions.Count > 0)
         {
-            var process = processCreator.Invoke(new FlowErrorContext()
-            {
-                ParentFlowState = _flowState,
-            });
-
+            var process = processCreator.Invoke();
             if (process != null)
             {
                 process.SetContext(_context);

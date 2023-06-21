@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.FlowTests;
 
-public class ThrowExceptionTask : AbstractEtlTask
+public class ThrowException : AbstractEtlTask
 {
     public override void ValidateParameters()
     {
