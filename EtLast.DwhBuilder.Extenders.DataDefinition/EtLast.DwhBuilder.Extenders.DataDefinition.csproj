@@ -30,7 +30,7 @@
   <ItemGroup>
     <PackageReference Include="FizzCode.DbTools.DataDefinition" Version="2.0.25.6662" />
     <PackageReference Include="FizzCode.DbTools.DataDefinition.MsSql" Version="2.0.25.6662" />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.2.0">
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

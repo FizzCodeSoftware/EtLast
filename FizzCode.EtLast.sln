@@ -60,6 +60,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Tests.Integration.Fl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Tests.Benchmarks", "Tests\EtLast.Tests.Benchmarks\EtLast.Tests.Benchmarks.csproj", "{4281D76D-90D6-4B81-8F8B-55E83412D990}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{79B641A3-3BD8-4B5D-804E-6775A803470B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

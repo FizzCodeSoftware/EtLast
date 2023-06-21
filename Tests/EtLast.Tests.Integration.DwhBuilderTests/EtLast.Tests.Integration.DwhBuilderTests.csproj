@@ -10,8 +10,8 @@
 
   <ItemGroup>
     <PackageReference Include="FizzCode.DbTools.Configuration" Version="2.0.25.6662" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.0.2" />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.2.0">
+    <PackageReference Include="MSTest.TestFramework" Version="3.0.4" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

@@ -261,7 +261,7 @@ public class HttpSender : IDisposable, IEtlContextListener
                 {
                     if (tokens[i] is PropertyToken pt)
                     {
-                        var rawText = text.Substring(pt.StartIndex, pt.Length);
+                        var rawText = pt.ToString();
                         writer.Write7BitEncodedInt(GetTextDictionaryKey(rawText));
                         writer.WriteObject(args[idx]);
                         idx++;
