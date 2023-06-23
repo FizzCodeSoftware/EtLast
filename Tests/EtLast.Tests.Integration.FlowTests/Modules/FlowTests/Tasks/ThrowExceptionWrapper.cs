@@ -17,7 +17,7 @@ public class ThrowExceptionWrapper : AbstractEtlTask
                     .ExecuteProcess(() => new ThrowException())
                     .HandleError(() => new ShowMessage()
                     {
-                        Message = () => !flow.State.IsTerminating && isolatedFlow.State.IsTerminating
+                        Message = !flow.State.IsTerminating && isolatedFlow.State.IsTerminating
                             ? "#1001 WORKS PROPERLY"
                             : "#1001 FAILED",
                     })
@@ -29,7 +29,7 @@ public class ThrowExceptionWrapper : AbstractEtlTask
                 .ExecuteProcess(() => new ThrowException())
                 .HandleError(() => new ShowMessage()
                 {
-                    Message = () => flow.State.IsTerminating
+                    Message = flow.State.IsTerminating
                         ? "#1002 WORKS PROPERLY"
                         : "#1002 FAILED",
                 });

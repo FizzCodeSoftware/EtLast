@@ -2,7 +2,7 @@
 
 public class ShowMessage : AbstractEtlTask
 {
-    public Func<string> Message { get; set; }
+    public string Message { get; set; }
 
     public override void ValidateParameters()
     {
@@ -16,11 +16,7 @@ public class ShowMessage : AbstractEtlTask
             .ExecuteProcess(() => new CustomJob(Context)
             {
                 Name = "ShowMessageJob",
-                Action = job =>
-                {
-                    var msg = Message.Invoke();
-                    Context.Log(LogSeverity.Warning, job, msg);
-                },
+                Action = job => Context.Log(LogSeverity.Warning, job, Message),
             });
     }
 }

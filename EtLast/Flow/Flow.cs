@@ -94,15 +94,7 @@ public sealed class Flow : IFlow
 
         foreach (var element in elements)
         {
-#pragma warning disable RCS1075 // Avoid empty catch clause that catches System.Exception.
-            try
-            {
-                action.Invoke(element, new Flow(_context, _caller, new FlowState(_context)));
-            }
-            catch (Exception)
-            {
-            }
-#pragma warning restore RCS1075 // Avoid empty catch clause that catches System.Exception.
+            action.Invoke(element, new Flow(_context, _caller, new FlowState(_context)));
 
             if (_flowState.IsTerminating)
                 break;
@@ -113,16 +105,7 @@ public sealed class Flow : IFlow
 
     public IFlow Isolate(Action<IFlow> builder)
     {
-#pragma warning disable RCS1075 // Avoid empty catch clause that catches System.Exception.
-        try
-        {
-            builder.Invoke(new Flow(_context, _caller, new FlowState(_context)));
-        }
-        catch (Exception)
-        {
-        }
-#pragma warning restore RCS1075 // Avoid empty catch clause that catches System.Exception.
-
+        builder.Invoke(new Flow(_context, _caller, new FlowState(_context)));
         return this;
     }
 

@@ -14,27 +14,23 @@ public class Example3 : AbstractEtlTask
             .ExecuteProcess(out var getFilesTask, () => new GetFiles())
             .HandleError(() => new ShowMessage()
             {
-                Message = () => "awesome",
+                Message = "awesome...",
             })
             .ThrowOnError()
             .ExecuteForEachIsolated(getFilesTask.FileNames, (fileName, isolatedFlow) => isolatedFlow
                 .ExecuteProcess(() => new ShowMessage()
                 {
                     Name = "ShowMessageForFile",
-                    Message = () =>
-                    {
-                        if (fileName.StartsWith("c"))
-                            throw new Exception("disk full");
-
-                        return "file found: " + fileName;
-                    },
+                    Message = fileName.StartsWith("c")
+                        ? throw new Exception("disk full")
+                        : "file found: " + fileName,
                 })
                 .HandleError(() => new ShowMessage()
                 {
                     Name = "ShowErrorMessage",
-                    Message = () => "processing file failed: " + string.Join(", ", isolatedFlow.State.Exceptions.Select(x => x.Message)),
+                    Message = "processing file failed: " + string.Join(", ", isolatedFlow.State.Exceptions.Select(x => x.Message)),
                 })
-                .ThrowOnError()
+                .ThrowOnError() // breaks the outer flow
             );
     }
 }

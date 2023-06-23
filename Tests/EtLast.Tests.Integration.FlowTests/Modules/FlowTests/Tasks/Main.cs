@@ -17,7 +17,7 @@ public class Main : AbstractEtlTask
             .Isolate(isolatedFlow => isolatedFlow
                 .ExecuteProcess(() => new ShowMessage()
                 {
-                    Message = () => !flow.State.IsTerminating && !isolatedFlow.State.IsTerminating
+                    Message = flow.State.IsTerminating && !isolatedFlow.State.IsTerminating
                         ? "#1003 WORKS PROPERLY"
                         : "#1003 FAILED",
                 })
@@ -29,14 +29,14 @@ public class Main : AbstractEtlTask
             .Isolate(isolatedFlow => isolatedFlow
                 .ExecuteProcess(() => new ShowMessage()
                 {
-                    Message = () => flow.State.IsTerminating && !isolatedFlow.State.IsTerminating
+                    Message = flow.State.IsTerminating && !isolatedFlow.State.IsTerminating
                         ? "#1004 WORKS PROPERLY"
                         : "#1004 FAILED",
                 })
             )
             .HandleError(() => new ShowMessage()
             {
-                Message = () => "#1005 WORKS PROPERLY",
+                Message = "#1005 WORKS PROPERLY",
             });
     }
 }
