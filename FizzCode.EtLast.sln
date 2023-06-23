@@ -63,9 +63,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{79B6
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SampleHost", "SampleHost", "{618A5B3C-77D3-43E6-B3E7-6A010A3C6224}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleHost.Modules", "Samples\SampleHost.Modules\SampleHost.Modules.csproj", "{07F75636-CAB9-4A3D-8AAF-D64A80A8A8E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Etl.Modules", "Samples\Sample.Etl.Modules\Sample.Etl.Modules.csproj", "{07F75636-CAB9-4A3D-8AAF-D64A80A8A8E5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleHost.EtlHost", "Samples\SampleHost.EtlHost\SampleHost.EtlHost.csproj", "{DF3E2E97-F83C-482B-A1F2-F71A3C5AF9FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Etl.Host", "Samples\Sample.Etl.Host\Sample.Etl.Host.csproj", "{DF3E2E97-F83C-482B-A1F2-F71A3C5AF9FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

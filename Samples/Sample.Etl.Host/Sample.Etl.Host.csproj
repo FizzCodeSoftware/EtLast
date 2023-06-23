@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SampleHost.Modules\SampleHost.Modules.csproj" />
+    <ProjectReference Include="..\Sample.Etl.Modules\Sample.Etl.Modules.csproj" />
   </ItemGroup>
 
 </Project>
