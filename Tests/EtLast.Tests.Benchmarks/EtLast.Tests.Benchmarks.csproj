@@ -2,20 +2,15 @@
 
   <PropertyGroup>
     <TargetFrameworks>net7.0</TargetFrameworks>
+    <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
-    <Platforms>AnyCPU</Platforms>
     <AssemblyName>EtLast.Tests.Benchmarks</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Benchmarks</RootNamespace>
-    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-    <OutputType>Exe</OutputType>
+    <NoWarn>1701;1702;8032</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>False</Optimize>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <NoWarn>1701;1702;8032</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

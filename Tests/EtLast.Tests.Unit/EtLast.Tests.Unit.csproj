@@ -3,11 +3,8 @@
   <PropertyGroup>
     <TargetFrameworks>net7.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
-    <Platforms>AnyCPU</Platforms>
     <AssemblyName>FizzCode.EtLast.Tests.Unit</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Tests.Unit</RootNamespace>
-    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-    <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net7.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FizzCode.EtLast" Version="5.0.102.6998" />
+    <PackageReference Include="FizzCode.EtLast.AdoNet" Version="5.0.102.6998" />
+    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="5.0.102.6998" />
+    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="5.0.102.6998" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.3.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Modules\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Modules\SampleModule\Arguments\Instance\" />
+    <Folder Include="Modules\SampleModule\Helpers\" />
+  </ItemGroup>
+
+</Project>

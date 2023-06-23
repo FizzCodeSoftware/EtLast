@@ -5,7 +5,6 @@
     <IsPackable>false</IsPackable>
     <AssemblyName>FizzCode.EtLast.Tests.Integration.FlowTests</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Tests.Integration.FlowTests</RootNamespace>
-    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>

@@ -16,9 +16,9 @@ public class TestAdapter
         using (var process = new Process())
         {
 #if DEBUG
-            process.StartInfo.FileName = "../../../../EtLast.Tests.Integration/bin/debug/net6.0/FizzCode.EtLast.Tests.Integration.exe";
+            process.StartInfo.FileName = "../../../../EtLast.Tests.Integration/bin/x64/debug/FizzCode.EtLast.Tests.Integration.exe";
 #else
-            process.StartInfo.FileName = "../../../../EtLast.Tests.Integration/bin/release/net6.0/FizzCode.EtLast.Tests.Integration.exe";
+            process.StartInfo.FileName = "../../../../EtLast.Tests.Integration/bin/x64/release/FizzCode.EtLast.Tests.Integration.exe";
 #endif
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;

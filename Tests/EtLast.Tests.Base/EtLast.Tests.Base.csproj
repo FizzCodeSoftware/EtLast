@@ -3,19 +3,12 @@
   <PropertyGroup>
     <TargetFrameworks>net7.0</TargetFrameworks>
     <PackageId>FizzCode.EtLast.Tests.Base</PackageId>
-    <Authors>FizzCode Ltd.</Authors>
-    <Company>FizzCode Ltd.</Company>
-    <Product>EtLast ETL (Extract, Transform and Load) library for .NET</Product>
-    <Copyright>Copyright © 2019-2022 FizzCode Ltd.</Copyright>
-    <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Description>Base tools for unit testing the EtLast ETL (Extract, Transform and Load) library</Description>
-    <Platforms>AnyCPU</Platforms>
     <AssemblyName>FizzCode.EtLast.Tests.Base</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Tests</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Configurations>Debug;Release</Configurations>
     <NoWarn>CS1591</NoWarn>
-    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

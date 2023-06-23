@@ -1,15 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows</TargetFramework>
+    <OutputType>WinExe</OutputType>
     <UseWindowsForms>true</UseWindowsForms>
     <IsPackable>false</IsPackable>
-    <Authors>FizzCode Ltd.</Authors>
-    <Company>FizzCode Ltd.</Company>
-    <Product>EtLast ETL (Extract, Transform and Load) library for .NET</Product>
-    <Copyright>Copyright © 2019-2022 FizzCode Ltd.</Copyright>
-    <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Description>Diagnostics UI for EtLast ETL (Extract, Transform and Load)</Description>
     <AssemblyName>FizzCode.EtLast.Diagnostics.Windows</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Diagnostics.Windows</RootNamespace>
@@ -18,7 +13,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DefineConstants>DEBUG</DefineConstants>
   </PropertyGroup>
 

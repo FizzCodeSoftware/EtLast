@@ -3,13 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net7.0</TargetFrameworks>
     <PackageId>FizzCode.EtLast.ConsoleHost</PackageId>
-    <Authors>FizzCode Ltd.</Authors>
-    <Company>FizzCode Ltd.</Company>
-    <Product>EtLast ETL (Extract, Transform and Load) library for .NET</Product>
     <Description>Console host for EtLast ETL (Extract, Transform and Load) library</Description>
-    <Copyright>Copyright © 2019-2022 FizzCode Ltd.</Copyright>
-    <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
-    <Platforms>AnyCPU</Platforms>
     <AssemblyName>FizzCode.EtLast.ConsoleHost</AssemblyName>
     <RootNamespace>FizzCode.EtLast.ConsoleHost</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

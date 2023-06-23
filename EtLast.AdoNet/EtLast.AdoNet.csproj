@@ -3,13 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net7.0</TargetFrameworks>
     <PackageId>FizzCode.EtLast.AdoNet</PackageId>
-    <Authors>FizzCode Ltd.</Authors>
-    <Company>FizzCode Ltd.</Company>
-    <Product>EtLast ETL (Extract, Transform and Load) library for .NET</Product>
-    <Copyright>Copyright © 2019-2022 FizzCode Ltd.</Copyright>
-    <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
     <Description>ADO.NET extension for EtLast ETL (Extract, Transform and Load) library</Description>
-    <Platforms>AnyCPU</Platforms>
     <AssemblyName>FizzCode.EtLast.AdoNet</AssemblyName>
     <RootNamespace>FizzCode.EtLast</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

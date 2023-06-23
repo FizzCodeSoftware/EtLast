@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net7.0</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <Product>Sample ETL</Product>
+    <Description>EtlHost</Description>
+    <Configurations>Debug;Release</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FizzCode.EtLast.ConsoleHost" Version="5.0.102.6998" />
+    <PackageReference Include="FizzCode.EtLast.Diagnostics.HttpSender" Version="5.0.102.6998" />
+    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="5.0.102.6998" />
+    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="5.0.102.6998" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.3.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SampleHost.Modules\SampleHost.Modules.csproj" />
+  </ItemGroup>
+
+</Project>

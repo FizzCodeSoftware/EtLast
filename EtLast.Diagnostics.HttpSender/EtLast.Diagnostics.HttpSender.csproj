@@ -3,13 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net7.0</TargetFrameworks>
     <PackageId>FizzCode.EtLast.Diagnostics.HttpSender</PackageId>
-    <Authors>FizzCode Ltd.</Authors>
-    <Company>FizzCode Ltd.</Company>
-    <Product>EtLast ETL (Extract, Transform and Load) library for .NET</Product>
     <Description>Listens to ETL diagnostics data and send to http</Description>
-    <Copyright>Copyright © 2019-2022 FizzCode Ltd.</Copyright>
-    <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
-    <Platforms>AnyCPU</Platforms>
     <AssemblyName>FizzCode.EtLast.Diagnostics.HttpSender</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Diagnostics.HttpSender</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

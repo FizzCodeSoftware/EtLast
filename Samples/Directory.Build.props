@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <Platforms>x64</Platforms>
+
+  </PropertyGroup>
+</Project>

@@ -3,10 +3,8 @@
   <PropertyGroup>
     <TargetFrameworks>net7.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
-    <Platforms>AnyCPU</Platforms>
     <AssemblyName>FizzCode.EtLast.Tests.EPPlus</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Tests.EPPlus</RootNamespace>
-    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>

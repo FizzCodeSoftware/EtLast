@@ -3,14 +3,8 @@
   <PropertyGroup>
     <TargetFrameworks>net7.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
-    <Platforms>AnyCPU</Platforms>
     <AssemblyName>FizzCode.EtLast.Tests.DwhBuilder</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Tests.DwhBuilder</RootNamespace>
-    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>

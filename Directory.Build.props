@@ -1,0 +1,18 @@
+<Project>
+  <PropertyGroup>
+
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <Platforms>x64</Platforms>
+
+    <Authors>FizzCode Ltd.</Authors>
+    <Company>FizzCode Ltd.</Company>
+    <Copyright>Copyright © 2019-2023 FizzCode Ltd.</Copyright>
+    <Product>EtLast ETL (Extract, Transform and Load) library for .NET</Product>
+    <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
+
+  </PropertyGroup>
+</Project>
