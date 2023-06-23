@@ -9,7 +9,7 @@ public class IoCommandCounterCollection : IEtlContextListener
     {
     }
 
-    public void OnContextIoCommandEnd(IProcess process, int uid, IoCommandKind kind, int? affectedDataCount, Exception ex)
+    public void OnContextIoCommandEnd(IProcess process, int uid, IoCommandKind kind, long? affectedDataCount, Exception ex)
     {
         _counters.TryGetValue(kind, out var counter);
         if (counter == null)

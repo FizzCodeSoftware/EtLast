@@ -136,7 +136,7 @@ internal class SessionIoCommandListControl
         {
             Text = "Affected data",
             AspectGetter = x => (x as IoCommandModel)?.EndEvent?.AffectedDataCount,
-            AspectToStringConverter = x => x is int dc ? dc.FormatToString() : null,
+            AspectToStringConverter = x => x is long dc ? dc.FormatToString() : null,
             TextAlign = HorizontalAlignment.Right,
             HeaderTextAlign = HorizontalAlignment.Right,
         });

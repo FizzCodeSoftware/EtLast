@@ -39,8 +39,8 @@ public interface IEtlContext
 
     public int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs);
     public int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string location, string path, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs);
-    public void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount);
-    public void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount, Exception exception);
+    public void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, int uid, long? affectedDataCount);
+    public void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, int uid, long? affectedDataCount, Exception exception);
 
     public void RegisterWriteToSink(IReadOnlyRow row, int sinkUid);
 

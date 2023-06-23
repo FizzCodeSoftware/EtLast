@@ -4,17 +4,13 @@
 [Serializable]
 public class HttpDownloadToLocalFileException : EtlException
 {
-    internal HttpDownloadToLocalFileException(IProcess process, string message, string url, string fileName)
+    internal HttpDownloadToLocalFileException(IProcess process, string message)
         : base(process, message)
     {
-        Data["Url"] = url;
-        Data["FileName"] = fileName;
     }
 
-    internal HttpDownloadToLocalFileException(IProcess process, string message, string url, string fileName, Exception innerException)
+    internal HttpDownloadToLocalFileException(IProcess process, string message, Exception innerException)
         : base(process, message, innerException)
     {
-        Data["Url"] = url;
-        Data["FileName"] = fileName;
     }
 }

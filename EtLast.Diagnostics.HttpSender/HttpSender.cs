@@ -426,7 +426,7 @@ public class HttpSender : IDisposable, IEtlContextListener
         });
     }
 
-    public void OnContextIoCommandEnd(IProcess process, int uid, IoCommandKind kind, int? affectedDataCount, Exception ex)
+    public void OnContextIoCommandEnd(IProcess process, int uid, IoCommandKind kind, long? affectedDataCount, Exception ex)
     {
         SendDiagnostics(DiagnosticsEventKind.IoCommandEnd, writer =>
         {

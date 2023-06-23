@@ -3,5 +3,5 @@
 public class IoCommandCounter
 {
     public int InvocationCount { get; set; }
-    public int? AffectedDataCount { get; set; }
+    public long? AffectedDataCount { get; set; }
 }

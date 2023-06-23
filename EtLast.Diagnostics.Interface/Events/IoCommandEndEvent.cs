@@ -2,6 +2,6 @@
 
 public class IoCommandEndEvent : IoCommandEvent
 {
-    public int? AffectedDataCount { get; set; }
+    public long? AffectedDataCount { get; set; }
     public string ErrorMessage { get; set; }
 }

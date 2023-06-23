@@ -14,4 +14,17 @@ public static class Extensions
 
         return FormatToString(number, format);
     }
+
+    public static string FormatToString(this long number, string format = "#,0")
+    {
+        return number.ToString(format, CultureInfo.InvariantCulture);
+    }
+
+    public static string FormatToStringNoZero(this long number, string format = "#,0")
+    {
+        if (number == 0)
+            return "";
+
+        return FormatToString(number, format);
+    }
 }

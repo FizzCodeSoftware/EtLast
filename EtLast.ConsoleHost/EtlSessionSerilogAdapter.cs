@@ -393,7 +393,7 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
         }
     }
 
-    public void OnContextIoCommandEnd(IProcess process, int uid, IoCommandKind kind, int? affectedDataCount, Exception ex)
+    public void OnContextIoCommandEnd(IProcess process, int uid, IoCommandKind kind, long? affectedDataCount, Exception ex)
     {
         var sb = new StringBuilder();
         var values = new List<object>();

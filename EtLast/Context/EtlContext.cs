@@ -156,7 +156,7 @@ public sealed class EtlContext : IEtlContext
         return uid;
     }
 
-    public void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount)
+    public void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, int uid, long? affectedDataCount)
     {
         foreach (var listener in Listeners)
         {
@@ -164,7 +164,7 @@ public sealed class EtlContext : IEtlContext
         }
     }
 
-    public void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, int uid, int? affectedDataCount, Exception exception)
+    public void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, int uid, long? affectedDataCount, Exception exception)
     {
         foreach (var listener in Listeners)
         {

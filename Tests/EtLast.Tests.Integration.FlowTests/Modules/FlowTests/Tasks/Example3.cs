@@ -11,14 +11,14 @@ public class Example3 : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ContinueWith(out var fileListTask, () => new GetFiles())
+            .ContinueWith(out var getFilesTask, () => new GetFiles())
             .HandleError(() => new ShowMessage()
             {
                 Message = () => "awesome",
             })
             .ThrowOnError();
 
-        foreach (var file in fileListTask.FileNames)
+        foreach (var file in getFilesTask.FileNames)
         {
             flow
                 .Isolate(isolatedFlow => isolatedFlow
@@ -37,7 +37,7 @@ public class Example3 : AbstractEtlTask
                         .HandleError(() => new ShowMessage()
                         {
                             Name = "ShowErrorMessage",
-                            Message = () => "failed: " + string.Join(", ", flow.State.Exceptions.Select(x => x.Message)),
+                            Message = () => "processing file failed: " + string.Join(", ", isolatedFlow.State.Exceptions.Select(x => x.Message)),
                         })
                         .ThrowOnError()
                 ));
