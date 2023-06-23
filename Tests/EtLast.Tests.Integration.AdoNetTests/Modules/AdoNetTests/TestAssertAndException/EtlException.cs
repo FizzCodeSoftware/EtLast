@@ -12,7 +12,7 @@ public class EtlException : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ContinueWith(() => new CustomJob(Context)
+            .ContinueWithProcess(() => new CustomJob(Context)
             {
                 Name = nameof(EtlException),
                 Action = job =>

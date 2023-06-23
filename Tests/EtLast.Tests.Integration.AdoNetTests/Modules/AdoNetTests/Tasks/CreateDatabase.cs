@@ -18,7 +18,7 @@ public class CreateDatabase : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ContinueWith(() => new CustomJob(Context)
+            .ContinueWithProcess(() => new CustomJob(Context)
             {
                 Name = "CreateDb",
                 Action = job =>

@@ -11,7 +11,7 @@ public class Example3 : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ContinueWith(out var getFilesTask, () => new GetFiles())
+            .ContinueWithProcess(out var getFilesTask, () => new GetFiles())
             .HandleError(() => new ShowMessage()
             {
                 Message = () => "awesome",
@@ -21,9 +21,9 @@ public class Example3 : AbstractEtlTask
         foreach (var file in getFilesTask.FileNames)
         {
             flow
-                .Isolate(isolatedFlow => isolatedFlow
-                    .Scope(TransactionScopeKind.RequiresNew, () =>
-                        isolatedFlow.ContinueWith(() => new ShowMessage()
+                .IsolateFlow(isolatedFlow => isolatedFlow
+                    .TransactionScope(TransactionScopeKind.RequiresNew, () =>
+                        isolatedFlow.ContinueWithProcess(() => new ShowMessage()
                         {
                             Name = "ShowMessageForFile",
                             Message = () =>

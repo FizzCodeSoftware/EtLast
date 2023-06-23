@@ -11,8 +11,8 @@ public class Example1 : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ContinueWith(() => new ThrowException())
-            .ContinueWith(() => new ShowMessage()
+            .ContinueWithProcess(() => new ThrowException())
+            .ContinueWithProcess(() => new ShowMessage()
             {
                 Message = () => "awesome",
             })

@@ -21,7 +21,7 @@ public sealed class Flow : IFlow
         return new Flow(context, caller, flowState);
     }
 
-    public IFlow ContinueWith<T>(Func<IFluentSequenceBuilder, T> sequenceBuilder)
+    public IFlow ContinueWithSequence<T>(Func<IFluentSequenceBuilder, T> sequenceBuilder)
         where T : ISequence
     {
         if (_flowState.IsTerminating)
@@ -37,7 +37,7 @@ public sealed class Flow : IFlow
         return this;
     }
 
-    public IFlow ContinueWith<T>(Func<T> processCreator)
+    public IFlow ContinueWithProcess<T>(Func<T> processCreator)
          where T : IProcess
     {
         if (_flowState.IsTerminating)
@@ -53,7 +53,7 @@ public sealed class Flow : IFlow
         return this;
     }
 
-    public IFlow ContinueWith<T>(out T result, Func<T> processCreator)
+    public IFlow ContinueWithProcess<T>(out T result, Func<T> processCreator)
         where T : IProcess
     {
         result = default;
@@ -71,7 +71,7 @@ public sealed class Flow : IFlow
         return this;
     }
 
-    public IFlow Isolate(Action<IFlow> builder)
+    public IFlow IsolateFlow(Action<IFlow> builder)
     {
 #pragma warning disable RCS1075 // Avoid empty catch clause that catches System.Exception.
         try
@@ -86,7 +86,7 @@ public sealed class Flow : IFlow
         return this;
     }
 
-    public IFlow Scope(TransactionScopeKind kind, Action builder, LogSeverity logSeverity = LogSeverity.Information)
+    public IFlow TransactionScope(TransactionScopeKind kind, Action builder, LogSeverity logSeverity = LogSeverity.Information)
     {
         using (var scope = _context.BeginTransactionScope(_caller, kind, logSeverity))
         {

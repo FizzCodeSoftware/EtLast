@@ -9,9 +9,9 @@ public class NetTime : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ContinueWith(() => CreateSequence(1))
-            .ContinueWith(() => CreateSequence(100))
-            .ContinueWith(() => CreateSequence(10000));
+            .ContinueWithProcess(() => CreateSequence(1))
+            .ContinueWithProcess(() => CreateSequence(100))
+            .ContinueWithProcess(() => CreateSequence(10000));
     }
 
     private ISequence CreateSequence(int mod)

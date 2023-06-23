@@ -18,7 +18,7 @@ public class DropDatabase : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ContinueWith(() => new CustomJob(Context)
+            .ContinueWithProcess(() => new CustomJob(Context)
             {
                 Name = "DropDatabase",
                 Action = job =>
