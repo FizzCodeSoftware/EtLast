@@ -48,14 +48,19 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
             }
         }
 
-        var iocUid = 0;
+        var iocUidHttpGet = 0;
+        var iocUidFileWrite = 0;
         try
         {
             using (Context.CancellationToken.Register(Client.CancelPendingRequests))
             {
-                iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.httpGet, Url, null, null, null, null,
-                    "downloading file from {Url} to local file {FileName}",
+                iocUidHttpGet = Context.RegisterIoCommandStart(this, IoCommandKind.httpGet, Url, null, null, null, null,
+                    "downloading file from {Url}",
                     Url, OutputFileName);
+
+                iocUidFileWrite = Context.RegisterIoCommandStart(this, IoCommandKind.fileWrite, OutputFileName, null, null, null, null,
+                    "writing downloaded content to file {FileName}",
+                    OutputFileName);
 
                 using (var response = Client.GetStreamAsync(Url).Result)
                 using (var fileStream = new FileStream(OutputFileName, FileMode.Create))
@@ -63,7 +68,9 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
                     response.CopyTo(fileStream);
                 }
 
-                Context.RegisterIoCommandSuccess(this, IoCommandKind.httpGet, iocUid, Convert.ToInt32(new FileInfo(OutputFileName).Length));
+                var size = new FileInfo(OutputFileName).Length;
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.httpGet, iocUidHttpGet, size);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.fileWrite, iocUidFileWrite, size);
             }
         }
         catch (Exception ex)
@@ -74,7 +81,8 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
             exception.Data["Url"] = Url;
             exception.Data["FileName"] = OutputFileName;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.httpGet, iocUid, null, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.httpGet, iocUidHttpGet, null, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.fileWrite, iocUidFileWrite, null, exception);
             throw exception;
         }
     }

@@ -14,7 +14,7 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
     public PartitionKeyGenerator PartitionKeyGenerator { get; set; }
     public Action<ExcelPackage, SimpleExcelWriterState> Finalize { get; init; }
 
-    private int _rowCounter;
+    private long _rowCounter;
     private readonly Dictionary<string, InternalSink> _sinks = new();
 
     public EpPlusSimpleRowWriterMutator(IEtlContext context)

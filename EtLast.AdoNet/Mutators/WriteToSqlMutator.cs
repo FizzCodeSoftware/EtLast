@@ -28,7 +28,7 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
     private DatabaseConnection _connection;
     private List<string> _statements;
 
-    private int _rowsWritten;
+    private long _rowsWritten;
 
     private IDbCommand _command;
     private static readonly DbType[] _quotedParameterTypes = { DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength };

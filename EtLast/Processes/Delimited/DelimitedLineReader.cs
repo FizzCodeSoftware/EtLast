@@ -84,7 +84,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
             kvp => (rowColumn: kvp.Key, config: kvp.Value),
             StringComparer.InvariantCultureIgnoreCase);
 
-        var resultCount = 0;
+        var resultCount = 0L;
 
         var initialValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
         var columnCount = 0;

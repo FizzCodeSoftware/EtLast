@@ -13,7 +13,7 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
     private TState _state;
     private ExcelPackage _package;
     private int? _sinkUid;
-    private int _rowCount;
+    private long _rowCount;
 
     public EpPlusSingleExcelStreamWriterMutator(IEtlContext context)
         : base(context)

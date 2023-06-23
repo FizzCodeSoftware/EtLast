@@ -37,7 +37,7 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
         if (streams == null)
             yield break;
 
-        var rowCount = 0;
+        var rowCount = 0L;
         foreach (var stream in streams)
         {
             if (stream == null)

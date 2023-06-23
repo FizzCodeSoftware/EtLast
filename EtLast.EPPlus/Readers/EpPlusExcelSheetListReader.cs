@@ -57,7 +57,7 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
                 throw exception;
             }
 
-            const int rowCount = 0;
+            var rowCount = 0L;
             package.Compatibility.IsWorksheets1Based = false;
             var workbook = package.Workbook;
             if (workbook == null)
@@ -91,6 +91,7 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
                         initialValues["Stream"] = stream.Name;
                     }
 
+                    rowCount++;
                     yield return Context.CreateRow(this, initialValues);
                 }
             }

@@ -110,7 +110,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
 
         LastDataRead = DateTime.Now;
 
-        var resultCount = 0;
+        var resultCount = 0L;
         if (reader != null && !FlowState.IsTerminating)
         {
             var initialValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);

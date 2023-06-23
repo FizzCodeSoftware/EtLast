@@ -3,7 +3,7 @@
 internal sealed class RowShadowReader : DbDataReader
 {
     public object[,] Rows { get; }
-    public int RowCount { get; set; }
+    public long RowCount { get; set; }
     public Dictionary<string, int> ColumnIndexes { get; }
 
     private readonly string[] _dbColumns;

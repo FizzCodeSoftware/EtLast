@@ -79,7 +79,7 @@ public sealed class DelimitedLineReaderOld : AbstractRowSource
         // key is the SOURCE col name
         var columnMap = Columns?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
-        var resultCount = 0;
+        var resultCount = 0L;
 
         var initialValues = new Dictionary<string, object>();
 
@@ -337,7 +337,7 @@ public sealed class DelimitedLineReaderOld : AbstractRowSource
         }
     }
 
-    private string GetLine(NamedStream stream, StreamReader reader, int resultCount)
+    private string GetLine(NamedStream stream, StreamReader reader, long resultCount)
     {
         try
         {

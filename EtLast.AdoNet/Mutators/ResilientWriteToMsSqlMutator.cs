@@ -41,7 +41,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
     /// </summary>
     public int ForceWriteAfterNoDataMilliseconds { get; init; } = 5000;
 
-    private int _rowsWritten;
+    private long _rowsWritten;
     private Stopwatch _timer;
     private RowShadowReader _reader;
     private int? _sinkUid;
