@@ -11,7 +11,7 @@ public class Example2 : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ContinueWithProcess(out var fileListTask, () => new GetFiles())
+            .ExecuteProcess(out var fileListTask, () => new GetFiles())
             .HandleError(() => new ShowMessage()
             {
                 Message = () => "awesome",
@@ -21,7 +21,7 @@ public class Example2 : AbstractEtlTask
         foreach (var file in fileListTask.FileNames)
         {
             flow
-                .ContinueWithProcess(() => new ShowMessage()
+                .ExecuteProcess(() => new ShowMessage()
                 {
                     Message = () => "file found: " + file,
                 })

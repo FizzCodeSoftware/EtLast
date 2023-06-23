@@ -11,7 +11,7 @@ public class GetFiles : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ContinueWithProcess(() => new CustomJob(Context)
+            .ExecuteProcess(() => new CustomJob(Context)
             {
                 Action = job => FileNames = new() { "a.txt", "b.txt", "c.txt" },
             });

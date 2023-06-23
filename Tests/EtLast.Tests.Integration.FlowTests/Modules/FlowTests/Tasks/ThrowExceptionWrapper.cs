@@ -13,8 +13,8 @@ public class ThrowExceptionWrapper : AbstractEtlTask
         if (!ThrowErrorEnabled)
         {
             flow
-                .IsolateFlow(isolatedFlow => isolatedFlow
-                    .ContinueWithProcess(() => new ThrowException())
+                .Isolate(isolatedFlow => isolatedFlow
+                    .ExecuteProcess(() => new ThrowException())
                     .HandleError(() => new ShowMessage()
                     {
                         Message = () => !flow.State.IsTerminating && isolatedFlow.State.IsTerminating
@@ -26,7 +26,7 @@ public class ThrowExceptionWrapper : AbstractEtlTask
         else
         {
             flow
-                .ContinueWithProcess(() => new ThrowException())
+                .ExecuteProcess(() => new ThrowException())
                 .HandleError(() => new ShowMessage()
                 {
                     Message = () => flow.State.IsTerminating

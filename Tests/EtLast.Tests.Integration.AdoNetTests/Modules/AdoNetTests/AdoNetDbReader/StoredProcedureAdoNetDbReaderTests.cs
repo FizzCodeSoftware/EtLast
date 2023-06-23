@@ -13,7 +13,7 @@ public class StoredProcedureAdoNetDbReaderTests : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ContinueWithProcess(() => new CustomSqlStatement(Context)
+            .ExecuteProcess(() => new CustomSqlStatement(Context)
             {
                 Name = "CreateProcedure",
                 ConnectionString = ConnectionString,
@@ -23,7 +23,7 @@ public class StoredProcedureAdoNetDbReaderTests : AbstractEtlTask
                 "SELECT 2 AS Id, 'StoredProcedureAdoNetDbReaderTest' AS Value",
                 MainTableName = "StoredProcedureAdoNetDbReaderTest",
             })
-            .ContinueWithProcess(() => new CustomJob(Context)
+            .ExecuteProcess(() => new CustomJob(Context)
             {
                 Name = "CheckProcedureResult",
                 Action = job =>

@@ -17,7 +17,7 @@ public class ThrowException : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ContinueWithProcess(() => new CustomJob(Context)
+            .ExecuteProcess(() => new CustomJob(Context)
             {
                 Name = nameof(ThrowException),
                 Action = _ =>

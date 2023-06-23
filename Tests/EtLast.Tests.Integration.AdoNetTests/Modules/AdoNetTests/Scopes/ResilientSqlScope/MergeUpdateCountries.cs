@@ -13,14 +13,14 @@ public class MergeUpdateCountries : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ContinueWithProcess(() => new CustomSqlStatement(Context)
+            .ExecuteProcess(() => new CustomSqlStatement(Context)
             {
                 Name = "CreateTable",
                 ConnectionString = ConnectionString,
                 SqlStatement = $"CREATE TABLE {nameof(MergeUpdateCountries)} (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));",
                 MainTableName = nameof(MergeUpdateCountries),
             })
-            .ContinueWithProcess(() => new ResilientSqlScope(Context)
+            .ExecuteProcess(() => new ResilientSqlScope(Context)
             {
                 Name = "ExecuteResilientScope1",
                 ConnectionString = ConnectionString,
@@ -35,7 +35,7 @@ public class MergeUpdateCountries : AbstractEtlTask
                     },
                 },
             })
-            .ContinueWithProcess(() => new ResilientSqlScope(Context)
+            .ExecuteProcess(() => new ResilientSqlScope(Context)
             {
                 Name = "ExecuteResilientScope2",
                 ConnectionString = ConnectionString,
@@ -50,7 +50,7 @@ public class MergeUpdateCountries : AbstractEtlTask
                     },
                 },
             })
-            .ContinueWithProcess(() => TestHelpers.CreateReadSqlTableAndAssertExactMacth(this, ConnectionString, nameof(MergeUpdateCountries),
+            .ExecuteProcess(() => TestHelpers.CreateReadSqlTableAndAssertExactMacth(this, ConnectionString, nameof(MergeUpdateCountries),
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "Hungary", ["Abbreviation2"] = "HU", ["Abbreviation3"] = "HUN" },
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "United States of America Update", ["Abbreviation2"] = "UX", ["Abbreviation3"] = "USX" })
             );

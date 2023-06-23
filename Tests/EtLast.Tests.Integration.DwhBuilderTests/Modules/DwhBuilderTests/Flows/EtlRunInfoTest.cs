@@ -26,16 +26,16 @@ public class EtlRunInfoTest : AbstractEtlTask
         RelationalModelExtender.Extend(model, configuration);
 
         flow
-            .ContinueWithProcess(() => new CreateDatabase()
+            .ExecuteProcess(() => new CreateDatabase()
             {
                 ConnectionString = ConnectionString,
                 Definition = databaseDeclaration,
                 DatabaseName = DatabaseName,
             })
-            .ContinueWithProcess(() => CreateFirstDwhBuilder(configuration, model))
-            .ContinueWithProcess(() => new CustomJob(Context) { Action = TestFirstDwhBuilder, })
-            .ContinueWithProcess(() => CreateSecondDwhBuilder(configuration, model))
-            .ContinueWithProcess(() => new CustomJob(Context) { Action = TestSecondDwhBuilder, });
+            .ExecuteProcess(() => CreateFirstDwhBuilder(configuration, model))
+            .ExecuteProcess(() => new CustomJob(Context) { Action = TestFirstDwhBuilder, })
+            .ExecuteProcess(() => CreateSecondDwhBuilder(configuration, model))
+            .ExecuteProcess(() => new CustomJob(Context) { Action = TestSecondDwhBuilder, });
     }
 
     private IProcess CreateFirstDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)

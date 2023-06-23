@@ -440,9 +440,7 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
             values.Add(ex.FormatExceptionWithDetails());
         }
 
-        _ioLogger.Write(ex == null
-            ? LogEventLevel.Verbose
-            : LogEventLevel.Error, sb.ToString(), values.ToArray());
+        _ioLogger.Write(LogEventLevel.Verbose, sb.ToString(), values.ToArray());
     }
 
     public void OnRowCreated(IReadOnlyRow row)

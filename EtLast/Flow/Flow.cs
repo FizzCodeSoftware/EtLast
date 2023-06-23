@@ -21,7 +21,7 @@ public sealed class Flow : IFlow
         return new Flow(context, caller, flowState);
     }
 
-    public IFlow ContinueWithSequence<T>(Func<IFluentSequenceBuilder, T> sequenceBuilder)
+    public IFlow ExecuteSequence<T>(Func<IFluentSequenceBuilder, T> sequenceBuilder)
         where T : ISequence
     {
         if (_flowState.IsTerminating)
@@ -37,7 +37,7 @@ public sealed class Flow : IFlow
         return this;
     }
 
-    public IFlow ContinueWithProcess<T>(Func<T> processCreator)
+    public IFlow ExecuteProcess<T>(Func<T> processCreator)
          where T : IProcess
     {
         if (_flowState.IsTerminating)
@@ -53,7 +53,7 @@ public sealed class Flow : IFlow
         return this;
     }
 
-    public IFlow ContinueWithProcess<T>(out T result, Func<T> processCreator)
+    public IFlow ExecuteProcess<T>(out T result, Func<T> processCreator)
         where T : IProcess
     {
         result = default;
@@ -71,7 +71,47 @@ public sealed class Flow : IFlow
         return this;
     }
 
-    public IFlow IsolateFlow(Action<IFlow> builder)
+    public IFlow ExecuteForEach<TElement>(IEnumerable<TElement> elements, Action<TElement> action)
+    {
+        if (_flowState.IsTerminating)
+            return this;
+
+        foreach (var element in elements)
+        {
+            action.Invoke(element);
+
+            if (_flowState.IsTerminating)
+                break;
+        }
+
+        return this;
+    }
+
+    public IFlow ExecuteForEachIsolated<TElement>(IEnumerable<TElement> elements, Action<TElement, IFlow> action)
+    {
+        if (_flowState.IsTerminating)
+            return this;
+
+        foreach (var element in elements)
+        {
+#pragma warning disable RCS1075 // Avoid empty catch clause that catches System.Exception.
+            try
+            {
+                action.Invoke(element, new Flow(_context, _caller, new FlowState(_context)));
+            }
+            catch (Exception)
+            {
+            }
+#pragma warning restore RCS1075 // Avoid empty catch clause that catches System.Exception.
+
+            if (_flowState.IsTerminating)
+                break;
+        }
+
+        return this;
+    }
+
+    public IFlow Isolate(Action<IFlow> builder)
     {
 #pragma warning disable RCS1075 // Avoid empty catch clause that catches System.Exception.
         try

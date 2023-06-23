@@ -9,25 +9,25 @@ public class Main : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ContinueWithProcess(() => new Example3())
-            .ContinueWithProcess(() => new ThrowExceptionWrapper()
+            .ExecuteProcess(() => new Example3())
+            .ExecuteProcess(() => new ThrowExceptionWrapper()
             {
                 ThrowErrorEnabled = false,
             })
-            .IsolateFlow(isolatedFlow => isolatedFlow
-                .ContinueWithProcess(() => new ShowMessage()
+            .Isolate(isolatedFlow => isolatedFlow
+                .ExecuteProcess(() => new ShowMessage()
                 {
                     Message = () => !flow.State.IsTerminating && !isolatedFlow.State.IsTerminating
                         ? "#1003 WORKS PROPERLY"
                         : "#1003 FAILED",
                 })
             )
-            .ContinueWithProcess(() => new ThrowExceptionWrapper()
+            .ExecuteProcess(() => new ThrowExceptionWrapper()
             {
                 ThrowErrorEnabled = true,
             })
-            .IsolateFlow(isolatedFlow => isolatedFlow
-                .ContinueWithProcess(() => new ShowMessage()
+            .Isolate(isolatedFlow => isolatedFlow
+                .ExecuteProcess(() => new ShowMessage()
                 {
                     Message = () => flow.State.IsTerminating && !isolatedFlow.State.IsTerminating
                         ? "#1004 WORKS PROPERLY"

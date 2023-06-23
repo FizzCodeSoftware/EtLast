@@ -13,7 +13,7 @@ public class CopyTableIntoNewTableTests : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ContinueWithProcess(() => new CustomSqlStatement(Context)
+            .ExecuteProcess(() => new CustomSqlStatement(Context)
             {
                 Name = "CreateSourceTable",
                 ConnectionString = ConnectionString,
@@ -22,7 +22,7 @@ public class CopyTableIntoNewTableTests : AbstractEtlTask
                     $"INSERT INTO {nameof(CopyTableIntoNewTableTests)} (Id, Value) VALUES (2, 'CopyTableIntoExistingTableTest');",
                 MainTableName = nameof(CopyTableIntoNewTableTests),
             })
-            .ContinueWithProcess(() => new CopyTableIntoNewTable(Context)
+            .ExecuteProcess(() => new CopyTableIntoNewTable(Context)
             {
                 ConnectionString = ConnectionString,
                 Configuration = new TableCopyConfiguration()
@@ -31,7 +31,7 @@ public class CopyTableIntoNewTableTests : AbstractEtlTask
                     TargetTableName = $"{nameof(CopyTableIntoNewTableTests)}Target"
                 }
             })
-            .ContinueWithProcess(() => new CustomJob(Context)
+            .ExecuteProcess(() => new CustomJob(Context)
             {
                 Name = "CheckTargetTableContents",
                 Action = job =>
