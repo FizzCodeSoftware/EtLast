@@ -10,6 +10,16 @@ public class ValueFormatter : IValueFormatter
     public string DateTimeFormat { get; init; } = "yyyy.MM.dd HH:mm:ss.fffffff";
 
     /// <summary>
+    /// Default value is "yyyy.MM.dd"
+    /// </summary>
+    public string DateFormat { get; init; } = "yyyy.MM.dd";
+
+    /// <summary>
+    /// Default value is "HH:mm:ss.fffffff"
+    /// </summary>
+    public string TimeFormat { get; init; } = "HH:mm:ss.fffffff";
+
+    /// <summary>
     /// Default value is "yyyy.MM.dd HH:mm:ss.fffffff zzz"
     /// </summary>
     public string DateTimeOffsetFormat { get; init; } = "yyyy.MM.dd HH:mm:ss.fffffff zzz";
@@ -127,6 +137,12 @@ public class ValueFormatter : IValueFormatter
 
         if (v is DateTimeOffset dto)
             return dto.ToString(DateTimeOffsetFormat, formatProvider ?? CultureInfo.InvariantCulture);
+
+        if (v is DateOnly dateOnly)
+            return dateOnly.ToString(DateFormat, formatProvider ?? CultureInfo.InvariantCulture);
+
+        if (v is TimeOnly timeOnly)
+            return timeOnly.ToString(TimeFormat, formatProvider ?? CultureInfo.InvariantCulture);
 
         if (v is IFormattable fmt)
             return fmt.ToString(GenericFormat, formatProvider ?? CultureInfo.InvariantCulture);

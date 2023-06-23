@@ -53,7 +53,7 @@ internal static class ModuleLoader
             };
 
             host.HostLogger.Debug("{TaskCount} task(s) found: {Task}",
-                module.TaskTypes.Count(x => !x.IsAssignableTo(typeof(AbstractEtlTask))), module.TaskTypes.Where(x => !x.IsAssignableTo(typeof(AbstractEtlTask))).Select(task => task.Name).ToArray());
+                module.TaskTypes.Count(x => x.IsAssignableTo(typeof(AbstractEtlTask))), module.TaskTypes.Where(x => x.IsAssignableTo(typeof(AbstractEtlTask))).Select(task => task.Name).ToArray());
 
             return ExecutionStatusCode.Success;
         }
