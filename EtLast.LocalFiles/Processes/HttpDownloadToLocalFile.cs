@@ -30,6 +30,24 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
 
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
+        var directory = Path.GetDirectoryName(OutputFileName);
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+        {
+            try
+            {
+                Directory.CreateDirectory(directory);
+            }
+            catch (Exception ex)
+            {
+                var exception = new HttpDownloadToLocalFileException(this, "http download to local file failed / directory creation failed", ex);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "http download to local file failed: {0}, directory creation failed, message: {1}",
+                    OutputFileName, ex.Message));
+                exception.Data["FileName"] = OutputFileName;
+                exception.Data["Directory"] = directory;
+                throw exception;
+            }
+        }
+
         var iocUid = 0;
         try
         {
