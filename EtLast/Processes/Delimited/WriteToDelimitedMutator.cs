@@ -42,9 +42,9 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
     /// <summary>
     /// Key is the output column title AND the column in the row (later can be customized by setting a <see cref="DelimitedColumn"/>).
     /// </summary>
-    public Dictionary<string, DelimitedColumn> Columns { get; init; }
+    public required Dictionary<string, DelimitedColumn> Columns { get; init; }
 
-    public PartitionKeyGenerator PartitionKeyGenerator { get; set; }
+    public PartitionKeyGenerator PartitionKeyGenerator { get; init; }
 
     private readonly Dictionary<string, NamedSink> _sinks = new();
     private byte[] _delimiterBytes;
@@ -97,19 +97,18 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
         if (WriteHeader)
         {
             var first = true;
-            foreach (var kvp in Columns)
+            foreach (var (columnName, _) in Columns)
             {
                 if (!first)
                     sink.Stream.Write(_delimiterBytes);
 
-                var str = kvp.Key;
-                var quoteRequired = !string.IsNullOrEmpty(str) &&
-                    (str.IndexOfAny(_quoteRequiredChars) > -1
-                    || str[0] == ' '
-                    || str[^1] == ' '
-                    || str.Contains(LineEnding, StringComparison.Ordinal));
+                var quoteRequired = !string.IsNullOrEmpty(columnName) &&
+                    (columnName.IndexOfAny(_quoteRequiredChars) > -1
+                    || columnName[0] == ' '
+                    || columnName[^1] == ' '
+                    || columnName.Contains(LineEnding, StringComparison.Ordinal));
 
-                var line = ConvertToDelimitedValue(str, quoteRequired);
+                var line = ConvertToDelimitedValue(columnName, quoteRequired);
                 sink.Stream.Write(Encoding.GetBytes(line));
 
                 first = false;
