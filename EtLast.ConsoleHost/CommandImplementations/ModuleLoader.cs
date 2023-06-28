@@ -69,7 +69,7 @@ internal static class ModuleLoader
         if (File.Exists(globalCsFileName))
             csFileNames.Add(globalCsFileName);
 
-        var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp10);
+        var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Latest);
         var syntaxTrees = csFileNames
             .Select(fn => SyntaxFactory.ParseSyntaxTree(SourceText.From(File.ReadAllText(fn)), parseOptions, fn))
             .ToArray();

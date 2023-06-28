@@ -23,7 +23,7 @@ internal static class HostArgumentsLoader
             .Select(fn => MetadataReference.CreateFromFile(fn))
             .ToArray();
 
-        var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp10);
+        var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Latest);
         var syntaxTrees = csFileNames
             .Select(fn => SyntaxFactory.ParseSyntaxTree(SourceText.From(File.ReadAllText(fn)), parseOptions, fn))
             .ToArray();
