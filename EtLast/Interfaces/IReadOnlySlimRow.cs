@@ -7,6 +7,8 @@ public interface IReadOnlySlimRow
     int ColumnCount { get; }
     object Tag { get; }
 
+    bool KeepNulls { get; }
+
     bool HasError();
 
     T GetAs<T>(string column);

@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast.Tests.Unit.Rows;
 
 [TestClass]
-public class DictionaryRowTests
+public class RowTests
 {
     [TestMethod]
     public void ToDebugStringStartsWithUid()

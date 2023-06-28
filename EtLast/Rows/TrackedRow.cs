@@ -4,6 +4,8 @@ public sealed class TrackedRow : IRow
 {
     private readonly IRow _originalRow;
 
+    public bool KeepNulls { get => true; set { } }
+
     public IProcess CurrentProcess { get => _originalRow.CurrentProcess; set => _originalRow.CurrentProcess = value; }
     public IEtlContext Context => _originalRow.Context;
     public int Uid => _originalRow.Uid;
@@ -55,6 +57,7 @@ public sealed class TrackedRow : IRow
         set
         {
             var originalValue = _originalRow[column];
+
             if ((originalValue == null && value == null)
                 || (originalValue != null && value == originalValue))
             {
@@ -65,7 +68,6 @@ public sealed class TrackedRow : IRow
             }
 
             _staging ??= new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-
             _staging[column] = value;
         }
     }

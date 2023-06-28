@@ -27,7 +27,7 @@ public interface IEtlContext
     public List<IEtlContextListener> Listeners { get; }
 
     public IRow CreateRow(IProcess process);
-    public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues);
+    public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues, bool keepNulls = false);
     public IRow CreateRow(IProcess process, IReadOnlySlimRow source);
 
     public void Log(string transactionId, LogSeverity severity, IProcess process, string text, params object[] args);

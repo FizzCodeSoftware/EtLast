@@ -8,6 +8,8 @@ public class Row : IRow
     public IProcess CurrentProcess { get; set; }
     public int Uid { get; private set; }
 
+    public bool KeepNulls { get; set; }
+
     public int ColumnCount => _values.Count;
 
     public IEnumerable<KeyValuePair<string, object>> Values => _values;
@@ -27,11 +29,17 @@ public class Row : IRow
                 if (previousValue != null)
                 {
                     foreach (var listener in Context.Listeners)
-                    {
                         listener.OnRowValueChanged(this, new[] { new KeyValuePair<string, object>(column, null) });
-                    }
+                }
 
-                    _values.Remove(column);
+                if (!KeepNulls)
+                {
+                    if (previousValue != null)
+                        _values.Remove(column);
+                }
+                else
+                {
+                    _values[column] = null;
                 }
             }
             else if (previousValue == null || value != previousValue)
@@ -161,22 +169,20 @@ public class Row : IRow
 
         _values = initialValues == null
             ? new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
-            : new Dictionary<string, object>(initialValues.Where(kvp => kvp.Value != null), StringComparer.OrdinalIgnoreCase);
+            : !KeepNulls
+                ? new Dictionary<string, object>(initialValues.Where(kvp => kvp.Value != null), StringComparer.OrdinalIgnoreCase)
+                : new Dictionary<string, object>(initialValues, StringComparer.OrdinalIgnoreCase);
     }
 
     public bool HasValue(string column)
     {
-        return _values.ContainsKey(column);
+        return _values.TryGetValue(column, out var value) && value != null;
     }
 
     public string GenerateKey(params string[] columns)
     {
         if (columns.Length == 1)
-        {
-            return _values.TryGetValue(columns[0], out var value)
-                ? ValueFormatter.Default.Format(value)
-                : null;
-        }
+            return FormatToString(columns[0], ValueFormatter.Default, CultureInfo.InvariantCulture);
 
         return string.Join("\0", columns.Select(c => FormatToString(c, ValueFormatter.Default, CultureInfo.InvariantCulture) ?? "-"));
     }
@@ -184,13 +190,9 @@ public class Row : IRow
     public string GenerateKeyUpper(params string[] columns)
     {
         if (columns.Length == 1)
-        {
-            return _values.TryGetValue(columns[0], out var value)
-                ? ValueFormatter.Default.Format(value).ToUpperInvariant()
-                : null;
-        }
+            return FormatToString(columns[0], ValueFormatter.Default, CultureInfo.InvariantCulture)?.ToUpperInvariant();
 
-        return string.Join("\0", columns.Select(c => FormatToString(c, ValueFormatter.Default, CultureInfo.InvariantCulture) ?? "-")).ToUpperInvariant();
+        return string.Join("\0", columns.Select(c => FormatToString(c, ValueFormatter.Default, CultureInfo.InvariantCulture) ?? "-"))?.ToUpperInvariant();
     }
 
     public void MergeWith(IEnumerable<KeyValuePair<string, object>> values)

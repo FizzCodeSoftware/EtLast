@@ -7,6 +7,8 @@ public sealed class SlimRow : ISlimRow
     public int ColumnCount => _values.Count;
     public object Tag { get; set; }
 
+    public bool KeepNulls { get; set; }
+
     private readonly Dictionary<string, object> _values;
 
     public SlimRow()
@@ -33,7 +35,7 @@ public sealed class SlimRow : ISlimRow
         get => GetValueImpl(column);
         set
         {
-            if (value != null)
+            if (KeepNulls || value != null)
                 _values[column] = value;
             else
                 _values.Remove(column);
@@ -49,7 +51,7 @@ public sealed class SlimRow : ISlimRow
 
     public bool HasValue(string column)
     {
-        return _values.ContainsKey(column);
+        return _values.TryGetValue(column, out var value) && value != null;
     }
 
     public string ToDebugString(bool multiLine = false)
@@ -132,7 +134,7 @@ public sealed class SlimRow : ISlimRow
                 if (!string.IsNullOrEmpty(str))
                     return false;
             }
-            else
+            else if (kvp.Value != null)
             {
                 return false;
             }
@@ -160,11 +162,7 @@ public sealed class SlimRow : ISlimRow
     public string GenerateKey(params string[] columns)
     {
         if (columns.Length == 1)
-        {
-            return _values.TryGetValue(columns[0], out var value)
-                ? ValueFormatter.Default.Format(value)
-                : null;
-        }
+            return FormatToString(columns[0], ValueFormatter.Default, CultureInfo.InvariantCulture);
 
         return string.Join("\0", columns.Select(c => FormatToString(c, ValueFormatter.Default, CultureInfo.InvariantCulture) ?? "-"));
     }
@@ -172,12 +170,8 @@ public sealed class SlimRow : ISlimRow
     public string GenerateKeyUpper(params string[] columns)
     {
         if (columns.Length == 1)
-        {
-            return _values.TryGetValue(columns[0], out var value)
-                ? ValueFormatter.Default.Format(value).ToUpperInvariant()
-                : null;
-        }
+            return FormatToString(columns[0], ValueFormatter.Default, CultureInfo.InvariantCulture)?.ToUpperInvariant();
 
-        return string.Join("\0", columns.Select(c => FormatToString(c, ValueFormatter.Default, CultureInfo.InvariantCulture) ?? "-")).ToUpperInvariant();
+        return string.Join("\0", columns.Select(c => FormatToString(c, ValueFormatter.Default, CultureInfo.InvariantCulture) ?? "-"))?.ToUpperInvariant();
     }
 }
