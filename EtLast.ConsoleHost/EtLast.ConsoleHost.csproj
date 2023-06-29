@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="2.0.40.6923" />
+    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="2.0.41.6993" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
