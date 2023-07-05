@@ -7,6 +7,17 @@ public interface IFlow
     public IFlow ExecuteProcess<T>(out T createdProcess, Func<T> processCreator) where T : IProcess;
     public IFlow ExecuteForEach<TElement>(IEnumerable<TElement> elements, Action<TElement> action);
     public IFlow ExecuteForEachIsolated<TElement>(IEnumerable<TElement> elements, Action<TElement, IFlow> action);
+
+    /// <summary>
+    /// Only continue the execution with the next element when the supplied action returns true.
+    /// </summary>
+    public IFlow ExecuteForEachConditional<TElement>(IEnumerable<TElement> elements, Func<TElement, bool> action);
+
+    /// <summary>
+    /// Only continue the execution with the next element when the supplied action returns true.
+    /// </summary>
+    public IFlow ExecuteForEachIsolatedConditional<TElement>(IEnumerable<TElement> elements, Func<TElement, IFlow, bool> action);
+
     public IFlow Isolate(Action<IFlow> builder);
     public IFlow TransactionScope(TransactionScopeKind kind, Action builder, LogSeverity logSeverity = LogSeverity.Information);
     public IFlow HandleError<T>(Func<T> processCreator) where T : IProcess;

@@ -87,6 +87,24 @@ public sealed class Flow : IFlow
         return this;
     }
 
+    public IFlow ExecuteForEachConditional<TElement>(IEnumerable<TElement> elements, Func<TElement, bool> action)
+    {
+        if (_flowState.IsTerminating)
+            return this;
+
+        foreach (var element in elements)
+        {
+            var ok = action.Invoke(element);
+            if (!ok)
+                break;
+
+            if (_flowState.IsTerminating)
+                break;
+        }
+
+        return this;
+    }
+
     public IFlow ExecuteForEachIsolated<TElement>(IEnumerable<TElement> elements, Action<TElement, IFlow> action)
     {
         if (_flowState.IsTerminating)
@@ -95,6 +113,24 @@ public sealed class Flow : IFlow
         foreach (var element in elements)
         {
             action.Invoke(element, new Flow(_context, _caller, new FlowState(_context)));
+
+            if (_flowState.IsTerminating)
+                break;
+        }
+
+        return this;
+    }
+
+    public IFlow ExecuteForEachIsolatedConditional<TElement>(IEnumerable<TElement> elements, Func<TElement, IFlow, bool> action)
+    {
+        if (_flowState.IsTerminating)
+            return this;
+
+        foreach (var element in elements)
+        {
+            var ok = action.Invoke(element, new Flow(_context, _caller, new FlowState(_context)));
+            if (!ok)
+                break;
 
             if (_flowState.IsTerminating)
                 break;
