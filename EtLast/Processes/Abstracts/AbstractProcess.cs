@@ -11,7 +11,6 @@ public abstract class AbstractProcess : IProcess
     public IEtlContext Context { get; protected set; }
 
     public FlowState FlowState { get; protected set; }
-    public bool Success => FlowState?.IsTerminating != true;
 
     public string Name { get; set; }
     public string Kind { get; }

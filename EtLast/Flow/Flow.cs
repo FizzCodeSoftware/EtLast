@@ -162,7 +162,7 @@ public sealed class Flow : IFlow
             {
                 _flowState.AddException(_caller, ex);
             }
-        }
+        } // commit
 
         return this;
     }

@@ -6,7 +6,6 @@ public interface IProcess
     public ProcessInvocationInfo InvocationInfo { get; set; }
 
     public FlowState FlowState { get; }
-    public bool Success => FlowState?.IsTerminating != true;
 
     public IEtlContext Context { get; }
 
