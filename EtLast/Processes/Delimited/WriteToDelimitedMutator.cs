@@ -157,7 +157,7 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
 
                 var value = row[kvp.Value?.SourceColumn ?? kvp.Key];
 
-                var str = (kvp.Value?.CustomFormatter ?? ValueFormatter.Default).Format(value, FormatProvider);
+                var str = (kvp.Value?.CustomFormatter ?? DelimitedValueFormatter.Default).Format(value, FormatProvider);
                 var quoteRequired = !string.IsNullOrEmpty(str) &&
                     (str.IndexOfAny(_quoteRequiredChars) > -1
                     || str[0] == ' '
