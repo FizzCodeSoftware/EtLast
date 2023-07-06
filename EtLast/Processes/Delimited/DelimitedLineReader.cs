@@ -49,6 +49,11 @@ public sealed class DelimitedLineReader : AbstractRowSource
     /// </summary>
     public string LineEnding { get; init; } = "\r\n";
 
+    /// <summary>
+    /// Default value is <see cref="Encoding.UTF8"/>
+    /// </summary>
+    public Encoding Encoding { get; init; } = Encoding.UTF8;
+
     public DelimitedLineReader(IEtlContext context)
         : base(context)
     {
@@ -163,7 +168,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
                 var bufferPosition = 0;
                 var bufferLength = 0;
 
-                reader = new StreamReader(stream.Stream, bufferSize: 1024);
+                reader = new StreamReader(stream.Stream, Encoding, bufferSize: 1024);
 
                 //var read = reader.ReadBlock(buffer, 0, bufferSize);
                 var read = reader.ReadBlock(buffer.AsSpan());
