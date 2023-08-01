@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net7.0</TargetFrameworks>
-    <PackageId>FizzCode.EtLast.DwhBuilder</PackageId>
-    <Description>Microsoft SQL Server Data-Warehouse builder for EtLast ETL (Extract, Transform and Load) library</Description>
-    <AssemblyName>FizzCode.EtLast.DwhBuilder</AssemblyName>
-    <RootNamespace>FizzCode.EtLast.DwhBuilder</RootNamespace>
+    <PackageId>FizzCode.EtLast.AdoNet.MsSql</PackageId>
+    <Description>ADO.NET extension for EtLast ETL (Extract, Transform and Load) library</Description>
+    <AssemblyName>FizzCode.EtLast.AdoNet.MsSql</AssemblyName>
+    <RootNamespace>FizzCode.EtLast</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
     <Configurations>Debug;Release</Configurations>
@@ -16,16 +16,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FizzCode.LightWeight.AdoNet.DbConnection" Version="2.0.41.6993" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
     <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="FizzCode.LightWeight.RelationalModel" Version="2.0.26.6457" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EtLast.AdoNet.MsSql\EtLast.AdoNet.MsSql.csproj" />
     <ProjectReference Include="..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
+    <ProjectReference Include="..\EtLast\EtLast.csproj" />
   </ItemGroup>
 
 </Project>

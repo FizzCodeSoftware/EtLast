@@ -7,7 +7,7 @@ public static class EtlConnectionManager
         SeparateConnectionsByThreadId = false,
     };
 
-    internal static DatabaseConnection GetConnection(NamedConnectionString connectionString, IProcess process, int maxRetryCount = 5, int retryDelayMilliseconds = 2000)
+    public static DatabaseConnection GetConnection(NamedConnectionString connectionString, IProcess process, int maxRetryCount = 5, int retryDelayMilliseconds = 2000)
     {
         if (string.IsNullOrEmpty(connectionString.ProviderName))
         {

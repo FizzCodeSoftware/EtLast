@@ -67,6 +67,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Etl.Modules", "Sampl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Etl.Host", "Samples\Sample.Etl.Host\Sample.Etl.Host.csproj", "{DF3E2E97-F83C-482B-A1F2-F71A3C5AF9FD}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.AdoNet.MsSql", "EtLast.AdoNet.MsSql\EtLast.AdoNet.MsSql.csproj", "{26B9C3CD-13A8-488F-8935-1D0BB50A4F74}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -222,6 +224,12 @@ Global
 		{DF3E2E97-F83C-482B-A1F2-F71A3C5AF9FD}.Integration|x64.Build.0 = Debug|x64
 		{DF3E2E97-F83C-482B-A1F2-F71A3C5AF9FD}.Release|x64.ActiveCfg = Release|x64
 		{DF3E2E97-F83C-482B-A1F2-F71A3C5AF9FD}.Release|x64.Build.0 = Release|x64
+		{26B9C3CD-13A8-488F-8935-1D0BB50A4F74}.Debug|x64.ActiveCfg = Debug|x64
+		{26B9C3CD-13A8-488F-8935-1D0BB50A4F74}.Debug|x64.Build.0 = Debug|x64
+		{26B9C3CD-13A8-488F-8935-1D0BB50A4F74}.Integration|x64.ActiveCfg = Debug|x64
+		{26B9C3CD-13A8-488F-8935-1D0BB50A4F74}.Integration|x64.Build.0 = Debug|x64
+		{26B9C3CD-13A8-488F-8935-1D0BB50A4F74}.Release|x64.ActiveCfg = Release|x64
+		{26B9C3CD-13A8-488F-8935-1D0BB50A4F74}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
