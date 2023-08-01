@@ -93,27 +93,34 @@ public sealed class WriteToDynamicDelimitedMutator : AbstractMutator, IRowSink
 
         _sinksWithColumns.Add(internalKey, sinkWithColumns);
 
-        if (WriteHeader && sinkWithColumns.Sink.SafeGetPosition() == 0)
+        if (WriteHeader)
         {
-            var first = true;
-            foreach (var columnName in sinkWithColumns.Columns)
+            if (sinkWithColumns.Sink.SafeGetPosition() == 0)
             {
-                if (!first)
-                    sinkWithColumns.Sink.Stream.Write(_delimiterBytes);
+                var first = true;
+                foreach (var columnName in sinkWithColumns.Columns)
+                {
+                    if (!first)
+                        sinkWithColumns.Sink.Stream.Write(_delimiterBytes);
 
-                var quoteRequired = !string.IsNullOrEmpty(columnName) &&
-                    (columnName.IndexOfAny(_quoteRequiredChars) > -1
-                    || columnName[0] == ' '
-                    || columnName[^1] == ' '
-                    || columnName.Contains(LineEnding, StringComparison.Ordinal));
+                    var quoteRequired = !string.IsNullOrEmpty(columnName) &&
+                        (columnName.IndexOfAny(_quoteRequiredChars) > -1
+                        || columnName[0] == ' '
+                        || columnName[^1] == ' '
+                        || columnName.Contains(LineEnding, StringComparison.Ordinal));
 
-                var line = ConvertToDelimitedValue(columnName, quoteRequired);
-                sinkWithColumns.Sink.Stream.Write(Encoding.GetBytes(line));
+                    var line = ConvertToDelimitedValue(columnName, quoteRequired);
+                    sinkWithColumns.Sink.Stream.Write(Encoding.GetBytes(line));
 
-                first = false;
+                    first = false;
+                }
+
+                sinkWithColumns.Sink.IncreaseRowsWritten();
             }
-
-            sinkWithColumns.Sink.IncreaseRowsWritten();
+            else
+            {
+                sinkWithColumns.Sink.Stream.Write(_lineEndingBytes);
+            }
         }
 
         return sinkWithColumns;

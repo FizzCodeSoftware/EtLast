@@ -94,27 +94,34 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
         sink = SinkProvider.GetSink(this, partitionKey);
         _sinks.Add(internalKey, sink);
 
-        if (WriteHeader && sink.SafeGetPosition() == 0)
+        if (WriteHeader)
         {
-            var first = true;
-            foreach (var (columnName, _) in Columns)
+            if (sink.SafeGetPosition() == 0)
             {
-                if (!first)
-                    sink.Stream.Write(_delimiterBytes);
+                var first = true;
+                foreach (var (columnName, _) in Columns)
+                {
+                    if (!first)
+                        sink.Stream.Write(_delimiterBytes);
 
-                var quoteRequired = !string.IsNullOrEmpty(columnName) &&
-                    (columnName.IndexOfAny(_quoteRequiredChars) > -1
-                    || columnName[0] == ' '
-                    || columnName[^1] == ' '
-                    || columnName.Contains(LineEnding, StringComparison.Ordinal));
+                    var quoteRequired = !string.IsNullOrEmpty(columnName) &&
+                        (columnName.IndexOfAny(_quoteRequiredChars) > -1
+                        || columnName[0] == ' '
+                        || columnName[^1] == ' '
+                        || columnName.Contains(LineEnding, StringComparison.Ordinal));
 
-                var line = ConvertToDelimitedValue(columnName, quoteRequired);
-                sink.Stream.Write(Encoding.GetBytes(line));
+                    var line = ConvertToDelimitedValue(columnName, quoteRequired);
+                    sink.Stream.Write(Encoding.GetBytes(line));
 
-                first = false;
+                    first = false;
+                }
+
+                sink.IncreaseRowsWritten();
             }
-
-            sink.IncreaseRowsWritten();
+            else
+            {
+                sink.Stream.Write(_lineEndingBytes);
+            }
         }
 
         return sink;
