@@ -94,7 +94,7 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
         sink = SinkProvider.GetSink(this, partitionKey);
         _sinks.Add(internalKey, sink);
 
-        if (WriteHeader)
+        if (WriteHeader && sink.SafeGetPosition() == 0)
         {
             var first = true;
             foreach (var (columnName, _) in Columns)

@@ -93,7 +93,7 @@ public sealed class WriteToDynamicDelimitedMutator : AbstractMutator, IRowSink
 
         _sinksWithColumns.Add(internalKey, sinkWithColumns);
 
-        if (WriteHeader)
+        if (WriteHeader && sinkWithColumns.Sink.SafeGetPosition() == 0)
         {
             var first = true;
             foreach (var columnName in sinkWithColumns.Columns)
