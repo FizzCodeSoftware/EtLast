@@ -320,6 +320,11 @@ public class Host : IHost
         var referenceDllFileNames = new List<string>();
         foreach (var referenceAssemblyFolder in ReferenceAssemblyFolders)
         {
+#if NET8_0
+            var folder = Directory.GetDirectories(referenceAssemblyFolder, "8.*")
+                .OrderByDescending(x => new DirectoryInfo(x).CreationTime)
+                .FirstOrDefault();
+#endif
 #if NET7_0
             var folder = Directory.GetDirectories(referenceAssemblyFolder, "7.*")
                 .OrderByDescending(x => new DirectoryInfo(x).CreationTime)
