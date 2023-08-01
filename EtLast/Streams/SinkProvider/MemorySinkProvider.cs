@@ -38,7 +38,7 @@ public class MemorySinkProvider : ISinkProvider
             var sinkUid = caller.Context.GetSinkUid(_sinkLocation, _sinkPath);
 
             var stream = StreamCreator.Invoke();
-            return new NamedSink(_sinkName, stream, iocUid, IoCommandKind.streamWrite, sinkUid, stream.Position);
+            return new NamedSink(_sinkName, stream, iocUid, IoCommandKind.streamWrite, sinkUid);
         }
         catch (Exception ex)
         {
