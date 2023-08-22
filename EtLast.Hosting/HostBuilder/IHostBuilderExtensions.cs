@@ -63,7 +63,7 @@ public static class IHostBuilderExtensions
     }
 
     /// <summary>
-    /// .NET allows maximum 10 minute long transactions, but each <see cref="Host"/> automatically apply a hack with 4 hours, which can be overwritten by using this method.
+    /// .NET allows maximum 10 minute long transactions, but each <see cref="IHost"/> automatically apply a hack with 4 hours, which can be overwritten by using this method.
     /// </summary>
     /// <param name="builder"></param>
     /// <param name="maxTimeout"></param>

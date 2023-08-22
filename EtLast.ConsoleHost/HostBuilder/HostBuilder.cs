@@ -7,7 +7,7 @@ public sealed class HostBuilder : IHostBuilder
         return new HostBuilder(hostName);
     }
 
-    public Host Result { get; set; }
+    public IHost Result { get; set; }
 
     internal HostBuilder(string name)
     {

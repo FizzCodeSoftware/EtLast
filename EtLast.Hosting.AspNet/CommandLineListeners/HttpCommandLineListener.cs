@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 
 namespace FizzCode.EtLast.ConsoleHost;
@@ -17,10 +18,7 @@ public abstract class HttpCommandLineListener : ICommandLineListener
         if (app == null)
             return;
 
-        host.CancellationToken.Register(() =>
-        {
-            app.StopAsync().GetAwaiter().GetResult();
-        });
+        host.CancellationToken.Register(() => app.StopAsync().GetAwaiter().GetResult());
 
         app.Run();
     }

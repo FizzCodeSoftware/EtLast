@@ -17,12 +17,13 @@ public class Host : IHost
     public bool SerilogForModulesEnabled { get; set; } = true;
     public bool SerilogForHostEnabled { get; set; } = true;
 
-    public TimeSpan MaxTransactionTimeout = TimeSpan.FromHours(4);
+    public TimeSpan MaxTransactionTimeout { get; set; } = TimeSpan.FromHours(4);
 
     private string _modulesFolder;
     public string ModulesFolder
     {
-        get => _modulesFolder; set
+        get => _modulesFolder;
+        set
         {
             _modulesFolder = value;
             if (_modulesFolder.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))
@@ -35,7 +36,8 @@ public class Host : IHost
     private string _hostArgumentsFolder;
     public string HostArgumentsFolder
     {
-        get => _hostArgumentsFolder; set
+        get => _hostArgumentsFolder;
+        set
         {
             _hostArgumentsFolder = value;
             if (_hostArgumentsFolder.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))

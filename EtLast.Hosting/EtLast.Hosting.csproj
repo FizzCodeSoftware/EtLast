@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <TargetFrameworks>net7.0</TargetFrameworks>
-    <PackageId>FizzCode.EtLast.ConsoleHost</PackageId>
+    <PackageId>FizzCode.EtLast.Hosting</PackageId>
     <Description>Console host for EtLast ETL (Extract, Transform and Load) library</Description>
-    <AssemblyName>FizzCode.EtLast.ConsoleHost</AssemblyName>
-    <RootNamespace>FizzCode.EtLast.ConsoleHost</RootNamespace>
+    <AssemblyName>FizzCode.EtLast.Hosting</AssemblyName>
+    <RootNamespace>FizzCode.EtLast.Hosting</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
     <Configurations>Debug;Release</Configurations>
@@ -34,7 +34,6 @@
   <ItemGroup>
     <ProjectReference Include="..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
     <ProjectReference Include="..\EtLast.Diagnostics.Interface\EtLast.Diagnostics.Interface.csproj" />
-    <ProjectReference Include="..\EtLast.Hosting\EtLast.Hosting.csproj" />
     <ProjectReference Include="..\EtLast\EtLast.csproj" />
   </ItemGroup>
 

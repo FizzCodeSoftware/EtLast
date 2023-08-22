@@ -69,6 +69,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Etl.Host", "Samples\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.AdoNet.MsSql", "EtLast.AdoNet.MsSql\EtLast.AdoNet.MsSql.csproj", "{26B9C3CD-13A8-488F-8935-1D0BB50A4F74}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Hosting", "EtLast.Hosting\EtLast.Hosting.csproj", "{1FA3706F-AAD0-4189-9F70-53E822D9D1B1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Hosting.AspNet", "EtLast.Hosting.AspNet\EtLast.Hosting.AspNet.csproj", "{0AA17ACF-CB61-4D42-B414-A921253C9D4C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -230,6 +234,18 @@ Global
 		{26B9C3CD-13A8-488F-8935-1D0BB50A4F74}.Integration|x64.Build.0 = Debug|x64
 		{26B9C3CD-13A8-488F-8935-1D0BB50A4F74}.Release|x64.ActiveCfg = Release|x64
 		{26B9C3CD-13A8-488F-8935-1D0BB50A4F74}.Release|x64.Build.0 = Release|x64
+		{1FA3706F-AAD0-4189-9F70-53E822D9D1B1}.Debug|x64.ActiveCfg = Debug|x64
+		{1FA3706F-AAD0-4189-9F70-53E822D9D1B1}.Debug|x64.Build.0 = Debug|x64
+		{1FA3706F-AAD0-4189-9F70-53E822D9D1B1}.Integration|x64.ActiveCfg = Debug|x64
+		{1FA3706F-AAD0-4189-9F70-53E822D9D1B1}.Integration|x64.Build.0 = Debug|x64
+		{1FA3706F-AAD0-4189-9F70-53E822D9D1B1}.Release|x64.ActiveCfg = Release|x64
+		{1FA3706F-AAD0-4189-9F70-53E822D9D1B1}.Release|x64.Build.0 = Release|x64
+		{0AA17ACF-CB61-4D42-B414-A921253C9D4C}.Debug|x64.ActiveCfg = Debug|x64
+		{0AA17ACF-CB61-4D42-B414-A921253C9D4C}.Debug|x64.Build.0 = Debug|x64
+		{0AA17ACF-CB61-4D42-B414-A921253C9D4C}.Integration|x64.ActiveCfg = Debug|x64
+		{0AA17ACF-CB61-4D42-B414-A921253C9D4C}.Integration|x64.Build.0 = Debug|x64
+		{0AA17ACF-CB61-4D42-B414-A921253C9D4C}.Release|x64.ActiveCfg = Release|x64
+		{0AA17ACF-CB61-4D42-B414-A921253C9D4C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
