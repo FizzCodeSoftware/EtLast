@@ -36,7 +36,7 @@ public sealed class TrackedRow : IRow
 
         foreach (var kvp in _staging)
         {
-            if (kvp.Value != null)
+            if (_originalRow.KeepNulls || kvp.Value != null)
                 yield return kvp;
         }
     }
