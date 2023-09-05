@@ -58,7 +58,7 @@ public sealed class TrackedRow : IRow
         {
             var originalValue = _originalRow[column];
 
-            if ((originalValue == null && value == null)
+            if ((originalValue == null && value == null && !_originalRow.KeepNulls)
                 || (originalValue != null && value == originalValue))
             {
                 if (_staging?.ContainsKey(column) == true)

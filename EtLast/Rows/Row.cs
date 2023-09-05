@@ -200,7 +200,7 @@ public class Row : IRow
         List<KeyValuePair<string, object>> changedValues = null;
         foreach (var kvp in values)
         {
-            _values.TryGetValue(kvp.Key, out var currentValue);
+            var stored = _values.TryGetValue(kvp.Key, out var currentValue);
 
             if (kvp.Value == null)
             {
@@ -209,7 +209,20 @@ public class Row : IRow
                     changedValues ??= new List<KeyValuePair<string, object>>();
 
                     changedValues.Add(kvp);
-                    _values.Remove(kvp.Key);
+
+                    if (!KeepNulls)
+                    {
+                        _values.Remove(kvp.Key);
+                    }
+                    else
+                    {
+                        _values[kvp.Key] = null;
+                    }
+                }
+                else
+                {
+                    if (KeepNulls && !stored)
+                        _values[kvp.Key] = null;
                 }
             }
             else if (currentValue == null || kvp.Value != currentValue)
