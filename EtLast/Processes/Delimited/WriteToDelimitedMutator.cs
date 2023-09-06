@@ -211,6 +211,7 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
         sinkEntry.Sink.Stream.Write(data);
         sinkEntry.Sink.IncreaseRowsWritten(sinkEntry.RowCount);
         sinkEntry.RowCount = 0;
+        sinkEntry.Buffer.SetLength(0);
     }
 
     private string ConvertToDelimitedValue(string value, bool quoteRequired)
