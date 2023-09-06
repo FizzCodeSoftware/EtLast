@@ -54,19 +54,8 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
                 {
                     FlowState.AddException(this, ex);
 
-                    netTimeStopwatch.Stop();
-                    Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
-
-                    if (InvocationInfo.InvocationStarted.Elapsed.TotalMilliseconds >= Context.ElapsedMillisecondsLimitToLog)
-                    {
-                        Context.Log(LogSeverity.Information, this, "{ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-                            FlowState.StatusToLogString(), InvocationInfo.InvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
-                    }
-                    else
-                    {
-                        Context.Log(LogSeverity.Information, this, "{ProcessResult}",
-                            FlowState.StatusToLogString());
-                    }
+                    LogResult(netTimeStopwatch);
+                    yield break;
                 }
 
                 if (enumerator != null)
@@ -85,19 +74,8 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
                         {
                             FlowState.AddException(this, ex);
 
-                            netTimeStopwatch.Stop();
-                            Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
-
-                            if (InvocationInfo.InvocationStarted.Elapsed.TotalMilliseconds >= Context.ElapsedMillisecondsLimitToLog)
-                            {
-                                Context.Log(LogSeverity.Information, this, "{ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-                                   FlowState.StatusToLogString(), InvocationInfo.InvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
-                            }
-                            else
-                            {
-                                Context.Log(LogSeverity.Information, this, "{ProcessResult}",
-                                   FlowState.StatusToLogString());
-                            }
+                            LogResult(netTimeStopwatch);
+                            yield break;
                         }
 
                         if (!FlowState.IsTerminating)
@@ -112,19 +90,7 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
             }
         }
 
-        netTimeStopwatch.Stop();
-        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
-
-        if (InvocationInfo.InvocationStarted.Elapsed.TotalMilliseconds >= Context.ElapsedMillisecondsLimitToLog)
-        {
-            Context.Log(LogSeverity.Information, this, "{ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-                FlowState.StatusToLogString(), InvocationInfo.InvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
-        }
-        else
-        {
-            Context.Log(LogSeverity.Information, this, "{ProcessResult}",
-                FlowState.StatusToLogString());
-        }
+        LogResult(netTimeStopwatch);
     }
 
     protected abstract IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch);

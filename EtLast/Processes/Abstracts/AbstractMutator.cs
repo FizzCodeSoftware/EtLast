@@ -37,7 +37,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
 
         if (FlowState.IsTerminating)
         {
-            Finish(netTimeStopwatch);
+            LogResult(netTimeStopwatch);
             yield break;
         }
 
@@ -56,7 +56,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
 
         if (FlowState.IsTerminating)
         {
-            Finish(netTimeStopwatch);
+            LogResult(netTimeStopwatch);
             yield break;
         }
 
@@ -71,7 +71,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
 
         if (FlowState.IsTerminating)
         {
-            Finish(netTimeStopwatch);
+            LogResult(netTimeStopwatch);
             yield break;
         }
 
@@ -214,24 +214,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
                 keptRowCount + removedRowCount, ignoredRowCount + keptRowCount + removedRowCount, ignoredRowCount, keptRowCount, removedRowCount, addedRowCount);
         }
 
-        Finish(netTimeStopwatch);
-    }
-
-    private void Finish(Stopwatch netTimeStopwatch)
-    {
-        netTimeStopwatch.Stop();
-        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
-
-        if (InvocationInfo.InvocationStarted.Elapsed.TotalMilliseconds >= Context.ElapsedMillisecondsLimitToLog)
-        {
-            Context.Log(LogSeverity.Information, this, "{ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-                FlowState.StatusToLogString(), InvocationInfo.InvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
-        }
-        else
-        {
-            Context.Log(LogSeverity.Information, this, "{ProcessResult}",
-                FlowState.StatusToLogString());
-        }
+        LogResult(netTimeStopwatch);
     }
 
     public override void Execute(IProcess caller)

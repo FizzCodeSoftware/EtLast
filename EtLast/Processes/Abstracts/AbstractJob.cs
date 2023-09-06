@@ -31,19 +31,7 @@ public abstract class AbstractJob : AbstractProcess
             FlowState.AddException(this, ex);
         }
 
-        netTimeStopwatch.Stop();
-        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
-
-        if (InvocationInfo.InvocationStarted.Elapsed.TotalMilliseconds >= Context.ElapsedMillisecondsLimitToLog)
-        {
-            Context.Log(LogSeverity.Information, this, "{ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-                FlowState.StatusToLogString(), InvocationInfo.InvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
-        }
-        else
-        {
-            Context.Log(LogSeverity.Information, this, "{ProcessResult}",
-                FlowState.StatusToLogString());
-        }
+        LogResult(netTimeStopwatch);
     }
 
     protected abstract void ExecuteImpl(Stopwatch netTimeStopwatch);

@@ -33,24 +33,49 @@ public abstract class AbstractProcess : IProcess
 
     protected void LogCall(IProcess caller)
     {
+        var severity = this is IEtlTask or IScope
+            ? LogSeverity.Information
+            : LogSeverity.Debug;
+
         var typeName = GetType().GetFriendlyTypeName();
         if (Name == typeName)
         {
             if (caller is IEtlTask)
-                Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Task}", Kind, caller.InvocationName);
+                Context.Log(severity, this, "{ProcessKind} started by {Task}", Kind, caller.InvocationName);
             else if (caller != null)
-                Context.Log(LogSeverity.Information, this, "{ProcessKind} started by {Process}", Kind, caller.InvocationName);
+                Context.Log(severity, this, "{ProcessKind} started by {Process}", Kind, caller.InvocationName);
             else
-                Context.Log(LogSeverity.Information, this, "{ProcessKind} started", Kind);
+                Context.Log(severity, this, "{ProcessKind} started", Kind);
         }
         else
         {
             if (caller is IEtlTask)
-                Context.Log(LogSeverity.Information, this, "{ProcessType}/{ProcessKind} started by {Task}", typeName, Kind, caller.InvocationName);
+                Context.Log(severity, this, "{ProcessType}/{ProcessKind} started by {Task}", typeName, Kind, caller.InvocationName);
             else if (caller != null)
-                Context.Log(LogSeverity.Information, this, "{ProcessType}/{ProcessKind} started by {Process}", typeName, Kind, caller.InvocationName);
+                Context.Log(severity, this, "{ProcessType}/{ProcessKind} started by {Process}", typeName, Kind, caller.InvocationName);
             else
-                Context.Log(LogSeverity.Information, this, "{ProcessType}/{ProcessKind} started", typeName, Kind);
+                Context.Log(severity, this, "{ProcessType}/{ProcessKind} started", typeName, Kind);
+        }
+    }
+
+    protected void LogResult(Stopwatch netTimeStopwatch)
+    {
+        var severity = this is IEtlTask or IScope
+            ? LogSeverity.Information
+            : LogSeverity.Debug;
+
+        netTimeStopwatch.Stop();
+        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+
+        if (InvocationInfo.InvocationStarted.Elapsed.TotalMilliseconds >= Context.ElapsedMillisecondsLimitToLog)
+        {
+            Context.Log(severity, this, "{ProcessResult} in {Elapsed}/{ElapsedWallClock}",
+                FlowState.StatusToLogString(), InvocationInfo.InvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+        }
+        else
+        {
+            Context.Log(severity, this, "{ProcessResult}",
+                FlowState.StatusToLogString());
         }
     }
 

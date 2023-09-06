@@ -54,24 +54,17 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 
             _statistics.Finish();
 
-            if (InvocationInfo.InvocationStarted.Elapsed.TotalMilliseconds >= Context.ElapsedMillisecondsLimitToLog)
-            {
-                Context.Log(LogSeverity.Information, this, "{ProcessResult} in {Elapsed}, CPU time: {CpuTime}",
-                    FlowState.StatusToLogString(), Statistics.RunTime, Statistics.CpuTime);
-            }
-            else
-            {
-                Context.Log(LogSeverity.Information, this, "{ProcessResult}",
-                    FlowState.StatusToLogString());
-            }
+            LogResult(netTimeStopwatch);
 
             Context.Log(LogSeverity.Debug, this, "elapsed: {Elapsed}, CPU time: {CpuTime}, total allocations: {AllocatedMemory}, allocation difference: {MemoryDifference}",
                 Statistics.RunTime, Statistics.CpuTime, Statistics.TotalAllocations, Statistics.AllocationDifference);
 
             LogPrivateSettableProperties(LogSeverity.Debug);
         }
-
-        netTimeStopwatch.Stop();
-        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+        else
+        {
+            netTimeStopwatch.Stop();
+            Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+        }
     }
 }
