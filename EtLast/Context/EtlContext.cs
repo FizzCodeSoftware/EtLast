@@ -27,7 +27,10 @@ public sealed class EtlContext : IEtlContext
     /// </summary>
     public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromHours(4);
 
-    public int ElapsedMillisecondsLimitToLog { get; set; } = 100;
+    /// <summary>
+    /// Default value: 1000
+    /// </summary>
+    public int ElapsedMillisecondsLimitToLog { get; set; } = 1000;
 
     public bool IsTerminating { get; private set; }
 
