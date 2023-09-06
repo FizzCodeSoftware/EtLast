@@ -53,7 +53,7 @@ public sealed class EnumerableImporter : AbstractRowSource
                         }
                     }
 
-                    var newRow = Context.CreateRow(this, initialValues);
+                    var newRow = Context.CreateRow(this, initialValues, inputRow.KeepNulls);
                     newRow.Tag = inputRow.Tag;
 
                     yield return newRow;
@@ -106,7 +106,7 @@ public sealed class EnumerableImporter : AbstractRowSource
                         }
                     }
 
-                    var newRow = Context.CreateRow(this, initialValues);
+                    var newRow = Context.CreateRow(this, initialValues, inputRow.KeepNulls);
                     newRow.Tag = inputRow.Tag;
 
                     yield return newRow;
