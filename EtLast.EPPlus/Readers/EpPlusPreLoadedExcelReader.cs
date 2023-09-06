@@ -34,7 +34,7 @@ public sealed class EpPlusPreLoadedExcelReader : AbstractEpPlusExcelReader
 
     protected override IEnumerable<IRow> Produce()
     {
-        return ProduceFrom(null, PreLoadedFile);
+        return ProduceFrom(null, PreLoadedFile, 0, null);
     }
 }
 

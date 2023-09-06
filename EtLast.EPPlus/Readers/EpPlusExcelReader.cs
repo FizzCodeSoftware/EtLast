@@ -4,6 +4,11 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
 {
     public required IStreamProvider StreamProvider { get; init; }
 
+    /// <summary>
+    /// First stream index is (integer) 0
+    /// </summary>
+    public string AddStreamIndexToColumn { get; init; }
+
     public EpPlusExcelReader(IEtlContext context)
         : base(context)
     {
@@ -38,6 +43,7 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
             yield break;
 
         var rowCount = 0L;
+        var streamIndex = 0;
         foreach (var stream in streams)
         {
             if (stream == null)
@@ -64,7 +70,7 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
 
             try
             {
-                foreach (var row in ProduceFrom(stream, package))
+                foreach (var row in ProduceFrom(stream, package, streamIndex, AddStreamIndexToColumn))
                 {
                     rowCount++;
                     yield return row;
@@ -76,6 +82,8 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
                 stream.Dispose();
                 package.Dispose();
             }
+
+            streamIndex++;
         }
     }
 }

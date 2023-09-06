@@ -54,6 +54,11 @@ public sealed class DelimitedLineReader : AbstractRowSource
     /// </summary>
     public Encoding Encoding { get; init; } = Encoding.UTF8;
 
+    /// <summary>
+    /// First stream index is (integer) 0
+    /// </summary>
+    public string AddStreamIndexToColumn { get; init; }
+
     public DelimitedLineReader(IEtlContext context)
         : base(context)
     {
@@ -107,6 +112,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
         if (streams == null)
             yield break;
 
+        var streamIndex = 0;
         foreach (var stream in streams)
         {
             if (stream == null)
@@ -441,6 +447,9 @@ public sealed class DelimitedLineReader : AbstractRowSource
                         quotes = 0;
                         cellStartsWithQuote = false;
 
+                        if (!string.IsNullOrEmpty(AddStreamIndexToColumn))
+                            initialValues[AddStreamIndexToColumn] = streamIndex;
+
                         resultCount++;
                         yield return Context.CreateRow(this, initialValues);
                         initialValues.Clear();
@@ -460,6 +469,8 @@ public sealed class DelimitedLineReader : AbstractRowSource
                     reader?.Dispose();
                 }
             }
+
+            streamIndex++;
         }
     }
 

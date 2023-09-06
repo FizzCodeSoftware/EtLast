@@ -58,7 +58,7 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
             throw new ProcessParameterNullException(this, nameof(Columns));
     }
 
-    protected IEnumerable<IRow> ProduceFrom(NamedStream stream, ExcelPackage package)
+    protected IEnumerable<IRow> ProduceFrom(NamedStream stream, ExcelPackage package, int streamIndex, string addStreamIndexToColumn)
     {
         var name = stream?.Name ?? package.File?.FullName ?? "preloaded";
 
@@ -224,6 +224,9 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
 
                 initialValues.Add(new KeyValuePair<string, object>(kvp.rowColumn, value));
             }
+
+            if (!string.IsNullOrEmpty(addStreamIndexToColumn))
+                initialValues.Add(new KeyValuePair<string, object>(addStreamIndexToColumn, streamIndex));
 
             yield return Context.CreateRow(this, initialValues);
             resultCount++;

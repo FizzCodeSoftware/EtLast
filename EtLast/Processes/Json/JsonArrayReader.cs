@@ -8,6 +8,11 @@ public sealed class JsonArrayReader<T> : AbstractRowSource
     public required IStreamProvider StreamProvider { get; init; }
     public required string ColumnName { get; init; }
 
+    /// <summary>
+    /// First stream index is (integer) 0
+    /// </summary>
+    public string AddStreamIndexToColumn { get; init; }
+
     public JsonArrayReader(IEtlContext context)
         : base(context)
     {
@@ -39,6 +44,7 @@ public sealed class JsonArrayReader<T> : AbstractRowSource
         if (streams == null)
             yield break;
 
+        var streamIndex = 0;
         foreach (var stream in streams)
         {
             if (stream == null)
@@ -54,6 +60,9 @@ public sealed class JsonArrayReader<T> : AbstractRowSource
                 {
                     resultCount++;
                     initialValues[ColumnName] = entry;
+
+                    if (!string.IsNullOrEmpty(AddStreamIndexToColumn))
+                        initialValues[AddStreamIndexToColumn] = streamIndex;
 
                     yield return Context.CreateRow(this, initialValues);
 
@@ -72,6 +81,8 @@ public sealed class JsonArrayReader<T> : AbstractRowSource
 
             if (FlowState.IsTerminating)
                 break;
+
+            streamIndex++;
         }
     }
 }

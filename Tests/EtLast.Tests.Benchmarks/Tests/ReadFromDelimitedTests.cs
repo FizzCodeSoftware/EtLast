@@ -106,35 +106,6 @@ public class ReadFromDelimitedTests
     }
 
     [Benchmark]
-    public void ReadFromDelimitedStreamOld()
-    {
-        var stream = new MemoryStream(_stream.Capacity);
-        _stream.Seek(0, SeekOrigin.Begin);
-        _stream.CopyTo(stream);
-        stream.Seek(0, SeekOrigin.Begin);
-
-        var context = new EtlContext(null);
-        var process = new DelimitedLineReaderOld(context)
-        {
-            StreamProvider = new MemoryStreamProvider()
-            {
-                StreamCreator = () => stream,
-            },
-            Columns = new()
-            {
-                ["1"] = new ReaderColumn(),
-                ["2"] = new ReaderColumn(new IntConverter()),
-            },
-            Header = DelimitedLineHeader.HasHeader,
-            Delimiter = ';',
-        };
-
-        var result = process.TakeRowsAndReleaseOwnership(null, null).ToList();
-        if (result.Count != RowCount)
-            throw new Exception();
-    }
-
-    [Benchmark]
     public void ReadFromDelimitedFile()
     {
         var context = new EtlContext(null);
@@ -148,30 +119,6 @@ public class ReadFromDelimitedTests
             {
                 ["1"] = new TextReaderColumn(),
                 ["2"] = new TextReaderColumn(new IntConverter()),
-            },
-            Header = DelimitedLineHeader.HasHeader,
-            Delimiter = ';',
-        };
-
-        var result = process.TakeRowsAndReleaseOwnership(null, null).ToList();
-        if (result.Count != RowCount)
-            throw new Exception();
-    }
-
-    [Benchmark]
-    public void ReadFromDelimitedFileOld()
-    {
-        var context = new EtlContext(null);
-        var process = new DelimitedLineReaderOld(context)
-        {
-            StreamProvider = new LocalFileStreamProvider()
-            {
-                FileName = _file,
-            },
-            Columns = new()
-            {
-                ["1"] = new ReaderColumn(),
-                ["2"] = new ReaderColumn(new IntConverter()),
             },
             Header = DelimitedLineHeader.HasHeader,
             Delimiter = ';',
