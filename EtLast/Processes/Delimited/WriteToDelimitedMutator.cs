@@ -126,10 +126,9 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
                     first = false;
                 }
 
+                sinkEntry.Sink.Stream.Write(_lineEndingBytes);
                 sinkEntry.Sink.IncreaseRowsWritten();
             }
-
-            sinkEntry.Sink.Stream.Write(_lineEndingBytes);
         }
 
         return sinkEntry;
