@@ -44,9 +44,14 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
     /// </summary>
     public required Dictionary<string, DelimitedColumn> Columns { get; init; }
 
+    /// <summary>
+    /// Default value is 10000
+    /// </summary>
+    public int BatchSize { get; init; } = 10000;
+
     public PartitionKeyGenerator PartitionKeyGenerator { get; init; }
 
-    private readonly Dictionary<string, NamedSink> _sinks = new();
+    private readonly Dictionary<string, SinkEntry> _sinkEntries = new();
     private byte[] _delimiterBytes;
     private byte[] _lineEndingBytes;
     private string _escapedQuote;
@@ -84,25 +89,30 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
         _rowCounter = 0;
     }
 
-    private NamedSink GetSink(string partitionKey)
+    private SinkEntry GetSinkEntry(string partitionKey)
     {
         var internalKey = partitionKey ?? "\0__nopartition__\0";
 
-        if (_sinks.TryGetValue(internalKey, out var sink))
-            return sink;
+        if (_sinkEntries.TryGetValue(internalKey, out var sinkEntry))
+            return sinkEntry;
 
-        sink = SinkProvider.GetSink(this, partitionKey);
-        _sinks.Add(internalKey, sink);
+        sinkEntry = new SinkEntry()
+        {
+            Sink = SinkProvider.GetSink(this, partitionKey),
+            Buffer = new MemoryStream(),
+        };
+
+        _sinkEntries.Add(internalKey, sinkEntry);
 
         if (WriteHeader)
         {
-            if (sink.SafeGetPosition() == 0)
+            if (sinkEntry.Sink.SafeGetPosition() == 0)
             {
                 var first = true;
                 foreach (var (columnName, _) in Columns)
                 {
                     if (!first)
-                        sink.Stream.Write(_delimiterBytes);
+                        sinkEntry.Sink.Stream.Write(_delimiterBytes);
 
                     var quoteRequired = !string.IsNullOrEmpty(columnName) &&
                         (columnName.IndexOfAny(_quoteRequiredChars) > -1
@@ -111,35 +121,38 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
                         || columnName.Contains(LineEnding, StringComparison.Ordinal));
 
                     var line = ConvertToDelimitedValue(columnName, quoteRequired);
-                    sink.Stream.Write(Encoding.GetBytes(line));
+                    sinkEntry.Sink.Stream.Write(Encoding.GetBytes(line));
 
                     first = false;
                 }
 
-                sink.IncreaseRowsWritten();
+                sinkEntry.Sink.IncreaseRowsWritten();
             }
-            else
-            {
-                sink.Stream.Write(_lineEndingBytes);
-            }
+
+            sinkEntry.Sink.Stream.Write(_lineEndingBytes);
         }
 
-        return sink;
+        return sinkEntry;
     }
 
     protected override void CloseMutator()
     {
+        foreach (var sinkEntry in _sinkEntries.Values)
+        {
+            WriteBuffer(sinkEntry);
+        }
+
         if (SinkProvider.AutomaticallyDispose)
         {
-            foreach (var sink in _sinks.Values)
+            foreach (var sinkEntry in _sinkEntries.Values)
             {
-                sink.Stream.Flush();
-                sink.Stream.Close();
-                sink.Stream.Dispose();
+                sinkEntry.Sink.Stream.Flush();
+                sinkEntry.Sink.Stream.Close();
+                sinkEntry.Sink.Stream.Dispose();
             }
         }
 
-        _sinks.Clear();
+        _sinkEntries.Clear();
     }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
@@ -147,20 +160,17 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
         var partitionKey = PartitionKeyGenerator?.Invoke(row, _rowCounter);
         _rowCounter++;
 
-        var sink = GetSink(partitionKey);
+        var sinkEntry = GetSinkEntry(partitionKey);
 
-        Context.RegisterWriteToSink(row, sink.SinkUid);
+        Context.RegisterWriteToSink(row, sinkEntry.Sink.SinkUid);
 
         try
         {
-            if (sink.RowsWritten > 0)
-                sink.Stream.Write(_lineEndingBytes);
-
             var first = true;
             foreach (var kvp in Columns)
             {
                 if (!first)
-                    sink.Stream.Write(_delimiterBytes);
+                    sinkEntry.Buffer.Write(_delimiterBytes);
 
                 var value = row[kvp.Value?.SourceColumn ?? kvp.Key];
 
@@ -173,22 +183,35 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
 
                 var convertedValue = ConvertToDelimitedValue(str, quoteRequired);
                 if (convertedValue != null)
-                {
-                    sink.Stream.Write(Encoding.GetBytes(convertedValue));
-                }
+                    sinkEntry.Buffer.Write(Encoding.GetBytes(convertedValue));
 
                 first = false;
             }
 
-            sink.IncreaseRowsWritten();
+            sinkEntry.Buffer.Write(_lineEndingBytes);
+            sinkEntry.RowCount++;
+
+            if (sinkEntry.RowCount >= BatchSize)
+                WriteBuffer(sinkEntry);
         }
         catch (Exception ex)
         {
-            Context.RegisterIoCommandFailed(this, sink.IoCommandKind, sink.IoCommandUid, sink.RowsWritten, ex);
+            Context.RegisterIoCommandFailed(this, sinkEntry.Sink.IoCommandKind, sinkEntry.Sink.IoCommandUid, sinkEntry.Sink.RowsWritten, ex);
             throw;
         }
 
         yield return row;
+    }
+
+    private void WriteBuffer(SinkEntry sinkEntry)
+    {
+        if (sinkEntry.RowCount == 0)
+            return;
+
+        var data = sinkEntry.Buffer.ToArray();
+        sinkEntry.Sink.Stream.Write(data);
+        sinkEntry.Sink.IncreaseRowsWritten(sinkEntry.RowCount);
+        sinkEntry.RowCount = 0;
     }
 
     private string ConvertToDelimitedValue(string value, bool quoteRequired)
@@ -196,15 +219,21 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
         if (quoteRequired)
         {
             if (value != null)
-            {
                 value = value.Replace(_quoteAsString, _escapedQuote, StringComparison.Ordinal);
-            }
 
             value = Quote + value + Quote;
         }
 
         return value;
     }
+
+    private class SinkEntry
+    {
+        public required NamedSink Sink { get; init; }
+        public required MemoryStream Buffer { get; init; }
+        public int RowCount = 0;
+    }
+
 }
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]

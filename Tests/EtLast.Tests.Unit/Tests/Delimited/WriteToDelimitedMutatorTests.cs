@@ -69,7 +69,8 @@ public class WriteToDelimitedMutatorTests
 3;D;39;160;fake;;2018.07.11;2017.08.01 04:09:01.0000000
 4;E;-3;160;;1;;2019.01.01 23:59:59.0000000
 5;A;11;140;;;2013.05.15 00:00:00.0000000;2018.01.01 00:00:00.0000000
-6;fake;;140;;5;2018.01.09 00:00:00.0000000;", data);
+6;fake;;140;;5;2018.01.09 00:00:00.0000000;
+", data);
 
             outputStream.Position = 0;
 
@@ -153,7 +154,7 @@ public class WriteToDelimitedMutatorTests
 
             outputStream.Position = 0;
             var data = Encoding.UTF8.GetString(outputStream.ToArray());
-            const string expected = "Id;Name;Value1;Value2;Value3;Value4\r\n1;\" A\";\"test\r\n continues\";-1;;";
+            const string expected = "Id;Name;Value1;Value2;Value3;Value4\r\n1;\" A\";\"test\r\n continues\";-1;;\r\n";
             Assert.AreEqual(expected, data);
         }
     }

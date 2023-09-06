@@ -12,9 +12,9 @@ public class NamedSink : NamedStream
         SinkUid = sinkUid;
     }
 
-    public void IncreaseRowsWritten()
+    public void IncreaseRowsWritten(int count = 1)
     {
-        RowsWritten++;
+        RowsWritten += count;
     }
 
     public long SafeGetPosition()
