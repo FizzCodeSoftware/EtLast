@@ -1,13 +1,23 @@
 ﻿namespace FizzCode.EtLast;
 
-public class LocalDirectoryStreamProvider : IStreamProvider
+public class LocalFileSetStreamProvider : IStreamProvider
 {
-    public required string Directory { get; init; }
+    public required string[] FileNames { get; init; }
+
+    public static FileStreamOptions DefaultOptions => new()
+    {
+        Mode = FileMode.Open,
+        Access = FileAccess.Read,
+        Share = FileShare.Read,
+        Options = FileOptions.None,
+        BufferSize = 4096,
+        PreallocationSize = 0,
+    };
 
     /// <summary>
-    /// Default value is "*.*"
+    /// Default value is <see cref="DefaultOptions"/>
     /// </summary>
-    public required string SearchPattern { get; init; } = "*.*";
+    public FileStreamOptions Options { get; init; } = DefaultOptions;
 
     /// <summary>
     /// Default value is true.
@@ -16,45 +26,20 @@ public class LocalDirectoryStreamProvider : IStreamProvider
 
     public string GetTopic()
     {
-        return Directory != null
-            ? PathHelpers.GetFriendlyPathName(Directory)
-                + (SearchPattern != null ? @"\" + SearchPattern : "")
+        return FileNames?.Length > 0
+            ? PathHelpers.GetFriendlyPathName(FileNames[0]) + "+" + FileNames.Length.ToString("D", CultureInfo.InvariantCulture) + ""
             : null;
     }
 
     public void Validate(IProcess caller)
     {
-        if (Directory == null)
-            throw new ProcessParameterNullException(caller, nameof(Directory));
-
-        if (SearchPattern == null)
-            throw new ProcessParameterNullException(caller, nameof(SearchPattern));
+        if (FileNames == null)
+            throw new ProcessParameterNullException(caller, nameof(FileNames));
     }
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {
-        var fileNames = new List<string>();
-
-        if (System.IO.Directory.Exists(Directory))
-        {
-            fileNames.AddRange(System.IO.Directory.EnumerateFiles(Directory, SearchPattern));
-        }
-
-        if (fileNames.Count == 0)
-        {
-            if (ThrowExceptionWhenFileNotFound)
-            {
-                var exception = new LocalFileReadException(caller, "local directory doesn't contain any matching files", Directory);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local directory doesn't contain any matching files: {0}",
-                    Directory));
-
-                throw exception;
-            }
-
-            yield break;
-        }
-
-        foreach (var fileName in fileNames)
+        foreach (var fileName in FileNames)
         {
             yield return GetFileStream(caller, fileName);
         }
@@ -62,7 +47,7 @@ public class LocalDirectoryStreamProvider : IStreamProvider
 
     private NamedStream GetFileStream(IProcess caller, string fileName)
     {
-        var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileRead, Directory, fileName.Replace(Directory, "", StringComparison.InvariantCultureIgnoreCase), null, null, null, null,
+        var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileRead, Path.GetDirectoryName(fileName), Path.GetFileName(fileName), null, null, null, null,
             "reading from local file {FileName}", fileName);
 
         if (!File.Exists(fileName))
@@ -83,7 +68,7 @@ public class LocalDirectoryStreamProvider : IStreamProvider
 
         try
         {
-            var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var stream = new FileStream(fileName, Options);
             return new NamedStream(fileName, stream, iocUid, IoCommandKind.fileRead);
         }
         catch (Exception ex)
