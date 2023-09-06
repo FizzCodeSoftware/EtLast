@@ -215,9 +215,9 @@ public sealed class EtlContext : IEtlContext
     public IRow CreateRow(IProcess process, IReadOnlySlimRow source)
     {
         var row = (IRow)Activator.CreateInstance(RowType);
+        row.KeepNulls = source.KeepNulls;
         row.Init(this, process, Interlocked.Increment(ref _nextRowUid), source.Values);
         row.Tag = source.Tag;
-        row.KeepNulls = source.KeepNulls;
 
         foreach (var listener in Listeners)
         {
