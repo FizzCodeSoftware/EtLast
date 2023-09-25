@@ -11,6 +11,11 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
     public required string Url { get; init; }
     public required string OutputFileName { get; init; }
 
+    /// <summary>
+    /// Default false.
+    /// </summary>
+    public bool SkipIfTargetFileExistsButLarger { get; init; }
+
     public Dictionary<string, string> Headers { get; set; }
 
     public HttpDownloadToLocalFile(IEtlContext context)
@@ -78,9 +83,28 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
                     response.EnsureSuccessStatusCode();
                     using (var responseStream = response.Content.ReadAsStream())
                     {
-                        using (var fileStream = new FileStream(OutputFileName, FileMode.Create))
+                        if (!SkipIfTargetFileExistsButLarger || !File.Exists(OutputFileName))
                         {
-                            responseStream.CopyTo(fileStream);
+                            using (var fileStream = new FileStream(OutputFileName, FileMode.Create))
+                            {
+                                responseStream.CopyTo(fileStream);
+                            }
+                        }
+                        else
+                        {
+                            var existingLength = new FileInfo(OutputFileName).Length;
+                            using (var ms = new MemoryStream())
+                            {
+                                responseStream.CopyTo(ms);
+                                if (existingLength <= ms.Length)
+                                {
+                                    using (var fileStream = new FileStream(OutputFileName, FileMode.Create))
+                                    {
+                                        ms.Position = 0;
+                                        ms.CopyTo(fileStream);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
