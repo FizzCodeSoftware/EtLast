@@ -11,6 +11,8 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
     public required string Url { get; init; }
     public required string OutputFileName { get; init; }
 
+    public Dictionary<string, string> Headers { get; set; }
+
     public HttpDownloadToLocalFile(IEtlContext context)
         : base(context)
     {
@@ -62,10 +64,25 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
                     "writing downloaded content to file {FileName}",
                     OutputFileName);
 
-                using (var response = Client.GetStreamAsync(Url).Result)
-                using (var fileStream = new FileStream(OutputFileName, FileMode.Create))
+                var message = new HttpRequestMessage(HttpMethod.Get, Url);
+                if (Headers != null)
                 {
-                    response.CopyTo(fileStream);
+                    foreach (var kvp in Headers)
+                    {
+                        message.Headers.Add(kvp.Key, kvp.Value);
+                    }
+                }
+
+                using (var response = Client.SendAsync(message).Result)
+                {
+                    response.EnsureSuccessStatusCode();
+                    using (var responseStream = response.Content.ReadAsStream())
+                    {
+                        using (var fileStream = new FileStream(OutputFileName, FileMode.Create))
+                        {
+                            responseStream.CopyTo(fileStream);
+                        }
+                    }
                 }
 
                 var size = new FileInfo(OutputFileName).Length;
