@@ -13,14 +13,14 @@ public class LoadCountries : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ExecuteProcess(() => new CustomSqlStatement(Context)
+            .CustomSqlStatement(() => new CustomSqlStatement(Context)
             {
                 Name = "CreateTable",
                 ConnectionString = ConnectionString,
                 SqlStatement = $"CREATE TABLE {nameof(LoadCountries)} (Id INT NOT NULL, Name VARCHAR(255), Abbreviation2 VARCHAR(2), Abbreviation3 VARCHAR(3));",
                 MainTableName = nameof(LoadCountries),
             })
-            .ExecuteProcess(() => new ResilientSqlScope(Context)
+            .ResilientSqlScope(() => new ResilientSqlScope(Context)
             {
                 Name = "ExecuteResilientScope",
                 ConnectionString = ConnectionString,

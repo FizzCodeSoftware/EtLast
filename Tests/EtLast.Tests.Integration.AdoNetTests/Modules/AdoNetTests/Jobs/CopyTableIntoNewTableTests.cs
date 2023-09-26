@@ -13,7 +13,7 @@ public class CopyTableIntoNewTableTests : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ExecuteProcess(() => new CustomSqlStatement(Context)
+            .CustomSqlStatement(() => new CustomSqlStatement(Context)
             {
                 Name = "CreateSourceTable",
                 ConnectionString = ConnectionString,
@@ -22,7 +22,7 @@ public class CopyTableIntoNewTableTests : AbstractEtlTask
                     $"INSERT INTO {nameof(CopyTableIntoNewTableTests)} (Id, Value) VALUES (2, 'CopyTableIntoExistingTableTest');",
                 MainTableName = nameof(CopyTableIntoNewTableTests),
             })
-            .ExecuteProcess(() => new CopyTableIntoNewTable(Context)
+            .CopyTableIntoNewTable(() => new CopyTableIntoNewTable(Context)
             {
                 ConnectionString = ConnectionString,
                 Configuration = new TableCopyConfiguration()
@@ -31,26 +31,22 @@ public class CopyTableIntoNewTableTests : AbstractEtlTask
                     TargetTableName = $"{nameof(CopyTableIntoNewTableTests)}Target"
                 }
             })
-            .ExecuteProcess(() => new CustomJob(Context)
-            {
-                Name = "CheckTargetTableContents",
-                Action = job =>
+            .ExecuteSequenceAndTakeRows(out var result, builder => builder
+                .ReadFrom(new AdoNetDbReader(Context)
                 {
-                    var result = SequenceBuilder.Fluent
-                    .ReadFrom(new AdoNetDbReader(Context)
-                    {
-                        Name = "Read target table contents",
-                        ConnectionString = ConnectionString,
-                        TableName = $"{nameof(CopyTableIntoNewTableTests)}Target"
-                    }).Build().TakeRowsAndReleaseOwnership(this).ToList();
-
-                    Assert.AreEqual(2, result.Count);
-                    Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>()
-                    {
-                        new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Value"] = "etlast" },
-                        new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Value"] = "CopyTableIntoExistingTableTest" }
-                    });
-                }
+                    Name = "Read target table contents",
+                    ConnectionString = ConnectionString,
+                    TableName = $"{nameof(CopyTableIntoNewTableTests)}Target"
+                })
+            )
+            .CustomJob("Test", job =>
+            {
+                Assert.AreEqual(2, result.Count);
+                Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>()
+                {
+                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Value"] = "etlast" },
+                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Value"] = "CopyTableIntoExistingTableTest" }
+                });
             });
     }
 }

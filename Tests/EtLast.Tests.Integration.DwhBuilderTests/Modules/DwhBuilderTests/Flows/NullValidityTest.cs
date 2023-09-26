@@ -38,9 +38,9 @@ public class NullValidityTest : AbstractEtlTask
                 DatabaseName = DatabaseName,
             })
             .ExecuteProcess(() => CreateFirstDwhBuilder(configuration, model))
-            .ExecuteProcess(() => new CustomJob(Context) { Action = TestFirstDwhBuilder, })
+            .CustomJob(nameof(TestFirstDwhBuilder), TestFirstDwhBuilder)
             .ExecuteProcess(() => CreateSecondDwhBuilder(configuration, model))
-            .ExecuteProcess(() => new CustomJob(Context) { Action = TestSecondDwhBuilder, });
+            .CustomJob(nameof(TestSecondDwhBuilder), TestSecondDwhBuilder);
     }
 
     private IProcess CreateFirstDwhBuilder(DwhBuilderConfiguration configuration, RelationalModel model)

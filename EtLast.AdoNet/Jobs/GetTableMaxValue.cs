@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class GetTableMaxValue<T> : AbstractSqlStatementWithResult<TableMaxValueResult<T>>
+public sealed class GetTableMaxValue<TResult> : AbstractSqlStatementWithResult<TableMaxValueResult<TResult>>
 {
     public required string TableName { get; init; }
     public required string ColumnName { get; init; }
@@ -30,7 +30,7 @@ public sealed class GetTableMaxValue<T> : AbstractSqlStatementWithResult<TableMa
             : "SELECT MAX(" + ColumnName + ") AS maxValue, COUNT(*) AS cnt FROM " + TableName + " WHERE " + WhereClause;
     }
 
-    protected override TableMaxValueResult<T> RunCommandAndGetResult(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
+    protected override TableMaxValueResult<TResult> RunCommandAndGetResult(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
         var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbReadAggregate, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
             "getting max value from {ConnectionStringName}/{TableName}",
@@ -38,7 +38,7 @@ public sealed class GetTableMaxValue<T> : AbstractSqlStatementWithResult<TableMa
 
         try
         {
-            var result = new TableMaxValueResult<T>();
+            var result = new TableMaxValueResult<TResult>();
             using (var reader = command.ExecuteReader())
             {
                 while (reader.Read())
@@ -46,7 +46,7 @@ public sealed class GetTableMaxValue<T> : AbstractSqlStatementWithResult<TableMa
                     var mv = reader["maxValue"];
                     if (mv is not DBNull)
                     {
-                        result.MaxValue = (T)mv;
+                        result.MaxValue = (TResult)mv;
                     }
 
                     result.RecordCount = (int)reader["cnt"];
@@ -79,4 +79,13 @@ public class TableMaxValueResult<T>
 {
     public T MaxValue { get; set; }
     public int RecordCount { get; set; }
+}
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class GetTableMaxValueFluent
+{
+    public static IFlow GetTableMaxValue<TResult>(this IFlow builder, out TableMaxValueResult<TResult> maxValue, Func<GetTableMaxValue<TResult>> processCreator)
+    {
+        return builder.ExecuteProcessWithResult(out maxValue, processCreator);
+    }
 }

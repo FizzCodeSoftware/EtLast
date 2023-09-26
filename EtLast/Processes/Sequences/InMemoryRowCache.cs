@@ -77,7 +77,7 @@ public static class InMemoryRowCacheFluent
         return new InMemoryRowCache(builder.ProcessBuilder.Result.Context)
         {
             Name = name,
-            InputProcess = builder.Build(),
+            InputProcess = builder.ProcessBuilder.Result,
         };
     }
 }

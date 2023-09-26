@@ -8,10 +8,9 @@ public class AssertFail : AbstractEtlTask
 
     public override void Execute(IFlow flow)
     {
-        flow.ExecuteProcess(() => new CustomJob(Context)
+        flow.CustomJob("StoredProcedureAdoNetDbReader", job =>
         {
-            Name = "StoredProcedureAdoNetDbReader",
-            Action = job => Assert.Fail("Expected fail from Assert TestAssertAndException"),
+            Assert.Fail("Expected fail from Assert TestAssertAndException");
         });
     }
 }

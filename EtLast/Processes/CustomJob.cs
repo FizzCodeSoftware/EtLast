@@ -28,3 +28,21 @@ public sealed class CustomJob : AbstractJob
         }
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class CustomJobFluent
+{
+    public static IFlow CustomJob(this IFlow builder, Func<CustomJob> processCreator)
+    {
+        return builder.ExecuteProcess(processCreator);
+    }
+
+    public static IFlow CustomJob(this IFlow builder, string name, Action<CustomJob> action)
+    {
+        return builder.ExecuteProcess(() => new CustomJob(builder.Context)
+        {
+            Name = name,
+            Action = action,
+        });
+    }
+}

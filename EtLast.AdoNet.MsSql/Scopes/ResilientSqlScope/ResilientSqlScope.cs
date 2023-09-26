@@ -284,3 +284,13 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
         internal int OriginalIndex { get; set; }
     }
 }
+
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class ResilientSqlScopeFluent
+{
+    public static IFlow ResilientSqlScope(this IFlow builder, Func<ResilientSqlScope> processCreator)
+    {
+        return builder.ExecuteProcess(processCreator);
+    }
+}

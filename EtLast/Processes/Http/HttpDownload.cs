@@ -59,3 +59,12 @@ public sealed class HttpDownload : AbstractJob
         }
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class HttpDownloadFluent
+{
+    public static IFlow HttpDownload(this IFlow builder, Func<HttpDownload> processCreator)
+    {
+        return builder.ExecuteProcess(processCreator);
+    }
+}

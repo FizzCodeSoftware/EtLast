@@ -13,7 +13,7 @@ public class CopyTableIntoExistingTableTests : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ExecuteProcess(() => new CustomSqlStatement(Context)
+            .CustomSqlStatement(() => new CustomSqlStatement(Context)
             {
                 Name = "CreateSourceTable",
                 ConnectionString = ConnectionString,
@@ -22,14 +22,14 @@ public class CopyTableIntoExistingTableTests : AbstractEtlTask
                     $"INSERT INTO {nameof(CopyTableIntoExistingTableTests)} (Id, Value) VALUES (2, 'CopyTableIntoExistingTableTest');",
                 MainTableName = nameof(CopyTableIntoExistingTableTests),
             })
-            .ExecuteProcess(() => new CustomSqlStatement(Context)
+            .CustomSqlStatement(() => new CustomSqlStatement(Context)
             {
                 Name = "CreateTargetTable",
                 ConnectionString = ConnectionString,
                 SqlStatement = $"CREATE TABLE {nameof(CopyTableIntoExistingTableTests)}Target (Id INT NOT NULL, Value NVARCHAR(255));",
                 MainTableName = nameof(CopyTableIntoExistingTableTests) + "Target",
             })
-            .ExecuteProcess(() => new CopyTableIntoExistingTable(Context)
+            .CopyTableIntoExistingTable(() => new CopyTableIntoExistingTable(Context)
             {
                 ConnectionString = ConnectionString,
                 Configuration = new TableCopyConfiguration()
@@ -38,26 +38,22 @@ public class CopyTableIntoExistingTableTests : AbstractEtlTask
                     TargetTableName = $"{nameof(CopyTableIntoExistingTableTests)}Target",
                 }
             })
-            .ExecuteProcess(() => new CustomJob(Context)
-            {
-                Name = "CheckTargetTableContents",
-                Action = job =>
+            .ExecuteSequenceAndTakeRows(out var result, builder => builder
+                .ReadFrom(new AdoNetDbReader(Context)
                 {
-                    var result = SequenceBuilder.Fluent
-                    .ReadFrom(new AdoNetDbReader(Context)
-                    {
-                        Name = "ReadTargetTableContents",
-                        ConnectionString = ConnectionString,
-                        TableName = $"{nameof(CopyTableIntoExistingTableTests)}Target"
-                    }).Build().TakeRowsAndReleaseOwnership(this).ToList();
-
-                    Assert.AreEqual(2, result.Count);
-                    Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>()
-                    {
+                    Name = "ReadTargetTableContents",
+                    ConnectionString = ConnectionString,
+                    TableName = $"{nameof(CopyTableIntoExistingTableTests)}Target"
+                })
+                )
+            .CustomJob("TestResult", job =>
+            {
+                Assert.AreEqual(2, result.Count);
+                Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>()
+                {
                     new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Value"] = "etlast" },
                     new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Value"] = "CopyTableIntoExistingTableTest" }
-                    });
-                }
+                });
             });
     }
 }

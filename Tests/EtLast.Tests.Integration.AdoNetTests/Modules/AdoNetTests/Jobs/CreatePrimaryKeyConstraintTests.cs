@@ -17,7 +17,7 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ExecuteProcess(() => new CustomSqlStatement(Context)
+            .CustomSqlStatement(() => new CustomSqlStatement(Context)
             {
                 Name = "CreateTable",
                 ConnectionString = ConnectionString,
@@ -26,52 +26,41 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
                     $"INSERT INTO {nameof(CreatePrimaryKeyConstraintTests)} (Id, DateTimeValue) VALUES (2, '2022.07.09');",
                 MainTableName = nameof(CreatePrimaryKeyConstraintTests),
             })
-            .ExecuteProcess(() => new CustomJob(Context)
+            .GetTableRecordCount(out var countOfPrimaryKeys1, () => new GetTableRecordCount(Context)
             {
-                Name = "CheckNoPrimaryKey",
-                Action = job =>
-                {
-                    var countOfPrimaryKeys = new GetTableRecordCount(Context)
-                    {
-                        Name = "ReadPrimaryKey1",
-                        ConnectionString = ConnectionString,
-                        TableName = "INFORMATION_SCHEMA.TABLE_CONSTRAINTS",
-                        WhereClause = @$"TABLE_NAME = '{nameof(CreatePrimaryKeyConstraintTests)}'
-                                AND CONSTRAINT_SCHEMA = 'dbo'
-                                AND CONSTRAINT_CATALOG = '{DatabaseName}'
-                                AND CONSTRAINT_TYPE = 'PRIMARY KEY'",
-                    }.ExecuteWithResult(job);
-
-                    Assert.AreEqual(0, countOfPrimaryKeys);
-                }
+                Name = "ReadPrimaryKey1",
+                ConnectionString = ConnectionString,
+                TableName = "INFORMATION_SCHEMA.TABLE_CONSTRAINTS",
+                WhereClause = @$"TABLE_NAME = '{nameof(CreatePrimaryKeyConstraintTests)}'
+                        AND CONSTRAINT_SCHEMA = 'dbo'
+                        AND CONSTRAINT_CATALOG = '{DatabaseName}'
+                        AND CONSTRAINT_TYPE = 'PRIMARY KEY'",
             })
-            .ExecuteProcess(() => new CustomJob(Context)
+            .CustomJob("Test", job =>
             {
-                Name = "CheckPrimaryKeyExist",
-                Action = job =>
-                {
-                    new CreatePrimaryKeyConstraint(Context)
-                    {
-                        Name = "CreatePrimaryKey",
-                        ConnectionString = ConnectionString,
-                        TableName = ConnectionString.Escape(nameof(CreatePrimaryKeyConstraintTests)),
-                        ConstraintName = "PK_" + nameof(CreatePrimaryKeyConstraintTests),
-                        Columns = new[] { "Id" }
-                    }.Execute(job);
-
-                    var countOfPrimaryKeys = new GetTableRecordCount(Context)
-                    {
-                        Name = "ReadPrimaryKey2",
-                        ConnectionString = ConnectionString,
-                        TableName = "INFORMATION_SCHEMA.TABLE_CONSTRAINTS",
-                        WhereClause = @$"TABLE_NAME = '{nameof(CreatePrimaryKeyConstraintTests)}'
-                                AND CONSTRAINT_SCHEMA = 'dbo'
-                                AND CONSTRAINT_CATALOG = '{DatabaseName}'
-                                AND CONSTRAINT_TYPE = 'PRIMARY KEY'",
-                    }.ExecuteWithResult(job);
-
-                    Assert.AreEqual(1, countOfPrimaryKeys);
-                }
+                Assert.AreEqual(0, countOfPrimaryKeys1);
+            })
+            .CreatePrimaryKeyConstraint(() => new CreatePrimaryKeyConstraint(Context)
+            {
+                Name = "CreatePrimaryKey",
+                ConnectionString = ConnectionString,
+                TableName = ConnectionString.Escape(nameof(CreatePrimaryKeyConstraintTests)),
+                ConstraintName = "PK_" + nameof(CreatePrimaryKeyConstraintTests),
+                Columns = new[] { "Id" }
+            })
+            .GetTableRecordCount(out var countOfPrimaryKeys2, () => new GetTableRecordCount(Context)
+            {
+                Name = "ReadPrimaryKey2",
+                ConnectionString = ConnectionString,
+                TableName = "INFORMATION_SCHEMA.TABLE_CONSTRAINTS",
+                WhereClause = @$"TABLE_NAME = '{nameof(CreatePrimaryKeyConstraintTests)}'
+                        AND CONSTRAINT_SCHEMA = 'dbo'
+                        AND CONSTRAINT_CATALOG = '{DatabaseName}'
+                        AND CONSTRAINT_TYPE = 'PRIMARY KEY'",
+            })
+            .CustomJob("Test", job =>
+            {
+                Assert.AreEqual(1, countOfPrimaryKeys2);
             });
     }
 }

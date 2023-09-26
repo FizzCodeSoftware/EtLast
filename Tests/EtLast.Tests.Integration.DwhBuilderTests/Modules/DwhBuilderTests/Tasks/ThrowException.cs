@@ -17,14 +17,10 @@ public class ThrowException : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ExecuteProcess(() => new CustomJob(Context)
+            .CustomJob(nameof(ThrowException), job =>
             {
-                Name = nameof(ThrowException),
-                Action = _ =>
-                {
-                    var ex = (Exception)Activator.CreateInstance(ExceptionType, new object[] { Message });
-                    throw ex;
-                },
+                var ex = (Exception)Activator.CreateInstance(ExceptionType, new object[] { Message });
+                throw ex;
             });
     }
 }

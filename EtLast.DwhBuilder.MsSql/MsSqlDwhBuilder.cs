@@ -204,56 +204,56 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
         if (etlRunInfoTable != null)
         {
             var job = SequenceBuilder.Fluent
-            .ImportEnumerable(new EnumerableImporter(builder.Scope.Context)
-            {
-                Name = "EtlRunInfoCreator",
-                InputGenerator = _ =>
+                .ImportEnumerable(new EnumerableImporter(builder.Scope.Context)
                 {
-                    var currentId = _etlRunIdUtcOverride ?? DateTime.UtcNow;
-
-                    currentId = new DateTime(
-                        currentId.Year,
-                        currentId.Month,
-                        currentId.Day,
-                        currentId.Hour,
-                        currentId.Minute,
-                        currentId.Second,
-                        currentId.Millisecond / 10 * 10, // 10 msec accuracy
-                        DateTimeKind.Utc);
-
-                    EtlRunId = currentId;
-                    EtlRunIdAsDateTimeOffset = new DateTimeOffset(currentId, new TimeSpan(0));
-
-                    builder.Scope.Context.AdditionalData["CurrentEtlRunId"] = currentId;
-
-                    var row = new SlimRow()
+                    Name = "EtlRunInfoCreator",
+                    InputGenerator = _ =>
                     {
-                        ["StartedOn"] = currentId,
-                        ["Name"] = builder.Scope.Name,
-                        ["MachineName"] = Environment.MachineName,
-                        ["UserName"] = Environment.UserName,
-                    };
+                        var currentId = _etlRunIdUtcOverride ?? DateTime.UtcNow;
 
-                    return new[] { row };
-                }
-            })
-            .WriteToMsSqlResilient(new ResilientWriteToMsSqlMutator(builder.Scope.Context)
-            {
-                Name = "EtlRunInfoWriter",
-                ConnectionString = ConnectionString,
-                TableDefinition = new DbTableDefinition()
+                        currentId = new DateTime(
+                            currentId.Year,
+                            currentId.Month,
+                            currentId.Day,
+                            currentId.Hour,
+                            currentId.Minute,
+                            currentId.Second,
+                            currentId.Millisecond / 10 * 10, // 10 msec accuracy
+                            DateTimeKind.Utc);
+
+                        EtlRunId = currentId;
+                        EtlRunIdAsDateTimeOffset = new DateTimeOffset(currentId, new TimeSpan(0));
+
+                        builder.Scope.Context.AdditionalData["CurrentEtlRunId"] = currentId;
+
+                        var row = new SlimRow()
+                        {
+                            ["StartedOn"] = currentId,
+                            ["Name"] = builder.Scope.Name,
+                            ["MachineName"] = Environment.MachineName,
+                            ["UserName"] = Environment.UserName,
+                        };
+
+                        return new[] { row };
+                    }
+                })
+                .WriteToMsSqlResilient(new ResilientWriteToMsSqlMutator(builder.Scope.Context)
                 {
-                    TableName = etlRunInfoTable.EscapedName(ConnectionString),
-                    Columns = new()
+                    Name = "EtlRunInfoWriter",
+                    ConnectionString = ConnectionString,
+                    TableDefinition = new DbTableDefinition()
                     {
-                        ["StartedOn"] = ConnectionString.Escape("StartedOn"),
-                        ["Name"] = ConnectionString.Escape("Name"),
-                        ["MachineName"] = ConnectionString.Escape("MachineName"),
-                        ["UserName"] = ConnectionString.Escape("UserName"),
+                        TableName = etlRunInfoTable.EscapedName(ConnectionString),
+                        Columns = new()
+                        {
+                            ["StartedOn"] = ConnectionString.Escape("StartedOn"),
+                            ["Name"] = ConnectionString.Escape("Name"),
+                            ["MachineName"] = ConnectionString.Escape("MachineName"),
+                            ["UserName"] = ConnectionString.Escape("UserName"),
+                        },
                     },
-                },
-            })
-            .Build();
+                })
+                .Build();
 
             builder.Jobs.Add(job);
         }

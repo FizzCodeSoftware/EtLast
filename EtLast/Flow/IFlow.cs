@@ -2,9 +2,14 @@
 
 public interface IFlow
 {
-    public IFlow ExecuteSequence<T>(Func<IFluentSequenceBuilder, T> sequenceBuilder) where T : ISequence;
+    public IEtlContext Context { get; }
+
+    public IFlow ExecuteSequence(Action<IFluentSequenceBuilder> sequenceBuilder);
+    public IFlow ExecuteSequenceAndTakeRows(out List<ISlimRow> rows, Action<IFluentSequenceBuilder> sequenceBuilder);
+
     public IFlow ExecuteProcess<T>(Func<T> processCreator) where T : IProcess;
     public IFlow ExecuteProcess<T>(out T createdProcess, Func<T> processCreator) where T : IProcess;
+    public IFlow ExecuteProcessWithResult<TProcess, TResult>(out TResult result, Func<TProcess> processCreator) where TProcess : IProcessWithResult<TResult>;
     public IFlow ExecuteForEach<TElement>(IEnumerable<TElement> elements, Action<TElement> action);
     public IFlow ExecuteForEachIsolated<TElement>(IEnumerable<TElement> elements, Action<TElement, IFlow> action);
 

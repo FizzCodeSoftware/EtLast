@@ -12,22 +12,18 @@ public class EtlException : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ExecuteProcess(() => new CustomJob(Context)
+            .CustomJob(nameof(EtlException), job =>
             {
-                Name = nameof(EtlException),
-                Action = job =>
+                var process = new StoredProcedureAdoNetDbReader(Context)
                 {
-                    var process = new StoredProcedureAdoNetDbReader(Context)
-                    {
-                        ConnectionString = ConnectionString,
-                        Sql = "NotExisting_StoredProcedure",
-                        MainTableName = null,
-                    };
+                    ConnectionString = ConnectionString,
+                    Sql = "NotExisting_StoredProcedure",
+                    MainTableName = null,
+                };
 
-                    var result = process.TakeRowsAndTransferOwnership(this).ToList();
+                var result = process.TakeRowsAndTransferOwnership(this).ToList();
 
-                    Assert.AreEqual(1, process.FlowState.Exceptions.Count);
-                }
+                Assert.AreEqual(1, process.FlowState.Exceptions.Count);
             });
     }
 }

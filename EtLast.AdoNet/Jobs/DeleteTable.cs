@@ -64,3 +64,12 @@ public sealed class DeleteTable : AbstractSqlStatement
         }
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class DeleteTableFluent
+{
+    public static IFlow DeleteTable(this IFlow builder, Func<DeleteTable> processCreator)
+    {
+        return builder.ExecuteProcess(processCreator);
+    }
+}

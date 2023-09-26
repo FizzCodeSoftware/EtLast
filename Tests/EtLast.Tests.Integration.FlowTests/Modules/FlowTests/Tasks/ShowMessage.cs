@@ -13,10 +13,9 @@ public class ShowMessage : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ExecuteProcess(() => new CustomJob(Context)
+            .CustomJob("ShowMessageJob", job =>
             {
-                Name = "ShowMessageJob",
-                Action = job => Context.Log(LogSeverity.Warning, job, Message),
+                Context.Log(LogSeverity.Warning, job, Message);
             });
     }
 }

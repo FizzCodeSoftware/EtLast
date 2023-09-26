@@ -65,3 +65,12 @@ public sealed class CreatePrimaryKeyConstraint : AbstractSqlStatement
         }
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class CreatePrimaryKeyConstraintFluent
+{
+    public static IFlow CreatePrimaryKeyConstraint(this IFlow builder, Func<CreatePrimaryKeyConstraint> processCreator)
+    {
+        return builder.ExecuteProcess(processCreator);
+    }
+}

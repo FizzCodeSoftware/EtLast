@@ -9,14 +9,14 @@ public class NetTime : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ExecuteProcess(() => CreateSequence(1))
-            .ExecuteProcess(() => CreateSequence(100))
-            .ExecuteProcess(() => CreateSequence(10000));
+            .ExecuteSequence(builder => CreateSequence(builder, 1))
+            .ExecuteSequence(builder => CreateSequence(builder, 100))
+            .ExecuteSequence(builder => CreateSequence(builder, 10000));
     }
 
-    private ISequence CreateSequence(int mod)
+    private void CreateSequence(IFluentSequenceBuilder builder, int mod)
     {
-        return SequenceBuilder.Fluent
+        builder
             .ImportEnumerable(new EnumerableImporter(Context)
             {
                 Name = "SlowSource",
@@ -27,8 +27,7 @@ public class NetTime : AbstractEtlTask
             {
                 ExpensiveStuff(mod);
                 return true;
-            })
-            .Build();
+            });
     }
 
     private IEnumerable<IReadOnlySlimRow> DelayedInputGenerator(EnumerableImporter process, int count, int mod)

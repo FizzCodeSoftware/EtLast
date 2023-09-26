@@ -87,3 +87,12 @@ public sealed class TruncateTable : AbstractSqlStatement
         }
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class TruncateTableFluent
+{
+    public static IFlow TruncateTable(this IFlow builder, Func<TruncateTable> processCreator)
+    {
+        return builder.ExecuteProcess(processCreator);
+    }
+}

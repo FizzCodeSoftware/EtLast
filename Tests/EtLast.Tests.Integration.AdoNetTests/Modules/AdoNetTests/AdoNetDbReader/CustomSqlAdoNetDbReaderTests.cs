@@ -13,27 +13,23 @@ public class CustomSqlAdoNetDbReaderTests : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ExecuteProcess(() => new CustomJob(Context)
+            .CustomJob("CheckCustomSqlResult", job =>
             {
-                Name = "CheckCustomSqlResult",
-                Action = job =>
+                var result = SequenceBuilder.Fluent
+                .ReadFromCustomSql(new CustomSqlAdoNetDbReader(Context)
                 {
-                    var result = SequenceBuilder.Fluent
-                    .ReadFromCustomSql(new CustomSqlAdoNetDbReader(Context)
-                    {
-                        Name = "ReturnCustomSqlResult",
-                        ConnectionString = ConnectionString,
-                        MainTableName = "none",
-                        Sql = "SELECT 1 as Id UNION SELECT 2 as Id"
-                    })
-                    .Build().TakeRowsAndReleaseOwnership(this).ToList();
+                    Name = "ReturnCustomSqlResult",
+                    ConnectionString = ConnectionString,
+                    MainTableName = "none",
+                    Sql = "SELECT 1 as Id UNION SELECT 2 as Id"
+                })
+                .Build().TakeRowsAndReleaseOwnership(this).ToList();
 
-                    Assert.AreEqual(2, result.Count);
-                    Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-                        new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1},
-                        new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2}
-                    });
-                }
+                Assert.AreEqual(2, result.Count);
+                Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1},
+                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2}
+                });
             });
     }
 }

@@ -71,3 +71,12 @@ public sealed class GetTableRecordCount : AbstractSqlStatementWithResult<int>
         }
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class GetTableRecordCountFluent
+{
+    public static IFlow GetTableRecordCount(this IFlow builder, out int recordCount, Func<GetTableRecordCount> processCreator)
+    {
+        return builder.ExecuteProcessWithResult(out recordCount, processCreator);
+    }
+}

@@ -89,3 +89,12 @@ public sealed class DropTables : AbstractSqlStatements
             lastSucceededIndex + 1, ConnectionString.Name);
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class DropTablesFluent
+{
+    public static IFlow DropTables(this IFlow builder, Func<DropTables> processCreator)
+    {
+        return builder.ExecuteProcess(processCreator);
+    }
+}

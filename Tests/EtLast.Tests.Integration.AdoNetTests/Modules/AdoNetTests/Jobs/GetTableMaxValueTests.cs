@@ -13,7 +13,7 @@ public class GetTableMaxValueTests : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ExecuteProcess(() => new CustomSqlStatement(Context)
+            .CustomSqlStatement(() => new CustomSqlStatement(Context)
             {
                 Name = "CreateTableAndInsertContent",
                 ConnectionString = ConnectionString,
@@ -22,22 +22,17 @@ public class GetTableMaxValueTests : AbstractEtlTask
                     $"INSERT INTO {nameof(GetTableMaxValueTests)} (Id, DateTimeValue) VALUES (1, '2022.07.09');",
                 MainTableName = nameof(GetTableMaxValueTests),
             })
-            .ExecuteProcess(() => new CustomJob(Context)
+            .GetTableMaxValue(out var result, () => new GetTableMaxValue<DateTime>(Context)
             {
-                Name = "CheckMaxValue",
-                Action = job =>
-                {
-                    var result = new GetTableMaxValue<DateTime>(Context)
-                    {
-                        Name = "GetTableMaxValue",
-                        ConnectionString = ConnectionString,
-                        TableName = ConnectionString.Escape(nameof(GetTableMaxValueTests)),
-                        ColumnName = "DateTimeValue",
-                        WhereClause = null,
-                    }.ExecuteWithResult(job);
-
-                    Assert.AreEqual(new DateTime(2022, 7, 9), result.MaxValue);
-                }
+                Name = "GetTableMaxValue",
+                ConnectionString = ConnectionString,
+                TableName = ConnectionString.Escape(nameof(GetTableMaxValueTests)),
+                ColumnName = "DateTimeValue",
+                WhereClause = null,
+            })
+            .CustomJob("Test", job =>
+            {
+                Assert.AreEqual(new DateTime(2022, 7, 9), result.MaxValue);
             });
     }
 }

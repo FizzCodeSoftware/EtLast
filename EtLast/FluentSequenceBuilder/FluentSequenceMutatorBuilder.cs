@@ -61,6 +61,6 @@ internal sealed class FluentSequenceMutatorBuilder : IFluentSequenceMutatorBuild
 
     public ISequence Build()
     {
-        return ProcessBuilder.Build();
+        return ProcessBuilder.Result;
     }
 }

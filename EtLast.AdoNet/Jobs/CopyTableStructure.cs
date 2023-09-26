@@ -101,3 +101,12 @@ public sealed class CopyTableStructure : AbstractSqlStatements
             ConnectionString.Name);
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class CopyTableStructureFluent
+{
+    public static IFlow CopyTableStructure(this IFlow builder, Func<CopyTableStructure> processCreator)
+    {
+        return builder.ExecuteProcess(processCreator);
+    }
+}

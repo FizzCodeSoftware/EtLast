@@ -179,3 +179,12 @@ public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
         return sqlStatement;
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class CustomMsSqlMergeStatementFluent
+{
+    public static IFlow CustomMsSqlMergeStatement(this IFlow builder, Func<CustomMsSqlMergeStatement> processCreator)
+    {
+        return builder.ExecuteProcess(processCreator);
+    }
+}

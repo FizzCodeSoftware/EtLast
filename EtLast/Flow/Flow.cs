@@ -2,7 +2,7 @@
 
 public sealed class Flow : IFlow
 {
-    private readonly IEtlContext _context;
+    public IEtlContext Context { get; }
     private readonly IProcess _caller;
     private readonly FlowState _flowState;
 
@@ -10,7 +10,7 @@ public sealed class Flow : IFlow
 
     internal Flow(IEtlContext context, IProcess caller, FlowState flowState)
     {
-        _context = context;
+        Context = context;
         _caller = caller;
         _flowState = flowState;
     }
@@ -21,17 +21,39 @@ public sealed class Flow : IFlow
         return new Flow(context, caller, flowState);
     }
 
-    public IFlow ExecuteSequence<T>(Func<IFluentSequenceBuilder, T> sequenceBuilder)
-        where T : ISequence
+    public IFlow ExecuteSequence(Action<IFluentSequenceBuilder> sequenceBuilder)
     {
         if (_flowState.IsTerminating)
             return this;
 
-        var sequence = sequenceBuilder.Invoke(SequenceBuilder.Fluent);
+        var builder = SequenceBuilder.Fluent;
+        sequenceBuilder.Invoke(builder);
+        var sequence = builder.Result;
         if (sequence != null)
         {
-            sequence.SetContext(_context);
+            sequence.SetContext(Context);
             sequence.Execute(_caller, _flowState);
+        }
+
+        return this;
+    }
+
+    public IFlow ExecuteSequenceAndTakeRows(out List<ISlimRow> rows, Action<IFluentSequenceBuilder> sequenceBuilder)
+    {
+        rows = null;
+
+        if (_flowState.IsTerminating)
+            return this;
+
+        var builder = SequenceBuilder.Fluent;
+        sequenceBuilder.Invoke(builder);
+        var sequence = builder.Result;
+        if (sequence != null)
+        {
+            sequence.SetContext(Context);
+            rows = sequence
+                .TakeRowsAndReleaseOwnership(_caller, _flowState)
+                .ToList();
         }
 
         return this;
@@ -46,7 +68,7 @@ public sealed class Flow : IFlow
         var process = processCreator.Invoke();
         if (process != null)
         {
-            process.SetContext(_context);
+            process.SetContext(Context);
             process.Execute(_caller, _flowState);
         }
 
@@ -64,8 +86,26 @@ public sealed class Flow : IFlow
         result = processCreator.Invoke();
         if (result != null)
         {
-            result.SetContext(_context);
+            result.SetContext(Context);
             result.Execute(_caller, _flowState);
+        }
+
+        return this;
+    }
+
+    public IFlow ExecuteProcessWithResult<TProcess, TResult>(out TResult result, Func<TProcess> processCreator)
+        where TProcess : IProcessWithResult<TResult>
+    {
+        result = default;
+
+        if (_flowState.IsTerminating)
+            return this;
+
+        var process = processCreator.Invoke();
+        if (process != null)
+        {
+            process.SetContext(Context);
+            result = process.ExecuteWithResult(_caller, _flowState);
         }
 
         return this;
@@ -112,7 +152,7 @@ public sealed class Flow : IFlow
 
         foreach (var element in elements)
         {
-            action.Invoke(element, new Flow(_context, _caller, new FlowState(_context)));
+            action.Invoke(element, new Flow(Context, _caller, new FlowState(Context)));
 
             if (_flowState.IsTerminating)
                 break;
@@ -128,7 +168,7 @@ public sealed class Flow : IFlow
 
         foreach (var element in elements)
         {
-            var ok = action.Invoke(element, new Flow(_context, _caller, new FlowState(_context)));
+            var ok = action.Invoke(element, new Flow(Context, _caller, new FlowState(Context)));
             if (!ok)
                 break;
 
@@ -141,13 +181,13 @@ public sealed class Flow : IFlow
 
     public IFlow Isolate(Action<IFlow> builder)
     {
-        builder.Invoke(new Flow(_context, _caller, new FlowState(_context)));
+        builder.Invoke(new Flow(Context, _caller, new FlowState(Context)));
         return this;
     }
 
     public IFlow TransactionScope(TransactionScopeKind kind, Action builder, LogSeverity logSeverity = LogSeverity.Information)
     {
-        using (var scope = _context.BeginTransactionScope(_caller, kind, logSeverity))
+        using (var scope = Context.BeginTransactionScope(_caller, kind, logSeverity))
         {
             try
             {
@@ -175,8 +215,8 @@ public sealed class Flow : IFlow
             var process = processCreator.Invoke();
             if (process != null)
             {
-                process.SetContext(_context);
-                process.Execute(_caller, new FlowState(_context));
+                process.SetContext(Context);
+                process.Execute(_caller, new FlowState(Context));
             }
         }
 

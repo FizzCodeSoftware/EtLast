@@ -1,6 +1,7 @@
 ﻿using System.Net.Http;
 
 namespace FizzCode.EtLast;
+
 public sealed class HttpDownloadToLocalFile : AbstractJob
 {
     /// <summary>

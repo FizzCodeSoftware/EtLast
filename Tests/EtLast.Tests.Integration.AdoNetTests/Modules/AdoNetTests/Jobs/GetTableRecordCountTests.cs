@@ -13,7 +13,7 @@ public class GetTableRecordCountTests : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ExecuteProcess(() => new CustomSqlStatement(Context)
+            .CustomSqlStatement(() => new CustomSqlStatement(Context)
             {
                 Name = "CreateTableAndInsertContent",
                 ConnectionString = ConnectionString,
@@ -22,21 +22,16 @@ public class GetTableRecordCountTests : AbstractEtlTask
                     $"INSERT INTO {nameof(GetTableRecordCountTests)} (Id, DateTimeValue) VALUES (2, '2022.07.09');",
                 MainTableName = nameof(GetTableRecordCountTests),
             })
-            .ExecuteProcess(() => new CustomJob(Context)
+            .GetTableRecordCount(out var result, () => new GetTableRecordCount(Context)
             {
-                Name = "CheckRecordCount",
-                Action = job =>
-                {
-                    var result = new GetTableRecordCount(Context)
-                    {
-                        Name = "GetRecordCount",
-                        ConnectionString = ConnectionString,
-                        TableName = ConnectionString.Escape(nameof(GetTableRecordCountTests)),
-                        WhereClause = null,
-                    }.ExecuteWithResult(job);
-
-                    Assert.AreEqual(2, result);
-                }
+                Name = "GetRecordCount",
+                ConnectionString = ConnectionString,
+                TableName = ConnectionString.Escape(nameof(GetTableRecordCountTests)),
+                WhereClause = null,
+            })
+            .CustomJob("Test", job =>
+            {
+                Assert.AreEqual(2, result);
             });
     }
 }

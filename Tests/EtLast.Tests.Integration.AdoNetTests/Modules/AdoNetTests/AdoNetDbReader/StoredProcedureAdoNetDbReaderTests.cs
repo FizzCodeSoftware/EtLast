@@ -13,7 +13,7 @@ public class StoredProcedureAdoNetDbReaderTests : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ExecuteProcess(() => new CustomSqlStatement(Context)
+            .CustomSqlStatement(() => new CustomSqlStatement(Context)
             {
                 Name = "CreateProcedure",
                 ConnectionString = ConnectionString,
@@ -23,27 +23,23 @@ public class StoredProcedureAdoNetDbReaderTests : AbstractEtlTask
                 "SELECT 2 AS Id, 'StoredProcedureAdoNetDbReaderTest' AS Value",
                 MainTableName = "StoredProcedureAdoNetDbReaderTest",
             })
-            .ExecuteProcess(() => new CustomJob(Context)
+            .CustomJob("CheckProcedureResult", job =>
             {
-                Name = "CheckProcedureResult",
-                Action = job =>
+                var result = SequenceBuilder.Fluent
+                .ReadFromStoredProcedure(new StoredProcedureAdoNetDbReader(Context)
                 {
-                    var result = SequenceBuilder.Fluent
-                    .ReadFromStoredProcedure(new StoredProcedureAdoNetDbReader(Context)
-                    {
-                        Name = "CallProcedure",
-                        ConnectionString = ConnectionString,
-                        Sql = "StoredProcedureAdoNetDbReaderTest",
-                        MainTableName = null,
-                    })
-                    .Build().TakeRowsAndReleaseOwnership(this).ToList();
+                    Name = "CallProcedure",
+                    ConnectionString = ConnectionString,
+                    Sql = "StoredProcedureAdoNetDbReaderTest",
+                    MainTableName = null,
+                })
+                .Build().TakeRowsAndReleaseOwnership(this).ToList();
 
-                    Assert.AreEqual(2, result.Count);
-                    Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                Assert.AreEqual(2, result.Count);
+                Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
                     new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Value"] = "etlast" },
                     new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Value"] = "StoredProcedureAdoNetDbReaderTest" }
-                    });
-                }
+                });
             });
     }
 }

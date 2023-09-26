@@ -12,13 +12,9 @@ public class Exception : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .ExecuteProcess(() => new CustomJob(Context)
+            .CustomJob(nameof(Exception), job =>
             {
-                Name = nameof(Exception),
-                Action = job =>
-                {
-                    throw new System.Exception("Test Exception.");
-                }
+                throw new System.Exception("Test Exception.");
             });
     }
 }

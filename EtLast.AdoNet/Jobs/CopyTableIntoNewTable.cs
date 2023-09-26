@@ -96,3 +96,12 @@ public sealed class CopyTableIntoNewTable : AbstractSqlStatement
         }
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class CopyTableIntoNewTableFluent
+{
+    public static IFlow CopyTableIntoNewTable(this IFlow builder, Func<CopyTableIntoNewTable> processCreator)
+    {
+        return builder.ExecuteProcess(processCreator);
+    }
+}

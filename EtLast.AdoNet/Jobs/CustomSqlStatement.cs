@@ -123,3 +123,12 @@ public sealed class CustomSqlStatement : AbstractSqlStatement
         return sqlStatement;
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class CustomSqlStatementFluent
+{
+    public static IFlow CustomSqlStatement(this IFlow builder, Func<CustomSqlStatement> processCreator)
+    {
+        return builder.ExecuteProcess(processCreator);
+    }
+}
