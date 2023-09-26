@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.ComponentModel;
+using System.Net.Http;
 
 namespace FizzCode.EtLast;
 
@@ -127,5 +128,14 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
             Context.RegisterIoCommandFailed(this, IoCommandKind.fileWrite, iocUidFileWrite, null, exception);
             throw exception;
         }
+    }
+}
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class HttpDownloadToLocalFileFluent
+{
+    public static IFlow HttpDownloadToLocalFile(this IFlow builder, Func<HttpDownloadToLocalFile> processCreator)
+    {
+        return builder.ExecuteProcess(processCreator);
     }
 }

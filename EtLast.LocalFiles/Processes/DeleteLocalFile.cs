@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast;
+﻿using System.ComponentModel;
+
+namespace FizzCode.EtLast;
 
 public sealed class DeleteLocalFile : AbstractJob
 {
@@ -38,5 +40,14 @@ public sealed class DeleteLocalFile : AbstractJob
                 FileName, ex.Message));
             throw exception;
         }
+    }
+}
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class DeleteLocalFileFluent
+{
+    public static IFlow DeleteLocalFile(this IFlow builder, Func<DeleteLocalFile> processCreator)
+    {
+        return builder.ExecuteProcess(processCreator);
     }
 }
