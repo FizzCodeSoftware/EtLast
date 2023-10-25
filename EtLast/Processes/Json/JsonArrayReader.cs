@@ -55,9 +55,30 @@ public sealed class JsonArrayReader<T> : AbstractRowSource
 
             try
             {
-                var enumerable = JsonSerializer.DeserializeAsyncEnumerable<T>(stream.Stream, cancellationToken: Context.CancellationToken).ToBlockingEnumerable();
-                foreach (var entry in enumerable)
+                var entryIndex = 0;
+                var enumerator = JsonSerializer.DeserializeAsyncEnumerable<T>(stream.Stream, cancellationToken: Context.CancellationToken).ToBlockingEnumerable().GetEnumerator();
+                while (!FlowState.IsTerminating)
                 {
+                    try
+                    {
+                        var finished = !enumerator.MoveNext();
+                        if (finished)
+                            break;
+                    }
+                    catch (Exception ex)
+                    {
+                        var exception = new JsonArrayReaderException(this, "json input contains one or more errors", stream, ex);
+                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "json input contains one or more errors: {0}", stream.Name));
+                        exception.Data["StreamIndex"] = streamIndex;
+                        exception.Data["EntryIndex"] = entryIndex;
+                        exception.Data["ResultCount"] = resultCount;
+
+                        Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
+                        throw exception;
+                    }
+
+                    var entry = enumerator.Current;
+
                     resultCount++;
                     initialValues[ColumnName] = entry;
 
@@ -65,9 +86,6 @@ public sealed class JsonArrayReader<T> : AbstractRowSource
                         initialValues[AddStreamIndexToColumn] = streamIndex;
 
                     yield return Context.CreateRow(this, initialValues);
-
-                    if (FlowState.IsTerminating)
-                        break;
                 }
             }
             finally
