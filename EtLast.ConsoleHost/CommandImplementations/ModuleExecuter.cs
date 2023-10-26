@@ -46,7 +46,10 @@ internal static class ModuleExecuter
         {
             if (environmentSettings.FileLogSettings.Enabled || environmentSettings.ConsoleLogSettings.Enabled || !string.IsNullOrEmpty(environmentSettings.SeqSettings.Url))
             {
-                var serilogAdapter = new EtlSessionSerilogAdapter(environmentSettings, host.DevLogFolder, host.OpsLogFolder);
+                var moduleFolderName = string.Join("_", module.Name.Split(Path.GetInvalidFileNameChars()));
+                var tasksFolderName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
+
+                var serilogAdapter = new EtlSessionSerilogAdapter(environmentSettings, Path.Combine(host.DevLogFolder, moduleFolderName, tasksFolderName), Path.Combine(host.OpsLogFolder, moduleFolderName, tasksFolderName));
                 context.Listeners.Add(serilogAdapter);
             }
         }

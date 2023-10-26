@@ -77,8 +77,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
                     _tableNames = new List<string>();
 
                     var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "INFORMATION_SCHEMA.TABLES", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-                        "querying table names from {ConnectionStringName}",
-                        ConnectionString.Name);
+                        "querying table names");
 
                     try
                     {
@@ -124,8 +123,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
         var recordCount = 0;
         command.CommandText = "SELECT COUNT(*) FROM " + tableName;
         var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbReadCount, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "querying record count from {ConnectionStringName}/{TableName}",
-            ConnectionString.Name, ConnectionString.Unescape(tableName));
+            "querying record count");
         try
         {
             recordCount = (int)command.ExecuteScalar();
@@ -138,8 +136,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
 
         command.CommandText = originalStatement;
         iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDropTable, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "drop table {ConnectionStringName}/{TableName}",
-            ConnectionString.Name, ConnectionString.Unescape(tableName));
+            "drop table");
 
         try
         {

@@ -5,7 +5,7 @@ public class IoCommandCounterCollection : IEtlContextListener
     public IReadOnlyDictionary<IoCommandKind, IoCommandCounter> Counters => _counters;
     private readonly Dictionary<IoCommandKind, IoCommandCounter> _counters = new();
 
-    public void OnContextIoCommandStart(int uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
+    public void OnContextIoCommandStart(int uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra = null)
     {
     }
 

@@ -83,8 +83,7 @@ public sealed class MsSqlDropViews : AbstractSqlStatements
                     _viewNames = new List<string>();
 
                     var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "INFORMATION_SCHEMA.VIEWS", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-                        "querying view names from {ConnectionStringName}",
-                        ConnectionString.Name);
+                        "querying view names");
 
                     try
                     {
@@ -126,8 +125,7 @@ public sealed class MsSqlDropViews : AbstractSqlStatements
     {
         var viewName = _viewNames[statementIndex];
         var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(viewName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "drop view {ConnectionStringName}/{ViewName}",
-            ConnectionString.Name, ConnectionString.Unescape(viewName));
+            "drop view");
 
         try
         {

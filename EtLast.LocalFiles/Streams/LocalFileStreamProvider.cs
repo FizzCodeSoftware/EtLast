@@ -40,7 +40,7 @@ public class LocalFileStreamProvider : IStreamProvider
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {
         var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileRead, Path.GetDirectoryName(FileName), Path.GetFileName(FileName), null, null, null, null,
-            "reading from local file {FileName}", FileName);
+            "reading from local file");
 
         if (!File.Exists(FileName))
         {

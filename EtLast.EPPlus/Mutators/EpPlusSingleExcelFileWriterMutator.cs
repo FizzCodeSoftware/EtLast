@@ -34,8 +34,7 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
         if (ExistingPackage == null && _package != null)
         {
             var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.fileWrite, Path.GetDirectoryName(FileName), Path.GetFileName(FileName), null, null, null, null,
-                "saving excel package to {FileName}",
-                FileName);
+                "saving excel package");
 
             try
             {

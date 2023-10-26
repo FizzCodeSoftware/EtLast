@@ -37,8 +37,8 @@ public class StoredProcedureAdoNetDbReaderTests : AbstractEtlTask
 
                 Assert.AreEqual(2, result.Count);
                 Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Value"] = "etlast" },
-                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Value"] = "StoredProcedureAdoNetDbReaderTest" }
+                    new() { ["Id"] = 1, ["Value"] = "etlast" },
+                    new() { ["Id"] = 2, ["Value"] = "StoredProcedureAdoNetDbReaderTest" }
                 });
             });
     }

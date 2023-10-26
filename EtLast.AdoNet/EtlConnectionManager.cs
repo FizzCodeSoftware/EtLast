@@ -22,8 +22,8 @@ public static class EtlConnectionManager
         return _connectionManager.GetConnection(connectionString, maxRetryCount, retryDelayMilliseconds,
             onOpening: (connectionString, connection) =>
             {
-                iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, connectionString.Name, connection.ConnectionTimeout, "open connection", Transaction.Current.ToIdentifierString(), null,
-                    "opening database connection to {ConnectionStringName} ({Provider})", connectionString.Name, connectionString.GetFriendlyProviderName());
+                iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, connectionString.Name, connection.ConnectionTimeout, null, Transaction.Current.ToIdentifierString(), null,
+                    "opening database connection", connectionString.GetFriendlyProviderName());
             },
             onOpened: (connectionString, connection, retryCount) => process.Context.RegisterIoCommandSuccess(process, IoCommandKind.dbConnection, iocUid, null),
             onError: (connectionString, connection, retryCount, ex) =>
@@ -65,8 +65,8 @@ public static class EtlConnectionManager
         var connection = _connectionManager.GetNewConnection(connectionString, maxRetryCount, retryDelayMilliseconds,
             onOpening: (connectionString, connection) =>
             {
-                iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, connectionString.Name, connection.ConnectionTimeout, "open connection", Transaction.Current.ToIdentifierString(), null,
-                    "opening database connection to {ConnectionStringName} ({Provider})", connectionString.Name, connectionString.GetFriendlyProviderName());
+                iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, connectionString.Name, connection.ConnectionTimeout, null, Transaction.Current.ToIdentifierString(), null,
+                    "opening database connection", connectionString.GetFriendlyProviderName());
             },
             onOpened: (connectionString, connection, retryCount) => process.Context.RegisterIoCommandSuccess(process, IoCommandKind.dbConnection, iocUid, null),
             onError: (connectionString, connection, retryCount, ex) =>
@@ -102,9 +102,8 @@ public static class EtlConnectionManager
         _connectionManager.ReleaseConnection(connection,
         onClosing: connection =>
         {
-            iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, connection.ConnectionString.Name, null, "close connection", connection.TransactionWhenCreated.ToIdentifierString(), null,
-                "closing database connection to {ConnectionStringName} ({Provider})",
-                    connection.ConnectionString.Name, connection.ConnectionString.GetFriendlyProviderName());
+            iocUid = process.Context.RegisterIoCommandStart(process, IoCommandKind.dbConnection, connection.ConnectionString.Name, null, null, connection.TransactionWhenCreated.ToIdentifierString(), null,
+                "closing database connection", connection.ConnectionString.GetFriendlyProviderName());
         },
         onClosed: connection => process.Context.RegisterIoCommandSuccess(process, IoCommandKind.dbConnection, iocUid, null),
         onError: (connection, ex) => process.Context.RegisterIoCommandFailed(process, IoCommandKind.dbConnection, iocUid, null, ex));

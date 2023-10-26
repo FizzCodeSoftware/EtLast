@@ -26,8 +26,8 @@ public class TrimStringMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-                new CaseInsensitiveStringKeyDictionary<object>() { ["Name"] = "John, Oliver", ["Pets"] = "  Ubul" },
-                new CaseInsensitiveStringKeyDictionary<object>() { ["Name"] = "Andrew, Smith", ["Pets"] = "Winston,Marley" } });
+                new() { ["Name"] = "John, Oliver", ["Pets"] = "  Ubul" },
+                new() { ["Name"] = "Andrew, Smith", ["Pets"] = "Winston,Marley" } });
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }

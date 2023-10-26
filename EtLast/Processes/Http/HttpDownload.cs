@@ -35,9 +35,8 @@ public sealed class HttpDownload : AbstractJob
         {
             using (Context.CancellationToken.Register(Client.CancelPendingRequests))
             {
-                iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.httpGet, Url, null, null, null, null,
-                    "downloading file from {Url}",
-                    Url);
+                iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.httpGet, Url, null, "GET", null, null,
+                    "downloading file");
 
                 var initialSize = OutputStream.Length;
                 using (var response = Client.GetStreamAsync(Url).Result)

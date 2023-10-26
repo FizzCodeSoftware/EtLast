@@ -45,8 +45,7 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
         var client = ClientCreator.Invoke(this);
 
         var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.serviceRead, client.Endpoint.Address.ToString(), Convert.ToInt32(client.InnerChannel.OperationTimeout.TotalSeconds), null, null, null,
-            "sending request to {EndpointAddress}",
-            client.Endpoint.Address.ToString());
+            "sending SOAP request");
 
         IEnumerator<SlimRow> enumerator;
         try

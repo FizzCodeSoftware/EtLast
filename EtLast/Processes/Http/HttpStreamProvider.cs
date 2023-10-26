@@ -32,8 +32,8 @@ public class HttpStreamProvider : IStreamProvider
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {
-        var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.httpGet, Url, null, null, null, null, null,
-            "reading from http stream {Url}", Url);
+        var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.httpGet, Url, null, null, "GET", null, null,
+            "reading from http stream");
 
         try
         {

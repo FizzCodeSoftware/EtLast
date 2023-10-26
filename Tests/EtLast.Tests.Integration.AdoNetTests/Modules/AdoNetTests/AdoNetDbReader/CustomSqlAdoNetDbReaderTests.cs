@@ -27,8 +27,8 @@ public class CustomSqlAdoNetDbReaderTests : AbstractEtlTask
 
                 Assert.AreEqual(2, result.Count);
                 Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1},
-                    new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2}
+                    new() { ["Id"] = 1},
+                    new() { ["Id"] = 2}
                 });
             });
     }

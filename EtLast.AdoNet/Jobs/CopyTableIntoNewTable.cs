@@ -61,8 +61,7 @@ public sealed class CopyTableIntoNewTable : AbstractSqlStatement
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
         var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbWriteCopy, ConnectionString.Name, ConnectionString.Unescape(Configuration.TargetTableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-            "creating new table {ConnectionStringName}/{TargetTableName} and copying records from {SourceTableName}",
-            ConnectionString.Name, ConnectionString.Unescape(Configuration.TargetTableName), ConnectionString.Unescape(Configuration.SourceTableName));
+            "creating new table and copying records from table", ConnectionString.Unescape(Configuration.SourceTableName));
         try
         {
             var recordCount = command.ExecuteNonQuery();

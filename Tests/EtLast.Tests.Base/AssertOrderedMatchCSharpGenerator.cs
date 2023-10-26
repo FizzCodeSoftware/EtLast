@@ -34,7 +34,7 @@ public static class AssertOrderedMatchCSharpGenerator
         if (rows.Count > 0)
         {
             sb.AppendLine("Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {");
-            sb.AppendJoin(",\n", rows.Select(row => "\t\t\t\tnew CaseInsensitiveStringKeyDictionary<object>() { " + string.Join(", ", row.Values.Select(kvp => "[\"" + kvp.Key + "\"] = " + FormatToCSharpVariable(row[kvp.Key]))) + " }"));
+            sb.AppendJoin(",\n", rows.Select(row => "\t\t\t\tnew() { " + string.Join(", ", row.Values.Select(kvp => "[\"" + kvp.Key + "\"] = " + FormatToCSharpVariable(row[kvp.Key]))) + " }"));
             sb.AppendLine(" });");
         }
 

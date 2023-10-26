@@ -44,14 +44,12 @@ public sealed class StoredProcedureAdoNetDbReader : AbstractAdoNetDbReader
         if (MainTableName != null)
         {
             return Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, ConnectionString.Unescape(MainTableName), timeout, statement, transactionId, () => Parameters,
-                "querying from {ConnectionStringName}/{TableName} using stored procedure",
-                ConnectionString.Name, ConnectionString.Unescape(MainTableName));
+                "read from stored procedure");
         }
         else
         {
             return Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, timeout, statement, transactionId, () => Parameters,
-                "querying from {ConnectionStringName} using stored procedure",
-                ConnectionString.Name);
+                "read from stored procedure");
         }
     }
 }

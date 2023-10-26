@@ -61,8 +61,7 @@ public sealed class CopyTableStructure : AbstractSqlStatements
     {
         var config = Configuration[statementIndex];
         var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(config.TargetTableName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "create new table {ConnectionStringName}/{TargetTableName} based on {SourceTableName}",
-            ConnectionString.Name, ConnectionString.Unescape(config.TargetTableName), ConnectionString.Unescape(config.SourceTableName));
+            "create new table based on table", ConnectionString.Unescape(config.SourceTableName));
 
         try
         {

@@ -397,7 +397,7 @@ public class HttpSender : IDisposable, IEtlContextListener
         });
     }
 
-    public void OnContextIoCommandStart(int uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
+    public void OnContextIoCommandStart(int uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
     {
         SendDiagnostics(DiagnosticsEventKind.IoCommandStart, writer =>
         {

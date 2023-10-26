@@ -40,14 +40,12 @@ public sealed class CustomSqlAdoNetDbReader : AbstractAdoNetDbReader
         if (MainTableName != null)
         {
             return Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, ConnectionString.Unescape(MainTableName), timeout, statement, transactionId, () => Parameters,
-                "querying from {ConnectionStringName}/{TableName} using custom query",
-                ConnectionString.Name, ConnectionString.Unescape(MainTableName));
+                "custom query");
         }
         else
         {
             return Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, timeout, statement, transactionId, () => Parameters,
-                "querying from {ConnectionStringName} using custom query",
-                ConnectionString.Name);
+                "custom query");
         }
     }
 }

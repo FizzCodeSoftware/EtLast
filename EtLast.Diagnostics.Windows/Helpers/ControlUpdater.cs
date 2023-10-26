@@ -34,9 +34,7 @@ internal class ControlUpdater<TItem>
         _timer.Tick += Timer_Tick;
     }
 
-#pragma warning disable RCS1158 // Static member in generic type should use a type parameter.
     public static ObjectListView CreateListView(Control container)
-#pragma warning restore RCS1158 // Static member in generic type should use a type parameter.
     {
         var listView = new FastObjectListView()
         {
@@ -150,9 +148,7 @@ internal class ControlUpdater<TItem>
         }
     }
 
-#pragma warning disable RCS1158 // Static member in generic type should use a type parameter.
     public static void ResizeListViewWithRows(ObjectListView listView)
-#pragma warning restore RCS1158 // Static member in generic type should use a type parameter.
     {
         foreach (OLVColumn col in listView.Columns)
         {

@@ -94,8 +94,7 @@ public sealed class CopyTableIntoExistingTable : AbstractSqlStatement
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
         var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbWriteCopy, ConnectionString.Name, ConnectionString.Unescape(Configuration.TargetTableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-            "copying records from {ConnectionStringName}/{SourceTableName} to {TargetTableName}",
-            ConnectionString.Name, ConnectionString.Unescape(Configuration.SourceTableName), ConnectionString.Unescape(Configuration.TargetTableName));
+            "copying records from table", ConnectionString.Unescape(Configuration.SourceTableName));
 
         try
         {

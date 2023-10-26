@@ -32,8 +32,7 @@ public sealed class MsSqlDropSchemas : AbstractSqlStatements
     {
         var schemaName = SchemaNames[statementIndex];
         var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(schemaName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "drop schema {ConnectionStringName}/{SchemaName}",
-            ConnectionString.Name, ConnectionString.Unescape(schemaName));
+            "drop schema");
 
         try
         {

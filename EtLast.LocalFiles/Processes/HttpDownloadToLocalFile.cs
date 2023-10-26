@@ -63,13 +63,11 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
         {
             using (Context.CancellationToken.Register(Client.CancelPendingRequests))
             {
-                iocUidHttpGet = Context.RegisterIoCommandStart(this, IoCommandKind.httpGet, Url, null, null, null, null,
-                    "downloading file from {Url}",
-                    Url, OutputFileName);
+                iocUidHttpGet = Context.RegisterIoCommandStart(this, IoCommandKind.httpGet, Url, null, "GET", null, null,
+                    "downloading file");
 
                 iocUidFileWrite = Context.RegisterIoCommandStart(this, IoCommandKind.fileWrite, OutputFileName, null, null, null, null,
-                    "writing downloaded content to file {FileName}",
-                    OutputFileName);
+                    "writing downloaded content to file");
 
                 var message = new HttpRequestMessage(HttpMethod.Get, Url);
                 if (Headers != null)

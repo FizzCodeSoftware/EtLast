@@ -29,17 +29,17 @@ public class UnpivotMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(11, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["personName"] = "C", ["asset-kind"] = "cars", ["amount"] = 2 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["personName"] = "C", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["personName"] = "C", ["asset-kind"] = "kids", ["amount"] = 3 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 3, ["personName"] = "D", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 3, ["personName"] = "D", ["asset-kind"] = "kids", ["amount"] = 3 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
+            new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
+            new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
+            new() { ["personName"] = "C", ["asset-kind"] = "cars", ["amount"] = 2 },
+            new() { ["personName"] = "C", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["personName"] = "C", ["asset-kind"] = "kids", ["amount"] = 3 },
+            new() { ["assetId"] = 3, ["personName"] = "D", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["assetId"] = 3, ["personName"] = "D", ["asset-kind"] = "kids", ["amount"] = 3 },
+            new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
+            new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -65,17 +65,17 @@ public class UnpivotMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(11, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["personName"] = "C", ["asset-kind"] = "cars", ["amount"] = 2 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["personName"] = "C", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["personName"] = "C", ["asset-kind"] = "kids", ["amount"] = 3 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 3, ["personName"] = "D", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 3, ["personName"] = "D", ["asset-kind"] = "kids", ["amount"] = 3 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
+            new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
+            new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
+            new() { ["personName"] = "C", ["asset-kind"] = "cars", ["amount"] = 2 },
+            new() { ["personName"] = "C", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["personName"] = "C", ["asset-kind"] = "kids", ["amount"] = 3 },
+            new() { ["assetId"] = 3, ["personName"] = "D", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["assetId"] = 3, ["personName"] = "D", ["asset-kind"] = "kids", ["amount"] = 3 },
+            new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
+            new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -102,18 +102,18 @@ public class UnpivotMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(12, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["personName"] = "C", ["asset-kind"] = "cars", ["amount"] = 2 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["personName"] = "C", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["personName"] = "C", ["asset-kind"] = "kids", ["amount"] = 3 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 3, ["personName"] = "D", ["asset-kind"] = "cars" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 3, ["personName"] = "D", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 3, ["personName"] = "D", ["asset-kind"] = "kids", ["amount"] = 3 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
+            new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
+            new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
+            new() { ["personName"] = "C", ["asset-kind"] = "cars", ["amount"] = 2 },
+            new() { ["personName"] = "C", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["personName"] = "C", ["asset-kind"] = "kids", ["amount"] = 3 },
+            new() { ["assetId"] = 3, ["personName"] = "D", ["asset-kind"] = "cars" },
+            new() { ["assetId"] = 3, ["personName"] = "D", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["assetId"] = 3, ["personName"] = "D", ["asset-kind"] = "kids", ["amount"] = 3 },
+            new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
+            new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -134,17 +134,17 @@ public class UnpivotMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(11, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["personName"] = "C", ["asset-kind"] = "cars", ["amount"] = 2 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["personName"] = "C", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["personName"] = "C", ["asset-kind"] = "kids", ["amount"] = 3 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 3, ["personName"] = "D", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 3, ["personName"] = "D", ["asset-kind"] = "kids", ["amount"] = 3 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
+            new() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
+            new() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
+            new() { ["personName"] = "C", ["asset-kind"] = "cars", ["amount"] = 2 },
+            new() { ["personName"] = "C", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["personName"] = "C", ["asset-kind"] = "kids", ["amount"] = 3 },
+            new() { ["id"] = 3, ["personName"] = "D", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["id"] = 3, ["personName"] = "D", ["asset-kind"] = "kids", ["amount"] = 3 },
+            new() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
+            new() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -166,18 +166,18 @@ public class UnpivotMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(12, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["personName"] = "C", ["asset-kind"] = "cars", ["amount"] = 2 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["personName"] = "C", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["personName"] = "C", ["asset-kind"] = "kids", ["amount"] = 3 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 3, ["personName"] = "D", ["asset-kind"] = "cars" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 3, ["personName"] = "D", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 3, ["personName"] = "D", ["asset-kind"] = "kids", ["amount"] = 3 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
+            new() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
+            new() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
+            new() { ["personName"] = "C", ["asset-kind"] = "cars", ["amount"] = 2 },
+            new() { ["personName"] = "C", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["personName"] = "C", ["asset-kind"] = "kids", ["amount"] = 3 },
+            new() { ["id"] = 3, ["personName"] = "D", ["asset-kind"] = "cars" },
+            new() { ["id"] = 3, ["personName"] = "D", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["id"] = 3, ["personName"] = "D", ["asset-kind"] = "kids", ["amount"] = 3 },
+            new() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
+            new() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
+            new() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }

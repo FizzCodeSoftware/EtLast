@@ -50,11 +50,9 @@ public sealed class CustomSqlStatement : AbstractSqlStatement
     {
         var iocUid = MainTableName != null
             ? Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, MainTableName, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-                "executing custom SQL statement on {ConnectionStringName}/{TableName}",
-                ConnectionString.Name)
+                "custom SQL statement")
             : Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-                "executing custom SQL statement on {ConnectionStringName}",
-                ConnectionString.Name);
+                "custom SQL statement");
 
         try
         {

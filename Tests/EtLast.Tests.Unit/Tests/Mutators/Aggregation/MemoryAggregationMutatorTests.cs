@@ -45,12 +45,12 @@ public class MemoryAggregationMutatorTests
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["height"] = 150m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["height"] = 190m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["height"] = 170m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["height"] = 160m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["height"] = 160m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["height"] = 140m } });
+            new() { ["name"] = "A", ["height"] = 150m },
+            new() { ["name"] = "B", ["height"] = 190m },
+            new() { ["name"] = "C", ["height"] = 170m },
+            new() { ["name"] = "D", ["height"] = 160m },
+            new() { ["name"] = "E", ["height"] = 160m },
+            new() { ["name"] = "fake", ["height"] = 140m } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -63,12 +63,12 @@ public class MemoryAggregationMutatorTests
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["age"] = 17m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["age"] = 8m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["age"] = 27m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0m } });
+            new() { ["name"] = "A", ["age"] = 17m },
+            new() { ["name"] = "B", ["age"] = 8m },
+            new() { ["name"] = "C", ["age"] = 27m },
+            new() { ["name"] = "D", ["age"] = 39m },
+            new() { ["name"] = "E", ["age"] = -3m },
+            new() { ["name"] = "fake", ["age"] = 0m } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -81,12 +81,12 @@ public class MemoryAggregationMutatorTests
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["age"] = 11m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["age"] = 8m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["age"] = 27m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0m } });
+            new() { ["name"] = "A", ["age"] = 11m },
+            new() { ["name"] = "B", ["age"] = 8m },
+            new() { ["name"] = "C", ["age"] = 27m },
+            new() { ["name"] = "D", ["age"] = 39m },
+            new() { ["name"] = "E", ["age"] = -3m },
+            new() { ["name"] = "fake", ["age"] = 0m } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -99,12 +99,12 @@ public class MemoryAggregationMutatorTests
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["age"] = 28m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["age"] = 8m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["age"] = 27m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3m },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0m } });
+            new() { ["name"] = "A", ["age"] = 28m },
+            new() { ["name"] = "B", ["age"] = 8m },
+            new() { ["name"] = "C", ["age"] = 27m },
+            new() { ["name"] = "D", ["age"] = 39m },
+            new() { ["name"] = "E", ["age"] = -3m },
+            new() { ["name"] = "fake", ["age"] = 0m } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -117,12 +117,12 @@ public class MemoryAggregationMutatorTests
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["height"] = 150d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["height"] = 190d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["height"] = 170d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["height"] = 160d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["height"] = 160d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["height"] = 140d } });
+            new() { ["name"] = "A", ["height"] = 150d },
+            new() { ["name"] = "B", ["height"] = 190d },
+            new() { ["name"] = "C", ["height"] = 170d },
+            new() { ["name"] = "D", ["height"] = 160d },
+            new() { ["name"] = "E", ["height"] = 160d },
+            new() { ["name"] = "fake", ["height"] = 140d } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -135,12 +135,12 @@ public class MemoryAggregationMutatorTests
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["age"] = 17d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["age"] = 8d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["age"] = 27d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0d } });
+            new() { ["name"] = "A", ["age"] = 17d },
+            new() { ["name"] = "B", ["age"] = 8d },
+            new() { ["name"] = "C", ["age"] = 27d },
+            new() { ["name"] = "D", ["age"] = 39d },
+            new() { ["name"] = "E", ["age"] = -3d },
+            new() { ["name"] = "fake", ["age"] = 0d } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -153,12 +153,12 @@ public class MemoryAggregationMutatorTests
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["age"] = 11d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["age"] = 8d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["age"] = 27d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0d } });
+            new() { ["name"] = "A", ["age"] = 11d },
+            new() { ["name"] = "B", ["age"] = 8d },
+            new() { ["name"] = "C", ["age"] = 27d },
+            new() { ["name"] = "D", ["age"] = 39d },
+            new() { ["name"] = "E", ["age"] = -3d },
+            new() { ["name"] = "fake", ["age"] = 0d } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -171,12 +171,12 @@ public class MemoryAggregationMutatorTests
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["age"] = 28d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["age"] = 8d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["age"] = 27d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0d } });
+            new() { ["name"] = "A", ["age"] = 28d },
+            new() { ["name"] = "B", ["age"] = 8d },
+            new() { ["name"] = "C", ["age"] = 27d },
+            new() { ["name"] = "D", ["age"] = 39d },
+            new() { ["name"] = "E", ["age"] = -3d },
+            new() { ["name"] = "fake", ["age"] = 0d } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -189,12 +189,12 @@ public class MemoryAggregationMutatorTests
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["height"] = 150d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["height"] = 190d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["height"] = 170d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["height"] = 160d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["height"] = 160d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["height"] = 140d } });
+            new() { ["name"] = "A", ["height"] = 150d },
+            new() { ["name"] = "B", ["height"] = 190d },
+            new() { ["name"] = "C", ["height"] = 170d },
+            new() { ["name"] = "D", ["height"] = 160d },
+            new() { ["name"] = "E", ["height"] = 160d },
+            new() { ["name"] = "fake", ["height"] = 140d } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -207,12 +207,12 @@ public class MemoryAggregationMutatorTests
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["age"] = 17 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["age"] = 8 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["age"] = 27 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0 } });
+            new() { ["name"] = "A", ["age"] = 17 },
+            new() { ["name"] = "B", ["age"] = 8 },
+            new() { ["name"] = "C", ["age"] = 27 },
+            new() { ["name"] = "D", ["age"] = 39 },
+            new() { ["name"] = "E", ["age"] = -3 },
+            new() { ["name"] = "fake", ["age"] = 0 } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -225,12 +225,12 @@ public class MemoryAggregationMutatorTests
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["age"] = 11 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["age"] = 8 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["age"] = 27 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0 } });
+            new() { ["name"] = "A", ["age"] = 11 },
+            new() { ["name"] = "B", ["age"] = 8 },
+            new() { ["name"] = "C", ["age"] = 27 },
+            new() { ["name"] = "D", ["age"] = 39 },
+            new() { ["name"] = "E", ["age"] = -3 },
+            new() { ["name"] = "fake", ["age"] = 0 } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -243,12 +243,12 @@ public class MemoryAggregationMutatorTests
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["age"] = 28 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["age"] = 8 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["age"] = 27 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0 } });
+            new() { ["name"] = "A", ["age"] = 28 },
+            new() { ["name"] = "B", ["age"] = 8 },
+            new() { ["name"] = "C", ["age"] = 27 },
+            new() { ["name"] = "D", ["age"] = 39 },
+            new() { ["name"] = "E", ["age"] = -3 },
+            new() { ["name"] = "fake", ["age"] = 0 } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -261,12 +261,12 @@ public class MemoryAggregationMutatorTests
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["height"] = 150d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["height"] = 190d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["height"] = 170d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["height"] = 160d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["height"] = 160d },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["height"] = 140d } });
+            new() { ["name"] = "A", ["height"] = 150d },
+            new() { ["name"] = "B", ["height"] = 190d },
+            new() { ["name"] = "C", ["height"] = 170d },
+            new() { ["name"] = "D", ["height"] = 160d },
+            new() { ["name"] = "E", ["height"] = 160d },
+            new() { ["name"] = "fake", ["height"] = 140d } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -279,12 +279,12 @@ public class MemoryAggregationMutatorTests
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["age"] = 17L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["age"] = 8L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["age"] = 27L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0L } });
+            new() { ["name"] = "A", ["age"] = 17L },
+            new() { ["name"] = "B", ["age"] = 8L },
+            new() { ["name"] = "C", ["age"] = 27L },
+            new() { ["name"] = "D", ["age"] = 39L },
+            new() { ["name"] = "E", ["age"] = -3L },
+            new() { ["name"] = "fake", ["age"] = 0L } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -297,12 +297,12 @@ public class MemoryAggregationMutatorTests
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["age"] = 11L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["age"] = 8L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["age"] = 27L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0L } });
+            new() { ["name"] = "A", ["age"] = 11L },
+            new() { ["name"] = "B", ["age"] = 8L },
+            new() { ["name"] = "C", ["age"] = 27L },
+            new() { ["name"] = "D", ["age"] = 39L },
+            new() { ["name"] = "E", ["age"] = -3L },
+            new() { ["name"] = "fake", ["age"] = 0L } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -315,12 +315,12 @@ public class MemoryAggregationMutatorTests
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "A", ["age"] = 28L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "B", ["age"] = 8L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "C", ["age"] = 27L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "D", ["age"] = 39L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "E", ["age"] = -3L },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["name"] = "fake", ["age"] = 0L } });
+            new() { ["name"] = "A", ["age"] = 28L },
+            new() { ["name"] = "B", ["age"] = 8L },
+            new() { ["name"] = "C", ["age"] = 27L },
+            new() { ["name"] = "D", ["age"] = 39L },
+            new() { ["name"] = "E", ["age"] = -3L },
+            new() { ["name"] = "fake", ["age"] = 0L } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 

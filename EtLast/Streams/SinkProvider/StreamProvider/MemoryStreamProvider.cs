@@ -17,21 +17,12 @@ public class MemoryStreamProvider : IStreamProvider
     {
         if (StreamCreator == null)
             throw new ProcessParameterNullException(caller, "StreamProvider." + nameof(StreamCreator));
-
-        if (_streamName == null)
-            throw new ProcessParameterNullException(caller, "StreamProvider." + nameof(_streamName));
-
-        if (_streamLocation == null)
-            throw new ProcessParameterNullException(caller, "StreamProvider." + nameof(_streamLocation));
-
-        if (_streamPath == null)
-            throw new ProcessParameterNullException(caller, "StreamProvider." + nameof(_streamPath));
     }
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {
-        var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.streamRead, _streamLocation, _streamPath, null, null, null, null,
-            "reading from stream {StreamName}", _streamName);
+        var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.streamRead, null, null, null, null, null, null,
+            "reading from memory stream");
 
         try
         {

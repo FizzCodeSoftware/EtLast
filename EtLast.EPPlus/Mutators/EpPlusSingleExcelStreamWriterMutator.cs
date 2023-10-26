@@ -35,8 +35,7 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
         if (ExistingPackage == null && _package != null)
         {
             var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.streamWrite, Stream.GetType().GetFriendlyTypeName(), null, null, null, null,
-                "saving excel package to stream: {StreamType}",
-                Stream.GetType().GetFriendlyTypeName());
+                "saving excel package");
 
             try
             {

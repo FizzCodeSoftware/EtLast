@@ -39,8 +39,7 @@ public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
         var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbIdentityReset, ConnectionString.Name, TableName, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-            "resetting identity counter on {ConnectionStringName}/{TableName}.{IdentityColumnName}",
-            ConnectionString.Name, TableName, IdentityColumnName);
+            "resetting identity counter on column", IdentityColumnName);
 
         try
         {

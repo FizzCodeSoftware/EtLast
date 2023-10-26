@@ -60,8 +60,7 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
             }
 
             var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.serviceRead, _client.Endpoint.Address.ToString(), Convert.ToInt32(_client.InnerChannel.OperationTimeout.TotalSeconds), null, null, null,
-                "sending request to {EndpointAddress}",
-                _client.Endpoint.Address.ToString());
+                "sending SOAP request");
             try
             {
                 var result = ClientInvoker.Invoke(this, row, _client);
@@ -82,6 +81,7 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
                 var exception = new EtlException(this, "error while reading data from service", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from service: {0}",
                     _client.Endpoint.Address.ToString()));
+
                 exception.Data["EndpointAddress"] = _client.Endpoint.Address.ToString();
 
                 Context.RegisterIoCommandFailed(this, IoCommandKind.serviceRead, iocUid, null, exception);

@@ -90,8 +90,7 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
                     _storedProcedureNames = new List<string>();
 
                     var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "INFORMATION_SCHEMA.ROUTINES", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-                        "querying stored procedures names from {ConnectionStringName}",
-                        ConnectionString.Name);
+                        "querying stored procedures names");
 
                     try
                     {
@@ -133,8 +132,7 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
     {
         var storedProcedureName = _storedProcedureNames[statementIndex];
         var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(storedProcedureName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "drop strored procedure {ConnectionStringName}/{StoredProcedureName}",
-            ConnectionString.Name, ConnectionString.Unescape(storedProcedureName));
+            "drop strored procedure");
 
         try
         {

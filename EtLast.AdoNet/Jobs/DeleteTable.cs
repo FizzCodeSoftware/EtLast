@@ -39,8 +39,7 @@ public sealed class DeleteTable : AbstractSqlStatement
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
         var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDelete, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-            "deleting records from {ConnectionStringName}/{TableName}",
-            ConnectionString.Name, ConnectionString.Unescape(TableName));
+            "deleting records");
 
         try
         {

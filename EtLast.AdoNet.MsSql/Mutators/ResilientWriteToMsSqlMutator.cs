@@ -162,8 +162,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
                     }
 
                     var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbWriteBulk, ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), bulkCopy.BulkCopyTimeout, "BULK COPY into " + TableDefinition.TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records" + (retry > 0 ? ", retry #" + retry.ToString("D", CultureInfo.InvariantCulture) : ""), Transaction.Current.ToIdentifierString(), null,
-                        "write to table: {ConnectionStringName}/{Table}",
-                        ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
+                        "write to table");
 
                     var success = false;
                     try

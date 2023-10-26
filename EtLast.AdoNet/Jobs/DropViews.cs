@@ -31,8 +31,7 @@ public sealed class DropViews : AbstractSqlStatements
     {
         var viewName = TableNames[statementIndex];
         var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(viewName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "drop view {ConnectionStringName}/{ViewName}",
-            ConnectionString.Name, ConnectionString.Unescape(viewName));
+            "drop view");
 
         try
         {

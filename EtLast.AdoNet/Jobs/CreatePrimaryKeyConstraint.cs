@@ -40,8 +40,7 @@ public sealed class CreatePrimaryKeyConstraint : AbstractSqlStatement
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
         var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDelete, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-            "creating primary key constraint on {ConnectionStringName}/{TableName}",
-            ConnectionString.Name, ConnectionString.Unescape(TableName));
+            "creating primary key constraint");
 
         try
         {

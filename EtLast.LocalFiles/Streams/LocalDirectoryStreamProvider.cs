@@ -63,7 +63,7 @@ public class LocalDirectoryStreamProvider : IStreamProvider
     private NamedStream GetFileStream(IProcess caller, string fileName)
     {
         var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileRead, Directory, fileName.Replace(Directory, "", StringComparison.InvariantCultureIgnoreCase), null, null, null, null,
-            "reading from local file {FileName}", fileName);
+            "reading from local file");
 
         if (!File.Exists(fileName))
         {

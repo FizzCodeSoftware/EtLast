@@ -39,8 +39,7 @@ public sealed class GetTableRecordCount : AbstractSqlStatementWithResult<int>
     protected override int RunCommandAndGetResult(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
         var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbReadCount, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-            "getting record count from {ConnectionStringName}/{TableName}",
-            ConnectionString.Name, ConnectionString.Unescape(TableName));
+            "getting record count");
 
         try
         {

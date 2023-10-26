@@ -35,8 +35,7 @@ public sealed class MsSqlEnableConstraintCheck : AbstractSqlStatements
     {
         var tableName = TableNames[statementIndex];
         var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "enable constraint check on {ConnectionStringName}/{TableName}",
-            ConnectionString.Name, ConnectionString.Unescape(tableName));
+            "enable constraint check");
 
         try
         {

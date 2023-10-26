@@ -36,8 +36,7 @@ public sealed class TruncateTable : AbstractSqlStatement
         var recordCount = 0;
         command.CommandText = "SELECT COUNT(*) FROM " + TableName;
         var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbReadCount, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "querying record count from {ConnectionStringName}/{TableName}",
-            ConnectionString.Name, ConnectionString.Unescape(TableName));
+            "querying record count");
 
         try
         {
@@ -62,8 +61,7 @@ public sealed class TruncateTable : AbstractSqlStatement
 
         command.CommandText = originalStatement;
         iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDelete, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-            "truncating {ConnectionStringName}/{TableName}",
-            ConnectionString.Name, ConnectionString.Unescape(TableName));
+            "truncating table");
 
         try
         {

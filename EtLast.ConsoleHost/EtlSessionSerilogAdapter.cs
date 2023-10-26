@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast.ConsoleHost;
+﻿using Serilog.Sinks.File;
+
+namespace FizzCode.EtLast.ConsoleHost;
 internal class EtlSessionSerilogAdapter : IEtlContextListener
 {
     private readonly ILogger _logger;
@@ -29,35 +31,37 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
                     restrictedToMinimumLevel: (LogEventLevel)settings.FileLogSettings.MinimumLogLevel,
                     rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: settings.FileLogSettings.RetainSettings.InfoFileCount,
+                    buffered: true,
+                    flushToDiskInterval: TimeSpan.FromSeconds(5),
                     encoding: Encoding.UTF8)
 
                 .WriteTo.File(Path.Combine(folder, "2-info-.txt"),
-                    restrictedToMinimumLevel: LogEventLevel.Information,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                    restrictedToMinimumLevel: LogEventLevel.Information,
                     formatProvider: CultureInfo.InvariantCulture,
                     rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: settings.FileLogSettings.RetainSettings.InfoFileCount,
                     encoding: Encoding.UTF8)
 
                 .WriteTo.File(Path.Combine(folder, "3-warning-.txt"),
-                    restrictedToMinimumLevel: LogEventLevel.Warning,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                    restrictedToMinimumLevel: LogEventLevel.Warning,
                     formatProvider: CultureInfo.InvariantCulture,
                     rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: settings.FileLogSettings.RetainSettings.ImportantFileCount,
                     encoding: Encoding.UTF8)
 
                 .WriteTo.File(Path.Combine(folder, "4-error-.txt"),
-                    restrictedToMinimumLevel: LogEventLevel.Error,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                    restrictedToMinimumLevel: LogEventLevel.Error,
                     formatProvider: CultureInfo.InvariantCulture,
                     rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: settings.FileLogSettings.RetainSettings.ImportantFileCount,
                     encoding: Encoding.UTF8)
 
                 .WriteTo.File(Path.Combine(folder, "5-fatal-.txt"),
-                    restrictedToMinimumLevel: LogEventLevel.Fatal,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                    restrictedToMinimumLevel: LogEventLevel.Fatal,
                     formatProvider: CultureInfo.InvariantCulture,
                     rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: settings.FileLogSettings.RetainSettings.ImportantFileCount,
@@ -72,6 +76,8 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
                         formatProvider: CultureInfo.InvariantCulture,
                         rollingInterval: RollingInterval.Day,
                         retainedFileCountLimit: settings.FileLogSettings.RetainSettings.LowFileCount,
+                        buffered: true,
+                        flushToDiskInterval: TimeSpan.FromSeconds(5),
                         encoding: Encoding.UTF8);
             }
 
@@ -84,6 +90,8 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
                         formatProvider: CultureInfo.InvariantCulture,
                         rollingInterval: RollingInterval.Day,
                         retainedFileCountLimit: settings.FileLogSettings.RetainSettings.LowFileCount,
+                        buffered: true,
+                        flushToDiskInterval: TimeSpan.FromSeconds(5),
                         encoding: Encoding.UTF8);
             }
         }
@@ -99,7 +107,8 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
 
         if (!string.IsNullOrEmpty(settings.SeqSettings.Url))
         {
-            config = config.WriteTo.Seq(settings.SeqSettings.Url, apiKey: settings.SeqSettings.ApiKey);
+            config = config
+                .WriteTo.Seq(settings.SeqSettings.Url, apiKey: settings.SeqSettings.ApiKey);
         }
 
         return config.CreateLogger();
@@ -152,32 +161,24 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
 
     private ILogger CreateIoLogger(EnvironmentSettings settings, string folder)
     {
-        var config = new LoggerConfiguration();
+        if (!settings.FileLogSettings.Enabled)
+            return null;
 
-        if (settings.FileLogSettings.Enabled)
-        {
-            config = config
-                .WriteTo.File(Path.Combine(folder, "io-.txt"),
-                    restrictedToMinimumLevel: (LogEventLevel)settings.FileLogSettings.MinimumLogLevelIo,
-                    outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
-                    formatProvider: CultureInfo.InvariantCulture,
-                    rollingInterval: RollingInterval.Day,
-                    retainedFileCountLimit: settings.FileLogSettings.RetainSettings.LowFileCount,
-                    encoding: Encoding.UTF8);
-        }
-
-        if (settings.ConsoleLogSettings.Enabled)
-        {
-            config = config
-                .WriteTo.Sink(new ConsoleSink("{Timestamp:HH:mm:ss.fff} [{Level}] {Message} {Properties}{NewLine}{Exception}"),
-                    (LogEventLevel)settings.ConsoleLogSettings.MinimumLogLevel);
-        }
-
-        config = config.MinimumLevel.Is(LogEventLevel.Verbose);
+        var config = new LoggerConfiguration()
+            .WriteTo.File(Path.Combine(folder, "io-.tsv"),
+                outputTemplate: "{Timestamp:HH:mm:ss.fff zzz}\t{Message:l}{NewLine}",
+                formatProvider: CultureInfo.InvariantCulture,
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: settings.FileLogSettings.RetainSettings.LowFileCount,
+                buffered: true,
+                flushToDiskInterval: TimeSpan.FromSeconds(5),
+                hooks: new IoFileLifecycleHooks(),
+                encoding: Encoding.UTF8);
 
         if (!string.IsNullOrEmpty(settings.SeqSettings.Url))
         {
-            config = config.WriteTo.Seq(settings.SeqSettings.Url, apiKey: settings.SeqSettings.ApiKey);
+            config = config
+                .WriteTo.Seq(settings.SeqSettings.Url, apiKey: settings.SeqSettings.ApiKey);
         }
 
         return config.CreateLogger();
@@ -316,131 +317,61 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
         }
     }
 
-    public void OnContextIoCommandStart(int uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, params object[] messageArgs)
+    public void OnContextIoCommandStart(int uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra = null)
     {
-        if (message != null)
-        {
-            var sb = new StringBuilder();
-            var values = new List<object>();
+        if (_ioLogger == null)
+            return;
 
-            if (process != null)
-            {
-                var proc = process.InvocationInfo.Caller;
-                while (proc != null)
-                {
-                    sb.Append('.');
-                    proc = proc.InvocationInfo.Caller;
-                }
+        if (message == null)
+            return;
 
-                if (process is IEtlTask)
-                {
-                    sb.Append("{ActiveTask} ");
-                    values.Add(process.InvocationName);
-                }
-                else
-                {
-                    sb.Append("{ActiveProcess} ");
-                    values.Add(process.InvocationName);
-                }
-            }
+        var sb = new StringBuilder();
+        sb.Append(process?.InvocationName);
+        sb.Append('\t').Append(uid.ToString("D", CultureInfo.InvariantCulture));
+        sb.Append('\t').Append(kind.ToString());
+        sb.Append('\t').Append("started");
+        sb.Append('\t').Append(""); // affectedDataCount
+        sb.Append('\t').Append(timeoutSeconds != null ? timeoutSeconds.Value.ToString("D", CultureInfo.InvariantCulture) : "");
+        sb.Append('\t').Append(transactionId);
+        sb.Append('\t').Append(location);
+        sb.Append('\t').Append(path);
 
-            sb.Append("{IoCommandUid}/{IoCommandKind} started");
-            values.Add("IO#" + uid.ToString("D", CultureInfo.InvariantCulture));
-            values.Add(kind.ToString());
+        sb.Append('\t').Append(message?.ReplaceLineEndings("\\n"));
+        sb.Append('\t').Append(messageExtra?.ReplaceLineEndings("\\n"));
 
-            if (location != null)
-            {
-                sb.Append(", location: {IoCommandTarget}");
-                values.Add(location);
-            }
+        sb.Append('\t').Append(command?.ReplaceLineEndings("\\n"));
+        sb.Append('\t').Append(process?.GetTopic()?.ReplaceLineEndings("\\n"));
 
-            if (path != null)
-            {
-                sb.Append(", path: {IoCommandTargetPath}");
-                values.Add(path);
-            }
-
-            if (timeoutSeconds != null)
-            {
-                sb.Append(", timeout: {IoCommandTimeout}");
-                values.Add(timeoutSeconds.Value);
-            }
-
-            if (transactionId != null)
-            {
-                sb.Append(", transaction: {ActiveTransaction}");
-                values.Add(transactionId);
-            }
-
-            sb.Append(", message: ").Append(message);
-            if (messageArgs != null)
-                values.AddRange(messageArgs);
-
-            if (command != null)
-            {
-                sb.Append(", command: {IoCommand}");
-                values.Add(command);
-            }
-
-            var topic = process?.GetTopic();
-            if (topic != null)
-            {
-                sb.Append(" TPC#{ActiveTopic}");
-                values.Add(topic);
-            }
-
-            _ioLogger.Write(LogEventLevel.Verbose, sb.ToString(), values.ToArray());
-        }
+        _ioLogger.Write(LogEventLevel.Information, sb.ToString());
     }
 
     public void OnContextIoCommandEnd(IProcess process, int uid, IoCommandKind kind, long? affectedDataCount, Exception ex)
     {
+        if (_ioLogger == null)
+            return;
+
         var sb = new StringBuilder();
-        var values = new List<object>();
+        sb.Append(process?.InvocationName);
+        sb.Append('\t').Append(uid.ToString("D", CultureInfo.InvariantCulture));
+        sb.Append('\t').Append(kind.ToString());
+        sb.Append('\t').Append(ex != null ? "failed" : "succeeded");
 
-        if (process != null)
+        sb.Append('\t').Append(affectedDataCount?.ToString("D", CultureInfo.InvariantCulture));
+
+        sb.Append('\t').Append(""); // timeoutSeconds
+        sb.Append('\t').Append(""); // transactionId
+        sb.Append('\t').Append(""); // location
+        sb.Append('\t').Append(""); // path
+
+        if (ex != null)
         {
-            var proc = process.InvocationInfo.Caller;
-            while (proc != null)
-            {
-                sb.Append('.');
-                proc = proc.InvocationInfo.Caller;
-            }
-
-            if (process is IEtlTask)
-            {
-                sb.Append("{ActiveTask} ");
-                values.Add(process.InvocationName);
-            }
-            else
-            {
-                sb.Append("{ActiveProcess} ");
-                values.Add(process.InvocationName);
-            }
+            sb.Append('\t').Append("exception"); // message
+            sb.Append(ex.FormatExceptionWithDetails().ReplaceLineEndings("\\n")); // messageExtra
         }
 
-        sb.Append("{IoCommandUid}/{IoCommandKind} {IoResult}");
-        values.Add("IO#" + uid.ToString("D", CultureInfo.InvariantCulture));
-        values.Add(kind.ToString());
-        values.Add(ex == null
-            ? "finished"
-            : "failed");
+        // topic
 
-        if (ex == null)
-        {
-            if (affectedDataCount != null)
-            {
-                sb.Append(", affected data count: {AffectedDataCount}");
-                values.Add(affectedDataCount);
-            }
-        }
-        else
-        {
-            sb.Append(", {ErrorMessage}");
-            values.Add(ex.FormatExceptionWithDetails());
-        }
-
-        _ioLogger.Write(LogEventLevel.Verbose, sb.ToString(), values.ToArray());
+        _ioLogger.Write(LogEventLevel.Information, sb.ToString());
     }
 
     public void OnRowCreated(IReadOnlyRow row)
@@ -473,5 +404,47 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
 
     public void OnContextClosed()
     {
+        try
+        {
+            (_logger as Logger)?.Dispose();
+            (_opsLogger as Logger)?.Dispose();
+            (_ioLogger as Logger)?.Dispose();
+        }
+        catch (Exception) { }
+    }
+
+    private class IoFileLifecycleHooks : FileLifecycleHooks
+    {
+        public override Stream OnFileOpened(string path, Stream underlyingStream, Encoding encoding)
+        {
+            if (underlyingStream.Length == 0)
+            {
+                using (var writer = new StreamWriter(underlyingStream, encoding, -1, true))
+                {
+                    var sb = new StringBuilder();
+                    sb.Append("Timestamp");
+                    sb.Append('\t').Append("ProcessInvocationName");
+                    sb.Append('\t').Append("UID");
+                    sb.Append('\t').Append("Kind");
+                    sb.Append('\t').Append("Action");
+                    sb.Append('\t').Append("AffectedDataCount");
+                    sb.Append('\t').Append("Timeout");
+                    sb.Append('\t').Append("TransactionId");
+                    sb.Append('\t').Append("Location");
+                    sb.Append('\t').Append("Path");
+                    sb.Append('\t').Append("Message");
+                    sb.Append('\t').Append("Message Extra");
+                    sb.Append('\t').Append("Command");
+                    sb.Append('\t').Append("Topic");
+
+                    writer.WriteLine(sb.ToString());
+                    writer.Flush();
+                    underlyingStream.Flush();
+                }
+
+            }
+
+            return base.OnFileOpened(path, underlyingStream, encoding);
+        }
     }
 }

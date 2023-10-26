@@ -1,5 +1,4 @@
-﻿#pragma warning disable RCS1075 // Avoid empty catch clause that catches System.Exception.
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 public class NamedSink : NamedStream
 {
@@ -30,4 +29,3 @@ public class NamedSink : NamedStream
         return 0;
     }
 }
-#pragma warning restore RCS1075 // Avoid empty catch clause that catches System.Exception.

@@ -60,8 +60,8 @@ public class DelimitedLineReaderTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d } });
+            new() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1 },
+            new() { ["Id"] = 1, ["Name"] = "B", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d } });
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -95,8 +95,8 @@ public class DelimitedLineReaderTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["ValueDouble"] = 1.234d } });
+            new() { ["Id"] = 0, ["Name"] = "A" },
+            new() { ["Id"] = 1, ["Name"] = "B", ["ValueDouble"] = 1.234d } });
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -124,8 +124,8 @@ public class DelimitedLineReaderTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = "-1" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["Value2"] = "3", ["Value3"] = "2019.04.25", ["Value4"] = "1.234" } });
+            new() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = "-1" },
+            new() { ["Id"] = 1, ["Name"] = "B", ["Value2"] = "3", ["Value3"] = "2019.04.25", ["Value4"] = "1.234" } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -139,8 +139,8 @@ public class DelimitedLineReaderTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "te\"s\"t;test", ["ValueInt"] = -1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "tes\"t;t\"est", ["ValueInt"] = -1 } });
+            new() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "te\"s\"t;test", ["ValueInt"] = -1 },
+            new() { ["Id"] = 2, ["Name"] = "tes\"t;t\"est", ["ValueInt"] = -1 } });
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -156,8 +156,8 @@ public class DelimitedLineReaderTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "\"te\"s\"t;test\"", ["ValueInt"] = -1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "\"tes\"t;t\"est\"", ["ValueInt"] = -1 } });
+            new() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "\"te\"s\"t;test\"", ["ValueInt"] = -1 },
+            new() { ["Id"] = 2, ["Name"] = "\"tes\"t;t\"est\"", ["ValueInt"] = -1 } });
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -172,9 +172,9 @@ public class DelimitedLineReaderTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(3, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "A", ["Value"] = "test" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "B", ["Value"] = "test\"" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "C", ["Value"] = "test\"\"" } });
+            new() { ["Id"] = 1, ["Name"] = "A", ["Value"] = "test" },
+            new() { ["Id"] = 2, ["Name"] = "B", ["Value"] = "test\"" },
+            new() { ["Id"] = 3, ["Name"] = "C", ["Value"] = "test\"\"" } });
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -189,14 +189,14 @@ public class DelimitedLineReaderTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(8, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Value"] = "A" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "B" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 3, ["Name"] = "C", ["Value"] = "\"" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 4, ["Name"] = "\"", ["Value"] = "D" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 5, ["Name"] = "E", ["Value"] = "\"\"" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 6, ["Name"] = "\"\"", ["Value"] = "F" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 7, ["Name"] = "G", ["Value"] = "\"a\"" },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 8, ["Name"] = "\"b\"", ["Value"] = "H" } });
+            new() { ["Id"] = 1, ["Value"] = "A" },
+            new() { ["Id"] = 2, ["Name"] = "B" },
+            new() { ["Id"] = 3, ["Name"] = "C", ["Value"] = "\"" },
+            new() { ["Id"] = 4, ["Name"] = "\"", ["Value"] = "D" },
+            new() { ["Id"] = 5, ["Name"] = "E", ["Value"] = "\"\"" },
+            new() { ["Id"] = 6, ["Name"] = "\"\"", ["Value"] = "F" },
+            new() { ["Id"] = 7, ["Name"] = "G", ["Value"] = "\"a\"" },
+            new() { ["Id"] = 8, ["Name"] = "\"b\"", ["Value"] = "H" } });
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -216,7 +216,7 @@ public class DelimitedLineReaderTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(1, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = " A", ["ValueString"] = "test\r\n continues", ["ValueInt"] = -1 } });
+            new() { ["Id"] = 1, ["Name"] = " A", ["ValueString"] = "test\r\n continues", ["ValueInt"] = -1 } });
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -236,7 +236,7 @@ public class DelimitedLineReaderTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(1, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "test\"\r\ncontinues", ["ValueInt"] = -1 } });
+            new() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "test\"\r\ncontinues", ["ValueInt"] = -1 } });
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -256,8 +256,8 @@ public class DelimitedLineReaderTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = new EtlRowError("X"), ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d } });
+            new() { ["Id"] = new EtlRowError("X"), ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1 },
+            new() { ["Id"] = 1, ["Name"] = "B", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d } });
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -289,8 +289,8 @@ public class DelimitedLineReaderTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = -1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["Value2"] = 3 } });
+            new() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = -1 },
+            new() { ["Id"] = 1, ["Name"] = "B", ["Value2"] = 3 } });
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -323,8 +323,8 @@ public class DelimitedLineReaderTests
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = -1 },
-            new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "B", ["Value2"] = 3, ["Value3"] = "1", ["Value4"] = "1.234" } });
+            new() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = -1 },
+            new() { ["Id"] = 1, ["Name"] = "B", ["Value2"] = 3, ["Value3"] = "1", ["Value4"] = "1.234" } });
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
