@@ -32,7 +32,7 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
                     rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: settings.FileLogSettings.RetainSettings.InfoFileCount,
                     buffered: true,
-                    flushToDiskInterval: TimeSpan.FromSeconds(5),
+                    flushToDiskInterval: TimeSpan.FromSeconds(1),
                     encoding: Encoding.UTF8)
 
                 .WriteTo.File(Path.Combine(folder, "2-info-.txt"),
@@ -77,7 +77,7 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
                         rollingInterval: RollingInterval.Day,
                         retainedFileCountLimit: settings.FileLogSettings.RetainSettings.LowFileCount,
                         buffered: true,
-                        flushToDiskInterval: TimeSpan.FromSeconds(5),
+                        flushToDiskInterval: TimeSpan.FromSeconds(1),
                         encoding: Encoding.UTF8);
             }
 
@@ -91,7 +91,7 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
                         rollingInterval: RollingInterval.Day,
                         retainedFileCountLimit: settings.FileLogSettings.RetainSettings.LowFileCount,
                         buffered: true,
-                        flushToDiskInterval: TimeSpan.FromSeconds(5),
+                        flushToDiskInterval: TimeSpan.FromSeconds(1),
                         encoding: Encoding.UTF8);
             }
         }
@@ -171,7 +171,7 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: settings.FileLogSettings.RetainSettings.LowFileCount,
                 buffered: true,
-                flushToDiskInterval: TimeSpan.FromSeconds(5),
+                flushToDiskInterval: TimeSpan.FromSeconds(1),
                 hooks: new IoFileLifecycleHooks(),
                 encoding: Encoding.UTF8);
 
