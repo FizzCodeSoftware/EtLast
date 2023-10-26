@@ -46,6 +46,13 @@ public sealed class JsonElementReader<T> : AbstractRowSource
             if (FlowState.IsTerminating)
                 break;
 
+            var startPos = 0L;
+            try
+            {
+                startPos = stream.Stream.Position;
+            }
+            catch (Exception) { }
+
             try
             {
                 var entry = JsonSerializer.Deserialize<T>(stream.Stream);
@@ -58,7 +65,14 @@ public sealed class JsonElementReader<T> : AbstractRowSource
             {
                 if (stream != null)
                 {
-                    Context.RegisterIoCommandSuccess(this, stream.IoCommandKind, stream.IoCommandUid, resultCount);
+                    var endPos = 0L;
+                    try
+                    {
+                        endPos = stream.Stream.Position;
+                    }
+                    catch (Exception) { }
+
+                    Context.RegisterIoCommandSuccess(this, stream.IoCommandKind, stream.IoCommandUid, endPos - startPos);
                     stream.Dispose();
                 }
             }

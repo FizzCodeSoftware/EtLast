@@ -53,6 +53,13 @@ public sealed class JsonArrayReader<T> : AbstractRowSource
             if (FlowState.IsTerminating)
                 break;
 
+            var startPos = 0L;
+            try
+            {
+                startPos = stream.Stream.Position;
+            }
+            catch (Exception) { }
+
             try
             {
                 var entryIndex = 0;
@@ -92,7 +99,14 @@ public sealed class JsonArrayReader<T> : AbstractRowSource
             {
                 if (stream != null)
                 {
-                    Context.RegisterIoCommandSuccess(this, stream.IoCommandKind, stream.IoCommandUid, resultCount);
+                    var endPos = 0L;
+                    try
+                    {
+                        endPos = stream.Stream.Position;
+                    }
+                    catch (Exception) { }
+
+                    Context.RegisterIoCommandSuccess(this, stream.IoCommandKind, stream.IoCommandUid, endPos - startPos);
                     stream.Dispose();
                 }
             }

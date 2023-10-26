@@ -5,8 +5,6 @@ public class MemoryStreamProvider : IStreamProvider
     public required Func<MemoryStream> StreamCreator { get; init; }
 
     private readonly string _streamName = "MemoryStream";
-    private readonly string _streamLocation = "memory";
-    private readonly string _streamPath = "memory";
 
     public string GetTopic()
     {
