@@ -60,7 +60,7 @@ public sealed class CopyTableStructure : AbstractSqlStatements
     protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
     {
         var config = Configuration[statementIndex];
-        var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(config.TargetTableName), command.CommandTimeout, command.CommandText, transactionId, null,
+        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(config.TargetTableName), command.CommandTimeout, command.CommandText, transactionId, null,
             "create new table based on table", ConnectionString.Unescape(config.SourceTableName));
 
         try

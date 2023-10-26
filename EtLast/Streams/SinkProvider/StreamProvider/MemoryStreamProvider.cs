@@ -19,7 +19,7 @@ public class MemoryStreamProvider : IStreamProvider
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {
-        var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.streamRead, null, null, null, null, null, null,
+        var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.streamRead, null, null, null, null, null,
             "reading from memory stream");
 
         try

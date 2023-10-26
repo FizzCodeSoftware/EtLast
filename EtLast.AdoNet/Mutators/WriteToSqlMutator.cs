@@ -146,8 +146,8 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
 
         _command.CommandText = sqlStatement;
 
-        var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbWriteBatch, ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), _command.CommandTimeout, sqlStatement, Transaction.Current.ToIdentifierString(), null,
-            "write to table");
+        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteBatch, ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), _command.CommandTimeout, sqlStatement, Transaction.Current.ToIdentifierString(), null,
+            "write to table", null);
 
         try
         {

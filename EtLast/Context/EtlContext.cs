@@ -137,7 +137,18 @@ public sealed class EtlContext : IEtlContext
         }
     }
 
-    public int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra = null)
+    public int RegisterIoCommandStart(IProcess process, IoCommandKind kind, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
+    {
+        var uid = Interlocked.Increment(ref _nextIoCommandUid);
+        foreach (var listener in Listeners)
+        {
+            listener.OnContextIoCommandStart(uid, kind, null, null, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageExtra);
+        }
+
+        return uid;
+    }
+
+    public int RegisterIoCommandStartWithLocation(IProcess process, IoCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
     {
         var uid = Interlocked.Increment(ref _nextIoCommandUid);
         foreach (var listener in Listeners)
@@ -148,7 +159,7 @@ public sealed class EtlContext : IEtlContext
         return uid;
     }
 
-    public int RegisterIoCommandStart(IProcess process, IoCommandKind kind, string location, string path, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra = null)
+    public int RegisterIoCommandStartWithPath(IProcess process, IoCommandKind kind, string location, string path, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
     {
         var uid = Interlocked.Increment(ref _nextIoCommandUid);
         foreach (var listener in Listeners)

@@ -49,10 +49,10 @@ public sealed class CustomSqlStatement : AbstractSqlStatement
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
         var iocUid = MainTableName != null
-            ? Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, MainTableName, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-                "custom SQL statement")
-            : Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-                "custom SQL statement");
+            ? Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbRead, ConnectionString.Name, MainTableName, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+                "custom SQL statement", null)
+            : Context.RegisterIoCommandStartWithLocation(this, IoCommandKind.dbRead, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+                "custom SQL statement", null);
 
         try
         {

@@ -138,8 +138,8 @@ from
 
             var constraintsByTable = new Dictionary<string, List<string>>();
 
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "SYS.FOREIGN_KEYS", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-                "querying foreign key names");
+            var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "SYS.FOREIGN_KEYS", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+                "querying foreign key names", null);
 
             var recordsRead = 0;
             try
@@ -207,8 +207,8 @@ from
     protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
     {
         var tableName = _tableNamesAndCounts[statementIndex].Item1;
-        var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "drop foreign keys");
+        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
+            "drop foreign keys", null);
 
         try
         {

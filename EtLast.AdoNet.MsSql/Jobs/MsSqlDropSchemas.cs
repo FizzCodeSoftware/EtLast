@@ -31,8 +31,8 @@ public sealed class MsSqlDropSchemas : AbstractSqlStatements
     protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
     {
         var schemaName = SchemaNames[statementIndex];
-        var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(schemaName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "drop schema");
+        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(schemaName), command.CommandTimeout, command.CommandText, transactionId, null,
+            "drop schema", null);
 
         try
         {

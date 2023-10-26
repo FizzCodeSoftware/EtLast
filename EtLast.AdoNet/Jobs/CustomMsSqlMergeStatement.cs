@@ -108,7 +108,7 @@ public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
 
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
-        var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbWriteMerge, ConnectionString.Name, ConnectionString.Unescape(TargetTableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteMerge, ConnectionString.Name, ConnectionString.Unescape(TargetTableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
             "merging to table from table", ConnectionString.Unescape(SourceTableName));
 
         try

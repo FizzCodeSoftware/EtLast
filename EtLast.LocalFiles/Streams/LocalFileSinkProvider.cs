@@ -41,8 +41,8 @@ public class LocalFileSinkProvider : ISinkProvider
     {
         var fileName = FileNameGenerator.Invoke(partitionKey);
 
-        var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.fileWrite, Path.GetDirectoryName(fileName), Path.GetFileName(fileName), null, null, null, null,
-            "writing to local file");
+        var iocUid = caller.Context.RegisterIoCommandStartWithPath(caller, IoCommandKind.fileWrite, Path.GetDirectoryName(fileName), Path.GetFileName(fileName), null, null, null, null,
+            "writing to local file", null);
 
         if (ActionWhenFileExists != LocalSinkFileExistsAction.Continue && File.Exists(fileName))
         {

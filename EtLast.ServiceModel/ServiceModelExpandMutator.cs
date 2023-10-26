@@ -59,8 +59,8 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
                 continue;
             }
 
-            var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.serviceRead, _client.Endpoint.Address.ToString(), Convert.ToInt32(_client.InnerChannel.OperationTimeout.TotalSeconds), null, null, null,
-                "sending SOAP request");
+            var iocUid = Context.RegisterIoCommandStartWithLocation(this, IoCommandKind.serviceRead, _client.Endpoint.Address.ToString(), Convert.ToInt32(_client.InnerChannel.OperationTimeout.TotalSeconds), null, null, null,
+                "sending SOAP request", null);
             try
             {
                 var result = ClientInvoker.Invoke(this, row, _client);

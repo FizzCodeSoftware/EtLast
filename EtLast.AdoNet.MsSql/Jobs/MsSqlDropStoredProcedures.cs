@@ -89,8 +89,8 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
 
                     _storedProcedureNames = new List<string>();
 
-                    var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "INFORMATION_SCHEMA.ROUTINES", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-                        "querying stored procedures names");
+                    var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "INFORMATION_SCHEMA.ROUTINES", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+                        "querying stored procedures names", null);
 
                     try
                     {
@@ -131,8 +131,8 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
     protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
     {
         var storedProcedureName = _storedProcedureNames[statementIndex];
-        var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(storedProcedureName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "drop strored procedure");
+        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(storedProcedureName), command.CommandTimeout, command.CommandText, transactionId, null,
+            "drop strored procedure", null);
 
         try
         {

@@ -82,8 +82,8 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
 	                            sys.foreign_keys fk
                                 where fk.is_disabled=0";
 
-                    var iocUid = builder.Scope.Context.RegisterIoCommandStart(job, IoCommandKind.dbReadMeta, ConnectionString.Name, "SYS.FOREIGN_KEYS", command.CommandTimeout, command.CommandText, null, null,
-                        "querying enabled foreign key names");
+                    var iocUid = builder.Scope.Context.RegisterIoCommandStartWithPath(job, IoCommandKind.dbReadMeta, ConnectionString.Name, "SYS.FOREIGN_KEYS", command.CommandTimeout, command.CommandText, null, null,
+                        "querying enabled foreign key names", null);
 
                     var recordsRead = 0;
                     try

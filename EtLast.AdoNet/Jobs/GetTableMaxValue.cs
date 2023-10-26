@@ -32,8 +32,8 @@ public sealed class GetTableMaxValue<TResult> : AbstractSqlStatementWithResult<T
 
     protected override TableMaxValueResult<TResult> RunCommandAndGetResult(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
-        var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbReadAggregate, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-            "getting max value from table");
+        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadAggregate, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+            "getting max value from table", null);
 
         try
         {

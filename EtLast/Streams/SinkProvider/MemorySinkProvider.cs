@@ -30,8 +30,8 @@ public class MemorySinkProvider : ISinkProvider
 
     public NamedSink GetSink(IProcess caller, string partitionKey)
     {
-        var iocUid = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.memoryWrite, _sinkLocation, _sinkPath, null, null, null, null,
-            "writing to memory stream");
+        var iocUid = caller.Context.RegisterIoCommandStartWithPath(caller, IoCommandKind.memoryWrite, _sinkLocation, _sinkPath, null, null, null, null,
+            "writing to memory stream", null);
 
         try
         {

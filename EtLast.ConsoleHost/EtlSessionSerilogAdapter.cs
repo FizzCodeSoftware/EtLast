@@ -322,9 +322,6 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
         if (_ioLogger == null)
             return;
 
-        if (message == null)
-            return;
-
         var sb = new StringBuilder();
         sb.Append(process?.InvocationName);
         sb.Append('\t').Append(uid.ToString("D", CultureInfo.InvariantCulture));

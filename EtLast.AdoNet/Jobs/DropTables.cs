@@ -40,8 +40,8 @@ public sealed class DropTables : AbstractSqlStatements
 
         var recordCount = 0;
         command.CommandText = "SELECT COUNT(*) FROM " + tableName;
-        var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbReadCount, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "querying record count");
+        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadCount, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
+            "querying record count", null);
         try
         {
             recordCount = (int)command.ExecuteScalar();
@@ -53,8 +53,8 @@ public sealed class DropTables : AbstractSqlStatements
         }
 
         command.CommandText = originalStatement;
-        iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbDropTable, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "drop table");
+        iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbDropTable, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
+            "drop table", null);
 
         try
         {

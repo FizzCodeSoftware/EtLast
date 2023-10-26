@@ -76,8 +76,8 @@ public sealed class AdoNetDbReader : AbstractAdoNetDbReader
 
     protected override int RegisterIoCommandStart(string transactionId, int timeout, string statement)
     {
-        return Context.RegisterIoCommandStart(this, IoCommandKind.dbRead, ConnectionString.Name, ConnectionString.Unescape(TableName), timeout, statement, transactionId, () => Parameters,
-            "querying from table");
+        return Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbRead, ConnectionString.Name, ConnectionString.Unescape(TableName), timeout, statement, transactionId, () => Parameters,
+            "querying from table", null);
     }
 }
 

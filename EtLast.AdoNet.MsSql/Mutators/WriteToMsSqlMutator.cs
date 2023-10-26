@@ -137,8 +137,8 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
 
         var recordCount = _reader.RowCount;
 
-        var iocUid = Context.RegisterIoCommandStart(this, IoCommandKind.dbWriteBulk, ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), _bulkCopy.BulkCopyTimeout, "BULK COPY " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", Transaction.Current.ToIdentifierString(), null,
-            "write to table");
+        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteBulk, ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), _bulkCopy.BulkCopyTimeout, "BULK COPY " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", Transaction.Current.ToIdentifierString(), null,
+            "write to table", null);
 
         try
         {
