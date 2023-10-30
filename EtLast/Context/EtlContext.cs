@@ -238,9 +238,9 @@ public sealed class EtlContext : IEtlContext
         return row;
     }
 
-    public EtlTransactionScope BeginTransactionScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity = LogSeverity.Information)
+    public EtlTransactionScope BeginTransactionScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity, TimeSpan? timeoutOverride = null)
     {
-        return new EtlTransactionScope(this, process, kind, TransactionScopeTimeout, logSeverity);
+        return new EtlTransactionScope(this, process, kind, timeoutOverride ?? TransactionScopeTimeout, logSeverity);
     }
 
     public void SetRowOwner(IRow row, IProcess currentProcess)

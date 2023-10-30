@@ -159,7 +159,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 
                         IProcess[] mainProcessList;
 
-                        using (var creatorScope = Context.BeginTransactionScope(this, creatorScopeKind))
+                        using (var creatorScope = Context.BeginTransactionScope(this, creatorScopeKind, LogSeverity.Information))
                         {
                             mainProcessList = table.JobCreator
                                 .Invoke(table)
@@ -182,7 +182,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 
                     ISequence mainProducer;
 
-                    using (var creatorScope = Context.BeginTransactionScope(this, creatorScopeKind))
+                    using (var creatorScope = Context.BeginTransactionScope(this, creatorScopeKind, LogSeverity.Information))
                     {
                         mainProducer = table.PartitionedProducerCreator.Invoke(table, partitionIndex);
                     }

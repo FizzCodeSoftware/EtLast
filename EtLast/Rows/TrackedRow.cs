@@ -15,7 +15,7 @@ public sealed class TrackedRow : IRow
     {
         get
         {
-            if (_staging?.Count > 0)
+            if (_changes?.Count > 0)
             {
                 return GetCurrentValues();
             }
@@ -30,11 +30,11 @@ public sealed class TrackedRow : IRow
     {
         foreach (var kvp in _originalRow.Values)
         {
-            if (!_staging.ContainsKey(kvp.Key))
+            if (!_changes.ContainsKey(kvp.Key))
                 yield return kvp;
         }
 
-        foreach (var kvp in _staging)
+        foreach (var kvp in _changes)
         {
             if (_originalRow.KeepNulls || kvp.Value != null)
                 yield return kvp;
@@ -43,13 +43,13 @@ public sealed class TrackedRow : IRow
 
     public int ColumnCount => Values.Count();
 
-    private Dictionary<string, object> _staging;
+    private Dictionary<string, object> _changes;
 
     public object this[string column]
     {
         get
         {
-            if (_staging?.Count > 0 && _staging.TryGetValue(column, out var stagedValue))
+            if (_changes?.Count > 0 && _changes.TryGetValue(column, out var stagedValue))
                 return stagedValue;
 
             return _originalRow[column];
@@ -61,14 +61,14 @@ public sealed class TrackedRow : IRow
             if ((originalValue == null && value == null && !_originalRow.KeepNulls)
                 || (originalValue != null && value == originalValue))
             {
-                if (_staging?.ContainsKey(column) == true)
-                    _staging.Remove(column);
+                if (_changes?.ContainsKey(column) == true)
+                    _changes.Remove(column);
 
                 return;
             }
 
-            _staging ??= new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-            _staging[column] = value;
+            _changes ??= new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            _changes[column] = value;
         }
     }
 
@@ -79,16 +79,16 @@ public sealed class TrackedRow : IRow
 
     public void ApplyChanges()
     {
-        if (_staging == null)
+        if (_changes == null)
             return;
 
-        if (_staging.Count > 0)
+        if (_changes.Count > 0)
         {
-            _originalRow.MergeWith(_staging);
-            _staging.Clear();
+            _originalRow.MergeWith(_changes);
+            _changes.Clear();
         }
 
-        _staging = null;
+        _changes = null;
     }
 
     public void Init(IEtlContext context, IProcess creatorProcess, int uid, IEnumerable<KeyValuePair<string, object>> initialValues)

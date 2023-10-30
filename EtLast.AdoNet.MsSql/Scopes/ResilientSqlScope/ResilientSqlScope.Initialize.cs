@@ -16,7 +16,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
             Context.Log(LogSeverity.Information, this, "initialization round {InitializationRound} started", round);
             try
             {
-                using (var scope = Context.BeginTransactionScope(this, InitializationTransactionScopeKind))
+                using (var scope = Context.BeginTransactionScope(this, InitializationTransactionScopeKind, LogSeverity.Information))
                 {
                     CreateAndExecuteInitializers(flowState);
 
@@ -43,7 +43,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
     {
         IProcess[] initializers;
 
-        using (var creatorScope = Context.BeginTransactionScope(this, TransactionScopeKind.Suppress))
+        using (var creatorScope = Context.BeginTransactionScope(this, TransactionScopeKind.Suppress, LogSeverity.Information))
         {
             var builder = new ResilientSqlScopeProcessBuilder() { Scope = this };
             Initializers.Invoke(builder);

@@ -9,20 +9,11 @@ internal static class ModuleExecuter
         var arguments = new ArgumentCollection(module.DefaultArgumentProviders, module.InstanceArgumentProviders, instance);
 
         var environmentSettings = new EnvironmentSettings();
-        Dictionary<string, Func<IArgumentCollection, IEtlTask>> customTasks;
-        if (module.Startup != null)
-        {
-            module.Startup.Configure(environmentSettings);
-            customTasks = new Dictionary<string, Func<IArgumentCollection, IEtlTask>>(module.Startup.CustomTasks, StringComparer.InvariantCultureIgnoreCase);
-        }
-        else
-        {
-            customTasks = new Dictionary<string, Func<IArgumentCollection, IEtlTask>>();
-        }
+        module.Startup?.Configure(environmentSettings);
 
         var context = new EtlContext(arguments)
         {
-            TransactionScopeTimeout = environmentSettings.TransactionScopeTimeout
+            TransactionScopeTimeout = environmentSettings.TransactionScopeTimeout,
         };
 
         try
@@ -80,20 +71,14 @@ internal static class ModuleExecuter
                     break;
 
                 IEtlTask task = null;
-                if (customTasks.TryGetValue(taskName, out var taskCreator))
-                {
-                    task = taskCreator.Invoke(arguments);
-                }
-                else
-                {
-                    var taskType = module.TaskTypes.Find(x => string.Equals(x.Name, taskName, StringComparison.InvariantCultureIgnoreCase));
-                    if (taskType != null)
-                        task = (IEtlTask)Activator.CreateInstance(taskType);
-                }
+
+                var taskType = module.TaskTypes.Find(x => string.Equals(x.Name, taskName, StringComparison.InvariantCultureIgnoreCase));
+                if (taskType != null)
+                    task = (IEtlTask)Activator.CreateInstance(taskType);
 
                 if (task == null)
                 {
-                    context.Log(LogSeverity.Error, null, "unknown task/flow type: " + taskName);
+                    context.Log(LogSeverity.Error, null, "unknown task type: " + taskName);
                     break;
                 }
 

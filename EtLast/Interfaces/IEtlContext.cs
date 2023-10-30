@@ -19,7 +19,7 @@ public interface IEtlContext
     public int ElapsedMillisecondsLimitToLog { get; set; }
 
     public TimeSpan TransactionScopeTimeout { get; set; }
-    public EtlTransactionScope BeginTransactionScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity = LogSeverity.Information);
+    public EtlTransactionScope BeginTransactionScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity, TimeSpan? timeoutOverride = null);
 
     public void Terminate();
     public bool IsTerminating { get; }
