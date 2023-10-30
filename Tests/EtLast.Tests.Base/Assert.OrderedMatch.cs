@@ -16,13 +16,14 @@ public static class OrderedMatchHelper
             foreach (var kvp in referenceRow)
             {
                 var expectedValue = kvp.Value;
-                Assert.AreNotEqual(null, expectedValue, "expectedValue is null in row " + i);
                 var value = row[kvp.Key];
                 AssertValuesAreEqual(expectedValue, value, kvp.Key, i);
             }
 
             foreach (var kvp in row.Values)
             {
+                Assert.IsTrue(referenceRow.ContainsKey(kvp.Key));
+
                 var expectedValue = referenceRow[kvp.Key];
                 var value = kvp.Value;
                 AssertValuesAreEqual(expectedValue, value, kvp.Key, i);

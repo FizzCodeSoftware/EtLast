@@ -87,7 +87,7 @@ public sealed class JoinMutator : AbstractCrossMutator
                     initialValues[column.Key] = match[column.Value ?? column.Key];
                 }
 
-                var newRow = Context.CreateRow(this, initialValues, row.KeepNulls);
+                var newRow = Context.CreateRow(this, initialValues);
 
                 if (CopyTag)
                     newRow.Tag = row.Tag;

@@ -78,9 +78,9 @@ public class DataContractXmlSerializerMutatorTests
             new() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0) },
             new() { ["id"] = 2, ["name"] = "C", ["age"] = 27, ["birthDate"] = new DateTime(2014, 1, 21, 0, 0, 0, 0) },
             new() { ["id"] = 3, ["name"] = "D", ["age"] = 39, ["birthDate"] = new DateTime(2018, 7, 11, 0, 0, 0, 0) },
-            new() { ["id"] = 4, ["name"] = "E", ["age"] = -3 },
+            new() { ["id"] = 4, ["name"] = "E", ["age"] = -3, ["birthDate"] = null },
             new() { ["id"] = 5, ["name"] = "A", ["age"] = 11, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0) },
-            new() { ["id"] = 6, ["name"] = "fake", ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0) } });
+            new() { ["id"] = 6, ["name"] = "fake", ["age"] = null, ["birthDate"] = new DateTime(2018, 1, 9, 0, 0, 0, 0) } });
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 }

@@ -21,4 +21,5 @@ public enum ArgumentType
     _datetime,
     _datetimeoffset,
     _timespan,
+    _removed,
 }

@@ -163,7 +163,7 @@ public class TrackedRowTests
     }
 
     [TestMethod]
-    public void NullValuesAreNotStored1()
+    public void NullValuesAreStored1()
     {
         var context = TestExecuter.GetContext();
         context.SetRowType<Row>();
@@ -176,20 +176,11 @@ public class TrackedRowTests
         };
 
         var row = new TrackedRow(context.CreateRow(null, initialValues));
-        Assert.AreEqual(2, row.ColumnCount);
-        Assert.IsTrue(row.Values.All(kvp => kvp.Value != null));
-
-        row["age"] = 7;
         Assert.AreEqual(3, row.ColumnCount);
-        Assert.IsTrue(row.Values.All(kvp => kvp.Value != null));
-
-        row["name"] = null;
-        Assert.AreEqual(2, row.ColumnCount);
-        Assert.IsTrue(row.Values.All(kvp => kvp.Value != null));
     }
 
     [TestMethod]
-    public void NullValuesAreNotStored2()
+    public void NullValuesAreStored2()
     {
         var context = TestExecuter.GetContext();
         context.SetRowType<Row>();
@@ -204,10 +195,10 @@ public class TrackedRowTests
         Assert.AreEqual(2, row.ColumnCount);
 
         row["id"] = null;
-        Assert.AreEqual(1, row.ColumnCount);
+        Assert.AreEqual(2, row.ColumnCount);
 
         row["trash"] = null;
-        Assert.AreEqual(1, row.ColumnCount);
+        Assert.AreEqual(3, row.ColumnCount);
     }
 
     [TestMethod]
@@ -302,10 +293,11 @@ public class TrackedRowTests
 
         row.MergeWith(newValues);
 
-        Assert.AreEqual(3, row.ColumnCount);
+        Assert.AreEqual(4, row.ColumnCount);
         Assert.AreEqual(1, row["a"]);
         Assert.AreEqual("cat", row["b"]);
         Assert.IsFalse(row.HasValue("c"));
+        Assert.IsNull(row["c"]);
         Assert.AreEqual(8m, row["d"]);
     }
 }

@@ -58,7 +58,7 @@ public sealed class UnpivotMutator : AbstractMutator
                 initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, kvp.Key));
                 initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, kvp.Value));
 
-                var newRow = Context.CreateRow(this, initialValues, row.KeepNulls);
+                var newRow = Context.CreateRow(this, initialValues);
 
                 if (CopyTag)
                     newRow.Tag = row.Tag;
@@ -81,7 +81,7 @@ public sealed class UnpivotMutator : AbstractMutator
                 initialValues.Add(new KeyValuePair<string, object>(NewColumnForDimension, col));
                 initialValues.Add(new KeyValuePair<string, object>(NewColumnForValue, value));
 
-                var newRow = Context.CreateRow(this, initialValues, row.KeepNulls);
+                var newRow = Context.CreateRow(this, initialValues);
 
                 if (CopyTag)
                     newRow.Tag = row.Tag;

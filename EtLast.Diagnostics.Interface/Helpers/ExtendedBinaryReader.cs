@@ -43,6 +43,8 @@ public class ExtendedBinaryReader : BinaryReader
         {
             case ArgumentType._error:
                 return new EtlRowError(ReadString());
+            case ArgumentType._removed:
+                return new EtlRowRemovedValue();
             case ArgumentType._string:
                 return ReadString();
             case ArgumentType._stringArray:

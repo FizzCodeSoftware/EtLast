@@ -107,7 +107,7 @@ public class SlimRowTests
     }
 
     [TestMethod]
-    public void NullValuesAreNotStored()
+    public void NullValuesAreStored()
     {
         var values = new SlimRow()
         {
@@ -116,15 +116,6 @@ public class SlimRowTests
             ["age"] = null,
         };
 
-        Assert.AreEqual(2, values.ColumnCount);
-        Assert.IsTrue(values.Values.All(kvp => kvp.Value != null));
-
-        values["age"] = 7;
         Assert.AreEqual(3, values.ColumnCount);
-        Assert.IsTrue(values.Values.All(kvp => kvp.Value != null));
-
-        values["name"] = null;
-        Assert.AreEqual(2, values.ColumnCount);
-        Assert.IsTrue(values.Values.All(kvp => kvp.Value != null));
     }
 }

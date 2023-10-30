@@ -7,7 +7,7 @@ public sealed class SlimRow : ISlimRow
     public int ColumnCount => _values.Count;
     public object Tag { get; set; }
 
-    public bool KeepNulls { get; set; }
+    public bool KeepNulls { get; set; } = true;
 
     private readonly Dictionary<string, object> _values;
 
@@ -77,6 +77,14 @@ public sealed class SlimRow : ISlimRow
     public void Clear()
     {
         _values.Clear();
+    }
+
+    public void RemoveColumns(params string[] columns)
+    {
+        foreach (var col in columns)
+        {
+            _values.Remove(col);
+        }
     }
 
     public T GetAs<T>(string column)

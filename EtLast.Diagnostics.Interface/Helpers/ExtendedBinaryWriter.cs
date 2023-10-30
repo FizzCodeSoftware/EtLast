@@ -42,6 +42,12 @@ public class ExtendedBinaryWriter : BinaryWriter
             return;
         }
 
+        if (value is EtlRowRemovedValue)
+        {
+            Write((byte)ArgumentType._removed);
+            return;
+        }
+
         if (value is string sv)
         {
             Write((byte)ArgumentType._string);

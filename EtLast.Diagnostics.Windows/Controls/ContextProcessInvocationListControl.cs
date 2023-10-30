@@ -120,7 +120,7 @@ internal class ContextProcessInvocationListControl
 
                         foreach (var kvp in rvce.Values)
                         {
-                            if (kvp.Value == null)
+                            if (kvp.Value is EtlRowRemovedValue)
                                 values.Remove(kvp.Key);
                             else
                                 values[kvp.Key] = kvp.Value;

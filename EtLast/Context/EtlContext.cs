@@ -191,12 +191,9 @@ public sealed class EtlContext : IEtlContext
         }
     }
 
-    public IRow CreateRow(IProcess process, bool keepNulls = false)
+    public IRow CreateRow(IProcess process)
     {
         var row = (IRow)Activator.CreateInstance(RowType);
-        if (keepNulls)
-            row.KeepNulls = true;
-
         row.Init(this, process, Interlocked.Increment(ref _nextRowUid), null);
 
         foreach (var listener in Listeners)
@@ -207,12 +204,9 @@ public sealed class EtlContext : IEtlContext
         return row;
     }
 
-    public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues, bool keepNulls = false)
+    public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues)
     {
         var row = (IRow)Activator.CreateInstance(RowType);
-        if (keepNulls)
-            row.KeepNulls = true;
-
         row.Init(this, process, Interlocked.Increment(ref _nextRowUid), initialValues);
 
         foreach (var listener in Listeners)
@@ -226,7 +220,6 @@ public sealed class EtlContext : IEtlContext
     public IRow CreateRow(IProcess process, IReadOnlySlimRow source)
     {
         var row = (IRow)Activator.CreateInstance(RowType);
-        row.KeepNulls = source.KeepNulls;
         row.Init(this, process, Interlocked.Increment(ref _nextRowUid), source.Values);
         row.Tag = source.Tag;
 

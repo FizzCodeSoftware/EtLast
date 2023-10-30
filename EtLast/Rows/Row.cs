@@ -8,8 +8,6 @@ public class Row : IRow
     public IProcess CurrentProcess { get; set; }
     public int Uid { get; private set; }
 
-    public bool KeepNulls { get; set; }
-
     public int ColumnCount => _values.Count;
 
     public IEnumerable<KeyValuePair<string, object>> Values => _values;
@@ -23,7 +21,7 @@ public class Row : IRow
         get => _values.TryGetValue(column, out var value) ? value : null;
         set
         {
-            _values.TryGetValue(column, out var previousValue);
+            var stored = _values.TryGetValue(column, out var previousValue);
             if (value == null)
             {
                 if (previousValue != null)
@@ -32,14 +30,15 @@ public class Row : IRow
                         listener.OnRowValueChanged(this, new[] { new KeyValuePair<string, object>(column, null) });
                 }
 
-                if (!KeepNulls)
+                _values[column] = null;
+            }
+            else if (value is EtlRowRemovedValue)
+            {
+                if (stored)
                 {
-                    if (previousValue != null)
-                        _values.Remove(column);
-                }
-                else
-                {
-                    _values[column] = null;
+                    _values.Remove(column);
+                    foreach (var listener in Context.Listeners)
+                        listener.OnRowValueChanged(this, new[] { new KeyValuePair<string, object>(column, value) });
                 }
             }
             else if (previousValue == null || value != previousValue)
@@ -105,7 +104,7 @@ public class Row : IRow
 
     public T GetAs<T>(string column, T defaultValueIfNull)
     {
-        if (!_values.TryGetValue(column, out var value))
+        if (!_values.TryGetValue(column, out var value) || value is null)
             return defaultValueIfNull;
 
         try
@@ -139,7 +138,7 @@ public class Row : IRow
                 if (!string.IsNullOrEmpty(str))
                     return false;
             }
-            else
+            else if (kvp.Value != null)
             {
                 return false;
             }
@@ -169,9 +168,7 @@ public class Row : IRow
 
         _values = initialValues == null
             ? new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
-            : !KeepNulls
-                ? new Dictionary<string, object>(initialValues.Where(kvp => kvp.Value != null), StringComparer.OrdinalIgnoreCase)
-                : new Dictionary<string, object>(initialValues, StringComparer.OrdinalIgnoreCase);
+            : new Dictionary<string, object>(initialValues, StringComparer.OrdinalIgnoreCase);
     }
 
     public bool HasValue(string column)
@@ -207,28 +204,27 @@ public class Row : IRow
                 if (currentValue != null)
                 {
                     changedValues ??= new List<KeyValuePair<string, object>>();
-
                     changedValues.Add(kvp);
-
-                    if (!KeepNulls)
-                    {
-                        _values.Remove(kvp.Key);
-                    }
-                    else
-                    {
-                        _values[kvp.Key] = null;
-                    }
+                    _values[kvp.Key] = null;
                 }
                 else
                 {
-                    if (KeepNulls && !stored)
+                    if (!stored)
                         _values[kvp.Key] = null;
+                }
+            }
+            else if (kvp.Value is EtlRowRemovedValue)
+            {
+                if (stored)
+                {
+                    _values.Remove(kvp.Key);
+                    changedValues ??= new List<KeyValuePair<string, object>>();
+                    changedValues.Add(kvp);
                 }
             }
             else if (currentValue == null || kvp.Value != currentValue)
             {
                 changedValues ??= new List<KeyValuePair<string, object>>();
-
                 changedValues.Add(kvp);
 
                 if (kvp.Value != null)
@@ -247,6 +243,49 @@ public class Row : IRow
 
     public void Clear()
     {
+        if (_values.Count == 0)
+            return;
+
+        List<KeyValuePair<string, object>> changedValues = null;
+        foreach (var kvp in _values)
+        {
+            if (kvp.Value != null)
+            {
+                changedValues ??= new();
+                changedValues.Add(new KeyValuePair<string, object>(kvp.Key, null));
+            }
+        }
+
         _values.Clear();
+
+        if (changedValues != null)
+        {
+            foreach (var listener in Context.Listeners)
+            {
+                listener.OnRowValueChanged(this, changedValues.ToArray());
+            }
+        }
+    }
+
+    public void RemoveColumns(params string[] columns)
+    {
+        List<KeyValuePair<string, object>> changedValues = null;
+        foreach (var col in columns)
+        {
+            _values.Remove(col, out var value);
+            if (value != null)
+            {
+                changedValues ??= new();
+                changedValues.Add(new KeyValuePair<string, object>(col, null));
+            }
+        }
+
+        if (changedValues != null)
+        {
+            foreach (var listener in Context.Listeners)
+            {
+                listener.OnRowValueChanged(this, changedValues.ToArray());
+            }
+        }
     }
 }

@@ -15,7 +15,7 @@ public sealed class RemoveColumnMutator : AbstractSimpleChangeMutator
 
         if (Columns.Length > 1)
         {
-            Changes.AddRange(Columns.Select(x => new KeyValuePair<string, object>(x, null)));
+            Changes.AddRange(Columns.Select(x => new KeyValuePair<string, object>(x, new EtlRowRemovedValue())));
         }
     }
 
@@ -27,7 +27,7 @@ public sealed class RemoveColumnMutator : AbstractSimpleChangeMutator
         }
         else
         {
-            row[Columns[0]] = null;
+            row[Columns[0]] = new EtlRowRemovedValue();
         }
 
         yield return row;

@@ -62,7 +62,7 @@ public sealed class ResolveHierarchyMutator : AbstractSimpleChangeMutator
         {
             foreach (var levelColumn in LevelColumns)
             {
-                Changes.Add(new KeyValuePair<string, object>(levelColumn, null));
+                Changes.Add(new KeyValuePair<string, object>(levelColumn, new EtlRowRemovedValue()));
             }
         }
 

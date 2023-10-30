@@ -11,6 +11,7 @@ public sealed class TrackedRow : IRow
     public int Uid => _originalRow.Uid;
     public IProcess CreatorProcess => _originalRow.CreatorProcess;
     public object Tag { get => _originalRow.Tag; set => _originalRow.Tag = value; }
+
     public IEnumerable<KeyValuePair<string, object>> Values
     {
         get
@@ -36,8 +37,7 @@ public sealed class TrackedRow : IRow
 
         foreach (var kvp in _changes)
         {
-            if (_originalRow.KeepNulls || kvp.Value != null)
-                yield return kvp;
+            yield return kvp;
         }
     }
 
@@ -58,8 +58,7 @@ public sealed class TrackedRow : IRow
         {
             var originalValue = _originalRow[column];
 
-            if ((originalValue == null && value == null && !_originalRow.KeepNulls)
-                || (originalValue != null && value == originalValue))
+            if (originalValue != null && value == originalValue)
             {
                 if (_changes?.ContainsKey(column) == true)
                     _changes.Remove(column);
@@ -168,7 +167,7 @@ public sealed class TrackedRow : IRow
                 if (!string.IsNullOrEmpty(str))
                     return false;
             }
-            else
+            else if (kvp.Value != null)
             {
                 return false;
             }
@@ -242,6 +241,14 @@ public sealed class TrackedRow : IRow
         foreach (var kvp in Values.ToList())
         {
             this[kvp.Key] = null;
+        }
+    }
+
+    public void RemoveColumns(params string[] columns)
+    {
+        foreach (var col in columns)
+        {
+            _changes.Remove(col);
         }
     }
 }

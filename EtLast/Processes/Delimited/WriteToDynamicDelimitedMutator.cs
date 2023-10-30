@@ -236,8 +236,6 @@ public static class WriteToUnstructuredDelimitedMutatorFluent
 {
     /// <summary>
     /// Write rows to a delimited stream. The first row if each partition is used to determine the columns of the delimited output.
-    /// Because rows doesn't store null values by nature, it is recommended to be sure all values are non-nullable,
-    /// or use rows with <see cref="IReadOnlySlimRow.KeepNulls"/> enabled in a sequence which uses this mutator.
     /// </summary>
     public static IFluentSequenceMutatorBuilder WriteToDynamicDelimited(this IFluentSequenceMutatorBuilder builder, WriteToDynamicDelimitedMutator mutator)
     {

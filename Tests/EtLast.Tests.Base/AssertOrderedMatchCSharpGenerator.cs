@@ -10,17 +10,17 @@ public static class AssertOrderedMatchCSharpGenerator
         if (result.MutatedRows.Count > 0)
         {
             sb.AppendLine("Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {");
-            sb.AppendJoin(",\n", result.MutatedRows.Select(row => "\t\t\tnew CaseInsensitiveStringKeyDictionary<object>() { " + string.Join(", ", row.Values.Select(kvp => "[\"" + kvp.Key + "\"] = " + FormatToCSharpVariable(row[kvp.Key]))) + " }"));
+            sb.AppendJoin(",\n", result.MutatedRows.Select(row => "\t\t\tnew() { " + string.Join(", ", row.Values.Select(kvp => "[\"" + kvp.Key + "\"] = " + FormatToCSharpVariable(row[kvp.Key]))) + " }"));
             sb.AppendLine(" });");
         }
 
         var exceptions = result.Process.FlowState.Exceptions;
-        sb.Append("\t\tAssert.AreEqual(").Append(exceptions.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", result.Process.Pipe.Exceptions.Count);");
+        sb.Append("\t\tAssert.AreEqual(").Append(exceptions.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", result.Process.FlowState.Exceptions.Count);");
 
         for (var i = 0; i < exceptions.Count; i++)
         {
             var ex = exceptions[i];
-            sb.Append("\t\tAssert.IsTrue(result.Process.Pipe.Exceptions[").Append(i.ToString("D", CultureInfo.InvariantCulture)).Append("] is ").Append(ex.GetType().Name).AppendLine(");");
+            sb.Append("\t\tAssert.IsTrue(result.Process.FlowState.Exceptions[").Append(i.ToString("D", CultureInfo.InvariantCulture)).Append("] is ").Append(ex.GetType().Name).AppendLine(");");
         }
 
         return sb.ToString();
