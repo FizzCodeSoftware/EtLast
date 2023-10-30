@@ -2,10 +2,10 @@
 
 internal delegate void IoCommandActionDelegate(IoCommandModel ioCommandModel);
 
-internal class SessionIoCommandListControl
+internal class ContextFullIoCommandListControl
 {
     public Control Container { get; }
-    public DiagSession Session { get; }
+    public DiagContext Context { get; }
     public CheckBox ShowDbTransactionKind { get; }
     public CheckBox ShowDbConnectionKind { get; }
     public CheckBox HideVeryFast { get; }
@@ -14,10 +14,10 @@ internal class SessionIoCommandListControl
     private readonly ControlUpdater<IoCommandModel> _updater;
     private readonly Dictionary<string, Dictionary<int, IoCommandModel>> _itemByUid = new();
 
-    public SessionIoCommandListControl(Control container, DiagnosticsStateManager diagnosticsStateManager, DiagSession session)
+    public ContextFullIoCommandListControl(Control container, DiagContext context)
     {
         Container = container;
-        Session = session;
+        Context = context;
 
         _updater = new ControlUpdater<IoCommandModel>(null, container)
         {
@@ -71,11 +71,6 @@ internal class SessionIoCommandListControl
             Text = "Timestamp",
             AspectGetter = x => (x as IoCommandModel)?.Timestamp,
             AspectToStringConverter = x => ((DateTime)x).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture),
-        });
-        _updater.ListView.Columns.Add(new OLVColumn()
-        {
-            Text = "Context",
-            AspectGetter = x => (x as IoCommandModel)?.Playbook.DiagContext.Name,
         });
         _updater.ListView.Columns.Add(new OLVColumn()
         {
@@ -158,13 +153,7 @@ internal class SessionIoCommandListControl
 
         _updater.Start();
 
-        diagnosticsStateManager.OnDiagContextCreated += ec =>
-        {
-            if (ec.Session == session)
-            {
-                ec.WholePlaybook.OnEventsAdded += OnEventsAdded;
-            }
-        };
+        Context.WholePlaybook.OnEventsAdded += OnEventsAdded;
     }
 
     private void ListView_ItemActivate(object sender, EventArgs e)

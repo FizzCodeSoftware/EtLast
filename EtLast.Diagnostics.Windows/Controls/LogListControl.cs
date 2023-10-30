@@ -5,16 +5,16 @@ internal delegate void LogActionDelegate(LogModel logModel);
 internal class LogListControl
 {
     public Control Container { get; }
-    public DiagSession Session { get; }
+    public DiagContext Context { get; }
     public CheckBox ShowDebugLevel { get; }
     public LogActionDelegate OnLogDoubleClicked { get; set; }
 
     private readonly ControlUpdater<LogModel> _updater;
 
-    public LogListControl(Control container, DiagnosticsStateManager diagnosticsStateManager, DiagSession session)
+    public LogListControl(Control container, DiagContext context)
     {
         Container = container;
-        Session = session;
+        Context = context;
 
         _updater = new ControlUpdater<LogModel>(null, Container)
         {
@@ -40,18 +40,13 @@ internal class LogListControl
         _updater.ListView.Columns.Add(new OLVColumn()
         {
             Text = "Timestamp",
-            AspectGetter = x => (x as LogModel)?.Timestamp,
+            AspectGetter = x => new DateTime((x as LogModel)?.Event.Timestamp ?? 0L),
             AspectToStringConverter = x => ((DateTime)x).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture),
         });
         _updater.ListView.Columns.Add(new OLVColumn()
         {
             Text = "Severity",
             AspectGetter = x => (x as LogModel)?.Event.Severity.ToShortString(),
-        });
-        _updater.ListView.Columns.Add(new OLVColumn()
-        {
-            Text = "Context",
-            AspectGetter = x => (x as LogModel)?.Playbook.DiagContext.Name,
         });
         _updater.ListView.Columns.Add(new OLVColumn()
         {
@@ -81,13 +76,7 @@ internal class LogListControl
 
         _updater.Start();
 
-        diagnosticsStateManager.OnDiagContextCreated += ec =>
-        {
-            if (ec.Session == session)
-            {
-                ec.WholePlaybook.OnEventsAdded += OnEventsAdded;
-            }
-        };
+        context.WholePlaybook.OnEventsAdded += OnEventsAdded;
     }
 
     private void ListView_ItemActivate(object sender, EventArgs e)
@@ -124,8 +113,6 @@ internal class LogListControl
 
             var item = new LogModel()
             {
-                Timestamp = new DateTime(evt.Timestamp),
-                Playbook = playbook,
                 Event = evt,
                 Process = evt.ProcessInvocationUID != null
                     ? playbook.DiagContext.WholePlaybook.ProcessList[evt.ProcessInvocationUID.Value]
@@ -140,8 +127,6 @@ internal class LogListControl
 
 internal class LogModel
 {
-    public DateTime Timestamp { get; set; }
-    public Playbook Playbook { get; set; }
     public TrackedProcessInvocation Process { get; set; }
     public LogEvent Event { get; set; }
     public string Text { get; set; }

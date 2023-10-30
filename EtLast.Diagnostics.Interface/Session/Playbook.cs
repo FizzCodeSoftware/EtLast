@@ -17,9 +17,9 @@ public class Playbook
     public OnSinkStartedDelegate OnSinkStarted { get; set; }
     public OnWriteToSinkDelegate OnWriteToSink { get; set; }
 
-    public Playbook(DiagContext sessionContext)
+    public Playbook(DiagContext context)
     {
-        DiagContext = sessionContext;
+        DiagContext = context;
     }
 
     public void AddEvents(IEnumerable<AbstractEvent> abstactEvents)

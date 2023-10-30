@@ -4,20 +4,17 @@ using System.Web;
 
 namespace FizzCode.EtLast.Diagnostics.Windows;
 
-internal delegate void OnSessionCreatedDelegate(DiagSession session);
-internal delegate void OnDiagContextCreatedDelegate(DiagContext diagContext);
+internal delegate void OnContextCreatedDelegate(DiagContext context);
 
 internal class DiagnosticsStateManager : IDisposable
 {
-    public OnSessionCreatedDelegate OnDiagSessionCreated { get; set; }
-    public OnDiagContextCreatedDelegate OnDiagContextCreated { get; set; }
+    public OnContextCreatedDelegate OnDiagContextCreated { get; set; }
 
     private readonly HttpListener _listener;
-    private readonly Dictionary<string, DiagSession> _sessionList = new();
-    public IEnumerable<DiagSession> Session => _sessionList.Values;
+    private readonly Dictionary<string, DiagContext> _contextList = new();
+    public IEnumerable<DiagContext> Contexts => _contextList.Values;
 
-    private readonly List<DiagSession> _newSessions = new();
-    private readonly List<DiagContext> _newDiagContexts = new();
+    private readonly List<DiagContext> _newContextList = new();
 
     public DiagnosticsStateManager(string uriPrefix)
     {
@@ -44,10 +41,10 @@ internal class DiagnosticsStateManager : IDisposable
             var response = listenerContext.Response;
 
             var query = HttpUtility.ParseQueryString(request.Url.Query);
-            var sessionId = query?["sid"];
-            var contextName = query?["ctx"] ?? "session";
+            var contextId = query?["sid"];
+            var contextName = query?["ctx"] ?? "-";
 
-            if (string.IsNullOrEmpty(sessionId)
+            if (string.IsNullOrEmpty(contextId)
                 || string.IsNullOrEmpty(contextName)
                 || listenerContext.Request.Url.AbsolutePath != "/diag"
                 || request.HttpMethod != "POST")
@@ -63,55 +60,33 @@ internal class DiagnosticsStateManager : IDisposable
 
             var now = DateTime.Now;
 
-            if (!_sessionList.TryGetValue(sessionId, out var session))
+            if (!_contextList.TryGetValue(contextId, out var context))
             {
-                var folder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "incoming-sessions", now.ToString("yyyy-MM-dd - HH-mm-ss", CultureInfo.InvariantCulture) + " - " + sessionId);
+                var folder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "streams", contextId);
                 if (!Directory.Exists(folder))
                     Directory.CreateDirectory(folder);
 
-                File.WriteAllLines(Path.Combine(folder, "session-info.txt"), new[]
+                File.WriteAllLines(Path.Combine(folder, "stream-info.txt"), new[]
 {
-                    "id\t" + sessionId,
-                    "started-on\t" + now.ToString("yyyy.MM.dd HH:mm:ss.fff", CultureInfo.InvariantCulture),
-                });
-
-                session = new DiagSession(sessionId, folder, now);
-                lock (_sessionList)
-                {
-                    _sessionList.Add(sessionId, session);
-                    _newSessions.Add(session);
-                }
-            }
-
-            if (!session.ContextListByName.TryGetValue(contextName, out var context))
-            {
-                var folder = Path.Combine(session.DataFolder, contextName.Replace("/", "-", StringComparison.InvariantCultureIgnoreCase));
-                if (!Directory.Exists(folder))
-                    Directory.CreateDirectory(folder);
-
-                File.WriteAllLines(Path.Combine(folder, "context-info.txt"), new[]
-                {
+                    "id\t" + contextId,
                     "name\t" + contextName,
                     "started-on\t" + now.ToString("yyyy.MM.dd HH:mm:ss.fff", CultureInfo.InvariantCulture),
                 });
 
-                context = new DiagContext(session, contextName, now, folder);
-
-                lock (_sessionList)
+                context = new DiagContext(contextId, contextName, now, folder);
+                lock (_contextList)
                 {
-                    session.ContextList.Add(context);
-                    session.ContextListByName.Add(contextName, context);
-
-                    _newDiagContexts.Add(context);
+                    _contextList.Add(contextId, context);
+                    _newContextList.Add(context);
                 }
             }
 
-            using (var tempMemoryStream = new MemoryStream())
+            using (var ms = new MemoryStream())
             {
-                listenerContext.Request.InputStream.CopyTo(tempMemoryStream);
-                tempMemoryStream.Position = 0;
+                listenerContext.Request.InputStream.CopyTo(ms);
+                ms.Position = 0;
 
-                context.Stage(tempMemoryStream);
+                context.Stage(ms);
             }
 
             var acceptedResponse = Encoding.UTF8.GetBytes("ACK");
@@ -133,27 +108,20 @@ internal class DiagnosticsStateManager : IDisposable
 
     public void ProcessEvents()
     {
-        List<DiagContext> allContextList;
         List<DiagContext> newContexts;
-        List<DiagSession> newSessions;
-        lock (_sessionList)
+        lock (_contextList)
         {
-            newSessions = new List<DiagSession>(_newSessions);
-            _newSessions.Clear();
+            newContexts = new List<DiagContext>(_newContextList);
+            _newContextList.Clear();
 
-            newContexts = new List<DiagContext>(_newDiagContexts);
-            _newDiagContexts.Clear();
-
-            allContextList = _sessionList.Values.SelectMany(x => x.ContextList).ToList();
+            foreach (var ctx in _newContextList)
+                _contextList.Add(ctx.Id, ctx);
         }
-
-        foreach (var session in newSessions)
-            OnDiagSessionCreated?.Invoke(session);
 
         foreach (var context in newContexts)
             OnDiagContextCreated?.Invoke(context);
 
-        foreach (var context in allContextList)
+        foreach (var context in _contextList.Values)
         {
             context.FlushToPlaybook();
         }

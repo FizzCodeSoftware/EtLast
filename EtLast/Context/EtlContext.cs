@@ -4,18 +4,18 @@ public sealed class EtlContext : IEtlContext
 {
     public Type RowType { get; private set; }
 
-    public AdditionalData AdditionalData { get; }
+    public AdditionalData AdditionalData { get; } = new AdditionalData();
     public ArgumentCollection Arguments { get; }
 
     /// <summary>
     /// Returns a readable but not unique identifier of the context. Example: s220530-123059-99
     /// </summary>
-    public string Id { get; }
+    public string Id { get; } = "s" + DateTime.Now.ToString("yyMMdd-HHmmss-fff", CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Returns the unique identifier of the context.
     /// </summary>
-    public string Uid { get; }
+    public string Name { get; init; } = Guid.NewGuid().ToString("D");
 
     public DateTimeOffset CreatedOnUtc { get; }
     public DateTimeOffset CreatedOnLocal { get; }
@@ -54,11 +54,8 @@ public sealed class EtlContext : IEtlContext
         _cancellationTokenSource = new CancellationTokenSource();
         CancellationToken = _cancellationTokenSource.Token;
 
-        AdditionalData = new AdditionalData();
         Arguments = arguments;
 
-        Id = "s" + DateTime.Now.ToString("yyMMdd-HHmmss-ff", CultureInfo.InvariantCulture);
-        Uid = Guid.NewGuid().ToString("D");
         CreatedOnLocal = DateTimeOffset.Now;
         CreatedOnUtc = CreatedOnLocal.ToUniversalTime();
     }
@@ -194,9 +191,12 @@ public sealed class EtlContext : IEtlContext
         }
     }
 
-    public IRow CreateRow(IProcess process)
+    public IRow CreateRow(IProcess process, bool keepNulls = false)
     {
         var row = (IRow)Activator.CreateInstance(RowType);
+        if (keepNulls)
+            row.KeepNulls = true;
+
         row.Init(this, process, Interlocked.Increment(ref _nextRowUid), null);
 
         foreach (var listener in Listeners)

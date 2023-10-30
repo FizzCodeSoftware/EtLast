@@ -24,10 +24,10 @@ return (int)HostBuilder.New("EtLast Integration Tests")
     .SetAlias("flow", "run FlowTests Main")
     //.DisableSerilogForModules()
     //.DisableSerilogForCommands()
-    /*.RegisterEtlContextListener(session => new FizzCode.EtLast.Diagnostics.HttpSender(session)
+    .RegisterEtlContextListener(context => new FizzCode.EtLast.Diagnostics.HttpSender(context)
     {
         MaxCommunicationErrorCount = 2,
         Url = "http://localhost:8642",
-    })*/
+    })
     .Build()
     .Run();

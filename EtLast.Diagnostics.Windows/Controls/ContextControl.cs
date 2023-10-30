@@ -4,41 +4,55 @@ internal class ContextControl
 {
     public DiagContext Context { get; }
     public Control Container { get; }
-    public ContextProcessInvocationListControl ProcessInvocationList { get; }
-    public ContextIoCommandListControl IoCommandList { get; }
-    public ContextSinkListControl SinkList { get; }
+
+    private readonly TabControl _tabs;
+    private readonly ContextOverviewControl _overviewControl;
+    private readonly TabPage _overviewContainer;
 
     public ContextControl(DiagContext context, Control container)
     {
         Context = context;
         Container = container;
-        Container.SuspendLayout();
 
+        Container.SuspendLayout();
         try
         {
-            ProcessInvocationList = new ContextProcessInvocationListControl(container, context);
-
-            var ioCommandListContainer = new Panel()
+            _tabs = new TabControl()
             {
                 Parent = container,
-                BorderStyle = BorderStyle.FixedSingle,
+                Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom,
+                Appearance = TabAppearance.FlatButtons,
             };
 
-            IoCommandList = new ContextIoCommandListControl(ioCommandListContainer, context)
+            var logContainer = new TabPage("LOG")
             {
-                LinkedProcessInvocationList = ProcessInvocationList,
+                BorderStyle = BorderStyle.None,
             };
 
-            var sinkListContainer = new Panel()
+            _tabs.TabPages.Add(logContainer);
+
+            var logManager = new LogListControl(logContainer, Context);
+
+            var ioCommandContainer = new TabPage("I/O")
             {
-                Parent = container,
-                BorderStyle = BorderStyle.FixedSingle,
-                Width = 300,
+                BorderStyle = BorderStyle.None,
             };
 
-            SinkList = new ContextSinkListControl(sinkListContainer, context);
+            _tabs.TabPages.Add(ioCommandContainer);
 
-            ProcessInvocationList.OnSelectionChanged += ProcessInvocationList_OnSelectionChanged;
+            var ioCommandManager = new ContextFullIoCommandListControl(ioCommandContainer, context);
+
+            logManager.OnLogDoubleClicked += OnLogDoubleClicked;
+            ioCommandManager.OnIoCommandDoubleClicked += OnIoCommandDoubleClicked;
+
+            _overviewContainer = new TabPage("content")
+            {
+                BorderStyle = BorderStyle.None,
+                Tag = context,
+            };
+
+            _overviewControl = new ContextOverviewControl(context, _overviewContainer);
+            _tabs.TabPages.Add(_overviewContainer);
 
             container.Resize += Container_Resize;
             Container_Resize(null, EventArgs.Empty);
@@ -49,21 +63,33 @@ internal class ContextControl
         }
     }
 
-    private void ProcessInvocationList_OnSelectionChanged(TrackedProcessInvocation process)
+    internal void Close()
     {
-        IoCommandList.HighlightedProcess = process;
+        Container.Resize -= Container_Resize;
+        _tabs.TabPages.Clear();
+        _tabs.Dispose();
+    }
+
+    private void OnLogDoubleClicked(LogModel logModel)
+    {
+        if (logModel.Process != null)
+        {
+            _overviewControl.ProcessInvocationList.SelectProcess(logModel.Process);
+            _tabs.SelectedTab = _overviewContainer;
+        }
+    }
+
+    private void OnIoCommandDoubleClicked(IoCommandModel ioCommandModel)
+    {
+        if (ioCommandModel.Process != null)
+        {
+            _overviewControl.ProcessInvocationList.SelectProcess(ioCommandModel.Process);
+            _tabs.SelectedTab = _overviewContainer;
+        }
     }
 
     private void Container_Resize(object sender, EventArgs e)
     {
-        var cr = Container.ClientRectangle;
-        var y = cr.Top;
-        var h = cr.Height / 2;
-        ProcessInvocationList.ListView.Bounds = new Rectangle(cr.Left, y, cr.Width, h);
-
-        y = ProcessInvocationList.ListView.Bottom;
-        h = cr.Height - y;
-        SinkList.Container.Bounds = new Rectangle(cr.Left, y, SinkList.Container.Width, h);
-        IoCommandList.Container.Bounds = new Rectangle(SinkList.Container.Right, ProcessInvocationList.ListView.Bottom, cr.Width - SinkList.Container.Width, h);
+        _tabs.Bounds = new Rectangle(0, 0, Container.Width, Container.Height);
     }
 }

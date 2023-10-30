@@ -2,9 +2,9 @@
 
 public partial class MainForm : Form
 {
-    private readonly TabControl _sessionTabs;
+    private readonly TabControl ContextTabs;
     private readonly DiagnosticsStateManager _stateManager;
-    private readonly Dictionary<string, SessionControl> _sessionTabManagers = new();
+    private readonly Dictionary<string, ContextControl> _contextControls = new();
     private readonly Timer _timer;
 
     public MainForm()
@@ -15,19 +15,19 @@ public partial class MainForm : Form
         Text = "EtLast Diagnostics";
 
         _stateManager = new DiagnosticsStateManager("http://+:8642/");
-        _stateManager.OnDiagSessionCreated += SessionCreated;
+        _stateManager.OnDiagContextCreated += ContextCreated;
 
-        _sessionTabs = new TabControl()
+        ContextTabs = new TabControl()
         {
             Dock = DockStyle.Fill,
             Parent = this,
             DrawMode = TabDrawMode.OwnerDrawFixed,
             SizeMode = TabSizeMode.Fixed,
-            ItemSize = new Size(96, 24),
+            ItemSize = new Size(160, 24),
         };
 
-        _sessionTabs.DrawItem += DrawSessionTabHeader;
-        _sessionTabs.MouseDown += SessionTabs_MouseDown;
+        ContextTabs.DrawItem += DrawContextTabHeader;
+        ContextTabs.MouseDown += ContextTabs_MouseDown;
 
         _timer = new Timer()
         {
@@ -40,31 +40,31 @@ public partial class MainForm : Form
         _timer.Start();
     }
 
-    private static Rectangle GetSessionTabCloseButtonRectangle(Rectangle tabRectable)
+    private static Rectangle GetCloseButtonRectangle(Rectangle tabRectable)
     {
         const int height = 12;
         return new Rectangle(tabRectable.Right - 10 - height, tabRectable.Top + ((tabRectable.Height - height) / 2), height, height);
     }
 
-    private void SessionTabs_MouseDown(object sender, MouseEventArgs e)
+    private void ContextTabs_MouseDown(object sender, MouseEventArgs e)
     {
         var control = sender as TabControl;
         for (var i = 0; i < control.TabPages.Count; i++)
         {
-            var rect = GetSessionTabCloseButtonRectangle(control.GetTabRect(i));
+            var rect = GetCloseButtonRectangle(control.GetTabRect(i));
             if (rect.Contains(e.Location))
             {
-                if (MessageBox.Show("...you want to close this session?", "Are you sure...", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                if (MessageBox.Show("...you want to close this stream?", "Are you sure...", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     var page = control.TabPages[i];
-                    var sessionId = page.Name;
+                    var contextId = page.Name;
 
                     control.TabPages.Remove(page);
 
-                    if (_sessionTabManagers.TryGetValue(sessionId, out var sessionManager))
+                    if (_contextControls.TryGetValue(contextId, out var contextControl))
                     {
-                        _sessionTabManagers.Remove(sessionId);
-                        sessionManager.Close();
+                        _contextControls.Remove(contextId);
+                        contextControl.Close();
                     }
 
                     page.Dispose();
@@ -74,23 +74,19 @@ public partial class MainForm : Form
         }
     }
 
-    private readonly Font _sessionTabCloseFont = new("courier new", 10);
-
-    private void DrawSessionTabHeader(object sender, DrawItemEventArgs e)
+    private void DrawContextTabHeader(object sender, DrawItemEventArgs e)
     {
         var control = sender as TabControl;
         var textRect = e.Bounds;
-        var xRect = GetSessionTabCloseButtonRectangle(textRect);
+        var xRect = GetCloseButtonRectangle(textRect);
 
-        var xFont = _sessionTabCloseFont;
+        var xFont = control.Font;
         var xSize = e.Graphics.MeasureString("x", xFont);
-        //e.Graphics.FillEllipse(Brushes.Red, xRect);
         e.Graphics.DrawString("x", xFont, Brushes.Black, xRect.Left + ((xRect.Width - xSize.Width) / 2), xRect.Top + ((xRect.Height - xSize.Height) / 2));
 
         var textFont = e.Font;
         var textSize = e.Graphics.MeasureString(control.TabPages[e.Index].Text, textFont);
         e.Graphics.DrawString(control.TabPages[e.Index].Text, textFont, Brushes.Black, textRect.Left + 12, textRect.Top + ((textRect.Height - textSize.Height) / 2));
-        e.DrawFocusRectangle();
     }
 
     private void UpdateTimerTick(object sender, EventArgs e)
@@ -100,18 +96,18 @@ public partial class MainForm : Form
         _timer.Start();
     }
 
-    private void SessionCreated(DiagSession session)
+    private void ContextCreated(DiagContext context)
     {
-        var sessionContainer = new TabPage(session.SessionId)
+        var container = new TabPage(context.Id)
         {
             BorderStyle = BorderStyle.None,
-            Name = session.SessionId,
+            Name = context.Id,
         };
 
-        var manager = new SessionControl(session, sessionContainer, _stateManager);
-        _sessionTabManagers.Add(session.SessionId, manager);
-        _sessionTabs.TabPages.Add(sessionContainer);
-        _sessionTabs.SelectedTab = sessionContainer;
+        var control = new ContextControl(context, container);
+        _contextControls.Add(context.Id, control);
+        ContextTabs.TabPages.Add(container);
+        ContextTabs.SelectedTab = container;
     }
 
     protected override void OnLoad(EventArgs e)

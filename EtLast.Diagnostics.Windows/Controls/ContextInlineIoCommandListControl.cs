@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Windows;
 
-internal class ContextIoCommandListControl
+internal class ContextInlineIoCommandListControl
 {
     public Control Container { get; }
     public DiagContext Context { get; }
@@ -29,7 +29,7 @@ internal class ContextIoCommandListControl
         }
     }
 
-    public ContextIoCommandListControl(Control container, DiagContext context)
+    public ContextInlineIoCommandListControl(Control container, DiagContext context)
     {
         Container = container;
         Context = context;
@@ -86,11 +86,6 @@ internal class ContextIoCommandListControl
             Text = "Timestamp",
             AspectGetter = x => (x as IoCommandModel)?.Timestamp,
             AspectToStringConverter = x => ((DateTime)x).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture),
-        });
-        _updater.ListView.Columns.Add(new OLVColumn()
-        {
-            Text = "Context",
-            AspectGetter = x => (x as IoCommandModel)?.Playbook.DiagContext.Name,
         });
         _updater.ListView.Columns.Add(new OLVColumn()
         {

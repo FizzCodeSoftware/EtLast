@@ -1,7 +1,7 @@
 ﻿using Serilog.Sinks.File;
 
 namespace FizzCode.EtLast.ConsoleHost;
-internal class EtlSessionSerilogAdapter : IEtlContextListener
+internal class EtlContextSerilogAdapter : IEtlContextListener
 {
     private readonly ILogger _logger;
     private readonly ILogger _opsLogger;
@@ -10,7 +10,7 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
     private readonly string _opsLogFolder;
     private readonly object _customFileLock = new();
 
-    public EtlSessionSerilogAdapter(EnvironmentSettings environmentSettings, string devLogFolder, string opsLogFolder)
+    public EtlContextSerilogAdapter(EnvironmentSettings environmentSettings, string devLogFolder, string opsLogFolder)
     {
         _logger = CreateLogger(environmentSettings, devLogFolder);
         _opsLogger = CreateOpsLogger(environmentSettings, opsLogFolder);
@@ -18,6 +18,10 @@ internal class EtlSessionSerilogAdapter : IEtlContextListener
 
         _devLogFolder = devLogFolder;
         _opsLogFolder = opsLogFolder;
+    }
+
+    public void Start()
+    {
     }
 
     private ILogger CreateLogger(EnvironmentSettings settings, string folder)

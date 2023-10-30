@@ -14,7 +14,7 @@ internal class ContextProcessInvocationListControl
     private Color IsSelectedBackColor { get; } = Color.FromArgb(100, 100, 200);
     private Color IsOutputBackColor { get; } = Color.FromArgb(180, 255, 180);
     private Color IsInputBackColor { get; } = Color.FromArgb(255, 230, 185);
-    private Color IsSameTopicBackColor { get; } = Color.FromArgb(220, 220, 255);
+    private Color TopicHighlightBackColor { get; } = Color.FromArgb(220, 220, 255);
 
     private readonly List<ListViewItem> _allItems = new();
     private readonly Dictionary<int, ListViewItem> _itemsByProcessInvocationUid = new();
@@ -223,7 +223,7 @@ internal class ContextProcessInvocationListControl
                 var itemIsSelected = itemProcess == selectedProcess;
                 var itemIsInput = itemProcess.InputRowCountByPreviousProcess.ContainsKey(selectedProcess.InvocationUid);
                 var itemIsOutput = selectedProcess.InputRowCountByPreviousProcess.ContainsKey(itemProcess.InvocationUid);
-                var isSameTopic = selectedProcess.Topic == itemProcess.Topic/* || itemProcess.HasParentWithTopic(selectedProcess.Topic)*/;
+                var topicHighlight = itemProcess.Topic != null && selectedProcess.Topic == itemProcess.Topic/* || itemProcess.HasParentWithTopic(selectedProcess.Topic)*/;
 
                 for (var i = 0; i < item.SubItems.Count; i++)
                 {
@@ -244,8 +244,8 @@ internal class ContextProcessInvocationListControl
 
                 if (!itemIsSelected)
                 {
-                    item.SubItems[2].BackColor = isSameTopic
-                        ? IsSameTopicBackColor
+                    item.SubItems[2].BackColor = topicHighlight
+                        ? TopicHighlightBackColor
                         : item.BackColor;
                 }
 
@@ -264,9 +264,9 @@ internal class ContextProcessInvocationListControl
                     item.SubItems[3].BackColor = item.SubItems[11].BackColor = IsOutputBackColor;
                     item.SubItems[6].BackColor = item.BackColor;
                 }
-                else if (isSameTopic)
+                else if (topicHighlight)
                 {
-                    item.SubItems[3].BackColor = IsSameTopicBackColor;
+                    item.SubItems[3].BackColor = TopicHighlightBackColor;
                     item.SubItems[6].BackColor = item.SubItems[11].BackColor = item.BackColor;
                 }
                 else

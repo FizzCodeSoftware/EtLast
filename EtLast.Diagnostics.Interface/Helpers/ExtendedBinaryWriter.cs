@@ -7,11 +7,6 @@ public class ExtendedBinaryWriter : BinaryWriter
     {
     }
 
-    public new void Write7BitEncodedInt(int i)
-    {
-        base.Write7BitEncodedInt(i);
-    }
-
     public void WriteNullable(string value)
     {
         Write(value != null);

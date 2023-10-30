@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast.Diagnostics;
+﻿using System.Web;
+
+namespace FizzCode.EtLast.Diagnostics;
 
 public class HttpSender : IDisposable, IEtlContextListener
 {
@@ -12,9 +14,9 @@ public class HttpSender : IDisposable, IEtlContextListener
     /// </summary>
     public string Url { get; set; }
 
-    private readonly Uri _uri;
+    private Uri _uri;
     private HttpClient _client;
-    private readonly Thread _workerThread;
+    private Thread _workerThread;
     private readonly string _contextId;
     private readonly string _contextName;
     private ExtendedBinaryWriter _currentWriter;
@@ -30,17 +32,21 @@ public class HttpSender : IDisposable, IEtlContextListener
 
     public HttpSender(IEtlContext context)
     {
-        if (Url == null)
-            return;
-
         _contextId = context.Id;
-        _contextName = context.Uid;
-        _uri = new Uri(Url);
+        _contextName = context.Name;
 
         _client = new HttpClient
         {
             Timeout = TimeSpan.FromMilliseconds(10000),
         };
+    }
+
+    public void Start()
+    {
+        if (Url == null)
+            return;
+
+        _uri = new Uri(Url);
 
         SendWriter(null);
 
@@ -101,7 +107,7 @@ public class HttpSender : IDisposable, IEtlContextListener
     {
         writer?.Flush();
 
-        var fullUri = new Uri(_uri, "diag?sid=" + _contextId + (_contextName != null ? "&ctx=" + _contextName : ""));
+        var fullUri = new Uri(_uri, "diag?sid=" + _contextId + (_contextName != null ? "&ctx=" + HttpUtility.UrlEncode(_contextName) : ""));
 
         var binaryContent = writer != null
             ? (writer.BaseStream as MemoryStream).ToArray()

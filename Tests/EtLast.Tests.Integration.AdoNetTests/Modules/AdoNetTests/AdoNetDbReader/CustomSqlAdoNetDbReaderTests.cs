@@ -20,7 +20,7 @@ public class CustomSqlAdoNetDbReaderTests : AbstractEtlTask
                 {
                     Name = "ReturnCustomSqlResult",
                     ConnectionString = ConnectionString,
-                    MainTableName = "none",
+                    MainTableName = null,
                     Sql = "SELECT 1 as Id UNION SELECT 2 as Id"
                 })
                 .Build().TakeRowsAndReleaseOwnership(this).ToList();

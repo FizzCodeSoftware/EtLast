@@ -7,14 +7,14 @@ public sealed class WriteToDynamicDelimitedMutator : AbstractMutator, IRowSink
     /// <summary>
     /// Default value is <see cref="Encoding.UTF8"/>
     /// </summary>
-    public required Encoding Encoding { get; init; } = Encoding.UTF8;
+    public Encoding Encoding { get; init; } = Encoding.UTF8;
 
     public IValueFormatter ValueFormatter { get; init; } = DelimitedValueFormatter.Default;
 
     /// <summary>
     /// Default value is <see cref="CultureInfo.InvariantCulture"/>;
     /// </summary>
-    public required IFormatProvider FormatProvider { get; init; } = CultureInfo.InvariantCulture;
+    public IFormatProvider FormatProvider { get; init; } = CultureInfo.InvariantCulture;
 
     /// <summary>
     /// Default value is \r\n
@@ -34,12 +34,12 @@ public sealed class WriteToDynamicDelimitedMutator : AbstractMutator, IRowSink
     /// <summary>
     /// Default value is ';'.
     /// </summary>
-    public required char Delimiter { get; init; } = ';';
+    public char Delimiter { get; init; } = ';';
 
     /// <summary>
     /// Default value is true
     /// </summary>
-    public required bool WriteHeader { get; init; } = true;
+    public bool WriteHeader { get; init; } = true;
 
     /// <summary>
     /// Default value is 10000

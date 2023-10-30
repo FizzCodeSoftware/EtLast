@@ -6,15 +6,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.EtLast" Version="6.0.45.7108" />
-    <PackageReference Include="FizzCode.EtLast.AdoNet" Version="6.0.45.7108" />
-    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="6.0.45.7108" />
-    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="6.0.45.7108" />
+    <PackageReference Include="FizzCode.EtLast" Version="6.0.50.7113" />
+    <PackageReference Include="FizzCode.EtLast.AdoNet" Version="6.0.50.7113" />
+    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="6.0.50.7113" />
+    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="6.0.50.7113" />
     <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.6.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.2" />
   </ItemGroup>
 
   <ItemGroup>

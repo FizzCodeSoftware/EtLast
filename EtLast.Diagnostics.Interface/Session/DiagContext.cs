@@ -3,8 +3,11 @@
 [DebuggerDisplay("{Name}")]
 public class DiagContext
 {
+    public string Id { get; }
     public string Name { get; }
-    public DiagSession Session { get; }
+
+    public string DataFolder { get; }
+
     public Playbook WholePlaybook { get; }
     public DateTime StartedOn { get; }
     public DateTime? EndedOn { get; protected set; }
@@ -12,9 +15,9 @@ public class DiagContext
     public ContextIndex Index { get; }
     private readonly List<AbstractEvent> _stagedEvents = new();
 
-    public DiagContext(DiagSession session, string name, DateTime startedOn, string dataFolder)
+    public DiagContext(string id, string name, DateTime startedOn, string dataFolder)
     {
-        Session = session;
+        Id = id;
         Name = name;
         WholePlaybook = new Playbook(this);
         StartedOn = startedOn;

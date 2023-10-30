@@ -85,7 +85,7 @@ public class EventParser
         var evt = new IoCommandEndEvent
         {
             Uid = reader.Read7BitEncodedInt(),
-            AffectedDataCount = reader.ReadNullableInt32(),
+            AffectedDataCount = reader.ReadNullableInt64(),
             ErrorMessage = reader.ReadNullableString(),
         };
 

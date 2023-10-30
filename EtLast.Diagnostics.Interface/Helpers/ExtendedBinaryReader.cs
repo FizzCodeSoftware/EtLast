@@ -7,11 +7,6 @@ public class ExtendedBinaryReader : BinaryReader
     {
     }
 
-    public new int Read7BitEncodedInt()
-    {
-        return base.Read7BitEncodedInt();
-    }
-
     public string ReadNullableString()
     {
         if (!ReadBoolean())

@@ -12,7 +12,7 @@ public interface IEtlContext
     public ScopeAction[] GetScopeActions();
 
     public string Id { get; }
-    public string Uid { get; }
+    public string Name { get; }
     public DateTimeOffset CreatedOnUtc { get; }
     public DateTimeOffset CreatedOnLocal { get; }
 
@@ -27,7 +27,7 @@ public interface IEtlContext
 
     public List<IEtlContextListener> Listeners { get; }
 
-    public IRow CreateRow(IProcess process);
+    public IRow CreateRow(IProcess process, bool keepNulls = false);
     public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues, bool keepNulls = false);
     public IRow CreateRow(IProcess process, IReadOnlySlimRow source);
 

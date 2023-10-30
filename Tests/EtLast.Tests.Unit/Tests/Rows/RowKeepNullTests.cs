@@ -89,4 +89,37 @@ public class RowKeepNullTests
         Assert.AreEqual(3, row.ColumnCount);
         Assert.AreEqual(3, row.Values.Count());
     }
+
+    [TestMethod]
+    public void Merge1()
+    {
+        var context = TestExecuter.GetContext();
+        context.SetRowType<Row>();
+
+        var initialValues = new Dictionary<string, object>()
+        {
+            ["id"] = 12,
+            ["name"] = "A",
+        };
+
+        var row = context.CreateRow(null, initialValues, keepNulls: true);
+
+        Assert.AreEqual(2, row.ColumnCount);
+        Assert.AreEqual(2, row.Values.Count());
+        Assert.AreEqual(12, row.GetAs<int>("id"));
+        Assert.AreEqual("A", row.GetAs<string>("name"));
+
+        var updatedValues = new Dictionary<string, object>()
+        {
+            ["id"] = 6,
+            ["name"] = null,
+        };
+
+        row.MergeWith(updatedValues);
+
+        Assert.AreEqual(2, row.ColumnCount);
+        Assert.AreEqual(2, row.Values.Count());
+        Assert.AreEqual(6, row.GetAs<int>("id"));
+        Assert.AreEqual(null, row.GetAs<string>("name"));
+    }
 }

@@ -139,7 +139,9 @@ internal class ControlUpdater<TItem>
         foreach (OLVColumn col in listView.Columns)
         {
             col.MinimumWidth = 0;
-            col.AutoResize(ContainsRows ? ColumnHeaderAutoResizeStyle.HeaderSize : ColumnHeaderAutoResizeStyle.ColumnContent);
+            //col.AutoResize(ContainsRows ? ColumnHeaderAutoResizeStyle.HeaderSize : ColumnHeaderAutoResizeStyle.ColumnContent);
+            col.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
+            col.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
         }
 
         foreach (OLVColumn col in listView.Columns)
@@ -153,6 +155,8 @@ internal class ControlUpdater<TItem>
         foreach (OLVColumn col in listView.Columns)
         {
             col.MinimumWidth = 0;
+            //col.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
+            col.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
             col.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
         }
 

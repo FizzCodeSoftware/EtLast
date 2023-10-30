@@ -3,8 +3,8 @@
 public class ContextIndex
 {
     public string DataFolder { get; }
-    private int _lastMainFileIndex;
-    private long _lastMainFileSize;
+    private int _lastStreamIndex;
+    private long _lastStreamSize;
 
     private readonly Dictionary<int, FileStream> _openSinkWriterStreams = new();
     private readonly object _openSinkWriterStreamsLock = new();
@@ -29,39 +29,39 @@ public class ContextIndex
 
     private string GetMainFileName(int index)
     {
-        return Path.Combine(DataFolder, "main-" + index.ToString("D", CultureInfo.InvariantCulture)) + ".bin";
+        return Path.Combine(DataFolder, "stream-part-" + index.ToString("D", CultureInfo.InvariantCulture)) + ".bin";
     }
 
     private string GetRowEventFileName(int index)
     {
-        return Path.Combine(DataFolder, "row-" + index.ToString("D", CultureInfo.InvariantCulture)) + ".bin";
+        return Path.Combine(DataFolder, "row-part-" + index.ToString("D", CultureInfo.InvariantCulture)) + ".bin";
     }
 
     private string GetSinkFileName(int sinkUid)
     {
-        return Path.Combine(DataFolder, "sink-" + sinkUid.ToString("D", CultureInfo.InvariantCulture) + ".bin");
+        return Path.Combine(DataFolder, "sink-uid-" + sinkUid.ToString("D", CultureInfo.InvariantCulture) + ".bin");
     }
 
     private string GetProcessRowMapFileName(int processInvocationUid)
     {
-        return Path.Combine(DataFolder, "process-row-map-" + processInvocationUid.ToString("D", CultureInfo.InvariantCulture) + ".bin");
+        return Path.Combine(DataFolder, "process-rows-uid-" + processInvocationUid.ToString("D", CultureInfo.InvariantCulture) + ".bin");
     }
 
     public List<AbstractEvent> Append(MemoryStream input)
     {
         var length = input.Length;
 
-        if (_lastMainFileSize + length > 1024 * 1024 * 25)
+        if (_lastStreamSize + length > 1024 * 1024 * 100)
         {
-            _lastMainFileIndex++;
-            _lastMainFileSize = 0;
+            _lastStreamIndex++;
+            _lastStreamSize = 0;
         }
 
-        var mainFileName = GetMainFileName(_lastMainFileIndex);
+        var mainFileName = GetMainFileName(_lastStreamIndex);
         using (var fw = new FileStream(mainFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
         {
             input.CopyTo(fw);
-            _lastMainFileSize += length;
+            _lastStreamSize += length;
         }
 
         input.Position = 0;
@@ -158,7 +158,7 @@ public class ContextIndex
 
                     lock (_rowEventStreamLock)
                     {
-                        if (_lastRowEventFileSize + eventBytes.Length > 1024 * 1024 * 25)
+                        if (_lastRowEventFileSize + eventBytes.Length > 1024 * 1024 * 100)
                         {
                             _lastRowEventFileIndex++;
                             _lastRowEventFileSize = 0;
@@ -248,7 +248,7 @@ public class ContextIndex
     public void EnumerateThroughEvents(Func<AbstractEvent, bool> callback, params DiagnosticsEventKind[] eventKindFilter)
     {
         var fileNames = Enumerable
-            .Range(0, _lastMainFileIndex + 1)
+            .Range(0, _lastStreamIndex + 1)
             .Select(GetMainFileName);
 
         var eventKinds = eventKindFilter.ToHashSet();
@@ -364,7 +364,6 @@ public class ContextIndex
             _rowEventStream?.Flush();
         }
 
-        var eventsRead = 0;
         foreach (var fileName in fileNames)
         {
             using (var fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -383,8 +382,6 @@ public class ContextIndex
                         if (memoryCache.Position + eventDataSize > length)
                             break;
 
-                        eventsRead++;
-
                         if (eventKinds.Contains(eventKind))
                         {
                             var timestamp = reader.ReadInt64();
@@ -399,10 +396,7 @@ public class ContextIndex
                             evt.Timestamp = timestamp;
                             var canContinue = callback.Invoke(evt);
                             if (!canContinue)
-                            {
-                                Debug.WriteLine("row events read: " + eventsRead.ToString("D", CultureInfo.InvariantCulture));
                                 return;
-                            }
                         }
                         else
                         {
@@ -412,7 +406,5 @@ public class ContextIndex
                 }
             }
         }
-
-        Debug.WriteLine("row events read: " + eventsRead.ToString("D", CultureInfo.InvariantCulture));
     }
 }

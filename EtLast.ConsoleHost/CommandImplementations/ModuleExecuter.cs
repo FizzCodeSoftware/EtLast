@@ -14,6 +14,7 @@ internal static class ModuleExecuter
         var context = new EtlContext(arguments)
         {
             TransactionScopeTimeout = environmentSettings.TransactionScopeTimeout,
+            Name = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars())))),
         };
 
         try
@@ -22,7 +23,9 @@ internal static class ModuleExecuter
             {
                 foreach (var listenerCreator in host.EtlContextListeners)
                 {
-                    context.Listeners.Add(listenerCreator.Invoke(context));
+                    var listener = listenerCreator.Invoke(context);
+                    listener.Start();
+                    context.Listeners.Add(listener);
                 }
             }
         }
@@ -40,7 +43,7 @@ internal static class ModuleExecuter
                 var moduleFolderName = string.Join("_", module.Name.Split(Path.GetInvalidFileNameChars()));
                 var tasksFolderName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
 
-                var serilogAdapter = new EtlSessionSerilogAdapter(environmentSettings, Path.Combine(host.DevLogFolder, moduleFolderName, tasksFolderName), Path.Combine(host.OpsLogFolder, moduleFolderName, tasksFolderName));
+                var serilogAdapter = new EtlContextSerilogAdapter(environmentSettings, Path.Combine(host.DevLogFolder, moduleFolderName, tasksFolderName), Path.Combine(host.OpsLogFolder, moduleFolderName, tasksFolderName));
                 context.Listeners.Add(serilogAdapter);
             }
         }
@@ -50,14 +53,14 @@ internal static class ModuleExecuter
             context.Log(LogSeverity.Warning, null, "Can't find a startup class implementing " + nameof(IStartup) + ".");
         }
 
-        context.Log(LogSeverity.Information, null, "context {ContextUId} started", context.Uid);
+        context.Log(LogSeverity.Information, null, "context {ContextName} started with ID: {ContextId}", context.Name, context.Id);
 
         if (!string.IsNullOrEmpty(environmentSettings.SeqSettings.Url))
         {
             context.Log(LogSeverity.Debug, null, "all context logs will be sent to SEQ listening on {SeqUrl}", environmentSettings.SeqSettings.Url);
         }
 
-        var sessionStartedOn = Stopwatch.StartNew();
+        var startedOn = Stopwatch.StartNew();
 
         var taskResults = new List<TaskExectionResult>();
 
