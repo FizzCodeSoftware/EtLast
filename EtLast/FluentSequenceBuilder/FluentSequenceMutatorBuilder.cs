@@ -35,14 +35,17 @@ internal sealed class FluentSequenceMutatorBuilder : IFluentSequenceMutatorBuild
         return this;
     }
 
-    public IFluentSequenceMutatorBuilder If(Func<bool> condition, Action<IFluentSequenceMutatorBuilder> builder)
+    public IFluentSequenceMutatorBuilder IfTrue(bool flag, Action<IFluentSequenceMutatorBuilder> builder)
     {
-        builder.Invoke(new FluentSequenceMutatorBuilder()
+        if (flag)
         {
-            ProcessBuilder = ProcessBuilder,
-            AutomaticallySetRowFilter = row => condition.Invoke(),
-            AutomaticallySetRowTagFilter = null,
-        });
+            builder.Invoke(new FluentSequenceMutatorBuilder()
+            {
+                ProcessBuilder = ProcessBuilder,
+                AutomaticallySetRowFilter = null,
+                AutomaticallySetRowTagFilter = null,
+            });
+        }
 
         return this;
     }
