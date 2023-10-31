@@ -35,6 +35,18 @@ internal sealed class FluentSequenceMutatorBuilder : IFluentSequenceMutatorBuild
         return this;
     }
 
+    public IFluentSequenceMutatorBuilder If(Func<bool> condition, Action<IFluentSequenceMutatorBuilder> builder)
+    {
+        builder.Invoke(new FluentSequenceMutatorBuilder()
+        {
+            ProcessBuilder = ProcessBuilder,
+            AutomaticallySetRowFilter = row => condition.Invoke(),
+            AutomaticallySetRowTagFilter = null,
+        });
+
+        return this;
+    }
+
     public IFluentSequenceMutatorBuilder If(RowTestDelegate rowTester, Action<IFluentSequenceMutatorBuilder> builder)
     {
         builder.Invoke(new FluentSequenceMutatorBuilder()
