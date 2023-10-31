@@ -9,11 +9,11 @@ public class IoCommandCounterCollection : IEtlContextListener
     {
     }
 
-    public void OnContextIoCommandStart(int uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra = null)
+    public void OnContextIoCommandStart(long uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra = null)
     {
     }
 
-    public void OnContextIoCommandEnd(IProcess process, int uid, IoCommandKind kind, long? affectedDataCount, Exception ex)
+    public void OnContextIoCommandEnd(IProcess process, long uid, IoCommandKind kind, long? affectedDataCount, Exception ex)
     {
         _counters.TryGetValue(kind, out var counter);
         if (counter == null)
@@ -62,11 +62,11 @@ public class IoCommandCounterCollection : IEtlContextListener
     {
     }
 
-    public void OnWriteToSink(IReadOnlyRow row, int sinkUid)
+    public void OnWriteToSink(IReadOnlyRow row, long sinkUid)
     {
     }
 
-    public void OnSinkStarted(int sinkUid, string location, string path)
+    public void OnSinkStarted(long sinkUid, string location, string path)
     {
     }
 

@@ -2,7 +2,7 @@
 
 public class WriteToSinkEvent : AbstractRowEvent
 {
-    public int ProcessInvocationUID { get; set; }
-    public int SinkUID { get; set; }
+    public long ProcessInvocationUID { get; set; }
+    public long SinkUID { get; set; }
     public KeyValuePair<string, object>[] Values { get; set; }
 }

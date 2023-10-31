@@ -3,7 +3,7 @@
 public interface IReadOnlyRow : IReadOnlySlimRow
 {
     IEtlContext Context { get; }
-    int Uid { get; }
+    long Uid { get; }
 
     IProcess CreatorProcess { get; }
     IProcess CurrentProcess { get; }

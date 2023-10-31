@@ -2,6 +2,6 @@
 
 public class RowValueChangedEvent : AbstractRowEvent
 {
-    public int? ProcessInvocationUID { get; set; }
+    public long? ProcessInvocationUID { get; set; }
     public KeyValuePair<string, object>[] Values { get; set; }
 }

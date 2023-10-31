@@ -8,7 +8,7 @@ public sealed class TrackedRow : IRow
 
     public IProcess CurrentProcess { get => _originalRow.CurrentProcess; set => _originalRow.CurrentProcess = value; }
     public IEtlContext Context => _originalRow.Context;
-    public int Uid => _originalRow.Uid;
+    public long Uid => _originalRow.Uid;
     public IProcess CreatorProcess => _originalRow.CreatorProcess;
     public object Tag { get => _originalRow.Tag; set => _originalRow.Tag = value; }
 
@@ -90,7 +90,7 @@ public sealed class TrackedRow : IRow
         _changes = null;
     }
 
-    public void Init(IEtlContext context, IProcess creatorProcess, int uid, IEnumerable<KeyValuePair<string, object>> initialValues)
+    public void Init(IEtlContext context, IProcess creatorProcess, long uid, IEnumerable<KeyValuePair<string, object>> initialValues)
     {
     }
 

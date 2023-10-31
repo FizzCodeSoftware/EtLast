@@ -35,7 +35,7 @@ public sealed class CustomSqlAdoNetDbReader : AbstractAdoNetDbReader
         return Sql;
     }
 
-    protected override int RegisterIoCommandStart(string transactionId, int timeout, string statement)
+    protected override long RegisterIoCommandStart(string transactionId, int timeout, string statement)
     {
         if (MainTableName != null)
         {

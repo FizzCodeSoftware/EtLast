@@ -57,8 +57,8 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
             }
         }
 
-        var iocUidHttpGet = 0;
-        var iocUidFileWrite = 0;
+        var iocUidHttpGet = 0L;
+        var iocUidFileWrite = 0L;
         try
         {
             using (Context.CancellationToken.Register(Client.CancelPendingRequests))

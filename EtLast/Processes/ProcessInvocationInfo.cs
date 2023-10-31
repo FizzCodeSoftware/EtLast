@@ -2,9 +2,9 @@
 
 public sealed class ProcessInvocationInfo
 {
-    public required int InvocationUid { get; init; }
-    public required int InstanceUid { get; init; }
-    public required int Number { get; init; }
+    public required long InvocationUid { get; init; }
+    public required long InstanceUid { get; init; }
+    public required long Number { get; init; }
     public required IProcess Caller { get; init; }
     public required Stopwatch InvocationStarted { get; init; }
 

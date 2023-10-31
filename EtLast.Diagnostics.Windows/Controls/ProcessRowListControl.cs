@@ -81,7 +81,7 @@ internal class ProcessRowListControl
         Updater.ListView.AllColumns.Add(new OLVColumn()
         {
             Text = "ID",
-            AspectGetter = x => (x as ProcessRowModel)?.RowUid,
+            AspectGetter = x => (x as ProcessRowModel)?.TrackedRow.Uid,
         });
 
         Updater.ListView.AllColumns.Add(new OLVColumn()
@@ -120,7 +120,6 @@ internal class ProcessRowListControl
             var item = new ProcessRowModel()
             {
                 TrackedRow = row,
-                RowUid = row.Uid,
                 NewValues = new object[newColumns.Count / 2],
                 NewTypes = new string[newColumns.Count / 2],
                 PreviousValues = row.PreviousValues != null ? new object[newColumns.Count / 2] : null,
@@ -282,7 +281,6 @@ internal class ProcessRowListControl
     public class ProcessRowModel
     {
         public TrackedEtlRow TrackedRow { get; set; }
-        public int RowUid { get; set; }
         public object[] NewValues { get; set; }
         public string[] NewTypes { get; set; }
 

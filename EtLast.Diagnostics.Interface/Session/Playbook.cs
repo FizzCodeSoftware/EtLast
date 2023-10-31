@@ -3,14 +3,14 @@
 public delegate void OnEventAddedDelegate(Playbook playbook, List<AbstractEvent> abstractEvents);
 public delegate void OnProcessInvokedDelegate(Playbook playbook, TrackedProcessInvocation process);
 public delegate void OnSinkStartedDelegate(Playbook playbook, TrackedSink sink);
-public delegate void OnWriteToSinkDelegate(Playbook playbook, TrackedSink sink, TrackedProcessInvocation process, int rowUid, KeyValuePair<string, object>[] values);
+public delegate void OnWriteToSinkDelegate(Playbook playbook, TrackedSink sink, TrackedProcessInvocation process, long rowUid, KeyValuePair<string, object>[] values);
 
 public class Playbook
 {
     public DiagContext DiagContext { get; }
 
-    public Dictionary<int, TrackedSink> SinkList { get; } = new Dictionary<int, TrackedSink>();
-    public Dictionary<int, TrackedProcessInvocation> ProcessList { get; } = new Dictionary<int, TrackedProcessInvocation>();
+    public Dictionary<long, TrackedSink> SinkList { get; } = new Dictionary<long, TrackedSink>();
+    public Dictionary<long, TrackedProcessInvocation> ProcessList { get; } = new Dictionary<long, TrackedProcessInvocation>();
 
     public OnProcessInvokedDelegate OnProcessInvoked { get; set; }
     public OnEventAddedDelegate OnEventsAdded { get; set; }

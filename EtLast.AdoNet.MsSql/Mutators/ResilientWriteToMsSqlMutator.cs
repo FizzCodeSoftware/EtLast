@@ -44,7 +44,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
     private long _rowsWritten;
     private Stopwatch _timer;
     private RowShadowReader _reader;
-    private int? _sinkUid;
+    private long? _sinkUid;
     private Stopwatch _lastWrite;
 
     public ResilientWriteToMsSqlMutator(IEtlContext context)

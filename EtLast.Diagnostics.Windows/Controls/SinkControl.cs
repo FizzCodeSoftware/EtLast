@@ -149,7 +149,7 @@ internal class SinkControl
 
     private class StoredRowModel
     {
-        public int RowUid { get; set; }
+        public long RowUid { get; set; }
         public string ProcessName { get; set; }
         public object[] Values { get; set; }
         public string[] Types { get; set; }

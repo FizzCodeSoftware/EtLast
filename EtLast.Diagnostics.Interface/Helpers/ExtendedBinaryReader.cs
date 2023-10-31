@@ -31,6 +31,22 @@ public class ExtendedBinaryReader : BinaryReader
         return ReadInt64();
     }
 
+    public int? ReadNullable7BitEncodedInt32()
+    {
+        if (!ReadBoolean())
+            return null;
+
+        return Read7BitEncodedInt();
+    }
+
+    public long? ReadNullable7BitEncodedInt64()
+    {
+        if (!ReadBoolean())
+            return null;
+
+        return Read7BitEncodedInt64();
+    }
+
     public object ReadObject()
     {
         var hasValue = ReadBoolean();

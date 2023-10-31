@@ -4,11 +4,11 @@ public class NamedStream
 {
     public string Name { get; }
     public Stream Stream { get; private set; }
-    public int IoCommandUid { get; }
+    public long IoCommandUid { get; }
     public IoCommandKind IoCommandKind { get; }
     public EventHandler OnDispose { get; set; }
 
-    public NamedStream(string name, Stream stream, int ioCommandUid, IoCommandKind ioCommandKind)
+    public NamedStream(string name, Stream stream, long ioCommandUid, IoCommandKind ioCommandKind)
     {
         Name = name;
         Stream = stream;

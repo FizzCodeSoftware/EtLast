@@ -3,7 +3,7 @@
 [DebuggerDisplay("{Uid}")]
 public class TrackedEtlRow
 {
-    public int Uid { get; set; }
+    public long Uid { get; set; }
     public TrackedProcessInvocation CreatorProcess { get; set; }
     public TrackedProcessInvocation PreviousProcess { get; set; }
     public TrackedProcessInvocation NextProcess { get; set; }

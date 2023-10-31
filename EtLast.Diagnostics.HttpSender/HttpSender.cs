@@ -20,7 +20,8 @@ public class HttpSender : IDisposable, IEtlContextListener
     private readonly string _contextId;
     private readonly string _contextName;
     private ExtendedBinaryWriter _currentWriter;
-    private ExtendedBinaryWriter _currentDictionaryWriter;
+    private readonly ExtendedBinaryWriter _eventWriter = new(new MemoryStream(), Encoding.UTF8);
+    private readonly ExtendedBinaryWriter _dictWriter = new(new MemoryStream(), Encoding.UTF8);
     private readonly object _currentWriterLock = new();
     private readonly Dictionary<string, int> _textDictionary = new();
     private bool _finished;
@@ -60,7 +61,6 @@ public class HttpSender : IDisposable, IEtlContextListener
 
         while (!_finished && (_communicationErrorCount <= MaxCommunicationErrorCount))
         {
-            ExtendedBinaryWriter dictionaryWriterToSend = null;
             ExtendedBinaryWriter writerToSend = null;
             lock (_currentWriterLock)
             {
@@ -68,30 +68,15 @@ public class HttpSender : IDisposable, IEtlContextListener
                     && (_currentWriter.BaseStream.Length >= 1024 * 1024
                         || (_currentWriter.BaseStream.Length > 0 && swLastSent.ElapsedMilliseconds > 500)))
                 {
-                    dictionaryWriterToSend = _currentDictionaryWriter;
                     writerToSend = _currentWriter;
-                    _currentDictionaryWriter = null;
                     _currentWriter = null;
                 }
             }
-
-            if (dictionaryWriterToSend != null)
-                SendWriter(dictionaryWriterToSend);
 
             if (writerToSend != null)
                 SendWriter(writerToSend);
 
             Thread.Sleep(10);
-        }
-
-        if (_currentDictionaryWriter != null)
-        {
-            if (_currentDictionaryWriter.BaseStream.Length > 0 && _communicationErrorCount <= MaxCommunicationErrorCount)
-            {
-                SendWriter(_currentDictionaryWriter);
-            }
-
-            _currentDictionaryWriter = null;
         }
 
         if (_currentWriter != null)
@@ -146,7 +131,20 @@ public class HttpSender : IDisposable, IEtlContextListener
                 key = _textDictionary.Count + 1;
                 _textDictionary.Add(text, key);
 
-                _currentDictionaryWriter ??= new ExtendedBinaryWriter(new MemoryStream(), Encoding.UTF8);
+                _dictWriter.Write7BitEncodedInt(key);
+                _dictWriter.WriteNullable(text);
+                _dictWriter.Flush();
+                var data = (_dictWriter.BaseStream as MemoryStream).ToArray();
+                _dictWriter.BaseStream.Position = 0;
+                _dictWriter.BaseStream.SetLength(0);
+
+                Debug.WriteLine(_currentWriter.BaseStream.Position + "\t" + DiagnosticsEventKind.TextDictionaryKeyAdded + "\t" + data.Length);
+
+                _currentWriter.Write((byte)DiagnosticsEventKind.TextDictionaryKeyAdded);
+                _currentWriter.Write7BitEncodedInt(data.Length);
+                _currentWriter.Write(data, 0, data.Length);
+
+                /*_currentDictionaryWriter ??= new ExtendedBinaryWriter(new MemoryStream(), Encoding.UTF8);
 
                 _currentDictionaryWriter.Write((byte)DiagnosticsEventKind.TextDictionaryKeyAdded);
                 var eventDataLengthPos = (int)_currentDictionaryWriter.BaseStream.Position;
@@ -159,7 +157,7 @@ public class HttpSender : IDisposable, IEtlContextListener
                 var endPos = (int)_currentDictionaryWriter.BaseStream.Position;
                 _currentDictionaryWriter.Seek(eventDataLengthPos, SeekOrigin.Begin);
                 _currentDictionaryWriter.Write(endPos - startPos);
-                _currentDictionaryWriter.Seek(endPos, SeekOrigin.Begin);
+                _currentDictionaryWriter.Seek(endPos, SeekOrigin.Begin);*/
             }
 
             return key;
@@ -178,18 +176,19 @@ public class HttpSender : IDisposable, IEtlContextListener
 
             _currentWriter ??= new ExtendedBinaryWriter(new MemoryStream(), Encoding.UTF8);
 
+            writerDelegate?.Invoke(_eventWriter);
+            _eventWriter.Flush();
+
+            var data = (_eventWriter.BaseStream as MemoryStream).ToArray();
+            _eventWriter.BaseStream.Position = 0;
+            _eventWriter.BaseStream.SetLength(0);
+
+            //Debug.WriteLine(_currentWriter.BaseStream.Position + "\t" + kind + "\t" + data.Length);
+
             _currentWriter.Write((byte)kind);
-            var eventDataLengthPos = (int)_currentWriter.BaseStream.Position;
-            _currentWriter.Write(0);
-
-            var startPos = (int)_currentWriter.BaseStream.Position;
+            _currentWriter.Write7BitEncodedInt(data.Length);
             _currentWriter.Write(DateTime.Now.Ticks);
-
-            writerDelegate?.Invoke(_currentWriter);
-            var endPos = (int)_currentWriter.BaseStream.Position;
-            _currentWriter.Seek(eventDataLengthPos, SeekOrigin.Begin);
-            _currentWriter.Write(endPos - startPos);
-            _currentWriter.Seek(endPos, SeekOrigin.Begin);
+            _currentWriter.Write(data, 0, data.Length);
         }
     }
 
@@ -206,9 +205,6 @@ public class HttpSender : IDisposable, IEtlContextListener
 
                 _currentWriter?.Dispose();
                 _currentWriter = null;
-
-                _currentDictionaryWriter?.Dispose();
-                _currentDictionaryWriter = null;
             }
 
             _isDisposed = true;
@@ -238,7 +234,7 @@ public class HttpSender : IDisposable, IEtlContextListener
                     writer.Write7BitEncodedInt(GetTextDictionaryKey(transactionId));
                     writer.Write(text);
                     writer.Write((byte)severity);
-                    writer.WriteNullable(process?.InvocationInfo?.InvocationUid);
+                    writer.WriteNullable7BitEncodedInt64(process?.InvocationInfo?.InvocationUid);
                     writer.Write7BitEncodedInt(0);
                 });
 
@@ -253,7 +249,7 @@ public class HttpSender : IDisposable, IEtlContextListener
                 writer.Write7BitEncodedInt(GetTextDictionaryKey(transactionId));
                 writer.Write(text);
                 writer.Write((byte)severity);
-                writer.WriteNullable(process?.InvocationInfo?.InvocationUid);
+                writer.WriteNullable7BitEncodedInt64(process?.InvocationInfo?.InvocationUid);
 
                 var argCount = 0;
                 for (var i = 0; i < tokens.Count && argCount < args.Length; i++)
@@ -315,8 +311,8 @@ public class HttpSender : IDisposable, IEtlContextListener
     {
         SendDiagnostics(DiagnosticsEventKind.RowCreated, writer =>
         {
-            writer.Write7BitEncodedInt(row.CurrentProcess.InvocationInfo.InvocationUid);
-            writer.Write7BitEncodedInt(row.Uid);
+            writer.Write7BitEncodedInt64(row.CurrentProcess.InvocationInfo.InvocationUid);
+            writer.Write7BitEncodedInt64(row.Uid);
             writer.Write7BitEncodedInt(row.ColumnCount);
             foreach (var kvp in row.Values)
             {
@@ -330,9 +326,9 @@ public class HttpSender : IDisposable, IEtlContextListener
     {
         SendDiagnostics(DiagnosticsEventKind.RowOwnerChanged, writer =>
         {
-            writer.Write7BitEncodedInt(row.Uid);
-            writer.Write7BitEncodedInt(previousProcess.InvocationInfo.InvocationUid);
-            writer.WriteNullable(currentProcess?.InvocationInfo?.InvocationUid);
+            writer.Write7BitEncodedInt64(row.Uid);
+            writer.Write7BitEncodedInt64(previousProcess.InvocationInfo.InvocationUid);
+            writer.WriteNullable7BitEncodedInt64(currentProcess?.InvocationInfo?.InvocationUid);
         });
     }
 
@@ -340,8 +336,8 @@ public class HttpSender : IDisposable, IEtlContextListener
     {
         SendDiagnostics(DiagnosticsEventKind.RowValueChanged, writer =>
         {
-            writer.Write7BitEncodedInt(row.Uid);
-            writer.WriteNullable(row.CurrentProcess?.InvocationInfo?.InvocationUid);
+            writer.Write7BitEncodedInt64(row.Uid);
+            writer.WriteNullable7BitEncodedInt64(row.CurrentProcess?.InvocationInfo?.InvocationUid);
 
             writer.Write7BitEncodedInt(values.Length);
             foreach (var kvp in values)
@@ -352,23 +348,23 @@ public class HttpSender : IDisposable, IEtlContextListener
         });
     }
 
-    public void OnSinkStarted(int sinkUid, string location, string path)
+    public void OnSinkStarted(long sinkUid, string location, string path)
     {
         SendDiagnostics(DiagnosticsEventKind.SinkStarted, writer =>
         {
-            writer.Write7BitEncodedInt(sinkUid);
+            writer.Write7BitEncodedInt64(sinkUid);
             writer.Write7BitEncodedInt(GetTextDictionaryKey(location));
             writer.Write7BitEncodedInt(GetTextDictionaryKey(path));
         });
     }
 
-    public void OnWriteToSink(IReadOnlyRow row, int sinkUid)
+    public void OnWriteToSink(IReadOnlyRow row, long sinkUid)
     {
         SendDiagnostics(DiagnosticsEventKind.WriteToSink, writer =>
         {
-            writer.Write7BitEncodedInt(row.Uid);
-            writer.Write7BitEncodedInt(row.CurrentProcess.InvocationInfo.InvocationUid);
-            writer.Write7BitEncodedInt(sinkUid);
+            writer.Write7BitEncodedInt64(row.Uid);
+            writer.Write7BitEncodedInt64(row.CurrentProcess.InvocationInfo.InvocationUid);
+            writer.Write7BitEncodedInt64(sinkUid);
             writer.Write7BitEncodedInt(row.ColumnCount);
             foreach (var kvp in row.Values)
             {
@@ -382,14 +378,14 @@ public class HttpSender : IDisposable, IEtlContextListener
     {
         SendDiagnostics(DiagnosticsEventKind.ProcessInvocationStart, writer =>
         {
-            writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
-            writer.Write7BitEncodedInt(process.InvocationInfo.InstanceUid);
-            writer.Write7BitEncodedInt(process.InvocationInfo.Number);
+            writer.Write7BitEncodedInt64(process.InvocationInfo.InvocationUid);
+            writer.Write7BitEncodedInt64(process.InvocationInfo.InstanceUid);
+            writer.Write7BitEncodedInt64(process.InvocationInfo.Number);
             writer.Write(process.GetType().GetFriendlyTypeName());
             writer.WriteNullable(process.Kind);
             writer.Write(process.Name);
             writer.WriteNullable(process.GetTopic());
-            writer.WriteNullable(process.InvocationInfo.Caller?.InvocationInfo?.InvocationUid);
+            writer.WriteNullable7BitEncodedInt64(process.InvocationInfo.Caller?.InvocationInfo?.InvocationUid);
         });
     }
 
@@ -397,22 +393,22 @@ public class HttpSender : IDisposable, IEtlContextListener
     {
         SendDiagnostics(DiagnosticsEventKind.ProcessInvocationEnd, writer =>
         {
-            writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
-            writer.Write(process.InvocationInfo.InvocationStarted.ElapsedMilliseconds);
-            writer.WriteNullable(process.InvocationInfo.LastInvocationNetTimeMilliseconds);
+            writer.Write7BitEncodedInt64(process.InvocationInfo.InvocationUid);
+            writer.Write7BitEncodedInt64(process.InvocationInfo.InvocationStarted.ElapsedMilliseconds);
+            writer.WriteNullable7BitEncodedInt64(process.InvocationInfo.LastInvocationNetTimeMilliseconds);
         });
     }
 
-    public void OnContextIoCommandStart(int uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
+    public void OnContextIoCommandStart(long uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
     {
         SendDiagnostics(DiagnosticsEventKind.IoCommandStart, writer =>
         {
-            writer.Write7BitEncodedInt(uid);
-            writer.Write7BitEncodedInt(process.InvocationInfo.InvocationUid);
+            writer.Write7BitEncodedInt64(uid);
+            writer.Write7BitEncodedInt64(process.InvocationInfo.InvocationUid);
             writer.Write((byte)kind);
             writer.Write7BitEncodedInt(GetTextDictionaryKey(location));
             writer.Write7BitEncodedInt(GetTextDictionaryKey(path));
-            writer.WriteNullable(timeoutSeconds);
+            writer.WriteNullable7BitEncodedInt32(timeoutSeconds);
             writer.WriteNullable(command);
             writer.Write7BitEncodedInt(GetTextDictionaryKey(transactionId));
             var arguments = argumentListGetter?.Invoke()?.ToArray();
@@ -432,12 +428,12 @@ public class HttpSender : IDisposable, IEtlContextListener
         });
     }
 
-    public void OnContextIoCommandEnd(IProcess process, int uid, IoCommandKind kind, long? affectedDataCount, Exception ex)
+    public void OnContextIoCommandEnd(IProcess process, long uid, IoCommandKind kind, long? affectedDataCount, Exception ex)
     {
         SendDiagnostics(DiagnosticsEventKind.IoCommandEnd, writer =>
         {
-            writer.Write7BitEncodedInt(uid);
-            writer.WriteNullable(affectedDataCount);
+            writer.Write7BitEncodedInt64(uid);
+            writer.WriteNullable7BitEncodedInt64(affectedDataCount);
             writer.WriteNullable(ex?.FormatExceptionWithDetails());
         });
     }

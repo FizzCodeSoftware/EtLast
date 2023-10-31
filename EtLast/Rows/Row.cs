@@ -6,7 +6,7 @@ public class Row : IRow
     public IEtlContext Context { get; private set; }
     public IProcess CreatorProcess { get; private set; }
     public IProcess CurrentProcess { get; set; }
-    public int Uid { get; private set; }
+    public long Uid { get; private set; }
 
     public int ColumnCount => _values.Count;
 
@@ -159,7 +159,7 @@ public class Row : IRow
         return (formatter ?? ValueFormatter.Default).Format(value, formatProvider);
     }
 
-    public void Init(IEtlContext context, IProcess creatorProcess, int uid, IEnumerable<KeyValuePair<string, object>> initialValues)
+    public void Init(IEtlContext context, IProcess creatorProcess, long uid, IEnumerable<KeyValuePair<string, object>> initialValues)
     {
         Context = context;
         CreatorProcess = creatorProcess;

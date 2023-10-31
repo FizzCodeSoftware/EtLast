@@ -30,14 +30,14 @@ public class EventParser
     {
         return new ProcessInvocationStartEvent
         {
-            InvocationUID = reader.Read7BitEncodedInt(),
-            InstanceUID = reader.Read7BitEncodedInt(),
-            InvocationCounter = reader.Read7BitEncodedInt(),
+            InvocationUID = reader.Read7BitEncodedInt64(),
+            InstanceUID = reader.Read7BitEncodedInt64(),
+            InvocationCounter = reader.Read7BitEncodedInt64(),
             Type = reader.ReadString(),
             Kind = reader.ReadNullableString(),
             Name = reader.ReadString(),
             Topic = reader.ReadNullableString(),
-            CallerInvocationUID = reader.ReadNullableInt32()
+            CallerInvocationUID = reader.ReadNullable7BitEncodedInt64()
         };
     }
 
@@ -45,9 +45,9 @@ public class EventParser
     {
         return new ProcessInvocationEndEvent
         {
-            InvocationUID = reader.Read7BitEncodedInt(),
-            ElapsedMilliseconds = reader.ReadInt64(),
-            NetTimeMilliseconds = reader.ReadNullableInt64(),
+            InvocationUID = reader.Read7BitEncodedInt64(),
+            ElapsedMilliseconds = reader.Read7BitEncodedInt64(),
+            NetTimeMilliseconds = reader.ReadNullable7BitEncodedInt64(),
         };
     }
 
@@ -55,12 +55,12 @@ public class EventParser
     {
         var evt = new IoCommandStartEvent
         {
-            Uid = reader.Read7BitEncodedInt(),
-            ProcessInvocationUid = reader.Read7BitEncodedInt(),
+            Uid = reader.Read7BitEncodedInt64(),
+            ProcessInvocationUid = reader.Read7BitEncodedInt64(),
             Kind = (IoCommandKind)reader.ReadByte(),
             Location = GetTextById(reader.Read7BitEncodedInt()),
             Path = GetTextById(reader.Read7BitEncodedInt()),
-            TimeoutSeconds = reader.ReadNullableInt32(),
+            TimeoutSeconds = reader.ReadNullable7BitEncodedInt32(),
             Command = reader.ReadNullableString(),
             TransactionId = GetTextById(reader.Read7BitEncodedInt()),
         };
@@ -84,8 +84,8 @@ public class EventParser
     {
         var evt = new IoCommandEndEvent
         {
-            Uid = reader.Read7BitEncodedInt(),
-            AffectedDataCount = reader.ReadNullableInt64(),
+            Uid = reader.Read7BitEncodedInt64(),
+            AffectedDataCount = reader.ReadNullable7BitEncodedInt64(),
             ErrorMessage = reader.ReadNullableString(),
         };
 
@@ -96,8 +96,8 @@ public class EventParser
     {
         var evt = new RowCreatedEvent
         {
-            ProcessInvocationUid = reader.Read7BitEncodedInt(),
-            RowUid = reader.Read7BitEncodedInt()
+            ProcessInvocationUid = reader.Read7BitEncodedInt64(),
+            RowUid = reader.Read7BitEncodedInt64()
         };
 
         var columnCount = reader.Read7BitEncodedInt();
@@ -119,9 +119,9 @@ public class EventParser
     {
         return new RowOwnerChangedEvent
         {
-            RowUid = reader.Read7BitEncodedInt(),
-            PreviousProcessInvocationUid = reader.Read7BitEncodedInt(),
-            NewProcessInvocationUid = reader.ReadNullableInt32()
+            RowUid = reader.Read7BitEncodedInt64(),
+            PreviousProcessInvocationUid = reader.Read7BitEncodedInt64(),
+            NewProcessInvocationUid = reader.ReadNullable7BitEncodedInt64()
         };
     }
 
@@ -129,8 +129,8 @@ public class EventParser
     {
         var evt = new RowValueChangedEvent
         {
-            RowUid = reader.Read7BitEncodedInt(),
-            ProcessInvocationUID = reader.ReadNullableInt32()
+            RowUid = reader.Read7BitEncodedInt64(),
+            ProcessInvocationUID = reader.ReadNullable7BitEncodedInt64()
         };
 
         var columnCount = reader.Read7BitEncodedInt();
@@ -152,7 +152,7 @@ public class EventParser
     {
         var evt = new SinkStartedEvent
         {
-            UID = reader.Read7BitEncodedInt(),
+            UID = reader.Read7BitEncodedInt64(),
             Location = GetTextById(reader.Read7BitEncodedInt()),
             Path = GetTextById(reader.Read7BitEncodedInt()),
         };
@@ -164,9 +164,9 @@ public class EventParser
     {
         var evt = new WriteToSinkEvent
         {
-            RowUid = reader.Read7BitEncodedInt(),
-            ProcessInvocationUID = reader.Read7BitEncodedInt(),
-            SinkUID = reader.Read7BitEncodedInt()
+            RowUid = reader.Read7BitEncodedInt64(),
+            ProcessInvocationUID = reader.Read7BitEncodedInt64(),
+            SinkUID = reader.Read7BitEncodedInt64()
         };
 
         var columnCount = reader.Read7BitEncodedInt();
@@ -191,7 +191,7 @@ public class EventParser
             TransactionId = GetTextById(reader.Read7BitEncodedInt()),
             Text = reader.ReadString(),
             Severity = (LogSeverity)reader.ReadByte(),
-            ProcessInvocationUID = reader.ReadNullableInt32()
+            ProcessInvocationUID = reader.ReadNullable7BitEncodedInt64()
         };
 
         var argCount = reader.Read7BitEncodedInt();

@@ -17,7 +17,7 @@ internal class ContextProcessInvocationListControl
     private Color TopicHighlightBackColor { get; } = Color.FromArgb(220, 220, 255);
 
     private readonly List<ListViewItem> _allItems = new();
-    private readonly Dictionary<int, ListViewItem> _itemsByProcessInvocationUid = new();
+    private readonly Dictionary<long, ListViewItem> _itemsByProcessInvocationUid = new();
 
     public ContextProcessInvocationListControl(Control container, DiagContext context)
     {
@@ -77,10 +77,10 @@ internal class ContextProcessInvocationListControl
         {
             var relevantRowUids = Context.Index.GetProcessRowMap(process.InvocationUid);
 
-            var finishedRows = new HashSet<int>();
-            var currentProcesses = new Dictionary<int, TrackedProcessInvocation>();
+            var finishedRows = new HashSet<long>();
+            var currentProcesses = new Dictionary<long, TrackedProcessInvocation>();
 
-            var rows = new Dictionary<int, TrackedEtlRow>();
+            var rows = new Dictionary<long, TrackedEtlRow>();
             Context.Index.EnumerateThroughRowEvents(e =>
             {
                 if (relevantRowUids.Contains(e.RowUid) && !finishedRows.Contains(e.RowUid))

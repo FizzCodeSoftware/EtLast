@@ -8,12 +8,12 @@ public sealed class EtlContext : IEtlContext
     public ArgumentCollection Arguments { get; }
 
     /// <summary>
-    /// Returns a readable but not unique identifier of the context. Example: s220530-123059-99
+    /// Returns the identifier of the context, uniqueness is not guaranteed. Example: s220530-123059-993.
     /// </summary>
     public string Id { get; } = "s" + DateTime.Now.ToString("yyMMdd-HHmmss-fff", CultureInfo.InvariantCulture);
 
     /// <summary>
-    /// Returns the unique identifier of the context.
+    /// Returns the name of the context.
     /// </summary>
     public string Name { get; init; } = Guid.NewGuid().ToString("D");
 
@@ -38,12 +38,12 @@ public sealed class EtlContext : IEtlContext
     public CancellationToken CancellationToken { get; }
     private readonly List<IEtlService> _services = new();
 
-    private int _nextRowUid;
-    private int _nextProcessInstanceUid;
-    private int _nextProcessInvocationUid;
-    private int _nextSinkUid;
-    private int _nextIoCommandUid;
-    private readonly Dictionary<string, int> _sinks = new();
+    private long _nextRowUid;
+    private long _nextProcessInstanceUid;
+    private long _nextProcessInvocationUid;
+    private long _nextSinkUid;
+    private long _nextIoCommandUid;
+    private readonly Dictionary<string, long> _sinks = new();
 
     private readonly List<ScopeAction> _scopeActions = new();
 
@@ -97,98 +97,76 @@ public sealed class EtlContext : IEtlContext
     public void Log(string transactionId, LogSeverity severity, IProcess process, string text, params object[] args)
     {
         foreach (var listener in Listeners)
-        {
             listener.OnLog(severity, false, transactionId, process, text, args);
-        }
     }
 
     public void Log(LogSeverity severity, IProcess process, string text, params object[] args)
     {
         foreach (var listener in Listeners)
-        {
             listener.OnLog(severity, false, null, process, text, args);
-        }
     }
 
     public void LogOps(LogSeverity severity, IProcess process, string text, params object[] args)
     {
         foreach (var listener in Listeners)
-        {
             listener.OnLog(severity, true, null, process, text, args);
-        }
     }
 
     public void LogCustom(string fileName, IProcess process, string text, params object[] args)
     {
         foreach (var listener in Listeners)
-        {
             listener.OnCustomLog(false, fileName, process, text, args);
-        }
     }
 
     public void LogCustomOps(string fileName, IProcess process, string text, params object[] args)
     {
         foreach (var listener in Listeners)
-        {
             listener.OnCustomLog(true, fileName, process, text, args);
-        }
     }
 
-    public int RegisterIoCommandStart(IProcess process, IoCommandKind kind, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
+    public long RegisterIoCommandStart(IProcess process, IoCommandKind kind, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
     {
         var uid = Interlocked.Increment(ref _nextIoCommandUid);
         foreach (var listener in Listeners)
-        {
             listener.OnContextIoCommandStart(uid, kind, null, null, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageExtra);
-        }
 
         return uid;
     }
 
-    public int RegisterIoCommandStartWithLocation(IProcess process, IoCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
+    public long RegisterIoCommandStartWithLocation(IProcess process, IoCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
     {
         var uid = Interlocked.Increment(ref _nextIoCommandUid);
         foreach (var listener in Listeners)
-        {
             listener.OnContextIoCommandStart(uid, kind, location, null, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageExtra);
-        }
 
         return uid;
     }
 
-    public int RegisterIoCommandStartWithPath(IProcess process, IoCommandKind kind, string location, string path, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
+    public long RegisterIoCommandStartWithPath(IProcess process, IoCommandKind kind, string location, string path, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
     {
         var uid = Interlocked.Increment(ref _nextIoCommandUid);
         foreach (var listener in Listeners)
-        {
             listener.OnContextIoCommandStart(uid, kind, location, path, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageExtra);
-        }
 
         return uid;
     }
 
-    public void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, int uid, long? affectedDataCount)
+    public void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, long uid, long? affectedDataCount)
     {
         foreach (var listener in Listeners)
-        {
             listener.OnContextIoCommandEnd(process, uid, kind, affectedDataCount, null);
-        }
     }
 
-    public void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, int uid, long? affectedDataCount, Exception exception)
+    public void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, long uid, long? affectedDataCount, Exception exception)
     {
         foreach (var listener in Listeners)
-        {
             listener.OnContextIoCommandEnd(process, uid, kind, affectedDataCount, exception);
-        }
     }
 
-    public void RegisterWriteToSink(IReadOnlyRow row, int sinkUid)
+    public void RegisterWriteToSink(IReadOnlyRow row, long sinkUid)
     {
         foreach (var listener in Listeners)
-        {
             listener.OnWriteToSink(row, sinkUid);
-        }
     }
 
     public IRow CreateRow(IProcess process)
@@ -197,9 +175,7 @@ public sealed class EtlContext : IEtlContext
         row.Init(this, process, Interlocked.Increment(ref _nextRowUid), null);
 
         foreach (var listener in Listeners)
-        {
             listener.OnRowCreated(row);
-        }
 
         return row;
     }
@@ -210,9 +186,7 @@ public sealed class EtlContext : IEtlContext
         row.Init(this, process, Interlocked.Increment(ref _nextRowUid), initialValues);
 
         foreach (var listener in Listeners)
-        {
             listener.OnRowCreated(row);
-        }
 
         return row;
     }
@@ -224,9 +198,7 @@ public sealed class EtlContext : IEtlContext
         row.Tag = source.Tag;
 
         foreach (var listener in Listeners)
-        {
             listener.OnRowCreated(row);
-        }
 
         return row;
     }
@@ -245,9 +217,7 @@ public sealed class EtlContext : IEtlContext
         row.CurrentProcess = currentProcess;
 
         foreach (var listener in Listeners)
-        {
             listener.OnRowOwnerChanged(row, previousProcess, currentProcess);
-        }
     }
 
     public void RegisterProcessInvocationStart(IProcess process, IProcess caller)
@@ -255,16 +225,14 @@ public sealed class EtlContext : IEtlContext
         process.InvocationInfo = new ProcessInvocationInfo()
         {
             InstanceUid = process.InvocationInfo?.InstanceUid ?? Interlocked.Increment(ref _nextProcessInstanceUid),
-            Number = (process.InvocationInfo?.Number ?? 0) + 1,
+            Number = (process.InvocationInfo?.Number ?? 0) + 1L,
             InvocationUid = Interlocked.Increment(ref _nextProcessInvocationUid),
             InvocationStarted = Stopwatch.StartNew(),
             Caller = caller,
         };
 
         foreach (var listener in Listeners)
-        {
             listener.OnProcessInvocationStart(process);
-        }
     }
 
     public void RegisterProcessInvocationEnd(IProcess process)
@@ -275,9 +243,7 @@ public sealed class EtlContext : IEtlContext
         process.InvocationInfo.LastInvocationFinished = DateTimeOffset.Now;
 
         foreach (var listener in Listeners)
-        {
             listener.OnProcessInvocationEnd(process);
-        }
     }
 
     public void RegisterProcessInvocationEnd(IProcess process, long netElapsedMilliseconds)
@@ -289,12 +255,10 @@ public sealed class EtlContext : IEtlContext
         process.InvocationInfo.LastInvocationNetTimeMilliseconds = netElapsedMilliseconds;
 
         foreach (var listener in Listeners)
-        {
             listener.OnProcessInvocationEnd(process);
-        }
     }
 
-    public int GetSinkUid(string location, string path)
+    public long GetSinkUid(string location, string path)
     {
         var key = location + " / " + path;
         if (!_sinks.TryGetValue(key, out var sinkUid))
@@ -302,9 +266,7 @@ public sealed class EtlContext : IEtlContext
             sinkUid = Interlocked.Increment(ref _nextSinkUid);
             _sinks.Add(key, sinkUid);
             foreach (var listener in Listeners)
-            {
                 listener.OnSinkStarted(sinkUid, location, path);
-            }
         }
 
         return sinkUid;
@@ -316,9 +278,7 @@ public sealed class EtlContext : IEtlContext
         {
             listener.OnContextClosed();
             if (listener is IDisposable disp)
-            {
                 disp.Dispose();
-            }
         }
 
         Listeners.Clear();
@@ -327,9 +287,7 @@ public sealed class EtlContext : IEtlContext
     public void StopServices()
     {
         foreach (var service in _services)
-        {
             service.Stop();
-        }
 
         _services.Clear();
     }

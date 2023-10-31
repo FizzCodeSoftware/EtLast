@@ -32,7 +32,7 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
 
     private IDbCommand _command;
     private static readonly DbType[] _quotedParameterTypes = { DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength };
-    private int? _sinkUid;
+    private long? _sinkUid;
     private Stopwatch _lastWrite;
 
     public WriteToSqlMutator(IEtlContext context)

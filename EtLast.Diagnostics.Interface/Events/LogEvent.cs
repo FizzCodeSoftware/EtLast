@@ -2,7 +2,7 @@
 
 public class LogEvent : AbstractEvent
 {
-    public int? ProcessInvocationUID { get; set; }
+    public long? ProcessInvocationUID { get; set; }
     public string TransactionId { get; set; }
     public string Text { get; set; }
     public LogSeverity Severity { get; set; }

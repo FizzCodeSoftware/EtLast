@@ -2,5 +2,5 @@
 
 public abstract class AbstractRowEvent : AbstractEvent
 {
-    public int RowUid { get; set; }
+    public long RowUid { get; set; }
 }

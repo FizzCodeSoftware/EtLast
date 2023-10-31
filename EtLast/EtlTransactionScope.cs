@@ -34,7 +34,7 @@ public sealed class EtlTransactionScope : IDisposable
 
         var newId = Transaction.Current?.ToIdentifierString();
 
-        var iocUid = 0;
+        var iocUid = 0L;
         switch (kind)
         {
             case TransactionScopeKind.RequiresNew:

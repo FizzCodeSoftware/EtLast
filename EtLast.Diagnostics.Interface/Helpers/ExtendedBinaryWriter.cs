@@ -28,6 +28,20 @@ public class ExtendedBinaryWriter : BinaryWriter
             Write(value.Value);
     }
 
+    public void WriteNullable7BitEncodedInt32(int? value)
+    {
+        Write(value != null);
+        if (value != null)
+            Write7BitEncodedInt(value.Value);
+    }
+
+    public void WriteNullable7BitEncodedInt64(long? value)
+    {
+        Write(value != null);
+        if (value != null)
+            Write7BitEncodedInt64(value.Value);
+    }
+
     public void WriteObject(object value)
     {
         Write(value != null);

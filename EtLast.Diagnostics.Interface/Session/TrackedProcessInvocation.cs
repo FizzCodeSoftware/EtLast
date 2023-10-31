@@ -3,9 +3,9 @@
 [DebuggerDisplay("{Name}")]
 public class TrackedProcessInvocation
 {
-    public int InvocationUid { get; }
-    public int InstanceUID { get; }
-    public int InvocationCounter { get; }
+    public long InvocationUid { get; }
+    public long InstanceUID { get; }
+    public long InvocationCounter { get; }
 
     public TrackedProcessInvocation Invoker { get; }
     public List<TrackedProcessInvocation> Children { get; } = new List<TrackedProcessInvocation>();
@@ -51,23 +51,23 @@ public class TrackedProcessInvocation
 
     public string DisplayName { get; }
 
-    public int WrittenRowCount { get; private set; }
-    public int DroppedRowCount { get; private set; }
+    public long WrittenRowCount { get; private set; }
+    public long DroppedRowCount { get; private set; }
 
-    public int AliveRowCount { get; private set; }
-    public Dictionary<int, HashSet<int>> AliveRowsByPreviousProcess { get; } = new Dictionary<int, HashSet<int>>();
+    public long AliveRowCount { get; private set; }
+    public Dictionary<long, HashSet<long>> AliveRowsByPreviousProcess { get; } = new Dictionary<long, HashSet<long>>();
 
     public int PassedRowCount { get; private set; }
     public int CreatedRowCount { get; private set; }
 
-    public Dictionary<int, int> WrittenRowCountByPreviousProcess { get; } = new Dictionary<int, int>();
-    public Dictionary<int, int> DroppedRowCountByPreviousProcess { get; } = new Dictionary<int, int>();
-    public Dictionary<int, int> PassedRowCountByPreviousProcess { get; } = new Dictionary<int, int>();
+    public Dictionary<long, long> WrittenRowCountByPreviousProcess { get; } = new Dictionary<long, long>();
+    public Dictionary<long, long> DroppedRowCountByPreviousProcess { get; } = new Dictionary<long, long>();
+    public Dictionary<long, long> PassedRowCountByPreviousProcess { get; } = new Dictionary<long, long>();
 
-    public Dictionary<int, int> InputRowCountByPreviousProcess { get; } = new Dictionary<int, int>();
-    public int InputRowCount { get; private set; }
+    public Dictionary<long, long> InputRowCountByPreviousProcess { get; } = new Dictionary<long, long>();
+    public long InputRowCount { get; private set; }
 
-    public TrackedProcessInvocation(int invocationUID, int instanceUID, int invocationCounter, TrackedProcessInvocation invoker, string type, string kind, string name, string topic)
+    public TrackedProcessInvocation(long invocationUID, long instanceUID, long invocationCounter, TrackedProcessInvocation invoker, string type, string kind, string name, string topic)
     {
         InvocationUid = invocationUID;
         InstanceUID = instanceUID;
@@ -238,13 +238,13 @@ public class TrackedProcessInvocation
         };
     }
 
-    public void InputRow(int uid, TrackedProcessInvocation previousProcess)
+    public void InputRow(long uid, TrackedProcessInvocation previousProcess)
     {
         AliveRowCount++;
 
         if (!AliveRowsByPreviousProcess.TryGetValue(previousProcess.InvocationUid, out var list))
         {
-            list = new HashSet<int>();
+            list = new();
             AliveRowsByPreviousProcess.Add(previousProcess.InvocationUid, list);
         }
 
@@ -262,7 +262,7 @@ public class TrackedProcessInvocation
         CreatedRowCount++;
     }
 
-    public void DropRow(int uid)
+    public void DropRow(long uid)
     {
         foreach (var list in AliveRowsByPreviousProcess)
         {
@@ -279,7 +279,7 @@ public class TrackedProcessInvocation
         DroppedRowCount++;
     }
 
-    public void PassedRow(int uid)
+    public void PassedRow(long uid)
     {
         foreach (var list in AliveRowsByPreviousProcess)
         {
@@ -296,7 +296,7 @@ public class TrackedProcessInvocation
         PassedRowCount++;
     }
 
-    public void WriteRowToSink(int uid)
+    public void WriteRowToSink(long uid)
     {
         foreach (var list in AliveRowsByPreviousProcess)
         {

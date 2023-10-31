@@ -35,7 +35,7 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
     private DatabaseConnection _connection;
     private SqlBulkCopy _bulkCopy;
     private RowShadowReader _reader;
-    private int? _sinkUid;
+    private long? _sinkUid;
     private Stopwatch _lastWrite;
 
     public WriteToMsSqlMutator(IEtlContext context)

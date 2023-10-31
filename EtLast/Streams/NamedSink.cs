@@ -2,10 +2,10 @@
 
 public class NamedSink : NamedStream
 {
-    public int SinkUid { get; }
+    public long SinkUid { get; }
     public long RowsWritten { get; private set; }
 
-    public NamedSink(string name, Stream stream, int ioCommandUid, IoCommandKind ioCommandKind, int sinkUid)
+    public NamedSink(string name, Stream stream, long ioCommandUid, IoCommandKind ioCommandKind, long sinkUid)
         : base(name, stream, ioCommandUid, ioCommandKind)
     {
         SinkUid = sinkUid;

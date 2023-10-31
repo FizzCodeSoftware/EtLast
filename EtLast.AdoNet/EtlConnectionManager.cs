@@ -17,7 +17,7 @@ public static class EtlConnectionManager
             throw ex;
         }
 
-        var iocUid = 0;
+        var iocUid = 0L;
 
         return _connectionManager.GetConnection(connectionString, maxRetryCount, retryDelayMilliseconds,
             onOpening: (connectionString, connection) =>
@@ -60,7 +60,7 @@ public static class EtlConnectionManager
             throw ex;
         }
 
-        var iocUid = 0;
+        var iocUid = 0L;
 
         var connection = _connectionManager.GetNewConnection(connectionString, maxRetryCount, retryDelayMilliseconds,
             onOpening: (connectionString, connection) =>
@@ -97,7 +97,7 @@ public static class EtlConnectionManager
 
     public static void ReleaseConnection(IProcess process, ref DatabaseConnection connection)
     {
-        var iocUid = 0;
+        var iocUid = 0L;
 
         _connectionManager.ReleaseConnection(connection,
         onClosing: connection =>

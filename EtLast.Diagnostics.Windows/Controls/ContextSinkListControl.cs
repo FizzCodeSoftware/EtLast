@@ -29,7 +29,7 @@ internal class ContextSinkListControl
         {
             Text = "Rows",
             AspectGetter = x => (x as TrackedSink)?.RowCount,
-            AspectToStringConverter = x => ((int?)x)?.FormatToStringNoZero(),
+            AspectToStringConverter = x => ((long?)x)?.FormatToStringNoZero(),
             TextAlign = HorizontalAlignment.Right,
             HeaderTextAlign = HorizontalAlignment.Right,
         });

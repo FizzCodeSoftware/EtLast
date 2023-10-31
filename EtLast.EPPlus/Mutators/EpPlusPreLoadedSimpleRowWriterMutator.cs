@@ -13,7 +13,7 @@ public sealed class EpPlusPreLoadedSimpleRowWriterMutator : AbstractMutator, IRo
     public Action<ExcelPackage, SimpleExcelWriterState> Finalize { get; init; }
 
     private SimpleExcelWriterState _state;
-    private int? _sinkUid;
+    private long? _sinkUid;
     private string _fileName;
 
     public EpPlusPreLoadedSimpleRowWriterMutator(IEtlContext context)

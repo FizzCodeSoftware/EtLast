@@ -30,7 +30,7 @@ public sealed class HttpDownload : AbstractJob
 
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
-        var iocUid = 0;
+        var iocUid = 0L;
         try
         {
             using (Context.CancellationToken.Register(Client.CancelPendingRequests))

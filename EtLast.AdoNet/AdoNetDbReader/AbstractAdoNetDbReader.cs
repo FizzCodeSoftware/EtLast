@@ -64,7 +64,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
         Stopwatch swQuery;
 
         var sqlStatementProcessed = InlineArrayParametersIfNecessary(sqlStatement);
-        int iocUid;
+        long iocUid;
 
         using (var scope = Context.BeginTransactionScope(this, SuppressExistingTransactionScope ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Debug))
         {
@@ -345,6 +345,6 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
         public ReaderDefaultColumn Config { get; init; }
     }
 
-    protected abstract int RegisterIoCommandStart(string transactionId, int timeout, string statement);
+    protected abstract long RegisterIoCommandStart(string transactionId, int timeout, string statement);
     protected abstract string CreateSqlStatement();
 }

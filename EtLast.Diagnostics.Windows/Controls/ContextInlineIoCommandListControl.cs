@@ -14,7 +14,7 @@ internal class ContextInlineIoCommandListControl
     private TrackedProcessInvocation _highlightedProcess;
 
     private readonly ControlUpdater<IoCommandModel> _updater;
-    private readonly Dictionary<int, IoCommandModel> _itemByUid = new();
+    private readonly Dictionary<long, IoCommandModel> _itemByUid = new();
 
     public TrackedProcessInvocation HighlightedProcess
     {

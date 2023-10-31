@@ -6,7 +6,7 @@ public class ContextIndex
     private int _lastStreamIndex;
     private long _lastStreamSize;
 
-    private readonly Dictionary<int, FileStream> _openSinkWriterStreams = new();
+    private readonly Dictionary<long, FileStream> _openSinkWriterStreams = new();
     private readonly object _openSinkWriterStreamsLock = new();
 
     private FileStream _rowEventStream;
@@ -14,7 +14,7 @@ public class ContextIndex
     private int _lastRowEventFileSize;
     private readonly object _rowEventStreamLock = new();
 
-    private readonly Dictionary<int, ExtendedBinaryWriter> _processRowMapWriters = new();
+    private readonly Dictionary<long, ExtendedBinaryWriter> _processRowMapWriters = new();
     private readonly object _processRowMapWritersLock = new();
 
     private readonly EventParser _eventParser = new();
@@ -37,12 +37,12 @@ public class ContextIndex
         return Path.Combine(DataFolder, "row-part-" + index.ToString("D", CultureInfo.InvariantCulture)) + ".bin";
     }
 
-    private string GetSinkFileName(int sinkUid)
+    private string GetSinkFileName(long sinkUid)
     {
         return Path.Combine(DataFolder, "sink-uid-" + sinkUid.ToString("D", CultureInfo.InvariantCulture) + ".bin");
     }
 
-    private string GetProcessRowMapFileName(int processInvocationUid)
+    private string GetProcessRowMapFileName(long processInvocationUid)
     {
         return Path.Combine(DataFolder, "process-rows-uid-" + processInvocationUid.ToString("D", CultureInfo.InvariantCulture) + ".bin");
     }
@@ -70,13 +70,15 @@ public class ContextIndex
 
         using (var reader = new ExtendedBinaryReader(input, Encoding.UTF8))
         {
-            while (reader.BaseStream.Position < length)
+            while (input.Position < length)
             {
                 var startPosition = input.Position;
                 var eventKind = (DiagnosticsEventKind)reader.ReadByte();
 
                 var eventDataPosition = input.Position;
-                var eventDataSize = reader.ReadInt32(); // eventDataSize
+                var eventDataSize = reader.Read7BitEncodedInt();
+
+                //Debug.WriteLine(startPosition + "\t" + eventKind + "\t" + eventDataSize);
 
                 if (eventKind == DiagnosticsEventKind.TextDictionaryKeyAdded)
                 {
@@ -198,7 +200,7 @@ public class ContextIndex
                                 _processRowMapWriters.Add(involvedProcessUid.Value, writer);
                             }
 
-                            writer.Write7BitEncodedInt((evt as AbstractRowEvent).RowUid);
+                            writer.Write7BitEncodedInt64((evt as AbstractRowEvent).RowUid);
                         }
                     }
                 }
@@ -208,7 +210,7 @@ public class ContextIndex
         return events;
     }
 
-    public void EnumerateThroughSink(int sinkUid, Action<WriteToSinkEvent> callback)
+    public void EnumerateThroughSink(long sinkUid, Action<WriteToSinkEvent> callback)
     {
         var fileName = GetSinkFileName(sinkUid);
         if (!File.Exists(fileName))
@@ -232,7 +234,7 @@ public class ContextIndex
                 var length = memoryCache.Length;
                 while (memoryCache.Position + 5 < length)
                 {
-                    var eventDataSize = reader.ReadInt32();
+                    var eventDataSize = reader.Read7BitEncodedInt();
                     if (memoryCache.Position + eventDataSize > length)
                         break;
 
@@ -268,7 +270,7 @@ public class ContextIndex
                     while (memoryCache.Position + 5 < length)
                     {
                         var eventKind = (DiagnosticsEventKind)reader.ReadByte();
-                        var eventDataSize = reader.ReadInt32();
+                        var eventDataSize = reader.Read7BitEncodedInt();
                         if (memoryCache.Position + eventDataSize > length)
                             break;
 
@@ -309,9 +311,9 @@ public class ContextIndex
         Debug.WriteLine("events read: " + eventsRead.ToString("D", CultureInfo.InvariantCulture));
     }
 
-    public HashSet<int> GetProcessRowMap(int processInvocationUid)
+    public HashSet<long> GetProcessRowMap(long processInvocationUid)
     {
-        var result = new HashSet<int>();
+        var result = new HashSet<long>();
 
         var fileName = GetProcessRowMapFileName(processInvocationUid);
         if (!File.Exists(fileName))
@@ -338,7 +340,7 @@ public class ContextIndex
                 {
                     try
                     {
-                        var rowUid = reader.Read7BitEncodedInt();
+                        var rowUid = reader.Read7BitEncodedInt64();
                         result.Add(rowUid);
                     }
                     catch (Exception)
@@ -378,7 +380,7 @@ public class ContextIndex
                     while (memoryCache.Position + 5 < length)
                     {
                         var eventKind = (DiagnosticsEventKind)reader.ReadByte();
-                        var eventDataSize = reader.ReadInt32();
+                        var eventDataSize = reader.Read7BitEncodedInt();
                         if (memoryCache.Position + eventDataSize > length)
                             break;
 
