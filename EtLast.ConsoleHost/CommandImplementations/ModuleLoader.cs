@@ -8,7 +8,7 @@ internal static class ModuleLoader
 {
     private static long _moduleAutoincrementId;
 
-    public static ExecutionStatusCode LoadModule(Host host, string moduleName, bool forceCompilation, out CompiledModule module)
+    public static ExecutionStatusCode LoadModule(Host host, string moduleName, ModuleCompilationMode compilationMode, out CompiledModule module)
     {
         module = null;
 
@@ -28,7 +28,8 @@ internal static class ModuleLoader
 
         var startedOn = Stopwatch.StartNew();
 
-        var useAppDomain = !forceCompilation && Debugger.IsAttached;
+        var useAppDomain = (compilationMode == ModuleCompilationMode.ForceAppDomain) || (compilationMode == ModuleCompilationMode.Dynamic && Debugger.IsAttached);
+
         if (useAppDomain)
         {
             host.HostLogger.Information("loading module directly from AppDomain where namespace ends with '{Module}'", moduleName);

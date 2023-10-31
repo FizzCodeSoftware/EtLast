@@ -21,4 +21,5 @@ public interface IHost
     public List<string> ReferenceAssemblyFolders { get; }
     public bool SerilogForModulesEnabled { get; set; }
     public bool SerilogForHostEnabled { get; set; }
+    public ModuleCompilationMode ModuleCompilationMode { get; set; }
 }

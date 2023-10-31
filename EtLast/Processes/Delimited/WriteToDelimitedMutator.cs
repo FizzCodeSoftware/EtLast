@@ -56,6 +56,7 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
     private readonly Dictionary<string, SinkEntry> _sinkEntries = new();
     private byte[] _delimiterBytes;
     private byte[] _lineEndingBytes;
+    private byte[] _quoteBytes;
     private string _escapedQuote;
     private char[] _quoteRequiredChars;
     private string _quoteAsString;
@@ -74,6 +75,7 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
         _escapedQuote = new string(new[] { Escape, Quote });
         _quoteRequiredChars = new[] { Delimiter, Quote, Escape, '\r', '\n' };
         _quoteAsString = Quote.ToString();
+        _quoteBytes = Encoding.GetBytes(new[] { Quote });
 
         _rowCounter = 0;
     }
@@ -103,14 +105,32 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
                     if (!first)
                         sinkEntry.Sink.Stream.Write(_delimiterBytes);
 
-                    var quoteRequired = !string.IsNullOrEmpty(columnName) &&
-                        (columnName.IndexOfAny(_quoteRequiredChars) > -1
-                        || columnName[0] == ' '
-                        || columnName[^1] == ' '
-                        || columnName.Contains(LineEnding, StringComparison.Ordinal));
+                    if (!string.IsNullOrEmpty(columnName))
+                    {
+                        var quoteRequired = columnName.IndexOfAny(_quoteRequiredChars) > -1
+                            || columnName[0] == ' '
+                            || columnName[^1] == ' ';
 
-                    var line = ConvertToDelimitedValue(columnName, quoteRequired);
-                    sinkEntry.Sink.Stream.Write(Encoding.GetBytes(line));
+                        if (quoteRequired)
+                        {
+                            sinkEntry.Sink.Stream.Write(_quoteBytes);
+
+                            if (columnName.Contains(Quote))
+                            {
+                                sinkEntry.Sink.Stream.Write(Encoding.GetBytes(columnName.Replace(_quoteAsString, _escapedQuote, StringComparison.Ordinal)));
+                            }
+                            else
+                            {
+                                sinkEntry.Sink.Stream.Write(Encoding.GetBytes(columnName));
+                            }
+
+                            sinkEntry.Sink.Stream.Write(_quoteBytes);
+                        }
+                        else
+                        {
+                            sinkEntry.Sink.Stream.Write(Encoding.GetBytes(columnName));
+                        }
+                    }
 
                     first = false;
                 }
@@ -163,15 +183,32 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
                 var value = row[kvp.Value?.SourceColumn ?? kvp.Key];
 
                 var str = (kvp.Value?.CustomFormatter ?? DelimitedValueFormatter.Default).Format(value, FormatProvider);
-                var quoteRequired = !string.IsNullOrEmpty(str) &&
-                    (str.IndexOfAny(_quoteRequiredChars) > -1
-                    || str[0] == ' '
-                    || str[^1] == ' '
-                    || str.Contains(LineEnding, StringComparison.Ordinal));
+                if (!string.IsNullOrEmpty(str))
+                {
+                    var quoteRequired = str.IndexOfAny(_quoteRequiredChars) > -1
+                        || str[0] == ' '
+                        || str[^1] == ' ';
 
-                var convertedValue = ConvertToDelimitedValue(str, quoteRequired);
-                if (convertedValue != null)
-                    sinkEntry.Buffer.Write(Encoding.GetBytes(convertedValue));
+                    if (quoteRequired)
+                    {
+                        sinkEntry.Buffer.Write(_quoteBytes);
+
+                        if (str.Contains(Quote))
+                        {
+                            sinkEntry.Buffer.Write(Encoding.GetBytes(str.Replace(_quoteAsString, _escapedQuote, StringComparison.Ordinal)));
+                        }
+                        else
+                        {
+                            sinkEntry.Buffer.Write(Encoding.GetBytes(str));
+                        }
+
+                        sinkEntry.Buffer.Write(_quoteBytes);
+                    }
+                    else
+                    {
+                        sinkEntry.Buffer.Write(Encoding.GetBytes(str));
+                    }
+                }
 
                 first = false;
             }
@@ -197,23 +234,10 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
             return;
 
         var data = sinkEntry.Buffer.ToArray();
-        sinkEntry.Sink.Stream.Write(data);
+        sinkEntry.Sink.Stream.Write(data, 0, data.Length);
         sinkEntry.Sink.IncreaseRowsWritten(sinkEntry.RowCount);
         sinkEntry.RowCount = 0;
         sinkEntry.Buffer.SetLength(0);
-    }
-
-    private string ConvertToDelimitedValue(string value, bool quoteRequired)
-    {
-        if (quoteRequired)
-        {
-            if (value != null)
-                value = value.Replace(_quoteAsString, _escapedQuote, StringComparison.Ordinal);
-
-            value = Quote + value + Quote;
-        }
-
-        return value;
     }
 
     private class SinkEntry

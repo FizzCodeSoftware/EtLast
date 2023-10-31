@@ -20,7 +20,9 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
     private IEnumerable<IRow> Evaluate(IProcess caller, FlowState flowState)
     {
         Context.RegisterProcessInvocationStart(this, caller);
-        FlowState = flowState ?? caller?.FlowState ?? new FlowState(Context);
+
+        flowState ??= caller?.FlowState ?? new FlowState(Context);
+        FlowState = flowState;
 
         LogCall(caller);
         LogPublicSettableProperties(LogSeverity.Verbose);
@@ -34,10 +36,10 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
         catch (Exception ex)
         {
             netTimeStopwatch.Stop();
-            FlowState.AddException(this, ex);
+            flowState.AddException(this, ex);
         }
 
-        if (FlowState.IsTerminating)
+        if (flowState.IsTerminating)
         {
             LogResult(netTimeStopwatch);
             yield break;
@@ -52,11 +54,11 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
             catch (Exception ex)
             {
                 netTimeStopwatch.Stop();
-                FlowState.AddException(this, new InitializerDelegateException(this, ex));
+                flowState.AddException(this, new InitializerDelegateException(this, ex));
             }
         }
 
-        if (FlowState.IsTerminating)
+        if (flowState.IsTerminating)
         {
             LogResult(netTimeStopwatch);
             yield break;
@@ -68,10 +70,10 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
         }
         catch (Exception ex)
         {
-            FlowState.AddException(this, ex);
+            flowState.AddException(this, ex);
         }
 
-        if (FlowState.IsTerminating)
+        if (flowState.IsTerminating)
         {
             LogResult(netTimeStopwatch);
             yield break;
@@ -87,7 +89,9 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
         var addedRowCount = 0;
         var mutatedRows = new List<IRow>();
 
-        while (!FlowState.IsTerminating)
+        var rowFilter = RowFilter;
+
+        while (!flowState.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
@@ -108,15 +112,15 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
             }
 
             var apply = false;
-            if (RowFilter != null)
+            if (rowFilter != null)
             {
                 try
                 {
-                    apply = RowFilter.Invoke(row);
+                    apply = rowFilter.Invoke(row);
                 }
                 catch (Exception ex)
                 {
-                    FlowState.AddException(this, ex, row);
+                    flowState.AddException(this, ex, row);
                     break;
                 }
 
@@ -138,7 +142,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
                 }
                 catch (Exception ex)
                 {
-                    FlowState.AddException(this, ex, row);
+                    flowState.AddException(this, ex, row);
                     break;
                 }
 
@@ -169,7 +173,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
 
                     if (mutatedRow.CurrentProcess != this)
                     {
-                        FlowState.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
+                        flowState.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
                         break;
                     }
 
@@ -178,7 +182,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
             }
             catch (Exception ex)
             {
-                FlowState.AddException(this, ex, row);
+                flowState.AddException(this, ex, row);
                 break;
             }
 
@@ -207,7 +211,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
         }
         catch (Exception ex)
         {
-            FlowState.AddException(this, ex);
+            flowState.AddException(this, ex);
         }
 
         if (ignoredRowCount + keptRowCount + removedRowCount > 0)

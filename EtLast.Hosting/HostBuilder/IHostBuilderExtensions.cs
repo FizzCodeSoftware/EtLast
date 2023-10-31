@@ -73,4 +73,10 @@ public static class IHostBuilderExtensions
         builder.Result.MaxTransactionTimeout = maxTimeout;
         return builder;
     }
+
+    public static IHostBuilder SetModuleCompilationMode(this IHostBuilder builder, ModuleCompilationMode moduleCompilationMode)
+    {
+        builder.Result.ModuleCompilationMode = moduleCompilationMode;
+        return builder;
+    }
 }

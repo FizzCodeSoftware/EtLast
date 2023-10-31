@@ -19,6 +19,8 @@ public class Host : IHost
 
     public TimeSpan MaxTransactionTimeout { get; set; } = TimeSpan.FromHours(4);
 
+    public ModuleCompilationMode ModuleCompilationMode { get; set; } = ModuleCompilationMode.Dynamic;
+
     private string _modulesFolder;
     public string ModulesFolder
     {
@@ -245,7 +247,7 @@ public class Host : IHost
         {
             HostLogger.Information("loading module {Module}", moduleName);
 
-            ModuleLoader.LoadModule(this, moduleName, true, out var module);
+            ModuleLoader.LoadModule(this, moduleName, ModuleCompilationMode.ForceCompilation, out var module);
             if (module != null)
             {
                 ModuleLoader.UnloadModule(this, module);
@@ -265,7 +267,7 @@ public class Host : IHost
     {
         HostLogger.Information("loading module {Module}", moduleName);
 
-        var loadResult = ModuleLoader.LoadModule(this, moduleName, false, out var module);
+        var loadResult = ModuleLoader.LoadModule(this, moduleName, ModuleCompilationMode, out var module);
         if (loadResult != ExecutionStatusCode.Success)
             return new ExecutionResult(loadResult);
 
