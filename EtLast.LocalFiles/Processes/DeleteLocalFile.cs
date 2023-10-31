@@ -4,17 +4,12 @@ namespace FizzCode.EtLast;
 
 public sealed class DeleteLocalFile : AbstractJob
 {
+    [ProcessParameterNullException]
     public required string FileName { get; init; }
 
     public DeleteLocalFile(IEtlContext context)
         : base(context)
     {
-    }
-
-    public override void ValidateParameters()
-    {
-        if (string.IsNullOrEmpty(FileName))
-            throw new ProcessParameterNullException(this, nameof(FileName));
     }
 
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)

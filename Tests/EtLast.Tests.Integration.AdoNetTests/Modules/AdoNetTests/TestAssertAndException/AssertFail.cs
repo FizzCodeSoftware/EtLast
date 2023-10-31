@@ -2,10 +2,6 @@
 
 public class AssertFail : AbstractEtlTask
 {
-    public override void ValidateParameters()
-    {
-    }
-
     public override void Execute(IFlow flow)
     {
         flow.CustomJob("StoredProcedureAdoNetDbReader", job =>

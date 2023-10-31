@@ -1,8 +1,12 @@
 ﻿namespace FizzCode.EtLast;
 
+[ContainsProcessParameterValidation]
 public sealed class TableCopyConfiguration
 {
+    [ProcessParameterNullException]
     public required string SourceTableName { get; init; }
+
+    [ProcessParameterNullException]
     public required string TargetTableName { get; init; }
 
     /// <summary>

@@ -2,6 +2,7 @@
 
 public sealed class MsSqlEnableConstraintCheck : AbstractSqlStatements
 {
+    [ProcessParameterNullException]
     public string[] TableNames { get; init; }
 
     public MsSqlEnableConstraintCheck(IEtlContext context)
@@ -14,14 +15,6 @@ public sealed class MsSqlEnableConstraintCheck : AbstractSqlStatements
         return ConnectionString != null && TableNames?.Length > 0
             ? string.Join(",", TableNames.Select(ConnectionString.Unescape))
             : null;
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (TableNames == null || TableNames.Length == 0)
-            throw new ProcessParameterNullException(this, nameof(TableNames));
     }
 
     protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)

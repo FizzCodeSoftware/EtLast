@@ -2,10 +2,6 @@
 
 public class NetTime : AbstractEtlTask
 {
-    public override void ValidateParameters()
-    {
-    }
-
     public override void Execute(IFlow flow)
     {
         flow

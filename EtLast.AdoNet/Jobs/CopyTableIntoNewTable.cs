@@ -2,6 +2,7 @@
 
 public sealed class CopyTableIntoNewTable : AbstractSqlStatement
 {
+    [ProcessParameterNullException]
     public required TableCopyConfiguration Configuration { get; init; }
 
     /// <summary>
@@ -19,20 +20,6 @@ public sealed class CopyTableIntoNewTable : AbstractSqlStatement
         return Configuration?.TargetTableName != null
             ? ConnectionString?.Unescape(Configuration.TargetTableName)
             : null;
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (Configuration == null)
-            throw new ProcessParameterNullException(this, nameof(Configuration));
-
-        if (string.IsNullOrEmpty(Configuration.SourceTableName))
-            throw new ProcessParameterNullException(this, nameof(Configuration.SourceTableName));
-
-        if (string.IsNullOrEmpty(Configuration.TargetTableName))
-            throw new ProcessParameterNullException(this, nameof(Configuration.TargetTableName));
     }
 
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)

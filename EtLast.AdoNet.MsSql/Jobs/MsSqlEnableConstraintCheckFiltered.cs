@@ -2,19 +2,12 @@
 
 public sealed class MsSqlEnableConstraintCheckFiltered : AbstractSqlStatements
 {
+    [ProcessParameterNullException]
     public List<KeyValuePair<string, List<string>>> ConstraintNames { get; init; }
 
     public MsSqlEnableConstraintCheckFiltered(IEtlContext context)
         : base(context)
     {
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (ConstraintNames == null || ConstraintNames.Count == 0)
-            throw new ProcessParameterNullException(this, nameof(ConstraintNames));
     }
 
     protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)

@@ -2,30 +2,6 @@
 
 public class EventParser
 {
-    private readonly Dictionary<int, string> _textDictionary;
-
-    public EventParser()
-    {
-        _textDictionary = new Dictionary<int, string>()
-        {
-            [0] = null,
-        };
-    }
-
-    public void AddText(int id, string text)
-    {
-        if (text != null)
-            text = string.Intern(text);
-
-        _textDictionary[id] = text;
-    }
-
-    public string GetTextById(int id)
-    {
-        _textDictionary.TryGetValue(id, out var value);
-        return value;
-    }
-
     public static ProcessInvocationStartEvent ReadProcessInvocationStartEvent(ExtendedBinaryReader reader)
     {
         return new ProcessInvocationStartEvent
@@ -58,11 +34,11 @@ public class EventParser
             Uid = reader.Read7BitEncodedInt64(),
             ProcessInvocationUid = reader.Read7BitEncodedInt64(),
             Kind = (IoCommandKind)reader.ReadByte(),
-            Location = GetTextById(reader.Read7BitEncodedInt()),
-            Path = GetTextById(reader.Read7BitEncodedInt()),
+            Location = reader.ReadNullableString(),
+            Path = reader.ReadNullableString(),
             TimeoutSeconds = reader.ReadNullable7BitEncodedInt32(),
             Command = reader.ReadNullableString(),
-            TransactionId = GetTextById(reader.Read7BitEncodedInt()),
+            TransactionId = reader.ReadNullableString(),
         };
 
         var argCount = reader.Read7BitEncodedInt();
@@ -71,7 +47,7 @@ public class EventParser
             evt.Arguments = new KeyValuePair<string, object>[argCount];
             for (var i = 0; i < argCount; i++)
             {
-                var name = GetTextById(reader.Read7BitEncodedInt());
+                var name = reader.ReadString();
                 var value = reader.ReadObject();
                 evt.Arguments[i] = new KeyValuePair<string, object>(name, value);
             }
@@ -106,7 +82,7 @@ public class EventParser
             evt.Values = new KeyValuePair<string, object>[columnCount];
             for (var i = 0; i < columnCount; i++)
             {
-                var column = GetTextById(reader.Read7BitEncodedInt());
+                var column = reader.ReadString();
                 var value = reader.ReadObject();
                 evt.Values[i] = new KeyValuePair<string, object>(column, value);
             }
@@ -139,7 +115,7 @@ public class EventParser
             evt.Values = new KeyValuePair<string, object>[columnCount];
             for (var i = 0; i < columnCount; i++)
             {
-                var column = GetTextById(reader.Read7BitEncodedInt());
+                var column = reader.ReadString();
                 var value = reader.ReadObject();
                 evt.Values[i] = new KeyValuePair<string, object>(column, value);
             }
@@ -153,8 +129,8 @@ public class EventParser
         var evt = new SinkStartedEvent
         {
             UID = reader.Read7BitEncodedInt64(),
-            Location = GetTextById(reader.Read7BitEncodedInt()),
-            Path = GetTextById(reader.Read7BitEncodedInt()),
+            Location = reader.ReadNullableString(),
+            Path = reader.ReadNullableString(),
         };
 
         return evt;
@@ -175,7 +151,7 @@ public class EventParser
             evt.Values = new KeyValuePair<string, object>[columnCount];
             for (var i = 0; i < columnCount; i++)
             {
-                var column = GetTextById(reader.Read7BitEncodedInt());
+                var column = reader.ReadString();
                 var value = reader.ReadObject();
                 evt.Values[i] = new KeyValuePair<string, object>(column, value);
             }
@@ -188,7 +164,7 @@ public class EventParser
     {
         var evt = new LogEvent
         {
-            TransactionId = GetTextById(reader.Read7BitEncodedInt()),
+            TransactionId = reader.ReadNullableString(),
             Text = reader.ReadString(),
             Severity = (LogSeverity)reader.ReadByte(),
             ProcessInvocationUID = reader.ReadNullable7BitEncodedInt64()
@@ -200,7 +176,7 @@ public class EventParser
             evt.Arguments = new KeyValuePair<string, object>[argCount];
             for (var i = 0; i < argCount; i++)
             {
-                var key = GetTextById(reader.Read7BitEncodedInt());
+                var key = reader.ReadString();
                 var value = reader.ReadObject();
                 evt.Arguments[i] = new KeyValuePair<string, object>(key, value);
             }

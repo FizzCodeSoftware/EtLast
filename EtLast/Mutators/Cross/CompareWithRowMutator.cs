@@ -2,7 +2,10 @@
 
 public sealed class CompareWithRowMutator : AbstractCrossMutator
 {
+    [ProcessParameterNullException]
     public required RowKeyGenerator RowKeyGenerator { get; init; }
+
+    [ProcessParameterNullException]
     public required IRowEqualityComparer EqualityComparer { get; init; }
 
     public MatchAction MatchAndEqualsAction { get; init; }
@@ -103,12 +106,6 @@ public sealed class CompareWithRowMutator : AbstractCrossMutator
     public override void ValidateParameters()
     {
         base.ValidateParameters();
-
-        if (RowKeyGenerator == null)
-            throw new ProcessParameterNullException(this, nameof(RowKeyGenerator));
-
-        if (EqualityComparer == null)
-            throw new ProcessParameterNullException(this, nameof(EqualityComparer));
 
         if (MatchAndEqualsAction == null && NoMatchAction == null && MatchButDifferentAction == null)
             throw new InvalidProcessParameterException(this, nameof(MatchAndEqualsAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must be specified: " + nameof(MatchAndEqualsAction) + " or " + nameof(NoMatchAction) + " or " + nameof(MatchButDifferentAction));

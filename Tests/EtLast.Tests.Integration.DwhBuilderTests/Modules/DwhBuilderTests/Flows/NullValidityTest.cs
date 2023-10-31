@@ -2,17 +2,11 @@
 
 public class NullValidityTest : AbstractEtlTask
 {
+    [ProcessParameterNullException]
     public NamedConnectionString ConnectionString { get; init; }
+
+    [ProcessParameterNullException]
     public string DatabaseName { get; init; }
-
-    public override void ValidateParameters()
-    {
-        if (ConnectionString == null)
-            throw new ProcessParameterNullException(this, nameof(ConnectionString));
-
-        if (DatabaseName == null)
-            throw new ProcessParameterNullException(this, nameof(DatabaseName));
-    }
 
     public override void Execute(IFlow flow)
     {

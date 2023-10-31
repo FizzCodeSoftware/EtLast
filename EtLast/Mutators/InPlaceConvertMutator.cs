@@ -2,7 +2,10 @@
 
 public sealed class InPlaceConvertMutator : AbstractSimpleChangeMutator
 {
+    [ProcessParameterNullException]
     public required string[] Columns { get; init; }
+
+    [ProcessParameterNullException]
     public required ITypeConverter TypeConverter { get; init; }
 
     // todo: all kinds of "Actions" in converters and Cross operations should use builder+subclass pattern instead of enums and secondary fields like SpecialValueIfNull...
@@ -94,12 +97,6 @@ public sealed class InPlaceConvertMutator : AbstractSimpleChangeMutator
 
     public override void ValidateParameters()
     {
-        if (TypeConverter == null)
-            throw new ProcessParameterNullException(this, nameof(TypeConverter));
-
-        if (Columns?.Length == 0)
-            throw new ProcessParameterNullException(this, nameof(Columns));
-
         if (ActionIfInvalid != InvalidValueAction.SetSpecialValue && SpecialValueIfInvalid != null)
             throw new ProcessParameterNullException(this, nameof(SpecialValueIfInvalid));
     }

@@ -109,11 +109,12 @@ public abstract class AbstractProcess : IProcess
     {
         var baseProperties = typeof(AbstractEtlTask).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly)
             .Concat(typeof(AbstractProcess).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
+            .Concat(typeof(AbstractMutator).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
             .Select(x => x.Name)
             .ToHashSet();
 
         var properties = GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
-            .Where(p => p.SetMethod?.IsPublic == true && !baseProperties.Contains(p.Name))
+            .Where(p => p.SetMethod?.IsPublic == true && !baseProperties.Contains(p.Name) && p.GetIndexParameters().Length == 0)
             .ToList();
 
         foreach (var property in properties)
@@ -128,11 +129,12 @@ public abstract class AbstractProcess : IProcess
     {
         var baseProperties = typeof(AbstractEtlTask).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly)
             .Concat(typeof(AbstractProcess).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
+            .Concat(typeof(AbstractMutator).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
             .Select(x => x.Name)
             .ToHashSet();
 
         var properties = GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
-            .Where(p => p.SetMethod?.IsPublic == false && !baseProperties.Contains(p.Name))
+            .Where(p => p.SetMethod?.IsPublic == false && !baseProperties.Contains(p.Name) && p.GetIndexParameters().Length == 0)
             .ToList();
 
         foreach (var property in properties)
@@ -156,11 +158,12 @@ public abstract class AbstractProcess : IProcess
 
         var baseProperties = typeof(AbstractEtlTask).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly)
             .Concat(typeof(AbstractProcess).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
+            .Concat(typeof(AbstractMutator).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
             .Select(x => x.Name)
             .ToHashSet();
 
         var properties = GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
-            .Where(p => p.SetMethod?.IsPublic == true && !baseProperties.Contains(p.Name))
+            .Where(p => p.SetMethod != null && p.SetMethod.IsPrivate != true && !baseProperties.Contains(p.Name) && p.GetIndexParameters().Length == 0)
             .ToList();
 
         foreach (var property in properties)
@@ -175,9 +178,47 @@ public abstract class AbstractProcess : IProcess
             {
                 var value = context.Arguments.Get(key);
                 if (value != null && property.PropertyType.IsAssignableFrom(value.GetType()))
-                {
                     property.SetValue(this, value);
+            }
+        }
+    }
+
+    public void ValidateParameterAnnotations()
+    {
+        ValidateParameterAnnotations(this, this);
+    }
+
+    public static void ValidateParameterAnnotations(IProcess process, object instance)
+    {
+        var properties = instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
+          .Where(p => p.SetMethod != null && p.SetMethod.IsPrivate != true && p.GetIndexParameters().Length == 0)
+          .ToList();
+
+        foreach (var property in properties)
+        {
+            var value = property.GetValue(instance);
+            if (property.GetCustomAttribute<ProcessParameterNullExceptionAttribute>() is ProcessParameterNullExceptionAttribute attr)
+            {
+                if (value == null || (attr.ThrowOnEmptyString && value is string str && string.IsNullOrEmpty(str)))
+                {
+                    throw new ProcessParameterNullException(process, property.Name);
                 }
+                else if (attr.ThrowOnEmptyArray && value is Array arr && arr.Length == 0)
+                {
+                    throw new ProcessParameterNullException(process, property.Name);
+                }
+                else if (attr.ThrowOnEmptyCollection && value is ICollection coll && coll.Count == 0)
+                {
+                    throw new ProcessParameterNullException(process, property.Name);
+                }
+            }
+
+            if (value != null && (property.PropertyType.GetCustomAttribute<ContainsProcessParameterValidationAttribute>() != null
+                || value.GetType().GetCustomAttribute<ContainsProcessParameterValidationAttribute>() != null))
+            {
+                // support: IEnumerable<T> here
+
+                ValidateParameterAnnotations(process, value);
             }
         }
     }

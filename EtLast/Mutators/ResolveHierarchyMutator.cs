@@ -2,8 +2,12 @@
 
 public sealed class ResolveHierarchyMutator : AbstractSimpleChangeMutator
 {
+    [ProcessParameterNullException]
     public required string IdentityColumn { get; init; }
+
+    [ProcessParameterNullException]
     public required string[] LevelColumns { get; init; }
+
     public required string NewColumnWithParentId { get; init; }
     public required string NewColumnWithName { get; init; }
     public required string NewColumnWithLevel { get; init; }
@@ -68,15 +72,6 @@ public sealed class ResolveHierarchyMutator : AbstractSimpleChangeMutator
 
         row.MergeWith(Changes);
         yield return row;
-    }
-
-    public override void ValidateParameters()
-    {
-        if (string.IsNullOrEmpty(IdentityColumn))
-            throw new ProcessParameterNullException(this, nameof(IdentityColumn));
-
-        if (LevelColumns == null || LevelColumns.Length == 0)
-            throw new ProcessParameterNullException(this, nameof(LevelColumns));
     }
 }
 

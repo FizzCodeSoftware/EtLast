@@ -2,8 +2,12 @@
 
 public sealed class MergeStringColumnsMutator : AbstractSimpleChangeMutator
 {
+    [ProcessParameterNullException]
     public required string[] ColumnsToMerge { get; init; }
+
+    [ProcessParameterNullException]
     public required string TargetColumn { get; init; }
+
     public required string Separator { get; init; }
 
     private readonly StringBuilder _sb = new();
@@ -41,15 +45,6 @@ public sealed class MergeStringColumnsMutator : AbstractSimpleChangeMutator
         row.MergeWith(Changes);
 
         yield return row;
-    }
-
-    public override void ValidateParameters()
-    {
-        if (string.IsNullOrEmpty(TargetColumn))
-            throw new ProcessParameterNullException(this, nameof(TargetColumn));
-
-        if (ColumnsToMerge == null || ColumnsToMerge.Length == 0)
-            throw new ProcessParameterNullException(this, nameof(ColumnsToMerge));
     }
 }
 

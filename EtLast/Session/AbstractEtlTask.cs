@@ -28,6 +28,7 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 
         try
         {
+            ValidateParameterAnnotations();
             ValidateParameters();
         }
         catch (Exception ex)

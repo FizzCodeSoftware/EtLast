@@ -13,6 +13,7 @@ public sealed class RenameColumnMutator : AbstractSimpleChangeMutator
     /// <summary>
     /// Key is current name, Value is new name.
     /// </summary>
+    [ProcessParameterNullException]
     public required Dictionary<string, string> Columns { get; init; }
 
     /// <summary>
@@ -57,12 +58,6 @@ public sealed class RenameColumnMutator : AbstractSimpleChangeMutator
             row.MergeWith(Changes);
             yield return row;
         }
-    }
-
-    public override void ValidateParameters()
-    {
-        if (Columns == null)
-            throw new ProcessParameterNullException(this, nameof(Columns));
     }
 }
 

@@ -3,6 +3,8 @@
 public sealed class ReplaceNullWithValueMutator : AbstractSimpleChangeMutator
 {
     public required string[] Columns { get; init; }
+
+    [ProcessParameterNullException]
     public required object Value { get; init; }
 
     public ReplaceNullWithValueMutator(IEtlContext context)
@@ -31,12 +33,6 @@ public sealed class ReplaceNullWithValueMutator : AbstractSimpleChangeMutator
         }
 
         yield return row;
-    }
-
-    public override void ValidateParameters()
-    {
-        if (Value == null)
-            throw new ProcessParameterNullException(this, nameof(Value));
     }
 }
 

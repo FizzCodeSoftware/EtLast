@@ -2,12 +2,16 @@
 
 public sealed class EpPlusPreLoadedSimpleRowWriterMutator : AbstractMutator, IRowSink
 {
+    [ProcessParameterNullException]
     public required ExcelPackage PreLoadedFile { get; init; }
+
+    [ProcessParameterNullException]
     public required string SheetName { get; init; }
 
     /// <summary>
     /// Key is the output column title AND the column in the row (later can be customized by setting a <see cref="ExcelColumn"/>).
     /// </summary>
+    [ProcessParameterNullException]
     public required Dictionary<string, ExcelColumn> Columns { get; init; }
 
     public Action<ExcelPackage, SimpleExcelWriterState> Finalize { get; init; }
@@ -78,20 +82,6 @@ public sealed class EpPlusPreLoadedSimpleRowWriterMutator : AbstractMutator, IRo
         }
 
         yield return row;
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (PreLoadedFile == null)
-            throw new ProcessParameterNullException(this, nameof(PreLoadedFile));
-
-        if (string.IsNullOrEmpty(SheetName))
-            throw new ProcessParameterNullException(this, nameof(SheetName));
-
-        if (Columns == null)
-            throw new ProcessParameterNullException(this, nameof(Columns));
     }
 }
 

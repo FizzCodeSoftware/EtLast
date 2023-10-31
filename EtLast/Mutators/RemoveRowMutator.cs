@@ -11,14 +11,6 @@ public sealed class RemoveRowMutator : AbstractMutator
     {
         return Enumerable.Empty<IRow>();
     }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (RowFilter == null && RowTagFilter == null)
-            throw new ProcessParameterNullException(this, nameof(RowFilter) + " and " + nameof(RowTagFilter));
-    }
 }
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]

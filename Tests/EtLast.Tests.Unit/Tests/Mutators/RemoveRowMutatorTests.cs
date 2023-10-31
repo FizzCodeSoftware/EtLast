@@ -4,12 +4,6 @@
 public class RemoveRowMutatorTests
 {
     [TestMethod]
-    public void ThrowsInvalidProcessParameterException()
-    {
-        Assert.That.ThrowsInvalidProcessParameterException<RemoveRowMutator>();
-    }
-
-    [TestMethod]
     public void DelegateThrowsExceptionIf()
     {
         var context = TestExecuter.GetContext();

@@ -248,8 +248,8 @@ public sealed class EtlContext : IEtlContext
 
     public void RegisterProcessInvocationEnd(IProcess process, long netElapsedMilliseconds)
     {
-        if (process.InvocationInfo.LastInvocationFinished != null)
-            Debugger.Break();
+        /*if (process.InvocationInfo.LastInvocationFinished != null)
+            Debugger.Break();*/
 
         process.InvocationInfo.LastInvocationFinished = DateTimeOffset.Now;
         process.InvocationInfo.LastInvocationNetTimeMilliseconds = netElapsedMilliseconds;

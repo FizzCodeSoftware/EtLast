@@ -4,10 +4,6 @@ public class ThrowExceptionWrapper : AbstractEtlTask
 {
     public bool ThrowErrorEnabled { get; set; }
 
-    public override void ValidateParameters()
-    {
-    }
-
     public override void Execute(IFlow flow)
     {
         if (!ThrowErrorEnabled)

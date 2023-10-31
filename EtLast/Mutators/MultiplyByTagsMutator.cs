@@ -7,6 +7,7 @@ public sealed class MultiplyByTagsMutator : AbstractMutator
     /// </summary>
     public required bool RemoveOriginalRow { get; init; } = true;
 
+    [ProcessParameterNullException]
     public required object[] Tags { get; init; }
 
     public MultiplyByTagsMutator(IEtlContext context)
@@ -25,12 +26,6 @@ public sealed class MultiplyByTagsMutator : AbstractMutator
             newRow.Tag = tag;
             yield return newRow;
         }
-    }
-
-    public override void ValidateParameters()
-    {
-        if (Tags == null || Tags.Length == 0)
-            throw new ProcessParameterNullException(this, nameof(Tags));
     }
 }
 

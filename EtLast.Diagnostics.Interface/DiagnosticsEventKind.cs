@@ -2,7 +2,6 @@
 
 public enum DiagnosticsEventKind
 {
-    TextDictionaryKeyAdded,
     RowValueChanged,
     SinkStarted,
     WriteToSink,

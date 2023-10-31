@@ -2,17 +2,12 @@
 
 public sealed class CustomJob : AbstractJob
 {
+    [ProcessParameterNullException]
     public required Action<CustomJob> Action { get; init; }
 
     public CustomJob(IEtlContext context)
         : base(context)
     {
-    }
-
-    public override void ValidateParameters()
-    {
-        if (Action == null)
-            throw new ProcessParameterNullException(this, nameof(Action));
     }
 
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)

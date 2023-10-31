@@ -2,25 +2,12 @@
 
 public sealed class CopyTableStructure : AbstractSqlStatements
 {
+    [ProcessParameterNullException]
     public required List<TableCopyConfiguration> Configuration { get; init; }
 
     public CopyTableStructure(IEtlContext context)
         : base(context)
     {
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (Configuration == null)
-            throw new ProcessParameterNullException(this, nameof(Configuration));
-
-        if (Configuration.Any(x => string.IsNullOrEmpty(x.SourceTableName)))
-            throw new ProcessParameterNullException(this, nameof(TableCopyConfiguration.SourceTableName));
-
-        if (Configuration.Any(x => string.IsNullOrEmpty(x.TargetTableName)))
-            throw new ProcessParameterNullException(this, nameof(TableCopyConfiguration.TargetTableName));
     }
 
     protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)

@@ -2,22 +2,16 @@
 
 public class CreateDatabase : AbstractEtlTask
 {
+    [ProcessParameterNullException]
     public NamedConnectionString ConnectionString { get; set; }
+
     public NamedConnectionString ConnectionStringMaster { get; set; }
+
+    [ProcessParameterNullException]
     public string DatabaseName { get; init; }
+
+    [ProcessParameterNullException]
     public DatabaseDefinition Definition { get; set; }
-
-    public override void ValidateParameters()
-    {
-        if (ConnectionString == null)
-            throw new ProcessParameterNullException(this, nameof(ConnectionString));
-
-        if (DatabaseName == null)
-            throw new ProcessParameterNullException(this, nameof(DatabaseName));
-
-        if (Definition == null)
-            throw new ProcessParameterNullException(this, nameof(Definition));
-    }
 
     public override void Execute(IFlow flow)
     {

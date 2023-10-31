@@ -2,17 +2,11 @@
 
 public class ExceptionTest : AbstractEtlTask
 {
+    [ProcessParameterNullException]
     public Type ExceptionType { get; set; }
+
+    [ProcessParameterNullException]
     public string Message { get; set; }
-
-    public override void ValidateParameters()
-    {
-        if (ExceptionType == null)
-            throw new ProcessParameterNullException(this, nameof(ExceptionType));
-
-        if (Message == null)
-            throw new ProcessParameterNullException(this, nameof(Message));
-    }
 
     public override void Execute(IFlow flow)
     {

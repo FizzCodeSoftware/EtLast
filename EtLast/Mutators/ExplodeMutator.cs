@@ -9,6 +9,7 @@ public sealed class ExplodeMutator : AbstractMutator
     /// </summary>
     public required bool RemoveOriginalRow { get; init; } = true;
 
+    [ProcessParameterNullException]
     public required ExplodeDelegate RowCreator { get; init; }
 
     public ExplodeMutator(IEtlContext context)
@@ -29,12 +30,6 @@ public sealed class ExplodeMutator : AbstractMutator
                 yield return Context.CreateRow(this, newRow);
             }
         }
-    }
-
-    public override void ValidateParameters()
-    {
-        if (RowCreator == null)
-            throw new ProcessParameterNullException(this, nameof(RowCreator));
     }
 }
 

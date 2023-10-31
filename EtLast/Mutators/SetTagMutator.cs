@@ -14,10 +14,6 @@ public sealed class SetTagMutator : AbstractMutator
         row.Tag = Tag;
         yield return row;
     }
-
-    public override void ValidateParameters()
-    {
-    }
 }
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]

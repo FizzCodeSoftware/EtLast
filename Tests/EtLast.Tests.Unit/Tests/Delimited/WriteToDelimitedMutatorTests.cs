@@ -27,6 +27,29 @@ public class WriteToDelimitedMutatorTests
     }
 
     [TestMethod]
+    public void TestSinkValidator()
+    {
+        var context = TestExecuter.GetContext();
+        var builder = SequenceBuilder.Fluent
+            .ReadFrom(TestData.Person(context))
+            .WriteToDelimited(new WriteToDelimitedMutator(context)
+            {
+                Columns = new(),
+                SinkProvider = new LocalFileSinkProvider()
+                {
+                    FileNameGenerator = null, // should throw an exception
+                    ActionWhenFileExists = LocalSinkFileExistsAction.Continue,
+                    FileMode = FileMode.Append,
+                },
+            });
+
+        var result = TestExecuter.Execute(builder);
+        Assert.AreEqual(0, result.MutatedRows.Count);
+        Assert.AreEqual(1, result.Process.FlowState.Exceptions.Count);
+        Assert.IsTrue(result.Process.FlowState.Exceptions[0] is InvalidProcessParameterException);
+    }
+
+    [TestMethod]
     public void PersonWriterWithReaderTest()
     {
         using (var outputStream = new MemoryStream())

@@ -2,6 +2,7 @@
 
 public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
 {
+    [ProcessParameterNullException]
     public NamedConnectionString ConnectionString { get; init; }
 
     /// <summary>
@@ -9,6 +10,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
     /// </summary>
     public int CommandTimeout { get; init; } = 60 * 60;
 
+    [ProcessParameterNullException]
     public DbTableDefinition TableDefinition { get; init; }
 
     /// <summary>
@@ -258,15 +260,6 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
     public override void ValidateParameters()
     {
         base.ValidateParameters();
-
-        if (ConnectionString == null)
-            throw new ProcessParameterNullException(this, nameof(ConnectionString));
-
-        if (TableDefinition == null)
-            throw new ProcessParameterNullException(this, nameof(TableDefinition));
-
-        if (TableDefinition.Columns == null)
-            throw new ProcessParameterNullException(this, nameof(TableDefinition) + "." + nameof(TableDefinition.Columns));
 
         if (ConnectionString.SqlEngine != SqlEngine.MsSql)
             throw new InvalidProcessParameterException(this, "ConnectionString", nameof(ConnectionString.ProviderName), "provider name must be Microsoft.Data.SqlClient");

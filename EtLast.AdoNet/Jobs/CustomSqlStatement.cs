@@ -2,7 +2,9 @@
 
 public sealed class CustomSqlStatement : AbstractSqlStatement
 {
+    [ProcessParameterNullException]
     public required string SqlStatement { get; init; }
+
     public required string MainTableName { get; init; }
 
     public Dictionary<string, object> Parameters { get; init; }
@@ -24,14 +26,6 @@ public sealed class CustomSqlStatement : AbstractSqlStatement
         return MainTableName != null
             ? ConnectionString?.Unescape(MainTableName)
             : null;
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (string.IsNullOrEmpty(SqlStatement))
-            throw new ProcessParameterNullException(this, nameof(SqlStatement));
     }
 
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)

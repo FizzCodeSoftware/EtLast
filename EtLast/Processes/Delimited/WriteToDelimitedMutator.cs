@@ -2,6 +2,7 @@
 
 public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
 {
+    [ProcessParameterNullException]
     public required ISinkProvider SinkProvider { get; init; }
 
     /// <summary>
@@ -42,6 +43,7 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
     /// <summary>
     /// Key is the output column title AND the column in the row (later can be customized by setting a <see cref="DelimitedColumn"/>).
     /// </summary>
+    [ProcessParameterNullException]
     public required Dictionary<string, DelimitedColumn> Columns { get; init; }
 
     /// <summary>
@@ -63,19 +65,6 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
     public WriteToDelimitedMutator(IEtlContext context)
         : base(context)
     {
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (SinkProvider == null)
-            throw new ProcessParameterNullException(this, nameof(SinkProvider));
-
-        SinkProvider.Validate(this);
-
-        if (Columns == null)
-            throw new ProcessParameterNullException(this, nameof(Columns));
     }
 
     protected override void StartMutator()

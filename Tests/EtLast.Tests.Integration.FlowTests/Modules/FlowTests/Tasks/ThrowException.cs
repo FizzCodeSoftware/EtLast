@@ -2,10 +2,6 @@
 
 public class ThrowException : AbstractEtlTask
 {
-    public override void ValidateParameters()
-    {
-    }
-
     public override void Execute(IFlow flow)
     {
         throw new Exception("this was really unexpected");

@@ -2,6 +2,7 @@
 
 public sealed class DropViews : AbstractSqlStatements
 {
+    [ProcessParameterNullException]
     public required string[] TableNames { get; init; }
 
     public DropViews(IEtlContext context)
@@ -12,9 +13,6 @@ public sealed class DropViews : AbstractSqlStatements
     public override void ValidateParameters()
     {
         base.ValidateParameters();
-
-        if (TableNames == null || TableNames.Length == 0)
-            throw new ProcessParameterNullException(this, nameof(TableNames));
 
         if (ConnectionString.SqlEngine is not SqlEngine.MsSql and not SqlEngine.MySql)
         {

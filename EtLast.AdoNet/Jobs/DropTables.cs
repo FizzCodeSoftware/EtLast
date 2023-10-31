@@ -2,19 +2,12 @@
 
 public sealed class DropTables : AbstractSqlStatements
 {
+    [ProcessParameterNullException]
     public required string[] TableNames { get; init; }
 
     public DropTables(IEtlContext context)
         : base(context)
     {
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (TableNames == null || TableNames.Length == 0)
-            throw new ProcessParameterNullException(this, nameof(TableNames));
     }
 
     protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)

@@ -2,6 +2,7 @@
 
 public sealed class ThrowExceptionOnDuplicateKeyMutator : AbstractMutator
 {
+    [ProcessParameterNullException]
     public required Func<IReadOnlyRow, string> RowKeyGenerator { get; init; }
 
     private readonly HashSet<string> _keys = new();
@@ -9,14 +10,6 @@ public sealed class ThrowExceptionOnDuplicateKeyMutator : AbstractMutator
     public ThrowExceptionOnDuplicateKeyMutator(IEtlContext context)
         : base(context)
     {
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (RowKeyGenerator == null)
-            throw new ProcessParameterNullException(this, nameof(RowKeyGenerator));
     }
 
     protected override void CloseMutator()

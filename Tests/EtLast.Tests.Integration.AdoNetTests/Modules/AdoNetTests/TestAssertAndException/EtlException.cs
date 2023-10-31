@@ -2,12 +2,8 @@
 
 public class EtlException : AbstractEtlTask
 {
+    [ProcessParameterNullException]
     public NamedConnectionString ConnectionString { get; init; }
-    public override void ValidateParameters()
-    {
-        if (ConnectionString == null)
-            throw new ProcessParameterNullException(this, nameof(ConnectionString));
-    }
 
     public override void Execute(IFlow flow)
     {

@@ -2,7 +2,10 @@
 
 public sealed class JoinMutator : AbstractCrossMutator
 {
+    [ProcessParameterNullException]
     public required RowKeyGenerator RowKeyGenerator { get; init; }
+
+    [ProcessParameterNullException]
     public required Dictionary<string, string> Columns { get; init; }
 
     public NoMatchAction NoMatchAction { get; init; }
@@ -135,12 +138,6 @@ public sealed class JoinMutator : AbstractCrossMutator
     public override void ValidateParameters()
     {
         base.ValidateParameters();
-
-        if (RowKeyGenerator == null)
-            throw new ProcessParameterNullException(this, nameof(RowKeyGenerator));
-
-        if (Columns == null)
-            throw new ProcessParameterNullException(this, nameof(Columns));
 
         if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
             throw new ProcessParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));

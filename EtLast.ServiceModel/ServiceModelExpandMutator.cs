@@ -12,8 +12,13 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
     where TChannel : class
     where TClient : ClientBase<TChannel>
 {
+    [ProcessParameterNullException]
     public required ServiceModelExpandMutatorClientCreatorDelegate<TChannel, TClient> ClientCreator { get; init; }
+
+    [ProcessParameterNullException]
     public required ServiceModelExpandMutatorClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; init; }
+
+    [ProcessParameterNullException]
     public required string TargetColumn { get; init; }
 
     /// <summary>
@@ -110,18 +115,6 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
 
         if (!removeRow)
             yield return row;
-    }
-
-    public override void ValidateParameters()
-    {
-        if (ClientCreator == null)
-            throw new ProcessParameterNullException(this, nameof(ClientCreator));
-
-        if (ClientInvoker == null)
-            throw new ProcessParameterNullException(this, nameof(ClientInvoker));
-
-        if (string.IsNullOrEmpty(TargetColumn))
-            throw new ProcessParameterNullException(this, nameof(TargetColumn));
     }
 }
 

@@ -7,6 +7,7 @@ public static class ThrowsInvalidProcessParameterExceptionHelper
     {
         if (assert is null)
             throw new ArgumentNullException(nameof(assert));
+
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
         .ReadFrom(TestData.Person(context))

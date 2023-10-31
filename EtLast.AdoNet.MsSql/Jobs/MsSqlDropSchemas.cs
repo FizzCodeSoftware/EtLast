@@ -2,6 +2,7 @@
 
 public sealed class MsSqlDropSchemas : AbstractSqlStatements
 {
+    [ProcessParameterNullException]
     public required string[] SchemaNames { get; init; }
 
     public MsSqlDropSchemas(IEtlContext context)
@@ -12,9 +13,6 @@ public sealed class MsSqlDropSchemas : AbstractSqlStatements
     public override void ValidateParameters()
     {
         base.ValidateParameters();
-
-        if (SchemaNames == null || SchemaNames.Length == 0)
-            throw new ProcessParameterNullException(this, nameof(SchemaNames));
 
         if (ConnectionString.SqlEngine != SqlEngine.MsSql)
             throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be Microsoft.Data.SqlClient");

@@ -3,7 +3,11 @@
 public sealed class UnpivotMutator : AbstractMutator
 {
     public Dictionary<string, string> FixColumns { get; init; }
+
+    [ProcessParameterNullException]
     public required string NewColumnForDimension { get; init; }
+
+    [ProcessParameterNullException]
     public required string NewColumnForValue { get; init; }
 
     /// <summary>
@@ -95,12 +99,6 @@ public sealed class UnpivotMutator : AbstractMutator
     {
         if (ValueColumns == null && FixColumns == null)
             throw new InvalidProcessParameterException(this, nameof(ValueColumns), null, "if " + nameof(ValueColumns) + " is null then " + nameof(FixColumns) + " must be set");
-
-        if (NewColumnForValue == null)
-            throw new ProcessParameterNullException(this, nameof(NewColumnForValue));
-
-        if (NewColumnForDimension == null)
-            throw new ProcessParameterNullException(this, nameof(NewColumnForDimension));
 
         if (!IgnoreIfValueIsNull && ValueColumns == null)
             throw new InvalidProcessParameterException(this, nameof(ValueColumns), null, "if " + nameof(IgnoreIfValueIsNull) + " is false then " + nameof(ValueColumns) + " must be set");

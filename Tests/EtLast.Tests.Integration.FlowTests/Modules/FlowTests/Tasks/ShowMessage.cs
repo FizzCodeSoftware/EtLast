@@ -2,13 +2,8 @@
 
 public class ShowMessage : AbstractEtlTask
 {
+    [ProcessParameterNullException]
     public string Message { get; set; }
-
-    public override void ValidateParameters()
-    {
-        if (Message == null)
-            throw new ProcessParameterNullException(this, nameof(Message));
-    }
 
     public override void Execute(IFlow flow)
     {

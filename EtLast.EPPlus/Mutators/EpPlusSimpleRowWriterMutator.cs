@@ -2,13 +2,16 @@
 
 public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
 {
+    [ProcessParameterNullException]
     public required ISinkProvider SinkProvider { get; init; }
 
+    [ProcessParameterNullException]
     public required string SheetName { get; init; }
 
     /// <summary>
     /// Key is the output column title AND the column in the row (later can be customized by setting a <see cref="ExcelColumn"/>).
     /// </summary>
+    [ProcessParameterNullException]
     public required Dictionary<string, ExcelColumn> Columns { get; init; }
 
     public PartitionKeyGenerator PartitionKeyGenerator { get; set; }
@@ -159,22 +162,6 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
         }
 
         yield return row;
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (SinkProvider == null)
-            throw new ProcessParameterNullException(this, nameof(SinkProvider));
-
-        SinkProvider.Validate(this);
-
-        if (string.IsNullOrEmpty(SheetName))
-            throw new ProcessParameterNullException(this, nameof(SheetName));
-
-        if (Columns == null)
-            throw new ProcessParameterNullException(this, nameof(Columns));
     }
 
     private class InternalSink

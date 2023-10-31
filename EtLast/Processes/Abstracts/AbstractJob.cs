@@ -17,8 +17,10 @@ public abstract class AbstractJob : AbstractProcess
         LogPublicSettableProperties(LogSeverity.Verbose);
 
         var netTimeStopwatch = Stopwatch.StartNew();
+
         try
         {
+            ValidateParameterAnnotations();
             ValidateParameters();
 
             if (!FlowState.IsTerminating)

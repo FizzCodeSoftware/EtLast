@@ -2,8 +2,12 @@
 
 public sealed class ReplaceStringMutator : AbstractMutator
 {
+    [ProcessParameterNullException]
     public required string ColumnName { get; init; }
+
+    [ProcessParameterNullException]
     public required string OldString { get; init; }
+
     public required string NewString { get; init; }
 
     /// <summary>
@@ -25,15 +29,6 @@ public sealed class ReplaceStringMutator : AbstractMutator
         }
 
         yield return row;
-    }
-
-    public override void ValidateParameters()
-    {
-        if (ColumnName == null)
-            throw new ProcessParameterNullException(this, nameof(ColumnName));
-
-        if (string.IsNullOrEmpty(OldString))
-            throw new ProcessParameterNullException(this, nameof(OldString));
     }
 }
 

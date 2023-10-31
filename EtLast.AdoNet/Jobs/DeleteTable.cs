@@ -2,6 +2,7 @@
 
 public sealed class DeleteTable : AbstractSqlStatement
 {
+    [ProcessParameterNullException]
     public required string TableName { get; init; }
 
     /// <summary>
@@ -19,14 +20,6 @@ public sealed class DeleteTable : AbstractSqlStatement
         return TableName != null
             ? ConnectionString?.Unescape(TableName)
             : null;
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (string.IsNullOrEmpty(TableName))
-            throw new ProcessParameterNullException(this, nameof(TableName));
     }
 
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)

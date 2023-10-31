@@ -2,6 +2,7 @@
 
 public sealed class KeyTestMutator : AbstractCrossMutator
 {
+    [ProcessParameterNullException]
     public required RowKeyGenerator RowKeyGenerator { get; init; }
 
     public NoMatchAction NoMatchAction { get; init; }
@@ -102,9 +103,6 @@ public sealed class KeyTestMutator : AbstractCrossMutator
     public override void ValidateParameters()
     {
         base.ValidateParameters();
-
-        if (RowKeyGenerator == null)
-            throw new ProcessParameterNullException(this, nameof(RowKeyGenerator));
 
         if (MatchAction == null && NoMatchAction == null)
             throw new InvalidProcessParameterException(this, nameof(MatchAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must be specified: " + nameof(MatchAction) + " or " + nameof(NoMatchAction));

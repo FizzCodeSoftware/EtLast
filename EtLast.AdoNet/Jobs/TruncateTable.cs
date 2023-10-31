@@ -2,6 +2,7 @@
 
 public sealed class TruncateTable : AbstractSqlStatement
 {
+    [ProcessParameterNullException]
     public string TableName { get; init; }
 
     public TruncateTable(IEtlContext context)
@@ -14,14 +15,6 @@ public sealed class TruncateTable : AbstractSqlStatement
         return TableName != null
             ? ConnectionString?.Unescape(TableName)
             : null;
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (string.IsNullOrEmpty(TableName))
-            throw new ProcessParameterNullException(this, nameof(TableName));
     }
 
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)

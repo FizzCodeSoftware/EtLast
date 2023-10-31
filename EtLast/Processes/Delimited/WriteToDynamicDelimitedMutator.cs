@@ -2,6 +2,7 @@
 
 public sealed class WriteToDynamicDelimitedMutator : AbstractMutator, IRowSink
 {
+    [ProcessParameterNullException]
     public required ISinkProvider SinkProvider { get; init; }
 
     /// <summary>
@@ -60,16 +61,6 @@ public sealed class WriteToDynamicDelimitedMutator : AbstractMutator, IRowSink
     public WriteToDynamicDelimitedMutator(IEtlContext context)
         : base(context)
     {
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (SinkProvider == null)
-            throw new ProcessParameterNullException(this, nameof(SinkProvider));
-
-        SinkProvider.Validate(this);
     }
 
     protected override void StartMutator()

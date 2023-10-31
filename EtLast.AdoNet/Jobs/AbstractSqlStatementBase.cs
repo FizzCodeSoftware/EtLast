@@ -3,6 +3,7 @@
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractSqlStatementBase : AbstractJob
 {
+    [ProcessParameterNullException]
     public required NamedConnectionString ConnectionString { get; init; }
 
     /// <summary>
@@ -20,12 +21,6 @@ public abstract class AbstractSqlStatementBase : AbstractJob
     /// See <see cref="TransactionScopeOption.Suppress"/>>.
     /// </summary>
     public bool SuppressExistingTransactionScope { get; init; }
-
-    public override void ValidateParameters()
-    {
-        if (ConnectionString == null)
-            throw new ProcessParameterNullException(this, nameof(ConnectionString));
-    }
 
     protected static string InlineArrayParametersIfNecessary(string sqlStatement, ref Dictionary<string, object> parameters)
     {

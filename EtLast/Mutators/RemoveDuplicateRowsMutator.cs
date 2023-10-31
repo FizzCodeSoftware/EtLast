@@ -7,6 +7,7 @@
 /// </summary>
 public sealed class RemoveDuplicateRowsMutator : AbstractMutator
 {
+    [ProcessParameterNullException]
     public required Func<IReadOnlyRow, string> KeyGenerator { get; init; }
 
     private readonly HashSet<string> _returnedKeys = new();
@@ -14,14 +15,6 @@ public sealed class RemoveDuplicateRowsMutator : AbstractMutator
     public RemoveDuplicateRowsMutator(IEtlContext context)
         : base(context)
     {
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (KeyGenerator == null)
-            throw new ProcessParameterNullException(this, nameof(KeyGenerator));
     }
 
     protected override void CloseMutator()

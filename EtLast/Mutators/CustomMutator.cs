@@ -4,6 +4,7 @@ public delegate bool CustomMutatorDelegate(IRow row);
 
 public sealed class CustomMutator : AbstractMutator
 {
+    [ProcessParameterNullException]
     public required CustomMutatorDelegate Action { get; init; }
 
     public CustomMutator(IEtlContext context)
@@ -31,12 +32,6 @@ public sealed class CustomMutator : AbstractMutator
 
         if (keep)
             yield return row;
-    }
-
-    public override void ValidateParameters()
-    {
-        if (Action == null)
-            throw new ProcessParameterNullException(this, nameof(Action));
     }
 }
 

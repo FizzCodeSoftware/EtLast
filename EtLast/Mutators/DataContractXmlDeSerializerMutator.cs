@@ -5,7 +5,10 @@ namespace FizzCode.EtLast;
 
 public sealed class DataContractXmlDeSerializerMutator<T> : AbstractMutator
 {
+    [ProcessParameterNullException]
     public required string SourceColumn { get; init; }
+
+    [ProcessParameterNullException]
     public required string TargetColumn { get; init; }
 
     public required InvalidValueAction ActionIfFailed { get; init; }
@@ -60,15 +63,6 @@ public sealed class DataContractXmlDeSerializerMutator<T> : AbstractMutator
 
         if (!removeRow)
             yield return row;
-    }
-
-    public override void ValidateParameters()
-    {
-        if (SourceColumn == null)
-            throw new ProcessParameterNullException(this, nameof(SourceColumn));
-
-        if (TargetColumn == null)
-            throw new ProcessParameterNullException(this, nameof(TargetColumn));
     }
 }
 

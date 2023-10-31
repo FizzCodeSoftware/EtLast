@@ -2,7 +2,9 @@
 
 public sealed class AddIncrementalLongIdMutator : AbstractMutator
 {
+    [ProcessParameterNullException]
     public required string Column { get; init; }
+
     public required long FirstId { get; init; }
 
     private long _nextId;
@@ -22,12 +24,6 @@ public sealed class AddIncrementalLongIdMutator : AbstractMutator
         row[Column] = _nextId;
         _nextId++;
         yield return row;
-    }
-
-    public override void ValidateParameters()
-    {
-        if (string.IsNullOrEmpty(Column))
-            throw new ProcessParameterNullException(this, nameof(Column));
     }
 }
 

@@ -3,10 +3,16 @@
 public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutator, IRowSink
     where TState : BaseExcelWriterState, new()
 {
+    [ProcessParameterNullException]
     public required string SinkLocation { get; init; }
+
+    [ProcessParameterNullException]
     public required Stream Stream { get; init; }
-    public Action<ExcelPackage, TState> Initialize { get; init; }
+
+    [ProcessParameterNullException]
     public required Action<IRow, ExcelPackage, TState> Action { get; init; }
+
+    public Action<ExcelPackage, TState> Initialize { get; init; }
     public Action<ExcelPackage, TState> Finalize { get; init; }
     public ExcelPackage ExistingPackage { get; init; }
 
@@ -84,20 +90,6 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
         }
 
         yield return row;
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (Stream == null)
-            throw new ProcessParameterNullException(this, nameof(Stream));
-
-        if (Action == null)
-            throw new ProcessParameterNullException(this, nameof(Action));
-
-        if (string.IsNullOrEmpty(SinkLocation))
-            throw new ProcessParameterNullException(this, nameof(SinkLocation));
     }
 
     public void AddWorkSheet(string name)

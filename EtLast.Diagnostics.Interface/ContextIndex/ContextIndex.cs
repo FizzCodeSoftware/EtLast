@@ -77,18 +77,9 @@ public class ContextIndex
 
                 var eventDataPosition = input.Position;
                 var eventDataSize = reader.Read7BitEncodedInt();
+                var timestamp = reader.ReadInt64();
 
                 //Debug.WriteLine(startPosition + "\t" + eventKind + "\t" + eventDataSize);
-
-                if (eventKind == DiagnosticsEventKind.TextDictionaryKeyAdded)
-                {
-                    var key = reader.Read7BitEncodedInt();
-                    var text = reader.ReadNullableString();
-                    _eventParser.AddText(key, text);
-                    continue;
-                }
-
-                var timestamp = reader.ReadInt64();
 
                 if (eventKind == DiagnosticsEventKind.ContextEnded)
                 {

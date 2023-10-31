@@ -2,8 +2,13 @@
 
 public sealed class MergeDateWithTimeMutator : AbstractMutator
 {
+    [ProcessParameterNullException]
     public required string TargetColumn { get; init; }
+
+    [ProcessParameterNullException]
     public required string SourceDateColumn { get; init; }
+
+    [ProcessParameterNullException]
     public required string SourceTimeColumn { get; init; }
 
     /// <summary>
@@ -60,15 +65,6 @@ public sealed class MergeDateWithTimeMutator : AbstractMutator
 
     public override void ValidateParameters()
     {
-        if (string.IsNullOrEmpty(TargetColumn))
-            throw new ProcessParameterNullException(this, nameof(TargetColumn));
-
-        if (string.IsNullOrEmpty(SourceDateColumn))
-            throw new ProcessParameterNullException(this, nameof(SourceDateColumn));
-
-        if (string.IsNullOrEmpty(SourceTimeColumn))
-            throw new ProcessParameterNullException(this, nameof(SourceTimeColumn));
-
         if (ActionIfInvalid != InvalidValueAction.SetSpecialValue && SpecialValueIfInvalid != null)
             throw new InvalidProcessParameterException(this, nameof(SpecialValueIfInvalid), SpecialValueIfInvalid, "value must be null if " + nameof(ActionIfInvalid) + " is not " + nameof(InvalidValueAction.SetSpecialValue));
     }

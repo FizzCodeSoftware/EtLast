@@ -4,8 +4,12 @@
 public abstract class AbstractMutator : AbstractProcess, IMutator
 {
     public Action<ISequence> Initializer { get; init; }
+
+    [ProcessParameterNullException]
     public ISequence Input { get; set; }
+
     public RowTestDelegate RowFilter { get; set; }
+
     public RowTagTestDelegate RowTagFilter { get; set; }
 
     protected AbstractMutator(IEtlContext context)
@@ -24,9 +28,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
         var netTimeStopwatch = Stopwatch.StartNew();
         try
         {
-            if (Input == null)
-                throw new ProcessParameterNullException(this, nameof(Input));
-
+            ValidateParameterAnnotations();
             ValidateParameters();
         }
         catch (Exception ex)

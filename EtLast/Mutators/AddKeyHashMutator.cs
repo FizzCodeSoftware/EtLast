@@ -2,11 +2,13 @@
 
 public sealed class AddKeyHashMutator : AbstractMutator
 {
+    [ProcessParameterNullException]
     public required string TargetColumn { get; init; }
 
     /// <summary>
     /// Creates the hash algorithm used by this mutator. Recommendation is <see cref="SHA256.Create()"/>.
     /// </summary>
+    [ProcessParameterNullException]
     public required Func<HashAlgorithm> HashAlgorithmCreator { get; init; }
 
     public string[] KeyColumns { get; init; }
@@ -66,18 +68,6 @@ public sealed class AddKeyHashMutator : AbstractMutator
         }
 
         yield return row;
-    }
-
-    public override void ValidateParameters()
-    {
-        if (KeyColumns?.Length == 0)
-            throw new ProcessParameterNullException(this, nameof(KeyColumns));
-
-        if (HashAlgorithmCreator == null)
-            throw new ProcessParameterNullException(this, nameof(HashAlgorithmCreator));
-
-        if (TargetColumn == null)
-            throw new ProcessParameterNullException(this, nameof(TargetColumn));
     }
 }
 

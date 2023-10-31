@@ -7,25 +7,18 @@ public sealed class HttpDownload : AbstractJob
     /// According to MSDN, it is recommended to reuse HttpClient instances if possible.
     /// https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/http/httpclient-guidelines
     /// </summary>
+    [ProcessParameterNullException]
     public required HttpClient Client { get; init; }
+
+    [ProcessParameterNullException]
     public required string Url { get; init; }
+
+    [ProcessParameterNullException]
     public required MemoryStream OutputStream { get; init; }
 
     public HttpDownload(IEtlContext context)
         : base(context)
     {
-    }
-
-    public override void ValidateParameters()
-    {
-        if (Client == null)
-            throw new ProcessParameterNullException(this, nameof(Client));
-
-        if (string.IsNullOrEmpty(Url))
-            throw new ProcessParameterNullException(this, nameof(Url));
-
-        if (OutputStream == null)
-            throw new ProcessParameterNullException(this, nameof(OutputStream));
     }
 
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)

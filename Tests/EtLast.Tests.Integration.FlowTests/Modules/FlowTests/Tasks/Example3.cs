@@ -4,10 +4,6 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.FlowTests;
 
 public class Example3 : AbstractEtlTask
 {
-    public override void ValidateParameters()
-    {
-    }
-
     public override void Execute(IFlow flow)
     {
         flow

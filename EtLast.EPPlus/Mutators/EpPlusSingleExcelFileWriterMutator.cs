@@ -3,9 +3,13 @@
 public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator, IRowSink
     where TState : BaseExcelWriterState, new()
 {
+    [ProcessParameterNullException]
     public required string FileName { get; init; }
-    public Action<ExcelPackage, TState> Initialize { get; init; }
+
+    [ProcessParameterNullException]
     public required Action<IRow, ExcelPackage, TState> Action { get; init; }
+
+    public Action<ExcelPackage, TState> Initialize { get; init; }
     public Action<ExcelPackage, TState> Finalize { get; init; }
     public ExcelPackage ExistingPackage { get; init; }
 
@@ -87,17 +91,6 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
         }
 
         yield return row;
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (string.IsNullOrEmpty(FileName))
-            throw new ProcessParameterNullException(this, nameof(FileName));
-
-        if (Action == null)
-            throw new ProcessParameterNullException(this, nameof(Action));
     }
 
     public void AddWorkSheet(string name)

@@ -2,8 +2,13 @@
 
 public sealed class CreatePrimaryKeyConstraint : AbstractSqlStatement
 {
+    [ProcessParameterNullException]
     public required string TableName { get; init; }
+
+    [ProcessParameterNullException]
     public required string ConstraintName { get; init; }
+
+    [ProcessParameterNullException]
     public required string[] Columns { get; init; }
 
     public CreatePrimaryKeyConstraint(IEtlContext context)
@@ -16,20 +21,6 @@ public sealed class CreatePrimaryKeyConstraint : AbstractSqlStatement
         return TableName != null
             ? ConnectionString?.Unescape(TableName)
             : null;
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (string.IsNullOrEmpty(TableName))
-            throw new ProcessParameterNullException(this, nameof(TableName));
-
-        if (string.IsNullOrEmpty(ConstraintName))
-            throw new ProcessParameterNullException(this, nameof(ConstraintName));
-
-        if (Columns == null || Columns.Length == 0)
-            throw new ProcessParameterNullException(this, nameof(Columns));
     }
 
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)

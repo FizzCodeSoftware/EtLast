@@ -2,6 +2,7 @@
 
 public sealed class RemoveColumnMutator : AbstractSimpleChangeMutator
 {
+    [ProcessParameterNullException]
     public required string[] Columns { get; init; }
 
     public RemoveColumnMutator(IEtlContext context)
@@ -31,12 +32,6 @@ public sealed class RemoveColumnMutator : AbstractSimpleChangeMutator
         }
 
         yield return row;
-    }
-
-    public override void ValidateParameters()
-    {
-        if (Columns == null || Columns.Length == 0)
-            throw new ProcessParameterNullException(this, nameof(Columns));
     }
 }
 

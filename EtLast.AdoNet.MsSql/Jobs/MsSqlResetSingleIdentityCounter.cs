@@ -2,7 +2,10 @@
 
 public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
 {
+    [ProcessParameterNullException]
     public string TableName { get; init; }
+
+    [ProcessParameterNullException]
     public string IdentityColumnName { get; init; }
 
     public MsSqlResetSingleIdentityCounter(IEtlContext context)
@@ -20,12 +23,6 @@ public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
     public override void ValidateParameters()
     {
         base.ValidateParameters();
-
-        if (TableName == null)
-            throw new ProcessParameterNullException(this, nameof(TableName));
-
-        if (IdentityColumnName == null)
-            throw new ProcessParameterNullException(this, nameof(IdentityColumnName));
 
         if (ConnectionString.SqlEngine != SqlEngine.MsSql)
             throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be Microsoft.Data.SqlClient");

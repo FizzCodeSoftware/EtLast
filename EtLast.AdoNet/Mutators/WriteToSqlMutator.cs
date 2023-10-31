@@ -2,6 +2,7 @@
 
 public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
 {
+    [ProcessParameterNullException]
     public NamedConnectionString ConnectionString { get; init; }
 
     /// <summary>
@@ -16,8 +17,10 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
 
     public IDictionary<string, DbType> ColumnTypes { get; init; }
 
+    [ProcessParameterNullException]
     public DetailedDbTableDefinition TableDefinition { get; init; }
 
+    [ProcessParameterNullException]
     public IWriteToSqlStatementCreator SqlStatementCreator { get; init; }
 
     /// <summary>
@@ -220,23 +223,6 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
         }
 
         return sb.ToString();
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (ConnectionString == null)
-            throw new ProcessParameterNullException(this, nameof(ConnectionString));
-
-        if (MaximumParameterCount <= 0)
-            throw new InvalidProcessParameterException(this, nameof(MaximumParameterCount), MaximumParameterCount, "value must be greater than 0");
-
-        if (SqlStatementCreator == null)
-            throw new ProcessParameterNullException(this, nameof(SqlStatementCreator));
-
-        if (TableDefinition == null)
-            throw new ProcessParameterNullException(this, nameof(TableDefinition));
     }
 
     public static void SetParameter(IDbDataParameter parameter, object value, DbType? dbType)

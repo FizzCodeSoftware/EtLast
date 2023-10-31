@@ -2,8 +2,13 @@
 
 public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
 {
+    [ProcessParameterNullException]
     public required string SourceTableName { get; init; }
+
+    [ProcessParameterNullException]
     public required string TargetTableName { get; init; }
+
+    [ProcessParameterNullException]
     public required string OnCondition { get; init; }
 
     public string SourceTableAlias { get; init; }
@@ -37,20 +42,6 @@ public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
         return TargetTableName != null
             ? ConnectionString?.Unescape(TargetTableName)
             : null;
-    }
-
-    public override void ValidateParameters()
-    {
-        base.ValidateParameters();
-
-        if (string.IsNullOrEmpty(SourceTableName))
-            throw new ProcessParameterNullException(this, nameof(SourceTableName));
-
-        if (string.IsNullOrEmpty(TargetTableName))
-            throw new ProcessParameterNullException(this, nameof(TargetTableName));
-
-        if (string.IsNullOrEmpty(OnCondition))
-            throw new ProcessParameterNullException(this, nameof(OnCondition));
     }
 
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)

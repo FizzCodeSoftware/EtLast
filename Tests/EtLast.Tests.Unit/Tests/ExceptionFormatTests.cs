@@ -19,7 +19,7 @@ public class ExceptionFormatTests
         process.Execute(null);
         var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
-        Debugger.Break();
+        //Debugger.Break();
     }
 
     [TestMethod]
@@ -38,7 +38,7 @@ public class ExceptionFormatTests
         process.Execute(null);
         var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
-        Debugger.Break();
+        //Debugger.Break();
     }
 
     [TestMethod]
@@ -63,7 +63,7 @@ public class ExceptionFormatTests
         process.Execute(null);
         var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
-        Debugger.Break();
+        //Debugger.Break();
     }
 
     [TestMethod]
@@ -91,7 +91,7 @@ public class ExceptionFormatTests
         process.Execute(null);
         var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
-        Debugger.Break();
+        //Debugger.Break();
     }
 
     [TestMethod]
@@ -116,6 +116,6 @@ public class ExceptionFormatTests
         process.Execute(null);
         var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
-        Debugger.Break();
+        //Debugger.Break();
     }
 }

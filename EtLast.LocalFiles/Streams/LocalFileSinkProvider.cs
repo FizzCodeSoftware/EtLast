@@ -2,11 +2,13 @@
 
 public enum LocalSinkFileExistsAction { Continue, Exception, DeleteAndContinue }
 
+[ContainsProcessParameterValidation]
 public class LocalFileSinkProvider : ISinkProvider
 {
     /// <summary>
     /// Generates file name based on a partition key.
     /// </summary>
+    [ProcessParameterNullException]
     public required Func<string, string> FileNameGenerator { get; init; }
 
     /// <summary>
@@ -30,12 +32,6 @@ public class LocalFileSinkProvider : ISinkProvider
     public FileShare FileShare { get; init; } = FileShare.Read;
 
     public bool AutomaticallyDispose => true;
-
-    public void Validate(IProcess caller)
-    {
-        if (FileNameGenerator == null)
-            throw new ProcessParameterNullException(caller, nameof(FileNameGenerator));
-    }
 
     public NamedSink GetSink(IProcess caller, string partitionKey)
     {
