@@ -2,7 +2,7 @@
 
 public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public NamedConnectionString ConnectionString { get; init; }
 
     /// <summary>
@@ -10,7 +10,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
     /// </summary>
     public int CommandTimeout { get; init; } = 60 * 60;
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public DbTableDefinition TableDefinition { get; init; }
 
     /// <summary>

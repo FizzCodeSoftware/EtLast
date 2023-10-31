@@ -2,7 +2,7 @@
 
 public sealed class KeyTestMutator : AbstractCrossMutator
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required RowKeyGenerator RowKeyGenerator { get; init; }
 
     public NoMatchAction NoMatchAction { get; init; }

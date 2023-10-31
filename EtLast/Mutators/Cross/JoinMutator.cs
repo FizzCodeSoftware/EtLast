@@ -2,10 +2,10 @@
 
 public sealed class JoinMutator : AbstractCrossMutator
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required RowKeyGenerator RowKeyGenerator { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required Dictionary<string, string> Columns { get; init; }
 
     public NoMatchAction NoMatchAction { get; init; }

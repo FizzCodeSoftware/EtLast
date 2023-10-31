@@ -2,7 +2,7 @@
 
 public sealed class MsSqlEnableConstraintCheckFiltered : AbstractSqlStatements
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public List<KeyValuePair<string, List<string>>> ConstraintNames { get; init; }
 
     public MsSqlEnableConstraintCheckFiltered(IEtlContext context)

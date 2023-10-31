@@ -2,10 +2,10 @@
 
 public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public string TableName { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public string IdentityColumnName { get; init; }
 
     public MsSqlResetSingleIdentityCounter(IEtlContext context)

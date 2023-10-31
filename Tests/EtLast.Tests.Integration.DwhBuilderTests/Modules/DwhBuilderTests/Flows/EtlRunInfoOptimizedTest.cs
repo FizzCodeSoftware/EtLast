@@ -2,10 +2,10 @@
 
 public class EtlRunInfoOptimizedTest : AbstractEtlTask
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public NamedConnectionString ConnectionString { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public string DatabaseName { get; init; }
 
     public override void Execute(IFlow flow)

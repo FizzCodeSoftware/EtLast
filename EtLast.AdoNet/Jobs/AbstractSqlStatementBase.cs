@@ -3,7 +3,7 @@
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractSqlStatementBase : AbstractJob
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required NamedConnectionString ConnectionString { get; init; }
 
     /// <summary>

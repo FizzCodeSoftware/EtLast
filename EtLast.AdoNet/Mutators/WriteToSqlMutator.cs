@@ -2,7 +2,7 @@
 
 public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public NamedConnectionString ConnectionString { get; init; }
 
     /// <summary>
@@ -17,10 +17,10 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
 
     public IDictionary<string, DbType> ColumnTypes { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public DetailedDbTableDefinition TableDefinition { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public IWriteToSqlStatementCreator SqlStatementCreator { get; init; }
 
     /// <summary>

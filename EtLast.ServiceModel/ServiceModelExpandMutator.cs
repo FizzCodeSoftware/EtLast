@@ -12,13 +12,13 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
     where TChannel : class
     where TClient : ClientBase<TChannel>
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required ServiceModelExpandMutatorClientCreatorDelegate<TChannel, TClient> ClientCreator { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required ServiceModelExpandMutatorClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string TargetColumn { get; init; }
 
     /// <summary>

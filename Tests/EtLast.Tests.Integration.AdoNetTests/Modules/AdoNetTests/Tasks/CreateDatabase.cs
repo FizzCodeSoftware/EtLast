@@ -2,10 +2,10 @@
 
 public class CreateDatabase : AbstractEtlTask
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public NamedConnectionString ConnectionStringMaster { get; set; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public string DatabaseName { get; init; }
 
     public override void Execute(IFlow flow)

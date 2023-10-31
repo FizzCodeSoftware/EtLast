@@ -2,7 +2,7 @@
 
 public sealed class MsSqlDropSchemas : AbstractSqlStatements
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string[] SchemaNames { get; init; }
 
     public MsSqlDropSchemas(IEtlContext context)

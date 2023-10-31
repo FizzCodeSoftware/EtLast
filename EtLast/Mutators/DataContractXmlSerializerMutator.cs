@@ -5,10 +5,10 @@ namespace FizzCode.EtLast;
 
 public sealed class DataContractXmlSerializerMutator<T> : AbstractMutator
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string SourceColumn { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string TargetColumn { get; init; }
 
     public required InvalidValueAction ActionIfFailed { get; init; }

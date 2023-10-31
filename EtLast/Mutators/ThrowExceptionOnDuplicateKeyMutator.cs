@@ -2,7 +2,7 @@
 
 public sealed class ThrowExceptionOnDuplicateKeyMutator : AbstractMutator
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required Func<IReadOnlyRow, string> RowKeyGenerator { get; init; }
 
     private readonly HashSet<string> _keys = new();

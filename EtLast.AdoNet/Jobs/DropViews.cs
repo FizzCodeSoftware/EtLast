@@ -2,7 +2,7 @@
 
 public sealed class DropViews : AbstractSqlStatements
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string[] TableNames { get; init; }
 
     public DropViews(IEtlContext context)

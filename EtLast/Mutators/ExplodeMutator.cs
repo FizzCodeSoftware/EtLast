@@ -9,7 +9,7 @@ public sealed class ExplodeMutator : AbstractMutator
     /// </summary>
     public required bool RemoveOriginalRow { get; init; } = true;
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required ExplodeDelegate RowCreator { get; init; }
 
     public ExplodeMutator(IEtlContext context)

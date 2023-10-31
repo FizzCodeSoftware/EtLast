@@ -2,10 +2,10 @@
 
 public class ThrowException : AbstractEtlTask
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public Type ExceptionType { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public string Message { get; init; }
 
     public override void Execute(IFlow flow)

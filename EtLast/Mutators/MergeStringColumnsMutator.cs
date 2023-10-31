@@ -2,10 +2,10 @@
 
 public sealed class MergeStringColumnsMutator : AbstractSimpleChangeMutator
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string[] ColumnsToMerge { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string TargetColumn { get; init; }
 
     public required string Separator { get; init; }

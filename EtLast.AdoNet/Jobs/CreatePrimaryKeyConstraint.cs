@@ -2,13 +2,13 @@
 
 public sealed class CreatePrimaryKeyConstraint : AbstractSqlStatement
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string TableName { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string ConstraintName { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string[] Columns { get; init; }
 
     public CreatePrimaryKeyConstraint(IEtlContext context)

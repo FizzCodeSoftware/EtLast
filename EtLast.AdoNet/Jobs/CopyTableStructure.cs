@@ -2,7 +2,7 @@
 
 public sealed class CopyTableStructure : AbstractSqlStatements
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required List<TableCopyConfiguration> Configuration { get; init; }
 
     public CopyTableStructure(IEtlContext context)

@@ -2,7 +2,7 @@
 
 public sealed class WriteToDynamicDelimitedMutator : AbstractMutator, IRowSink
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required ISinkProvider SinkProvider { get; init; }
 
     /// <summary>

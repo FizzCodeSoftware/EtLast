@@ -2,7 +2,7 @@
 
 public sealed class CopyTableIntoNewTable : AbstractSqlStatement
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required TableCopyConfiguration Configuration { get; init; }
 
     /// <summary>

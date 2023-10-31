@@ -2,7 +2,7 @@
 
 public sealed class CustomJob : AbstractJob
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required Action<CustomJob> Action { get; init; }
 
     public CustomJob(IEtlContext context)

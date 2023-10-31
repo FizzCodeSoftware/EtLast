@@ -2,7 +2,7 @@
 
 public sealed class TruncateTable : AbstractSqlStatement
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public string TableName { get; init; }
 
     public TruncateTable(IEtlContext context)

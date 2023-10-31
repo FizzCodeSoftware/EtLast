@@ -5,7 +5,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
 {
     public Action<ISequence> Initializer { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public ISequence Input { get; set; }
 
     public RowTestDelegate RowFilter { get; set; }

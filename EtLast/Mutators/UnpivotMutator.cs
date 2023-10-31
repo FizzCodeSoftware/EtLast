@@ -4,10 +4,10 @@ public sealed class UnpivotMutator : AbstractMutator
 {
     public Dictionary<string, string> FixColumns { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string NewColumnForDimension { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string NewColumnForValue { get; init; }
 
     /// <summary>

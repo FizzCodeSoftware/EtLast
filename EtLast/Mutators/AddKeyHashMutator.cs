@@ -2,13 +2,13 @@
 
 public sealed class AddKeyHashMutator : AbstractMutator
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string TargetColumn { get; init; }
 
     /// <summary>
     /// Creates the hash algorithm used by this mutator. Recommendation is <see cref="SHA256.Create()"/>.
     /// </summary>
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required Func<HashAlgorithm> HashAlgorithmCreator { get; init; }
 
     public string[] KeyColumns { get; init; }

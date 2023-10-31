@@ -2,10 +2,10 @@
 
 public sealed class CompareWithRowMutator : AbstractCrossMutator
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required RowKeyGenerator RowKeyGenerator { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required IRowEqualityComparer EqualityComparer { get; init; }
 
     public MatchAction MatchAndEqualsAction { get; init; }

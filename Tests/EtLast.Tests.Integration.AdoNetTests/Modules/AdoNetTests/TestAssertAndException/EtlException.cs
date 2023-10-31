@@ -2,7 +2,7 @@
 
 public class EtlException : AbstractEtlTask
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public NamedConnectionString ConnectionString { get; init; }
 
     public override void Execute(IFlow flow)

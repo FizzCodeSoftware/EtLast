@@ -3,10 +3,10 @@
 public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator, IRowSink
     where TState : BaseExcelWriterState, new()
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string FileName { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required Action<IRow, ExcelPackage, TState> Action { get; init; }
 
     public Action<ExcelPackage, TState> Initialize { get; init; }

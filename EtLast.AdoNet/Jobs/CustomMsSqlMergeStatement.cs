@@ -2,13 +2,13 @@
 
 public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string SourceTableName { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string TargetTableName { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string OnCondition { get; init; }
 
     public string SourceTableAlias { get; init; }

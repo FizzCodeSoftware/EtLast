@@ -4,19 +4,19 @@ public delegate bool ColumnValidationDelegate(ColumnValidationMutator process, I
 
 public sealed class ColumnValidationMutator : AbstractMutator
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string Column { get; init; }
 
     /// <summary>
     /// If this delegate returns false then the corresponding value of the row will be replaced with an <see cref="EtlRowError"/>
     /// </summary>
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required ColumnValidationDelegate Test { get; init; }
 
     /// <summary>
     /// Error message in the <see cref="EtlRowError"/>
     /// </summary>
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string ErrorMessage { get; init; }
 
     public ColumnValidationMutator(IEtlContext context)

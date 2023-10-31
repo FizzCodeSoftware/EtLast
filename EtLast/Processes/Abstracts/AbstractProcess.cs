@@ -197,19 +197,36 @@ public abstract class AbstractProcess : IProcess
         foreach (var property in properties)
         {
             var value = property.GetValue(instance);
-            if (property.GetCustomAttribute<ProcessParameterNullExceptionAttribute>() is ProcessParameterNullExceptionAttribute attr)
+            if (property.GetCustomAttribute<ProcessParameterMustHaveValueAttribute>() is ProcessParameterMustHaveValueAttribute attr)
             {
-                if (value == null || (attr.ThrowOnEmptyString && value is string str && string.IsNullOrEmpty(str)))
+                if (value == null)
                 {
                     throw new ProcessParameterNullException(process, property.Name);
                 }
-                else if (attr.ThrowOnEmptyArray && value is Array arr && arr.Length == 0)
+                else if (attr.ThrowOnEmptyString && value is string str)
                 {
-                    throw new ProcessParameterNullException(process, property.Name);
+                    if (string.IsNullOrEmpty(str))
+                        throw new ProcessParameterNullException(process, property.Name);
                 }
-                else if (attr.ThrowOnEmptyCollection && value is ICollection coll && coll.Count == 0)
+                else if (attr.ThrowOnEmptyArray && value is Array arr)
                 {
-                    throw new ProcessParameterNullException(process, property.Name);
+                    if (arr.Length == 0)
+                        throw new ProcessParameterNullException(process, property.Name);
+                }
+                else if (attr.ThrowOnEmptyCollection && value is ICollection coll)
+                {
+                    if (coll.Count == 0)
+                        throw new ProcessParameterNullException(process, property.Name);
+                }
+                else if (attr.ThrowOnYearOneDate && value is DateOnly dateOnly)
+                {
+                    if (dateOnly.Year == 1 && dateOnly.Month == 1 && dateOnly.Day == 1)
+                        throw new ProcessParameterNullException(process, property.Name);
+                }
+                else if (attr.ThrowOnYearOneDate && value is DateTime dateTime)
+                {
+                    if (dateTime.Year == 1 && dateTime.Month == 1 && dateTime.Day == 1)
+                        throw new ProcessParameterNullException(process, property.Name);
                 }
             }
 

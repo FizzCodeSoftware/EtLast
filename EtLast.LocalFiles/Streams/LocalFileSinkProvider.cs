@@ -8,7 +8,7 @@ public class LocalFileSinkProvider : ISinkProvider
     /// <summary>
     /// Generates file name based on a partition key.
     /// </summary>
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required Func<string, string> FileNameGenerator { get; init; }
 
     /// <summary>

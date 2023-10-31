@@ -4,7 +4,7 @@ public delegate bool CustomMutatorDelegate(IRow row);
 
 public sealed class CustomMutator : AbstractMutator
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required CustomMutatorDelegate Action { get; init; }
 
     public CustomMutator(IEtlContext context)

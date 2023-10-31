@@ -2,13 +2,13 @@
 
 public sealed class DbTableDefinition
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string TableName { get; init; }
 
     /// <summary>
     /// Key is column in the row, value is column in the database table (can be null).
     /// </summary>
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public Dictionary<string, string> Columns { get; init; }
 
     public override string ToString()

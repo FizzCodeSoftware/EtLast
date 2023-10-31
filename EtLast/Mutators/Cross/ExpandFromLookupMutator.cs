@@ -2,10 +2,10 @@
 
 public sealed class ExpandFromLookupMutator : AbstractCrossMutator
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required Dictionary<string, string> Columns { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required SelectRowFromLookupDelegate MatchSelector { get; init; }
 
     public NoMatchAction NoMatchAction { get; init; }

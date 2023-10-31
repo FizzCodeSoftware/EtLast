@@ -2,7 +2,7 @@
 
 public sealed class MsSqlDisableConstraintCheck : AbstractSqlStatements
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string[] TableNames { get; init; }
 
     public MsSqlDisableConstraintCheck(IEtlContext context)

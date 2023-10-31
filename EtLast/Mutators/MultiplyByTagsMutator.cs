@@ -7,7 +7,7 @@ public sealed class MultiplyByTagsMutator : AbstractMutator
     /// </summary>
     public required bool RemoveOriginalRow { get; init; } = true;
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required object[] Tags { get; init; }
 
     public MultiplyByTagsMutator(IEtlContext context)

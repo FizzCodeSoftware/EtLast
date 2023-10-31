@@ -2,7 +2,7 @@
 
 public class ShowMessage : AbstractEtlTask
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public string Message { get; set; }
 
     public override void Execute(IFlow flow)

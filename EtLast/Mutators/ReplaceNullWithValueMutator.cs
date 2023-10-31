@@ -4,7 +4,7 @@ public sealed class ReplaceNullWithValueMutator : AbstractSimpleChangeMutator
 {
     public required string[] Columns { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required object Value { get; init; }
 
     public ReplaceNullWithValueMutator(IEtlContext context)

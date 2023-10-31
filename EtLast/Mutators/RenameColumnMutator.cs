@@ -13,7 +13,7 @@ public sealed class RenameColumnMutator : AbstractSimpleChangeMutator
     /// <summary>
     /// Key is current name, Value is new name.
     /// </summary>
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required Dictionary<string, string> Columns { get; init; }
 
     /// <summary>

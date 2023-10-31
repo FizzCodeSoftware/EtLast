@@ -2,7 +2,7 @@
 
 public sealed class RemoveColumnMutator : AbstractSimpleChangeMutator
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string[] Columns { get; init; }
 
     public RemoveColumnMutator(IEtlContext context)

@@ -2,16 +2,16 @@
 
 public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required ISinkProvider SinkProvider { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string SheetName { get; init; }
 
     /// <summary>
     /// Key is the output column title AND the column in the row (later can be customized by setting a <see cref="ExcelColumn"/>).
     /// </summary>
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required Dictionary<string, ExcelColumn> Columns { get; init; }
 
     public PartitionKeyGenerator PartitionKeyGenerator { get; set; }

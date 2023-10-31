@@ -2,7 +2,7 @@
 
 public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required ISinkProvider SinkProvider { get; init; }
 
     /// <summary>
@@ -43,7 +43,7 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
     /// <summary>
     /// Key is the output column title AND the column in the row (later can be customized by setting a <see cref="DelimitedColumn"/>).
     /// </summary>
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required Dictionary<string, DelimitedColumn> Columns { get; init; }
 
     /// <summary>

@@ -2,16 +2,16 @@
 
 public sealed class EpPlusPreLoadedSimpleRowWriterMutator : AbstractMutator, IRowSink
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required ExcelPackage PreLoadedFile { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string SheetName { get; init; }
 
     /// <summary>
     /// Key is the output column title AND the column in the row (later can be customized by setting a <see cref="ExcelColumn"/>).
     /// </summary>
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required Dictionary<string, ExcelColumn> Columns { get; init; }
 
     public Action<ExcelPackage, SimpleExcelWriterState> Finalize { get; init; }

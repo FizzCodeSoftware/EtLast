@@ -3,7 +3,7 @@
 [ContainsProcessParameterValidation]
 public class MemorySinkProvider : ISinkProvider
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required Func<MemoryStream> StreamCreator { get; init; }
 
     private readonly string _sinkName = "MemorySink";

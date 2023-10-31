@@ -7,7 +7,7 @@
 /// </summary>
 public sealed class RemoveDuplicateRowsMutator : AbstractMutator
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required Func<IReadOnlyRow, string> KeyGenerator { get; init; }
 
     private readonly HashSet<string> _returnedKeys = new();

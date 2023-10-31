@@ -2,7 +2,7 @@
 
 public sealed class CustomSqlStatement : AbstractSqlStatement
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string SqlStatement { get; init; }
 
     public required string MainTableName { get; init; }

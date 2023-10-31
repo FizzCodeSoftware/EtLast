@@ -2,10 +2,10 @@
 
 public sealed class ReplaceStringMutator : AbstractMutator
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string ColumnName { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string OldString { get; init; }
 
     public required string NewString { get; init; }

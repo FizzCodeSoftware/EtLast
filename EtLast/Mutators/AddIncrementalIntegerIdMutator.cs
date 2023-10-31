@@ -2,7 +2,7 @@
 
 public sealed class AddIncrementalIntegerIdMutator : AbstractMutator
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string Column { get; init; }
 
     public required int FirstId { get; init; }

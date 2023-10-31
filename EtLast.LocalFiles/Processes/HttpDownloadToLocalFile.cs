@@ -9,13 +9,13 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
     /// According to MSDN, it is recommended to reuse HttpClient instances if possible.
     /// https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/http/httpclient-guidelines
     /// </summary>
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required HttpClient Client { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string Url { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string OutputFileName { get; init; }
 
     /// <summary>

@@ -2,7 +2,7 @@
 
 public sealed class DeleteTable : AbstractSqlStatement
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string TableName { get; init; }
 
     /// <summary>

@@ -3,10 +3,10 @@
 [ContainsProcessParameterValidation]
 public sealed class TableCopyConfiguration
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string SourceTableName { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string TargetTableName { get; init; }
 
     /// <summary>

@@ -2,10 +2,10 @@
 
 public sealed class ResolveHierarchyMutator : AbstractSimpleChangeMutator
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string IdentityColumn { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string[] LevelColumns { get; init; }
 
     public required string NewColumnWithParentId { get; init; }

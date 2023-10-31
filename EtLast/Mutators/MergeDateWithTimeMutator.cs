@@ -2,13 +2,13 @@
 
 public sealed class MergeDateWithTimeMutator : AbstractMutator
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string TargetColumn { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string SourceDateColumn { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string SourceTimeColumn { get; init; }
 
     /// <summary>

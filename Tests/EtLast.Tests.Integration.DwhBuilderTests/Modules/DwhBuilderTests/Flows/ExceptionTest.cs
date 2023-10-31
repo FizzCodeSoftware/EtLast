@@ -2,10 +2,10 @@
 
 public class ExceptionTest : AbstractEtlTask
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public Type ExceptionType { get; set; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public string Message { get; set; }
 
     public override void Execute(IFlow flow)

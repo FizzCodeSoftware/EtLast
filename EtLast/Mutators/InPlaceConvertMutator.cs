@@ -2,10 +2,10 @@
 
 public sealed class InPlaceConvertMutator : AbstractSimpleChangeMutator
 {
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required string[] Columns { get; init; }
 
-    [ProcessParameterNullException]
+    [ProcessParameterMustHaveValue]
     public required ITypeConverter TypeConverter { get; init; }
 
     // todo: all kinds of "Actions" in converters and Cross operations should use builder+subclass pattern instead of enums and secondary fields like SpecialValueIfNull...
