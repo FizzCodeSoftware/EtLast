@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CountableOnlyRowLookup : ICountableLookup
+public sealed class CountOnlyRowLookup : ICountableLookup
 {
     /// <summary>
     /// Default false.
@@ -12,7 +12,7 @@ public sealed class CountableOnlyRowLookup : ICountableLookup
 
     private readonly Dictionary<string, int> _dictionary;
 
-    public CountableOnlyRowLookup(bool ignoreCase = false)
+    public CountOnlyRowLookup(bool ignoreCase = false)
     {
         IgnoreCase = ignoreCase;
         _dictionary = ignoreCase

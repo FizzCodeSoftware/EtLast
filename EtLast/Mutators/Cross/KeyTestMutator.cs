@@ -24,7 +24,7 @@ public sealed class KeyTestMutator : AbstractCrossMutator
     {
         _lookup = MatchActionContainsMatch && MatchAction?.CustomAction != null
             ? new RowLookup()
-            : new CountableOnlyRowLookup();
+            : new CountOnlyRowLookup();
 
         LookupBuilder.AddTo(_lookup, this);
     }
@@ -140,7 +140,7 @@ public static class KeyTestMutatorFluent
     /// <summary>
     /// Tests row keys and execute <see cref="NoMatchAction"/> or <see cref="MatchAction"/> based on the result of each row.
     /// - the existing rows are read from a single <see cref="RowLookup"/>
-    /// - if MatchAction.CustomJob is not null and MatchActionContainsMatch is true then all rows of the lookup are kept in the memory, otherwise a <see cref="CountableOnlyRowLookup"/> is used.
+    /// - if MatchAction.CustomJob is not null and MatchActionContainsMatch is true then all rows of the lookup are kept in the memory, otherwise a <see cref="CountOnlyRowLookup"/> is used.
     /// </summary>
     public static IFluentSequenceMutatorBuilder KeyTest(this IFluentSequenceMutatorBuilder builder, KeyTestMutator mutator)
     {

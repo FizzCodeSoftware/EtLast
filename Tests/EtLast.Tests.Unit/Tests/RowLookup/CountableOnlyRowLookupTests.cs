@@ -7,7 +7,7 @@ public class CountableOnlyRowLookupTests
     public void NotNullIdentity()
     {
         var context = TestExecuter.GetContext();
-        var lookup = new CountableOnlyRowLookup();
+        var lookup = new CountOnlyRowLookup();
         var builder = new RowLookupBuilder()
         {
             Process = TestData.Person(context),
@@ -30,7 +30,7 @@ public class CountableOnlyRowLookupTests
     public void NullableIdentity()
     {
         var context = TestExecuter.GetContext();
-        var lookup = new CountableOnlyRowLookup();
+        var lookup = new CountOnlyRowLookup();
         var builder = new RowLookupBuilder()
         {
             Process = TestData.Person(context),
@@ -53,7 +53,7 @@ public class CountableOnlyRowLookupTests
     public void NullableMulti()
     {
         var context = TestExecuter.GetContext();
-        var lookup = new CountableOnlyRowLookup();
+        var lookup = new CountOnlyRowLookup();
         var builder = new RowLookupBuilder()
         {
             Process = TestData.Person(context),
