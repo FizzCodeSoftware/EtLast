@@ -28,7 +28,7 @@ public class UnpivotMutatorTests
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(12, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
             new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
             new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
@@ -40,7 +40,7 @@ public class UnpivotMutatorTests
             new() { ["assetId"] = 3, ["personName"] = "D", ["asset-kind"] = "kids", ["amount"] = 3 },
             new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
             new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
+            new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -59,12 +59,12 @@ public class UnpivotMutatorTests
             },
             NewColumnForDimension = "asset-kind",
             NewColumnForValue = "amount",
-            ValueColumns = new[] { "cars", "houses", "kids" },
+            ValueColumns = ["cars", "houses", "kids"],
         });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(11, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
             new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
             new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
@@ -75,7 +75,7 @@ public class UnpivotMutatorTests
             new() { ["assetId"] = 3, ["personName"] = "D", ["asset-kind"] = "kids", ["amount"] = 3 },
             new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
             new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
+            new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -95,12 +95,12 @@ public class UnpivotMutatorTests
             NewColumnForDimension = "asset-kind",
             NewColumnForValue = "amount",
             IgnoreIfValueIsNull = false,
-            ValueColumns = new[] { "cars", "houses", "kids" },
+            ValueColumns = ["cars", "houses", "kids"],
         });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(12, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
             new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
             new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
@@ -112,7 +112,7 @@ public class UnpivotMutatorTests
             new() { ["assetId"] = 3, ["personName"] = "D", ["asset-kind"] = "kids", ["amount"] = 3 },
             new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
             new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
+            new() { ["assetId"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -124,14 +124,14 @@ public class UnpivotMutatorTests
         .ReadFrom(TestData.PersonalAssetsPivot(context))
         .Unpivot(new UnpivotMutator(context)
         {
-            ValueColumns = new[] { "cars", "houses", "kids" },
+            ValueColumns = ["cars", "houses", "kids"],
             NewColumnForDimension = "asset-kind",
             NewColumnForValue = "amount",
         });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(11, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
             new() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
             new() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
@@ -142,7 +142,7 @@ public class UnpivotMutatorTests
             new() { ["id"] = 3, ["personName"] = "D", ["asset-kind"] = "kids", ["amount"] = 3 },
             new() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
             new() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
+            new() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -157,12 +157,12 @@ public class UnpivotMutatorTests
             NewColumnForDimension = "asset-kind",
             NewColumnForValue = "amount",
             IgnoreIfValueIsNull = false,
-            ValueColumns = new[] { "cars", "houses", "kids" },
+            ValueColumns = ["cars", "houses", "kids"],
         });
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(12, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
             new() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "houses", ["amount"] = 1 },
             new() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "kids", ["amount"] = 2 },
@@ -174,7 +174,7 @@ public class UnpivotMutatorTests
             new() { ["id"] = 3, ["personName"] = "D", ["asset-kind"] = "kids", ["amount"] = 3 },
             new() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "cars", ["amount"] = "6" },
             new() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "houses", ["amount"] = 1 },
-            new() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } });
+            new() { ["id"] = 4, ["personName"] = "E", ["asset-kind"] = "kids", ["amount"] = 3 } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 }

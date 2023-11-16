@@ -1,18 +1,13 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class HungarianGiroBankAccountConverter : StringConverter
+public sealed class HungarianGiroBankAccountConverter(string formatHint = null, IFormatProvider formatProviderHint = null) : StringConverter(formatHint, formatProviderHint)
 {
     /// <summary>
     /// Default true.
     /// </summary>
     public required bool AutomaticallyAddHyphens { get; init; } = true;
 
-    private static readonly int[] _checksumNumbers = new[] { 9, 7, 3, 1, 9, 7, 3 };
-
-    public HungarianGiroBankAccountConverter(string formatHint = null, IFormatProvider formatProviderHint = null)
-        : base(formatHint, formatProviderHint)
-    {
-    }
+    private static readonly int[] _checksumNumbers = [9, 7, 3, 1, 9, 7, 3];
 
     public override object Convert(object source)
     {
@@ -55,10 +50,10 @@ public sealed class HungarianGiroBankAccountConverter : StringConverter
             switch (value.Length)
             {
                 case 16:
-                    parts = new[] { value[..8], value.Substring(8, 8) };
+                    parts = [value[..8], value.Substring(8, 8)];
                     break;
                 case 24:
-                    parts = new[] { value[..8], value.Substring(8, 8), value.Substring(16, 8) };
+                    parts = [value[..8], value.Substring(8, 8), value.Substring(16, 8)];
                     break;
                 default:
                     return false;

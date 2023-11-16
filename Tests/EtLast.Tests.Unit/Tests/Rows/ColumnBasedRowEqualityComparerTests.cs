@@ -17,7 +17,7 @@ public class ColumnBasedRowEqualityComparerTests
     {
         var a = new SlimRow() { ["id"] = 12, ["name"] = "x", };
         var b = new SlimRow() { ["id"] = 12, ["name"] = "y", };
-        var result = new ColumnBasedRowEqualityComparer() { Columns = new[] { "id" } }.Equals(a, b);
+        var result = new ColumnBasedRowEqualityComparer() { Columns = ["id"] }.Equals(a, b);
         Assert.IsTrue(result);
     }
 
@@ -26,7 +26,7 @@ public class ColumnBasedRowEqualityComparerTests
     {
         var a = new SlimRow() { ["id"] = 12, ["name"] = "x", };
         var b = new SlimRow() { ["id"] = 12, ["name"] = "y", };
-        var result = new ColumnBasedRowEqualityComparer() { Columns = new[] { "name" } }.Equals(a, b);
+        var result = new ColumnBasedRowEqualityComparer() { Columns = ["name"] }.Equals(a, b);
         Assert.IsFalse(result);
     }
 

@@ -1,15 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
-public class DoubleConverterAuto : DoubleConverter
+public class DoubleConverterAuto(IFormatProvider formatProvider, NumberStyles numberStyles = NumberStyles.Any) : DoubleConverter
 {
-    public IFormatProvider FormatProvider { get; }
-    public NumberStyles NumberStyles { get; }
-
-    public DoubleConverterAuto(IFormatProvider formatProvider, NumberStyles numberStyles = NumberStyles.Any)
-    {
-        FormatProvider = formatProvider;
-        NumberStyles = numberStyles;
-    }
+    public IFormatProvider FormatProvider { get; } = formatProvider;
+    public NumberStyles NumberStyles { get; } = numberStyles;
 
     public override object Convert(object source)
     {

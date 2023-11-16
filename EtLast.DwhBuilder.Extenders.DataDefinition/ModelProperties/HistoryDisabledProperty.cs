@@ -1,11 +1,7 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition;
 
-public class HistoryDisabledProperty : SqlColumnCustomProperty
+public class HistoryDisabledProperty(SqlColumn sqlColumn) : SqlColumnCustomProperty(sqlColumn)
 {
-    public HistoryDisabledProperty(SqlColumn sqlColumn)
-        : base(sqlColumn)
-    {
-    }
 }
 
 public static class NoHistoryColumnPropertyHelper

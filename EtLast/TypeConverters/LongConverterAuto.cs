@@ -1,15 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
-public class LongConverterAuto : LongConverter
+public class LongConverterAuto(IFormatProvider formatProvider, NumberStyles numberStyles = NumberStyles.Any) : LongConverter
 {
-    public IFormatProvider FormatProvider { get; }
-    public NumberStyles NumberStyles { get; }
-
-    public LongConverterAuto(IFormatProvider formatProvider, NumberStyles numberStyles = NumberStyles.Any)
-    {
-        FormatProvider = formatProvider;
-        NumberStyles = numberStyles;
-    }
+    public IFormatProvider FormatProvider { get; } = formatProvider;
+    public NumberStyles NumberStyles { get; } = numberStyles;
 
     public override object Convert(object source)
     {

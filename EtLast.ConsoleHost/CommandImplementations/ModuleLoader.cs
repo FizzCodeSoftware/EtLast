@@ -72,7 +72,7 @@ internal static class ModuleLoader
         if (File.Exists(globalCsFileName))
             csFileNames.Add(globalCsFileName);
 
-        var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Latest);
+        var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Preview);
         var syntaxTrees = csFileNames
             .Select(fn => SyntaxFactory.ParseSyntaxTree(SourceText.From(File.ReadAllText(fn)), parseOptions, fn))
             .ToArray();
@@ -196,7 +196,7 @@ internal static class ModuleLoader
         var interfaceType = typeof(T);
         foreach (var foundType in assembly.GetTypes().Where(x => interfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract))
         {
-            var instance = (T)Activator.CreateInstance(foundType, Array.Empty<object>());
+            var instance = (T)Activator.CreateInstance(foundType, []);
             if (instance != null)
                 result.Add(instance);
         }
@@ -215,7 +215,7 @@ internal static class ModuleLoader
 
             foreach (var foundType in matchingTypes)
             {
-                var instance = (T)Activator.CreateInstance(foundType, Array.Empty<object>());
+                var instance = (T)Activator.CreateInstance(foundType, []);
                 if (instance != null)
                     result.Add(instance);
             }

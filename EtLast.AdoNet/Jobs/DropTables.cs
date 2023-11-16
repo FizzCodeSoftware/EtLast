@@ -1,14 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class DropTables : AbstractSqlStatements
+public sealed class DropTables(IEtlContext context) : AbstractSqlStatements(context)
 {
     [ProcessParameterMustHaveValue]
     public required string[] TableNames { get; init; }
-
-    public DropTables(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)
     {

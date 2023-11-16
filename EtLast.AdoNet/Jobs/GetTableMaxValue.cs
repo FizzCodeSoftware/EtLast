@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class GetTableMaxValue<TResult> : AbstractSqlStatementWithResult<TableMaxValueResult<TResult>>
+public sealed class GetTableMaxValue<TResult>(IEtlContext context) : AbstractSqlStatementWithResult<TableMaxValueResult<TResult>>(context)
 {
     public required string TableName { get; init; }
     public required string ColumnName { get; init; }
@@ -9,11 +9,6 @@ public sealed class GetTableMaxValue<TResult> : AbstractSqlStatementWithResult<T
     /// Set to null to get the max value of all records in the column.
     /// </summary>
     public required string WhereClause { get; init; }
-
-    public GetTableMaxValue(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void ValidateImpl()
     {

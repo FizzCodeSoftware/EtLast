@@ -8,14 +8,9 @@
 ///   - sum, max, min, avg are trivial functions, but some others can be tricky
 ///  - each group results 0 or 1 aggregate per group
 /// </summary>
-public class ContinuousAggregationMutator : AbstractAggregationMutator
+public class ContinuousAggregationMutator(IEtlContext context) : AbstractAggregationMutator(context)
 {
     public required IContinuousAggregationOperation Operation { get; init; }
-
-    public ContinuousAggregationMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void ValidateImpl()
     {
@@ -28,7 +23,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
         Dictionary<string, ContinuousAggregate> aggregates = null;
         ContinuousAggregate singleAggregate = null;
         if (KeyGenerator != null)
-            aggregates = new Dictionary<string, ContinuousAggregate>();
+            aggregates = [];
 
         netTimeStopwatch.Stop();
         var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();

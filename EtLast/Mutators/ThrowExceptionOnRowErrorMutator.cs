@@ -1,13 +1,8 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ThrowExceptionOnRowErrorMutator : AbstractMutator
+public sealed class ThrowExceptionOnRowErrorMutator(IEtlContext context) : AbstractMutator(context)
 {
     private int _rowIndex;
-
-    public ThrowExceptionOnRowErrorMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void StartMutator()
     {

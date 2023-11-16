@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
+public sealed class WriteToDelimitedMutator(IEtlContext context) : AbstractMutator(context), IRowSink
 {
     [ProcessParameterMustHaveValue]
     public required ISinkProvider SinkProvider { get; init; }
@@ -53,7 +53,7 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
 
     public PartitionKeyGenerator PartitionKeyGenerator { get; init; }
 
-    private readonly Dictionary<string, SinkEntry> _sinkEntries = new();
+    private readonly Dictionary<string, SinkEntry> _sinkEntries = [];
     private byte[] _delimiterBytes;
     private byte[] _lineEndingBytes;
     private byte[] _quoteBytes;
@@ -63,17 +63,12 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
 
     private int _rowCounter;
 
-    public WriteToDelimitedMutator(IEtlContext context)
-        : base(context)
-    {
-    }
-
     protected override void StartMutator()
     {
         _delimiterBytes = Encoding.GetBytes(new[] { Delimiter });
         _lineEndingBytes = Encoding.GetBytes(LineEnding);
         _escapedQuote = new string(new[] { Escape, Quote });
-        _quoteRequiredChars = new[] { Delimiter, Quote, Escape, '\r', '\n' };
+        _quoteRequiredChars = [Delimiter, Quote, Escape, '\r', '\n'];
         _quoteAsString = Quote.ToString();
         _quoteBytes = Encoding.GetBytes(new[] { Quote });
 

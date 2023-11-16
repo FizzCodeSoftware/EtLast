@@ -6,7 +6,7 @@ public delegate IRow ReduceGroupToSingleRowDelegate(IProcess process, IReadOnlyL
 /// Input can be unordered. Group key generation is applied on the input rows on-the-fly, but group processing is started only after all groups are created.
 /// - keeps all input rows in memory (!)
 /// </summary>
-public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
+public sealed class ReduceGroupToSingleRowMutator(IEtlContext context) : AbstractSequence(context), IMutator
 {
     public ISequence Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }
@@ -19,11 +19,6 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
     /// Default false. Setting to true means the Selector won't be called for groups with a single row - which can improve performance and/or introduce side effects.
     /// </summary>
     public bool IgnoreSelectorForSingleRowGroups { get; init; }
-
-    public ReduceGroupToSingleRowMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void ValidateImpl()
     {
@@ -118,7 +113,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
             {
                 if (group is not List<IRow> list)
                 {
-                    groups[key] = list = new List<IRow>();
+                    groups[key] = list = [];
                     list.Add(group as IRow);
                 }
 

@@ -8,7 +8,7 @@ public delegate object ServiceModelExpandMutatorClientInvokerDelegate<TChannel, 
     where TChannel : class
     where TClient : ClientBase<TChannel>;
 
-public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutator
+public sealed class ServiceModelExpandMutator<TChannel, TClient>(IEtlContext context) : AbstractMutator(context)
     where TChannel : class
     where TClient : ClientBase<TChannel>
 {
@@ -34,11 +34,6 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
     /// Default value is 5.
     /// </summary>
     public int MaxRetryCount { get; init; } = 5;
-
-    public ServiceModelExpandMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {

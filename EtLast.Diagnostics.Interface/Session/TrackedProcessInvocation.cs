@@ -8,7 +8,7 @@ public class TrackedProcessInvocation
     public long InvocationCounter { get; }
 
     public TrackedProcessInvocation Invoker { get; }
-    public List<TrackedProcessInvocation> Children { get; } = new List<TrackedProcessInvocation>();
+    public List<TrackedProcessInvocation> Children { get; } = [];
     public int ParentInvokerCount { get; }
     public string IdentedName { get; }
 
@@ -55,16 +55,16 @@ public class TrackedProcessInvocation
     public long DroppedRowCount { get; private set; }
 
     public long AliveRowCount { get; private set; }
-    public Dictionary<long, HashSet<long>> AliveRowsByPreviousProcess { get; } = new Dictionary<long, HashSet<long>>();
+    public Dictionary<long, HashSet<long>> AliveRowsByPreviousProcess { get; } = [];
 
     public int PassedRowCount { get; private set; }
     public int CreatedRowCount { get; private set; }
 
-    public Dictionary<long, long> WrittenRowCountByPreviousProcess { get; } = new Dictionary<long, long>();
-    public Dictionary<long, long> DroppedRowCountByPreviousProcess { get; } = new Dictionary<long, long>();
-    public Dictionary<long, long> PassedRowCountByPreviousProcess { get; } = new Dictionary<long, long>();
+    public Dictionary<long, long> WrittenRowCountByPreviousProcess { get; } = [];
+    public Dictionary<long, long> DroppedRowCountByPreviousProcess { get; } = [];
+    public Dictionary<long, long> PassedRowCountByPreviousProcess { get; } = [];
 
-    public Dictionary<long, long> InputRowCountByPreviousProcess { get; } = new Dictionary<long, long>();
+    public Dictionary<long, long> InputRowCountByPreviousProcess { get; } = [];
     public long InputRowCount { get; private set; }
 
     public TrackedProcessInvocation(long invocationUID, long instanceUID, long invocationCounter, TrackedProcessInvocation invoker, string type, string kind, string name, string topic)
@@ -244,7 +244,7 @@ public class TrackedProcessInvocation
 
         if (!AliveRowsByPreviousProcess.TryGetValue(previousProcess.InvocationUid, out var list))
         {
-            list = new();
+            list = [];
             AliveRowsByPreviousProcess.Add(previousProcess.InvocationUid, list);
         }
 

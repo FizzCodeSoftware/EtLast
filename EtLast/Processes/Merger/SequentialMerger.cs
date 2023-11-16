@@ -1,12 +1,7 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class SequentialMerger : AbstractMerger
+public sealed class SequentialMerger(IEtlContext context) : AbstractMerger(context)
 {
-    public SequentialMerger(IEtlContext context)
-        : base(context)
-    {
-    }
-
     protected override void ValidateImpl()
     {
     }
@@ -50,7 +45,7 @@ public class SequentialMergerBuilder
         Merger = new SequentialMerger(context)
         {
             Name = name,
-            SequenceList = new List<ISequence>(),
+            SequenceList = [],
         };
     }
 

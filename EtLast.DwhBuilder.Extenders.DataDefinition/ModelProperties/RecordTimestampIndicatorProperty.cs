@@ -1,11 +1,7 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition;
 
-public class RecordTimestampIndicatorProperty : SqlColumnCustomProperty
+public class RecordTimestampIndicatorProperty(SqlColumn sqlColumn) : SqlColumnCustomProperty(sqlColumn)
 {
-    public RecordTimestampIndicatorProperty(SqlColumn sqlColumn)
-        : base(sqlColumn)
-    {
-    }
 }
 
 public static class RecordTimestampIndicatorColumnPropertyHelper

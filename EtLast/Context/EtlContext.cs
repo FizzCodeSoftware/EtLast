@@ -20,7 +20,7 @@ public sealed class EtlContext : IEtlContext
     public DateTimeOffset CreatedOnUtc { get; }
     public DateTimeOffset CreatedOnLocal { get; }
 
-    public List<IEtlContextListener> Listeners { get; } = new List<IEtlContextListener>();
+    public List<IEtlContextListener> Listeners { get; } = [];
 
     /// <summary>
     /// Default value: 4 hours, but .NET maximizes the timeout in 10 minutes.
@@ -36,16 +36,16 @@ public sealed class EtlContext : IEtlContext
 
     private readonly CancellationTokenSource _cancellationTokenSource;
     public CancellationToken CancellationToken { get; }
-    private readonly List<IEtlService> _services = new();
+    private readonly List<IEtlService> _services = [];
 
     private long _nextRowUid;
     private long _nextProcessInstanceUid;
     private long _nextProcessInvocationUid;
     private long _nextSinkUid;
     private long _nextIoCommandUid;
-    private readonly Dictionary<string, long> _sinks = new();
+    private readonly Dictionary<string, long> _sinks = [];
 
-    private readonly List<ScopeAction> _scopeActions = new();
+    private readonly List<ScopeAction> _scopeActions = [];
 
     public EtlContext(ArgumentCollection arguments)
     {

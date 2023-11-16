@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
+public sealed class WriteToSqlMutator(IEtlContext context) : AbstractMutator(context), IRowSink
 {
     [ProcessParameterMustHaveValue]
     public NamedConnectionString ConnectionString { get; init; }
@@ -34,20 +34,15 @@ public sealed class WriteToSqlMutator : AbstractMutator, IRowSink
     private long _rowsWritten;
 
     private IDbCommand _command;
-    private static readonly DbType[] _quotedParameterTypes = { DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength };
+    private static readonly DbType[] _quotedParameterTypes = [DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength];
     private long? _sinkUid;
     private Stopwatch _lastWrite;
-
-    public WriteToSqlMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void StartMutator()
     {
         SqlStatementCreator.Prepare(this, TableDefinition);
         _rowsWritten = 0;
-        _statements = new List<string>();
+        _statements = [];
     }
 
     protected override void CloseMutator()

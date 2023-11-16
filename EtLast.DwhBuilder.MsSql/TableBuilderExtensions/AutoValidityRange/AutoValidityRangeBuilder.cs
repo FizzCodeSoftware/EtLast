@@ -6,7 +6,7 @@ public class AutoValidityRangeBuilder
     internal RelationalColumn[] MatchColumns { get; private set; }
     internal string[] MatchColumnNames { get; private set; }
     internal RelationalColumn[] CompareValueColumns { get; private set; }
-    internal Dictionary<RelationalColumn, RelationalColumn> PreviousValueColumnNameMap { get; } = new Dictionary<RelationalColumn, RelationalColumn>();
+    internal Dictionary<RelationalColumn, RelationalColumn> PreviousValueColumnNameMap { get; } = [];
 
     internal AutoValidityRangeBuilder(DwhTableBuilder tableBuilder)
     {

@@ -24,9 +24,9 @@ public class ReadExcelReaderConversionTests
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 0, ["Date"] = new EtlRowError(0d) },
-            new() { ["Id"] = 1, ["Date"] = new DateTime(2019, 4, 25, 0, 0, 0, 0) } });
+            new() { ["Id"] = 1, ["Date"] = new DateTime(2019, 4, 25, 0, 0, 0, 0) } ]);
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }

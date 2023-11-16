@@ -4,7 +4,7 @@ namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
 public class TestAdapter
 {
-    private readonly List<string> AssertExceptionLogMessages = new();
+    private readonly List<string> AssertExceptionLogMessages = [];
 
     public static void Run(string arguments, bool shouldAllowErrExitCode = false, int maxRunTimeMilliseconds = 10000)
     {
@@ -89,5 +89,5 @@ public class TestAdapter
         }
     }
 
-    private static readonly List<string> colorCodes = new() { "\x1b[38;5;0015m", "\x1b[38;5;0008m", "\x1b[38;5;0045m", "\x1b[38;5;0008m", "\x1b[38;5;0035m", "\x1b[38;5;0209m", "\x1b[38;5;0220m", "\x1b[38;5;0204m", "\x1b[38;5;0228m", "\x1b[38;5;0007m", "\x1b[38;5;0027m", "\x1b[38;5;0033m", "\x1b[38;5;0085m", "\x1b[38;5;0220m", "\x1b[48;5;0196m", "\x1b[38;5;000m", "\x1b[38;5;0214m", "\x1b[38;5;0133m", "\x1b[38;5;0135m", "\x1b[38;5;0245m", "\x1b[48;5;0214m", "\x1b[0m" };
+    private static readonly List<string> colorCodes = ["\x1b[38;5;0015m", "\x1b[38;5;0008m", "\x1b[38;5;0045m", "\x1b[38;5;0008m", "\x1b[38;5;0035m", "\x1b[38;5;0209m", "\x1b[38;5;0220m", "\x1b[38;5;0204m", "\x1b[38;5;0228m", "\x1b[38;5;0007m", "\x1b[38;5;0027m", "\x1b[38;5;0033m", "\x1b[38;5;0085m", "\x1b[38;5;0220m", "\x1b[48;5;0196m", "\x1b[38;5;000m", "\x1b[38;5;0214m", "\x1b[38;5;0133m", "\x1b[38;5;0135m", "\x1b[38;5;0245m", "\x1b[48;5;0214m", "\x1b[0m"];
 }

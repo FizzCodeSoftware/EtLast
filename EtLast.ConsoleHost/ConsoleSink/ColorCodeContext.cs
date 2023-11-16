@@ -1,8 +1,8 @@
 ﻿namespace FizzCode.EtLast.ConsoleHost.SerilogSink;
 
-internal struct ColorCodeContext : IDisposable
+internal struct ColorCodeContext(TextWriter builder) : IDisposable
 {
-    private readonly TextWriter _builder;
+    private readonly TextWriter _builder = builder;
     private static readonly IDictionary<ColorCode, string> _colorCodeValues = new Dictionary<ColorCode, string>
     {
         //[ColorCode.Exception] = "\x1b[38;5;0015m",
@@ -36,11 +36,6 @@ internal struct ColorCodeContext : IDisposable
     };
 
     private const string ResetColorCodeValue = "\x1b[0m";
-
-    public ColorCodeContext(TextWriter builder)
-    {
-        _builder = builder;
-    }
 
 #pragma warning disable IDE0251 // Make member 'readonly'
     public void Dispose()

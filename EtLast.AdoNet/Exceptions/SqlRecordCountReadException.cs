@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class SqlRecordCountReadException : EtlException
+public class SqlRecordCountReadException(IProcess process, Exception innerException) : EtlException(process, "database table record count query failed", innerException)
 {
-    public SqlRecordCountReadException(IProcess process, Exception innerException)
-        : base(process, "database table record count query failed", innerException)
-    {
-    }
 }

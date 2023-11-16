@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ExpandFromLookupMutator : AbstractCrossMutator
+public sealed class ExpandFromLookupMutator(IEtlContext context) : AbstractCrossMutator(context)
 {
     [ProcessParameterMustHaveValue]
     public required Dictionary<string, string> Columns { get; init; }
@@ -14,15 +14,10 @@ public sealed class ExpandFromLookupMutator : AbstractCrossMutator
     private RowLookup _lookup;
     private List<KeyValuePair<string, object>> _changes;
 
-    public ExpandFromLookupMutator(IEtlContext context)
-        : base(context)
-    {
-    }
-
     protected override void StartMutator()
     {
         _lookup = LookupBuilder.Build(this);
-        _changes = new List<KeyValuePair<string, object>>();
+        _changes = [];
     }
 
     protected override void CloseMutator()

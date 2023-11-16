@@ -12,7 +12,7 @@ internal class ContextFullIoCommandListControl
     public IoCommandActionDelegate OnIoCommandDoubleClicked { get; set; }
 
     private readonly ControlUpdater<IoCommandModel> _updater;
-    private readonly Dictionary<string, Dictionary<long, IoCommandModel>> _itemByUid = new();
+    private readonly Dictionary<string, Dictionary<long, IoCommandModel>> _itemByUid = [];
 
     public ContextFullIoCommandListControl(Control container, DiagContext context)
     {
@@ -203,7 +203,7 @@ internal class ContextFullIoCommandListControl
 
                 if (!_itemByUid.TryGetValue(playbook.DiagContext.Name, out var itemListByContext))
                 {
-                    itemListByContext = new();
+                    itemListByContext = [];
                     _itemByUid.Add(playbook.DiagContext.Name, itemListByContext);
                 }
 

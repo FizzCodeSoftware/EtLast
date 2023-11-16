@@ -2,7 +2,7 @@
 
 public delegate bool ColumnValidationDelegate(ColumnValidationMutator process, IReadOnlySlimRow row, string column);
 
-public sealed class ColumnValidationMutator : AbstractMutator
+public sealed class ColumnValidationMutator(IEtlContext context) : AbstractMutator(context)
 {
     [ProcessParameterMustHaveValue]
     public required string Column { get; init; }
@@ -18,11 +18,6 @@ public sealed class ColumnValidationMutator : AbstractMutator
     /// </summary>
     [ProcessParameterMustHaveValue]
     public required string ErrorMessage { get; init; }
-
-    public ColumnValidationMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {

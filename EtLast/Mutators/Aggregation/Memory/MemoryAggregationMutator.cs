@@ -5,13 +5,8 @@
 /// - keeps all input rows in memory (!)
 /// - uses very flexible <see cref="IMemoryAggregationOperation"/> which takes all rows in a group and generates the aggregate.
 /// </summary>
-public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
+public sealed class MemoryAggregationMutator(IEtlContext context) : AbstractMemoryAggregationMutator(context)
 {
-    public MemoryAggregationMutator(IEtlContext context)
-        : base(context)
-    {
-    }
-
     protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
     {
         var groups = new Dictionary<string, List<IReadOnlySlimRow>>();
@@ -90,7 +85,7 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
             var key = KeyGenerator.Invoke(row);
             if (!groups.TryGetValue(key, out var list))
             {
-                list = new List<IReadOnlySlimRow>();
+                list = [];
                 groups.Add(key, list);
                 groupCount++;
             }

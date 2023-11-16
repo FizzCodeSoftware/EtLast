@@ -4,7 +4,7 @@ namespace FizzCode.EtLast;
 
 public sealed class BlockingCollectionRowQueue : IRowQueue
 {
-    private readonly BlockingCollection<IRow> _collection = new();
+    private readonly BlockingCollection<IRow> _collection = [];
 
     public void AddRow(IRow row)
     {

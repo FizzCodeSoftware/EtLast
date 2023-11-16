@@ -2,7 +2,7 @@
 
 public delegate IEnumerable<IReadOnlySlimRow> EnumerableImporterDelegate(EnumerableImporter process);
 
-public sealed class EnumerableImporter : AbstractRowSource
+public sealed class EnumerableImporter(IEtlContext context) : AbstractRowSource(context)
 {
     public required EnumerableImporterDelegate InputGenerator { get; init; }
 
@@ -13,11 +13,6 @@ public sealed class EnumerableImporter : AbstractRowSource
     /// Default false.
     /// </summary>
     public bool CopyOnlySpecifiedColumns { get; set; }
-
-    public EnumerableImporter(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void ValidateImpl()
     {

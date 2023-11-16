@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
+public sealed class EpPlusSimpleRowWriterMutator(IEtlContext context) : AbstractMutator(context), IRowSink
 {
     [ProcessParameterMustHaveValue]
     public required ISinkProvider SinkProvider { get; init; }
@@ -18,12 +18,7 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
     public Action<ExcelPackage, SimpleExcelWriterState> Finalize { get; init; }
 
     private long _rowCounter;
-    private readonly Dictionary<string, InternalSink> _sinks = new();
-
-    public EpPlusSimpleRowWriterMutator(IEtlContext context)
-        : base(context)
-    {
-    }
+    private readonly Dictionary<string, InternalSink> _sinks = [];
 
     protected override void StartMutator()
     {

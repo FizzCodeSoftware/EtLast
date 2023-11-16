@@ -6,13 +6,8 @@
 /// - keeps the rows of a single group in memory
 /// - uses very flexible <see cref="IMemoryAggregationOperation"/> which takes all rows in a group and generates the aggregate.
 /// </summary>
-public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMutator
+public sealed class SortedMemoryAggregationMutator(IEtlContext context) : AbstractMemoryAggregationMutator(context)
 {
-    public SortedMemoryAggregationMutator(IEtlContext context)
-        : base(context)
-    {
-    }
-
     protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
     {
         var groupRows = new List<IReadOnlySlimRow>();

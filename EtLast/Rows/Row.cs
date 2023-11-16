@@ -27,7 +27,7 @@ public class Row : IRow
                 if (previousValue != null)
                 {
                     foreach (var listener in Context.Listeners)
-                        listener.OnRowValueChanged(this, new[] { new KeyValuePair<string, object>(column, null) });
+                        listener.OnRowValueChanged(this, [new KeyValuePair<string, object>(column, null)]);
                 }
 
                 _values[column] = null;
@@ -38,7 +38,7 @@ public class Row : IRow
                 {
                     _values.Remove(column);
                     foreach (var listener in Context.Listeners)
-                        listener.OnRowValueChanged(this, new[] { new KeyValuePair<string, object>(column, value) });
+                        listener.OnRowValueChanged(this, [new KeyValuePair<string, object>(column, value)]);
                 }
             }
             else if (previousValue == null || value != previousValue)
@@ -203,7 +203,7 @@ public class Row : IRow
             {
                 if (currentValue != null)
                 {
-                    changedValues ??= new List<KeyValuePair<string, object>>();
+                    changedValues ??= [];
                     changedValues.Add(kvp);
                     _values[kvp.Key] = null;
                 }
@@ -218,13 +218,13 @@ public class Row : IRow
                 if (stored)
                 {
                     _values.Remove(kvp.Key);
-                    changedValues ??= new List<KeyValuePair<string, object>>();
+                    changedValues ??= [];
                     changedValues.Add(kvp);
                 }
             }
             else if (currentValue == null || kvp.Value != currentValue)
             {
-                changedValues ??= new List<KeyValuePair<string, object>>();
+                changedValues ??= [];
                 changedValues.Add(kvp);
 
                 if (kvp.Value != null)
@@ -251,7 +251,7 @@ public class Row : IRow
         {
             if (kvp.Value != null)
             {
-                changedValues ??= new();
+                changedValues ??= [];
                 changedValues.Add(new KeyValuePair<string, object>(kvp.Key, null));
             }
         }
@@ -275,7 +275,7 @@ public class Row : IRow
             _values.Remove(col, out var value);
             if (value != null)
             {
-                changedValues ??= new();
+                changedValues ??= [];
                 changedValues.Add(new KeyValuePair<string, object>(col, null));
             }
         }

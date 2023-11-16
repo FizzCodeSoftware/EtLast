@@ -16,7 +16,7 @@ public static class DataDefinitionExtenderMsSql2016
             etlRunTable.AddDateTime2("FinishedOn", 7, true);
             etlRunTable.AddNVarChar("Result", 20, true);
 
-            declaration.AddAutoNaming(new List<SqlTable> { etlRunTable });
+            declaration.AddAutoNaming([etlRunTable]);
 
             foreach (var baseTable in declaration.GetTables())
             {

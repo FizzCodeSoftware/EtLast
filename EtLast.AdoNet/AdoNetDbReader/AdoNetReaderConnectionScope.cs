@@ -2,7 +2,7 @@
 
 public sealed class AdoNetReaderConnectionScope
 {
-    private readonly Dictionary<string, Tuple<DatabaseConnection, IDbTransaction>> _readerConnections = new();
+    private readonly Dictionary<string, Tuple<DatabaseConnection, IDbTransaction>> _readerConnections = [];
 
     public void GetConnection(AbstractAdoNetDbReader process, out DatabaseConnection connection, out IDbTransaction transaction)
     {

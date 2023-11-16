@@ -5,22 +5,17 @@ public delegate void OnProcessInvokedDelegate(Playbook playbook, TrackedProcessI
 public delegate void OnSinkStartedDelegate(Playbook playbook, TrackedSink sink);
 public delegate void OnWriteToSinkDelegate(Playbook playbook, TrackedSink sink, TrackedProcessInvocation process, long rowUid, KeyValuePair<string, object>[] values);
 
-public class Playbook
+public class Playbook(DiagContext context)
 {
-    public DiagContext DiagContext { get; }
+    public DiagContext DiagContext { get; } = context;
 
-    public Dictionary<long, TrackedSink> SinkList { get; } = new Dictionary<long, TrackedSink>();
-    public Dictionary<long, TrackedProcessInvocation> ProcessList { get; } = new Dictionary<long, TrackedProcessInvocation>();
+    public Dictionary<long, TrackedSink> SinkList { get; } = [];
+    public Dictionary<long, TrackedProcessInvocation> ProcessList { get; } = [];
 
     public OnProcessInvokedDelegate OnProcessInvoked { get; set; }
     public OnEventAddedDelegate OnEventsAdded { get; set; }
     public OnSinkStartedDelegate OnSinkStarted { get; set; }
     public OnWriteToSinkDelegate OnWriteToSink { get; set; }
-
-    public Playbook(DiagContext context)
-    {
-        DiagContext = context;
-    }
 
     public void AddEvents(IEnumerable<AbstractEvent> abstactEvents)
     {

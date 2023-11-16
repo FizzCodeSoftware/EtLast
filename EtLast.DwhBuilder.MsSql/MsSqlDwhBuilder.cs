@@ -1,9 +1,9 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.MsSql;
 
-public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
+public class MsSqlDwhBuilder(IEtlContext context, string scopeName, DateTime? etlRunIdUtcOverride = null) : IDwhBuilder<DwhTableBuilder>
 {
-    public IEtlContext Context { get; }
-    public string ScopeName { get; }
+    public IEtlContext Context { get; } = context;
+    public string ScopeName { get; } = scopeName;
 
     public RelationalModel Model { get; init; }
     public NamedConnectionString ConnectionString { get; init; }
@@ -12,27 +12,20 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
     public DwhBuilderConfiguration Configuration { get; init; }
 
     public IEnumerable<RelationalTable> Tables => _tables.Select(x => x.Table);
-    private readonly List<DwhTableBuilder> _tables = new();
+    private readonly List<DwhTableBuilder> _tables = [];
 
     internal DateTimeOffset? DefaultValidFromDateTime => Configuration.UseEtlRunIdForDefaultValidFrom
         ? EtlRunId
         : Configuration.InfinitePastDateTime;
 
-    private readonly List<Action<ResilientSqlScopeProcessBuilder>> _preFinalizerCreators = new();
-    private readonly List<Action<ResilientSqlScopeProcessBuilder>> _postFinalizerCreators = new();
-    private readonly DateTime? _etlRunIdUtcOverride;
+    private readonly List<Action<ResilientSqlScopeProcessBuilder>> _preFinalizerCreators = [];
+    private readonly List<Action<ResilientSqlScopeProcessBuilder>> _postFinalizerCreators = [];
+    private readonly DateTime? _etlRunIdUtcOverride = etlRunIdUtcOverride;
 
     public DateTime? EtlRunId { get; private set; }
     public DateTimeOffset? EtlRunIdAsDateTimeOffset { get; private set; }
 
     private readonly Dictionary<string, List<string>> _enabledConstraintsByTable = new(StringComparer.OrdinalIgnoreCase);
-
-    public MsSqlDwhBuilder(IEtlContext context, string scopeName, DateTime? etlRunIdUtcOverride = null)
-    {
-        Context = context;
-        ScopeName = scopeName;
-        _etlRunIdUtcOverride = etlRunIdUtcOverride;
-    }
 
     public ResilientSqlScope Build()
     {
@@ -97,7 +90,7 @@ public class MsSqlDwhBuilder : IDwhBuilder<DwhTableBuilder>
 
                                 if (!_enabledConstraintsByTable.TryGetValue(sourceTableName, out var list))
                                 {
-                                    list = new List<string>();
+                                    list = [];
                                     _enabledConstraintsByTable.Add(sourceTableName, list);
                                 }
 

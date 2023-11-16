@@ -14,7 +14,7 @@ internal class ControlUpdater<TItem>
     public EventHandler<EventArgs> RefreshFinished { get; set; }
 
     private readonly Timer _timer;
-    private readonly List<TItem> _allItems = new();
+    private readonly List<TItem> _allItems = [];
     private bool _newItem;
 
     public ControlUpdater(DiagContext context, Control container, int interval = 1000, int firstInterval = 100)

@@ -2,7 +2,7 @@
 
 public enum MsSqlDropTablesProcessMode { All, SpecifiedTables, SpecifiedSchema }
 
-public sealed class MsSqlDropTables : AbstractSqlStatements
+public sealed class MsSqlDropTables(IEtlContext context) : AbstractSqlStatements(context)
 {
     /// <summary>
     /// Default value is <see cref="MsSqlDropTablesProcessMode.SpecifiedTables"/>
@@ -13,11 +13,6 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
     public string[] TableNames { get; init; }
 
     private List<string> _tableNames;
-
-    public MsSqlDropTables(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override void ValidateParameters()
     {
@@ -74,7 +69,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
 
                     command.FillCommandParameters(parameters);
 
-                    _tableNames = new List<string>();
+                    _tableNames = [];
 
                     var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "INFORMATION_SCHEMA.TABLES", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
                         "querying table names", null);

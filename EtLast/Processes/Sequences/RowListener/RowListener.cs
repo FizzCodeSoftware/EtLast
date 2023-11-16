@@ -2,7 +2,7 @@
 
 namespace FizzCode.EtLast.Processes.Producers.RowListener;
 
-public sealed class RowListener : AbstractRowSource, IRowListener
+public sealed class RowListener(IEtlContext context) : AbstractRowSource(context), IRowListener
 {
     public required Action<IRowListener> Worker { get; init; }
 
@@ -12,11 +12,6 @@ public sealed class RowListener : AbstractRowSource, IRowListener
     public required int HeartBeatMilliseconds { get; init; } = 1000;
 
     private ConcurrentQueue<IReadOnlySlimRow> _queue;
-
-    public RowListener(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void ValidateImpl()
     {

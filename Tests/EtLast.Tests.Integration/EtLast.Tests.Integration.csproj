@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <PackageId>FizzCode.EtLast.Tests.Integration</PackageId>
@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="FizzCode.DbTools.Configuration" Version="2.0.25.6662" />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.6.1">
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.6.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -27,14 +27,9 @@
     <ProjectReference Include="..\..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
     <ProjectReference Include="..\..\EtLast.ConsoleHost\EtLast.ConsoleHost.csproj" />
     <ProjectReference Include="..\..\EtLast.Diagnostics.HttpSender\EtLast.Diagnostics.HttpSender.csproj" />
-    <ProjectReference Include="..\..\EtLast.DwhBuilder.Extenders.DataDefinition.MsSql\EtLast.DwhBuilder.Extenders.DataDefinition.MsSql.csproj" />
-    <ProjectReference Include="..\..\EtLast.DwhBuilder.Extenders.DataDefinition\EtLast.DwhBuilder.Extenders.DataDefinition.csproj" />
-    <ProjectReference Include="..\..\EtLast.DwhBuilder.MsSql\EtLast.DwhBuilder.MsSql.csproj" />
-    <ProjectReference Include="..\..\EtLast.DwhBuilder\EtLast.DwhBuilder.csproj" />
     <ProjectReference Include="..\..\EtLast.EPPlus\EtLast.EPPlus.csproj" />
     <ProjectReference Include="..\..\EtLast\EtLast.csproj" />
     <ProjectReference Include="..\EtLast.Tests.Integration.AdoNetTests\EtLast.Tests.Integration.AdoNetTests.csproj" />
-    <ProjectReference Include="..\EtLast.Tests.Integration.DwhBuilderTests\EtLast.Tests.Integration.DwhBuilderTests.csproj" />
     <ProjectReference Include="..\EtLast.Tests.Integration.FlowTests\EtLast.Tests.Integration.FlowTests.csproj" />
   </ItemGroup>
 

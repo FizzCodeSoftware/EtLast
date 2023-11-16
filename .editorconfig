@@ -84,9 +84,14 @@ dotnet_diagnostic.CA1822.severity = silent
 dotnet_diagnostic.CA2231.severity = suggestion
 dotnet_diagnostic.CA2241.severity = suggestion
 dotnet_diagnostic.CA2242.severity = suggestion
+dotnet_diagnostic.CA1859.severity = none
 ###############################
 # C# Coding Conventions       #
 ###############################
+
+# IDE0305: Simplify collection initialization
+dotnet_diagnostic.IDE0305.severity = none
+
 [*.cs]
 # var preferences
 csharp_style_var_for_built_in_types = true:warning
@@ -186,6 +191,7 @@ dotnet_diagnostic.RCS1163.severity = silent
 
 # RCS1239: Use 'for' statement instead of 'while' statement.
 dotnet_diagnostic.RCS1239.severity = silent
+csharp_style_prefer_primary_constructors = true:suggestion
 
 [*.vb]
 # Modifier preferences

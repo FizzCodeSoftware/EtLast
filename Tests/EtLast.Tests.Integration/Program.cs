@@ -15,11 +15,7 @@ return (int)HostBuilder.New("EtLast Integration Tests")
 
         return new ConsoleCommandLineListener();
     })
-    .SetAlias("dwh", "run DwhBuilderTests Main")
-    .SetAlias("doex1", "run DwhBuilderTests CustomExceptionTest")
-    .SetAlias("doex2", "run DwhBuilderTests ExceptionTest")
-    .SetAlias("createdb", "run DwhBuilderTests CreateDatabase")
-    .SetAlias("test", "test-modules DwhBuilderTests")
+    .SetAlias("test", "test-modules AdoNetTests FlowTests")
     .SetAlias("ado", "run AdoNetTests Main")
     .SetAlias("flow", "run FlowTests Main")
     //.DisableSerilogForModules()

@@ -40,7 +40,7 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
                 ConnectionString = ConnectionString,
                 TableName = ConnectionString.Escape(nameof(CreatePrimaryKeyConstraintTests)),
                 ConstraintName = "PK_" + nameof(CreatePrimaryKeyConstraintTests),
-                Columns = new[] { "Id" }
+                Columns = ["Id"]
             })
             .GetTableRecordCount(out var countOfPrimaryKeys2, () => new GetTableRecordCount(Context)
             {

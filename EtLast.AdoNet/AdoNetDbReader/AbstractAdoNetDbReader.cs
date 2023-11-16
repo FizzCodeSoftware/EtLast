@@ -24,7 +24,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
     public int CommandTimeout { get; init; } = 60 * 60;
 
     public DateTime LastDataRead { get; private set; }
-    public List<ISqlValueProcessor> SqlValueProcessors { get; } = new List<ISqlValueProcessor>();
+    public List<ISqlValueProcessor> SqlValueProcessors { get; } = [];
 
     public Dictionary<string, object> Parameters { get; init; }
 

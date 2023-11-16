@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CopyTableIntoNewTable : AbstractSqlStatement
+public sealed class CopyTableIntoNewTable(IEtlContext context) : AbstractSqlStatement(context)
 {
     [ProcessParameterMustHaveValue]
     public required TableCopyConfiguration Configuration { get; init; }
@@ -9,11 +9,6 @@ public sealed class CopyTableIntoNewTable : AbstractSqlStatement
     /// Optional. Default is NULL which means everything will be transferred from the old table to the new table.
     /// </summary>
     public string WhereClause { get; init; }
-
-    public CopyTableIntoNewTable(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override string GetTopic()
     {

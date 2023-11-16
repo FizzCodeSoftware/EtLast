@@ -1,12 +1,7 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-public class ExtendedBinaryWriter : BinaryWriter
+public class ExtendedBinaryWriter(Stream output, Encoding encoding) : BinaryWriter(output, encoding)
 {
-    public ExtendedBinaryWriter(Stream output, Encoding encoding)
-        : base(output, encoding)
-    {
-    }
-
     public void WriteNullable(string value)
     {
         Write(value != null);

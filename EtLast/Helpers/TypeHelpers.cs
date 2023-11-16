@@ -44,7 +44,7 @@ public static class TypeHelpers
 
     public static string FixGeneratedName(string name)
     {
-        if (name.StartsWith("<", StringComparison.Ordinal))
+        if (name.StartsWith('<'))
         {
             var endIndex = name.IndexOf('>', StringComparison.Ordinal);
             if (endIndex > -1 && endIndex < name.Length - 1)

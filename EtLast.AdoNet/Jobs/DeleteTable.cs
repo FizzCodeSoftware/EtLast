@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class DeleteTable : AbstractSqlStatement
+public sealed class DeleteTable(IEtlContext context) : AbstractSqlStatement(context)
 {
     [ProcessParameterMustHaveValue]
     public required string TableName { get; init; }
@@ -9,11 +9,6 @@ public sealed class DeleteTable : AbstractSqlStatement
     /// Set to null for a full table delete, but consider using <see cref="TruncateTable"/> if the target table has no FK references.
     /// </summary>
     public required string WhereClause { get; init; }
-
-    public DeleteTable(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override string GetTopic()
     {

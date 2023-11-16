@@ -56,7 +56,7 @@ public class ExceptionFormatTests
                 },
                 RowKeyGenerator = row => row.GenerateKey("id"),
                 NoMatchAction = new NoMatchAction(MatchMode.Throw),
-                Columns = new(),
+                Columns = [],
             });
 
         var process = builder.Build();
@@ -84,7 +84,7 @@ public class ExceptionFormatTests
                 {
                     CustomAction = _ => throw new Exception("ohh"),
                 },
-                Columns = new(),
+                Columns = [],
             });
 
         var process = builder.Build();
@@ -109,7 +109,7 @@ public class ExceptionFormatTests
                 },
                 RowKeyGenerator = row => row.GenerateKey("id"),
                 MatchCustomAction = (_, _) => throw new Exception("ohh"),
-                Columns = new(),
+                Columns = [],
             });
 
         var process = builder.Build();

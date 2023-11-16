@@ -1,14 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class MsSqlDisableConstraintCheck : AbstractSqlStatements
+public sealed class MsSqlDisableConstraintCheck(IEtlContext context) : AbstractSqlStatements(context)
 {
     [ProcessParameterMustHaveValue]
     public required string[] TableNames { get; init; }
-
-    public MsSqlDisableConstraintCheck(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override string GetTopic()
     {

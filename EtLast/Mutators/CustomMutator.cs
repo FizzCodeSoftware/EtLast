@@ -2,15 +2,10 @@
 
 public delegate bool CustomMutatorDelegate(IRow row);
 
-public sealed class CustomMutator : AbstractMutator
+public sealed class CustomMutator(IEtlContext context) : AbstractMutator(context)
 {
     [ProcessParameterMustHaveValue]
     public required CustomMutatorDelegate Action { get; init; }
-
-    public CustomMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {

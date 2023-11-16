@@ -21,8 +21,8 @@ public class DwhTableBuilder : IDwhTableBuilder
     public string ValidToColumnName { get; }
     public string ValidToColumnNameEscaped { get; }
 
-    private readonly List<Func<DwhTableBuilder, IEnumerable<IProcess>>> _finalizerCreators = new();
-    private readonly List<MutatorCreatorDelegate> _mutatorCreators = new();
+    private readonly List<Func<DwhTableBuilder, IEnumerable<IProcess>>> _finalizerCreators = [];
+    private readonly List<MutatorCreatorDelegate> _mutatorCreators = [];
     private Func<DateTimeOffset?, ISequence> _inputCreator;
 
     public DwhTableBuilder(MsSqlDwhBuilder builder, ResilientTable resilientTable, RelationalTable table)

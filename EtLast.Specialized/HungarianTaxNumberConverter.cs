@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class HungarianTaxNumberConverter : StringConverter
+public sealed class HungarianTaxNumberConverter(string formatHint = null, IFormatProvider formatProviderHint = null) : StringConverter(formatHint, formatProviderHint)
 {
     /// <summary>
     /// Default true.
@@ -8,12 +8,7 @@ public sealed class HungarianTaxNumberConverter : StringConverter
     public required bool AutomaticallyAddHyphens { get; init; } = true;
 
     public static Dictionary<int, string> RegionNames { get; } = CreateRegionNamesDictionary();
-    private static readonly int[] _checkSumNumbers = new[] { 9, 7, 3, 1, 9, 7, 3 };
-
-    public HungarianTaxNumberConverter(string formatHint = null, IFormatProvider formatProviderHint = null)
-        : base(formatHint, formatProviderHint)
-    {
-    }
+    private static readonly int[] _checkSumNumbers = [9, 7, 3, 1, 9, 7, 3];
 
     public override object Convert(object source)
     {
@@ -52,7 +47,7 @@ public sealed class HungarianTaxNumberConverter : StringConverter
             if (value.Length != 11)
                 return false;
 
-            parts = new[] { value[..8], value.Substring(8, 1), value.Substring(9, 2) };
+            parts = [value[..8], value.Substring(8, 1), value.Substring(9, 2)];
         }
         else
         {

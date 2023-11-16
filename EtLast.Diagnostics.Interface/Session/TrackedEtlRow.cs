@@ -8,7 +8,7 @@ public class TrackedEtlRow
     public TrackedProcessInvocation PreviousProcess { get; set; }
     public TrackedProcessInvocation NextProcess { get; set; }
 
-    public List<AbstractRowEvent> AllEvents { get; } = new List<AbstractRowEvent>();
+    public List<AbstractRowEvent> AllEvents { get; } = [];
 
     public Dictionary<string, object> PreviousValues { get; set; }
     public Dictionary<string, object> NewValues { get; set; }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <PackageId>FizzCode.EtLast.AdoNet.MsSql</PackageId>
     <Description>ADO.NET extension for EtLast ETL (Extract, Transform and Load) library</Description>
     <AssemblyName>FizzCode.EtLast.AdoNet.MsSql</AssemblyName>
@@ -18,7 +18,7 @@
   <ItemGroup>
     <PackageReference Include="FizzCode.LightWeight.AdoNet.DbConnection" Version="2.0.42.7056" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.2" />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.6.1">
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.6.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

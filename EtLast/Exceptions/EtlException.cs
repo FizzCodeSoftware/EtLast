@@ -156,9 +156,9 @@ public class EtlException : Exception
             sb.Append("in ").Append(assemblyName.PadRight(maxAssemblyNameLength + 1)).Append(": ");
         }
 
-        if (!method.Name.StartsWith("<", StringComparison.Ordinal) && method.DeclaringType != null)
+        if (!method.Name.StartsWith('<') && method.DeclaringType != null)
         {
-            if (method.DeclaringType.Name.StartsWith("<", StringComparison.Ordinal))
+            if (method.DeclaringType.Name.StartsWith('<'))
             {
                 var endIndex = method.DeclaringType.Name.IndexOf('>', StringComparison.Ordinal);
                 if (endIndex > -1 && endIndex < method.DeclaringType.Name.Length)

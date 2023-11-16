@@ -1,14 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class TruncateTable : AbstractSqlStatement
+public sealed class TruncateTable(IEtlContext context) : AbstractSqlStatement(context)
 {
     [ProcessParameterMustHaveValue]
     public string TableName { get; init; }
-
-    public TruncateTable(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override string GetTopic()
     {

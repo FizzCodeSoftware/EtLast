@@ -2,15 +2,10 @@
 
 public delegate void NoMatchActionDelegate(IRow row);
 
-public sealed class NoMatchAction
+public sealed class NoMatchAction(MatchMode mode)
 {
-    public MatchMode Mode { get; }
+    public MatchMode Mode { get; } = mode;
     public NoMatchActionDelegate CustomAction { get; init; }
-
-    public NoMatchAction(MatchMode mode)
-    {
-        Mode = mode;
-    }
 
     public void InvokeCustomAction(IRow row)
     {

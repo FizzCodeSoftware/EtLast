@@ -1,24 +1,18 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CountOnlyRowLookup : ICountableLookup
+public sealed class CountOnlyRowLookup(bool ignoreCase = false) : ICountableLookup
 {
     /// <summary>
     /// Default false.
     /// </summary>
-    public bool IgnoreCase { get; }
+    public bool IgnoreCase { get; } = ignoreCase;
 
     public int Count { get; private set; }
     public IEnumerable<string> Keys => _dictionary.Keys;
 
-    private readonly Dictionary<string, int> _dictionary;
-
-    public CountOnlyRowLookup(bool ignoreCase = false)
-    {
-        IgnoreCase = ignoreCase;
-        _dictionary = ignoreCase
+    private readonly Dictionary<string, int> _dictionary = ignoreCase
             ? new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
-            : new Dictionary<string, int>();
-    }
+            : [];
 
     public void AddRow(string key, IReadOnlySlimRow row)
     {

@@ -2,7 +2,5 @@
 
 public class Default : IDefaultArgumentProvider
 {
-    public Dictionary<string, object> Arguments => new()
-    {
-    };
+    public Dictionary<string, object> Arguments => [];
 }

@@ -1,12 +1,7 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ParallelMerger : AbstractMerger
+public sealed class ParallelMerger(IEtlContext context) : AbstractMerger(context)
 {
-    public ParallelMerger(IEtlContext context)
-        : base(context)
-    {
-    }
-
     protected override void ValidateImpl()
     {
     }
@@ -89,7 +84,7 @@ public static class ParallelMergerFluent
         var merger = new ParallelMerger(builder.ProcessBuilder.Result.Context)
         {
             Name = "ParallelMerger",
-            SequenceList = new List<ISequence>(),
+            SequenceList = [],
         };
 
         for (var i = 0; i < threadCount; i++)

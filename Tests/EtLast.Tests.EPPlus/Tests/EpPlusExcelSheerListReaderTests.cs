@@ -43,9 +43,9 @@ public class EpPlusExcelSheetReaderTests
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Stream"] = @".\TestData\Test.xlsx", ["Index"] = 0, ["Name"] = "MergeAtIndex0", ["Color"] = System.Drawing.Color.FromArgb(0, 0, 0, 0), ["Visible"] = true, ["idx"] = 0 },
-            new() { ["Stream"] = @".\TestData\Test.xlsx", ["Index"] = 1, ["Name"] = "DateBroken", ["Color"] = System.Drawing.Color.FromArgb(0, 0, 0, 0), ["Visible"] = true, ["idx"] = 1 } });
+            new() { ["Stream"] = @".\TestData\Test.xlsx", ["Index"] = 1, ["Name"] = "DateBroken", ["Color"] = System.Drawing.Color.FromArgb(0, 0, 0, 0), ["Visible"] = true, ["idx"] = 1 } ]);
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }

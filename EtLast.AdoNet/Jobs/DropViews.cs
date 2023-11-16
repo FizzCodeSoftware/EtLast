@@ -1,14 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class DropViews : AbstractSqlStatements
+public sealed class DropViews(IEtlContext context) : AbstractSqlStatements(context)
 {
     [ProcessParameterMustHaveValue]
     public required string[] TableNames { get; init; }
-
-    public DropViews(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override void ValidateParameters()
     {

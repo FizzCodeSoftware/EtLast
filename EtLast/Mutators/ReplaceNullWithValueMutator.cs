@@ -1,16 +1,11 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ReplaceNullWithValueMutator : AbstractSimpleChangeMutator
+public sealed class ReplaceNullWithValueMutator(IEtlContext context) : AbstractSimpleChangeMutator(context)
 {
     public required string[] Columns { get; init; }
 
     [ProcessParameterMustHaveValue]
     public required object Value { get; init; }
-
-    public ReplaceNullWithValueMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class MergeDateWithTimeMutator : AbstractMutator
+public sealed class MergeDateWithTimeMutator(IEtlContext context) : AbstractMutator(context)
 {
     [ProcessParameterMustHaveValue]
     public required string TargetColumn { get; init; }
@@ -17,11 +17,6 @@ public sealed class MergeDateWithTimeMutator : AbstractMutator
     public InvalidValueAction ActionIfInvalid { get; init; } = InvalidValueAction.WrapError;
 
     public object SpecialValueIfInvalid { get; init; }
-
-    public MergeDateWithTimeMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {

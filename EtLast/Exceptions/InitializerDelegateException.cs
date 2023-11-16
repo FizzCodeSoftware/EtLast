@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class InitializerDelegateException : EtlException
+public class InitializerDelegateException(IProcess process, Exception innerException) : EtlException(process, "error during the initialization of the process", innerException)
 {
-    public InitializerDelegateException(IProcess process, Exception innerException)
-        : base(process, "error during the initialization of the process", innerException)
-    {
-    }
 }

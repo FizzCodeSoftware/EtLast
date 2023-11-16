@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class SqlMergeException : EtlException
+public class SqlMergeException(IProcess process, Exception innerException) : EtlException(process, "database merge failed", innerException)
 {
-    public SqlMergeException(IProcess process, Exception innerException)
-        : base(process, "database merge failed", innerException)
-    {
-    }
 }

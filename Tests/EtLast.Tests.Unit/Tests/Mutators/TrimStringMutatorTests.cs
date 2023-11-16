@@ -10,24 +10,24 @@ public class TrimStringMutatorTests
         var builder = SequenceBuilder.Fluent
         .ReadFrom(new RowCreator(context)
         {
-            Columns = new[] { "Name", "Pets" },
-            InputRows = new List<object[]>()
-            {
-                new object[] { "John, Oliver   ", "  Ubul" },
-                new object[] { " Andrew, Smith", "Winston,Marley" },
-            },
+            Columns = ["Name", "Pets"],
+            InputRows =
+            [
+                ["John, Oliver   ", "  Ubul"],
+                [" Andrew, Smith", "Winston,Marley"],
+            ],
         })
         .TrimString(new TrimStringMutator(context)
         {
-            Columns = new[] { "Name" },
+            Columns = ["Name"],
         })
         .TrimString("Name");
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
                 new() { ["Name"] = "John, Oliver", ["Pets"] = "  Ubul" },
-                new() { ["Name"] = "Andrew, Smith", ["Pets"] = "Winston,Marley" } });
+                new() { ["Name"] = "Andrew, Smith", ["Pets"] = "Winston,Marley" } ]);
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }

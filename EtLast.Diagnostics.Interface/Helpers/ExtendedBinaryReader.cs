@@ -1,12 +1,7 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-public class ExtendedBinaryReader : BinaryReader
+public class ExtendedBinaryReader(Stream input, Encoding encoding) : BinaryReader(input, encoding)
 {
-    public ExtendedBinaryReader(Stream input, Encoding encoding)
-        : base(input, encoding)
-    {
-    }
-
     public string ReadNullableString()
     {
         if (!ReadBoolean())

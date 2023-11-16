@@ -21,10 +21,10 @@ public class CustomSqlAdoNetDbReaderTests : AbstractEtlTask
                 .Build().TakeRowsAndReleaseOwnership(this).ToList();
 
                 Assert.AreEqual(2, result.Count);
-                Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                Assert.That.ExactMatch(result, [
                     new() { ["Id"] = 1},
                     new() { ["Id"] = 2}
-                });
+                ]);
             });
     }
 }

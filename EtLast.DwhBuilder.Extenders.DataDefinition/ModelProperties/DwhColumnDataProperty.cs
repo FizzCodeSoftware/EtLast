@@ -1,16 +1,9 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition;
 
-public class DwhColumnDataProperty : SqlColumnCustomProperty
+public class DwhColumnDataProperty(SqlColumn column, string name, object value) : SqlColumnCustomProperty(column)
 {
-    public string Name { get; }
-    public object Value { get; }
-
-    public DwhColumnDataProperty(SqlColumn column, string name, object value)
-        : base(column)
-    {
-        Name = name;
-        Value = value;
-    }
+    public string Name { get; } = name;
+    public object Value { get; } = value;
 }
 
 public static class DwhColumnDataPropertyHelper

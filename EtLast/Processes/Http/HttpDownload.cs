@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 
 namespace FizzCode.EtLast;
-public sealed class HttpDownload : AbstractJob
+public sealed class HttpDownload(IEtlContext context) : AbstractJob(context)
 {
     /// <summary>
     /// According to MSDN, it is recommended to reuse HttpClient instances if possible.
@@ -15,11 +15,6 @@ public sealed class HttpDownload : AbstractJob
 
     [ProcessParameterMustHaveValue]
     public required MemoryStream OutputStream { get; init; }
-
-    public HttpDownload(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {

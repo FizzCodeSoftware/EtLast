@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class MultiplyByTagsMutator : AbstractMutator
+public sealed class MultiplyByTagsMutator(IEtlContext context) : AbstractMutator(context)
 {
     /// <summary>
     /// Default true.
@@ -9,11 +9,6 @@ public sealed class MultiplyByTagsMutator : AbstractMutator
 
     [ProcessParameterMustHaveValue]
     public required object[] Tags { get; init; }
-
-    public MultiplyByTagsMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {

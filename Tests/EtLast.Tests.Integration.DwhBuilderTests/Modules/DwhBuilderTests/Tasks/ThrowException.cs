@@ -13,7 +13,7 @@ public class ThrowException : AbstractEtlTask
         flow
             .CustomJob(nameof(ThrowException), job =>
             {
-                var ex = (Exception)Activator.CreateInstance(ExceptionType, new object[] { Message });
+                var ex = (Exception)Activator.CreateInstance(ExceptionType, [Message]);
                 throw ex;
             });
     }

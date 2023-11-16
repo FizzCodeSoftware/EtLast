@@ -4,7 +4,7 @@ public partial class MainForm : Form
 {
     private readonly TabControl ContextTabs;
     private readonly DiagnosticsStateManager _stateManager;
-    private readonly Dictionary<string, ContextControl> _contextControls = new();
+    private readonly Dictionary<string, ContextControl> _contextControls = [];
     private readonly Timer _timer;
 
     public MainForm()

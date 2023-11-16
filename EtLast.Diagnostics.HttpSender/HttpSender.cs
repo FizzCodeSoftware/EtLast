@@ -26,7 +26,7 @@ public class HttpSender : IDisposable, IEtlContextListener
     private bool _finished;
     private int _communicationErrorCount;
 
-    private readonly Dictionary<string, MessageTemplate> _messageTemplateCache = new();
+    private readonly Dictionary<string, MessageTemplate> _messageTemplateCache = [];
     private readonly object _messageTemplateCacheLock = new();
     private readonly MessageTemplateParser _messageTemplateParser = new();
 
@@ -95,7 +95,7 @@ public class HttpSender : IDisposable, IEtlContextListener
 
         var binaryContent = writer != null
             ? (writer.BaseStream as MemoryStream).ToArray()
-            : Array.Empty<byte>();
+            : [];
 
         using (var content = new ByteArrayContent(binaryContent))
         {

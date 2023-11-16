@@ -5,8 +5,7 @@ public static class ThrowsInvalidProcessParameterExceptionHelper
     public static void ThrowsInvalidProcessParameterException<T>(this Assert assert)
         where T : IMutator
     {
-        if (assert is null)
-            throw new ArgumentNullException(nameof(assert));
+        ArgumentNullException.ThrowIfNull(assert);
 
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent

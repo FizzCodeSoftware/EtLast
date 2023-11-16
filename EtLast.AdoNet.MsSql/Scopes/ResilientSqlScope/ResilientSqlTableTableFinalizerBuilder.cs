@@ -3,7 +3,7 @@
 public sealed class ResilientSqlTableTableFinalizerBuilder
 {
     public required ResilientTableBase Table { get; init; }
-    public List<IProcess> Finalizers { get; } = new List<IProcess>();
+    public List<IProcess> Finalizers { get; } = [];
 
     public ResilientSqlTableTableFinalizerBuilder Add(IProcess process)
     {

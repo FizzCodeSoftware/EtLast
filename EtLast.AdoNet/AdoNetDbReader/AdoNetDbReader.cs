@@ -1,16 +1,11 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class AdoNetDbReader : AbstractAdoNetDbReader
+public sealed class AdoNetDbReader(IEtlContext context) : AbstractAdoNetDbReader(context)
 {
     public required string TableName { get; init; }
     public string CustomWhereClause { get; init; }
     public string CustomOrderByClause { get; init; }
     public int RecordCountLimit { get; init; }
-
-    public AdoNetDbReader(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override CommandType GetCommandType()
     {

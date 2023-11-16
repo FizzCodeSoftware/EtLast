@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <AssemblyName>FizzCode.EtLast.Tests.Integration.AdoNetTests</AssemblyName>
+    <RootNamespace>FizzCode.EtLast.Tests.Integration.AdoNetTests</RootNamespace>
+    <Configurations>Debug;Release;Integration</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Integration|AnyCPU'">
+    <DefineConstants>$(DefineConstants)TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Integration|x64'">
+    <DefineConstants>$(DefineConstants)TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FizzCode.DbTools.Configuration" Version="2.0.25.6662" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.6.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\EtLast.AdoNet.MsSql\EtLast.AdoNet.MsSql.csproj" />
+    <ProjectReference Include="..\..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
+    <ProjectReference Include="..\..\EtLast\EtLast.csproj" />
+    <ProjectReference Include="..\EtLast.Tests.Base\EtLast.Tests.Base.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Modules\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+
+</Project>

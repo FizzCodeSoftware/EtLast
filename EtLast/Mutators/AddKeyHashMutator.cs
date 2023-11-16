@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class AddKeyHashMutator : AbstractMutator
+public sealed class AddKeyHashMutator(IEtlContext context) : AbstractMutator(context)
 {
     [ProcessParameterMustHaveValue]
     public required string TargetColumn { get; init; }
@@ -25,11 +25,6 @@ public sealed class AddKeyHashMutator : AbstractMutator
 
     private HashAlgorithm _hashAlgorithm;
     private StringBuilder _hashStringBuilder;
-
-    public AddKeyHashMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void CloseMutator()
     {

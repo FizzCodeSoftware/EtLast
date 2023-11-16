@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class SqlReadException : EtlException
+public class SqlReadException(IProcess process, Exception innerException) : EtlException(process, "database read failed", innerException)
 {
-    public SqlReadException(IProcess process, Exception innerException)
-        : base(process, "database read failed", innerException)
-    {
-    }
 }

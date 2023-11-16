@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class SqlTruncateException : EtlException
+public class SqlTruncateException(IProcess process, Exception innerException) : EtlException(process, "database truncate failed", innerException)
 {
-    public SqlTruncateException(IProcess process, Exception innerException)
-        : base(process, "database truncate failed", innerException)
-    {
-    }
 }

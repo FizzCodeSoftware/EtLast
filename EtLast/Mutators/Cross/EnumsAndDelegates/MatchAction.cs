@@ -2,15 +2,10 @@
 
 public delegate void MatchActionDelegate(IRow row, IReadOnlySlimRow match);
 
-public sealed class MatchAction
+public sealed class MatchAction(MatchMode mode)
 {
-    public MatchMode Mode { get; }
+    public MatchMode Mode { get; } = mode;
     public MatchActionDelegate CustomAction { get; init; }
-
-    public MatchAction(MatchMode mode)
-    {
-        Mode = mode;
-    }
 
     public void InvokeCustomAction(IRow row, IReadOnlySlimRow match)
     {

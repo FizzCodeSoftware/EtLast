@@ -16,8 +16,8 @@ internal class ContextProcessInvocationListControl
     private Color IsInputBackColor { get; } = Color.FromArgb(255, 230, 185);
     private Color TopicHighlightBackColor { get; } = Color.FromArgb(220, 220, 255);
 
-    private readonly List<ListViewItem> _allItems = new();
-    private readonly Dictionary<long, ListViewItem> _itemsByProcessInvocationUid = new();
+    private readonly List<ListViewItem> _allItems = [];
+    private readonly Dictionary<long, ListViewItem> _itemsByProcessInvocationUid = [];
 
     public ContextProcessInvocationListControl(Control container, DiagContext context)
     {

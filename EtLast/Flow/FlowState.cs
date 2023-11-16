@@ -1,17 +1,12 @@
 ﻿namespace FizzCode.EtLast;
 
-public class FlowState : IReadOnlyFlowState
+public class FlowState(IEtlContext context) : IReadOnlyFlowState
 {
-    public IEtlContext Context { get; }
+    public IEtlContext Context { get; } = context;
 
-    public List<Exception> Exceptions { get; } = new List<Exception>();
+    public List<Exception> Exceptions { get; } = [];
     public bool Failed => Exceptions.Count > 0;
     public bool IsTerminating => Context.IsTerminating || Failed;
-
-    public FlowState(IEtlContext context)
-    {
-        Context = context;
-    }
 
     public void AddException(IProcess process, Exception ex)
     {

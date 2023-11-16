@@ -1,13 +1,8 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class SetTagMutator : AbstractMutator
+public sealed class SetTagMutator(IEtlContext context) : AbstractMutator(context)
 {
     public required object Tag { get; init; }
-
-    public SetTagMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {

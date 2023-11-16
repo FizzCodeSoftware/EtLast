@@ -2,7 +2,7 @@
 
 public enum MsSqlDropForeignKeysProcessMode { All, InSpecifiedTables, InSpecifiedSchema, ToSpecifiedSchema, ToSpecifiedTables }
 
-public sealed class MsSqlDropForeignKeys : AbstractSqlStatements
+public sealed class MsSqlDropForeignKeys(IEtlContext context) : AbstractSqlStatements(context)
 {
     /// <summary>
     /// Default value is <see cref="MsSqlDropForeignKeysProcessMode.ToSpecifiedTables"/>
@@ -18,11 +18,6 @@ public sealed class MsSqlDropForeignKeys : AbstractSqlStatements
     /// Must be set if <see cref="Mode"/> is set to <see cref="MsSqlDropForeignKeysProcessMode.InSpecifiedSchema"/> or <see cref="MsSqlDropForeignKeysProcessMode.ToSpecifiedSchema"/>
     /// </summary>
     public string SchemaName { get; init; }
-
-    public MsSqlDropForeignKeys(IEtlContext context)
-        : base(context)
-    {
-    }
 
     private List<Tuple<string, int>> _tableNamesAndCounts;
 
@@ -164,7 +159,7 @@ from
 
                         if (!constraintsByTable.TryGetValue(sourceTableName, out var list))
                         {
-                            list = new List<string>();
+                            list = [];
                             constraintsByTable.Add(sourceTableName, list);
                         }
 
@@ -174,7 +169,7 @@ from
                     Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadMeta, iocUid, recordsRead);
                 }
 
-                _tableNamesAndCounts = new List<Tuple<string, int>>();
+                _tableNamesAndCounts = [];
                 var statements = new List<string>();
                 foreach (var kvp in constraintsByTable.OrderBy(x => x.Key))
                 {

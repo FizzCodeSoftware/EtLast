@@ -3,7 +3,7 @@ using System.Net.Http;
 
 namespace FizzCode.EtLast;
 
-public sealed class HttpDownloadToLocalFile : AbstractJob
+public sealed class HttpDownloadToLocalFile(IEtlContext context) : AbstractJob(context)
 {
     /// <summary>
     /// According to MSDN, it is recommended to reuse HttpClient instances if possible.
@@ -24,11 +24,6 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
     public bool SkipIfTargetFileExistsButLarger { get; init; }
 
     public Dictionary<string, string> Headers { get; set; }
-
-    public HttpDownloadToLocalFile(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {

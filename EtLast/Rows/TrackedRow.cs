@@ -1,8 +1,8 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class TrackedRow : IRow
+public sealed class TrackedRow(IRow originalRow) : IRow
 {
-    private readonly IRow _originalRow;
+    private readonly IRow _originalRow = originalRow;
 
     public bool KeepNulls { get => true; set { } }
 
@@ -69,11 +69,6 @@ public sealed class TrackedRow : IRow
             _changes ??= new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             _changes[column] = value;
         }
-    }
-
-    public TrackedRow(IRow originalRow)
-    {
-        _originalRow = originalRow;
     }
 
     public void ApplyChanges()

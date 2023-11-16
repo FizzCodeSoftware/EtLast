@@ -2,11 +2,7 @@
 
 [ComVisible(true)]
 [Serializable]
-public class DwhBuilderParameterNullException<TTableBuilder> : InvalidDwhBuilderParameterException<TTableBuilder>
+public class DwhBuilderParameterNullException<TTableBuilder>(IDwhBuilder<TTableBuilder> builder, string parameterName) : InvalidDwhBuilderParameterException<TTableBuilder>(builder, parameterName, null, "value cannot be null or empty")
     where TTableBuilder : IDwhTableBuilder
 {
-    public DwhBuilderParameterNullException(IDwhBuilder<TTableBuilder> builder, string parameterName)
-        : base(builder, parameterName, null, "value cannot be null or empty")
-    {
-    }
 }

@@ -29,7 +29,7 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
     /// </summary>
     public bool Unmerge { get; init; } = true;
 
-    public int[] HeaderRows { get; init; } = new[] { 1 };
+    public int[] HeaderRows { get; init; } = [1];
 
     /// <summary>
     /// Default value is <see cref="EpPlusExcelHeaderCellMode.KeepLast"/>

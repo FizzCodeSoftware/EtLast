@@ -13,7 +13,7 @@ public class ContinuousAggregationMutatorTests
             builder = builder
                 .ConvertValue(new InPlaceConvertMutator(context)
                 {
-                    Columns = new[] { "age", "height" },
+                    Columns = ["age", "height"],
                     TypeConverter = converter,
                 });
         }
@@ -44,7 +44,7 @@ public class ContinuousAggregationMutatorTests
             .ReadFrom(TestData.Person(context))
             .ConvertValue(new InPlaceConvertMutator(context)
             {
-                Columns = new[] { "age", "height" },
+                Columns = ["age", "height"],
                 TypeConverter = new DecimalConverter(),
             })
             .AggregateContinuously(new ContinuousAggregationMutator(context)
@@ -58,8 +58,8 @@ public class ContinuousAggregationMutatorTests
 
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(1, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
-            new() { ["min-height"] = 140m, ["max-height"] = 190m } });
+        Assert.That.ExactMatch(result.MutatedRows, [
+            new() { ["min-height"] = 140m, ["max-height"] = 190m } ]);
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -72,13 +72,13 @@ public class ContinuousAggregationMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["height"] = 150m },
             new() { ["name"] = "B", ["height"] = 190m },
             new() { ["name"] = "C", ["height"] = 170m },
             new() { ["name"] = "D", ["height"] = 160m },
             new() { ["name"] = "E", ["height"] = 160m },
-            new() { ["name"] = "fake", ["height"] = 140m } });
+            new() { ["name"] = "fake", ["height"] = 140m } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -90,13 +90,13 @@ public class ContinuousAggregationMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 17m },
             new() { ["name"] = "B", ["age"] = 8m },
             new() { ["name"] = "C", ["age"] = 27m },
             new() { ["name"] = "D", ["age"] = 39m },
             new() { ["name"] = "E", ["age"] = -3m },
-            new() { ["name"] = "fake", ["age"] = 0m } });
+            new() { ["name"] = "fake", ["age"] = 0m } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -108,13 +108,13 @@ public class ContinuousAggregationMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 11m },
             new() { ["name"] = "B", ["age"] = 8m },
             new() { ["name"] = "C", ["age"] = 27m },
             new() { ["name"] = "D", ["age"] = 39m },
             new() { ["name"] = "E", ["age"] = -3m },
-            new() { ["name"] = "fake", ["age"] = 0m } });
+            new() { ["name"] = "fake", ["age"] = 0m } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -126,13 +126,13 @@ public class ContinuousAggregationMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 28m },
             new() { ["name"] = "B", ["age"] = 8m },
             new() { ["name"] = "C", ["age"] = 27m },
             new() { ["name"] = "D", ["age"] = 39m },
             new() { ["name"] = "E", ["age"] = -3m },
-            new() { ["name"] = "fake", ["age"] = 0m } });
+            new() { ["name"] = "fake", ["age"] = 0m } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -144,13 +144,13 @@ public class ContinuousAggregationMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["height"] = 150d },
             new() { ["name"] = "B", ["height"] = 190d },
             new() { ["name"] = "C", ["height"] = 170d },
             new() { ["name"] = "D", ["height"] = 160d },
             new() { ["name"] = "E", ["height"] = 160d },
-            new() { ["name"] = "fake", ["height"] = 140d } });
+            new() { ["name"] = "fake", ["height"] = 140d } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -161,13 +161,13 @@ public class ContinuousAggregationMutatorTests
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDoubleAverageIgnoreNull("age"), new DoubleConverter());
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 14d },
             new() { ["name"] = "B", ["age"] = 8d },
             new() { ["name"] = "C", ["age"] = 27d },
             new() { ["name"] = "D", ["age"] = 39d },
             new() { ["name"] = "E", ["age"] = -3d },
-            new() { ["name"] = "fake" } });
+            new() { ["name"] = "fake" } ]);
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -180,13 +180,13 @@ public class ContinuousAggregationMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 17d },
             new() { ["name"] = "B", ["age"] = 8d },
             new() { ["name"] = "C", ["age"] = 27d },
             new() { ["name"] = "D", ["age"] = 39d },
             new() { ["name"] = "E", ["age"] = -3d },
-            new() { ["name"] = "fake", ["age"] = 0d } });
+            new() { ["name"] = "fake", ["age"] = 0d } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -198,13 +198,13 @@ public class ContinuousAggregationMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 11d },
             new() { ["name"] = "B", ["age"] = 8d },
             new() { ["name"] = "C", ["age"] = 27d },
             new() { ["name"] = "D", ["age"] = 39d },
             new() { ["name"] = "E", ["age"] = -3d },
-            new() { ["name"] = "fake", ["age"] = 0d } });
+            new() { ["name"] = "fake", ["age"] = 0d } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -216,13 +216,13 @@ public class ContinuousAggregationMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 28d },
             new() { ["name"] = "B", ["age"] = 8d },
             new() { ["name"] = "C", ["age"] = 27d },
             new() { ["name"] = "D", ["age"] = 39d },
             new() { ["name"] = "E", ["age"] = -3d },
-            new() { ["name"] = "fake", ["age"] = 0d } });
+            new() { ["name"] = "fake", ["age"] = 0d } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -234,13 +234,13 @@ public class ContinuousAggregationMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["height"] = 150d },
             new() { ["name"] = "B", ["height"] = 190d },
             new() { ["name"] = "C", ["height"] = 170d },
             new() { ["name"] = "D", ["height"] = 160d },
             new() { ["name"] = "E", ["height"] = 160d },
-            new() { ["name"] = "fake", ["height"] = 140d } });
+            new() { ["name"] = "fake", ["height"] = 140d } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -252,13 +252,13 @@ public class ContinuousAggregationMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 17 },
             new() { ["name"] = "B", ["age"] = 8 },
             new() { ["name"] = "C", ["age"] = 27 },
             new() { ["name"] = "D", ["age"] = 39 },
             new() { ["name"] = "E", ["age"] = -3 },
-            new() { ["name"] = "fake", ["age"] = 0 } });
+            new() { ["name"] = "fake", ["age"] = 0 } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -270,13 +270,13 @@ public class ContinuousAggregationMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 11 },
             new() { ["name"] = "B", ["age"] = 8 },
             new() { ["name"] = "C", ["age"] = 27 },
             new() { ["name"] = "D", ["age"] = 39 },
             new() { ["name"] = "E", ["age"] = -3 },
-            new() { ["name"] = "fake", ["age"] = 0 } });
+            new() { ["name"] = "fake", ["age"] = 0 } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -288,13 +288,13 @@ public class ContinuousAggregationMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 28 },
             new() { ["name"] = "B", ["age"] = 8 },
             new() { ["name"] = "C", ["age"] = 27 },
             new() { ["name"] = "D", ["age"] = 39 },
             new() { ["name"] = "E", ["age"] = -3 },
-            new() { ["name"] = "fake", ["age"] = 0 } });
+            new() { ["name"] = "fake", ["age"] = 0 } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -306,13 +306,13 @@ public class ContinuousAggregationMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["height"] = 150d },
             new() { ["name"] = "B", ["height"] = 190d },
             new() { ["name"] = "C", ["height"] = 170d },
             new() { ["name"] = "D", ["height"] = 160d },
             new() { ["name"] = "E", ["height"] = 160d },
-            new() { ["name"] = "fake", ["height"] = 140d } });
+            new() { ["name"] = "fake", ["height"] = 140d } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -324,13 +324,13 @@ public class ContinuousAggregationMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 17L },
             new() { ["name"] = "B", ["age"] = 8L },
             new() { ["name"] = "C", ["age"] = 27L },
             new() { ["name"] = "D", ["age"] = 39L },
             new() { ["name"] = "E", ["age"] = -3L },
-            new() { ["name"] = "fake", ["age"] = 0L } });
+            new() { ["name"] = "fake", ["age"] = 0L } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -342,13 +342,13 @@ public class ContinuousAggregationMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 11L },
             new() { ["name"] = "B", ["age"] = 8L },
             new() { ["name"] = "C", ["age"] = 27L },
             new() { ["name"] = "D", ["age"] = 39L },
             new() { ["name"] = "E", ["age"] = -3L },
-            new() { ["name"] = "fake", ["age"] = 0L } });
+            new() { ["name"] = "fake", ["age"] = 0L } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -360,13 +360,13 @@ public class ContinuousAggregationMutatorTests
         var result = TestExecuter.Execute(builder);
         Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 28L },
             new() { ["name"] = "B", ["age"] = 8L },
             new() { ["name"] = "C", ["age"] = 27L },
             new() { ["name"] = "D", ["age"] = 39L },
             new() { ["name"] = "E", ["age"] = -3L },
-            new() { ["name"] = "fake", ["age"] = 0L } });
+            new() { ["name"] = "fake", ["age"] = 0L } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -388,13 +388,13 @@ public class ContinuousAggregationMutatorTests
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddIntCount("count"), null);
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["count"] = 2 },
             new() { ["name"] = "B", ["count"] = 1 },
             new() { ["name"] = "C", ["count"] = 1 },
             new() { ["name"] = "D", ["count"] = 1 },
             new() { ["name"] = "E", ["count"] = 1 },
-            new() { ["name"] = "fake", ["count"] = 1 } });
+            new() { ["name"] = "fake", ["count"] = 1 } ]);
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -406,13 +406,13 @@ public class ContinuousAggregationMutatorTests
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddIntCountWhenNotNull("count", "age"), null);
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["count"] = 2 },
             new() { ["name"] = "B", ["count"] = 1 },
             new() { ["name"] = "C", ["count"] = 1 },
             new() { ["name"] = "D", ["count"] = 1 },
             new() { ["name"] = "E", ["count"] = 1 },
-            new() { ["name"] = "fake" } });
+            new() { ["name"] = "fake" } ]);
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -424,13 +424,13 @@ public class ContinuousAggregationMutatorTests
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddIntNumberOfDistinctKeys("count", row => row.GenerateKey("eyeColor")), null);
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["count"] = 1 },
             new() { ["name"] = "B" },
             new() { ["name"] = "C", ["count"] = 1 },
             new() { ["name"] = "D", ["count"] = 1 },
             new() { ["name"] = "E" },
-            new() { ["name"] = "fake" } });
+            new() { ["name"] = "fake" } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -441,13 +441,13 @@ public class ContinuousAggregationMutatorTests
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddIntNumberOfDistinctKeys("count", row => row.GenerateKey("eyeColor") ?? "\0NULL\0"), null);
         var result = TestExecuter.Execute(builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
-        Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+        Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["count"] = 2 },
             new() { ["name"] = "B", ["count"] = 1 },
             new() { ["name"] = "C", ["count"] = 1 },
             new() { ["name"] = "D", ["count"] = 1 },
             new() { ["name"] = "E", ["count"] = 1 },
-            new() { ["name"] = "fake", ["count"] = 1 } });
+            new() { ["name"] = "fake", ["count"] = 1 } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 }

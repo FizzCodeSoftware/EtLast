@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class SqlSchemaChangeException : EtlException
+public class SqlSchemaChangeException(IProcess process, string operation, Exception innerException) : EtlException(process, "database schema change failed: " + operation, innerException)
 {
-    public SqlSchemaChangeException(IProcess process, string operation, Exception innerException)
-        : base(process, "database schema change failed: " + operation, innerException)
-    {
-    }
 }

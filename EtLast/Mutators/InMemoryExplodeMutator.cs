@@ -5,7 +5,7 @@ public delegate IEnumerable<ISlimRow> InMemoryExplodeDelegate(InMemoryExplodeMut
 /// <summary>
 /// Useful only for small amount of data due to all input rows are collected into a List and processed at once.
 /// </summary>
-public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
+public sealed class InMemoryExplodeMutator(IEtlContext context) : AbstractSequence(context), IMutator
 {
     public ISequence Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }
@@ -17,11 +17,6 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
     /// Default true.
     /// </summary>
     public bool RemoveOriginalRow { get; init; } = true;
-
-    public InMemoryExplodeMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void ValidateImpl()
     {

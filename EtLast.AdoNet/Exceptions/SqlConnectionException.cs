@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class SqlConnectionException : EtlException
+public class SqlConnectionException(IProcess process, Exception innerException) : EtlException(process, "database connection failed", innerException)
 {
-    public SqlConnectionException(IProcess process, Exception innerException)
-        : base(process, "database connection failed", innerException)
-    {
-    }
 }

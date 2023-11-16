@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class EpPlusExcelSheetListReader : AbstractRowSource
+public sealed class EpPlusExcelSheetListReader(IEtlContext context) : AbstractRowSource(context)
 {
     public required IStreamProvider StreamProvider { get; init; }
 
@@ -8,11 +8,6 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
     /// Default value is "Stream".
     /// </summary>
     public string AddStreamNameToColumn { get; init; } = "Stream";
-
-    public EpPlusExcelSheetListReader(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override string GetTopic()
     {

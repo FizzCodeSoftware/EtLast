@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <PackageId>FizzCode.EtLast.DwhBuilder</PackageId>
     <Description>Microsoft SQL Server Data-Warehouse builder for EtLast ETL (Extract, Transform and Load) library</Description>
     <AssemblyName>FizzCode.EtLast.DwhBuilder</AssemblyName>
@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.6.1">
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.6.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

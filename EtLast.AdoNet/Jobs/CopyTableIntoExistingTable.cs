@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CopyTableIntoExistingTable : AbstractSqlStatement
+public sealed class CopyTableIntoExistingTable(IEtlContext context) : AbstractSqlStatement(context)
 {
     [ProcessParameterMustHaveValue]
     public required TableCopyConfiguration Configuration { get; init; }
@@ -16,11 +16,6 @@ public sealed class CopyTableIntoExistingTable : AbstractSqlStatement
     public bool CopyIdentityColumns { get; init; }
 
     public Dictionary<string, object> ColumnDefaults { get; init; }
-
-    public CopyTableIntoExistingTable(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override string GetTopic()
     {

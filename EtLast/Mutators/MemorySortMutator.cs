@@ -1,18 +1,13 @@
 ﻿namespace FizzCode.EtLast;
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public class MemorySortMutator : AbstractSequence, IMutator
+public class MemorySortMutator(IEtlContext context) : AbstractSequence(context), IMutator
 {
     public ISequence Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
 
     public required Func<IEnumerable<IRow>, IEnumerable<IRow>> Sorter { get; init; }
-
-    public MemorySortMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void ValidateImpl()
     {

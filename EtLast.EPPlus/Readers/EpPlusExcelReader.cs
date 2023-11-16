@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
+public sealed class EpPlusExcelReader(IEtlContext context) : AbstractEpPlusExcelReader(context)
 {
     public required IStreamProvider StreamProvider { get; init; }
 
@@ -8,11 +8,6 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
     /// First stream index is (integer) 0
     /// </summary>
     public string AddStreamIndexToColumn { get; init; }
-
-    public EpPlusExcelReader(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override string GetTopic()
     {

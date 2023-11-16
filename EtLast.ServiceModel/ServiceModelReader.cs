@@ -8,7 +8,7 @@ public delegate IEnumerable<SlimRow> ServiceModelReaderClientInvokerDelegate<TCh
     where TChannel : class
     where TClient : ClientBase<TChannel>;
 
-public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
+public sealed class ServiceModelReader<TChannel, TClient>(IEtlContext context) : AbstractRowSource(context)
     where TChannel : class
     where TClient : ClientBase<TChannel>
 {
@@ -22,11 +22,6 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
     /// Default value is true.
     /// </summary>
     public bool TreatEmptyStringAsNull { get; init; } = true;
-
-    public ServiceModelReader(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void ValidateImpl()
     {

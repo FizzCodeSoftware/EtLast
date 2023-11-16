@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace FizzCode.EtLast;
 
-public sealed class DataContractXmlSerializerMutator<T> : AbstractMutator
+public sealed class DataContractXmlSerializerMutator<T>(IEtlContext context) : AbstractMutator(context)
 {
     [ProcessParameterMustHaveValue]
     public required string SourceColumn { get; init; }
@@ -13,11 +13,6 @@ public sealed class DataContractXmlSerializerMutator<T> : AbstractMutator
 
     public required InvalidValueAction ActionIfFailed { get; init; }
     public object SpecialValueIfFailed { get; init; }
-
-    public DataContractXmlSerializerMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {

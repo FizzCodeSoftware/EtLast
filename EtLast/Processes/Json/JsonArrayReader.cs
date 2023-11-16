@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace FizzCode.EtLast;
 
-public sealed class JsonArrayReader<T> : AbstractRowSource
+public sealed class JsonArrayReader<T>(IEtlContext context) : AbstractRowSource(context)
 {
     public required IStreamProvider StreamProvider { get; init; }
     public required string ColumnName { get; init; }
@@ -12,11 +12,6 @@ public sealed class JsonArrayReader<T> : AbstractRowSource
     /// First stream index is (integer) 0
     /// </summary>
     public string AddStreamIndexToColumn { get; init; }
-
-    public JsonArrayReader(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override string GetTopic()
     {

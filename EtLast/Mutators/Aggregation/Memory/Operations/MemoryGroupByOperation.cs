@@ -4,7 +4,7 @@ public sealed class MemoryGroupByOperation : AbstractMemoryAggregationOperation
 {
     public delegate void MemoryGroupByOperationDelegate(ISlimRow aggregate, List<IReadOnlySlimRow> groupRows);
     public int AggregatorCount => _aggregators.Count;
-    private readonly List<MemoryGroupByOperationDelegate> _aggregators = new();
+    private readonly List<MemoryGroupByOperationDelegate> _aggregators = [];
 
     public MemoryGroupByOperation AddAggregator(MemoryGroupByOperationDelegate aggregator)
     {

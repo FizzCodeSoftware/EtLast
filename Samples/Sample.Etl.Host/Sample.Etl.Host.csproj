@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <Product>Sample ETL</Product>
@@ -10,11 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.EtLast.ConsoleHost" Version="6.0.50.7113" />
-    <PackageReference Include="FizzCode.EtLast.Diagnostics.HttpSender" Version="6.0.50.7113" />
-    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="6.0.50.7113" />
-    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="6.0.50.7113" />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.6.1">
+    <PackageReference Include="FizzCode.EtLast.ConsoleHost" Version="6.0.56.7122" />
+    <PackageReference Include="FizzCode.EtLast.Diagnostics.HttpSender" Version="6.0.56.7122" />
+    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="6.0.56.7122" />
+    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="6.0.56.7122" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.6.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

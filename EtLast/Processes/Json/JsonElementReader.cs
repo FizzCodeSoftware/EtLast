@@ -2,15 +2,10 @@
 
 namespace FizzCode.EtLast;
 
-public sealed class JsonElementReader<T> : AbstractRowSource
+public sealed class JsonElementReader<T>(IEtlContext context) : AbstractRowSource(context)
 {
     public required IStreamProvider StreamProvider { get; init; }
     public required string ColumnName { get; init; }
-
-    public JsonElementReader(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override string GetTopic()
     {

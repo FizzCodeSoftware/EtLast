@@ -13,7 +13,7 @@ public class DiagContext
     public DateTime? EndedOn { get; protected set; }
     public bool FullyLoaded => EndedOn != null && _stagedEvents.Count == 0;
     public ContextIndex Index { get; }
-    private readonly List<AbstractEvent> _stagedEvents = new();
+    private readonly List<AbstractEvent> _stagedEvents = [];
 
     public DiagContext(string id, string name, DateTime startedOn, string dataFolder)
     {

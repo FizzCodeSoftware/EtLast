@@ -2,7 +2,7 @@
 
 public enum MsSqlDropStoredProceduresProcessMode { All, SpecifiedStoredProcedures, InSpecifiedSchema }
 
-public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
+public sealed class MsSqlDropStoredProcedures(IEtlContext context) : AbstractSqlStatements(context)
 {
     /// <summary>
     /// Default value is <see cref="MsSqlDropStoredProceduresProcessMode.SpecifiedStoredProcedures"/>
@@ -20,11 +20,6 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
     public string[] StoredProcedureNames { get; init; }
 
     private List<string> _storedProcedureNames;
-
-    public MsSqlDropStoredProcedures(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override void ValidateParameters()
     {
@@ -87,7 +82,7 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
                         command.Parameters.Add(parameter);
                     }
 
-                    _storedProcedureNames = new List<string>();
+                    _storedProcedureNames = [];
 
                     var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "INFORMATION_SCHEMA.ROUTINES", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
                         "querying stored procedures names", null);

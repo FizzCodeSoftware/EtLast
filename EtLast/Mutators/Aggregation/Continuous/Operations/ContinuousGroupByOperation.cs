@@ -4,7 +4,7 @@ public sealed class ContinuousGroupByOperation : AbstractContinuousAggregationOp
 {
     public delegate void ContinuousGroupByAggregatorDelegate(ContinuousAggregate aggregate, IReadOnlySlimRow row);
     public int AggregatorCount => _aggregators.Count;
-    private readonly List<ContinuousGroupByAggregatorDelegate> _aggregators = new();
+    private readonly List<ContinuousGroupByAggregatorDelegate> _aggregators = [];
 
     public ContinuousGroupByOperation AddAggregator(ContinuousGroupByAggregatorDelegate aggregator)
     {
@@ -37,13 +37,12 @@ public static class ContinuousGroupByOperationExtensions
                 var hashset = aggregate.GetStateValue<HashSet<string>>(id, null);
                 if (hashset == null)
                 {
-                    hashset = new HashSet<string>();
+                    hashset = [];
                     aggregate.SetStateValue(id, hashset);
                 }
 
-                if (!hashset.Contains(key))
+                if (hashset.Add(key))
                 {
-                    hashset.Add(key);
                     var newValue = hashset.Count;
                     aggregate.ResultRow[column] = newValue;
                 }

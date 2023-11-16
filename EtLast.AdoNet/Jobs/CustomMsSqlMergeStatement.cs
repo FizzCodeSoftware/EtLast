@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
+public sealed class CustomMsSqlMergeStatement(IEtlContext context) : AbstractSqlStatement(context)
 {
     [ProcessParameterMustHaveValue]
     public required string SourceTableName { get; init; }
@@ -31,11 +31,6 @@ public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
     /// Default value is true.
     /// </summary>
     public bool InlineArrayParameters { get; init; } = true;
-
-    public CustomMsSqlMergeStatement(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override string GetTopic()
     {

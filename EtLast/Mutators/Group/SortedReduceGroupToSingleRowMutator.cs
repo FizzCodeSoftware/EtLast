@@ -5,7 +5,7 @@
 /// Group key generation is applied on the input rows on-the-fly. The collected group is processed when a new key is found.
 /// - keeps all row keys in memory (!)
 /// </summary>
-public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMutator
+public sealed class SortedReduceGroupToSingleRowMutator(IEtlContext context) : AbstractSequence(context), IMutator
 {
     public ISequence Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }
@@ -18,11 +18,6 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
     /// Default false. Setting to true means the Selector won't be called for groups with a single row - which can improve performance and/or introduce side effects.
     /// </summary>
     public bool IgnoreSelectorForSingleRowGroups { get; init; }
-
-    public SortedReduceGroupToSingleRowMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void ValidateImpl()
     {

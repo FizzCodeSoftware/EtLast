@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CustomSqlStatement : AbstractSqlStatement
+public sealed class CustomSqlStatement(IEtlContext context) : AbstractSqlStatement(context)
 {
     [ProcessParameterMustHaveValue]
     public required string SqlStatement { get; init; }
@@ -15,11 +15,6 @@ public sealed class CustomSqlStatement : AbstractSqlStatement
     /// Default value is true.
     /// </summary>
     public bool InlineArrayParameters { get; init; } = true;
-
-    public CustomSqlStatement(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override string GetTopic()
     {

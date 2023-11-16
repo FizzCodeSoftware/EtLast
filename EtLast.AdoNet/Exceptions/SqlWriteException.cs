@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class SqlWriteException : EtlException
+public class SqlWriteException(IProcess process, Exception innerException) : EtlException(process, "database write failed", innerException)
 {
-    public SqlWriteException(IProcess process, Exception innerException)
-        : base(process, "database write failed", innerException)
-    {
-    }
 }

@@ -2,7 +2,7 @@
 
 public enum MsSqlDropViewsProcessMode { All, SpecifiedViews, SpecifiedSchema }
 
-public sealed class MsSqlDropViews : AbstractSqlStatements
+public sealed class MsSqlDropViews(IEtlContext context) : AbstractSqlStatements(context)
 {
     /// <summary>
     /// Default value is <see cref="MsSqlDropViewsProcessMode.SpecifiedViews"/>
@@ -13,11 +13,6 @@ public sealed class MsSqlDropViews : AbstractSqlStatements
     public string[] ViewNames { get; init; }
 
     private List<string> _viewNames;
-
-    public MsSqlDropViews(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override void ValidateParameters()
     {
@@ -80,7 +75,7 @@ public sealed class MsSqlDropViews : AbstractSqlStatements
                         command.Parameters.Add(parameter);
                     }
 
-                    _viewNames = new List<string>();
+                    _viewNames = [];
 
                     var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "INFORMATION_SCHEMA.VIEWS", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
                         "querying view names", null);

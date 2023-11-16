@@ -116,7 +116,7 @@ public class SplitterAndMergerTests
 
         var merger = new ParallelMerger(context)
         {
-            SequenceList = new List<ISequence>(),
+            SequenceList = [],
         };
 
         for (var i = 0; i < 3; i++)
@@ -161,7 +161,7 @@ public class SplitterAndMergerTests
 
         var merger = new ParallelMerger(context)
         {
-            SequenceList = new List<ISequence>(),
+            SequenceList = [],
         };
 
         for (var i = 0; i < 3; i++)

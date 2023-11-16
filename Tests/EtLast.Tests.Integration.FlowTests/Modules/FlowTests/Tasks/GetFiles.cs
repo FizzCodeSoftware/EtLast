@@ -9,7 +9,7 @@ public class GetFiles : AbstractEtlTask
         flow
             .CustomJob(nameof(GetFiles), job =>
             {
-                FileNames = new() { "a.txt", "b.txt", "c.txt" };
+                FileNames = ["a.txt", "b.txt", "c.txt"];
             });
     }
 }

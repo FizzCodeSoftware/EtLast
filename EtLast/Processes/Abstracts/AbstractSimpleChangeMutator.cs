@@ -13,7 +13,7 @@ public abstract class AbstractSimpleChangeMutator : AbstractMutator
     protected override void StartMutator()
     {
         base.StartMutator();
-        Changes = new List<KeyValuePair<string, object>>();
+        Changes = [];
     }
 
     protected override void CloseMutator()

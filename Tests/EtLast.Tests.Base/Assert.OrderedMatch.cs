@@ -4,8 +4,7 @@ public static class OrderedMatchHelper
 {
     public static void ExactMatch(this Assert assert, List<ISlimRow> rows, List<CaseInsensitiveStringKeyDictionary<object>> referenceRows)
     {
-        if (assert is null)
-            throw new ArgumentNullException(nameof(assert));
+        ArgumentNullException.ThrowIfNull(assert);
 
         Assert.AreEqual(referenceRows.Count, rows.Count, "AssertValuesAreEqual failed, number of expected rows are not equal to actual number of rows.");
         for (var i = 0; i < referenceRows.Count; i++)

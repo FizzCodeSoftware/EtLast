@@ -1,14 +1,8 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition;
 
-public class DwhColumnFlagProperty : SqlColumnCustomProperty
+public class DwhColumnFlagProperty(SqlColumn column, string name) : SqlColumnCustomProperty(column)
 {
-    public string Name { get; }
-
-    public DwhColumnFlagProperty(SqlColumn column, string name)
-        : base(column)
-    {
-        Name = name;
-    }
+    public string Name { get; } = name;
 }
 
 public static class DwhColumnFlagPropertyHelper

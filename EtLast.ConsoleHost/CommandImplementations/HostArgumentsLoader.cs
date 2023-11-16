@@ -23,7 +23,7 @@ internal static class HostArgumentsLoader
             .Select(fn => MetadataReference.CreateFromFile(fn))
             .ToArray();
 
-        var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Latest);
+        var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Preview);
         var syntaxTrees = csFileNames
             .Select(fn => SyntaxFactory.ParseSyntaxTree(SourceText.From(File.ReadAllText(fn)), parseOptions, fn))
             .ToArray();
@@ -75,7 +75,7 @@ internal static class HostArgumentsLoader
         var interfaceType = typeof(T);
         foreach (var foundType in assembly.GetTypes().Where(x => interfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract))
         {
-            var instance = (T)Activator.CreateInstance(foundType, Array.Empty<object>());
+            var instance = (T)Activator.CreateInstance(foundType, []);
             if (instance != null)
                 result.Add(instance);
         }

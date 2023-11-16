@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutator, IRowSink
+public sealed class EpPlusSingleExcelStreamWriterMutator<TState>(IEtlContext context) : AbstractMutator(context), IRowSink
     where TState : BaseExcelWriterState, new()
 {
     [ProcessParameterMustHaveValue]
@@ -20,11 +20,6 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
     private ExcelPackage _package;
     private long? _sinkUid;
     private long _rowCount;
-
-    public EpPlusSingleExcelStreamWriterMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void StartMutator()
     {

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class InPlaceConvertMutator : AbstractSimpleChangeMutator
+public sealed class InPlaceConvertMutator(IEtlContext context) : AbstractSimpleChangeMutator(context)
 {
     [ProcessParameterMustHaveValue]
     public required string[] Columns { get; init; }
@@ -29,11 +29,6 @@ public sealed class InPlaceConvertMutator : AbstractSimpleChangeMutator
     /// Default value is null,
     /// </summary>
     public object SpecialValueIfInvalid { get; init; }
-
-    public InPlaceConvertMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {

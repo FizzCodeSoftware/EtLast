@@ -2,7 +2,7 @@
 
 public class Startup : IStartup
 {
-    public Dictionary<string, Func<IArgumentCollection, IEtlTask>> CustomTasks => new();
+    public Dictionary<string, Func<IArgumentCollection, IEtlTask>> CustomTasks => [];
 
     public void Configure(EnvironmentSettings settings)
     {

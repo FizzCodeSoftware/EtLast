@@ -1,17 +1,12 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
+public sealed class MsSqlResetSingleIdentityCounter(IEtlContext context) : AbstractSqlStatement(context)
 {
     [ProcessParameterMustHaveValue]
     public string TableName { get; init; }
 
     [ProcessParameterMustHaveValue]
     public string IdentityColumnName { get; init; }
-
-    public MsSqlResetSingleIdentityCounter(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override string GetTopic()
     {

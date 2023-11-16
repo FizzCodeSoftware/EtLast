@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CreatePrimaryKeyConstraint : AbstractSqlStatement
+public sealed class CreatePrimaryKeyConstraint(IEtlContext context) : AbstractSqlStatement(context)
 {
     [ProcessParameterMustHaveValue]
     public required string TableName { get; init; }
@@ -10,11 +10,6 @@ public sealed class CreatePrimaryKeyConstraint : AbstractSqlStatement
 
     [ProcessParameterMustHaveValue]
     public required string[] Columns { get; init; }
-
-    public CreatePrimaryKeyConstraint(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override string GetTopic()
     {

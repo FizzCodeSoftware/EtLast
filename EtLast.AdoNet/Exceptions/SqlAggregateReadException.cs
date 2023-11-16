@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class SqlAggregateReadException : EtlException
+public class SqlAggregateReadException(IProcess process, Exception innerException, string category) : EtlException(process, "database aggregate read failed: " + category, innerException)
 {
-    public SqlAggregateReadException(IProcess process, Exception innerException, string category)
-        : base(process, "database aggregate read failed: " + category, innerException)
-    {
-    }
 }

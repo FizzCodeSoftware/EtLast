@@ -1,12 +1,7 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class RemoveRowMutator : AbstractMutator
+public sealed class RemoveRowMutator(IEtlContext context) : AbstractMutator(context)
 {
-    public RemoveRowMutator(IEtlContext context)
-        : base(context)
-    {
-    }
-
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {
         return Enumerable.Empty<IRow>();

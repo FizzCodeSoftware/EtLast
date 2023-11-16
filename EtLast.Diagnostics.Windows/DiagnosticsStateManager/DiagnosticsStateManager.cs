@@ -11,10 +11,10 @@ internal class DiagnosticsStateManager : IDisposable
     public OnContextCreatedDelegate OnDiagContextCreated { get; set; }
 
     private readonly HttpListener _listener;
-    private readonly Dictionary<string, DiagContext> _contextList = new();
+    private readonly Dictionary<string, DiagContext> _contextList = [];
     public IEnumerable<DiagContext> Contexts => _contextList.Values;
 
-    private readonly List<DiagContext> _newContextList = new();
+    private readonly List<DiagContext> _newContextList = [];
 
     public DiagnosticsStateManager(string uriPrefix)
     {
@@ -66,12 +66,12 @@ internal class DiagnosticsStateManager : IDisposable
                 if (!Directory.Exists(folder))
                     Directory.CreateDirectory(folder);
 
-                File.WriteAllLines(Path.Combine(folder, "stream-info.txt"), new[]
-{
+                File.WriteAllLines(Path.Combine(folder, "stream-info.txt"),
+[
                     "id\t" + contextId,
                     "name\t" + contextName,
                     "started-on\t" + now.ToString("yyyy.MM.dd HH:mm:ss.fff", CultureInfo.InvariantCulture),
-                });
+                ]);
 
                 context = new DiagContext(contextId, contextName, now, folder);
                 lock (_contextList)

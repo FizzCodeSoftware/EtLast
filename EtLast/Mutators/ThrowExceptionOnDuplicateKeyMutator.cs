@@ -1,16 +1,11 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ThrowExceptionOnDuplicateKeyMutator : AbstractMutator
+public sealed class ThrowExceptionOnDuplicateKeyMutator(IEtlContext context) : AbstractMutator(context)
 {
     [ProcessParameterMustHaveValue]
     public required Func<IReadOnlyRow, string> RowKeyGenerator { get; init; }
 
-    private readonly HashSet<string> _keys = new();
-
-    public ThrowExceptionOnDuplicateKeyMutator(IEtlContext context)
-        : base(context)
-    {
-    }
+    private readonly HashSet<string> _keys = [];
 
     protected override void CloseMutator()
     {

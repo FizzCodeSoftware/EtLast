@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class GetTableRecordCount : AbstractSqlStatementWithResult<int>
+public sealed class GetTableRecordCount(IEtlContext context) : AbstractSqlStatementWithResult<int>(context)
 {
     public required string TableName { get; init; }
 
@@ -8,11 +8,6 @@ public sealed class GetTableRecordCount : AbstractSqlStatementWithResult<int>
     /// Set to null to get the count of all records in the table.
     /// </summary>
     public required string WhereClause { get; init; }
-
-    public GetTableRecordCount(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override string GetTopic()
     {

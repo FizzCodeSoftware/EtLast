@@ -12,7 +12,7 @@ public class Host : IHost
 
     public string ProgramName { get; }
 
-    public List<string> ReferenceAssemblyFolders { get; } = new List<string>();
+    public List<string> ReferenceAssemblyFolders { get; } = [];
 
     public bool SerilogForModulesEnabled { get; set; } = true;
     public bool SerilogForHostEnabled { get; set; } = true;
@@ -50,8 +50,8 @@ public class Host : IHost
     }
 
     public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-    public List<Func<ArgumentCollection, ICommandLineListener>> CommandLineListenerCreators { get; } = new List<Func<ArgumentCollection, ICommandLineListener>>();
-    public List<Func<IEtlContext, IEtlContextListener>> EtlContextListeners { get; } = new List<Func<IEtlContext, IEtlContextListener>>();
+    public List<Func<ArgumentCollection, ICommandLineListener>> CommandLineListenerCreators { get; } = [];
+    public List<Func<IEtlContext, IEtlContextListener>> EtlContextListeners { get; } = [];
     public string[] CommandLineArgs { get; set; }
 
     private static readonly Regex _regEx = new("(?<=\")[^\"]*(?=\")|[^\" ]+");

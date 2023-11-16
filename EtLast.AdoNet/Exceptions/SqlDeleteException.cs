@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class SqlDeleteException : EtlException
+public class SqlDeleteException(IProcess process, Exception innerException) : EtlException(process, "database delete failed", innerException)
 {
-    public SqlDeleteException(IProcess process, Exception innerException)
-        : base(process, "database delete failed", innerException)
-    {
-    }
 }

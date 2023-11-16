@@ -5,7 +5,7 @@ public enum ResilientSqlScopeTempTableMode
     KeepOnlyOnFailure, AlwaysKeep, AlwaysDrop
 }
 
-public sealed partial class ResilientSqlScope : AbstractJob, IScope
+public sealed partial class ResilientSqlScope(IEtlContext context) : AbstractJob(context), IScope
 {
     /// <summary>
     /// The transaction scope kind around the finalizers. Default value is <see cref="TransactionScopeKind.RequiresNew"/>.
@@ -76,11 +76,6 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
     public string AutoTempTablePostfix { get; init; }
 
     public AdditionalData AdditionalData { get; init; }
-
-    public ResilientSqlScope(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override void ValidateParameters()
     {

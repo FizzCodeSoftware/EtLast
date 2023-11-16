@@ -5,17 +5,12 @@
 /// - discards input rows on-the-fly
 /// - keeps already yielded row KEYS in memory (!)
 /// </summary>
-public sealed class RemoveDuplicateRowsMutator : AbstractMutator
+public sealed class RemoveDuplicateRowsMutator(IEtlContext context) : AbstractMutator(context)
 {
     [ProcessParameterMustHaveValue]
     public required Func<IReadOnlyRow, string> KeyGenerator { get; init; }
 
-    private readonly HashSet<string> _returnedKeys = new();
-
-    public RemoveDuplicateRowsMutator(IEtlContext context)
-        : base(context)
-    {
-    }
+    private readonly HashSet<string> _returnedKeys = [];
 
     protected override void CloseMutator()
     {
@@ -27,10 +22,8 @@ public sealed class RemoveDuplicateRowsMutator : AbstractMutator
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {
         var key = KeyGenerator.Invoke(row);
-        if (!_returnedKeys.Contains(key))
+        if (_returnedKeys.Add(key))
         {
-            _returnedKeys.Add(key);
-
             yield return row;
         }
         else

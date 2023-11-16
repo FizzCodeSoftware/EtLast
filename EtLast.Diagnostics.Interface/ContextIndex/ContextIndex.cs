@@ -1,12 +1,12 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-public class ContextIndex
+public class ContextIndex(string dataFolder)
 {
-    public string DataFolder { get; }
+    public string DataFolder { get; } = dataFolder;
     private int _lastStreamIndex;
     private long _lastStreamSize;
 
-    private readonly Dictionary<long, FileStream> _openSinkWriterStreams = new();
+    private readonly Dictionary<long, FileStream> _openSinkWriterStreams = [];
     private readonly object _openSinkWriterStreamsLock = new();
 
     private FileStream _rowEventStream;
@@ -14,18 +14,13 @@ public class ContextIndex
     private int _lastRowEventFileSize;
     private readonly object _rowEventStreamLock = new();
 
-    private readonly Dictionary<long, ExtendedBinaryWriter> _processRowMapWriters = new();
+    private readonly Dictionary<long, ExtendedBinaryWriter> _processRowMapWriters = [];
     private readonly object _processRowMapWritersLock = new();
 
     private readonly EventParser _eventParser = new();
 
     public DateTime StartedOn { get; }
     public DateTime? EndedOn { get; protected set; }
-
-    public ContextIndex(string dataFolder)
-    {
-        DataFolder = dataFolder;
-    }
 
     private string GetMainFileName(int index)
     {

@@ -59,15 +59,14 @@ public class DiagnosticsFilterMenuBuilder : FilterMenuBuilder
         };
 
         var menuItem = new ToolStripMenuItem(FILTERING_LABEL, null,
-            new ToolStripItem[]
-            {
+            [
                 freeText,
                 new ToolStripSeparator(),
                 clearAllMenuItem,
                 new ToolStripSeparator(),
                 listBox,
                 applMenuItem
-            });
+            ]);
 
         return menuItem;
     }
@@ -141,7 +140,7 @@ public class DiagnosticsFilterMenuBuilder : FilterMenuBuilder
         if (!string.IsNullOrWhiteSpace(textBox.Text))
         {
             var filter = TextMatchFilter.Contains(olv, textBox.Text);
-            filter.Columns = new[] { column };
+            filter.Columns = [column];
             column.ValueBasedFilter = filter;
             column.ValuesChosenForFiltering = new ArrayList();
             olv.UpdateColumnFiltering();

@@ -1,9 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class DetailedDbColumnDefinition
+public sealed class DetailedDbColumnDefinition(string rowColumn, string dbColumn = null)
 {
-    public string RowColumn { get; }
-    public string DbColumn { get; }
+    public string RowColumn { get; } = rowColumn;
+    public string DbColumn { get; } = dbColumn ?? rowColumn;
     public DbType? DbType { get; init; }
 
     /// <summary>
@@ -15,10 +15,4 @@ public sealed class DetailedDbColumnDefinition
     /// Default value is false
     /// </summary>
     public bool IsKey { get; init; }
-
-    public DetailedDbColumnDefinition(string rowColumn, string dbColumn = null)
-    {
-        RowColumn = rowColumn;
-        DbColumn = dbColumn ?? rowColumn;
-    }
 }

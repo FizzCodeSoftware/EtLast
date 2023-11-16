@@ -11,7 +11,7 @@ internal class ConsoleSink : ILogEventSink
 
         var template = new MessageTemplateParser().Parse(outputTemplate);
 
-        _writers = new List<Action<LogEvent, TextWriter>>();
+        _writers = [];
         foreach (var token in template.Tokens)
         {
             switch (token)

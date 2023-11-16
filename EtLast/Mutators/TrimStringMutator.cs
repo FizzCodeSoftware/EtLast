@@ -1,13 +1,8 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class TrimStringMutator : AbstractSimpleChangeMutator
+public sealed class TrimStringMutator(IEtlContext context) : AbstractSimpleChangeMutator(context)
 {
     public required string[] Columns { get; init; }
-
-    public TrimStringMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {

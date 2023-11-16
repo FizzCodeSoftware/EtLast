@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CompareWithRowMutator : AbstractCrossMutator
+public sealed class CompareWithRowMutator(IEtlContext context) : AbstractCrossMutator(context)
 {
     [ProcessParameterMustHaveValue]
     public required RowKeyGenerator RowKeyGenerator { get; init; }
@@ -13,11 +13,6 @@ public sealed class CompareWithRowMutator : AbstractCrossMutator
     public NoMatchAction NoMatchAction { get; init; }
 
     private RowLookup _lookup;
-
-    public CompareWithRowMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void StartMutator()
     {

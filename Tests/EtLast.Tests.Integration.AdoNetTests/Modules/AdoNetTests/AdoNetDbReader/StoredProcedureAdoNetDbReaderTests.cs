@@ -31,10 +31,10 @@ public class StoredProcedureAdoNetDbReaderTests : AbstractEtlTask
                 .Build().TakeRowsAndReleaseOwnership(this).ToList();
 
                 Assert.AreEqual(2, result.Count);
-                Assert.That.ExactMatch(result, new List<CaseInsensitiveStringKeyDictionary<object>>() {
+                Assert.That.ExactMatch(result, [
                     new() { ["Id"] = 1, ["Value"] = "etlast" },
                     new() { ["Id"] = 2, ["Value"] = "StoredProcedureAdoNetDbReaderTest" }
-                });
+                ]);
             });
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class InMemoryRowCache : AbstractRowSource
+public sealed class InMemoryRowCache(IEtlContext context) : AbstractRowSource(context)
 {
     private bool _firstEvaluationFinished;
     private List<IReadOnlySlimRow> _cache;
@@ -9,11 +9,6 @@ public sealed class InMemoryRowCache : AbstractRowSource
     /// The process evaluates and yields the rows from the input process.
     /// </summary>
     public required ISequence InputProcess { get; init; }
-
-    public InMemoryRowCache(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void ValidateImpl()
     {
@@ -43,7 +38,7 @@ public sealed class InMemoryRowCache : AbstractRowSource
         }
         else
         {
-            _cache = new List<IReadOnlySlimRow>();
+            _cache = [];
             var inputRows = InputProcess.TakeRowsAndReleaseOwnership(this, FlowState);
             foreach (var row in inputRows)
             {

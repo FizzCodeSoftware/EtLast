@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <PackageId>FizzCode.EtLast.Diagnostics.HttpSender</PackageId>
+    <Description>Listens to ETL diagnostics data and send to http</Description>
+    <AssemblyName>FizzCode.EtLast.Diagnostics.HttpSender</AssemblyName>
+    <RootNamespace>FizzCode.EtLast.Diagnostics.HttpSender</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>CS1591</NoWarn>
+    <Configurations>Debug;Release</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.6.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Serilog" Version="3.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EtLast.Diagnostics.Interface\EtLast.Diagnostics.Interface.csproj" />
+    <ProjectReference Include="..\EtLast\EtLast.csproj" />
+  </ItemGroup>
+
+</Project>

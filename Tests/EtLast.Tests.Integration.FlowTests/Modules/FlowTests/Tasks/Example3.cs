@@ -17,7 +17,7 @@ public class Example3 : AbstractEtlTask
                 .ExecuteProcess(() => new ShowMessage()
                 {
                     Name = "ShowMessageForFile",
-                    Message = fileName.StartsWith("c")
+                    Message = fileName.StartsWith('c')
                         ? throw new Exception("disk full")
                         : "file found: " + fileName,
                 })

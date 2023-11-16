@@ -2,15 +2,10 @@
 
 public delegate void TooManyMatchActionDelegate(IRow row, List<IReadOnlySlimRow> matches);
 
-public sealed class TooManyMatchAction
+public sealed class TooManyMatchAction(MatchMode mode)
 {
-    public MatchMode Mode { get; }
+    public MatchMode Mode { get; } = mode;
     public TooManyMatchActionDelegate CustomAction { get; init; }
-
-    public TooManyMatchAction(MatchMode mode)
-    {
-        Mode = mode;
-    }
 
     public void InvokeCustomAction(IRow row, List<IReadOnlySlimRow> matches)
     {

@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
 [TestClass]
-public class JobsTests
+public class JobTests
 {
     [ClassInitialize]
     public static void Initialize(TestContext context)

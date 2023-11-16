@@ -19,8 +19,8 @@ public class MergeOnlyInsertCountries : AbstractEtlTask
             {
                 Name = "ExecuteResilientScope1",
                 ConnectionString = ConnectionString,
-                Tables = new()
-                {
+                Tables =
+                [
                     new ResilientTable()
                     {
                         TableName = nameof(MergeOnlyInsertCountries),
@@ -28,14 +28,14 @@ public class MergeOnlyInsertCountries : AbstractEtlTask
                         Finalizers = builder => builder.SimpleMsSqlMerge("Id"),
                         Columns = TestData.CountryColumns,
                     },
-                },
+                ],
             })
             .ResilientSqlScope(() => new ResilientSqlScope(Context)
             {
                 Name = "ExecuteResilientScope2",
                 ConnectionString = ConnectionString,
-                Tables = new()
-                {
+                Tables =
+                [
                     new ResilientTable()
                     {
                         TableName = nameof(MergeOnlyInsertCountries),
@@ -43,7 +43,7 @@ public class MergeOnlyInsertCountries : AbstractEtlTask
                         Finalizers = builder => builder.SimpleMsSqlMerge("Id"),
                         Columns = TestData.CountryColumns,
                     },
-                },
+                ],
             })
             .ExecuteProcess(() => TestHelpers.CreateReadSqlTableAndAssertExactMacth(this, ConnectionString, nameof(MergeOnlyInsertCountries),
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "Hungary", ["Abbreviation2"] = "HU", ["Abbreviation3"] = "HUN" },

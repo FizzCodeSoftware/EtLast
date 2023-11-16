@@ -3,7 +3,7 @@
 public class IoCommandCounterCollection : IEtlContextListener
 {
     public IReadOnlyDictionary<IoCommandKind, IoCommandCounter> Counters => _counters;
-    private readonly Dictionary<IoCommandKind, IoCommandCounter> _counters = new();
+    private readonly Dictionary<IoCommandKind, IoCommandCounter> _counters = [];
 
     public void Start()
     {

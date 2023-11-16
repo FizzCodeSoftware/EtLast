@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class StoredProcedureAdoNetDbReader : AbstractAdoNetDbReader
+public sealed class StoredProcedureAdoNetDbReader(IEtlContext context) : AbstractAdoNetDbReader(context)
 {
     public required string Sql { get; init; }
 
@@ -8,11 +8,6 @@ public sealed class StoredProcedureAdoNetDbReader : AbstractAdoNetDbReader
     /// The name the SP is referred in the logs.
     /// </summary>
     public required string MainTableName { get; init; }
-
-    public StoredProcedureAdoNetDbReader(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override CommandType GetCommandType()
     {

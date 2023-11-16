@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class ProcessParameterNullException : InvalidProcessParameterException
+public class ProcessParameterNullException(IProcess process, string parameterName) : InvalidProcessParameterException(process, parameterName, null, "value cannot be null or empty")
 {
-    public ProcessParameterNullException(IProcess process, string parameterName)
-        : base(process, parameterName, null, "value cannot be null or empty")
-    {
-    }
 }

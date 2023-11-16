@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
+public sealed class WriteToMsSqlMutator(IEtlContext context) : AbstractMutator(context), IRowSink
 {
     [ProcessParameterMustHaveValue]
     public NamedConnectionString ConnectionString { get; init; }
@@ -39,11 +39,6 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
     private RowShadowReader _reader;
     private long? _sinkUid;
     private Stopwatch _lastWrite;
-
-    public WriteToMsSqlMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void StartMutator()
     {

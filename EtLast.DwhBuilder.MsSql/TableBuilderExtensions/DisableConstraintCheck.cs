@@ -19,7 +19,7 @@ public static partial class TableBuilderExtensions
 
         var tableNames = !builder.Table.GetHasHistoryTable()
                 ? new[] { builder.ResilientTable.TableName }
-                : new[] { builder.ResilientTable.TableName, builder.DwhBuilder.GetEscapedHistTableName(builder.Table) };
+                : [builder.ResilientTable.TableName, builder.DwhBuilder.GetEscapedHistTableName(builder.Table)];
 
         yield return new MsSqlDisableConstraintCheck(builder.ResilientTable.Scope.Context)
         {
@@ -37,7 +37,7 @@ public static partial class TableBuilderExtensions
                 var list = builder.DwhBuilder.Context.AdditionalData.GetAs<List<string>>("ConstraintCheckDisabledOnTables", null);
                 if (list == null)
                 {
-                    list = new List<string>();
+                    list = [];
                     builder.DwhBuilder.Context.AdditionalData["ConstraintCheckDisabledOnTables"] = list;
                 }
 

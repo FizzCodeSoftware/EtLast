@@ -2,7 +2,7 @@
 
 public delegate IEnumerable<ISlimRow> ExplodeDelegate(IReadOnlyRow row);
 
-public sealed class ExplodeMutator : AbstractMutator
+public sealed class ExplodeMutator(IEtlContext context) : AbstractMutator(context)
 {
     /// <summary>
     /// Default true.
@@ -11,11 +11,6 @@ public sealed class ExplodeMutator : AbstractMutator
 
     [ProcessParameterMustHaveValue]
     public required ExplodeDelegate RowCreator { get; init; }
-
-    public ExplodeMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {

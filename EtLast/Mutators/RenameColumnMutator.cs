@@ -8,7 +8,7 @@ public enum ColumnAlreadyExistsAction
     Overwrite,
 }
 
-public sealed class RenameColumnMutator : AbstractSimpleChangeMutator
+public sealed class RenameColumnMutator(IEtlContext context) : AbstractSimpleChangeMutator(context)
 {
     /// <summary>
     /// Key is current name, Value is new name.
@@ -20,11 +20,6 @@ public sealed class RenameColumnMutator : AbstractSimpleChangeMutator
     /// Default value is <see cref="ColumnAlreadyExistsAction.Overwrite"/>
     /// </summary>
     public required ColumnAlreadyExistsAction ActionIfTargetValueExists { get; init; } = ColumnAlreadyExistsAction.Overwrite;
-
-    public RenameColumnMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {

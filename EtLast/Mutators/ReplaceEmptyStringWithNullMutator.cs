@@ -1,13 +1,8 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ReplaceEmptyStringWithNullMutator : AbstractSimpleChangeMutator
+public sealed class ReplaceEmptyStringWithNullMutator(IEtlContext context) : AbstractSimpleChangeMutator(context)
 {
     public required string[] Columns { get; init; }
-
-    public ReplaceEmptyStringWithNullMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {

@@ -1,15 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
-public class DecimalConverterAuto : DecimalConverter
+public class DecimalConverterAuto(IFormatProvider formatProvider, NumberStyles numberStyles = NumberStyles.Any) : DecimalConverter
 {
-    public IFormatProvider FormatProvider { get; }
-    public NumberStyles NumberStyles { get; }
-
-    public DecimalConverterAuto(IFormatProvider formatProvider, NumberStyles numberStyles = NumberStyles.Any)
-    {
-        FormatProvider = formatProvider;
-        NumberStyles = numberStyles;
-    }
+    public IFormatProvider FormatProvider { get; } = formatProvider;
+    public NumberStyles NumberStyles { get; } = numberStyles;
 
     public override object Convert(object source)
     {

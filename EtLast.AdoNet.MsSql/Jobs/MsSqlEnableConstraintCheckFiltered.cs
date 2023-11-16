@@ -1,14 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class MsSqlEnableConstraintCheckFiltered : AbstractSqlStatements
+public sealed class MsSqlEnableConstraintCheckFiltered(IEtlContext context) : AbstractSqlStatements(context)
 {
     [ProcessParameterMustHaveValue]
     public List<KeyValuePair<string, List<string>>> ConstraintNames { get; init; }
-
-    public MsSqlEnableConstraintCheckFiltered(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)
     {

@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class SqlSchemaReadException : EtlException
+public class SqlSchemaReadException(IProcess process, string category, Exception innerException) : EtlException(process, "database schema read failed: " + category, innerException)
 {
-    public SqlSchemaReadException(IProcess process, string category, Exception innerException)
-        : base(process, "database schema read failed: " + category, innerException)
-    {
-    }
 }

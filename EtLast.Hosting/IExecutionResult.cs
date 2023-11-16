@@ -6,24 +6,13 @@ public interface IExecutionResult
     public List<TaskExectionResult> TaskResults { get; }
 }
 
-public class TaskExectionResult
+public class TaskExectionResult(IEtlTask task)
 {
-    public Type TaskType { get; }
-    public string TaskName { get; }
-    public string TaskKind { get; }
-    public string TaskTopic { get; }
-    public IExecutionStatistics Statistics { get; }
-    public IReadOnlyDictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; }
-    public List<Exception> Exceptions { get; }
-
-    public TaskExectionResult(IEtlTask task)
-    {
-        TaskType = task.GetType();
-        TaskName = task.Name;
-        TaskKind = task.Kind;
-        TaskTopic = task.GetTopic();
-        Statistics = task.Statistics;
-        IoCommandCounters = task.IoCommandCounters;
-        Exceptions = task.FlowState.Exceptions.ToList();
-    }
+    public Type TaskType { get; } = task.GetType();
+    public string TaskName { get; } = task.Name;
+    public string TaskKind { get; } = task.Kind;
+    public string TaskTopic { get; } = task.GetTopic();
+    public IExecutionStatistics Statistics { get; } = task.Statistics;
+    public IReadOnlyDictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; } = task.IoCommandCounters;
+    public List<Exception> Exceptions { get; } = task.FlowState.Exceptions.ToList();
 }

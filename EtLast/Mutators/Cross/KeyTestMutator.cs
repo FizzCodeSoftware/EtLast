@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class KeyTestMutator : AbstractCrossMutator
+public sealed class KeyTestMutator(IEtlContext context) : AbstractCrossMutator(context)
 {
     [ProcessParameterMustHaveValue]
     public required RowKeyGenerator RowKeyGenerator { get; init; }
@@ -14,11 +14,6 @@ public sealed class KeyTestMutator : AbstractCrossMutator
     public bool MatchActionContainsMatch { get; init; } = true;
 
     private ICountableLookup _lookup;
-
-    public KeyTestMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void StartMutator()
     {

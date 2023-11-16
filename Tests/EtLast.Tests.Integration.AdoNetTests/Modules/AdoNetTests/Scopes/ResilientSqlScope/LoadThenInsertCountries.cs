@@ -19,8 +19,8 @@ public class LoadThenInsertCountries : AbstractEtlTask
             {
                 Name = "ExecuteResilientScope1",
                 ConnectionString = ConnectionString,
-                Tables = new()
-                {
+                Tables =
+                [
                     new ResilientTable()
                     {
                         TableName = nameof(LoadThenInsertCountries),
@@ -28,14 +28,14 @@ public class LoadThenInsertCountries : AbstractEtlTask
                         Finalizers = builder => builder.CopyTable(),
                         Columns = TestData.CountryColumns,
                     },
-                },
+                ],
             })
             .ResilientSqlScope(() => new ResilientSqlScope(Context)
             {
                 Name = "ExecuteResilientScope2",
                 ConnectionString = ConnectionString,
-                Tables = new()
-                {
+                Tables =
+                [
                     new ResilientTable()
                     {
                         TableName = nameof(LoadThenInsertCountries),
@@ -43,7 +43,7 @@ public class LoadThenInsertCountries : AbstractEtlTask
                         Finalizers = builder => builder.CopyTable(),
                         Columns = TestData.CountryColumns,
                     },
-                },
+                ],
             })
             .ExecuteProcess(() => TestHelpers.CreateReadSqlTableAndAssertExactMacth(this, ConnectionString, nameof(LoadThenInsertCountries),
                 new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "Hungary", ["Abbreviation2"] = "HU", ["Abbreviation3"] = "HUN" },

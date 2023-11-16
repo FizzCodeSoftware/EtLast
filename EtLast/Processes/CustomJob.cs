@@ -1,14 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CustomJob : AbstractJob
+public sealed class CustomJob(IEtlContext context) : AbstractJob(context)
 {
     [ProcessParameterMustHaveValue]
     public required Action<CustomJob> Action { get; init; }
-
-    public CustomJob(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {

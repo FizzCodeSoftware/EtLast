@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class CustomCodeException : EtlException
+public class CustomCodeException(IProcess process, string message, Exception innerException) : EtlException(process, message, innerException)
 {
-    public CustomCodeException(IProcess process, string message, Exception innerException)
-        : base(process, message, innerException)
-    {
-    }
 }

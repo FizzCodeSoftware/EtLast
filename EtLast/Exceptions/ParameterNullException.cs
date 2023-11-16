@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class ParameterNullException : InvalidParameterException
+public class ParameterNullException(string location, string parameterName) : InvalidParameterException(location, parameterName, null, "value cannot be null or empty")
 {
-    public ParameterNullException(string location, string parameterName)
-        : base(location, parameterName, null, "value cannot be null or empty")
-    {
-    }
 }

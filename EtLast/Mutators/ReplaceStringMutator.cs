@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ReplaceStringMutator : AbstractMutator
+public sealed class ReplaceStringMutator(IEtlContext context) : AbstractMutator(context)
 {
     [ProcessParameterMustHaveValue]
     public required string ColumnName { get; init; }
@@ -14,11 +14,6 @@ public sealed class ReplaceStringMutator : AbstractMutator
     /// Default value is <see cref="StringComparison.InvariantCulture"/>.
     /// </summary>
     public required StringComparison StringComparison { get; init; } = StringComparison.InvariantCulture;
-
-    public ReplaceStringMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {

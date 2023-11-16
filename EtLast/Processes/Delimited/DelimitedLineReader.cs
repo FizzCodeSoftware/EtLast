@@ -2,7 +2,7 @@
 
 public enum DelimitedLineHeader { NoHeader, HasHeader, IgnoreHeader }
 
-public sealed class DelimitedLineReader : AbstractRowSource
+public sealed class DelimitedLineReader(IEtlContext context) : AbstractRowSource(context)
 {
     public required IStreamProvider StreamProvider { get; init; }
 
@@ -58,11 +58,6 @@ public sealed class DelimitedLineReader : AbstractRowSource
     /// First stream index is (integer) 0
     /// </summary>
     public string AddStreamIndexToColumn { get; init; }
-
-    public DelimitedLineReader(IEtlContext context)
-        : base(context)
-    {
-    }
 
     public override string GetTopic()
     {

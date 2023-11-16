@@ -1,14 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CopyTableStructure : AbstractSqlStatements
+public sealed class CopyTableStructure(IEtlContext context) : AbstractSqlStatements(context)
 {
     [ProcessParameterMustHaveValue]
     public required List<TableCopyConfiguration> Configuration { get; init; }
-
-    public CopyTableStructure(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)
     {

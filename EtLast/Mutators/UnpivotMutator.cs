@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class UnpivotMutator : AbstractMutator
+public sealed class UnpivotMutator(IEtlContext context) : AbstractMutator(context)
 {
     public Dictionary<string, string> FixColumns { get; init; }
 
@@ -25,20 +25,15 @@ public sealed class UnpivotMutator : AbstractMutator
     private HashSet<string> _fixColumnNames;
     private HashSet<string> _valueColumnNames;
 
-    public UnpivotMutator(IEtlContext context)
-        : base(context)
-    {
-    }
-
     protected override void StartMutator()
     {
         _fixColumnNames = FixColumns != null
             ? new HashSet<string>(FixColumns.Select(x => x.Value ?? x.Key))
-            : new HashSet<string>();
+            : [];
 
         _valueColumnNames = ValueColumns != null
             ? new HashSet<string>(ValueColumns)
-            : new HashSet<string>();
+            : [];
     }
 
     protected override void CloseMutator()

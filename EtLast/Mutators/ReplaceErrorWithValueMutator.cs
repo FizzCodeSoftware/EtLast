@@ -1,14 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ReplaceErrorWithValueMutator : AbstractSimpleChangeMutator
+public sealed class ReplaceErrorWithValueMutator(IEtlContext context) : AbstractSimpleChangeMutator(context)
 {
     public required string[] Columns { get; init; }
     public required object Value { get; init; }
-
-    public ReplaceErrorWithValueMutator(IEtlContext context)
-        : base(context)
-    {
-    }
 
     protected override IEnumerable<IRow> MutateRow(IRow row)
     {

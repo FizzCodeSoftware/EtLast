@@ -1,14 +1,8 @@
 ﻿namespace FizzCode.EtLast.DwhBuilder.Extenders.DataDefinition;
 
-public class SourceTableNameOverrideProperty : SqlTableProperty
+public class SourceTableNameOverrideProperty(SqlTable table, string sourceTableName) : SqlTableProperty(table)
 {
-    public string SourceTableName { get; }
-
-    public SourceTableNameOverrideProperty(SqlTable table, string sourceTableName)
-        : base(table)
-    {
-        SourceTableName = sourceTableName;
-    }
+    public string SourceTableName { get; } = sourceTableName;
 }
 
 public static class SourceTableNameOverridePropertyHelper
