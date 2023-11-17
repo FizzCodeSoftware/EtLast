@@ -21,7 +21,7 @@ public class RemoveColumnMutatorTests
         });
 
         var result = TestExecuter.Execute(builder);
-        Assert.AreEqual(0, result.MutatedRows.Sum(x => x.ColumnCount));
+        Assert.AreEqual(0, result.MutatedRows.Sum(x => x.ValueCount));
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 

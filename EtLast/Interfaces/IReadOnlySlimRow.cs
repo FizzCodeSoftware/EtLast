@@ -4,7 +4,9 @@ public interface IReadOnlySlimRow
 {
     object this[string column] { get; }
     IEnumerable<KeyValuePair<string, object>> Values { get; }
-    int ColumnCount { get; }
+    int ValueCount { get; }
+
+    IEnumerable<KeyValuePair<string, object>> NotNullValues { get; }
     object Tag { get; }
 
     bool HasError();

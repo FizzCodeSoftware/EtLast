@@ -2,46 +2,47 @@
 
 public sealed class TrackedRow(IRow originalRow) : IRow
 {
-    private readonly IRow _originalRow = originalRow;
-
     public bool KeepNulls { get => true; set { } }
 
-    public IProcess CurrentProcess { get => _originalRow.CurrentProcess; set => _originalRow.CurrentProcess = value; }
-    public IEtlContext Context => _originalRow.Context;
-    public long Uid => _originalRow.Uid;
-    public IProcess CreatorProcess => _originalRow.CreatorProcess;
-    public object Tag { get => _originalRow.Tag; set => _originalRow.Tag = value; }
+    public IProcess CurrentProcess { get => originalRow.CurrentProcess; set => originalRow.CurrentProcess = value; }
+    public IEtlContext Context => originalRow.Context;
+    public long Uid => originalRow.Uid;
+    public IProcess CreatorProcess => originalRow.CreatorProcess;
+    public object Tag { get => originalRow.Tag; set => originalRow.Tag = value; }
 
     public IEnumerable<KeyValuePair<string, object>> Values
     {
         get
         {
-            if (_changes?.Count > 0)
-            {
-                return GetCurrentValues();
-            }
-            else
-            {
-                return _originalRow.Values;
-            }
+            return _changes?.Count > 0
+                ? GetCurrentValues()
+                : originalRow.Values;
+        }
+    }
+
+    public int ValueCount => Values.Count();
+
+    public IEnumerable<KeyValuePair<string, object>> NotNullValues
+    {
+        get
+        {
+            return _changes?.Count > 0
+                ? GetCurrentValues().Where(x => x.Value != null)
+                : originalRow.NotNullValues;
         }
     }
 
     private IEnumerable<KeyValuePair<string, object>> GetCurrentValues()
     {
-        foreach (var kvp in _originalRow.Values)
+        foreach (var kvp in originalRow.Values)
         {
             if (!_changes.ContainsKey(kvp.Key))
                 yield return kvp;
         }
 
         foreach (var kvp in _changes)
-        {
             yield return kvp;
-        }
     }
-
-    public int ColumnCount => Values.Count();
 
     private Dictionary<string, object> _changes;
 
@@ -52,11 +53,11 @@ public sealed class TrackedRow(IRow originalRow) : IRow
             if (_changes?.Count > 0 && _changes.TryGetValue(column, out var stagedValue))
                 return stagedValue;
 
-            return _originalRow[column];
+            return originalRow[column];
         }
         set
         {
-            var originalValue = _originalRow[column];
+            var originalValue = originalRow[column];
 
             if (originalValue != null && value == originalValue)
             {
@@ -78,7 +79,7 @@ public sealed class TrackedRow(IRow originalRow) : IRow
 
         if (_changes.Count > 0)
         {
-            _originalRow.MergeWith(_changes);
+            originalRow.MergeWith(_changes);
             _changes.Clear();
         }
 
@@ -114,8 +115,9 @@ public sealed class TrackedRow(IRow originalRow) : IRow
             var exception = new InvalidCastException("error raised during a cast operation", ex);
             exception.Data["Column"] = column;
             exception.Data["Value"] = value != null ? value.ToString() : "NULL";
-            exception.Data["SourceType"] = (value?.GetType()).GetFriendlyTypeName();
-            exception.Data["TargetType"] = TypeHelpers.GetFriendlyTypeName(typeof(T));
+            if (value != null)
+                exception.Data["ValueType"] = value.GetType().GetFriendlyTypeName();
+            exception.Data["RequestedType"] = TypeHelpers.GetFriendlyTypeName(typeof(T));
             throw exception;
         }
     }
@@ -132,7 +134,12 @@ public sealed class TrackedRow(IRow originalRow) : IRow
         }
         catch (Exception ex)
         {
-            throw new InvalidCastException("requested cast to '" + typeof(T).GetFriendlyTypeName() + "' is not possible of '" + (value != null ? (value.ToString() + " (" + value.GetType().GetFriendlyTypeName() + ")") : "NULL") + "' in '" + column + "'", ex);
+            var exception = new InvalidCastException("error raised during a cast operation", ex);
+            exception.Data["Column"] = column;
+            exception.Data["Value"] = value.ToString();
+            exception.Data["ValueType"] = value.GetType().GetFriendlyTypeName();
+            exception.Data["RequestedType"] = TypeHelpers.GetFriendlyTypeName(typeof(T));
+            throw exception;
         }
     }
 

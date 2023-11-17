@@ -29,7 +29,7 @@ public sealed class ExpandFromLookupMutator(IEtlContext context) : AbstractCross
         _changes = null;
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         var removeRow = false;
         var match = MatchSelector(row, _lookup);

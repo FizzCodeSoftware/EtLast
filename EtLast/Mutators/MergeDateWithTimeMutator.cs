@@ -18,7 +18,7 @@ public sealed class MergeDateWithTimeMutator(IEtlContext context) : AbstractMuta
 
     public object SpecialValueIfInvalid { get; init; }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         var sourceDate = row[SourceDateColumn];
         var sourceTime = row[SourceTimeColumn];
@@ -48,7 +48,9 @@ public sealed class MergeDateWithTimeMutator(IEtlContext context) : AbstractMuta
                 removeRow = true;
                 break;
             default:
-                var exception = new InvalidValuesException(this, row);
+                var exception = new InvalidValuesException(this);
+                exception.Data["Row"] = row.ToDebugString(true);
+                exception.Data["RowInputIndex"] = rowInputIndex;
                 exception.Data["SourceDate"] = sourceDate != null ? sourceDate.ToString() + " (" + sourceDate.GetType().GetFriendlyTypeName() + ")" : "NULL";
                 exception.Data["SourceTime"] = sourceTime != null ? sourceTime.ToString() + " (" + sourceTime.GetType().GetFriendlyTypeName() + ")" : "NULL";
                 throw exception;

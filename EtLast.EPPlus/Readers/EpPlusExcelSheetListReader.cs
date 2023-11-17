@@ -43,7 +43,7 @@ public sealed class EpPlusExcelSheetListReader(IEtlContext context) : AbstractRo
             }
             catch (Exception ex)
             {
-                var exception = new StreamReadException(this, "excel steram read failed", stream, ex);
+                var exception = new StreamReadException(this, "excel steram read failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel stream read failed: {0}, message: {1}",
                     stream.Name, ex.Message));
                 exception.Data["StreamName"] = stream.Name;
@@ -57,7 +57,7 @@ public sealed class EpPlusExcelSheetListReader(IEtlContext context) : AbstractRo
             var workbook = package.Workbook;
             if (workbook == null)
             {
-                var exception = new StreamReadException(this, "excel stream read failed", stream);
+                var exception = new StreamReadException(this, "excel stream read failed");
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel stream read failed: {0}",
                     stream.Name));
                 exception.Data["StreamName"] = stream.Name;

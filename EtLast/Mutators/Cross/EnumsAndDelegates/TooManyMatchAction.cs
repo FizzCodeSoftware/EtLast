@@ -17,7 +17,9 @@ public sealed class TooManyMatchAction(MatchMode mode)
         }
         catch (Exception ex)
         {
-            throw new TooManyMatchActionDelegateException(row.CurrentProcess, row, ex);
+            var exception = new TooManyMatchActionDelegateException(row.CurrentProcess, ex);
+            exception.Data["Row"] = row.ToDebugString(true);
+            throw exception;
         }
     }
 }

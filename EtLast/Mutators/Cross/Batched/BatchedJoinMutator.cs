@@ -69,7 +69,10 @@ public sealed class BatchedJoinMutator : AbstractBatchedCrossMutator
                             removeRow = true;
                             break;
                         case MatchMode.Throw:
-                            throw new TooManyMatchException(this, row, key);
+                            var exception = new TooManyMatchException(this);
+                            exception.Data["Row"] = row.ToDebugString(true);
+                            exception.Data["Key"] = key;
+                            throw exception;
                         case MatchMode.Custom:
                             TooManyMatchAction.InvokeCustomAction(row, matches);
                             break;

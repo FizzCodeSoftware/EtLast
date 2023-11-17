@@ -4,15 +4,13 @@
 [Serializable]
 public class StreamReadException : EtlException
 {
-    public StreamReadException(IProcess process, string message, NamedStream stream)
+    public StreamReadException(IProcess process, string message)
         : base(process, message)
     {
-        Data["StreamName"] = stream.Name;
     }
 
-    public StreamReadException(IProcess process, string message, NamedStream stream, Exception innerException)
+    public StreamReadException(IProcess process, string message, Exception innerException)
         : base(process, message, innerException)
     {
-        Data["StreamName"] = stream.Name;
     }
 }

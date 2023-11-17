@@ -14,7 +14,7 @@ public sealed class AddIncrementalLongIdMutator(IEtlContext context) : AbstractM
         _nextId = FirstId;
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         row[Column] = _nextId;
         _nextId++;

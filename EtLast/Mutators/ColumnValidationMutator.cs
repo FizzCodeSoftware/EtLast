@@ -19,7 +19,7 @@ public sealed class ColumnValidationMutator(IEtlContext context) : AbstractMutat
     [ProcessParameterMustHaveValue]
     public required string ErrorMessage { get; init; }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         var valid = Test(this, row, Column);
         if (!valid)

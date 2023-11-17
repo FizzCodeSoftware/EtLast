@@ -21,7 +21,7 @@ public sealed class RenameColumnMutator(IEtlContext context) : AbstractSimpleCha
     /// </summary>
     public required ColumnAlreadyExistsAction ActionIfTargetValueExists { get; init; } = ColumnAlreadyExistsAction.Overwrite;
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         Changes.Clear();
 
@@ -38,7 +38,11 @@ public sealed class RenameColumnMutator(IEtlContext context) : AbstractSimpleCha
                     case ColumnAlreadyExistsAction.Skip:
                         continue;
                     case ColumnAlreadyExistsAction.Throw:
-                        var exception = new ColumnRenameException(this, row, kvp.Key, kvp.Value);
+                        var exception = new ColumnRenameException(this);
+                        exception.Data["CurrentName"] = kvp.Key;
+                        exception.Data["NewName"] = kvp.Value;
+                        exception.Data["RowInputIndex"] = rowInputIndex;
+                        exception.Data["Row"] = row.ToDebugString(true);
                         throw exception;
                 }
             }

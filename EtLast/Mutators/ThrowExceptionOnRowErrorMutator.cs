@@ -2,21 +2,18 @@
 
 public sealed class ThrowExceptionOnRowErrorMutator(IEtlContext context) : AbstractMutator(context)
 {
-    private int _rowIndex;
-
     protected override void StartMutator()
     {
         base.StartMutator();
-
-        _rowIndex = 0;
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         if (row.HasError())
         {
-            var exception = new RowContainsErrorException(this, row);
-            exception.Data["RowIndex"] = _rowIndex;
+            var exception = new RowContainsErrorException(this);
+            exception.Data["RowInputIndex"] = rowInputIndex;
+            exception.Data["Row"] = row.ToDebugString(true);
 
             var index = 0;
             foreach (var kvp in row.Values)
@@ -35,7 +32,6 @@ public sealed class ThrowExceptionOnRowErrorMutator(IEtlContext context) : Abstr
             throw exception;
         }
 
-        _rowIndex++;
         yield return row;
     }
 }

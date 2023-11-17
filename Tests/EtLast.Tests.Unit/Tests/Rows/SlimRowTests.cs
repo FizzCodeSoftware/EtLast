@@ -116,6 +116,6 @@ public class SlimRowTests
             ["age"] = null,
         };
 
-        Assert.AreEqual(3, values.ColumnCount);
+        Assert.AreEqual(3, values.ValueCount);
     }
 }

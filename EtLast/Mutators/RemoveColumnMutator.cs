@@ -15,7 +15,7 @@ public sealed class RemoveColumnMutator(IEtlContext context) : AbstractSimpleCha
         }
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         if (Columns.Length > 1)
         {

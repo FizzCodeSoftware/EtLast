@@ -4,7 +4,10 @@
 public sealed class SlimRow : ISlimRow
 {
     public IEnumerable<KeyValuePair<string, object>> Values => _values;
-    public int ColumnCount => _values.Count;
+    public int ValueCount => _values.Count;
+
+    public IEnumerable<KeyValuePair<string, object>> NotNullValues => _values.Where(x => x.Value != null);
+
     public object Tag { get; set; }
 
     public bool KeepNulls { get; set; } = true;
@@ -99,8 +102,9 @@ public sealed class SlimRow : ISlimRow
             var exception = new InvalidCastException("error raised during a cast operation", ex);
             exception.Data["Column"] = column;
             exception.Data["Value"] = value != null ? value.ToString() : "NULL";
-            exception.Data["SourceType"] = (value?.GetType()).GetFriendlyTypeName();
-            exception.Data["TargetType"] = TypeHelpers.GetFriendlyTypeName(typeof(T));
+            if (value != null)
+                exception.Data["ValueType"] = value.GetType().GetFriendlyTypeName();
+            exception.Data["RequestedType"] = TypeHelpers.GetFriendlyTypeName(typeof(T));
             throw exception;
         }
     }
@@ -117,7 +121,12 @@ public sealed class SlimRow : ISlimRow
         }
         catch (Exception ex)
         {
-            throw new InvalidCastException("requested cast to '" + typeof(T).GetFriendlyTypeName() + "' is not possible of '" + (value != null ? (value.ToString() + " (" + value.GetType().GetFriendlyTypeName() + ")") : "NULL") + "' in '" + column + "'", ex);
+            var exception = new InvalidCastException("error raised during a cast operation", ex);
+            exception.Data["Column"] = column;
+            exception.Data["Value"] = value.ToString();
+            exception.Data["ValueType"] = value.GetType().GetFriendlyTypeName();
+            exception.Data["RequestedType"] = TypeHelpers.GetFriendlyTypeName(typeof(T));
+            throw exception;
         }
     }
 

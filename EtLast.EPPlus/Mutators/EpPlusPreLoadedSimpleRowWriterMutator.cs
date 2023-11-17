@@ -37,7 +37,7 @@ public sealed class EpPlusPreLoadedSimpleRowWriterMutator(IEtlContext context) :
         _state = null;
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         Context.RegisterWriteToSink(row, _sinkUid.Value);
 

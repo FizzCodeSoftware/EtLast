@@ -68,7 +68,7 @@ public sealed class WriteToSqlMutator(IEtlContext context) : AbstractMutator(con
         }
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         _sinkUid ??= Context.GetSinkUid(ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
 

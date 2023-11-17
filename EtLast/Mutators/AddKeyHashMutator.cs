@@ -35,7 +35,7 @@ public sealed class AddKeyHashMutator(IEtlContext context) : AbstractMutator(con
         }
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         var columns = KeyColumns
             ?? row.Values.Select(x => x.Key).ToArray();

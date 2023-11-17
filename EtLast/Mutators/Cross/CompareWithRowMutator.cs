@@ -24,7 +24,7 @@ public sealed class CompareWithRowMutator(IEtlContext context) : AbstractCrossMu
         _lookup.Clear();
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         var removeRow = false;
         var key = GenerateRowKey(row);

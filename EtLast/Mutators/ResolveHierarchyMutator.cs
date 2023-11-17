@@ -25,7 +25,7 @@ public sealed class ResolveHierarchyMutator(IEtlContext context) : AbstractSimpl
         _lastIdOfLevel = new object[LevelColumns.Length];
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         Changes.Clear();
 

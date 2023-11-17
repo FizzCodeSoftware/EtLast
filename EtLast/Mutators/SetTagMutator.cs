@@ -4,7 +4,7 @@ public sealed class SetTagMutator(IEtlContext context) : AbstractMutator(context
 {
     public required object Tag { get; init; }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         row.Tag = Tag;
         yield return row;

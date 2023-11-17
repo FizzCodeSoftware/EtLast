@@ -69,8 +69,9 @@ public sealed class JsonArrayReader<T>(IEtlContext context) : AbstractRowSource(
                     }
                     catch (Exception ex)
                     {
-                        var exception = new JsonArrayReaderException(this, "json input contains one or more errors", stream, ex);
+                        var exception = new JsonArrayReaderException(this, "json input contains one or more errors", ex);
                         exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "json input contains one or more errors: {0}", stream.Name));
+                        exception.Data["StreamName"] = stream.Name;
                         exception.Data["StreamIndex"] = streamIndex;
                         exception.Data["EntryIndex"] = entryIndex;
                         exception.Data["ResultCount"] = resultCount;

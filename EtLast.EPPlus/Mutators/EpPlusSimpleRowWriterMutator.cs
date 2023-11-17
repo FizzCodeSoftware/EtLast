@@ -120,7 +120,7 @@ public sealed class EpPlusSimpleRowWriterMutator(IEtlContext context) : Abstract
         _sinks.Clear();
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         var partitionKey = PartitionKeyGenerator?.Invoke(row, _rowCounter);
         _rowCounter++;

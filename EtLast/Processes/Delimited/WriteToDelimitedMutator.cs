@@ -158,7 +158,7 @@ public sealed class WriteToDelimitedMutator(IEtlContext context) : AbstractMutat
         _sinkEntries.Clear();
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         var partitionKey = PartitionKeyGenerator?.Invoke(row, _rowCounter);
         _rowCounter++;

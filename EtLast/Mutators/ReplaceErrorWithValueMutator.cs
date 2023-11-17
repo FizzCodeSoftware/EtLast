@@ -5,7 +5,7 @@ public sealed class ReplaceErrorWithValueMutator(IEtlContext context) : Abstract
     public required string[] Columns { get; init; }
     public required object Value { get; init; }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         Changes.Clear();
 

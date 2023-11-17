@@ -44,7 +44,7 @@ public sealed class UnpivotMutator(IEtlContext context) : AbstractMutator(contex
         _valueColumnNames = null;
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         if (ValueColumns == null)
         {

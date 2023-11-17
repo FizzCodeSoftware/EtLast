@@ -15,7 +15,7 @@ public sealed class ReplaceStringMutator(IEtlContext context) : AbstractMutator(
     /// </summary>
     public required StringComparison StringComparison { get; init; } = StringComparison.InvariantCulture;
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         if (row.HasValue(ColumnName) && row[ColumnName] is string value && value.IndexOf(OldString, StringComparison) > -1)
         {

@@ -43,7 +43,7 @@ public sealed class JoinMutator(IEtlContext context) : AbstractCrossMutator(cont
         _lookup.Clear();
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         var key = GenerateRowKey(row);
         var removeRow = false;
@@ -58,7 +58,10 @@ public sealed class JoinMutator(IEtlContext context) : AbstractCrossMutator(cont
                         removeRow = true;
                         break;
                     case MatchMode.Throw:
-                        throw new TooManyMatchException(this, row, key);
+                        var exception = new TooManyMatchException(this);
+                        exception.Data["Row"] = row.ToDebugString(true);
+                        exception.Data["Key"] = key;
+                        throw exception;
                     case MatchMode.Custom:
                         TooManyMatchAction.InvokeCustomAction(row, matches);
                         break;

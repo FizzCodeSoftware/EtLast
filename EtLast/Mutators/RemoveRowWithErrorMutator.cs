@@ -2,7 +2,7 @@
 
 public sealed class RemoveRowWithErrorMutator(IEtlContext context) : AbstractMutator(context)
 {
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         if (!row.HasError())
             yield return row;

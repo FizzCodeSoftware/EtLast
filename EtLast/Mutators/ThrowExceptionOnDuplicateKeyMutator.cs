@@ -14,17 +14,19 @@ public sealed class ThrowExceptionOnDuplicateKeyMutator(IEtlContext context) : A
         _keys.Clear();
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         var key = RowKeyGenerator.Invoke(row);
         if (_keys.Contains(key))
         {
-            var exception = new DuplicateKeyException(this, row, key);
+            var exception = new DuplicateKeyException(this);
+            exception.Data["Key"] = key;
+            exception.Data["Row"] = row.ToDebugString(true);
+            exception.Data["RowInputIndex"] = rowInputIndex;
             throw exception;
         }
 
         _keys.Add(key);
-
         yield return row;
     }
 }

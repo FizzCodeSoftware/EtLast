@@ -29,7 +29,7 @@ public sealed class KeyTestMutator(IEtlContext context) : AbstractCrossMutator(c
         _lookup.Clear();
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         var key = GenerateRowKey(row);
         var matchCount = _lookup.CountByKey(key);

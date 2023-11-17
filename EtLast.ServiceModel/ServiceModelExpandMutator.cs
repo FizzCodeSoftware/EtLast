@@ -35,7 +35,7 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient>(IEtlContext con
     /// </summary>
     public int MaxRetryCount { get; init; } = 5;
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         var success = false;
         for (var retryCount = 0; retryCount <= MaxRetryCount; retryCount++)

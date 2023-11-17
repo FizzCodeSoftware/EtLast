@@ -407,8 +407,9 @@ public sealed class DelimitedLineReader(IEtlContext context) : AbstractRowSource
                                     {
                                         if (string.Equals(column.NameInSource, columns[j].NameInSource, StringComparison.InvariantCultureIgnoreCase))
                                         {
-                                            var exception = new DelimitedReadException(this, "delimited input contains more than one columns with the same name", stream);
+                                            var exception = new DelimitedReadException(this, "delimited input contains more than one columns with the same name");
                                             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "delimited input contains more than one columns with the same name: {0}, {1}", stream.Name, column.NameInSource));
+                                            exception.Data["StreamName"] = stream.Name;
                                             exception.Data["Column"] = column.NameInSource;
 
                                             Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);

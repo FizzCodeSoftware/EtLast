@@ -2,7 +2,7 @@
 
 public sealed class RemoveRowMutator(IEtlContext context) : AbstractMutator(context)
 {
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         return Enumerable.Empty<IRow>();
     }

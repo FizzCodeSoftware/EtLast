@@ -91,12 +91,16 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
 
         var rowFilter = RowFilter;
 
+        var rowInputIndex = -1;
+
         while (!flowState.IsTerminating)
         {
             netTimeStopwatch.Stop();
             var finished = !enumerator.MoveNext();
             if (finished)
                 break;
+
+            rowInputIndex++;
 
             var row = enumerator.Current;
             netTimeStopwatch.Start();
@@ -159,7 +163,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
             var kept = false;
             try
             {
-                foreach (var mutatedRow in MutateRow(row))
+                foreach (var mutatedRow in MutateRow(row, rowInputIndex))
                 {
                     if (mutatedRow == row)
                     {
@@ -292,7 +296,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
     {
     }
 
-    protected abstract IEnumerable<IRow> MutateRow(IRow row);
+    protected abstract IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex);
 
     protected virtual void ProcessHeartBeatTag(HeartBeatTag tag)
     {

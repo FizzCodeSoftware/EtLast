@@ -40,16 +40,16 @@ public class SlimRowKeepNullsTests
             ["age"] = null,
         };
 
-        Assert.AreEqual(3, values.ColumnCount);
+        Assert.AreEqual(3, values.ValueCount);
         Assert.AreEqual(3, values.Values.Count());
         Assert.IsFalse(values.Values.All(kvp => kvp.Value != null));
 
         values["age"] = 7;
-        Assert.AreEqual(3, values.ColumnCount);
+        Assert.AreEqual(3, values.ValueCount);
         Assert.IsTrue(values.Values.All(kvp => kvp.Value != null));
 
         values["name"] = null;
-        Assert.AreEqual(3, values.ColumnCount);
+        Assert.AreEqual(3, values.ValueCount);
         Assert.IsFalse(values.Values.All(kvp => kvp.Value != null));
     }
 }

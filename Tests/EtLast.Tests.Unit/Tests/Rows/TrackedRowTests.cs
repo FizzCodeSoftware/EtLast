@@ -176,7 +176,7 @@ public class TrackedRowTests
         };
 
         var row = new TrackedRow(context.CreateRow(null, initialValues));
-        Assert.AreEqual(3, row.ColumnCount);
+        Assert.AreEqual(3, row.ValueCount);
     }
 
     [TestMethod]
@@ -192,13 +192,13 @@ public class TrackedRowTests
         };
 
         var row = new TrackedRow(context.CreateRow(null, initialValues));
-        Assert.AreEqual(2, row.ColumnCount);
+        Assert.AreEqual(2, row.ValueCount);
 
         row["id"] = null;
-        Assert.AreEqual(2, row.ColumnCount);
+        Assert.AreEqual(2, row.ValueCount);
 
         row["trash"] = null;
-        Assert.AreEqual(3, row.ColumnCount);
+        Assert.AreEqual(3, row.ValueCount);
     }
 
     [TestMethod]
@@ -266,7 +266,7 @@ public class TrackedRowTests
 
         row.MergeWith(newRow.Values);
 
-        Assert.AreEqual(4, row.ColumnCount);
+        Assert.AreEqual(4, row.ValueCount);
         Assert.AreEqual(1, row["a"]);
         Assert.AreEqual("cat", row["b"]);
         Assert.AreEqual(7.1d, row["c"]);
@@ -293,7 +293,7 @@ public class TrackedRowTests
 
         row.MergeWith(newValues);
 
-        Assert.AreEqual(4, row.ColumnCount);
+        Assert.AreEqual(4, row.ValueCount);
         Assert.AreEqual(1, row["a"]);
         Assert.AreEqual("cat", row["b"]);
         Assert.IsFalse(row.HasValue("c"));

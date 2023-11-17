@@ -70,7 +70,7 @@ public class ContinuousAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDecimalAverage("height"), new DecimalConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["height"] = 150m },
@@ -88,7 +88,7 @@ public class ContinuousAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDecimalMax("age"), new DecimalConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 17m },
@@ -106,7 +106,7 @@ public class ContinuousAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDecimalMin("age"), new DecimalConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 11m },
@@ -124,7 +124,7 @@ public class ContinuousAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDecimalSum("age"), new DecimalConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 28m },
@@ -142,7 +142,7 @@ public class ContinuousAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDoubleAverage("height"), new DoubleConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["height"] = 150d },
@@ -178,7 +178,7 @@ public class ContinuousAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDoubleMax("age"), new DoubleConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 17d },
@@ -196,7 +196,7 @@ public class ContinuousAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDoubleMin("age"), new DoubleConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 11d },
@@ -214,7 +214,7 @@ public class ContinuousAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddDoubleSum("age"), new DoubleConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 28d },
@@ -232,7 +232,7 @@ public class ContinuousAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddIntAverage("height"), null);
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["height"] = 150d },
@@ -250,7 +250,7 @@ public class ContinuousAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddIntMax("age"), null);
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 17 },
@@ -268,7 +268,7 @@ public class ContinuousAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddIntMin("age"), null);
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 11 },
@@ -286,7 +286,7 @@ public class ContinuousAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddIntSum("age"), null);
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 28 },
@@ -304,7 +304,7 @@ public class ContinuousAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddLongAverage("height"), new LongConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["height"] = 150d },
@@ -322,7 +322,7 @@ public class ContinuousAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddLongMax("age"), new LongConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 17L },
@@ -340,7 +340,7 @@ public class ContinuousAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddLongMin("age"), new LongConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 11L },
@@ -358,7 +358,7 @@ public class ContinuousAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new ContinuousGroupByOperation().AddLongSum("age"), new LongConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 28L },

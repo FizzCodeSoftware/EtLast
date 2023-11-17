@@ -20,7 +20,7 @@ public sealed class MergeStringColumnsMutator(IEtlContext context) : AbstractSim
         Changes.Add(new KeyValuePair<string, object>(TargetColumn, null));
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         foreach (var column in ColumnsToMerge)
         {

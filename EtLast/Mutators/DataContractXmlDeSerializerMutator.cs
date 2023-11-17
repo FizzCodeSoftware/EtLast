@@ -14,7 +14,7 @@ public sealed class DataContractXmlDeSerializerMutator<T>(IEtlContext context) :
     public required InvalidValueAction ActionIfFailed { get; init; }
     public object SpecialValueIfFailed { get; init; }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         var sourceByteArray = row.GetAs<byte[]>(SourceColumn);
         if (sourceByteArray == null)

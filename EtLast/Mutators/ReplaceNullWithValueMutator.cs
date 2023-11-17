@@ -7,7 +7,7 @@ public sealed class ReplaceNullWithValueMutator(IEtlContext context) : AbstractS
     [ProcessParameterMustHaveValue]
     public required object Value { get; init; }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         if (Columns.Length > 1)
         {

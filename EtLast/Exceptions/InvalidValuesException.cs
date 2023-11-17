@@ -4,9 +4,8 @@
 [Serializable]
 public class InvalidValuesException : EtlException
 {
-    public InvalidValuesException(IProcess process, IReadOnlySlimRow row)
+    public InvalidValuesException(IProcess process)
         : base(process, "invalid values found")
     {
-        Data["Row"] = row.ToDebugString(true);
     }
 }

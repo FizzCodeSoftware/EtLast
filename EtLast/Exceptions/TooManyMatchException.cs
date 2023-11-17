@@ -4,16 +4,8 @@
 [Serializable]
 public class TooManyMatchException : EtlException
 {
-    public TooManyMatchException(IProcess process, IReadOnlySlimRow row)
+    public TooManyMatchException(IProcess process)
         : base(process, "too many match")
     {
-        Data["Row"] = row.ToDebugString(true);
-    }
-
-    public TooManyMatchException(IProcess process, IReadOnlySlimRow row, string key)
-        : base(process, "too many match")
-    {
-        Data["Row"] = row.ToDebugString(true);
-        Data["Key"] = key;
     }
 }

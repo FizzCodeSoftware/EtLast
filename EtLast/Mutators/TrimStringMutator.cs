@@ -4,7 +4,7 @@ public sealed class TrimStringMutator(IEtlContext context) : AbstractSimpleChang
 {
     public required string[] Columns { get; init; }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         Changes.Clear();
 

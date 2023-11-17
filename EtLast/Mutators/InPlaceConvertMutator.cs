@@ -30,7 +30,7 @@ public sealed class InPlaceConvertMutator(IEtlContext context) : AbstractSimpleC
     /// </summary>
     public object SpecialValueIfInvalid { get; init; }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         Changes.Clear();
 
@@ -55,7 +55,7 @@ public sealed class InPlaceConvertMutator(IEtlContext context) : AbstractSimpleC
                         Changes.Add(new KeyValuePair<string, object>(column, SpecialValueIfNull));
                         break;
                     case InvalidValueAction.Throw:
-                        throw new InvalidValueException(this, TypeConverter, row, column);
+                        throw new TypeConversionException(this, TypeConverter, row, column);
                     case InvalidValueAction.RemoveRow:
                         removeRow = true;
                         break;
@@ -73,7 +73,7 @@ public sealed class InPlaceConvertMutator(IEtlContext context) : AbstractSimpleC
                     Changes.Add(new KeyValuePair<string, object>(column, SpecialValueIfInvalid));
                     break;
                 case InvalidValueAction.Throw:
-                    throw new InvalidValueException(this, TypeConverter, row, column);
+                    throw new TypeConversionException(this, TypeConverter, row, column);
                 case InvalidValueAction.RemoveRow:
                     removeRow = true;
                     break;

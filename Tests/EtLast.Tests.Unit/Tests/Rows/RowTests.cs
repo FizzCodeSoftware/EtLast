@@ -184,17 +184,17 @@ public class RowKeepNullTests
         };
 
         var row = context.CreateRow(null, initialValues);
-        Assert.AreEqual(3, row.ColumnCount);
+        Assert.AreEqual(3, row.ValueCount);
         Assert.AreEqual(3, row.Values.Count());
         Assert.IsFalse(row.Values.All(kvp => kvp.Value != null));
 
         row["age"] = 7;
-        Assert.AreEqual(3, row.ColumnCount);
+        Assert.AreEqual(3, row.ValueCount);
         Assert.AreEqual(3, row.Values.Count());
         Assert.IsTrue(row.Values.All(kvp => kvp.Value != null));
 
         row["name"] = null;
-        Assert.AreEqual(3, row.ColumnCount);
+        Assert.AreEqual(3, row.ValueCount);
         Assert.AreEqual(3, row.Values.Count());
         Assert.IsFalse(row.Values.All(kvp => kvp.Value != null));
     }
@@ -212,15 +212,15 @@ public class RowKeepNullTests
         };
 
         var row = context.CreateRow(null, initialValues);
-        Assert.AreEqual(2, row.ColumnCount);
+        Assert.AreEqual(2, row.ValueCount);
         Assert.AreEqual(2, row.Values.Count());
 
         row["id"] = null;
-        Assert.AreEqual(2, row.ColumnCount);
+        Assert.AreEqual(2, row.ValueCount);
         Assert.AreEqual(2, row.Values.Count());
 
         row["trash"] = null;
-        Assert.AreEqual(3, row.ColumnCount);
+        Assert.AreEqual(3, row.ValueCount);
         Assert.AreEqual(3, row.Values.Count());
     }
 
@@ -283,7 +283,7 @@ public class RowKeepNullTests
 
         var row = context.CreateRow(null, initialValues);
 
-        Assert.AreEqual(2, row.ColumnCount);
+        Assert.AreEqual(2, row.ValueCount);
         Assert.AreEqual(2, row.Values.Count());
         Assert.AreEqual(12, row.GetAs<int>("id"));
         Assert.AreEqual("A", row.GetAs<string>("name"));
@@ -296,7 +296,7 @@ public class RowKeepNullTests
 
         row.MergeWith(updatedValues);
 
-        Assert.AreEqual(2, row.ColumnCount);
+        Assert.AreEqual(2, row.ValueCount);
         Assert.AreEqual(2, row.Values.Count());
         Assert.AreEqual(6, row.GetAs<int>("id"));
         Assert.AreEqual(null, row.GetAs<string>("name"));

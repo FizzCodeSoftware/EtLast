@@ -42,7 +42,7 @@ public class SortedMemoryAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new MemoryGroupByOperation().AddDecimalAverage("height"), new DecimalConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["height"] = 150m },
@@ -60,7 +60,7 @@ public class SortedMemoryAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new MemoryGroupByOperation().AddDecimalMax("age"), new DecimalConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 17m },
@@ -78,7 +78,7 @@ public class SortedMemoryAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new MemoryGroupByOperation().AddDecimalMin("age"), new DecimalConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 11m },
@@ -96,7 +96,7 @@ public class SortedMemoryAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new MemoryGroupByOperation().AddDecimalSum("age"), new DecimalConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 28m },
@@ -114,7 +114,7 @@ public class SortedMemoryAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new MemoryGroupByOperation().AddDoubleAverage("height"), new DoubleConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["height"] = 150d },
@@ -132,7 +132,7 @@ public class SortedMemoryAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new MemoryGroupByOperation().AddDoubleMax("age"), new DoubleConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 17d },
@@ -150,7 +150,7 @@ public class SortedMemoryAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new MemoryGroupByOperation().AddDoubleMin("age"), new DoubleConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 11d },
@@ -168,7 +168,7 @@ public class SortedMemoryAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new MemoryGroupByOperation().AddDoubleSum("age"), new DoubleConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 28d },
@@ -186,7 +186,7 @@ public class SortedMemoryAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new MemoryGroupByOperation().AddIntAverage("height"), null);
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["height"] = 150d },
@@ -204,7 +204,7 @@ public class SortedMemoryAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new MemoryGroupByOperation().AddIntMax("age"), null);
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 17 },
@@ -222,7 +222,7 @@ public class SortedMemoryAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new MemoryGroupByOperation().AddIntMin("age"), null);
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 11 },
@@ -240,7 +240,7 @@ public class SortedMemoryAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new MemoryGroupByOperation().AddIntSum("age"), null);
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 28 },
@@ -258,7 +258,7 @@ public class SortedMemoryAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new MemoryGroupByOperation().AddLongAverage("height"), new LongConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["height"] = 150d },
@@ -276,7 +276,7 @@ public class SortedMemoryAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new MemoryGroupByOperation().AddLongMax("age"), new LongConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 17L },
@@ -294,7 +294,7 @@ public class SortedMemoryAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new MemoryGroupByOperation().AddLongMin("age"), new LongConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 11L },
@@ -312,7 +312,7 @@ public class SortedMemoryAggregationMutatorTests
         var context = TestExecuter.GetContext();
         var builder = GetBuilder(context, new MemoryGroupByOperation().AddLongSum("age"), new LongConverter());
         var result = TestExecuter.Execute(builder);
-        Assert.IsTrue(result.MutatedRows.All(x => x.ColumnCount == 2));
+        Assert.IsTrue(result.MutatedRows.All(x => x.ValueCount == 2));
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["name"] = "A", ["age"] = 28L },

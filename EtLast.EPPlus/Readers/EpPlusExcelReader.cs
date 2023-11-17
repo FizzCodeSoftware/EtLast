@@ -54,7 +54,7 @@ public sealed class EpPlusExcelReader(IEtlContext context) : AbstractEpPlusExcel
             }
             catch (Exception ex)
             {
-                var exception = new StreamReadException(this, "excel steram read failed", stream, ex);
+                var exception = new StreamReadException(this, "excel steram read failed", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "excel stream read failed: {0}, message: {1}",
                     stream.Name, ex.Message));
                 exception.Data["StreamName"] = stream.Name;

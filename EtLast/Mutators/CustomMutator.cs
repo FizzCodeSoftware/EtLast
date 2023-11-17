@@ -7,7 +7,7 @@ public sealed class CustomMutator(IEtlContext context) : AbstractMutator(context
     [ProcessParameterMustHaveValue]
     public required CustomMutatorDelegate Action { get; init; }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         var tracker = new TrackedRow(row);
         bool keep;
@@ -22,6 +22,8 @@ public sealed class CustomMutator(IEtlContext context) : AbstractMutator(context
         catch (Exception ex)
         {
             var exception = new CustomCodeException(this, "error during the execution of custom code", ex);
+            exception.Data["RowInputIndex"] = rowInputIndex;
+            exception.Data["Row"] = row.ToDebugString(true);
             throw exception;
         }
 

@@ -267,7 +267,7 @@ public class HttpSender : IDisposable, IEtlContextListener
         {
             writer.Write7BitEncodedInt64(row.CurrentProcess.InvocationInfo.InvocationUid);
             writer.Write7BitEncodedInt64(row.Uid);
-            writer.Write7BitEncodedInt(row.ColumnCount);
+            writer.Write7BitEncodedInt(row.ValueCount);
             foreach (var kvp in row.Values)
             {
                 writer.Write(kvp.Key);
@@ -319,7 +319,7 @@ public class HttpSender : IDisposable, IEtlContextListener
             writer.Write7BitEncodedInt64(row.Uid);
             writer.Write7BitEncodedInt64(row.CurrentProcess.InvocationInfo.InvocationUid);
             writer.Write7BitEncodedInt64(sinkUid);
-            writer.Write7BitEncodedInt(row.ColumnCount);
+            writer.Write7BitEncodedInt(row.ValueCount);
             foreach (var kvp in row.Values)
             {
                 writer.Write(kvp.Key);

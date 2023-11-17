@@ -12,7 +12,7 @@ public sealed class ExplodeMutator(IEtlContext context) : AbstractMutator(contex
     [ProcessParameterMustHaveValue]
     public required ExplodeDelegate RowCreator { get; init; }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         if (!RemoveOriginalRow)
             yield return row;
@@ -21,9 +21,7 @@ public sealed class ExplodeMutator(IEtlContext context) : AbstractMutator(contex
         if (newRows != null)
         {
             foreach (var newRow in newRows)
-            {
                 yield return Context.CreateRow(this, newRow);
-            }
         }
     }
 }

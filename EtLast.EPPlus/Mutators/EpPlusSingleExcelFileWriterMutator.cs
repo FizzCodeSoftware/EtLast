@@ -58,7 +58,7 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState>(IEtlContext conte
         _state = null;
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         if (_package == null) // lazy load here instead of prepare
         {

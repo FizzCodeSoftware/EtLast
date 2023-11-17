@@ -10,7 +10,7 @@ public sealed class MultiplyByTagsMutator(IEtlContext context) : AbstractMutator
     [ProcessParameterMustHaveValue]
     public required object[] Tags { get; init; }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         if (!RemoveOriginalRow)
             yield return row;

@@ -19,17 +19,11 @@ public sealed class RemoveDuplicateRowsMutator(IEtlContext context) : AbstractMu
         _returnedKeys.Clear();
     }
 
-    protected override IEnumerable<IRow> MutateRow(IRow row)
+    protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         var key = KeyGenerator.Invoke(row);
         if (_returnedKeys.Add(key))
-        {
             yield return row;
-        }
-        else
-        {
-            Context.SetRowOwner(row, null);
-        }
     }
 }
 
