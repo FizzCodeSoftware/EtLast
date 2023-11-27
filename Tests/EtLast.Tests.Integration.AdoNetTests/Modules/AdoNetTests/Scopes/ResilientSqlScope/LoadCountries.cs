@@ -46,11 +46,8 @@ public class LoadCountries : AbstractEtlTask
             {
                 Name = "WriteContentToTable",
                 ConnectionString = ConnectionString,
-                TableDefinition = new DbTableDefinition()
-                {
-                    TableName = table.TempTableName,
-                    Columns = table.Columns.ToDictionary(c => c, x => ConnectionString.Escape(x)),
-                }
+                TableName = table.TempTableName,
+                Columns = table.Columns.ToDictionary(c => c, x => ConnectionString.Escape(x)),
             })
             .Build();
     }

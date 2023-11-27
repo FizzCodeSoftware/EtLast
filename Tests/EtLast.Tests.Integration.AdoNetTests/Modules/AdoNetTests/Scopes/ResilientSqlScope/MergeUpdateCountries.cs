@@ -64,11 +64,8 @@ public class MergeUpdateCountries : AbstractEtlTask
             {
                 Name = "WriteFirstTwoRows",
                 ConnectionString = ConnectionString,
-                TableDefinition = new DbTableDefinition()
-                {
-                    TableName = table.TempTableName,
-                    Columns = table.Columns.ToDictionary(c => c, x => ConnectionString.Escape(x)),
-                }
+                TableName = table.TempTableName,
+                Columns = table.Columns.ToDictionary(c => c, x => ConnectionString.Escape(x)),
             })
             .Build();
     }
@@ -91,11 +88,8 @@ public class MergeUpdateCountries : AbstractEtlTask
             {
                 Name = "WriteUpdatedRow",
                 ConnectionString = ConnectionString,
-                TableDefinition = new DbTableDefinition()
-                {
-                    TableName = table.TempTableName,
-                    Columns = table.Columns.ToDictionary(c => c, x => ConnectionString.Escape(x)),
-                }
+                TableName = table.TempTableName,
+                Columns = table.Columns.ToDictionary(c => c, x => ConnectionString.Escape(x)),
             })
             .Build();
     }

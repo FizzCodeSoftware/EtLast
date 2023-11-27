@@ -11,7 +11,13 @@ public sealed class WriteToMsSqlMutator(IEtlContext context) : AbstractMutator(c
     public int CommandTimeout { get; init; } = 60 * 60;
 
     [ProcessParameterMustHaveValue]
-    public DbTableDefinition TableDefinition { get; init; }
+    public required string TableName { get; init; }
+
+    /// <summary>
+    /// Key is column in the row, value is column in the database table (can be null).
+    /// </summary>
+    [ProcessParameterMustHaveValue]
+    public Dictionary<string, string> Columns { get; init; }
 
     /// <summary>
     /// Default value is true <see cref="SqlBulkCopyOptions.KeepIdentity"/>.
@@ -31,7 +37,7 @@ public sealed class WriteToMsSqlMutator(IEtlContext context) : AbstractMutator(c
     /// <summary>
     /// Default value is 5000
     /// </summary>
-    public int ForceWriteAfterNoDataMilliseconds { get; init; } = 5000;
+    public int ForcedFlushInterval { get; init; } = 5000;
 
     private long _rowsWritten;
     private DatabaseConnection _connection;
@@ -46,13 +52,13 @@ public sealed class WriteToMsSqlMutator(IEtlContext context) : AbstractMutator(c
 
         var columnIndexes = new Dictionary<string, int>();
         var i = 0;
-        foreach (var column in TableDefinition.Columns)
+        foreach (var column in Columns)
         {
             columnIndexes[column.Key] = i;
             i++;
         }
 
-        _reader = new RowShadowReader(BatchSize, TableDefinition.Columns.Select(column => column.Value ?? column.Key).ToArray(), columnIndexes);
+        _reader = new RowShadowReader(BatchSize, Columns.Select(column => column.Value ?? column.Key).ToArray(), columnIndexes);
     }
 
     protected override void CloseMutator()
@@ -79,7 +85,7 @@ public sealed class WriteToMsSqlMutator(IEtlContext context) : AbstractMutator(c
 
     protected override void ProcessHeartBeatTag(HeartBeatTag tag)
     {
-        if (_rowsWritten > 0 && _lastWrite != null && _reader.RowCount > 0 && _reader.RowCount < BatchSize && _lastWrite.ElapsedMilliseconds >= ForceWriteAfterNoDataMilliseconds)
+        if (_rowsWritten > 0 && _reader.RowCount > 0 && _reader.RowCount < BatchSize && (_lastWrite == null || _lastWrite.ElapsedMilliseconds >= ForcedFlushInterval))
         {
             InitConnection();
             lock (_connection.Lock)
@@ -91,13 +97,13 @@ public sealed class WriteToMsSqlMutator(IEtlContext context) : AbstractMutator(c
 
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
-        _sinkUid ??= Context.GetSinkUid(ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
+        _sinkUid ??= Context.GetSinkUid(ConnectionString.Name, ConnectionString.Unescape(TableName));
 
         Context.RegisterWriteToSink(row, _sinkUid.Value);
 
         var rc = _reader.RowCount;
         var i = 0;
-        foreach (var column in TableDefinition.Columns)
+        foreach (var column in Columns)
         {
             _reader.Rows[rc, i] = row[column.Key];
             i++;
@@ -134,7 +140,7 @@ public sealed class WriteToMsSqlMutator(IEtlContext context) : AbstractMutator(c
 
         var recordCount = _reader.RowCount;
 
-        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteBulk, ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), _bulkCopy.BulkCopyTimeout, "BULK COPY " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", Transaction.Current.ToIdentifierString(), null,
+        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteBulk, ConnectionString.Name, ConnectionString.Unescape(TableName), _bulkCopy.BulkCopyTimeout, "BULK COPY " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", Transaction.Current.ToIdentifierString(), null,
             "write to table", null);
 
         try
@@ -153,17 +159,17 @@ public sealed class WriteToMsSqlMutator(IEtlContext context) : AbstractMutator(c
 
             var exception = new SqlWriteException(this, ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db write failed, connection string key: {0}, table: {1}, message: {2}",
-                ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message));
+                ConnectionString.Name, ConnectionString.Unescape(TableName), ex.Message));
             exception.Data["ConnectionStringName"] = ConnectionString.Name;
-            exception.Data["TableName"] = ConnectionString.Unescape(TableDefinition.TableName);
-            exception.Data["Columns"] = string.Join(", ", TableDefinition.Columns.Select(column => column.Key + " => " + ConnectionString.Unescape(column.Value ?? column.Key)));
+            exception.Data["TableName"] = ConnectionString.Unescape(TableName);
+            exception.Data["Columns"] = string.Join(", ", Columns.Select(column => column.Key + " => " + ConnectionString.Unescape(column.Value ?? column.Key)));
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["TotalRowsWritten"] = _rowsWritten;
             if (ex is InvalidOperationException or SqlException)
             {
                 var fileName = "bulk-copy-error-" + Context.CreatedOnLocal.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + ".tsv";
                 exception.Data["DetailedRowLogFileName"] = fileName;
-                Context.LogCustom(fileName, this, "bulk copy error: " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableDefinition.TableName) + "] = exception: " + ex.GetType().GetFriendlyTypeName() + ": " + ex.Message);
+                Context.LogCustom(fileName, this, "bulk copy error: " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableName) + "] = exception: " + ex.GetType().GetFriendlyTypeName() + ": " + ex.Message);
                 Context.LogCustom(fileName, this, string.Join("\t", _reader.ColumnIndexes.Select(kvp => kvp.Key)));
 
                 for (var row = 0; row < _reader.RowCount; row++)
@@ -212,11 +218,11 @@ public sealed class WriteToMsSqlMutator(IEtlContext context) : AbstractMutator(c
 
         _bulkCopy = new SqlBulkCopy(_connection.Connection as SqlConnection, options, null)
         {
-            DestinationTableName = TableDefinition.TableName,
+            DestinationTableName = TableName,
             BulkCopyTimeout = CommandTimeout,
         };
 
-        foreach (var kvp in TableDefinition.Columns)
+        foreach (var kvp in Columns)
         {
             _bulkCopy.ColumnMappings.Add(kvp.Key, kvp.Value ?? kvp.Key);
         }

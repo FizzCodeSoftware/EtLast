@@ -66,11 +66,8 @@ public class LoadThenInsertCountries : AbstractEtlTask
             {
                 Name = "WriteFirstTwoRows",
                 ConnectionString = ConnectionString,
-                TableDefinition = new DbTableDefinition()
-                {
-                    TableName = table.TempTableName,
-                    Columns = table.Columns.ToDictionary(c => c, x => ConnectionString.Escape(x)),
-                }
+                TableName = table.TempTableName,
+                Columns = table.Columns.ToDictionary(c => c, x => ConnectionString.Escape(x)),
             })
             .Build();
     }
@@ -88,11 +85,8 @@ public class LoadThenInsertCountries : AbstractEtlTask
             {
                 Name = "WriteSecondTwoRows",
                 ConnectionString = ConnectionString,
-                TableDefinition = new DbTableDefinition()
-                {
-                    TableName = table.TempTableName,
-                    Columns = table.Columns.ToDictionary(c => c, x => ConnectionString.Escape(x)),
-                }
+                TableName = table.TempTableName,
+                Columns = table.Columns.ToDictionary(c => c, x => ConnectionString.Escape(x)),
             })
             .Build();
     }
