@@ -208,6 +208,56 @@ public abstract class AbstractProcess : IProcess
                     if (string.IsNullOrEmpty(str))
                         throw new ProcessParameterNullException(process, property.Name);
                 }
+                else if (attr.ThrowOnZeroIntegralNumeric && value is sbyte sbyteValue)
+                {
+                    if (sbyteValue == 0)
+                        throw new ProcessParameterNullException(process, property.Name);
+                }
+                else if (attr.ThrowOnZeroIntegralNumeric && value is byte byteValue)
+                {
+                    if (byteValue == 0)
+                        throw new ProcessParameterNullException(process, property.Name);
+                }
+                else if (attr.ThrowOnZeroIntegralNumeric && value is short shortValue)
+                {
+                    if (shortValue == 0)
+                        throw new ProcessParameterNullException(process, property.Name);
+                }
+                else if (attr.ThrowOnZeroIntegralNumeric && value is ushort ushortValue)
+                {
+                    if (ushortValue == 0)
+                        throw new ProcessParameterNullException(process, property.Name);
+                }
+                else if (attr.ThrowOnZeroIntegralNumeric && value is int intValue)
+                {
+                    if (intValue == 0)
+                        throw new ProcessParameterNullException(process, property.Name);
+                }
+                else if (attr.ThrowOnZeroIntegralNumeric && value is uint uintValue)
+                {
+                    if (uintValue == 0)
+                        throw new ProcessParameterNullException(process, property.Name);
+                }
+                else if (attr.ThrowOnZeroIntegralNumeric && value is long longValue)
+                {
+                    if (longValue == 0)
+                        throw new ProcessParameterNullException(process, property.Name);
+                }
+                else if (attr.ThrowOnZeroIntegralNumeric && value is ulong ulongValue)
+                {
+                    if (ulongValue == 0)
+                        throw new ProcessParameterNullException(process, property.Name);
+                }
+                else if (attr.ThrowOnZeroIntegralNumeric && value is nint nintValue)
+                {
+                    if (nintValue == 0)
+                        throw new ProcessParameterNullException(process, property.Name);
+                }
+                else if (attr.ThrowOnZeroIntegralNumeric && value is nuint nuintValue)
+                {
+                    if (nuintValue == 0)
+                        throw new ProcessParameterNullException(process, property.Name);
+                }
                 else if (attr.ThrowOnEmptyArray && value is Array arr)
                 {
                     if (arr.Length == 0)
