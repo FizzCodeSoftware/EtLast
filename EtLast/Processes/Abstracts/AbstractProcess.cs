@@ -133,7 +133,7 @@ public abstract class AbstractProcess : IProcess
 
     public abstract void Execute(ICaller caller, FlowState flowState = null);
 
-    protected void BeginExecution(ICaller caller, FlowState flowState, bool overwriteArguments = false)
+    protected void BeginExecution(ICaller caller, FlowState flowState, bool overwriteArguments = true)
     {
         ArgumentNullException.ThrowIfNull(caller);
         FlowState = flowState ?? caller.GetFlowState();
