@@ -10,9 +10,4 @@ public sealed class DbColumn(string rowColumn, string nameOverrideInDatabase = n
     /// Default value is true
     /// </summary>
     public bool Insert { get; init; } = true;
-
-    /// <summary>
-    /// Default value is false
-    /// </summary>
-    public bool IsKey { get; init; }
 }

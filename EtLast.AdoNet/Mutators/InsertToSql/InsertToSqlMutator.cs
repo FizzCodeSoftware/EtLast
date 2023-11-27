@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class WriteToSqlMutator(IEtlContext context)
+public sealed class InsertToSqlMutator(IEtlContext context)
     : AbstractMutator(context), IRowSink
 {
     [ProcessParameterMustHaveValue]
@@ -23,7 +23,7 @@ public sealed class WriteToSqlMutator(IEtlContext context)
     public required DbColumn[] Columns { get; set; }
 
     [ProcessParameterMustHaveValue]
-    public IWriteToSqlStatementCreator SqlStatementCreator { get; init; }
+    public IInsertToSqlStatementCreator SqlStatementCreator { get; init; }
 
     /// <summary>
     /// Default value is 5000
@@ -36,7 +36,6 @@ public sealed class WriteToSqlMutator(IEtlContext context)
     private long _rowsWritten;
 
     private IDbCommand _command;
-    private static readonly DbType[] _quotedParameterTypes = [DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength];
     private long? _sinkUid;
     private Stopwatch _lastWrite;
     private bool _prepared = false;
@@ -126,12 +125,13 @@ public sealed class WriteToSqlMutator(IEtlContext context)
 
     public int ParameterCount => _command?.Parameters.Count ?? 0;
 
-    public void CreateParameter(DbColumn dbColumnDefinition, object value)
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public void CreateParameter(DbType? dbType, object value)
     {
         var parameter = _command.CreateParameter();
         parameter.ParameterName = "@" + _command.Parameters.Count.ToString("D", CultureInfo.InvariantCulture);
 
-        SetParameter(parameter, value, dbColumnDefinition.DbType);
+        parameter.SetValue(value, dbType);
 
         _command.Parameters.Add(parameter);
     }
@@ -175,7 +175,7 @@ public sealed class WriteToSqlMutator(IEtlContext context)
             exception.Data["TableName"] = ConnectionString.Unescape(TableName);
             exception.Data["Columns"] = string.Join(", ", Columns.Select(x => x.RowColumn + " => " + ConnectionString.Unescape(x.NameInDatabase)));
             exception.Data["SqlStatement"] = sqlStatement;
-            exception.Data["SqlStatementCompiled"] = CompileSql(_command);
+            exception.Data["SqlStatementCompiled"] = _command.CompileSql();
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["SqlStatementCreator"] = SqlStatementCreator.GetType().GetFriendlyTypeName();
             exception.Data["TotalRowsWritten"] = _rowsWritten;
@@ -187,94 +187,18 @@ public sealed class WriteToSqlMutator(IEtlContext context)
         _command = null;
         _statements.Clear();
     }
-
-    private static string CompileSql(IDbCommand command)
-    {
-        var cmd = command.CommandText;
-
-        var arrParams = new IDbDataParameter[command.Parameters.Count];
-        command.Parameters.CopyTo(arrParams, 0);
-
-        foreach (var p in arrParams.OrderByDescending(p => p.ParameterName.Length))
-        {
-            var value = p.Value != null
-                ? Convert.ToString(p.Value, CultureInfo.InvariantCulture)
-                : "NULL";
-
-            if (_quotedParameterTypes.Contains(p.DbType))
-            {
-                value = "'" + value + "'";
-            }
-
-            cmd = cmd.Replace(p.ParameterName, value, StringComparison.InvariantCultureIgnoreCase);
-        }
-
-        var sb = new StringBuilder();
-        sb.AppendLine(cmd);
-
-        foreach (var p in arrParams)
-        {
-            sb
-                .Append("-- ")
-                .Append(p.ParameterName)
-                .Append(" (DB: ")
-                .Append(p.DbType.ToString())
-                .Append(") = ")
-                .Append(p.Value != null ? Convert.ToString(p.Value, CultureInfo.InvariantCulture) + " (" + p.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")
-                .Append(", prec: ")
-                .Append(p.Precision)
-                .Append(", scale: ")
-                .Append(p.Scale)
-                .AppendLine();
-        }
-
-        return sb.ToString();
-    }
-
-    public static void SetParameter(IDbDataParameter parameter, object value, DbType? dbType)
-    {
-        if (value == null)
-        {
-            if (dbType != null)
-                parameter.DbType = dbType.Value;
-
-            parameter.Value = DBNull.Value;
-            return;
-        }
-
-        if (dbType == null)
-        {
-            if (value is DateTime)
-            {
-                parameter.DbType = DbType.DateTime2;
-            }
-
-            if (value is double)
-            {
-                parameter.DbType = DbType.Decimal;
-                parameter.Precision = 38;
-                parameter.Scale = 18;
-            }
-        }
-        else
-        {
-            parameter.DbType = dbType.Value;
-        }
-
-        parameter.Value = value;
-    }
 }
 
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-public static class WriteToSqlMutatorFluent
+public static class InsertToSqlMutatorFluent
 {
     /// <summary>
-    /// Write rows to a database table in batches, using statements generated by any implementation of <see cref="IWriteToSqlStatementCreator"/>.
+    /// Insert rows into a database table in batches, using statements generated by any implementation of <see cref="IInsertToSqlStatementCreator"/>.
     /// <para>Doesn't create or suppress any transaction scope.</para>
-    /// <para>Doesn't support retrying the SQL operation and any failure will put the ETL context into a failed state.</para>
+    /// <para>Doesn't support retrying the SQL operation and any failure will put the flow into a failed state.</para>
     /// <para>It is not recommended to use this mutator to access a remote SQL database.</para>
     /// </summary>
-    public static IFluentSequenceMutatorBuilder WriteToSql(this IFluentSequenceMutatorBuilder builder, WriteToSqlMutator mutator)
+    public static IFluentSequenceMutatorBuilder InsertToSql(this IFluentSequenceMutatorBuilder builder, InsertToSqlMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

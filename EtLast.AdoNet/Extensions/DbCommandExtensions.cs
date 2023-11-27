@@ -28,4 +28,49 @@ public static class DbCommandExtensions
             command.Parameters.Add(parameter);
         }
     }
+
+    private static readonly DbType[] _quotedParameterTypes = [DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength];
+
+    public static string CompileSql(this IDbCommand command)
+    {
+        var cmd = command.CommandText;
+
+        var arrParams = new IDbDataParameter[command.Parameters.Count];
+        command.Parameters.CopyTo(arrParams, 0);
+
+        foreach (var p in arrParams.OrderByDescending(p => p.ParameterName.Length))
+        {
+            var value = p.Value != null
+                ? Convert.ToString(p.Value, CultureInfo.InvariantCulture)
+                : "NULL";
+
+            if (_quotedParameterTypes.Contains(p.DbType))
+            {
+                value = "'" + value + "'";
+            }
+
+            cmd = cmd.Replace(p.ParameterName, value, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine(cmd);
+
+        foreach (var p in arrParams)
+        {
+            sb
+                .Append("-- ")
+                .Append(p.ParameterName)
+                .Append(" (DB: ")
+                .Append(p.DbType.ToString())
+                .Append(") = ")
+                .Append(p.Value != null ? Convert.ToString(p.Value, CultureInfo.InvariantCulture) + " (" + p.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")
+                .Append(", prec: ")
+                .Append(p.Precision)
+                .Append(", scale: ")
+                .Append(p.Scale)
+                .AppendLine();
+        }
+
+        return sb.ToString();
+    }
 }

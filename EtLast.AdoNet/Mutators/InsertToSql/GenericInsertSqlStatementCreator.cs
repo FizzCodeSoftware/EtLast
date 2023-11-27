@@ -1,23 +1,23 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class GenericInsertSqlStatementCreator : IWriteToSqlStatementCreator
+public sealed class GenericInsertSqlStatementCreator : IInsertToSqlStatementCreator
 {
     private string _tableName;
     private DbColumn[] _columns;
     private string _columnNamesConcat;
 
-    public void Prepare(WriteToSqlMutator process, string tableName, DbColumn[] columns)
+    public void Prepare(InsertToSqlMutator process, string tableName, DbColumn[] columns)
     {
         _tableName = tableName;
         _columns = columns.Where(x => x.Insert).ToArray();
         _columnNamesConcat = string.Join(", ", _columns.Select(x => x.NameInDatabase));
     }
 
-    public string CreateRowStatement(NamedConnectionString connectionString, IReadOnlySlimRow row, WriteToSqlMutator operation)
+    public string CreateRowStatement(NamedConnectionString connectionString, IReadOnlySlimRow row, InsertToSqlMutator process)
     {
-        var startIndex = operation.ParameterCount;
+        var startIndex = process.ParameterCount;
         foreach (var column in _columns)
-            operation.CreateParameter(column, row[column.RowColumn]);
+            process.CreateParameter(column.DbType, row[column.RowColumn]);
 
         var statement = "(" + string.Join(", ", _columns.Select(_ => "@" + startIndex++.ToString("D", CultureInfo.InvariantCulture))) + ")";
         return statement;
