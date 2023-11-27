@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class MergeDateWithTimeMutator: AbstractMutator
+public sealed class MergeDateWithTimeMutator : AbstractMutator
 {
     [ProcessParameterMustHaveValue]
     public required string TargetColumn { get; init; }

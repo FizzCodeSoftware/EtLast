@@ -5,7 +5,7 @@
 /// - discards input rows on-the-fly
 /// - keeps already yielded row KEYS in memory (!)
 /// </summary>
-public sealed class RemoveDuplicateRowsMutator: AbstractMutator
+public sealed class RemoveDuplicateRowsMutator : AbstractMutator
 {
     [ProcessParameterMustHaveValue]
     public required Func<IReadOnlyRow, string> KeyGenerator { get; init; }

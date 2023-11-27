@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class EpPlusSimpleRowWriterMutator: AbstractMutator, IRowSink
+public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
 {
     [ProcessParameterMustHaveValue]
     public required ISinkProvider SinkProvider { get; init; }

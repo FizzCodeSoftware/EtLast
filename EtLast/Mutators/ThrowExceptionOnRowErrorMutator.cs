@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ThrowExceptionOnRowErrorMutator: AbstractMutator
+public sealed class ThrowExceptionOnRowErrorMutator : AbstractMutator
 {
     protected override void StartMutator()
     {

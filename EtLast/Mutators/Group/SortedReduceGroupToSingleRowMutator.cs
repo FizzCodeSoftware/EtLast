@@ -5,7 +5,7 @@
 /// Group key generation is applied on the input rows on-the-fly. The collected group is processed when a new key is found.
 /// - keeps all row keys in memory (!)
 /// </summary>
-public sealed class SortedReduceGroupToSingleRowMutator: AbstractSequence, IMutator
+public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMutator
 {
     public ISequence Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }

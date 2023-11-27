@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ReplaceEmptyStringWithNullMutator: AbstractSimpleChangeMutator
+public sealed class ReplaceEmptyStringWithNullMutator : AbstractSimpleChangeMutator
 {
     public required string[] Columns { get; init; }
 

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class RemoveColumnMutator: AbstractSimpleChangeMutator
+public sealed class RemoveColumnMutator : AbstractSimpleChangeMutator
 {
     [ProcessParameterMustHaveValue]
     public required string[] Columns { get; init; }

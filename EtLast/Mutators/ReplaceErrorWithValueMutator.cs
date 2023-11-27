@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ReplaceErrorWithValueMutator: AbstractSimpleChangeMutator
+public sealed class ReplaceErrorWithValueMutator : AbstractSimpleChangeMutator
 {
     public required string[] Columns { get; init; }
     public required object Value { get; init; }

@@ -2,7 +2,7 @@
 
 public delegate bool ColumnValidationDelegate(ColumnValidationMutator process, IReadOnlySlimRow row, string column);
 
-public sealed class ColumnValidationMutator: AbstractMutator
+public sealed class ColumnValidationMutator : AbstractMutator
 {
     [ProcessParameterMustHaveValue]
     public required string Column { get; init; }

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ReplaceStringMutator: AbstractMutator
+public sealed class ReplaceStringMutator : AbstractMutator
 {
     [ProcessParameterMustHaveValue]
     public required string ColumnName { get; init; }

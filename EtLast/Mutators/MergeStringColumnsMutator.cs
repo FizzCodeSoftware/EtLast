@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class MergeStringColumnsMutator: AbstractSimpleChangeMutator
+public sealed class MergeStringColumnsMutator : AbstractSimpleChangeMutator
 {
     [ProcessParameterMustHaveValue]
     public required string[] ColumnsToMerge { get; init; }

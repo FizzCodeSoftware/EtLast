@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class RemoveRowMutator: AbstractMutator
+public sealed class RemoveRowMutator : AbstractMutator
 {
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
