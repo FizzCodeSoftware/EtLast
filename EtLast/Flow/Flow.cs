@@ -40,7 +40,7 @@ public sealed class Flow : IFlow
 
     public IFlow ExecuteSequenceAndTakeRows(out List<ISlimRow> rows, Action<IFluentSequenceBuilder> sequenceBuilder)
     {
-        rows = null;
+        rows = default;
 
         if (_flowState.IsTerminating)
             return this;
@@ -54,6 +54,24 @@ public sealed class Flow : IFlow
             rows = sequence
                 .TakeRowsAndReleaseOwnership(_caller, _flowState)
                 .ToList();
+        }
+
+        return this;
+    }
+
+    public IFlow CalculateVariable<T>(out T variable, Func<T> calculatorFunc)
+    {
+        variable = default;
+
+        if (_flowState.IsTerminating)
+            return this;
+        try
+        {
+            variable = calculatorFunc.Invoke();
+        }
+        catch (Exception ex)
+        {
+            _flowState.AddException(_caller, ex);
         }
 
         return this;

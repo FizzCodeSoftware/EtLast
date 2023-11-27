@@ -13,6 +13,8 @@ public interface IFlow
     public IFlow ExecuteForEach<TElement>(IEnumerable<TElement> elements, Action<TElement> action);
     public IFlow ExecuteForEachIsolated<TElement>(IEnumerable<TElement> elements, Action<TElement, IFlow> action);
 
+    public IFlow CalculateVariable<T>(out T variable, Func<T> calculatorFunc);
+
     /// <summary>
     /// Only continue the execution with the next element when the supplied action returns true.
     /// </summary>
