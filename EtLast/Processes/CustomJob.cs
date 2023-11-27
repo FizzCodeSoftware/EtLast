@@ -35,4 +35,13 @@ public static class CustomJobFluent
             Action = action,
         });
     }
+
+    public static IFlow CustomJob(this IFlow builder, string name, Action action)
+    {
+        return builder.ExecuteProcess(() => new CustomJob(builder.Context)
+        {
+            Name = name,
+            Action = _ => action?.Invoke(),
+        });
+    }
 }
