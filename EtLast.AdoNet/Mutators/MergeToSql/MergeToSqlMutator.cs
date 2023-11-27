@@ -22,7 +22,9 @@ public sealed class MergeToSqlMutator(IEtlContext context)
     [ProcessParameterMustHaveValue]
     public required DbColumn[] KeyColumns { get; set; }
 
-    [ProcessParameterMustHaveValue]
+    /// <summary>
+    /// If set to null, the column names will be used (and escaped) from the first row's <see cref="IReadOnlySlimRow.Values"/>, except the columns set in <see cref="KeyColumns"/>.
+    /// </summary>
     public required DbColumn[] ValueColumns { get; set; }
 
     [ProcessParameterMustHaveValue]
@@ -81,7 +83,10 @@ public sealed class MergeToSqlMutator(IEtlContext context)
 
         InitConnection();
 
-        KeyColumns ??= row.Values.Select(x => new DbColumn(x.Key)).ToArray();
+        ValueColumns ??= row.Values
+            .Where(x => !KeyColumns.Any(kc => kc.RowColumn == x.Key))
+            .Select(x => new DbColumn(x.Key, ConnectionString.Escape(x.Key)))
+            .ToArray();
 
         if (!_prepared)
         {

@@ -19,7 +19,9 @@ public sealed class InsertToSqlMutator(IEtlContext context)
     [ProcessParameterMustHaveValue]
     public required string TableName { get; init; }
 
-    [ProcessParameterMustHaveValue]
+    /// <summary>
+    /// If set to null, the column names will be used (and escaped) from the first row's <see cref="IReadOnlySlimRow.Values"/>.
+    /// </summary>
     public required DbColumn[] Columns { get; set; }
 
     [ProcessParameterMustHaveValue]
@@ -78,7 +80,9 @@ public sealed class InsertToSqlMutator(IEtlContext context)
 
         InitConnection();
 
-        Columns ??= row.Values.Select(x => new DbColumn(x.Key)).ToArray();
+        Columns ??= row.Values
+            .Select(x => new DbColumn(x.Key, ConnectionString.Escape(x.Key)))
+            .ToArray();
 
         if (!_prepared)
         {
