@@ -2,13 +2,17 @@
 
 namespace FizzCode.EtLast;
 
+[ContainsProcessParameterValidation]
 public class HttpStreamProvider : IStreamProvider
 {
     /// <summary>
     /// According to MSDN, it is recommended to reuse HttpClient instances if possible.
     /// https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/http/httpclient-guidelines
     /// </summary>
+    [ProcessParameterMustHaveValue]
     public required HttpClient Client { get; init; }
+
+    [ProcessParameterMustHaveValue]
     public required string Url { get; init; }
 
     /// <summary>
@@ -16,19 +20,7 @@ public class HttpStreamProvider : IStreamProvider
     /// </summary>
     public bool ThrowExceptionWhenFailed { get; init; } = true;
 
-    public string GetTopic()
-    {
-        return Url;
-    }
-
-    public void Validate(IProcess caller)
-    {
-        if (Client == null)
-            throw new ProcessParameterNullException(caller, nameof(Client));
-
-        if (Url == null)
-            throw new ProcessParameterNullException(caller, nameof(Url));
-    }
+    public string GetTopic() => Url;
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {

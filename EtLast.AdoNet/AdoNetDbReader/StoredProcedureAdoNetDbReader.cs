@@ -2,6 +2,7 @@
 
 public sealed class StoredProcedureAdoNetDbReader(IEtlContext context) : AbstractAdoNetDbReader(context)
 {
+    [ProcessParameterMustHaveValue]
     public required string Sql { get; init; }
 
     /// <summary>
@@ -9,25 +10,11 @@ public sealed class StoredProcedureAdoNetDbReader(IEtlContext context) : Abstrac
     /// </summary>
     public required string MainTableName { get; init; }
 
-    protected override CommandType GetCommandType()
-    {
-        return CommandType.StoredProcedure;
-    }
+    protected override CommandType GetCommandType() => CommandType.StoredProcedure;
 
-    public override string GetTopic()
-    {
-        return MainTableName != null
-            ? ConnectionString?.Unescape(MainTableName)
-            : null;
-    }
-
-    protected override void ValidateImpl()
-    {
-        base.ValidateImpl();
-
-        if (string.IsNullOrEmpty(Sql))
-            throw new ProcessParameterNullException(this, nameof(Sql));
-    }
+    public override string GetTopic() => MainTableName != null
+        ? ConnectionString?.Unescape(MainTableName)
+        : null;
 
     protected override string CreateSqlStatement()
     {

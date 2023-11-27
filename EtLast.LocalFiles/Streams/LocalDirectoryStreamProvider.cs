@@ -1,12 +1,15 @@
 ﻿namespace FizzCode.EtLast;
 
+[ContainsProcessParameterValidation]
 public class LocalDirectoryStreamProvider : IStreamProvider
 {
+    [ProcessParameterMustHaveValue]
     public required string Directory { get; init; }
 
     /// <summary>
     /// Default value is "*.*"
     /// </summary>
+    [ProcessParameterMustHaveValue]
     public required string SearchPattern { get; init; } = "*.*";
 
     /// <summary>
@@ -20,15 +23,6 @@ public class LocalDirectoryStreamProvider : IStreamProvider
             ? PathHelpers.GetFriendlyPathName(Directory)
                 + (SearchPattern != null ? @"\" + SearchPattern : "")
             : null;
-    }
-
-    public void Validate(IProcess caller)
-    {
-        if (Directory == null)
-            throw new ProcessParameterNullException(caller, nameof(Directory));
-
-        if (SearchPattern == null)
-            throw new ProcessParameterNullException(caller, nameof(SearchPattern));
     }
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)

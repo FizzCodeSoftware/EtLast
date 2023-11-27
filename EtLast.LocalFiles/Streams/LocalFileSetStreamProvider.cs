@@ -1,7 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
+[ContainsProcessParameterValidation]
 public class LocalFileSetStreamProvider : IStreamProvider
 {
+    [ProcessParameterMustHaveValue]
     public required string[] FileNames { get; init; }
 
     public static FileStreamOptions DefaultOptions => new()
@@ -29,12 +31,6 @@ public class LocalFileSetStreamProvider : IStreamProvider
         return FileNames?.Length > 0
             ? PathHelpers.GetFriendlyPathName(FileNames[0]) + "+" + FileNames.Length.ToString("D", CultureInfo.InvariantCulture) + ""
             : null;
-    }
-
-    public void Validate(IProcess caller)
-    {
-        if (FileNames == null)
-            throw new ProcessParameterNullException(caller, nameof(FileNames));
     }
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)

@@ -2,28 +2,16 @@
 
 public sealed class CustomSqlAdoNetDbReader(IEtlContext context) : AbstractAdoNetDbReader(context)
 {
+    [ProcessParameterMustHaveValue]
     public required string Sql { get; init; }
+
     public required string MainTableName { get; init; }
 
-    protected override CommandType GetCommandType()
-    {
-        return CommandType.Text;
-    }
+    protected override CommandType GetCommandType() => CommandType.Text;
 
-    public override string GetTopic()
-    {
-        return MainTableName != null
-            ? ConnectionString?.Unescape(MainTableName)
-            : null;
-    }
-
-    protected override void ValidateImpl()
-    {
-        base.ValidateImpl();
-
-        if (string.IsNullOrEmpty(Sql))
-            throw new ProcessParameterNullException(this, nameof(Sql));
-    }
+    public override string GetTopic() => MainTableName != null
+        ? ConnectionString?.Unescape(MainTableName)
+        : null;
 
     protected override string CreateSqlStatement()
     {

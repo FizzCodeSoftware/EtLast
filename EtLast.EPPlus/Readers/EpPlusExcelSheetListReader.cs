@@ -2,6 +2,7 @@
 
 public sealed class EpPlusExcelSheetListReader(IEtlContext context) : AbstractRowSource(context)
 {
+    [ProcessParameterMustHaveValue]
     public required IStreamProvider StreamProvider { get; init; }
 
     /// <summary>
@@ -16,10 +17,6 @@ public sealed class EpPlusExcelSheetListReader(IEtlContext context) : AbstractRo
 
     protected override void ValidateImpl()
     {
-        if (StreamProvider == null)
-            throw new ProcessParameterNullException(this, nameof(StreamProvider));
-
-        StreamProvider.Validate(this);
     }
 
     protected override IEnumerable<IRow> Produce()

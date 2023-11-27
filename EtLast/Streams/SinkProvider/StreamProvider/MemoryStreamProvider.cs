@@ -1,7 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
+[ContainsProcessParameterValidation]
 public class MemoryStreamProvider : IStreamProvider
 {
+    [ProcessParameterMustHaveValue]
     public required Func<MemoryStream> StreamCreator { get; init; }
 
     private readonly string _streamName = "MemoryStream";
@@ -9,12 +11,6 @@ public class MemoryStreamProvider : IStreamProvider
     public string GetTopic()
     {
         return _streamName;
-    }
-
-    public void Validate(IProcess caller)
-    {
-        if (StreamCreator == null)
-            throw new ProcessParameterNullException(caller, "StreamProvider." + nameof(StreamCreator));
     }
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)

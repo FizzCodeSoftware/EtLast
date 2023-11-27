@@ -2,6 +2,7 @@
 
 public sealed class EpPlusExcelReader(IEtlContext context) : AbstractEpPlusExcelReader(context)
 {
+    [ProcessParameterMustHaveValue]
     public required IStreamProvider StreamProvider { get; init; }
 
     /// <summary>
@@ -19,11 +20,6 @@ public sealed class EpPlusExcelReader(IEtlContext context) : AbstractEpPlusExcel
 
     protected override void ValidateImpl()
     {
-        if (StreamProvider == null)
-            throw new ProcessParameterNullException(this, nameof(StreamProvider));
-
-        StreamProvider.Validate(this);
-
         if (string.IsNullOrEmpty(SheetName) && SheetIndex == -1)
             throw new ProcessParameterNullException(this, nameof(SheetName));
 

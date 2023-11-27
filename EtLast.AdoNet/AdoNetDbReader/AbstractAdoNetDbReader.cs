@@ -5,6 +5,7 @@ public delegate void ConnectionCreatorDelegate(AbstractAdoNetDbReader process, o
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractAdoNetDbReader : AbstractRowSource
 {
+    [ProcessParameterMustHaveValue]
     public required NamedConnectionString ConnectionString { get; init; }
 
     public Dictionary<string, ReaderColumn> Columns { get; init; }
@@ -45,8 +46,6 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
 
     protected override void ValidateImpl()
     {
-        if (ConnectionString == null)
-            throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
     protected override IEnumerable<IRow> Produce()

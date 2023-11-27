@@ -5,6 +5,7 @@ public enum EpPlusExcelHeaderCellMode { Join, KeepFirst, KeepLast }
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractEpPlusExcelReader : AbstractRowSource
 {
+    [ProcessParameterMustHaveValue]
     public required Dictionary<string, ReaderColumn> Columns { get; init; }
 
     public string SheetName { get; init; }
@@ -53,9 +54,6 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
     {
         if (string.IsNullOrEmpty(SheetName) && SheetIndex == -1)
             throw new ProcessParameterNullException(this, nameof(SheetName));
-
-        if (Columns == null)
-            throw new ProcessParameterNullException(this, nameof(Columns));
     }
 
     protected IEnumerable<IRow> ProduceFrom(NamedStream stream, ExcelPackage package, int streamIndex, string addStreamIndexToColumn)

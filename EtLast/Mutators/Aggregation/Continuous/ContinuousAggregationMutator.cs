@@ -10,12 +10,11 @@
 /// </summary>
 public class ContinuousAggregationMutator(IEtlContext context) : AbstractAggregationMutator(context)
 {
+    [ProcessParameterMustHaveValue]
     public required IContinuousAggregationOperation Operation { get; init; }
 
     protected override void ValidateImpl()
     {
-        if (Operation == null)
-            throw new ProcessParameterNullException(this, nameof(Operation));
     }
 
     protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)

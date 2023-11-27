@@ -12,7 +12,10 @@ public sealed class ReduceGroupToSingleRowMutator(IEtlContext context) : Abstrac
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
 
+    [ProcessParameterMustHaveValue]
     public required Func<IReadOnlyRow, string> KeyGenerator { get; init; }
+
+    [ProcessParameterMustHaveValue]
     public required ReduceGroupToSingleRowDelegate Selector { get; init; }
 
     /// <summary>
@@ -22,11 +25,6 @@ public sealed class ReduceGroupToSingleRowMutator(IEtlContext context) : Abstrac
 
     protected override void ValidateImpl()
     {
-        if (KeyGenerator == null)
-            throw new ProcessParameterNullException(this, nameof(KeyGenerator));
-
-        if (Selector == null)
-            throw new ProcessParameterNullException(this, nameof(Selector));
     }
 
     protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)

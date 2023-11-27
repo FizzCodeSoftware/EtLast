@@ -2,29 +2,20 @@
 
 public sealed class AdoNetDbReader(IEtlContext context) : AbstractAdoNetDbReader(context)
 {
+    [ProcessParameterMustHaveValue]
     public required string TableName { get; init; }
+
     public string CustomWhereClause { get; init; }
     public string CustomOrderByClause { get; init; }
     public int RecordCountLimit { get; init; }
 
-    protected override CommandType GetCommandType()
-    {
-        return CommandType.Text;
-    }
+    protected override CommandType GetCommandType() => CommandType.Text;
 
     public override string GetTopic()
     {
         return TableName != null
             ? ConnectionString?.Unescape(TableName)
             : null;
-    }
-
-    protected override void ValidateImpl()
-    {
-        base.ValidateImpl();
-
-        if (TableName == null)
-            throw new ProcessParameterNullException(this, nameof(TableName));
     }
 
     protected override string CreateSqlStatement()

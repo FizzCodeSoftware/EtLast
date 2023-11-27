@@ -2,7 +2,9 @@
 
 public sealed class BatchedCompareWithRowMutator : AbstractBatchedCrossMutator
 {
+    [ProcessParameterMustHaveValue]
     public required IRowEqualityComparer EqualityComparer { get; init; }
+
     public MatchAction MatchAndEqualsAction { get; init; }
     public MatchAction MatchButDifferentAction { get; init; }
     public NoMatchAction NoMatchAction { get; init; }
@@ -127,9 +129,6 @@ public sealed class BatchedCompareWithRowMutator : AbstractBatchedCrossMutator
         {
             throw new InvalidProcessParameterException(this, nameof(MatchAndEqualsAction) + "&" + nameof(NoMatchAction), null, "at least one of these parameters must use a different action moode: " + nameof(MatchAndEqualsAction) + " or " + nameof(NoMatchAction));
         }
-
-        if (EqualityComparer == null)
-            throw new ProcessParameterNullException(this, nameof(EqualityComparer));
     }
 }
 

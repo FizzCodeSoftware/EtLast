@@ -7,11 +7,14 @@ public delegate IEnumerable<ISlimRow> InMemoryExplodeDelegate(InMemoryExplodeMut
 /// </summary>
 public sealed class InMemoryExplodeMutator(IEtlContext context) : AbstractSequence(context), IMutator
 {
+    [ProcessParameterMustHaveValue]
     public ISequence Input { get; set; }
+
+    [ProcessParameterMustHaveValue]
+    public required InMemoryExplodeDelegate Action { get; init; }
+
     public RowTestDelegate RowFilter { get; set; }
     public RowTagTestDelegate RowTagFilter { get; set; }
-
-    public required InMemoryExplodeDelegate Action { get; init; }
 
     /// <summary>
     /// Default true.

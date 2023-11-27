@@ -3,23 +3,15 @@
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractBatchedCrossMutator : AbstractBatchedMutator
 {
+    [ProcessParameterMustHaveValue]
     public required FilteredRowLookupBuilder LookupBuilder { get; init; }
+
+    [ProcessParameterMustHaveValue]
     public required RowKeyGenerator RowKeyGenerator { get; init; }
 
     protected AbstractBatchedCrossMutator(IEtlContext context)
         : base(context)
     {
-    }
-
-    protected override void ValidateMutator()
-    {
-        base.ValidateMutator();
-
-        if (LookupBuilder == null)
-            throw new ProcessParameterNullException(this, nameof(LookupBuilder));
-
-        if (RowKeyGenerator == null)
-            throw new ProcessParameterNullException(this, nameof(RowKeyGenerator));
     }
 
     protected string GenerateRowKey(IReadOnlyRow row)

@@ -4,7 +4,10 @@ namespace FizzCode.EtLast;
 
 public sealed class JsonElementReader<T>(IEtlContext context) : AbstractRowSource(context)
 {
+    [ProcessParameterMustHaveValue]
     public required IStreamProvider StreamProvider { get; init; }
+
+    [ProcessParameterMustHaveValue]
     public required string ColumnName { get; init; }
 
     public override string GetTopic()
@@ -14,13 +17,6 @@ public sealed class JsonElementReader<T>(IEtlContext context) : AbstractRowSourc
 
     protected override void ValidateImpl()
     {
-        if (StreamProvider == null)
-            throw new ProcessParameterNullException(this, nameof(StreamProvider));
-
-        if (ColumnName == null)
-            throw new ProcessParameterNullException(this, nameof(ColumnName));
-
-        StreamProvider.Validate(this);
     }
 
     protected override IEnumerable<IRow> Produce()

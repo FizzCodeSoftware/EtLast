@@ -21,6 +21,7 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
         var netTimeStopwatch = Stopwatch.StartNew();
         try
         {
+            ValidateParameterAnnotations();
             ValidateImpl();
         }
         catch (Exception ex)

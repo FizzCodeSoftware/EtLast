@@ -2,7 +2,9 @@
 
 public sealed class BatchedJoinMutator : AbstractBatchedCrossMutator
 {
+    [ProcessParameterMustHaveValue]
     public required Dictionary<string, string> Columns { get; init; }
+
     public NoMatchAction NoMatchAction { get; init; }
     public MatchActionDelegate MatchCustomAction { get; init; }
 
@@ -152,9 +154,6 @@ public sealed class BatchedJoinMutator : AbstractBatchedCrossMutator
     protected override void ValidateMutator()
     {
         base.ValidateMutator();
-
-        if (Columns == null)
-            throw new ProcessParameterNullException(this, nameof(Columns));
 
         if (NoMatchAction?.Mode == MatchMode.Custom && NoMatchAction.CustomAction == null)
             throw new ProcessParameterNullException(this, nameof(NoMatchAction) + "." + nameof(NoMatchAction.CustomAction));

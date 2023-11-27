@@ -4,6 +4,7 @@ public enum DelimitedLineHeader { NoHeader, HasHeader, IgnoreHeader }
 
 public sealed class DelimitedLineReader(IEtlContext context) : AbstractRowSource(context)
 {
+    [ProcessParameterMustHaveValue]
     public required IStreamProvider StreamProvider { get; init; }
 
     public Dictionary<string, TextReaderColumn> Columns { get; init; }
@@ -66,11 +67,6 @@ public sealed class DelimitedLineReader(IEtlContext context) : AbstractRowSource
 
     protected override void ValidateImpl()
     {
-        if (StreamProvider == null)
-            throw new ProcessParameterNullException(this, nameof(StreamProvider));
-
-        StreamProvider.Validate(this);
-
         if (Header != DelimitedLineHeader.HasHeader && (ColumnNames == null || ColumnNames.Length == 0))
             throw new ProcessParameterNullException(this, nameof(ColumnNames));
 

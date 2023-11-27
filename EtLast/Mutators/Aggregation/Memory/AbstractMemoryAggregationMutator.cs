@@ -3,6 +3,7 @@
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractMemoryAggregationMutator : AbstractAggregationMutator
 {
+    [ProcessParameterMustHaveValue]
     public required IMemoryAggregationOperation Operation { get; init; }
 
     protected AbstractMemoryAggregationMutator(IEtlContext context)
@@ -14,8 +15,5 @@ public abstract class AbstractMemoryAggregationMutator : AbstractAggregationMuta
     {
         if (KeyGenerator == null)
             throw new ProcessParameterNullException(this, nameof(KeyGenerator));
-
-        if (Operation == null)
-            throw new ProcessParameterNullException(this, nameof(Operation));
     }
 }
