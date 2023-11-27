@@ -1,9 +1,9 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class DetailedDbColumnDefinition(string rowColumn, string dbColumn = null)
+public sealed class DbColumn(string rowColumn, string nameOverrideInDatabase = null)
 {
     public string RowColumn { get; } = rowColumn;
-    public string DbColumn { get; } = dbColumn ?? rowColumn;
+    public string NameInDatabase { get; } = nameOverrideInDatabase ?? rowColumn;
     public DbType? DbType { get; init; }
 
     /// <summary>

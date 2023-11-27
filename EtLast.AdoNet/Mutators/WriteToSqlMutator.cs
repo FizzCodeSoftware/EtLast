@@ -1,6 +1,7 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class WriteToSqlMutator(IEtlContext context) : AbstractMutator(context), IRowSink
+public sealed class WriteToSqlMutator(IEtlContext context)
+    : AbstractMutator(context), IRowSink
 {
     [ProcessParameterMustHaveValue]
     public NamedConnectionString ConnectionString { get; init; }
@@ -15,10 +16,11 @@ public sealed class WriteToSqlMutator(IEtlContext context) : AbstractMutator(con
     /// </summary>
     public int MaximumParameterCount { get; init; } = 30;
 
-    public IDictionary<string, DbType> ColumnTypes { get; init; }
+    [ProcessParameterMustHaveValue]
+    public required string TableName { get; init; }
 
     [ProcessParameterMustHaveValue]
-    public DetailedDbTableDefinition TableDefinition { get; init; }
+    public required DbColumn[] Columns { get; set; }
 
     [ProcessParameterMustHaveValue]
     public IWriteToSqlStatementCreator SqlStatementCreator { get; init; }
@@ -37,10 +39,11 @@ public sealed class WriteToSqlMutator(IEtlContext context) : AbstractMutator(con
     private static readonly DbType[] _quotedParameterTypes = [DbType.AnsiString, DbType.Date, DbType.DateTime, DbType.Guid, DbType.String, DbType.AnsiStringFixedLength, DbType.StringFixedLength];
     private long? _sinkUid;
     private Stopwatch _lastWrite;
+    private bool _prepared = false;
 
     protected override void StartMutator()
     {
-        SqlStatementCreator.Prepare(this, TableDefinition);
+        _prepared = false;
         _rowsWritten = 0;
         _statements = [];
     }
@@ -70,11 +73,19 @@ public sealed class WriteToSqlMutator(IEtlContext context) : AbstractMutator(con
 
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
-        _sinkUid ??= Context.GetSinkUid(ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName));
+        _sinkUid ??= Context.GetSinkUid(ConnectionString.Name, ConnectionString.Unescape(TableName));
 
         Context.RegisterWriteToSink(row, _sinkUid.Value);
 
         InitConnection();
+
+        Columns ??= row.Values.Select(x => new DbColumn(x.Key)).ToArray();
+
+        if (!_prepared)
+        {
+            SqlStatementCreator.Prepare(this, TableName, Columns);
+            _prepared = true;
+        }
 
         lock (_connection.Lock)
         {
@@ -115,7 +126,7 @@ public sealed class WriteToSqlMutator(IEtlContext context) : AbstractMutator(con
 
     public int ParameterCount => _command?.Parameters.Count ?? 0;
 
-    public void CreateParameter(DetailedDbColumnDefinition dbColumnDefinition, object value)
+    public void CreateParameter(DbColumn dbColumnDefinition, object value)
     {
         var parameter = _command.CreateParameter();
         parameter.ParameterName = "@" + _command.Parameters.Count.ToString("D", CultureInfo.InvariantCulture);
@@ -144,7 +155,7 @@ public sealed class WriteToSqlMutator(IEtlContext context) : AbstractMutator(con
 
         _command.CommandText = sqlStatement;
 
-        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteBatch, ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), _command.CommandTimeout, sqlStatement, Transaction.Current.ToIdentifierString(), null,
+        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteBatch, ConnectionString.Name, ConnectionString.Unescape(TableName), _command.CommandTimeout, sqlStatement, Transaction.Current.ToIdentifierString(), null,
             "write to table", null);
 
         try
@@ -159,10 +170,10 @@ public sealed class WriteToSqlMutator(IEtlContext context) : AbstractMutator(con
         {
             var exception = new SqlWriteException(this, ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "db write failed, connection string key: {0}, table: {1}, message: {2}, statement: {3}",
-                ConnectionString.Name, ConnectionString.Unescape(TableDefinition.TableName), ex.Message, sqlStatement));
+                ConnectionString.Name, ConnectionString.Unescape(TableName), ex.Message, sqlStatement));
             exception.Data["ConnectionStringName"] = ConnectionString.Name;
-            exception.Data["TableName"] = ConnectionString.Unescape(TableDefinition.TableName);
-            exception.Data["Columns"] = string.Join(", ", TableDefinition.Columns.Select(x => x.RowColumn + " => " + ConnectionString.Unescape(x.DbColumn)));
+            exception.Data["TableName"] = ConnectionString.Unescape(TableName);
+            exception.Data["Columns"] = string.Join(", ", Columns.Select(x => x.RowColumn + " => " + ConnectionString.Unescape(x.NameInDatabase)));
             exception.Data["SqlStatement"] = sqlStatement;
             exception.Data["SqlStatementCompiled"] = CompileSql(_command);
             exception.Data["Timeout"] = CommandTimeout;
