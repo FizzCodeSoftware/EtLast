@@ -38,7 +38,7 @@ public sealed class Flow : IFlow
         return this;
     }
 
-    public IFlow ExecuteSequenceAndTakeRows(out List<ISlimRow> rows, Action<IFluentSequenceBuilder> sequenceBuilder)
+    public IFlow ExecuteSequenceAndTakeRows(out List<ISlimRow> rows, Func<IFluentSequenceBuilder, ISequenceBuilder> sequenceBuilder)
     {
         rows = default;
 

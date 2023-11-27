@@ -5,7 +5,7 @@ public interface IFlow
     public IEtlContext Context { get; }
 
     public IFlow ExecuteSequence(Func<IFluentSequenceBuilder, ISequenceBuilder> sequenceBuilder);
-    public IFlow ExecuteSequenceAndTakeRows(out List<ISlimRow> rows, Action<IFluentSequenceBuilder> sequenceBuilder);
+    public IFlow ExecuteSequenceAndTakeRows(out List<ISlimRow> rows, Func<IFluentSequenceBuilder, ISequenceBuilder> sequenceBuilder);
 
     public IFlow ExecuteProcess<T>(Func<T> processCreator) where T : IProcess;
     public IFlow ExecuteProcess<T>(out T createdProcess, Func<T> processCreator) where T : IProcess;
