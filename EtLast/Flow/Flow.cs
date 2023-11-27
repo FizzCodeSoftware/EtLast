@@ -21,7 +21,7 @@ public sealed class Flow : IFlow
         return new Flow(context, caller, flowState);
     }
 
-    public IFlow ExecuteSequence(Action<IFluentSequenceBuilder> sequenceBuilder)
+    public IFlow ExecuteSequence(Func<IFluentSequenceBuilder, ISequenceBuilder> sequenceBuilder)
     {
         if (_flowState.IsTerminating)
             return this;
