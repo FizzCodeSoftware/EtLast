@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
+[ContainsProcessParameterValidation]
 public sealed class DbTableDefinition
 {
     [ProcessParameterMustHaveValue]
